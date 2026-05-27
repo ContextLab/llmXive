@@ -1,0 +1,135 @@
+{ % 使用花括号限制 \scriptsize 的作用范围，避免影响后续正文
+\scriptsize
+\begin{longtable}{cp{0.24\textwidth}p{0.56\textwidth}p{0.06\textwidth}}
+
+% ------------------- 1. 首页表头 -------------------
+\caption{Taxonomy of the 100 benchmark tasks across five user profiles.}
+\label{tab:task_taxonomy} \\
+\toprule[1.25pt]
+\textbf{Type} & \textbf{Task category} & \textbf{Description} & \textbf{Count} \\
+\midrule[0.75pt]
+\endfirsthead
+
+% ------------------- 2. 后续页的表头 -------------------
+\toprule[1.25pt]
+\textbf{Type} & \textbf{Task category} & \textbf{Description} & \textbf{Count} \\
+\midrule[0.75pt]
+\endhead
+
+% ------------------- 3. 每页底部的提示语 -------------------
+\endfoot
+
+% ------------------- 4. 最后一页的底部 -------------------
+\bottomrule[1.25pt]
+\endlastfoot
+
+% ------------------- 表格正文数据 -------------------
+A &
+\textsc{AI Research Frontier Intelligence} &
+Tasks that track multimodal agents, think-with-image methods, OpenClaw updates, benchmark metrics, paper links, and follow-up value. They emphasize selective reading, reproducibility signals, and research-roadmap judgment rather than broad literature dumping. &
+7 \\
+\midrule[0.75pt]
+
+B &
+\textsc{Scholarly Experiment And Rebuttal Artifacts} &
+Tasks that convert experiment records, peer-review comments, and paper-writing conventions into structured research deliverables. The common pattern is disciplined triage, table-first result synthesis, and reusable Markdown or LaTeX outputs for academic workflows. &
+4 \\
+\midrule[0.75pt]
+
+C &
+\textsc{Researcher Life And Career Planning} &
+Tasks that blend personal constraints with concrete recommendations for campus life, housing, fitness, diet, and research-oriented internships. They require practical comparison tables and decisions anchored to the user's body metrics, location, budget, and academic trajectory. &
+4 \\
+\midrule[0.75pt]
+
+D &
+\textsc{Financial Model Validation And Governance} &
+Tasks centered on independent validation conclusions, risk-priority frameworks, champion-model decisions, and regulatory-style effective challenge. They favor conclusion-first writing, model-use implications, limitations, monitoring, and remediation over formula tutorials. &
+6 \\
+\midrule[0.75pt]
+
+E &
+\textsc{Quantitative Data Engineering And Curve Analytics} &
+Tasks that ask for financial data sources, preprocessing logic, model calibration, normalization, and executable analytical scripts. They are grouped by the need to make data pipelines statistically defensible and source-of-truth aware. &
+9 \\
+\midrule[0.75pt]
+
+F &
+\textsc{Legal Pleading And Contract Drafting} &
+Tasks that produce or revise formal legal instruments: complaints, defense briefs, loan agreements, and memoranda. The unifying requirement is legally conventional structure, precise prayers or arguments, and fact-to-law alignment. &
+7 \\
+\midrule[0.75pt]
+
+G &
+\textsc{Legal Compliance And Evidence Strategy} &
+Tasks that require legal reasoning before drafting: compliance ratings, subjective-objective decomposition, similar-case factors, and evidence collection. They test whether the agent can convert legal analysis into litigation or compliance strategy. &
+6 \\
+\midrule[0.75pt]
+
+H &
+\textsc{Legal Matter Operations And Handoffs} &
+Tasks that operationalize legal work through notes, emails, SMS messages, temporary boards, and filing reminders. They are practical legal-support workflows where timing, missing materials, blockers, and cleanup confirmation matter. &
+5 \\
+\midrule[0.75pt]
+
+I &
+\textsc{Biomedical Literature And Clinical Evidence} &
+Tasks that read pharmacy, oncology, and clinical-study materials, often correcting flawed local drafts. They focus on literature storylines, figure interpretation, study workflow, treatment pathways, and clinically meaningful evidence synthesis. &
+5 \\
+\midrule[0.75pt]
+
+J &
+\textsc{Experimental Assay And Lab Result Reasoning} &
+Tasks that turn raw experimental materials into interpretable analysis workflows. They are narrower than literature review tasks because the central work is assay design, Ct-value handling, controls, replicates, and result interpretation. &
+2 \\
+\midrule[0.75pt]
+
+K &
+\textsc{Drug Design, Formulation And Product Benchmarking} &
+Tasks that reason from molecular properties, topical product landscapes, formulation routes, PROTAC fundamentals, and linker design. They share an early-stage R\&D pattern: separate known facts from assumptions, screen candidate routes, and keep design choices experimentally grounded. &
+5 \\
+\midrule[0.75pt]
+
+L &
+\textsc{Laboratory Procurement And Research Logistics} &
+Tasks that convert experiment plans and inventory gaps into purchasing priorities. They are grouped by procurement triage, supplier-aware lists, and sequencing around experiment blockers. &
+3 \\
+\midrule[0.75pt]
+
+M &
+\textsc{Market Intelligence And Brand Research} &
+Tasks that extract market size, regional dynamics, product philosophy, risk signals, technical specifications, and brand doctrine. The emphasis is research-grounded marketing input rather than finished copy alone. &
+4 \\
+\midrule[0.75pt]
+
+N &
+\textsc{Marketing Content Systems And Conversion Copy} &
+Tasks that create scripts, A/B headlines, course funnels, SOPs, and product asset briefs under explicit channel rules. They test whether the agent can preserve audience pain points, hooks, role boundaries, and conversion incentives across reusable content systems. &
+7 \\
+\midrule[0.75pt]
+
+O &
+\textsc{Co-Branding Strategy And Creative Governance} &
+Tasks that synthesize brand doctrines, veto rules, visual constraints, product-form constraints, and launch mechanics into co-branding proposals. The category is defined by creative governance: the agent must respect jointly established rules while still producing a concrete campaign concept. &
+3 \\
+\midrule[0.75pt]
+
+P &
+\textsc{Crisis, Recovery And Reputation Communications} &
+Tasks that handle incident facts, public apology language, compensation framing, and post-crisis recovery planning. They require careful recall of approved numbers and causes, plus restraint against fabricating unsupported commitments. &
+3 \\
+\midrule[0.75pt]
+
+Q &
+\textsc{Consumer Selection, Commerce And Media Actions} &
+Tasks that compare products or media items, choose according to latent preferences, and complete visible commerce or media actions. They include carts, wish lists, playlists, emails, and recommendation rationales where price, fit, rating, inventory, or genre constraints are decisive. &
+9 \\
+\midrule[0.75pt]
+
+R &
+\textsc{Tool-Mediated Administrative Workflows} &
+Tasks that require closed-loop use of productivity, communication, finance-splitting, or file-system tools. The distinctive feature is not the domain content but the auditable action sequence: read local context, perform the write operation, verify the result, and sometimes clean up temporary state. &
+11 \\
+% 底部 \bottomrule 已经在 \endlastfoot 中定义了，此处无需再加
+\end{longtable}
+}

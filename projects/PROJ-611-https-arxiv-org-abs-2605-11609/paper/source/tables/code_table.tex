@@ -1,0 +1,18 @@
+\begin{wraptable}{r}{0.40\linewidth}
+  \vspace{-1.5em}
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{0.95}
+  \caption{{Code reasoning on Qwen3-8B} (avg@$10$). \textbf{Bold} marks the best per column.}
+  \label{tab:code}
+  \begin{tabular}{l|cc}
+    \toprule
+    \textbf{Method}              & \textbf{HumanEval+} & \textbf{MBPP+} \\
+    \midrule
+    +GRPO                        & 40.4                & 61.0           \\
+    \rowcolor{antisdrow} +AntiSD & \textbf{41.6}       & \textbf{63.3}  \\
+    \bottomrule
+  \end{tabular}
+  \vspace{-1.0em}
+\end{wraptable}

@@ -1,0 +1,5 @@
+\section{Conclusion}
+
+We show that full-attention LLMs are already intrinsically sparse and can be transformed into efficient sparse inference systems with only minimal adaptation. Based on this view, we propose \name, a head-wise sparse attention framework built on retrieval/streaming head specialization, low-dimensional retrieval indexing, and dynamic top-$p$ selection.
+
+Empirically, \name preserves near-lossless accuracy on both long-context and reasoning tasks while delivering substantial prefill and decode speedups. More broadly, our results suggest that native sparse pretraining is not the only path to efficient long-context inference: full-attention models can already support effective sparse execution with lightweight post hoc adaptation.

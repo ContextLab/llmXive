@@ -1,0 +1,130 @@
+\documentclass[]{rtp_tech_report}
+
+% Extra packages not already in cls
+\usepackage{arydshln}        % dashed lines in tables (\cdashline)
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{textcomp}
+\usepackage{colortbl}
+\usepackage{fixmath}
+\usepackage{algorithmicx,algorithm,algpseudocode}
+\usepackage{soul}
+\usepackage{diagbox}
+\usepackage{comment}
+\usepackage{afterpage}
+\usepackage{nicefrac}
+
+% Keep footnotes on the page where they are introduced.
+\interfootnotelinepenalty=10000
+
+% ---- Custom commands ----
+\newcommand{\name}{{\textsc{RTPurbo}}\xspace}
+% \renewcommand{\method}{\name}  % alias
+
+% Author-comment macros (delete before final)
+\newcommand{\yy}[1]{\textcolor{blue}{\textbf{[YY: #1]}}}
+\newcommand{\zyk}[1]{\textcolor{green!50!black}{zyk: #1}}
+\newcommand{\hs}[1]{{\color{red}#1}}
+
+% Color definitions from source
+\definecolor{L0}{RGB}{0,0,0}
+\definecolor{L1}{RGB}{210,2,0}
+\definecolor{L2}{RGB}{245,197,3}
+\definecolor{L3}{RGB}{249,153,53}
+\definecolor{L4}{RGB}{0,160,234}
+\definecolor{L5}{RGB}{37,172,116}
+\definecolor{L6}{RGB}{139,9,135}
+\definecolor{L7}{RGB}{215,160,80}
+\definecolor{L8}{RGB}{229,223,135}
+\definecolor{L9}{RGB}{130,140,71}
+\definecolor{L10}{RGB}{186,101,81}
+\definecolor{L12}{RGB}{25,99,164}
+\definecolor{L14}{RGB}{178,137,195}
+\definecolor{L17}{RGB}{12,68,85}
+\newcommand{\TBD}[1]{{\colorbox{L2}{\strut\textbf{TODO:} #1}}}
+\newcommand{\PLH}[1]{{\colorbox{L3}{\strut\textit{PLACEHOLDER:} #1}}}
+\newcommand{\SOTA}[1]{\textbf{#1}}
+
+% Algorithm input/output labels
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+% Column type for tabularx
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% ---- Title / Authors / Abstract ----
+\title{Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps}
+
+\author{%
+\parbox{0.9\textwidth}{\centering
+Yanke Zhou$^{1,\sharp}$\hspace{1.0em}%
+Yiduo Li$^{2}$\hspace{1.0em}%
+Hanlin Tang$^{2,\dagger}$\hspace{1.0em}%
+Maohua Li$^{1,\sharp}$\hspace{1.0em}%
+Kan Liu$^{2}$\\[0.45em]
+Lan Tao$^{2}$\hspace{1.0em}%
+Lin Qu$^{2}$\hspace{1.0em}%
+Yuan Yao$^{1,\S}$\hspace{1.0em}%
+Xiaoxing Ma$^{1}$
+}
+}
+
+\affiliation{%
+\parbox{\textwidth}{\centering\small
+$^1$Nanjing University \quad $^2$Alibaba Group
+}
+}
+
+\renewcommand{\contributionlist}{\vspace{-4mm}}
+
+\newcommand{\authorfootnotes}{%
+  \begingroup
+  \renewcommand{\thefootnote}{}%
+  \footnotetext{\textsuperscript{\ensuremath{\dagger}}Project lead \quad \textsuperscript{\S}Corresponding author \quad \textsuperscript{\ensuremath{\sharp}}Work done during internship at Alibaba}%
+  \endgroup
+}
+
+\checkdata[E-mail]{\email{yankezhou@smail.nju.edu.cn wanghaisheng.whs@alibaba-inc.com y.yao@nju.edu.cn}}
+
+\abstract{
+Long-context inference in large language models is bottlenecked by the quadratic cost of full attention. Existing efficient alternatives often rely either on native sparse training or on heuristic token eviction, creating an undesirable trade-off among efficiency, training cost, and accuracy. In this work, we show that full-attention LLMs are already intrinsically sparse and can be transformed into highly sparse models with only minimal adaptation. Our approach is built on three observations: (1) only a small subset of attention heads truly requires full long-context processing; (2) long-range retrieval is governed primarily by a low-dimensional subspace, allowing relevant tokens to be retrieved efficiently with a 16-dimensional indexer; and (3) the useful token budget is strongly query-dependent, making dynamic top-$p$ selection more suitable than fixed top-$k$ sparsification. Based on these insights, we propose \name, which retains the full KV cache only for retrieval heads and introduces a lightweight token indexer for sparse attention. By exploiting the model's intrinsic sparsity, \name achieves sparsification with only a few hundred training steps. Experiments on long-context benchmarks and reasoning tasks show that \name preserves near-lossless accuracy while delivering substantial efficiency gains, including up to a 9.36$\times$ prefill speedup at 1M context and about a 2.01$\times$ decode speedup. These results suggest that strong sparse inference can be obtained from standard full-attention training without expensive native sparse pretraining.
+}
+
+\begin{document}
+\raggedbottom
+
+\maketitle
+\authorfootnotes
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{pic/fig_teaser.pdf}
+    \caption{A teaser view of the efficiency and accuracy gains of \name.}
+    \label{fig:overall}
+\end{figure}
+
+\input{src/intro.tex}
+
+\input{src/motiv.tex}
+
+\input{src/method.tex}
+
+\input{src/exp.tex}
+
+\input{src/conclusion.tex}
+
+\input{src/related.tex}
+
+\newpage
+{
+\small
+\bibliographystyle{plainnat}
+\bibliography{references}
+}
+
+\newpage
+\beginappendix
+
+\input{src/appendix.tex}
+
+\end{document}

@@ -1,0 +1,40 @@
+{
+  "arxiv_id": "2605.22355",
+  "arxiv_url": "https://arxiv.org/abs/2605.22355",
+  "title": "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route Generation",
+  "authors": [
+    "Hanyu Guo",
+    "Jiedong Yang",
+    "Chao Chen",
+    "Longfei Xu",
+    "Kaikui Liu",
+    "Xiangxiang Chu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Public transit route planning traditionally depends on structured map infrastructure and complex routing engines, and no existing dataset supports training models to bypass this dependency. We present TransitLM, a large-scale dataset of over 13 million transit route planning records from four Chinese cities covering 120,845 stations and 13,666 lines, released as a continual pre-training corpus and benchmark data for three evaluation tasks with complementary metrics. Experiments show that an LLM trained on TransitLM produces structurally valid routes at high accuracy and implicitly grounds arbitrary GPS coordinates to appropriate stations without any explicit mapping. These results demonstrate that transit route planning can be learned entirely from data, enabling end-to-end, map-free route generation directly from origin-destination information. The dataset and benchmark are available at https://huggingface.co/datasets/GD-ML/TransitLM, with evaluation code at https://github.com/HotTricker/TransitLM.",
+  "submitted_via": "llmXive dashboard, GitHub issue #224",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/HotTricker/TransitLM"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/cpt_loss_comparison.pdf",
+    "figures/demo_gps_only_route.pdf",
+    "figures/demo_multi_route.pdf",
+    "figures/demo_optimal_route.pdf",
+    "figures/demo_preference_planning.pdf",
+    "figures/heatmap_4cities.pdf",
+    "figures/method.pdf",
+    "figures/method_comparison.pdf",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "references.bib"
+  ]
+}

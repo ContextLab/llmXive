@@ -1,0 +1,141 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{microsoft-tech-report}[2026/04/24 Modern MSR tech report style]
+
+% --------------------------------------------------
+% Packages
+% --------------------------------------------------
+\RequirePackage[a4paper,top=2.2cm,bottom=2.4cm,left=2.4cm,right=2.4cm,headheight=14pt,headsep=16pt,footskip=26pt]{geometry}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+\RequirePackage{microtype}
+\RequirePackage{placeins}
+\RequirePackage{hyphenat}
+\RequirePackage{setspace}
+\RequirePackage[table]{xcolor}
+\RequirePackage{tgheros}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{fancyhdr}
+\RequirePackage{titlesec}
+\RequirePackage{caption}
+\RequirePackage[numbers,sort&compress]{natbib}
+\RequirePackage{graphicx}
+
+% --------------------------------------------------
+% Color System (MODERN + CLEAN)
+% --------------------------------------------------
+\definecolor{msftblue}{HTML}{2563EB}     % primary (modern blue)
+\definecolor{msftaccent}{HTML}{F59E0B}   % accent (orange highlight)
+\definecolor{msftdark}{HTML}{0F172A}     % main text (deep slate)
+\definecolor{msftgray}{HTML}{475569}     % secondary text
+\definecolor{msftline}{HTML}{CBD5E1}     % divider
+\definecolor{msftcard}{HTML}{F1F5F9}     % light background
+
+% --------------------------------------------------
+% Meta
+% --------------------------------------------------
+\newcommand{\microsoftreportlabel}{Microsoft Research}
+\newcommand{\microsoftreportshorttitle}{}
+\newcommand{\techreportlabel}[1]{\renewcommand{\microsoftreportlabel}{#1}}
+\newcommand{\techreportshorttitle}[1]{\renewcommand{\microsoftreportshorttitle}{#1}}
+
+% --------------------------------------------------
+% Typography
+% --------------------------------------------------
+\newcommand{\msftsans}{\fontfamily{qhv}\selectfont}
+\newcommand{\msfttitlefont}{\msftsans\bfseries}
+\newcommand{\msftdatefont}{\rmfamily\itshape}
+
+\newcommand{\msftmetalabel}[1]{{\msftsans\small\bfseries\color{msftblue} #1:}\hspace{0.35em}}
+
+\newcommand{\msftbrandmark}{\includegraphics[height=0.75cm]{figures/microsoft.pdf}}
+
+% --------------------------------------------------
+% Paragraph & spacing
+% --------------------------------------------------
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
+\linespread{1.05} % 更舒服
+
+% --------------------------------------------------
+% Caption Style
+% --------------------------------------------------
+\DeclareCaptionLabelSeparator{custom}{}
+\DeclareCaptionFormat{custom}{{\msftsans\textbf{#1 #2}} #3}
+\captionsetup{
+  singlelinecheck=false,
+  format=custom,
+  labelsep=custom,
+  font=small
+}
+
+% --------------------------------------------------
+% Section Style (More hierarchy)
+% --------------------------------------------------
+\titleformat*{\section}{\Large\msftsans\bfseries\color{msftdark}}
+\titleformat*{\subsection}{\large\msftsans\bfseries\color{msftdark}}
+\titleformat*{\subsubsection}{\normalsize\msftsans\bfseries\color{msftdark}}
+
+\titlespacing*{\section}{0pt}{1.2em}{0.6em}
+\titlespacing*{\subsection}{0pt}{0.9em}{0.4em}
+
+% --------------------------------------------------
+% Abstract
+% --------------------------------------------------
+\renewenvironment{abstract}
+  {%
+    \par\noindent
+    \small
+    \color{msftdark}
+  }
+  {%
+    \par\normalsize
+  }
+
+% --------------------------------------------------
+% Header / Footer
+% --------------------------------------------------
+\fancypagestyle{firstheader}{
+  \fancyhf{}
+  \fancyhead[L]{\footnotesize\msftsans\color{msftgray}\microsoftreportlabel}
+  \fancyhead[R]{\msftbrandmark}
+  \renewcommand{\headrulewidth}{0.8pt}
+  \renewcommand{\headrule}{\hbox to\headwidth{\color{msftline}\leaders\hrule height \headrulewidth\hfill}}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\footnotesize\msftsans\color{msftgray}\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% --------------------------------------------------
+% Title Box (KEY VISUAL UPGRADE)
+% --------------------------------------------------
+\newtcolorbox{msfttitlebox}{
+  enhanced,
+  frame hidden,
+  colback=msftcard,
+  colframe=msftline,
+  boxrule=0.5pt,
+  arc=8pt,
+  left=0.6cm,
+  right=0.6cm,
+  top=0.6cm,
+  bottom=0.6cm,
+  before skip=0pt,
+  after skip=1.2em,
+  drop shadow={opacity=0.06}
+}
+
+% --------------------------------------------------
+% Highlight command (NEW)
+% --------------------------------------------------
+\newcommand{\highlight}[1]{\textcolor{msftaccent}{\textbf{#1}}}
+
+% --------------------------------------------------
+% Subtle divider
+% --------------------------------------------------
+\newcommand{\msftdivider}{
+  \vspace{0.6em}
+  {\color{msftline}\hrule height 0.6pt}
+  \vspace{0.6em}
+}

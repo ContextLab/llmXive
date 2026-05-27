@@ -1,0 +1,31 @@
+\begin{table}[ht]
+  % \vspace{-1em}
+  \caption{\textbf{Component sensitivity on Qwen3-4B-IT-2507.} Single-knob deviations from canonical AntiSD (highlighted). \emph{Speedup} as in Table~\ref{tab:main}. \textbf{Bold} = column best among +AntiSD rows.}
+  \vspace{-0.5em}
+  \label{tab:ablation}
+  \centering
+  \small
+  \setlength{\tabcolsep}{1.5pt}
+  \renewcommand{\arraystretch}{0.95}
+  \begin{tabular}{l|ccc|cccccc|c}
+    \toprule
+    \textbf{Method}          & \textbf{Div} & $\boldsymbol{\tau_{\mathrm{down}}}$ & \textbf{Compose}             & \textbf{AIME24} & \textbf{AIME25} & \textbf{AIME26} & \textbf{HMMT25} & \textbf{Minerva} & \textbf{Average}                                & \textbf{Speedup}      \\
+    \midrule
+    GRPO                     & --           & --                                  & --                           & 67.8            & 57.7            & 63.5            & 34.1            & 33.2             & 51.3\textsubscript{@200}                        & 1.0$\times$           \\
+    \midrule
+    \multirow{7}{*}{+AntiSD} & rev.~KL      & $0.93$                              & add.                         & 64.1            & 49.0            & 58.9            & 32.0            & 43.7             & 49.5\textsubscript{@10}                         & $\times$              \\
+    \cmidrule{2-11}
+                             & JSD          & none                                & add.                         & 72.4            & 66.5            & 72.6            & 44.9            & 46.9             & 60.6\textsubscript{@30}                         & \textbf{10.0$\times$} \\
+                             & JSD          & $0.90$                              & add.                         & 68.8            & 56.5            & 63.1            & 39.6            & 44.6             & 54.5\textsubscript{@20}                         & \textbf{10.0$\times$} \\
+                             & JSD          & $0.95$                              & add.                         & \textbf{77.6}   & 69.4            & 63.4            & 44.7            & 46.2             & 60.3\textsubscript{@110}                        & 6.7$\times$           \\
+    \cmidrule{2-11}
+                             & JSD          & $0.93$                              & mult.                        & 70.8            & 61.5            & 67.6            & 36.6            & 46.1             & 56.5\textsubscript{@170}                        & 5.0$\times$           \\
+                             & JSD          & $0.93$                              & add.\textsuperscript{$\ast$} & 74.8            & 65.3            & 70.1            & 39.4            & \textbf{51.8}    & 60.3\textsubscript{@20}\textsuperscript{$\ast$} & \textbf{10.0$\times$} \\
+    \cmidrule{2-11}
+    \rowcolor{antisdrow}{}   & {JSD}        & {0.93}                              & {add.}                       & 76.6            & \textbf{70.2}   & \textbf{74.4}   & \textbf{46.7}   & 46.4             & \textbf{62.8\textsubscript{@100}}               & \textbf{10.0$\times$} \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip
+  {\footnotesize $\ast$ Gate signal swapped from teacher- to student-perplexity.}
+  \vspace{-.5em}
+\end{table}

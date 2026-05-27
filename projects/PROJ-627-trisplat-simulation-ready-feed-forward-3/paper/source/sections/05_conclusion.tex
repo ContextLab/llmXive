@@ -1,0 +1,7 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented \method, a feed-forward reconstruction model that represents scenes natively as oriented triangle primitives and jointly predicts geometry, appearance, and camera parameters from sparse unposed images in a single forward pass. By anchoring triangle orientation to predicted point-map geometry, warm-starting the orientation field through a mono-normal bootstrap, and bridging soft-to-crisp optimization with a progressive sharpening curriculum, \method attains substantially more accurate surface geometry than Gaussian feed-forward baselines and, because its rendering primitives are themselves the exported mesh, also yields the strongest mesh-rendering quality across RealEstate10K, DL3DV, and zero-shot ScanNet, while sidestepping the primitive-to-mesh degradation that TSDF fusion imposes on Gaussian-based pipelines. The directly exported meshes can be ingested by mainstream physics engines without any post-processing, recasting simulation readiness as a property of the representation itself rather than a downstream conversion problem.
+
+\boldstart{Limitations and future work.}
+The direct export yields a non-manifold triangle soup adequate for rendering and physics but not for applications requiring watertight meshes such as finite-element analysis, and per-pixel prediction ties triangle density to input resolution, leaving topology-aware export and adaptive tessellation as promising future directions.

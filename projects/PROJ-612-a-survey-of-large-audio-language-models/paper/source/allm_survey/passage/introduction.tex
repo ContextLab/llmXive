@@ -1,0 +1,80 @@
+\section{Introduction}
+
+The emergence of Large Language Models (LLMs) \cite {ouyang2022training, achiam2023gpt,touvron2023llama, bai2023qwen, liu2024deepseek, guo2025deepseek} has transformed the landscape of artificial intelligence, establishing a robust foundation for the transition toward unified multimodal frameworks. This evolution into Multimodal Large Language Models (MLLMs) \cite{yan2025position, yan2025survey, team2026qwen3} is designed to emulate the multi-sensory nature of human perception across diverse sensory inputs. Among human senses, \textbf{audio} represents a primary medium for human communication and perception of the environment \cite{latif2023sparks}, as it carries a vast amount of information within its signal. Previous research in audio intelligence relied on modular systems designed for a single task, such as automatic speech recognition\cite{wang2026audio, shi2026qwen3} or sound classification\cite{gemmeke2017audio, kong2020panns}. Latest transition from these artifacts to unified \textbf{Large Audio Language Models (LALMs)} \cite{chu2023qwen, tang2023salmonn, rubenstein2023audiopalm, chu2024qwen2, wu2025step} represents a step for universal audio intelligence.
+
+Despite these remarkable advancements in auditory capabilities, the organic integration of language and audio modalities introduces complex safety and alignment challenges. Textual LLMs primarily address vulnerabilities within discrete text \cite{shi2024large, wang2025comprehensive, yu2025survey, ma2026safety}. In contrast, LALMs introduce the audio modality, which presents a intricate risk landscape \cite{lin2025hidden, chen2025synthetic, aloufi2026evaluation, chen2026hijacking} due to the continuous properties of the acoustic signal. The deployment of LALMs within critical sectors further expands this complex risk landscape, translating these continuous-signal vulnerabilities into real-world threats. However, while the development of these capabilities is expanding, the research landscape remains fragmented and lacks a unified roadmap. Existing research predominantly details architectural innovations \cite{sakshi2025spur, alex2025pal, you2026world} or specific concerns \cite{luong2025llamapartialspoof, li2025dfallm, nguyen2026analyzing}, yet there remains a significant lack of work dedicated to a systematic taxonomy of the safety implications for these systems. Recognizing that intrinsic trustworthiness cannot be guaranteed without a deep understanding of the underlying architecture, this research fragmentation highlights the necessity for a structured review that bridges the gap between mechanisms and safety.
+
+While foundational overviews and reviews of speech models \cite{latif2023sparks, peng2025survey, su2025audio} offer comprehensive insights into auditory perception, they often treat safety and ethical considerations as peripheral topics. Similarly, recent literature focused on evaluation provides a framework  \cite{yang2025towards} for assessing model behavior but lacks a systematic taxonomy of the underlying security threats and safety mechanisms. Although an earlier review has addressed trustworthiness in speech \cite{feng2022review}, they precede the recent shift toward unified generative frameworks, focusing largely on traditional machine learning. And specialized surveys remain predominantly concentrated on singular issues such as the detection of deepfakes and biometric authentication \cite{yi2023audio, li2025survey, pham2025comprehensive}. A comparison with these existing audio surveys is provided in Table \ref{tab:1}, illustrating the lack of literature dedicated to the implications of trustworthiness of these models.
+
+
+% While traditional LLMs primarily grapple with discrete textual vulnerabilities \cite{wang2025comprehensive,yu2025survey,shi2024large,ma2026safety}, LALMs introduce the audio modality, which presents an expansive risk surface due to the continuous and opaque properties of the acoustic signal. The trustworthiness of LALMs must account for the continuous, non-transparent nature of acoustic features \cite{lin2025hidden, chen2025synthetic, aloufi2026evaluation, chen2026hijacking}, where malicious signals—such as psychoacoustic hiders or cross-modal adversarial perturbations—can be seamlessly embedded beyond human perception \cite{qin2019imperceptible}. 
+
+% The deployment of LALMs within critical sectors reveals a broad array of risks inherent to the audio modality, such as the theft of biometric identity and stealthy jailbreak injections designed to subvert the acoustic signal \cite{chen2025audiojailbreak, li2025audiotrust, wang2026hearsay}. While the deployment of these models is expanding, the research landscape regarding the safety of LALMs remains fragmented and currently lacks a unified roadmap. Existing methodologies provide a vital preliminary foundation, yet the field requires more systematic evaluation benchmarks and alignment protocols to ensure that these systems centered on audio are inherently trustworthy \cite{jin2025almguard, lin2025sarsteer, peng2025jalmbench}.
+
+
+
+
+
+% As shown in table \ref{tab:1}, the existing surveys primarily delineate architectural advancements and functional capabilities, yet there remains a conspicuous lack of literature primarily dedicated to their trustworthiness implications. While foundational overviews \cite{latif2023sparks, su2025audio, peng2025survey} and reviews of speech large language models \cite{cui2025recent} offer comprehensive insights into auditory perception and understanding, they often treat safety and ethical considerations as secondary or peripheral topics. In terms of trustworthiness, although traditional speech-centric machine learning has been reviewed \cite{feng2022review}, such works precede the recent paradigm shift toward unified generative LALMs, which introduce unique multimodal vulnerabilities that traditional frameworks fail to capture. Similarly, while recent evaluation-focused literature \cite{yang2025towards} provides a holistic benchmarking framework for assessing model performance, it lacks a systematic taxonomy of the underlying security threats and safety mechanisms themselves. Furthermore, specialized surveys \cite{li2025survey, yi2023audio, pham2025comprehensive} remain predominantly concentrated on the singular issue of deepfake detection and biometric authentication. 
+
+\newcommand{\TableCols}{14}
+\begin{table}[htbp]
+\centering
+\caption{Comparison with existing surveys. }
+\label{tab:survey_comparison}
+\scriptsize % 保持 scriptsize 确保 14 列不溢出
+\setlength{\tabcolsep}{0.3pt} % 极度压缩列间距以适应单栏宽度
+\renewcommand{\arraystretch}{1.3} % 增加行高，使表格更易读
+
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}l c cccccc ccccc c @{}}
+\toprule
+\multirow{2}{*}{\textbf{Survey}} & \multirow{2}{*}{\textbf{Obj.$^{\ddagger}$}} & \multicolumn{6}{c}{\textbf{Trustworthiness$^{\dagger}$}} & \multicolumn{5}{c}{\textbf{Stage$^{\star}$}} & \multirow{2}{*}{\textbf{O}} \\ 
+\cmidrule(lr){3-8} \cmidrule(lr){9-13}
+& & \textbf{H} & \textbf{P} & \textbf{F} & \textbf{S} & \textbf{R} & \textbf{A} & \textbf{D} & \textbf{P} & \textbf{F} & \textbf{D} & \textbf{E} & \\ 
+\midrule
+\YearRow{Year 2022}
+Feng et al. \cite{feng2022review} & S & \xmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\YearRow{Year 2023}
+Latif et al. \cite{latif2023sparks} & A & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+Yi et al. \cite{yi2023audio} & S & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\YearRow{Year 2024}
+Li et al. \cite{li2025survey} & S & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+Pham et al. \cite{pham2025comprehensive} & S & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+Peng et al. \cite{peng2025survey} & A & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+\midrule
+\YearRow{Year 2025}
+Su et al. \cite{su2025audio} & A & \cmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark & \ \cmark \\
+Cui et al. \cite{cui2025recent} & S+M & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+Yang et al. \cite{yang2025towards} & A+M & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
+\midrule
+\textbf{Ours} & A+S+M & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+\bottomrule
+\end{tabular*}
+
+\vspace{1.2mm}
+\raggedright
+\tiny
+$^{\ddagger}$ \textbf{Object}: Audio-LLM (A), Speech-LM (S), Multi-modal LLM (M). \\
+$^{\dagger}$ \textbf{Trustworthiness}: Hallucination (H), Privacy (P), Fairness (F), Safety (S), Robustness (R), Authentication (A). \\
+$^{\star}$ \textbf{Stage}: Data Prep (D), Pre-training (P), Fine-tuning (F), Deployment (D), Evaluation (E).
+\textbf{Outook}: Outlook(O)
+\label{tab:1} 
+\end{table}
+
+Upon reviewing the aforementioned survey and systematically investigating the related literature, we conclude that our survey endeavors to address several questions that existing surveys have not covered. The main contributions of this survey are summarized as follows:
+\begin{itemize}[leftmargin=*]
+   \item \textbf{Systematic Investigation of Endogenous Mechanisms:} We conduct a thorough examination of the internal structures within LALMs, detailing the structural improvements and alignment techniques that support the emergence of logical reasoning. This analysis provides the technical foundation required to understand the evolution toward unified models for auditory intelligence.
+    \item \textbf{Comprehensive Trustworthy Review:} We establish a systematic classification of trustworthiness challenges, identifying critical vulnerabilities including cross-modal jailbreak through acoustic cues, latent acoustic backdoors, and biometric privacy leakage. Additionally, we evaluate the landscape of current leading models through the six pillars of trustworthiness, which consist of hallucination, robustness, safety, privacy, fairness, and authentication.
+    \item \textbf{Identification of Imbalance and Future Framework:} Our analysis reveals a significant imbalance where offensive research has advanced significantly while defensive mechanisms remain limited and reactive. We propose a framework for future research, advocating for a shift toward layered defense architectures, causal auditory world modeling, and intrinsic representation engineering to achieve intrinsically trustworthy audio intelligence.
+\end{itemize}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figure/ALLM_evopath.pdf}
+    \caption{The Evolutionary Roadmap of LALMs from Cascaded Systems to End-to-End Causal Cognition from 2022 to 2026.}
+    \label{fig:2} 
+\end{figure*} 
+
+

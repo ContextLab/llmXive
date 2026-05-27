@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+
+% --- Core packages ---
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{microsoft-tech-report}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{nicefrac}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{xspace}
+\usepackage{pifont}
+\usepackage{wrapfig}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{placeins}
+
+% --- Float placement tuning: prefer top-of-page, spread evenly (1--2 per page) ---
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.0}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.55}
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{0}
+\setcounter{totalnumber}{2}
+% Slightly more breathing room between text and top floats.
+\setlength{\textfloatsep}{14pt plus 2pt minus 4pt}
+
+% --- Author / project macros ---
+\newcommand{\zisu}[1]{\textcolor{blue}{[Zisu: #1]}}
+\newcommand{\ourmethod}{\textsc{SkillOpt}\xspace}
+\newcommand{\na}{--}
+
+% --- Delta-gain annotation (colored, smaller, lowered subscript at the bottom-right) ---
+% \dpos / \dneg render a normal-width colored subscript and are used in tables
+% where the subscript can extend freely to the right without being clipped
+% (e.g. last-column transfer tables 4-6, ablations).
+%
+% \dvalp{NUM}{DELTA} / \dvaln{NUM}{DELTA} wrap a number AND its delta so the
+% black NUMBER stays column-centered: an invisible left phantom of the same
+% width as the right subscript is added, making the cell content symmetric
+% around the number. This is used in the main results table where rows have
+% a colored background (\cellcolor) and the subscript MUST live inside its
+% own cell to avoid being painted over by the next cell's background.
+\definecolor{deltapos}{HTML}{0E8A4A}
+\definecolor{deltaneg}{HTML}{B91C1C}
+\newcommand{\dpos}[1]{\textsubscript{\textcolor{deltapos}{\,+#1}}}
+\newcommand{\dneg}[1]{\textsubscript{\textcolor{deltaneg}{\,$-$#1}}}
+\newcommand{\dvalp}[2]{\hphantom{\textsubscript{+#2}}#1\textsubscript{\textcolor{deltapos}{+#2}}}
+\newcommand{\dvaln}[2]{\hphantom{\textsubscript{$-$#2}}#1\textsubscript{\textcolor{deltaneg}{$-$#2}}}
+
+% --- Tech-report header / running title ---
+\techreportlabel{Microsoft Research}
+\techreportshorttitle{SkillOpt}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=msftblue,
+  citecolor=msftblue,
+  urlcolor=msftblue,
+  pdftitle={SkillOpt: Executive Strategy for Self-Evolving Agent Skills}
+}
+
+\begin{document}
+\thispagestyle{empty}
+
+% =============================================================
+%                         TITLE BLOCK
+% =============================================================
+\noindent
+\begin{minipage}[c]{0.5\linewidth}
+\raggedright
+\raisebox{-0.5\height}{\msftbrandmark}
+\end{minipage}%
+\begin{minipage}[c]{0.49\linewidth}
+\raggedleft
+{\msftdatefont\small\color{msftgray}May 2026}
+\end{minipage}\par
+\vspace{0.35em}
+\noindent{\color{msftline}\rule{\linewidth}{0.8pt}\par}
+
+\vspace{1.0em}
+\begin{center}
+{{\msfttitlefont\fontsize{21}{25}\selectfont\color{msftdark}
+\ourmethod{}: Executive Strategy for\\
+Self-Evolving Agent Skills\par}}
+\vspace{1.25em}
+
+{\normalsize\rmfamily\color{msftdark}
+Yifan Yang$^{1,*,\ddagger}$ \hspace{0.6em}
+Ziyang Gong$^{2,*}$ \hspace{0.6em}
+Weiquan Huang$^{3,*}$ \hspace{0.6em}
+Qihao Yang$^{2,*}$ \hspace{0.6em}
+Ziwei Zhou$^{4,*}$\\[-0.1em]
+Zisu~Huang$^{4,*}$ \hspace{0.6em}
+Yan Li$^{2}$ \hspace{0.6em}
+Xuemei Gao$^{1}$ \hspace{0.6em}
+Qi Dai$^{1}$ \hspace{0.6em}
+Bei Liu$^{1}$\\[-0.1em]
+Kai Qiu$^{1}$ \hspace{0.6em}
+Yuqing Yang$^{1}$ \hspace{0.6em}
+Dongdong Chen$^{1}$ \hspace{0.6em}
+Xue Yang$^{2,\ddagger}$ \hspace{0.6em}
+Chong Luo$^{1}$\par
+}
+\vspace{0.22cm}
+
+{\footnotesize\rmfamily\color{msftgray}
+$^{1}$ Microsoft \quad
+$^{2}$ Shanghai Jiao Tong University \quad
+$^{3}$ Tongji University \quad
+$^{4}$ Fudan University\par
+}
+\end{center}
+
+\vspace{0.45em}
+\begin{msfttitlebox}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.14cm}
+\raggedright
+\nohyphens
+
+\input{sections/0_abstract}
+
+\vspace{0.14cm}
+{\setlength{\parskip}{0.06cm}\small
+{\msftmetalabel{Code}\href{https://aka.ms/SkillOpt}{https://aka.ms/SkillOpt}\par}
+{\msftmetalabel{Correspondence}
+\href{mailto:yifanyang@microsoft.com}{yifanyang@microsoft.com},
+\href{mailto:yangxue2019-sjtu@sjtu.edu.cn}{yangxue2019-sjtu@sjtu.edu.cn}\par}
+}
+\vspace{0.08cm}
+{\footnotesize\rmfamily\itshape\color{msftgray}
+$^{*}$ Equal contribution. \quad $^{\ddagger}$ Corresponding authors.\par
+}
+\end{msfttitlebox}
+
+% =============================================================
+%                         BODY
+% =============================================================
+
+
+
+
+\input{sections/1_introduction}
+\input{sections/2_related_work}
+\input{sections/3_methods}
+\input{sections/4_experiments}
+% \input{sections/5_analysis}
+\FloatBarrier
+\input{sections/conclusion}
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\appendix
+\input{sections/A_appendix}
+
+\end{document}

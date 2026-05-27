@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-26T09:11:41.946414Z'
+current_stage: paper_review
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research'
+updated_at: '2026-05-26T09:11:42.007383Z'

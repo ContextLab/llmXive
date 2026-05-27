@@ -1,0 +1,15 @@
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+We introduced {\bench}, a benchmark for evaluating proactive personal assistant agents in long-horizon workflows, covering 100 multi-turn tasks across five domain-specific personas with hidden intents, inter-task dependencies, and cross-session continuity. By jointly evaluating proactivity and completeness, {\bench} tests whether agents can resolve underspecified requests, reuse prior context, and produce task-ready artifacts in persistent workspaces.
+% Experiments on nine frontier models reveal clear gaps and show that proactivity and completeness capture distinct capabilities. Our analysis further shows that prior context is central to proactive assistance, enabling agents to resolve hidden intents before users state them and reduce avoidable interaction over time.
+Experiments on nine frontier models reveal clear gaps, distinguish proactivity from completeness, and show that prior interaction history helps agents resolve hidden intents while reducing avoidable user interaction.
+
+\section{Limitations}
+\label{sec:limitations}
+
+Our benchmark has several inherent limitations. The users are simulated rather than real humans, which is difficult to avoid because long horizon evaluation with live users is costly, hard to reproduce, and difficult to scale.
+In addition, our experiments use a single agentic scaffold adapted from Nanobot, which provides a controlled evaluation setup but may not capture the full variation introduced by alternative scaffolds, which can add substantial adaptation effort and scaffold-specific confounds.
+% In addition, high quality data in this setting require domain specific users and realistic tasks, which are difficult to construct at scale. We worked with multiple domain experts over several weeks to build and refine the users, tasks, hidden intents, and evaluation criteria.
+% nanobot

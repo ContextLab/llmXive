@@ -1,0 +1,44 @@
+{
+  "arxiv_id": "2605.20682",
+  "arxiv_url": "https://arxiv.org/abs/2605.20682",
+  "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools",
+  "authors": [
+    "Rongbin Tan",
+    "Fangfang Lin",
+    "Zhenlong Yuan",
+    "Min Qiu",
+    "Kejin Cui",
+    "Mengmeng Wang",
+    "Yi Wang",
+    "Zijian Song",
+    "Zhiyuan Wang",
+    "Jiyuan Wang",
+    "Yue Wang",
+    "Shuhan Song\u00a7",
+    "Huawei Cao"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Multimodal large language models (MLLMs) have shown remarkable capability in bridging visual perception and textual reasoning, enabling zero-shot understanding across diverse industrial scenarios. However, their performance in open-vocabulary industrial anomaly detection (IAD) is often limited by domain-misaligned reasoning and hallucinated structural inferences. To address these challenges, we propose \\textbf{IndusAgent}, a tool-augmented agentic framework for open-vocabulary IAD. Specifically, we first construct \\textbf{Indus-CoT}, a structured dataset that integrates global visual observations, high-resolution local patches, and expert normalcy priors, providing supervision for fine-tuning the model on rigorous industrial inspection trajectories. Building on this, IndusAgent dynamically orchestrates a set of external tools, including dynamic region cropping, high-frequency feature enhancement, and prior retrieval, thus enabling the agent to actively resolve visual ambiguities and disentangle subtle anomalies. Furthermore, we introduce a gated reinforcement learning objective that jointly optimizes anomaly classification, localization accuracy, anomaly type reasoning, and efficient tool usage, ensuring that tool invocation occurs only when beneficial. Extensive evaluations on five industrial anomaly benchmarks, including MVTec-AD, VisA, MPDD, DTD, and SDD, demonstrate that IndusAgent achieves state-of-the-art zero-shot performance among all existing methods, validating our robustness and generalization capacity.",
+  "submitted_via": "llmXive dashboard, GitHub issue #221",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "checklist.tex",
+    "fig",
+    "fig/case1.png",
+    "fig/case2.png",
+    "fig/case3.png",
+    "fig/intro16.png",
+    "fig/overview12.png",
+    "fig/show1.png",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "references.bib"
+  ]
+}

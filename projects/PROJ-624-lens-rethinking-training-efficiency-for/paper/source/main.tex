@@ -1,0 +1,244 @@
+\documentclass[11pt]{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{microsoft-tech-report}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{xspace}
+\usepackage{titletoc}
+\usepackage{placeins}  % provides \FloatBarrier
+\usepackage{tcolorbox} % colored boxes for theorems
+\usepackage[ruled,linesnumbered,noend,noline]{algorithm2e} % pseudocode
+\DontPrintSemicolon
+\usepackage{listings}  % for code/JSON in prompt boxes
+\usepackage{hyperref}
+\usepackage{marvosym}
+\tcbuselibrary{theorems,skins,breakable,listings}
+
+% --- Prompt box for LLM prompts ---
+\definecolor{promptbg}{HTML}{F7F7F8}
+\definecolor{promptborder}{HTML}{5B5B5B}
+\newtcolorbox{promptbox}[1][]{
+  colback=promptbg, colframe=promptborder, fonttitle=\bfseries\sffamily,
+  breakable, enhanced, arc=3pt, boxrule=0.8pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  title={#1}
+}
+
+% --- JSON listing style ---
+\lstdefinestyle{json}{
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  columns=fullflexible,
+  literate={"}{\textquotedbl}1,
+}
+
+% --- Appendix TOC toggle ---
+% Set to true to show a local table of contents at the beginning of the Appendix
+\newif\ifappendixtoc
+\appendixtoctrue   % <-- change to \appendixtocfalse to disable
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\definecolor{color_blue}{HTML}{E7EFFA}
+\definecolor{color_green}{HTML}{E6F8E0}
+\definecolor{color_gray}{HTML}{ECECEC}
+\definecolor{pearDark}{HTML}{2980B9}
+\definecolor{theoremblue}{HTML}{EBF5FB}
+\definecolor{theoremborder}{HTML}{2980B9}
+\definecolor{propgreen}{HTML}{EAFAF1}
+\definecolor{propborder}{HTML}{27AE60}
+\definecolor{defyellow}{HTML}{FEF9E7}
+\definecolor{defborder}{HTML}{F39C12}
+\definecolor{remarkgray}{HTML}{F2F3F4}
+\definecolor{remarkborder}{HTML}{7F8C8D}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=msftblue,
+  citecolor=msftblue,
+  urlcolor=msftblue,
+  pdftitle={[Your Paper Title]}          % <-- Replace with your title
+}
+
+% --- Colored theorem-like environments ---
+% Note: tcolorbox labels use the format {prefix}:{label}, e.g., \cref{thm:example}
+\newtcbtheorem[auto counter]{theorem}{Theorem}{
+  colback=theoremblue, colframe=theoremborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Theorem}{Theorems}
+}{thm}
+
+\newtcbtheorem[use counter from=theorem]{proposition}{Proposition}{
+  colback=propgreen, colframe=propborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Proposition}{Propositions}
+}{prop}
+
+\newtcbtheorem[use counter from=theorem]{lemma}{Lemma}{
+  colback=theoremblue, colframe=theoremborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Lemma}{Lemmas}
+}{lem}
+
+\newtcbtheorem[use counter from=theorem]{corollary}{Corollary}{
+  colback=propgreen, colframe=propborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Corollary}{Corollaries}
+}{cor}
+
+\newtcbtheorem[use counter from=theorem]{definition}{Definition}{
+  colback=defyellow, colframe=defborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Definition}{Definitions}
+}{def}
+
+\newtcbtheorem[use counter from=theorem]{assumption}{Assumption}{
+  colback=defyellow, colframe=defborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Assumption}{Assumptions}
+}{asm}
+
+\newtcbtheorem[use counter from=theorem]{remark}{Remark}{
+  colback=remarkgray, colframe=remarkborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Remark}{Remarks}
+}{rem}
+
+% --- Register tcolorbox counters with cleveref ---
+\crefname{tcb@cnt@theorem}{Theorem}{Theorems}
+\crefname{tcb@cnt@proposition}{Proposition}{Propositions}
+\crefname{tcb@cnt@lemma}{Lemma}{Lemmas}
+\crefname{tcb@cnt@corollary}{Corollary}{Corollaries}
+\crefname{tcb@cnt@definition}{Definition}{Definitions}
+\crefname{tcb@cnt@assumption}{Assumption}{Assumptions}
+\crefname{tcb@cnt@remark}{Remark}{Remarks}
+\crefname{algocf}{Algorithm}{Algorithms}
+
+% --- Custom commands (add your own below) ---
+\newcommand{\method}{YourMethod\xspace}   % <-- Replace with your method name
+\techreportshorttitle{[Short Title]}      % <-- Replace with your short title
+
+\begin{document}
+\thispagestyle{empty}
+
+% ============================================================
+%  Header: Microsoft logo + date
+% ============================================================
+\noindent
+\begin{minipage}[c]{0.5\linewidth}
+\raggedright
+\raisebox{-0.5\height}{\msftbrandmark}
+\end{minipage}
+\begin{minipage}[c]{0.49\linewidth}
+\raggedleft
+{\msftdatefont\small\color{msftgray}May, 2026}    % <-- Replace with your date
+\end{minipage}\par
+\vspace{0.35em}
+\noindent{\color{msftline}\rule{\linewidth}{0.8pt}\par}
+
+% ============================================================
+%  Title + Authors
+% ============================================================
+\vspace{1.0em}
+\begin{center}
+{{\msfttitlefont\fontsize{21}{25}\selectfont\color{msftdark}
+Lens: Rethinking Training Efficiency for \\Foundational Text-to-Image Models\par}}                         % <-- Replace with your title
+\vspace{1.25em}
+
+
+
+
+{\normalsize\rmfamily\color{msftdark}
+\hyperref[sec:contributor]{Microsoft Lens Team}\par
+
+
+
+%{\normalsize\rmfamily\color{msftdark}
+%Microsoft Lens-ImageGen Team\par
+% Usage:
+%   $^{number}$   = affiliation
+%   $^{*}$        = equal contribution
+%   $^{\dagger}$  = internship or special note
+%   $^{\ddagger}$ = corresponding author
+% Add \\[-0.1em] between lines if you have many authors
+}
+
+\end{center}
+
+
+
+% ============================================================
+%  Abstract box
+% ============================================================
+\vspace{0.45em}
+\begin{msfttitlebox}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0cm}
+%\raggedright
+%\nohyphens
+
+\input{sections/0_abstract}
+
+\vspace{0.14cm}
+{\setlength{\parskip}{0.06cm}\small
+% Uncomment and fill in the metadata fields you need:
+{\msftmetalabel{Project Page}\href{https://github.com/microsoft/Lens}{https://github.com/microsoft/Lens}\par}
+{\msftmetalabel{Date}May, 2026\par}                % <-- Replace with your date
+}
+
+\end{msfttitlebox}
+\suppressfloats[t]  % Prevent floats from appearing above the abstract on page 1
+
+% ============================================================
+%  Optional teaser figure (uncomment and replace)
+% ============================================================
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\textwidth]{figures/teaser.pdf}
+%   \caption{Your teaser figure caption.}
+%   \label{fig:teaser}
+% \end{figure}
+
+% ============================================================
+%  Main content
+% ============================================================
+
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figures/teaser_half_page.pdf}
+    \caption{
+    Images generated by \textit{Lens} at 1440 resolution. Section~\ref{sec:generation-visualization} provides more visualizations.
+    }
+    \label{fig:teaser}
+\end{figure}
+
+
+\input{sections/1_introduction}
+\input{sections/3_method}
+\input{sections/4_experiment}
+\input{sections/5_conclusion}
+\input{sections/7-author}
+
+\newpage
+\FloatBarrier  % Ensure all floats appear before References
+\bibliography{references}
+\bibliographystyle{unsrtnat}
+
+\newpage
+\input{sections/6-appendix}
+
+
+\end{document}

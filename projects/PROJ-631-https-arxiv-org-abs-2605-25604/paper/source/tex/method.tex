@@ -1,0 +1,92 @@
+\section{Preliminaries}
+Recently, GRPO \citep{grpo} and its variants, including Dynamic Sampling Policy Optimization (DAPO) \citep{dapo} and Group Sequence Policy Optimization (GSPO) \citep{gspo}, have become widely used algorithms for policy optimization due to their simplicity and efficiency. Unlike Proximal Policy Optimization (PPO) \citep{ppo}, GRPO gains more flexibility by eliminating the value model and using relative advantage within group.
+
+GRPO initially calculates the relative advantage for a single reward and then performs policy optimization. However, real-world tasks often have multi-objective requirements. In addition to the accuracy of the task itself, there may be other requirements, such as output length \citep{flashthink, liu2025learn, aggarwal2025l1}, bug rate of generated code \citep{DBLP:journals/ese/TambonDNKDA25, DBLP:conf/icsm/Gao25}, hallucination rate of output content, and correct function call in tool-use \citep{torl, logic_rl}. To adapt to GRPO, the usual solution is to combine the rewards corresponding to multiple objectives to form a final reward for policy optimization.
+
+Formally, given a dataset $\mathcal{D}$, $x$ is the query and $y$ is the response. For the policy model $\pi_\theta$ parameterized by $\theta$, the likelihood by the policy model $\pi_\theta$ is given by $\pi_\theta(y|x) = \prod_{t=1}^{|y|}\pi_\theta(y_i | x, y_{<t})$. In a multi-reward setting, there are $n$ reward functions $r_1, r_2, \cdots, r_n$ for independent objectives. For a given input-output pair $(x_i, y_j)$, the corresponding reward is denoted as $r_k^{(i,j)} = r_k(x_i, y_j) \in [0,1], k=1,2,\cdots,n$. In the usual practice, the reward $r$ ultimately used for strategy optimization is a convex combination of the various reward component:
+\begin{align}
+    r_\text{sum}^{(i,j)} = w_1r_1^{(i,j)} + w_2r_2^{(i,j)} + \cdots + w_nr_n^{(i,j)} = \sum_{k} w_k r_k^{(i,j)}, \sum_k w_k = 1, w_k \in [0, 1],
+\end{align}
+where $w_k$ is the weight hyperparameter corresponding to $r_k$.
+
+For GRPO, each input $x_i$ will sample $G$ rollouts $y_1, y_2, \cdots, y_G$ to calculate the relative advantage:
+\begin{align}
+    A_\text{sum}^{(i,j)} = \frac{r_\text{sum}^{(i,j)} - \text{mean} \left(\left\{ r_\text{sum}^{(i,j)} \right\}_{j=1}^G\right)}{\text{std} \left(\left\{ r_\text{sum}^{(i,j)} \right\}_{j=1}^G\right)}.\label{reward_combination}
+\end{align}
+
+The corresponding policy optimization objective for GRPO can be expressed as:
+\begin{align}
+    \mathcal{J}_\text{GRPO}(\theta) &= \mathbb{E}_{x_i \sim \mathcal{D},\left\{y_j\right\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)} \notag \\ &\left[ \frac{1}{G} \sum_{j=1}^G \frac{1}{|y_j|} \sum_{t=1}^{|y_j|} \min \left( s_{j,t}(\theta) A_\text{sum}^{(i,j)}, \text{clip}(s_{j,t}(\theta), 1 - \epsilon, 1+\epsilon)A_\text{sum}^{(i,j)} \right) \right],\label{GRPO}
+\end{align}
+where $s_{j,t}(\theta) = \frac{\pi_\theta (y_{j,t} | x_i, y_{j, <t})}{\pi_{\theta_\text{old}} (y_{j,t} | x_i, y_{j, <t})}$ is the importance sampling ratio and $\epsilon$ is the clipping range. For clarity, we omit the KL divergence term. The corresponding gradient is as follows:
+\begin{align}
+    \nabla_\theta \mathcal{J}_\text{GRPO}(\theta) &= \mathbb{E}_{x_i \sim \mathcal{D},\left\{y_j\right\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)} \notag \\ \frac{1}{G} \sum_{j=1}^G \frac{1}{|y_j|} \sum_{t=1}^{|y_j|} & \min \left( s_{j,t}(\theta) A_\text{sum}^{(i,j)}, \text{clip}(s_{j,t}(\theta), 1 - \epsilon, 1+\epsilon)A_\text{sum}^{(i,j)} \right) \nabla_\theta \log \pi_\theta (y_{j,t} | x_i, y_{j, <t}).\label{GRPO_gradient}
+\end{align}
+
+Another common multi-reward policy optimization method focuses on convex combinations of advantages rather than rewards, such as Group reward-Decoupled Normalization Policy Optimization (GDPO) \citep{gdpo}. Specifically, the independent reward for each objective is calculated as an independent advantage in a manner similar to GRPO, and these advantages are then combined to obtain the advantage used for policy optimization: 
+\begin{align}
+    A_1^{(i,j)} = \frac{r_1^{(i,j)} - \text{mean} \left(\left\{ r_1^{(i,j)} \right\}_{j=1}^G\right)}{\text{std} \left(\left\{ r_1^{(i,j)} \right\}_{j=1}^G\right)}, \cdots, A_n^{(i,j)} = \frac{r_n^{(i,j)} - \text{mean} \left(\left\{ r_n^{(i,j)} \right\}_{j=1}^G\right)}{\text{std} \left(\left\{ r_n^{(i,j)} \right\}_{j=1}^G\right)}.\label{advantage_combination}
+\end{align}
+
+Then, these individual advantages are combined using a similar convex combination method to obtain a single advantage result:
+\begin{align}
+    A^{(i,j)} = w_1A_1^{(i,j)} + w_2A_2^{(i,j)} + \cdots + w_nA_n^{(i,j)} = \sum_{k} w_k A_k^{(i,j)}, \sum_k w_k = 1, w_k \in [0, 1],\label{advantage_convex}
+\end{align}
+where $w_k$ is the weight hyperparameter corresponding to $A_k$. Based on $A^{(i,j)}$ and Equation \ref{GRPO}, policy optimization is performed to improve the performance of LLM for multiple objectives. GDPO further utilizes batch-wise advantage normalization to maintain training stability.
+
+\section{Method}
+In this section, we will first discuss the shortcomings of the reward combination and advantage combination methods discussed above, and then introduce our proposed DVAO method in detail.
+
+\subsection{Reward Combination and Advantage Combination}
+Having introduced both the reward combination method and the advantage combination method, a natural question arises: \textbf{which method produces a more effective gradient signal for policy optimization?} To answer this, we analyze the magnitude of the mean squared advantage, as the policy gradient is directly proportional to the advantage value in Equation \ref{GRPO_gradient}. Specifically, a larger advantage magnitude leads to a larger policy gradient update, which may cause training instability and hinder convergence in the multi-reward setting. To answer this, we have the following proposition.
+
+\begin{proposition}
+    For a fixed query $x_i$, let $\hat{\rho}_{kl}^i$ denote the sample correlation between $A_k$ and $A_l$ within the group rollout. The reward combination method and the advantage combination method satisfy:
+    \begin{align}
+        \frac{1}{G} \sum_{j=1}^G \left(A_\text{sum}^{(i,j)}\right)^2 \ge \frac{1}{G} \sum_{j=1}^G \left(A^{(i,j)}\right)^2 = \frac{1}{G} \sum_{j=1}^G \left(\sum_k w_k A_k^{(i,j)}\right)^2
+    \end{align}
+    with equality if and only if $\hat{\rho}_{kl}=1$ for all $k \neq l$.
+\end{proposition}
+
+This result reveals that the reward combination method, despite its simplicity, produces advantages with larger squared magnitude on average, leading to larger policy gradients. Although the advantage combination method achieves better results in the magnitude of the advantage, it fails to explicitly consider the correlation between multiple rewards. It is essentially equivalent to making a convex combination of the RL optimization objective composed of multiple independent rewards. Full proof is in Appendix~\ref{appendix:proof_of_proposition_1}.
+
+Formally, based on Equation \ref{GRPO_gradient} and Equation \ref{advantage_convex}, without considering clipping range for brevity, we have:
+\begin{align}
+    \nabla_\theta \mathcal{J}_\text{GRPO}(\theta) &= \mathbb{E}_{x_i \sim \mathcal{D},\left\{y_j\right\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)} \frac{1}{G} \sum_{j=1}^G \frac{1}{|y_j|} \sum_{t=1}^{|y_j|} s_{j,t}(\theta)A^{(i,j)} \nabla_\theta\log \pi_\theta (y_{j,t} | x_i, y_{j, <t}) \notag\\
+    &= \sum_k w_k \nabla_\theta \mathcal{J}_\text{GRPO}(\theta)_k,
+\end{align}
+where $\nabla_\theta\mathcal{J}_\text{GRPO}(\theta)_k$ is the gradient of the RL optimization objective corresponding to $A_k^{(i,j)}$. Therefore, from the perspective of RL gradient, the advantage combination method does not explicitly take into account the correlation between multiple rewards. Furthermore, it is difficult to adjust the training intensity of different RL objectives during dynamic training with fixed hyperparameters of convex combination coefficients $\{w_k\}_{k=1}^n$.
+
+\subsection{Dynamic Variance-adaptive Advantage Optimization}
+The above discussion reveals that the reward combination method, despite its simplicity, produces advantages with larger squared magnitude on average, leading to larger policy gradients. While the advantage combination method alleviates this problem by decoupling the normalization of each objective, it still relies on fixed weights and does not explicitly introduce the correlation between multiple rewards, making it difficult to optimize multiple objectives as a whole. This motivates our proposed \textbf{D}ynamic \textbf{V}ariance-adaptive \textbf{A}dvantage \textbf{O}ptimization, namely \textbf{DVAO}, which further adapts the combination weights according to the reward variance of each objective. At the same time, DVAO has a better advantage magnitude than the reward combination method.
+
+Formally, DVAO replaces the fixed combination weights $w_k$ with dynamic variance-adaptive weights $\tilde{w}_k = \frac{w_k\sigma_k^i}{\sum_l w_l \sigma_l^i}$, which up-weights objectives with higher reward variance and down-weights objectives with lower reward variance in a fully dynamic and data-driven manner, where $\sigma_k^i = \text{std} \left(\left\{ r_k^{(i,j)} \right\}_{j=1}^G\right)$ and $\sigma_\text{sum}^i = \text{std} \left(\left\{ r_\text{sum}^{(i,j)} \right\}_{j=1}^G\right)$ are the corresponding group standard deviations. The DVAO advantage is then computed as:
+\begin{align}
+    A_\text{DVAO}^{(i,j)} = \sum_k \tilde{w}_k A_k^{(i,j)} = \frac{\sum_k w_k \sigma_k^i A_k^{(i,j)}}{\sum_l w_l \sigma_l^i}. \label{DVAO}
+\end{align}
+
+To illustrate the advantage of DVAO over the reward combination method in terms of advantage magnitude, we have the following proposition:
+\begin{proposition}
+\label{proposition_2}
+    For a fixed query $x_i$ and rollout group $\{y_j\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)$, the reward combination method produces a pointwise larger advantage magnitude than DVAO:
+    \begin{align}
+        \left| A_\text{DVAO}^{(i,j)} \right| \le \left| A_\text{sum}^{(i,j)} \right|, \forall j \in \{1, 2, \cdots, G\}
+    \end{align}
+    with equality if and only if $\Cov\left(r_k^{(i,j)}, r_l^{(i,j)}\right) = \sigma_k^i \sigma_l^i$ for all $k \neq l$, i.e., all reward pairs are perfectly positively correlated within the rollout group.
+\end{proposition}
+
+Beyond the pointwise advantage magnitude comparison, we further analyze how DVAO and the advantage combination method differ in their sensitivity to the raw rewards of individual objectives. Full proof is in Appendix~\ref{appendix:proof_of_proposition_2}. This analysis provides a deeper understanding of how DVAO explicitly captures cross-objective interactions, a property that the standard advantage combination method fundamentally lacks. Specifically, we examine the partial derivative of the combined advantage with respect to the raw reward $r_k^{(i,j)}$. This derivative measures how the final advantage responds to a perturbation in the $k$-th objective's reward, reflecting the degree to which each objective influences the overall gradient signal. We have the following proposition:
+\begin{proposition}
+\label{proposition_3}
+    For a fixed query $x_i$, and rollout group $\{y_j\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)$, the sensitivity of the combined advantage with  respect to the $k$-th raw reward $r_k^{(i,j)}$ for the advantage combination method and DVAO are respectively given by:
+    \begin{align}
+        \frac{\partial A^{(i,j)}}{\partial r_k^{(i,j)}} &= \frac{w_k}{\sigma_k^i} \left( 1 - \frac{1}{G} - \frac{1}{G} \left(A_k^{(i,j)}\right)^2 \right), \\
+        \frac{\partial A_\text{DVAO}^{(i,j)}}{\partial r_k^{(i,j)}} &= \frac{\tilde{w}_k}{\sigma_k^i} \left( 1 - \frac{1}{G} - \frac{1}{G} A_\text{DVAO}^{(i,j)} A_k^{(i,j)} \right).
+    \end{align}
+    While the sensitivity of $A^{(i,j)}$ strictly depends on the isolated advantage of the $k$-th objective, the sensitivity of $A_\text{DVAO}^{(i,j)}$ adaptively depends on the cross-term $A_\text{DVAO}^{(i,j)} A_k^{(i,j)}$, allowing it to aggregate global performance information across all objectives within the rollout group.
+\end{proposition}
+
+This result highlights a fundamental difference in the optimization dynamics. In the advantage combination method, the gradient contribution from the $k$-th objective is scaled purely by its own isolated performance $\left(A_k^{(i,j)}\right)^2$, treating the auxiliary objectives as entirely separate tasks. In contrast, DVAO scales the gradient contribution using the cross-interaction term $A_\text{DVAO}^{(i,j)} A_k^{(i,j)}$. This mathematical property proves that DVAO dynamically adjusts the learning signal of the $k$-th objective based on the model's overall multi-objective performance $A_\text{DVAO}^{(i,j)}$ on that specific rollout. Consequently, DVAO automatically modulates the reward sensitivity to reinforce the synergistic alignment of multiple objectives, effectively functioning as a cross-objective, variance-aware regularization mechanism. Full proof is in Appendix~\ref{appendix:proof_of_proposition_3}.
+
+In summary, our proposed DVAO method addresses the fundamental limitations of both standard reward combination and advantage combination methods in multi-reward GRPO. By dynamically adapting combination weights based on the empirical variance of each reward within a rollout group, DVAO achieves two critical theoretical properties. First, as demonstrated in Proposition \ref{proposition_2}, DVAO mitigates the training instability inherent in the raw reward combination method by yielding advantages with a strictly bounded magnitude, preventing overly aggressive policy updates. Second, and perhaps more importantly, Proposition \ref{proposition_3} proves that DVAO goes beyond the naive decoupling of the advantage combination method. By mathematically linking the gradient sensitivity of a single objective to the overall combined advantage $A_\text{DVAO}^{(i,j)} A_k^{(i,j)}$, DVAO introduces an implicit cross-objective regularization mechanism. The learning signal for any individual objective is dynamically modulated by the model's global multi-objective performance on that specific rollout. This context-aware scaling ensures that the policy does not greedily over-optimize a single easy objective at the expense of others, inherently promoting synergistic alignment and a more stable trajectory toward a multi-objective Pareto optimal policy.
+ 

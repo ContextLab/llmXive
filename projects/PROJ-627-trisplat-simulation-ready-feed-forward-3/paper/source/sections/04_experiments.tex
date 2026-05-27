@@ -1,0 +1,174 @@
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate \method along three axes that directly reflect its simulation-ready objective: (i) the quality of the reconstructed surface geometry, (ii) novel-view rendering quality when the exported mesh is consumed by a standard triangle rasterizer, (iii) depth and normal accuracy, and (iv) runtime efficiency. All design choices are additionally validated through controlled ablation studies.
+
+\subsection{Experimental Setup}
+\label{sec:setup}
+
+\boldstart{Datasets.}
+We train on RealEstate10K (RE10K)~\citep{zhou2018stereo} and DL3DV~\citep{ling2024dl3dv} following standard splits~\cite{ye2025yonosplat}. RE10K contains 67{,}477 training and 7{,}289 test scenes collected from real-estate walkthroughs on YouTube, spanning diverse indoor and outdoor environments with camera parameters recovered via structure-from-motion. DL3DV contains over 10{,}000 real-world scenes captured at high resolution, offering richer complexity and wider viewpoint variation than prior datasets. We additionally evaluate zero-shot generalization on 100 held-out scenes from ScanNet~\citep{dai2017scannet} following MeshSplat~\citep{chang2025meshsplat}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/main_re10k_mesh_render.pdf}
+\caption{\textbf{Mesh-rendering comparison on RE10K.} We compare target-view renders obtained from exported meshes using six input views and the same mesh-rendering protocol. TSDF-fused Gaussian baselines blur surfaces, drop structures, or introduce floaters, while \method preserves sharper triangle-rendered detail and more complete silhouettes.}
+\label{fig:nvs_qual_mesh}
+\label{fig:nvs_qual_mesh_re10k}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/main_re10k_textured_mesh.pdf}
+\caption{\textbf{Textured mesh comparison on RE10K.} We visualize exported textured meshes rather than image-space renders, including both textured and geometry-only views. \method yields cleaner triangle surfaces, while TSDF-fused Gaussian baselines over-smooth or fragment geometry.}
+\label{fig:mesh_qual}
+\label{fig:mesh_qual_re10k}
+\end{figure}
+
+\boldstart{Baselines.}
+We compare against feed-forward methods spanning Gaussian splatting and their variants: MVSplat~\citep{chen2024mvsplat} and DepthSplat~\citep{xu2024depthsplat} (cost-volume-based Gaussian models), AnySplat~\citep{jiang2025anysplat} and YoNoSplat~\citep{ye2025yonosplat} (pose-free Gaussian methods), and MeshSplat~\citep{chang2025meshsplat} and SurfelSplat~\citep{daisurfelsplat} (geometry-aware variants).
+
+\boldstart{Metrics.}
+Surface quality is measured by Chamfer Distance (CD), Precision, Recall, and F1 score, computed with the protocol detailed in Appendix~\ref{sec:app_mesh_eval}. Rendering quality is measured by PSNR, SSIM~\citep{wang2004image}, and LPIPS~\citep{zhang2018unreasonable} on mesh. For ScanNet we additionally report depth accuracy (AbsRel, AbsDiff) and normal accuracy (mean angular error, fraction of pixels within $30^\circ$).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/main_depth_normal.pdf}
+\caption{\textbf{Depth and normal comparison on ScanNet.} All models are trained on RE10K and evaluated zero-shot on ScanNet, with depth and surface normals shown for each method. \method produces smoother surface-aligned normals and sharper depth boundaries under this domain shift.}
+\label{fig:depth_normal_qual}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\begin{minipage}[t]{0.60\textwidth}
+\centering
+\caption{\textbf{Quantitative comparison on RE10K with 6 input views.} Following the same mesh-based protocol as Tables~\ref{tab:main_dl3dv_surface} and~\ref{tab:main_dl3dv_nvs}, we additionally include surface-aware variants (MeshSplat~\citep{chang2025meshsplat}, SurfelSplat~\citep{daisurfelsplat}) that target geometric fidelity rather than rendering.
+}
+\label{tab:main_re10k}
+\vspace{-0.4em}
+{\scriptsize
+\setlength{\tabcolsep}{1.8pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|cccc|ccc@{}}
+\toprule
+& \multicolumn{4}{c|}{Surface Quality} & \multicolumn{3}{c}{NVS Quality} \\
+Method & CD\,$\downarrow$ & Prec.\,$\uparrow$ & Rec.\,$\uparrow$ & F1\,$\uparrow$ & PSNR\,$\uparrow$ & SSIM\,$\uparrow$ & LPIPS\,$\downarrow$ \\
+\midrule
+MVSplat       & 0.340 & 0.618 & 0.257 & 0.358 &  13.97 & 0.615 & 0.378 \\
+DepthSplat    & 0.294 & 0.647 & 0.326 & 0.429 & 21.23 & \underline{0.781} & 0.271 \\
+AnySplat      & 0.540 & 0.460 & 0.064 & 0.110 & 18.23 & 0.589 & 0.365 \\
+YoNoSplat     & \underline{0.267} & \underline{0.681} & \underline{0.333} & \underline{0.443} &  \underline{21.94} & 0.753 & \textbf{0.238}  \\
+MeshSplat     & 0.349 & 0.642 & 0.234 & 0.340 & 19.97 & 0.719 & 0.294 \\
+SurfelSplat   & 0.747 & 0.432 & 0.099 & 0.154 &  11.18 & 0.184 & 0.738\\
+\midrule
+\method (Ours) & \textbf{0.190} & \textbf{0.708} & \textbf{0.560} & \textbf{0.622} & \textbf{24.69} & \textbf{0.798} & \underline{0.269} \\
+\bottomrule
+\end{tabular*}
+}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.37\textwidth}
+\centering
+\caption{\textbf{Zero-shot depth and normal evaluation on ScanNet with 6 input views.} All models are trained on RE10K and zero-shot evaluated on ScanNet.
+}
+\label{tab:depth_normal}
+\vspace{-0.4em}
+{\scriptsize
+\setlength{\tabcolsep}{1.8pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|cc|cc@{}}
+\toprule
+& \multicolumn{2}{c|}{Depth} & \multicolumn{2}{c}{Normal} \\
+Method & Rel\,$\downarrow$ & Diff\,$\downarrow$ & Mean\,$\downarrow$ & $<30^\circ$\,$\uparrow$ \\
+\midrule
+MVSplat       & 0.708 & 1.206 & 102.247 & 17.204 \\
+DepthSplat    & 0.279 & 0.595 &  54.861 & 29.403 \\
+AnySplat      & 0.453 & \textbf{0.283} &  55.557 & 25.375 \\
+YoNoSplat     & \underline{0.270} & 0.516 &  \underline{54.110} & \underline{41.047} \\
+MeshSplat     & 0.534 & 0.999 &  59.803 & 31.862 \\
+SurfelSplat   & 0.716 & 1.264 &  75.300 & 16.484 \\
+\midrule
+\method (Ours) & \textbf{0.188} & \underline{0.341} & \textbf{27.901} & \textbf{71.708} \\
+\bottomrule
+\end{tabular*}
+}
+\end{minipage}
+\end{table}
+
+\boldstart{Evaluation protocol and rendering modes.}
+On DL3DV we evaluate with 6, 12, and 24 input views at context gaps of 50--180 frames; on RE10K we evaluate with 6 views at gaps of 50-150 frames; ScanNet is evaluated in a zero-shot setting using RE10K-trained models without fine-tuning. For each method we consider two rendering modes. \emph{Primitive rendering} uses each method's native rasterizer (Gaussian splatting for baselines, triangle splatting for \method). \emph{Mesh rendering} rasterizes the \emph{exported mesh} with a standard triangle rasterizer: Gaussian baselines export meshes via TSDF fusion~\citep{chang2025meshsplat}, whereas \method exports its triangle primitives directly without any auxiliary reconstruction. Because the ultimate goal of \method is a simulation-ready mesh that can be ingested by physics engines and standard graphics pipelines, we adopt \emph{mesh rendering} as the primary rende ring metric throughout the main paper and report \emph{primitive rendering} results in Appendix~\ref{sec:app_prim_render} for reference, together with an explicit primitive-to-mesh degradation analysis. Implementation details are provided in Appendix~\ref{sec:app_implementation}.
+
+\subsection{Surface Reconstruction and Mesh Rendering}
+\label{sec:main_results}
+
+Tables~\ref{tab:main_dl3dv_surface},~\ref{tab:main_dl3dv_nvs}, and~\ref{tab:main_re10k} jointly report the geometric quality of the exported mesh and the novel-view rendering quality when the same mesh is rasterized by a standard triangle pipeline. This unified view directly measures how faithful the reconstructed surface is \emph{and} how well it performs as the actual rendering primitive in downstream pipelines.
+
+\boldstart{Surface geometry.}
+\method consistently produces the most accurate surface geometry across all four metrics on both datasets. On RE10K (Table~\ref{tab:main_re10k}) \method attains a Chamfer Distance of~\textbf{0.190} and an F1 score of~\textbf{0.622}, improving over the strongest Gaussian baseline (YoNoSplat) by~\textbf{0.077} in CD and~\textbf{0.179} in F1. The gap is especially pronounced on Recall ($+$\textbf{0.227}), revealing that TSDF-fused meshes from Gaussian baselines systematically under-cover the ground-truth surface, particularly around thin structures. Dedicated surface-oriented Gaussian variants do not close this gap. MeshSplat achieves surface-like regularity but remains bounded by TSDF discretization, and SurfelSplat degrades substantially on CD and F1. The same pattern holds on DL3DV (Tables~\ref{tab:main_dl3dv_surface} and~\ref{tab:main_dl3dv_nvs}) across 6, 12, and 24 views, showing that \method's geometric advantage is robust to the density of input observations. Qualitative textured mesh visualizations in Figs.~\ref{fig:mesh_qual_re10k} and~\ref{fig:mesh_qual_dl3dv} confirm the numerical trends. TSDF-fused baselines produce bumpy surfaces with floaters and missing thin structures, while \method produces clean triangle meshes that preserve fine-scale geometry.
+
+\boldstart{Mesh rendering.}
+Because the downstream consumer of a simulation-ready representation is a standard triangle rasterizer, we evaluate rendering quality directly on the exported mesh. \method obtains the best mesh-rendering quality across datasets. On RE10K \method reaches~\textbf{24.69}~dB PSNR under mesh rendering, compared to~\textbf{21.94}~dB for the strongest Gaussian baseline, a margin of~$+$\textbf{2.75}~dB. The advantage stems from a structural asymmetry between the two families: Gaussian baselines incur a substantial quality drop when their TSDF-fused meshes are rendered as triangles, because the discretized volume discards the very primitives that produced the original image, whereas in \method the rendering primitives \emph{are} the mesh and no information is lost during export. Qualitative mesh-rendering results in Figs.~\ref{fig:nvs_qual_mesh_re10k} and~\ref{fig:nvs_qual_mesh_dl3dv} visualize this effect: \method preserves sharp edges and thin structures, whereas TSDF-based baselines exhibit blurred boundaries and missing geometry. A complementary analysis of the primitive-rendering mode, corresponding to each method's native rasterization prior to mesh export, is reported in Appendix~\ref{sec:app_prim_render}, together with an explicit primitive-to-mesh degradation summary.
+
+\subsection{Depth and Normal Quality}
+\label{sec:depth_normal}
+
+Table~\ref{tab:depth_normal} evaluates depth and normal accuracy on ScanNet in a zero-shot setting, using RE10K-trained models without fine-tuning. \method achieves an AbsRel of~\textbf{0.188} and an AbsDiff of~\textbf{0.341}, the best among all compared methods. On normal metrics \method outperforms all baselines by a clear margin, with a mean angular error of~\textbf{27.9}$^\circ$ and a $<$30$^\circ$ accuracy of~\textbf{71.7}\%, compared to~\textbf{54.1}$^\circ$ mean error and~\textbf{41.0}\% at $<$30$^\circ$ for the strongest baseline. This improvement directly reflects the geometry-anchored normal pipeline and the bootstrap schedule, which explicitly optimize for orientation quality. Qualitative depth and normal maps in Fig.~\ref{fig:depth_normal_qual} confirm that \method yields smooth, geometrically coherent normals aligned with surface boundaries, whereas Gaussian baselines produce noisy, per-pixel-inconsistent normal fields. Additional novel-view synthesis results on ScanNet are provided in Appendix~\ref{sec:supp_scannet_nvs}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\columnwidth]{figures/efficiency.pdf}
+\vspace{-0.4cm}
+\caption{\textbf{Runtime comparison on DL3DV.} \method produces a usable mesh in well under~\textbf{1.3}\,s for up to 24 input views, while Gaussian feed-forward baselines additionally pay a mesh export cost that scales with the reconstructed volume. Bars beyond the 45\,s axis cap are broken; the exact value is annotated above each bar.}
+% \vspace{-0.3cm}
+\label{fig:efficiency}
+\end{figure}
+
+\subsection{Efficiency}
+\label{sec:efficiency}
+
+Fig.~\ref{fig:efficiency} compares the end-to-end time-to-mesh of all methods on DL3DV at 6, 12, and 24 input views, measured on a single NVIDIA H100 GPU. Because \method's rendering primitives are themselves the mesh, its end-to-end cost equals the feed-forward pass alone: \textbf{0.57}\,s, \textbf{0.62}\,s, and \textbf{1.23}\,s, respectively. Every Gaussian baseline, in contrast, must run an additional TSDF-fusion stage to obtain a mesh consumable by a standard triangle pipeline, and this stage scales with the reconstructed volume rather than with the network. As a result, the fastest Gaussian baseline (AnySplat) takes~\textbf{18.7}\,s at 6 views and~\textbf{33.0}\,s at 24 views, while volumetric cost-volume methods such as DepthSplat reach~\textbf{306}\,s at 24 views. End-to-end, \method is~\textbf{33}$\times$ faster than the fastest Gaussian baseline at 6 views and up to~\textbf{249}$\times$ faster than the slowest baseline at 24 views, and is the only method that remains well under one second per scene at the smallest input setting. This advantage is structural rather than incidental: eliminating the post-hoc mesh-extraction step is precisely what makes the triangle-native representation simulation-ready by design.
+
+\subsection{Simulation-Ready Demonstration}
+\label{sec:sim_demo}
+
+To validate the practical utility of our simulation-ready representation, we load the directly exported meshes from \method into two mainstream physics engines, Unity and NVIDIA Isaac Sim, and demonstrate a range of embodied tasks including rigid-body simulation, collision detection, robot navigation, and robotic grasping (Fig.~\ref{fig:sim_demo}). The exported meshes are consumed without any manual cleanup or format conversion. By contrast, Gaussian baselines require TSDF fusion followed by additional mesh cleaning before they can be loaded into the same engines. Extended simulation experiments are provided in Appendix~\ref{sec:app_simulation}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/main_simulation_demo.pdf}
+\caption{\textbf{Simulation-ready demonstration.} Directly exported \method meshes are loaded into Unity and NVIDIA Isaac Sim for interaction, locomotion, and collision. The same mesh assets can be reused without Gaussian-to-mesh conversion or scene-specific cleanup.}
+\label{fig:sim_demo}
+\end{figure}
+
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+We ablate the four design choices of \method on RE10K with 6 input views; Table~\ref{tab:ablation} reports surface geometry (CD, F1) and mesh-rendering quality (PSNR, LPIPS). Each component targets a distinct failure mode and removing any single one degrades all four metrics by a comparable margin. \emph{Normal anchoring} fixes orientation: replacing it with an unconstrained quaternion lets triangle centers drift, dropping F1 by~\textbf{0.057} and PSNR by~\textbf{1.11}~dB. The \emph{mono-normal bootstrap} resolves the early-stage deadlock between point maps and normals; removing it yields the largest surface degradation (F1~$-$\textbf{0.065}, PSNR~$-$\textbf{1.08}~dB). \emph{Normal refinement} suppresses finite-difference noise at depth edges that otherwise surfaces directly as rasterization artifacts, producing the largest rendering drop (PSNR~$-$\textbf{1.58}~dB, LPIPS~$+$\textbf{0.111}). \emph{Progressive sharpening} avoids the cold-start of hard-edged triangles by providing soft-footprint gradients early on; disabling it lowers PSNR by~\textbf{1.44}~dB and F1 by~\textbf{0.062} while leaving CD nearly unchanged.
+
+
+
+
+
+
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Ablation study on RE10K (6 views).} Each row removes one component from the full model. Geometry metrics are computed on the exported mesh; rendering metrics are reported under mesh rendering.}
+\label{tab:ablation}
+{\footnotesize
+\setlength{\tabcolsep}{5.2pt}
+\renewcommand{\arraystretch}{0.94}
+\begin{tabular}{l|cc|cc}
+\toprule
+& \multicolumn{2}{c|}{Surface Quality} & \multicolumn{2}{c}{NVS Quality} \\
+Configuration & CD $\downarrow$ & F1 $\uparrow$ & PSNR $\uparrow$ & LPIPS $\downarrow$ \\
+\midrule
+Full model                          & 0.190 & 0.708 & 23.25 & 0.318 \\
+\midrule
+w/o normal anchoring                & 0.190 & 0.651 & 22.14 & 0.396 \\
+w/o mono-normal bootstrap           & 0.198 & 0.643 & 22.17 & 0.397 \\
+w/o normal refinement               & 0.193 & 0.649 & 21.67 & 0.429 \\
+w/o progressive sharpening          & 0.191 & 0.646 & 21.81 & 0.416 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

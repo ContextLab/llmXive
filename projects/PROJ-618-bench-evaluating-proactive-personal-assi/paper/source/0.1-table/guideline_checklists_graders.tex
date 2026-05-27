@@ -1,0 +1,31 @@
+\begin{table}[tb]
+\centering
+\caption{Annotation guidelines for checklist items and grader assignment.}
+\label{tab:annotation_checklists}
+\small
+\begin{tabular}{p{0.18\linewidth}p{0.37\linewidth}p{0.35\linewidth}}
+\toprule[1.25pt]
+\textbf{Aspect} & \textbf{Do} $\checkmark$ & \textbf{Avoid} $\times$ \\
+\midrule[0.75pt]
+\textsc{Verifiability} &
+Each item should be checkable from the trajectory, produced artifacts, or tool records. &
+Do not include criteria that require unstated assumptions or external judgment beyond the available evidence. \\
+\midrule[0.75pt]
+\textsc{Atomicity} &
+Each item should cover one requirement whenever possible. &
+Do not combine several independent requirements into one checklist item. \\
+\midrule[0.75pt]
+\textsc{Outcome focus} &
+Write checklist items as final completion conditions. &
+Do not use checklist items to score whether the agent was proactive during the interaction. \\
+\midrule[0.75pt]
+\textsc{Grader choice} &
+Use rubric-based evaluation for semantic criteria and rule-based verification for exact structured criteria. &
+Do not use an LLM rubric when an exact programmatic check is available and reliable. \\
+\midrule[0.75pt]
+\textsc{Auditability} &
+Make the expected evidence clear enough for another expert to inspect the judgment. &
+Do not write criteria whose satisfaction cannot be traced to concrete evidence. \\
+\bottomrule[1.25pt]
+\end{tabular}
+\end{table}

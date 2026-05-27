@@ -1,0 +1,161 @@
+\documentclass{article}
+
+\usepackage{longcat_style}
+
+\settitlelogo{figures/icon/longcat-logo-full.pdf}
+
+\renewcommand{\headeright}{Preprint}
+\renewcommand{\shorttitle}{\benchmark: A Benchmark for Interactive Video World Model Evaluation}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[numbers,compress]{natbib}
+\usepackage{doi}
+\usepackage{xspace}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{pifont}
+\usepackage{subcaption}
+\usepackage{fontawesome5}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{soul}
+\setuldepth{a}
+\usepackage{titletoc}
+\usepackage[capitalize]{cleveref}
+
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+
+\newcommand{\pub}[1]{\color{gray}{\scriptsize{[{#1}]}}}
+
+\definecolor{badgegray}{RGB}{246,247,249}
+\definecolor{badgeborder}{RGB}{215,218,224}
+\definecolor{badgetext}{RGB}{45,50,60}
+\definecolor{githubblack}{RGB}{36,41,47}
+\definecolor{hfamber}{RGB}{255,188,66}
+\definecolor{homepageblue}{RGB}{66,133,244}
+
+\newtcbox{\linkbadgebox}{
+  on line,
+  arc=8pt,
+  boxrule=0.4pt,
+  colback=badgegray,
+  colframe=badgeborder,
+  boxsep=1pt,
+  left=5pt,
+  right=5pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base,
+  nobeforeafter
+}
+
+\newcommand{\linkbadge}[3]{%
+  \href{#1}{%
+    \linkbadgebox{%
+      \textcolor{#2}{#3}%
+    }%
+  }%
+}
+
+\newcommand{\homepage}[1]{%
+  \linkbadge{#1}{badgetext}{\textcolor{homepageblue}{\faGlobe}~\textbf{Homepage}}%
+}
+
+\newcommand{\github}[1]{%
+  \linkbadge{#1}{badgetext}{\textcolor{githubblack}{\faGithub}~\textbf{GitHub}}%
+}
+
+\newcommand{\huggingface}[1]{%
+  \linkbadge{#1}{badgetext}{%
+    \raisebox{-0.12em}{\includegraphics[height=1em]{figures/icon/huggingface.png}}~\textbf{HuggingFace}%
+  }%
+}
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+\vbadness=10000
+
+\input{constant}
+
+\title{\benchmark: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation}
+
+\author{
+  Kaining Ying$^{1}$\thanks{Equal contribution.} \quad
+  Hengrui Hu$^{1}$\footnotemark[1] \quad
+  Siyu Ren$^{2}$ \quad
+  Jiamu Li$^{2}$ \quad
+  Fengjiao Chen$^{2}$ \\
+  \bf{Ziwen Wang$^{2}$ \quad Xuezhi Cao$^{2}$ \quad Xunliang Cai$^{2}$ \quad Henghui Ding$^{1}$\thanks{Correspondence: Henghui Ding \textless\texttt{hhding@fudan.edu.cn}\textgreater}} \\[4pt]
+  $^{1}$Fudan University \quad $^{2}$Meituan Longcat Team \\[7pt]
+  \homepage{https://meituan-longcat.github.io/WBench}
+  \quad
+  \github{https://github.com/meituan-longcat/WBench}
+  \quad
+  \huggingface{https://huggingface.co/datasets/meituan-longcat/wbench}
+}
+
+\begin{document}
+\maketitle
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\linewidth]{figures/teaser.pdf}
+\vspace{-5mm}
+\caption[Overview of \benchmark]{Overview of \textbf{\benchmark}. \textbf{Top:} a multi-turn case with navigation, subject action, event editing, and perspective switching. \textbf{Bottom:} the benchmark design, including world settings, interaction taxonomy, unified navigation control, and evaluation over video quality, setting adherence, interaction adherence~(navigation and semantic interactions), consistency, and physics compliance.}
+\label{fig:teaser}
+\end{figure}
+
+\begin{abstract}
+\input{sec/0_abstract}
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{sec/1_intro}
+\input{sec/2_related}
+\input{sec/3_dataset}
+\input{sec/4_metrics}
+\input{sec/5_experiments}
+\input{sec/6_conclusion}
+
+{
+\small
+\bibliographystyle{unsrtnat}
+\bibliography{neurips_2026}
+}
+
+\appendix
+\crefalias{section}{appendix}
+\crefalias{subsection}{appendix}
+\crefalias{subsubsection}{appendix}
+\input{sec/X_appendix}
+
+\end{document}

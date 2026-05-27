@@ -1,0 +1,47 @@
+{
+  "arxiv_id": "2605.11609",
+  "arxiv_url": "https://arxiv.org/abs/2605.11609",
+  "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information",
+  "authors": [
+    "Guobin Shen",
+    "Xiang Cheng",
+    "Chenxiao Zhao",
+    "Lei Huang",
+    "Jindong Li",
+    "Dongcheng Zhao",
+    "Xing Yu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "On-policy self-distillation, where a student is pulled toward a copy of itself conditioned on privileged context (e.g., a verified solution or feedback), offers a promising direction for advancing reasoning capability without a stronger external teacher. Yet in math reasoning the gains are inconsistent, even when the same approach succeeds elsewhere. A pointwise mutual information analysis traces the failure to the privileged context itself: it inflates the teacher's confidence on tokens already implied by the solution (structural connectives, verifiable claims) and deflates it on deliberation tokens (\"Wait\", \"Let\", \"Maybe\") that drive multi-step search. We propose Anti-Self-Distillation (AntiSD), which ascends a divergence between student and teacher rather than descending it: this reverses the per-token sign and yields a naturally bounded advantage in one step. An entropy-triggered gate disables the term once the teacher entropy collapses, completing a drop-in replacement for default self-distillation. Across five models from 4B to 30B parameters on math reasoning benchmarks, AntiSD reaches the GRPO baseline's accuracy in 2 to 10x fewer training steps and improves final accuracy by up to 11.5 points. AntiSD opens a path to scalable self-improvement, where a language model bootstraps its own reasoning through its training signal.",
+  "submitted_via": "llmXive dashboard, GitHub issue #211",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/FloyedShen/AntiSD"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "arxiv.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "arxiv.tex",
+    "figures",
+    "figures/fig1a_overview.pdf",
+    "figures/fig_pass_k_hmmt.pdf",
+    "figures/fig2b_heatmap.pdf",
+    "figures/fig1b_qn_hmmt25.pdf",
+    "figures/fig_train_dynamics.pdf",
+    "figures/fig_failure_modes.pdf",
+    "figures/fig2a_trace_main_pid24_y20.pdf",
+    "neurips_2026.sty",
+    "refs.bib",
+    "tables",
+    "tables/continual_q4_table.tex",
+    "tables/continual_qn_table.tex",
+    "tables/main_table.tex",
+    "tables/code_table.tex",
+    "tables/ablation_q4_table.tex",
+    "tables/ablation_qn_table.tex"
+  ]
+}

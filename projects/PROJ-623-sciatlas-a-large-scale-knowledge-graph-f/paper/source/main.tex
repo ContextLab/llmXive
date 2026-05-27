@@ -1,0 +1,617 @@
+% ====================
+% DOCUMENT CLASS
+% ====================
+% Use LUMIA style with options: 11pt font, no logo (using text header instead)
+\documentclass[11pt, a4paper]{lumia}
+
+% ====================
+% BIBLIOGRAPHY SETUP
+% ====================
+\usepackage[sort&compress]{natbib}
+\bibliographystyle{plainnat}
+
+% ====================
+% BASIC PACKAGES
+% ====================
+\input{notations}
+% Note: inputenc and fontenc already loaded by lumia.cls
+% \usepackage[utf8]{inputenc}     % already in lumia.cls
+% \usepackage[T1]{fontenc}        % already in lumia.cls
+% \usepackage{microtype}          % already in lumia.cls
+
+% ====================
+% COLORS AND GRAPHICS
+% ====================
+% Note: xcolor already loaded by lumia.cls with dvipsnames
+% \usepackage{xcolor}             % already in lumia.cls
+% \usepackage[dvipsnames]{xcolor} % already in lumia.cls
+\usepackage{graphicx}           % graphics support
+\usepackage{tikz}               % TikZ graphics
+\usepackage[edges]{forest}      % forest trees
+
+% ====================
+% HYPERLINKS AND URLS
+% ====================
+% Note: hyperref already loaded by lumia.cls
+% \usepackage{hyperref}           % already in lumia.cls
+\usepackage{url}                % simple URL typesetting
+\usepackage{xurl}               % extended URL breaking
+
+% ====================
+% TABLES AND ARRAYS
+% ====================
+% Note: tabularx already loaded by lumia.cls
+% \usepackage{tabularx}           % already in lumia.cls
+\usepackage{array}              % extended array and tabular
+% Note: booktabs already loaded by lumia.cls
+% \usepackage{booktabs}           % already in lumia.cls
+\usepackage{longtable}          % multi-page tables
+\usepackage{multirow}           % multirow cells
+\usepackage{makecell}           % enhanced cell formatting
+% Note: xcolor with table option already loaded
+% \usepackage[table]{xcolor}      % already in lumia.cls
+% Note: colortbl already loaded by lumia.cls
+% \usepackage{colortbl}           % already in lumia.cls
+\usepackage{ragged2e}           % ragged text alignment
+
+% ====================
+% MATHEMATICS
+% ====================
+% Note: amsmath, amsfonts, amssymb, amsthm already loaded by lumia.cls
+% \usepackage{amsmath}            % already in lumia.cls
+\usepackage{mathtools}          % additional math tools
+% \usepackage{amsfonts}           % already in lumia.cls
+% \usepackage{amssymb}            % already in lumia.cls
+% \usepackage{amsthm}             % already in lumia.cls
+\usepackage{nicefrac}           % compact symbols for 1/2, etc.
+
+% ====================
+% ALGORITHMS AND CODE
+% ====================
+\usepackage{algorithm}          % algorithm environment
+\usepackage{algorithmicx}       % algorithmic pseudocode
+\usepackage{algpseudocode}      % pseudocode formatting
+\usepackage{listings}           % code listings
+
+% ====================
+% FIGURES AND CAPTIONS
+% ====================
+\usepackage{subcaption}         % subfigures and subcaptions
+% Note: caption already loaded by lumia.cls
+% \usepackage{caption}            % already in lumia.cls
+\usepackage{wrapfig}            % text wrapping around figures
+\usepackage[export]{adjustbox}  % adjustable boxes
+
+% ====================
+% TEXT FORMATTING
+% ====================
+% Note: soul already loaded by lumia.cls
+% \usepackage{soul}               % already in lumia.cls
+\let\comment\undefined
+\usepackage{changes}            % track changes
+\usepackage{xspace}             % intelligent spacing
+\usepackage[normalem]{ulem}     % underlining without affecting emphasis
+\usepackage{CJKutf8}            % CJK character support
+
+% ====================
+% LISTS AND ENUMERATION
+% ====================
+% Note: enumitem already loaded by lumia.cls
+% \usepackage{enumitem}           % already in lumia.cls
+% Note: pifont already loaded by lumia.cls
+% \usepackage{pifont}             % already in lumia.cls
+
+% ====================
+% BOXES AND FRAMES
+% ====================
+% Note: tcolorbox already loaded by lumia.cls
+% \usepackage[most,skins,theorems]{tcolorbox} % already in lumia.cls
+\usepackage[tikz]{bclogo}       % logo boxes
+\usepackage[framemethod=tikz]{mdframed} % framed text
+
+% ====================
+% MISCELLANEOUS
+% ====================
+\usepackage{lipsum}             % lorem ipsum text
+\usepackage{tocloft}            % table of contents formatting
+% Note: fontawesome5 already loaded by lumia.cls
+% \usepackage{fontawesome5}       % already in lumia.cls
+\usepackage{afterpage}          % page break control
+\usepackage{bbding}             % additional symbols
+\usepackage{epigraph}           % epigraphs
+\usepackage{minitoc}            % mini table of contents
+\usepackage{multicol}           % multiple columns
+\usepackage{textgreek}          % Greek text
+\usepackage{graphicx,calc}
+
+% ====================
+% COLUMN TYPE DEFINITIONS
+% ====================
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+
+% ====================
+% THEOREM ENVIRONMENTS
+% ====================
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{lemma}{Lemma}
+
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% ====================
+% COLOR DEFINITIONS
+% ====================
+% Note: darkblue already defined in lumia.cls
+% \definecolor{darkblue}{rgb}{0, 0, 0.5}  % already in lumia.cls
+\definecolor{mygray}{gray}{0.92}
+\definecolor{uclablue}{RGB}{39, 116, 174}
+\definecolor{bigaired}{RGB}{156, 0, 0}
+\definecolor{myblue}{HTML}{598BE7}
+\definecolor{mildblue}{RGB}{31,119,180}
+\definecolor{sectionblue}{RGB}{70, 130, 180}
+\definecolor{methodblue}{RGB}{0, 150, 136}
+\definecolor{bgblue}{RGB}{245,243,253}
+\definecolor{ttblue}{RGB}{91,194,224}
+\definecolor{mygreen}{rgb}{0.64, 0.56, 0.88}
+\definecolor{myyellow}{rgb}{0.68, 0.6, 0.1}
+\definecolor{fancygreen}{rgb}{0.33, 0.68, 0.20}
+\definecolor{salmon}{rgb}{0.94, 0.52, 0.49}
+\definecolor{tablegreen}{rgb}{0.82, 0.94, 0.75}
+\definecolor{tableblue}{rgb}{0.81, 0.90, 0.94}
+\definecolor{tablered}{rgb}{0.97, 0.85, 0.85}
+\definecolor{tableorange}{rgb}{0.96, 0.85, 0.81}
+\definecolor{myorange}{rgb}{1.0, 0.49, 0.0}
+\definecolor{tlgreen}{rgb}{0.33, 0.68, 0.20}
+\definecolor{darkgreen}{RGB}{0,100,0}
+\definecolor{darkred}{RGB}{200, 0, 0}
+% Note: lightblue already defined in lumia.cls
+% \definecolor{lightblue}{RGB}{220,235,250}  % already in lumia.cls
+
+% ====================
+% HYPERREF SETUP
+% ====================
+% \hypersetup{
+%     colorlinks=true, 
+%     citecolor=uclablue, 
+%     linkcolor=bigaired,
+%     urlcolor=darkblue
+% }
+
+% ====================
+% TABLE SETTINGS
+% ====================
+\setlength{\tabcolsep}{6pt}
+\setlength{\fboxsep}{1pt}
+\setlength{\fboxrule}{0.5pt}
+
+% ====================
+% LIST SETTINGS
+% ====================
+\setlist[itemize]{leftmargin=20pt, noitemsep, topsep=0pt}
+
+% ====================
+% CUSTOM COMMANDS
+% ====================
+% Comment commands
+
+
+% Author commands
+
+% Highlighting commands
+\newcommand{\hlblue}[1]{\colorbox{blue!12}{#1}}
+\newcommand{\hlorng}[1]{\colorbox{orange!15}{#1}}
+\newcommand{\hlvio}[1]{\colorbox{violet!12}{#1}}
+\newcommand{\hlgrn}[1]{\colorbox{green!15}{#1}}
+\newcommand{\hlyel}[1]{\colorbox{yellow!20}{#1}}
+\newcommand{\hlpnk}[1]{\colorbox{pink!20}{#1}}
+\newcommand{\hlgry}[1]{\colorbox{black!8}{#1}}
+
+% Symbol commands
+\newcommand{\cmark}{\textcolor{darkgreen}{\boldmath$\checkmark$}}
+\newcommand{\xmark}{\textcolor{darkred}{\boldmath$\times$}}
+\newcommand{\tikzxmark}{%
+\tikz[scale=0.23] {
+    \draw[line width=0.7,line cap=round] (0,0) to [bend left=6] (1,1);
+    \draw[line width=0.7,line cap=round] (0.2,0.95) to [bend right=3] (0.8,0.05);
+}}
+\newcommand{\tikzcmark}{%
+\tikz[scale=0.23] {
+    \draw[line width=0.7,line cap=round] (0.25,0) to [bend left=10] (1,1);
+    \draw[line width=0.8,line cap=round] (0,0.35) to [bend right=1] (0.23,0);
+}}
+
+% Box actions
+\newcommand{\gact}[1]{\fcolorbox{black!40}{gray!12}{\strut #1}}
+\newcommand{\fact}[1]{\fcolorbox{FlowBlue!60!black}{FlowRLrow}{\strut #1}}
+\newcommand{\gmini}[1]{\fcolorbox{black!30}{gray!06}{\scriptsize #1}}
+\newcommand{\repbadgeR}[1]{\,\raisebox{.25ex}{\scriptsize\colorbox{red!10}{\(\times\)\textcolor{red!75!black}{#1}}}}
+
+% Utility commands
+\newcommand{\framework}{\textbf{srl}\xspace}
+\newcommand{\passk}{\emph{Pass@K}}
+\newcommand{\passo}{\emph{Pass@1}}
+\newcommand{\tstyle}[1]{\underline{\textit{#1}}}
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+% Math operators
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\Tr}{Tr}
+
+% ====================
+% ENVIRONMENTS
+% ====================
+% Color paragraph environment
+\newenvironment{MyColorPar}[1]{%
+    \leavevmode\color{#1}\ignorespaces%
+}{%
+}
+
+% Compact list environments
+\newenvironment{itemize*}%
+ {\leftmargini=10pt\begin{itemize}%
+  \setlength{\itemsep}{0pt}%
+  \setlength{\parskip}{0pt}%
+  }%
+ {\end{itemize}}
+
+\newenvironment{enumerate*}%
+ {\begin{enumerate}%
+  \setlength{\itemsep}{0pt}%
+  \setlength{\parskip}{0pt}}%
+ {\end{enumerate}}
+
+% Status cell macro for tables
+\newcommand{\cellstatus}[1]{%
+  \begingroup
+  \StrTrim{#1}[\statusval]%
+  \IfStrEq{\statusval}{Yes}{\cellcolor{yes}\cmark}{}%
+  \IfStrEq{\statusval}{No}{\cellcolor{no}\xmark}{}%
+  \IfBeginWith{\statusval}{Yes (}{\cellcolor{yes}\cmark~\textit{\statusval\unskip}}{}%
+  \IfStrEq{\statusval}{Partial}{\cellcolor{partial}\textbf{Partial}}{}%
+  \IfStrEq{\statusval}{External}{\cellcolor{external}\textbf{External}}{}%
+  \endgroup
+}
+
+% ====================
+% TCOLORBOX STYLES
+% ====================
+\newtcolorbox{myboxi}[1][]{
+  breakable,
+  title=#1,
+  colback=red!5,
+  colbacktitle=red!5,
+  coltitle=black,
+  fonttitle=\bfseries,
+  bottomrule=0pt,
+  toprule=0pt,
+  leftrule=2pt,
+  rightrule=2pt,
+  titlerule=0pt,
+  arc=0pt,
+  outer arc=0pt,
+  colframe=red,
+}
+
+\newtcolorbox{myboxnote}[1][]{
+  breakable,
+  title=#1,
+  colback=orange!0,
+  colbacktitle=orange!0,
+  coltitle=black,
+  fonttitle=\bfseries,
+  bottomrule=0pt,
+  toprule=0pt,
+  leftrule=2pt,
+  rightrule=2pt,
+  titlerule=0pt,
+  arc=0pt,
+  outer arc=0pt,
+  colframe=orange,
+}
+
+\newtcolorbox{myboxii}[1][]{
+  breakable,
+  freelance,
+  title=#1,
+  colback=white,
+  colbacktitle=white,
+  coltitle=black,
+  fonttitle=\bfseries,
+  bottomrule=0pt,
+  boxrule=0pt,
+  colframe=white,
+  overlay unbroken and first={
+  \draw[red!75!black,line width=3pt]
+    ([xshift=5pt]frame.north west) -- 
+    (frame.north west) -- 
+    (frame.south west);
+  \draw[red!75!black,line width=3pt]
+    ([xshift=-5pt]frame.north east) -- 
+    (frame.north east) -- 
+    (frame.south east);
+  },
+  overlay unbroken app={
+  \draw[red!75!black,line width=3pt,line cap=rect]
+    (frame.south west) -- 
+    ([xshift=5pt]frame.south west);
+  \draw[red!75!black,line width=3pt,line cap=rect]
+    (frame.south east) -- 
+    ([xshift=-5pt]frame.south east);
+  },
+  overlay middle and last={
+  \draw[red!75!black,line width=3pt]
+    (frame.north west) -- 
+    (frame.south west);
+  \draw[red!75!black,line width=3pt]
+    (frame.north east) -- 
+    (frame.south east);
+  },
+  overlay last app={
+  \draw[red!75!black,line width=3pt,line cap=rect]
+    (frame.south west) --
+    ([xshift=5pt]frame.south west);
+  \draw[red!75!black,line width=3pt,line cap=rect]
+    (frame.south east) --
+    ([xshift=-5pt]frame.south east);
+  },
+}
+
+\tcbset{
+  takeawaysbox/.style={
+    title=Takeaways,
+    colback=lightblue!80,
+    colframe=black,
+    fonttitle=\bfseries\small,
+    coltitle=white,
+    colbacktitle=black,
+    enhanced,
+    attach boxed title to top left={xshift=2.5mm,yshift=-2.5mm},
+    boxed title style={rounded corners, size=small, colframe=black, colback=black},
+    width=\linewidth,
+    arc=3.5mm
+  }
+}
+
+% ====================
+% MDFRAMED STYLE
+% ====================
+\mdfdefinestyle{mystyle}{%
+  rightline=true,
+  innerleftmargin=10,
+  innerrightmargin=10,
+  outerlinewidth=3pt,
+  topline=false,
+  rightline=true,
+  bottomline=false,
+  skipabove=\topsep,
+  skipbelow=\topsep
+}
+
+% ====================
+% TIKZ STYLES
+% ====================
+\tikzset{%
+    every node/.style={font=\tiny},
+    parent/.style =          {align=center,text width=2cm,rounded corners=3pt, line width=0.3mm, fill=gray!10,draw=gray!80},
+    child/.style =           {align=center,text width=2.0cm,rounded corners=3pt, fill=blue!10,draw=blue!80,line width=0.3mm},
+    grandchild/.style =      {align=center,text width=2cm,rounded corners=3pt},
+    greatgrandchild/.style = {align=center,text width=1.5cm,rounded corners=3pt},
+    greatgrandchild2/.style = {align=center,text width=1.5cm,rounded corners=3pt},    
+    referenceblock/.style =  {align=center,text width=1.5cm,rounded corners=2pt},
+    % Pretrain Model
+    pretrain/.style =           {align=center,text width=2.0cm,rounded corners=3pt, fill=blue!10,draw=blue!80,line width=0.3mm},   
+    pretrain_work/.style =           {align=center, text width=8.5cm,rounded corners=3pt, fill=blue!10,draw=blue!0,line width=0.3mm},  
+    % Template Mining
+    template/.style =           {align=center,text width=2.0cm,rounded corners=3pt, fill=red!10,draw=red!80,line width=0.3mm},   
+    template_work/.style =           {align=center,text width=8.5cm,rounded corners=3pt, fill=red!10,draw=red!0,line width=0.3mm},    
+    % Answering Mining
+    answer/.style =           {align=center,text width=2.0cm,rounded corners=3pt, fill= cyan!10,draw= cyan!80,line width=0.3mm},   
+    answer_work/.style =           {align=center,text width=8.5cm,rounded corners=3pt, fill= cyan!10,draw= cyan!0,line width=0.3mm},      
+    % Multi-prompt 
+    multiple/.style =           {align=center,text width=2.0cm,rounded corners=3pt, fill= orange!10,draw= orange!80,line width=0.3mm},   
+    multiple_work/.style =           {align=center,text width=8.5cm,rounded corners=3pt, fill= orange!10,draw= orange!0,line width=0.3mm},        
+    % Tuning Strategy
+    tuning/.style =           {align=center,text width=2.0cm,rounded corners=3pt, fill= magenta!10,draw= magenta!80,line width=0.3mm},   
+    tuning_work/.style =           {align=center,text width=8.5cm,rounded corners=3pt, fill= magenta!10,draw= magenta!0,line width=0.3mm},          
+}
+
+% ====================
+% LISTINGS SETTINGS
+% ====================
+% \lstset{
+%   language=Python,
+%   basicstyle=\ttfamily\small,
+%   keywordstyle=\color{blue}\bfseries,
+%   commentstyle=\color{gray},
+%   stringstyle=\color{red},
+%   backgroundcolor=\color{white},
+%   frame=single,
+%   % rulecolor=\color{black},
+%   % numbers=left,
+%   % numberstyle=\tiny\color{gray},
+%   breaklines=true,
+%   escapeinside={(*@}{@*)},
+%   moredelim=[is][\color{red}]{[*}{*]},
+% }
+
+\newcommand{\lstbg}[3][0pt]{{\fboxsep#1\colorbox{#2}{\strut #3}}}
+
+\lstdefinelanguage{diff}{
+  basicstyle=\ttfamily\small,
+  morecomment=[f][\lstbg{red!20}]-,
+  morecomment=[f][\lstbg{green!20}]+,
+}
+
+\lstdefinelanguage{diffpython}{
+  language=diff,
+  morekeywords={def, if, else, for, while, return, import, from, as, class, with, try, except, finally, raise, lambda, and, or, not, in, is, None, True, False},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]',
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MY COMMANDS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{xspace}
+% \newcommand{\ourmethod}{{\fontfamily{lmtt}\selectfont \textbf{MAAS}}\xspace}
+\newcommand{\ourmethod}{{\texttt{Mem-T}}\xspace} % texttt
+\newcommand{\ourtrain}{{\textsc{MoT-GRPO}}\xspace} % textsc
+\newcommand{\llmname}[1]{{\fontfamily{pcr}\selectfont {#1}}\xspace}
+
+
+\usepackage{xcolor}
+\newcommand{\omark}{\text{\ding{108}}}
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{myyellow}{RGB}{181, 181, 27}
+\newcommand{\greencheck}{{\color{ForestGreen}\ding{52}}}
+\newcommand{\yellowcheck}{{\color{myyellow}\ding{52}}}
+\newcommand{\redcheck}{{\color{red}\ding{55}}}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{fontawesome5} % 需要此包来显示图标
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\renewcommand{\blue}[1]{$_{\color{BlueGreen}\downarrow #1}$}
+\renewcommand{\red}[1]{$_{\color{RedOrange}\uparrow #1}$}
+
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{pifont}
+
+\definecolor{mygrey}{gray}{0.4}
+
+\usepackage[ruled,algo2e,vlined]{algorithm2e}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\SetKwComment{Comment}{$\triangleright$\ }{}
+
+\definecolor{darkgreen}{RGB}{30, 130, 30}
+\definecolor{cream}{RGB}{253, 250, 242}
+\definecolor{persona}{rgb}{0.376,0.741,1.0}
+\renewcommand{\cmark}{\textcolor{darkgreen}{\ding{51}}} % 绿色对勾
+\renewcommand{\xmark}{\textcolor{red}{\ding{55}}}       % 红色叉号
+
+\newcommand{\ours}{\textsc{SciAtlas}}
+
+\usepackage{listings}
+
+\lstset{
+  breaklines=true, % 自动换行
+  basicstyle=\ttfamily\footnotesize, % 设置字体
+  % frame=single, % 代码框线
+  xleftmargin=0pt, % 左边距
+  xrightmargin=0pt % 右边距
+}
+
+\usepackage{ulem}
+\usepackage{pifont}
+
+% ====================
+% ALGORITHM SETTINGS
+% ====================
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+% useful definition
+\def\viz{\emph{viz}\onedot}
+
+% ==================================Modify From Here===================================
+
+% ====================
+% META INFORMATION FOR LUMIA STYLE
+% ====================
+
+% Set custom header text (since we're not using a logo)
+\setheadertext{Preprint}
+
+\correspondingemail{\emailicon\ shuofei@zju.edu.cn, zhangningyu@zju.edu.cn, huajunsir@zju.edu.cn \\
+$*$ Equal Contribution \quad $^\dagger$ Corresponding Author.}
+
+
+% Set GitHub link
+\githublink{https://github.com/zjunlp/SciAtlas}
+
+
+% Set HuggingFace link
+% \huggingfacelink{https://huggingface.co/Rubin-Wei/MLPMemory-Mistral-wikipedia}
+
+% Set custom date
+% \renewcommand{\today}{2025-10-23}
+
+% ====================
+% PAPER TITLE
+% ====================
+\title{\ours: A Large-Scale Knowledge Graph for Automated Scientific Research}
+\setheadertitle{\ours: A Large-Scale Knowledge Graph for Automated Scientific Research}
+
+
+\author{%
+  Shuofei Qiao$^{1,2*}$, Yunxiang Wei$^{1*}$, Jiazheng Fan$^{1}$, Bin Wu$^{2}$, Busheng Zhang$^{1}$, Mengru Wang$^{1}$, Yuqi Zhu$^{1}$, Ningyu Zhang$^{1\dagger}$, Keyan Ding$^{1}$, Qiang Zhang$^{1}$, Huajun Chen$^{1\dagger}$\\
+  $^1$Zhejiang University
+  $^2$University College London\\
+}
+
+
+% ====================
+% DOCUMENT CONTENT
+% ====================
+\begin{document}
+
+% ====================
+% ABSTRACT
+% ====================
+\begin{abstract}
+  The exponential growth of global academic output has confronted researchers and AI agents with an unprecedented ``information explosion,'' where fragmented and unstructured knowledge organization impedes deep interdisciplinary integration. Current academic retrieval tools predominantly rely on superficial keyword matching or vector-space semantic retrieval, which lack the topological reasoning capabilities required to navigate complex logical connections. Agentic deep-research-based frameworks are often prone to logical hallucinations and consuming high inference costs. To bridge this gap, in this report, we introduce \textbf{\ours}, a large-scale, multi-disciplinary, heterogeneous academic resource knowledge graph designed as a panoramic scientific evolution network. By integrating \textbf{over 43M papers from 26 disciplines, and a total of 157M entities and 3B triplets}, {\ours} provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. Furthermore, we develop a neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving a seamless transition from simple semantic matching to deterministic association discovery. We also present key application directions of {\ours}, including literature review, automated research trend synthesis, idea positioning, and academic trajectory exploration, to demonstrate that {\ours} can serve as an effective ``cognitive map'' to empower the full loop of automated scientific research while significantly reducing reasoning costs. We have released the interfaces for KG retrieval and various downstream tasks in our GitHub repo.
+\end{abstract}
+
+% Generate title with LUMIA style formatting
+\maketitle
+
+% ====================
+% YOUR PAPER CONTENT GOES HERE
+% ====================
+\input{sections/intro}
+
+\input{sections/scimap}
+
+\input{sections/retrieval}
+
+\input{sections/application}
+
+\input{sections/future}
+
+\input{sections/related_work}
+
+\section{Conclusion}
+In this report, we introduce {\ours}, a large-scale, multi-disciplinary, heterogeneous academic knowledge graph designed as a panoramic scientific evolution network. By integrating 9 categories of entity nodes, 12 categories of relational edges, and over 43M papers, {\ours} provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. Furthermore, we develop a neuro-symbolic retrieval algorithm featuring tri-path collaborative recall and graph reranking, achieving a seamless transition from simple semantic matching to deterministic association discovery. We also present key application directions of {\ours}, including automated research trend synthesis, idea positioning, and academic trajectory exploration, to demonstrate that {\ours} can serve as an effective ``cognitive map'' to empower the full loop of automated scientific research while reducing reasoning costs.
+
+
+% ====================
+% BIBLIOGRAPHY
+% ====================
+% \clearpage
+\bibliography{references}
+
+
+
+
+
+
+\newpage
+% 附录-----------------------------------------------------
+\appendix
+\input{sections/appendix}
+
+\end{document}

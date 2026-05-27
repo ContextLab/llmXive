@@ -1,0 +1,538 @@
+\section{Full Schema of {\ours}}
+\label{app:schema}
+%entities
+\begin{longtable}{p{2.8cm}p{5.5cm}p{3cm}}
+\caption{Node types and attributes in the Neo4j schema.}
+\label{tab:node-attributes} \\
+
+\toprule
+Node Type & Attribute & Type \\
+\midrule
+\endfirsthead
+
+\toprule
+Node Type & Attribute & Type \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+% ===== Author =====
+Author & id & ID \\
+Author & label & string \\
+Author & display\_name & string \\
+Author & orcid & string \\
+Author & works\_count & int \\
+Author & cited\_by\_count & int \\
+Author & h\_index & int \\
+Author & i10\_index & int \\
+Author & mean\_citedness\_2y & float \\
+Author & created\_date & string \\
+Author & updated\_date & string \\
+
+% ===== Domain =====
+Domain & id & ID \\
+Domain & label & string \\
+Domain & display\_name & string \\
+Domain & description & string \\
+Domain & works\_count & int \\
+Domain & cited\_by\_count & int \\
+Domain & created\_date & string \\
+Domain & updated\_date & string \\
+
+% ===== Field =====
+Field & id & ID \\
+Field & label & string \\
+Field & display\_name & string \\
+Field & description & string \\
+Field & works\_count & int \\
+Field & cited\_by\_count & int \\
+Field & created\_date & string \\
+Field & updated\_date & string \\
+
+% ===== Institution =====
+Institution & id & ID \\
+Institution & label & string \\
+Institution & display\_name & string \\
+Institution & ror & string \\
+Institution & country\_code & string \\
+Institution & country & string \\
+Institution & city & string \\
+Institution & type & string \\
+Institution & works\_count & int \\
+Institution & cited\_by\_count & int \\
+Institution & h\_index & int \\
+Institution & homepage\_url & string \\
+Institution & created\_date & string \\
+Institution & updated\_date & string \\
+
+% ===== Keyword =====
+Keyword & id & ID \\
+Keyword & label & string \\
+Keyword & text & string \\
+Keyword & text\_normalized & string \\
+Keyword & frequency & int \\
+Keyword & text\_embedding & float[] \\
+
+% ===== Paper（续）=====
+Paper & created\_date & string \\
+Paper & updated\_date & string \\
+Paper & pdf\_url & string \\
+Paper & pdf\_source\_id & string \\
+Paper & pdf\_source\_display\_name & string \\
+Paper & pdf\_source\_type & string \\
+Paper & pdf\_is\_oa & boolean \\
+Paper & pdf\_is\_published & boolean \\
+Paper & pdf\_version & string \\
+Paper & venue\_source\_id & string \\
+Paper & venue\_source\_display\_name & string \\
+Paper & venue\_source\_type & string \\
+Paper & venue\_raw\_source\_name & string \\
+
+% ===== Source =====
+Source & id & ID \\
+Source & label & string \\
+Source & display\_name & string \\
+Source & type & string \\
+Source & issn\_l & string \\
+Source & is\_oa & boolean \\
+Source & is\_core & boolean \\
+Source & works\_count & int \\
+Source & cited\_by\_count & int \\
+Source & created\_date & string \\
+Source & updated\_date & string \\
+
+% ===== Subfield =====
+Subfield & id & ID \\
+Subfield & label & string \\
+Subfield & display\_name & string \\
+Subfield & description & string \\
+Subfield & works\_count & int \\
+Subfield & cited\_by\_count & int \\
+Subfield & created\_date & string \\
+Subfield & updated\_date & string \\
+
+% ===== Topic =====
+Topic & id & ID \\
+Topic & label & string \\
+Topic & display\_name & string \\
+Topic & description & string \\
+Topic & keywords & string[] \\
+Topic & works\_count & int \\
+Topic & cited\_by\_count & int \\
+Topic & domain\_id & string \\
+Topic & field\_id & string \\
+Topic & subfield\_id & string \\
+Topic & created\_date & string \\
+Topic & updated\_date & string \\
+
+\end{longtable}
+
+% relations
+\begin{longtable}{p{3cm}p{2.5cm}p{2.5cm}p{5cm}}
+\caption{Relationship types in the Neo4j schema.}
+\label{tab:relationships} \\
+
+\toprule
+Type & Source & Target & {\raggedright Properties\par} \\
+\midrule
+\endfirsthead
+
+\toprule
+Type & Source & Target & {\raggedright Properties\par} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+AFFILIATED\_WITH & Author & Institution & {\raggedright is\_current (boolean)\par} \\
+AUTHORED & Author & Paper & {\raggedright position (int), is\_corresponding (boolean), raw\_name (string)\par} \\
+CITES & Paper & Paper & none \\
+COAUTHOR & Author & Author & count (int) \\
+COOCCUR & Keyword & Keyword & count (int) \\
+DOMAIN\_OF & Field & Domain & none \\
+FIELD\_OF & Subfield & Field & none \\
+HAS\_KEYWORD & Paper & Keyword & {\raggedright relevance\_score (float)\par} \\
+HAS\_TOPIC & Paper & Topic & {\raggedright score (float), is\_primary (boolean)\par} \\
+RELATED\_TO & Paper & Paper & none \\
+SUBFIELD\_OF & Topic & Subfield & none \\
+
+\end{longtable}
+
+
+{
+\begin{longtable}{@{}p{5.6cm}p{1.7cm}p{5.8cm}@{}}
+\caption{Indexes in the Neo4j schema.}
+\label{tab:indexes-general} \\
+
+\toprule
+{\raggedright Index Name\par} & {\raggedright Type\par} & {\raggedright Definition\par} \\
+\midrule
+\endfirsthead
+
+\toprule
+{\raggedright Index Name\par} & {\raggedright Type\par} & {\raggedright Definition\par} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+{\raggedright paper\_\allowbreak title\_\allowbreak normalized\_\allowbreak idx\par} & RANGE & {\raggedright :Paper(title\_normalized)\par} \\
+{\raggedright paper\_\allowbreak text\_\allowbreak ft\par} & FULLTEXT & {\raggedright :Paper(title, abstract)\par} \\
+{\raggedright paper\_\allowbreak title\_\allowbreak ft\par} & FULLTEXT & {\raggedright :Paper(title)\par} \\
+{\raggedright paper\_\allowbreak abstract\_\allowbreak ft\par} & FULLTEXT & {\raggedright :Paper(abstract)\par} \\
+{\raggedright keyword\_\allowbreak text\_\allowbreak ft\par} & FULLTEXT & {\raggedright :Keyword(text, text\_normalized)\par} \\
+
+\end{longtable}
+}
+
+% vector index
+{
+\begin{longtable}{@{}p{5.5cm}p{1.5cm}p{4.8cm}@{}}
+\caption{Vector indexes in the Neo4j schema.}
+\label{tab:indexes-vector} \\
+
+\toprule
+{\raggedright Index Name\par} & Node & {\raggedright Configuration\par} \\
+\midrule
+\endfirsthead
+
+\toprule
+{\raggedright Index Name\par} & Node & {\raggedright Configuration\par} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+{\raggedright paper\_\allowbreak title\_\allowbreak embedding\_\allowbreak idx\par} & Paper &
+{\raggedright dimensions=1024, similarity=COSINE\par} \\
+
+{\raggedright paper\_\allowbreak abstract\_\allowbreak embedding\_\allowbreak idx\par} & Paper &
+{\raggedright dimensions=1024, similarity=COSINE\par} \\
+
+{\raggedright keyword\_\allowbreak text\_\allowbreak embedding\_\allowbreak idx\par} & Keyword &
+{\raggedright dimensions=1024, similarity=cosine\par} \\
+
+\end{longtable}
+}
+
+\section{Prompts Used in this Report}
+
+\subsection{Keyword Extraction}
+\label{app:keyword_prompt}
+\begin{tcolorbox}[breakable, colback=black!5!white, colframe=black!60!black,
+  left=1ex, right=1ex, top=0.5ex, bottom=0.5ex,
+  fontupper=\small\ttfamily, fontlower=\small\ttfamily,
+  title=\textbf{Keyword Extraction}]
+\textbf{System Prompt:}
+You are an expert assistant that extracts high-level academic keywords for knowledge graph construction.
+
+\medskip\textbf{User Prompt:}
+\textbf{Goal:}
+From an academic paper abstract, extract a small set of canonical, high-level keywords that represent the main research topics, tasks, or method categories of the paper.
+
+These keywords will be used as entities in a knowledge graph to connect related papers across many scientific and engineering fields.
+
+\textbf{Important:}
+The goal is NOT to capture detailed phrases from the abstract.
+The goal is to identify general, reusable concepts that are likely to appear in many different papers.
+
+\textbf{Requirements:}
+\begin{itemize}\small
+\item Extract only 3--8 keywords.
+\item Prefer high-level research areas, problem types, method families, or evaluation paradigms.
+\item Normalize detailed wording into broader concepts when possible.
+\item Keywords should be reusable across many papers and suitable as knowledge graph entities.
+\item Use concise noun phrases (typically 1--4 words).
+\item If the abstract does not contain many strong high-level concepts, return fewer keywords.
+\item Also score each keyword's relevance to the abstract on a 1-10 integer scale.
+\end{itemize}
+
+\textbf{Avoid:}
+\begin{itemize}\small
+\item Long descriptive phrases copied from the abstract
+\item Paper-specific terminology or system names
+\item Highly customized or marketing-style expressions
+\item Implementation details or narrow technical descriptions
+\end{itemize}
+
+\textbf{Good keyword examples} (general, reusable concepts):
+\begin{itemize}\small
+\item machine learning
+\item wireless communication
+\item computer vision
+\item protein structure prediction
+\item finite element method
+\item Monte Carlo simulation
+\item graph neural networks
+\item energy optimization
+\item fault detection
+\item numerical simulation
+\end{itemize}
+
+\textbf{Bad keyword examples} (paper-specific phrasing):
+\begin{itemize}\small
+\item hierarchical dual-path adaptive learning framework
+\item multi-stage cross-modal feature fusion architecture
+\item lightweight energy-aware dynamic routing mechanism
+\item novel high-performance prototype system
+\item end-to-end task-specific optimization pipeline
+\end{itemize}
+
+\textbf{Abstract:}
+\{abstract\}
+
+\textbf{Output format:}
+Return ONLY a JSON object:
+\begin{verbatim}
+{"keywords": ["keyword1", "keyword2"], "scores": [8, 7]}.
+\end{verbatim}
+\texttt{scores} must be integers from 1 to 10, aligned with \texttt{keywords}, with no extra text.
+\end{tcolorbox}
+
+\subsection{Downstream Tasks}
+\label{app:prompt_downstream}
+
+\subsubsection{Idea Grounding -- Query Generation}
+\label{prompt:task1-query-gen}
+
+\begin{tcolorbox}[breakable, colback=blue!5!white, colframe=blue!60!black,
+  left=1ex, right=1ex, top=0.5ex, bottom=0.5ex,
+  fontupper=\small\ttfamily, fontlower=\small\ttfamily,
+  title=\textbf{Idea Grounding -- Query Generation:} Generate dense-retrieval queries from structured scientific extraction results.]
+\textbf{System Prompt:}
+You are a scientific grounding agent.
+Generate retrieval-oriented paragraph search queries from structured scientific extraction results.
+Return strict JSON only.
+
+\medskip\textbf{User Prompt:}
+Generate dense-retrieval queries from the structured extraction below.
+
+Requirements:
+\begin{itemize}\small
+\item Use only the \texttt{motivation} and \texttt{method} sections as query sources.
+\item Consider all provided sentences from those two sections before deciding which queries to emit.
+\item Select the most retrieval-useful items yourself. Do not mirror every input sentence if some are redundant.
+\item Produce at most \texttt{max\_queries} total queries across both sections combined.
+\item You may allocate the total freely across \texttt{motivation} and \texttt{method}.
+\item Each output item must contain:
+  \begin{itemize}\small
+  \item \texttt{section}: either \texttt{motivation} or \texttt{method}
+  \item \texttt{sentence}: the source sentence you selected
+  \item \texttt{query}: the final retrieval-oriented rewrite
+  \end{itemize}
+\item Keep the selected sentence meaning exactly.
+\item Write concise academic retrieval phrases or sentences likely to match paper paragraphs.
+\item Preserve task, object, method, mechanism, training objective, dataset, baseline, metric, or analysis anchors when present.
+\item Avoid vague wording such as ``the framework'', ``this method'', ``evaluation'', ``performance improvement'', or ``how it works''.
+\item Do not introduce unsupported facts.
+\end{itemize}
+
+Return JSON with this schema only:
+\begin{verbatim}
+{
+  "items": [
+    {
+      "section": "motivation | method",
+      "sentence": "selected source sentence",
+      "query": "retrieval-oriented rewrite optimized for paragraph retrieval"
+    }
+  ]
+}
+\end{verbatim}
+
+Structured extraction:
+\{items\_json\}
+\end{tcolorbox}
+
+
+\subsubsection{Idea Grounding -- Grounding}
+\label{prompt:task1-refinement}
+
+\begin{tcolorbox}[breakable, colback=green!5!white, colframe=green!60!black,
+  left=1ex, right=1ex, top=0.5ex, bottom=0.5ex,
+  fontupper=\small\ttfamily, fontlower=\small\ttfamily,
+  title=\textbf{Idea Grounding -- Grounding:} Analyze how retrieved evidence aligns with a research idea unit.]
+\textbf{System Prompt:}
+You are a scientific grounding alignment agent.
+Given a research idea unit, a retrieved paragraph, and local paper context, analyze how the retrieved evidence aligns with the target idea.
+Use only the provided evidence. Return strict JSON only.
+
+\medskip\textbf{User Prompt:}
+Analyze how the retrieved evidence aligns with a specific research idea unit.
+
+Research idea:
+\{idea\_text\}
+
+Target query section:
+\{query\_section\}
+
+Target query sentence:
+\{query\_sentence\}
+
+Retrieval query:
+\{query\_text\}
+
+Paper title:
+\{paper\_title\}
+
+Paper abstract:
+\{paper\_abstract\}
+
+Section path:
+\{section\_path\_text\}
+
+Retrieved paragraph:
+\{paragraph\_text\}
+
+Previous paragraphs:
+\{previous\_paragraphs\}
+
+Next paragraphs:
+\{next\_paragraphs\}
+
+Requirements:
+\begin{itemize}\small
+\item Judge whether the retrieved evidence supports the target query unit.
+\item Use the paragraph as the primary evidence and use the surrounding context only to clarify scope, subject, or omitted details.
+\item Do not invent claims that are not grounded in the provided paragraph or context.
+\item If the paragraph is weakly related, say so explicitly.
+\item \texttt{focus\_aspect} should state which specific aspect of the target query is actually addressed by the evidence.
+\item \texttt{grounded\_passage} should be a concise evidence-focused passage, usually 1--3 sentences, that is more context-aware and better aligned to the target query than the raw paragraph alone.
+\item \texttt{evidence\_span} should quote or closely paraphrase the most directly relevant span from the retrieved paragraph or immediate context.
+\item \texttt{shared\_points} should list concrete aspects that are aligned between the target idea unit and the evidence.
+\item \texttt{different\_points} should list concrete mismatches, missing parts, narrower scope, or different emphasis between the evidence and the target idea unit.
+\item \texttt{coverage\_label} must be one of: \texttt{high}, \texttt{partial}, \texttt{limited}, \texttt{none}.
+  \begin{itemize}\small
+  \item Use \texttt{high} only when the evidence covers most of the target idea unit.
+  \item Use \texttt{partial} when there is clear overlap but also important missing coverage.
+  \item Use \texttt{limited} when the evidence is only weakly related or covers a small sub-aspect.
+  \item Use \texttt{none} when it is essentially irrelevant.
+  \end{itemize}
+\item \texttt{why\_this\_matches} should briefly explain the overall judgment.
+\end{itemize}
+
+Return JSON with this schema only:
+\begin{verbatim}
+{
+  "status": "supported | partially_supported | weak_match | irrelevant",
+  "focus_aspect": "which specific aspect of the target query is grounded",
+  "grounded_passage": "context-aware grounding passage",
+  "evidence_span": "most relevant evidence span",
+  "shared_points": ["..."],
+  "different_points": ["..."],
+  "coverage_label": "high | partial | limited | none",
+  "why_this_matches": "brief explanation of the match quality"
+}
+\end{verbatim}
+\end{tcolorbox}
+
+
+\subsubsection{Idea Generation}
+\label{prompt:task2-idea-gen}
+
+\begin{tcolorbox}[breakable, colback=magenta!5!white, colframe=magenta!60!black,
+  left=1ex, right=1ex, top=0.5ex, bottom=0.5ex,
+  fontupper=\small\ttfamily, fontlower=\small\ttfamily,
+  title=\textbf{Idea Generation:} Propose novel research ideas from a collection of papers.]
+\textbf{System Prompt:}
+You are an expert research idea generator and only return valid JSON.
+
+\medskip\textbf{User Prompt:}
+You are an expert research idea generator.
+Given the papers below, propose novel research ideas that extend, combine, or contrast this work.
+Return strict JSON only with this schema:
+\begin{verbatim}
+{
+  "ideas": [
+    {
+      "title": "concise idea title",
+      "description": "2-3 sentence core description of the idea",
+      "novelty": "why this is novel compared to existing work",
+      "significance": "potential impact and importance",
+      "key_references": ["paper title 1", "paper title 2"]
+    }
+  ]
+}
+\end{verbatim}
+
+Generate exactly \{idea\_count\} ideas.
+
+Papers:
+
+\{paper\_context\}
+\end{tcolorbox}
+
+\subsubsection{Research Trend Predicting}
+\label{prompt:task3-trend}
+
+\begin{tcolorbox}[breakable, colback=orange!5!white, colframe=orange!60!black,
+  left=1ex, right=1ex, top=0.5ex, bottom=0.5ex,
+  fontupper=\small\ttfamily, fontlower=\small\ttfamily,
+  title=\textbf{Research Trend Predicting:} Summarize research trends from chronologically ordered papers.]
+\textbf{System Prompt:}
+You analyze academic topic evolution and only return valid JSON objects.
+
+\medskip\textbf{User Prompt:}
+You are an expert research trend analyst.
+Given chronologically ordered papers from one topic, summarize the research trend.
+Return strict JSON only with this schema:
+\begin{verbatim}
+{
+  "one_sentence_summary": "...",
+  "trend_summary": "...",
+  "stage_summary": [
+    {"period": "...", "theme": "...", "description": "..."}
+  ],
+  "methodological_shifts": ["..."],
+  "emerging_topics": ["..."],
+  "open_gaps": ["..."],
+  "future_directions": ["..."],
+  "representative_papers": [
+    {"title": "...", "year": 2024, "why_representative": "..."}
+  ]
+}
+\end{verbatim}
+
+Papers:
+\{papers\_by\_year\}
+\end{tcolorbox}
+
+
+\subsubsection{Author Research Profile}
+\label{prompt:task5-author-profile}
+
+\begin{tcolorbox}[breakable, colback=purple!5!white, colframe=purple!60!black,
+  left=1ex, right=1ex, top=0.5ex, bottom=0.5ex,
+  fontupper=\small\ttfamily, fontlower=\small\ttfamily,
+  title=\textbf{Author Research Profile:} Summarize a researcher's major directions from their publication list.]
+\textbf{System Prompt:}
+You summarize an author's research trajectory and only return valid JSON objects.
+
+\medskip\textbf{User Prompt:}
+You are an expert academic intelligence analyst.
+Summarize one researcher's major directions from their publication list.
+Return strict JSON only with this schema:
+\begin{verbatim}
+{
+  "author_name": "\{author\_name\}",
+  "overall_academic_profile": "...",
+  "main_research_directions": [
+    {"theme": "...", "active_years": "...", "description": "..."}
+  ],
+  "technical_arsenal": ["..."],
+  "representative_papers": [
+    {"title": "...", "year": 2024, "why_representative": "..."}
+  ]
+}
+\end{verbatim}
+
+Papers:
+\{paper\_lines\}
+\end{tcolorbox}
+
+

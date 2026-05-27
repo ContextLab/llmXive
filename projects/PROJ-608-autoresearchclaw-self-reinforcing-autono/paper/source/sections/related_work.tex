@@ -1,0 +1,43 @@
+\section{Related Work}
+\label{sec:related}
+\vspace{-0.5em}
+
+\noindent \textbf{Autonomous research systems.}
+LLMs have been applied to autonomous experiment execution~\citep{boiko2023emergent} and algorithmic discovery~\citep{romera2024mathematical, novikov2025alphaevolve}. End-to-end research systems vary in scope and capability. The AI Scientist~\citep{lu2024aiscientist} and its successor~\citep{yamada2025aiscientistv2} generate complete papers from ideas but rely on single-agent reasoning, abort on execution failures, and start each run from scratch. AI Co-Scientist~\citep{gottweis2025aicoscientist, gottweis2025towards} introduces multi-agent debate for hypothesis validation but does not execute experiments. Agent Laboratory~\citep{schmidgall2025agentlab} and AI-Researcher~\citep{tang2025airesearcher} automate portions of the pipeline but neither verifies results against ground-truth measurements nor accumulates knowledge across runs. MLR-Copilot~\citep{li2024mlrcopilot} targets machine learning research with explicit human feedback at the execution stage. AgentRxiv~\citep{schmidgall2025agentrxiv} explores inter-agent collaboration through shared preprint servers. On the evaluation side, ScienceAgentBench~\citep{tian2024scienceagentbench}, MLE-bench~\citep{chan2024mlebench}, and DISCOVERYWORLD~\citep{jansen2024discoveryworld} reveal that even the best systems solve fewer than 40\% of tasks. As summarized in Table~\ref{tab:comparison}, no prior system combines end-to-end execution with multi-agent debate, self-healing, anti-fabrication verification, and cross-run evolution.
+
+\noindent \textbf{Multi-agent debate and cross-run learning.}
+Multi-agent debate improves factual accuracy and divergent thinking~\citep{du2023improving, liang2023encouraging, tran2025multiagent}. Role-assigned frameworks such as ChatDev~\citep{qian2024chatdev}, MetaGPT~\citep{hong2024metagpt}, and AutoGen~\citep{wu2024autogen} demonstrate effective collaboration in software engineering. For learning from experience, Reflexion~\citep{shinn2023reflexion} and Self-Refine~\citep{madaan2023selfrefine} operate within a single episode; SkillRL~\citep{xia2026skillrl} and EvolveR~\citep{wang2025evolver} extend this to persistent skill libraries across tasks. OmniScientist~\citep{shao2025omniscientist} argues that science is inherently collaborative and proposes protocols for multi-agent research ecosystems. \system{} applies debate with domain-specific epistemic roles at two pipeline stages and accumulates lessons \emph{across} runs through a persistent time-decayed store, combining both mechanisms in a single system.
+
+\noindent \textbf{Human-AI collaboration in research automation.}
+The degree of human involvement in autonomous research remains an open design question. At one extreme, the AI Scientist pursues full automation with minimal human oversight. At the other, SciSciGPT~\citep{shao2025sciscigpt} positions AI as an assistant under continuous human direction. Between these extremes, Agent Laboratory~\citep{schmidgall2025agentlab} allows user-defined feedback frequency and reports that human participation at each stage improves quality. AIssistant~\citep{gaddipati2025aissistant} demonstrates 65.7\% time savings through strategic human oversight in review writing. \citet{natarajan2024hitl} provide a theoretical analysis arguing that the optimal level of human intervention depends on how well-defined the task is. Our HITL ablation contributes empirical evidence to this debate: across seven intervention regimes, we find that targeted intervention at high-leverage decision points consistently outperforms both full autonomy and exhaustive step-by-step oversight.
+
+\begin{table}[t]
+\centering
+\caption{Feature comparison of autonomous research systems. \cmark{} = supported, \xmark{} = not supported, \tmark{} = partial. Only AI Scientist v2 and \system{} provide end-to-end autonomous execution from idea to paper; Agent Laboratory and ResearchAgent stop short.}
+\label{tab:comparison}
+\setlength{\tabcolsep}{4pt}
+\small
+\begin{tabularx}{\textwidth}{@{}lCCCCCC@{}}
+\toprule
+\textbf{Feature}
+  & \textbf{\thead{AI Sci.\\ v2}}
+  & \textbf{\thead{AI\\ Co-Sci.}}
+  & \textbf{\thead{Agent\\ Lab}}
+  & \textbf{\thead{MLR-\\ Copilot}}
+  & \textbf{\thead{Research-\\ Agent}}
+  & \textbf{\thead{Auto\\ Research\\ Claw}} \\
+\midrule
+End-to-end pipeline        & \cmark & \tmark & \xmark & \tmark & \xmark & \cmark \\
+Real experiment exec.\     & \cmark & \xmark & \tmark & \cmark & \xmark & \cmark \\
+Multi-agent debate         & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark \\
+Self-healing repair        & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+\textsc{Pivot}/\textsc{Refine} loop & \xmark & \tmark & \xmark & \xmark & \xmark & \cmark \\
+Cross-run evolution        & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark \\
+Citation verification      & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+Result verification        & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+HITL gates                 & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark \\
+Sandbox security           & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
+Open-source                & \cmark & \xmark & \cmark & \cmark & \cmark & \cmark \\
+\bottomrule
+\end{tabularx}
+\end{table}

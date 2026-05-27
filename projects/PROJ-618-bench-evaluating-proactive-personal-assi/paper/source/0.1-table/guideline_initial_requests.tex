@@ -1,0 +1,27 @@
+\begin{table}[tb]
+\centering
+\caption{Annotation guidelines for initial requests.}
+\label{tab:annotation_initial_request}
+\small
+\begin{tabular}{p{0.20\linewidth}p{0.36\linewidth}p{0.34\linewidth}}
+\toprule[1.25pt]
+\textbf{Aspect} & \textbf{Do} $\checkmark$ & \textbf{Avoid} $\times$ \\
+\midrule[0.75pt]
+\textsc{Naturalness} &
+Use concise wording that matches the user's role and working style. &
+Do not use artificial benchmark-like phrasing or expose internal task metadata. \\
+\midrule[0.75pt]
+\textsc{Actionability} &
+State a clear surface goal so that the agent can begin useful work. &
+Do not make the request so vague that the agent must ask the user to restate the task. \\
+\midrule[0.75pt]
+\textsc{Underspecification} &
+Omit at least one task-relevant requirement that the agent should infer, ask about, or recover from context. &
+Do not include all constraints, preferences, and output requirements in the initial request. \\
+\midrule[0.75pt]
+\textsc{Environment fit} &
+Make the request consistent with the persona, workspace state, and available tool interfaces when applicable. &
+Do not refer to files, records, or actions that are unavailable in the task environment. \\
+\bottomrule[1.25pt]
+\end{tabular}
+\end{table}

@@ -1,0 +1,193 @@
+\providecommand{\caseLeihaodiTwoTag}[3]{%
+    {\setlength{\fboxsep}{1.6pt}\colorbox{#1}{\textcolor{#2}{\scriptsize\textbf{#3}}}}%
+}
+\providecommand{\caseLeihaodiTwoLine}[3]{%
+    \caseLeihaodiTwoTag{#1}{#2}{#3}\hspace{3pt}%
+}
+\providecommand{\caseLeihaodiTwoIO}[3]{%
+    \vspace{2pt}
+    \noindent\caseLeihaodiTwoLine{#1}{white}{#2}\textbf{#3}
+}
+\providecommand{\caseLeihaodiTwoNote}[1]{%
+    \vspace{2pt}
+    \noindent{\scriptsize\color{black!55}\textit{#1}}
+}
+\providecommand{\caseLeihaodiTwoBox}[2]{%
+\begin{tcolorbox}[
+    title=#1,
+    colback=casebg,
+    colframe=casetitlebg,
+    rounded corners,
+    sharp corners=northeast,
+    sharp corners=southwest,
+    width=1.00\linewidth,
+    boxsep=2pt,
+    top=2pt,
+    bottom=2pt,
+    enhanced,
+    before=\setlength{\parindent}{0pt},
+]
+
+#2
+\end{tcolorbox}
+}
+
+\begin{figure}[h]
+    \centering
+    \caseLeihaodiTwoBox{Case Study -- Researcher -- Cross-Session Dependency: Task and Hidden Intents}{
+    \small
+    \caseLeihaodiTwoLine{purple!70!black}{white}{$\blacktriangleright$ TASK} Organize accepted ICLR papers from a local list for the user's research theme.
+    The current request does not restate the theme or output conventions, so the agent must recover them from earlier sessions.
+
+    \vspace{3pt}
+    \caseLeihaodiTwoLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST}
+    \begin{quote}
+    \scriptsize
+    \setlength{\baselineskip}{7.2pt}
+    \raggedright
+    I wrote a local file at \texttt{paper\_list.txt} that contains some accepted ICLR 2026 papers. Please organize several papers related to my research theme for me.
+    \end{quote}
+
+    \vspace{3pt}
+    \caseLeihaodiTwoLine{blue!65!black}{white}{$\rightarrow$ CROSS-SESSION SETUP}
+    \par
+    \caseLeihaodiTwoTag{cyan!12}{cyan!50!black}{Earlier tool-use reading task} The user expects paper recommendations to include introductions, key technical points, GitHub or open-source status, and concrete follow-up paths.
+    \par
+    \caseLeihaodiTwoTag{cyan!12}{cyan!50!black}{Earlier think-with-image task} The user focuses on think-with-image multimodal agents, prefers only a small batch of papers, and expects OpenReview links when available.
+
+    \vspace{3pt}
+    \caseLeihaodiTwoLine{orange!80!black}{white}{$\star$ HIDDEN INTENTS}
+    \par
+    \caseLeihaodiTwoTag{red!12}{red!70!black}{$\circ$ I1} Primarily recommend think-with-image papers.
+    \par
+    \caseLeihaodiTwoTag{red!12}{red!70!black}{$\circ$ I2} Recommend around five papers.
+    \par
+    \caseLeihaodiTwoTag{red!12}{red!70!black}{$\circ$ I3} Provide a brief introduction and key technical points for each paper.
+    \par
+    \caseLeihaodiTwoTag{red!12}{red!70!black}{$\circ$ I4} Provide the OpenReview link for each paper.
+    \par
+    \caseLeihaodiTwoTag{red!12}{red!70!black}{$\circ$ I5} Provide the GitHub link for each paper, or explicitly state that no public repository is found.
+    \par
+    \caseLeihaodiTwoTag{red!12}{red!70!black}{$\circ$ I6} For every paper, state whether it is suitable to follow and how to follow it.
+    }
+    \caption{Cross-session setup and hidden intents.}
+    \label{fig:case_leihaodi_2_dependency_task}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caseLeihaodiTwoBox{Case Study -- Researcher -- Claude 4.6 Opus: Trajectory and Scores}{
+    \small
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    The user asks the agent to organize papers from a local ICLR accepted-paper list related to ``my research theme.''
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 1.}
+    The agent reads the local paper list, uses memory to identify the research theme as think-with-image, and starts filtering ICLR papers around image-driven reasoning and multimodal tool use.
+    \caseLeihaodiTwoTag{green!12}{green!45!black}{completed: I1}
+
+    \vspace{3pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{Recommend around 5 papers.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I2}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 2.}
+    The agent gives a five-paper list centered on the annotated target set, including technical summaries, OpenReview links, and GitHub or open-source status.
+    \caseLeihaodiTwoTag{green!12}{green!45!black}{completed: I3}
+    \hspace{2pt}\caseLeihaodiTwoTag{green!12}{green!45!black}{completed: I4}
+    \hspace{2pt}\caseLeihaodiTwoTag{green!12}{green!45!black}{completed: I5}
+
+    \vspace{3pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 3.}
+    \emph{For every paper, state whether it is suitable to follow and how to follow it.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I6}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 3.}
+    The agent adds feasibility assessments and concrete follow-up paths for the selected papers, while also considering the user's research setup and compute constraints.
+
+    \vspace{3pt}
+    \caseLeihaodiTwoLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseLeihaodiTwoTag{orange!15}{orange!80!black}{\textsc{Comp}=64.00}
+    \hspace{3pt}
+    \caseLeihaodiTwoTag{cyan!15}{cyan!45!black}{\textsc{Proc}=66.67}
+
+    \vspace{2pt}
+    \noindent\caseLeihaodiTwoLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Satisfied: multiple target papers, links, GitHub fields, and follow-up judgments.
+    Not satisfied: some detailed technical-point and target-paper metadata criteria.
+    }
+    \caption{Claude 4.6 Opus trajectory and scores.}
+    \label{fig:case_leihaodi_2_claude_trajectory}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caseLeihaodiTwoBox{Case Study -- Researcher -- Kimi K2.5: Trajectory and Scores}{
+    \small
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    Same request to organize ICLR papers related to ``my research theme.''
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 1.}
+    The agent reads the paper list but asks the user to specify the research theme instead of carrying it over from earlier sessions.
+
+    \vspace{2pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{Primarily recommend think-with-image papers.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I1}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 2.}
+    The agent lists broad think-with-image categories and many candidate titles, then the user has to restate the preferred batch size.
+
+    \vspace{2pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 3.}
+    \emph{Recommend around 5 papers.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I2}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 3.}
+    The agent selects five papers, but the set drifts away from the annotated target papers and lacks the required technical details.
+
+    \vspace{2pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 4.}
+    \emph{Provide a brief introduction and key technical points for each paper.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I3}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 4.}
+    The agent adds introductions and key points for the selected set, but the required OpenReview and GitHub evidence remains missing.
+
+    \vspace{2pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 5.}
+    \emph{Provide the OpenReview link for each paper.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I4}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 5.}
+    The agent says it cannot access the OpenReview links from the local list and asks for more information.
+
+    \vspace{2pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 6.}
+    \emph{Provide the GitHub link for each paper; if a paper has no open-source GitHub repository, explicitly state that.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I5}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 6.}
+    The agent searches for GitHub repositories for the selected papers, but the selected set remains off-target.
+
+    \vspace{2pt}
+    \caseLeihaodiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 7.}
+    \emph{For every paper, state whether it is suitable to follow and how to follow it.}
+    \caseLeihaodiTwoTag{red!15}{red!70!black}{provided: I6}
+
+    \caseLeihaodiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 7.}
+    The agent provides suitability advice for the wrong paper set, so the final trajectory does not satisfy the target checklist.
+
+    \vspace{3pt}
+    \caseLeihaodiTwoLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseLeihaodiTwoTag{orange!15}{orange!80!black}{\textsc{Comp}=0.00}
+    \hspace{3pt}
+    \caseLeihaodiTwoTag{cyan!15}{cyan!45!black}{\textsc{Proc}=0.00}
+
+    \vspace{2pt}
+    \noindent\caseLeihaodiTwoLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Satisfied: none of the annotated target-paper checklist criteria.
+    Not satisfied: target paper selection, target technical points, OpenReview links, GitHub links, and follow-up judgments.
+    }
+    \caption{Kimi K2.5 trajectory and scores.}
+    \label{fig:case_leihaodi_2_kimi_trajectory}
+\end{figure}

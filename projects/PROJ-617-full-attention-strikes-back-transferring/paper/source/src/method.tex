@@ -1,0 +1,79 @@
+\section{Method}
+
+%\subsection{Overview}
+%\label{sec:method_overview}
+We introduce \name, a head-wise attention framework with precise token-level sparse computation. This section is organized as follows. We first describe how to identify retrieval heads through offline calibration in Section~\ref{sec:offline_calibration}. We then present our sparse computation pattern in Section~\ref{sec:adaptive_sparse_attention}. Next, we describe the two-stage training pipeline required by \name in Section~\ref{sec:two_stage_training}. Finally, we describe the hardware-aware decoding kernel in Section~\ref{sec:fast_top_p_kernel}.
+
+\subsection{Offline Head-wise Calibration}
+\label{sec:offline_calibration}
+To identify retrieval heads, we construct a lightweight calibration sequence by inserting an identical ``needle'' span at both the beginning and the end of a long document sampled from FineWeb~\citep{fineweb}. We quantify a head's retrieval capability by measuring the attention mass directed from the later needle to the earlier one. Let $\mathcal{N}_{\mathrm{pre}}$ and $\mathcal{N}_{\mathrm{post}}$ denote the token indices of the earlier and later needle spans, respectively. The retrieval score for head $h$ is compactly defined as:
+\begin{equation}
+\label{eq:head_retrieval_score}
+R_h = \frac{1}{|\mathcal{N}_{\mathrm{post}}|}\sum_{t\in\mathcal{N}_{\mathrm{post}}} \sum_{j\in\mathcal{N}_{\mathrm{pre}}} A_h(t,j),
+\end{equation}
+where $A_h(t,j)$ represents the normalized attention score (i.e., post-softmax) from token $t$ to token $j$. 
+% Consequently, the resulting score $R_h$ is strictly bounded within $(0, 1)$, serving as an intuitive metric for the head's long-range retrieval strength.
+
+% By evaluating this on over 100 documents, we empirically found that 
+The head retrieval behavior is highly stable and largely input-agnostic. 
+% The same heads consistently yield high $R_h$ scores regardless of the specific document context.
+Therefore, in practice, running this calibration on just one single long text sequence is sufficient to robustly score and partition all query heads into a retrieval set $\mathcal{H}_{\mathrm{ret}}$ (top-scoring heads) and a local set $\mathcal{H}_{\mathrm{loc}}$. This partition process is executed only once offline.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{pic/rtpurbo_architecture.pdf}
+    \caption{Overall architecture of \name.}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection{Adaptive Sparse Attention Mechanism}\label{sec:adaptive_sparse_attention}
+During inference, local heads $h \in \mathcal{H}_{\mathrm{loc}}$ consistently apply a sliding window with attention sinks~\citep{streamingLLM} across both prefill and decode stages. In contrast, retrieval heads $h \in \mathcal{H}_{\mathrm{ret}}$ perform full dense attention during prefill to build the complete KV cache, but switch to a query-aware dynamic sparse selection during decoding. As analyzed in Section~\ref{sec:motiv_lowdim_retrieval}, high-frequency RoPE components degrade long-range affinity. To circumvent this, we estimate query-key relevance using low-rank projections $W^Q_h, W^K_h \in \mathbb{R}^{r \times d_h}$ ($r \ll d_h$) applied to the features \textbf{before} RoPE injection:
+\begin{equation}
+    s_h(m,n) = (W^Q_h q_{m,h}^{\mathrm{pre}})^{\top} (W^K_h k_{n,h}^{\mathrm{pre}}),
+\end{equation}
+where $q_{m,h}^{\mathrm{pre}}$ and $k_{n,h}^{\mathrm{pre}}$ are the pre-RoPE representations. We then construct a dynamic active set from the projected scores and compute sparse attention as
+\begin{equation}
+O_h(m) = \sum_{n \in \mathcal{S}_h(m)} \frac{\exp(q_{m,h}^{\top} k_{n,h} / \sqrt{d_h})}{\sum_{j \in \mathcal{S}_h(m)} \exp(q_{m,h}^{\top} k_{j,h} / \sqrt{d_h})} v_{n,h}, \qquad \mathcal{S}_h(m) = \operatorname{Top\text{-}P}\!\left(s_h(m,\cdot), p\right).
+\end{equation}
+In this way, the low-rank pre-RoPE projections serve strictly as an efficient routing mechanism, while the final token generation preserves the complete feature space and exact relative positional geometry. For MQA and GQA models, the resulting sparsity should be interpreted from two perspectives because our head partition is defined over query heads. \emph{Compute sparsity} is measured at the query-head level and can be viewed as the average number of attended tokens over heads. \emph{Memory sparsity} is measured at the KV-head level: for each KV head, the actual retained set is the union of the token sets selected by all query heads mapped to that KV head.
+
+
+\subsection{Low-cost Two-Stage Training}
+\label{sec:two_stage_training}
+
+We adopt a lightweight two-stage training pipeline to fully restore model capabilities under the sparse regime.
+In the first stage, we keep the backbone LLM frozen and independently train the low-dimension projection weights $W^Q_h, W^K_h$ for each retrieval head $h \in \mathcal{H}_{\mathrm{ret}}$. Let $a_h^{\mathrm{full}}(m)$ be the original exact attention distribution and $a_h^{\mathrm{proj}}(m; W^Q_h, W^K_h)$ be the distribution derived from the low-dimensional projected scores. We optimize the projections by minimizing the Kullback-Leibler (KL) divergence between them:
+\begin{equation}
+    \mathcal{L}_{\mathrm{proj}} = \sum_{h \in \mathcal{H}_{\mathrm{ret}}} \mathrm{KL}\!\left(a_h^{\mathrm{full}}(m) \,\|\, a_h^{\mathrm{proj}}(m; W^Q_h, W^K_h)\right).
+\end{equation}
+
+In the second stage, we insert the trained projections, switch to the sparse attention mode, and perform end-to-end self-distillation. The sparse model acts as a student learning to match the dense teacher's next-token predictions. Crucially, compared to standard supervised fine-tuning, \emph{self-distillation bypasses the negative impact of specific dataset distributions, thereby eliminating the tedious need to ablate and tune data mixtures.} To further reduce computational overhead, we align only the top-10 logits of the teacher. Letting $z^{\mathrm{dense}}_{(10)}$ and $z^{\mathrm{sparse}}_{(10)}$ denote the respective logits restricted to these top-10 entries, we minimize:
+\begin{equation}
+\mathcal{L}_{\mathrm{distill}} = \mathrm{KL}\!\left(\mathrm{softmax}(z^{\mathrm{dense}}_{(10)})\,\|\,\mathrm{softmax}(z^{\mathrm{sparse}}_{(10)})\right).
+\end{equation}
+% This stage adapts the model to sparse execution with minimal training cost.
+
+\subsection{Hardware-Aware Fast Top-\texorpdfstring{$p$}{p} Decoding Kernel}\label{sec:fast_top_p_kernel}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{pic/kernel.pdf}
+    \caption{Overview of the hardware-aware decoding kernel in \name.}
+    \label{fig:kernel_overview}
+\end{figure}
+
+% \zyk{re-write}
+We implement the block-wise top-$p$ sparse decoding using a custom GPU kernel that addresses two primary engineering challenges: (1) fast top-$p$ thresholding without expensive sorting, and (2) memory-efficient sparse decoding over long contexts.
+
+\noindent\textbf{Sort-free top-\texorpdfstring{$p$}{p} via histogram.} 
+We partition compressed K sequence into $N_b$ blocks, where each CTA (Compute Thread Array) computes a low-dimensional attention score for one block and reduces it to a block-level log-sum-exp pair $(m_b, \ell_b)$.
+Since commonly used fast sorting methods still incur $O(N_b \log N_b)$ complexity, while binary-search selection requires $O(N_b)$ memory per head, which becomes prohibitive at long context where $N_b$ can exceed $16\text{K}$, we instead have each CTA atomically deposit $\ell_b$ into a 256-bin histogram indexed by $m_b$, which requires only 1 KB per head regardless of sequence length.
+To avoid an additional kernel launch for the selection phase, each CTA atomically increments a per-head counter upon completion, and the last CTA to finish proceeds to scan the histogram from the highest bin, identifies the score threshold at which the cumulative attention mass reaches $p_\text{top}$, and writes a block-level binary mask.
+This fuses scoring and selection into a single kernel launch with $O(1)$ memory overhead.
+
+
+\noindent\textbf{Bandwidth-optimized sparse decoding.} 
+For long sequences, even sparse attention remains memory-bound because the selected KV blocks can still span tens of thousands of tokens. We address this by designing a single-warp CTA with no shared memory, which keeps all state in registers and allows the SM to maximize concurrent CTAs and thus outstanding memory requests.
+The inner loop is 2-token unrolled, issuing all K and V loads upfront via vectorized $\texttt{half2}$ instructions so that the subsequent score computation and online-softmax update overlap with in-flight loads.
+When $B{\times}H$ alone is insufficient to fill the GPU, we further partition the KV range of each head into multiple splits, each handled by a separate CTA, and fuse the cross-split reduction into the last completing CTA via the same atomic-counter technique.
+

@@ -1,0 +1,1586 @@
+%%%%%%%% ICML 2026 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2026} with \usepackage[nohyperref]{icml2026} above.
+\usepackage{hyperref}
+
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+% \usepackage{icml2026}
+
+% For preprint, use
+% \usepackage[preprint]{icml2026}
+
+% If accepted, instead use the following line for the camera-ready submission:
+\usepackage[accepted]{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{booktabs} % 必须: 三线表
+\usepackage{graphicx} % 必须: resizebox
+\usepackage{multirow} % 必须: 合并单元格
+\usepackage{xcolor}   % 可选
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{pifont} % 用于对勾和错号符号 \ding{51}, \ding{55}
+\usepackage{xcolor} % 用于颜色
+\newcommand{\lilei}[1]{\textcolor{orange}{#1 -lilei}}
+% === 颜色定义 ===
+% 定义一个醒目的绿色 (Office Green / Islamic Green 风格)，既专业又显眼
+\definecolor{gaincolor}{HTML}{009900} 
+
+% === 宏定义 ===
+% 格式：颜色 + 加粗 + 小字号 + 上箭头
+\newcommand{\imp}[1]{\textcolor{gaincolor}{\scriptsize\textbf{(\(\uparrow\)#1)}}}
+% 定义对勾和错号的命令
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}} % 绿色对勾
+\newcommand{\xmark}{\textcolor{red!60!black}{\ding{55}}}   % 红色错号 (如需灰色可改为 gray)
+\usepackage{xspace}
+% \newcommand{\ourmethod}{\textsc{Video2GUI}\xspace}
+% \newcommand{\ourdataset}{\textsc{WildGUI}\xspace}
+\newcommand{\ourmethod}{Video2GUI}
+\newcommand{\ourdataset}{WildGUI}
+% \newcommand{\methodname}{\textsc{PaperBanana}\xspace}
+% \newcommand{\benchname}{\textsc{PaperBananaBench}\xspace}
+\usepackage{colortbl}
+\usepackage{xcolor}
+% \usepackage{geometry}
+% \usepackage{tcolorbox}
+% \tcbuselibrary{skins,breakable}
+% \newtcolorbox{promptbox}[1]{
+%   colback=white,
+%   colframe=blue!100,
+%   colbacktitle=blue!10,
+%   coltitle=black,
+%   title=#1,
+%   fonttitle=\bfseries\sffamily,
+%   breakable,
+%   enhanced,
+%   boxrule=0.8pt
+% }
+% % Using listings for verbatim with automatic line breaking
+% \usepackage{listings}
+% \lstset{
+%   basicstyle=\small\ttfamily,
+%   breaklines=true,
+%   breakatwhitespace=false,
+%   columns=flexible,
+%   keepspaces=true,
+%   showstringspaces=false
+% }
+
+\usepackage[dvipsnames, svgnames]{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\usepackage{listings}
+
+
+% --- ICML 风格配色 ---
+\definecolor{icmlDarkBlue}{RGB}{0, 20, 115}
+\definecolor{codeGray}{RGB}{242, 242, 242}
+\definecolor{codeKeyword}{RGB}{0, 51, 102}
+\definecolor{codeString}{RGB}{0, 100, 0}
+\definecolor{codeComment}{RGB}{105, 105, 105}
+
+% --- 修复了序号功能的 Promptbox ---
+% [2][] 表示有两个参数：
+% 第1个是可选参数(用于放 label)，默认为空；
+% 第2个是必填参数(标题)。
+% --- 修复编号逻辑：独立连续编号 (1, 2, 3...) ---
+\newtcolorbox[auto counter]{promptbox}[2][]{
+  % auto counter: 开启自动计数
+  % 去掉了 'number within=section'，这样就不会显示为 A.1，而是全局的 1, 2, 3
+  enhanced,
+  breakable,
+  colback=white,
+  colframe=icmlDarkBlue,
+  coltitle=white,
+  % --- 标题显示设置 ---
+  % \thetcbcounter 会输出当前的全局编号
+  title={\textbf{Prompt~\thetcbcounter:}~#2}, 
+  % --- Label 设置 ---
+  label={#1}, 
+  fonttitle=\bfseries\sffamily,
+  attach boxed title to top left={xshift=4mm, yshift*=-3mm},
+  boxed title style={
+    colback=icmlDarkBlue,
+    sharp corners=downhill,
+    rounded corners=uphill,
+    arc=2pt,
+    boxrule=0pt,
+    frame hidden,
+    drop small lifted shadow,
+  },
+  arc=2pt,
+  boxrule=0.8pt,
+  drop fuzzy shadow=black!30!white,
+  top=5mm,
+  bottom=2mm,
+  left=2mm,
+  right=2mm
+}
+
+% --- Listings 设置保持不变 ---
+\lstset{
+  basicstyle=\small\ttfamily,
+  backgroundcolor=\color{codeGray},
+  keywordstyle=\bfseries\color{codeKeyword},
+  commentstyle=\itshape\color{codeComment},
+  stringstyle=\color{codeString},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=none,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false,
+  xleftmargin=1.5em,
+  xrightmargin=0.5em
+}
+% Define the gray color used in the table headers and highlights
+\definecolor{tablegray}{RGB}{242, 242, 242}
+\definecolor{highlightpurple}{RGB}{230, 230, 250} % Approximate purple highlight if needed, using gray for standard rows as per request
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{\ourmethod{}: Synthesizing Large-Scale Interaction Trajectories for Generalized GUI Agent Pretraining}
+
+\begin{document}
+
+\twocolumn[
+  % \icmltitle{UltraGUI: A Large-Scale GUI Pretraining Dataset \\ Synthesized from Unlabeled Videos}
+  % \icmltitle{Video2GUI: A Coarse-to-Fine Framework for GUI Pretraining Data Synthesis \\ from Unlabeled Videos}
+  % {Video2GUI: Towards Generalized GUI Agents via Large-Scale Video-Synthesized Pretraining}
+  % \icmltitle{Video2GUI: Synthesizing Large-Scale GUI Pretraining Data \\ from Videos}
+  \icmltitle{\ourmethod{}: Synthesizing Large-Scale Interaction Trajectories for \\ Generalized GUI Agent Pretraining}
+
+  % It is OKAY to include author information, even for blind submissions: the
+  % style file will automatically remove it for you unless you've provided
+  % the [accepted] option to the icml2026 package.
+
+  % List of affiliations: The first argument should be a (short) identifier you
+  % will use later to specify author affiliations Academic affiliations
+  % should list Department, University, City, Region, Country Industry
+  % affiliations should list Company, City, Region, Country
+
+  % You can specify symbols, otherwise they are numbered in order. Ideally, you
+  % should not use this facility. Affiliations will be numbered in order of
+  % appearance and this is the preferred way.
+  \icmlsetsymbol{equal}{*}
+  \icmlsetsymbol{intern}{\dag}
+  \icmlsetsymbol{cocorr}{\ddag}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Weimin Xiong}{pku,xiaomi,intern}
+    \icmlauthor{Shuhao Gu}{xiaomi}
+    \icmlauthor{Bowen Ye}{xiaomi}
+    \icmlauthor{Zihao Yue}{xiaomi,ruc}
+    \icmlauthor{Lei Li}{xiaomi,hku}\\
+    \icmlauthor{Feifan Song}{pku}
+    \icmlauthor{Sujian Li}{pku,cocorr}
+    \icmlauthor{Hao Tian}{xiaomi,cocorr}
+  \end{icmlauthorlist}
+
+  \icmlaffiliation{pku}{National Key Laboratory for Multimedia Information Processing, School of Computer Science, Peking University}
+  \icmlaffiliation{xiaomi}{LLM-Core, Xiaomi}
+  \icmlaffiliation{hku}{The University of Hong Kong}
+  \icmlaffiliation{ruc}{Renmin University of China}
+
+  \icmlcorrespondingauthor{Sujian Li}{lisujian@pku.edu.cn}
+
+  % You may provide any keywords that you find helpful for describing your
+  % paper; these are used to populate the "keywords" metadata in the PDF but
+  % will not be shown in the document
+  \icmlkeywords{Machine Learning, ICML}
+
+  \vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column listing the
+% affiliations and the copyright notice. The command takes one argument, which
+% is text to display at the start of the footnote. The \icmlEqualContribution
+% command is standard text for equal contribution. Remove it (just {}) if you
+% do not need this facility.
+
+% Use ONE of the following lines. DO NOT remove the command.
+% If you have no special notice, KEEP empty braces:
+\printAffiliationsAndNotice{\textsuperscript{\dag}Contribution during internship at Xiaomi LLM-Core Team. \textsuperscript{\ddag}Co-corresponding authors. }
+% Or, if applicable, use the standard equal contribution text:
+% \printAffiliationsAndNotice{\icmlEqualContribution}
+
+\begin{abstract}
+%GUI agents capable of autonomously interacting with graphical user interfaces have shown strong potential for automating tasks across web, desktop, and mobile applications. However, their performance and generalization are fundamentally limited by the lack of large-scale, high-quality human–computer interaction data. 
+% Graphical user interface (GUI) agents have shown strong potentials for automating tasks across web, desktop, and mobile applications, yet their performance and generalization are fundamentally limited by the scarcity of large-scale, high-quality interaction data.
+%Existing interaction datasets rely heavily on manual annotation or synthetic environments, which are costly to scale and fail to reflect real-world interface diversity.
+% Existing interaction datasets rely heavily on manual or synthetic approaches that are difficult to scale and lack real-world complexity.
+%To bridge this gap, we introduce Video2GUI, a fully automated framework that constructs large-scale GUI pretraining data directly from unlabeled internet videos, without requiring handcrafted keywords or additional annotations.
+% To bridge this gap, we propose Video2GUI,  a fully automated framework that curates large-scale GUI pretraining data directly from the vast resources of unlabeled internet videos, without requiring handcrafted keywords or additional annotations.
+% Video2GUI automatically filters high-quality instructional videos, identifies user operation events, and converts raw videos into structured interaction trajectories suitable for GUI agent training. Applying this pipeline to over 500 million YouTube videos, we extract more than 20 million interaction trajectories spanning major platforms and applications.\lilei{highlight how many platforms and application to show diversity} Models pretrained on Video2GUI data achieve consistent and substantial improvements across multiple offline and online GUI agent benchmarks, demonstrating strong generalization and robustness. \lilei{add numbers to convince the reader of the generalization}
+% We further release the data filtering models and a subset of the generated data to facilitate future research.
+% \lilei{dont say subset. just say we will release.}
+
+Recent advances in multimodal large language models have driven growing interest in graphical user interface (GUI) agents, yet their generalization remains constrained by the scarcity of large-scale training data spanning diverse real-world applications. Existing datasets rely heavily on costly manual annotations and are typically confined to narrow domains.
+To address this challenge, we propose \ourmethod{}, a fully automated framework that extracts grounded GUI interaction trajectories directly from unlabeled Internet videos. \ourmethod{} employs a coarse-to-fine filtering strategy to identify high-quality GUI tutorial videos and convert them into structured agent trajectories.
+Applying this pipeline to 500 million video metadata entries, we construct WildGUI, a large-scale dataset containing 12 million interaction trajectories spanning over 1,500 applications and websites. Pre-training Qwen2.5-VL and Mimo-VL on WildGUI yields consistent improvements of 5–20\% across multiple GUI grounding and action benchmarks, matching or surpassing state-of-the-art performance. Project page: \url{https://weiminxiong.github.io/Video2GUI/}.
+\end{abstract}
+
+\section{Introduction}
+% In recent years, agents capable of autonomously interacting with graphical user interfaces (GUIs), referred to as GUI agents, have emerged as a prominent research direction in artificial intelligence. By emulating human actions such as clicking, typing, and scrolling, these agents can automatically perform tasks across web pages, desktop software, and mobile applications, offering substantial benefits in improving user productivity and advancing research in multimodal understanding and human–computer interaction. However, building GUI agents with strong generalization and robustness critically depends on access to large-scale, high-quality human–computer interaction data. Existing approaches primarily rely on manually annotated datasets or synthetic data generated in constrained environments. While manual annotation is costly and difficult to scale, synthetic data often fails to capture the rich diversity of real-world interfaces and interaction patterns, severely limiting agent performance in complex, real-world scenarios.
+
+% To alleviate this data bottleneck, recent efforts have explored automatically constructing GUI training data from internet videos. Nevertheless, most existing methods rely on manually specified keywords for video retrieval, which fundamentally restricts the scale and diversity of data sources and introduces unavoidable prior biases. As a result, the learned agents often struggle to generalize to unseen applications or novel interface layouts. 
+% \lilei{dont talk about previous work too much here, which makes our work looks incremental. directly share our motivation (i.e., world knowledge and usage experience) and defer the comparison to related work/later table}
+% For GUI interaction tasks—where world knowledge and usage experience play a crucial role—exposure to a broader spectrum of software systems and interaction scenarios is essential for learning human operation strategies and behavioral patterns. However, internet videos are extremely heterogeneous, and indiscriminate utilization of such data inevitably introduces large amounts of irrelevant or low-quality samples. This motivates the need for a fully automated data pipeline that requires neither handcrafted keywords nor additional annotations, yet can automatically identify, filter, and structure high-quality GUI interaction data from unlabeled videos. To this end, we propose Video2GUI, an automated framework for synthesizing large-scale GUI pretraining data from unlabeled videos.
+Recent advances in multimodal large language models have underscored the importance of agents capable of autonomously interacting with graphical user interfaces~\citep{zhang2024large,wang2025opencua,qin2025ui}. Such agents can automate tasks on digital devices by perceiving visual interface states and emulating human actions, including clicking, typing, and dragging, across diverse platforms such as web, desktop, and mobile applications~\citep{cheng2024seeclick, you2024ferret}. A key prerequisite for developing generalized GUI agents is access to large-scale and diverse trajectory data that can precisely document GUI interactions. These data capture authentic user behavior patterns across a wide range of applications, tasks and systems, and are essential for improving the generalization capability of agents~\citep{li2024effects, wu2024atlas, chen2025guicourse}. 
+% across different applications and environments~\citep{li2024effects, wu2024atlas, chen2025guicourse}.
+
+\begin{table*}[ht]
+\centering
+\caption{Comparison with existing datasets. WildGUI is the largest open-source GUI pre-training dataset, offering comprehensive coverage across website, mobile, and desktop platforms with over 12M trajectories and 124M images.}
+\label{tab: dataset_comparison}
+
+\small 
+\setlength{\tabcolsep}{4pt} % 调整列间距
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{l | c c c | c c c c | l}
+\toprule
+% === 表头第一层 ===
+\multirow{2}{*}{\textbf{Dataset}} & \multicolumn{3}{c|}{\textbf{Platform}} & \multicolumn{4}{c|}{\textbf{Scale \& Statistics}} & \multirow{2}{*}{\textbf{Inst. Level}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-8} % 横线分隔
+% === 表头第二层 ===
+ & \textbf{Website} & \textbf{Mobile} & \textbf{Desktop} & \textbf{Environments} & \textbf{Instructions} & \textbf{Images} & \textbf{Turns} & \\
+\midrule
+
+% === Existing Datasets ===
+MiniWoB++~\citep{liu2018reinforcement}     & \cmark & \cmark & \xmark  & 114    & 100     & 17,971 & 3.6  & Low-level \\
+MIND2WEB~\citep{deng2023mind2web}          & \cmark & \xmark & \xmark  & 137    & 2,350   & 2,350  & 7.3  & High-level \\
+AITW~\citep{rawles2023androidinthewild}    & \xmark & \cmark & \xmark  & 357    & 30,378  & 715,142 & 6.5  & High \& low \\
+AndroidControl~\citep{li2024effects}       & \xmark & \cmark & \xmark  & 833    & 14,538  & 15,283 & 4.8  & High \& low \\
+GUI-World~\citep{chen2024gui}              & \cmark & \cmark & \cmark  &  -     & 12,379  & 83,176 & 6.7  & High-level \\
+GUI-Odessey~\citep{lu2025guiodyssey}       & \xmark & \cmark & \xmark  & 201    & 7,735   & 118,791 & 15.4 & High-level \\
+GUI-Act~\citep{chen2025guicourse}          & \cmark & \xmark & \xmark  & 50     & 67k     & 13k    & 7.9  & Low-level\\
+GUI-Net~\citep{zhang2025tongui}            & \cmark & \cmark & \cmark  & 280    & 1M      & 1M     & 4.7  & High-level \\
+MONDAY~\citep{jang2025scalable}            & \xmark & \cmark & \xmark  & -      & 20K     & 313k   & 15.7 & High-level \\
+GUI-360$^\circ$~\citep{mu2025gui}          & \xmark & \xmark & \cmark  & 3      & 13,750  & 105,368 & 7.6 & High-level \\
+\midrule
+% === Ours ===
+\textbf{WildGUI (Ours)}                         & \cmark & \cmark & \cmark  & 1,500+ & 12.7M   & 124.5M & 9.7 & High \& low \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+
+To acquire training data, most existing approaches rely heavily on manually annotated interaction trajectories~\citep{deka2017rico, rawles2023androidinthewild} or on simulated environments~\citep{shvo2021appbuddy, lee2024benchmarking}. While these sources provide high-quality supervision, they entail substantial annotation costs and suffer from limited scalability, which in turn constrains the agent’s ability to generalize to unseen interfaces and tasks~\citep{gao2024multi}. In contrast, internet videos constitute a rich repository of real-world GUI usage, providing detailed step-by-step demonstrations of software operations~\citep{zhang2025tongui}. However, effectively leveraging such data presents significant challenges. 
+% Given the vast diversity of online content, filtering out high-quality instructional GUI recordings from massive, open-domain video collections is difficult. Furthermore, as raw videos lack explicit interaction labels, how to extract structured action trajectories and precisely ground them to corresponding screen coordinates remains an open problem.
+% The immense diversity of online videos makes it difficult to reliably filter high-quality instructional GUI recordings from large-scale, open-domain collections. Moreover, as raw videos lack explicit interaction annotations, extracting structured action trajectories and precisely grounding them to corresponding screen coordinates remains a problem.
+The immense diversity of online videos makes it difficult to reliably filter high-quality instructional GUI recordings featuring superior visual fidelity, topical relevance, and instruction clarity. Moreover, as raw videos lack explicit interaction annotations, extracting structured action trajectories and precisely grounding them to corresponding screen coordinates remains a significant challenge.
+
+% To address these challenges, we propose Video2GUI, a scalable framework designed to extract high-quality GUI interaction trajectories from billions of internet videos for training generalized GUI agents. 
+%In this paper, 
+% To tackle the challenges above, we propose \textbf{Video2GUI}, a scalable framework for extracting high-quality GUI interaction trajectories from billions of internet videos~(Figure~\ref{fig: overall_method}). 
+To tackle the problems above, we propose \textbf{Video2GUI}, a scalable framework that can both filter high-quality GUI instructional videos from billions of internet videos and automatically annotate accurate GUI interaction trajectories (Figure~\ref{fig: overall_method}).
+% First, to ensure data quality and GUI relevance at internet scale, we employ the coarse-to-fine video filtering strategy that first leverages metadata-based textual filtering to identify candidate software tutorial videos, followed by a multi-dimensional video scoring model to assess visual quality, instructional completeness, and task relevance.
+% To ensure both data quality and GUI relevance at internet scale, we adopt a coarse-to-fine video filtering strategy. Specifically, we first perform metadata-based textual filtering to identify candidate software tutorial videos, and then apply a multi-dimensional video scoring model that evaluates visual quality, instructional completeness, and task relevance.
+To effectively handle video data at internet scale, we adopt a coarse-to-fine filtering strategy. We begin with metadata-based textual filtering as a coarse screening step. This low-cost stage leverages video titles, descriptions, and keywords to quickly eliminate videos unrelated to GUI-based software operations, thereby avoiding unnecessary storage and computational overhead. However, filtering based solely on metadata cannot guarantee video or instructional quality. We therefore introduce a visual scoring model to perform fine-grained evaluation of video content, assessing factors such as visual fidelity, instructional completeness, and task relevance. This strategy effectively balances processing efficiency with the quality of the selected videos.
+% To address the challenge of filtering high-quality instructional GUI content from massive open-domain video collections, Video2GUI adopts a coarse-to-fine selection strategy that first leverages metadata-based textual filtering to identify candidate software tutorial videos, followed by a multi-dimensional video scoring model to assess visual quality, instructional completeness, and task relevance. 
+% To address the absence of explicit interaction annotations in raw videos, we further introduce a two-stage annotation pipeline.
+% In the first stage, we identify task instructions, operation timestamps, action details, and the underlying reasoning behind each action. In the second stage, we extract screenshots at the identified timestamps and perform precise spatial grounding to map actions to exact screen coordinates.
+\begin{figure*}[ht]
+    \centering
+    % \includegraphics[width=0.95\linewidth]{method.pdf}
+    \includegraphics[width=0.95\linewidth]{method_light.pdf}
+    \caption{Overview of the VideoGUI pipeline. VideoGUI consists of three stages: (A) coarse-to-fine video filtering for selecting high-quality tutorial videos, (B) trajectory extraction that converts video segments into instruction–trajectories sequences, and (C) action spatial grounding that maps low-level instructions to precise UI targets to produce grounded trajectories.}
+    \label{fig: overall_method}
+\end{figure*}
+To extract explicit interaction annotations from raw videos accurately, we first identify task instructions, operation timestamps, action details, and the underlying reasoning behind each action. We then extract screenshots at the identified timestamps and perform precise spatial grounding to map actions to exact screen coordinates, thereby mitigating the grounding difficulties caused by frame compression in videos~\citep{mu2024snag}.
+% that first identify the user's task instructions, operation timestamps, action details, and thinking process behind the action. In the second stage, we extract screenshots corresponding to these timestamps and perform precise spatial grounding to map the actions to exact screen coordinates.
+% To further overcome the lack of explicit interaction annotations in raw videos, we introduce a two-stage annotation pipeline that first detects user actions by identifying operation instructions, temporal boundaries, and semantic intents, and then performs fine-grained spatial grounding by aligning detected actions with corresponding screenshots and precise screen coordinates. 
+
+% Using this pipeline, Video2GUI enables the automatic construction of large-scale and diverse GUI agent pretraining data directly from unlabeled web videos. Starting from metadata of over 500 million YouTube videos, we extract 12 million GUI interaction trajectories comprising 100.3 million screenshots, covering more than 1,500 applications and web pages, effectively bridging the gap between raw internet videos and actionable training data for GUI agents.
+
+Using this pipeline, we introduce \textbf{WildGUI}, a large-scale and diverse GUI pre-training dataset constructed from unlabeled web videos. Starting from 500 million video metadata entries, we extract 12.7 million GUI operation trajectories comprising 124.5 million screenshots, spanning more than 1,500 applications and websites~(see Table~\ref{tab: dataset_comparison}). 
+%WildGUI effectively bridges the gap between raw Internet-scale videos and actionable training data for GUI agents.
+Compared to existing datasets, WildGUI offers a distinct advantage by sourcing diverse and comprehensive actionable training data for GUI agents directly from raw Internet-scale videos.
+% To validate the efficacy of WildGUI, we adopt a two-stage training strategy. In the first stage, we perform continual pre-training on the extracted trajectories with a multi-task objective that integrates GUI grounding, GUI action prediction, and GUI trajectory modeling, with each task designed to strengthen a distinct capability of the foundation model. In the second stage, we conduct post-training on carefully curated open-source datasets to further refine task-specific performance. 
+Leveraging WildGUI, we can perform continual pre-training on Qwen2.5-VL and Mimo-VL to enhance their generalization ability across diverse applications and environments. Further, we  conduct post-training on carefully curated open-source datasets to refine task-specific performance.
+We evaluate the resulting agents on GUI grounding tasks, as well as both offline and online agent benchmarks. Experimental results demonstrate that models pre-trained on WildGUI achieve consistent and substantial improvements across all evaluated benchmarks and model architectures, matching or surpassing state-of-the-art performance. These results confirm the effectiveness and scalability of our constructed dataset. We summarize our contributions as follows:
+
+% Specifically, this framework consists of three core stages: data filtering, action event recognition, and action annotation. First, starting from large-scale video metadata (e.g., titles and descriptions), we identify candidate GUI tutorial videos and introduce a scoring model to evaluate them along multiple dimensions, including video quality, instructional completeness, and task difficulty. Videos with high scores are selected as data sources. Next, each video is segmented into fixed-length clips, and an action event recognition model is applied to automatically identify task instructions, the timestamps of user operations, the corresponding action types, and the preceding reasoning process. Based on these predictions, we extract screenshots at the detected operation timestamps and employ a grounding model to localize the precise interaction targets on the screen. Through this process, originally unlabeled GUI operation videos are automatically transformed into complete (thought, action, observation) interaction trajectories suitable for training GUI agents.
+
+% Built upon this automated pipeline, we process metadata from over 500 million YouTube videos. After classification and quality filtering, we obtain approximately 20 million high-quality videos, totaling around 300,000 hours of footage. From these videos, we automatically extract over 100 million interaction steps, covering major platforms including Windows, macOS, Android, and iOS, as well as a wide spectrum of real-world applications, resulting in a dataset of roughly 200B tokens. Human evaluation shows that the overall annotation accuracy exceeds 80\%, indicating that the generated data is sufficiently reliable for large-scale pretraining. To validate the effectiveness of Video2GUI data, we adopt a two-stage training strategy: we first perform continued pretraining on multimodal models such as Qwen2.5-VL and MiMo-VL, followed by post-training on carefully curated high-quality open-source datasets. Experimental results demonstrate that models pretrained with Video2GUI achieve substantial improvements on offline benchmarks such as ScreenSpot-Pro and OSWorld-G, and consistently deliver performance gains in online evaluation environments including AndroidWorld and OSWorld, validating the effectiveness and robustness of the constructed data.
+
+% \begin{itemize}
+%     \item We propose a fully automated Video2GUI framework that synthesizes high-quality GUI pretraining data at scale from unlabeled videos, without requiring handcrafted keywords or additional annotations.
+%     \item Extensive experiments show that data constructed by Video2GUI significantly improves model performance across multiple offline and online GUI agent benchmarks, demonstrating its effectiveness and generalization capability in the pretraining stage.
+%     \item  We open-source the scoring models used for data filtering, along with a subset of the annotated data, to facilitate further research on GUI agent training and evaluation within the community.
+% \end{itemize}
+\begin{itemize}
+    \item We propose Video2GUI, a fully automated and scalable framework for extracting high-quality GUI interaction trajectories from large-scale unlabeled web videos.
+    \item We construct WildGUI, a large-scale and diverse GUI pre-training dataset with 12 million trajectories spanning over 1,500 real-world applications and websites.
+    \item Extensive experiments on Mimo-VL and Qwen2.5-VL show that pre-training on WildGUI significantly improves performance across multiple popular GUI grounding and agent benchmarks, demonstrating strong effectiveness and generalization.
+    \item We will release the WildGUI dataset and the Video2GUI pipeline to facilitate future research on scalable GUI agent training and evaluation.
+\end{itemize}
+
+
+
+\section{Formulation of GUI Agent}
+\label{sec: task formation}
+
+% We consider GUI interaction as a Partially Observable Markov Decision Process (POMDP) defined by the tuple
+% \[
+% (\mathcal U, \mathcal S, \mathcal A, \mathcal O, \mathcal T).
+% \]
+% Here, $\mathcal U$ denotes the space of high-level user instructions (e.g., task descriptions), $\mathcal S$ represents the latent environment state encoding the underlying GUI configuration, $\mathcal A$ is the action space consisting of atomic GUI operations such as clicking, typing, and scrolling, and $\mathcal O$ denotes the observation space. 
+% The transition function $\mathcal T: \mathcal S \times \mathcal A \rightarrow \mathcal S$ models how GUI states evolve in response to agent actions. 
+% In the context of GUI agents, both the instruction space $\mathcal U$ and action descriptions $\mathcal A$ are expressed in natural language, while observations $\mathcal O$ are multimodal, typically consisting of screen images and optional textual feedback.\lilei{add a transition sentence here to connect between the definition and the transition process at time $t$.}
+
+% At each time step $t$, the agent $\pi_\theta$ receives an observation $o_{t-1} \in \mathcal O$ and selects an action $a_t \in \mathcal A$ according to its policy $\pi_\theta(\cdot \mid e_{t-1})$, where
+% \[
+% e_{t-1} = (u, a_1, o_1, \ldots, a_{t-1}, o_{t-1})
+% \]
+% denotes the interaction history. Executing $a_t$ induces a state transition to $s_t \in \mathcal S$, after which the agent observes execution feedback $o_t \in \mathcal O$, such as an updated screen. 
+% This perception--action loop continues until the task is completed or a maximum step budget is reached. 
+% The resulting trajectory is denoted as
+% \[
+% e_n = (u, a_1, o_1, \ldots, a_n, o_n),
+% \]
+% with length $n$. 
+
+We formulate the GUI agent interaction as a Partially Observable Markov Decision Process (POMDP), defined by the tuple $(\mathcal{U}, \mathcal{S}, \mathcal{A}, \mathcal{O}, \mathcal{T})$. 
+Here, $\mathcal{U}$ denotes the space of high-level user instructions (e.g., task descriptions), $\mathcal{S}$ represents possible environment states, $\mathcal{A}$ is the action space consisting of atomic GUI operations (e.g., clicking, typing), and $\mathcal{O}$ denotes the observation space. 
+The transition function $\mathcal{T}: \mathcal{S} \times \mathcal{A} \rightarrow \mathcal{S}$ models the evolution of GUI states in response to agent actions. 
+In this context, $\mathcal{U}$ and $\mathcal{A}$ are typically expressed in natural language, while $\mathcal{O}$ consists of multimodal feedback such as screen screenshots. 
+Under this framework, the task-solving process unfolds as a sequential decision-making loop where the agent interacts with the environment to fulfill the user instruction $u$.
+
+% At each time step $t$, the agent $\pi_\theta$ receives an observation $o_{t-1} \in \mathcal{O}$ and selects an action $a_t \in \mathcal{A}$ based on the policy $\pi_\theta(\cdot \mid e_{t-1})$, where $e_{t-1} = (u, a_1, o_1, \ldots, a_{t-1}, o_{t-1})$ represents the interaction history. 
+% Executing $a_t$ induces a state transition to $s_t \in \mathcal{S}$, yielding execution feedback $o_t \in \mathcal{O}$. 
+% This perception--action loop continues until the task is completed or a maximum step budget is reached, resulting in a trajectory $e_n = (u, a_1, o_1, \ldots, a_n, o_n)$ of length $n$.
+At each time step $t$, the agent $\pi_\theta$ receives an observation $o_{t-1} \in \mathcal{O}$ and selects an action $a_t \in \mathcal{A}$ based on the policy $\pi_\theta(\cdot \mid e_{t-1})$, where
+$e_{t-1} = (u, a_1, o_1, \ldots, a_{t-1}, o_{t-1})$ denotes the interaction history.
+Each action $a_t$ is parameterized as a tuple $(\tau_t, b_t)$, where $\tau_t$ specifies the action type (e.g., click, type, scroll), and $b_t$ denotes the corresponding action parameters, such as click coordinates, target UI elements, or input text.
+Executing $a_t$ induces a state transition to $s_t \in \mathcal{S}$, yielding execution feedback $o_t \in \mathcal{O}$.
+This perception–action loop continues until the task is completed or a maximum step budget is reached, resulting in a trajectory
+$e_n = (u, a_1, o_1, \ldots, a_n, o_n)$ of length $n$.
+
+\section{Video2GUI}
+To curate GUI interaction data,
+%In this section, 
+we introduce the Video2GUI synthesis framework alongside a specialized training strategy. As illustrated in Figure~\ref{fig: overall_method}, the Video2GUI pipeline converts raw internet videos into structured interaction trajectories $\mathcal{D}=\{(u,e)^{(i)}\}_{i=1}^{|\mathcal{D}|}$ through three progressive stages .
+We begin with coarse-to-fine video filtering (\S~\ref{subsec: video filtering}) to identify high-quality GUI tutorial content from internet videos.
+Next, we execute trajectory extraction (\S~\ref{subsec: trajectory extraction}), deriving task instructions, action timestamps, action details, and action rationales from the videos.
+We then apply action space grounding (\S~\ref{subsec: spatial grounding}) to map the extracted actions to precise screen coordinates. Finally, to fully leverage this large-scale synthetic data, we introduce a two-stage agent training strategy (\S~\ref{subsec: agent tuning}) that combines continual pre-training on Video2GUI data with supervised post-training to equip the agent with robust execution capabilities.
+% In this section, we present \textbf{Video2GUI}, a fully automated framework for synthesizing large-scale GUI pretraining data from unlabeled videos. 
+% As illustrated in Figure~\ref{fig:framework}, Video2GUI converts raw Internet videos into structured GUI interaction trajectories $\mathcal D = \Big\{(u, e)^{(i)}\Big\}_{i=1}^{|\mathcal D|}$ through a multi-stage pipeline. The pipeline has four parts:
+
+% \begin{itemize}
+%     % \item \textbf{Video Filtering and Scoring.} We first leverage video meta information, including titles and descriptions, to identify videos that potentially contain GUI operation demonstrations.
+%     % A quality scoring model is then applied to assess each video in terms of visual clarity, instructional completeness, and task difficulty, and only high-scoring videos are retained for subsequent processing.
+%     \item \textbf{Video Filtering and Scoring.} We filter and score videos using metadata to select high-quality GUI operation demonstrations (Section~\ref{subsec: video filtering}).
+%     \item \textbf{Instruction and Action Event Extraction.} We extract task instructions, interaction timestamps, action types, and pre-action reasoning (\emph{thought}) from each video.
+%     \item \textbf{Grounding of GUI Actions.} We further ground each extracted interaction event by localizing the exact execution target on the GUI.
+%     \item \textbf{Two-Stage Model Training.} The synthesized trajectories are finally used to train GUI agents.
+%     We adopt a two-stage training paradigm, consisting of continual pretraining on Video2GUI data followed by post-training on high-quality open source datasets.
+% \end{itemize}
+
+\subsection{Coarse-to-Fine Video Filtering}
+\label{subsec: video filtering}
+
+% Given the massive scale and heterogeneity of Internet videos, directly processing raw videos is prohibitively expensive and inevitably introduces substantial noise.
+% \lilei{add one sentencing explaining the cost and noise (e.g., how many disk space would it cost? }
+% We therefore adopt a two-stage filtering and scoring strategy that progressively narrows down high-quality GUI operation videos, first at the metadata level and then at the video content level.
+% \lilei{add a sentence these two aspects are complementary: meta is a textualized representation containing high-level information, while video content is more visually oriented.}
+
+\paragraph{Meta Info Filtering}
+Given the massive scale and heterogeneity of internet videos, directly processing raw video content is prohibitively expensive. For instance, downloading and storing hundreds of millions of videos would require hundreds of petabytes of storage, while blind processing would waste substantial computational resources on irrelevant content such as daily vlogs or news commentary. 
+To ensure the extraction of high-quality GUI tutorial videos, we first conduct a rapid coarse filtering based on video metadata. We begin by collecting metadata from over 500 million YouTube videos obtained through a combination of public repositories and large-scale web crawling. We choose YouTube as the data source because it offers excellent diversity, covering software tutorials across multiple languages, countries, and platforms, which naturally provides cross-lingual and cross-cultural GUI interaction data. The collected metadata includes video titles, authors, upload timestamps, keywords, and textual descriptions.
+% We employ Qwen2.5-7B~\citep{Yang2024Qwen25TR} as the relevance filtering model, augmented with a classification head to predict the relevance between video metadata and GUI operation content. To construct training data for this model, we leverage DeepSeek-V3~\citep{liu2024deepseek} to annotate relevance labels for 10K metadata samples. 
+To balance filtering quality and computational cost, we leverage DeepSeek-V3~\citep{liu2024deepseek} to annotate relevance labels between video metadata and GUI operation content for 10K samples, and subsequently fine-tune a lightweight Qwen2.5-7B~\citep{Yang2024Qwen25TR} with a classification head to enable scalable inference.
+We validate the effectiveness of this automated annotation against a held-out set of manually labeled samples, where DeepSeek-V3 demonstrates high alignment with human judgment. 
+We apply upsampling to this synthetic dataset to ensure balanced positive and negative examples, and fine-tune Qwen2.5-7B accordingly. 
+The resulting model is then applied to classify all collected video metadata. Through this metadata-based coarse filtering round, we reduce the candidate videos to approximately 20 million. For detailed information on the classification model training process and prompts, please refer to the Appendix~\ref{sec: metadata classification}.
+% We first collect metadata from over 500M videos obtained through a combination of public repositories and large-scale web crawling.
+% The collected metadata includes video titles, authors, upload timestamps, keywords, and textual descriptions.
+% Downloading all corresponding videos would incur prohibitive storage and computation costs; thus, we initially filter videos based solely on metadata to identify candidates that are highly relevant to GUI operations.
+
+% To this end, we employ Qwen-2.5-7B as a relevance filtering model with an additional scoring head that predicts the relevance between the video metadata and GUI operation content.
+% To construct training data for this model, we observe that DeepSeek-V3 is effective at inferring video attributes from metadata, and we use it to annotate 50K metadata samples with relevance labels.\lilei{how to measure the effectiveness? could say we have a mannually annotated held-out validation set and v3 performs relative well.}
+% We then fine-tune Qwen-2.5-7B on this dataset and apply the resulting model to score all collected video metadata.
+% By retaining videos whose relevance scores exceed a predefined threshold, we reduce the candidate set to approximately 20 million videos.
+
+\paragraph{Video Quality Scoring}
+% Although metadata-based coarse filtering effectively removes videos irrelevant to GUI interactions, it remains insufficient to guarantee high-quality instructional content. In practice, many videos provide only minimal textual descriptions. Some are limited to software introductions or advertisements rather than concrete operational demonstrations. Others suffer from poor recording quality, such as low resolution or missing narration. These issues make it difficult to extract high-quality GUI interaction data and cannot be reliably addressed using metadata alone. To address this, we introduce a fine-grained, content-based video scorer that directly analyzes video content.
+Although metadata-based coarse filtering effectively removes videos irrelevant to GUI interactions, it remains insufficient for ensuring high-quality instructional content. For example, some videos focus on software introductions or advertisements rather than concrete operational demonstrations, while others suffer from poor recording quality, including low resolution or missing narration. These issues cannot be reliably detected using metadata alone. To address this limitation, we introduce a fine-grained, content-based video scorer that directly analyzes video content.
+
+% Specifically, we leverage the Qwen2.5-Omni~\citep{xu2025qwen2} model, which supports multimodal inputs including text, video, and audio, to assess video quality. For each candidate video, we extract the first minute and evaluate it along three complementary dimensions. Topic relevance measures whether the video focuses on teaching GUI operations on the target platform and favors content that explains GUI functionalities or demonstrates specific tool usage. Instruction clarity assesses the clarity and coherence of instructional narration and guidance. Screen recording quality evaluates whether the visual content is clear, complete, and stable enough to support effective learning of GUI operations.
+
+% To train the video scoring model, we curate approximately 200 hours of videos sampled from the coarsely filtered set and employ Gemini-3-Pro~\citep{comanici2025gemini} to annotate each video with dimension-wise scores and corresponding rationales. Using this annotated dataset, we fine-tune Qwen2.5-Omni as a video-level quality scorer. Applying the trained model to 20 million coarsely filtered videos, we retain 4.16 million videos, yielding approximately 300,000 hours of high-quality GUI instructional content. Further details on the model training procedure and annotation prompts are provided in Appendix~\ref{sec: video scoring}.
+
+Specifically, we leverage an omnimodal model that supports diverse inputs including text, video, and audio to assess video quality. For each candidate video, we extract the first minute and evaluate it along three complementary dimensions. Topic relevance measures whether the video focuses on teaching GUI operations on the target platform and favors content that explains GUI functionalities or demonstrates specific tool usage. Instruction clarity assesses the clarity and coherence of instructional narration and guidance. Screen recording quality evaluates whether the visual content is clear, complete, and stable enough to support effective learning of GUI operations.
+To reduce annotation costs, we curate approximately 200 hours of videos sampled from the coarsely filtered set and employ Gemini 3 Pro~\citep{comanici2025gemini} to annotate each video with dimension-wise scores and corresponding rationales. We then fine-tune a lightweight Qwen2.5-Omni~\citep{xu2025qwen2} as a video-level quality scorer. Applying the trained model to 20 million coarsely filtered videos, we retain 4.16 million videos, yielding approximately 300,000 hours of high-quality GUI instructional content. Further details on the model training procedure and annotation prompts are provided in Appendix~\ref{sec: video scoring}.
+
+% While metadata-based filtering effectively identifies GUI-related content, it is insufficient for ensuring video quality.
+% In practice, many videos contain long segments of narration without interaction, lack coherent explanations, or include irrelevant or low-quality screen recordings.
+% To address this issue, we further perform video-level quality scoring based on the visual and instructional content of the videos.
+
+% Specifically, we employ an omni-modal scoring model that evaluates short video segments for efficiency.
+% For each candidate video, we extract the first 1 minute of content and assess it along three carefully designed dimensions:
+% (1) \emph{topic relevance}, which measures whether the video focuses on teaching GUI operations on target platforms (e.g., desktop or mobile devices);
+% (2) \emph{instruction clarity}, which evaluates the clarity and coherence of the instructional content; and
+% (3) \emph{screen recording quality}, which assesses visual clarity, completeness, and stability to ensure that GUI elements are clearly observable.
+
+% To train this scoring model, we annotate approximately 200 hours of video data using Gemini-2.5-Pro and fine-tune Qwen-Omni as the final video-level scorer.
+% After manually inspecting the scoring results and selecting appropriate thresholds, we retain approximately 300K hours of high-quality videos as the final data source for subsequent processing.
+
+
+\subsection{Trajectory Extraction}
+\label{subsec: trajectory extraction}
+
+In the previous stage, we obtained a large collection of high-quality GUI tutorial videos through coarse-to-fine filtering. However, these raw videos do not directly provide the structured supervision signals required to train GUI foundation models. The goal of this stage is to transform unstructured videos into task-oriented instruction–trajectory pairs, thereby extracting learnable GUI interaction data.
+Formally, given an input video $V$, our objective is to extract a set of instruction-trajectory pairs as defined in Section~\ref{sec: task formation}:
+\begin{equation}
+    \mathcal{D}(V) = \{ (u^{(k)}, e^{(k)}) \}_{k=1}^N
+\end{equation}
+where each pair $(u^{(k)}, e^{(k)})$ corresponds to the $k$-th independent task instance in the video. Here, $u^{(k)}$ denotes the natural language instruction for the task, while $e^{(k)}$ represents the corresponding interaction trajectory, in which each action step is associated with a precise timestamp.
+
+To achieve this, we employ Gemini-3-Pro directly as the annotation model. Since long videos pose challenges to the model’s context window, we adopt a sliding-window strategy augmented with historical context memory. Specifically, each input is constrained to a video segment of at most 4 minutes. Videos exceeding this duration are partitioned into a sequence of consecutive segments $\{S_1, S_2, \dots, S_M\}$. 
+% When processing the $j$-th segment $S_j$, in addition to the current video frames, we provide the model with the extracted results from preceding segments $\mathcal{D}(S_{1:j-1})$ as textual context. 
+When processing the $j$-th segment $S_j$, the model receives the current video frames alongside the extracted results from preceding segments $\mathcal{D}(S_{1:j-1})$, which serve as textual context. 
+This design enables the model to maintain long-range memory across segments, allowing it to accurately recognize tasks that span segmentation boundaries or depend on prior operations. 
+% Compared to foreground–background detection~\citep{zhang2025tongui} or inverse-dynamics-based methods~\citep{lu2025videoagenttrek} that rely on low-level visual cues and short-term inference, our VLM-driven approach supports long-horizon reasoning and captures the underlying intent of actions. 
+Compared to foreground–background detection in TongUI~\citep{zhang2025tongui} or inverse-dynamics-based methods in VideoAgentTrek~\citep{lu2025videoagenttrek} that rely on low-level visual cues and short-term inference, our VLM-driven approach supports long-horizon reasoning and captures the underlying intent of actions.
+During trajectory extraction, we also require the model to output a visually grounded textual description, the low-level instruction, for each interaction step in the trajectory $e^{(k)}$. Please refer to Appendix~\ref{sec: trajectory extraction} for more details about the annotation process.
+% \begin{table*}[ht]
+% \centering
+% \caption{Performance comparison of models across \textbf{ScreenSpot-Pro} and \textbf{OSWorld-G} benchmarks. We use `*' to denote the results evaluated by us. The best results are highlighted in \textbf{bold}, and the second-best results are \underline{underlined}.}
+% \resizebox{0.95\textwidth}{!}{%
+% \begin{tabular}{lcccccccc}
+% \toprule
+% \multirow{2}{*}{\textbf{Agent Model}} & \multicolumn{3}{c}{\textbf{ScreenSpot-Pro}} & \multicolumn{5}{c}{\textbf{OSWorld-G}} \\
+% \cmidrule(lr){2-4} \cmidrule(lr){5-9}
+%  & \textbf{Text} & \textbf{Icon} & \textbf{Avg} & \textbf{Text Match.} & \textbf{Elem. Rec.} & \textbf{Layout Und.} & \textbf{Fine-grained} & \textbf{Avg} \\
+% \midrule
+% \multicolumn{9}{l}{\cellcolor{gray!15}\textit{Proprietary Models}} \\
+% Gemini-2.5-Pro  & - & - & 11.4 & 59.8 & 45.5 & 49.0 & 33.6 & 45.2 \\
+% Seed1.5-VL & - & - & \textbf{60.9} & 73.9 & 66.7 & 69.6 & 47.0 & 62.9 \\
+% \midrule
+% \multicolumn{9}{l}{\cellcolor{gray!15}\textit{Open-Source Models}} \\
+% Qwen3-VL-2B$^*$~\citep{bai2025qwen3vltechnicalreport} & 56.1 & 18.9 & 41.9 & 61.7 & 45.8 & 54.2 & 39.6 & 45.9 \\
+% GTA1-7B~\citep{yang2025gta1} & 65.5 & 25.3 & 50.1 & 42.1 & 65.7 & 62.7 & 56.1 & 55.1 \\
+% % Qwen2.5-VL-7B~\citep{bai2025qwen2}$^*$ & - & - & 26.8 & 41.4 & 28.8 & 34.8 & 13.4 & 27.3\\
+% % Mimo-VL-7B~\citep{coreteam2025mimovltechnicalreport} & 55.7 & 18.4 & 41.2 & 65.0 & 59.2 & 59.0 & 40.2 & 54.7 \\
+% UI-Venus-7B~\citep{gu2025ui} & 67.1 & 24.3 & 50.8 & 74.6 & 60.5 & 61.5 & 45.5 & 58.8 \\
+% OpenCUA-7B~\citep{wang2025opencua} & - & - & 50.0 & - & - & - & - & 55.3\\
+% GUI-Owl-7B~\citep{ye2025mobile} & 69.4 & 31.5 & 54.9 & 64.8 & 63.6 & 61.3 & 41.0 & 55.9 \\
+% Qwen3-VL-8B$^*$~\citep{bai2025qwen3vltechnicalreport} & 67.6 & 21.3 & 49.9 & 69.0 & 55.5 & 59.7 & 47.7 & 54.8 \\
+% Qwen3-VL-32B$^*$~\citep{bai2025qwen3vltechnicalreport} & 73.4 & 25.0 & 54.9 & 72.8 & 63.3 & 66.4 & 51.7 & \underline{60.6} \\
+% UI-TARS-72B~\citep{qin2025ui} & 50.9 & 17.5 & 38.1 & 69.4 & 60.6 & 62.9 & 45.6 & 57.1 \\
+% \midrule
+% \multicolumn{9}{l}{\cellcolor{gray!15}\textit{Base Model}} \\
+% Qwen2.5-VL-7B~\citep{bai2025qwen2}$^*$ & - & - & 26.8 & 41.4 & 28.8 & 34.8 & 13.4 & 27.3\\
+% Mimo-VL-7B~\citep{coreteam2025mimovltechnicalreport} & 55.7 & 18.4 & 41.2 & 65.0 & 59.2 & 59.0 & 40.2 & 54.7 \\
+% \midrule
+% \multicolumn{9}{l}{\cellcolor{gray!15}\textit{Base Model After Two-Stage Training}} \\
+% Qwen2.5-VL-7B + \ourdataset{} & 57.0 & 17.6 & 41.9 & 70.0 & 54.6 & 57.7 & 46.2 &  53.7 \\
+% Mimo-VL-7B + \ourdataset{} & 70.1 & 33.6 & \underline{56.9} & 80.8 & 68.3 & 71.1 & 61.4 & \textbf{67.6}\\
+% \bottomrule
+% \end{tabular}%
+% }
+% \label{tab: grounding benchmark}
+% \end{table*}
+
+\begin{table*}[ht]
+\centering
+% \caption{Performance comparison on \textbf{ScreenSpot-Pro} and \textbf{OSWorld-G}. We group the Base Models and their fine-tuned counterparts to highlight the significant improvements achieved by our method. Results marked with `*' are evaluated by us.}
+\caption{Performance comparison on \textbf{ScreenSpot-Pro}~\citep{li2025screenspot} and \textbf{OSWorld-G}~\citep{xie2025scaling}. \textcolor{gaincolor}{($\uparrow$ Gain)} indicates the improvement over the base model. After continual pre-training on \ourdataset{}, the base models match or surpass state-of-the-art performance on GUI grounding evaluation. Results marked with `*' are evaluated by us.}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\toprule
+\multirow{2}{*}{\textbf{Agent Model}} & \multicolumn{3}{c}{\textbf{ScreenSpot-Pro}} & \multicolumn{5}{c}{\textbf{OSWorld-G}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-9}
+ & \textbf{Text} & \textbf{Icon} & \textbf{Avg} & \textbf{Text Match.} & \textbf{Elem. Rec.} & \textbf{Layout Und.} & \textbf{Fine-grained} & \textbf{Avg} \\
+\midrule
+\multicolumn{9}{l}{\cellcolor{gray!15}\textit{Proprietary Models}} \\
+Gemini-2.5-Pro  & - & - & 11.4 & 59.8 & 45.5 & 49.0 & 33.6 & 45.2 \\
+Seed1.5-VL & - & - & 60.9 & 73.9 & 66.7 & 69.6 & 47.0 & 62.9 \\
+\midrule
+\multicolumn{9}{l}{\cellcolor{gray!15}\textit{Open-Source Models}} \\
+Qwen3-VL-2B$^*$~\citep{bai2025qwen3vltechnicalreport} & 56.1 & 18.9 & 41.9 & 61.7 & 45.8 & 54.2 & 39.6 & 45.9 \\
+GTA1-7B~\citep{yang2025gta1} & 65.5 & 25.3 & 50.1 & 42.1 & 65.7 & 62.7 & 56.1 & 55.1 \\
+UI-Venus-7B~\citep{gu2025ui} & 67.1 & 24.3 & 50.8 & 74.6 & 60.5 & 61.5 & 45.5 & 58.8 \\
+OpenCUA-7B~\citep{wang2025opencua} & - & - & 50.0 & - & - & - & - & 55.3\\
+GUI-Owl-7B~\citep{ye2025mobile} & 69.4 & 31.5 & 54.9 & 64.8 & 63.6 & 61.3 & 41.0 & 55.9 \\
+Qwen3-VL-8B$^*$~\citep{bai2025qwen3vltechnicalreport} & 67.6 & 21.3 & 49.9 & 69.0 & 55.5 & 59.7 & 47.7 & 54.8 \\
+Qwen3-VL-32B$^*$~\citep{bai2025qwen3vltechnicalreport} & 73.4 & 25.0 & 54.9 & 72.8 & 63.3 & 66.4 & 51.7 & 60.6 \\
+UI-TARS-72B~\citep{qin2025ui} & 50.9 & 17.5 & 38.1 & 69.4 & 60.6 & 62.9 & 45.6 & 57.1 \\
+\midrule
+\multicolumn{9}{l}{\cellcolor{gray!15}\textit{Effectiveness of \ourdataset{} (Ours)}} \\
+% --- Qwen Block ---
+Qwen2.5-VL-7B~\citep{bai2025qwen2}$^*$ & - & - & 26.8 & 41.4 & 28.8 & 34.8 & 13.4 & 27.3\\
+\quad + \ourdataset{} & 57.0 & 17.6 & 41.9 \imp{15.1} & 70.0  & 54.6 & 57.7 & 46.2  &  53.7 \imp{26.4} \\
+\cmidrule(lr){1-9} % 细线分隔两个Base Model组
+% --- Mimo Block ---
+Mimo-VL-7B~\citep{coreteam2025mimovltechnicalreport} & 55.7 & 18.4 & 41.2 & 65.0 & 59.2 & 59.0 & 40.2 & 54.7 \\
+\quad + \ourdataset{} & 70.1 & 33.6 & \textbf{56.9} \imp{15.7} & 80.8 & 68.3 & 71.1 & 61.4 & \textbf{67.6} \imp{12.9}\\
+\bottomrule
+\end{tabular}
+}
+\label{tab: grounding benchmark}
+\end{table*}
+
+% Although the previous stage yields a large collection of high-quality videos, these videos do not directly provide structured supervision signals required for training GUI foundation models.
+% Our goal in this stage is to extract learnable GUI interaction supervision from raw videos by converting them into temporally aligned semantic annotations.
+
+% Formally, given an input video $v$, we aim to extract a sequence of interaction events
+% \begin{equation}
+% \mathcal{E}(v) = \{ e_t \}_{t=1}^{T},
+% \end{equation}
+% where each event $e_t$ corresponds to a user interaction occurring at time $t$ and contains both semantic and temporal information.
+
+% Previous approaches often rely on heuristic-based keyframe detection methods that identify frames with abrupt visual changes, which are brittle under diverse and complex video content.
+% Other model-based annotation methods are typically restricted to short video clips (e.g., $\leq$10 seconds) and video-only inputs, limiting their ability to infer long-horizon task intent and user reasoning.
+% These limitations motivate the need for an annotation model capable of jointly reasoning over long video segments and accompanying audio signals.
+
+% To address this challenge, we adopt Qwen-Omni, a multimodal model that natively supports video and speech inputs, as our annotation backbone.
+% Given a video segment $v_{1:L}$ of up to $L=3.5$ minutes, the model predicts a structured annotation:
+% \begin{equation}
+% e_t = \big( p, a, u, \tau_t, \alpha_t \big),
+% \end{equation}
+% where $p$ denotes the target platform, $a$ the application being used, $u$ the task-level instruction,
+% $\tau_t$ the timestamp of the interaction, $\alpha_t$ the action type (e.g., click, type, scroll). 
+% In addition, the model outputs grounding-friendly textual descriptions that facilitate spatial localization in subsequent stages.
+
+% To equip Qwen-Omni with this annotation capability, we construct supervised training data by annotating videos using \textbf{Gemini-2.5-Pro}.
+% We then fine-tune Qwen-Omni on this dataset to obtain a specialized annotation model, referred to as the \emph{tagger}.
+% The tagger implements a mapping
+% \begin{equation}
+% f_{\text{tag}}: v \;\rightarrow\; \mathcal{E}(v),
+% \end{equation}
+% transforming raw instructional videos into temporally aligned interaction events that serve as the foundation for subsequent grounding and trajectory construction.
+
+\subsection{Action Spatial Grounding}
+\label{subsec: spatial grounding}
+When extracting trajectories from videos, the input videos are compressed to accommodate long-context processing, which inherently limits the visual resolution required for precise pixel-level localization. Therefore, we introduce the action spatial grounding stage that maps the extracted actions to high-resolution screenshots.
+For each interaction action extracted at timestamp $t$, we retrieve a triplet of high-resolution frames $O_t = \{o_{t-0.5s}, o_t, o_{t+0.5s}\}$ from the raw video. This multi-frame input is crucial for handling rapid visual changes caused by the high-frequency nature of GUI interactions\footnote{We empirically set the temporal offset to 0.5 seconds, roughly matching the average duration of a single GUI action.}. For each frame, we employ Gemini-3-Pro to determine, based on the low-level instruction, obtained in the trajectory extraction stage, whether the action parameters can be localized from that frame, and to predict the precise grounding target $b_t$ (e.g., a bounding box or screen coordinates). The resulting grounded action is defined as: 
+\begin{equation}
+b_t = g_\phi(o_{t-0.5s}, o_t, o_{t+0.5s}, \tau_t).
+\end{equation}
+Among the three candidate frames, we select the first frame for which the model successfully produces a valid spatial grounding result as the final output. 
+% After manual verification, more than 95\% of the actions can be successfully parameterized with accurate grounding. 
+Manual verification of 200 randomly sampled actions confirms that over 95\% are accurately parameterized using this strategy.
+Please refer to Appendix~\ref{sec: action grounding} for more details about the annotation process, and Appendix~\ref{sec: pipeline cost} for the API cost of Video2GUI pipeline.
+% Accurately grounding GUI actions in the visual space is essential for producing executable interaction trajectories.
+% However, when long videos are processed as model inputs, individual frames are heavily compressed to satisfy context length constraints, making precise spatial localization of GUI elements unreliable.
+% As a result, the action events extracted in the previous stage lack concrete execution parameters, which motivates a dedicated grounding stage.
+
+% For each interaction event $e_t$ with an associated timestamp $\tau_t$, we extract the corresponding screen frame $o_t$ from the original video.
+% Together with the grounding-friendly textual description produced by the tagger, we formulate the grounding problem as predicting the execution target of the action within the visual observation.
+% Formally, given an event $e_t$ and observation $o_t$, the grounding model predicts:
+% \begin{equation}
+% g_\phi(o_t, \theta_t) \rightarrow \mathbf{b}_t,
+% \end{equation}
+% where $\mathbf{b}_t$ denotes the spatial parameters of the action, such as pixel coordinates or bounding boxes on the GUI.
+
+% We employ \textbf{Qwen-2.5-VL} as the grounding model, which takes the extracted screenshot and the corresponding grounding instruction as input and outputs action-specific spatial parameters following a predefined schema (see Appendix~\ref{appendix:grounding}).
+% This design decouples temporal reasoning from spatial localization, allowing the grounding model to operate on high-resolution visual inputs and produce accurate interaction targets.
+
+% In practice, some videos exhibit extremely high interaction frequencies, where a frame extracted strictly at the predicted timestamp may not accurately capture the intended action.
+% To address this issue, we leverage the grounding model as a verifier by asking it to determine whether the extracted screenshot contains sufficient visual evidence to execute the specified action.
+% Only interaction events for which the grounding model confirms the feasibility of the action are retained.
+% This verification step effectively filters out noisy or misaligned samples, ensuring that the resulting grounded actions are both temporally and spatially consistent.
+
+% By combining temporally localized action events with validated spatial grounding, this stage produces fully specified GUI actions that can be directly used to construct high-quality \emph{(thought, action, observation)} trajectories for training GUI agents.
+
+% \subsection{Agent Tuning}
+% \label{subsec: agent tuning}
+% Although the data construction pipeline includes verification through grounding checks, noise is inevitable at scale.
+% To ensure robust learning while fully leveraging the large volume of synthesized data, we adopt a two-stage training strategy.
+% The first stage focuses on learning general GUI understanding and interaction patterns from large-scale video-derived data, while the second stage refines the model’s instruction-following and execution capabilities using carefully curated high-quality datasets.
+% We summarize the datasets and their distribution used in the post-training stage in Section~\ref{sec:post-training-data}.
+
+% \paragraph{Stage I: Continual Pretraining.}
+% In the first stage, we perform continual pretraining on the Video2GUI trajectories to enhance the model’s multimodal perception and grounding capabilities.
+% To this end, we design three complementary pretraining tasks and train the model in a mixed fashion.
+
+% \textbf{(1) GUI Grounding Task.}
+% Given a GUI screenshot $o_t$, the model is required to predict the spatial execution parameters corresponding to a grounding instruction:
+% \begin{equation}
+% \mathcal{L}_{\text{ground}} = \ell \big( g_\phi(o_t), \mathbf{b}_t \big),
+% \end{equation}
+% where $\mathbf{b}_t$ denotes the target coordinates or bounding box.
+% This task explicitly strengthens the model’s ability to localize actionable UI elements.
+
+% \textbf{(2) GUI Action Single Task.}
+% To mitigate the visual compression introduced by multi-image training, we introduce a single-frame action prediction task.
+% Given a single screenshot $o_t$ and a task-level instruction $u$, the model predicts the corresponding GUI action $\alpha_t$:
+% \begin{equation}
+% \mathcal{L}_{\text{action-single}} = \ell \big( f(o_t, u), \alpha_t \big).
+% \end{equation}
+% This task encourages accurate action recognition under minimal visual input.
+
+% \textbf{(3) GUI Action Trajectory Task.}
+% Finally, we train the model on full interaction trajectories formatted as interleaved visual-text sequences.
+% Specifically, video frames and step-wise textual annotations are arranged in chronological order, and the model is trained to autoregressively predict the textual components.
+% The loss is computed only on the textual tokens:
+% \begin{equation}
+% \mathcal{L}_{\text{traj}} = - \sum_{t} \log p(y_t \mid o_{\leq t}, y_{< t}),
+% \end{equation}
+% where $y_t$ denotes the textual annotation at step $t$.
+
+% The overall pretraining objective is a weighted combination of the three tasks:
+% \begin{equation}
+% \mathcal{L}_{\text{pretrain}} =
+% \mathcal{L}_{\text{ground}} +
+% \mathcal{L}_{\text{action-single}} +
+% \mathcal{L}_{\text{traj}}.
+% \end{equation}
+
+% We perform Stage I training for one epoch over approximately \textbf{200B tokens}, including \textbf{180B image tokens} and \textbf{20B text tokens}.
+
+% \paragraph{Stage II: Post-Training.}
+% In the second stage, we further post-train the model on selected high-quality open-source datasets to improve instruction-following accuracy and execution reliability.
+% This stage focuses on cleaner supervision with stronger semantic alignment, complementing the breadth provided by large-scale video-derived data.
+% We train the model for three epochs with a total of approximately \textbf{30B tokens}, including \textbf{3B text tokens}.
+% The training templates and prompt formats used in both stages follow prior work and are detailed in Appendix~\ref{appendix:training-template}.
+
+\subsection{Agent Training}
+\label{subsec: agent tuning}
+
+To evaluate the effectiveness of the proposed Video2GUI framework, we follow prior work~\citep{xu2024aguvis, wang2025opencua} and adopt a two-stage training strategy.
+
+\paragraph{Stage 1: Continual Pre-training}
+
+% In the first stage, we pretrain the model on the large-scale WildGUI dataset to improve its general GUI understanding, interaction capability, and generalization across diverse platforms and applications. We design three complementary pretraining tasks and optimize the model with a mixed objective.
+% Concretely, the model is trained to (i) localize actionable UI elements by predicting the corresponding spatial target (coordinates or bounding box), (ii) predict the appropriate GUI action from a single screenshot $o_t$ conditioned on a task-level instruction $u$, and (iii) model full interaction trajectories represented as interleaved visual–text sequences. For the trajectory task, video frames and step-wise textual annotations are arranged in temporal order, and the model is trained to autoregressively predict the textual components, with the loss computed only over text tokens.
+In the first stage, we pretrain the model on our large-scale WildGUI dataset to enhance its GUI interaction capabilities and generalization across diverse applications and environments. We design three complementary pretraining tasks: GUI grounding, GUI action prediction, and GUI trajectory modeling, and optimize the model with the mixed objective.
+
+% Specifically, the model is trained to: (i) \textit{localize actionable UI elements} by predicting their spatial targets (coordinates or bounding boxes), (ii) \textit{predict appropriate GUI actions} from a single screenshot $o_t$ conditioned on a task-level instruction $u$, and (iii) \textit{model complete interaction trajectories} represented as interleaved visual–text sequences. For the trajectory modeling task, video frames and step-wise textual annotations are temporally ordered, and the model is trained to autoregressively predict the textual components, with loss computed only over text tokens.
+% The overall pretraining objective is a weighted combination of the three tasks:
+Specifically, the model is trained to: (i) \textit{localize target UI elements} by predicting the corresponding coordinates or bounding boxes; (ii) \textit{predict GUI actions} from a single screenshot $o_t$ conditioned on a task-level instruction $u$; and (iii) \textit{model multi-turn interactions} by autoregressively predicting actions from chronologically arranged sequences of screenshots and interaction histories, where the loss is computed exclusively on text tokens.
+The overall pretraining objective aggregates these three tasks as follows:
+\begin{equation}
+\mathcal{L}_{\text{pretrain}} = \mathcal{L}_{\text{ground}} + \mathcal{L}_{\text{action}} + \mathcal{L}_{\text{traj}}.
+\end{equation}
+We conduct continual pretraining for one epoch, covering approximately 200 billion tokens.
+
+\paragraph{Stage 2: Post-training}
+In the second stage, we fine-tune the pretrained model on curated high-quality open-source datasets. This stage aims to consolidate the agent's policy by leveraging cleaner and more precise human supervision signals, which improves performance on domain-specific downstream tasks.  We fine-tune the model for three epochs, totaling approximately 15 billion tokens. The datasets used in the post-training stage, as well as the prompt formats adopted in both stages are described in detail in Appendix~\ref{sec: agent tuning}.
+
+
+\section{Experiments}
+
+
+% \begin{table*}[t]
+% \centering
+% \caption{Performance comparison on \textbf{AndroidControl} and \textbf{CAGUI} benchmarks. The best results are highlighted in \textbf{bold}, and the second-best results are \underline{underlined}.}
+% \resizebox{0.95\linewidth}{!}{
+% \begin{tabular}{lcccccc}
+% \toprule
+% \multirow{2}{*}{\textbf{Models}} & \multicolumn{2}{c}{\textbf{AndroidControl-Low}} & \multicolumn{2}{c}{\textbf{AndroidControl-High}} & \multicolumn{2}{c}{\textbf{CAGUI}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+%  & \textbf{Type Acc.} & \textbf{Step SR} & \textbf{Type Acc.} & \textbf{Step SR} & \textbf{Type Acc.} & \textbf{Step SR} \\
+% \midrule
+% \multicolumn{7}{l}{\cellcolor{gray!15}\textit{Closed-source Models}} \\
+% GPT-4o~\citep{hurst2024gpt} & 74.3 & 19.4 & 66.3 & 20.8 & 3.7 & 3.7\\
+% \midrule
+% \multicolumn{7}{l}{\cellcolor{gray!15}\textit{Open-source Models}} \\
+% OS-Genesis-7B~\citep{sun2025genesis} & 90.7 & 74.2 & 65.9 & 44.4 & 38.1  & 14.5   \\
+% % Qwen2.5-VL-7B & 94.1 & 85.0 & 75.1 & 62.9 & 59.8 & 59.3  \\
+% OS-Atlas-7B~\citep{wu2024atlas}   & 73.0 & 67.3 & 70.4 & 56.5 & 81.5 & 55.9 \\
+% Aguvis-7B~\citep{xu2024aguvis}     & 93.9  & 89.4 & 65.6 & 54.2 & 67.4 & 38.2 \\
+% UI-TARS-7B~\citep{qin2025ui}    & 98.0 & \underline{90.8} & 83.7 & \textbf{72.5} & 88.6 & \underline{70.3}  \\
+% \midrule
+% \multicolumn{7}{l}{\cellcolor{gray!15}\textit{Base Model}} \\
+% Qwen2.5-VL-7B$^*$~\citep{bai2025qwen2} & 94.1 & 85.0 & 75.1 & 62.9 & 74.2 & 55.2  \\
+% Mimo-VL-7B~\citep{coreteam2025mimovltechnicalreport} & 92.9 & 87.9 & 76.3 & 65.6 & 82.2 & 63.4 \\
+% \midrule
+% \multicolumn{7}{l}{\cellcolor{gray!15}\textit{Base Model After Two-Stage Training}} \\
+% Qwen2.5-VL-7B + \ourdataset{}  &  94.9 & 90.3 & 74.6 & 64.5 & 88.3 & 65.4\\
+% Mimo-VL-7B + \ourdataset{} & 95.5 & \textbf{91.8} & 80.6 & \underline{71.4} & 90.3 & \textbf{71.0}\\
+% \bottomrule
+% \end{tabular}%
+% }
+% \label{tab: offline benchmark}
+
+% \end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Performance comparison on \textbf{AndroidControl}~\citep{li2024effects} and \textbf{CAGUI}~\citep{zhang2025agentcpm} benchmarks. \textcolor{gaincolor}{\textbf{($\uparrow$ Gain)}} indicates the improvement over the base model. After continual pre-training on \ourdataset{}, the base models match or surpass state-of-the-art performance on offline GUI agent evaluation. Results marked with `*' are evaluated by us.}
+\resizebox{0.95\linewidth}{!}{
+\begin{tabular}{lllllll}
+\toprule
+\multirow{2}{*}{\textbf{Models}} & \multicolumn{2}{c}{\textbf{AndroidControl-Low}} & \multicolumn{2}{c}{\textbf{AndroidControl-High}} & \multicolumn{2}{c}{\textbf{CAGUI}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+ & \textbf{Type Acc.} & \textbf{Step SR} & \textbf{Type Acc.} & \textbf{Step SR} & \textbf{Type Acc.} & \textbf{Step SR} \\
+\midrule
+\multicolumn{7}{l}{\cellcolor{gray!15}\textit{Closed-source Models}} \\
+GPT-4o~\citep{hurst2024gpt} & 74.3 & 19.4 & 66.3 & 20.8 & 3.7 & 3.7\\
+\midrule
+\multicolumn{7}{l}{\cellcolor{gray!15}\textit{Open-source Models}} \\
+OS-Genesis-7B~\citep{sun2025genesis} & 90.7 & 74.2 & 65.9 & 44.4 & 38.1  & 14.5   \\
+OS-Atlas-7B~\citep{wu2024atlas}   & 73.0 & 67.3 & 70.4 & 56.5 & 81.5 & 55.9 \\
+Aguvis-7B~\citep{xu2024aguvis}     & 93.9  & 89.4 & 65.6 & 54.2 & 67.4 & 38.2 \\
+UI-TARS-7B~\citep{qin2025ui}    & 98.0 & 90.8 & 83.7 & 72.5 & 88.6 & 70.3  \\
+\midrule
+\multicolumn{7}{l}{\cellcolor{gray!15}\textit{Effectiveness of \ourdataset{} (Ours)}} \\
+% --- Qwen Block ---
+Qwen2.5-VL-7B$^*$~\citep{bai2025qwen2} & 94.1 & 85.0 & 75.1 & 62.9 & 74.2 & 55.2  \\
+\quad + \ourdataset{}  &  94.9 \imp{0.8} & 90.3 \imp{5.3} & 74.6 & 64.5 \imp{1.6} & 88.3 \imp{14.1} & 65.4 \imp{10.2}\\
+\cmidrule(lr){1-7}
+% --- Mimo Block ---
+Mimo-VL-7B~\citep{coreteam2025mimovltechnicalreport} & 92.9 & 87.9 & 76.3 & 65.6 & 82.2 & 63.4 \\
+\quad + \ourdataset{} & \textbf{95.5} \imp{2.6} & \textbf{91.8} \imp{3.9} & \textbf{80.6} \imp{4.3} & \textbf{71.4} \imp{5.8} & \textbf{90.3} \imp{8.1} & \textbf{71.0} \imp{7.6}\\
+\bottomrule
+\end{tabular}%
+}
+\label{tab: offline benchmark}
+\end{table*}
+
+
+\subsection{Experiment Setup}
+
+\paragraph{Implementation Details.} We implement our models using the Megatron framework to facilitate efficient large-scale distributed training. We optimize the model parameters using the AdamW optimizer with a weight decay of $0.05$ and utilize a cosine learning rate schedule. To ensure the model captures the fine-grained visual details essential for accurate GUI operation, we configure the maximum number of input visual tokens to 4,096. Furthermore, to accommodate the extensive context required for long-horizon interaction trajectories, we set the maximum sequence length to 32,768 across both training stages.
+
+\paragraph{Training Configurations.} The training procedure consists of two stages. In Stage 1, the model is trained for 24,000 steps. The language model is optimized with a learning rate initialized at $2.5 \times 10^{-5}$ and linearly decayed to $1.0 \times 10^{-5}$, while the vision encoder is trained with a fixed learning rate of $8.0 \times 10^{-6}$.
+In Stage 2, the model is further refined on a curated dataset for 3 epochs, corresponding to 2,000 training steps. To facilitate stable fine-tuning, we adopt smaller learning rates in this stage: the language model learning rate decays from $1.0 \times 10^{-5}$ to $1.0 \times 10^{-6}$, and the vision encoder learning rate decays from $8.0 \times 10^{-6}$ to $8.0 \times 10^{-7}$.
+% The Stage 1 pretraining requires approximately 48 hours, while Stage 2 post-training takes around 4 hours. All experiments are conducted on a high-performance computing cluster equipped with 160 CPU cores, 512 GB system memory, and 256 NVIDIA 80GB GPUs.
+All experiments are conducted on a high-performance computing cluster equipped with 160 CPU cores, 512 GB of system memory, and 256 NVIDIA GPUs.
+
+\subsection{Evaluation}
+
+% We evaluate our models across gui grounding, offline agent evaluation, and online agent evaluation benchmarks to provide a comprehensive assessment of their capabilities. For gui grounding, which tests the ability to map natural language instructions to specific UI actions, we utilize OSWorld-G~\citep{xie2025scaling} and ScreenSpot-Pro~\citep{li2025screenspot}. OSWorld-G comprises 564 samples that systematically cover text matching, element recognition, layout understanding, and fine-grained manipulation. In contrast, ScreenSpot-Pro emphasizes precise element localization in high-resolution desktop environments, particularly targeting professional application scenarios. In terms of offline agent evaluation, we employ the AndroidControl~\citep{li2024effects} to assess the agent’s planning and execution capabilities in mobile environments. 
+% Specifically, AndroidControl-High focuses on global reasoning and long-horizon planning, whereas AndroidControl-Low evaluates fine-grained, step-level action execution. In addition, we incorporate CAGUI~\citep{zhang2025agentcpm} to evaluate the agentic performance within Chinese-language interfaces. For online agent evaluation in interactive environments, we use OSWorld~\citep{xie2024osworld} to assess the agent's capabilities across real-world desktop applications and AndroidWorld~\citep{rawles2024androidworld} to evaluate task execution within mobile operating systems.
+% We evaluate our models across GUI grounding, offline agent evaluation, and online agent evaluation benchmarks to provide a comprehensive assessment of their capabilities. For GUI grounding, which tests the ability to map natural language instructions to specific UI actions, we utilize OSWorld-G~\citep{xie2025scaling} and ScreenSpot-Pro~\citep{li2025screenspot}. For offline agent evaluation, we employ AndroidControl~\citep{li2024effects} to assess planning and execution capabilities in mobile environments, and CAGUI~\citep{zhang2025agentcpm} to evaluate performance within Chinese-language interfaces. For online agent evaluation in interactive environments, we use OSWorld~\citep{xie2024osworld} for real-world desktop applications and AndroidWorld~\citep{rawles2024androidworld} for mobile operating systems. Further details on benchmark compositions, evaluation protocols, and metrics are provided in Appendix~\ref{sec: agent evaluation}.
+We evaluate our models across GUI grounding, offline agent evaluation, and online agent evaluation benchmarks. For GUI grounding, we utilize OSWorld-G~\citep{xie2025scaling} and ScreenSpot-Pro~\citep{li2025screenspot}. For offline agent evaluation, we employ AndroidControl~\citep{li2024effects} to assess planning and execution capabilities in mobile environments, and CAGUI~\citep{zhang2025agentcpm} to evaluate performance within Chinese-language interfaces. For online agent evaluation, we use OSWorld~\citep{xie2024osworld} for desktop applications and AndroidWorld~\citep{rawles2024androidworld} for mobile operating systems. Details are in Appendix~\ref{sec: agent evaluation}.
+
+\subsection{Main Results}
+
+\paragraph{GUI Grounding Evaluation}
+
+% We compared our WildGUI-pretrained models against both proprietary models and leading open-source models.
+% The results in Table~\ref{tab: grounding benchmark} demonstrate exceptional grounding capabilities resulting from our large-scale pre-training. Our Mimo-VL-7B + WildGUI achieves state-of-the-art performance on OSWorld-G with an average score of 67.6, significantly surpassing the Qwen3-VL-32B 的60.6and the Seed1.5-VL 的45.2. Notably, the model exhibits robust improvements across all sub-metrics, including element recognition and layout understanding. Similarly, on the high-resolution ScreenSpot-Pro benchmark, Qwen2.5-VL-7B + Video2GUI improves the base model performance from 26.8 to 41.9, while the Mimo-VL variant reaches 57.7, outperforming the previous best open-source model UI-TARS-72B (54.9). These results confirm that pre-training on WildGUI’s massive interaction trajectories effectively bridges the gap between general vision-language capabilities and precise GUI element localization.
+
+We compared our WildGUI-pretrained models against both proprietary models and leading open-source models, demonstrating strong grounding performance despite their compact model size.
+As shown in Table~\ref{tab: grounding benchmark}, large-scale pre-training on WildGUI yields strong GUI grounding capabilities. Specifically, Mimo-VL-7B trained on WildGUI achieves state-of-the-art performance on OSWorld-G, attaining an average score of 67.6, surpassing both Qwen3-VL-32B at 60.6 and Seed1.5-VL at 62.9. The model exhibits consistent improvements across all sub-metrics, including element recognition and layout understanding.
+On the high-resolution ScreenSpot-Pro benchmark, Qwen2.5-VL-7B pre-trained on WildGUI also substantially improves upon the base model, advancing from 26.8 to 41.2, while Mimo-VL-7B achieves 56.9, outperforming the previous best open-source model Qwen3-VL-32B at 54.9, and ranking second only to Seed1.5-VL at 60.9. These results demonstrate that pre-training on WildGUI can effectively enhance the grounding capabilities of GUI agents across different model architectures.
+
+\paragraph{Offline GUI Agent Evaluation}
+
+
+We further assessed the planning and execution capabilities of our agents using the AndroidControl and CAGUI benchmarks. As presented in Table~\ref{tab: offline benchmark}, our models achieve consistent performance gains across both high-level planning and low-level execution tasks. 
+Notably, Mimo-VL-7B pre-trained on WildGUI attains a step success rate of 71.4 on AndroidControl-High and 91.8 on AndroidControl-Low, significantly outperforming the base model scores of 65.6 and 87.9, respectively. The benefits of scaling with diverse training data are also evident in the cross-lingual CAGUI benchmark, where Mimo-VL-7B achieves a type accuracy of 90.3 and a step success rate of 71.0, surpassing the base model's performance of 74.2 and 55.2. Similar improvements are observed for Qwen2.5-VL. 
+These results demonstrate that WildGUI enhances atomic action execution and enables generalization across different languages and diverse application scenarios.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{combined_results_icml.pdf}
+    \caption{Performance on OSWorld and AndroidWorld. WildGUI demonstrates significant improvements over baseline models.}
+    \label{fig: online benchmark}
+\end{figure}
+\paragraph{Online GUI Agent Evaluation}
+
+To validate real-world applicability in dynamic environments, we evaluate Mimo-VL-7B on OSWorld and AndroidWorld. As shown in Figure~\ref{fig: online benchmark}, incorporating Stage1 pre-training on WildGUI yields substantial performance improvements compared to relying solely on Stage2 post-training with open-source data. 
+Notably, despite WildGUI consisting entirely of offline GUI interaction data, the observed gains on both benchmarks demonstrate strong generalization to online, open-ended environments.
+On AndroidWorld, the full Stage1 + Stage2 pipeline achieves a success rate of 31.9\%, nearly doubling the base model's 16.4\% and significantly outperforming the Stage2-only baseline of 23.3\%. A similar trend emerges on OSWorld, where our model reaches 12.3\%, compared to 10.4\% for the Stage2-only training.
+These results reveal that while supervised post-training remains important, large-scale pre-training on diverse offline GUI data provides a critical foundation for generalizing to real-world, dynamic GUI tasks and establishes a robust starting point for subsequent reinforcement learning in online environments.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{scaling_law_center_acc_icml_v2.pdf}
+    \caption{Impact of scaling pre-training data on performance.}
+    \label{fig: scaling effect}
+\end{figure}
+\section{Analysis}
+
+\subsection{Scaling Effects}
+
+% To investigate the impact of pre-training data scale on model performance, we conducted a scaling study by varying the number of pre-training tokens from 0 to 200 billion. We evaluated the models on two benchmarks, ScreenSpot-Pro and OSWorld-G, comparing our full training pipeline (Stage 1 + Stage 2) against a baseline model trained exclusively with Stage 2 SFT data.
+
+% As illustrated in Figure~\ref{fig: scaling effect}, we observe a strong positive correlation between the volume of pre-training data and downstream grounding accuracy.
+% \begin{itemize}
+%     \item On \textbf{ScreenSpot-Pro}, the performance scales consistently with the increase of pre-training tokens. The model starts at approximately 41\% accuracy and achieves a peak of \textbf{56.97\%} at 200B tokens, significantly surpassing the Stage-2 Only baseline.
+%     \item Similarly, on \textbf{OSWorld-G}, the Center Accuracy improves from roughly 55\% to a peak of \textbf{67.66\%} as the data scale reaches 200B. Notably, the model outperforms the Stage-2 Only baseline after approximately 50 billion tokens and continues to show an upward trend without clear signs of saturation.
+% \end{itemize}
+
+% These results demonstrate the benefits of scaling pre-training data. The consistent improvements across both benchmarks indicate that larger-scale pre-training enables the model to learn more robust GUI representations, which are essential for precise element grounding, thereby yielding substantial gains over SFT-only approaches.
+
+To investigate the impact of pretraining data scale on model performance, we conducted a scaling study by varying the number of pretraining tokens from 0 to 200 billion. We evaluated the models on two benchmarks, ScreenSpot-Pro and OSWorld-G, comparing against the "Stage 2 Only" baseline post-trained exclusively on open-source data.
+As illustrated in Figure~\ref{fig: scaling effect}, we observe a strong positive correlation between the scale of pretraining data and downstream task accuracy. On ScreenSpot-Pro, performance consistently improves with increasing pretraining tokens. The model starts at approximately 41\% accuracy and reaches a peak of 56.9\% at 200 billion tokens, significantly outperforming the Stage-2 Only baseline.
+Similarly, on OSWorld-G, accuracy improves improves from approximately 55\% to a peak of 67.6\%, with notable gains as data scale approaches 200 billion. Remarkably, the model surpasses the Stage-2 Only baseline at around 50 billion tokens and continues to show an upward trend without evident saturation. These results demonstrate a strong positive correlation between data quantity and agent performance, highlighting the importance of large-scale, diverse GUI data for model generalization.
+
+\subsection{Ablation Studies}
+
+To demonstrate the contribution of our pretraining objectives and the necessity of the two-stage paradigm, we conducted an ablation study on Mimo-VL-7B. As shown in Table \ref{tab: ablation}, w/o $\mathcal{L}_{x}$ denotes the removal of specific loss components during pretraining, while w/o Stage 2 represents the model trained without post-training. 
+Our results reveal that different objectives impact distinct agent capabilities. Models trained without $\mathcal{L}_{traj}$ maintain competitive performance on static tasks (ScreenSpot-Pro and CAGUI) but exhibit significant drops on AndroidWorld (31.9 → 24.1). This indicates that modeling GUI interaction trajectories is crucial for long-horizon planning, as the trajectory loss enables the model to track goal states and maintain awareness of historical interactions during multi-step execution.
+Removing grounding supervision (w/o $\mathcal{L}_{ground}$) causes substantial degradation on ScreenSpot-Pro (56.9 → 49.8), confirming that $\mathcal{L}_{ground}$ is essential for accurate action grounding. This validates our design decision to incorporate explicit grounding supervision during pretraining.
+The w/o Stage 2 setting shows catastrophic performance drops across all metrics, especially on AndroidWorld (6.0). While first-stage pretraining on WildGUI provides broad GUI knowledge, the model requires alignment through high-quality second-stage data to perform well in complex instruction-following scenarios. 
+% This stage bridges the gap between raw pattern recognition and the structured reasoning needed for functional GUI agents.
+
+
+% \subsection{Data Statistics}
+
+\subsection{Data Quality Check}
+% To validate the effectiveness of our filtering strategy and assess the overall dataset quality, we conducted a user study in which five expert participants rated 100 sampled data on a scale from 1 to 5. As shown in Figure~\ref{fig: human study}, for video quality evaluation, participants scored videos from different sources based on factors such as task relevance and screen recording quality, where our pipeline increased the average score from 1.22 without filtering and 2.12 with metadata filtering to 4.45 after applying our video scorer. In addition, for trajectory quality evaluation, participants compared our extracted trajectories with those from TongUI and VideoAgentTrek in terms of accuracy, diversity, and related criteria, and our method achieved the highest score of 4.62, significantly outperforming baselines such as TongUI at 3.35 and VideoAgentTrek at 4.05, thereby confirming the superior quality and consistency of our data processing approach.
+To validate the effectiveness of our filtering strategy and assess overall dataset quality, we conducted a user study in which five expert participants rated 300 sampled data points on a scale from 1 to 5. The participants are CS master's or Ph.D. candidates with prior research experience in VLM-based GUI agents and not involved in this project; each must pass a 20-sample qualification trial with $\geq$0.85 accuracy. 
+As shown in Figure~\ref{fig: human study}, for video quality evaluation, participants scored videos from different sources based on factors such as task relevance and screen recording quality. Our pipeline progressively improved the average score from 1.22 to 2.12 and finally to 4.45 through meta info filtering and video scoring respectively. 
+For trajectory quality evaluation, participants compared our extracted trajectories with those from TongUI and VideoAgentTrek along three criteria: (1) \textit{Accuracy} -- whether actions are correctly identified with proper timestamps and spatial coordinates; (2) \textit{Diversity} -- the richness of platforms and task types within randomly sampled data; and (3) \textit{Relevance} -- whether trajectories reflect meaningful real-world GUI tasks. The five evaluators achieved a Krippendorff's $\alpha$ of 0.84, indicating strong inter-rater agreement. \ourdataset{} achieved the highest overall score of 4.62, outperforming the two baselines at 3.35 and 4.05 respectively, thereby confirming the quality and diversity of \ourdataset{}.
+
+
+
+\section{Related Work}
+\subsection{GUI Agents}
+
+Recent advances in artificial intelligence have driven  interest in developing agents capable of interacting with graphical user interfaces (GUI) to perform complex tasks automatically~\citep{qin2025ui, zhou2025mai}.
+Early GUI agents rely on structured data such as HTML or accessibility trees~\citep{deng2023mind2web, gur2023real, yang2023set, he2024webvoyager, lai2024autowebglm}. With the advancement of MLLMs, vision-based methods have emerged~\citep{hong2024cogagent, zhang2024you, zhang2024android}, enabling direct GUI interaction via screenshots and natural language instructions.
+% Representative models have been proposed for web navigation, desktop automation, and mobile control, demonstrating increasingly strong perception, grounding, and execution capabilities.
+% More recent work further emphasizes core abilities such as spatial grounding and long-horizon planning, through scaling grounding supervision or incorporating explicit planning and reasoning trajectories during training.
+% Despite these advances, the performance and generalization of GUI agents remain heavily dependent on the availability of large-scale, diverse, and high-quality interaction data.
+Building on these foundations, recent works~\citep{qin2025ui, yan2025step, zeng2025uitron} have achieved state-of-the-art performance through innovations in training strategies and agent design. UI-TARS~\citep{qin2025ui} develops a native end-to-end GUI agent via multi-stage post-training, enhancing perception, action and reasoning capabilities. ARPO~\citep{lu2025arpo} adopts an end-to-end reinforcement learning paradigm, leveraging a replay buffer to reuse successful interaction experiences across training iterations. 
+Despite these advances, such methods remain heavily dependent on large-scale and diverse training data, which is prohibitively expensive and difficult to collect manually from scratch.
+
+\begin{table}[t]
+\centering
+\caption{Ablation study on training tasks for Mimo-VL-7B.}
+\label{tab: ablation}
+\resizebox{0.9\linewidth}{!}{
+    \begin{tabular}{l c c c}
+    \toprule
+    \textbf{Setting} & \textbf{ScreenSpot-Pro} & \textbf{CAGUI} & \textbf{AndroidWorld} \\
+    \midrule
+    % 简化名称，"Ours" 或 "Full Method" 在消融实验中指代完整方案
+    \textbf{Ours} & \textbf{56.9} & \textbf{71.0} & \textbf{31.9} \\
+    \midrule
+    \quad w/o $\mathcal{L}_{ground}$ & 49.8 & 69.8 & 28.4 \\
+    \quad w/o $\mathcal{L}_{action}$ & 50.5 & 65.3 & 27.6 \\
+    \quad w/o $\mathcal{L}_{traj}$ & 54.6 & 70.2 & 24.1 \\
+    \midrule
+    % 去掉 "Training" 以节省宽度
+    \quad w/o Stage 1 & 49.3 & 64.2 & 23.3 \\
+    \quad w/o Stage 2 & 28.2 & 45.7 & 6.0 \\
+    \bottomrule
+    \end{tabular}
+}
+\end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figure3_hatched_style.pdf}
+    \caption{Average scores from human evaluation.}
+    \label{fig: human study}
+\end{figure}
+
+\subsection{Data Collection for GUI Agents}
+
+% The development of GUI agents has been accompanied by growing efforts to construct datasets and benchmarks that capture realistic GUI interactions.
+% Existing datasets span web, desktop, and mobile platforms, and include both single-step grounding annotations and multi-step interaction trajectories.
+% Several cross-platform benchmarks provide unified evaluation settings across devices and interfaces, while others target specialized domains or applications.
+% However, most existing datasets are limited in scale, platform diversity, or annotation cost, and often rely on manual collection or constrained environments.
+% In contrast, our work explores a complementary direction by automatically synthesizing large-scale, cross-platform GUI interaction data from unlabeled videos, enabling scalable pretraining for general-purpose GUI agents.
+A key obstacle in building effective GUI agents lies in obtaining large-scale, diverse, and high-quality training data. Commonly used data collection schemes include human annotation~\citep{deng2023mind2web, li2024effects} and model-based synthesis~\citep{li2024effects, lu2025guiodyssey}, which typically provide supervision over planning processes, action sequences, and interaction targets of GUI agents~\citep{cheng2024seeclick, lu2024omniparser}. However, existing datasets remain limited in scale and diversity, thereby constraining the progress of GUI agents.
+Given the abundance of GUI operation resources available on the Internet, recent studies have explored harvesting GUI interaction trajectories directly from the Web to reduce annotation costs while maintaining data quality~\citep{lu2025videoagenttrek, zhang2025tongui}. However, existing approaches are largely confined to a single platform, such as mobile~\citep{jang2025scalable} or desktop environments~\citep{song2025watch}, and struggle to scale due to their reliance on keyword-based retrieval, which fundamentally constrains coverage and diversity. In contrast, Video2GUI adopts a scalable, top-down pipeline to directly filter and annotate raw YouTube videos, enabling a large-scale and diverse GUI dataset beyond prior methods.
+
+
+\section{Conclusion}
+In this paper, we address the challenge of data scarcity in GUI agent training by introducing Video2GUI, a fully automated framework that synthesizes high-quality interaction trajectories from unlabeled internet videos. Through coarse-to-fine filtering and VLM-driven trajectory extraction, we construct WildGUI, the largest GUI pre-training dataset to date with 12 million trajectories across 1,500+ applications and websites. Our experiments demonstrate that pre-training on WildGUI enhances model generalization, with Qwen2.5-VL and Mimo-VL achieving consistent performance improvements across GUI grounding and agentic tasks. These results validate that scaling training with diverse, offline video data provides a promising pathway toward generalized GUI agents. We hope the release of the WildGUI dataset and the Video2GUI pipeline will facilitate future research on more capable autonomous agents.
+
+
+\section*{Impact Statement}
+This paper presents work whose goal is to advance the field of Machine Learning. There are many potential societal consequences of our work, none of which we feel must be specifically highlighted here.
+
+\section*{Acknowledgement}
+We thank anonymous reviewers for their helpful comments on this paper. This work was partially supported by National Natural Science Foundation of China project (No. 62476010).  
+
+% Authors are \textbf{required} to include a statement of the potential broader
+% impact of their work, including its ethical aspects and future societal
+% consequences. This statement should be in an unnumbered section at the end of
+% the paper (co-located with Acknowledgements -- the two may appear in either
+% order, but both must be before References), and does not count toward the paper
+% page limit. In many cases, where the ethical impacts and expected societal
+% implications are those that are well established when advancing the field of
+% Machine Learning, substantial discussion is not required, and a simple
+% statement such as the following will suffice:
+
+% ``This paper presents work whose goal is to advance the field of Machine
+% Learning. There are many potential societal consequences of our work, none
+% which we feel must be specifically highlighted here.''
+
+% The above statement can be used verbatim in such cases, but we encourage
+% authors to think about whether there is content which does warrant further
+% discussion, as this statement will be apparent if the paper is later flagged
+% for ethics review.
+
+
+\bibliography{example_paper}
+\bibliographystyle{icml2026}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+\section{Meta Info Classification Details}
+\label{sec: metadata classification}
+
+To determine whether a video is relevant to GUI operation tutorials based on its metadata, we construct a classification model that operates solely on textual information. Specifically, the model takes as input the video title, description, keywords, channel name, video category, and available subtitles when present. To obtain high-quality supervision for training, we leverage DeepSeek~\cite{liu2024deepseek} to annotate the training data. For each video, we provide the complete set of meta information and prompt the model to output a binary label indicating whether the video is related to GUI operation tutorials (\texttt{true} or \texttt{false}), along with a brief reasoning explaining its decision. The outputs are constrained to a JSON format to facilitate automatic parsing and downstream processing. The detailed prompt used for data annotation is shown in Prompt~\ref{prompt: meta info classification}. The inclusion of reasoning content allows us to iteratively refine and optimize the prompt design.
+
+When training Qwen2.5-7B as the meta info classifier, we prioritize inference efficiency. Rather than prompting the model to generate complete classification results and rationales, we attach a lightweight binary classification head to the final hidden layer of Qwen2.5-7B. The model is guided by a minimal prompt—\emph{``Classify based on the following content''}—and directly outputs class probabilities. The classifier is optimized using cross-entropy loss.
+\begin{equation}
+\mathcal{L}_{\text{CE}} = -\frac{1}{N}\sum_{i=1}^{N}\left[y_i\log(\hat{y}_i) + (1-y_i)\log(1-\hat{y}_i)\right]
+\end{equation}
+where $N$ is the number of training samples, $y_i \in \{0, 1\}$ is the ground-truth label for sample $i$, and $\hat{y}_i \in [0, 1]$ is the predicted probability that the video is a GUI tutorial.
+We randomly sample 10K videos and annotate them using DeepSeek, yielding approximately 400 positive samples and over 9K negative samples. To mitigate the severe class imbalance, we apply upsampling to the positive samples to construct a balanced training set. The Qwen2.5-7B classifier is trained for 3 epochs with a learning rate of $2 \times 10^{-5}$.
+
+\section{Video Scoring Details}
+\label{sec: video scoring}
+To further refine the selection of high-quality GUI tutorial videos based on video content, we construct a video scoring model that takes the video as input and outputs the quality score. We evaluate videos across multiple dimensions. The detailed scoring criteria for each dimension are presented in Table~\ref{tab: video_scoring_criteria}.
+To obtain high-quality supervision for training, we leverage Gemini-3-Pro to annotate the training data. For each video, we provide the first minute of content (or the entire video if shorter than one minute) and prompt the model to output scores according to the criteria in Table~\ref{tab: video_scoring_criteria}, along with brief reasoning explaining its decision. The outputs are constrained to a JSON format to facilitate automatic parsing and downstream processing. The detailed prompt used for data annotation is shown in Prompt~\ref{prompt: video quality scoring}. 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{selected_tasks_comparison.pdf}
+    \caption{Performance of the video scoring model on the test set across three quality dimensions.}
+    \label{fig: video_scoring_results}
+\end{figure}
+
+When training Qwen2.5-Omni as the video scoring model, we similarly prioritize inference efficiency. We attach three regression heads to the final hidden layer of Qwen2.5-Omni, corresponding to the three scoring dimensions. The model is guided by a minimal prompt—\emph{``Classify based on the following video''}—and is optimized using mean squared error (MSE) loss. The MSE loss is defined as:
+\begin{equation} 
+\mathcal{L}_{\text{MSE}} = \frac{1}{N} \sum_{i=1}^{N}\sum_{j=1}^{3} (y_{ij}- \hat{y}_{ij})^2
+\end{equation}
+where $N$ is the number of training samples, $y_{ij}$ is the ground-truth score for sample $i$ on dimension $j$, and $\hat{y}_{ij}$ is the predicted score. The Qwen2.5-Omni scorer is trained for 3 epochs with a learning rate of $2 \times 10^{-5}$. We annotate 200 hours of training data using Gemini-3-Pro and apply upsampling to ensure balanced score distribution as much as possible.  We set aside 100 videos as our test set, with evaluation results shown in Figure~\ref{fig: video_scoring_results}. As shown in the figure, our scorer demonstrates strong alignment with ground truth annotations across all three dimensions. Through manual verification, we establish quality thresholds requiring videos to achieve scores of at least 4.2 on all three dimensions—topic relevance, instruction clarity, and recording quality. Applying the trained model to 20 million coarsely filtered videos, we retain 4.16 million videos, yielding approximately 300,000 hours of high-quality GUI instructional content.
+
+
+\begin{table}[htbp]
+\centering
+\caption{Video Quality Scoring Criteria.}
+\label{tab: video_scoring_criteria}
+\begin{tabular}{llp{10cm}} % 建议稍微减小宽度以防溢出页面，去掉了竖线 |
+\toprule
+\textbf{Dimension} & \textbf{Score} & \textbf{Description} \\ % 修正了结尾为 \\
+\midrule
+\multirow{10}{*}{\textbf{Topic Relevance}} % 注意：右侧内容行高很高，这里可能需要手动调整数字，或者使用 \multirow{5}{*} 先试试
+& 5 (Excellent) & Video is entirely focused on teaching specific software or system operations on target platforms (computers, smartphones, tablets); content is highly feature-oriented, explaining GUI element functions and operation methods rather than completing entire projects; minimal off-topic discussion. \\
+\cmidrule{2-3}
+& 4 (Good) & Video primarily consists of target platform software instruction, but contains minor supplementary content not directly related to operations (e.g., software history, design philosophy); instruction balances feature demonstration with simple project completion, with core GUI operation segments remaining clearly identifiable. \\
+\cmidrule{2-3}
+& 3 (Moderate) & Video content has low correlation with software operations or contains substantial non-operational content; may display some GUI operations, but core theme is product reviews, system update news, or other non-tutorial content; or focuses on advanced development or pure theoretical explanation where GUI operations are not the emphasis. \\
+\cmidrule{2-3}
+& 2 (Low) & Video content is unrelated to software operations or GUI tutorials (entertainment, vlogs, non-educational content); or demonstrates operations on non-target platforms (smart TVs, game consoles, vehicle navigation, IoT devices, industrial equipment, etc.). \\
+\cmidrule{2-3}
+& 1 (None) & Video content is completely unrelated to GUI operations with no instructional value whatsoever. \\
+\midrule
+\multirow{10}{*}{\textbf{Instruction Clarity}}
+& 5 (Very Clear) & Video contains explicit guidance phrases (e.g., "Next, we will..."), provides clear descriptions and explanations for each GUI action (clicking, dragging, typing), and thoroughly explains the rationale or objective behind operations. \\
+\cmidrule{2-3}
+& 4 (Clear) & Provides basic operational instructions with most GUI steps described and explained, but may lack rationale for operations, or language is not sufficiently precise with minor ambiguities. \\
+\cmidrule{2-3}
+& 3 (Moderate) & Provides partial operational instructions, but many steps are not clearly described; language is imprecise with heavy colloquialism. \\
+\cmidrule{2-3}
+& 2 (Low) & Obviously poor instructional quality, filled with colloquial language or excessive off-topic chatter. \\
+\cmidrule{2-3}
+& 1 (Invalid) & Completely lacks narration or subtitles, or content consists of pure noise/irrelevant information with no extractable instructional value. \\
+\midrule
+\multirow{10}{*}{\textbf{Recording Quality}}
+& 5 (High-Quality) & High-definition GUI screen recording with clear and complete visuals; all UI elements and text information are clearly identifiable. \\
+\cmidrule{2-3}
+& 4 (Cropped) & High-definition GUI screen recording, but the frame is cropped and does not show the complete interface, missing some contextual information. \\
+\cmidrule{2-3}
+& 3 (Low-Quality) & Contains screen recording but has serious visual issues such as low resolution causing blurred text, obvious compression artifacts, flickering or stuttering, severely affecting recognition. \\
+\cmidrule{2-3}
+& 2 (External Device) & Content shows screen recording but captured via external devices with unstable footage (shaking, glare, distortion), severely interfering with viewing. \\
+\cmidrule{2-3}
+& 1 (No Recording) & No actual screen recording (only presenter speaking); or only plays slides without demonstrating actual GUI operations on the target platform. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Trajectory Extraction Details}
+\label{sec: trajectory extraction}
+
+\begin{table}[t]
+\centering
+\caption{Action Space for Desktop and Mobile Environments.}
+\label{tab: action_space}
+\small
+\renewcommand{\arraystretch}{1.1} % 稍微控制行高
+\begin{tabular}{l l p{8cm}} % 根据你的页面宽度，可以微调 p{} 的数值
+\toprule
+ \textbf{Action} & \textbf{Parameters} & \textbf{Description} \\
+\midrule
+\rowcolor[gray]{0.9}\multicolumn{3}{l}{\textit{\textbf{Desktop Actions}}} \\ 
+\midrule
+\texttt{click}        & \texttt{x, y}             & Single click at the specified coordinates. \\
+\texttt{doubleClick}  & \texttt{x, y}             & Double click at the specified coordinates. \\
+\texttt{tripleClick}  & \texttt{x, y}             & Triple click at the specified coordinates. \\
+\texttt{rightClick}   & \texttt{x, y}             & Right click at the specified coordinates. \\
+\texttt{middleClick}  & \texttt{x, y}             & Middle click at the specified coordinates. \\
+\texttt{press}        & \texttt{[keys]}           & Press a single key or a sequence of keys. \\
+\texttt{input}        & \texttt{text}             & Input text into the currently focused element. \\
+\texttt{hotkey}       & \texttt{[keys]}           & Trigger a system hotkey combination. \\
+\texttt{scroll}       & \texttt{direction, x, y, distance}  & Scroll in a direction at specific coordinates. \\
+\texttt{drag}         & \texttt{start, end}       & Drag from start point to end point. \\
+\texttt{moveTo}       & \texttt{end\_point}       & Move the cursor to the target position. \\
+\texttt{wait}         & \texttt{duration}         & Pause execution for a given time period. \\
+\texttt{finished}     & \texttt{status}           & End the task and return the goal status. \\
+\midrule
+\rowcolor[gray]{0.9}\multicolumn{3}{l}{\textit{\textbf{Mobile Actions}}} \\ 
+\midrule
+\texttt{click}        & \texttt{x, y}             & Tap at the specified coordinates. \\
+\texttt{longpress}    & \texttt{x, y, duration}        & Press and hold for a specific duration. \\
+\texttt{scroll}       & \texttt{direction, x, y, distance}  & Scroll or swipe in the specified direction. \\
+\texttt{pinch}        & \texttt{x, y, direction, magpercent}   & Zoom in or out at the specified coordinates. \\
+\texttt{input}        & \texttt{text}             & Type text into the active input field. \\
+\texttt{drag}         & \texttt{start, end}       & Perform a drag-and-drop gesture. \\
+\texttt{press}        & \texttt{[keys]}           & Simulate hardware keys (Home, Back, etc.). \\
+\texttt{open}         & \texttt{app\_name}        & Launch a mobile app by its name.  \\
+\texttt{multi\_touch} & \texttt{pointers}         & Execute complex multi-finger gestures. \\
+\texttt{finished}     & \texttt{status}           & Terminate task and report status. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Following prior work~\citep{xie2024osworld, zhang2025agentcpm}, we adopt two distinct action spaces for mobile and desktop platforms, as detailed in Table~\ref{tab: action_space}. For the filtered high-quality videos, we selected only those with durations under 12 minutes based on metadata information, resulting in a total of 300,000 hours of annotated content.
+
+We segment videos into 4-minute clips for annotation. For each segment, we prompt the model to annotate the following elements: (1) \textbf{User Task Instruction}: the user's intended task; (2) \textbf{Dense Caption}: a detailed description of the task completion process; (3) \textbf{Task Plan}: the step-by-step planning for task execution; (4) \textbf{Platform}: the operating system environment, including Windows, iOS, Android, etc.; (5) \textbf{Application Type}: the software used to complete the task (if applicable), such as WeChat, Google Chrome, etc.; (6) \textbf{Website Name}: the specific website visited (if the task is performed within a browser); and (7) \textbf{Action Trajectory}: the sequence of user operations performed during task completion.
+
+For action trajectories, we annotate each action with its timestamp, action type, low-level grounding instruction, action rationale, and action parameters. Additionally, we instruct the model to identify the key interface changes resulting from each action execution, along with the underlying reasons for these changes. This annotation strategy is designed to enhance the pretrained model's world model capabilities—given a screenshot and action input, the model can predict the resulting GUI state changes, thereby facilitating long-horizon planning. To enable more fine-grained annotation, we introduce a video segmentation preprocessing step before trajectory extraction. For each input video, the model first segments it into consecutive clips, where each clip corresponds to a single user operation. The prompt template used for annotation is provided in Prompt~\ref{prompt: trajectory extraction}.
+
+For videos exceeding 4 minutes in length, we partition them at 4-minute intervals. When annotating non-initial segments, we provide the model with the annotation results from preceding segments as contextual input, enabling coherent cross-segment annotation. The prompt template for this interactive annotation process is shown in Prompt~\ref{prompt: interactive annotation}.
+
+\section{Action Spatial Grounding Details}
+\label{sec: action grounding}
+Based on the timestamp $t$, corresponding low-level instruction, and action type obtained from the trajectory extraction phase, we extract three frames from the video at timestamps $t$, $t-0.5s$, and $t+0.5s$. We then employ Gemini-3-Pro to perform spatial grounding starting from the first frame.
+Before outputting the action coordinates, we first prompt the model to determine whether the action can be grounded on the current frame. If grounding is feasible, we adopt the model's grounding result for that frame. Otherwise, the model proceeds to the next frame in the sequence. If all three frames fail to yield a valid grounding result, the corresponding action is discarded from the trajectory.
+This multi-frame grounding strategy is designed to address temporal misalignment issues that may arise from the high frequency of GUI operations, ensuring robust spatial localization of user actions. The detailed prompt template for our grounding annotation process is provided in Prompt~\ref{prompt: spatial grounding}.
+
+
+\section{Statistics}
+\label{sec: statistics}
+% 我们对于WildGUI进行了统计分析，分别统计了关于platform，软件，网站上的分布情况，以及统计了视频长度，标注轨迹的长度，action类别的分布的情况
+We conduct a statistical analysis of WildGUI, examining the distribution across platforms, applications, and websites. For applications and websites, we categorize them based on their functional purposes. Additionally, we analyze the distribution of video durations, trajectory lengths, and action types. As illustrated in Figure~\ref{fig: stastics1} and Figure~\ref{fig: stastics2}, our dataset encompasses a wide variety of platforms and application categories, ensuring broad coverage and diversity of user tasks across different usage scenarios.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figure_distributions_donut_no_others.pdf}
+    \caption{Dataset statistics. Distribution of (a) platforms, (b) software categories, and (c)  website categories in \ourdataset{}.}
+    \label{fig: stastics1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figure_detailed_stats_icml_adjusted.pdf}
+    \caption{Dataset statistics of \ourdataset{}: (a) video duration distribution; (b) distribution of steps per trajectory; and the action types for (c) desktop and (d) mobile environments.}
+    \label{fig: stastics2}
+\end{figure}
+
+
+
+
+\section{Agent Training}
+\label{sec: agent tuning}
+We conduct post-training using a diverse collection of GUI interaction datasets, including Rico~\citep{deka2017rico}, SeeClickWeb~\citep{cheng2024seeclick}, WebUI~\citep{wu2023webui}, OS-Atlas~\cite{wu2024atlas}, AITW~\citep{rawles2023androidinthewild}, AITZ~\citep{zhang2024android}, AndroidControl~\citep{li2024effects}, AMEX~\citep{chai2025amex}, and GUI-Odyssey~\citep{lu2025guiodyssey}. By leveraging cleaner and more precise human supervision signals, this stage consolidates the agent's policy and enhances performance on domain-specific downstream tasks. The prompt templates used during training are shown in Prompt~\ref{prompt: gui grounding}, ~\ref{prompt: gui action prediction} and ~\ref{prompt: gui trajectory modeling}.
+
+\section{API cost for Video2GUI pipeline}
+\label{sec: pipeline cost}
+
+The Video2GUI pipeline supports both closed-source and open-source backbones. We adopt Gemini-3-Pro as our default annotator due to its strong long-context video understanding and spatial grounding quality. We summarize the per-sample API cost when running the full pipeline end-to-end. Trajectory extraction dominates the cost: each sample consumes approximately 15{,}908 input tokens, 1{,}338 output tokens, and 1{,}452 thinking tokens, totalling roughly \$0.0653 per sample. Action spatial grounding adds an additional pass on high-resolution frames at approximately \$0.011 per sample, while video quality scoring is handled by a self-deployed open-source Qwen2.5-Omni model and incurs negligible cost. The total API cost is therefore approximately \$0.0763 per sample. As an open-source alternative we also evaluate Qwen3.5-397B-A17B; while functional, it produces roughly 15--20\% lower annotation quality, primarily in temporal alignment and spatial grounding. We therefore adopt Gemini-3-Pro as the default to ensure data quality at scale. Importantly, dataset construction is a one-time cost: we have released \ourdataset{} along with the reproducible Video2GUI pipeline, so downstream users do not need to re-run the annotation process.
+
+\section{Evaluation}
+\label{sec: agent evaluation}
+% We evaluate our models across gui grounding, offline agent evaluation, and online agent evaluation benchmarks to provide a comprehensive assessment of their capabilities. For gui grounding, which tests the ability to map natural language instructions to specific UI actions, we utilize OSWorld-G~\citep{xie2025scaling} and ScreenSpot-Pro~\citep{li2025screenspot}. OSWorld-G comprises 564 samples that systematically cover text matching, element recognition, layout understanding, and fine-grained manipulation. In contrast, ScreenSpot-Pro emphasizes precise element localization in high-resolution desktop environments, particularly targeting professional application scenarios. In terms of offline agent evaluation, we employ the AndroidControl~\citep{li2024effects} to assess the agent’s planning and execution capabilities in mobile environments. 
+% Specifically, AndroidControl-High focuses on global reasoning and long-horizon planning, whereas AndroidControl-Low evaluates fine-grained, step-level action execution. In addition, we incorporate CAGUI~\citep{zhang2025agentcpm} to evaluate the agentic performance within Chinese-language interfaces. For online agent evaluation in interactive environments, we use OSWorld~\citep{xie2024osworld} to assess the agent's capabilities across real-world desktop applications and AndroidWorld~\citep{rawles2024androidworld} to evaluate task execution within mobile operating systems.
+We evaluate our models across GUI grounding, offline agent evaluation, and online agent evaluation benchmarks to provide a comprehensive assessment of their capabilities.
+
+For GUI grounding, which tests the ability to map natural language instructions to specific UI elements, we utilize OSWorld-G~\citep{xie2025scaling} and ScreenSpot-Pro~\citep{li2025screenspot}. OSWorld-G comprises 564 samples that systematically assess diverse capabilities including text matching, element recognition, layout understanding, and precise manipulation within Linux environments. ScreenSpot-Pro is a challenging benchmark tailored for high-resolution professional scenarios, containing 1,581 expert-annotated tasks across 23 professional applications spanning three operating systems. Its emphasis on industrial software and multi-window interfaces makes it a practical estimate of generalization for GUI visual grounding models.
+
+For offline agent evaluation, we employ AndroidControl~\citep{li2024effects} and CAGUI~\citep{zhang2025agentcpm} to assess agent capabilities in mobile environments. AndroidControl is categorized into two levels based on instruction granularity: AndroidControl-High evaluates the agent's capability for global reasoning and long-horizon planning, while AndroidControl-Low focuses on fine-grained action execution at the step level. We adopt two standard metrics for evaluation: Type (action type accuracy) and Step-wise Success Rate (SR). Additionally, CAGUI is incorporated to evaluate agentic performance within Chinese-language interfaces.
+
+For online agent evaluation in interactive environments, we use OSWorld~\citep{xie2024osworld} and AndroidWorld~\citep{rawles2024androidworld}. OSWorld is a unified computer environment comprising 369 real-world tasks that span web applications, desktop software, and OS-level operations. AndroidWorld provides a fully functional Android environment with 116 programmatic tasks across 20 real-world apps, featuring dynamic task construction with parameterized natural language instructions.
+
+\section{Examples}
+\label{sec: examples}
+We visualize several examples of \ourdataset{} trajectory data, as shown in Figure~\ref{fig: figure case 1},~\ref{fig: figure case 2},~\ref{fig: figure case 3} and~\ref{fig: figure case 4}.
+
+\clearpage
+\begin{promptbox}[prompt: meta info classification]{Prompt for Meta Info Classification}
+\begin{lstlisting}
+# Role
+You are an expert data filtering assistant specialized in identifying computer usage and software demonstration videos.
+
+# Task
+Your task is to analyze the provided **Video Metadata** and determine if the video contains **GUI Operation Content**.
+You must make this judgment solely based on the textual metadata provided. Do not attempt to analyze visual frames or audio.
+
+# Definition: GUI Operation Content
+A video is considered "Relevant" if its primary content features:
+1. **Screen Recordings:** Direct capture of a computer, tablet, or smartphone screen.
+2. **Software Interaction:** Users interacting with graphical user interfaces (e.g., clicking, typing, navigating menus, using tools).
+3. **Application Demos/Tutorials:** Walkthroughs of software (e.g., Photoshop, Excel, VS Code, Web Browsers, OS settings).
+
+A video is considered "Not Relevant" if it is:
+- Real-world camera footage (Vlogs, IRL, nature, people talking to camera without screen share).
+- Gaming content (unless it is a specific tutorial on UI/Settings).
+- Static slide presentations (PowerPoint) without active software operation.
+- Hardware reviews (showing the device physically, not the screen interface).
+
+# Input Data
+You will receive the following metadata fields:
+- Title
+- Description
+- Tags/Keywords
+- Channel Name
+- Category
+- Subtitle
+
+# Output Format
+Output a valid JSON object with the following fields:
+- `is_gui_content`: (boolean) true or false.
+- `confidence`: (float) 0.0 to 1.0.
+- `reasoning`: (string) A concise explanation citing specific keywords from the metadata that led to your decision.
+
+# Example
+Input:
+{
+  "Title": "How to automate data entry in Excel 2024",
+  "Description": "In this video, I show you how to write a Python script and use macros.",
+  "Tags": ["productivity", "tutorial", "office", "code"],
+  "Channel": "TechHelp Daily"
+}
+
+Output:
+{
+  "is_gui_content": true,
+  "confidence": 0.95,
+  "reasoning": "Title mentions 'How to' and specific software 'Excel', implying a tutorial/walkthrough. Tags include 'tutorial' and 'code'."
+}
+\end{lstlisting}
+\end{promptbox}
+
+
+
+\begin{promptbox}[prompt: video quality scoring]{Prompt for Video Quality Scoring}
+\begin{lstlisting}
+# Role
+
+You are an expert data filtering assistant specialized in identifying and evaluating computer usage and software demonstration videos.
+
+# Task
+
+Your task is to analyze the provided **Video Metadata** and assign scores from **1 to 5** across three specific dimensions. You must make this judgment based on the provided textual metadata, descriptions, and transcripts.
+
+# Evaluation Criteria
+
+## 1. Topic Relevance
+
+**Goal**: Assess if the video focuses on teaching GUI operations on target platforms (PC, Smartphone, Tablet) and whether it is "Function-Oriented."
+
+* **5 (Exceptional)**: Completely focused on target platforms; strictly function-oriented; explains GUI elements/tools in depth; zero off-topic content.
+* **4 (Excellent)**: Focused on target platforms and software/system operations; function-oriented; minimal irrelevant talk.
+* **3 (Good)**: Mainly software teaching but includes minor background (history/philosophy); balances function demos with simple projects.
+* **2 (Moderate)**: Low relevance; focus is on product reviews, news, or high-level coding/theory where GUI steps are secondary.
+* **1 (Low/None)**: Irrelevant content (Vlogs); or operations on non-target platforms (TVs, Car systems); no educational value.
+
+## 2. Instruction Clarity
+
+**Goal**: Evaluate the clarity and logic of the verbal or textual instructions provided.
+
+* **5 (Exceptional)**: Professional guiding phrases; every micro-action (click, drag, shortcut) is described; provides profound "why" for every step.
+* **4 (Very Clear)**: Includes clear guiding phrases; every GUI action is explicitly described and explained with the "why" behind it.
+* **3 (Clear)**: Basic instructions for most steps; may lack some "why" explanations or contain minor linguistic ambiguity.
+* **2 (Moderate)**: Partial instructions; many steps are skipped or not described; language is imprecise or overly colloquial.
+* **1 (Poor/None)**: No voiceover/subtitles; pure noise; or instructions are dominated by incoherent tangents.
+
+## 3. Recording Quality
+
+**Goal**: Evaluate the visual quality of the screen capture for legibility and stability.
+
+* **5 (Exceptional)**: Ultra-high-definition direct recording; perfect framing; every pixel of the UI and text is crystal clear.
+* **4 (High Quality)**: High-definition direct screen recording; clear and complete; all UI elements are easily legible.
+* **3 (Cropped High Quality)**: High-definition recording, but the frame is cropped, missing some UI context or full-screen interface.
+* **2 (Low Quality)**: Direct recording with severe issues: low resolution, blurry text, compression artifacts, or stuttering.
+* **1 (Poor/None)**: External recording (camera-to-screen) with shaking/glare; or no actual screen recording (PPT/Talking head only).
+
+# Output Format
+
+Please provide your evaluation in the following JSON format:
+
+```json
+{
+  "scores": {
+    "topic_relevance": {
+      "score": 0,
+      "reasoning": "[Briefly explain the 1-5 score regarding platform and function-orientation.]"
+    },
+    "instruction_clarity": {
+      "score": 0,
+      "reasoning": "[Briefly explain based on action descriptions and logic.]"
+    },
+    "recording_quality": {
+      "score": 0,
+      "reasoning": "[Briefly explain based on capture method and visual clarity.]"
+    }
+  },
+  "overall_summary": "[A concise summary of the video's instructional value.]"
+}
+
+```
+\end{lstlisting}
+\end{promptbox}
+
+
+\begin{promptbox}[prompt: trajectory extraction]{Prompt for Trajectory Extraction}
+\begin{lstlisting}
+# Role and Objective
+
+You are an expert, first-person GUI Agent specializing in interaction analysis. Your core objective is to analyze a GUI interaction video and produce a two-part analysis. You must strictly follow the output format specified, generating the "Shot Splitting" section first, followed by the "Task Annotations" JSON list.
+
+Critical Style Instruction: When generating annotations, do not act as a passive observer. Act as the Agent performing the task. Your reasoning must reflect a continuous thought process, linking past history to current decisions.
+
+Your output must be in two distinct parts, in this exact order:
+Part 1: Shot Splitting (Markdown)
+Part 2: Task Annotations (A single JSON list)
+
+## Part 1: Shot Splitting
+First, you must segment the entire video into granular "shots" and output them as a numbered markdown list.
+Shot Definition: A shot is the most fundamental unit of the video, defined by a start time and an end time.
+The start_time (mm:ss) is the precise moment a user's atomic action (e.g., click, key press, scroll) begins.
+The end_time (mm:ss) is the start_time of the very next atomic action.
+Therefore, a shot [start_time_1 - end_time_1] covers the action at start_time_1 and the entire resulting screen state until the next action begins at start_time_2 (which is the same as end_time_1).
+
+**Output Format (Part 1):**
+You must output this section exactly as follows, starting with the header:
+Shot Splitting
+1. mm:ss - mm:ss
+2. mm:ss - mm:ss
+3. mm:ss - mm:ss
+...
+(Split as granularly as possible.)
+
+You must strictly confine your analysis to the provided video segment ONLY. Do NOT generate any content for timestamps beyond the end of this provided segment.
+
+## Part 2: Task Annotations
+Second, after the "Shot Splitting" section, you must output a single JSON list [{...}, {...}].
+Each item {} in this list represents one complete, high-level sub-task.
+A single sub-task will contain several of the atomic shots identified in Part 1.
+You must not output any text or explanations before or after this JSON list.
+Every completed sub-task must conclude with a finish action representing the completion of the task.
+
+**Output Format (Part 2):**
+The JSON list must strictly adhere to the following structure.
+```json
+[
+    {
+        "task_id": 0,
+        "instruction": "A one-sentence summary of the user's core intent for this task.",
+        "dense_caption": "A detailed, causal description of this task.",
+        "plan": "The high-level steps for this task, formatted as 'step1: ..., step2: ...'.",
+        "platform": "The operating system (e.g., 'windows', 'ios', 'android').",
+        "software": "The name of the primary application (e.g., 'WeChat', 'Google Chrome').",
+        "website": "The website domain if a browser is used (e.g., 'youtube.com'), else null.",
+        "user_actions": [
+            {
+                "timestamp": "Timestamp (mm:ss) from Part 1, marking the start of the shot.",
+                "action_type": "The type of action (e.g., 'click', 'write', 'scroll').",
+                "grounding_instruction": "A natural language instruction to precisely locate the UI element for this action.",
+                "action_reason": "First-person reasoning. Synthesize previous trajectory + current state => next action.",
+                "action_parameters": {
+                    "...": "Parameters specific to the action_type, defined by the platform."
+                },
+                "core_change_reason": "Detailed explanation of the system logic/mechanism behind the screen change.",
+                "core_change": "The most critical and direct on-screen change resulting from the action (appearance, text updates, modal closing, etc.)."
+            }
+        ]
+    }
+]
+```
+
+**Field Definitions for JSON (Part 2)**
+task_id (Integer): A unique identifier for the sub-task, starting from 0.
+instruction (String): A single-sentence summary of the user's core intent for this sub-task.
+dense_caption (String): A detailed description that includes causality for this sub-task.
+plan (String): The high-level steps to complete this sub-task.
+platform (String): The operating system. Must be one of: windows, mac, android, ios, linux. This choice determines which Action Space (PC or Mobile) is used for the user_actions.
+software (String): The name of the primary application being used (e.g., 'Google Chrome', 'WeChat', 'Photoshop').
+website (String or null): If the software is a web browser, specify the primary website domain (e.g., 'youtube.com', 'google.com'). Must be null if not a web task.
+user_actions (Array): A chronologically ordered list of user_action objects. Each object corresponds to one shot from Part 1. The structure of action_type and action_parameters must match the Action Space for the platform specified above.
+timestamp (String): The start_time (mm:ss) of the shot from Part 1.
+action_type (String): The type of action performed. Must be one of the types from the correct platform-specific Action Space below.
+grounding_instruction (String): A clear, concise natural language instruction that uniquely identifies the UI element being interacted with. For example: "Click the 'File' menu in the top-left corner," or "Tap the input field labeled 'Username'."
+action_reason (String): Do not simply state "To do X." Instead, simulate the Agent's thought process. You must explicitly synthesize the trajectory history (what I just did) with the current observation (what I see now) to derive the next step. Bad: "To open the file." Good: "I have successfully navigated to the target folder. Now that I see the file list, I need to select the specific file 'report.pdf' to proceed with the upload."
+action_parameters (Object): Parameters for the action. The structure of this object is strictly defined by the action_type and the platform, as specified in the "Platform-Specific Action Spaces" section.
+core_change_reason (String): A detailed technical or logical explanation of the system's mechanism. Explain why the screen is about to change based on software design patterns. Example: "Clicking the 'Open' button in a system file dialog triggers the OS to validate the file path, close the modal window, and return the file handle to the web browser."
+core_change (String): Based on your concrete evidence and valid reasoning, provide a detailed description of the most likely predictable content of the next shot. Your prediction must be the necessary outcome of your reasoning process, with every detail being justifiable.
+
+**Platform-Specific Action Spaces**
+You must use one of the following action spaces based on the task's platform. The action_type string determines the exact structure of the action_parameters object. Coordinates [y, x] are in pixels.
+A. PC Action Space (for platform: 'windows', 'mac', 'linux' etc.)
+action_type: "click"
+action_parameters: { "point": "[y, x]", "bbox": "[y1, x1, y2, x2]" }
+action_type: "doubleClick"
+action_parameters: { "point": "[y, x]", "bbox": "[y1, x1, y2, x2]" }
+action_type: "tripleClick"
+action_parameters: { "point": "[y, x]", "bbox": "[y1, x1, y2, x2]" }
+action_type: "rightClick"
+action_parameters: { "point": "[y, x]", "bbox": "[y1, x1, y2, x2]" }
+action_type: "middleClick"
+action_parameters: { "point": "[y, x]", "bbox": "[y1, x1, y2, x2]" }
+action_type: "press" (for keyboard keys)
+action_parameters: { "key_name": "e.g., 'enter', 'esc', 'delete', 'tab', 'F5'" }
+action_type: "write" (for typing text)
+action_parameters: { "text": "The text content to be typed" }
+action_type: "hotkey"
+action_parameters: { "keys": "e.g., 'Ctrl+C', 'Alt+F4', 'Cmd+S'" }
+action_type: "scroll" (vertical)
+action_parameters: { "direction": "[up, down]", "point": "[y, x]", "magnitude_pixels": "e.g., 100" }
+action_type: "hscroll" (horizontal)
+action_parameters: { "direction": "[left, right]", "point": "[y, x]", "magnitude_pixels": "e.g., 100" }
+action_type: "moveTo"
+action_parameters: { "point": "[y, x]" }
+action_type: "dragTo"
+action_parameters: { "start_point": "[y, x]", "end_point": "[y, x]" }
+action_type: "wait"
+action_parameters: { "duration": "e.g., 100" } (in milliseconds)
+action_type: "finish"
+action_parameters: { "status": "success" }
+
+B. Mobile Action Space (for platform: 'ios', 'android' etc.)
+action_type: "click" (tap)
+action_parameters: { "point": "[y, x]", "bbox": "[y1, x1, y2, x2]" }
+action_type: "long_press"
+action_parameters: { "point": "[y, x]", "duration_ms": 500, "bbox": "[y1, x1, y2, x2]" }
+action_type: "scroll"
+action_parameters: { "direction": "[down|up|left|right]" }
+action_type: "pinch"
+action_parameters: { "center_point": "[y, x]", "direction": "[in, out]", "magnitude_percent": "e.g., 30"}
+action_type: "input" (for text entry)
+action_parameters: { "text": "The text content" }
+action_type: "drag"
+action_parameters: { "start_point": "[y, x]", "end_point": "[y, x]", "duration_ms": "e.g., 1000" }
+action_type: "press" (for system/hardware keys)
+action_parameters: { "key": "[back, home, enter, volume_up, volume_down, power...]" }
+action_type: "open"
+action_parameters: { "app": "Name of app to open" }
+action_type: "multi_touch_gesture"
+action_parameters: { "pointers": [ { "id": 0, "path": "[[y1, x1], [y2, x2], ...]" }, { "id": 1, "path": "[[y3, x3], [y4, x4], ...]" } ] }
+action_type: "finish"
+action_parameters: { "status": "success" }
+
+**Try best efforts, response at least 5k tokens.**
+\end{lstlisting}
+\end{promptbox}
+
+\begin{promptbox}[prompt: interactive annotation]{Prompt for Iterative Annotation}
+\begin{lstlisting}
+# CONTEXT
+
+You are performing a continuous, shot-by-shot analysis of a single video, segment by segment.
+You have already analyzed the video up to **[Current Start Time]**. Your complete analysis so far is provided below as "Annotation History".
+
+# ANNOTATION HISTORY (Context from 00:00 to **[Current Start Time]**)
+
+# ===
+**[Insert Previous Analysis History Here]**
+
+# CURRENT TASK
+
+You have been provided with the video clip from **[Current Start Time]** to **[Current End Time]**. You must now analyze this specific segment.
+
+**CRITICAL INSTRUCTIONS:** You must strictly follow the following rules:
+
+1. **Use Absolute Timestamps:** All timestamps in your output (e.g., "Shot Segmentation") must be **absolute** (relative to the *full* video), not relative to the current clip.
+2. **Maintain Consistency:** Your new analysis must be fully **consistent** with the "Annotation History". Ensure that your interpretations, character analyses, and narrative arcs logically continue from the previous annotations.
+3. **Use Global Context:** You must use the "Annotation History" to understand the **global context** (e.g., established narrative, characters, themes) to better interpret the events within the current clip. You are encouraged to cite specific evidence from the history (e.g., "which mirrors the action at 04:30") to enhance your interpretation.
+4. **Do Not Mention Text in History:** The "Annotation History" text is provided *only* for your internal context. Your output must **never** mention the existence of this text (e.g., do not write "Based on the history provided..." or "In the previous annotation..."). Your analysis must read as a single, seamless continuation of the history, as if you were analyzing the entire video in one go.
+5. **Continue unfinished tasks:** If the last sub-task in the preceding part is incomplete, retain its task index and finish every remaining clip within that sub-task. If the last sub-task is already complete, start a fresh sub-task with the next available index.
+
+A more detailed task instruction for the current **[Current Start Time] - [Current End Time]** segment is as follows:
+
+**[Insert Specific Task Prompt Here]**
+\end{lstlisting}
+\end{promptbox}
+
+\begin{promptbox}[prompt: spatial grounding]{Prompt for Action Spatial Grounding}
+\begin{lstlisting}
+You are a GUI agent.
+
+You are given the natural language `grounding_instruction` to locate, the `action_type` and the `screenshot`. 
+
+You need to perform the following two steps:
+
+1.  **Feasibility Check:**
+
+      * Analyze the `screenshot` and `grounding_instruction`.
+      * Determine if the target element mentioned in the instruction (e.g., button, text field, icon) is **actually present and visible** in the current `screenshot`.
+
+2.  **Grounding & Prediction:**
+
+      * **If not feasible** (e.g., the 'Submit' button mentioned in the instruction does not exist in the screenshot), set `feasible` to `false` in the output and provide a reason.
+      * **If feasible** (the target element is visible), set `feasible` to `true`. Then, for **each** point in the `points_to_predict` list (e.g., `point`), you must predict its precise center point and the bounding box of the target element it corresponds to.
+
+-----
+
+## Inputs
+
+### 1\. Grounding Instruction
+
+`{grounding_instruction}`
+
+### 2\. Action Type
+
+`{action_type}`
+
+
+## Output Format
+
+You must **strictly** provide your analysis and predictions in the following JSON format.
+
+> **Note:** The bounding boxes and center points must use relative coordinates (0-1000) and be formatted as follows: `<bbox>y1 x1 y2 x2</bbox>` and `<point>y x</point>`.
+
+### Example: Action is Feasible
+
+```json
+{
+  "feasible": true,
+  "predictions": [
+    {
+      "point_name": "start_point",
+      "center_point": "<point>450 320</point>",
+      "bounding_box": "<bbox>400 300 500 340</bbox>"
+    },
+    {
+      "point_name": "end_point",
+      "center_point": "<point>450 320</point>",
+      "bounding_box": "<bbox>400 300 500 340</bbox>"
+    }
+  ]
+}
+```
+
+The point_name you output must exactly match the parameter name defined in the `Action Type` section.
+
+### Example: Action is Not Feasible
+
+```json
+{
+  "feasible": false,
+  "reason": "The target mentioned in the instruction (e.g., 'Submit button') was not found in the current screenshot."
+}
+```
+
+**Remember:**
+1. The center points must use relative coordinates (0-1000) and be formatted as follows: `<point>y x</point>`.
+2. The bounding boxes must use relative coordinates (0-1000) and be formatted as follows: `<bbox>y1 x1 y2 x2</bbox>`.
+\end{lstlisting}
+\end{promptbox}
+
+\begin{promptbox}[prompt: gui grounding]{Prompt for GUI Grounding}
+\begin{lstlisting}
+1. Locate UI components that match the command: \"{}\". Output a JSON in the format [{{\"point\": [...], \"label\": \"{{the_whole_command}}\"}}, ...].
+
+2. Locate UI components that match the command: \"{}\". Output a JSON in the format [{{\"bbox_2d\": [...], \"label\": \"{{the_whole_command}}\"}}, ...].
+\end{lstlisting}
+\end{promptbox}
+
+\begin{promptbox}[prompt: gui action prediction]{Prompt for GUI Action Prediction}
+\begin{lstlisting}
+1. You are a GUI agent. You will be provided with a screenshot, a goal, and your action history. You need to perform the next action to complete the task.\n\n## Action Space\n{}\n\n## Goal\n{}\n\n## Previous Actions\n{}\n\nNow, output the next action in json format [{{\"action\": \"{{action_name}}\"}}, ...].
+
+2. You are a GUI agent. You will be provided with a screenshot, a goal, and your action history. You need to analyze the current situation and perform the next action to complete the task.\n\n## Action Space\n{}\n\n## Goal\n{}\n\n## Previous Actions\n{}\n\nPlease output your response in the following format:\n\nThought: <your reasoning about what to do next>\nAction: <the action you will take>\n\n```json\n[{{\"action\": \"{{action_name}}\"}}, ...]\n```
+\end{lstlisting}
+\end{promptbox}
+
+\begin{promptbox}[prompt: gui trajectory modeling]{Prompt for GUI Trajectory Modeling}
+\begin{lstlisting}
+1. Based on the screenshot and the goal: \"{}\", perform the next action to complete the task. Output a JSON in the format [{{\"action\": \"{{action_name}}\"}}, ...].
+
+2. Based on the screenshot and the goal: \"{}\", analyze the current situation and perform the next action to complete the task.\n\nPlease output your response in the following format:\n\nThought: <your reasoning about what to do next>\nAction: <the action you will take>\n\n```json\n[{{\"action\": \"{{action_name}}\"}}, ...]\n```
+\end{lstlisting}
+\end{promptbox}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\linewidth]{ZvNgczioehg_task_0.png}
+    \caption{\ourdataset{} example.}
+    \label{fig: figure case 1}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{EF-Qh1ydNgk_task_4.png}
+    \caption{\ourdataset{} example.}
+    \label{fig: figure case 2}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{55BzMmeagwU_task_0.png}
+    \caption{\ourdataset{} example.}
+    \label{fig: figure case 3}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{oXoXz11H4Q4_task_0.png}
+    \caption{\ourdataset{} example.}
+    \label{fig: figure case 4}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018, and modified by Alexandre Bouchard in
+% 2019 and 2021 and by Csaba Szepesvari, Gang Niu and Sivan Sabato in 2022.
+% Modified again in 2023 and 2024 by Sivan Sabato and Jonathan Scarlett.
+% Previous contributors include Dan Roy, Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.
+

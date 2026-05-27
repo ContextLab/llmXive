@@ -1,0 +1,137 @@
+
+\section{Benchmark}
+\label{sec:bench}
+
+\begin{figure*}[tb!]
+    \centering
+    \includegraphics[width=1.0\linewidth]{0.0-figure/overview.pdf}
+    \vspace{-13 pt}
+    \caption{Overview of {\bench}.}
+    \label{fig:process}
+    \vspace{-15 pt}
+\end{figure*}
+
+In this section, we present the design of {\bench}, as illustrated in Fig.~\ref{fig:process}. We target long-horizon personal assistant workflows in persistent project environments, where each session begins with a natural but underspecified request. Missing requirements may emerge after intermediate artifacts are produced and the interaction progresses, while preferences may carry across sessions and shape later decisions \citep{kim2026persona2web,lyu2026personalalign,liu2026perma}. {\bench} includes five user roles across distinct domains (researcher, marketer, law trainee, pharmacist, and financier), covering diverse workflows and constraints. For each role, we construct one episode with 20 sessions, where each session corresponds to one multi-turn task. We organize these tasks into multi-session episodes with cross-session dependencies, and evaluate agents on both proactive intent resolution (Proactivity) and task completion (Completeness).
+
+\subsection{Evaluated Agent System}
+\label{sec:evaluated_agent_system}
+
+\paragraph{Agent paradigm.}
+We focus on \emph{long-horizon personal agents} that assist users in both professional and everyday knowledge work by planning, producing, and refining concrete artifacts such as code, documents, and structured outputs \citep{openclaw,zhang2026clawbench,li2026clawsbench}. These agents typically adopt a modular design, where capabilities are composed from reusable components in a ReAct style \citep{yao2022react}, including tool interfaces, skills, and workspace operations. In our setting, the agent acts over a persistent project environment and makes progress mainly by iteratively updating intermediate artifacts.
+
+\paragraph{Sessions.}
+A user interacts with the agent through multiple {sessions}, and each session is a multi-turn conversation aimed at completing one task. Sessions share the same project workspace, so relevant files, intermediate artifacts, and prior outputs can carry over when appropriate. When needed, the agent may also consult memory to retain user-specific preferences or earlier decisions and apply them consistently in later sessions.
+
+\paragraph{Tools and skills.}
+Personal assistant agents operate in real-world environments where progress relies on invoking external tools and reusable skills to manipulate persistent artifacts \citep{schick2023toolformer,yao2024tau,patil2024gorilla,wang2026skillx}.
+Accordingly, our tasks are grounded in practical tool and skill interfaces, such as shopping tool, web search tool, and data processing skill. This design requires the agent to coordinate tool calls and skill invocation to iteratively refine artifacts and produce task-ready outputs.
+
+\subsection{User Agent}
+\label{sec:user_agent}
+
+\paragraph{User roles.}
+{\bench} is centered on a {user agent} that simulates one user over an extended period. Each user is specified by a role that captures stable attributes, including occupation, routines, preferences, working style, and long-term goals \citep{kim2026persona2web}. 
+% We instantiate five roles to cover diverse professional settings (multimodal AI researcher, digital marketing specialist, civil-commercial dispute law trainee, pharmacist, and financial industry analyst). 
+Roles are constructed with domain experts to ensure realism and sufficient specificity, and are then lightly normalized to keep granularity and coverage consistent across users. \textit{Throughout the paper, we denote the evaluated system as the agent and the simulated counterpart as the user.}
+% Researcher, Marketer, Law trainee, Pharmacist, Financier
+% Multimodal AI researcher, Digital marketing specialist, Civil-commercial dispute law trainee, Pharmacist, Financial industry analyst
+
+\paragraph{Episodes.}
+For each user agent, we define an \textbf{episode} that simulates the user’s long-horizon workflow across multiple tasks. Each episode contains 20 sessions, and each session corresponds to one task addressed through multi-turn interaction. Across sessions, the agent may leverage memory to carry forward relevant information when needed.
+
+\paragraph{Workflow-grounded task design.}
+To model OpenClaw-style assistance, {\bench} builds tasks around \emph{persistent workspace artifacts}, \emph{long-horizon professional workflows}, and \emph{recoverable hidden intents}.\footnote{A hidden intent is recoverable when it is absent from the initial request but can still be inferred or elicited from evidence available to the agent (e.g., prior sessions, workspace artifacts, or targeted clarification).} Each instance is derived from domain experts' authentic work routines and supporting materials, then shaped to require producing or revising concrete deliverables in the project environment. Progress depends on reading or updating files, repairing drafts, synthesizing evidence across documents, coordinating tools or skills, and preserving conventions from earlier sessions. Human experts further review each task to ensure it is realistic, feasible with the available files, tools, skills, and graders, and grounded in a correct and well-scoped workflow. These characteristics are reflected in App.~\ref{app:benchmark_statistics} and illustrated by case studies in App.~\ref{app:case_study}.
+
+\paragraph{Dependency structure.}
+In long-horizon use, sessions are not always independent, as later requests may rely on information from earlier interactions \citep{he2026memoryarena}. We therefore incorporate cross-session dependencies within each episode. Among the 20 tasks, we include (1) six strong dependency groups, each comprising two to three tasks that share essential carry-over information for successful completion, and (2) five largely independent tasks that broaden coverage of stand-alone workflows. In the latter case, any dependencies are lightweight and typically reflect general preferences, such as applying a consistent file naming convention or output directory structure.
+
+\subsection{Task Formulation}
+\label{sec:task_formulation}
+
+\paragraph{Initial request.}
+Users rarely begin a session with a complete specification of what they ultimately need. Instead, they usually provide a short, goal-oriented prompt and refine requirements as the agent produces intermediate artifacts and asks targeted questions \citep{vijayvargiya2026asking,chen2024learning,kaur2026proper}. Accordingly, each session in {\bench} starts with an \textbf{initial request} $u_1$ that initiates the task.
+The initial request is designed to be natural and contextually plausible, while remaining minimally sufficient to enable progress and preserve realistic underspecification. In addition to \textit{user-issued messages}, we also allow \textit{environment-triggered signals} to start a session, such as external structured inputs or agent heartbeats \citep{nanobot} that the agent should recognize and respond to proactively.
+
+\paragraph{Hidden intents.}
+To formalize underspecification, each task is annotated with a set of {hidden intents} $\mathcal{I}=\{i_1,\dots,i_m\}$.
+Each intent $i$ represents a latent requirement that should shape how the task is handled, e.g., constraints, preferences, and downstream dependencies. Hidden intents can be session-local or persistent across sessions. The agent can satisfy an intent by inferring it from prior interaction and memory, or by asking a focused question that elicits the missing requirement and then acting on it.
+
+\paragraph{Checklist.}
+For each task, we provide a checklist $\mathcal{C}=\{c_1,\dots,c_n\}$ that defines verifiable completion criteria for the final outcome and required artifacts. Checklist items specify what should be delivered, including files to create or modify, fields to populate, outputs to generate, and constraints to satisfy. During data construction, human experts invest substantial effort to execute and review each task, produce reference solutions, and ensure that checklist items are both necessary and sufficient.
+Compared with hidden intents, which capture latent preferences or constraints, checklist items are more concrete and fine-grained, often with ground-truth-like verification logic that defines explicit obligations the agent must fulfill. A more detailed distinction between hidden intents and checklists is provided in App.~\ref{app:hidden_intents_checklists}.
+
+\paragraph{Graders.}
+We implement checklist verification with two types of graders:
+\begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+    \item \textbf{Rubric-based evaluation}. For open-ended content where deterministic checks are unsuitable, we use rubric-based model evaluation to assess whether the output satisfies task requirements and user constraints.
+    \item \textbf{Rule-based verification}. For objective conditions, we apply deterministic rule-based verification, such as file existence, exact string matching, correct tool use, and schema validity.
+\end{itemize}
+
+\subsection{Session Interaction and Intent Tracking}
+\label{sec:interaction_tracking}
+
+\begin{figure*}[tb!]
+    \centering
+    \includegraphics[width=1.0\linewidth]{0.0-figure/interaction.pdf}
+    \vspace{-12 pt}
+    \caption{Overview of one benchmark session.
+The evaluated agent interacts with a simulated user agent in a turn-based loop, while the user agent tracks hidden intents and assigns each intent a terminal status as {\completed}, {\inferred}, or {\provided}.
+The session ends when all hidden intents have reached terminal status.}
+    \label{fig:interaction}
+    \vspace{-16 pt}
+\end{figure*}
+
+\paragraph{Interaction process.}
+Fig.~\ref{fig:interaction} illustrates the turn-based loop for one benchmark session with hidden intents $\mathcal{I}=\{i_1,\dots,i_m\}$ and checklist $\mathcal{C}
+  =\{c_1,\dots,c_n\}$.
+Each session starts with an \textit{initial request} $u_1$ that initiates the task. At each turn, the agent produces a response $a_t$, which may involve tool use and artifact creation or updates in the workspace. The user agent then observes the agent response together with any newly produced or updated artifacts, updates the tracking state for hidden intents in $\mathcal{I}$ by assigning terminal statuses when applicable, and generates the next user message. If the agent asks a relevant question, the user agent answers it. Otherwise, if some requirements remain underspecified, the user agent proactively provides the missing task-relevant information to keep the task moving. The interaction proceeds in this alternating manner until the session terminates.
+Formally, let $u_t$ and $a_t$ denote the user and agent utterances at turn $t$. We write the interaction history up to turn $t$ as
+\begin{equation}
+H_t = (u_1, a_1, \dots, u_t),
+\end{equation}
+and use $H$ to denote the resulting session trajectory. At each turn, the agent produces a response $a_t$, including any tool calls and workspace updates. A session terminates when each intent in $\mathcal{I}$ has been assigned a terminal status and the agent has produced its final response. The full assignment procedure, response mechanism, and prompt template are provided in App.~\ref{app:user_agent}.
+
+% \shunkai{}
+
+\paragraph{Intent status assignment.}
+Each hidden intent $i\in\mathcal{I}$ is initially unstated in the initial request. As the interaction unfolds along $H$, we assign $i$ exactly one terminal status from the set $\{\completed,\inferred,\provided\}$:
+\begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+    \item $\completed$: the agent resolves $i$ without the user explicitly stating it, by producing an action or artifact consistent with the intent.
+    \item $\inferred$: the agent asks a focused question that directly targets $i$, and the user reveals the missing requirement in the next turn, after which the agent can act on it.
+    \item $\provided$: the agent neither resolves $i$ nor asks a relevant question, and the user must proactively supply $i$ to move the task forward.
+\end{itemize}
+
+\paragraph{Session termination.}
+Once an intent is assigned a terminal status, it is excluded from further tracking within the same session. 
+A session terminates only when every intent in $\mathcal{I}$ has been assigned a terminal status and the agent has produced its final response. 
+% At this point, each hidden intent has either been completed by the agent, elicited through a clarification, or provided by the user, and the user agent has no further hidden information to provide, where the interaction has reached a natural stopping point. 
+At this point, each hidden intent has either been completed by the agent, elicited through a clarification, or provided by the user. The user agent has no further hidden information to provide, and the interaction has reached a natural stopping point.
+Let {\intentcompleted}, {\intentinferred}, and {\intentprovided} denote the subsets of $\mathcal{I}$ assigned to $\completed$, $\inferred$, and $\provided$ under $H$, respectively, so that
+\begin{equation}
+\mathcal{I}={\intentcompleted}\cup {\intentinferred}\cup {\intentprovided}
+\quad\text{and}\quad
+{\intentcompleted},{\intentinferred},{\intentprovided}\ \text{are disjoint.}
+\end{equation}
+
+\subsection{Evaluation Protocol}
+\label{sec:evaluation}
+
+We evaluate each agent on both \textbf{proactivity} and \textbf{completeness}, which measure whether the agent resolves hidden intents proactively and ultimately satisfies the task's verifiable requirements. Detailed evaluation protocols are provided in App.~\ref{app:detailed_evaluation}.
+
+% \shunkai{It should be explicitly specified here whether the hidden intents from the prerequisite tasks are included in the computation of the proactivity (PROC) score.}
+
+\paragraph{Proactivity.}
+We define the proactivity score as the fraction of intents that the agent resolves proactively, either by direct completion or by targeted elicitation,
+\begin{equation}
+\textsc{Proc}(H)=\frac{\left|{\intentcompleted}\right|+\left|{\intentinferred}\right|}{|\mathcal{I}|}.
+\end{equation}
+The score is designed to separate agent-driven requirement discovery ($\intentinferred$ and $\intentcompleted$) from user-driven disclosure ($\intentprovided$). It captures whether the agent goes beyond the surface request to identify what remains underspecified and reduce the user’s operational and cognitive effort through appropriate action or clarification. We give $\intentcompleted$ and $\intentinferred$ equal credit because both reflect agent initiative: some intents can be addressed directly, while others should be resolved through targeted clarification.
+
+\paragraph{Completeness.}
+Completeness measures whether the agent ultimately satisfies the task’s verifiable requirements over the course of a session. For each checklist item $c\in\mathcal{C}$, we compute a grader score $s(c,H)\in\{0,1\}$ using either a deterministic program or rubric-based model evaluation, following Sec.~\ref{sec:task_formulation}. Using $H$ allows the grader to incorporate evidence accumulated across turns, including intermediate artifacts and partial progress produced at different points in the interaction. We then define the task completeness score as
+\begin{equation}
+\textsc{Comp}(H)=\frac{1}{|\mathcal{C}|}\sum_{c\in\mathcal{C}} s(c,H).
+\end{equation}
+\paragraph{Metric relationship.}
+Proactivity and completeness capture related but distinct aspects of agent behavior. In our protocol, the simulated user eventually provides any hidden intent that the agent fails to elicit or address, so the final trajectory can contain the full set of intents even when the agent passively waits for user-provided information. Thus, \textsc{Proc} measures how much the agent drives requirement discovery, while \textsc{Comp} measures whether the agent turns the resulting trajectory into correct artifacts and decisions. The two scores can therefore diverge substantially and reflect different capabilities. This separation is analyzed in Sec.~\ref{sec:analysis} and discussed further in App.~\ref{app:metric_relationship}.
+

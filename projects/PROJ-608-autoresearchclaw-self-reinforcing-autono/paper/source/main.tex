@@ -1,0 +1,182 @@
+\documentclass[]{fairmeta}
+% Option "twocolumn" available, but please prioritize single-column
+
+% -----------------------------------------------------------------------------
+% Packages
+% -----------------------------------------------------------------------------
+\usepackage{microtype}
+\usepackage{lmodern}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{makecell}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{nicefrac}
+\usepackage{pifont}
+
+% -----------------------------------------------------------------------------
+% Theorem environments
+% -----------------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% -----------------------------------------------------------------------------
+% Paths
+% -----------------------------------------------------------------------------
+\graphicspath{{figures/}}
+
+% -----------------------------------------------------------------------------
+% Custom commands from the original manuscript
+% -----------------------------------------------------------------------------
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+\newcommand{\system}{\textsc{AutoResearchClaw}}
+\newcommand{\bench}{\textsc{ARC-Bench}}
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red!70}{\ding{55}}}
+\newcommand{\tmark}{\textcolor{orange!80}{$\sim$}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\etal}{\textit{et al.}}
+
+% -----------------------------------------------------------------------------
+% Title
+% -----------------------------------------------------------------------------
+\title{%
+  \raisebox{-0.25\height}{\includegraphics[height=0.9\baselineskip]{figures/AutoResearchClaw_transparent.png}}%
+  : Self-Reinforcing Autonomous Research with Human-AI Collaboration%
+}
+
+% -----------------------------------------------------------------------------
+% Authors
+% -----------------------------------------------------------------------------
+\author[1]{Jiaqi Liu$^*$}
+\author[1]{Shi Qiu$^*$}
+\author[1]{Mairui Li}
+\author[1]{Bingzhou Li}
+\author[1]{Haonian Ji}
+\author[1]{Siwei Han}
+\author[1]{Xinyu Ye}
+\author[1]{Peng Xia}
+\author[6]{Zihan Dong}
+\author[1]{Congyu Zhang}
+\author[2]{Letian Zhang}
+\author[2]{Guiming Chen}
+\author[2]{Haoqin Tu}
+\author[3]{Xinyu Yang}
+\author[1]{Lu Feng}
+\author[7]{Xujiang Zhao}
+\author[7]{Haifeng Chen}
+\author[1]{Jiawei Zhou}
+\author[8]{Xiao Wang}
+\author[1]{Weitong Zhang}
+\author[1]{Hongtu Zhu}
+\author[1]{Yun Li}
+\author[10]{Jieru Mei}
+\author[10]{Hongliang Fei}
+\author[4]{Jiaheng Zhang}
+\author[11]{Linjie Li}
+\author[6]{Linjun Zhang}
+\author[2]{Yuyin Zhou}
+\author[11]{Sheng Wang}
+\author[12]{Caiming Xiong}
+\author[9]{James Zou}
+\author[5]{Zeyu Zheng}
+\author[2]{Cihang Xie}
+\author[1]{Mingyu Ding}
+\author[1]{Huaxiu Yao}
+
+% -----------------------------------------------------------------------------
+% Affiliations
+% -----------------------------------------------------------------------------
+\affiliation[1]{UNC-Chapel Hill}
+\affiliation[2]{UC Santa Cruz}
+\affiliation[3]{Carnegie Mellon University}
+\affiliation[4]{NUS}
+\affiliation[5]{UC Berkeley}
+\affiliation[6]{Rutgers University}
+\affiliation[7]{NEC Labs America}
+\affiliation[8]{Meta}
+\affiliation[9]{Stanford University}
+\affiliation[10]{Google}
+% \affiliation[11]{Microsoft}
+\affiliation[11]{University of Washington} 
+\affiliation[12]{Recrusive.com}
+\affiliation{\\$^*$Equal contribution. \quad Contact: \texttt{\{jqliu,shiqiu,huaxiu\}@cs.unc.edu}}
+
+
+% -----------------------------------------------------------------------------
+% Abstract
+% -----------------------------------------------------------------------------
+\abstract{
+Automating scientific discovery requires more than generating papers from ideas.
+Real research is iterative: hypotheses are challenged from multiple perspectives, experiments fail and inform the next attempt, and lessons accumulate across cycles.
+Existing autonomous research systems often model this process as a linear pipeline: they rely on single-agent reasoning, stop when execution fails, and do not carry experience across runs.
+We present \system{}, a multi-agent autonomous research pipeline built on five mechanisms: structured multi-agent debate for hypothesis generation and result analysis, a self-healing executor with a \textsc{Pivot}/\textsc{Refine} decision loop that transforms failures into information, verifiable result reporting that prevents fabricated numbers and hallucinated citations, human-in-the-loop collaboration with seven intervention modes spanning full autonomy to step-by-step oversight, and cross-run evolution that converts past mistakes into future safeguards.
+On \bench, a 25-topic experiment-stage benchmark, \system{} outperforms AI Scientist v2 by 54.7\%.
+A human-in-the-loop ablation across seven intervention modes reveals that precise, targeted collaboration at high-leverage decision points consistently outperforms both full autonomy and exhaustive step-by-step oversight.
+We position \system{} as a research amplifier that augments rather than replaces human scientific judgment.
+}
+
+% Optional metadata. Delete or replace if not needed.
+\metadata[Github]{\url{https://github.com/aiming-lab/AutoResearchClaw}}
+
+% -----------------------------------------------------------------------------
+% Document
+% -----------------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+
+\input{sections/intro}
+\input{sections/related_work}
+\input{sections/system}
+\input{sections/experiment}
+\input{sections/analysis}
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\clearpage
+\newpage
+\beginappendix
+
+\input{sections/appendix}
+
+% \clearpage
+% \newpage
+% \input{checklist}
+
+\end{document}

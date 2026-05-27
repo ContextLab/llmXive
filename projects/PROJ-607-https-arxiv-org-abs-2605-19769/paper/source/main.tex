@@ -1,0 +1,160 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{main}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{natbib}
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\usepackage[colorlinks=true,linkcolor=mydarkblue,citecolor=mydarkblue,filecolor=mydarkblue,urlcolor=mydarkblue]{hyperref}
+\usepackage{fancyhdr}
+
+\usepackage{xspace}
+\usepackage{float}
+\usepackage{multirow}
+
+% Additional packages required by the content
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{matrix}
+\pgfplotsset{compat=1.18}
+
+\setlist[itemize,1]{leftmargin=10pt}
+
+\input{commands}
+
+\definecolor{YaleBlue}{RGB}{0, 53, 107}
+\definecolor{UNCBlue}{RGB}{75, 156, 211}
+\definecolor{PennRed}{RGB}{153, 0, 0}
+
+\newcommand{\Yale}{\hspace{.1em}^{\textcolor{YaleBlue}{\boldsymbol{Y}}}}
+\newcommand{\UNC}{\hspace{.1em}^{\textcolor{UNCBlue}{\boldsymbol{C}}}}
+\newcommand{\UPenn}{\hspace{.1em}^{\textcolor{PennRed}{\boldsymbol{P}}}}
+
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figures/icons/github-logo.pdf}}\xspace}
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figures/icons/hf-logo.pdf}}\xspace}
+
+\usepackage[flushmargin,hang]{footmisc}
+\setlength{\footnotemargin}{0pt}
+
+% --- OpenComputer-specific preamble (kept verbatim from original neurips_2026.tex) ---
+\newtcolorbox{taskexample}[1]{
+    colback=black!1,
+    colframe=black!30,
+    boxrule=0.4pt,
+    arc=2pt,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    before skip=0.8em,
+    after skip=0.8em,
+    title={\textbf{#1}},
+    fonttitle=\small,
+    coltitle=black,
+    colbacktitle=black!6
+}
+
+\newcommand{\taskfield}[1]{\vspace{0.25em}\noindent\textbf{#1.}}
+\newlist{compactitem}{itemize}{1}
+\setlist[compactitem,1]{
+    label=\textbullet,
+    leftmargin=1.2em,
+    itemsep=0.15em,
+    topsep=0.15em
+}
+
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+
+\newcommand{\jinb}[1]{\textcolor{blue}{\bf\small [Jinbiao: #1]}}
+\newcommand{\yilun}[1]{\textcolor{brown}{\bf\small [Yilun: #1]}}
+\newcommand{\ac}[1]{\textcolor{darkblue}{\bf\small [AC: #1]}}
+
+\renewcommand{\eg}{\hbox{\emph{e.g.,}}\xspace}
+\renewcommand{\ie}{\hbox{\emph{i.e.,}}\xspace}
+\newcommand{\nexample}{1,000\xspace}
+\newcommand{\napp}{33\xspace}
+
+\newcommand{\ours}{OpenComputer\xspace}
+
+% NeurIPS-style answer macros used by checklist.tex
+\newcommand{\answerYes}[1][]{\textcolor{blue}{[Yes]#1}}
+\newcommand{\answerNo}[1][]{\textcolor{orange}{[No]#1}}
+\newcommand{\answerNA}[1][]{\textcolor{gray}{[N/A]#1}}
+\newcommand{\answerTODO}[1][]{\textcolor{red}{\bf [TODO]}}
+
+\begin{document}
+
+\title{\ours: Verifiable Software Worlds for\\ Computer-Use Agents}
+
+\author{
+\textbf{Jinbiao Wei}$\Yale$ \;
+\textbf{Qianran Ma}$\UPenn$ \;
+\textbf{Yilun Zhao}$\Yale$ \;
+\textbf{Xiao Zhou}$\Yale$ \;
+\textbf{Kangqi Ni}$\UNC$ \;
+\textbf{Guo Gan}$\Yale$ \;
+\textbf{Arman Cohan}$\Yale$ \\ [7pt]
+$\Yale$Yale NLP Lab \quad $\UPenn$University of Pennsylvania \quad $\UNC$University of North Carolina at Chapel Hill \\ [4pt]
+\github\url{https://github.com/echo0715/OpenComputer}  \\ [4pt]
+Correspondence to: \href{mailto:jinbiao.wei@yale.edu}{jinbiao.wei@yale.edu}, \href{mailto:yilun.zhao@yale.edu}{yilun.zhao@yale.edu}
+}
+
+\maketitle
+\thispagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{%
+    \raisebox{-6pt}{%
+        \includegraphics[height=1.1cm]{logo/yale.png}\hspace{0.1cm}%
+        \raisebox{0.2cm}{\includegraphics[height=0.65cm]{logo/uppen.png}}\hspace{0.35cm}%
+        \raisebox{0.1cm}{\includegraphics[height=0.9cm]{logo/unc.png}}\hspace{0.3cm}%
+    }%
+}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{37pt}
+\addtolength{\topmargin}{-7pt}
+\setlength{\headsep}{0mm}
+
+\vspace{-1.0em}
+
+\pagestyle{plain}
+
+\begin{abstract}
+\input{sections/0-abstract}
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/methodology}
+\input{sections/experiment}
+\input{sections/analysis}
+\input{sections/conclusion}
+\input{Appendix/limitations}
+
+% \newpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\newpage
+
+\appendix
+\input{Appendix/repair_module}
+\input{Appendix/llm_as_judge_problem}
+\input{Appendix/task_example}
+
+\end{document}

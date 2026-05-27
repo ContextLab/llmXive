@@ -1,0 +1,50 @@
+{
+  "arxiv_id": "2605.18233",
+  "arxiv_url": "https://arxiv.org/abs/2605.18233",
+  "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos",
+  "authors": [
+    "X. Feng",
+    "J. Zhu",
+    "M. Wu",
+    "C. Chen",
+    "F. Mao",
+    "H. Guo",
+    "J. Wu",
+    "X. Chu",
+    "K. Huang"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Without incurring significant computational overhead, train-free long video generation aims to enable foundation video generation models to produce longer videos. Frame-level autoregressive frameworks, e.g., FIFO-diffusion, offer the advantage of generating infinitely long videos with constant memory consumption. However, the mismatch between training and inference, coupled with the challenge of maintaining long-term consistency, limits the effective utilization of foundation models. To mitigate these concerns, we propose \\textbf{MIGA}, a novel infinite-frame long video generation method. Firstly, we propose an effective two-stage alignment mechanism that mitigates the training-inference gap by reducing the excessive noise span fed to the model. We then introduce an innovative dual consistency enhancement mechanism, where the self-reflection approach corrects early high-noise frames and the long-range frame guidance approach leverages later low-noise frames with broad coverage to steer generation, jointly improving temporal consistency. Extensive experiments on VBench and NarrLV demonstrate the state-of-the-art performance of MIGA. Our project page is available at https://xiaokunfeng.github.io/miga_homepage/.",
+  "submitted_via": "llmXive dashboard, GitHub issue #220",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "icml26_main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "algorithmic.sty",
+    "algorithm.sty",
+    "example_paper.bib",
+    "fancyhdr.sty",
+    "icml2026.bst",
+    "icml2026.sty",
+    "icml26_main.tex",
+    "images",
+    "images/ab_all_figure_small_1.pdf",
+    "images/ab_phase2_steps_bar.pdf",
+    "images/ab_threshold.pdf",
+    "images/app_cogvideo_small.pdf",
+    "images/app_dce_module.pdf",
+    "images/app_limitation.pdf",
+    "images/app_multi_prompt.pdf",
+    "images/app_videocraft_wan_compare.pdf",
+    "images/app_videocrafter_case_small.pdf",
+    "images/app_wan_case_small.pdf",
+    "images/fig1_3.pdf",
+    "images/fig2_v3.pdf",
+    "images/module_2_insight.pdf"
+  ]
+}

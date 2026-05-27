@@ -1,0 +1,29 @@
+\begin{table}
+\caption{Accuracy comparison on LongBench. The best average result among sparse-attention methods is shown in bold, and the second-best average result is underlined. Full attention is excluded from this ranking.}
+\label{tab:longbench}
+\centering
+\newcommand{\rot}[1]{\rotatebox{60}{#1}}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccccccccccc}
+\toprule
+\multirow{1}{*}[0.35cm]{\textbf{Longbench}} & \rot{2wiki} &
+\rot{hotpot} & \rot{musique} & \rot{multi-en} & \rot{multi-zh} & \rot{qasper} & \rot{g-report} &
+\rot{qmsum} & \rot{vcsum} & \rot{triviaqa} & \rot{trec} & \rot{lsht} & \rot{lcc} & \rot{repo-p} & \rot{PR-zh} & \rot{PR-en} &
+\multirow{1}{*}[0.35cm]{\textbf{Avg. (\%)}} \\
+\midrule
+Full Attn & 42.08 & 54.64 & 38.30 & 52.89 & 65.99 & 39.25 & 31.89 & 23.77 & 13.55 & 89.93 & 85.50 & 61.50 & 35.08 & 27.61 & 99.75 & 99.00 & 53.80\\
+RazorAttn & 40.31 & 50.92 & 29.15 & 53.04 & 65.90 & 39.72 & 31.61 & 23.59 & 13.85 & 89.26 & 85.00 & 59.50 & 35.01 & 32.05 & 99.00 & 99.75 & 52.98\\
+Minference & 40.22 & 52.21 & 32.12 & 52.09 & 64.92 & 38.43 & 31.77 & 23.60 & 13.42 & 51.95 & 82.50 & 32.25 & 34.05 & 25.76 & 99.00 & 100 & 48.39\\
+FlexPrefill & 36.48 & 52.76 & 35.71 & 51.69 & 65.86 & 37.44 & 31.63 & 24.00 & 13.10 & 90.59 & 80.50 & 50.25 & 32.85 & 24.93 & 93.50 & 69.50 & 49.42\\
+Quest & 39.11 & 53.27 & 31.64 & 48.22 & 62.80 & 38.27 & 30.18 & 23.55 & 13.24 & 79.88 & 81.00 & 59.00 & 35.80 & 24.31 & 98.83 & 91.92 & 50.69\\
+SnapKV & 42.56 & 53.10 & 38.14 & 52.70 & 65.50 & 39.30 & 16.11 & 17.68 & 11.03 & 82.03 & 77.00 & 57.21 & 35.00 & 25.76 & 99.00 & 99.75 & 50.74\\
+\addlinespace[3pt]
+\arrayrulecolor{black!60}\cdashline{1-18}[0.9pt/2pt]\arrayrulecolor{black}
+\noalign{\vskip 3pt}
+\multicolumn{18}{l}{\textbf{RTPurbo}}\\[1pt]
+\shortstack[l]{\hspace{0.8em}w/ top-k} & 42.56 & 53.10 & 36.46 & 51.75 & 64.97 & 40.43 & 31.76 & 24.41 & 13.88 & 89.10 & 83.00 & 55.50 & 34.41 & 33.47 & 99.00 & 99.00 & \underline{53.30}\\
+\shortstack[l]{\hspace{0.8em}w/ top-$p$} & 44.49 & 54.74 & 35.29 & 53.34 & 65.56 & 40.22 & 31.92 & 24.60 & 14.00 & 90.85 & 84.50 & 60.00 & 34.56 & 34.08 & 99.75 & 100 & \SOTA{54.24}\\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

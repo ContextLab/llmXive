@@ -1,0 +1,276 @@
+\newpage
+\appendix
+
+\section{Reference Implementation}
+\label{app:ref}
+
+The Foundation Protocol is accompanied by an open-source reference stack:
+the \texttt{foundation-protocol} runtime\footnote{
+\url{https://github.com/FoundationAgents/foundation-protocol}}
+and the \texttt{ai-link-net} application-network implementation\footnote{
+\url{https://github.com/FoundationAgents/ai-link-net}}.
+Both are non-normative. The main text defines the protocol. This appendix describes their architecture and main technical choices, so readers can evaluate the design's feasibility and trade-offs.
+%%
+Implementation details that only make sense with the code, such as module names, file paths, and API signatures, are deliberately omitted. The goal is a software-architecture blueprint that can stand on its own.
+
+\subsection{Overview}
+\label{app:overview}
+
+The two released repositories form a working FP stack. \texttt{foundation-protocol} contains the protocol core and the Python runtime. \texttt{ai-link-net} builds on it with an application-network server, a command-line interface, and a web interface.
+%%
+The stack supports the basic FP workflow. Humans, agents, tools, resources, and services can register on a Host. They can discover peers across the network, form trust relationships, and exchange signed and encrypted messages. They interact through the same protocol surface instead of separate application paths.
+
+The core, server, and command-line interface are written in Python. The web interface uses TypeScript, React, and Vite. The implementation targets developer-facing use cases first. A developer can stand up a local or cloud-hosted FP node, register entities, and run cross-host interactions with real AI providers such as Claude Code and Codex CLI, as well as MCP-compatible tool servers.
+
+\subsection{Core concepts}
+\label{app:concepts}
+
+Three abstractions form the structural backbone of the implementation.
+
+\paragraph{Entity.}
+An Entity is the unified participant model introduced in Section~\ref{subsec:entity}. FP represents every addressable participant as an Entity. This includes human users, AI agents, tools, resources, services, and organizations. Each Entity uses the same surface for identity, addressing, cryptography, and access control.
+%%
+FP keeps this abstraction deliberately flat. Hosts, humans, agents, tools, resources, services, arbiters, and organizations all share the same Entity model. Behavioral differences live in pluggable \emph{handlers}, not in subtype hierarchies. A new entity kind therefore needs a new handler. It does not need a new protocol path.
+
+Each Entity is assigned a globally unique address of the form
+\texttt{HostUid:EntityUid}, where both components are short hex strings.
+An Entity publishes an \emph{EntityCard}, a lightweight discovery
+document containing its name, address, kind, and public keys. Counterparts can use it to verify identity and establish encrypted channels. They do not need to exchange full capability metadata upfront. This follows FP's progressive-disclosure principle.
+
+\paragraph{Host.}
+A Host is the topology and routing node in FP. It maintains a registry of local entities. It manages parent--child relationships with other Hosts. It also routes mail to the right destination: a local entity, a child Host, or a parent Host.
+%%
+The Host is still a protocol object, not an implementation recipe. It defines addressing, discovery, and routing semantics. It does not prescribe how a deployment maintains connections or persists state.
+
+Discovery relies on a well-known endpoint that each Host exposes,
+returning its identity, URL, and the set of publicly discoverable
+entities. When participants aggregate these documents across a host tree, they get a view of the reachable network.
+
+\paragraph{Server.}
+A Server is the application-layer runtime around a Host. It connects the Host's abstract routing model to real network connections. In the reference implementation, the Server binds routing to WebSocket connections.
+It tracks entity presence, queues offline mail with bounded buffers, and uses heartbeats to detect liveness. It also exposes an HTTP REST API for external clients.
+%%
+This keeps the boundary clean. The Host defines protocol semantics. The Server handles runtime concerns. As a result, the protocol remains easier to test and easier to port across web frameworks.
+\medskip
+\noindent This decomposition between Entity, Host, and
+Server reflects that protocol semantics are
+isolated from runtime concerns, and both are isolated from interface presentation. 
+
+Because of this, the protocol core can be embedded in contexts that have nothing to do with HTTP, e.g., batch scripts, test harnesses, alternative transport layers.
+
+\subsection{Architecture}
+\label{app:architecture}
+
+\subsubsection{Layering and dependency direction}
+
+The codebase is organized into three layers with a strict unidirectional
+dependency rule:
+
+\begin{itemize}
+    \item \textbf{Protocol core.}  Entity model, message semantics, mail
+      envelope, cryptography, host topology, checkpoint pipeline, handler
+      abstractions, and protocol adapters (e.g., CLI adapter for AI
+      providers, MCP bridge for tool servers).  This layer has no
+      dependency on any web framework, database, or persistence backend.
+      It is a pure domain model.
+
+    \item \textbf{Application layer.}  HTTP/WebSocket server, runtime
+      host management, client libraries for host-to-host communication,
+      API schemas, and configuration management.
+
+    \item \textbf{Interface layers.}  CLI commands and a React web~UI.
+      Both consume the application layer's API; neither contains protocol
+      logic.
+\end{itemize}
+
+\noindent The dependency direction is strictly
+\emph{application~$\rightarrow$~core}, i.e., the protocol core never imports
+from the application layer.  This constraint ensures that protocol
+semantics remain stable and testable independently of deployment choices.
+
+\subsubsection{Concurrency model}
+
+All I/O paths in the server are fully asynchronous.  Entity message
+processing, host-to-host forwarding, WebSocket management, and offline
+queue flushing run as concurrent coroutines on a single event loop.
+This design supports high-fanout scenarios, where a single Host routes
+mail among many entities and child Hosts simultaneously, without
+blocking on individual message deliveries.
+
+\subsubsection{Topology: tree-based with a decentralization path}
+
+The current implementation uses a \textbf{tree topology}. Each Host has at most one parent and may have many children. A cloud-hosted root node can act as a rendezvous point. Local Hosts then connect as children.
+%%
+This gives FP a simple operational default. It covers a common deployment pattern where a personal or team Host joins a shared network through a well-known entry point.
+
+\begin{quote}
+\small\ttfamily
+\begin{tabular}{@{}l@{}}
+\hspace{12em}CloudHost (root) \\
+\hspace{8em}/\hspace{8em}\textbackslash \\
+\hspace{2em}LocalHost~A\hspace{8em}LocalHost~B \\
+\hspace{1em}Alice~~DevBot\hspace{8em}Bob~~EchoTool \\
+\end{tabular}
+\end{quote}
+
+The tree model is not a hard architectural constraint.  The routing
+algorithm dispatches based on Host~UID lookup: local, child, or parent.
+A peer-to-peer or mesh topology would add lateral routing entries. That change stays in the routing layer. It does not require changes to the entity model, mail format, checkpoint pipeline, or other protocol components.
+%%
+FP is designed so topology can evolve without forcing protocol-level changes.
+
+\subsubsection{Transport independence}
+
+The protocol core defines addressing and routing semantics but does not
+bind to a specific transport.  The current default profile uses WebSocket
+for persistent host-to-host connections (with heartbeat, reconnection,
+and offline queuing) and HTTP~REST for client-to-host operations.  These
+bindings live entirely in the application layer.  Alternative transports
+(QUIC, gRPC, local IPC) can be introduced as additional profiles without
+modifying the protocol core, consistent with FP's configuration and
+profile plane (Section~\ref{subsec:profiles}).
+
+\subsection{Core functionality: technical overview}
+\label{app:functionality}
+
+\subsubsection{Unified entity model and access control}
+
+All core entity kinds share the same addressing scheme, the same
+cryptographic identity (signing keys and encryption keys),
+and the same access-control surface.  This uniformity means that an
+agent invoking a tool, a human messaging another human, and a service
+responding to a resource request all traverse identical envelope,
+routing, and policy mechanisms.
+
+Access control uses a \emph{checkpoint pipeline}. Every inbound message passes through an ordered sequence of policy enforcement points before it reaches a handler. Checkpoints are pluggable and composable. The reference implementation includes checkpoints for:
+
+\begin{itemize}
+    \item Friend-list-based access control (social-graph gating).
+    \item Session validation (messages must reference an active session).
+    \item Rate limiting (sliding-window, per-sender).
+    \item Content-length enforcement.
+    \item Payment verification (reject messages lacking a valid payment proof).
+    \item Contract approval (intercept contract status changes that require owner decision).
+    \item Payment approval (evaluate payment requests against configurable policies).
+\end{itemize}
+
+\noindent Additional checkpoints can be appended without modifying
+existing ones, and their evaluation order determines priority.  This
+pipeline is the implementation-level realization of the policy
+enforcement points described in the Regulation \& Oversight Plane
+(Section~\ref{subsec:oversight}).
+
+\paragraph{Human-in-the-loop approval.}
+The checkpoint pipeline supports a general-purpose \emph{owner
+escalation} mechanism. Any checkpoint can defer a decision to the entity's designated owner, usually a human. The checkpoint sends an approval request. The original message waits in a pending queue. Processing continues only after the owner explicitly approves or rejects the request.
+%%
+The trade subsystem uses this mechanism for contract creation, delivery acceptance, and high-value payments. Custom checkpoints can use it as well. Human oversight is therefore not a wrapper around the protocol. It is part of the checkpoint pipeline itself, with the same ordering, tracing, and audit guarantees as automated checks.
+
+Behavioral specialization across entity kinds is handled by a
+\emph{handler} abstraction.  Each entity is assigned a handler that
+determines how incoming messages are processed after passing all
+checkpoints.  The reference implementation provides handlers for human
+entities (store-and-forward for UI consumption), agent entities (delegate
+to an external AI provider via a CLI adapter), tool/resource/service
+entities (bridge to an MCP server via JSON-RPC), and a generic callback
+handler for programmatic use. The handler interface is the primary
+extension point for adding new entity behaviors.
+
+\subsubsection{Protocol bridges}
+
+Two bridges demonstrate FP's ability to wrap existing ecosystems:
+
+\begin{itemize}
+    \item \textbf{CLI adapter bridge.}  Agent entities delegate work to
+      external AI providers (e.g., Claude Code, Codex~CLI) through a
+      declarative configuration that maps FP's provider-agnostic
+      execution semantics (trust level, output format, budget, allowed
+      tools) to provider-specific CLI flags.  Adding a new provider
+      requires only a configuration entry, not code changes.  The adapter
+      manages subprocess lifecycle, output parsing, and session
+      resumption.
+
+    \item \textbf{MCP bridge.}  Tool, resource, and service entities can
+      front any MCP-compatible server.  The bridge translates FP
+      \texttt{INVOKE} messages into JSON-RPC \texttt{tools/call} requests
+      and returns results as FP messages.  Both STDIO and HTTP transports
+      are supported.  This means an existing MCP server becomes an
+      FP-addressable entity, with identity, friend-based access control,
+      and mail-based invocation, without any modification to the server
+      itself.
+\end{itemize}
+
+\noindent These bridges illustrate the design objective stated in
+Section~\ref{subsec:objectives}. FP complements existing protocols by
+providing a common control surface, rather than replacing their
+domain-specific semantics.
+
+\subsubsection{Contract lifecycle and economic functionality}
+
+The reference implementation realizes FP's economy primitives through a complete \emph{contract-and-settlement} subsystem. The subsystem has three protocol roles. The buyer and seller act as the two \emph{parties}. An \emph{arbiter} manages state transitions, signs attestations, and can optionally hold funds.
+
+\paragraph{Contract state machine.}
+A contract follows a well-defined lifecycle:
+
+\begin{quote}
+\small\ttfamily
+DRAFT $\rightarrow$ PENDING $\rightarrow$ ACTIVE $\rightarrow$ COMPLETING $\rightarrow$ SETTLING $\rightarrow$ SETTLED \\
+\quad\, $\downarrow$ \hspace{4.2em} $\downarrow$ \hspace{3.8em} $\downarrow$ \hspace{5.6em} $\downarrow$ \\
+\quad CANCELLED \hspace{1em} CANCELLED \hspace{0.8em} DISPUTED \hspace{2em} DISPUTED
+\end{quote}
+
+\noindent Each transition is triggered by a typed message, such as \texttt{CONTRACT\_APPROVE}, \texttt{CONTRACT\_COMPLETE}, or \texttt{CONTRACT\_ACCEPT}. The arbiter validates the transition before it takes effect. During the draft phase, parties can still amend the terms. Each amendment resets approvals and increments a draft version counter. This prevents stale-state races. A configurable rework limit controls how many times a delivery may be revised before the contract escalates into a dispute.
+
+\paragraph{Payment and settlement.}
+The payment subsystem supports two funding modes. In \emph{escrow} mode, the arbiter freezes funds from the buyer when the contract becomes active. It transfers the funds to the seller after successful settlement. In this mode, the protocol itself guarantees atomicity.
+%%
+In \emph{direct} mode, the parties settle outside FP through a bank transfer, cryptocurrency payment, or external payment gateway. The arbiter then records the settlement as a verifiable reference. Both modes share the same receipt and dispute surface, so downstream audit does not depend on which payment rail was used.
+
+\paragraph{Metering and receipts.}
+Each delivery in a contract carries structured cost records. These may include token consumption, compute-hours, or USD amounts. FP attaches the records to the contract's activity history. After acceptance, the arbiter issues a signed receipt. The receipt attests to what was delivered and what it cost.
+%%
+These receipts are third-party verifiable. An auditor can confirm a receipt's integrity with the arbiter's public key without accessing the underlying payloads.
+
+\paragraph{Reputation.}
+The implementation derives \emph{explainable vendor reputation} from
+closed-loop contract facts rather than subjective ratings.  When a
+contract reaches a terminal state (settled, cancelled, or disputed), the
+system extracts a reputation event that records the outcome, delivery
+count, rework count, cost data, and evidence completeness.  These events
+are aggregated into a five-dimensional profile.
+
+\begin{itemize}[nosep]
+    \item \emph{Quality}: inferred from explicit ratings and outcome
+      type.
+    \item \emph{Reliability}: proportion of contracts completed
+      successfully.
+    \item \emph{Collaboration}: penalized by rework frequency.
+    \item \emph{Efficiency}: delivery iterations and cost transparency.
+    \item \emph{Integrity}: presence of signed snapshots, hash chains,
+      and complete evidence.
+\end{itemize}
+
+\noindent Each dimension is weighted by a confidence factor (reflecting
+sample size and data quality) and a recency factor (recent contracts
+weighted higher).  The result is a reputation score that remains tied to concrete contract evidence rather than to an opaque aggregate number. A reviewer can always trace the score back to the contracts and events that produced it.
+
+\subsubsection{Security and auditability}
+
+The security model operates at three levels.
+
+\paragraph{Envelope security.}
+Every mail message is signed before it is sent. The recipient checks the signature against the sender's public key from the sender's EntityCard. If the payload needs confidentiality, the sender encrypts it with authenticated encryption.
+%%
+This gives two guarantees. \emph{Authenticity} means the sender is the expected entity and the message has not changed in transit. \emph{Confidentiality} means only the intended recipient can read the payload.
+%%
+FP defines these guarantees, but it does not hard-code the algorithms. The application layer chooses them. The reference implementation uses Ed25519 for signatures and ephemeral X25519 key agreement with AES-256-GCM for encryption. A different cryptographic profile can replace these choices without changing the envelope format or the checkpoint pipeline.
+
+\paragraph{Contract-level audit trail.}
+The trade subsystem adds a second layer of cryptographic evidence.
+Every contract state transition produces an immutable \emph{snapshot}. The arbiter signs the snapshot. Each snapshot also stores the hash of the previous one, so the contract history forms a hash chain. Retroactive edits become detectable.
+%%
+The system captures participant EntityCards when the contract is created. The audit record therefore remains readable even if an entity later changes its metadata. Delivery artifacts, cost reports, and settlement references all attach to the same chain. An auditor can inspect one evidence spine for the whole contract.
+
+\paragraph{Checkpoint-level traceability.}
+Each entity maintains an append-only mailbox that records all inbound and outbound mail in chronological order. 
+The checkpoint pipeline also records policy decisions. If a checkpoint rejects a message, the system records the reason and returns a structured error. If a checkpoint asks a human owner to decide, the system records the request, the owner's response, and the action that follows. In other words, access-control decisions leave traces. They do not vanish as silent drops.

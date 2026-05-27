@@ -1,0 +1,162 @@
+\section{Endogenous Mechanisms of LALMs}
+
+This section investigates the internal mechanisms governing how LALMs process information, exploring the synergy between architectural design, representational paradigms, and optimization strategies as shown in figure \ref{fig:1}, figure \ref{fig:2} and table \ref{tab:2}. The fundamental capabilities of LALMs are underpinned by their architectural design and the transition from task-specific cascaded systems toward unified, end-to-end multimodal frameworks \cite{zhang2023speechgpt, rubenstein2023audiopalm}. Unlike traditional systems characterized by modular decoupling, contemporary architectures employ a sophisticated pipeline designed to map continuous, non-stationary auditory signals into structured semantic latent spaces \cite{tang2023salmonn, chu2024qwen2}.
+
+\subsection{Architectural Foundations}
+The structural integrity of LALMs is established upon a composite information processing pipeline that facilitates the translation of raw acoustic signals into semantic representations. This architectural framework generally integrates three components consisting of an acoustic encoder, an alignment projector, and a LLM backbone.
+
+The acoustic encoder functions as the foundational interface for sensory perception. Current research emphasizes the rigorous evaluation of these components through initiatives \cite{ma2026interspeech}. The investigation of information transfer mechanisms from these encoders to language decoders is essential for optimizing system performance \cite{alex2025pal}. Moreover, specialized encoding strategies are employed to characterize physical attributes including spatial descriptors \cite{jiang2026sci}.
+
+The alignment projector and integration frameworks serve as the critical nexus between modalities. Modern architectures frequently incorporate heterogeneous sensory inputs to improve task specific precision such as the integration of visual and auditory understanding \cite{zhao2025hears}. Frameworks like \textbf{TWNM} \cite{you2026world} and \textbf{SPUR} \cite{sakshi2025spur} enhance the adaptability of existing systems. Furthermore, architectural refinements for specialized deployment scenarios are represented by egocentric multichannel processing \cite{lin2025wearvox}.
+
+The LLM backbone provides the essential cognitive capacity for reasoning. Detailed evaluations indicate that the auditory knowledge inherently encoded within these backbones during text based pre-training significantly impacts subsequent audio grounded capabilities \cite{lu2026how}.
+
+Significant structural innovations continue to enhance the efficiency and versatility of the LALM pipeline. These developments include the adoption of structured embeddings for integrated understanding and editing as presented in \textbf{SALM} \cite{hu2025salm}. Other paradigms propose fundamental shifts in processing methodology such as the dual-resolution parallel frameworks or the implementation of transformers that operate directly within latent spaces\cite{lu2025latent}.
+
+\subsection{Representational Paradigms}
+The selection of representational paradigms determines the efficacy and semantic grounding of LALMs. A fundamental distinction in current research involves the comparative utility of discrete audio tokens versus continuous temporal manifolds. Unified frameworks increasingly utilize text-aligned factorized audio tokenization to ensure consistency between auditory and linguistic units \cite{yang2026uniaudio}. To address the scalability constraints of discrete sequences, researchers have developed audio token compression techniques that maintain semantic density while reducing computational overhead \cite{bhati2025towards}. Additionally the capture of paralinguistic nuances is enhanced through fine-grained feature augmentation including vowel-level modifications designed to improve emotional prosody \cite{wang2026vowelprompt}. This representational choice dictates the model's trustworthiness: while discrete tokenization risks discarding critical acoustic safety cues during compression, continuous manifolds preserve rich paralinguistic nuances but consequently increase the attack possibility for adversarial vulnerabilities.
+
+\subsection{Training and Alignment Strategies}
+Architectural sparsity and parameter efficient fine tuning serve as the primary mechanisms for adapting models to complex tasks with minimal overhead. The implementation of specialized Mixture of Experts adapters addresses gradient conflicts and promotes representational disentanglement during cross modal training \cite{lei2026moe}. Efficiency is further improved through segmentwise pruning techniques that mitigate the overhead of processing continuous streams \cite{gibier2025segmentwise}. For domain specific applications, the utilization of Low Rank Adaptation facilitates precise temporal localization in high stakes environments such as clinical therapy \cite{bn2025fine}.
+
+Systematic evaluation of these optimizations is facilitated by benchmarks \cite{luo2026chronosaudio}. Methodological advancements include the development of extended context mechanisms for long form understanding \cite{chaichana2026extending} and techniques designed to bridge temporal gaps between frames to maintain dependency capture \cite{wang2026listening}. The end-to-end contrastive pretraining models can improve performance for long form question answering capabilities \cite{hu2026end}.
+
+Sophisticated alignment algorithms are essential to resolve modality bias and improve fidelity of cross modal representations. Research into few shot learning finds that models can achieve high proficiency with minimal data samples \cite{zhang2025mimo}. To ensure models rely on acoustic evidence rather than textual shortcuts, researchers employ attention rebalancing mechanisms to mitigate imbalances \cite{wang2025pay} and utilize audio contribution aware post training to enhance correctness \cite{he2025measuring}. Specialized alignment strategies \cite{grinberg2026alarm} further refine this synergy. Knowledge distillation serves as another vital tool with methods transferring reasoning abilities from vision to audio \cite{wang2025sightsound} or through weighted on policy cross modal distillation \cite{hu2026cord}. Advanced metrics like attention weighted centered kernel alignment also contribute to optimized speech emotion recognition \cite{yang2026attention}.
+
+Complementary to training alignments, inference optimizations provide a lightweight alternative to ensure generation quality without extensive retraining. Feedback driven retrieval augmented generation improves output quality through iterative verification \cite{zhao2025feedback}. Similarly test time adaptation methods enhance robustness for emotional recognition tasks without additional training \cite{shi2025emo}.
+
+The evolution of LALMs is defined by the transition from rigid turn-taking toward synchronous interaction \cite{ji2024wavchat, chen2025from}. This shift necessitates sophisticated architectural schemes that enable real-time conversations beyond the turn-based game \cite{zhang2024beyond}, including codec-free designs for speech understanding and generation \cite{yu2024salmonn}. While some research investigates efficient and direct duplex modeling \cite{hu2025efficient}, others highlight the potential of modular systems \cite{liu2025xtalk} or propose plug-and-play streaming state prediction modules to ensure real-time responsiveness \cite{yan2026soulx}. Optimization strategies have also advanced through time-controllable training \cite{chang2026tico}, reinforcement learning for interactivity optimization \cite{hsiao2026aspirin}, and the use of natural monologues via dual training \cite{yao2025flm}. And cognitive capabilities within duplex models are being extended through asynchronous knowledge retrieval \cite{chien2026moshirag} and latent reasoning to model internal cognition \cite{wu2026silent}. The proliferation of these full-duplex technologies has concurrently spurred the development of comprehensive evaluation frameworks to assess real-time disfluency, multi-turn dynamics, and semantic-aware interruptions. In addition, the development of privacy-preserving end-to-end dialogue models ensures secure full-duplex communication \cite{kuzmin2026privacy}, while technical reports like \textbf{Covo-Audio} \cite{wang2026covo} continue to delineate the evolving landscape of universal auditory intelligence.
+
+
+\begin{figure*}[t]
+    \centering    \includegraphics[width=\linewidth]{figure/compare.pdf}
+    \caption{Architectural and Paradigmatic Evolution from Traditional Audio Models to LALMs.}
+    \label{fig:1} 
+\end{figure*} 
+
+\subsection{Emergent Reasoning Mechanisms}
+The transition of LALMs from passive transcription engines to cognitive agents capable of complex deduction represents a pivotal advancement in auditory intelligence. This evolution is underpinned by the development of internal mechanisms that facilitate logical grounding and planning.
+
+Central to these emergent capabilities is the implementation of Audio Chain-of-Thought (Audio-CoT) architectures, compelling models to generate intermediate reasoning trajectories prior to formulating final responses \cite{xiong2025thinking} in figure \ref{fig:audiocot}. The depth of comprehension is further enhanced by embedding reasoning steps directly within the multimodal processing flow via audio-interleaved frameworks, such as \textbf{ECHO} \cite{wu2026echo}. To enable these capabilities without extensive retraining researchers have introduced training-free steering mechanisms that activate reasoning pathways by nudging the hidden states of the model \cite{ieong2026nudging}. Furthermore the necessity for real-time cognitive processing has led to investigations into whether models can maintain reasoning efficiency while simultaneously listening to continuous audio \cite{shih2025can}.
+
+Reinforcement Learning (RL) and process oriented reward systems serve as the primary drivers for incentivizing consistent and scalable logic. By utilizing reasoning process rewards models are encouraged to maintain logical validity throughout multi-step deductions \cite{fan2025incentivizing}. This paradigm is extended to specialized domains through emotion-rule-based RL frameworks that enhance the consistency of models executing tasks in affect-rich environments as shown in \textbf{EMO-RL} \cite{li2025emo}. Other strategies employ RL to guide models on the optimal timing and methodology for initiating reasoning processes \cite{wu2025audio}. Such incentivized reasoning is critical for solving complex logical challenges and is fundamental to the advancements presented in \textbf{SoundMind} \cite{diao2025soundmind}.
+
+The adaptability and scalability of reasoning at inference time allow models to navigate ambiguity and high-dimensional tasks. Difficulty-adaptive mechanisms empower models to dynamically allocate computational resources based on instruction complexity \cite{sheng2025think}. To resolve highly ambiguous emotional cues researchers utilize test-time scaling to expand the computational depth of the model during decoding \cite{jia2026decoding}.
+
+Advanced manifestations of these internal mechanisms include agentic frameworks and causal world modeling. The integration of models into agentic systems allows for multifaceted task execution and autonomous tool use \cite{wijngaard2025audiotoolagent}. Causal state-action planning pushes the boundaries of reasoning by enabling models to simulate and reason through physical world dynamics \cite{zhou2025speech} . The robustness of these reasoning capabilities is evaluated through benchmarks targeting acoustic-semantic conflicts where models must resolve contradictions between tone and lexical content \cite{huang2026tone}. 
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{figure/audiocot.png}
+    \caption{Visualization of standard LALM with Audio-CoT.This figure provides a comparative analysis of internal reasoning mechanisms, highlighting the advantages of the emergent Audio-CoT architecture over standard direct-response models.}
+    \label{fig:audiocot}
+\end{figure}
+
+
+
+
+
+\subsection{Future Directions of LALMs' Framework}
+The evolution of LALMs is moving beyond superficial pattern matching toward deep cognitive and causal intelligence. We identify four critical trajectories that will define the next generation of auditory reasoning engines.
+
+First, LALMs must transition toward causal auditory world modeling, enabling counterfactual reasoning to simulate physical dynamics and event sequences within auditory scenes \cite{zhou2025speech}. Second, optimizing the efficiency-robustness Pareto frontier necessitates semantic-aware token compression \cite{bhati2025towards} and factorized tokenization \cite{yang2026uniaudio} to maintain performance across long-form contexts \cite{luo2026chronosaudio}. Third, integrating agentic frameworks with full-duplex intelligence marks the next stage of synchronous interaction \cite{ji2024wavchat}, requiring robust handling of disfluency and tool-use in real-time conversations \cite{yu2024salmonn, lin2025full}. 
+Fourth, cross-modal knowledge distillation and multi-sensory alignment will empower models to ``listen between frames'' by transferring spatial reasoning from vision to audio \cite{wang2025sightsound, grinberg2026alarm}.
+
+As these architectural advancements expand the multimodal attack surface, the next-generation framework must pioneer intrinsic representation engineering, ensuring that emergent capabilities are grounded in trustworthiness.
+
+\renewcommand{\TableCols}{11}
+\begin{table*}[!t]
+\caption{Summary of Large Audio Language Models from 2022 to 2026\label{tab:open_source}}
+\centering
+\renewcommand{\arraystretch}{1.05} 
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l c c l c c c c c c c}
+\toprule
+
+\multirow{2}{*}{\textbf{Model}} & 
+\multirow{2}{*}{\textbf{Institute}} & 
+\multirow{2}{*}{\textbf{Release}} & 
+\multirow{2}{*}{\textbf{Base LLM}} & 
+\multirow{2}{*}{\textbf{Base LLM Params}} &        
+\multirow{2}{*}{\textbf{Lang.}} &   
+\multirow{2}{*}{\textbf{Input Repr.}} & 
+\textbf{Pre-train} & 
+\textbf{Full-} & 
+\multicolumn{2}{c}{\textbf{Multimodality}} \\
+\cmidrule(lr){10-11}
+
+& & & & & & & \textbf{Data Scale} & \textbf{Duplex} & Text & Audio \\
+\midrule
+\YearRow{Year 2022}
+dGSLM\cite{nguyen2023generative} & \tablogo{icon/meta.png} & Mar 2022 & - & - & EN & Discrete & 2K Hrs audio & \xmark & \xmark & \cmark \\
+\YearRow{Year 2023}
+SpeechGPT\cite{zhang2023speechgpt} & \tablogo{icon/fudan.png} & May 2023 & LLaMA-13B & 13B & EN & Discrete & 60K Hrs audio + 9M unit-text pairs + 37,969 quadruplets & \xmark & \cmark & \cmark \\
+Pengi\cite{deshmukh2023pengi} & \tablogo{icon/microsoft.png} & May 2023 & GPT-2 & 124M & EN & Contin. & 3.4M audio-text pairs & \xmark & \cmark & \cmark \\
+LTU\cite{ramaswamy2025enhancing} & \tablogo{icon/mit.png} & May 2023 & LLaMA-7B & 7B & EN & Contin. & 1.9M closed + 3.7M open-ended AQA pairs & \xmark & \cmark & \cmark \\
+Spectron\cite{nachmani2024spoken} & \tablogo{icon/Google.jpg} & May 2023 & - & 350M/1B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+AudioPaLM\cite{rubenstein2023audiopalm} & \tablogo{icon/Google.jpg} & Jun 2023 & PaLM-2 & 8B & Multi. & Discrete & - & \xmark & \cmark & \cmark \\
+MU-LLaMA\cite{liu2024music} & \tablogo{icon/MULLa.png} & Aug 2023 & LLaMA-2-7B & 7B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+LTU-AS\cite{gong2023joint} & \tablogo{icon/mit.png} & Sep 2023 & LLaMA-7B & 7B & EN & Contin. & 9.6M Open-ASQA & \xmark & \cmark & \cmark \\
+SLM\cite{wang2023slm} & \tablogo{icon/Google.jpg} & Sep 2023 & mT0-MT XXL & 13B & Multi. & Contin. & - & \xmark & \cmark & \cmark \\
+SALMONN\cite{tang2023salmonn} & \tablogo{icon/thu.jpg} & Oct 2023 & Vicuna-13B & 13B & EN, CN & Contin. & 4760 Hrs audio & \xmark & \cmark & \cmark \\
+LauraGPT\cite{du2023lauragpt} & \tablogo{icon/alibaba.png} & Oct 2023 & Qwen-1.8B & 2B & EN, CN & Contin. & - & \xmark & \cmark & \cmark \\
+Qwen-Audio\cite{chu2023qwen} & \tablogo{icon/Qwen.png} & Nov 2023 & Qwen-7B & 7B & Multi. & Contin. & 130K+ Hrs audio & \xmark & \cmark & \cmark \\
+ParalinGPT\cite{lin2024paralinguistics} & \tablogo{icon/alexa.png} & Dec 2023 & DialoGPT & 345M & EN & Contin. & 140 Hrs audio & \xmark & \cmark & \cmark \\
+E-chat\cite{xue2024chat} & \tablogo{icon/xbu.png} & Dec 2023 & Baichuan2-7B-Chat & 7B & CN & Contin. & 10K Hrs ASR data & \xmark & \cmark & \cmark \\
+\YearRow{Year 2024}
+SpeechGPT-Gen\cite{zhang2024speechgpt} & \tablogo{icon/fudan.png} & Jan 2024 & LLaMA-2-7B-Chat & 7B & EN & Discrete & - & \xmark & \cmark & \cmark \\
+Audio Flamingo\cite{kong2024audio} & \tablogo{icon/nvidia.png} & Feb 2024 & OPT-IML-1.3B & 1.3B & EN & Contin. & 21K Hrs audio & \xmark & \cmark & \cmark \\
+Spoken-LLM\cite{lin2024advancing} & \tablogo{icon/hk.png} & Feb 2024 & Llama-2-7B-Chat & 7B & EN & Contin. & 16,472 current-response speech pairs & \xmark & \cmark & \cmark \\
+Spirit LM\cite{nguyen2025spirit} & \tablogo{icon/meta.png} & Feb 2024 & Llama-2-7B & 7B & EN & Discrete & 35.2B tokens & \xmark & \cmark & \cmark \\
+USDM\cite{li2024emergent} & \tablogo{icon/seu.jpg} & Feb 2024 & Mistral-7B & 7B & EN & Discrete & 87K Hrs audio & \xmark & \cmark & \cmark \\
+WavLLM\cite{hu2024wavllm} & \tablogo{icon/microsoft.png} & Mar 2024 & LLaMA-2-7B-Chat & 7B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+SpeechVerse\cite{das2024speechverse} & \tablogo{icon/Amazon.png} & May 2024 & Flan-T5-XL & 3B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+GAMA\cite{ghosh2024gama} & \tablogo{icon/mu.png} & Jun 2024 & LLaMA2-7B & 7B & EN & Contin. & 2.2M audio-caption pairs & \xmark & \cmark & \cmark \\
+Qwen2-Audio\cite{chu2024qwen2} & \tablogo{icon/Qwen.png} & Jul 2024 & Qwen-7B & 7B & Multi. & Contin. & 520K Hrs audio & \xmark & \cmark & \cmark \\
+FunAudioLLM\cite{an2024funaudiollm} & \tablogo{icon/alibaba.png} & Jul 2024 & - & - & Multi. & - & - & \xmark & \cmark & \cmark \\
+Mini-Omni\cite{xie2024mini} & \tablogo{icon/thu.jpg} & Aug 2024 & Qwen2-0.5B & 0.5B & - & Discrete & 8K Hrs speech + 2M text examples & \cmark & \cmark & \cmark \\
+Moshi\cite{defossez2024moshi} & \tablogo{icon/Moshi.png} & Sep 2024 & Helium & 7B & EN & Discrete & 7M Hrs audio + 2.1T text tokens & \cmark & \cmark & \cmark \\
+LLaMA-Omni\cite{fang2024llama} & \tablogo{icon/zky.jpg} & Sep 2024 & Llama-3.1-8B-Instruct & 8B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+Parrot\cite{meng2024parrot} & \tablogo{icon/tencent.png} & Sep 2024 & Llama 3.1-8B & 8B & EN & Discrete & 74,554 Hrs audio & \cmark & \xmark & \cmark \\
+OmniFlatten\cite{zhang2025omniflatten} & \tablogo{icon/alibaba.png} & Oct 2024 & Qwen2-0.5B & 0.5B & EN, CN & Discrete & - & \cmark & \cmark & \cmark \\
+IntrinsicVoice\cite{zhang2024intrinsicvoice} & \tablogo{icon/fudan.png} & Oct 2024 & Qwen2-7B-Instruct & 7B & - & Discrete & 20K Hrs audio & \xmark & \cmark & \cmark \\
+DiVA\cite{held2025distilling} & \tablogo{icon/GT.jpg} & Oct 2024 & Llama 3 & 8B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+Freeze-Omni\cite{wang2024freeze} & \tablogo{icon/vita.png} & Nov 2024 & Qwen2-7B-Instruct & 7B & EN, CN & Contin. & - & \cmark & \cmark & \cmark \\
+GLM-4-Voice\cite{zeng2024glm} & \tablogo{icon/GLM.png} & Dec 2024 & GLM-4-9B & 9B & EN, CN & Discrete & 1T tokens & \xmark & \cmark & \cmark \\
+KE-Omni\cite{KeOmniR2025} & \tablogo{icon/ke.png} & Dec 2024 & LLaMA-3.1-8B-Instruct & 8B & EN, CN & Contin. & - & \xmark & \cmark & \cmark \\
+MERaLiON-Audio\cite{he2024meralion} & \tablogo{icon/mer.png} & Dec 2024 & SEA-LION V3 & 10B & Multi. & Contin. & - & \xmark & \cmark & \cmark \\
+\YearRow{Year 2025}
+MinMo\cite{zhang2025mimo} & \tablogo{icon/Qwen.png} & Jan 2025 & Qwen2.5-7B-Instruct & 7B & Multi. & Contin. & - & \cmark & \cmark & \cmark \\
+FireRedASR\cite{shi2026qwen3} & \tablogo{icon/xiaohongshuLOGO.png} & Jan 2025 & Qwen2-7B-Instruct & 7B & Multi. & Contin. & - & \xmark & \cmark & \cmark \\
+Step-Audio\cite{tian2025step} & \tablogo{icon/step.png} & Feb 2025 & Step-1 & 130B & Multi. & Discrete & 3.3T tokens & \xmark & \cmark & \cmark \\
+Baichuan-Audio\cite{li2025baichuan} & \tablogo{icon/baichuan.jpg} & Feb 2025 & Baichuan-Audio-Base & 7B & EN, CN & Discrete & 887K Hrs audio + 100B tokens & \xmark & \cmark & \cmark \\
+Audio Flamingo 2\cite{ghosh2025audio} & \tablogo{icon/nvidia.png} & Mar 2025 & Qwen2.5-3B & 3B & EN & Contin. & 8M+ audio-caption pairs & \xmark & \cmark & \cmark \\
+Kimi-Audio\cite{ding2025kimi} & \tablogo{icon/kimi.png} & Apr 2025 & Qwen2.5-7B & 7B & EN, CN & Hybrid & 13M+ Hrs audio & \xmark & \cmark & \cmark \\
+VITA-Audio\cite{long2025vita} & \tablogo{icon/vita.png} & May 2025 & Qwen2.5-7B-Instruct & 7B & EN, CN & Discrete & 200K Hrs audio & \xmark & \cmark & \cmark \\
+Step-Audio 2\cite{wu2025step} & \tablogo{icon/step.png} & Jul 2025 & - & - & Multi. & Contin. & 680B tokens and 8M Hrs audio & \xmark & \cmark & \cmark \\
+Audio Flamingo 3\cite{goel2025audio} & \tablogo{icon/nvidia.png} & Jul 2025 & Qwen2.5-7B & 7B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+DeSTA2.5-Audio\cite{lu2026desta2} & \tablogo{icon/hk.png} & Jul 2025 & Llama3.1-8B-Instruct & 8B & EN & Contin. & 7K Hrs audio & \xmark & \cmark & \cmark \\
+FireRedChat\cite{chen2025fireredchat} & \tablogo{icon/xiaohongshuLOGO.png} & Sep 2025 & Qwen2.5 & - & EN, CN & - & - & \cmark & \cmark & \cmark \\
+Falcon3-Audio\cite{kumar2025competitive} & \tablogo{icon/tii.png} & Sep 2025 & Falcon3-Instruct & 1/3/7B & EN & Contin. & - & \xmark & \cmark & \cmark \\
+Step-Audio-R1\cite{tian2025step} & \tablogo{icon/step.png} & Nov 2025 & Qwen2.5-32B & 32B & EN, CN & Contin. & 1.356T tokens & \xmark & \cmark & \cmark \\
+Step-Audio-EditX\cite{yan2025step} & \tablogo{icon/step.png} & Nov 2025 & - & 3B & Multi. & Discrete & - & \xmark & \cmark & \cmark \\
+SeaLLMs-Audio\cite{liu2025seallms} & \tablogo{icon/SeaLLM-Audio.png} & Nov 2025 & Qwen2.5-7B & 7B & Multi. & Contin. & - & \xmark & \cmark & \cmark \\
+Fun-Audio-Chat\cite{team2025fun} & \tablogo{icon/Qwen.png} & Dec 2025 & Qwen3 & 8/30B & EN, CN & Discrete & - & \xmark & \cmark & \cmark \\
+MiMo-Audio\cite{zhang2025mimo} & \tablogo{icon/Mi.png} & Dec 2025 & MiMo-7B-Base & 7B & Multi. & Discrete & 100M+ Hrs audio & \xmark & \cmark & \cmark \\
+\YearRow{Year 2026}
+Step-Audio-R1.1\cite{tian2025step} & \tablogo{icon/step.png} & Jan 2026 & Qwen2.5-32B & 32B & EN, CN & Contin. & 1.356T tokens & \xmark & \cmark & \cmark \\
+Qwen3-ASR\cite{shi2026qwen3} & \tablogo{icon/Qwen.png} & Jan 2026 & Qwen3 & 0.6/1.7B & Multi. & Contin. & 40M Hrs audio + 3T tokens & \xmark & \cmark & \cmark \\
+Covo-Audio\cite{wang2026covo} & \tablogo{icon/tencent.png} & Feb 2026 & Qwen2.5-7B-Base & 7B & EN, CN & Contin. & 2T tokens & \cmark & \cmark & \cmark \\
+Eureka-Audio\cite{zhang2026eureka} & \tablogo{icon/baidu.png} & Feb 2026 & Qwen3-1.7B-Base & 1.7B & EN, CN & Contin. & 1T tokens & \xmark & \cmark & \cmark \\
+\bottomrule
+\end{tabular}
+}
+\vspace{1mm}
+\begin{flushleft}
+\footnotesize
+\textit{Note:} This table only summarizes large language models with audio modality, excluding models with image or video modality support. 
+``Lang.'' is short for language, where ``EN'' denotes English, ``CN'' denotes Chinese, and ``Multi.'' is short for multiple languages, indicating support for more than two languages. 
+``Input Repr.'' is short for input representation, and ``Contin.'' is short for continuous representation.
+\end{flushleft}
+\label{tab:2}
+\end{table*}

@@ -1,0 +1,56 @@
+\section{Introduction}
+
+Long-context capability has become a core requirement for modern large language models (LLMs), especially for applications such as multi-turn dialogue, long-horizon reasoning, and document understanding~\citep{deepseekR1,kimi2,qwen1M,gemini25}. However, the cost of full attention grows rapidly with context length, making long-context inference a major efficiency bottleneck. Sparse attention thus emerges as a natural direction for reducing inference cost~\citep{streamLLM,spargeattn,zucchet2026the}. 
+
+% \hs{adding more discussion about the recent ways for reducing the cost of full attention, including linear attention and sparse attention} % and memory pressure
+
+Although many recent advances in this area replace standard full attention with more efficient alternatives, such as Kimi Delta Attention~\citep{kimiteam2025kimilinearexpressiveefficient} and DeepSeek Sparse Attention~\citep{dsa}, our study suggests that models trained with full attention already exhibit substantial intrinsic sparsity. Prior work has partially revealed this phenomenon. Specifically, sparsity arises at both the head level and the token level: most heads rely primarily on local information~\citep{streamingLLM, razorattn,duoattn}, whereas for each query only a small subset of tokens receives substantial attention mass~\citep{fasa,Quest,snapkv}. This observation naturally raises a key question:
+\textit{What is the minimal surgery required to transform a full-attention model into a highly sparse one while preserving its capabilities?}
+
+We identify three challenges:
+\begin{itemize}[leftmargin=*, itemindent=0pt, itemsep=3pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+\item Head selection: a robust metric is needed to identify the heads that genuinely require full-context access.
+\item Efficient token indexing: a lightweight selector is needed to identify the necessary tokens efficiently.
+\item Adaptive sparsity: because different queries require different numbers of attended tokens, a static sparsity budget can lead to information loss.
+% \item Robust training recipe: a stable training strategy is needed to recover performance without overfitting to the tuning corpus.
+\end{itemize}
+
+Our method, \name, is designed to address these challenges with minimal adaptation.
+The design of \name is grounded in both LLM interpretability and theoretical analysis. Prior work on inductive heads shows that some heads implement a retrieval mechanism by attending to previously similar tokens~\citep{olsson2022incontextlearninginductionheads}. Follow-up work further shows that, in long-context settings, these heads are primarily responsible for remote retrieval, whereas the remaining heads focus on local context~\citep{razorattn}. This observation motivates our head-wise design: we retain the full KV cache only for retrieval heads and discard remote tokens for local heads.
+
+For retrieval heads, the key challenge is to identify relevant tokens efficiently. Our analysis shows that high-frequency components contribute little to long-range retrieval and can even interfere with it, suggesting that the retrieval process is governed largely by a low-dimensional subspace. This hypothesis is strongly supported by experiments: with our trained low-dimensional projector, we achieve over $90\%$ recall using only 16 dimensions. Moreover, our analysis suggests that a static Top-$k$ selector can fail in certain cases, whereas a Top-$p$ selector better adapts to the attention distribution and yields substantially better accuracy on both reasoning and long-context tasks.
+
+Finally, we find that self-distillation is particularly effective for recovering the performance of the sparsified model. Aligning the sparse model's outputs with those of the original model substantially reduces the risk of overfitting, and only a few hundred training steps (about 1M label tokens) are required for this alignment stage. This result further supports our claim that \name performs only minimal surgery on the original model.
+
+To the best of our knowledge, \name is the first method to achieve such near-lossless compression with lightweight continual training. Coupled with our custom sparse kernels, \name delivers up to a 9.36$\times$ speedup in prefill and a 2.01$\times$ speedup in decoding (Figure~\ref{fig:overall}). Importantly, the sparsification paradigm of \name remains highly interpretable. More broadly, our results highlight an overlooked point for full-attention models: \textit{even without native sparse training, a fully trained model can be sparsified with very small additional cost while preserving strong performance}. This finding suggests that full-attention training remains a highly competitive and practical choice.
+
+
+% \yy{need to summarize/reorganize the limitations, which are currently not very clear; limitations or challenges should be related to the overall goal of keeping accuracy while reducing cost; and existing methods cannot well handle both ends at the same time.}
+% Despite substantial progress, existing sparse attention methods still have important limitations. Many train-free methods depend on heuristic calibration signals and therefore struggle to generalize robustly. Some rely on recent-token-based calibration, which becomes less reliable in multi-turn dialogue or when relevant context lies far from the local window~\citep{snapkv,minference,flexprefill}, while others rely on offline calibration data and may still suffer accuracy loss under distribution shift~\citep{razorattn,sale}. In contrast, trainable sparse methods are costlier to deploy, as they require native sparse training or extra adaptation and can also be sensitive to the training data distribution~\citep{MoBA,NSA,dsa}. 
+% Overall, existing methods often trade generality for simplicity, or accuracy for training cost.
+
+% Another common limitation is the use of a fixed top-$k$ budget as the core sparsification rule~\citep{Quest,MoBA,fasa}. We argue that this choice is inherently suboptimal because the appropriate number of retained tokens is highly input-dependent: a fixed budget may be overly conservative when attention is concentrated, but too aggressive when attention is diffuse~\citep{twilight}. A more suitable sparse mechanism should use dynamic thresholding, allowing the retained budget to adapt to the actual attention distribution.
+
+
+% Ideally, sparse attention should minimize computational overhead while preserving accuracy, yet existing solutions fall short due to several critical limitations. First, \emph{train-free methods inherently struggle with accuracy degradation}: approaches estimating global attention via recent tokens fail when crucial context lies far outside the local window~\citep{snapkv,minference,flexprefill}, and methods relying on offline calibration simply shift the model to a sparse regime, which inevitably incurs accuracy loss~\citep{razorattn,sale}. 
+% Second, \emph{trainable methods %attempt to resolve these accuracy and flexibility bottlenecks, they 
+% introduce prohibitive deployment costs.}\yy{only deployment cost?} Approaches such as MoBA, NSA, and DSA~\citep{MoBA,NSA,dsa} require expensive native sparse pre-training or extensive adaptation, and their deep end-to-end optimization makes them notoriously sensitive to specific training data distributions.
+% Additionally, {existing sparse attention methods mainly rely on a fixed top-$k$ token budget}~\citep{Quest,MoBA,fasa}. This static allocation fundamentally conflicts with the dynamic, input-aware nature of attention, wasting computation on simple queries with concentrated attention while suffering catastrophic recall failure on complex tasks where the attention mass is dispersed~\citep{twilight}.
+
+% % \yy{currently, the method description is not easy to follow, esepcially how it can keep accuracy while reducing cost.}
+% % To address these limitations, we seek a sparse attention mechanism with two key properties: it should be a trainable yet low-cost solution, and it should be based on dynamic thresholding rather than a fixed budget. Our key insight comes from the empirical specialization of attention heads into streaming heads and retrieval heads~\citep{duoattn,razorattn}. Streaming heads mainly process local information and already exhibit sparse behavior, while retrieval heads are responsible for long-range recall. Under RoPE, long-range retrieval is dominated by low-rotation components, suggesting that retrieval heads can be modeled in a low-dimensional space and used to efficiently decide which tokens to retain under a dynamic threshold.
+
+% Our key insight stems from the natural specialization of attention heads into streaming heads for local information and retrieval heads for long-range recall~\citep{duoattn,razorattn}. Since streaming heads inherently exhibit local sparsity, the input-aware, dynamic nature of sequence modeling is predominantly governed by the retrieval heads. Furthermore, under the long-range decay effect of RoPE~\citep{rope}, long-distance retrieval is heavily dominated by low-rotation frequency components. This structural property suggests that retrieval relevance can be accurately approximated in a low-dimensional space, allowing us to efficiently score tokens and apply a dynamic threshold. This finding motivates a key paradigm shift: \textbf{instead of applying a uniform sparsification rule, we enforce query-aware dynamic sparsity exclusively on retrieval heads while maintaining the inherent local sparsity of streaming heads.} By explicitly aligning with the model's intrinsic head differentiation, this strategy achieves extreme sparsity at minimal adaptation cost while keeping the functionality of both head types virtually intact.
+
+% Based on this insight, we propose \name, a novel paradigm of query-aware sparsity built upon a head-wise foundation. With minimal training on open-source datasets (approximately 240M tokens), \name successfully achieves high sparsity while preserving near-lossless inference accuracy. Furthermore, coupled with our custom-optimized sparse kernels, it delivers up to a 9.5$\times$ speedup in the prefill phase and a stable 2.0$\times$ performance gain during decoding (see Figure~\ref{fig:overall}).
+
+% Our contributions are summarized as follows:
+% \begin{itemize}[left=0pt]
+%     \item We provide an in-depth analysis of how attention heads process information, and propose \name, an interpretable head-wise sparse attention framework.
+
+%     \item We introduce a new sparse attention paradigm based on dynamic thresholding, moving beyond fixed-budget top-$k$ sparsification.
+
+%     \item We design dedicated sparse kernels for \name to address key systems bottlenecks in practical deployment, enabling efficient prefill and decode.
+
+%     \item We show that full-attention training followed by lightweight sparsification remains highly effective: even without native sparse training, a fully trained model can be sparsified with very small additional cost while preserving strong performance, suggesting that training-time full attention is still a competitive and practical choice.
+% \end{itemize}

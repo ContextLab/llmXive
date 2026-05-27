@@ -1,0 +1,146 @@
+\section{Experiment}
+\label{sec:exp}
+\subsection{Training Pipeline}
+\label{subsec:training-pipeline}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{l|c|ccc|ccc|c}
+\toprule
+Model & Prompt & L1 & L2 & L3 & V1 & V2 & V3 & Avg. \\
+\midrule
+GPT-5.4 & w/ schema & 4.02 & \textbf{3.59} & 3.27 & 3.46 & 3.73 & 3.17 & 3.54 \\
+Gemini-3.1-Pro & w/ schema & 4.25 & 3.20 & 2.96 & 3.53 & 3.55 & 3.04 & 3.42 \\
+Qwen3-235B-A22B-Instruct & w/ schema & 4.00 & 2.87 & 2.76 & 3.32 & 3.32 & 2.95 & 3.20 \\ 
+DeepSeek-V3.1 & w/ schema& 4.19 & 2.54 & 2.47 & 3.27 & 3.35 & 2.95 & 3.13 \\
+Qwen3-30B-A3B-Instruct & w/ schema & 3.13 & 2.13 & 2.09 & 2.92 & 2.64 & 2.51 & 2.57 \\
+GPT-4o-mini & w/ schema & 3.45 & 2.27 & 2.15 & 2.78 & 2.28 & 2.06 & 2.50 \\
+\midrule
+Macaron-A2UI-Grande & w/o schema & \textbf{4.67} & 3.22 & 2.91 & \textbf{3.95} & 3.74 & 3.47 & 3.66 \\
+Macaron-A2UI-Venti & w/o schema & 4.47 &3.36 &\textbf{3.28} &\textbf{3.95} & \textbf{3.76} &\textbf{3.52} & \textbf{3.72} \\
+\bottomrule
+\end{tabular}
+\caption{Full-schema prompted baselines and our schema-light model references. Models marked w/ schema receive the complete A2UI schema, while Macaron-A2UI models are evaluated without explicit schema hints. Higher is better on all metrics.}
+\label{tab:full_prompt_results}
+\end{table}
+
+We train our A2UI-capable assistant with a parameter-efficient two-stage pipeline consisting of supervised fine-tuning (SFT) followed by group-relative policy optimization (GRPO). Both stages use LoRA adaptation, which updates a small set of low-rank parameters instead of fully tuning the backbone. We instantiate the same training recipe on Qwen3-30B-A3B-Instruct-2507 and Qwen3-235B-A22B-Instruct-2507, and further include GLM-5.1 as an additional backbone and keep the output protocol fixed across all stages. In both cases, the model is trained to produce a unified assistant response that combines natural language and structured A2UI actions.
+
+The role of the two stages is complementary. SFT teaches the model the basic response format, including how to jointly produce fluent text and protocol-compliant UI actions. GRPO then refines this behavior under an interaction-oriented reward.
+
+\paragraph{Supervised fine-tuning.}
+Our SFT data are organized as chat-style prompt-response pairs. Each sample contains a prompted conversation consisting of the system instruction and dialogue history, and a target assistant response. The target always follows the same JSON schema,
+\(
+\{\texttt{"text\_response"}: \ldots, \texttt{"a2ui"}: [\ldots]\},
+\)
+where \texttt{text\_response} is the response in natural-language and \texttt{a2ui} is a list of actions of the structured protocol. During training, we concatenate the prompted conversation and the target completion into one conversational sequence and compute loss only on the final assistant turn. Given context $x$ and target response $y=(y_1,\dots,y_T)$, the SFT objective is the standard autoregressive negative log-likelihood
+\[
+\mathcal{L}_{\mathrm{SFT}}
+=
+-\sum_{t=1}^{T}\log p_{\theta}(y_t \mid x, y_{<t}).
+\]
+This stage directly teaches the model to jointly generate text and executable UI actions, rather than treating interface generation as a separate post-processing step.
+
+\paragraph{GRPO optimization.}
+Starting from the SFT model, we further optimize the same chat-style interface with GRPO. For each prompt $x_i$, we sample a group of $G$ candidate responses $\{y_{i,1}, \dots, y_{i,G}\}$ from the current policy and score each candidate with our A2UI reward function. We then compute a group-relative advantage by centering rewards within each sampled group
+\[
+A_{i,j}
+=
+R_{i,j}
+-
+\frac{1}{G}\sum_{k=1}^{G} R_{i,k}.
+\]
+This advantage is assigned to all tokens in the corresponding response, and the optimization favors candidates that outperform their within-group alternatives under the same prompt. The resulting objective is
+\[
+\mathcal{L}_{\mathrm{GRPO}}
+=
+-\sum_i \sum_{j=1}^{G}\sum_{t=1}^{|y_{i,j}|}
+A_{i,j}
+\log p_{\theta}(y_{i,j,t} \mid x_i, y_{i,j,<t}).
+\]
+Compared with SFT, this stage is better suited to properties that are difficult to supervise with a single gold target, such as UI triggering, action completeness, and interaction quality across structurally different but valid responses.
+
+\paragraph{Reward design.}
+Our GRPO reward is designed around executable A2UI quality rather than text quality alone. We first apply hard structural gates: malformed JSON, missing required A2UI output when UI is expected, protocol-level validation failure, or render-critical structural errors all receive zero reward. For responses that pass these checks, the final reward is a weighted combination of structural quality, task-construction quality, and user-level utility:
+\[
+R
+=
+\mathbf{1}[\mathrm{pass}]
+\cdot
+\left(
+\lambda_1 S_{\mathrm{L1}}
++
+\lambda_2 S_{\mathrm{L2}}
++
+\lambda_3 S_{\mathrm{L3}}
+\right).
+\]
+Here, $S_{\mathrm{L1}}$ measures low-level correctness, including JSON validity, schema compliance, reference integrity, required-field completeness, value-format correctness, and renderability. $S_{\mathrm{L2}}$ measures task-construction quality, including trigger appropriateness, component--intent alignment, text--UI grounding, data-model utilization, and action completeness. $S_{\mathrm{L3}}$ measures user-level utility, including value-add over plain text, conversational naturalness, and cognitive load. For no-UI cases, we use a simplified reward that explicitly favors text-only responses when interaction is unnecessary. Overall, this design aligns reinforcement learning with the central goal of our setting: producing responses that are simultaneously executable, appropriate, and genuinely helpful in interaction.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{Figures/minimal_vs_full_upperbound_overview.pdf}
+    \caption{Training-pipeline ablation under the w/o schema prompt regime and comparison to full-prompt upper bounds. Solid bars on the left of each panel show minimal-prompt results for untuned, SFT, and SFT+RL models, together with untuned frontier references. Hatched bars on the right of the dashed separator show full-prompt upper bounds, where models receive the complete A2UI schema and protocol specification. Scores are reported on A2UI-Bench for L1, L2, L3, and the overall language-side score.}
+    \label{fig:minimal_vs_full_upperbound}
+\end{figure*}
+
+\subsection{Main Results}
+\label{subsec:main-results}
+\begin{wrapfigure}{r}{0.52\linewidth}
+    \centering
+    \vspace{-14pt}
+    \includegraphics[width=\linewidth]{Figures/radar_chart.pdf}
+    \vspace{-10pt}
+    \caption{Per-dataset and per-task breakdown of model performance on A2UI-Bench.}
+    \label{fig:radar}
+    \vspace{-12pt}
+\end{wrapfigure}
+
+Figure~\ref{fig:minimal_vs_full_upperbound} summarizes our main results under two evaluation regimes. The primary regime is the prompt w/o schema setting, where models receive only lightweight protocol instructions and must rely on internalized A2UI competence. This is the main setting for evaluating our training pipeline. We additionally report results w/ schema as prompt-heavy upper bounds, where models are given the complete A2UI schema and protocol specification.
+
+The results show that supervised fine-tuning is highly effective on both model scales. For Qwen-30B, SFT improves the overall score from 19.8 to 37.2, with especially large gains on L1 (0.90 to 2.25). RL further increases the overall score to 58.8 and pushes L1 to 4.11, while also improving L2 and L3. The same trend holds even more strongly with the scaling of model size. Qwen-235B improves from 21.6 at base to 63.6 after SFT, and then further reaches 74.2 after RL. Beyond the Qwen backbones, Macaron-A2UI-Venti, trained from GLM-5.1 with the same SFT+RL recipe, obtains the strongest language-side result in Figure~\ref{fig:main_results}, with an overall score of 75.6.
+
+A second observation is that out-of-the-box frontier models remain weak without schema hints in prompts. GPT-4o mini, DeepSeek-V3.1, and GPT-5.4 obtain overall scores of 25.5, 21.9, and 23.9, respectively, far below the trained open models. Their L1, L2, and L3 scores are all low, suggesting that lightweight instructions are insufficient for untuned general-purpose models to acquire stable A2UI competence. In contrast, our tuned models improve substantially without requiring the full protocol specification at inference time.
+
+The prompt w/ schema settings, serving as upper bounds (Table~\ref{tab:full_prompt_results}) provide a complementary picture. When given the complete schema, frontier models become much stronger: DeepSeek-V3.1 reaches 63.8 overall, Gemini-3.1 Pro reaches 71.0, and GPT-5.4 reaches 74.1. This confirms that prompt-heavy schema injection can unlock strong A2UI performance for frontier models. 
+At the same time, our schema-light trained models are competitive with or stronger than these prompt-heavy references. Macaron-A2UI-Grande reaches 74.2, slightly surpassing GPT-5.4 with the full schema, while Macaron-A2UI-Venti further improves the overall score to 75.6.
+
+Figure~\ref{fig:radar} shows a more structured picture than a simple average improvement. Since the evaluation set is balanced across the four source datasets and three task formats, the observed results are not driven by source skew. Macaron-A2UI-235B is the strongest model overall (3.83), outperforming GPT-5.4 (3.75) and substantially improving over the untuned Qwen3-235B backbone (3.37). Scores on MultiWOZ, SGD, ESConv, and AnnoMI all fall in a narrow range (3.82–3.84), indicating strong cross-domain robustness. Macaron-A2UI-235B is the best model in atomic tasks (4.38) and width tasks (3.96), while remaining second in depth (3.14, behind GPT-5.4’s 3.34). This suggests that RL mainly strengthens the model’s ability to translate dialogue intent into concise, well-structured, and interaction-ready UI decisions. On the dataset level, Macaron-A2UI-235B is the top model on ESConv and AnnoMI, and relative to Qwen3-235B it improves width consistently across all four datasets, with especially large gains on SGD and MultiWOZ.
+
+
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[t]{0.24\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/reward_curve.pdf}
+        \caption{Total reward}
+        \label{fig:total_reward}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.24\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/l1_reward_curve.pdf}
+        \caption{L1 reward}
+        \label{fig:l1_reward}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.24\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/l2_reward_curve.pdf}
+        \caption{L2 reward}
+        \label{fig:l2_reward}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.24\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/l3_reward_curve.pdf}
+        \caption{L3 reward}
+        \label{fig:l3_reward}
+    \end{subfigure}\hfill
+    \caption{Reward trajectories during GRPO training. We track the total reward together with its L1, L2, and L3 components for Macaron-A2UI-30B and Macaron-A2UI-235B over training steps. The L1 reward rises first and most rapidly, while L2 and L3 improve more gradually. Higher is better.}
+    \label{fig:reward}
+\end{figure}
+
+
+\paragraph{RL training dynamics.}
+Figure~\ref{fig:reward} shows the reward trajectories during GRPO training. The optimization dynamics are highly consistent with the design of our reward. Across both model scales, the L1 reward increases first and most rapidly, indicating that protocol correctness and structural executability are the easiest properties to improve under reinforcement learning. This is expected, since malformed outputs, schema violations, and render-critical errors are directly penalized and provide a relatively stable learning signal. In contrast, improvements in higher-level interaction quality occur more gradually. For the 235B model, L2 and L3 rewards increase steadily throughout training, suggesting that once protocol competence is stabilized, the larger model can continue refining task construction quality and user-facing interaction quality in a relatively balanced way. The 30B model exhibits a different pattern: while its L2 reward still improves over training, its L3 reward remains much flatter and is clearly the hardest component to optimize.

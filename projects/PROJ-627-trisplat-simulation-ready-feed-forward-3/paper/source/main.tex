@@ -1,0 +1,133 @@
+\documentclass[11pt]{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{ziplab-tech-report}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{xspace}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=ziplabblue,
+  citecolor=ziplabblue,
+  urlcolor=ziplabblue,
+  pdftitle={TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction},
+  pdfauthor={Weijie Wang, Zimu Li, Jinchuan Shi, Zeyu Zhang, Botao Ye, Marc Pollefeys, Donny Y. Chen, Bohan Zhuang},
+  pdfsubject={arXiv preprint},
+  pdfkeywords={Feed-Forward 3D Reconstruction, Triangle Splatting, Novel-View Synthesis, Surface Reconstruction}
+}
+
+\newcommand{\method}{TriSplat\xspace}
+\newcommand{\boldstart}[1]{\vspace{0.1in}\noindent\textbf{#1}}
+\newcommand{\trkeywords}{Feed-Forward 3D Reconstruction, Triangle Splatting, Novel-View Synthesis, Surface Reconstruction}
+\newcommand{\blfootnote}[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnotetext{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\techreportshorttitle{TriSplat}
+
+\begin{document}
+\thispagestyle{empty}
+\vspace*{-0.78cm}
+
+% \noindent
+% \begin{minipage}[c]{0.80\linewidth}
+% \raggedright
+% \includegraphics[height=0.42cm]{figures/logos/zju-logo-cropped.png}\hspace{0.38cm}
+% \includegraphics[height=0.42cm]{figures/logos/eth-zurich-logo-cropped.png}\hspace{0.38cm}
+% \includegraphics[height=0.42cm]{figures/logos/eth-ai-center-logo-cropped.png}\hspace{0.38cm}
+% \includegraphics[height=0.42cm]{figures/logos/microsoft-logo-cropped.png}\hspace{0.38cm}
+% \includegraphics[height=0.42cm]{figures/logos/monash-university-logo-cropped.png}
+% \end{minipage}
+% \begin{minipage}[c]{0.19\linewidth}
+% \raggedleft
+% {\ziplabdatefont\small\color{ziplabgray}May 15, 2026}
+% \end{minipage}\par
+% \vspace{-0.35em}
+% \noindent{\color{ziplabline}\rule{\linewidth}{0.8pt}\par}
+
+\vspace{0.42em}
+\begin{center}
+{\resizebox{0.98\textwidth}{!}{{\ziplabtitlefont\fontsize{18}{21}\selectfont\color{ziplabdark}
+\method: Simulation-Ready Feed-Forward 3D Scene Reconstruction}}\par}
+\vspace{1.20em}
+
+{\normalsize\rmfamily\color{ziplabdark}
+Weijie Wang$^{1,*}$ \hspace{0.9em}
+Zimu Li$^{1,*}$ \hspace{0.9em}
+Jinchuan Shi$^{1}$ \hspace{0.9em}
+Zeyu Zhang$^{1}$ \hspace{0.9em}
+Botao Ye$^{2,3}$\\[-0.1em]
+Marc Pollefeys$^{2,4}$ \hspace{0.9em}
+Donny Y. Chen$^{5}$ \hspace{0.9em}
+Bohan Zhuang$^{1}$\par
+}
+\vspace{0.55em}
+{\footnotesize\rmfamily\color{ziplabgray}
+$^{1}$ Zhejiang University \quad
+$^{2}$ ETH Zurich \quad
+$^{3}$ ETH AI Center \quad
+$^{4}$ Microsoft \quad
+$^{5}$ Monash University\par
+}
+\end{center}
+\blfootnote{$^*$ Equal contribution.}
+\vspace{-0.05cm}
+
+\begin{center}
+\begin{minipage}{\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figures/teaser.png}
+  \vspace{-0.9em}
+  {\captionsetup{font=footnotesize,aboveskip=0pt,belowskip=0pt}
+  \captionof{figure}{\textbf{\method reconstructs simulation-ready 3D scenes from sparse, unposed images.} The feed-forward model predicts a triangle mesh in a single pass, enabling direct use in physics engines for locomotion, dynamics, and robotic grasping. The teaser is rendered with Blender.}}
+  \label{fig:teaser}
+\end{minipage}
+\end{center}
+
+\vspace{0.9em}
+\begin{ziplabtitlebox}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.06cm}
+\raggedright
+\nohyphens
+
+\footnotesize
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.04cm}
+\textbf{Abstract.}
+Sparse-view 3D reconstruction is increasingly addressed with feed-forward splatting networks that predict explicit primitives directly from images. Yet most existing methods remain centered on Gaussian primitives and expose surfaces only indirectly: extracting a usable mesh for downstream simulation, physics reasoning, or embodied interaction still requires expensive post-hoc steps that break the feed-forward promise. This limitation is especially pronounced in pose-free settings, where scene structure and camera parameters must be estimated jointly from sparse observations. We present \method, a feed-forward reconstruction network that represents scenes with oriented triangle primitives and directly exports simulation-ready mesh scenes from a single forward pass. Given input images, the network predicts local 3D point maps, triangle attributes, camera poses, and optional intrinsics. Rather than regressing triangle orientation as an unconstrained latent variable, our approach constructs geometry normals from the predicted point maps, refines them with an image-conditioned normal head, and converts them into stable local frames for triangle parameterization. A mono-normal bootstrap schedule further stabilizes early training, while opacity and blur scheduling progressively sharpens the learned surface representation for direct mesh extraction. Experiments on RealEstate10K and DL3DV show that this representation produces more geometry-faithful reconstructions than Gaussian feed-forward baselines while maintaining competitive novel-view rendering quality. Because the rendering primitives are themselves surface triangles, the output can be directly ingested by physics engines, collision detectors, and standard rendering pipelines without any conversion, making it a practical simulation-ready solution for feed-forward 3D scene reconstruction.
+
+{\setlength{\parskip}{0.1cm}\footnotesize
+{\ziplabmetalabel{Project Page}\href{https://lhmd.top/trisplat}{lhmd.top/trisplat}\par}
+{\ziplabmetalabel{Keywords}\trkeywords\par}
+{\ziplabmetalabel{Date}May 20, 2026\par}
+}
+\end{ziplabtitlebox}
+
+\clearpage
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_conclusion}
+\input{sections/06_acknowledgements}
+
+\bibliographystyle{unsrtnat}
+\bibliography{reference}
+
+\clearpage
+\appendix
+\input{sections/07_appendix}
+
+\end{document}

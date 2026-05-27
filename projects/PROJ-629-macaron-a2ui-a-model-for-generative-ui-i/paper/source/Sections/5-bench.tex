@@ -1,0 +1,70 @@
+% \section{Benchmark}
+% \paragraph{Task taxonomy: atomic, depth, width}
+
+% atomic: single step intent task
+
+% depth emphasizes continuous UI decisions and state advancement in multi-round series connection.
+
+% width emphasizes the combined expression of multiple parallel intents in a turn, or the coordination of multiple surfaces/components.
+
+% \paragraph{Multi-level metrics}
+% L1 represents the correctness at the protocol and format levels: whether it can be parsed, the legality of fields, and whether it can be rendered.
+
+% L2 is the correctness at the task advancement level: whether the UI is consistent with the current semantics and whether it helps collect necessary information or advance to the next step.
+
+% L3 refers to the quality at the user experience level: whether it is natural, low-friction, not excessive, not interrupted, and avoids unnecessary rounds and input costs.
+
+% \paragraph{Evaluation protocol}
+
+% \paragraph{SOTA model analysis}
+
+\section{A2UI-Bench}
+\label{sec:benchmark}
+
+
+The A2UI corpus in Section~\ref{sec:data} is designed for large-scale supervision, whereas evaluation requires a different emphasis: controlled coverage, balanced task composition, and diagnostic scoring. We therefore construct \textsc{A2UI-Bench}, a dedicated benchmark derived from the same data construction framework but optimized for model assessment rather than training-scale diversity.
+
+\textsc{A2UI-Bench} is designed to evaluate three aspects of Generative UI under A2UI. First, it should cover both common and difficult A2UI behaviors, including UI triggering, UI suppression, cross-turn consistency, and compositional organization. Second, it should distinguish low-level protocol correctness from higher-level functional quality and user experience. Third, it should support direct comparison between models through a fixed task composition and a shared evaluation protocol.
+
+\subsection{Task Taxonomy and Benchmark Composition}
+\label{subsec:bench-taxonomy}
+
+We organize \textsc{A2UI-Bench} by \textbf{task structure}. This keeps the benchmark compact while directly targeting the structural capabilities that matter for Generative UI.
+
+\paragraph{Atomic tasks.}
+Atomic tasks are single-turn, single-intent evaluations. Given a dialogue context and the current user message, the model produces one assistant response that may include both text and an A2UI payload. These tasks measure the core turn-level ability to decide whether UI is needed and, if so, to generate a protocol-compliant and semantically appropriate interface.
+
+\paragraph{Depth tasks.}
+Depth tasks evaluate multi-turn consistency. Each task consists of a short episode of consecutive turns from the same dialogue. The evaluator rolls the interaction forward using the model's own previous output. This tests whether the model can maintain coherent state, update or replace previously rendered surfaces, and handle cross-turn dependencies.
+
+\paragraph{Width tasks.}
+Width tasks are single-turn but compositionally broader. Each task combines multiple information needs, often spanning more than one intent or service, into one user request. The model must organize a unified response that addresses several sub-goals without producing fragmented or cognitively heavy UI. These tasks emphasize structural organization and interaction planning.
+
+Beyond task structure, the benchmark covers a diverse set of interaction intents, including structured parameter collection, information grounding, booking confirmation, decision support, self-assessment, action commitment, multi-part organization, tie-breaking, and explicit \texttt{no\_ui\_chat} cases. The last category is an important negative class: models are expected to avoid unnecessary UI when plain text is more appropriate.
+
+The final benchmark contains 300 tasks. We intentionally include negative examples and structurally broader width tasks so that the benchmark does not collapse into a simple single-turn form-generation test.
+
+\subsection{Metrics}
+\label{subsec:metrics}
+
+We evaluate A2UI generation from two complementary perspectives. The first is a language-side evaluation that scores protocol correctness, task construction quality, and interaction quality directly from the model output. The second is a visual-side evaluation that scores the rendered UI screenshot seen by the user.
+
+\paragraph{Language-side metrics.}
+The language-side evaluation contains three levels.
+
+L1 measures protocol correctness through five automated dimensions: L1-1 JSON parse correctness, L1-2 schema compliance, L1-3 reference integrity, L1-4 required fields completeness, and L1-5 value format correctness. Its design follows a hierarchical reliability principle. If the output is unparsable, all five dimensions receive zero. If parsing succeeds but the validator detects structural errors, only L1-1 is credited and L1-2 through L1-5 are set to zero, since downstream checks are no longer reliable enough to support partial credit. Only when the output is error-free do we use warnings to deduct points from L1-2 through L1-5. As a result, L1 distinguishes between unparsable outputs, parseable but structurally invalid outputs, and structurally valid outputs that remain imperfect.
+
+L2 measures task construction quality through five LLM-judged dimensions: L2-1 trigger appropriateness, L2-2 component--intent alignment, L2-3 text--UI grounding, L2-4 data model utilization, and L2-5 action completeness. L2-1 asks whether the model made the right decision to generate or suppress UI for the current turn. L2-2 evaluates whether the chosen widget type matches the interaction need. L2-3 requires every visible label, option, and value in the UI to be grounded in the accompanying text response. L2-4 evaluates whether \texttt{dataModelUpdate} is used appropriately to track dynamic state such as collected slots or user selections. L2-5 asks whether interactive components form a complete loop with a valid action and sufficient returned context for the next step.
+
+L3 measures user experience quality through three LLM-judged dimensions: L3-1 value-addition over text, L3-2 conversational naturalness, and L3-3 cognitive load. L3-1 asks whether the UI meaningfully reduces user effort rather than merely repackaging text in visual form. L3-2 evaluates whether the transition from text to UI feels natural and contextually motivated. L3-3 measures whether the amount of information and interaction requested in a single turn remains manageable. Together, L2 and L3 distinguish functional correctness from interaction quality, allowing us to evaluate not only whether a model can produce valid A2UI, but also whether it produces useful and well-paced conversational interfaces.
+
+
+This maps the language-side evaluation to the range $[0,1]$. We treat L1 as a reliability gate because structurally invalid outputs cannot be rendered or interacted with reliably; such failures also constrain downstream L2 and L3 scoring. This is consistent with the current benchmark aggregation used in the evaluation code and reports.
+
+\paragraph{Visual-side metrics.}
+The visual-side evaluation measures the quality of the rendered UI. For each visual target, we render the model-produced A2UI through the client renderer, capture a screenshot, and score it with a VLM judge. Atomic and width tasks yield one visual target per task, while depth tasks are expanded into step-level visual targets. Only targets with successful parsing, non-empty A2UI, and successful render check are included in visual evaluation.
+
+The visual-side evaluation contains three dimensions:
+V1 evaluates visual integrity, including readability, clipping, overflow, and obvious layout defects;
+V2 evaluates task alignment, namely whether the visible UI matches the task and assistant response;
+V3 evaluates action clarity, namely whether a user can clearly infer what to do next from the rendered interface.

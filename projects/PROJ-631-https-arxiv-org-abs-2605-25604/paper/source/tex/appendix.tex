@@ -1,0 +1,107 @@
+\BeforeBeginEnvironment{proposition}{\addtocounter{proposition}{-3}}
+
+\section{Proof of Proposition 1}
+\label{appendix:proof_of_proposition_1}
+
+\begin{proposition}
+    For a fixed query $x_i$, let $\hat{\rho}_{kl}^i$ denote the sample correlation between $A_k$ and $A_l$ within the group rollout. The reward combination method and the advantage combination method satisfy:
+    \begin{align}
+        \frac{1}{G} \sum_{j=1}^G \left(A_\text{sum}^{(i,j)}\right)^2 \ge \frac{1}{G} \sum_{j=1}^G \left(A^{(i,j)}\right)^2 = \frac{1}{G} \sum_{j=1}^G \left(\sum_k w_k A_k^{(i,j)}\right)^2 \notag
+    \end{align}
+    with equality if and only if $\hat{\rho}_{kl}=1$ for all $k \neq l$.
+\end{proposition}
+\begin{proof}
+    For a fixed query $x_i$, since $A_k^{(i,j)}$ is computed by normalizing $r_k^{(i,j)}$ within the rollout group, we have by definition:
+    \begin{align}
+        \frac{1}{G}\sum_{j=1}^G A_k^{(i,j)} = 0, \frac{1}{G}\sum_{j=1}^G \left( A_k^{(i,j)} \right)^2 = 1.\notag
+    \end{align}
+    For the reward combination method, similarly by definition of normalization:
+    \begin{align}
+        \frac{1}{G} \sum_{j=1}^G \left( A_\text{sum}^{(i,j)} \right)^2 = 1.\notag
+    \end{align}
+    For the advantage combination:
+    \begin{align}
+        \frac{1}{G} \sum_{j=1}^G \left(A^{(i,j)}\right)^2 &= \frac{1}{G} \sum_{j=1}^G \left(\sum_k w_k A_k^{(i,j)}\right)^2 \notag\\
+        &= \sum_k w_k^2 \cdot \frac{1}{G} \sum_{j=1}^G \left( A_k^{(i,j)} \right)^2 + 2 \sum_{k < l} w_k w_l \cdot \frac{1}{G} \sum_{j=1}^G A_k^{(i,j)}A_l^{(i,j)} \notag\\
+        &= \sum_k w_k^2 + 2 \sum_{k<l} w_k w_l \hat{\rho}_{kl}^i \notag\\
+        &= \left(\sum_k w_k\right)^2 - 2\sum_{k<l} w_k w_l \left(1 - \hat{\rho}_{kl}^i\right) \notag\\
+        &= 1 - 2\sum_{k<l} w_k w_l \left(1 - \hat{\rho}_{kl}^i\right) \le 1, \notag
+    \end{align}
+    which completes the proof.
+\end{proof}
+
+\section{Proof of Proposition 2}
+\label{appendix:proof_of_proposition_2}
+
+\BeforeBeginEnvironment{proposition}{\addtocounter{proposition}{3}}
+
+\begin{proposition}
+    For a fixed query $x_i$ and rollout group $\{y_j\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)$, the reward combination method produces a pointwise larger advantage magnitude than DVAO:
+    \begin{align}
+        \left| A_\text{DVAO}^{(i,j)} \right| \le \left| A_\text{sum}^{(i,j)} \right|, \forall j \in \{1, 2, \cdots, G\} \notag
+    \end{align}
+    with equality if and only if $\Cov\left(r_k^{(i,j)}, r_l^{(i,j)}\right) = \sigma_k^i \sigma_l^i$ for all $k \neq l$, i.e., all reward pairs are perfectly positively correlated within the rollout group.
+\end{proposition}
+\begin{proof}
+    For a fixed query $x_i$, and rollout group $\{y_j\}_{j=1}^G \sim \pi_\theta (\cdot | x_i)$, based on the definitions of the reward combination method, we first establish the following key identity:
+    \begin{align}
+        \sigma_\text{sum}^i A_\text{sum}^{(i,j)} = \sum_k w_k \sigma_k^i A_k^{(i,j)},\notag
+    \end{align}
+    which follows from:
+    \begin{align}
+        \sigma_\text{sum}^i A_\text{sum}^{(i,j)} = r_\text{sum}^{(i,j)} - \frac{1}{G} \sum_{j'}r_\text{sum}^{(i,j')} = \sum_k w_k \left( r_k^{(i,j)} - \frac{1}{G}\sum_{j'}r_k^{(i,j')} \right) = \sum_k w_k \sigma_k^i A_k^{(i,j)}.\notag
+    \end{align}
+    
+    We next show that $\sigma_\text{sum}^i \le \sum_k w_k \sigma_k^i$. By expanding the variance of the combined reward:
+    \begin{align}
+        \left(\sigma_\text{sum}^i\right)^2 = \Var\left( \sum_k w_k r_k^{(i,j)} \right) = \sum_k w_k^2 \left(\sigma_k^i\right)^2 + 2 \sum_{k < l} w_k w_l \Cov\left(r_k^{(i,j)}, r_l^{(i,j)}\right).\notag
+    \end{align}
+    By the Cauchy-Schwarz inequality, $\Cov\left(r_k^{(i,j)}, r_l^{(i,j)}\right) \le \sigma_k^i \sigma_l^i$, and therefore:
+    \begin{align}
+        \left(\sigma_\text{sum}^i\right)^2 \le \sum_k w_k^2 \left(\sigma_k^i\right)^2 + 2\sum_{k < l} w_k w_l \sigma_k^i \sigma_l^i = \left(\sum_k w_k \sigma_k^i\right)^2.\notag
+    \end{align}
+    Taking the square root on both sides yields $\sigma_\text{sum}^i \le \sum_k w_k \sigma_k^i$. Finally, taking the absolute value of the above identity and dividing both sides by $\sigma_\text{sum}^i$:
+    \begin{align}
+        \left|A_\text{sum}^{(i,j)}\right| = \frac{\left|\sum_k w_k \sigma_k^i A_k^{(i,j)}\right|}{\sigma_\text{sum}^i} \ge \frac{\left|\sum_k w_k \sigma_k^i A_k^{(i,j)}\right|}{\sum_kw_k \sigma_k^i} = \left|\sum_k \tilde{w}_k A_k^{(i,j)}\right| = \left|A_\text{DVAO}^{(i,j)}\right|,\notag
+    \end{align}
+    where the inequality follows from $\sigma_\text{sum}^i \le \sum_k w_k \sigma_k^i$, and the last equality follows from the definition of $A_\text{DVAO}^{(i,j)}$.
+\end{proof}
+
+\section{Proof of Proposition 3}
+\label{appendix:proof_of_proposition_3}
+
+\begin{proposition}
+    For a fixed query $x_i$, and rollout group $\{y_j\}_{j=1}^G \sim \pi_\theta(\cdot | x_i)$, the sensitivity of the combined advantage with  respect to the $k$-th raw reward $r_k^{(i,j)}$ for the advantage combination method and DVAO are respectively given by:
+    \begin{align}
+        \frac{\partial A^{(i,j)}}{\partial r_k^{(i,j)}} &= \frac{w_k}{\sigma_k^i} \left( 1 - \frac{1}{G} - \frac{1}{G} \left(A_k^{(i,j)}\right)^2 \right), \notag \\
+        \frac{\partial A_\text{DVAO}^{(i,j)}}{\partial r_k^{(i,j)}} &= \frac{\tilde{w}_k}{\sigma_k^i} \left( 1 - \frac{1}{G} - \frac{1}{G} A_\text{DVAO}^{(i,j)} A_k^{(i,j)} \right). \notag
+    \end{align}
+    While the sensitivity of $A^{(i,j)}$ strictly depends on the isolated advantage of the $k$-th objective, the sensitivity of $A_\text{DVAO}^{(i,j)}$ adaptively depends on the cross-term $A_\text{DVAO}^{(i,j)} A_k^{(i,j)}$, allowing it to aggregate global performance information across all objectives within the rollout group.
+\end{proposition}
+\begin{proof}
+    For a fixed query $x_i$, the standard group normalization advantage for the $k$-th objective is $A_k^{(i,j)} = \frac{r_k^{(i,j)} - \mu_k^i}{\sigma_k^i}$, where $\mu_k^i = \frac{1}{G} \sum_{j=1}^G r_k^{(i,j)}$. Using the standard properties of the sample mean and standard deviation, the partial derivatives are $\frac{\partial \mu_k^i}{\partial r_k^{(i,j)}} = \frac{1}{G}$ and $\frac{\partial \sigma_k^i}{\partial r_k^{(i,j)}} = \frac{A_k^{(i,j)}}{G}$. Consequently, the derivative of the individual advantage is:
+    \begin{align}
+        \frac{\partial A_k^{(i,j)}}{\partial r_k^{(i,j)}} = \frac{1}{\sigma_k^i} \left( 1 - \frac{1}{G} - \frac{1}{G} \left(A_k^{(i,j)}\right)^2 \right).\notag
+    \end{align}
+    For the advantage combination method, since $A^{(i,j)} = \sum_l w_l A_l^{(i,j)}$ and the rewards across different objectives are treated independently in their respective normalizations, applying the chain rule directly yields:
+    \begin{align}
+        \frac{\partial A^{(i,j)}}{\partial r_k^{(i,j)}} = w_k \frac{\partial A_k^{(i,j)}}{\partial r_k^{(i,j)}} = \frac{w_k}{\sigma_k^i} \left( 1 - \frac{1}{G} - \frac{1}{G} \left(A_k^{(i,j)}\right)^2 \right).\notag
+    \end{align}
+    For DVAO, we can rewrite the advantage as $A_\text{DVAO}^{(i,j)} = \frac{\sum_l w_l (r_l^{(i,j)} - \mu_l^i)}{S^i}$, where the denominator $S^i = \sum_k w_k \sigma_k^i$. By applying the quotient rule with respect to $r_k^{(i,j)}$, we obtain:
+    \begin{align}
+        \frac{\partial A_\text{DVAO}^{(i,j)}}{\partial r_k^{(i,j)}} &= \frac{w_k \left( 1 - \frac{1}{G} \right) S^i - \left[ \sum_l w_l (r_l^{(i,j)} - \mu_l^i) \right] w_k \frac{\partial \sigma_k^i}{\partial r_k^{(i,j)}}}{\left(S^i\right)^2} \notag\\
+        &= \frac{w_k \left( 1 - \frac{1}{G} \right) S^i - \left( S^i A_\text{DVAO}^{(i,j)} \right) w_k \frac{A_k^{(i,j)}}{G}}{\left(S^i\right)^2} \notag\\
+        &= \frac{w_k}{S^i} \left( 1 - \frac{1}{G} - \frac{1}{G} A_\text{DVAO}^{(i,j)} A_k^{(i,j)} \right).\notag
+    \end{align}
+    Substituting the definition $\frac{w_k}{S^i} = \frac{\tilde{w}_k}{\sigma_k^i}$ into the equation completes the proof.
+\end{proof}
+
+\section{Implementation Details}
+\label{appendix:implementation_details}
+
+For training dataset, we use DAPO-MATH-17K\footnote{\url{https://huggingface.co/datasets/BytedTsinghua-SIA/DAPO-Math-17k}} for mathematical reasoning task, which consists of 17k prompts, each paired with an interger as the answer, and the same training dataset from ToolRL, which consists of 2k samples from ToolACE \citep{toolace}, 1k samples from Hammer \citep{hammer}, and 1k samples from xLAM \citep{xlam}, each training instance contains a question and its corresponding groud-truth tool calls. For the reward design, we use the accuracy reward $r_\text{acc}$ and the length reward $r_\text{length}$ for mathematical reasoning task, and use the accuracy reward $r_\text{acc}$ and the format reward $r_\text{format}$ for tool-use task. Specifically, $r_\text{length} \in \{0, 1\}$ checks whether the model's output remains within the target length $l$, which is set 4,000 tokens for all remaining experiments, and $r_\text{format} \in \{0,1\}$ checks whether the model't output satisfies the required structure and contains all necessary fields in the correct order. All rewards are constrained within the range $[0,1]$ to maintain consistency with the preceding discussion, while the final reward or advantage is computed via a convex combination with coefficients $\{w_k\}_{k=1}^n$ and $\sum_k w_k = 1$. Unless otherwise specified, the coefficients corresponding to all rewards are equal. We implement our proposed DVAO and conduct all experiments based on verl \citep{verl} framework. For hyperparameters, we utilize the AdamW \citep{adamw} optimizer with a constant learning rate of $1 \times 10^{-6}$. For rollout, the prompt batch size is 128 and we sample $G=16$ responses for each prompt. For training, we train 500 steps to ensure convergence. The maximum number of tokens for generation is set to 8,192 tokens. We report avg@16 results for mathematical reasoning task. The inference hyperparameters of evaluation are set to temperature 0.6 and top-p 0.95. We conduct all experiments on a server with 8$\times$NVIDIA H20-3e GPUs and an Intel$^\text{®}$ Xeon$^\text{®}$ Platinum 8575C CPU.
+
+\section{Limitations and Future Work}
+\label{appendix:limitation}
+
+While DVAO effectively addresses the limitations of fixed scalarization in multi-reward GRPO, there are a few boundaries to consider. First, the accuracy of DVAO's dynamic weighting relies on the empirical variance estimation within a rollout group ($G$). In our experiments, a standard group size of $G=16$ provided highly robust signals. However, for extremely large models where hardware memory constraints force very small group sizes (e.g., $G \le 4$), the intra-group variance estimation might become noisy. Future work could explore incorporating historical momentum or cross-batch moving averages to stabilize variance estimation under extreme memory constraints. Second, our empirical evaluations primarily focus on dual-objective scenarios (e.g., accuracy and length/format). Although our theoretical proofs mathematically hold for an arbitrary number of $n$ rewards, the empirical optimization dynamics in hyper-dimensional reward spaces—such as simultaneously aligning helpfulness, harmlessness, style, length, and tool-use—remain an open question for future exploration. Lastly, because DVAO inherently amplifies learning signals based on variance, its efficacy is tied to the quality of the underlying reward functions. If a poorly designed auxiliary reward exhibits artificially high variance due to noise rather than meaningful learning signals, DVAO may inadvertently up-weight it. Thus, while DVAO eliminates the need for manual weight tuning, it still operates optimally alongside reasonably well-calibrated individual reward definitions.

@@ -1,0 +1,69 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/abstract.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/figure/ALLM_evopath.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/figure/compare.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/figure/future.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/icon/fixie.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/passage/conclusion.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/passage/evaluation.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/passage/instrnsic.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/passage/introduction.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/passage/performance.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/passage/safety.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "allm_survey/references.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "icon/fixie.png"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

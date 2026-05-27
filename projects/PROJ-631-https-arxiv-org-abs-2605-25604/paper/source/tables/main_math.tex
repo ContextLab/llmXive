@@ -1,0 +1,44 @@
+\begin{table}[t!]
+    \centering
+    \caption{Performance comparison across different methods on AIME-2024, AIME-2025, MATH500, OlympaidBench, and AMC23. \textbf{Acc.}: Output Accuracy (\%). \textbf{Len.}: The Rate (\%) of output length not exceeding $l$. DVAO achieves state-of-the-art performance with both scores in average.}
+    \scalebox{0.845}{
+    \begin{tabular}{l rr rr rr rr rr rr}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME-2024}} & \multicolumn{2}{c}{\textbf{AIME-2025}} & \multicolumn{2}{c}{\textbf{MATH500}} & \multicolumn{2}{c}{\textbf{Olympaid}} & \multicolumn{2}{c}{\textbf{AMC23}} & \multicolumn{2}{c}{\textbf{Average}} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
+    & \textbf{Acc.} & \textbf{Len.} & \textbf{Acc.} & \textbf{Len.} & \textbf{Acc.} & \textbf{Len.} & \textbf{Acc.} & \textbf{Len.} & \textbf{Acc.} & \textbf{Len.} & \textbf{Acc.} & \textbf{Len.} \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{13}{c}{\textbf{Qwen3-4B-Base}} \\
+    \addlinespace[0.25em]
+    Model & 7.92 & 88.12 & 4.79 & 88.54 & 55.05 & 91.42	& 26.98 & 92.02 & 34.18 & 91.94 & 25.78 & 90.41 \\
+    ~+ GRPO & 17.91 & 62.08 & 10.20 & 68.33 & 78.92 &  93.04 & 42.88 & 82.82 & 49.62 & 82.91 & 39.91 & 77.84 \\
+    \addlinespace[0.1em]
+    \hline
+    \addlinespace[0.25em]
+    ~+ RC & 14.58 & 92.50 & 9.38 & 95.42 & 78.31 & 98.91 & 41.18 & 97.43 & 51.50 & 97.67 & 38.99 & 96.39 \\
+    ~+ AC & 16.25 & 91.04 & 9.38 & 95.21 & 77.65 & 98.69 & 41.02 & 98.08 & 49.47 & 98.12 & 38.75 & 96.23 \\
+    ~+ GDPO & 2.08 & 95.83 & 3.75 & 96.46 & 30.06 & 99.52 & 16.56 & 98.29 & 14.60 & 98.95 & 13.41 & 97.81 \\
+    \addlinespace[0.1em]
+    \rowcolor{lightblue}
+    ~\textbf{+ DVAO} & \textbf{16.87} & \textbf{100.0} & \textbf{13.54} & \textbf{99.79} & \textbf{81.36} & \textbf{99.94} & \textbf{45.63} & \textbf{99.96} & \textbf{53.53} & \textbf{99.85} & \textbf{42.19} & \textbf{99.91} \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{13}{c}{\textbf{Qwen3-8B-Base}} \\
+    \addlinespace[0.25em]
+    Model & 11.87 & 89.79 & 8.96 & 93.33 & 69.20 & 97.44 & 34.95 & 94.66 & 41.56 & 96.16 & 33.31 & 94.28 \\
+    ~+ GRPO & 29.58 & 40.00 & 24.58 & 52.08 & 87.93 & 89.61 & 55.57 & 70.81 & 65.21 & 64.83 & 52.57 & 63.47 \\
+    \addlinespace[0.1em]
+    \hline
+    \addlinespace[0.25em]
+    ~+ RC & 21.04 & 97.08 & 16.25 & 99.38 & 84.97 & 99.59 & 49.73 & 98.48 & 59.33 & 99.02 & 46.26 & 98.71 \\
+    ~+ AC & 20.41 & 97.71 & 15.62 & 98.96 & 84.42 & 99.58 & 48.52 & 98.93 & 58.13 & 99.02 & 45.42 & 98.84 \\
+    ~+ GDPO & 1.67 & 100.0 & 0.00 & 100.0 & 35.07 & \textbf{100.0} & 9.15 & \textbf{99.96} & 27.56 & \textbf{100.0} & 14.69 & \textbf{99.99} \\
+    \addlinespace[0.1em]
+    \rowcolor{lightblue}
+    ~\textbf{+ DVAO} & \textbf{21.87} & \textbf{100.0} & \textbf{18.33} & \textbf{100.0} & \textbf{86.10} & 99.99 & \textbf{50.62} & 99.76 & \textbf{60.54} & 99.85 & \textbf{47.49} & 99.92 \\
+    \bottomrule
+    \end{tabular}
+    }
+    \label{tab:main_math}
+\end{table}

@@ -1,0 +1,88 @@
+\documentclass{article}
+\usepackage{arxiv}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[square,numbers,sort&compress]{natbib}
+\bibliographystyle{unsrtnat}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{threeparttable}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{subcaption}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{amsmath,amsfonts,bm}
+\usepackage{amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+\usepackage{float}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage[perpage]{footmisc}
+\usepackage{wrapfig}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\tcbuselibrary{breakable, skins}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+\usepackage{cleveref}
+\usepackage{titlesec}
+\usepackage{makecell}
+
+\setlist[itemize,1]{leftmargin=\dimexpr 18pt}
+\setlist[enumerate,1]{leftmargin=\dimexpr 18pt}
+\renewcommand{\arraystretch}{1.08}
+\hyphenation{StepAudio WenetSpeech LibriSpeech VoxPopuli FunASR Doubao}
+\captionsetup{skip=4pt}
+\raggedbottom
+\setlength{\textfloatsep}{10pt plus 2pt minus 3pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
+\titlespacing*{\section}{0pt}{1.2\baselineskip}{0.7\baselineskip}
+\titlespacing*{\subsection}{0pt}{0.9\baselineskip}{0.45\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{0.7\baselineskip}{0.35\baselineskip}
+
+\newcommand{\stepaudio}{\mbox{StepAudio} 2.5}
+\newcommand{\stepasr}{\mbox{StepAudio} 2.5 ASR}
+\newcommand{\steptts}{\mbox{StepAudio} 2.5 TTS}
+\newcommand{\steprealtime}{\mbox{StepAudio} 2.5 Realtime}
+\newcommand{\mtpmodel}{MTP-5}
+\newcommand{\parencite}[1]{\citep{#1}}
+
+\title{
+\raisebox{-0.18\height}{\includegraphics[width=0.045\textwidth]{figures/stepfun-icon.png}} %{figures/stepfun-icon.png} %
+% StepAudio 2.5 Unified Technical Report
+StepAudio 2.5 Technical Report
+}
+
+\author{\vspace{1em} StepFun-Audio Team}
+
+\renewcommand{\headeright}{StepFun-Audio Team}
+\renewcommand{\undertitle}{}
+\renewcommand{\shorttitle}{}
+
+\begin{document}
+\large
+
+\maketitle
+
+\input{content/abstract}
+\input{content/introduction}
+\input{content/architecture}
+\input{content/data}
+\input{content/asr}
+\input{content/tts}
+\input{content/realtime}
+\input{content/conclusion}
+\input{content/Contributors}
+
+\setlength{\bibsep}{0.5\baselineskip}
+\input{main.bbl}
+
+\end{document}

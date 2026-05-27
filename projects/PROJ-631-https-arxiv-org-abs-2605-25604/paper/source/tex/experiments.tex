@@ -1,0 +1,113 @@
+\section{Experiments}
+
+\subsection{Experimental Setup}
+\textbf{Benchmarks.} In this work, we focus specifically on mathematical reasoning and tool-use tasks to evaluate our proposed DVAO algorithm. For mathematical reasoning task, we evaluate models on AIME-2024\footnote{\url{https://huggingface.co/datasets/Maxwell-Jia/AIME_2024}}, AIME-2025\footnote{\url{https://huggingface.co/datasets/yentinglin/aime_2025}}, MATH500 \citep{math500}, OlympiadBench \citep{olympiadbench}, and AMC23\footnote{\url{https://huggingface.co/datasets/AI-MO/aimo-validation-amc}}. In mathematical reasoning tasks, we focus on two main objectives: accuracy and length constrain. For tool-use task, we follow the setup of ToolRL \citep{toolrl} and GDPO, which evaluate models on Berkeley Function Call Leaderboard (BFCL-v4) \citep{bfcl}, a comperhensive benchmark covering a broad range of challanges, including single-step reasoning, multi-step tool-use, real-time execution, irrelevant tool rejection, simultaneous multi-tool selection, and multi-tool execution. In tool-use task, we focus on two main objectives: tool-use correctness and format compliance.
+
+% \textbf{Implementation Details.} For training dataset, we use DAPO-MATH-17K\footnote{\url{https://huggingface.co/datasets/BytedTsinghua-SIA/DAPO-Math-17k}} for mathematical reasoning task, which consists of 17k prompts, each paired with an interger as the answer, and the same training dataset from ToolRL, which consists of 2k samples from ToolACE \citep{toolace}, 1k samples from Hammer \citep{hammer}, and 1k samples from xLAM \citep{xlam}, each training instance contains a question and its corresponding groud-truth tool calls. For the reward design, we use the accuracy reward $r_\text{acc}$ and the length reward $r_\text{length}$ for mathematical reasoning task, and use the accuracy reward $r_\text{acc}$ and the format reward $r_\text{format}$ for tool-use task. Specifically, $r_\text{length} \in \{0, 1\}$ checks whether the model's output remains within the target length $l$, which is set 4,000 tokens for all remaining experiments, and $r_\text{format} \in \{0,1\}$ checks whether the model't output satisfies the required structure and contains all necessary fields in the correct order. All rewards are constrained within the range $[0,1]$ to maintain consistency with the preceding discussion, while the final reward or advantage is computed via a convex combination with coefficients $\{w_k\}_{k=1}^n$ and $\sum_k w_k = 1$. Unless otherwise specified, the coefficients corresponding to all rewards are equal. We implement our proposed DVAO and conduct all experiments based on verl \citep{verl} framework. For hyperparameters, we utilize the AdamW \citep{adamw} optimizer with a constant learning rate of $1 \times 10^{-6}$. For rollout, the prompt batch size is 128 and we sample $G=16$ responses for each prompt. For training, we train 500 steps to ensure convergence. The maximum number of tokens for generation is set to 8,192 tokens. We report avg@16 results for mathematical reasoning task. The inference hyperparameters of evaluation are set to temperature 0.6 and top-p 0.95. We conduct all experiments on a server with 8$\times$NVIDIA H20-3e GPUs and an Intel$^\text{®}$ Xeon$^\text{®}$ Platinum 8575C CPU.
+
+\textbf{Baselines and Models.} We mainly use GRPO \citep{grpo} as the single-reward $r_\text{acc}$ baseline for the comparison. Based on GRPO, we implement the Reward Combination (RC) method and Advantage Combination (AC) method for the multi-reward tasks. For comparison, we include the GDPO \citep{gdpo} algorithm. We use \textit{Qwen3-4B-Base} and \textit{Qwen3-8B-Base} \citep{qwen3} for the mathematical reasoning tasks, and \textit{Qwen2.5-3B-Instruct} and \textit{Qwen2.5-7B-Instruct} \citep{qwen2.5} for the tool-use tasks. For complete implementation details, see Appendix~\ref{appendix:implementation_details}.
+
+\subsection{Main Results}
+\label{subsection:main}
+
+\input{tables/main_math}
+\input{tables/main_tool}
+
+Tables~\ref{tab:main_math} and Table~\ref{tab:main_tool} summarize the performance across all methods and model scales. DVAO achieves the highest average accuracy and near-perfect length/format compliance simultaneously across both tasks and model scales, while every baseline method sacrifices one dimension for the other. On math reasoning, RC and AC trade accuracy for length compliance, and GDPO achieves near-perfect length compliance at the cost of the lowest accuracy among all methods. On tool-use, DVAO leads both accuracy and format compliance by a substantial margin. Notably, DVAO remains the only method to achieve the highest score on both dimensions simultaneously at both scales, whereas other methods improve one dimension at the expense of the other---GRPO shows near-zero format compliance on both tool-use models, and AC on 7B actually underperforms the base model in accuracy. Importantly, all methods share the same equal-weight initialization, so the consistent advantage of DVAO stems from its adaptive mechanism rather than superior initial hyperparameter choice, a conclusion reinforced by the Pareto frontier analysis in Section~\ref{subsection:pareto_frontiers} where DVAO dominates across the entire weight sweep.
+
+\subsection{Training Dynamics}
+\label{subsection:training_dynamics}
+
+\begin{figure*}[t]
+    \centering
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_4b_acc_reward_mean.pdf}}
+        \vspace{4pt}
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_4b_acc_reward_std.pdf}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_4b_length_reward_mean.pdf}}
+        \vspace{4pt}
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_4b_length_reward_std.pdf}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_4b_response_length.pdf}}
+    \end{minipage}
+    \caption{Training dynamics on \textit{Qwen3-4B-Base}. Left: accuracy reward (top=mean, bottom=std). Middle: length reward (top=mean, bottom=std). Right: average response length.}
+    \label{fig:training-dynamics-4b}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_8b_acc_reward_mean.pdf}}
+        \vspace{4pt}
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_8b_acc_reward_std.pdf}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_8b_length_reward_mean.pdf}}
+        \vspace{4pt}
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_8b_length_reward_std.pdf}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/train_dyn_8b_response_length.pdf}}
+    \end{minipage}
+    \caption{Training dynamics on \textit{Qwen3-8B-Base}. Left: accuracy reward (top=mean, bottom=std). Middle: length reward (top=mean, bottom=std). Right: average response length.}
+    \label{fig:training-dynamics-8b}
+\end{figure*}
+
+To understand how DVAO shapes the optimization trajectory, we visualize the evolution of accuracy reward, length reward, and response length throughout training on both \textit{Qwen3-4B-Base} and \textit{Qwen3-8B-Base} (Figure~\ref{fig:training-dynamics-4b} and~\ref{fig:training-dynamics-8b}). All curves are smoothed with a centered moving average (window~$=$~15).
+
+\noindent\textbf{Accuracy reward.} Across both model scales, DVAO consistently achieves the highest accuracy reward while suppressing its variance most effectively. All methods start from a similar low baseline and rise steadily throughout training. DVAO's accuracy reward curve stays above all baselines at every stage, with the margin widening on the larger model. More importantly, the standard deviation of accuracy rewards under DVAO declines more sharply than all baselines. On both 4B and 8B, DVAO's accuracy standard deviation drops to the lowest final value among all methods, while AC consistently exhibits the highest variance throughout training. This combination of higher mean accuracy and lower variance indicates that adaptive variance normalization yields both stronger task performance and more stable gradients, consistent with Proposition~\ref{proposition_2} which guarantees that DVAO's advantage magnitude remains bounded and well-scaled throughout training.
+
+\noindent\textbf{Length reward.} DVAO drives the length reward closest to the target value of 1.0 and exhibits the most dramatic variance collapse. On both model scales, DVAO's length reward rises quickly and stabilizes near the target, while RC fluctuates more noticeably and settles at a visibly lower level. The length reward standard deviation under DVAO shows a far steeper decline than any baseline. For 4B, DVAO's standard deviation drops to a fraction of the RC and AC final values, which remain clustered together at significantly higher levels. For 8B, the gap is even more pronounced, with DVAO's standard deviation approaching near-zero while baselines retain substantially more variance. This variance-balancing mechanism prevents either reward channel from dominating the gradient, enabling more stable convergence to the target length reward. The pronounced std collapse under DVAO directly reflects the cross-objective regularization effect described in Proposition~\ref{proposition_3}, where the adaptive normalization couples the accuracy and length objectives to prevent either from overwhelming the combined advantage signal.
+
+\noindent\textbf{Response length.} All methods start from a similar initial response length of around 800 tokens. DVAO drives the fastest and most sustained growth, reaching the highest final length on both model scales. RC achieves comparable final lengths, while AC exhibits the slowest growth. Notably, DVAO's response length curves on 4B and 8B display more visible oscillation compared to the smoother trajectories of RC and AC, which reflects its more aggressive length reward optimization and explores longer reasoning traces more dynamically. Despite this oscillation, the mean response length still converges to a higher plateau, confirming that DVAO's bounded advantage signal prevents runaway exploration while still encouraging productive length growth.
+
+
+\subsection{Pareto Frontiers}
+\label{subsection:pareto_frontiers}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/qwen3-4b-base_math.pdf}
+        \caption{Mathematical Reasoning Task (\textit{Qwen3-4B-Base})}
+        \label{fig:pareto-math}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/qwen2.5-3b-instruct_tool.pdf}
+        \caption{Tool-Use Task (\textit{Qwen2.5-3B-Instruct})}
+        \label{fig:pareto-tool}
+    \end{subfigure}
+    \caption{Pareto frontier of accuracy vs.\ length/format compliance across methods. DVAO consistently dominates the upper-right region.}
+    \label{fig:pareto}
+\end{figure}
+
+While Section~\ref{subsection:main} reports the trained single checkpoint per method, optimizing with a single weight $w_k$ only reveals one point on the accuracy--length trade-off curve. To fully characterize how each method balances correctness and conciseness, we sweep the accuracy weight $w_1$ (with length weight or format weight $w_2 = 1 - w_1$) across a range of values $\{0.1, 0.3, 0.5, 0.7, 0.9\}$ and plot the resulting Pareto frontier in Figure~\ref{fig:pareto-math} (\textit{Qwen3-4B-Base}, Mathematical Reasoning Task) and Figure~\ref{fig:pareto-tool} (\textit{Qwen2.5-3B-Instruct}, Tool-Use Task).
+
+DVAO consistently achieves superior trade-offs, dominating the frontier across both tasks by maintaining high auxiliary compliance (length/format) across the entire accuracy range. In contrast, fixed-weight baselines exhibit distinct failure modes: RC saturates quickly, AC suffers from severe instability, and GDPO fluctuates incoherently. This confirms that without adaptive normalization, uncontrolled advantage scaling prevents effective trade-off navigation. Furthermore, DVAO's dominance is especially pronounced on the complex math task, shifting the entire frontier significantly above baselines. This suggests that dynamic variance-balancing is crucial for multi-step reasoning, as it prevents easier objectives (length) from overwhelming harder learning signals (accuracy) during training.
+
+% \noindent\textbf{DVAO consistently achieves superior trade-offs.} On the math task, DVAO maintains the highest length compliance across the entire accuracy range shown, while RC and AC trade off between the two objectives with noticeably lower performance on both dimensions. On the tool use task, DVAO achieves substantially higher format compliance across the accuracy range, while RC and AC remain in the lower portion of the plot with more modest gains in either dimension. GDPO shows a single outlier spike in format compliance but otherwise stays well below DVAO with no coherent trade-off curve. This consistent dominance confirms that adaptive variance normalization enables the policy to satisfy both objectives simultaneously rather than sacrificing one for the other.
+
+% \noindent\textbf{Baseline methods struggle to balance objectives.} Existing methods show distinct failure modes in exploring the trade-off space. RC produces a narrow band on both tasks, indicating that varying the combination weight has limited effect---the policy quickly saturates and further tuning yields diminishing returns. AC shows a wider spread but suffers from severe instability: small changes in weight cause large swings in one dimension while the other remains stagnant. On the math task GDPO clusters in the lower-left, and on the tool use task GDPO exhibits wild fluctuations with no coherent frontier. Without adaptive normalization, fixed weighting schemes lead to magnitude imbalance and uncontrolled advantage scaling, preventing the model from effectively navigating the trade-off curve.
+
+% \noindent\textbf{DVAO's advantage grows with task complexity.} The performance gap between DVAO and the best baseline is more pronounced on the math task than on the tool use task. On math, DVAO achieves a qualitatively different frontier---not just quantitatively better, but consistently shifted above all baselines across the full range of weight settings. This suggests that tasks requiring multi-step reasoning with strict length constraints benefit most from the variance-balancing mechanism, as the adaptive normalization prevents the easier-to-optimize length channel from overwhelming the harder accuracy signal during training.
+
+
+
+
+

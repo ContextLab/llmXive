@@ -1,0 +1,632 @@
+% Journals
+
+% First the Full Name is given, then the abbreviation used in the AMS Math
+% Reviews, with an indication if it could not be found there.
+% Note the 2nd overwrites the 1st, so swap them if you want the full name.
+
+ %{AMS}
+ @String{AMSTrans = "American Mathematical Society Translations" }
+ @String{AMSTrans = "Amer. Math. Soc. Transl." }
+ @String{BullAMS = "Bulletin of the American Mathematical Society" }
+ @String{BullAMS = "Bull. Amer. Math. Soc." }
+ @String{ProcAMS = "Proceedings of the American Mathematical Society" }
+ @String{ProcAMS = "Proc. Amer. Math. Soc." }
+ @String{TransAMS = "Transactions of the American Mathematical Society" }
+ @String{TransAMS = "Trans. Amer. Math. Soc." }
+
+ %ACM
+ @String{CACM = "Communications of the {ACM}" }
+ @String{CACM = "Commun. {ACM}" }
+ @String{CompServ = "Comput. Surveys" }
+ @String{JACM = "J. ACM" }
+ @String{ACMMathSoft = "{ACM} Transactions on Mathematical Software" }
+ @String{ACMMathSoft = "{ACM} Trans. Math. Software" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newsletter" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newslett." }
+
+ @String{AmerSocio = "American Journal of Sociology" }
+ @String{AmerStatAssoc = "Journal of the American Statistical Association" }
+ @String{AmerStatAssoc = "J. Amer. Statist. Assoc." }
+ @String{ApplMathComp = "Applied Mathematics and Computation" }
+ @String{ApplMathComp = "Appl. Math. Comput." }
+ @String{AmerMathMonthly = "American Mathematical Monthly" }
+ @String{AmerMathMonthly = "Amer. Math. Monthly" }
+ @String{BIT = "{BIT}" }
+ @String{BritStatPsych = "British Journal of Mathematical and Statistical
+          Psychology" }
+ @String{BritStatPsych = "Brit. J. Math. Statist. Psych." }
+ @String{CanMathBull = "Canadian Mathematical Bulletin" }
+ @String{CanMathBull = "Canad. Math. Bull." }
+ @String{CompApplMath = "Journal of Computational and Applied Mathematics" }
+ @String{CompApplMath = "J. Comput. Appl. Math." }
+ @String{CompPhys = "Journal of Computational Physics" }
+ @String{CompPhys = "J. Comput. Phys." }
+ @String{CompStruct = "Computers and Structures" }
+ @String{CompStruct = "Comput. \& Structures" }
+ @String{CompJour = "The Computer Journal" }
+ @String{CompJour = "Comput. J." }
+ @String{CompSysSci = "Journal of Computer and System Sciences" }
+ @String{CompSysSci = "J. Comput. System Sci." }
+ @String{Computing = "Computing" }
+ @String{ContempMath = "Contemporary Mathematics" }
+ @String{ContempMath = "Contemp. Math." }
+ @String{Crelle = "Crelle's Journal" }
+ @String{GiornaleMath = "Giornale di Mathematiche" }
+ @String{GiornaleMath = "Giorn. Mat." } % didn't find in AMS MR., ibid.
+
+ %IEEE
+ @String{Computer = "{IEEE} Computer" }
+ @String{IEEETransComp = "{IEEE} Transactions on Computers" }
+ @String{IEEETransComp = "{IEEE} Trans. Comput." }
+ @String{IEEETransAC = "{IEEE} Transactions on Automatic Control" }
+ @String{IEEETransAC = "{IEEE} Trans. Automat. Control" }
+ @String{IEEESpec = "{IEEE} Spectrum" } % didn't find in AMS MR
+ @String{ProcIEEE = "Proceedings of the {IEEE}" }
+ @String{ProcIEEE = "Proc. {IEEE}" } % didn't find in AMS MR
+ @String{IEEETransAeroElec = "{IEEE} Transactions on Aerospace and Electronic
+     Systems" }
+ @String{IEEETransAeroElec = "{IEEE} Trans. Aerospace Electron. Systems" }
+
+ @String{IMANumerAna = "{IMA} Journal of Numerical Analysis" }
+ @String{IMANumerAna = "{IMA} J. Numer. Anal." }
+ @String{InfProcLet = "Information Processing Letters" }
+ @String{InfProcLet = "Inform. Process. Lett." }
+ @String{InstMathApp = "Journal of the Institute of Mathematics and
+     its Applications" }
+ @String{InstMathApp = "J. Inst. Math. Appl." }
+ @String{IntControl = "International Journal of Control" }
+ @String{IntControl = "Internat. J. Control" }
+ @String{IntNumerEng = "International Journal for Numerical Methods in
+     Engineering" }
+ @String{IntNumerEng = "Internat. J. Numer. Methods Engrg." }
+ @String{IntSuper = "International Journal of Supercomputing Applications" }
+ @String{IntSuper = "Internat. J. Supercomputing Applic." } % didn't find
+%% in AMS MR
+ @String{Kibernetika = "Kibernetika" }
+ @String{JResNatBurStand = "Journal of Research of the National Bureau
+     of Standards" }
+ @String{JResNatBurStand = "J. Res. Nat. Bur. Standards" }
+ @String{LinAlgApp = "Linear Algebra and its Applications" }
+ @String{LinAlgApp = "Linear Algebra Appl." }
+ @String{MathAnaAppl = "Journal of Mathematical Analysis and Applications" }
+ @String{MathAnaAppl = "J. Math. Anal. Appl." }
+ @String{MathAnnalen = "Mathematische Annalen" }
+ @String{MathAnnalen = "Math. Ann." }
+ @String{MathPhys = "Journal of Mathematical Physics" }
+ @String{MathPhys = "J. Math. Phys." }
+ @String{MathComp = "Mathematics of Computation" }
+ @String{MathComp = "Math. Comp." }
+ @String{MathScand = "Mathematica Scandinavica" }
+ @String{MathScand = "Math. Scand." }
+ @String{TablesAidsComp = "Mathematical Tables and Other Aids to Computation" }
+ @String{TablesAidsComp = "Math. Tables Aids Comput." }
+ @String{NumerMath = "Numerische Mathematik" }
+ @String{NumerMath = "Numer. Math." }
+ @String{PacificMath = "Pacific Journal of Mathematics" }
+ @String{PacificMath = "Pacific J. Math." }
+ @String{ParDistComp = "Journal of Parallel and Distributed Computing" }
+ @String{ParDistComp = "J. Parallel and Distrib. Comput." } % didn't find
+%% in AMS MR
+ @String{ParComputing = "Parallel Computing" }
+ @String{ParComputing = "Parallel Comput." }
+ @String{PhilMag = "Philosophical Magazine" }
+ @String{PhilMag = "Philos. Mag." }
+ @String{ProcNAS = "Proceedings of the National Academy of Sciences
+                    of the USA" }
+ @String{ProcNAS = "Proc. Nat. Acad. Sci. U. S. A." }
+ @String{Psychometrika = "Psychometrika" }
+ @String{QuartMath = "Quarterly Journal of Mathematics, Oxford, Series (2)" }
+ @String{QuartMath = "Quart. J. Math. Oxford Ser. (2)" }
+ @String{QuartApplMath = "Quarterly of Applied Mathematics" }
+ @String{QuartApplMath = "Quart. Appl. Math." }
+ @String{RevueInstStat = "Review of the International Statisical Institute" }
+ @String{RevueInstStat = "Rev. Inst. Internat. Statist." }
+
+ %SIAM
+ @String{JSIAM = "Journal of the Society for Industrial and Applied
+     Mathematics" }
+ @String{JSIAM = "J. Soc. Indust. Appl. Math." }
+ @String{JSIAMB = "Journal of the Society for Industrial and Applied
+     Mathematics, Series B, Numerical Analysis" }
+ @String{JSIAMB = "J. Soc. Indust. Appl. Math. Ser. B Numer. Anal." }
+ @String{SIAMAlgMeth = "{SIAM} Journal on Algebraic and Discrete Methods" }
+ @String{SIAMAlgMeth = "{SIAM} J. Algebraic Discrete Methods" }
+ @String{SIAMAppMath = "{SIAM} Journal on Applied Mathematics" }
+ @String{SIAMAppMath = "{SIAM} J. Appl. Math." }
+ @String{SIAMComp = "{SIAM} Journal on Computing" }
+ @String{SIAMComp = "{SIAM} J. Comput." }
+ @String{SIAMMatrix = "{SIAM} Journal on Matrix Analysis and Applications" }
+ @String{SIAMMatrix = "{SIAM} J. Matrix Anal. Appl." }
+ @String{SIAMNumAnal = "{SIAM} Journal on Numerical Analysis" }
+ @String{SIAMNumAnal = "{SIAM} J. Numer. Anal." }
+ @String{SIAMReview = "{SIAM} Review" }
+ @String{SIAMReview = "{SIAM} Rev." }
+ @String{SIAMSciStat = "{SIAM} Journal on Scientific and Statistical
+     Computing" }
+ @String{SIAMSciStat = "{SIAM} J. Sci. Statist. Comput." }
+
+ @String{SoftPracExp = "Software Practice and Experience" }
+ @String{SoftPracExp = "Software Prac. Experience" } % didn't find in AMS MR
+ @String{StatScience = "Statistical Science" }
+ @String{StatScience = "Statist. Sci." }
+ @String{Techno = "Technometrics" }
+ @String{USSRCompMathPhys = "{USSR} Computational Mathematics and Mathematical
+     Physics" }
+ @String{USSRCompMathPhys = "{U. S. S. R.} Comput. Math. and Math. Phys." }
+ @String{VLSICompSys = "Journal of {VLSI} and Computer Systems" }
+ @String{VLSICompSys = "J. {VLSI} Comput. Syst." }
+ @String{ZAngewMathMech = "Zeitschrift fur Angewandte Mathematik und
+     Mechanik" }
+ @String{ZAngewMathMech = "Z. Angew. Math. Mech." }
+ @String{ZAngewMathPhys = "Zeitschrift fur Angewandte Mathematik und Physik" }
+ @String{ZAngewMathPhys = "Z. Angew. Math. Phys." }
+
+% Publishers % ================================================= |
+
+ @String{Academic = "Academic Press" }
+ @String{ACMPress = "{ACM} Press" }
+ @String{AdamHilger = "Adam Hilger" }
+ @String{AddisonWesley = "Addison-Wesley" }
+ @String{AllynBacon = "Allyn and Bacon" }
+ @String{AMS = "American Mathematical Society" }
+ @String{Birkhauser = "Birkha{\"u}ser" }
+ @String{CambridgePress = "Cambridge University Press" }
+ @String{Chelsea = "Chelsea" }
+ @String{ClaredonPress = "Claredon Press" }
+ @String{DoverPub = "Dover Publications" }
+ @String{Eyolles = "Eyolles" }
+ @String{HoltRinehartWinston = "Holt, Rinehart and Winston" }
+ @String{Interscience = "Interscience" }
+ @String{JohnsHopkinsPress = "The Johns Hopkins University Press" }
+ @String{JohnWileySons = "John Wiley and Sons" }
+ @String{Macmillan = "Macmillan" }
+ @String{MathWorks = "The Math Works Inc." }
+ @String{McGrawHill = "McGraw-Hill" }
+ @String{NatBurStd = "National Bureau of Standards" }
+ @String{NorthHolland = "North-Holland" }
+ @String{OxfordPress = "Oxford University Press" }  %address Oxford or London?
+ @String{PergamonPress = "Pergamon Press" }
+ @String{PlenumPress = "Plenum Press" }
+ @String{PrenticeHall = "Prentice-Hall" }
+ @String{SIAMPub = "{SIAM} Publications" }
+ @String{Springer = "Springer-Verlag" }
+ @String{TexasPress = "University of Texas Press" }
+ @String{VanNostrand = "Van Nostrand" }
+ @String{WHFreeman = "W. H. Freeman and Co." }
+
+
+
+% Entry %
+% ================================== %
+% LLM %
+@misc{qwen1M,
+      title={Qwen2.5-1M Technical Report}, 
+      author={An Yang and Bowen Yu and Chengyuan Li and Dayiheng Liu and Fei Huang and Haoyan Huang and Jiandong Jiang and Jianhong Tu and Jianwei Zhang and Jingren Zhou and Junyang Lin and Kai Dang and Kexin Yang and Le Yu and Mei Li and Minmin Sun and Qin Zhu and Rui Men and Tao He and Weijia Xu and Wenbiao Yin and Wenyuan Yu and Xiafei Qiu and Xingzhang Ren and Xinlong Yang and Yong Li and Zhiying Xu and Zipeng Zhang},
+      year={2025},
+      eprint={2501.15383},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2501.15383}, 
+}
+
+@article{deepseekR1,
+   title={DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning},
+   volume={645},
+   ISSN={1476-4687},
+   url={http://dx.doi.org/10.1038/s41586-025-09422-z},
+   DOI={10.1038/s41586-025-09422-z},
+   number={8081},
+   journal={Nature},
+   publisher={Springer Science and Business Media LLC},
+   author={Guo, Daya and Yang, Dejian and Zhang, Haowei and Song, Junxiao and Wang, Peiyi and Zhu, Qihao and Xu, Runxin and Zhang, Ruoyu and Ma, Shirong and Bi, Xiao and Zhang, Xiaokang and Yu, Xingkai and Wu, Yu and Wu, Z. F. and Gou, Zhibin and Shao, Zhihong and Li, Zhuoshu and Gao, Ziyi and Liu, Aixin and Xue, Bing and Wang, Bingxuan and Wu, Bochao and Feng, Bei and Lu, Chengda and Zhao, Chenggang and Deng, Chengqi and Ruan, Chong and Dai, Damai and Chen, Deli and Ji, Dongjie and Li, Erhang and Lin, Fangyun and Dai, Fucong and Luo, Fuli and Hao, Guangbo and Chen, Guanting and Li, Guowei and Zhang, H. and Xu, Hanwei and Ding, Honghui and Gao, Huazuo and Qu, Hui and Li, Hui and Guo, Jianzhong and Li, Jiashi and Chen, Jingchang and Yuan, Jingyang and Tu, Jinhao and Qiu, Junjie and Li, Junlong and Cai, J. L. and Ni, Jiaqi and Liang, Jian and Chen, Jin and Dong, Kai and Hu, Kai and You, Kaichao and Gao, Kaige and Guan, Kang and Huang, Kexin and Yu, Kuai and Wang, Lean and Zhang, Lecong and Zhao, Liang and Wang, Litong and Zhang, Liyue and Xu, Lei and Xia, Leyi and Zhang, Mingchuan and Zhang, Minghua and Tang, Minghui and Zhou, Mingxu and Li, Meng and Wang, Miaojun and Li, Mingming and Tian, Ning and Huang, Panpan and Zhang, Peng and Wang, Qiancheng and Chen, Qinyu and Du, Qiushi and Ge, Ruiqi and Zhang, Ruisong and Pan, Ruizhe and Wang, Runji and Chen, R. J. and Jin, R. L. and Chen, Ruyi and Lu, Shanghao and Zhou, Shangyan and Chen, Shanhuang and Ye, Shengfeng and Wang, Shiyu and Yu, Shuiping and Zhou, Shunfeng and Pan, Shuting and Li, S. S. and Zhou, Shuang and Wu, Shaoqing and Yun, Tao and Pei, Tian and Sun, Tianyu and Wang, T. and Zeng, Wangding and Liu, Wen and Liang, Wenfeng and Gao, Wenjun and Yu, Wenqin and Zhang, Wentao and Xiao, W. L. and An, Wei and Liu, Xiaodong and Wang, Xiaohan and Chen, Xiaokang and Nie, Xiaotao and Cheng, Xin and Liu, Xin and Xie, Xin and Liu, Xingchao and Yang, Xinyu and Li, Xinyuan and Su, Xuecheng and Lin, Xuheng and Li, X. Q. and Jin, Xiangyue and Shen, Xiaojin and Chen, Xiaosha and Sun, Xiaowen and Wang, Xiaoxiang and Song, Xinnan and Zhou, Xinyi and Wang, Xianzu and Shan, Xinxia and Li, Y. K. and Wang, Y. Q. and Wei, Y. X. and Zhang, Yang and Xu, Yanhong and Li, Yao and Zhao, Yao and Sun, Yaofeng and Wang, Yaohui and Yu, Yi and Zhang, Yichao and Shi, Yifan and Xiong, Yiliang and He, Ying and Piao, Yishi and Wang, Yisong and Tan, Yixuan and Ma, Yiyang and Liu, Yiyuan and Guo, Yongqiang and Ou, Yuan and Wang, Yuduan and Gong, Yue and Zou, Yuheng and He, Yujia and Xiong, Yunfan and Luo, Yuxiang and You, Yuxiang and Liu, Yuxuan and Zhou, Yuyang and Zhu, Y. X. and Huang, Yanping and Li, Yaohui and Zheng, Yi and Zhu, Yuchen and Ma, Yunxian and Tang, Ying and Zha, Yukun and Yan, Yuting and Ren, Z. Z. and Ren, Zehui and Sha, Zhangli and Fu, Zhe and Xu, Zhean and Xie, Zhenda and Zhang, Zhengyan and Hao, Zhewen and Ma, Zhicheng and Yan, Zhigang and Wu, Zhiyu and Gu, Zihui and Zhu, Zijia and Liu, Zijun and Li, Zilin and Xie, Ziwei and Song, Ziyang and Pan, Zizheng and Huang, Zhen and Xu, Zhipeng and Zhang, Zhongyu and Zhang, Zhen},
+   year={2025},
+   month=sep, pages={633–638} }
+
+@misc{kimi2,
+      title={Kimi K2: Open Agentic Intelligence}, 
+      author={Kimi Team and Yifan Bai and Yiping Bao and Y. Charles and Cheng Chen and Guanduo Chen and Haiting Chen and Huarong Chen and Jiahao Chen and Ningxin Chen and Ruijue Chen and Yanru Chen and Yuankun Chen and Yutian Chen and Zhuofu Chen and Jialei Cui and Hao Ding and Mengnan Dong and Angang Du and Chenzhuang Du and Dikang Du and Yulun Du and Yu Fan and Yichen Feng and Kelin Fu and Bofei Gao and Chenxiao Gao and Hongcheng Gao and Peizhong Gao and Tong Gao and Yuyao Ge and Shangyi Geng and Qizheng Gu and Xinran Gu and Longyu Guan and Haiqing Guo and Jianhang Guo and Xiaoru Hao and Tianhong He and Weiran He and Wenyang He and Yunjia He and Chao Hong and Hao Hu and Yangyang Hu and Zhenxing Hu and Weixiao Huang and Zhiqi Huang and Zihao Huang and Tao Jiang and Zhejun Jiang and Xinyi Jin and Yongsheng Kang and Guokun Lai and Cheng Li and Fang Li and Haoyang Li and Ming Li and Wentao Li and Yang Li and Yanhao Li and Yiwei Li and Zhaowei Li and Zheming Li and Hongzhan Lin and Xiaohan Lin and Zongyu Lin and Chengyin Liu and Chenyu Liu and Hongzhang Liu and Jingyuan Liu and Junqi Liu and Liang Liu and Shaowei Liu and T. Y. Liu and Tianwei Liu and Weizhou Liu and Yangyang Liu and Yibo Liu and Yiping Liu and Yue Liu and Zhengying Liu and Enzhe Lu and Haoyu Lu and Lijun Lu and Yashuo Luo and Shengling Ma and Xinyu Ma and Yingwei Ma and Shaoguang Mao and Jie Mei and Xin Men and Yibo Miao and Siyuan Pan and Yebo Peng and Ruoyu Qin and Zeyu Qin and Bowen Qu and Zeyu Shang and Lidong Shi and Shengyuan Shi and Feifan Song and Jianlin Su and Zhengyuan Su and Lin Sui and Xinjie Sun and Flood Sung and Yunpeng Tai and Heyi Tang and Jiawen Tao and Qifeng Teng and Chaoran Tian and Chensi Wang and Dinglu Wang and Feng Wang and Hailong Wang and Haiming Wang and Jianzhou Wang and Jiaxing Wang and Jinhong Wang and Shengjie Wang and Shuyi Wang and Si Wang and Xinyuan Wang and Yao Wang and Yejie Wang and Yiqin Wang and Yuxin Wang and Yuzhi Wang and Zhaoji Wang and Zhengtao Wang and Zhengtao Wang and Zhexu Wang and Chu Wei and Qianqian Wei and Haoning Wu and Wenhao Wu and Xingzhe Wu and Yuxin Wu and Chenjun Xiao and Jin Xie and Xiaotong Xie and Weimin Xiong and Boyu Xu and Jinjing Xu and L. H. Xu and Lin Xu and Suting Xu and Weixin Xu and Xinran Xu and Yangchuan Xu and Ziyao Xu and Jing Xu and Jing Xu and Junjie Yan and Yuzi Yan and Hao Yang and Xiaofei Yang and Yi Yang and Ying Yang and Zhen Yang and Zhilin Yang and Zonghan Yang and Haotian Yao and Xingcheng Yao and Wenjie Ye and Zhuorui Ye and Bohong Yin and Longhui Yu and Enming Yuan and Hongbang Yuan and Mengjie Yuan and Siyu Yuan and Haobing Zhan and Dehao Zhang and Hao Zhang and Wanlu Zhang and Xiaobin Zhang and Yadong Zhang and Yangkun Zhang and Yichi Zhang and Yizhi Zhang and Yongting Zhang and Yu Zhang and Yutao Zhang and Yutong Zhang and Zheng Zhang and Haotian Zhao and Yikai Zhao and Zijia Zhao and Huabin Zheng and Shaojie Zheng and Longguang Zhong and Jianren Zhou and Xinyu Zhou and Zaida Zhou and Jinguo Zhu and Zhen Zhu and Weiyu Zhuang and Xinxing Zu},
+      year={2026},
+      eprint={2507.20534},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2507.20534}, 
+}
+
+@misc{gemini25,
+      title={Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multimodality, Long Context, and Next Generation Agentic Capabilities}, 
+      author={Gheorghe Comanici and others},
+      year={2025},
+      eprint={2507.06261},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2507.06261}, 
+}
+
+@misc{qwen3,
+      title={Qwen3 Technical Report}, 
+      author={An Yang and Anfeng Li and Baosong Yang and Beichen Zhang and Binyuan Hui and Bo Zheng and Bowen Yu and Chang Gao and Chengen Huang and Chenxu Lv and Chujie Zheng and Dayiheng Liu and Fan Zhou and Fei Huang and Feng Hu and Hao Ge and Haoran Wei and Huan Lin and Jialong Tang and Jian Yang and Jianhong Tu and Jianwei Zhang and Jianxin Yang and Jiaxi Yang and Jing Zhou and Jingren Zhou and Junyang Lin and Kai Dang and Keqin Bao and Kexin Yang and Le Yu and Lianghao Deng and Mei Li and Mingfeng Xue and Mingze Li and Pei Zhang and Peng Wang and Qin Zhu and Rui Men and Ruize Gao and Shixuan Liu and Shuang Luo and Tianhao Li and Tianyi Tang and Wenbiao Yin and Xingzhang Ren and Xinyu Wang and Xinyu Zhang and Xuancheng Ren and Yang Fan and Yang Su and Yichang Zhang and Yinger Zhang and Yu Wan and Yuqiong Liu and Zekun Wang and Zeyu Cui and Zhenru Zhang and Zhipeng Zhou and Zihan Qiu},
+      year={2025},
+      eprint={2505.09388},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.09388}, 
+}
+
+@misc{kimiteam2025kimilinearexpressiveefficient,
+      title={Kimi Linear: An Expressive, Efficient Attention Architecture}, 
+      author={Kimi Team and Yu Zhang and Zongyu Lin and Xingcheng Yao and Jiaxi Hu and Fanqing Meng and Chengyin Liu and Xin Men and Songlin Yang and Zhiyuan Li and Wentao Li and Enzhe Lu and Weizhou Liu and Yanru Chen and Weixin Xu and Longhui Yu and Yejie Wang and Yu Fan and Longguang Zhong and Enming Yuan and Dehao Zhang and Yizhi Zhang and T. Y. Liu and Haiming Wang and Shengjun Fang and Weiran He and Shaowei Liu and Yiwei Li and Jianlin Su and Jiezhong Qiu and Bo Pang and Junjie Yan and Zhejun Jiang and Weixiao Huang and Bohong Yin and Jiacheng You and Chu Wei and Zhengtao Wang and Chao Hong and Yutian Chen and Guanduo Chen and Yucheng Wang and Huabin Zheng and Feng Wang and Yibo Liu and Mengnan Dong and Zheng Zhang and Siyuan Pan and Wenhao Wu and Yuhao Wu and Longyu Guan and Jiawen Tao and Guohong Fu and Xinran Xu and Yuzhi Wang and Guokun Lai and Yuxin Wu and Xinyu Zhou and Zhilin Yang and Yulun Du},
+      year={2025},
+      eprint={2510.26692},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2510.26692}, 
+}
+% ================================== %
+@misc{olsson2022incontextlearninginductionheads,
+      title={In-context Learning and Induction Heads}, 
+      author={Catherine Olsson and Nelson Elhage and Neel Nanda and Nicholas Joseph and Nova DasSarma and Tom Henighan and Ben Mann and Amanda Askell and Yuntao Bai and Anna Chen and Tom Conerly and Dawn Drain and Deep Ganguli and Zac Hatfield-Dodds and Danny Hernandez and Scott Johnston and Andy Jones and Jackson Kernion and Liane Lovitt and Kamal Ndousse and Dario Amodei and Tom Brown and Jack Clark and Jared Kaplan and Sam McCandlish and Chris Olah},
+      year={2022},
+      eprint={2209.11895},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2209.11895}, 
+}
+
+@inproceedings{
+Quest,
+author = {Tang, Jiaming and Zhao, Yilong and Zhu, Kan and Xiao, Guangxuan and Kasikci, Baris and Han, Song},
+title = {QUEST: query-aware sparsity for efficient long-context LLM inference},
+year = {2024},
+publisher = {JMLR.org},
+booktitle = {Proceedings of the 41st International Conference on Machine Learning},
+articleno = {1955},
+numpages = {11},
+location = {Vienna, Austria},
+series = {ICML'24}
+}
+
+
+@inproceedings{
+MoBA,
+title={Mo{BA}: Mixture of Block Attention for Long-Context {LLM}s},
+author={Enzhe Lu and Zhejun Jiang and Jingyuan Liu and Yulun Du and Tao Jiang and Chao Hong and Shaowei Liu and Weiran He and Enming Yuan and Yuzhi Wang and Zhiqi Huang and Huan Yuan and Suting Xu and Xinran Xu and Guokun Lai and Yanru Chen and Huabin Zheng and Junjie Yan and Jianlin Su and Yuxin Wu and Yutao Zhang and Zhilin Yang and Xinyu Zhou and Mingxing Zhang and Jiezhong Qiu},
+booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+year={2026},
+url={https://openreview.net/forum?id=RlqYCpTu1P}
+}
+
+@inproceedings{
+minference,
+title={{MI}nference 1.0: Accelerating Pre-filling for Long-Context {LLM}s via Dynamic Sparse Attention},
+author={Huiqiang Jiang and YUCHENG LI and Chengruidong Zhang and Qianhui Wu and Xufang Luo and Surin Ahn and Zhenhua Han and Amir H. Abdi and Dongsheng Li and Chin-Yew Lin and Yuqing Yang and Lili Qiu},
+booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+year={2024},
+url={https://openreview.net/forum?id=fPBACAbqSN}
+}
+
+@inproceedings{blasst,
+  title = {BLASST: Dynamic BLocked Attention Sparsity via Softmax Thresholding},
+  author = {Yuan, Jiayi and Shinn, Cameron and Xu, Kai and Cui, Jingze and Klimiashvili, George and Xiao, Guangxuan and Zheng, Perkz and Li, Bo and Zhou, Yuxin and Ye, Zhouhai and You, Weijie and Zheng, Tian and Brown, Dominic and Wang, Pengbo and Hoehnerbach, Markus and Cai, Richard and Demouth, Julien and Owens, John D. and Hu, Xia and Han, Song and Liu, Timmy and Mao, Huizi},
+  booktitle = {Proceedings of the 8th Conference on Machine Learning and Systems},
+  series = {MLSys '26},
+  year = {2026},
+  note = {Also available as arXiv:2512.12087},
+  url = {https://arxiv.org/abs/2512.12087}
+}
+
+@inproceedings{
+snapkv,
+title={Snap{KV}: {LLM} Knows What You are Looking for Before Generation},
+author={Yuhong Li and Yingbing Huang and Bowen Yang and Bharat Venkitesh and Acyr Locatelli and Hanchen Ye and Tianle Cai and Patrick Lewis and Deming Chen},
+booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+year={2024},
+url={https://openreview.net/forum?id=poE54GOq2l}
+}
+
+
+@inproceedings{
+fasa,
+title={{FASA}: {FREQUENCY}-{AWARE} {SPARSE} {ATTENTION}},
+author={Yifei Wang and Yueqi Wang and Zhenrui Yue and Huimin Zeng and Yong Wang and Ismini Lourentzou and Zhengzhong Tu and Xiangxiang Chu and Julian McAuley},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=FnSgecCEwg}
+}
+
+@misc{prism,
+      title={Prism: Spectral-Aware Block-Sparse Attention}, 
+      author={Xinghao Wang and Pengyu Wang and Xiaoran Liu and Fangxu Liu and Jason Chu and Kai Song and Xipeng Qiu},
+      year={2026},
+      eprint={2602.08426},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2602.08426}, 
+}
+
+@inproceedings{
+flexprefill,
+title={FlexPrefill: A Context-Aware Sparse Attention Mechanism for Efficient Long-Sequence Inference},
+author={Xunhao Lai and Jianqiao Lu and Yao Luo and Yiyuan Ma and Xun Zhou},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=OfjIlbelrT}
+}
+
+@inproceedings{
+spargeattn,
+title={SpargeAttention: Accurate and Training-free Sparse Attention Accelerating Any Model Inference},
+author={Jintao Zhang and Chendong Xiang and Haofeng Huang and Jia wei and Haocheng Xi and Jun Zhu and Jianfei Chen},
+booktitle={Forty-second International Conference on Machine Learning},
+year={2025},
+url={https://openreview.net/forum?id=74c3Wwk8Tc}
+}
+
+@misc{dsa,
+      title={DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models}, 
+      author={DeepSeek-AI and Aixin Liu and Aoxue Mei and Bangcai Lin and Bing Xue and Bingxuan Wang and Bingzheng Xu and Bochao Wu and Bowei Zhang and Chaofan Lin and Chen Dong and Chengda Lu and Chenggang Zhao and Chengqi Deng and Chenhao Xu and Chong Ruan and Damai Dai and Daya Guo and Dejian Yang and Deli Chen and Erhang Li and Fangqi Zhou and Fangyun Lin and Fucong Dai and Guangbo Hao and Guanting Chen and Guowei Li and H. Zhang and Hanwei Xu and Hao Li and Haofen Liang and Haoran Wei and Haowei Zhang and Haowen Luo and Haozhe Ji and Honghui Ding and Hongxuan Tang and Huanqi Cao and Huazuo Gao and Hui Qu and Hui Zeng and Jialiang Huang and Jiashi Li and Jiaxin Xu and Jiewen Hu and Jingchang Chen and Jingting Xiang and Jingyang Yuan and Jingyuan Cheng and Jinhua Zhu and Jun Ran and Junguang Jiang and Junjie Qiu and Junlong Li and Junxiao Song and Kai Dong and Kaige Gao and Kang Guan and Kexin Huang and Kexing Zhou and Kezhao Huang and Kuai Yu and Lean Wang and Lecong Zhang and Lei Wang and Liang Zhao and Liangsheng Yin and Lihua Guo and Lingxiao Luo and Linwang Ma and Litong Wang and Liyue Zhang and M. S. Di and M. Y Xu and Mingchuan Zhang and Minghua Zhang and Minghui Tang and Mingxu Zhou and Panpan Huang and Peixin Cong and Peiyi Wang and Qiancheng Wang and Qihao Zhu and Qingyang Li and Qinyu Chen and Qiushi Du and Ruiling Xu and Ruiqi Ge and Ruisong Zhang and Ruizhe Pan and Runji Wang and Runqiu Yin and Runxin Xu and Ruomeng Shen and Ruoyu Zhang and S. H. Liu and Shanghao Lu and Shangyan Zhou and Shanhuang Chen and Shaofei Cai and Shaoyuan Chen and Shengding Hu and Shengyu Liu and Shiqiang Hu and Shirong Ma and Shiyu Wang and Shuiping Yu and Shunfeng Zhou and Shuting Pan and Songyang Zhou and Tao Ni and Tao Yun and Tian Pei and Tian Ye and Tianyuan Yue and Wangding Zeng and Wen Liu and Wenfeng Liang and Wenjie Pang and Wenjing Luo and Wenjun Gao and Wentao Zhang and Xi Gao and Xiangwen Wang and Xiao Bi and Xiaodong Liu and Xiaohan Wang and Xiaokang Chen and Xiaokang Zhang and Xiaotao Nie and Xin Cheng and Xin Liu and Xin Xie and Xingchao Liu and Xingkai Yu and Xingyou Li and Xinyu Yang and Xinyuan Li and Xu Chen and Xuecheng Su and Xuehai Pan and Xuheng Lin and Xuwei Fu and Y. Q. Wang and Yang Zhang and Yanhong Xu and Yanru Ma and Yao Li and Yao Li and Yao Zhao and Yaofeng Sun and Yaohui Wang and Yi Qian and Yi Yu and Yichao Zhang and Yifan Ding and Yifan Shi and Yiliang Xiong and Ying He and Ying Zhou and Yinmin Zhong and Yishi Piao and Yisong Wang and Yixiao Chen and Yixuan Tan and Yixuan Wei and Yiyang Ma and Yiyuan Liu and Yonglun Yang and Yongqiang Guo and Yongtong Wu and Yu Wu and Yuan Cheng and Yuan Ou and Yuanfan Xu and Yuduan Wang and Yue Gong and Yuhan Wu and Yuheng Zou and Yukun Li and Yunfan Xiong and Yuxiang Luo and Yuxiang You and Yuxuan Liu and Yuyang Zhou and Z. F. Wu and Z. Z. Ren and Zehua Zhao and Zehui Ren and Zhangli Sha and Zhe Fu and Zhean Xu and Zhenda Xie and Zhengyan Zhang and Zhewen Hao and Zhibin Gou and Zhicheng Ma and Zhigang Yan and Zhihong Shao and Zhixian Huang and Zhiyu Wu and Zhuoshu Li and Zhuping Zhang and Zian Xu and Zihao Wang and Zihui Gu and Zijia Zhu and Zilin Li and Zipeng Zhang and Ziwei Xie and Ziyi Gao and Zizheng Pan and Zongqing Yao and Bei Feng and Hui Li and J. L. Cai and Jiaqi Ni and Lei Xu and Meng Li and Ning Tian and R. J. Chen and R. L. Jin and S. S. Li and Shuang Zhou and Tianyu Sun and X. Q. Li and Xiangyue Jin and Xiaojin Shen and Xiaosha Chen and Xinnan Song and Xinyi Zhou and Y. X. Zhu and Yanping Huang and Yaohui Li and Yi Zheng and Yuchen Zhu and Yunxian Ma and Zhen Huang and Zhipeng Xu and Zhongyu Zhang and Dongjie Ji and Jian Liang and Jianzhong Guo and Jin Chen and Leyi Xia and Miaojun Wang and Mingming Li and Peng Zhang and Ruyi Chen and Shangmian Sun and Shaoqing Wu and Shengfeng Ye and T. Wang and W. L. Xiao and Wei An and Xianzu Wang and Xiaowen Sun and Xiaoxiang Wang and Ying Tang and Yukun Zha and Zekai Zhang and Zhe Ju and Zhen Zhang and Zihua Qu},
+      year={2025},
+      eprint={2512.02556},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2512.02556}, 
+}
+
+@inproceedings{
+duoattn,
+title={DuoAttention: Efficient Long-Context {LLM} Inference with Retrieval and Streaming Heads},
+author={Guangxuan Xiao and Jiaming Tang and Jingwei Zuo and junxian guo and Shang Yang and Haotian Tang and Yao Fu and Song Han},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=cFu7ze7xUm}
+}
+
+@inproceedings{
+razorattn,
+title={RazorAttention: Efficient {KV} Cache Compression Through Retrieval Heads},
+author={Hanlin Tang and Yang Lin and Jing Lin and Qingsen Han and Danning Ke and Shikuan Hong and Yiwu Yao and Gongyi Wang},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=tkiZQlL04w}
+}
+
+@inproceedings{
+streamingLLM,
+title={Efficient Streaming Language Models with Attention Sinks},
+author={Guangxuan Xiao and Yuandong Tian and Beidi Chen and Song Han and Mike Lewis},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=NG7sS51zVF}
+}
+
+@inproceedings{NSA,
+    title = "Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention",
+    author = "Yuan, Jingyang  and
+      Gao, Huazuo  and
+      Dai, Damai  and
+      Luo, Junyu  and
+      Zhao, Liang  and
+      Zhang, Zhengyan  and
+      Xie, Zhenda  and
+      Wei, Yuxing  and
+      Wang, Lean  and
+      Xiao, Zhiping  and
+      Wang, Yuqing  and
+      Ruan, Chong  and
+      Zhang, Ming  and
+      Liang, Wenfeng  and
+      Zeng, Wangding",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.1126/",
+    doi = "10.18653/v1/2025.acl-long.1126",
+    pages = "23078--23097",
+    ISBN = "979-8-89176-251-0",
+}
+
+@inproceedings{
+zucchet2026the,
+title={The emergence of sparse attention: impact of data distribution and benefits of repetition},
+author={Nicolas Zucchet and Francesco D'Angelo and Andrew Kyle Lampinen and Stephanie C.Y. Chan},
+booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+year={2026},
+url={https://openreview.net/forum?id=jMhRbV47pS}
+}
+
+@inproceedings{
+streamLLM,
+title={Efficient Streaming Language Models with Attention Sinks},
+author={Guangxuan Xiao and Yuandong Tian and Beidi Chen and Song Han and Mike Lewis},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=NG7sS51zVF}
+}
+
+@misc{sale,
+      title={SALE : Low-bit Estimation for Efficient Sparse Attention in Long-context LLM Prefilling}, 
+      author={Xiaodong Ji and Hailin Zhang and Fangcheng Fu and Bin Cui},
+      year={2025},
+      eprint={2505.24179},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2505.24179}, 
+}
+
+@inproceedings{
+twilight,
+title={Twilight: Adaptive Attention Sparsity with Hierarchical Top-\$p\$  Pruning},
+author={Chaofan Lin and Jiaming Tang and Shuo Yang and Hanshuo Wang and Tian Tang and Boyu Tian and Ion Stoica and Song Han and Mingyu Gao},
+booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+year={2026},
+url={https://openreview.net/forum?id=Ve693NkzcU}
+}
+
+@article{rope,
+author = {Su, Jianlin and Ahmed, Murtadha and Lu, Yu and Pan, Shengfeng and Bo, Wen and Liu, Yunfeng},
+title = {RoFormer: Enhanced transformer with Rotary Position Embedding},
+year = {2024},
+issue_date = {Feb 2024},
+publisher = {Elsevier Science Publishers B. V.},
+address = {NLD},
+volume = {568},
+number = {C},
+issn = {0925-2312},
+url = {https://doi.org/10.1016/j.neucom.2023.127063},
+doi = {10.1016/j.neucom.2023.127063},
+journal = {Neurocomput.},
+month = feb,
+numpages = {12},
+keywords = {Pre-trained language models, Position information encoding, Pre-training, Natural language processing}
+}
+
+@inproceedings{
+jin2025massive,
+title={Massive Values in Self-Attention Modules are the Key to Contextual Knowledge Understanding},
+author={Mingyu Jin and Kai Mei and Wujiang Xu and Mingjie Sun and Ruixiang Tang and Mengnan Du and Zirui Liu and Yongfeng Zhang},
+booktitle={Forty-second International Conference on Machine Learning},
+year={2025},
+url={https://openreview.net/forum?id=1SMcxxQiSL}
+}
+
+@misc{xiong2026dopedenoisingrotaryposition,
+      title={DoPE: Denoising Rotary Position Embedding}, 
+      author={Jing Xiong and Liyang Fan and Hui Shen and Zunhai Su and Min Yang and Lingpeng Kong and Ngai Wong},
+      year={2026},
+      eprint={2511.09146},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2511.09146}, 
+}
+
+@inproceedings{
+fineweb,
+title={The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale},
+author={Guilherme Penedo and Hynek Kydl{\'\i}{\v{c}}ek and Loubna Ben allal and Anton Lozhkov and Margaret Mitchell and Colin Raffel and Leandro Von Werra and Thomas Wolf},
+booktitle={The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+year={2024},
+url={https://openreview.net/forum?id=n6SCkn2QaG}
+}
+
+@misc{olmo2026olmo3,
+      title={Olmo 3}, 
+      author={Team Olmo and : and Allyson Ettinger and Amanda Bertsch and Bailey Kuehl and David Graham and David Heineman and Dirk Groeneveld and Faeze Brahman and Finbarr Timbers and Hamish Ivison and Jacob Morrison and Jake Poznanski and Kyle Lo and Luca Soldaini and Matt Jordan and Mayee Chen and Michael Noukhovitch and Nathan Lambert and Pete Walsh and Pradeep Dasigi and Robert Berry and Saumya Malik and Saurabh Shah and Scott Geng and Shane Arora and Shashank Gupta and Taira Anderson and Teng Xiao and Tyler Murray and Tyler Romero and Victoria Graf and Akari Asai and Akshita Bhagia and Alexander Wettig and Alisa Liu and Aman Rangapur and Chloe Anastasiades and Costa Huang and Dustin Schwenk and Harsh Trivedi and Ian Magnusson and Jaron Lochner and Jiacheng Liu and Lester James V. Miranda and Maarten Sap and Malia Morgan and Michael Schmitz and Michal Guerquin and Michael Wilson and Regan Huff and Ronan Le Bras and Rui Xin and Rulin Shao and Sam Skjonsberg and Shannon Zejiang Shen and Shuyue Stella Li and Tucker Wilde and Valentina Pyatkin and Will Merrill and Yapei Chang and Yuling Gu and Zhiyuan Zeng and Ashish Sabharwal and Luke Zettlemoyer and Pang Wei Koh and Ali Farhadi and Noah A. Smith and Hannaneh Hajishirzi},
+      year={2026},
+      eprint={2512.13961},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2512.13961}, 
+}
+
+@misc{eval-harness,
+  author       = {Gao, Leo and Tow, Jonathan and Abbasi, Baber and Biderman, Stella and Black, Sid and DiPofi, Anthony and Foster, Charles and Golding, Laurence and Hsu, Jeffrey and Le Noac'h, Alain and Li, Haonan and McDonell, Kyle and Muennighoff, Niklas and Ociepa, Chris and Phang, Jason and Reynolds, Laria and Schoelkopf, Hailey and Skowron, Aviya and Sutawika, Lintang and Tang, Eric and Thite, Anish and Wang, Ben and Wang, Kevin and Zou, Andy},
+  title        = {The Language Model Evaluation Harness},
+  month        = 07,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {v0.4.3},
+  doi          = {10.5281/zenodo.12608602},
+  url          = {https://zenodo.org/records/12608602}
+}
+
+@inproceedings{
+hsieh2024ruler,
+title={{RULER}: What{\textquoteright}s the Real Context Size of Your Long-Context Language Models?},
+author={Cheng-Ping Hsieh and Simeng Sun and Samuel Kriman and Shantanu Acharya and Dima Rekesh and Fei Jia and Boris Ginsburg},
+booktitle={First Conference on Language Modeling},
+year={2024},
+url={https://openreview.net/forum?id=kIoBbc76Sy}
+}
+
+@inproceedings{bai-etal-2024-longbench,
+    title = "{L}ong{B}ench: A Bilingual, Multitask Benchmark for Long Context Understanding",
+    author = "Bai, Yushi  and
+      Lv, Xin  and
+      Zhang, Jiajie  and
+      Lyu, Hongchang  and
+      Tang, Jiankai  and
+      Huang, Zhidian  and
+      Du, Zhengxiao  and
+      Liu, Xiao  and
+      Zeng, Aohan  and
+      Hou, Lei  and
+      Dong, Yuxiao  and
+      Tang, Jie  and
+      Li, Juanzi",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.172/",
+    doi = "10.18653/v1/2024.acl-long.172",
+    pages = "3119--3137",
+}
+
+@misc{AIME24,
+  author = {Maxwell-Jia},
+  title = {AIME 2024 Dataset},
+  year = {2024},
+  publisher = {Hugging Face},
+  url = {https://huggingface.co/datasets/Maxwell-Jia/AIME_2024}
+}
+
+@misc{AIME25,
+  title = {MathArena: Evaluating LLMs on Uncontaminated Math Competitions},
+  author = {Mislav Balunović and Jasper Dekoninck and Ivo Petrov and Nikola Jovanović and Martin Vechev},
+  year = {2025},
+  month = feb,
+  publisher = {SRI Lab, ETH Zurich},
+  url = {https://matharena.ai/},
+}
+
+@inproceedings{mmlupro,
+author = {Wang, Yubo and Ma, Xueguang and Zhang, Ge and Ni, Yuansheng and Chandra, Abhranil and Guo, Shiguang and Ren, Weiming and Arulraj, Aaran and He, Xuan and Jiang, Ziyan and Li, Tianle and Ku, Max and Wang, Kai and Zhuang, Alex and Fan, Rongqi and Yue, Xiang and Chen, Wenhu},
+title = {MMLU-Pro: a more robust and challenging multi-task language understanding benchmark},
+year = {2024},
+isbn = {9798331314385},
+publisher = {Curran Associates Inc.},
+address = {Red Hook, NY, USA},
+booktitle = {Proceedings of the 38th International Conference on Neural Information Processing Systems},
+articleno = {3018},
+numpages = {25},
+location = {Vancouver, BC, Canada},
+series = {NIPS '24}
+}
+
+@misc{flashinfer,
+      title={FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serving}, 
+      author={Zihao Ye and Lequn Chen and Ruihang Lai and Wuwei Lin and Yineng Zhang and Stephanie Wang and Tianqi Chen and Baris Kasikci and Vinod Grover and Arvind Krishnamurthy and Luis Ceze},
+      year={2025},
+      eprint={2501.01005},
+      archivePrefix={arXiv},
+      primaryClass={cs.DC},
+      url={https://arxiv.org/abs/2501.01005}, 
+}
+
+@misc{ghandeharioun2024patchscopes,
+  title={Patchscopes: A Unifying Framework for Inspecting Hidden Representations of Language Models},
+  author={Asma Ghandeharioun and Avi Caciularu and Adam Pearce and Lucas Dixon and Mor Geva},
+  year={2024},
+  eprint={2401.06102},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2401.06102}
+}
+
+@inproceedings{
+dao2024flashattention,
+title={FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning},
+author={Tri Dao},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=mZn2Xyh9Ec}
+}

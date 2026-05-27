@@ -1,0 +1,77 @@
+
+
+% \newcommand{\tcolorboxPromptUserAgentStageOneTitleText}{\fontsize{10}{12}\selectfont}
+% \newcommand{\tcolorboxPromptUserAgentStageOneCommonText}{\fontsize{7.5}{9}\selectfont}
+% \newcommand{\tcolorboxPromptUserAgentStageOneTitleBeforeVspace}{\vspace{10 pt}}
+% \newcommand{\tcolorboxPromptUserAgentStageOneCommonTextLineSkip}{\setlength{\baselineskip}{5 pt}}
+
+\newcommand{\tcolorboxPromptUserAgentStageOneTitleText}{}
+\newcommand{\tcolorboxPromptUserAgentStageOneCommonText}{}
+\newcommand{\tcolorboxPromptUserAgentStageOneTitleBeforeVspace}{}
+\newcommand{\tcolorboxPromptUserAgentStageOneCommonTextLineSkip}{}
+
+\tcolorboxPrompt{Prompt -- Completion Checking
+}{
+% \tcolorboxPromptUserAgentStageOneCommonTextLineSkip
+% \tcolorboxPromptUserAgentStageOneCommonText
+\ttfamily
+\#\# Assistant Response
+
+<assistant\_message>
+
+\{assistant\_message\}
+
+</assistant\_message> \\
+
+\#\# Files Read Context
+
+Use these file contents as additional context for judging intent satisfaction.
+
+\{files\_context\_xml\} \\
+
+\#\# Hidden Intent Status Snapshot
+
+Judge only the hidden intents listed here.
+
+\{status\_hidden\_intents\_xml\} \\
+
+\#\# Objective
+
+Decide whether the assistant response, together with the files-read context above, already reflects each listed hidden intent. \\
+
+\#\# Evaluation Policy
+
+1. Judge from the assistant response and the files-read context above.
+
+2. Be strict and objective. The assistant must precisely and explicitly hit the hidden intent.
+
+3. A hidden intent is satisfied only if the assistant provides specific, detailed explanations or concrete actions in the response. Vague or generic answers do not count.
+
+4. Fully trust the assistant's wording and the files-read context, but strictly evaluate the level of detail provided.
+
+5. Do not call tools or check factual accuracy beyond the provided context.
+
+6. YES means the response and context precisely address the hidden intent with specific details.
+
+7. NO means the response and context do not precisely hit the intent, or lack specific details. \\
+
+\#\# Output Format
+
+Output only XML blocks in the following shape.
+
+<c1>
+
+<content>
+
+\{hidden\_intent\_content\}
+
+</content>
+
+<decision>
+
+YES or NO
+
+</decision>
+
+</c1>
+}

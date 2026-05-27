@@ -1,0 +1,25 @@
+
+\section{Related Work}
+
+
+
+\begin{wrapfigure}[14]{r}{0.60\textwidth}
+\vspace{-10pt}
+\centering
+\includegraphics[width=\linewidth, trim=0 0 0 0, clip]{Fig/fig3_pareto_det_vs_falsealarm.pdf}
+\caption{
+\textcolor{tradeofffg}{\textbf{Intervention-control tradeoff}}.
+Top-left indicates strong intervention detection with few false alarms on original controls.
+}
+\label{fig:falsealarm}
+\vspace{-0.5cm}
+\end{wrapfigure}
+
+\paragraph{Native Omni Models and Cross-Modal Shortcuts}
+Recent frontier multimodal models are shifting from frame-centric video-language pipelines toward native multimodal or omni-modal processing, where video, audio, images, and text are handled through a unified interface or architecture~\cite{hurst2024gpt,qwenteam2026qwen35omnitechnicalreport,li2025baichuan}. Although such integration suggests stronger audio-visual grounding~\cite{wu2024nextgpt,zhan2024anygpt,Girdhar2023ImageBindOE}, it does not ensure that models verify the audio stream. The shortcut behavior we observe reflects a long-standing assumption in audio-visual representation learning: natural videos provide supervision because visual and acoustic events often co-occur in synchronized and semantically aligned ways~\cite{Korbar2018CooperativeLO,Morgado2020AudioVisualID,Chen2020VggsoundAL,Senocak2018LearningTL,Alwassel2019SelfSupervisedLB}. While effective for learning shared representations, these co-occurrence signals can conflate genuine grounding with statistical association~\cite{Morgado2021RobustAI,Yuksekgonul2022WhenAW,Thrush2022WinogroundPV}. Models may therefore rely on visual-semantic shortcuts~\cite{agrawal-etal-2016-analyzing,rohrbach-etal-2018-object}: barking dogs imply barks, falling objects imply impacts, and speaking faces imply speech. Without negative cases that break these correlations~\cite{Singh2023LookingSS}, models can appear grounded without checking whether sound is present, synchronized, or physically consistent, producing a \textit{Clever Hans} effect~\cite{Lapuschkin2019UnmaskingCH} in modern audio-visual models~\cite{Buch2022RevisitingT,Wang2024VideoHallucerEI}. We address this gap using controlled audio interventions that test cross-modal verification under broken audio-visual correlations.
+
+
+
+
+\paragraph{Preference Alignment for Video-Capable Multimodal Models}
+Video-capable multimodal models have evolved along two related directions: video-language instruction tuning, which connects visual encoders with LLMs for video understanding~\cite{DBLP:conf/emnlp/LinYZCNJ024,DBLP:conf/nips/Dai0LTZW0FH23}, and native omni-modal modeling, which integrates video, audio, images, and text within unified interfaces or architectures~\cite{hurst2024gpt,qwenteam2026qwen35omnitechnicalreport,li2025baichuan}. Preference-based methods such as Direct Preference Optimization~\cite{rafailov2023direct} have also been adapted to video-language modeling, often using detailed captions or language-model feedback as proxies for video-grounded rewards~\cite{zhang-etal-2025-direct}. However, existing alignment data mainly targets helpfulness~\cite{DBLP:conf/nips/Ouyang0JAWMZASR22,Bai2022TrainingAH}, visual question answering~\cite{NEURIPS2023_6dcf277e}, instruction following~\cite{wei2022finetuned}, and safety~\cite{Zong2024SafetyFA,Zhu2025OmniGuardUO}, with limited attention to how models use, ignore, or misattribute the audio stream. Recent work has also observed visual dominance and video-driven audio hallucination in audio-visual LLMs~\cite{selvakumar2026audio,baid2026don}. Our work instead decomposes audio-visual grounding into temporal synchronization, audio existence, and cross-modal material consistency, and studies how intervention data and preference optimization affect each dimension.

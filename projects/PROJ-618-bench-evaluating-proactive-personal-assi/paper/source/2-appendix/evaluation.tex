@@ -1,0 +1,60 @@
+
+\section{Detailed Evaluation Protocol}
+\label{app:detailed_evaluation}
+
+\subsection{Overview}
+\label{app:eval_overview}
+
+We evaluate each completed trajectory along two axes, proactivity and completeness. Proactivity measures whether the agent resolves hidden intents through direct action or targeted elicitation, following the definition in Sec.~\ref{sec:evaluation}. Completeness measures whether the task requirements are actually satisfied by the trajectory and produced artifacts. This separation is important because a conversation may appear natural while still failing to complete the task, and a task may eventually be completed only after the user reveals requirements that the agent did not proactively identify.
+
+For each session, evaluation is performed over the full interaction trajectory. The trajectory includes user and agent messages, tool calls, tool results, and workspace changes when applicable. Proactivity is computed from the terminal status assignment over hidden intents. Completeness is computed from a checklist of verifiable criteria, using either LLM based rubric evaluation or rule based tool evaluation. These scores are then reported at the task level and averaged across repeated runs.
+
+\subsection{Proactivity Evaluation}
+\label{app:eval_proactivity}
+
+Proactivity follows the intent tracking procedure described in Sec.~\ref{sec:interaction_tracking} and App.~\ref{app:user_agent}. Each hidden intent is assigned one terminal status from $\{\completed,\inferred,\provided\}$ during the interaction. We use the resulting partition of hidden intents to compute $\textsc{Proc}$ as defined in Sec.~\ref{sec:evaluation}. When tasks form a dependency group, the relevant hidden intents from the dependent workflow are taken into account together. We do not introduce additional post hoc judgments for proactivity in this appendix, since the score is fully determined by the user agent protocol and the terminal status assignment.
+
+\subsection{Checklist Based Completeness Evaluation}
+\label{app:eval_completeness}
+
+Completeness is evaluated with task-specific checklists. Each checklist item describes a concrete criterion that should be satisfied by the trajectory or final artifacts. These criteria cover required files, generated outputs, filled fields, tool outcomes, formatting constraints, and other task obligations. Unlike hidden intents, which measure whether the agent proactively resolves unstated requirements, checklist items measure whether the task is ultimately completed.
+
+We evaluate checklist items with two complementary methods:
+\begin{itemize}[leftmargin=10pt, topsep=0pt, itemsep=1pt, partopsep=1pt, parsep=1pt]
+    \item \textbf{Rubric-based evaluation}. Open-ended textual criteria are evaluated by an LLM rubric evaluator. The evaluator receives a rendered trace containing the interaction history and relevant task context, then assigns each criterion a strict \texttt{YES} or \texttt{NO} judgment. We map \texttt{YES} to $1$ and \texttt{NO} to $0$.
+
+    \item \textbf{Rule-based verification}. Structured criteria that require exact verification are evaluated by task-specific Python scripts. These scripts inspect the tool history and return binary scores for the corresponding checklist items. This is useful for cases where completion depends on exact tool outcomes, such as whether an order contains the correct product and quantity.
+\end{itemize}
+
+A task may combine both methods. LLM rubric evaluation handles criteria that require semantic judgment, while rule-based evaluation handles criteria that can be checked from structured tool evidence. The resulting binary judgments are merged into a single checklist before task-level aggregation, and the final completeness score is computed as the average over checklist items.
+
+\subsection{Tool Records}
+\label{app:eval_tool_records}
+
+Some checklist criteria require evidence from tool calls and tool results. We therefore keep structured tool records as part of the trajectory. Each record contains the tool name, the call payload, and the returned result. The following example shows a simplified order inspection record from an Amazon task. The example is used only to illustrate the structure of tool evidence used by the evaluator.
+
+\input{0.3-prompt/example_tool_call}
+
+\subsection{LLM Rubric Evaluation}
+\label{app:eval_rubric_tool_context}
+
+Text checklist criteria are evaluated by an LLM rubric evaluator. The evaluator receives a rendered trace containing the interaction history and selected task-relevant context.
+For each task, completeness is aggregated over the interaction, so a criterion is credited if the trajectory provides sufficient evidence that it has been satisfied during the session.
+When tool evidence is needed, we include only the tool calls or tool results that are relevant to the criterion being evaluated. These fields are selected during task construction by domain experts.
+
+This selective context makes rubric evaluation more reliable and easier to audit. Full tool histories can be long, repetitive, and unrelated to a specific checklist item. Providing only relevant tool evidence keeps the evaluation prompt compact while preserving the information needed to decide whether the criterion is satisfied. The selected tool fields are appended to the rendered trace as structured context. The LLM rubric evaluator then judges each text checklist item from this trace and returns a strict \texttt{YES} or \texttt{NO} answer.
+
+\input{0.3-prompt/evaluation_prompt}
+
+\subsection{Rule Based Tool Scoring}
+\label{app:eval_rule_based}
+
+Rule-based tool scoring is used when a checklist item requires exact verification over structured tool calls or tool results. This is useful for criteria where natural language evidence is not sufficient, such as whether the agent actually placed an order, submitted a form with the correct fields, or retrieved the expected record from an external system. For such criteria, we use task-specific Python scripts that inspect the tool history and return binary scores for the corresponding checklist items.
+
+This procedure is separate from the selected tool context used in LLM rubric evaluation. The rubric evaluator sees a rendered trace with only the task-relevant context selected for semantic judgment. In contrast, rule-based scoring inspects the full tool history for the turn. This separation allows the evaluation to combine flexible semantic judgment with exact checks over structured evidence.
+
+For example, in a shopping task, the agent may claim that it placed the correct order, but completeness should be determined from the actual order record rather than from the natural language response alone. A rule-based scorer can first recover the order identifier from a successful order placement call and then verify the product and quantity through a later order inspection call.
+
+\input{0.3-prompt/example_rule_based_evaluator}
+
+This example illustrates how rule-based evaluation complements LLM rubric evaluation. The LLM evaluator can assess open-ended textual criteria from the rendered trace, while the script verifies structured facts from the tool history. Both outputs are converted into binary checklist values and aggregated under the same completeness evaluation procedure.

@@ -1,0 +1,187 @@
+\providecommand{\ourmethod}{\textsc{SkillOpt}}
+\providecommand{\na}{--}
+\providecommand{\harnessrow}[1]{\rowcolor{black!7}\multicolumn{8}{l}{\textbf{#1}}}
+\providecommand{\methodcell}[1]{\cellcolor{blue!8}#1}
+\providecommand{\ablationbenchmarkheader}{\textbf{Setting} & \textbf{SearchQA} & \textbf{Spreadsheet} & \textbf{LiveMath} \\}
+
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate \ourmethod{} as a text-space optimizer for frozen agents: the target model executes each task with the current skill, while an offline optimizer edits that skill from rollout evidence. The experiments answer four questions. (i) Do optimized skills improve over no-skill, human-skill, one-shot LLM-skill, prompt-optimization (TextGrad, GEPA), and skill-evolution (Trace2Skill, EvoSkill) baselines? (ii) Does the same loop work across direct chat, Codex, and Claude Code harnesses, and across seven target models from frontier-scale GPT to small Qwen? (iii) Which optimizer controls matter? (iv) What do the learned skills look like, and at what cost?
+
+\paragraph{Setting.}
+We report each benchmark's native hard score or exact-match accuracy on held-out test splits across SearchQA~\citep{dunn2017searchqa}, SpreadsheetBench~\citep{spreadsheetbench}, OfficeQA~\citep{opsahl2026officeqa}, DocVQA~\citep{mathew2021docvqa}, LiveMathematicianBench~\citep{he2026livemathematicianbenchlivebenchmarkmathematicianlevel} (abbreviated LiveMath in tables), and ALFWorld~\citep{alfworld}, using two model families: GPT~\citep{openai2026gpt54} and Qwen~\citep{qwen3.5,qwen36_35b_a3b}. The benchmark suite is intentionally diverse---it spans single-round QA (SearchQA, DocVQA, LiveMathematicianBench MCQ), multi-turn tool loops with up to $24$ tool calls (OfficeQA), multi-round codegen with up to $30$ turns and a real \texttt{openpyxl}/\texttt{pandas} runtime (SpreadsheetBench, default \texttt{mode=multi}), and persistent embodied interaction with up to $50$ steps per episode (ALFWorld). Dataset-backed runs use deterministic train/selection/test splits derived from the same dataset seed ($\mathtt{split\_seed=42}$); the selection split is used \emph{only} to accept or reject candidate skill edits, and all reported scores are computed on the disjoint held-out test split. The reported numbers thus measure generalization, not validation-set fit.
+
+\paragraph{Default optimizer hyperparameters.}
+Unless noted, \ourmethod{} uses four epochs, rollout batch size $40$ per step, reflection minibatch size $8$ (with $16$ analyst workers running reflections in parallel and a merge batch size of $8$), textual learning rate $L_t=4$ with cosine decay (floor $L_t=2$, configurable schedules: constant, linear, cosine, autonomous), held-out validation gating (strictly greater than the current selection score---ties are rejected), slow update with $20$ sampled tasks per epoch comparing previous-epoch and current-epoch skill, an optimizer-side meta skill that summarizes accepted/rejected patterns into teacher-only guidance, the \texttt{patch} edit mode (the alternative is \texttt{rewrite\_from\_suggestions}), and an optional rejected-edit buffer of recent failed proposals. Teacher reflection is allowed up to three refinement rounds per minibatch. Both teacher and student calls default to a \texttt{medium} reasoning effort. For benchmarks with tightly bounded training pools (LiveMathematicianBench: $35$ training items per epoch with rollout batch $200$; ALFWorld: $39$ training tasks with $140$ selection and $134$ test environments), per-benchmark configs scale the batch sizes accordingly while keeping the same gate, scheduler, and slow/meta-update machinery. Additional benchmark, baseline, and optimizer-protocol details are in Appendix~\ref{app:experimental_setting}.
+
+\paragraph{Harnesses.}
+Direct chat invokes the target model through a single chat completion call with the skill prepended to the system prompt. The Codex harness drives the target through the \texttt{codex} CLI in a workspace-write sandbox~\citep{openai2025codex}; \ourmethod{} renders the current skill to a per-task \texttt{SKILL.md} alongside task files and reads back a compact execution trace (\texttt{codex\_trace\_summary.txt}) that is included in the teacher reflection context, so the optimizer learns from \emph{what the agent actually did}, not just its final answer. The Claude Code harness mirrors the same workspace contract through the \texttt{claude} CLI~\citep{anthropic2025claudecode}. All three modes consume the same \texttt{best\_skill.md} file format, which is what enables the cross-harness transfer experiments in Section~\ref{sec:analysis_transfer}.
+
+\paragraph{Baselines.}
+We compare against seven baselines that span the no-adaptation, hand-written, one-shot, and learning families: \emph{no skill} (frozen target model run with the benchmark's default system prompt), \emph{human skill} (an expert-written skill document curated per benchmark), \emph{one-shot LLM skill} (a single skill generated from a high-level task description by GPT--5.5 and never updated), \emph{Trace2Skill}~\citep{ni2026trace2skill} (trajectory-level skill distillation), \emph{TextGrad}~\citep{yuksekgonul2024textgrad} (gradient-style natural-language prompt optimization), \emph{GEPA}~\citep{agrawal2025gepa} (Pareto reflective prompt evolution), and the harness-side competitor \emph{EvoSkill}~\citep{alzubi2026evoskill} (skill-folder evolution under failure analysis). All baselines use the same target model, the same held-out test split, and the same scorer for every benchmark, so the comparison isolates the choice of adaptation procedure rather than secondary factors such as prompt template or scoring pipeline.
+
+\subsection{Main Results}
+\label{sec:main_results}
+
+Table~\ref{tab:main_results_by_harness} is the main result matrix. Counting every (target model, benchmark, harness) cell as one comparison and the strongest of the no-skill, human-skill, LLM-skill, Trace2Skill, TextGrad, GEPA, and EvoSkill baselines as the per-cell competition, \ourmethod{} wins or matches the best measured result on \textbf{$52$ of $52$ evaluated cells}. This dominance is uniform across model scales: \ourmethod{} is best on every benchmark for GPT--5.5, GPT--5.4, GPT--5.4-mini, GPT--5.4-nano, GPT--5.2, Qwen3.5--4B, and Qwen3.6--35B-A3B in direct chat, and for GPT--5.5 under both Codex and Claude Code harnesses.
+
+The size of the gains is also unusually large for a no-weight-update method. On GPT--5.5 direct chat, the six-benchmark average rises from $58.8$ (no skill) to $82.3$ (\ourmethod{}), a $+23.5$ point absolute improvement, while the best per-cell baseline averages only $76.9$, leaving \ourmethod{} $+5.4$ points clear of an oracle baseline that picks the best of six competing methods per cell. Per-benchmark deltas over no skill range from $+9.6$ on SearchQA, where the no-skill model is already near ceiling, to $+38.9$ on SpreadsheetBench and $+39.0$ on OfficeQA, where strict procedural and answer-format requirements expose the limits of zero-shot frontier models. Procedural benchmarks see the largest improvements: SpreadsheetBench $41.8{\to}80.7$, OfficeQA $33.1{\to}72.1$, and LiveMathematicianBench $37.6{\to}66.9$ on GPT--5.5; SpreadsheetBench $9.3{\to}23.9$ ($\times 2.6$) on Qwen3.5--4B; and ALFWorld $34.3{\to}69.4$ ($\times 2.0$) on GPT--5.4-nano.
+
+The improvement is not specific to frontier-scale targets. Averaged over the six benchmarks, \ourmethod{} lifts GPT--5.4 by $+12.7$ points, GPT--5.4-mini by $+15.4$, GPT--5.4-nano by $+26.7$, GPT--5.2 by $+16.6$, Qwen3.5--4B by $+19.2$, and Qwen3.6--35B-A3B by $+9.1$, for an average improvement of approximately $+17.6$ points per model. Small and weak target models benefit the most in relative terms (e.g.\ GPT--5.4-nano nearly doubles on DocVQA and triples on ALFWorld), which is consistent with the view that a compact skill artifact can supply procedural knowledge that small models do not yet hold in weights.
+
+The same optimization interface is also effective under tool-backed execution. On the Codex harness, \ourmethod{} is best on all five evaluated benchmarks for GPT--5.5, with average gain $+24.8$ points over no skill and $+14.0$ over the next-best baseline (EvoSkill). On the Claude Code harness, it is best on all five benchmarks for GPT--5.5, with average gain $+19.1$ over no skill and $+3.2$ over EvoSkill, while EvoSkill itself already lifts the five-benchmark average from $57.8$ to $73.7$. The two ALFWorld cells under harness rows are left blank because ALFWorld requires persistent embodied-environment interaction that is not represented in the standard Codex / Claude Code adapters; we therefore report harness results on search, spreadsheets, document QA, multimodal QA, and math.
+
+Taken together, the table supports a strong empirical claim: across direct chat and two tool-execution harnesses, across seven target models, and on procedural and factual benchmarks alike, optimizing a single compact skill artifact under bounded text-space training is the strongest no-weight-update adaptation strategy among the baselines we consider. The main gains come from feedback-driven skill editing rather than from a better one-shot prompt: human and LLM skills can help when prior instructions happen to match the benchmark, but they cannot correct failures after observing rollouts; Trace2Skill mines trajectory lessons without a held-out gate; TextGrad and GEPA optimize prompts but not a persistent skill artifact; and EvoSkill, the strongest harness-side competitor, lacks both bounded textual learning rates and rejected-edit memory. These comparisons support the central design choice---keep the target model, harness, and evaluator fixed, and optimize only the reusable skill artifact.
+
+\paragraph{Alternative explanations.}
+The per-cell baselines clarify what drives the gains. The effect is not simply prompt length: human skills are already $145$--$516$ tokens long and often exceed the one-shot LLM skill, yet they are beaten in every direct-chat model row while the learned artifacts remain compact (Table~\ref{tab:skill_cost_case}). It is also not only optimizer capacity: \ourmethod{} leads every baseline even for GPT--5.4-nano, and the optimizer-strength analysis in Table~\ref{tab:teacher_model_ablation} shows that a target-matched optimizer recovers much of the gain. Finally, the harness results show that the method is not just exploiting one skill format: EvoSkill already improves the Codex SpreadsheetBench cell from $27.5$ to $67.5$, but \ourmethod{} adds another $+17.5$ points ($67.5{\to}85.0$). The gains are largest on procedural benchmarks, where reusable rules about tool use and output formatting matter most, but they also appear on factual and multimodal benchmarks.
+
+\paragraph{Headline numbers in one place.}
+For convenience, the headline aggregates over Table~\ref{tab:main_results_by_harness} are:
+(i) \textbf{$52/52$} cells best or tied-best;
+(ii) average per-model improvement $\approx +17.6$ points across the seven direct-chat target models;
+(iii) average GPT--5.5 improvement of $+23.5$ (direct chat), $+24.8$ (Codex), $+19.1$ (Claude Code) over no skill;
+(iv) GPT--5.5 oracle-baseline gap of $+5.4$ points (direct chat) computed as the difference between \ourmethod{}'s six-benchmark average ($82.3$) and an oracle that picks the best of six competing methods \emph{per cell} ($76.9$).
+The remainder of this section unpacks why these gains appear (Section~\ref{sec:optimizer_ablation}), how stable and transferable they are (Section~\ref{sec:analysis_transfer}), and what the learned artifact looks like (Section~\ref{sec:learned_skills}).
+
+\subsection{Ablations}
+\label{sec:optimizer_ablation}
+
+Table~\ref{tab:ablation_sweeps}, Figure~\ref{fig:epoch_accuracy_curves}, and Table~\ref{tab:component_ablation} test the design choices in the optimizer using GPT--5.5 as both the target and the optimizer. The overall message is that \ourmethod{} benefits from sufficient evidence, a bounded textual learning rate, rejected-edit feedback, and epoch-wise slow/meta update. SearchQA has limited headroom and is therefore stable across many settings (most cells fluctuate inside a $\pm1.5$ point band), while SpreadsheetBench and LiveMathematicianBench expose the trade-off between learning useful procedures and over-editing the skill.
+
+\paragraph{Evidence and batch sizes (panels a, b, c).}
+Panel (a) shows that procedural benchmarks reward more training evidence: SpreadsheetBench climbs $47.5{\to}78.0$ and LiveMathematicianBench climbs $59.1{\to}70.5$ as the optimizer sees $1{\to}100\%$ of the training partition, while SearchQA saturates at roughly $84{-}86$ after $20\%$ already. Panel (b) shows the same robustness in the other direction: varying the reflection mini-batchsize from $1$ to $32$ keeps SearchQA inside $85.9{-}87.1$ and SpreadsheetBench inside $75.4{-}77.9$, with the default $B_m{=}8$ at or near the top on all three benchmarks. Panel (c) is equally flat in the rollout-batchsize dimension---moving from $B{=}8$ to a full epoch keeps SearchQA inside $85.1{-}87.2$ and SpreadsheetBench inside $75.0{-}77.5$. Together this means the headline gains are not the product of a fragile prompt-search batch size, but a genuine effect of having enough scored evidence per update.
+
+\paragraph{Textual learning rate and schedule (panels d, e).}
+Panels (d) and (e) directly compare bounded textual learning to looser settings. Sweeping $L_t \in \{1,2,4,8,16\}$ shows that small or moderate edit budgets are competitive throughout: $L_t{=}4$ achieves $86.5/78.2/56.5$, the highest LiveMath score belongs to $L_t{=}8$ at $66.9$, and the lowest score across all five settings is still only $85.5$ on SearchQA. Panel (e) confirms this on the schedule axis: constant decay scores $87.3/80.7/62.1$, cosine $87.1/77.5/61.3$, and linear $87.2/72.9/62.9$, so the bounded-update story does not depend on a single specific scheduler. The qualitative claim is what matters: any moderate, bounded edit budget already beats baselines that rewrite the skill without a budget (Table~\ref{tab:component_ablation}, ``without lr'' row, $84.6/75.7/57.3$).
+
+\paragraph{Epoch-wise slow/meta update (panel f, Table~\ref{tab:component_ablation}, Figure~\ref{fig:epoch_accuracy_curves}).}
+The slow/meta update supplies longer-horizon guidance beyond the current rollout batch. Slow-update sampling (panel f) places the default at $20$ examples per epoch (87.1, 77.5, and 61.3), with $5$, $10$, and $40$ each within $\pm 2.7$ points. In the matched default component row, removing the rejected-edit buffer lowers scores by 1.6, 4.6, and 2.4 points on SearchQA, SpreadsheetBench, and LiveMath, respectively, supporting its role as a stabilizer for the default loop rather than as an extra deployment-time mechanism. The slow/meta ablation rows are sharper: removing both meta skill and slow update drops SpreadsheetBench from $77.5$ to $55.0$ ($-22.5$ points), the largest degradation in the ablation suite. Figure~\ref{fig:epoch_accuracy_curves} complements these numerical ablations: validation checkpoints track held-out test performance across epochs, confirming that the gate tends to select skills that generalize rather than skills that only fit the selection split.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{sections/figures/epoch_ablation_train_sel_test_trends.pdf}
+\caption{Performance trends across epoch checkpoints on three benchmarks: (a) SpreadsheetBench, (b) SearchQA, and (c) LiveMath. For each checkpoint, we report the training rollout score, the selection-best score on the validation set, and the final performance on the unseen test set. The results show how skill quality evolves during optimization and whether the checkpoint preferred by validation selection aligns with the checkpoint that yields the best generalization to the test set.}
+\label{fig:epoch_accuracy_curves}
+\end{figure*}
+
+\paragraph{Gate strictness and edit observability.}
+The validation gate is intentionally strict: a candidate skill is accepted only when its selection-split score is \emph{strictly greater than} the current selection score, so ties are rejected and the deployed skill never silently drifts. This conservative criterion makes rejected edits informative negative feedback rather than hidden state. Operationally, every step also records an \texttt{edit\_apply\_report.json} containing per-edit accept/skip status, so the source of every change to \texttt{best\_skill.md} is recoverable after the fact. The epoch-wise slow/meta update writes into a markup-fenced protected region of the skill document that step-level edits cannot overwrite, separating the fast intra-epoch update from the slower cross-epoch consolidation; the optimizer-side meta skill lives only in the teacher's reflection context and is never shipped with the deployed artifact. These implementation choices explain why removing both meta skill and slow update is especially damaging on SpreadsheetBench: it removes the long-horizon evidence stream and the protected-region contract that keeps local edits from overwriting durable procedural lessons.
+
+Overall, the ablations show that the gains are relatively insensitive to the exact rollout batch, reflection minibatch, or learning-rate schedule, but much more sensitive to the presence of bounded text-space learning, validation gating, rejected-edit feedback, and epoch-wise slow/meta update---the design choices that make skill editing behave like a controlled training loop.
+
+\subsection{Analysis and Transfer}
+\label{sec:analysis_transfer}
+
+Tables~\ref{tab:transfer_cross_model}--\ref{tab:transfer_cross_benchmark} ask whether an optimized skill behaves like a reusable artifact rather than a task-specific prompt. We test three shifts: deploying a skill across model scales (Table~\ref{tab:transfer_cross_model}), moving it across execution harnesses (Table~\ref{tab:transfer_cross_harness}), and applying it to nearby math benchmarks, including OlympiadBench~\citep{he2024olympiadbench} and Omni-MATH~\citep{gao2024omnimathuniversalolympiadlevel} (Table~\ref{tab:transfer_cross_benchmark}). Table~\ref{tab:teacher_model_ablation} then asks how much of the gain depends on optimizer capacity by replacing the frontier optimizer with a target-matched one of the same scale as the deployed model.
+
+\paragraph{Cross-model transfer.}
+Table~\ref{tab:transfer_cross_model}(a) reports four \emph{genuine} cross-model transfers (the GPT--5.4{$\to$}GPT--5.4 entries are kept only as in-domain references and marked \na{} in the transferred column, since source and target match): SpreadsheetBench skills trained on GPT--5.4 transfer to GPT--5.4-mini ($+9.4$) and GPT--5.4-nano ($+3.0$), and LiveMath skills transfer to GPT--5.4-mini ($+4.5$) and GPT--5.4-nano ($+5.6$). All four cross-model rows are positive, and on one of them the transferred skill \emph{surpasses} the in-domain \ourmethod{} reference (LiveMath GPT--5.4-nano: $28.8$ transferred vs.\ $27.2$ in-domain), suggesting that some learned procedures are target-model agnostic. The remaining cross-model rows still recover a useful fraction of the in-domain gain---e.g.\ SpreadsheetBench GPT--5.4-mini retains $82\%$ of the in-domain gain ($+9.4$ of $+11.4$)---and no row falls below the target's no-skill baseline.
+
+\paragraph{Cross-harness transfer.}
+The harness-shift rows in Table~\ref{tab:transfer_cross_harness}(b) are the clearest deployment signal. A SpreadsheetBench skill trained inside the Codex loop transfers to Claude Code with absolute gain $+59.7$ over the Claude Code no-skill baseline ($22.1{\to}81.8$, slightly exceeding the in-domain Claude Code \ourmethod{} reference of $80.4$), and the symmetric Claude-Code$\to$Codex transfer adds $+43.6$ on top of the Codex baseline ($27.5{\to}71.1$). On LiveMath, the Codex$\to$Claude Code transfer is smaller ($+1.6$ over a $40.8$ baseline) but still positive, while the Claude-Code$\to$Codex transfer adds $+12.8$ ($35.2{\to}48.0$). Because the two harnesses expose different tool/file APIs and command surfaces, these positive transfers suggest that the learned rules are not only harness-specific command recipes. In SpreadsheetBench especially, the transferred skill appears to encode workbook-level procedures such as structure-first inspection, formula-aware verification, and static-value materialization, so the cost of optimizing a skill in one execution environment can be amortized across related deployment environments.
+
+\paragraph{Cross-benchmark transfer.}
+Cross-benchmark transfer is the strictest of the three shifts: source and target benchmarks share only the broad task family (math). On the OlympiadBench$\to$Omni-MATH direction reported in Table~\ref{tab:transfer_cross_benchmark}(c), the transferred skill is positive on all three model scales we evaluate, with gains of $+3.7$ on GPT--5.4, $+1.8$ on GPT--5.4-mini, and $+1.3$ on GPT--5.4-nano. These rows are smaller than the in-domain and cross-harness transfers---unsurprisingly, since they require the optimized skill to retain useful procedural knowledge after both the test instances and the answer-format conventions change---but they remain uniformly positive, supporting the intended interpretation that the optimized skill encodes reusable mathematical procedure rather than memorized benchmark-specific formatting.
+
+\paragraph{Effect of optimizer strength.}
+Because the optimizer in \ourmethod{} runs only during the offline training loop and is never invoked at deployment, optimizer choice is a training-time lever: a stronger optimizer can improve the deployed skill without raising the inference cost of using that skill. The deployed artifact is still a static \texttt{best\_skill.md} that calls only the target model. Table~\ref{tab:teacher_model_ablation} quantifies this lever by running the same loop with two optimizer regimes---a strong frontier optimizer (GPT--5.5) and a target-matched optimizer that shares the target model---while holding the rollout batches, validation gate, bounded edit budget, rejected-edit buffer, and slow/meta update identical.
+
+Two observations follow. \emph{First}, the stronger optimizer produces larger absolute gains on every (benchmark, target) cell we test: GPT--5.4-nano lifts by $+19.0$ vs.\ $+11.9$ on SpreadsheetBench and $+19.0$ vs.\ $+14.1$ on SearchQA, and GPT--5.4-mini follows the same ordering ($+11.4$ vs.\ $+7.1$ on SpreadsheetBench, $+4.3$ vs.\ $+2.4$ on SearchQA). The bounded-edit, validation-gated loop is what makes this monotone: without the gate, a stronger optimizer could just as easily push larger but harmful rewrites. \emph{Second}, the target-matched optimizer is far from collapsed---it recovers $56$--$74\%$ of the strong-optimizer gain across the four cells, confirming that \ourmethod{} is not a distillation pipeline from a stronger teacher into a weaker student: the optimization loop itself contributes substantial value on top of whatever the optimizer can already do. The practical implication is that a high-capacity frontier optimizer is the right default whenever it is available---it costs only training-time API calls and adds nothing to deployment---while the same loop remains effective if the budget forces a target-matched optimizer instead.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.95}
+\begin{tabular}{l l c c c}
+\toprule
+\textbf{Benchmark} & \textbf{Target} & \textbf{Baseline} & \textbf{Strong optimizer (GPT--5.5)} & \textbf{Target-matched optimizer} \\
+\midrule
+\multirow{2}{*}{SpreadsheetBench} & GPT--5.4-mini & 36.1 & \dvalp{\textbf{47.5}}{11.4} & \dvalp{43.2}{7.1}  \\
+                                  & GPT--5.4-nano & 23.5 & \dvalp{\textbf{42.5}}{19.0} & \dvalp{35.4}{11.9} \\
+\cmidrule(lr){1-5}
+\multirow{2}{*}{SearchQA}         & GPT--5.4-mini & 75.9 & \dvalp{\textbf{80.2}}{4.3}  & \dvalp{78.3}{2.4}  \\
+                                  & GPT--5.4-nano & 55.8 & \dvalp{\textbf{74.8}}{19.0} & \dvalp{69.9}{14.1} \\
+\bottomrule
+\end{tabular}
+\caption{Effect of optimizer strength. Each (benchmark, target) pair is optimized either by a strong frontier optimizer (GPT--5.5, bolded) or by a target-matched optimizer that shares the target model; everything else in the \ourmethod{} loop is held fixed. Gains over the target's no-skill baseline are shown as small green subscripts; the same baseline is used for both optimizer settings within a row. The optimizer runs only during offline training, so the stronger-optimizer column adds zero cost at deployment.}
+\label{tab:teacher_model_ablation}
+\end{table}
+
+\subsection{Learned Skills: Compactness, Cost, and Examples}
+\label{sec:learned_skills}
+
+A central premise of \ourmethod{} is that the trainable object should remain a small, inspectable text document. Tables~\ref{tab:main_results_by_harness}--\ref{tab:teacher_model_ablation} demonstrate that the optimizer is effective; this subsection asks what its output actually looks like and what it costs. We characterize the learned artifact on three axes---compactness, edit economy, and cost-per-point---and then show one representative learned rule per benchmark to illustrate what kind of procedural knowledge survives the bounded-update loop.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{0.95}
+\begin{tabular}{l c c c c c}
+\toprule
+\textbf{Benchmark} & \textbf{Initial (tok)} & \textbf{Final (tok)} & \textbf{Edits} & \textbf{Train tokens} & \textbf{Cost / pt} \\
+\midrule
+SearchQA         & 16  & 857     & 4 & 213.8M & 37.9M \\
+SpreadsheetBench & 224 & 1{,}995 & 4 & 21.4M  & 0.6M  \\
+OfficeQA         & 145 & 883     & 1 & 20.8M  & 1.1M  \\
+DocVQA           & 81  & 959     & 3 & 188.2M & 46.4M \\
+LiveMath         & 154 & 379     & 1 & 23.2M  & 3.6M  \\
+ALFWorld         & 516 & 1{,}321 & 2 & 59.3M  & 15.9M \\
+\bottomrule
+\end{tabular}
+\caption{Cost and edit economy of the GPT--5.5 / GPT--5.5 (student / teacher) skill runs. Initial and final \texttt{best\_skill.md} lengths are in tokens; \textbf{Edits} is the number of accepted bounded updates; \textbf{Cost / pt} is training tokens per absolute test-point gain. One representative learned rule per benchmark is shown in Figure~\ref{fig:skill_excerpts}.}
+\label{tab:skill_cost_case}
+\end{table}
+
+\paragraph{Compactness.}
+The final skills are uniformly small. Across the six benchmarks in Table~\ref{tab:skill_cost_case}, the final \texttt{best\_skill.md} ranges from $379$ tokens (LiveMathematicianBench) to $1{,}995$ tokens (SpreadsheetBench), with a median of roughly $920$ tokens. Even the longest learned skill is well below a typical system-prompt budget for modern frontier models, and the shortest one fits inside a single screen. The growth from initial to final skill is moderate ($\times 2.5$ to $\times 53$ depending on whether the initial skill was a one-liner or a paragraph), but the final size in absolute tokens stays small enough that a domain practitioner can read, audit, and edit the deployed artifact in minutes.
+
+\paragraph{Edit economy.}
+A second striking pattern is that the gains come from very few accepted edits. Across the six benchmarks, the number of edits actually committed to \texttt{best\_skill.md} during optimization is between $1$ and $4$ (median $2.5$). LiveMathematicianBench's $+29.3$ point gain over no skill arises from a \emph{single} accepted edit, and OfficeQA's $+39.0$ point gain similarly arises from one accepted edit. This is direct evidence that the validation gate is doing real work: the optimizer model proposes many more edits per epoch, but only a handful pass the held-out check and survive into the deployed skill. The bulk of the optimizer's text-space search is thus rejected, captured by the rejected-edit buffer (Section~\ref{sec:method_gate}) for future use, and never reaches the target model. The deployed skill is correspondingly compact rather than the union of every reflection.
+
+\paragraph{Cost per point of test-set gain.}
+The training-token column quantifies the cost of operating the loop. Two regimes are visible. Procedural benchmarks where rollouts are short and cheap---SpreadsheetBench, OfficeQA, LiveMathematicianBench---reach $0.6$--$3.6$M training tokens per absolute test-set point, even though the absolute gains on these benchmarks are the largest (e.g.\ $+39.0$ points on OfficeQA at $1.1$M tokens / point, total $20.8$M tokens). Benchmarks with longer trajectories or richer multimodal context---SearchQA ($37.9$M / pt) and DocVQA ($46.4$M / pt)---cost an order of magnitude more per point. The important deployment distinction is that this cost is paid once during skill training; after export, the optimized \texttt{best\_skill.md} adds no optimizer calls, no weight updates, and only a compact text artifact to the target agent.
+
+\paragraph{What does a learned skill actually say?}
+Figure~\ref{fig:skill_excerpts} reproduces one representative learned rule per benchmark, taken verbatim from the final \texttt{best\_skill.md} of each case study in Table~\ref{tab:skill_cost_case}. Three observations stand out. First, the rules are \emph{procedural} rather than \emph{instance-specific}: none of them name a specific question, file, or entity. Second, they consistently encode the discipline that frontier models lack zero-shot: answer-format constraints (OfficeQA, LiveMathematicianBench), evidence binding to a specific visual region (DocVQA), workbook-structure-first reasoning (SpreadsheetBench), search-frontier discipline (ALFWorld), and canonical-entity choice (SearchQA). Third, they read like rules a thoughtful human practitioner would write after a day with the benchmark---except they are produced automatically by the optimizer and validated edit-by-edit on held-out data.
+
+\begin{figure}[t]
+\centering
+\fbox{\begin{minipage}{0.96\linewidth}\footnotesize
+\textbf{SearchQA.} ``Infer the expected answer type from clue wording, then choose the shortest canonical entity supported by co-occurring distinctive evidence.''
+
+\smallskip
+\textbf{SpreadsheetBench.} ``Inspect workbook structure and formulas, then write evaluated static values across the full requested target range instead of relying on Excel recalculation.''
+
+\smallskip
+\textbf{OfficeQA.} ``Treat oracle parsed pages as primary evidence, lock table/date/unit context, and output exactly the requested rounded value without extra labels.''
+
+\smallskip
+\textbf{DocVQA.} ``For tables, forms, charts, and legends, first bind the question to the exact visual row/header/field, then copy only the aligned answer span.''
+
+\smallskip
+\textbf{LiveMathematicianBench.} ``In strongest-statement MCQs, rank choices by theorem strength and prefer a justified stronger-result option over true but weaker corollaries.''
+
+\smallskip
+\textbf{ALFWorld.} ``Keep a horizon-aware visited/frontier ledger, diversify search after repeated same-type failures, and avoid revisiting the destination until holding the target.''
+\end{minipage}}
+\caption{Representative learned rules, one per benchmark, extracted from the final \texttt{best\_skill.md} of the GPT--5.5 / GPT--5.5 runs in Table~\ref{tab:skill_cost_case}. Each rule is verbatim from the deployed skill. Notably, every rule is procedural rather than instance-specific, and several encode forms of discipline (answer formatting, evidence binding, search-frontier management) that frontier models do not apply zero-shot.}
+\label{fig:skill_excerpts}
+\end{figure}
+
+\paragraph{Implications.}
+Together, the four observations above support a stronger version of the central claim. Compactness ($<2{,}000$ tokens) and edit economy ($1$--$4$ accepted edits) mean the deployed artifact is interpretable. Cost-per-point ($0.6$M--$46.4$M tokens / point) shows that the training cost is measurable and paid before deployment. The shape of the learned rules---procedural, generalizable, and consistent with what a thoughtful human practitioner would write---is evidence that text-space optimization with bounded updates and validation gating discovers transferable procedural knowledge rather than merely overfitting to the training split. This complements the cross-model, cross-harness, and cross-benchmark transfer evidence in Section~\ref{sec:analysis_transfer}: the artifact transfers because many of the rules it encodes are intrinsically transferable.
+
+\subsection{Qualitative Skill Evolution}
+\label{sec:qualitative_skill_evolution}
+
+We inspect two representative runs to understand what the optimized skill actually learns. The ALFWorld case uses GPT--5.4-nano as the student and GPT--5.5 as the teacher, while the SpreadsheetBench case uses GPT--5.5 as both the frozen student and optimizer model. In both cases, \ourmethod{} does not replace the initial skill with an unrelated prompt. Instead, accepted edits add compact procedural constraints around recurring failure modes observed in rollout trajectories.
+
+\paragraph{ALFWorld.}
+The initial ALFWorld skill gives a generic household plan: search for the target object, pick it up, transform it if needed, and place it at the destination. The accepted edits make this plan more stateful and less loop-prone. The optimized skill learns exact object-name matching, so related objects such as mugs, cups, pans, and pots are not substituted for one another. It adds visited-location memory, so unvisited receptacles and surfaces are preferred over repeatedly checking likely but exhausted locations. It also adds destination memory, pick-two progress locks, and direct completion rules: once the agent can clean, heat, cool, place, or otherwise complete the next subgoal, it should take that admissible action instead of examining, closing, or verifying again. Qualitatively, the skill evolves from a general search-transform-place strategy into a finite-state execution policy with object identity, search memory, progress locks, and loop breakers. In this representative run, the selected skill improves ALFWorld held-out test performance from 49.3 to 74.6.
+
+\paragraph{SpreadsheetBench.}
+The initial SpreadsheetBench skill already instructs the agent to use Python spreadsheet libraries and preserve unrelated workbook content. The accepted edits turn this generic automation workflow into a workbook-forensics policy. The optimized skill learns to inspect the actual workbook rather than rely on previews, locate headers and target ranges across multiple sheets, normalize keys and cell types before lookup or aggregation, and preserve formatting during structural edits. It also adds a key rule for formula-style prompts: when the grader reads cell values, the agent should compute and write evaluated static values, even if the prompt mentions formulas such as \texttt{INDEX/MATCH} or \texttt{XLOOKUP}. Later edits further require filling complete target ranges, including currently blank result cells, keeping helper computations in Python rather than adding workbook artifacts, and reopening the saved workbook to check boundary rows and remaining blanks. In this representative run, the selected skill improves SpreadsheetBench held-out test performance from 40.4 to 78.9.

@@ -1,0 +1,162 @@
+\section{Neuro-Symbolic Retrieval}
+\label{sec:retrieval}
+In this section, we introduce a neuro-symbolic retrieval algorithm featuring tri-path collaborative entity recall and achieve deep topological reasoning through graph traversal.
+It can also serve as a fundamental retrieval algorithm adaptable to various downstream tasks in \S\ref{sec:application}.
+
+\subsection{Node Matching}
+Our retrieval system supports arbitrary query formats, including keywords, scientific questions, abstracts, idea texts, and even complete papers.
+Given a query $q$, we map it into KG nodes through three distinct ways.
+
+\paragraph{Keyword Matching.}
+We use an LLM to extract keywords from $q$ and assign each keyword with an importance score, forming a keyword list $\mathcal{K}=\{(k_i, s_i^\text{llm})\}_{i=1}^m$, where $k_i$ is the $i$-th extracted keyword with text normalization and $s_i^\text{llm} \in [0, 1]$ represents its normalized importance score.
+The maximum number of keywords extracted by the LLM is $m$.
+Then, we first perform exact text matching of $k_i$ in the KG.
+For each matched keyword node $g$, we assign it an exact match score:
+\begin{align}
+    \text{score}_{exact}(k_i, g)=s_i^\text{llm}.
+\end{align}
+Second, we perform vector matching.
+After encoding each $k_i$ into a semantic vector, we compute semantic similarity based on the pre-calculated keyword text embeddings in the KG.
+Nodes with similarity scores exceeding the threshold $\theta_{kw}$ (default to $0.7$) are retained, with their scores as:
+\begin{align}
+    \text{score}_{vec}(k_i, g)=s_i^\text{llm}\cdot\text{sim}(k_i, g).
+\end{align}
+If multiple nodes surpass the threshold, we select only the top-3 nodes for each $k_i$.
+The same keyword node $g$ may be matched by multiple input keywords or simultaneously by both exact and vector matching.
+We take the maximum of all its scores as the node's final weight:
+\begin{align}
+    w_g^{kw}=\max_i \left( \mathbb{1}[k_i=g]\cdot s_i^\text{llm}, \mathbb{1}[\text{sim}(k_i,g)\ge \theta_{kw}]\cdot s_i^\text{llm}\text{sim}(k_i, g)\right)
+\end{align}
+The final set of keyword-matching nodes is denoted as $\mathcal{K}_{seed}=\{(g, w_g^{kw})\}$.
+
+\paragraph{Semantic Matching.}
+We embed query $q$ to obtain vector $\mathbf{e}_q$ (Here, if the input is an entire paper, we only extract its abstract for embedding.), which is then used to retrieve the top-$60$ papers from the KG based on title embeddings and abstract embeddings, respectively.
+We then employ a reranker (\texttt{bge-reranker-large} \citep{bge}) to re-rank the retrieved papers, retaining the top-$15$ papers for title and abstract.
+Given a retrieved paper $p$, we define $s_p^{title}$ and $s_p^{abs}$ as its retrieval scores through title or abstract matching, and compute a weighted combination of the two scores:
+\begin{align}
+\label{eq:weighted}
+    s_p^{emb}=\frac{0.4\cdot s_p^{title}+0.6\cdot s_p^{abs}}{0.4\cdot \mathbb{1}[\exists s_p^{title}]+0.6\cdot \mathbb{1}[\exists s_p^{abs}]}.
+\end{align}
+Here, it is set to $0$ if $s_p^{title}$ or $s_p^{abs}$ does not exist.
+The final candidate paper nodes from semantic matching are denoted as $\mathcal{P}^{emb}\{(p, s_p^{emb})\}$.
+
+\paragraph{Title Matching.}
+Since titles encapsulate the most critical information of papers and are highly beneficial for paper retrieval, we specifically perform title matching for queries $q$ that contain titles.
+We use GROBID to extract all titles (including the paper's title and its references' titles) from the idea or paper and employ an LLM to assign a confidence score $c_j$ to each title $t_j$.
+We retain the top-$10$ titles with the highest confidence scores and normalize them (removing non-alphabetic characters and converting to lowercase) to obtain the title set $\mathcal{T}=\{(t_j, c_j)\}_{j=1}^n$.
+We then perform text matching of titles in the KG.
+If an exact match is found, a matching score of $m(t_j, p)=1.0$ is assigned; otherwise, we compute the fuzzy similarity between two titles based on the following formula:
+\begin{align}
+    m(t_j, p)=0.65\cdot \text{seq}(t_j, p)+0.35\cdot \text{token\_overlap}(t_j, p),
+\end{align}
+where $\text{seq}(a, b)$ is based on the Longest Common Subsequence (LCS) of $a$ and $b$, and $\text{token\_overlap}$ computes the Jaccard overlap ratio of the token sets of $a$ and $b$.
+Candidates with similarity below $\theta_{title}$ (default to $0.88$) are directly discarded.
+For paper $p$ matched by title $t_j$, we assign it a score:
+\begin{align}
+    s_{j,p}^{title}=c_j\cdot m(t_j,p).
+\end{align}
+If the same paper is matched by multiple titles, we take the maximum score $s_p^{title}=\max_js_{j,p}^{title}$.
+Each input title retains at most the top-5 papers, and all papers constitute $\mathcal{P}^{title}=\{(p, s_p^{title})\}$.
+
+\paragraph{Node Merging.}
+We obtain two candidate paper node sets through the semantic and title pathways.
+Then we need to merge them into $\mathcal{P}_{seed}$ and unify their weights.
+For each candidate paper $p$, we compute the dot product with vector $\mathbf{e}_q$ and apply weighting according to the ratio specified in Eq.\ref{eq:weighted}:
+\begin{align}
+    \bar{s}_p^{emb} = \text{combine}(\text{sim}_p^{title},\text{sim}_p^{abs}),\quad\text{sim}_p^{title} = \mathbf{e}_q^\top \mathbf{e}_p^{title},\quad\text{sim}_p^{abs} = \mathbf{e}_q^\top \mathbf{e}_p^{abs}.
+\end{align}
+We then perform MinMax normalization:
+\begin{align}
+    \widetilde{s}_p^{emb} = \text{MinMaxNorm}(\bar{s}_p^{emb}),\quad\widetilde{s}_p^{title} = \text{MinMaxNorm}(s_p^{title}),\quad\text{MinMaxNorm}(x_p) = \frac{x_p - x_{min}}{x_{max} - x_{min}}
+\end{align}
+Finally, we define the unified paper weight:
+\begin{align}
+    \label{eq:pre_graph}s_p^{pre}=\lambda_{emb}\widetilde{s}_p^{emb}+\lambda_{title}\widetilde{s}_p^{title}+b_p^{pre},\quad b_p^{pre} =
+\begin{cases}
+0.35, & \text{exact title hit} \\
+0.10, & \text{fuzzy title hit} \\
+0, & \text{otherwise}
+\end{cases},
+\end{align}
+where $b_p^{pre}$ denotes the title bonus, and $\lambda_{emb}$ (default to $0.3$) and $\lambda_{title}$ (default to $0.8$) represent the importance weights for semantic and title pathways, respectively.
+
+\subsection{Weight Setting}
+Taking $\mathcal{K}_{seed}$ and $\mathcal{P}_{seed}$ as starting points, we perform a 2-hop subgraph propagation, where all edges are treated as undirected during the propagation process.
+To prevent subgraph explosion, we select at most $500$ nodes per hop for each entity type.
+For each paper $p$ in the local subgraph, we compute its importance based on its citation count $c_p$.
+Let $C$ denote total citation counts for all papers in the subgraph.
+The paper's importance is defined as:
+\begin{align}
+\label{eq:imp}
+    \text{imp}(p)=\min\left(1,\frac{\log(1+c_p)}{\log(1+\max(1,C))}\right).
+\end{align}
+Here, the importance can be tailored to the downstream task: if the task emphasizes paper quality, it can be computed according to Eq.\ref{eq:imp}; if the focus is solely on relevance, all papers can be forced to $\text{imp}(p)=1$.
+For each seed paper $p$, we define its unnormalized weight as:
+\begin{align}
+\label{eq:wp}
+    w_p^{seed}=s_p^{pre}\cdot(1+\gamma\cdot \text{imp}(p)),
+\end{align}
+where $\gamma$ is the control factor for importance (default to $0.5$).
+For each seed keyword $g$, we define its unnormalized weight as $w_g^{seed} = w_g^{kw}$.
+We define the distribution $\mathbf{s}$ over all nodes in the graph as:
+\begin{align}
+    s_v =
+\begin{cases}
+\dfrac{w_v^{seed}}{Z}, & v \in S \\
+0, & v \notin S
+\end{cases},\quad Z = \sum_{v \in S} w_v^{seed},\quad S = \mathcal{P}_{seed} \cup \mathcal{K}_{seed}.
+\end{align}
+
+\input{tables/edge_weight}
+
+ For an edge $e = (u, v, r)$ in the graph, we define its unnormalized weight $\omega(u,v)$ based on the edge type, as specified in Tab.\ref{tab:edge_weight}.
+
+\subsection{Random Walk with Restart}
+To more deeply explore the topological relationships between nodes and enable deep reasoning within the graph, we perform random walks on the graph based on seed nodes and edge weights.
+For any node $u$, let its neighbor set be $N(u)$. The transition probability from $u$ to its neighbor $v$ is defined as:
+\begin{align}
+    P(v \mid u) = \frac{\omega(u,v)}{\sum_{x \in N(u)} \omega(u,x)}.
+\end{align}
+Assuming the node score vector at iteration $t$ is $\mathbf{r}^{(t)}$, we initialize $\mathbf{r}^{(0)}=\mathbf{s}$.
+For any node $v$, its score in the next iteration is:
+\begin{align}
+    r_v^{(t+1)} = \alpha s_v + (1-\alpha) \sum_{u} r_u^{(t)} P(v \mid u),
+\end{align}
+where $\alpha$ denotes the restart probability.
+If a node $u$ has no neighbors, we preserve its own mass by directly adding $(1-\alpha)r_u^{(t)}$ back to $u$ itself.
+The iteration terminates when:
+\begin{align}
+    \|\mathbf{r}^{(t+1)} - \mathbf{r}^{(t)}\|_1 < \varepsilon,
+\end{align}
+where $\varepsilon = 10^{-6}$, or when the maximum number of iterations $T_{\max} = 50$ is reached.
+The final graph score of node $v$ is given by $r_v = r_v^{(t^\star)}$, where $t^\star$ denotes the stopping iteration.
+
+\subsection{Final Ranking}
+Upon completing the graph propagation, the system derives a set of global node scores $\{r_v\}_{v \in V'}$ across the local subgraph.
+For the purpose of paper retrieval, we isolate the scores of paper nodes:
+\begin{align}
+\label{eq:spgraph}
+    s_p^{graph} = r_p, \quad p \in V' \cap \texttt{Paper}
+\end{align}
+Crucially, this stage allows for the inclusion of newly discovered paper nodes that are not part of the initial $\mathcal{P}_{seed}$ sets but are reached during graph expansion. 
+% The final ranking process integrates the topological evidence with initial semantic relevance and intrinsic paper importance through the following multi-dimensional fusion.
+
+To account for the academic impact of candidates within the retrieved context, we re-calculate the paper importance $\text{imp}_{final}(p)$ based on the citation distribution of the final candidate set.
+We utilize the logarithmic scaling defined in Eq.\ref{eq:imp}, using total citations within the current pool to ensure a robust relative metric.
+To prevent the graph diffusion from over-promoting distant nodes, we introduce a graph support factor $g_p$, which acts as a gating mechanism based on the initial retrieval strength:
+\begin{align}
+\label{eq:gp}
+    g_p = \max(0.25, \tilde{s}_p^{pre}),
+\end{align}
+where $\tilde{s}_p^{pre}$ is the MinMax-normalized pre-graph score $s_p^{pre}$ in Eq.\ref{eq:pre_graph}.
+This ensures that while graph-discovered papers can achieve high ranks, those with zero initial semantic relevance must demonstrate exceptionally strong topological support to surpass primary candidates.
+We then normalize the graph score $s_p^{graph}$ with MinMax to obtain $\tilde{s}_p^{graph}$.
+
+The comprehensive final score $s_p^{final}$ is defined as a weighted linear combination of three normalized components and a title-matching bonus:
+\begin{align}
+\label{eq:final}
+    s_p^{final} = \min\left(1, \lambda_{pre}\tilde{s}_p^{pre} + \lambda_{graph}\tilde{s}_p^{graph} g_p + \lambda_{imp}\text{imp}_{final}(p)\right),
+\end{align}
+where $\lambda_{pre}$ (default to $0.35$) is the initial relevance, $\lambda_{graph}$ (default to $0.45$) is the topological support from graph, and $\lambda_{imp}$ (default to $0.20$) is the citation importance.
+We finally return the \textbf{top-$20$ papers}, accompanied by a \textbf{detailed score breakdown} and \textbf{path-based explanations} to provide researchers with a transparent and deterministic ``cognitive map'' of the retrieval results.
+The entire retrieval process can be completed within 2 minutes, significantly shorter than LLM-based deep research frameworks, while still delivering high-relevance results with in-depth topological reasoning.

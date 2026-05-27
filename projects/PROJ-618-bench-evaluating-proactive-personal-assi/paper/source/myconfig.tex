@@ -1,0 +1,255 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TCOLORBOX SETTINGS BEGIN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{casebg}{HTML}{F7F7FF}      % 内容区背景
+\definecolor{casetitlebg}{HTML}{8F8FE0} % 标题区背景
+\newcommand{\tcolorboxCase}[2]{%
+\begin{tcolorbox}[
+    title=#1,
+    colback=casebg, 
+    colframe=casetitlebg,
+    rounded corners,
+    sharp corners=northeast,
+    sharp corners=southwest,
+    width=1.00\linewidth,
+    boxsep=2pt,
+    top=2pt,
+    bottom=2pt,
+    enhanced,
+    breakable,
+    before=\setlength{\parindent}{0pt},
+]
+
+#2
+\end{tcolorbox}
+}
+
+\newcommand{\tcolorboxPrompt}[2]{%
+\begin{tcolorbox}[
+    title=#1,
+    colback=cyan!3, 
+    colframe=blue!50!black!60,
+    rounded corners,
+    sharp corners=northeast,
+    sharp corners=southwest,
+    width=1.00\linewidth,
+    boxsep=2pt,
+    top=2pt,
+    bottom=2pt,
+    enhanced,
+    breakable,
+    before=\setlength{\parindent}{0pt},
+]
+
+#2
+\end{tcolorbox}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TCOLORBOX SETTINGS END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LSTLISTING SETTINGS BEGIN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{220,220,220}
+\definecolor{codecomment}{RGB}{100,120,100}
+\definecolor{codekeyword}{RGB}{40,80,140}
+\definecolor{codestring}{RGB}{150,60,60}
+
+\lstdefinestyle{icmlcode}{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=false,
+  tabsize=2,
+  showstringspaces=false,
+  % numbers=left,
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  % xleftmargin=1.5em,
+  xleftmargin=0em,
+  % framexleftmargin=1em,
+  framexleftmargin=0.5em,
+  aboveskip=0.75em,
+  belowskip=0.75em,
+  captionpos=b,
+  keywordstyle=\color{codekeyword}\bfseries,
+  commentstyle=\color{codecomment}\itshape,
+  stringstyle=\color{codestring}
+}
+
+% Python
+\lstdefinestyle{python}{
+  style=icmlcode,
+  language=Python
+}
+
+% JSON
+\lstdefinelanguage{json}{
+  basicstyle=\ttfamily\footnotesize,
+  showstringspaces=false,
+  breaklines=true,
+  morestring=[b]",
+  stringstyle=\color{codestring},
+  literate=
+   *{0}{{{\color{codekeyword}0}}}{1}
+    {1}{{{\color{codekeyword}1}}}{1}
+    {2}{{{\color{codekeyword}2}}}{1}
+    {3}{{{\color{codekeyword}3}}}{1}
+    {4}{{{\color{codekeyword}4}}}{1}
+    {5}{{{\color{codekeyword}5}}}{1}
+    {6}{{{\color{codekeyword}6}}}{1}
+    {7}{{{\color{codekeyword}7}}}{1}
+    {8}{{{\color{codekeyword}8}}}{1}
+    {9}{{{\color{codekeyword}9}}}{1}
+    {:}{{{\color{gray}{:}}}}{1}
+    {,}{{{\color{gray}{,}}}}{1}
+    {\{}{{{\color{gray}{\{}}}}{1}
+    {\}}{{{\color{gray}{\}}}}}{1}
+    {[}{{{\color{gray}{[}}}}{1}
+    {]}{{{\color{gray}{]}}}}{1},
+}
+
+\lstdefinestyle{json}{
+  style=icmlcode,
+  language=json
+}
+
+% YAML
+\lstdefinelanguage{yaml}{
+  keywords={true,false,null,y,n},
+  keywordstyle=\color{codekeyword}\bfseries,
+  basicstyle=\ttfamily\footnotesize,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{codecomment}\itshape,
+  % morestring=[b]',
+  morestring=[b]",
+  stringstyle=\color{codestring},
+  showstringspaces=false,
+  breaklines=true,
+  literate=
+    {---}{{{\color{gray}{---}}}}{3}
+    {...}{{{\color{gray}{...}}}}{3}
+    {:}{{{\color{gray}{:}}}}{1}
+    {-}{{{\color{gray}{-}}}}{1}
+    {>}{{{\color{gray}{>}}}}{1}
+    {|}{{{\color{gray}{|}}}}{1},
+}
+
+\lstdefinestyle{yaml}{
+  style=icmlcode,
+  language=yaml
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LSTLISTING SETTINGS END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TCBLISTING SETTINGS BEGIN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{tcbcodekeyword}{RGB}{40,80,140}
+\definecolor{tcbcodecomment}{RGB}{90,120,90}
+\definecolor{tcbcodestring}{RGB}{150,70,70}
+
+\lstdefinelanguage{json}{
+  morestring=[b]",
+  showstringspaces=false,
+  literate=
+   *{0}{{{\color{tcbcodekeyword}0}}}{1}
+    {1}{{{\color{tcbcodekeyword}1}}}{1}
+    {2}{{{\color{tcbcodekeyword}2}}}{1}
+    {3}{{{\color{tcbcodekeyword}3}}}{1}
+    {4}{{{\color{tcbcodekeyword}4}}}{1}
+    {5}{{{\color{tcbcodekeyword}5}}}{1}
+    {6}{{{\color{tcbcodekeyword}6}}}{1}
+    {7}{{{\color{tcbcodekeyword}7}}}{1}
+    {8}{{{\color{tcbcodekeyword}8}}}{1}
+    {9}{{{\color{tcbcodekeyword}9}}}{1}
+    {:}{{{\color{gray}{:}}}}{1}
+    {,}{{{\color{gray}{,}}}}{1}
+    {\{}{{{\color{gray}{\{}}}}{1}
+    {\}}{{{\color{gray}{\}}}}}{1}
+    {[}{{{\color{gray}{[}}}}{1}
+    {]}{{{\color{gray}{]}}}}{1},
+}
+
+% YAML for tcblisting
+\lstdefinelanguage{tcbyaml}{
+  keywords={true,false,null,y,n},
+  keywordstyle=\color{tcbcodekeyword}\bfseries,
+  basicstyle=\ttfamily\footnotesize,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{tcbcodecomment}\itshape,
+  % morestring=[b]',
+  morestring=[b]",
+  stringstyle=\color{tcbcodestring},
+  showstringspaces=false,
+  breaklines=true,
+  literate=
+    {---}{{{\color{gray}{---}}}}{3}
+    {...}{{{\color{gray}{...}}}}{3}
+    {:}{{{\color{gray}{:}}}}{1}
+    {-}{{{\color{gray}{-}}}}{1}
+    {>}{{{\color{gray}{>}}}}{1}
+    {|}{{{\color{gray}{|}}}}{1},
+}
+
+\lstdefinestyle{icmltcblistingcode}{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=false,
+  tabsize=2,
+  showstringspaces=false,
+  % 不让 listings 自己画背景或边框
+  frame=none,
+  % numbers=left,
+  numbers=none,
+  % xleftmargin=1.5em,
+  xleftmargin=0em,
+  % framexleftmargin=1em,
+  framexleftmargin=0.5em,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  keywordstyle=\color{tcbcodekeyword}\bfseries,
+  commentstyle=\color{tcbcodecomment}\itshape,
+  stringstyle=\color{tcbcodestring}
+}
+
+
+\newtcblisting{tcbCodeListing}[3][]{%
+  title={#2},
+  listing only,
+  listing options={
+    style=icmltcblistingcode,
+    language={#3},
+    {#1}
+  },
+  % 背景、边框全部由 tcolorbox 控制
+  colback=cyan!3,
+  colframe=blue!50!black!60,
+  rounded corners,
+  sharp corners=northeast,
+  sharp corners=southwest,
+  width=1.00\linewidth,
+  boxsep=2pt,
+  top=2pt,
+  bottom=2pt,
+  left=2pt,
+  right=2pt,
+  enhanced,
+  breakable,
+  before=\setlength{\parindent}{0pt},
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TCBLISTING SETTINGS END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

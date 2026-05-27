@@ -1,0 +1,79 @@
+\begin{wrapfigure}{r}{0.42\columnwidth}
+    \centering
+    \vspace{-10pt}
+    \begin{tikzpicture}
+    \colorlet{judgeColor}{black!45}
+    \colorlet{verifierColor}{teal!55}
+
+    \def\figAxisFont{\fontsize{7.5pt}{8.5pt}\selectfont}
+    \def\figSmallFont{\fontsize{6.5pt}{7.5pt}\selectfont}
+
+    \begin{axis}[
+        width=\linewidth,
+        height=4.2cm,
+        ybar,
+        bar width=10pt,
+        ymin=70, ymax=102,
+        xmin=-0.45, xmax=1.45,
+        xtick={0,1},
+        xticklabels={{Task-level\\alignment},{Checklist\\agreement}},
+        xticklabel style={font=\figAxisFont, align=center},
+        ytick={70,80,90,100},
+        yticklabel style={font=\figAxisFont},
+        ylabel={Agreement (\%)},
+        ylabel style={font=\figAxisFont},
+        axis lines=left,
+        axis line style={-},
+        axis on top,
+        tick align=outside,
+        major tick length=2pt,
+        ymajorgrids=true,
+        grid style={gray!20},
+        nodes near coords,
+        point meta=y,
+        every node near coord/.append style={
+            /pgf/number format/fixed,
+            /pgf/number format/precision=1,
+            font=\figSmallFont,
+            yshift=1pt,
+        },
+        legend style={
+            draw=none,
+            font=\figSmallFont,
+            at={(0.5,1.09)},
+            anchor=south,
+            legend columns=2,
+            column sep=0.7em,
+        },
+        legend image code/.code={
+            \draw[#1] (0cm,-0.05cm) rectangle (0.14cm,0.05cm);
+        },
+        clip=false,
+    ]
+
+    \addplot[
+        draw=none,
+        fill=judgeColor,
+        bar shift=-7pt,
+    ] coordinates {
+        (0,79.2)
+        (1,92.2)
+    };
+
+    \addplot[
+        draw=none,
+        fill=verifierColor,
+        bar shift=7pt,
+    ] coordinates {
+        (0,94.1)
+        (1,97.3)
+    };
+
+    \legend{\texttt{LLM Judge}, \texttt{Hard-coded Verifier}}
+
+    \end{axis}
+    \end{tikzpicture}
+    \vspace{-1.3em}
+    \captionof{figure}{Alignment with human adjudication on a 120-task comparison set.}
+    \label{fig:judge-vs-checker-human-alignment}
+\end{wrapfigure}

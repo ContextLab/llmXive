@@ -1,0 +1,1744 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+% =====================================================
+% ICML 2026 TEMPLATE (DO NOT REORDER CORE PACKAGES)
+% =====================================================
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+
+% Hyperlinks (ICML compatible)
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+% \usepackage{icml2026}
+% \usepackage[preprint]{icml2026}
+\usepackage[accepted]{icml2026}
+
+% =====================================================
+% MATH & THEOREMS
+% =====================================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+% % Optional math command definitions (from old template)
+% \input{math_commands.tex}
+
+% =====================================================
+% ALGORITHMS
+% =====================================================
+% \usepackage{algorithm}
+% \usepackage{algorithmicx}
+% \usepackage{algpseudocode}
+% Attempt to make hyperref and algorithmic work together better:
+% \newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% =====================================================
+% TABLES
+% =====================================================
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{longtable}
+\usepackage{arydshln}
+
+% =====================================================
+% FIGURES & LAYOUT
+% =====================================================
+\usepackage{wrapfig}
+
+% =====================================================
+% COLORS & BOXES
+% =====================================================
+\usepackage{xcolor}
+\definecolor{softblue}{rgb}{0.21,0.49,0.74}
+
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+
+% =====================================================
+% MISC
+% =====================================================
+\usepackage{nicefrac}
+\usepackage{pifont}
+
+% Line numbers (keep disabled unless needed)
+% \usepackage[switch]{lineno}
+
+% =====================================================
+% REFERENCES & CROSS-REFS
+% =====================================================
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% =====================================================
+% TODONOTES (DEVELOPMENT ONLY)
+% =====================================================
+\usepackage[textsize=tiny]{todonotes}
+
+% =====================================================
+% THEOREMS
+% =====================================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% =====================================================
+% SHORTCUT COMMANDS
+% =====================================================
+\newcommand{\etc}{\textit{etc}.}
+\newcommand{\ie}{\textit{i}.\textit{e}.}
+\newcommand{\eg}{\textit{e}.\textit{g}.}
+
+% =====================================================
+% RUNNING TITLE
+% =====================================================
+\icmltitlerunning{Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{
+  Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos
+  % MIGA: Make Train-Free Infinite Frame Generation Great Again for Consistent Long Videos
+  }
+
+  % It is OKAY to include author information, even for blind submissions: the
+  % style file will automatically remove it for you unless you've provided
+  % the [accepted] option to the icml2026 package.
+
+  % List of affiliations: The first argument should be a (short) identifier you
+  % will use later to specify author affiliations Academic affiliations
+  % should list Department, University, City, Region, Country Industry
+  % affiliations should list Company, City, Region, Country
+
+  % You can specify symbols, otherwise they are numbered in order. Ideally, you
+  % should not use this facility. Affiliations will be numbered in order of
+  % appearance and this is the preferred way.
+  \icmlsetsymbol{equal}{*}
+
+  % \begin{icmlauthorlist}
+  %   \icmlauthor{Firstname1 Lastname1}{equal,yyy}
+  %   \icmlauthor{Firstname2 Lastname2}{equal,yyy,comp}
+  %   \icmlauthor{Firstname3 Lastname3}{comp}
+  %   \icmlauthor{Firstname4 Lastname4}{sch}
+  %   \icmlauthor{Firstname5 Lastname5}{yyy}
+  %   \icmlauthor{Firstname6 Lastname6}{sch,yyy,comp}
+  %   \icmlauthor{Firstname7 Lastname7}{comp}
+  %   %\icmlauthor{}{sch}
+  %   \icmlauthor{Firstname8 Lastname8}{sch}
+  %   \icmlauthor{Firstname8 Lastname8}{yyy,comp}
+  %   %\icmlauthor{}{sch}
+  %   %\icmlauthor{}{sch}
+  % \end{icmlauthorlist}
+
+  % \icmlaffiliation{yyy}{Department of XXX, University of YYY, Location, Country}
+  % \icmlaffiliation{comp}{Company Name, Location, Country}
+  % \icmlaffiliation{sch}{School of ZZZ, Institute of WWW, Location, Country}
+
+  % \icmlcorrespondingauthor{Firstname1 Lastname1}{first1.last1@xxx.edu}
+  % \icmlcorrespondingauthor{Firstname2 Lastname2}{first2.last2@www.uk}
+
+  % % You may provide any keywords that you find helpful for describing your
+  % % paper; these are used to populate the "keywords" metadata in the PDF but
+  % % will not be shown in the document
+  % \icmlkeywords{Machine Learning, ICML}
+
+  % \vskip 0.3in
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Xiaokun Feng}{ucas,crise,amap}
+    \icmlauthor{Jiashu Zhu}{amap}
+    \icmlauthor{Meiqi Wu}{amap}
+    \icmlauthor{Chubin Chen}{amap} \\
+    \icmlauthor{Fangyuan Mao}{amap}
+    \icmlauthor{Haiyang Guo}{amap}
+    \icmlauthor{Jiahong Wu}{amap}\textsuperscript{$\ddagger$}
+    \icmlauthor{Xiangxiang Chu}{amap}
+    \icmlauthor{Kaiqi Huang}{ucas,crise}\textsuperscript{$\dagger$}
+    
+    \end{icmlauthorlist}
+
+    \icmlaffiliation{ucas}{School of Artificial Intelligence, University of Chinese Academy of Sciences, Beijing, China}
+    \icmlaffiliation{crise}{The Key Laboratory of Cognition and Decision Intelligence for Complex Systems, Institute of Automation, Chinese Academy of Sciences, Beijing, China}
+    \icmlaffiliation{amap}{AMAP, Alibaba Group, Beijing, China}    
+    
+    \icmlcorrespondingauthor{Kaiqi Huang}{kaiqi.huang@nlpr.ia.ac.cn}
+    
+    \icmlkeywords{Machine Learning, ICML}
+    
+    \vskip 0.3in
+]
+
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column listing the
+% affiliations and the copyright notice. The command takes one argument, which
+% is text to display at the start of the footnote. The \icmlEqualContribution
+% command is standard text for equal contribution. Remove it (just {}) if you
+% do not need this facility.
+
+% Use ONE of the following lines. DO NOT remove the command.
+% If you have no special notice, KEEP empty braces:
+\printAffiliationsAndNotice{
+Work done during the internship at AMAP, Alibaba Group. $\dagger$ Corresponding author $\ddagger$ Project lead
+}  % no special notice (required even if empty)
+% Or, if applicable, use the standard equal contribution text:
+% \printAffiliationsAndNotice{\icmlEqualContribution}
+
+% \begin{figure*}[h]
+% \centering
+% % \vspace{-30pt}
+% \includegraphics[width=\linewidth]{images/fig1_3.pdf}
+% \vspace{-10pt}
+% \captionof{figure}{\textbf{MIGA enables temporally consistent, infinite-frame ($\infty$) video generation in a training-free manner.}
+%         We present three long videos (1000+ frames) generated by MIGA, while the foundation model used by MIGA, Wan2.1-1.3B \cite{wan2025wan}, supports only 81 frames by default.
+%         }
+%     % \vspace{-10pt}
+% \label{fig:fig1}
+% \end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\linewidth]{images/fig1_3.pdf}
+% \vspace{-10pt}
+\caption{\textbf{MIGA enables temporally consistent, infinite-frame ($\infty$) video generation in a training-free manner.}
+        We present three long videos (1000+ frames) generated by MIGA, while the foundation model used by MIGA, Wan2.1-1.3B \citep{wan2025wan}, supports only 81 frames by default.
+        }
+% \vspace{-10pt}
+\label{fig:fig1}
+\end{figure*}
+
+\begin{abstract}
+% Without relying on significant computational or data resources, train-free long video generation aims to extend the duration of foundation video generation models, which are typically limited to short videos.
+% Direct noise prediction on the entire long latents incurs substantial computational overhead.
+% In contrast, frame-level autoregressive frameworks, \eg, FIFO-diffusion, offer the advantage of generating infinitely long videos with constant memory consumption.
+% However, the substantial gap between training and inference phases hinders the effective utilization of foundation models. Furthermore, maintaining long-term consistency is central to long video generation, yet existing methods pay insufficient attention to this aspect.
+% To mitigate these concerns, we propose \textbf{MIGA}, a novel infinite-frame long video generation method. 
+% \textbf{(i)} Firstly, considering that the training-inference gap mainly stems from the excessive noise span of latents fed to the model during inference, we propose an effective two-stage alignment mechanism. By partitioning the generation process of existing frameworks into two dedicated stages with reduced noise spans, the capabilities of advanced foundation models are efficiently unlocked.
+% \textbf{(ii)} Additionally, building upon the intrinsic properties of frame-level autoregressive frameworks, we introduce an innovative dual consistency enhancement mechanism. 
+% Specifically, our self-reflection approach evaluates and corrects early high-noise frames, while our long-range frame guidance approach leverages later low-noise frames with broad coverage to steer the generation process. These strategies jointly promote consistency in the generated content.
+% \textbf{(iii)} Finally, extensive experiments on VBench and NarrLV demonstrate the state-of-the-art performance of MIGA.
+
+
+
+%%%% v2 精简版
+Without incurring significant computational overhead, train-free long video generation aims to enable foundation video generation models to produce longer videos.
+Frame-level autoregressive frameworks, \eg, FIFO-diffusion, offer the advantage of generating infinitely long videos with constant memory consumption.
+However, the mismatch between training and inference, coupled with the challenge of maintaining long-term consistency, limits the effective utilization of foundation models. 
+To mitigate these concerns, we propose \textbf{MIGA}, a novel infinite-frame long video generation method. 
+Firstly, we propose an effective two-stage alignment mechanism that mitigates the training-inference gap by reducing the excessive noise span fed to the model. We then introduce an innovative dual consistency enhancement mechanism, where the self-reflection approach corrects early high-noise frames and the long-range frame guidance approach leverages later low-noise frames with broad coverage to steer generation, jointly improving temporal consistency. 
+Extensive experiments on VBench and NarrLV demonstrate the state-of-the-art performance of MIGA.
+Our project page is available at \url{https://xiaokunfeng.github.io/miga_homepage/}.
+
+
+\end{abstract}
+
+\section{Introduction}
+
+Recent advances in video generation \cite{wan2025wan,yang2024cogvideox} have demonstrated impressive capabilities in synthesizing short video clips. However, many real-world applications, such as film production, game development, and world simulation, require coherent long video generation \cite{cho2024sora,mao2026omni}. 
+Building long video generation models from scratch typically requires substantial computational and data resources, owing to the inherent complexity of the video modality \cite{waseem2024video,hu2023multi}.
+% In addition, the scarcity of high-quality long video datasets makes it difficult to meet training requirements, posing further challenges for optimal long video synthesis \cite{li2024survey}. 
+Given the remarkable performance of off-the-shelf foundation video generation models on short videos \cite{chen2024videocrafter2,wan2025wan}, a more efficient and practical approach is to extend their generation length in a training-free manner \cite{qiu2023freenoise}.
+
+
+To achieve train-free long video generation, one straightforward strategy is to increase the number of latents fed into foundation models and design specific mechanisms that transfer their short-term generation capabilities to long video scenarios.
+For example, FreeNoise \cite{qiu2023freenoise} ingeniously reorganizes the initial noise and models temporal dependencies via window-based fusion.
+Following this paradigm, FreeLong \cite{lu2024freelong} and FreePCA \cite{tan2025freepca} integrate the global and local information from the perspectives of frequency and principal component analysis, respectively.
+Although these methods have shown promising results, their memory requirements increase proportionally with the number of generated frames, which significantly restricts the achievable video length (\eg, generating minute-long videos).
+
+
+
+To enable infinite frame generation, recent studies such as Diffusion-Forcing \cite{chen2024diffusion} and AR-Diffusion \cite{sun2025ar} attempt to assign different noise levels to different latent features, thereby empowering diffusion models to iteratively generate in an autoregressive fashion. 
+Notably, FIFO-Diffusion \cite{kim2024fifo} maintains a noise queue where noise levels increase sequentially along the frame dimension, and employs a first-in-first-out denoising process for frame-level autoregressive generation. More importantly, this approach requires only fixed memory consumption, enabling FIFO-Diffusion to support infinite-frame generation.
+
+
+Despite these merits, train-free frame-level autoregressive models such as FIFO-Diffusion still leave considerable room for further improvement.
+On one hand, a substantial gap exists between training and inference in long video generation \cite{kim2024fifo}. 
+In particular, during training, the model is exposed to input latents with a single noise level, whereas during inference, it must handle multiple noise levels corresponding to the number of frames.
+These discrepancies prevent the foundation generation models from fully realizing their potential, which in turn leads to issues such as content drift and visual artifacts \cite{cai2025mixture}.
+On the other hand, long-term consistency is a central objective for long video generation \cite{henschel2025streamingt2v, yang2025scalingnoise}, yet existing methods pay insufficient attention to this goal.
+For example, FIFO-Diffusion only facilitates feature interaction between neighboring chunks through lookahead denoising, but lacks explicit modeling of long-range frame dependencies, resulting in suboptimal long video quality.
+
+
+To address these limitations, we propose \textbf{MIGA}, a novel train-free method for infinite-frame video generation. Firstly, we propose an intuitive and effective \textbf{two-stage training-inference alignment mechanism} to mitigate the inherent training-inference gap in existing train-free autoregressive frameworks. 
+As this gap primarily arises from the excessive noise span of latents fed to the model during inference, we alleviate it through two dedicated optimization stages.
+The first stage maintains a zigzag-structured latent queue to proactively narrow the noise span of input latents. 
+In the second stage, once all latents are denoised to the same noise level, a unified denoising process is conducted, achieving a noise span that matches that of the training phase.
+
+Furthermore, leveraging the properties of the maintained long latents queue, we present an innovative \textbf{dual consistency enhancement mechanism} to promote long-term consistency. 
+For early high-noise latents, we design a self-reflection approach that efficiently evaluates and promptly corrects them, thereby ensuring consistency in the subsequently generated video.
+Unlike existing methods that rely on external evaluators and redundant computations \cite{yang2025scalingnoise,he2025scaling}, our approach achieves this solely through self-similarity analysis among early latents. For the later low-noise latents, we introduce a long-range frame guidance approach that incorporates them into each denoising iteration, facilitating feature interactions between distant frames.
+Benefiting from these improvements, MIGA achieves significant gains of 4.7\% and 2.0\% in subject and background consistency on VBench \cite{huang2024vbench}, respectively, compared to FIFO-Diffusion with a similar framework. Moreover, evaluations on NarrLV \cite{feng2025narrlv} demonstrate that MIGA exhibits exceptional capability in generating rich narrative content.
+
+
+In summary, our contributions are as follows:
+\begin{itemize}
+    \item To inherit the merits of train-free frame-level autoregressive frameworks while alleviating their limitations in training-inference gap and long-term consistency modeling, we propose a novel infinite-frame generation method, MIGA.
+    \item We design an effective two-stage training-inference alignment mechanism that proactively mitigates the training-inference gap by optimizing the noise span. Furthermore, we introduce an innovative dual consistency enhancement mechanism that promotes long-term consistency through self-reflection and long-range frame guidance.
+    \item  Comprehensive experiments on the mainstream VBench and NarrLV benchmarks demonstrate that MIGA achieves new state-of-the-art performance.
+\end{itemize}
+
+% \textbf{(i)} To inherit the merits of train-free frame-level autoregressive frameworks while alleviating their limitations in training-inference gap and long-term consistency modeling, we propose a novel infinite-frame generation method, MIGA.
+% \textbf{(ii)} We design an effective two-stage training-inference alignment mechanism that proactively mitigates the training-inference gap by optimizing the noise span. Furthermore, we introduce an innovative dual consistency enhancement mechanism that promotes long-term consistency through self-reflection and long-range frame guidance.
+% \textbf{(iii)}  Comprehensive experiments on the mainstream VBench and NarrLV benchmarks demonstrate that MIGA achieves new state-of-the-art performance.
+
+\paragraph{Conflict of Interest Disclosure.}
+The authors X.F., J.Z., M.W., C.C., F.M., H.G., J.W., and X.C. are employed by AMAP, Alibaba Group. One of the open-source foundation
+models used in this work, Wan2.1~\citep{wan2025wan}, was developed by the Tongyi Lab of Alibaba Group, a separate team independent of
+AMAP. The authors had no privileged access to Wan2.1 beyond its public
+  open-source release. All experiments follow the standard public benchmarks (VBench and NarrLV) and evaluation protocols to ensure fair comparison.
+
+\begin{figure*}[t!]
+\centering
+\includegraphics[width=\textwidth]{images/fig2_v3.pdf}
+\caption{
+        \textbf{Inference framework comparison between FIFO-Diffusion and our Two-Stage Training-Inference Alignment (TTA) mechanism.}
+\textbf{(a)} FIFO-Diffusion achieves frame-level autoregressive generation by maintaining a queue of latents with progressively increasing noise levels, resulting in an excessive noise span among the local latents fed to the model.
+\textbf{(b)} Our TTA effectively reduces the noise span: Stage~1 performs zigzag denoising by slowing down the rate of noise changes, and Stage~2 applies unified denoising once the output latents reach the same noise level.
+}
+\label{fig:fig2_fifo_vs_ours}
+\end{figure*}
+
+\section{Related Works}
+\textbf{Text-to-Video Generation.}
+Recently, the field of video generation has witnessed remarkable advancements. Early approaches primarily adopted frameworks that combine 2D spatial and 1D temporal modeling, such as VideoCrafter \cite{chen2023videocrafter1,chen2024videocrafter2}, and Stable Video Diffusion \cite{blattmann2023stable}. These have progressively transitioned into more advanced 3D full-attention architectures, as illustrated by Video Diffusion Models \cite{ho2022video} and CogVideoX \cite{yang2024cogvideox}. Recently developed foundation models, including HunyuanVideo \cite{kong2024hunyuanvideo} and Wan \cite{wan2025wan} have further contributed to the improvement in video quality \cite{huang2024vbench,ling2025vmbench} .
+Despite offering more accessible tools for video generation, current video diffusion models are generally constrained to training on short, fixed-length videos \cite{lu2024freelong,lu2025freelong++,tan2025freepca}.
+Given the crucial role of long videos in practical scenarios \cite{cho2024sora}, achieving consistent generation of long videos has emerged as a prominent research topic.
+
+
+\textbf{Long Video Generation.}
+In pursuit of long video generation, several studies \cite{yan2025long,guo2025long,teng2025magi,chen2025skyreels,xiao2025captain,deng2024autoregressive,huang2025self} introduce specialized architectures and perform large-scale training on curated datasets.
+However, their heavy reliance on computational and data resources limits broad adoption within the community \cite{lu2024freelong}.
+To address this, recent work explores train-free strategies to efficiently extend the output duration of foundation video generators in a resource-friendly manner.
+For example, Gen-L-Video \cite{wang2023gen} extends video length by merging overlapping subsequences with a sliding-window method. FreeNoise \cite{qiu2023freenoise}, FreeLong \cite{lu2024freelong}, and FreePCA \cite{tan2025freepca} integrate local and global features by leveraging discovered patterns in initialization noise, frequency distributions, and principal component structures. 
+RIFLEx \cite{zhao2025riflex} refines temporal position encodings to reduce periodic repetition. 
+Unlike these finite-extension methods, FIFO-Diffusion \cite{kim2024fifo} equips diffusion models with frame-level autoregressive generation via a noise space design \cite{chen2024diffusion,liu2025pusa}, supporting infinite frames with fixed memory. Building on this, we propose MIGA to retain autoregressive advantages while addressing the training-inference gap and consistency limitations.
+
+
+
+
+\section{Methods}
+\label{sec_method}
+% In this section, we first take FIFO-Diffusion as an example to illustrate the concrete implementation process of the train-free frame-level autoregressive generation framework (see Sec.~\ref{sec_3_1}). Next, we analyze the significant gap between training and inference present in the existing framework, thereby motivating our \textbf{Two-Stage Training-Inference Alignment (TTA) Mechanism } (see Sec.~\ref{sec_3_2}).
+% Finally, in light of the critical importance of consistency preservation in long video generation, our proposed \textbf{Dual Consistency Enhancement (DCE) Mechanism } is described in detail (see Sec.~\ref{sec_3_3}).
+
+
+
+\subsection{Preliminaries: Train-Free Frame-Level Autoregressive Generation.}
+\label{sec_3_1}
+Mainstream diffusion-based video generation models typically comprise a conditional encoder (\eg, a text encoder), a variational autoencoder (VAE), and a noise prediction network $\varepsilon_\theta(\cdot)$. 
+The VAE enables bidirectional mapping between pixel-level video data and compact latents, $\mathbf{z}_0 = [\mathbf{z}_0^1; ...; \mathbf{z}_0^f] \in \mathbb{R}^{f \times l \times d}$, where $f$, $l$, and $d$ represent the frame count, tokens per frame, and token dimension, respectively.
+For clarity, we regard the latent feature of each frame (\eg, $\mathbf{z}_0^i \in \mathbb{R}^{l \times d}, i \in [1,f]$ ) as a basic unit throughout this paper. For example, the  number of latents in $\mathbf{z}_0$ is $f$.
+Given a trained $\varepsilon_\theta(\cdot)$, the fully denoised latents $\mathbf{z}_0$ can be recovered from Gaussian noise $\mathbf{z}_T \sim \mathcal{N}(0, I)$. 
+Following a time step schedule $0 = \tau_0 < \tau_1 < \cdots < \tau_T = T$, $\mathbf{z}_0$ is generated by progressively refining $\mathbf{z}_{\tau_T} = [\mathbf{z}_{\tau_T}^1; \ldots; \mathbf{z}_{\tau_T}^f]$ over $T$ steps with a sampler $\phi(\cdot)$ (\eg, DDPM \cite{ho2020denoising}).
+Each denoising step is formulated as:
+\begin{align}
+  [\mathbf{z}_{\tau_{t-1}}^1; \ldots; \mathbf{z}_{\tau_{t-1}}^f] = \phi([\mathbf{z}_{\tau_t}^1; \ldots; \mathbf{z}_{\tau_t}^f], [\tau_t; \ldots; \tau_t]; \varepsilon_\theta),
+  \label{eq:fifo}
+\end{align}
+where $\mathbf{z}_{\tau_t}^i$ denotes the latent of the $i$-th frame at time step $\tau_t$. For convenience, conditional inputs (\eg, text prompts) are omitted in the above formulation.
+
+
+To enable a foundation model that can only generate $f_0$ frames to produce long videos consisting of $N$ frames ($N \gg f_0$), frame-level autoregressive generation centers around maintaining a latents queue $\mathcal{Q} = \{\mathbf{z}_{\tau_1}^1;\ldots; \mathbf{z}_{\tau_T}^T\}$, which contains $T$ latents (\ie, its length $L$ equals the total number of denoising steps $T$) with progressively increasing noise level, as illustrated in Fig.~\ref{fig:fig2_fifo_vs_ours} (a). 
+After applying one inference step to all latents in $\mathcal{Q}$:
+\begin{align}
+  \{\mathbf{z}_{\tau_0}^1;\ldots; \mathbf{z}_{\tau_{T-1}}^T\} = \Phi(\{\mathbf{z}_{\tau_1}^1;\ldots; \mathbf{z}_{\tau_T}^T\}, \{\tau_1;\ldots;\tau_T\}; \varepsilon_\theta),
+  \label{eq:fifo_infer}
+\end{align}
+the first latent in the queue, $\mathbf{z}^1_{\tau_0}$, becomes a fully denoised, clean latent. By dequeuing $\mathbf{z}^1_{\tau_0}$ from $\mathcal{Q}$ and appending a new Gaussian latent $\mathbf{z}^T_{\tau_T}$ to the end, the process can be repeated to realize frame-level autoregressive generation. 
+In this way, FIFO-Diffusion realizes a diagonal denoising paradigm.
+Notably, since the queue length $T$ is typically greater than the number of frames $f_0$ that the model can process, a single inference step of the sampler $\Phi(\cdot)$ over $\mathcal{Q}$ involves multiple executions of the standard sampler $\phi(\cdot)$.
+For instance, FIFO-Diffusion employs a sliding window approach with a window size of $f_0$ and a stride of $\left\lfloor f_0 / 2 \right\rfloor$.
+Prior to performing the above autoregressive generation, $\mathcal{Q}$ must be properly initialized.
+For details of initialization and the autoregressive generation procedure, please refer to App.~\ref{app:pseudocode_initial_fifo}.
+
+
+
+\subsection{Two-Stage Training-Inference Alignment (TTA).}
+\label{sec_3_2}
+
+The effectiveness of the aforementioned train-free frame-level autoregressive generation relies on the assumption that the foundation model can perform noise prediction on $f_0$ latents with varying noise levels. However, the model is trained to denoise $f_0$ latents at unified noise levels. 
+This significant gap between training and inference hinders the foundation model's full generative potential.
+Although FIFO-Diffusion \cite{kim2024fifo} has considered this issue and theoretically proved that the error introduced by train-free autoregressive generation is bounded by the span of noise levels, its final approach still requires the model to handle latents with a noise span of $f_0$.
+Given the impact of the noise span in input latents, a natural question emerges: \textit{\textbf{can we further reduce the noise span of latents fed to the model during inference, so as to better align the input condition with that of training?}}
+Motivated by this, we decompose the generation process into two stages, aiming to maximally align training and inference by intuitively and effectively reducing the noise span.
+
+\begin{figure*}[!t]
+    \centering
+    % \vspace{-30pt}
+    \includegraphics[width=0.88\textwidth]{images/module_2_insight.pdf}
+    % \vspace{-10pt}
+    \caption{\textbf{Modeling insight behind our self-reflection mechanism.} 
+    \textbf{(a)} A video case containing the consistency anomaly. 
+    \textbf{(b-d)} Similarity computation between clean and noisy latents, along with the corresponding correlation coefficient analysis results.}
+    \label{module_2_insight}
+    % \vspace{-10pt}
+\end{figure*}
+
+
+\textbf{Stage 1: Zigzag Iterative Denoising.}  
+Autoregressive generation inherently requires maintaining a noise queue that inevitably covers a range of noise levels \cite{chen2024diffusion,sun2025ar}. 
+To reduce the noise span of latents processed by the model, an intuitive adjustment is to slow down the rate at which noise levels change within the queue.
+Specifically, as shown in Fig.~\ref{fig:fig2_fifo_vs_ours} (b),  we initialize and maintain a noise queue $\mathcal{Q}_{s_1}$ as follows:
+\begin{align}
+\mathcal{Q}_{s_1} = \{&
+\underbrace{\mathbf{z}^1_{\tau _e}, \cdots, \mathbf{z}^{L_{\mathrm{zig}}}_{\tau_e}}_{L_{\mathrm{zig}}}, \underbrace{\mathbf{z}^{L_{\mathrm{zig}}+1}_{\tau_{e+1}}, \cdots, \mathbf{z}^{2L_{\mathrm{zig}}}_{\tau_{e+1}}}_{L_{\mathrm{zig}}}, \notag\\
+&\cdots, \underbrace{\mathbf{z}^{L-L_{\mathrm{zig}}+1}_{\tau_T}, \cdots, \mathbf{z}^{L}_{\tau_T}}_{L_{\mathrm{zig}}}
+\}.
+\end{align}
+Unlike existing methods that change the noise level with every single latent frame, our queue alters it every $L_{\mathrm{zig}}$ latents. 
+This zigzag structure provides the model with a smoother noise span across inputs, contributing to mitigating the training–inference gap.
+At each iteration, we dequeue the first $L_{\mathrm{zig}}$ latents $\mathbf{z}^i_{\tau_e}$ (where $i \in [1, L_{\mathrm{zig}}]$) from the front of the queue, and append $L_{\mathrm{zig}}$ new Gaussian latents $\mathbf{z}^T_{\tau_T}$ to its end. 
+It is important to note that the time step $\tau_e$ of the first $L_{\mathrm{zig}}$ latents in the queue is greater than $\tau_0$, which means that Stage 1 only partially completes the denoising process. The subsequent denoising steps are carried out in Stage 2.
+
+
+\textbf{Stage 2: Denoising at a Unified Noise Level.}
+After $n$ iterations in Stage 1, we obtain $nL_{\mathrm{zig}}$ latents, all at the same time step $\tau_{e-1}$. These latents form the queue $\mathcal{Q}_{s_2}$ to be processed in the second stage:
+\begin{align}
+\mathcal{Q}_{s_2} = \{\mathbf{z}^1_{\tau_{e-1}}, \mathbf{z}^2_{\tau_{e-1}}, \ldots, \mathbf{z}^{nL_{\mathrm{zig}}}_{\tau_{e-1}}\}.
+\end{align}
+Since all latent frames share the same noise level, the model processes latents with identical intensity at each denoising operation. This setup aligns well with the conditions seen during training. 
+We also apply the sliding-window denoising over $\mathcal{Q}_{s_2}$, sequentially processing its frames. As the foundation model handles a fixed latent length per pass, memory usage does not grow with longer videos.  
+After $(e-1)$ iterative denoising steps, we obtain $nL_{\mathrm{zig}}$ fully denoised frames (\ie, $N = nL_{\mathrm{zig}}$ frames in the generated video).  
+Details of the TTA procedure are provided in App.~\ref{app:pseudocode_2stages}.
+
+
+
+
+\subsection{Dual Consistency Enhancement (DCE).}
+\label{sec_3_3}
+Although the TTA mechanism effectively mitigates the gap between training and inference, it still lacks dedicated modeling designs for the crucial goal of long-term generation tasks, \ie, maintaining long-term consistency.
+To address this issue, we propose an innovative dual consistency enhancement mechanism based on the characteristics of our maintained latent queue.
+Specifically, the \textbf{self-reflection approach} focuses on latents at the tail of the queue, efficiently evaluating and correcting newly added latents. 
+Besides, the \textbf{long-range frame guidance approach} targets latents at the head of the queue, incorporating long-range, low-noise latents into each local denoising process.
+The roles of these two methods within the queue are shown in the framework diagram in Fig.~\ref{app:fig_app_dce_module} of App.~\ref{app:pseudocode_dce}.
+
+
+
+% \begin{figure*}[t]
+% \hspace{0pt} % 保证 minipage 左对齐
+% \begin{minipage}[t]{0.65\textwidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{images/module_2_insight.pdf}
+%     \caption{\textbf{Modeling insight behind our self-reflection mechanism.} 
+%     \textbf{(a)} A video case containing the consistency anomaly. 
+%     \textbf{(b-d)} Similarity computation between clean and noisy latents, along with the corresponding correlation coefficient analysis results.}
+%     \label{module_2_insight}
+% \end{minipage}
+% \end{figure*}
+
+
+\begin{figure*}[!t]
+    \centering
+    % \includegraphics[width=0.88\textwidth]{images/ab_all_figure.pdf}
+    \includegraphics[width=0.88\textwidth]{images/ab_all_figure_small_1.pdf}
+
+    \caption{\textbf{Illustration of ablation study results.}
+(a-d) Starting from the \textit{baseline}, our \textit{Stage~1}, \textit{Stage~2}, and \textit{DCE} mechanism are sequentially added.
+\textcolor{yellow}{Yellow bboxes}
+ in the first frame indicate regions with prominent noise. \textcolor{red}{Red bboxes} denote regions in the current frame where the subject exhibits noticeable inconsistency compared to previous frames.
+ Better viewed in color with zoom-in.}
+    \label{fig:ab_all_figure}
+\end{figure*}
+
+% 前面llm的部分可以简化一下
+\textbf{Self-Reflection.}
+Recent advances in LLMs \cite{guo2025deepseek,jaech2024openai,bai2023qwen} have explored test-time scaling (TTS) \cite{zhang2025survey,chen2026unveiling}, which improves response quality by allocating extra computation during inference.  
+Inspired by this, TTS techniques have been adapted to video generation \cite{ma2025inference,liu2025video,he2025scaling,wu2025imagerysearch,chen2025taming}, using multiple candidate latents with evaluation and selection strategies to enhance video quality.  
+Unlike prior work focusing on fixed-length videos, our self-reflection approach integrates TTS with the characteristics of frame-level autoregressive generation for long videos.  
+Given that temporal consistency is crucial in long video generation, long-term consistency is typically set as the primary objective when extending the search time.  
+The most relevant work, ScalingNoise \cite{yang2025scalingnoise}, uses a consistency reward for long video generation.  
+Differences between our approach and ScalingNoise, as well as other TTS methods, are detailed below.
+
+
+
+Our self-reflection approach interprets TTS as comprising two processes: first, adaptively evaluating the locations where anomalies (\eg, abrupt drops in consistency) occur; second, performing an expanded search at these points for correction (please refer to Fig.~\ref{app:fig_app_dce_module}~(b) for the flowchart). 
+Unlike previous methods that either conduct search at every step \cite{yang2025scalingnoise} or at predefined scheduler steps \cite{he2025scaling}, our approach aims to efficiently and flexibly determine when to trigger expanded search.
+To achieve this, a straightforward and accurate consistency metric is required. 
+Existing methods often rely on external models for quantitative assessment. For example, ScalingNoise uses DINO \cite{caron2021emerging} for consistency evaluation, introducing redundancy into the pipeline. Moreover, since these models require clean pixel inputs, consistency assessment during intermediate denoising steps necessitates additional denoising and VAE decoding procedures \cite{yang2025scalingnoise}, resulting in high computational overhead.
+To overcome these limitations, we propose a more efficient consistency evaluation strategy inspired by the following observation.
+
+
+Firstly, the latent space produced by the VAE, after large-scale pre-training, exhibits strong interpretability \cite{kingma2013auto}. Specifically, the distance between latents reflects the degree of difference between the corresponding video frames. Therefore, we can leverage the cosine similarity between different latents as a consistency metric, thereby avoiding the need for additional external evaluation models. 
+Formally, let $\mathbf{q}_\mathrm{eval} \in \mathbb{R}^{f_\mathrm{eval} \times l \times c}$ denote the $f_\mathrm{eval}$ consecutive latents to be evaluated, and $\mathbf{q}_\mathrm{ref} \in \mathbb{R}^{f_\mathrm{ref} \times l \times c}$ denote those of the preceding $f_\mathrm{ref}$ adjacent latents. The consistency score $C_\mathrm{score}$ is computed as follows:
+\begin{equation}
+\mathbf{q}'_\mathrm{eval} = \mathrm{norm}_1\left( \mathrm{mean}_2(\mathbf{q}_\mathrm{eval}) \right),
+\label{eq:sim_1}
+\end{equation}
+\begin{equation}
+\mathbf{q}'_\mathrm{ref} = \mathrm{norm}_1\left( \mathrm{mean}_2(\mathbf{q}_\mathrm{ref}) \right),
+\label{eq:sim_1_1}
+\end{equation}
+\begin{equation}
+C_\mathrm{score} = \mathrm{mean}_1\left( \mathrm{mean}_2\left( \mathbf{q}'_\mathrm{eval} {\mathbf{q}'_\mathrm{ref}}^\mathrm{T}\right) \right),
+\label{eq:sim_2}
+\end{equation}
+where $\mathrm{norm}_i(\cdot)$ and $\mathrm{mean}_i(\cdot)$ denote normalization and mean operations along the $i$-th dimension ($i \geq 0$), respectively, and $T$ denotes matrix transpose.  
+Fig.~\ref{module_2_insight}(a,b) show sequential consistency evaluation over video segments ($f_\mathrm{eval}=4$, $f_\mathrm{ref}=8$) on a clean video with a consistency anomaly. 
+It is evident that the proposed metric can effectively identify the position of the consistency disruption.
+
+However, considering the influence of the initial noisy latents \cite{qiu2023freenoise} on the final generated content—such as the overall layout of the video being largely determined in the early denoising stages—we aim to assess consistency at the early high-noise latents rather than at the clean latents, in order to enable timely adjustments. 
+A straightforward solution is to fully denoise these high-noise latents and then compute  $C_\mathrm{score}$.
+Undoubtedly, such frequent denoising operations would incur substantial computational overhead.
+Fortunately, we observe that the early high-noise latents and the final clean latents exhibit a strong correlation in terms of  $C_\mathrm{score}$.
+As shown in Fig.~\ref{module_2_insight} (c), higher noise levels reduce the absolute magnitude of the $C_\mathrm{score}$ curve, yet the fluctuation patterns remain similar across different noise levels. Fig.~\ref{module_2_insight} (d) presents the correlation coefficients between the $C_\mathrm{score}$ curves under various noise levels and those of clean latents, indicating strong correlation even at higher noise intensities (\eg, 40, with the maximum noise 
+level being 50).
+
+
+Leveraging this insight, we can timely evaluate consistency at early stages. Specifically, for the latent queue $\mathcal{Q}$ covering all noise levels, we define a judgment index $f_\mathrm{judg}$ at its tail (\ie, the early high-noise latents). At each iteration over $\mathcal{Q}$, latents in $[f_\mathrm{judg} - f_\mathrm{ref},\, f_\mathrm{judg} - 1]$ serve as references to evaluate those in $[f_\mathrm{judg},\, f_\mathrm{judg} + f_\mathrm{eval} - 1]$. 
+When the decrease in $C_\mathrm{score}$ between adjacent chunks exceeds the threshold $\delta_{\mathrm{adju}}$, an expanded search is triggered for correction.
+
+Upon detecting a consistency anomaly, all latents after the position $f_\mathrm{judg}$,  $q^{\mathrm{init}}_{\mathrm{samp}} = \{z^i\}_{i=1}^{L-f_\mathrm{judg}+1}$, are considered for correction (\ie, the required format for our search samples).
+Benefiting from our early determination of the judgment node, the number of latents included in the search sample is relatively small.
+Taking into account the diversity and effectiveness of the search samples, we design a progressively guided search strategy. 
+Assuming the number of search samples is $n_\mathrm{samp}$, we first randomly sample $n_\mathrm{samp}$ Gaussian noise latents as starting points for each sample:
+$q^{k}_{\mathrm{samp}} = \{z^{1}\},\ k \in [1, n_\mathrm{samp}]$.
+Subsequently, we use the preceding $f_\mathrm{guid}$ latents before $f_\mathrm{judg}$, which have passed our evaluation, as the guiding information, denoted as $q_{\mathrm{guid}} = \{z^{i}\}_{i=1}^{f_\mathrm{guid}}$.
+For each sample $q^{k}_{\mathrm{samp}}$, we concatenate it with $q_{\mathrm{guid}}$ and perform iterative denoising. 
+After each iteration, only the latents in $q^{k}_{\mathrm{samp}}$ are updated, and a new noise frame is appended to $q^{k}_{\mathrm{samp}}$. 
+After $L-f_\mathrm{judg}$ iterations, $q^{k}_{\mathrm{samp}}$ contains $(L-f_\mathrm{judg}+1)$ latents, 
+maintaining the same data format as $q^{init}_{\mathrm{samp}}$.
+
+
+After obtaining $k$ candidate samples, the consistency score $C_{\mathrm{score}}^{k}$ is computed for each candidate based on its first $f_{\mathrm{eval}}$ latents. 
+If the maximum score exceeds $C_{\mathrm{score}}^{\mathrm{init}}$, $Q_{\mathrm{samp}}^{\mathrm{init}}$ is replaced by the corresponding $Q_{\mathrm{samp}}^{k}$, completing the correction. 
+Details of the sampling and correction process are provided in Alg.~\ref{alg:miga_self_reflect} in App.~\ref{app:pseudocode_dce}.
+
+
+
+
+\textbf{Long-Range Frame Guidance.}
+When applying the foundation model for sliding inference on the maintained queue $\mathcal{Q} = \{z^{i}\}_{i=1}^{L}$, the model only accesses $f_0$ nearby latents at each denoising step.
+To enable interactions among distant latents \cite{feng2024memvlt} and thereby enhance the consistency of generated videos, we propose a simple yet effective long-range frame guidance method. 
+Specifically, when the model processes latents within a local window, we explicitly sample $m_\mathrm{guid}$ latents sparsely from earlier positions in $\mathcal{Q}$.
+Since these latents are relatively clean, we utilize them to guide the denoising of the current latents (see Fig.~\ref{app:fig_app_dce_module}~(a) for an illustration).
+Formally, when the model slides to position $l \in [1, m_{\mathrm{guid}}]$, 
+the input is defined as
+$q_{\mathrm{input}} = [z^{l}, \ldots, z^{l+f_0-1}]$.
+When $l \in (m_{\mathrm{guid}},\, L - m_{\mathrm{guid}}]$, we have
+\begin{equation}
+q_{\mathrm{input}} = [z^{1}, \ldots, z^{m_{\mathrm{guid}}},\, z^{l}, \ldots, z^{l+f_0-m_{\mathrm{guid}}-1}].
+\end{equation}
+for head latents in the queue (\ie, $l \leq m_\mathrm{guid}$), long-range guidance is not applied due to the insufficient number of preceding latents.
+Note that these latents are also obtained by iterative denoising propagated from the tail of the sequence, such that they have also been guided by their preceding latents during the process. 
+For the selection of $m_\mathrm{guid}$ guidance latents, we uniformly sample $m_\mathrm{guid}$ latents from the $\min(m_\mathrm{guid}L_{\mathrm{zig}}, l-1)$ prior latents before position $l$. 
+
+
+
+
+\section{Experiments}
+\subsection{Implementation Details.}
+\label{exp:imp}
+
+
+\textbf{Model Implementation.}
+To ensure fair comparison with prior training-free long video generation methods, we apply MIGA to the widely-used foundation model, VideoCrafter2 \cite{chen2024videocrafter2}. Besides, we incorporate MIGA into the latest model, Wan2.1-1.3B \cite{wan2025wan}.
+By default, these models generate 16 and 21 latents, respectively.
+For infinite-frame generation, the configuration of VideoCrafter2-based MIGA is as follows: $T=64$, $L_{\mathrm{zig}}=4$, $\tau_{e}=10$, $\delta_{\mathrm{adju}}=0.01$, and $m_{\mathrm{guid}}=6$. And Wan2.1-based MIGA adopts $T=54$, $L_{\mathrm{zig}}=7$, $\tau_e=10$, $\delta_{\mathrm{adju}}=0.01$, and $m_{\mathrm{guid}}=4$. 
+Moreover, thanks to the flexibility of the frame-level autoregressive framework, we can achieve multi-text control by providing different text conditions to the latents at various temporal positions. 
+For more implementation details, see App.~\ref{app:multi_prompt} and App.~\ref{app:imple_different_models}.
+
+
+% VBench serves as a representative evaluation benchmark in the video generation task.
+\textbf{Evaluation Benchmarks.}
+Our evaluations are conducted on the VBench \cite{huang2024vbench} and NarrLV \cite {feng2025narrlv} benchmarks.  
+Following the evaluation protocols of existing long video generators, we primarily use the video quality dimensions assessed by the VBench-Long toolkit.
+The commonly used metrics include subject consistency (S.C.), background consistency (B.C.), motion smoothness (M.S.), temporal flicker (T.F.), and their mean, Overall Score (O.S.).
+NarrLV is a recent benchmark for narrative expressiveness in long video models. 
+We use evaluation prompts with Temporal Narrative Atom (TNA) counts of 2, 3, and 4, and report results on three dimensions, \ie, scene attributes ($s_{\text{att}}$), target attributes ($t_{\text{att}}$), and target actions ($t_{\text{act}}$).
+
+
+\textbf{Compared Baselines.}
+For methods that extend video length by increasing input latents, we compare against FreePCA~\cite{tan2025freepca} and FreeLong~\cite{lu2024freelong}. For approaches supporting infinite-length video generation, we select FIFO-Diffusion~\cite{kim2024fifo} and ScalingNoise~\cite{yang2025scalingnoise} as representative baselines.
+Recently, training-based methods such as Self-Forcing~\cite{huang2025self} have enabled frame-level autoregressive long video generation. 
+As these methods are beyond the scope of this work, we discuss and compare them in App~\ref{app:comp_sf}. 
+Results show that MIGA achieves comparable performance to these training-based approaches.
+
+
+\begin{table}[t]
+\centering
+\caption{Quantitative results of MIGA and baselines on VBench.
+The best results are highlighted in \textbf{bold}.}
+\label{tab:vbench-results}
+% \vspace{-5pt}
+\small
+\setlength{\tabcolsep}{3pt} % adjust column spacing if needed
+\begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Method} & \textbf{Infinite} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+    \midrule
+    \multicolumn{7}{l}{\textit{VideoCrafter2-Based}} \\
+    \midrule
+    FreePCA           & \ding{55} & 93.57 & 95.24 & 93.73 & 91.27 & 93.45 \\
+    FreeLong          & \ding{55} & 95.72 & 96.42 & 98.38 & 97.28 & 96.95 \\
+    FIFO-Diffusion    & \ding{51} & 92.92 & 95.01 & 97.19 & 94.94 & 95.02 \\
+    ScalingNoise      & \ding{51} & 94.29 & 95.52 & 97.86 & 96.12 & 95.95 \\
+    MIGA (ours)       & \ding{51} & \textbf{97.66} & \textbf{96.99} & \textbf{98.60} & \textbf{98.03} & \textbf{97.82} \\
+    \midrule
+    \multicolumn{7}{l}{\textit{Wan2.1-Based}} \\
+    \midrule
+    FIFO-Diffusion    & \ding{51} & 92.67 & 93.37 & 98.03 & 97.09 & 95.29 \\
+    MIGA (ours)       & \ding{51} & \textbf{96.46} & \textbf{95.50} & \textbf{98.85} & \textbf{98.14} & \textbf{97.24} \\
+    \bottomrule
+\end{tabular}
+% \vspace{-5pt}
+\end{table}
+
+\begin{table*}[t]
+\centering
+\caption{Quantitative results of MIGA and baselines under varying TNA settings on NarrLV.}
+\label{tab:narrlv-results}
+
+\small
+% \setlength{\tabcolsep}{3pt} % adjust if needed
+\begin{tabular}{l c ccc ccc ccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}} & \multirow{2}{*}{\textbf{Infinite}} 
+    & \multicolumn{3}{c}{\textbf{TNA=2}} 
+    & \multicolumn{3}{c}{\textbf{TNA=3}} 
+    & \multicolumn{3}{c}{\textbf{TNA=4}} \\
+    \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11}
+    & 
+    & $\boldsymbol{s_{\text{att}}}$ & $\boldsymbol{t_{\text{att}}}$ & $\boldsymbol{t_{\text{act}}}$ 
+    & $\boldsymbol{s_{\text{att}}}$ & $\boldsymbol{t_{\text{att}}}$ & $\boldsymbol{t_{\text{act}}}$ 
+    & $\boldsymbol{s_{\text{att}}}$ & $\boldsymbol{t_{\text{att}}}$ & $\boldsymbol{t_{\text{act}}}$ \\
+    \midrule
+    \multicolumn{11}{l}{\textit{VideoCrafter2-Based}} \\
+    \midrule
+    FreePCA  & \ding{55} 
+        & 56.96 & 58.72 & 56.41
+        & 53.61 & 53.93 & 52.57
+        & 50.46 & 57.28 & 53.27 \\
+    FreeLong & \ding{55}
+        & 59.43 & 59.57 & 55.95
+        & 56.57 & 59.82 & 56.57
+        & 54.13 & 60.53 & 54.13 \\
+    ScalingNoise  & \ding{51}
+        & 59.28 & 55.47 & 58.09
+        & 53.27 & 58.14 & 54.05 
+        & 52.37 & 58.41 & 53.59 \\
+    FIFO-Diffusion    & \ding{51}
+        & 67.02 & 63.55 & 58.29
+        & 61.15 & 60.64 & 58.42
+        & 66.09 & 66.01 & 54.66 \\
+    MIGA (ours)        & \ding{51}
+        & \textbf{69.78} & \textbf{63.94} & \textbf{59.01}
+        & \textbf{63.53} & \textbf{61.05} & \textbf{59.52}
+        & \textbf{68.87} & \textbf{68.77} & \textbf{55.78} \\
+    \midrule
+    \multicolumn{11}{l}{\textit{Wan2.1-Based}} \\
+    \midrule
+    FIFO-Diffusion
+        & \ding{51}
+        & 67.77 & 64.25 & 65.40
+        & 55.42 & 59.02 & 58.91
+        & 57.43 & 56.10 & 53.89 \\
+    MIGA (ours)
+        & \ding{51}
+        & \textbf{79.32} & \textbf{67.87} & \textbf{67.94}
+        & \textbf{69.48} & \textbf{66.33} & \textbf{63.86}
+        & \textbf{75.05} & \textbf{72.31} & \textbf{62.90} \\
+    \bottomrule
+\end{tabular}
+\end{table*}
+
+
+
+\subsection{Comparison with Baselines.}
+\label{sota_compare}
+\textbf{VBench.}
+As shown in Tab.~\ref{tab:vbench-results}, MIGA achieves state-of-the-art performance across all metrics, for both foundation models.
+% irrespective of the adopted foundation model. 
+For the VideoCrafter2-based models, we standardized the generation length to 128 frames to ensure fair comparison. Compared to the strong baseline FreeLong, MIGA demonstrates further improvement in both subject and background consistency, which validates the effectiveness of our approach in enhancing video consistency.
+For the Wan2.1-based models, we evaluate the generation of 161-frame videos.
+Compared against FIFO-Diffusion, which also adopts the autoregressive framework, MIGA achieves comprehensive improvements in all metrics, highlighting the efficacy of our optimizations to the framework.
+It is worth noting that the consistency scores of Wan2.1-based MIGA are slightly lower than those of VideoCrafter2-based MIGA. 
+We conjecture that this is because the latter primarily generates animation-style videos, where maintaining long-term consistency is relatively easier than in the realistic style videos produced by the former.
+A qualitative example and analysis are provided in App.~\ref{app_compare_2_model}.
+Subsequent evaluation results on the NarrLV demonstrate that Wan2.1-based MIGA achieves notable advantages in narrative expressiveness.
+
+
+\textbf{NarrLV.} To generate videos that correspond to the rich narrative content in NarrLV, we adopt a sequence of changing prompts guidance strategy similar to FIFO-Diffusion. 
+Specifically, latents at different temporal positions are conditioned on different prompts. 
+As shown in Tab.~\ref{tab:narrlv-results}, FIFO-Diffusion outperforms existing VideoCrafter2-based methods in narrative expressiveness. Furthermore, our MIGA achieves additional improvements, which can be attributed to its design that enables more stable video content generation and thereby supports richer semantic expression.
+
+\textbf{Qualitative Results.} 
+Fig.~\ref{fig:fig1} presents three 1k-frame videos generated by the Wan2.1-based MIGA, which closely follow the text prompts and maintain strong subject and background consistency. For additional visualizations, please refer to Fig.~\ref{fig:app_wan_case} and Fig.~\ref{fig:app_videocrafter_case} in App.~\ref{app:qua_res}.
+
+Due to space limits, additional \textbf{user studies} and \textbf{computational efficiency analyses} are in App.~\ref{app:user_study} and App.~\ref{app:comp_eff}.
+
+
+
+
+
+\subsection{Ablation Study.}
+\label{sec:ablation}
+To explore the effectiveness of our mechanism design, we conduct comprehensive ablation studies on the VideoCrafter2-based MIGA using VBench. Implementation details for each setting are provided in App.~\ref{app:ab_exp_imp}.
+
+
+
+
+\textbf{Study on Core Mechanisms Designs.}
+The core contribution of our work is the introduction of the novel Two-Stage Training-Inference Alignment (TTA) and Dual Consistency Enhancement (DCE) mechanisms. As shown in Tab.~\ref{tab:ab_1}, FIFO-Diffusion serves as the baseline without our proposed mechanisms. Individually, TTA and DCE improve the overall score by 2.03\% and 1.73\%, respectively, demonstrating their effectiveness. 
+Combined, they provide complementary gains and further enhance performance.
+% Furthermore, combining these two mechanisms provides complementary benefits and further enhances performance.
+
+\begin{table*}[t]
+\centering
+% ----------------- 第一个表格（原第三个表格，放到最前面） -----------------
+\begin{minipage}[t]{0.35\linewidth} 
+    \centering
+    \fontsize{8.5pt}{12pt}\selectfont
+    \caption{Ablation results of our core mechanisms (\ie, TTA, DCE).}
+    \label{tab:ab_1}
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{ccccccc}
+    \toprule
+    \textbf{TTA} & \textbf{DCE} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+    \midrule
+      &           & 92.92 & 95.01 & 97.19 & 94.94 & 95.02 \\
+    \ding{51} &           & 96.74 & 96.75 & 97.57 & 97.12 & 97.05 \\
+              & \ding{51} & 96.10 & 96.47 & 97.88 & 96.56 & 96.75 \\
+    \ding{51} & \ding{51} & 97.66 & 96.99 & 98.60 & 98.03 & 97.82 \\
+    \bottomrule
+    \end{tabular}
+\end{minipage}
+\hspace{0.02\linewidth}
+% ----------------- 第二个表格（原第一个表格） -----------------
+\begin{minipage}[t]{0.29\linewidth} 
+    \centering
+    \fontsize{8.5pt}{12pt}\selectfont
+    \caption{Ablation results of $L_{\mathrm{zig}}$.}
+    \label{tab:ab_zig_length}
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lccccc} 
+        \toprule
+        \textbf{$L_{\mathrm{zig}}$} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+        \midrule
+        1 & 94.23 & 94.52 & 97.98 & 96.47 & 95.80 \\
+        2 & 94.24 & 95.93 & 98.55 & 97.90 & 96.66 \\
+        4 & 95.37 & 95.96 & 98.65 & 98.02 & 97.00 \\
+        6 & 95.14 & 96.04 & 98.60 & 97.97 & 96.94 \\
+        8 & 95.54 & 95.96 & 98.56 & 97.90 & 96.99 \\
+        \bottomrule
+    \end{tabular}
+\end{minipage}
+\hspace{0.02\linewidth}
+% ----------------- 第三个表格（原第二个表格） -----------------
+\begin{minipage}[t]{0.29\linewidth} 
+    \centering
+    \fontsize{8.5pt}{12pt}\selectfont
+    \caption{Ablation results of $m_{\mathrm{guid}}$.}
+    \label{tab:ab_3}
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lccccc} 
+        \toprule
+        \textbf{$m_{\mathrm{guid}}$} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+        \midrule
+        0  & 94.23 & 94.52 & 97.98 & 96.47 & 95.80 \\
+        2  & 94.66 & 94.72 & 98.64 & 98.05 & 96.52 \\
+        4  & 94.59 & 94.58 & 98.64 & 98.10 & 96.48 \\
+        6  & 95.45 & 95.69 & 98.45 & 97.89 & 96.87 \\
+        8  & 95.32 & 95.12 & 98.60 & 98.05 & 96.77 \\
+        \bottomrule
+    \end{tabular}
+\end{minipage}
+
+\end{table*}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Ablation results of TTA design.}
+\label{tab:ab_2}
+
+% \small
+\setlength{\tabcolsep}{3pt} % adjust column spacing if needed
+\begin{tabular}{lccccc}
+    \toprule
+    \textbf{Setting} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+    \midrule
+    Baseline   & 92.92 & 95.01 & 97.19 & 94.94 & 95.02 \\
+    +Stage 1   & 95.98 & 96.54 & 97.57 & 97.03 & 96.78 \\
+    +Stage 2   & 96.74 & 96.75 & 97.57 & 97.12 & 97.05 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% \begin{minipage}[t]{0.38\linewidth} % 留出稍大宽度给图片
+%     \centering
+%     \caption{Ablation study on the steps in stage~2.}
+%     \includegraphics[width=\linewidth]{images/ab_phase2_steps_bar.pdf}
+%     \label{ab_phase2_steps_bar}
+% \end{minipage}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{images/ab_threshold.pdf}
+% \vspace{-10pt}
+\caption{Ablation study on the adjustment threshold $\delta_{\mathrm{adju}}$. 
+\textbf{(a-b)} Effects of $\delta_{\mathrm{adju}}$ on O.S., $R_{\mathrm{corr}}$, and $R_{\mathrm{succ}}$.}
+\label{ab_threshold}
+% \vspace{-10pt}
+\end{figure}
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{images/ab_phase2_steps_bar.pdf}
+% \vspace{-10pt}
+\caption{Ablation study on the steps in stage~2.}
+\label{ab_phase2_steps_bar}
+% \vspace{-10pt}
+\end{figure}
+
+
+
+\textbf{Study on TTA.}
+Our TTA mechanism comprises two stages: stage 1 employs zigzag iterative denoising, and stage 2 applies denoising at a unified noise level. As shown in Tab.~\ref{tab:ab_2}, sequentially introducing these two stages leads to notable performance improvements. 
+As shown in Fig.~\ref{fig:ab_all_figure} (a–c), stage~1 significantly reduces drastic anomalies present in the baseline, while stage~2 plays a key role in suppressing video noise.
+Furthermore, Tab.~\ref{tab:ab_zig_length} shows the impact of the zigzag width $L_{\mathrm{zig}}$ in stage~1 on model performance. 
+As $L_{\mathrm{zig}}$ increases, \ie, the foundation model processes frames within a smaller noise span, the Overall Score (O.S.) first improves and then saturates. Accordingly, we set $L_{\mathrm{zig}} = 4$.
+Additionally, Fig.~\ref{ab_phase2_steps_bar} illustrates the effect of varying the number of second-stage steps, \ie, $(e-1)$. As the step count increases, performance gains gradually stabilize. However, if only the second stage is performed, \ie, inference is conducted directly on $N$ noise latents, model performance drops sharply. 
+This approach is no longer autoregressive, as it requires simultaneous processing of independently initialized latents. In contrast, the omitted stage~1 leverages autoregressive generation to establish implicit information transfer among the initialized latents.
+Further discussion is in App.~\ref{app:ab_exp_imp}.
+
+
+
+\textbf{Study on DCE.}
+Our DCE mechanism consists of self-reflection and long-range frame guidance. 
+Fig.~\ref{ab_threshold} shows the impact of different adjustment thresholds $\delta_{\mathrm{adju}}$, where a smaller $\delta_{\mathrm{adju}}$ leads to more frequent searches. 
+Fig.~\ref{ab_threshold} (b) presents two metrics that reflect the search effectiveness. We denote the total inference steps, steps evaluated for correction, and steps actually corrected as $n_{\mathrm{all}}$, $n_{\mathrm{eval}}$, and $n_{\mathrm{corr}}$, respectively. The correction rate and success rate are defined as $R_{\mathrm{corr}} = n_{\mathrm{corr}} / n_{\mathrm{all}}$ and $R_{\mathrm{succ}} = n_{\mathrm{corr}} / n_{\mathrm{eval}}$.
+As the threshold decreases, the model tends to perform broader searches, increasing the corrected steps (\ie, $R_{\mathrm{corr}}$) and consequently improving the O.S. metric, demonstrating test-time scaling capability.
+Since the number of steps with consistency anomalies within $n_{\mathrm{all}}$ is limited, performance gains eventually converge. Further reducing the threshold increases $n_{\mathrm{eval}}$ but not $n_{\mathrm{corr}}$, leading to a lower $R_{\mathrm{succ}}$.
+Balancing performance and computational cost, we set the default $\delta_{\mathrm{adju}}$ to 0.01.
+Tab.~\ref{tab:ab_3} presents the effect of varying the number of guidance frames, with optimal performance achieved at $m_{\mathrm{guid}}=6$.
+App.~\ref{app:more_exp} provides an analysis of computational efficiency.
+
+\section{Conclusion}
+Train-free frame-level autoregressive generation frameworks, represented by FIFO-Diffusion, demonstrate the capability to generate infinitely long videos with constant memory cost.
+To build on these merits while overcoming limitations in the training-inference gap and long-term consistency, we introduced MIGA, a novel infinite-frame generation method. 
+An effective two-stage training-inference alignment mechanism is developed to proactively mitigate the training-inference gap by optimizing the noise span. 
+Additionally, an innovative dual consistency enhancement mechanism is proposed to improve long-term consistency through self-reflection and long-range frame guidance.
+Experiments show that MIGA achieves state-of-the-art results on VBench and NarrLV compared to existing train-free methods, demonstrating its ability to generate long videos with strong temporal consistency and rich narratives.
+
+
+\section*{Acknowledgements}
+This work is supported in part by the National Science and Technology Major Project (Grant No.2022ZD0116403).
+
+\section*{Impact Statement}
+
+This paper presents work whose goal is to advance the field of Machine
+Learning. There are many potential societal consequences of our work, none
+which we feel must be specifically highlighted here.
+
+% In the unusual situation where you want a paper to appear in the
+% references without citing it in the main text, use \nocite
+\nocite{langley00}
+
+\bibliography{example_paper}
+\bibliographystyle{icml2026}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{equation}{0}
+\renewcommand{\theequation}{A\arabic{equation}}
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{A\arabic{figure}}
+
+\section*{Appendix}
+
+
+
+\section{Further Details on Our Method}
+\subsection{Pseudocode Implementation}
+\label{app:pseudocode}
+In Sec.~\ref{sec_method}, we first take FIFO-Diffusion as an example to illustrate the concrete implementation process of the train-free frame-level autoregressive generation framework (see Sec.~\ref{sec_3_1}). Next, we analyze the significant gap between training and inference present in the existing framework, thereby motivating our \textbf{Two-Stage Training-Inference Alignment (TTA) Mechanism } (see Sec.~\ref{sec_3_2}).
+Finally, in light of the critical importance of consistency preservation in long video generation, our proposed \textbf{Dual Consistency Enhancement (DCE) Mechanism } is described in detail (see Sec.~\ref{sec_3_3}).
+In this section, we provide the detailed pseudocode implementations of each method to more clearly illustrate their procedures.
+
+\subsubsection{Preliminaries: Train-Free Frame-Level Autoregressive Generation.}
+\label{app:pseudocode_initial_fifo}
+
+As described in Sec.~\ref{sec_3_1}, existing frame-level autoregressive generation methods rely on maintaining a noise queue $\mathcal{Q} = \{\mathbf{z}_{\tau_1}^1;\ldots; \mathbf{z}_{\tau_T}^T\}$ with progressively increasing noise levels.
+Here, we take FIFO-Diffusion \cite{kim2024fifo} as an example to illustrate the computation process. 
+
+
+The queue is first initialized, typically using clean initial latents generated by the foundation model. Since the queue length equals the denoising step count ($T$), which exceeds the initial latent count $f_0$, FIFO-Diffusion (see Alg.~\ref{alg:fifo_initial_latent}) uses the initial latents to initialize the last $f_0$ queue latents; the sampler \cite{ho2020denoising,lipman2022flow}  then adds noise from $\tau_{i}$ to $\tau_{j}$ (where $j > i$ )according to the scheduler-specified noise strengths:
+
+\begin{equation}
+\mathbf{z}_{\tau_{j}} \gets \Phi.\mathrm{add\_noise}(\mathbf{z}_{\tau_{i}} , \tau_{i},\tau_{j}).
+\end{equation}
+Next, the remaining $(T-f)$ latents are initialized by injecting varying levels of noise into the first latent.
+
+
+After initializing the noise queue, iterative inference can be performed as specified in Eq.~\ref{eq:fifo}. As shown in Alg.~\ref{alg:fifo_auto_gen}, with each inference step, the noise level of all latents in the queue decreases by one, making the first latent clean; this latent is then dequeued from the queue and saved. To ensure continuous generation, a Gaussian noise latent is enqueued at the end of the queue at each step.
+
+
+It is important to note that in Eq.~\ref{eq:fifo}, one inference step by the sampler over the entire queue requires multiple noise predictions from the foundation model $\epsilon_{\theta}(\cdot)$, since $\epsilon_{\theta}(\cdot)$ can only process $f_0$ latents at a time while the queue contains $T$ latents ($T>f$). Specifically, FIFO-Diffusion adopts a sliding window approach: as shown in Alg.~\ref{alg:fifo_slide_window}, the foundation model iteratively predicts noise for the queue using a window of size $f_0$ with a stride of $l_{\mathrm{stride}}$.
+
+
+
+\begin{algorithm}[htbp]
+\caption{Initial latents construction in FIFO-Diffusion}
+\label{alg:fifo_initial_latent}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Denoising step count $T$, initial latents count $f_0$, denoising network $\epsilon_{\theta}(\cdot)$, and sampler $\Phi(\cdot)$
+\STATE {\bfseries Input:} initial clean latents 
+$q_\mathrm{clean}=\{\mathbf{z}_{\tau_0}^1; \ldots; \mathbf{z}_{\tau_0}^{f_0}\}$,
+time steps $t_\mathrm{clean}=\{\tau_0,\dots,\tau_0\}$
+\STATE {\bfseries Output:} 
+$\mathcal{Q}_\mathrm{init}=\{\mathbf{z}_{\tau_1}^1;\dots;\mathbf{z}_{\tau_T}^T\}$,
+$t_\mathrm{init}=\{\tau_1,\dots,\tau_T\}$
+
+\STATE $\mathcal{Q}_\mathrm{init} \gets \{\}$, $t_\mathrm{init} \gets \{\}$
+
+\STATE {\bfseries \textcolor{blue}{\# Initialize the early latents using the first frame}}
+
+\FOR{$i = 1$ {\bfseries to} $T - f_0$}
+    \STATE $\mathbf{z}_{\tau_i}^i \gets \Phi.\mathrm{add\_noise}(q_\mathrm{clean}[0], t_\mathrm{clean}[0], \tau_i)$
+    \STATE $\mathcal{Q}_\mathrm{init}.\text{enqueue}(\mathbf{z}_{\tau_i}^i)$
+    \STATE $t_\mathrm{init}.\text{enqueue}(\tau_i)$
+\ENDFOR
+
+\STATE {\bfseries \textcolor{blue}{\# Manually add noise to the initial latents}}
+
+\FOR{$i = 1$ {\bfseries to} $f_0$}
+    \STATE $\mathbf{z}_{\tau_{T-f_0+i}}^i \gets
+    \Phi.\mathrm{add\_noise}(q_\mathrm{clean}[i], t_\mathrm{clean}[i], \tau_{T-f_0+i})$
+    \STATE $\mathcal{Q}_\mathrm{init}.\text{enqueue}(\mathbf{z}_{\tau_{T-f_0+i}}^i)$
+    \STATE $t_\mathrm{init}.\text{enqueue}(\tau_{T-f_0+i})$
+\ENDFOR
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{init}$, $t_\mathrm{init}$
+\end{algorithmic}
+\end{algorithm}
+
+
+%%%%%%%%%%%%
+
+\begin{algorithm}[htbp]
+\caption{Frame-level autoregressive generation in FIFO-Diffusion}
+\label{alg:fifo_auto_gen}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Denoising step count $T$, generation latents count $N$, 
+denoising network $\epsilon_{\theta}(\cdot)$, and sampler $\Phi(\cdot)$
+
+\STATE {\bfseries Input:} 
+$\mathcal{Q}=\{\mathbf{z}_{\tau_1}^1; \dots; \mathbf{z}_{\tau_T}^T\}$,
+$t=\underbrace{\{\tau_{0}; \dots; \tau_{T}}_{T}\}$
+
+\STATE {\bfseries Output:} 
+$\mathcal{Q}_\mathrm{gen}=\{\mathbf{z}_{\tau_0}^1; \dots; \mathbf{z}_{\tau_0}^N\}$
+
+\STATE $\mathcal{Q}_\mathrm{gen} \gets \{\}$
+
+\STATE {\bfseries \textcolor{blue}{\# Frame-level autoregressive generation}}
+
+\FOR{$i = 1$ {\bfseries to} $N$}
+    \STATE $Q \gets \Phi(Q, t; \epsilon_{\theta})$
+    \STATE $\mathbf{z}_{\tau_0}^i \gets \mathcal{Q}.\text{dequeue}()$
+    \STATE $\mathcal{Q}_\mathrm{gen}.\text{enqueue}(\mathbf{z}_{\tau_0}^i)$
+    \STATE $\mathbf{z}_{\tau_T}^T \sim \mathcal{N}(0, \mathbf{I})$
+    \STATE $\mathcal{Q}.\text{enqueue}(\mathbf{z}_{\tau_T}^T)$
+\ENDFOR
+
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{gen}$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+%%%%%%%%%%%%%%%%%%%
+\begin{algorithm}[htbp]
+\caption{One-step inference over the latents queue in FIFO-Diffusion}
+\label{alg:fifo_slide_window}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Denoising network $\epsilon_{\theta}(\cdot)$, initial latents count $f_0$, sliding window stride $l_{\mathrm{stride}}$, and initial sampler $\phi(\cdot)$
+\STATE {\bfseries Input:} $\mathcal{Q}=\{\mathbf{z}_{\tau_1}^1; \dots; \mathbf{z}_{\tau_T}^T\}$, $t=\underbrace{\{\tau_{0}; \dots; \tau_{T}}_{T}\}$
+\STATE {\bfseries Output:} $\mathcal{Q}_\mathrm{gen}=\{\mathbf{z}_{\tau_0}^1; \dots; \mathbf{z}_{\tau_{T-1}}^T\}$
+\STATE {\bfseries \textcolor{blue}{\# Queue length equals denoising steps $T$.}}
+
+\STATE $l_\mathrm{stride} \gets [f_0/2]$
+\STATE $n_\mathrm{iter} \gets \lceil (T-f_0) / l_\mathrm{stride} \rceil + 1$
+
+\FOR{$i = 1$ {\bfseries to} $n_\mathrm{iter}$}
+    \IF{$i < n_\mathrm{iter}$}
+        \STATE $s_\mathrm{index} \gets (i-1)\times l_\mathrm{stride}+1$
+        \STATE $e_\mathrm{index} \gets s_\mathrm{index} + f_{0}$
+        \STATE $Q_\mathrm{temp} \gets \phi(Q[s_\mathrm{index}:e_\mathrm{index}], t[s_\mathrm{index}:e_\mathrm{index}]; \epsilon_{\theta})$
+        \FOR{$j = 1$ {\bfseries to} $l_\mathrm{stride}$}
+            \STATE $Q[s_\mathrm{index}+ j] \gets Q_\mathrm{temp}[j]$
+        \ENDFOR
+    \ELSE
+        \STATE $s_\mathrm{index} \gets T - f_0$
+        \STATE $e_\mathrm{index} \gets T$
+        \STATE $Q_\mathrm{temp} \gets \phi(Q[s_\mathrm{index}:e_\mathrm{index}], t[s_\mathrm{index}:e_\mathrm{index}]; \epsilon_{\theta})$
+        \FOR{$j = 1$ {\bfseries to} $f_0$}
+            \STATE $Q[s_\mathrm{index}+ j] \gets Q_\mathrm{temp}[j]$
+        \ENDFOR
+    \ENDIF
+\ENDFOR
+
+\STATE $\mathcal{Q}_\mathrm{gen} \gets \mathcal{Q}$
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{gen}$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsubsection{Two-Stage Training-Inference Alignment Mechanism.}
+\label{app:pseudocode_2stages}
+
+As discussed in Sec.~\ref{sec_3_2}, our Two-Stage Training-Inference Alignment (TTA) mechanism aims to mitigate the gap between training and inference by reducing the noise span of latents fed to the model during inference. In this section, we present the detailed implementation of TTA with pseudocode.
+
+First, we need to initialize the latents queue. To ensure compatibility with the Zigzag Iterative Denoising in Stage 1, the adjacent $L_{\mathrm{zig}}$ latents are assigned the same noise level during initialization.  
+A notable difference from the initialization in FIFO-Diffusion is that, after initializing the queue tail with clean latents, we progressively guide the noise latent using these latents to complete the initialization of the entire queue, rather than simply duplicating semantically identical frames.
+The detailed initialization procedure is presented in Alg.~\ref{alg:miga_init}.
+
+
+Next, we perform our designed two-stage iterative generation process, as illustrated in Alg.~\ref{alg:miga_tta}. In Stage~1 (Zigzag Iterative Denoising), after each inference on the queue, we dequeue the $L_{\mathrm{zig}}$ partially denoised latents from the head of the queue and save them, while $L_{\mathrm{zig}}$ Gaussian noise latents are enqueued at the tail.  
+After $N$ latents have been dequeued, Stage~2 performs the remaining denoising steps on these latents with identical noise levels.
+
+
+\begin{algorithm}[htbp]
+\caption{Initial latents construction in MIGA}
+\label{alg:miga_init}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Denoising step count $T$, initial latents count $f_0$, zigzag width $L_{\mathrm{zig}}$, denoising network $\epsilon_{\theta}(\cdot)$, and sampler $\Phi(\cdot)$
+\STATE {\bfseries Input:} initial clean latents $q_\mathrm{clean}=\{\mathbf{z}_{\tau_0}^1; \ldots; \mathbf{z}_{\tau_0}^{f_0}\}$, time steps $t_\mathrm{clean}=\underbrace{\{\tau_0; \dots; \tau_0}_{f_0}\}$
+\STATE {\bfseries Output:} 
+$\mathcal{Q}_\mathrm{init} = \{
+\underbrace{\mathbf{z}^1_{\tau _e}, \cdots, \mathbf{z}^{L_{\mathrm{zig}}}_{\tau_e}}_{L_{\mathrm{zig}}},
+\underbrace{\mathbf{z}^{L_{\mathrm{zig}}+1}_{\tau_{e+1}}, \cdots, \mathbf{z}^{2L_{\mathrm{zig}}}_{\tau_{e+1}}}_{L_{\mathrm{zig}}},
+\cdots,
+\underbrace{\mathbf{z}^{L-L_{\mathrm{zig}}+1}_{\tau_T}, \cdots, \mathbf{z}^{L}_{\tau_T}}_{L_{\mathrm{zig}}}\}$, 
+\STATE \quad $t_\mathrm{init} = \{
+\underbrace{\tau_e, \cdots, \tau_e}_{L_{\mathrm{zig}}},
+\underbrace{\tau_{e+1}, \cdots, \tau_{e+1}}_{L_{\mathrm{zig}}},
+\cdots,
+\underbrace{\tau_T, \cdots, \tau_T}_{L_{\mathrm{zig}}}\}$
+
+\STATE $\mathcal{Q}_\mathrm{init} \gets \{\}$, \quad $t_\mathrm{init} \gets \{\}$
+\STATE {\bfseries \textcolor{blue}{\# Manually add noise to the initial latents.}}
+\STATE $n_{\mathrm{zig}} \gets \lceil f_0 / L_{\mathrm{zig}} \rceil$
+
+\FOR{$i = 1$ {\bfseries to} $f_0$}
+    \STATE $t_{\mathrm{index}} \gets T - n_{\mathrm{zig}} + \lceil (i-1)/L_{\mathrm{zig}} \rceil$
+    \STATE $\mathbf{z}_{t_{\mathrm{index}}}^i \gets \Phi.\mathrm{add\_noise}(q_\mathrm{clean}[i], t_\mathrm{clean}[i], \tau_{t_{\mathrm{index}}})$
+    \STATE $\mathcal{Q}_\mathrm{init}.\text{enqueue}(\mathbf{z}_{\tau_{t_{\mathrm{index}}}}^i)$
+    \STATE $t_\mathrm{init}.\text{enqueue}(\tau_{t_{\mathrm{index}}})$
+\ENDFOR
+
+\STATE {\bfseries \textcolor{blue}{\# Progressively guide the generation of subsequent latents using existing latents.}}
+\FOR{$i = 1$ {\bfseries to} $T - n_{\mathrm{zig}} - e$}
+    \FOR{$j = 1$ {\bfseries to} $L_{\mathrm{zig}}$}
+        \STATE $\mathbf{z}_{\tau_T}^T \sim \mathcal{N}(0, \mathbf{I})$
+        \STATE $\mathcal{Q}_\mathrm{init}.\text{enqueue}(\mathbf{z}_{\tau_T}^T)$
+        \STATE $t_\mathrm{init}.\text{enqueue}(\tau_{t_T})$
+    \ENDFOR
+    \STATE $\mathcal{Q}_\mathrm{init} \gets \Phi(\mathcal{Q}_\mathrm{init}, t_\mathrm{init}; \epsilon_{\theta})$
+    \FOR{$j = 1$ {\bfseries to} $\text{len}(t_\mathrm{init})$}
+        \STATE $t_\mathrm{init}[j] \gets t_\mathrm{init}[j] - 1$
+    \ENDFOR
+\ENDFOR
+
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{init}$, \quad $t_\mathrm{init}$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+%%%%%%%%%%
+\begin{algorithm}[htbp]
+\caption{Two-stage training-inference alignment mechanism in MIGA}
+\label{alg:miga_tta}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} $\mathcal{Q} = \{
+\underbrace{\mathbf{z}^1_{\tau _e}, \cdots, \mathbf{z}^{L_{\mathrm{zig}}}_{\tau_e}}_{L_{\mathrm{zig}}},
+\underbrace{\mathbf{z}^{L_{\mathrm{zig}}+1}_{\tau_{e+1}}, \cdots, \mathbf{z}^{2L_{\mathrm{zig}}}_{\tau_{e+1}}}_{L_{\mathrm{zig}}},
+\cdots,
+\underbrace{\mathbf{z}^{L-L_{\mathrm{zig}}+1}_{\tau_T}, \cdots, \mathbf{z}^{L}_{\tau_T}}_{L_{\mathrm{zig}}}\}$
+\STATE \quad $t = \{
+\underbrace{\tau_e, \cdots, \tau_e}_{L_{\mathrm{zig}}},
+\underbrace{\tau_{e+1}, \cdots, \tau_{e+1}}_{L_{\mathrm{zig}}},
+\cdots,
+\underbrace{\tau_T, \cdots, \tau_T}_{L_{\mathrm{zig}}}\}$
+
+\STATE {\bfseries Output:} $\mathcal{Q}_\mathrm{gen} = \{\mathbf{z}_{\tau_0}^1; \dots; \mathbf{z}_{\tau_0}^N\}$
+
+\STATE $\mathcal{Q}_\mathrm{gen} \gets \{\}$
+\STATE {\bfseries \textcolor{blue}{\# Stage 1: Zigzag iterative denoising.}}
+
+\STATE $n_{\mathrm{iter}} \gets \lceil N / L_{\mathrm{zig}} \rceil$
+\FOR{$i = 1$ {\bfseries to} $n_{\mathrm{iter}}$}
+    \STATE $Q \gets \Phi(Q, t; \epsilon_{\theta})$
+    \FOR{$j = 1$ {\bfseries to} $L_{\mathrm{zig}}$}
+        \STATE $\mathbf{z}_{\tau_0}^i \gets \mathcal{Q}.\text{dequeue}()$
+        \STATE $\mathcal{Q}_\mathrm{gen}.\text{enqueue}(\mathbf{z}_{\tau_0}^i)$
+        \STATE $\mathbf{z}_{\tau_T}^T \sim \mathcal{N}(0, \mathbf{I})$
+        \STATE $\mathcal{Q}.\text{enqueue}(\mathbf{z}_{\tau_T}^T)$
+    \ENDFOR
+\ENDFOR
+
+\STATE {\bfseries \textcolor{blue}{\# Stage 2: Denoising at a unified noise level.}}
+\STATE $t \gets \{\}$
+\FOR{$i = 1$ {\bfseries to} $\text{len}(\mathcal{Q}_\mathrm{gen})$}
+    \STATE $t.\text{enqueue}(\tau_{e-1})$
+\ENDFOR
+
+\FOR{$i = 1$ {\bfseries to} $e-1$}
+    \STATE $\mathcal{Q}_\mathrm{gen} \gets \Phi(\mathcal{Q}_\mathrm{gen}, t; \epsilon_{\theta})$
+    \FOR{$j = 1$ {\bfseries to} $\text{len}(t)$}
+        \STATE $t[j] \gets t[j] - 1$
+    \ENDFOR
+\ENDFOR
+
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{gen}$, \quad $t$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\linewidth]{images/app_dce_module.pdf}
+% \vspace{-10pt}
+\caption{
+\textbf{Framework of our Dual Consistency Enhancement (DCE) mechanism, which consists of Long-Range Frame Guidance (a) and Self-Reflection (b) approaches.}
+\textbf{(a)} Long-Range Frame Guidance enables the foundation model to process long-range sparse latents and local dense latents simultaneously as input when handling local segments in a sliding manner.
+\textbf{(b) }The Self-Reflection approach starts from high-noise latents at the end of the queue and first performs consistency anomaly evaluation. When anomalies are detected (\eg, the car's color changes to white whereas it was black in previous frames), expanded search for correction is conducted on these tail latents. After correction, the updated latents achieve higher consistency.
+}
+% \vspace{-10pt}
+\label{app:fig_app_dce_module}
+\end{figure}
+ 
+\subsubsection{Dual Consistency Enhancement Mechanism.}
+\label{app:pseudocode_dce}
+The modeling motivation and core concept of our Dual Consistency Enhancement (DCE) mechanisms are introduced in Sec.~\ref{sec_3_3}. In this section, we present the implementation details in the form of pseudocode.
+The pseudocode implementation can be understood with reference to the framework diagram shown in Fig.~\ref{app:fig_app_dce_module}.
+
+
+
+First, our Self-Reflection approach focuses on early high-noise latents along the queue dimension, performing consistency evaluation to promptly correct the latent anomalies.  
+In conjunction with the previously described TTA iterative generation process, Self-Reflection is applied before each queue inference (\ie, $Q \gets \Phi(Q, t;\epsilon_\theta)$, see line~8 in Alg.~\ref{alg:miga_tta}).
+As shown in Alg.~\ref{alg:miga_self_reflect}, we provide a detailed description of the implementation of the Self-Reflection approach.
+Note that the implementation of the Self-Reflection approach in Sec.~\ref{sec_3_3} assumes $L_{\mathrm{zig}}=1$. A more general version is provided in Alg.~\ref{alg:miga_self_reflect}.
+
+
+
+
+Furthermore, the Long-Range Frame Guidance approach targets low-noise latents at the queue head to facilitate interactions among distant latents \cite{feng2025cstrack}, thereby improving video consistency. It is integrated into each queue inference step within the TTA iterative generation process (\ie, $Q \gets \Phi(Q, t;\epsilon_{\theta})$, see line~8 in Alg.~\ref{alg:miga_tta}), and its implementation is detailed in Alg.~\ref{alg:fifo_long_range}.
+% 说一下，我们默认 latents 的chunk 宽度= L_{zig}
+
+\begin{algorithm}[htbp]
+\caption{Self-reflection approach in MIGA}
+\label{alg:miga_self_reflect}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Judgment index $f_\mathrm{judg}$, reference latents count $f_\mathrm{ref}$, evaluation latents count $f_\mathrm{eval}$, adjustment threshold $\delta_\mathrm{adju}$, guidance latents count $f_\mathrm{guid}$, zigzag width $L_{\mathrm{zig}}$, consistency score from the previous step $C^0_\mathrm{score}$, denoising network $\epsilon_{\theta}(\cdot)$, and sampler $\Phi(\cdot)$
+\STATE {\bfseries Input:} $\mathcal{Q} = \{\mathbf{z}^1; \dots; \mathbf{z}^L\}$, $t = \underbrace{\{\tau^1; \dots; \tau^L}_{L}\}$ {\bfseries \textcolor{blue}{\# Without loss of generality, we do not distinguish the noise step of each latent.}}
+
+\STATE {\bfseries Output:} $\mathcal{Q}_\mathrm{adju} = \{\mathbf{z}^1; \dots; \mathbf{z}^L\}, C^0_\mathrm{score}$
+
+\STATE $\mathcal{Q}_\mathrm{adju} \gets \{\}$
+\STATE {\bfseries \textcolor{blue}{\# Evaluation}}
+
+\STATE $q_\mathrm{ref} \gets \mathcal{Q}[f_\mathrm{judg} - f_\mathrm{ref}: f_\mathrm{judg} - 1]$ 
+\STATE $q_\mathrm{eval} \gets \mathcal{Q}[f_\mathrm{judg}: f_\mathrm{judg} + f_\mathrm{eval} - 1]$ 
+\STATE $C_\mathrm{score} \gets \mathrm{cosine\_similarity}(q_\mathrm{ref}, q_\mathrm{eval})$ {\bfseries \textcolor{blue}{\# See Eq.~\ref{eq:sim_1},Eq.~\ref{eq:sim_1_1} and Eq.~\ref{eq:sim_2}}}
+
+\IF{$C^0_\mathrm{score} - C_\mathrm{score} \leq \delta_\mathrm{adju}$}
+    \STATE {\bfseries \textcolor{blue}{\# Do not perform extended sampling.}}
+    \STATE $\mathcal{Q}_\mathrm{adju} \gets \mathcal{Q}$
+    \STATE $C^0_\mathrm{score} \gets C_\mathrm{score}$
+\ELSE
+    \STATE {\bfseries \textcolor{blue}{\# Perform extended sampling.}}
+    \STATE $q_\mathrm{guid} \gets \mathcal{Q}[f_\mathrm{judg} - f_\mathrm{guid}: f_\mathrm{guid} - 1]$ 
+    \STATE $t_\mathrm{guid} \gets t[f_\mathrm{judg} - f_\mathrm{guid}: f_\mathrm{guid} - 1]$ 
+    \STATE $\mathcal{Q}_\mathrm{sample} \gets \{\}$
+    
+    \FOR{$k = 1$ {\bfseries to} $n_\mathrm{samp}$}
+        \STATE $\mathcal{Q}_\mathrm{temp} \gets q_\mathrm{guid}$
+        \STATE $t_\mathrm{temp} \gets t_\mathrm{guid}$
+        \STATE $n_\mathrm{iter} \gets \lceil (L - f_\mathrm{judg} + 1) / L_{\mathrm{zig}} \rceil$
+        
+        \FOR{$i = 1$ {\bfseries to} $n_\mathrm{iter}$}
+            \STATE $\mathcal{Q}_\mathrm{temp} \gets \Phi(\mathcal{Q}_\mathrm{temp}, t_\mathrm{temp}; \epsilon_\theta)$
+            \FOR{$j = 1$ {\bfseries to} $L_{\mathrm{zig}}$}
+                \STATE $\mathbf{z}_{\tau_T}^T \sim \mathcal{N}(0, \mathbf{I})$
+                \STATE $\mathcal{Q}_\mathrm{temp}.\text{enqueue}(\mathbf{z}_{\tau_T}^T)$
+                \STATE $t_\mathrm{temp}.\text{enqueue}(\tau_T)$
+            \ENDFOR
+        \ENDFOR
+        
+        \STATE $\mathcal{Q}_\mathrm{sample}.\text{enqueue}(\mathcal{Q}_\mathrm{temp})$
+    \ENDFOR
+
+    \STATE {\bfseries \textcolor{blue}{\# Determine whether correction is needed}}
+    \STATE $C_\mathrm{samp} \gets \{\}$
+    \FOR{$k = 1$ {\bfseries to} $n_\mathrm{samp}$}
+        \STATE $q_\mathrm{ref} \gets \mathcal{Q}[f_\mathrm{guid} - f_\mathrm{ref}: f_\mathrm{judg} - 1]$
+        \STATE $q_\mathrm{eval} \gets \mathcal{Q}[f_\mathrm{guid}: f_\mathrm{guid} + f_\mathrm{eval} - 1]$
+        \STATE $C^k \gets \mathrm{cosine\_similarity}(q_\mathrm{ref}, q_\mathrm{eval})$
+        \STATE $C_\mathrm{samp}.\text{enqueue}(C^k)$
+    \ENDFOR
+
+    \STATE $\mathrm{max_{index}}, C^\mathrm{max} \gets \text{max}(C_\mathrm{samp})$
+    \IF{$C^\mathrm{max} > C_\mathrm{score}$}
+        \STATE {\bfseries \textcolor{blue}{\# Perform correction.}}
+        \STATE $\mathcal{Q}[f_\mathrm{judg}:] \gets \mathcal{Q}_\mathrm{sample}[\mathrm{max_{index}}][f_\mathrm{ref}:]$
+        \STATE $C^0_\mathrm{score} \gets C^\mathrm{max}$
+    \ELSE
+        \STATE {\bfseries \textcolor{blue}{\# Do not perform correction.}}
+        \STATE $\mathcal{Q}_\mathrm{adju} \gets \mathcal{Q}$
+        \STATE $C^0_\mathrm{score} \gets C_\mathrm{score}$
+    \ENDIF
+\ENDIF
+
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{adju}$, \quad $C^0_\mathrm{score}$
+
+\end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%
+\begin{algorithm}[htbp]
+\caption{One-step inference over the latents queue incorporates our long-range frame guidance}
+\label{alg:fifo_long_range}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Denoising network $\epsilon_{\theta}(\cdot)$, initial latents count $f_0$, sliding window stride $l_{\mathrm{stride}}$, zigzag width $L_{\mathrm{zig}}$, long-range guidance latents count $m_{\mathrm{guid}}$, and initial sampler $\phi(\cdot)$
+\STATE {\bfseries Input:} $\mathcal{Q} = \{\mathbf{z}^1; \dots; \mathbf{z}^L\}$, $t = \underbrace{\{\tau^1; \dots; \tau^L}_{L}\}$ {\bfseries \textcolor{blue}{\# Without loss of generality, we do not distinguish the noise step of each latent.}}
+
+\STATE {\bfseries Output:} $\mathcal{Q}_\mathrm{gen} = \{\mathbf{z'}^1; \dots; \mathbf{z'}^L\}$ {\bfseries \textcolor{blue}{\# $\mathbf{z'}^i$ represents $\mathbf{z}^i$ after one denoising step.}}
+\STATE {\bfseries \textcolor{blue}{\# Queue length equals denoising steps $T$.}}
+
+\STATE $l_\mathrm{stride} \gets [f_0/2]$
+\STATE $n_\mathrm{iter} \gets \lceil (T - f_0 + m_\mathrm{guid}) / l_\mathrm{stride} \rceil + 1$
+
+\FOR{$i = 1$ {\bfseries to} $n_\mathrm{iter}$}
+    \IF{$i < n_\mathrm{iter}$}
+        \STATE $s_\mathrm{index} \gets (i-1) \times l_\mathrm{stride}$
+        \IF{$s_\mathrm{index} \le n_\mathrm{iter}$}
+            \STATE $e_\mathrm{index} \gets s_\mathrm{index} + f_0$
+            \STATE $\mathcal{Q}_\mathrm{temp} \gets \phi(\mathcal{Q}[s_\mathrm{index}:e_\mathrm{index}], t[s_\mathrm{index}:e_\mathrm{index}]; \epsilon_\theta)$
+            \FOR{$j = 1$ {\bfseries to} $l_\mathrm{stride}$}
+                \STATE $\mathcal{Q}[s_\mathrm{index} + j] \gets \mathcal{Q}_\mathrm{temp}[j]$
+            \ENDFOR
+        \ELSE
+            \STATE $s_\mathrm{range} \gets \min(m_\mathrm{guid} L_{\mathrm{zig}}, s_\mathrm{index}-1)$
+            \STATE $s^0_\mathrm{list} \gets \mathrm{uniform\_sample}(\mathrm{range}(s_\mathrm{index}-s_\mathrm{range}, s_\mathrm{index}-1), m_\mathrm{guid})$ {\bfseries \textcolor{blue}{\# Uniformly sample $m_\mathrm{guid}$ indices from $(s_\mathrm{index}-s_\mathrm{range}, s_\mathrm{index}-1)$.}}
+            \STATE $\mathcal{Q}_\mathrm{input} \gets \{\}$, \quad $t_\mathrm{input} \gets \{\}$
+            
+            \FOR{$j = 1$ {\bfseries to} $m_\mathrm{guid}$}
+                \STATE $\mathcal{Q}_\mathrm{input}.\text{enqueue}(\mathcal{Q}[s^0_\mathrm{list}[j]])$
+                \STATE $t_\mathrm{input}.\text{enqueue}(t[s^0_\mathrm{list}[j]])$
+            \ENDFOR
+
+            \STATE $e_\mathrm{index} \gets s_\mathrm{index} + f_0 - m_\mathrm{guid}$
+            \STATE $\mathcal{Q}_\mathrm{input} \gets \mathrm{concat}([\mathcal{Q}_\mathrm{input}; \mathcal{Q}[s_\mathrm{index}:e_\mathrm{index}]])$
+            \STATE $t_\mathrm{input} \gets \mathrm{concat}([t_\mathrm{input}; t[s_\mathrm{index}:e_\mathrm{index}]])$
+            \STATE $\mathcal{Q}_\mathrm{temp} \gets \phi(\mathcal{Q}[s_\mathrm{index}:e_\mathrm{index}], t[s_\mathrm{index}:e_\mathrm{index}]; \epsilon_\theta)$
+
+            \FOR{$j = 1$ {\bfseries to} $l_\mathrm{stride}$}
+                \STATE $\mathcal{Q}[s_\mathrm{index}+j] \gets \mathcal{Q}_\mathrm{temp}[m_\mathrm{guid} + j]$
+            \ENDFOR
+        \ENDIF
+    \ELSE
+        \STATE $s_\mathrm{index} \gets T - f_0 + m_\mathrm{guid}$
+        \STATE $s_\mathrm{range} \gets \min(m_\mathrm{guid} L_{\mathrm{zig}}, s_\mathrm{index}-1)$
+        \STATE $s^0_\mathrm{list} \gets \mathrm{uniform\_sample}(\mathrm{range}(s_\mathrm{index}-s_\mathrm{range}, s_\mathrm{index}-1), m_\mathrm{guid})$
+
+        \STATE $\mathcal{Q}_\mathrm{input} \gets \{\}$, \quad $t_\mathrm{input} \gets \{\}$
+        \FOR{$j = 1$ {\bfseries to} $m_\mathrm{guid}$}
+            \STATE $\mathcal{Q}_\mathrm{input}.\text{enqueue}(\mathcal{Q}[s^0_\mathrm{list}[j]])$
+            \STATE $t_\mathrm{input}.\text{enqueue}(t[s^0_\mathrm{list}[j]])$
+        \ENDFOR
+
+        \STATE $e_\mathrm{index} \gets s_\mathrm{index} + f_0 - m_\mathrm{guid}$
+        \STATE $\mathcal{Q}_\mathrm{input} \gets \mathrm{concat}([\mathcal{Q}_\mathrm{input}; \mathcal{Q}[s_\mathrm{index}:e_\mathrm{index}]])$
+        \STATE $t_\mathrm{input} \gets \mathrm{concat}([t_\mathrm{input}; t[s_\mathrm{index}:e_\mathrm{index}]])$
+        \STATE $\mathcal{Q}_\mathrm{temp} \gets \phi(\mathcal{Q}[s_\mathrm{index}:e_\mathrm{index}], t[s_\mathrm{index}:e_\mathrm{index}]; \epsilon_\theta)$
+
+        \FOR{$j = 1$ {\bfseries to} $l_\mathrm{stride}$}
+            \STATE $\mathcal{Q}[s_\mathrm{index}+j] \gets \mathcal{Q}_\mathrm{temp}[m_\mathrm{guid} + j]$
+        \ENDFOR
+    \ENDIF
+\ENDFOR
+
+\STATE $\mathcal{Q}_\mathrm{gen} \gets \mathcal{Q}$
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{gen}$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Analysis of Framework Unification}
+\label{app:unification_analyse}
+
+In Sec.~\ref{sec_method} and Sec.~\ref{app:pseudocode}, we present the methodology and pseudocode implementations of the proposed TTA and DCE mechanisms, respectively. It is important to emphasize that TTA and DCE are not independent modules. In this subsection, we clarify their interdependence and integrated design within the adopted frame-level autoregressive generation paradigm.
+
+
+\textbf{Frame-level Autoregressive Framework.}
+Fig.~\ref{fig:fig2_fifo_vs_ours} (a) illustrates the autoregressive generation process of this framework.
+\begin{itemize}
+    \item At the core of this process is the maintenance of a structured queue of noisy frames, with noise intensity increasing along the temporal axis. At each inference step, the noise levels of all frames are simultaneously reduced, allowing the clean frame to be popped from the queue head. By repeating this procedure iteratively, frame-level autoregressive generation is achieved.
+    \item Furthermore, during each inference operation on the queue, since foundation models can only process a limited number of frames at a time, a sliding window is employed to sequentially refine all noisy frames in the queue.
+\end{itemize}
+
+
+\textbf{Unification of MIGA Mechanisms.}
+Corresponding to the overall queue-level inference process and the local frame-level sliding-window denoising within each queue, our core TTA and DCE mechanisms are specifically designed to optimize these two aspects.
+\begin{itemize}
+    \item The TTA mechanism divides the queue-level inference into two stages, each characterized by different noise intensity distributions across the frames. Through coordinated operation, TTA reduces the noise span fed to the model at each step, effectively transferring the short-term generative capabilities of foundation models to the long-video generation scenario.
+    \item The DCE mechanism focuses on denoising within each queue iteration by employing long-range guidance from low-noise frames and timely self-reflection correction for high-noise early frames. This mechanism effectively enhances consistency in long video generation.
+\end{itemize}
+
+
+As depicted in Fig.~\ref{fig:fig2_fifo_vs_ours} (b), TTA primarily focuses on the vertical dimension (queue-level inference), while DCE operates along the horizontal dimension (frame-level denoising within each queue; see also Fig.~\ref{app:fig_app_dce_module} for a detailed illustration).
+Together, these two mechanisms form a unified and coherent generative framework that enables the consistent and high-quality generation of long videos.  Alg.~\ref{alg:fifo_long_range} illustrates how the two mechanisms interact and operate jointly.
+
+
+
+\subsection{Multi-prompt Conditional Generation}
+\label{app:multi_prompt}
+As discussed in Sec.~\ref{exp:imp}, the flexibility of the frame-level autoregressive framework enables multi-text control by providing different text conditions to the latents at various temporal positions.
+Specifically, when performing inference over the queue, the expression involving the text conditioning $c$ is given by (for clarity, $c$ is omitted in Eq.~\ref{eq:fifo_infer}):
+\begin{align}
+  \{\mathbf{z}_{\tau_0}^1, \ldots, \mathbf{z}_{\tau_{T-1}}^T\} = \Phi(\{\mathbf{z}_{\tau_1}^1, \ldots, \mathbf{z}_{\tau_T}^T\}, \{\tau_1, \ldots, \tau_T\}, c; \varepsilon_\theta).
+\end{align}
+When there is only a single text condition, $c$ is a constant (\ie, the feature of a single text prompt).
+However, with multiple text conditions, as the foundation model iterates over the queue with a sliding window, latents at different positions are guided by different $c$.
+For the case of $n_\mathrm{prom}$ text prompts, \ie, $c = \{c_i\}_{i=1}^{n_\mathrm{prom}}$, each prompt sequentially controls the generation of $N_\mathrm{prom}$ frames (resulting in $N = n_\mathrm{prom} N_\mathrm{prom}$ clean latents for the final video).
+Formally, suppose the foundation model is at position $l$ in the queue (\ie, $s_\mathrm{index}$ in Alg.~\ref{alg:fifo_slide_window} and Alg.~\ref{alg:fifo_long_range}), and the number of dequeued clean latents is $n_\mathrm{deq}$. Then, the input text condition for the model is:
+\begin{align}
+  c_\mathrm{in} = c\left[\left\lceil \frac{l + n_\mathrm{deq}}{N_\mathrm{prom}} \right\rceil \right].
+\end{align}
+
+As shown in Fig.~\ref{fig:app_multi_prompt}, we present a case generated by our Wan2.1-based MIGA that contains three prompts.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\linewidth]{images/app_multi_prompt.pdf}
+% \vspace{-10pt}
+\caption{\textbf{Illustration of a multi-prompt controlled generation case produced by our Wan2.1-based MIGA.}}
+% \vspace{-10pt}
+\label{fig:app_multi_prompt}
+\end{figure}
+
+
+
+\subsection{Implementation on Different Foundation Models}
+\label{app:imple_different_models}
+\textbf{VideoCrafter2-Based MIGA.}
+As an early and representative text-to-video foundation model, VideoCrafter2 \cite{chen2023videocrafter1,chen2024videocrafter2} is widely used as the backbone for existing train-free long video generation methods \cite{qiu2023freenoise,tan2025freepca,lu2024freelong,kim2024fifo,yang2025scalingnoise}.
+Following its original denoising inference code, our main modification to equip it with frame-level autoregressive generation is to adjust its noise prediction model $\epsilon_{\theta}(\cdot)$ and sampler (\ie,DDIM \cite{song2020denoising}) $\phi(\cdot)$ in the noise prediction and denoising process.
+Specifically, the original $\epsilon_{\theta}(\cdot)$ receives latents with identical noise levels each time, and $\phi(\cdot)$ applies the same denoising operation to all latents.
+Our key change is that $\epsilon_{\theta}(\cdot)$ now receives latents with different noise levels in each inference step, where the noise level is determined by the frame index.
+During noise prediction, each frame’s latents interact with their respective noise level conditions.  
+In the denoising stage, $\phi(\cdot)$ also processes latents for different frames separately, conditioning on their noise levels.
+
+
+
+\textbf{Wan2.1-Based MIGA.}
+With the continuous evolution of text-to-video foundation models, train-free long video generation frameworks should also be adapted to these newer models.
+To this end, we migrate MIGA to the latest available model, Wan2.1 \cite{wan2025wan}. 
+Similar to the VideoCrafter2-based MIGA, the core modifications involve adjusting the noise prediction model $\epsilon_{\theta}(\cdot)$ and the sampler $\phi(\cdot)$ in the noise prediction and denoising process.
+The key difference is that Wan2.1 employs UniPC \cite{zhao2023unipc} as its default sampler, which requires higher-order computations. Consequently, both $\epsilon_{\theta}(\cdot)$ and $\phi(\cdot)$ need to store and utilize information from previous steps during each operation.
+
+
+
+\textbf{Discussion on the Generalizability of Our Method.}
+The frame-level autoregressive generation framework we adopt inherently requires models to handle latents with noise levels varying across frames.
+Our MIGA can be migrated to VideoCrafter2 and Wan2.1 because both their noise conditions and text conditions interact with latents via cross-attention. Specifically, latents can incorporate noise timestep conditions by distinguishing frame indices, while all latents are treated as a whole for text conditioning.
+However, We observe that this frame-level autoregressive generation framework is difficult to apply to certain foundation models \cite{kong2024hunyuanvideo,yang2024cogvideox} based on the MMDiT architecture \cite{esser2024scaling}. The main reason is that these models concatenate text and video features, and jointly interact with the noise timestep condition.
+To guide latents of different frames with distinct noise levels, it is necessary to introduce noise conditions with varying timesteps. However, since text features cannot be distinguished at the frame level, this noise information cannot effectively interact with the text features.. 
+Fig.~\ref{fig:app_cogvideo} illustrates our approach of injecting an intermediate timestep into the text features to enable the migration of the frame-level autoregressive generation framework to CogVideoX-5B \cite{yang2024cogvideox}, which is based on the MMDiT architecture.
+As shown, this results in abnormal video outputs.
+
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=1.0\linewidth]{images/app_cogvideo.pdf}
+\includegraphics[width=1.0\linewidth]{images/app_cogvideo_small.pdf}
+% \vspace{-10pt}
+\caption{\textbf{Illustration of a bad case resulting from migrating frame-level autoregressive generation to CogVideoX, a model based on the MMDiT architecture.}}
+% \vspace{-10pt}
+\label{fig:app_cogvideo}
+\end{figure}
+
+% \section{Further Details on Experimental Implementation}
+% \label{app:ab_exp}
+% \subsection{Evaluation Benchmarks}
+
+
+\section{Further Details on Experimental Analysis}
+\subsection{Implementation Details of Ablation Studies}
+\label{app:ab_exp_imp}
+In Sec.~\ref{sec:ablation}, we conduct comprehensive ablation studies on the VideoCrafter2-based MIGA using VBench to evaluate the effectiveness of our proposed mechanism design.
+In this subsection, we provide detailed implementation information for each setting.
+
+\textbf{Study on Core Mechanism Designs.}
+The core contribution of our work lies in the introduction of the novel Two-Stage Training-Inference Alignment (TTA) and Dual Consistency Enhancement (DCE) mechanisms.
+In Tab.~\ref{tab:ab_1}, we use FIFO-Diffusion as the baseline setting without TTA or DCE, which serves as the baseline for our ablation study.
+For the TTA-only setting, we add Stage 1 zigzag iterative denoising with $L_{\mathrm{zig}}=4$ and Stage 2 unified noise level denoising with $\tau_e = 10$ to the baseline.
+For the DCE-only setting, we introduce a self-reflection method with $\delta_{\mathrm{adju}}=0.01$ and a long-range frame guidance \cite{chen2025s2guidancestochasticselfguidance,feng2025atctrack} method with $m_{\mathrm{guid}}=4$ on top of the baseline.
+Finally, combining both mechanisms yields our final method.
+
+
+\textbf{Study on TTA.}
+Our TTA mechanism consists of two stages: stage 1 employs zigzag iterative denoising, and stage 2 applies denoising at a unified noise level.
+In Tab.~\ref{tab:ab_2}, FIFO-Diffusion is used as the baseline, consistent with the setting in Tab.~\ref{tab:ab_1}.
+For the “+Stage 1” setting, we add only stage 1 with $L_{\mathrm{zig}}=4$ to the baseline.
+Building upon this, by incorporating stage 2 with $\tau_e=10$, we obtain the “+Stage 2” setting.
+
+Next, we conduct ablation studies on the two core hyperparameters in TTA, \ie, $L_{\mathrm{zig}}$ and $\tau_e$ (where $\tau_e$ determines the number of steps in stage 2, $(e-1)$).
+Considering the high computational cost of long video generation, these experiments are carried out on a subset of the evaluation set, selected by randomly sampling 50\% of the prompts from the full evaluation prompts.
+For the baseline, \ie, $L_{\mathrm{zig}}=1$, we report the performance of FIFO-Diffusion on this subset.
+Then, we progressively increase $L_{\mathrm{zig}}$ and present the results in Tab.~\ref{tab:ab_zig_length}.
+Fig.~\ref{ab_phase2_steps_bar} illustrates the impact of varying the number of stage 2 denoising steps on model performance, highlighting the overall score metric across different settings. The detailed results for each individual metric under these settings are presented in Tab.~\ref{app:tab_1}.
+For the baseline setting ($e=1$), we report the performance of FIFO-Diffusion on this evaluation subset. Then, we further analyze the results for $e=5,\,10,\,15,\,25,\,30$ based on this baseline. When $e$ is increased to the total denoising steps ($64$), stage 1 is entirely omitted, and only stage 2 is performed. 
+As illustrated in Alg.~\ref{alg:only_stage_2}, $N$ random noises are first initialized, and then the queue undergoes $64$ inference steps (each executed by sliding the window across the queue with the foundation model), ultimately producing $N$ clean latents in one pass. 
+It is important to note that this approach completely loses the autoregressive property in generation, whereas stage 1 (when retained) preserves the autoregressive nature. Compared with performing only stage 2, stage 1—through its initialization and iterative generation (see Alg.~\ref{alg:miga_init} and Alg.~\ref{alg:miga_tta})—enables the cleaner latents to implicitly guide the generation of subsequent high-noise latents, thereby enhancing the consistency of the generated videos. This connection among latents ensures video coherence, whereas only stage 2, by synchronously denoising $N$ independent noise latents, results in weak latent correlation and poorer consistency.
+
+A qualitative explanation of the synergy between these two stages is as follows: stage 1 is responsible for the early denoising of latents, leveraging the autoregressive mechanism to build connections among latents and maintain semantic and spatial consistency \cite{qiu2023freenoise}. Subsequently, stage 2 completes the final denoising process. Once the overall content has been established, stage 2 matches the input conditions seen during training (\ie, the noise span is $1$), which contributes to improved visual details in the generated videos. As shown in Fig.~\ref{fig:ab_all_figure} (a–c), stage 2 effectively suppresses visual artifacts such as noise in the output videos.
+
+
+
+\label{app:more_exp}
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Ablation study on steps of stage 2.}
+    \label{app:tab_1}
+    \begin{tabular}{lccccc} 
+        \toprule
+        \textbf{Steps} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+        \midrule
+         0   & 94.23 & 94.52 & 97.98 & 96.47 & 95.80 \\
+         5   & 93.58 & 95.33 & 98.19 & 96.68 & 95.95 \\
+        10   & 93.64 & 95.73 & 98.11 & 96.36 & 95.96 \\
+        15   & 94.05 & 95.37 & 98.23 & 96.74 & 96.10 \\
+        20   & 94.07 & 95.42 & 98.24 & 96.80 & 96.13 \\
+        25   & 93.54 & 95.58 & 98.30 & 97.09 & 96.13 \\
+        30   & 93.92 & 95.70 & 98.17 & 96.64 & 96.11 \\
+        64   & 89.91 & 94.45 & 97.16 & 95.47 & 94.25 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\begin{algorithm}[htbp]
+\caption{Inference procedure with stage 2 only}
+\label{alg:only_stage_2}
+\begin{algorithmic}[1]
+
+\STATE {\bfseries Input:} Denoising step count $T$, generation latents count $N$, denoising network $\epsilon_{\theta}(\cdot)$, and sampler $\Phi(\cdot)$
+\STATE {\bfseries Input:} $\mathcal{Q} = \{\mathbf{z}_{\tau_T}^1; \mathbf{z}_{\tau_T}^2; \dots; \mathbf{z}_{\tau_T}^N\}$, $t = \underbrace{\{\tau_T; \tau_T; \dots; \tau_T}_{N}\}$
+\STATE {\bfseries Output:} $\mathcal{Q}_\mathrm{gen} = \{\mathbf{z}_{\tau_0}^1; \dots; \mathbf{z}_{\tau_0}^N\}$
+
+\FOR{$i = 1$ {\bfseries to} $T$}
+    \STATE $Q \gets \Phi(Q, t; \epsilon_\theta)$
+    \FOR{$j = 1$ {\bfseries to} $T$}
+        \STATE $t[j] \gets t[j] - 1$
+    \ENDFOR
+\ENDFOR
+
+\STATE $\mathcal{Q}_\mathrm{gen} \gets \mathcal{Q}$
+\STATE {\bfseries Return} $\mathcal{Q}_\mathrm{gen}$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+\textbf{Study on DCE.}
+Our DCE mechanism is composed of self-reflection and long-range frame guidance.
+Fig.~\ref{ab_threshold} shows the impact of different adjustment thresholds $\delta_{\mathrm{adju}}$. The baseline (\ie, $\delta_{\mathrm{adju}}=0.07$, where no extended search is performed) is consistent with that used in the above TTA experiments.
+Based on this baseline, we progressively decrease $\delta_{\mathrm{adju}}$, which increases the frequency of extended search. Fig.~\ref{ab_threshold} focuses on the overall score (O.S.), while detailed performance on each metric is provided in Tab.~\ref{app:tab_2}.
+Tab.~\ref{tab:ab_3} presents the effect of the number of long-range guiding frames $m_{\mathrm{guid}}$ on model performance. The same baseline as in Fig.~\ref{ab_threshold} is adopted, and results under different settings are obtained by gradually increasing $m_{\mathrm{guid}}$.
+The computational costs introduced by these two approaches are discussed in Sec.~\ref{app:comp_eff}.
+
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Ablation study on the threshold $\delta_\mathrm{adju}$.}
+    \label{app:tab_2}
+    \begin{tabular}{lccccc} 
+        \toprule
+        \textbf{Threshold} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+        \midrule
+        0.001 & 95.91 & 96.04 & 98.55 & 97.93 & 97.11 \\
+        0.003 & 95.69 & 96.27 & 98.52 & 97.87 & 97.09 \\
+        0.005 & 95.60 & 95.92 & 98.58 & 97.98 & 97.02 \\
+        0.007 & 95.19 & 95.96 & 98.53 & 97.89 & 96.89 \\
+        0.01  & 95.44 & 96.06 & 98.58 & 97.97 & 97.01 \\
+        0.03  & 94.51 & 95.01 & 98.53 & 97.90 & 96.49 \\
+        0.05  & 93.70 & 94.61 & 98.40 & 97.70 & 96.10 \\
+        0.07  & 94.23 & 94.52 & 97.98 & 96.47 & 95.80 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Qualitative Comparison between VideoCrafter2-based MIGA and Wan2.1-based MIGA}
+\label{app_compare_2_model}
+In Sec.~\ref{sota_compare}, we present the results of Wan-2.1-based MIGA and VideoCrafter2-based MIGA on VBench and NarrLV. 
+As reported in Tab.~\ref{tab:vbench-results}, one noteworthy observation on the VBench results is that, contrary to intuition, MIGA built on the latest foundation model Wan-2.1 demonstrates weaker performance in subject and background consistency than MIGA based on the earlier foundation model VideoCrafter2.
+The main reason is that VideoCrafter2 primarily generates animation-style videos, where maintaining long-term consistency is relatively easier than in the realistic-style videos produced by Wan-2.1.
+To provide a clearer explanation, Fig.~\ref{fig:app_videocraft_wan_compare} showcases the generation results from both approaches for the same prompt, along with their VBench evaluation scores.
+As seen from the comparison between Fig.~\ref{fig:app_videocraft_wan_compare}  (a) and (b), VideoCrafter2-based MIGA tends to produce more animation-like videos, while Wan-2.1-based MIGA generates content with richer texture details.
+Correspondingly, the former achieves higher scores in subject and background consistency, while the latter, benefiting from Wan-2.1's capability to generate coherent video content, attains better performance in motion smoothness and temporal flicker metrics.
+Moreover, the evaluation results on NarrLV further demonstrate Wan-2.1's strong ability to generate videos with richer narrative content.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\linewidth]{images/app_videocraft_wan_compare.pdf}
+% \vspace{-10pt}
+\caption{
+\textbf{Illustration of qualitative comparison between VideoCrafter2-based MIGA and Wan2.1-based MIGA (a--b), along with corresponding VBench evaluation results (c). }
+S.C., B.C., M.S., and T.F. denote subject consistency, background consistency, motion smoothness, and temporal flicker, respectively.
+The superior result for each metric is highlighted in \textcolor{blue}{blue}.
+}
+
+% \vspace{-10pt}
+\label{fig:app_videocraft_wan_compare}
+\end{figure}
+
+\subsection{Computational Efficiency Analysis}
+\label{app:comp_eff}
+
+FIFO-Diffusion \cite{kim2024fifo} demonstrates the advantages of the frame-level autoregressive generation framework in terms of memory usage and inference time. Building on this, we analyze the computational efficiency of our method.
+Specifically, when only the Two-Stage Training-Inference Alignment (TTA) mechanism is introduced, the computational efficiency remains identical to that of the original FIFO-Diffusion. This is because, for each latent, the required number of denoising steps is $T$ in both approaches, resulting in equal computational cost for generating videos of the same length.
+As shown in Tab.~\ref{tab:ab_1}, with comparable computational efficiency, our TTA mechanism yields a notable performance improvement (overall score increases by 2.03\%), thereby demonstrating its effectiveness.
+
+It is worth noting that Stage 2 of TTA requires all frames within a long video to be denoised to a unified noise level before performing the final denoising step. Consequently, the number of frames processed in Stage 2, \ie, the maintained queue length, grows with the video length. However, since we employ a sliding-window denoising strategy, the number of frames processed by the foundation model in each window remains constant. As a result, MIGA does not incur significant additional memory overhead as the number of generated frames increases, and, like FIFO-Diffusion, it naturally supports infinite frame generation. Beyond this theoretical analysis, we further conduct a quantitative evaluation of peak memory consumption (MiB) for VideoCrafter2-based MIGA under varying generation lengths and settings. In the Tab.~\ref{tab:memory_analysis}, \#1 denotes the ablation variant without Stage 2. For reference, we also report the memory footprint of the foundation model (VideoCrafter2) during short-term inference, which is 9919 MiB. Values in parentheses indicate the relative memory increase compared to VideoCrafter2. The results indicate that:
+(i) introducing Stage 2 does not affect memory overhead across different frame counts; and
+(ii) memory usage increases moderately as more frames are generated due to the storage of intermediate variables, while the additional overhead remains minimal and acceptable.
+
+
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Peak memory consumption (MiB) under different generation lengths.}
+    \label{tab:memory_analysis}
+    \begin{tabular}{l lcccc}
+        \toprule
+        \textbf{\#} & \textbf{Setting}  & \textbf{500} & \textbf{1000} & \textbf{1500} & \textbf{2000} \\
+        \midrule
+        1 & MIGA w/o Stage 2 & 9929 (+0.10\%) & 9945 (+0.26\%) & 9965 (+0.46\%) & 9985 (+0.66\%)  \\
+        2 & MIGA             & 9929 (+0.10\%) & 9945 (+0.26\%) & 9965 (+0.46\%) & 9985 (+0.66\%)  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+Building upon TTA, our Dual Consistency Enhancement (DCE) mechanism introduces the additional computational cost to further improve the quality of generated videos.
+Specifically, the long-range frame guidance approach mainly affects the inference process for the maintained queue. Without this mechanism, as shown in Alg.~\ref{alg:fifo_slide_window}, completing one queue inference requires the foundation model to perform $n_\mathrm{iter} = \lceil (T - f_0) / l_\mathrm{stride} \rceil + 1$ noise prediction steps, where $l_\mathrm{stride} = [f_0 / 2]$.
+When long-range frame guidance is enabled, as shown in Alg.~\ref{alg:fifo_long_range}, the foundation model needs to perform $n_\mathrm{iter} = \lceil (T - f_0 + m_\mathrm{guid}) / l_\mathrm{stride} \rceil + 1$ noise prediction steps per queue inference.  
+It can be seen that the additional number of noise prediction steps introduced by long-range frame guidance is small, \ie, the extra computational overhead is negligible.
+Nevertheless, Tab.~\ref{tab:ab_3} demonstrates that long-range frame guidance yields considerable performance gains.
+The self-reflection approach belongs to the scope of Test-Time-Scaling (TTS) technologies, which aim to improve generation quality by increasing inference time. Here, each noise prediction by the model is treated as a basic computational unit.
+Specifically, the additional computational burden is mainly introduced through extended sampling. 
+As shown in Alg.~\ref{alg:miga_self_reflect}, in each generation process, the number of extended sampling iterations $n_{\mathrm{adju}}$ is determined by the threshold $\delta_{\mathrm{adju}}$. Once extended sampling is triggered, for each of the $n_{\mathrm{samp}}$ samples, the foundation model must perform $ \lceil (L - f_{\mathrm{judg}}+1) / L_{\mathrm{zig}} \rceil$ noise prediction steps.
+Thus, the total number of extra noise predictions required by the self-reflection method is:
+\begin{equation}
+n_{\mathrm{adju}} \times n_{\mathrm{samp}} \times  \left( \lceil (L - f_{\mathrm{judg}}+1) / L_{\mathrm{zig}} \rceil \right ).
+\end{equation}
+As an optional mechanism, the degree of TTS can be flexibly controlled by adjusting $n_{\mathrm{adju}}$ (via modifying $\delta_{\mathrm{adju}}$) and $n_{\mathrm{samp}}$. As shown in Fig.~\ref{ab_threshold}, model performance improves as computational cost increases.
+
+To enable a quantitative analysis, we report both computational efficiency and generation quality under different settings. Specifically, computational efficiency is measured by the average time required to generate a single frame ($M_t$), while performance is evaluated using the Overall Score (O.S.) on VBench. As shown in Tab.~\ref{tab:efficiency_performance}, without the DCE mechanism, MIGA achieves computational efficiency comparable to FIFO-Diffusion, with only a marginal increase in inference time (+0.05\,s), while delivering a substantial performance improvement (+1.73 O.S.). Incorporating DCE further boosts performance, albeit at the cost of increased computational overhead.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Comparison of computational efficiency and performance under different settings.}
+    \label{tab:efficiency_performance}
+    \begin{tabular}{clcc}
+        \toprule
+        \textbf{\#} & \textbf{Setting} & $M_t$ (s) & \textbf{O.S.} \\
+        \midrule
+        1 & FIFO-Diffusion  & 7.48 & 95.02 \\
+        2 & MIGA w/o DCE    & 7.53 & 96.75 \\
+        3 & MIGA           & 9.16 & 97.82 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Comparison with trained-based long video generation methods.}
+\label{tab:comparison_sf_methods}
+
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+    \toprule
+    \textbf{Method} & \textbf{S.C.} & \textbf{B.C.} & \textbf{M.S.} & \textbf{T.F.} & \textbf{O.S.} \\
+    \midrule
+    CausVid         & 97.89 & 96.53 & 98.03 & 96.49 & 97.24 \\
+    Self-Forcing    & 97.13 & 96.02 & 98.44 & 96.96 & 97.14 \\
+    LongLive        & 98.00 & 96.76 & 98.74 & 97.34 & 97.71 \\
+    Infinity-RoPE   & 98.61 & 97.03 & 98.89 & 97.79 & 98.08 \\
+    Reward Forcing  & 96.44 & 95.66 & 98.40 & 96.42 & 96.73 \\
+    MIGA (Wan2.1-Based)  & 96.46 & 95.50 & 98.85 & 98.14 & 97.24 \\
+    MIGA (VideoCrafter2-Based)  & 97.66 & 96.99 & 98.60 & 98.03 & 97.82 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\linewidth]{images/app_limitation.pdf}
+% \vspace{-10pt}
+\caption{\textbf{Illustration of a bad case reflecting the limitations of our MIGA.}}
+% \vspace{-10pt}
+\label{fig:app_limitation}
+\end{figure}
+
+\subsection{Comparison with Training-Based Methods}
+\label{app:comp_sf}
+
+Recently, some train-based long video generation models have demonstrated frame-level autoregressive generation capabilities. 
+Although these models fall outside the scope of our work on train-free long video generation, which aims to endow foundation video generation models with long-term generation ability at minimal computational cost \cite{lu2024freelong}, train-based approaches instead achieve long video generation by designing specific training strategies and model architectures under a predetermined computational budget. 
+Nevertheless, since these recent train-based models share the frame-level autoregressive inference characteristic with our MIGA framework, we provide a discussion and comparison in this subsection.
+
+
+% 具体来讲，CausVid通过特定的mask机制设计，实现了将 预训练的双向扩散 Transformer 适配为 可逐帧在线生成的自回归 Transformer。同时，通过将分布匹配蒸馏（DMD）扩展到视频领域来降低延迟。
+% follow 此范式，Self-forcing 通过对齐训练和推理时的情形来缓解exposure bias问题。
+% 为了支持长时训练以及增强长时一致性，LongLive设计了新颖的streaming long tuning策略和frame sink机制。
+% Infinity-Rope 从foundation model的 三维旋转位置编码（3D-RoPE）入手，通过块相对式 RoPE（Block-Relativistic RoPE）、KV 刷新（KV Flush） 和 RoPE 切断（RoPE Cut）等设计来实现灵活可控的长视频生成。
+% Reward Forcing 通过对sink frame进行动态调整并引入动态reward 监督信号，
+% 有效缓解了sink帧所带来的内容重复和动态性减弱的问题。
+Specifically, CausVid \cite{yin2025slow} adapts a pretrained bidirectional diffusion Transformer into a frame-wise autoregressive Transformer through a specialized masking mechanism. It also reduces latency by extending Distribution Matching Distillation \cite{yin2024improved,yin2024one} to the video domain.  
+Following this paradigm, Self-forcing \cite{huang2025self} mitigates exposure bias by aligning training and inference conditions. To support long-term training and enhance temporal consistency, LongLive \cite{yang2025longlive} introduces a novel streaming long-tuning strategy and a frame sink mechanism.  
+Infinity-RoPE \cite{yesiltepe2025infinity} achieves flexible and controllable long video generation by optimizing the 3D rotational position encoding  from foundation models.
+Reward Forcing \cite{lu2025reward} dynamically adjusts sink frames and introduces the reward signals, effectively alleviating content repetition and reduced dynamics associated with sink frames.
+As shown in Tab.~\ref{tab:comparison_sf_methods}, we adopt the same evaluation settings as in Sec.~\ref{exp:imp} to compare these train-based methods. Despite not performing large-scale training, MIGA still achieves comparable performance across all metrics.
+
+
+\subsection{Human Evaluation Experiments}
+\label{app:user_study}
+
+In addition to existing benchmark evaluations, we conduct a large-scale user study to further validate the effectiveness of our method.
+Specifically, we compare our MIGA with its improved baseline, FIFO-Diffusion. We randomly sample 48 prompts as generation conditions, producing 48 pairs of videos. Eight annotators are invited to perform pairwise comparisons along four dimensions: subject consistency, background consistency, motion smoothness, and temporal flicker. For each dimension, annotators select the better video or indicate a tie. As shown in Table~\ref{tab:user_study}, MIGA consistently outperforms FIFO-Diffusion across all four criteria. We note that consistency remains a central and challenging objective in video generation.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Results of the user study comparing MIGA and FIFO-Diffusion (\%).}
+    \label{tab:user_study}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Metric} & \textbf{MIGA Better} & \textbf{Tie} & \textbf{FIFO-Diffusion Better} \\
+        \midrule
+        Subject Consistency     & 62.23 & 21.88 & 15.89 \\
+        Background Consistency  & 61.72 & 20.83 & 17.45 \\
+        Motion Smoothness       & 66.14 & 19.79 & 14.06 \\
+        Temporal Flicker        & 66.14 & 17.70 & 16.15 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+
+% As shown in the table xx, our method demonstrates significant improvements over FIFO-Diffusion across all four dimensions. It is important to note that consistency remains a key and ongoing modeling goal in video generation. Even the latest commercial models, such as Sora2, still encounter consistency issues. Given the current state of the field, our substantial advances in both subject and background consistency are notable, and it is reasonable that consistency issues have not been fully resolved.
+
+% Metric	MIGA is Better	Tie	FIFO_Diffusion is Better
+% Subject Consistency	62.23%	21.88%	15.89%
+% Background Consistency	61.72%	20.83%	17.45%
+% Motion Smoothness	66.14%	19.79%	14.06%
+% Temporal Flicker	66.14%	17.70%	16.15%
+
+
+\subsection{More Qualitative Results}
+\label{app:qua_res}
+Fig.~\ref{fig:fig1} presents three long video cases generated by MIGA based on Wan2.1-1.3B.
+Additionally, more generation cases produced by MIGA using Wan2.1-1.3B and VideoCrafter2 are shown in Fig.~\ref{fig:app_wan_case} and Fig.~\ref{fig:app_videocrafter_case}.
+All these generated videos are approximately one minute in length.
+According to their default fps settings, Wan2.1-based MIGA produces long videos with 1000 frames, while VideoCrafter2-based MIGA generates long videos with 600 frames.
+
+
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=1.0\linewidth]{images/app_wan_case.pdf}
+\includegraphics[width=1.0\linewidth]{images/app_wan_case_small.pdf}
+% \vspace{-10pt}
+\caption{\textbf{Long video cases generated by Wan2.1-based MIGA.}}
+% \vspace{-10pt}
+\label{fig:app_wan_case}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=1.0\linewidth]{images/app_videocrafter_case.pdf}
+\includegraphics[width=1.0\linewidth]{images/app_videocrafter_case_small.pdf}
+% \vspace{-10pt}
+\caption{\textbf{Long video cases generated by VideoCrafter2-based MIGA.}}
+% \vspace{-10pt}
+\label{fig:app_videocrafter_case}
+\end{figure}
+
+\section{Limitations and Future Work}
+
+Our proposed MIGA provides an effective train-free approach for extending the generated length of existing foundation models.
+While longer video duration offers greater space for content creation, it also increases the risk of unintended model behaviors.
+As shown in Fig.~\ref{fig:app_limitation}, the beginning of the generated video follows the text prompt well, with a cat walking from left to right. However, after some time, the cat's head and tail suddenly switch places.
+This phenomenon can be regarded as a hallucination \cite{chu2024sora,bai2024hallucination} of the video generation model, or as evidence of the lack of underlying physical knowledge \cite{lin2025exploring,bansal2024videophy}.
+Such issues are not only specific to long video generation tasks but also represent a major challenge for the entire field of video generation \cite{kang2024far}.
+In future work, we aim to incorporate additional conditioning signals beyond text instructions to enable the generation of more realistic long videos.
+
+
+\end{document}
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018, and modified by Alexandre Bouchard in
+% 2019 and 2021 and by Csaba Szepesvari, Gang Niu and Sivan Sabato in 2022.
+% Modified again in 2023 and 2024 by Sivan Sabato and Jonathan Scarlett.
+% Previous contributors include Dan Roy, Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.

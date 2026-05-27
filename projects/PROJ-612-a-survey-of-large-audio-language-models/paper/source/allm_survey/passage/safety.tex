@@ -1,0 +1,118 @@
+\section{Safety Challenges in LALMs}
+\subsection{Introduction to LALM Safety}
+
+While multimodal design unlocks speech understanding, it simultaneously enlarges the attack surface: unlike discrete text tokens, continuous audio inputs admit a far richer space of adversarial perturbations~\cite{cheng2025jailbreak}.
+Text-only safety paradigms are therefore inadequate, necessitating a shift toward joint audio--text alignment. Beyond transcription, audio encodes paralinguistic cues that introduce new attack vectors, allowing adversaries to obscure malicious intent through benign acoustic patterns~\cite{sadasivan2025attacker}. Safety alignment must therefore account for threats arising from both semantic content and acoustic realization as shown in figure \ref{fig:4}.
+
+This chapter presents a taxonomy of safety and security challenges in LALMs, organized along the offense--defense dichotomy. We review the expanding risk landscape, including adversarial acoustic manipulation, jailbreaking, backdoors, privacy leakage, fairness bias, and hallucination, followed by emerging defense mechanisms such as endogenous safety alignment, exogenous input guardrails, and LALM-assisted threat detection. Our analysis reveals a marked imbalance: while offensive techniques are rapidly advancing, defensive mechanisms remain relatively underdeveloped. This gap highlights the urgent need to prioritize multimodal safety alignment alongside performance gains.
+
+
+\subsection{The Expanding Risk Landscape}
+
+\subsubsection{Hallucination}
+Hallucination often arises from failures of acoustic grounding, where models generate plausible textual responses that are not supported by the input audio.
+As demonstrated by Ma et al.~\cite{ma2025towards}, a comprehensive evaluation framework was proposed to measure and mitigate hallucinations in LALMs, introducing specific metrics to assess how accurately LALMs ground their responses in audio inputs rather than generating fabricated content. Their findings indicate that hallucinations can also arise from audio inputs.
+
+\subsubsection{Adversarial Acoustic Manipulation}
+A primary vector for compromising LALM integrity is adversarial acoustic manipulation, where carefully crafted or naturally occurring audio fragments are exploited to induce model failures.
+Unlike discrete text attacks, adversaries can inject imperceptible perturbations or leverage naturally occurring environmental noise into audio signals, effectively ``hijacking'' the model's latent representation without altering the human-perceived semantic content. \textbf{AudioTrust} highlights that LALMs are highly sensitive not only to semantic deception but also to non-semantic acoustic cues, where subtle shifts in tone can trigger safety violations~\cite{li2025audiotrust}. Crucially, this vulnerability extends beyond the laboratory: even naturally occurring environmental noise can be weaponized to steer model behavior in deployed settings~\cite{sadasivan2025attacker}, indicating that the audio encoder itself constitutes an exploitable bypass of textual safety alignment.
+
+
+\subsubsection{Jailbreaking LALMs}
+
+While adversarial acoustic manipulation broadly targets model behavior, jailbreak attacks specifically aim to override safety refusals and elicit policy-violating responses. The central challenge in securing LALMs is cross-modal jailbreaking, where non-semantic speech attributes are exploited to bypass text-centric safety filters. Benchmarks like \textbf{Jailbreak-AudioBench} and \textbf{JALMBench} show that audio introduces attack surfaces not covered by textual alignment. This vulnerability stems from LALMs’ sensitivity to paralinguistic cues~\cite{cheng2025jailbreak, peng2025jalmbench, hou2025evaluating}. \textbf{Multi-AudioJail} demonstrates that manipulating emotion, speaker traits, or accent can shift refusal boundaries and induce harmful compliance~\cite{roh2025multilingual}. Moreover, attacks such as \textbf{AudioJailbreak}~\cite{chen2025audiojailbreak} and \textbf{StyleBreak}~\cite{li2025stylebreak} embed malicious instructions within specific acoustic contexts, further exploiting weaknesses~\cite{feng2025investigating}.
+
+Beyond natural speech properties, LALMs are vulnerable to extrinsic adversarial exploitation, where imperceptible noise or perturbations are crafted to induce jailbreaks~\cite{song2025audio}. \textbf{HIN}~\cite{lin2025hidden} shows that adversarial interference can significantly degrade safety alignment, revealing fragility to inputs that deviate from clean speech. \textbf{WhisperInject}~\cite{kim2025good} further introduces a two-stage adversarial audio attack framework that imperceptibly embeds harmful prompts into benign audio, enabling the compromise of state-of-the-art LALMs and revealing critical vulnerabilities in LALM safety.
+These results indicate that the continuous audio space enables stealthy jailbreaks that are imperceptible to humans yet effective at manipulating model behavior.
+
+\subsubsection{Backdoor Attacks in Audio Modality}
+
+While jailbreaking exploits vulnerabilities during inference, backdoor attacks compromise the integrity of LALMs during the training phase through data poisoning. 
+This vector involves injecting malicious samples into the training dataset, teaching the model to associate specific, often imperceptible, audio triggers with a target behavior. Fortier et al.~\cite{fortier2025backdoor} show that attackers can embed hidden triggers---such as specific frequency patterns, unique background noises, or subtle acoustic signatures—into the audio input. When the model encounters these triggers during deployment, it bypasses standard processing to execute a pre-defined malicious output, effectively creating a ``Trojan horse'' within the model's parameters that remains dormant until activated by the specific acoustic key.
+
+\subsubsection{Privacy Leakage}
+Integrating audio into LLMs introduces privacy risks beyond textual personally identifiable information leakage, as LALMs can infer attributes through voiceprints and paralinguistic cues. These voice-profiling risks target both the primary user and the surrounding environment \cite{zhan2025protecting}.
+
+For the direct user, the audio signal itself serves as a biometric identifier. The \textbf{HearSay} benchmark~\cite{wang2026hearsay} shows that LALMs can inadvertently function as soft-biometric classifiers, leaking sensitive attributes such as the speaker's gender, age, health status, and identity solely from acoustic features. Furthermore, privacy leakage extends to the physical realm. As demonstrated by Zhang et al.~\cite{zhang2026sonar}, LALMs can achieve high-precision audio geo-localization. By analyzing subtle ambient cues models can infer the user’s precise geographical location, posing a severe threat.
+
+
+The threat landscape also encompasses non-consenting third parties. In real-world scenarios, audio inputs often contain complex mixtures of sounds. \textbf{SH-Bench}~\cite{zhan2025protecting} indicates that LALMs may lack the ability to distinguish between the primary user and background voices. This leads to the unintentional transcription and analysis of private conversations from sensitive background events. 
+
+\subsubsection{Bias and Fairness}
+As LALMs integrate vocal inputs, they introduce new risks of accent and demographic bias, where models may exhibit discriminatory behavior based on a speaker's accent, dialect, or vocal characteristics. This issue is particularly critical in high-stakes domains like healthcare, as demonstrated by the study \textbf{MedVoiceBias}~\cite{tam2025medvoicebias}, which found that LALMs could generate biased clinical decisions partly driven by demographic cues, such as age inferred from voice, rather than task-relevant medical evidence.
+
+% \subsubsection{Hallucination}
+% Hallucination often arises from failures of acoustic grounding, where models generate plausible textual responses that are not supported by the input audio.
+% As demonstrated by Ma et al.~\cite{ma2025towards}, a comprehensive evaluation framework was proposed to measure and mitigate hallucinations in LALMs, introducing specific metrics to assess how accurately LALMs ground their responses in audio inputs rather than generating fabricated content. Their findings indicate that hallucinations can also arise from audio inputs.
+
+\begin{figure*}[t] % 注意这里加了星号 *
+    \centering
+    % width=\linewidth 或 width=\textwidth 在 figure* 环境中都会指代整个页面的宽度
+    \includegraphics[width=\linewidth]{figure/audio_trust.png}
+    \caption{Cumulative Growth and Key Milestones in Trustworthy LALM Research. This chart tracks the quantitative surge in almost scholarly publications and benchmarking efforts dedicated to LALM trustworthiness from late 2024 to early 2026.}
+    \label{fig:4} 
+\end{figure*} 
+
+\subsection{Defense Mechanisms}
+In contrast to the advancing attack landscape, defenses for LALMs remain limited and immature. Although we identify diverse security threats, existing mitigation efforts focus primarily on jailbreak prevention, with little coverage of backdoors, bias, or multimodal privacy risks. This imbalance reveals the absence of a systematic framework for audio-text safety alignment, leaving LALMs vulnerable. We therefore survey existing defenses, categorizing them into jailbreak mitigation and LALM-based threat detection.
+
+
+\subsubsection{Defending Against Jailbreaks}
+
+As the most prominent threat vector, jailbreaking has attracted the majority of the nascent defensive efforts in the LALM community. Current strategies can be broadly categorized into two streams: Endogenous Alignment, which seeks to modify the model's internal representations or parameters, and Exogenous Guardrails, which filter or sanitize inputs before they reach the language decoder.
+
+\paragraph{Endogenous Alignment.}
+This line of research focuses on reshaping the model's latent space to inherently resist harmful instructions. A critical challenge in this domain is the ``alignment tax'', the tendency for safety measures to degrade general model utility (i.e., over-rejection). To address this, Yang et al.~\cite{yang2025reshaping} introduce a representation-space optimization method to improve the safety alignment of LALMs while maintaining helpfulness, effectively reducing over-rejection of benign queries.
+Taking a more mechanistic approach, \textbf{SARSteer}~\cite{lin2025sarsteer} introduces an inference-time intervention technique known as refusal steering. Using Principal Component Analysis (PCA), they isolate these ``refusal vectors'' and separate them from harmful request vectors. During inference, the model is mathematically ``steered'' along the refusal direction when a harmful query is detected, effectively forcing a safe response without requiring extensive retraining.
+
+\paragraph{Exogenous Guardrails.}
+Complementary to internal modifications, external defense mechanisms aim to identify and block adversarial features in the input audio signal. ALMGuard~\cite{jin2025almguard} represents a pioneering effort in this direction by investigating ``safety shortcuts'' within the audio modality. The authors discovered that LALMs rely on specific Mel-frequency bins for safety judgments, which are distinct from the features used for general speech understanding. \textbf{ALMGuard} leverages this insight to mask or monitor these sensitive frequency regions~\cite{jin2025almguard}, acting as a spectral filter that disrupts jailbreak attempts while maintaining the intelligibility of normal speech.
+
+% \subsubsection{LALM as a Guardian}
+% Beyond serving as vulnerable targets, recent studies explore LALMs as active defenders against audio deepfakes, leveraging their semantic reasoning to complement signal-based detectors. Works such as DFALLM frame deepfake detection as a language-grounded understanding task~\cite{li2025dfallm}, enabling generalizable and multitask detection across spoofing methods. 
+% Similarly, Xie et al.~\cite{xie2026interpretable} propose an interpretable framework based on frequency--time reinforcement learning that guides LALMs to attend to spectral--temporal anomalies, thereby improving robustness to diverse synthesis artifacts.
+% These results suggest that LALMs can play a complementary role in audio deepfake detection beyond conventional classifiers.
+
+% Deploying LALMs as detectors raises challenges in robustness and interpretability.
+% Nguyen et al.~\cite{nguyen2026analyzing} analyze how adversarially perturbed deepfakes can induce a ``reasoning tax--shield bifurcation,'' in which semantic reasoning interferes with reliable artifact detection.
+% Although LALMs enable zero-shot detection and provide natural-language explanations absent in traditional methods, their reliance on semantic cues becomes a liability when semantics are decoupled from synthesis artifacts. Consequently, despite their promise as audio forensic tools, LALM-based detectors remain constrained by high computational cost and vulnerability to adversarial inputs.
+
+\subsubsection{LALM-Assisted Threat Detection}
+
+Beyond serving as vulnerable targets, recent studies explore LALMs as active defenders, leveraging their joint audio--text reasoning to complement conventional signal-based detectors. By framing deepfake detection as a language-grounded understanding task, LALMs can provide natural-language explanations for their judgments and generalize across unseen spoofing methods in zero-shot or few-shot settings~\cite{li2025dfallm,xie2026interpretable}.
+
+However, deploying LALMs as detectors introduces new challenges. Their reliance on high-level semantic cues can become a liability when synthesis artifacts are subtle or semantically decoupled from spoken content~\cite{nguyen2026analyzing}, and their computational cost remains substantially higher than that of specialized classifiers. LALM-assisted detection should therefore be viewed as a complementary guardrail rather than a standalone replacement.
+
+\subsection{Critical Analysis and Future Directions}
+
+The survey of the current landscape reveals a precarious state of LALM security. While the integration of auditory capabilities has significantly expanded model utility, it has simultaneously introduced a complex, high-dimensional attack surface that existing safety paradigms are ill-equipped to handle~\cite{li2025audiotrust}.
+In this section, we synthesize the observed trends into a critical analysis of the field's structural deficiencies and propose a roadmap for future research.
+
+\subsubsection{The Asymmetry of Offense and Defense}
+
+Our taxonomy reveals a stark asymmetry: while offensive research has matured into a diverse ecosystem encompassing five distinct vectors (manipulation~\cite{sadasivan2025attacker}, jailbreaking~\cite{cheng2025jailbreak}, backdoors~\cite{fortier2025backdoor}, privacy~\cite{wang2026hearsay}, and bias~\cite{tam2025medvoicebias}), defensive mechanisms remain rudimentary, primarily reactive, and fixated on jailbreak mitigation~\cite{yang2025reshaping,jin2025almguard}. We argue that this imbalance is not merely a temporal lag but stems from challenges inherent to the audio modality.
+
+\textbf{The Continuous vs. Discrete Gap:} The primary obstacle to robust defense is the continuous nature of audio. Text safety mechanisms rely on discrete token filtering and perplexity checks, which are computationally efficient and interpretably map to semantic meaning. In contrast, audio signals operate on a continuous manifold. Adversarial perturbations in audio are often orthogonal to human perception (i.e., imperceptible noise), making it mathematically difficult to define a ``safe'' boundary in the raw waveform or spectral domain without degrading the signal's utility.
+
+\textbf{Lack of Standardized Benchmarks:} The offensive proliferation is partly driven by the ease of adapting computer vision and LLM attack algorithms to audio. However, defense lacks a unified evaluation standard. Unlike the mature ``Red Teaming'' datasets for text~\cite{zou2023universal}, the LALM community lacks a comprehensive \textit{Safety Leaderboard} that evaluates models across the full spectrum of threats---from paralinguistic privacy leakage to acoustic backdoors. This absence of metrics incentivizes performance-driven development at the expense of security.
+
+\subsubsection{The Challenge of Cross-Modal Alignment}
+
+Our analysis shows that directly transferring text-based alignment to multimodal systems is insufficient. Most LALMs inherit safety alignment from text-only RLHF applied to their LLM backbones, resulting in \textit{modality-agnostic alignment} that overlooks the decoupling between semantic content and acoustic realization.
+
+In speech, malicious intent can be conveyed through paralinguistic cues rather than linguistic semantics alone~\cite{lin2025hidden}. Consequently, an LALM may refuse a harmful text prompt but comply with the same instruction under acoustic variations that shift its internal representations.
+
+Addressing this gap requires \textit{audio-aware alignment}. Future RLHF frameworks should incorporate multimodal preference signals, enabling reward models to penalize both harmful semantics and manipulative acoustic patterns.
+
+\subsubsection{Towards Holistic LALM Security}
+
+To bridge the chasm between attack sophistication and defense maturity, we call for a paradigm shift from reactive patching to a holistic \textit{Defense-in-Depth} architecture. We propose three pillars for future investigation:
+
+\textbf{1. Input-Level Audio Sanitization:} Before an audio signal reaches the LALM encoder, it should undergo purification. Future work should explore diffusion-based purification or randomized smoothing techniques adapted for audio, aiming to strip adversarial perturbations and neutralize potential triggers while preserving semantic intelligibility. This acts as a ``firewall'' for the continuous signal.
+
+\textbf{2. Privacy-Preserving Inference:} Addressing voiceprint leakage requires disentangled representation learning. We envision ``Voice Anonymizers'' that decouple speaker identity from linguistic content in latent space. This allows LALMs to process queries without retaining biometrics for profiling, ensuring utility does not compromise anonymity.
+
+\textbf{3. Comprehensive Safety Evaluation Frameworks:} The community must establish a dynamic, multi-faceted safety benchmark. This framework should go beyond static datasets and include automated Red Teaming agents that simulate diverse acoustic environments, accents, and adversarial strategies. Only by rigorously quantifying the ``Safety Tax''~\cite{huang2025safety}—the trade-off between robustness and helpfulness—can we guide the development of reliable LALMs.
+
+
+

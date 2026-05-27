@@ -1,0 +1,40 @@
+\begin{table}[ht]
+  \caption{\textbf{Main results} (accuracy \%). AIME24/25/26 and HMMT25: avg@$32$; Minerva: avg@$4$. Subscript on \emph{Avg} = peak-mean step; \emph{Speedup} = GRPO's best-Avg step / this row's first-reach step ($\times$: never reached). \textbf{Bold} = column best within each model block; highlighted row is canonical AntiSD.}
+  \vspace{-0.5em}
+  \label{tab:main}
+  \centering
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{0.95}
+  \begin{tabular}{l|c c c c c|c|c}
+    \toprule
+    Method                             & \textbf{AIME24} & \textbf{AIME25} & \textbf{AIME26} & \textbf{HMMT25} & \textbf{Minerva} & \textbf{Average}                  & \textbf{Speedup}      \\
+    \midrule
+    \textit{Qwen3-8B}                  & 25.5            & 21.3            & 17.0            & 10.8            & 39.0             & 22.7                              & --                    \\
+    \quad +GRPO                        & 73.5            & 65.2            & 64.2            & 39.2            & 45.1             & 57.4\textsubscript{@200}          & 1.0$\times$           \\
+    \quad +SD                          & 40.1            & 30.5            & 26.9            & 14.9            & 40.7             & 30.6\textsubscript{@200}          & $\times$              \\
+    \rowcolor{antisdrow} \quad +AntiSD & \textbf{78.4}   & \textbf{73.4}   & \textbf{73.7}   & \textbf{54.4}   & \textbf{48.5}    & \textbf{65.7\textsubscript{@180}} & \textbf{5.0$\times$}  \\
+    \midrule
+    \textit{Qwen3-4B-IT-2507}          & 62.1            & 48.2            & 53.8            & 30.4            & 43.4             & 47.6                              & --                    \\
+    \quad +GRPO                        & 67.8            & 57.7            & 63.5            & 34.1            & 33.2             & 51.3\textsubscript{@200}          & 1.0$\times$           \\
+    \quad +SD                          & 59.8            & 45.8            & 52.0            & 28.8            & 43.0             & 45.9\textsubscript{@10}           & $\times$              \\
+    \rowcolor{antisdrow} \quad +AntiSD & \textbf{76.6}   & \textbf{70.2}   & \textbf{74.4}   & \textbf{46.7}   & \textbf{46.4}    & \textbf{62.8\textsubscript{@100}} & \textbf{10.0$\times$} \\
+    \midrule
+    \textit{Olmo3-7B-IT}               & 53.3            & 39.7            & 44.4            & 25.9            & 38.7             & 40.4                              & --                    \\
+    \quad +GRPO                        & 57.0            & 45.3            & 52.1            & 31.2            & 29.1             & 43.0\textsubscript{@190}          & 1.0$\times$           \\
+    \quad +SD                          & 54.5            & 41.8            & 46.6            & 24.4            & 38.5             & 41.1\textsubscript{@10}           & $\times$              \\
+    \rowcolor{antisdrow} \quad +AntiSD & \textbf{62.4}   & \textbf{49.1}   & \textbf{55.2}   & \textbf{32.3}   & \textbf{42.4}    & \textbf{48.3\textsubscript{@200}} & \textbf{9.5$\times$}  \\
+    \midrule
+    \textit{Olmo3-7B-TK}               & 74.6            & 68.7            & 73.3            & 48.2            & 45.2             & 62.0                              & --                    \\
+    \quad +GRPO                        & 76.5            & 71.7            & 75.3            & 50.5            & \textbf{46.4}    & 64.1\textsubscript{@80}           & 1.0$\times$           \\
+    \quad +SD                          & 77.2            & 68.5            & 74.0            & 48.3            & 44.8             & 62.6\textsubscript{@40}           & $\times$              \\
+    \rowcolor{antisdrow} \quad +AntiSD & \textbf{77.6}   & \textbf{75.3}   & \textbf{76.1}   & \textbf{56.2}   & 45.8             & \textbf{66.2\textsubscript{@40}}  & \textbf{2.0$\times$}  \\
+    \midrule
+    \textit{Qwen3-30B-A3B}             & 28.1            & 22.3            & 21.8            & 11.7            & 43.5             & 25.5                              & --                    \\
+    \quad +GRPO                        & 74.1            & 66.8            & 65.5            & 42.2            & 47.1             & 59.1\textsubscript{@150}          & 1.0$\times$           \\
+    \quad +SD                          & 40.9            & 32.5            & 34.0            & 20.9            & 44.1             & 34.5\textsubscript{@60}           & $\times$              \\
+    \rowcolor{antisdrow} \quad +AntiSD & \textbf{79.4}   & \textbf{75.6}   & \textbf{74.1}   & \textbf{55.2}   & \textbf{49.7}    & \textbf{66.8\textsubscript{@140}} & \textbf{2.9$\times$}  \\
+    \bottomrule
+  \end{tabular}
+  % \vspace{-1.5em}
+\end{table}

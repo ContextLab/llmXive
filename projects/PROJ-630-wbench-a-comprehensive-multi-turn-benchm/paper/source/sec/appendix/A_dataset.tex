@@ -1,0 +1,243 @@
+\section{Additional Dataset Statistics and Analysis}
+\label{app:dataset}
+
+
+\subsection{Extended Benchmark Comparison}
+\label{app:benchmark_comparison_full}
+\begin{table}[H]
+\caption[Extended benchmark comparison]{Extended comparison of \benchmark with all surveyed benchmarks. FPP\thinslash TPP denotes first-\thinslash third-person perspective. Navi, SA, EE, and PS denote navigation, subject action, event editing, and perspective switching. Qual, Adh, Inter, Cons, and Phys denote video quality, setting adherence, interaction adherence, consistency, and physics compliance.}
+\vspace{+3mm}
+\label{tab:benchmark_comparison_full}
+\centering
+\renewcommand{\arraystretch}{1.3}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}l c cc cccc ccccc rr@{}}
+\toprule
+\multirow{2.5}{*}{\textbf{Benchmark}} & \multirow{2.5}{*}{\textbf{Venue}} & \multicolumn{2}{c}{\textbf{Persp.}} & \multicolumn{4}{c}{\textbf{Interaction Type}} & \multicolumn{5}{c}{\textbf{Evaluation Dimension}} & \multicolumn{2}{c}{\textbf{Scale}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-8} \cmidrule(lr){9-13} \cmidrule(l){14-15}
+& & \textbf{FPP} & \textbf{TPP} & \textbf{Navi} & \textbf{SA} & \textbf{EE} & \textbf{PS} & \textbf{Qual} & \textbf{Adh} & \textbf{Inter} & \textbf{Cons} & \textbf{Phys} & \textbf{Cases} & \textbf{Turns} \\
+\midrule
+VBench~\cite{huang2024vbench}                     & \pub{CVPR'24}    & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & 946   & 946   \\
+EvalCrafter~\cite{liu2024evalcrafter}             & \pub{CVPR'24}    & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & 700   & 700   \\
+WorldSimBench~\cite{lian2024worldsimbench}        & \pub{arXiv'24}   & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & 35k   & 35k   \\
+PhyGenBench~\cite{meng2024phygenbench}            & \pub{ICML'25}    & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & 160   & 160   \\
+VBench++~\cite{huang2024vbenchplus}               & \pub{TPAMI'25}   & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & 1,260 & 1,260 \\
+Video-Bench~\cite{han2025videobench}              & \pub{arXiv'25}   & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & 419   & 419   \\
+VideoPhy-2~\cite{bansal2025videophy2}             & \pub{arXiv'25}   & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & 590   & 590   \\
+WorldScore~\cite{duan2024worldscore}              & \pub{ICCV'25}    & \cmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & 3,000 & 3,000 \\
+WorldModelBench~\cite{wang2024worldmodelbench}    & \pub{NeurIPS'25} & \cmark & - & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark & 350   & 350   \\
+4DWorldBench~\cite{lu2025_4dworldbench}           & \pub{arXiv'25}   & - & - & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & 333   & 333   \\
+InterBench~\cite{tang2025interbench}              & \pub{arXiv'25}   & \cmark & \cmark & \xmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \cmark & 920   & 920   \\
+MIND~\cite{ye2026mind}                            & \pub{arXiv'26}   & \cmark & - & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark & 250   & --    \\
+WorldArena~\cite{shang2026worldarena}             & \pub{arXiv'26}   & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \cmark & 500   & 500   \\
+Omni-WorldBench~\cite{wu2026omniworldbench}       & \pub{arXiv'26}   & \cmark & - & \cmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \cmark & 1,068 & 1,068 \\
+WR-Arena~\cite{gao2026wrena}                      & \pub{arXiv'26}   & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & 62    & $\leq$558 \\
+WorldLens~\cite{worldlens2025}                    & \pub{CVPR'26}    & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark & 26k   & --   \\
+World-in-World~\cite{zhang2025worldinworld}       & \pub{ICLR'26}    & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \cmark & \xmark & \cmark & \xmark & \xmark & 1,079 & --    \\
+WorldMark~\cite{xu2026worldmark}                  & \pub{arXiv'26}   & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark & 500   & --    \\
+\midrule
+\textbf{\benchmark (Ours)}                        & --        & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \numvideo  & \numturn \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\cref{tab:benchmark_comparison_full} summarizes the full set of surveyed benchmarks. Representative examples span quality-oriented suites such as VBench~\cite{huang2024vbench}, which dissects text-to-video quality into 16 hierarchical dimensions with tailored prompts, and EvalCrafter~\cite{liu2024evalcrafter}, which scores around 700 prompts with 17 objective metrics calibrated against user preferences. Physics-focused work includes PhyGenBench~\cite{meng2024phygenbench}, with 160 prompts across 27 physical laws in four domains, and VideoPhy-2~\cite{bansal2025videophy2}, which targets action-centric physics over 200 real-world actions. WorldScore~\cite{duan2024worldscore} casts world generation as a sequence of next-scene tasks along explicit camera trajectories on 3,000 cases, while WorldModelBench~\cite{wang2024worldmodelbench} evaluates instruction following and physics adherence using 67K human labels in robotics and driving settings. Among interactive efforts, WorldSimBench~\cite{lian2024worldsimbench} pairs perceptual evaluation with a manipulative evaluation that checks whether generated videos translate into correct control signals, World-in-World~\cite{zhang2025worldinworld} builds a closed-loop platform with a unified planner and standardized action API that reports task success as the primary metric, and WorldMark~\cite{xu2026worldmark} introduces a WASD-style action-mapping layer to enable apples-to-apples comparison across interactive video world models under identical scenes and trajectories.
+
+
+\subsection{Dataset Gallery}
+\label{app:visual_showcase}
+
+This section provides qualitative showcases of \benchmark along the taxonomy axes introduced in Section~\ref{sec:ontology}. We show the thumbnails of all the initial frames of the \benchmark in \cref{fig:all_gallery}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth,height=0.95\textheight,keepaspectratio]{figures//appendix//gallery/all.jpg}
+    \caption[Thumbnail gallery of all cases]{Thumbnail gallery of all cases in \benchmark.}
+    \label{fig:all_gallery}
+\end{figure}
+
+\subsubsection{Scene and Style Gallery}
+\label{app:scene_style_gallery}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.98\textwidth]{figures/appendix/gallery/scene_gallery.pdf}
+\caption[Scene and style coverage]{Scene and style coverage. Two categories per row are presented, each shown as a photorealistic/stylized pair that shares the same underlying scene specification. The six categories cover nature, urban, indoor, workspace, fantasy, and sports/game.}
+\label{fig:scene_style_matrix}
+\end{figure}
+
+\cref{fig:scene_style_matrix} displays two photorealistic and stylized pairs per row, covering all six scene categories in a compact three-row layout. The six categories, nature, urban, indoor, workspace, fantasy, and sports or game, span both naturalistic settings (outdoor landscapes, cityscapes, living spaces) and more constructed or speculative environments (office or workshop, surreal or magical worlds, and curated activity spaces), and each category is shown through a photorealistic and a stylized rendering of the same underlying scene specification, so that readers can compare how the rendering pipeline preserves the scene semantics while varying the visual appearance. \cref{fig:style_gallery} further enlarges the stylized rendering to show the full range of visual styles supported by \benchmark, including realistic, anime, cartoon, oil painting, ink wash, flat, and pencil sketch, which together cover photographic, illustrative, painterly, and sketch-like appearances used by practical content-creation workflows.
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.98\textwidth]{figures/appendix/gallery/style_gallery.pdf}
+\caption[Style gallery]{Style gallery. Representative initial frames spanning the rendering styles covered by \benchmark: realistic, anime, cartoon, oil painting, ink wash, flat, and pencil sketch.}
+\label{fig:style_gallery}
+\end{figure}
+
+
+\subsubsection{Perspective and Subject Gallery}
+\label{app:persp_subject_gallery}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.996\textwidth]{figures/appendix/gallery/perspective_gallery.pdf}
+\caption[Perspective gallery]{Perspective gallery. Cases are grouped into three rows by perspective type: disembodied first-person with no visible agent, embodied first-person with a visible body part such as hands or weapon, and third-person with the controlled subject in view.}
+\label{fig:perspective_gallery}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.996\textwidth]{figures/appendix/gallery/subject_gallery.pdf}
+\caption[Subject gallery]{Subject gallery. One column per subject category, covering human, animal, vehicle, robot, and other objects. Each column lists multiple representative cases that span different scenes and styles.}
+\label{fig:subject_gallery}
+\end{figure}
+
+
+\cref{fig:perspective_gallery} separates the perspective axis into three rows. The top row shows \textit{disembodied first-person} cases, where the camera is attached to an implicit agent and no body part is visible, so that perspective is defined purely by the camera's position and motion. The middle row shows \textit{embodied first-person} cases, where a body part (typically hands, held tools, or a mounted weapon) is visible at the bottom of the frame and grounds the perspective in a specific agent. The bottom row shows \textit{third-person} cases, where the controlled subject is visible inside the frame and the camera follows it externally. This three-way split matters because embodiment changes how navigation and subject-action prompts should be interpreted: in disembodied first-person, instructions like ``walk forward'' collapse to camera translation, whereas in embodied first- and third-person settings the same instruction must be grounded in a specific agent's motion. \cref{fig:subject_gallery} further enumerates the five controllable-subject categories on the third-person axis, namely human, animal, vehicle, robot, and other objects, each illustrated by multiple representative cases that vary scene and style, so that subject diversity is shown to be orthogonal to scene and style diversity rather than confounded with them.
+
+
+\subsubsection{Subject Action and Event Editing Examples}
+\label{app:sa_ee_examples}
+
+Unlike scenes, styles, perspectives, and subjects, which are naturally illustrated by static initial frames, subject action and event editing are fundamentally temporal phenomena and are therefore hard to render compactly as image galleries. In place of such galleries, \cref{tab:sa_ee_examples} lists condensed example phrases abstracted from the released \benchmark cases, so that reviewers can directly read off the semantic breadth each sub-type aims to cover. On the Subject Action side, the five sub-types range from fine-grained hand-object interaction (manipulation, tool use) to whole-body movement and agent--environment physics (locomotion, combat), and further to socially grounded behaviors that carry communicative intent rather than physical effect (gestural interaction). On the Event Editing side, the six sub-types progressively move outward from the subject: appearance or state changes that attach to existing objects, environmental changes and natural phenomena that reshape global scene attributes, NPC motion that introduces new dynamic agents, mechanical transitions that reconfigure scene geometry, and physical effects that trigger irreversible state changes such as explosions or collapses. Together the eleven sub-types are designed to stress-test different aspects of world-model behavior, from local controllability over a subject to global responsiveness of the surrounding world.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
+\caption[Subject action and event editing example phrases]{Condensed example phrases for each Subject Action and Event Editing sub-type, abstracted from released \benchmark cases. Each cell lists three semicolon-separated phrases that cover the typical semantic range of the subtype.}
+\vspace{+1mm}
+\begin{tabular}{@{}p{0.22\linewidth}p{0.74\linewidth}@{}}
+\toprule
+\textbf{Sub-type} & \textbf{Example phrases} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Subject Action}} \\
+\midrule
+Manipulation           & open a box lid; knead dough; sweep leaves into a pile. \\
+Tool use               & saw a plank along a line; light a candle with a match; trim branches with shears. \\
+Locomotion             & glide on ice; dive and descend underwater; squeeze through a narrow cave. \\
+Combat                 & downward sword slash; straight punch at a dummy; axe strike on a door. \\
+Gestural interaction   & expressive hand-gesture speech; kneel before a herald; pat a horse. \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Event Editing}} \\
+\midrule
+Environment change        & rain begins; sunset turns to night; fog rolls in. \\
+Appearance state change   & runes glow cyan; armor visor lights up; window fogs from steam. \\
+NPC motion                & a passer-by walks by; a fish school drifts past; a dog dashes out. \\
+Mechanical transition     & drawbridge lowers; gate slides up; elevator doors open. \\
+Physical effect           & canister explodes; building collapses with dust; ice cracks and water floods in. \\
+Natural phenomenon        & volcano erupts; sandstorm approaches; hot-air balloons rise at sunset. \\
+\bottomrule
+\end{tabular}
+
+\label{tab:sa_ee_examples}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.8\textwidth]{figures/appendix/ps_gallery.pdf}
+\caption[Perspective-switching taxonomy showcase]{Perspective-switching taxonomy showcase. One representative case per sub-type, covering same-subject switches, multi-subject switches, and scope-mode transitions. The source perspective and the switching prompt are rendered inside each frame.}
+\label{fig:persp_switch_showcase}
+\end{figure}
+
+\subsubsection{Perspective Switching Prompts Gallery}
+\label{app:persp_switch_gallery}
+
+\cref{fig:persp_switch_showcase} illustrates the three perspective-switching sub-types in a single row. Each panel shows the source perspective as the initial frame, with the released switching prompt baked in to describe the intended target perspective, so that the interaction shown is exactly the one the model is asked to execute at evaluation time. \textit{Same-subject} switches change the camera relative to the same controlled subject, for example from a third-person follow shot to an embodied first-person view of the same character, probing whether the model can re-anchor the camera without losing identity or pose. \textit{Multi-subject} switches hand control over from one subject to another within the same scene, so that the new perspective is attached to a different agent while the surrounding scene must remain consistent. \textit{Scope mode} transitions change the spatial scope of the perspective itself, for example zooming from a narrow first-person view out to a broader third-person shot or vice versa, testing whether the model maintains a coherent world across scale changes. The three sub-types together cover the principal ways a user can reconfigure perspective at run time without regenerating the world from scratch.
+
+
+\subsection{Navigation Design and Distribution}
+\label{app:nav_coverage}
+
+Navigation is the most common interaction type in \benchmark and receives the most systematic treatment. This section details the action definition, distribution statistics, and trajectory design.
+
+\paragraph{Action definition.}
+\benchmark adopts a WASD plus arrow-key scheme for discrete navigation control. As shown in \cref{fig:nav_define} and \cref{tab:nav_actions}, the same key triggers different physical motions depending on the perspective. Under first-person view, W/S/A/D translate the camera forward, backward, left, and right, while arrow keys rotate the viewpoint. Under third-person view, W/S/A/D move the subject, while arrow keys orbit the camera around the subject. This perspective-dependent mapping mirrors how game engines handle first- and third-person control, and ensures that each key carries a clear, unambiguous spatial semantics for evaluation.
+
+\paragraph{Atomic action distribution.}
+\cref{fig:navi_distribute} shows the atomic action distribution across all navigation sequences. Translational actions (W/S/A/D) account for 62.8\% and rotational actions (arrow keys) for 37.0\%, ensuring balanced coverage of both movement families. Among translational actions, forward motion (W, 29\%) is the most frequent, reflecting its prevalence in natural navigation, while lateral (A/D, 12\% each) and backward (S, 11\%) motions are evenly represented. Rotational actions are distributed across left (10\%), right (12\%), up (10\%), and down (6\%), with downward rotation being the least common as it is rarely the primary navigation intent.
+
+\paragraph{Trajectory type design.}
+We categorize navigation sequences into six trajectory types, each targeting different aspects of spatial understanding. \cref{tab:trajectory_examples} lists representative action sequences for each type.
+\textbf{Round-trip} trajectories move forward and then retrace the path, directly testing whether the model can maintain spatial consistency when revisiting previously seen regions.
+\textbf{Progressive} trajectories combine multiple distinct directions without returning, requiring the model to coherently extend the scene into new areas.
+\textbf{Repeat} trajectories apply the same action consecutively, testing whether the model sustains smooth and consistent motion over extended sequences.
+\textbf{L-shape} trajectories execute a single sharp turn, probing the model's ability to handle abrupt direction changes while preserving scene geometry.
+\textbf{Loop} trajectories traverse a closed path that returns to the starting area via a different route, demanding global spatial coherence across the entire sequence.
+\textbf{Zigzag} trajectories alternate between opposing directions, challenging the model to maintain stable scene structure under rapid, repeated directional switches.
+Among these, round-trip trajectories are the most frequent (32\%) as they directly enable spatial consistency evaluation through revisitation, followed by Progressive (22\%), Repeat (15\%), and Loop (13\%). L-Shape and Zigzag make up the remaining.
+
+\paragraph{Overall navigation distribution.}
+\cref{fig:navi_distribute} shows the distribution of navigation test cases across direction, scene type, and control interface. The direction distribution covers all eight cardinal and diagonal directions, ensuring that the benchmark does not bias toward any particular movement axis. Scene types span indoor, outdoor, and fantasy environments, providing diverse spatial contexts. Control interfaces include text, 6DoF-pose, and discrete-action inputs, enabling evaluation of models with different native navigation interfaces under comparable conditions.
+
+\begin{figure}[t]
+\centering
+\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.996\textwidth]{figures/appendix/navi_define.pdf}
+\caption[Navigation action definition]{Navigation action definition. Illustration of how each WASD and arrow key maps to a physical motion under first-person and third-person perspectives. Frames following the navigation definition panel are from Happy Oyster~\cite{alibaba2026happyoyster}.}
+\label{fig:nav_define}
+\end{figure}
+
+\begin{table}[H]
+\caption[Navigation action semantics]{Navigation action semantics under different perspectives. The same key triggers different physical motions depending on whether the case is first-person or third-person.}
+\vspace{+1mm}
+\label{tab:nav_actions}
+\centering
+\small
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Type} & \textbf{Key} & \textbf{First-Person} & \textbf{Third-Person} \\
+\midrule
+\multirow{4}{*}{Translation}
+  & W & Camera pushes forward  & Subject walks forward \\
+  & S & Camera pulls backward  & Subject steps backward \\
+  & A & Camera strafes left    & Subject moves left \\
+  & D & Camera strafes right   & Subject moves right \\
+\midrule
+\multirow{4}{*}{Rotation}
+  & $\leftarrow$  & View turns left  & Camera orbits left \\
+  & $\rightarrow$ & View turns right & Camera orbits right \\
+  & $\uparrow$    & View tilts up    & Camera elevates \\
+  & $\downarrow$  & View tilts down  & Camera descends \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/appendix/navi_distribute.pdf}
+\caption[Navigation test case distribution]{Distribution of navigation test cases across direction, scene type, and control interface.}
+\label{fig:navi_distribute}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption[Trajectory type examples]{Trajectory type examples in navigation test cases.}
+\label{tab:trajectory_examples}
+\renewcommand{\arraystretch}{1.05}
+\vspace{+1mm}
+\begin{tabular}{ll}
+\toprule
+Trajectory Type & Examples \\
+\midrule
+Round-trip & {[A, A, D, D]}, {[left, left, right, right]}, {[W, W, W, S, S, S]} \\
+Progressive & {[W, right, right, left]}, {[W, A, W, D]}, {[W, W, left, left, right, right]} \\
+Repeat & {[W, W, W, W]}, {[W, W, W]} \\
+L-shape & {[W, W, A, A]} \\
+Loop & {[W, A, S, D]}, {[A, A, W, S, D, D]} \\
+Zigzag & {[right, W, right, W]}, {[W+A, W+D, W+A, W+D]}, {[up, down, up, down]} \\
+\bottomrule
+\end{tabular}
+\renewcommand{\arraystretch}{1}
+\end{table}

@@ -1,0 +1,177 @@
+\section{\ours}
+\label{sec:methodology}
+We build \ours as a verifier-grounded framework for constructing
+verifiable computer-use tasks in real desktop software environments. In this section, we first define the problem setup and then describe the four key layers of \ours.
+
+\subsection{Problem Setup}
+
+Let $a \in \mathcal{A}$ denote a desktop application drawn from an application
+set $\mathcal{A}$, and let $g \in \mathcal{G}$ denote a natural-language user
+goal. Our objective is to synthesize a verifiable computer-use task instance
+\[
+\tau = (x, e, c)
+\]
+where $x$ is the task description shown to the agent, $e$ is an executable
+environment initialization procedure, and $c$ is a set of machine-checkable
+success criteria. Each task is executed in an initial desktop sandbox state
+$s_0 \sim e$, and an agent interacts with the sandbox through screenshots and
+GUI actions to produce a final state $s_T$.
+
+The core challenge is that realistic computer-use tasks require both
+environment construction and reliable verification. A goal $g$ is only useful
+for benchmarking if we can: (1) materialize a coherent software world in which
+the task can be performed, and (2) determine from the resulting application
+state whether the goal has actually been achieved. We therefore cast environment construction as a constrained synthesis problem: given an application $a$ and a
+goal $g$, generate a task instance $\tau$ such that the initial environment is
+realistic, the target state is reachable through ordinary desktop interaction,
+and success can be checked programmatically.
+
+OpenComputer solves this problem through three coupled components. First, a
+verifier generator
+\[
+\mathcal{V}(a) \rightarrow V_a
+\]
+builds an app-specific verifier $V_a$ that exposes structured inspection and
+checking endpoints over the application state. Second, to repair residual verifier errors, a verifier-evolution procedure
+\[
+\mathcal{U}(V_a, D_a) \rightarrow V_a^+
+\]
+iteratively refines the verifier using calibration executions $D_a$ collected
+from real agent runs. Third, a verifier-aware task and environment synthesis
+pipeline uses the resulting verifier stack to construct task instances: given
+an application $a$ and a user goal $g$, it generates an executable environment
+initialization procedure
+\[
+\mathcal{E}(a,g,V_a^+) \rightarrow e
+\]
+together with a user-facing instruction $x$ and machine-checkable success
+criteria $c$.
+
+The final task synthesis pipeline combines these components to produce
+benchmark instances whose environments are executable and whose rewards are
+grounded in inspectable software state. The remainder of this section follows
+the same order: we describe how we build app-specific verifiers, how we evolve
+them from execution feedback, how we generate verifier-grounded task
+environments, and how we evaluate agents with structured reward computation.
+
+\subsection{Verification Stack}
+\label{sec:verification-stack}
+Verification is central to OpenComputer because realistic desktop tasks are only
+useful for training or evaluation when their outcomes can be checked reliably. Many success conditions are hidden in application state rather than visible in screenshots. The
+verification stack therefore defines what can be trusted as reward, and ensures that task generation and evaluation are grounded in reproducible, machine-checkable evidence.
+
+\subsubsection{Verifier Generation}
+\label{sec:verifier-generation}
+
+\begin{wrapfigure}{r}{0.47\columnwidth}
+    \centering
+    \vspace{-20pt}
+    \includegraphics[width=0.47\columnwidth]{image/endpoint.pdf}
+    \vspace{-12pt}
+    \caption{Example application endpoint specification used by OpenComputer verifiers.} 
+    % to expose structured, machine-checkable state
+    % for downstream task generation and evaluation.}
+    \vspace{-23pt}
+    \label{fig:app-endpoint-example}
+\end{wrapfigure}
+
+Each supported application in the environment is paired with a
+synthetic Python verifier module that runs inside the sandbox and exposes a set
+of CLI subcommands with JSON outputs. These verifiers serve as stable
+inspection interfaces for downstream task generation and evaluation. Rather
+than focusing only on an application's primary document content, they are
+designed to cover all reliably inspectable state surfaces available for that
+application, including content state, preferences, plugins, history, bookmarks, file I/O, project structure, media state,
+graphical attributes, and metadata. In the notation of
+Section~\ref{sec:methodology}, for each application $a \in \mathcal{A}$ we
+instantiate an app-specific verifier $V_a = \mathcal{V}(a)$.
+
+\paragraph{Inspection channels.} To achieve this coverage, verifier endpoints query the most reliable
+application-specific inspection channels available in the sandbox. Depending on
+the target application, these channels may include browser debugging protocols,
+D-Bus, LibreOffice UNO, SQLite-backed profile databases, accessibility state,
+or direct parsing of saved files as shown in Figure~\ref{fig:app-endpoint-example}. In this way, verification is grounded in the
+actual observable state of the application rather than in heuristic matching or
+surface-level script checks.
+
+\paragraph{Endpoint construction.} Verifier development follows a fixed pipeline. The agent first enumerate the inspectable state surfaces of the target application and map each surface to a
+concrete verification channel. For example, browser-oriented tasks can often be
+verified through remote debugging APIs, office tasks through UNO interfaces or
+document parsing, and configuration-oriented tasks through SQLite databases. Based on this mapping, the agent implement query endpoints and
+\texttt{check-*} endpoints that expose these states as structured JSON, and then
+document them in an application-specific README so that later pipeline stages
+can treat the verifier as a well-defined interface.
+
+\paragraph{Verifier testing protocol.} The agent treat verifiers as software artifacts rather than ad hoc scripts. Each verifier includes an endpoint reference, a written test plan, and live integration tests against the real sandboxed application. The test plan covers expected assertions, realistic fixtures, positive and negative cases, JSON-validity checks, and common failure modes such as missing arguments, nonexistent paths, or inactive applications. For document-centric applications, the agent generate rich synthetic artifacts with realistic structure rather than toy files. Failed endpoints enter a debug-fix-retry loop until they become reliable, since unstable verifiers can produce misleading rewards.
+
+
+\subsubsection{Self-Evolving Verification Layer}
+\label{sec:self-evolving-verification}
+After the initial verifier for an application is generated and passes its
+unit and integration tests, we further refine it through a
+self-evolving verification layer. The goal of this layer is to expose
+residual verifier issues that may not appear in synthetic tests alone, such
+as brittle assumptions about application schemas, incomplete endpoint
+coverage, or mismatches between documented and actual software behavior.
+
+\paragraph{Calibration executions.} For each application, we generate a small calibration set of approximately
+15 easy-to-medium tasks that are expected to be solvable by a
+state-of-the-art computer-use agent. These tasks are not used to benchmark
+agent performance. Instead, they serve as execution-grounded probes for
+stress-testing the verifier before it is used for large-scale task synthesis
+and evaluation. We run the selected agent in a persistent desktop sandbox,
+record the full trajectory, and cache the resulting final environment state.
+The resulting execution can be viewed as taking the sandbox from an initialized
+state $s_0 \sim e$ to a realized terminal state $s_T$, and this recorded run is
+then treated as fixed throughout the refinement procedure.
+
+\paragraph{Disagreement diagnosis.} Given each fixed execution, an LLM evaluator inspects the trajectory,
+post-action observations, and final state to produce a criterion-level
+reference verdict. Independently, the programmatic verifier is executed
+against the same final state to produce a structured machine verdict. A
+comparator aligns the two verdicts criterion by criterion and identifies
+disagreements. Disagreements attributed to genuine agent failures are
+discarded, while disagreements attributed to verifier-side errors are used as
+feedback for improving the verifier implementation, endpoint documentation,
+or task-checking logic.
+
+\paragraph{Bounded verifier refinement.} The verifier evolution step is restricted to the verification stack:
+it may modify checker code, endpoint implementations, or verifier documentation,
+but does not alter the cached trajectory, sandbox state, task objective, or expected outcome.
+The revised verifier is re-executed on the same cached final state, and the process iterates
+until the updated verifier $V_a^+ = \mathcal{U}(V_a, D_a)$ agrees with the reference judgment
+on verifier-attributed criteria, or until a fixed evolution budget is exhausted.
+When verifier-side issues are repaired, OpenComputer records the failed assumption and
+corrective action as an app-specific lesson that can be reused during future verifier extension
+and task generation.
+
+This layer provides an additional feedback channel between real software
+execution and verifier construction. By running strong agents on simple and
+moderate calibration tasks, OpenComputer can identify which endpoints are underspecified, and
+which verifier assumptions fail under realistic interaction. A concrete example of this stage is shown in Appendix~\ref{app:self-evolving-verification-case-study}.
+
+
+\subsection{Task Generation Pipeline}
+
+Tasks are generated through a verifier-aware synthesis process that balances realism, difficulty, and checkability. The generator first proposes candidate tasks from the perspective of realistic user goals, without directly conditioning on the available verifier endpoints. This encourages task diversity and avoids overfitting the benchmark to what is already easy to check. Candidate tasks are then filtered for complexity and data generatability: we prioritize multi-step workflows in the upper half of the difficulty scale and reject tasks that are too short, overly linear, trivial, or difficult to instantiate with coherent input artifacts.
+
+Accepted proposals are then grounded in the verification stack. If the intended state can be checked by an existing endpoint, the task is retained directly. If the outcome is inspectable but not yet exposed, the verifier is extended with a new endpoint following the verifier-generation procedure in Section~\ref{sec:verifier-generation}. Finally, the system materializes each task by generating and packaging the required files, folders, profiles, configurations, or other input artifacts. Each finalized task is stored as a \texttt{task.json} instance $\tau=(x,e,c)$, where $x$ is the user-facing instruction, $e$ initializes the sandbox, and $c$ specifies the executable success criteria. This process turns open-ended desktop workflows into reproducible benchmark instances with machine-checkable rewards.
+
+To prevent coverage collapse, the task generator includes a task-extension workflow. We periodically review each application's task set by feature area, identify missing or repetitive workflows, and prioritize gaps with reliable verification paths. New candidate tasks for these gaps are then passed through the same four-stage proposal, filtering, verification, and environment-synthesis pipeline.
+
+\subsection{Evaluation Harness and Reward Computation}
+
+At evaluation time, the harness uploads the verifier and task artifacts into a fresh sandbox, launches the target application, and runs a screenshot-action
+loop with the chosen agent. At each step, the system captures the current desktop framebuffer, feeds it to the agent, executes the predicted action, and
+logs the resulting reasoning, action sequence, and screenshot.  In the formalization above, the evaluation harness executes the task instance $\tau = (x, e, c)$ by first sampling $s_0 \sim e$ and then checking whether the evaluated agent's interaction trajectory reaches a terminal state $s_T$ that satisfies
+$c$.
+
+After the agent stops or reaches a step budget, the harness attempts a final
+save action for applications where persistence matters. Verification is then
+performed by executing the task's checker commands inside the sandbox. The task reward is the fraction of checks that pass, $R = N_{\mathrm{pass}} / N_{\mathrm{total}}$. This scoring scheme supports partial credit while preserving exact, machine-checkable success conditions. As an optional quality-control step, we randomly apply the self-evolving verification procedure from Section~\ref{sec:self-evolving-verification} to update checkers on finalized tasks.
+
+
+\input{figure/data_statistics}
+\subsection{\ours Release}
+We release \ours as an extensible infrastructure for both training and evaluating computer-use agents in verifiable software environments. The release includes 33 desktop applications and 1,000 finalized tasks, together with app-specific verifier modules, task specifications, environment-initialization
+scripts, and an execution harness. Summary statistics of the released synthetic benchmark are reported in Table~\ref{tab:data_statistics}. \ours supports both local and cloud-scale execution. Users can run tasks locally with Docker-based sandboxes, deploy the same stack on self-hosted or cloud machines such as AWS, Tencent Cloud, or E2B for parallel rollouts. Beyond fixed evaluation, OpenComputer also naturally supports extension to training pipelines: future researchers can collect trajectories, filter successful or partially successful runs, build SFT data, and use machine-checkable rewards for RL or rejection sampling. Users can also extend existing applications or add new ones through the same verifier-guided task and environment synthesis workflow.

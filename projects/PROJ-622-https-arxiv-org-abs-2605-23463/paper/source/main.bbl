@@ -1,0 +1,209 @@
+\begin{thebibliography}{40}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Graves(2012{\natexlab{a}})]{graves2012connectionist}
+Alex Graves.
+\newblock Connectionist temporal classification.
+\newblock In \emph{Supervised sequence labelling with recurrent neural networks}, pages 61--93. Springer, 2012{\natexlab{a}}.
+
+\bibitem[Graves(2012{\natexlab{b}})]{graves2012sequence}
+Alex Graves.
+\newblock Sequence transduction with recurrent neural networks.
+\newblock \emph{arXiv preprint arXiv:1211.3711}, 2012{\natexlab{b}}.
+
+\bibitem[Chan et~al.(2015)Chan, Jaitly, Le, and Vinyals]{chan2015listen}
+William Chan, Navdeep Jaitly, Quoc~V Le, and Oriol Vinyals.
+\newblock Listen, attend and spell.
+\newblock \emph{arXiv preprint arXiv:1508.01211}, 2015.
+
+\bibitem[Radford et~al.(2023)Radford, Kim, Xu, Brockman, McLeavey, and Sutskever]{radford2023robust}
+Alec Radford, Jong~Wook Kim, Tao Xu, Greg Brockman, Christine McLeavey, and Ilya Sutskever.
+\newblock Robust speech recognition via large-scale weak supervision.
+\newblock pages 28492--28518, 2023.
+
+\bibitem[Peng et~al.(2026)Peng, Yu, Chang, Wang, Dong, Hao, et~al.]{peng2026vibevoiceasrtechnicalreport}
+Zhiliang Peng, Jianwei Yu, Yaoyao Chang, Zilong Wang, Li~Dong, Yingbo Hao, et~al.
+\newblock {VIBEVOICE-ASR} technical report.
+\newblock \emph{arXiv preprint arXiv:2601.18184}, 2026.
+
+\bibitem[An et~al.(2025)An, Chen, Chen, Deng, Du, Gao, et~al.]{an2025funasrtechnicalreport}
+Keyu An, Yanni Chen, Zhigao Chen, Chong Deng, Zhihao Du, Changfeng Gao, et~al.
+\newblock {Fun-ASR} technical report.
+\newblock \emph{arXiv preprint arXiv:2509.12508}, 2025.
+
+\bibitem[Bai et~al.(2024)Bai, Chen, Chen, Chen, Chen, Ding, Dong, Dong, Du, Gao, et~al.]{bai2024seed}
+Ye~Bai, Jingping Chen, Jitong Chen, Wei Chen, Zhuo Chen, Chuang Ding, Linhao Dong, Qianqian Dong, Yujiao Du, Kepan Gao, et~al.
+\newblock Seed-asr: Understanding diverse speech and contexts with llm-based speech recognition.
+\newblock \emph{arXiv preprint arXiv:2407.04675}, 2024.
+
+\bibitem[Shi et~al.(2026)Shi, Wang, Guo, Wang, Zhang, Zhang, et~al.]{shi2026qwen3asrtechnicalreport}
+Xian Shi, Xiong Wang, Zhifang Guo, Yongqi Wang, Pei Zhang, Xinyu Zhang, et~al.
+\newblock {Qwen3-ASR} technical report.
+\newblock \emph{arXiv preprint arXiv:2601.21337}, 2026.
+
+\bibitem[Wu et~al.(2025{\natexlab{a}})Wu, Yan, Hu, Yi, Feng, Tian, Shen, Yu, Zhang, Li, et~al.]{wu2025stepaudio2technicalreport}
+Boyong Wu, Chao Yan, Chen Hu, Cheng Yi, Chengli Feng, Fei Tian, Feiyu Shen, Gang Yu, Haoyang Zhang, Jingbei Li, et~al.
+\newblock {StepAudio} 2 technical report.
+\newblock \emph{arXiv preprint arXiv:2507.16632}, 2025{\natexlab{a}}.
+
+\bibitem[Xu et~al.(2025)Xu, Guo, Hu, Chu, Wang, He, Wang, Shi, He, Zhu, et~al.]{xu2025qwen3omnitechnicalreport}
+Jin Xu, Zhifang Guo, Hangrui Hu, Yunfei Chu, Xiong Wang, Jinzheng He, Yuxuan Wang, Xian Shi, Ting He, Xinfa Zhu, et~al.
+\newblock {Qwen3-Omni} technical report.
+\newblock \emph{arXiv preprint arXiv:2509.17765}, 2025.
+
+\bibitem[Liu et~al.(2026{\natexlab{a}})Liu, Ma, Zhang, Zhang, Zhang, Yang, and Tian]{liu2026omni}
+Che Liu, Lichao Ma, Xiangyu~Tony Zhang, Yuxin Zhang, Haoyang Zhang, Xuerui Yang, and Fei Tian.
+\newblock Boosting omni-modal language models: Staged post-training with visually debiased evaluation, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2605.12034}.
+
+\bibitem[Tang et~al.(2024)Tang, Yu, Sun, Chen, Tan, Li, Lu, Ma, and Zhang]{tang2024salmonn}
+Changli Tang, Wenyi Yu, Guangzhi Sun, Xianzhao Chen, Tian Tan, Wei Li, Lu~Lu, Zejun Ma, and Chao Zhang.
+\newblock Salmonn: Towards generic hearing abilities for large language models.
+\newblock In \emph{International Conference on Learning Representations}, volume 2024, pages 16607--16629, 2024.
+
+\bibitem[Borsos et~al.(2023)Borsos, Marinier, Vincent, Kharitonov, Pietquin, Sharifi, Roblek, Teboul, Grangier, Tagliasacchi, et~al.]{borsos2023audiolm}
+Zal{\'a}n Borsos, Rapha{\"e}l Marinier, Damien Vincent, Eugene Kharitonov, Olivier Pietquin, Matt Sharifi, Dominik Roblek, Olivier Teboul, David Grangier, Marco Tagliasacchi, et~al.
+\newblock Audiolm: a language modeling approach to audio generation.
+\newblock \emph{IEEE/ACM transactions on audio, speech, and language processing}, 31:\penalty0 2523--2533, 2023.
+
+\bibitem[Cui et~al.(2025)Cui, Yu, Jiao, Meng, Zhang, Wang, Guo, and King]{cui2025recent}
+Wenqian Cui, Dianzhi Yu, Xiaoqi Jiao, Ziqiao Meng, Guangyan Zhang, Qichao Wang, Steven~Y Guo, and Irwin King.
+\newblock Recent advances in speech language models: A survey.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 13943--13970, 2025.
+
+\bibitem[Kim et~al.(2024)Kim, Seo, Jeong, Kwon, Kim, Kim, Lee, Song, Oh, Ha, et~al.]{kim2024paralinguistics}
+Heeseung Kim, Soonshin Seo, Kyeongseok Jeong, Ohsung Kwon, Soyoon Kim, Jungwhan Kim, Jaehong Lee, Eunwoo Song, Myungwoo Oh, Jung-Woo Ha, et~al.
+\newblock Paralinguistics-aware speech-empowered large language models for natural conversation.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 131072--131103, 2024.
+
+\bibitem[Wang et~al.(2025)Wang, Li, Fu, Zhang, Shen, Xie, Li, Sun, and MA]{wang2025freezeomni}
+Xiong Wang, Yangze Li, Chaoyou Fu, Yike Zhang, Yunhang Shen, Lei Xie, Ke~Li, Xing Sun, and Long MA.
+\newblock Freeze-omni: A smart and low latency speech-to-speech dialogue model with frozen {LLM}.
+\newblock In \emph{Forty-second International Conference on Machine Learning}, 2025.
+\newblock URL \url{https://openreview.net/forum?id=s1EImzs5Id}.
+
+\bibitem[Li et~al.(2026)Li, Zhang, Li, Guo, Zhang, Chng, and Guan]{li2026depflow}
+Yuxin Li, Xiangyu Zhang, Yifei Li, Zhiwei Guo, Haoyang Zhang, Eng~Siong Chng, and Cuntai Guan.
+\newblock Depflow: Disentangled speech generation to mitigate semantic bias in depression detection.
+\newblock \emph{arXiv preprint arXiv:2601.00303}, 2026.
+
+\bibitem[Xuan et~al.(2023)Xuan, Zhang, Li, Shen, Xie, Garcia, and Togneri]{xuan2023new}
+Yu~Xuan, Xiangyu Zhang, Shuyue~Stella Li, Zihan Shen, Xin Xie, Leibny~Paola Garcia, and Roberto Togneri.
+\newblock A new approach to extract fetal electrocardiogram using affine combination of adaptive filters.
+\newblock In \emph{ICASSP 2023-2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, pages 1--5. IEEE, 2023.
+
+\bibitem[Deng et~al.(2025)Deng, Hu, Sun, Zhang, Zhang, Tian, Yang, Yu, and Chng]{deng2025multi}
+Yayue Deng, Guoqiang Hu, Haiyang Sun, Xiangyu Zhang, Haoyang Zhang, Fei Tian, Xuerui Yang, Gang Yu, and Eng~Siong Chng.
+\newblock Multi-bench: A multi-turn interactive benchmark for assessing emotional intelligence ability of spoken dialogue models.
+\newblock \emph{arXiv preprint arXiv:2511.00850}, 2025.
+
+\bibitem[Team et~al.(2023)Team, Anil, Borgeaud, Alayrac, Yu, Soricut, Schalkwyk, Dai, Hauth, Millican, et~al.]{team2023gemini}
+Gemini Team, Rohan Anil, Sebastian Borgeaud, Jean-Baptiste Alayrac, Jiahui Yu, Radu Soricut, Johan Schalkwyk, Andrew~M Dai, Anja Hauth, Katie Millican, et~al.
+\newblock Gemini: a family of highly capable multimodal models.
+\newblock \emph{arXiv preprint arXiv:2312.11805}, 2023.
+
+\bibitem[Yan et~al.(2025{\natexlab{a}})Yan, Wu, Yang, Tan, Hu, Xie, Zhang, Tian, Yang, Zhang, et~al.]{yan2025step}
+Chao Yan, Boyong Wu, Peng Yang, Pengfei Tan, Guoqiang Hu, Li~Xie, Yuxin Zhang, Fei Tian, Xuerui Yang, Xiangyu Zhang, et~al.
+\newblock Step-audio-editx technical report.
+\newblock \emph{arXiv preprint arXiv:2511.03601}, 2025{\natexlab{a}}.
+
+\bibitem[Wu et~al.(2025{\natexlab{b}})Wu, Zhang, Chen, Liu, Chng, Tian, Yang, Zhang, Jiang, Yu, et~al.]{wu2025mind}
+Donghang Wu, Haoyang Zhang, Jun Chen, Hexin Liu, Eng~Siong Chng, Fei Tian, Xuerui Yang, Xiangyu Zhang, Daxin Jiang, Gang Yu, et~al.
+\newblock Mind-paced speaking: A dual-brain approach to real-time reasoning in spoken language models.
+\newblock \emph{arXiv preprint arXiv:2510.09592}, 2025{\natexlab{b}}.
+
+\bibitem[Wu et~al.(2025{\natexlab{c}})Wu, Zhang, Chen, Zhang, Tian, Yang, Yu, Liu, Hou, Hu, et~al.]{wu2025chronological}
+Donghang Wu, Haoyang Zhang, Chen Chen, Tianyu Zhang, Fei Tian, Xuerui Yang, Gang Yu, Hexin Liu, Nana Hou, Yuchen Hu, et~al.
+\newblock Chronological thinking in full-duplex spoken dialogue language models.
+\newblock \emph{arXiv preprint arXiv:2510.05150}, 2025{\natexlab{c}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{a}})Zhang, Chen, Wu, Li, Zhang, Zhang, Liu, Lin, Peng, Liu, Chng, Yan, Wu, Huang, Yang, and Tian]{zhang2026sla}
+Haoyang Zhang, Jun Chen, Donghang Wu, Yuxin Li, Yuxin Zhang, Xiangyu~Tony Zhang, Che Liu, Qingjian Lin, Yizhou Peng, Hexin Liu, Eng~Siong Chng, Chao Yan, Boyong Wu, Yechang Huang, Xuerui Yang, and Fei Tian.
+\newblock Duplexsla: A full-duplex spoken language model with synchronized speech, language, and action, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2605.20755}.
+
+\bibitem[Zhang et~al.(2025)Zhang, Zhang, Liu, Xiao, Qian, Ahmed, Ambikairajah, Li, and Epps]{zhang2025mamba}
+Xiangyu Zhang, Qiquan Zhang, Hexin Liu, Tianyi Xiao, Xinyuan Qian, Beena Ahmed, Eliathamby Ambikairajah, Haizhou Li, and Julien Epps.
+\newblock Mamba in speech: Towards an alternative to self-attention.
+\newblock \emph{IEEE Transactions on Audio, Speech and Language Processing}, 2025.
+
+\bibitem[Liu et~al.(2026{\natexlab{b}})Liu, Zhang, Zhang, Zhang, Shi, Chng, and Li]{liu2026code}
+Hexin Liu, Haoyang Zhang, Qiquan Zhang, Xiangyu Zhang, Dongyuan Shi, Eng~Siong Chng, and Haizhou Li.
+\newblock Code-switching speech recognition under the lens: Model-and data-centric perspectives.
+\newblock \emph{IEEE Transactions on Audio, Speech and Language Processing}, 2026{\natexlab{b}}.
+
+\bibitem[Tian et~al.(2025)Tian, Zhang, Zhang, Zhang, Li, Liu, Deng, Wu, Chen, Zhao, et~al.]{tian2025step}
+Fei Tian, Xiangyu~Tony Zhang, Yuxin Zhang, Haoyang Zhang, Yuxin Li, Daijiao Liu, Yayue Deng, Donghang Wu, Jun Chen, Liang Zhao, et~al.
+\newblock Step-audio-r1 technical report.
+\newblock \emph{arXiv preprint arXiv:2511.15848}, 2025.
+
+\bibitem[Zhang et~al.(2026{\natexlab{b}})Zhang, Zhang, Liu, Tian, Deng, Chen, Lin, Zhang, Li, Gong, et~al.]{zhang2026step}
+Yuxin Zhang, Xiangyu~Tony Zhang, Daijiao Liu, Fei Tian, Yayue Deng, Jun Chen, Qingjian Lin, Haoyang Zhang, Yuxin Li, Jinglan Gong, et~al.
+\newblock Step-audio-r1.5 technical report.
+\newblock \emph{arXiv preprint arXiv:2604.25719}, 2026{\natexlab{b}}.
+
+\bibitem[Park et~al.(2019)Park, Chan, Zhang, et~al.]{park2019specaugment}
+Daniel~S. Park, William Chan, Yu~Zhang, et~al.
+\newblock {SpecAugment}: A simple data augmentation method for automatic speech recognition.
+\newblock In \emph{Interspeech 2019}, pages 2613--2617, 2019.
+
+\bibitem[Fiscus(1997)]{fiscus1997rover}
+J.~G. Fiscus.
+\newblock A post-processing system to yield reduced word error rates: Recognizer output voting error reduction ({ROVER}).
+\newblock In \emph{1997 IEEE Workshop on Automatic Speech Recognition and Understanding Proceedings}, pages 347--354, 1997.
+
+\bibitem[Bu et~al.(2017)Bu, Du, Na, Wu, and Zheng]{bu2017aishell}
+Hui Bu, Jiatong Du, Xingyu Na, Bengu Wu, and Hao Zheng.
+\newblock {AIShell-1}: An open-source mandarin speech corpus and a speech recognition baseline.
+\newblock In \emph{20th Conference of the Oriental Chapter of the International Coordinating Committee on Speech Databases and Speech I/O Systems and Assessment}, pages 1--5, 2017.
+
+\bibitem[Du et~al.(2018)Du, Na, Liu, and Bu]{du2018aishell2}
+Jiatong Du, Xingyu Na, Xuechen Liu, and Hui Bu.
+\newblock {AISHELL-2}: Transforming mandarin {ASR} research into industrial scale.
+\newblock In \emph{arXiv preprint arXiv:1808.10583}, 2018.
+
+\bibitem[Zhang et~al.(2022)Zhang, Lv, Guo, Shao, Yang, Xie, Xu, Bu, Chen, Zeng, et~al.]{zhang2022wenetspeech}
+Binbin Zhang, Hang Lv, Pengcheng Guo, Qijie Shao, Chao Yang, Lei Xie, Xin Xu, Hui Bu, Xiaoyu Chen, Chenchen Zeng, et~al.
+\newblock {WenetSpeech}: A 10000+ hours multi-domain mandarin corpus for speech recognition.
+\newblock In \emph{ICASSP 2022 - 2022 IEEE International Conference on Acoustics, Speech and Signal Processing}, pages 6182--6186, 2022.
+
+\bibitem[Conneau et~al.(2022)Conneau, Ma, Khanuja, et~al.]{conneau2022fleurs}
+Alexis Conneau, Min Ma, Simran Khanuja, et~al.
+\newblock {FLEURS}: Few-shot learning evaluation of universal representations of speech.
+\newblock \emph{arXiv preprint arXiv:2205.12446}, 2022.
+
+\bibitem[Panayotov et~al.(2015)Panayotov, Chen, Povey, and Khudanpur]{panayotov2015librispeech}
+Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur.
+\newblock {LibriSpeech}: An {ASR} corpus based on public domain audio books.
+\newblock In \emph{2015 IEEE International Conference on Acoustics, Speech and Signal Processing}, pages 5206--5210, 2015.
+
+\bibitem[Ardila et~al.(2020)Ardila, Branson, Davis, et~al.]{ardila2020commonvoice}
+Rosana Ardila, Megan Branson, Kelly Davis, et~al.
+\newblock Common voice: A massively-multilingual speech corpus.
+\newblock In \emph{Proceedings of the Twelfth Language Resources and Evaluation Conference}, pages 4218--4222, 2020.
+
+\bibitem[{Artificial Analysis}(2026{\natexlab{a}})]{artificialanalysis2026voxpopulicleaned}
+{Artificial Analysis}.
+\newblock Voxpopuli-cleaned-aa: Cleaned ground truth transcripts for voxpopuli english test set, 2026{\natexlab{a}}.
+\newblock URL \url{https://artificialanalysis.ai/articles/aa-wer-v2}.
+
+\bibitem[{Artificial Analysis}(2026{\natexlab{b}})]{artificialanalysis2026earnings22cleaned}
+{Artificial Analysis}.
+\newblock Earnings22-cleaned-aa: Cleaned ground truth transcripts for earnings22 english test set, 2026{\natexlab{b}}.
+\newblock URL \url{https://artificialanalysis.ai/articles/aa-wer-v2}.
+
+\bibitem[Yan et~al.(2025{\natexlab{b}})Yan, Wu, Yang, Tan, Hu, Zhang, Xiangyu, Zhang, Tian, Yang, Zhang, Jiang, and Yu]{yan2025stepaudioeditxtechnicalreport}
+Chao Yan, Boyong Wu, Peng Yang, Pengfei Tan, Guoqiang Hu, Yuxin Zhang, Xiangyu, Zhang, Fei Tian, Xuerui Yang, Xiangyu Zhang, Daxin Jiang, and Gang Yu.
+\newblock Step-audio-editx technical report, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2511.03601}.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and Klimov]{schulman2017proximal}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\end{thebibliography}

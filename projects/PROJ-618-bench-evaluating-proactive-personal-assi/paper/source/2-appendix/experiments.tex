@@ -1,0 +1,66 @@
+
+\section{Experiments}
+\label{app:experiments}
+
+\subsection{Reliability of Judgment Based Evaluation}
+\label{app:judge_reliability}
+
+Our main evaluation uses GPT-5.4 for two judgment based components. The first is rubric based checklist grading, which contributes to \textsc{Comp}. The second is terminal status assignment for hidden intents, which determines \textsc{Proc}. Since these two signals are central to {\bench}, we audit whether the judgments are stable across human and model based reviewers.
+
+We sample 120 task trajectories uniformly across evaluated models. For each trajectory, auditors inspect all checklist judgments and all hidden intent status assignments. The human audit uses three expert annotators and reports disagreement against the original evaluation after majority aggregation. The model audit uses Claude Opus 4.6, GPT-5.4, and Gemini 3.1 Pro. The GPT-5.4 audit is included as a separate judging pass to measure self consistency, while the other model audits test agreement with independent frontier judges. Tab.~\ref{tab:judge_reliability} reports the disagreement rate between the scoring run and each audit source.
+
+\begin{table}[h]
+\centering
+\caption{Disagreement rates for judgment based evaluation. We audit checklist grading for \textsc{Comp} and hidden intent status assignment for \textsc{Proc}. All values are percentages. Lower is better.}
+\label{tab:judge_reliability}
+% \setlength{\tabcolsep}{7pt}
+\begin{tabular}{lrr}
+\toprule[1.25pt]
+\textbf{Audit source} &
+\textbf{Checklist} &
+\textbf{Hidden intents} \\
+\midrule[0.75pt]
+Human experts & 2.66 & 1.48 \\
+Claude Opus 4.6 & 1.95 & 0.90 \\
+GPT-5.4 & 2.28 & 1.77 \\
+Gemini 3.1 Pro & 3.51 & 2.05 \\
+\bottomrule[1.25pt]
+\end{tabular}
+\vspace{-4pt}
+\end{table}
+
+The audits show strong agreement with the scoring run on both axes. Human experts disagree with 2.66\% of checklist judgments and 1.48\% of hidden intent assignments, and the frontier model audits show a similar pattern. Disagreement stays below 3.6\% for checklists and below 2.1\% for hidden intents. This consistency suggests that the judgment based components of our evaluation are reliable and that the reported \textsc{Proc} and \textsc{Comp} scores are unlikely to be driven by evaluator noise. Hidden intent status is slightly more stable, likely because it follows explicit terminal categories in the user agent protocol. Checklist grading leaves more room for variation because it may require reading longer artifacts and matching them against task specific evidence. Overall, the audit supports the intended separation in {\bench}. \textsc{Proc} captures whether agents resolve unstated user needs, while \textsc{Comp} captures whether they complete the requested workflow.
+
+\subsection{Terminal Status of Hidden Intents}
+\label{app:hidden_intents_status}
+
+\input{0.1-table/hidden_intent_status}
+
+Table~\ref{tab:hidden_intent_status} provides an intent level diagnostic of how hidden intents are resolved at the end of an interaction. Completed intents are satisfied without explicit user disclosure, inferred intents are elicited through targeted agent questions, and provided intents are supplied by the simulated user without such questions. \textit{This distribution is different from the reported proactivity score, which is computed within each task trajectory and then averaged across tasks and repeated runs.}
+
+The main variation comes from direct completion rather than targeted elicitation. Qwen3.6 Plus has the highest completed rate at 63.18, followed by Claude Opus 4.6 at 60.56 and GPT-5.4 at 56.84. These models also have the lowest provided rates, at 26.37, 28.20, and 30.87. In contrast, Gemini 3.1 Pro, Kimi K2.5, and MiniMax M2.7 leave more hidden intents to be supplied by the user, with provided rates of 47.39, 45.85, and 43.81. Inferred rates remain low and tightly clustered across models, ranging from 8.36 to 12.29, which suggests that current models more often either resolve hidden requirements directly or wait for user disclosure rather than eliciting them through focused questions.
+
+\subsection{Task-Type Breakdown of Performance}
+\label{app:exp_task_type}
+
+\input{0.1-table/task_type_scores}
+Tab.~\ref{tab:task_type_scores} provides a task-type diagnostic of how \textsc{Comp} and \textsc{Proc} separate across workflow structures. Research-centered workflows (A--C) and legal matter operations and handoffs (H) show relatively high \textsc{Comp} but lower \textsc{Proc}, suggesting that agents can often produce the final deliverable once requirements are explicit, while remaining weaker at identifying latent goals, missing materials, and operational blockers earlier in the workflow. Drug design, formulation, and product benchmarking (K) shows the opposite pattern, with higher \textsc{Proc} than \textsc{Comp}; here, hidden intents are often grounded in concrete scientific constraints such as assumptions, candidate routes, and experimental evidence. Consumer selection, commerce, and media actions (Q) are more completion-oriented, but their lower \textsc{Proc} indicates that visible task completion does not fully capture recovery of latent preferences. Tool-mediated administrative workflows (R) are more balanced, yet still show that the two metrics capture distinct aspects of performance.
+
+Model-level trends further support this separation. GPT-5.4 attains the strongest average \textsc{Proc} and performs well on legal drafting (F), crisis communication (P), and administrative workflows (R), while Claude Opus 4.6 achieves the strongest average \textsc{Comp} and remains competitive on research-oriented completion (A--C). Qwen3.6 Plus shows comparatively stable performance across both metrics. Overall, these results indicate that workflow structure shapes which capabilities are stressed, and that \textsc{Comp} and \textsc{Proc} provide complementary views of model behavior.
+
+\subsection{Failure Analysis}
+\label{app:failure_analysis}
+
+This section summarizes common failure patterns where agents either fail to satisfy checklist requirements or fail to proactively resolve hidden intents. These two signals capture different aspects of failure: checklist items measure task completion, while hidden intents measure whether requirements are resolved proactively rather than supplied by the user. We focus on broad, recurring behaviors rather than task-specific corner cases, and provide concrete examples in the case studies in App.~\ref{app:case_study}.
+
+\paragraph{Ignoring recoverable prior context.}
+Some agents treat the current user message as a standalone request even when the task depends on information established in earlier sessions. This leads to missed hidden intents or incorrect final artifacts, as shown in the Researcher dependency failure in Fig.~\ref{fig:case_leihaodi_2_kimi_trajectory} and the meal-planning contrast in Fig.~\ref{fig:case_zhangshunkai_1_deepseek_trajectory}.
+
+\paragraph{Completing the visible request while missing hidden requirements.}
+Agents often produce a plausible answer for the explicit request but leave implicit preferences, formatting constraints, or task-specific requirements unresolved until the user states them. Fig.~\ref{fig:case_zhanghaoran_1_hidden_intent_resolution} illustrates this pattern through several hidden intents marked as user-provided rather than agent-completed, and Fig.~\ref{fig:case_zhangshunkai_1_claude_trajectory} shows that even a response with high checklist completeness can still rely on user-provided hidden requirements.
+
+\paragraph{Failing to ask targeted clarifications.}
+When information is genuinely missing, clarification is useful only if it targets the specific requirement needed to complete the task. The targeted-followup successes in Fig.~\ref{fig:case_zhangshunkai_2_targeted_followup_trajectory} and Fig.~\ref{fig:case_zhangshunkai_3_targeted_followup_trajectory} serve as positive contrasts: weaker trajectories instead rely on repeated user intervention before hidden requirements are surfaced.
+
+\paragraph{Using tools without verifying the required artifact.}
+Some failures occur after the agent invokes relevant tools but does not verify that the produced artifact contains the required content or that the final state matches the checklist. The Law Trainee comparison in Fig.~\ref{fig:case_leihaodi_1_kimi_trajectory} shows this gap: the agent uses SMS and Todoist tools, but the final trace does not preserve the required handover details or reminder checks.

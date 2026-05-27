@@ -1,0 +1,170 @@
+\usepackage{tikz}
+\usepackage{soul}
+\usepackage{colortbl}
+\usepackage{subcaption}
+\usepackage{bbm}
+\usepackage{adjustbox}
+\usepackage{makecell}
+\usepackage[framemethod=TikZ]{mdframed}
+\newenvironment{framedwithtag}[6]{%
+  \mdfsetup{%
+    frametitlealignment=\raggedright,
+    frametitleaboveskip=-\ht\strutbox,
+    frametitlebelowskip=0pt,
+    frametitlefont=\normalfont\rmfamily\bfseries, %
+    innertopmargin=10pt, %
+    innerbottommargin=10pt,
+    innerleftmargin=10pt,
+    innerrightmargin=10pt,
+    roundcorner=5pt,
+    tikzsetting={line width=0pt}, %
+    backgroundcolor=#3, %
+    linecolor=gray!50,
+    singleextra={%
+        \node[
+            anchor=north,
+            rectangle,
+            rounded corners,
+            fill=#2,
+            inner sep=3pt,
+            outer sep=0pt,
+            draw=none,
+            text=black,
+            font=\small\rmfamily\bfseries
+        ]
+        at ([xshift=#4,yshift=#5]P) {#1}; %
+    },
+    linewidth=0.7pt, %
+    skipabove=20pt, %
+    skipbelow=10pt, %
+    font=\small\ttfamily, %
+    }
+    \begin{mdframed}%
+    \setlength{\parindent}{0pt} %
+    #6
+}
+{
+  \end{mdframed}%
+}
+
+\newcommand{\SmallHeading}[1]{\noindent\textbf{#1}.}
+\newcommand{\TinyHeading}[1]{\noindent\textit{#1}:}
+\newcommand{\Figure}{Fig.\xspace}
+\newcommand{\Table}{Tab.\xspace}
+\newcommand{\Section}{Sec.\xspace}
+\newcommand{\Appendix}{App.\xspace}
+\newcommand{\stdvalue}[1]{$\pm$ \scriptsize #1}
+\newcommand{\bestperformance}[1]{\textbf{#1}}
+\definecolor{mypositive}{RGB}{0, 128, 0}
+\definecolor{mynegative}{RGB}{220, 20, 60}
+\definecolor{mypositive}{RGB}{24, 103, 173}
+\definecolor{mynegative}{RGB}{255, 128, 0}
+
+\newcommand{\strenthenerColor}[0]{cyan!20}
+\newcommand{\weakenerColor}[0]{orange!20}
+\newcommand{\realColor}[0]{pink!20}
+\newcommand{\fakeColor}[0]{olive!20}
+\newcommand{\grayColor}[0]{gray!10}
+
+\newcommand{\midgrayline}[0]{\arrayrulecolor{gray!50}\midrule\arrayrulecolor{black}}
+
+\newcommand{\problem}{misinformation propagation\xspace}
+\newcommand{\Problem}{Misinformation Propagation\xspace}
+
+\newcommand{\etal}{et al.\xspace}
+\newcommand{\eg}{\emph{e.g.,}\xspace}
+\newcommand{\ie}{\emph{i.e.,}\xspace}
+\newcommand{\etc}{etc.\xspace}
+\newcommand{\cf}{cf.\/~}
+\newcommand\figref[1]{Figure~\ref{#1}}
+\newcommand\figsubref[1]{Figure~\subref{#1}}
+\newcommand\tabref[1]{Table~\ref{#1}}
+\newcommand\tabsubref[1]{Table~\subref{#1}}
+\newcommand\secref[1]{Sec.~\ref{#1}}
+\newcommand\equref[1]{Eq.~(\ref{#1})}
+\newcommand\appref[1]{Appendix~\ref{#1}}
+\newcommand\todo[1]{{\color{red}{[Todo.~{#1}]}}}
+\newcommand{\fakeparagraph}[1]{\vspace{1mm}\noindent\textbf{#1}}
+
+\definecolor{customblue}{HTML}{1F77B4}
+\definecolor{customorange}{HTML}{FF7F0E}
+\definecolor{customgreen}{HTML}{2CA02C}
+\definecolor{no}{HTML}{BA8E23}
+\definecolor{darkgreen}{RGB}{0,100,0}
+\definecolor{darkred}{RGB}{139,0,0}
+
+\newcommand{\deltaScore}[1]{%
+\begingroup
+\ifdim #1pt > 0pt
+\textcolor{darkred}{\scriptsize$^{#1}$}%
+\else
+\textcolor{darkgreen}{\scriptsize$^{#1}$}%
+\fi
+\endgroup
+}
+
+\newcommand{\accuracy}{K-Acc\xspace}
+\newcommand{\Accuracy}{K-Acc\xspace}
+\newcommand{\Inaccuracy}{K-Inaccuracy\xspace}
+\newcommand{\Original}{Original\xspace}
+\newcommand{\original}{original\xspace}
+\newcommand{\misinformed}{misinformed\xspace}
+\newcommand{\Misinformed}{Misinformed\xspace}
+\newcommand{\prompting}{\texttt{Inst-Corr}\xspace}
+\newcommand{\Prompting}{\texttt{Inst-Corr}\xspace}
+\newcommand{\following}{\texttt{Inst-Fllw}\xspace}
+\newcommand{\finetuning}{\texttt{FT-Corr}\xspace}
+\newcommand{\Finetuning}{\texttt{FT-Corr}\xspace}
+
+\newcommand{\takeaways}[1]{
+    \begin{mdframed}[
+        backgroundcolor=blue!10,
+        roundcorner=5pt,
+        innerleftmargin=5pt,
+        innerrightmargin=5pt
+    ]
+    \textbf{Takeaways:}
+    #1
+    \end{mdframed}
+}
+
+\newtcolorbox{boxblue}{enhanced,colback=blue!5!white,colframe=blue!75!black,breakable=true}
+
+\newcommand{\vig}[2]{
+\begin{boxblue}
+
+{\color{blue!50!black}{\textbf{Takeaways:} #1}}
+
+\vspace{2pt}#2
+\end{boxblue}
+}
+
+\newcommand{\takeawaysc}[1]{
+\vig{#1}
+}
+
+\def\SPSB#1#2{\rlap{\textsuperscript{{#1}}}\SB{#2}}
+\def\SP#1{\textsuperscript{{#1}}}
+\def\SB#1{\textsubscript{{#1}}}
+
+\usepackage{listings}
+\usepackage{wrapfig}
+
+\lstdefinelanguage{json}{
+    basicstyle=\scriptsize\ttfamily,
+    numbers=none,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=none,
+    backgroundcolor=\color{white},
+    literate=
+     *{:}{{{\color{black}{:}}}}{1}
+      {,}{{{\color{black}{,}}}}{1}
+      {\{}{{{\color{black}{\{}}}}{1}
+      {\}}{{{\color{black}{\}}}}}{1}
+      {[}{{{\color{black}{[}}}}{1}
+      {]}{{{\color{black}{]}}}}{1},
+}

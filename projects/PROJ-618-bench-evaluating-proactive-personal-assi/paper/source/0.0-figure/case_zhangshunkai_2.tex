@@ -1,0 +1,103 @@
+\providecommand{\caseZhangshunkaiTwoTag}[3]{%
+    {\setlength{\fboxsep}{1.6pt}\colorbox{#1}{\textcolor{#2}{\scriptsize\textbf{#3}}}}%
+}
+\providecommand{\caseZhangshunkaiTwoLine}[3]{%
+    \caseZhangshunkaiTwoTag{#1}{#2}{#3}\hspace{3pt}%
+}
+\providecommand{\caseZhangshunkaiTwoIO}[3]{%
+    \vspace{2pt}
+    \noindent\caseZhangshunkaiTwoLine{#1}{white}{#2}\textbf{#3}
+}
+\providecommand{\caseZhangshunkaiTwoNote}[1]{%
+    \vspace{2pt}
+    \noindent{\scriptsize\color{black!55}\textit{#1}}
+}
+\providecommand{\caseZhangshunkaiTwoBox}[2]{%
+\begin{tcolorbox}[
+    title=#1,
+    colback=casebg,
+    colframe=casetitlebg,
+    rounded corners,
+    sharp corners=northeast,
+    sharp corners=southwest,
+    width=1.00\linewidth,
+    boxsep=2pt,
+    top=2pt,
+    bottom=2pt,
+    enhanced,
+    before=\setlength{\parindent}{0pt},
+]
+
+#2
+\end{tcolorbox}
+}
+
+\begin{figure}[h]
+    \centering
+    \caseZhangshunkaiTwoBox{Case Study -- Marketer -- GPT-5.4: Task and Hidden Intents}{
+    \small
+    \caseZhangshunkaiTwoLine{purple!70!black}{white}{$\blacktriangleright$ TASK} Generate the final X apology letter for MeowConnect after a crisis-management approval phase.
+    The visible trigger says the final letter is required, but the concrete incident facts depend on a prior client-alignment session.
+
+    \vspace{3pt}
+    \caseZhangshunkaiTwoLine{blue!65!black}{white}{$\rightarrow$ INITIAL REQUEST}
+    \begin{quote}
+    \scriptsize
+    \setlength{\baselineskip}{7.2pt}
+    \raggedright
+    \texttt{[INCOMING SYSTEM WEBHOOK: CRISIS\_MANAGEMENT\_PLATFORM]}\par
+    \texttt{client=MeowConnect; status=PHASE\_1\_ALIGNMENT\_COMPLETE;}\par
+    \texttt{next\_action\_required=GENERATE\_AND\_PUBLISH\_FINAL\_APOLOGY\_LETTER;}\par
+    \texttt{target\_platform=X\_Twitter; context\_dependency=PRIOR\_CLIENT\_ALIGNMENT\_SESSION;}\par
+    \texttt{output\_directive=STDOUT\_RAW\_TEXT\_ONLY}
+    \end{quote}
+
+    \vspace{2pt}
+    \caseZhangshunkaiTwoLine{orange!80!black}{white}{$\star$ HIDDEN INTENTS}
+    \par
+    \caseZhangshunkaiTwoTag{red!12}{red!70!black}{$\circ$ I1} Integrate the exact incident scale: downtime duration and number of affected active nodes.
+    \par
+    \caseZhangshunkaiTwoTag{red!12}{red!70!black}{$\circ$ I2} State the official engineering explanation.
+    \par
+    \caseZhangshunkaiTwoTag{red!12}{red!70!black}{$\circ$ I3} Announce the approved compensation.
+    }
+    \caption{Task trigger and hidden intents.}
+    \label{fig:case_zhangshunkai_2_targeted_followup_task}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caseZhangshunkaiTwoBox{Case Study -- Marketer -- GPT-5.4: Targeted Follow-up and Scores}{
+    \small
+    \caseZhangshunkaiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 1.}
+    System-webhook trigger in Fig.~\ref{fig:case_zhangshunkai_2_targeted_followup_task}.
+
+    \caseZhangshunkaiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT}{Turn 1.}
+    \emph{We're at the stage where the final apology letter is required, but I'm still missing several facts from the prior alignment session that materially affect what can be safely published on X.}
+    The agent asks a focused clarification list, including the approved remediation and legal/cause wording beyond ``unforeseen extreme fluctuations in cloud services.''
+    \caseZhangshunkaiTwoTag{cyan!12}{cyan!55!black}{inferred: I2}
+    \hspace{2pt}
+    \caseZhangshunkaiTwoTag{cyan!12}{cyan!55!black}{inferred: I3}
+
+    \vspace{3pt}
+    \caseZhangshunkaiTwoIO{blue!65!black}{$\rightarrow$ INPUT}{Turn 2.}
+    \emph{The letter explicitly states the official engineering explanation. The letter explicitly announces the compensation.}
+
+    \caseZhangshunkaiTwoIO{green!45!black}{$\Leftarrow$ OUTPUT SUMMARY}{Turn 2.}
+    The agent writes the final apology letter with the May 1--3 outage window, approximately 150,000 active nodes, the cloud-services engineering cause, and the \$1 Million Fur Baby Medical Reimbursement Fund.
+    \caseZhangshunkaiTwoTag{green!12}{green!45!black}{completed: I1}
+
+    \vspace{5pt}
+    \caseZhangshunkaiTwoLine{purple!70!black}{white}{$\blacktriangleright$ EVALUATION}
+    \caseZhangshunkaiTwoTag{orange!15}{orange!80!black}{\textsc{Comp}=100.00}
+    \hspace{3pt}
+    \caseZhangshunkaiTwoTag{cyan!15}{cyan!45!black}{\textsc{Proc}=100.00}
+
+    \vspace{3pt}
+    \noindent\caseZhangshunkaiTwoLine{orange!80!black}{white}{$\star$ CHECKLIST SIGNALS}
+    Final satisfied: C1, C2, C3, C4, C5.
+    Not satisfied: none.
+    }
+    \caption{GPT-5.4 trajectory and scores.}
+    \label{fig:case_zhangshunkai_2_targeted_followup_trajectory}
+\end{figure}

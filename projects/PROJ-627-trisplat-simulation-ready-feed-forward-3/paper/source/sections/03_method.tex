@@ -1,0 +1,183 @@
+\section{Method}
+\label{sec:method}
+
+Given a sparse set of $V$ unposed images $\{\mathbf{I}_v\}_{v=1}^{V}$, \method reconstructs the scene as a collection of oriented triangle primitives in a single forward pass, jointly predicting dense local 3D point maps, per-pixel triangle attributes, camera poses, and optionally camera intrinsics. Because the rendering primitives are themselves explicit surface triangles, the output can be directly exported as a mesh without any post-processing. We first describe how the network maps images to 3D points and triangle parameters in Sec.~\ref{sec:prediction}. The predicted point maps provide the geometric foundation for anchoring triangle orientation, which we detail in Sec.~\ref{sec:normal_pipeline}. The resulting oriented triangles are sharp-edged by nature and require a progressive training curriculum, presented in Sec.~\ref{sec:progressive}. Finally, Sec.~\ref{sec:supervision} describes the training objectives and the trivial mesh extraction enabled by the triangle-native representation. An overview is shown in Fig.~\ref{fig:pipeline}.
+
+\subsection{From Images to Triangle Primitives}
+\label{sec:prediction}
+
+The encoder builds on a DINOv2~\citep{oquab2023dinov2} backbone followed by a custom transformer decoder~\citep{ye2025yonosplat}. Decoder blocks alternate between intra-view self-attention for local spatial reasoning and cross-view joint attention for multi-view correspondence aggregation, with two-dimensional rotary position embeddings and per-pixel ray-direction embeddings providing spatial and geometric conditioning throughout.
+
+Three parallel heads convert the decoded features into scene structure, camera parameters, and primitive attributes. The point head predicts a dense local 3D point map $\mathbf{P}\!\in\!\mathbb{R}^{H\times W\times 3}$ in the coordinate frame of each camera. For each pixel it outputs three unconstrained scalars $(u, v, z')$; the depth is recovered as $z = \exp(z')$ to ensure strict positivity, and the 3D point is
+\begin{equation}
+    \mathbf{p} = z \cdot (u,\; v,\; 1)^\top.
+    \label{eq:point}
+\end{equation}
+This parameterization couples lateral position with depth through multiplication, mirroring the projective image-formation model. The camera head predicts one SE(3) camera-to-world pose per view by mean-pooling decoder tokens and regressing a translation together with a $3\!\times\!3$ matrix projected onto SO(3) via SVD orthogonalization~\citep{levinson2020analysis}. All poses are expressed relative to the first view to eliminate global gauge ambiguity, and during training we apply scheduled sampling~\citep{bengio2015scheduled} that linearly decays the probability of using the ground-truth pose to prevent distribution shift at test time. The primitive head predicts per-pixel triangle attributes consisting of a density logit, three scale logits, a quaternion, spherical-harmonic appearance coefficients, and a blur parameter. To supply this branch with direct access to appearance, the input RGB image is patch-embedded and additively fused into its features before decoding. All dense heads employ pixel-shuffle upsampling~\citep{shi2016real} to reach full spatial resolution.
+
+The predicted point maps and camera poses together define triangle centers $\mathbf{c}$ in world space. Each triangle is instantiated from a canonical equilateral template $\mathcal{T}\!\in\!\mathbb{R}^{3\times 3}$. Three raw scale logits are mapped via sigmoid to a bounded interval and converted to world-space sizes using the predicted depth and the intrinsic-derived pixel footprint. Let $\mathbf{s}$ denote the resulting scale vector, $\mathbf{R}_n$ the tangent-frame rotation that orients the triangle along the local surface (derived in Sec.~\ref{sec:normal_pipeline}), and $\mathbf{R}_c$ the camera-to-world rotation. The $k$-th vertex is
+\begin{equation}
+    \mathbf{v}_k = \mathbf{R}_c \, \mathbf{R}_n \bigl(\mathcal{T}_k \odot \mathbf{s}\bigr) + \mathbf{c}, \quad k \in \{1, 2, 3\},
+    \label{eq:vertex}
+\end{equation}
+where $\odot$ denotes element-wise multiplication. The constructed triangles are rendered by a differentiable triangle rasterizer~\citep{Held2025Triangle} via tile-based sorting and front-to-back alpha compositing, producing RGB images, depth maps, and surface normals.
+
+The point maps produced by this stage serve a dual purpose. Beyond defining triangle centers, they also provide the geometric foundation for deriving triangle orientation, as we describe next.
+
+\subsection{Anchoring Triangle Orientation to Geometry}
+\label{sec:normal_pipeline}
+
+Triangle primitives are far more sensitive to orientation errors than Gaussian splats. A slightly misoriented Gaussian still produces a plausible soft footprint, whereas a misoriented triangle creates hard-edged artifacts whose visibility scales directly with the angular error. Treating orientation as an unconstrained latent variable is therefore impractical. We instead \emph{anchor} it to the predicted 3D geometry through the following 
+pipeline that progressively refines the orientation estimate.
+
+\boldstart{Geometry normals.}
+Given the dense point map $\mathbf{P}$ from the point head, surface normals follow from finite differences. Padded horizontal and vertical derivatives $\Delta_x$ and $\Delta_y$ yield the raw geometry normal
+\begin{equation}
+    \mathbf{n}_{\mathrm{geo}} = \mathrm{normalize}(\Delta_x \times \Delta_y),
+    \label{eq:geo_normal}
+\end{equation}
+which flips toward the camera when $\mathbf{n}_{\mathrm{geo}} \cdot \mathbf{p} > 0$. Border pixels and degenerate cross products are excluded via a Boolean validity mask $\mathbf{m}$ propagated through all subsequent stages. The point map may be optionally detached from the computation graph to decouple normal refinement from point prediction, and smoothed with an average-pooling kernel to suppress high-frequency noise. An orientation-aware box filter further refines the field by weighting only neighbors whose normals agree in sign with the center pixel, preserving discontinuities at depth edges.
+
+These geometry normals provide a strong structural prior but are inevitably noisy during early training when point maps have not converged. Two complementary mechanisms address this.
+
+
+\boldstart{Learned refinement.}
+A lightweight U-Net incorporates appearance and depth cues not captured by local finite differences. It takes as input the channel-wise concatenation of the raw and smoothed geometry normals, the downsampled RGB image $\mathbf{I}_v$, the predicted depth map $\mathbf{D}_v\!\in\!\mathbb{R}^{H\times W}$ (whose pixel values are the per-pixel $z$ from Eq.~\eqref{eq:point}), and the validity mask. Its output layer is initialized to zero so that the head begins as an identity mapping and gradually learns corrections. Let $\mathbf{n}_{\mathrm{sm}}$ denote the smoothed geometry normal and $f_\theta$ the refinement network. The refined normal is
+\begin{equation}
+    \mathbf{n}_{\mathrm{ref}} = \mathrm{normalize}\,\!\bigl(\mathbf{n}_{\mathrm{sm}} + f_\theta(\mathbf{n}_{\mathrm{geo}},\, \mathbf{n}_{\mathrm{sm}},\, \mathbf{I}_v,\, \mathbf{D}_v,\, \mathbf{m})\bigr).
+    \label{eq:refine}
+\end{equation}
+Zero-initialization is critical for stability, as a randomly initialized head would perturb orientations before useful gradients have accumulated, disrupting triangle rendering from the start.
+
+\boldstart{Mono-normal bootstrap.}
+Even with the refinement head, the earliest stage of training presents a chicken-and-egg problem: point maps are too inaccurate for reliable normals, and the refinement network has not learned meaningful corrections. We break this deadlock with a bootstrap schedule that warm-starts orientation from a pretrained monocular normal estimator~\citep{eftekhar2021omnidata}. Teacher normals $\mathbf{n}_{\mathrm{tch}}$ are computed offline for each input view, and a time-varying coefficient $\alpha(t)$ blends them with the model normals:
+\begin{equation}
+    \mathbf{n}_{\mathrm{fwd}} = \mathrm{normalize}\,\!\bigl(\alpha(t)\,\mathbf{n}_{\mathrm{tch}} + (1 - \alpha(t))\,\mathbf{n}_{\mathrm{ref}}\bigr).
+    \label{eq:blend}
+\end{equation}
+The schedule comprises three phases: a \emph{takeover} phase ($t \leq t_{\mathrm{tk}}$, $\alpha\!=\!1$) where the teacher fully determines orientation; a \emph{blending} phase ($t_{\mathrm{tk}} < t < t_{\mathrm{bl}}$) where $\alpha$ decays via a cosine schedule
+\begin{equation}
+    \alpha(t) = \tfrac{1}{2}\!\left(1 + \cos\!\left(\pi \cdot \frac{t - t_{\mathrm{tk}}}{t_{\mathrm{bl}} - t_{\mathrm{tk}}}\right)\right);
+    \label{eq:cosine}
+\end{equation}
+and a \emph{release} phase ($t \geq t_{\mathrm{bl}}$, $\alpha\!=\!0$) where the model relies entirely on its own geometry. Blending is restricted to pixels where both teacher and geometry validity masks hold. Importantly, this bootstrap operates on the forward-pass representation rather than on a loss term: the teacher normal directly enters triangle construction and therefore shapes the rendered output and all downstream gradients, making it fundamentally different from a teacher-matching loss that only provides an additive optimization signal. In practice we apply both simultaneously for maximum stability.
+
+\boldstart{Tangent frame construction.}
+The blended normal $\mathbf{n}_{\mathrm{fwd}}$ is converted into a full orthonormal frame $[\mathbf{t},\, \mathbf{b},\, \mathbf{n}_{\mathrm{fwd}}]$. The tangent $\mathbf{t}$ is obtained by projecting the point-map derivative $\Delta_x$ onto the plane perpendicular to $\mathbf{n}_{\mathrm{fwd}}$ and normalizing, aligning local axis of the triangle with the dominant surface gradient direction. The bitangent follows from $\mathbf{b} = \mathbf{n}_{\mathrm{fwd}} \times \mathbf{t}$, and orthogonality is guaranteed by re-deriving $\mathbf{t} = \mathbf{b} \times \mathbf{n}_{\mathrm{fwd}}$. The resulting $3\!\times\!3$ rotation matrix serves directly as $\mathbf{R}_n$ in Eq.~\eqref{eq:vertex} at valid pixels and is additionally stored as a unit quaternion for compact representation. 
+
+With triangle orientation now anchored to geometry, the remaining challenge is that the hard-edged nature of triangles makes early-stage training unstable when predictions are still coarse.
+
+\subsection{Progressive Surface Sharpening}
+\label{sec:progressive}
+
+A Gaussian primitive that is slightly too large or misplaced still covers roughly the correct image region through its smooth radial falloff, receiving useful gradients. A triangle in the same situation may miss its target pixels entirely, producing zero gradients and stalling learning. We address this by scheduling two complementary softness parameters that gradually transition the representation from blurred, forgiving primitives to sharp, mesh-ready surface elements.
+
+\boldstart{Opacity scheduling.}
+The predicted density $p\!\in\![0,1]$ is first converted to opacity through a nonlinear mapping whose shape changes over training. The exponent $e(t)$ ramps linearly from $e_{\mathrm{init}}$ to $e_{\mathrm{final}}$ during warm-up. The opacity is
+\begin{equation}
+    o = \tfrac{1}{2}\!\left(1 - (1-p)^{e(t)} + p^{\,e(t)}\right).
+    \label{eq:opacity}
+\end{equation}
+When $e(t)\!=\!1$ the mapping reduces to identity ($o\!=\!p$); as $e(t)$ grows, intermediate densities are pushed toward zero or one, progressively binarizing the opacity field. An additional temperature factor $\tau(t)$ further sharpens the distribution at render time: the opacity is remapped via $o \leftarrow \sigma\!\bigl(\tau(t)\cdot\mathrm{logit}(o)\bigr)$, where $\tau(t)$ increases linearly from $\tau_{\mathrm{init}}$ to $\tau_{\mathrm{final}}$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/main_dl3dv_mesh_render.pdf}
+\caption{\textbf{Mesh-rendering comparison on DL3DV.} Rows use 6, 12, and 24 input views and keep the baselines available in the source comparison. After mesh export, Gaussian baselines show missing surfaces and inconsistent geometry, whereas \method keeps more complete triangle-rendered structure.}
+\label{fig:nvs_qual_mesh_dl3dv}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/main_dl3dv_textured_mesh.pdf}
+\caption{\textbf{Textured mesh comparison on DL3DV.} Across 6/12/24 input views, Gaussian-to-TSDF conversion often shrinks or fragments geometry and loses scene extent; \method directly exports more coherent textured triangle surfaces.}
+\label{fig:mesh_qual_dl3dv}
+\end{figure}
+
+\boldstart{Blur scheduling.}
+Each triangle carries a scalar blur parameter modulating alpha falloff around its edges in the rasterizer:
+\begin{equation}
+    \sigma = \mathrm{sigmoid}(\hat{\sigma}) \cdot \beta(t),
+    \label{eq:blur}
+\end{equation}
+where $\hat{\sigma}$ is the raw predicted value and $\beta(t)$ decays linearly from $\beta_{\mathrm{init}}$ to $\beta_{\mathrm{final}}$. Large initial blur creates broad, overlapping soft footprints with dense gradient coverage. As $\beta$ decreases, each triangle tightens into a well-defined surface element.
+
+Opacity controls how strongly each primitive contributes to the composited color, while blur controls the spatial extent of that contribution. Scheduling both in conjunction provides a richer soft-to-crisp curriculum than either alone, ensuring stable early optimization and progressively tighter surface definition as geometry and orientation converge.
+
+
+\subsection{Training Objectives and Mesh Extraction}
+\label{sec:supervision}
+
+
+
+\boldstart{Training objectives.}
+\method is trained end-to-end with three complementary terms that supervise rendering, camera, and surface orientation, respectively:
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{\mathrm{photo}} + \mathcal{L}_{\mathrm{cam}} + \mathcal{L}_{\mathrm{normal}}.
+    \label{eq:total}
+\end{equation}
+The photometric term $\mathcal{L}_{\mathrm{photo}}$ combines a pixel-wise reconstruction loss with a perceptual LPIPS loss~\citep{zhang2018unreasonable} between the rendered and ground-truth images. The camera term $\mathcal{L}_{\mathrm{cam}}$ is a pairwise relative pose loss over all ordered view pairs, with a Huber term on relative translations and an angular term on relative rotations; this pairwise form is invariant to the global coordinate frame and provides denser supervision than per-view absolute regression. The normal term $\mathcal{L}_{\mathrm{normal}}$ is a cosine similarity loss that aligns the refined normal $\mathbf{n}_{\mathrm{ref}}$ with the monocular teacher normal $\mathbf{n}_{\mathrm{tch}}$ at pixels where both are valid. The exact formulation of each term, the per-term loss weights, and a large-loss filter that suppresses outlier samples after warm-up are reported in Appendix~\ref{sec:app_loss}.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Surface quality on DL3DV with 6/12/24 input views.} We evaluate exported meshes against the ground-truth surface. Gaussian baselines use TSDF-fused meshes, while the triangle-native model exports its primitives directly. Best results are in \textbf{bold}, second-best are \underline{underlined}.}
+\label{tab:main_dl3dv_surface}
+{\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\renewcommand{\arraystretch}{0.94}
+\begin{tabular*}{0.96\textwidth}{@{\extracolsep{\fill}}l|cccc|cccc|cccc@{}}
+\toprule
+& \multicolumn{4}{c|}{6 views} & \multicolumn{4}{c|}{12 views} & \multicolumn{4}{c}{24 views} \\
+Method & CD\,$\downarrow$ & Prec.\,$\uparrow$ & Rec.\,$\uparrow$ & F1\,$\uparrow$ & CD\,$\downarrow$ & Prec.\,$\uparrow$ & Rec.\,$\uparrow$ & F1\,$\uparrow$ & CD\,$\downarrow$ & Prec.\,$\uparrow$ & Rec.\,$\uparrow$ & F1\,$\uparrow$ \\
+\midrule
+MVSplat
+& 1.143 & 0.121 & 0.154 & 0.118
+& 0.802 & 0.122 & 0.211 & 0.135
+& 0.695 & \underline{0.130} & \underline{0.276} & \underline{0.156} \\
+DepthSplat
+& 1.116 & \underline{0.135} & \underline{0.192} & \underline{0.145}
+& 0.907 & \underline{0.127} & \underline{0.237} & \underline{0.152}
+& 0.786 & 0.120 & 0.274 & 0.152 \\
+AnySplat
+& 1.012 & 0.088 & 0.143 & 0.093
+& 0.731 & 0.085 & 0.163 & 0.096
+& 0.699 & 0.084 & 0.175 & 0.100 \\
+YoNoSplat
+& \underline{0.920} & 0.090 & 0.189 & 0.106
+& \underline{0.664} & 0.073 & 0.183 & 0.092
+& \underline{0.687} & 0.068 & 0.173 & 0.088 \\
+\midrule
+\method (Ours)
+& \textbf{0.613} & \textbf{0.223} & \textbf{0.448} & \textbf{0.287}
+& \textbf{0.323} & \textbf{0.200} & \textbf{0.522} & \textbf{0.279}
+& \textbf{0.310} & \textbf{0.191} & \textbf{0.571} & \textbf{0.277} \\
+\bottomrule
+\end{tabular*}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{NVS quality on DL3DV with 6/12/24 input views under mesh rendering.} We render each exported mesh with the same triangle rasterizer and report target-view reconstruction quality.}
+\label{tab:main_dl3dv_nvs}
+{\footnotesize
+\setlength{\tabcolsep}{3.8pt}
+\renewcommand{\arraystretch}{0.94}
+\begin{tabular*}{0.96\textwidth}{@{\extracolsep{\fill}}l|ccc|ccc|ccc@{}}
+\toprule
+& \multicolumn{3}{c|}{6 views} & \multicolumn{3}{c|}{12 views} & \multicolumn{3}{c}{24 views} \\
+Method & PSNR\,$\uparrow$ & SSIM\,$\uparrow$ & LPIPS\,$\downarrow$ & PSNR\,$\uparrow$ & SSIM\,$\uparrow$ & LPIPS\,$\downarrow$ & PSNR\,$\uparrow$ & SSIM\,$\uparrow$ & LPIPS\,$\downarrow$ \\
+\midrule
+MVSplat    & 14.75 & 0.450 & 0.509 & 15.16 & 0.431 & 0.525 & 15.72 & 0.439 & 0.526 \\
+DepthSplat & 14.86 & 0.481 & 0.490 & 14.82 & 0.426 & 0.536 & 15.13 & 0.422 & 0.541 \\
+AnySplat   & 18.58 & \underline{0.551} & \underline{0.397} & 16.58 & \underline{0.485} & \underline{0.462} & 16.42 & 0.442 & \underline{0.475} \\
+YoNoSplat  & \underline{18.88} & 0.548 & 0.414 & \underline{16.90} & 0.459 & 0.485 & \underline{16.71} & \underline{0.452} & 0.499 \\
+\midrule
+\method (Ours) & \textbf{20.84} & \textbf{0.615} & \textbf{0.335} & \textbf{18.71} & \textbf{0.493} & \textbf{0.400} & \textbf{18.06} & \textbf{0.455} & \textbf{0.425} \\
+\bottomrule
+\end{tabular*}
+}
+\end{table}
+
+\boldstart{Mesh extraction.}
+A distinctive advantage of the triangle-native representation is that mesh extraction becomes trivial. Because the rendering output already consists of oriented triangles in world space, no auxiliary reconstruction is needed. After a forward pass, low-opacity triangles are discarded, winding order is corrected by comparing face normals against per-pixel normals from Sec.~\ref{sec:normal_pipeline}, and nearby duplicate vertices are merged via quantized position hashing. The result is a standard triangle mesh produced without per-scene optimization, TSDF fusion, or marching cubes, directly usable in physics simulation, collision detection, and standard rendering engines.

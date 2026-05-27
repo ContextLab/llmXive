@@ -1,0 +1,36 @@
+\begin{wraptable}{r}{0.65\textwidth}
+%\vspace{-10pt}
+\centering
+\caption{
+Effect of using only within-side information. The best results are in \textbf{bold}.
+}
+\label{tab:ana-own}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.06}
+
+\begin{tabularx}{\linewidth}{@{}l*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\textbf{Method}
+& AIME25
+& AIME26
+& HMMT25
+& HMMT26
+& Avg. \\
+\midrule
+
+\rowcolor{cyan!10}
+\bodystrut \textbf{DelTA}
+& \textbf{26.46} & \textbf{28.12} & \textbf{18.54} & \textbf{20.27} & \textbf{23.27} \\
+
+\midrule
+\bodystrut DAPO 
+& 23.33  & 24.17 & 12.08 & 16.86 & 19.05 \\
+\bodystrut Within-side only
+& 21.67 & 22.08 & 11.04 & 17.05 & 17.94 \\
+
+
+\bottomrule
+\end{tabularx}
+\vspace{-5pt}
+\end{wraptable}

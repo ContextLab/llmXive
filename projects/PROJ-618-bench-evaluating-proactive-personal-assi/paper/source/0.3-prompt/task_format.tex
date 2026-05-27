@@ -1,0 +1,55 @@
+\begin{tcbCodeListing}{Example Task Format}{tcbyaml}
+title: "Survey Recent Papers on a User-Specified Research Topic"
+
+description: >
+  The user is starting a small research project and asks the agent to organize
+  a set of relevant papers from a local paper list. The task requires the agent
+  to infer the user's preferred topic focus, filter candidate papers, and
+  prepare a concise reading plan that supports later topic selection.
+
+task_type: long_term
+
+trigger:
+  type: user
+
+intent:
+  initial_input: >
+    I wrote a local file at [FILE_NAME] that contains recently accepted papers.
+    Please organize several papers related to my research theme for me.
+
+  hidden_intent:
+    - content: "Prioritize papers related to [RESEARCH_THEME]."
+    - content: "Recommend around [N] papers rather than producing a long survey."
+    - content: >
+        For each paper, provide a brief introduction and summarize the key
+        technical points.
+    - content: >
+        Include the official paper link when available.
+    - content: >
+        Include the project or code link when available; otherwise explicitly
+        state that no public repository is found.
+    - content: >
+        For each paper, state whether it is suitable to follow and explain how
+        the user should follow it.
+
+objectives:
+  checklist:
+    - criterion: "Include [PAPER_TITLE_1]."
+    - criterion: >
+        Explain that [PAPER_TITLE_1] studies [CORE_METHOD_1] for
+        [RESEARCH_THEME], and mention its main training or inference strategy.
+    - criterion: "Write the official paper link for [PAPER_TITLE_1] as [PAPER_LINK_1]."
+    - criterion: "Write the code link for [PAPER_TITLE_1] as [CODE_LINK_1]."
+
+    - ......
+
+    - criterion: >
+        For every recommended paper, state whether it is suitable to follow.
+    - criterion: >
+        For every recommended paper, give a concrete follow-up action, such as
+        reading the method section, reproducing the code, or comparing the task
+        formulation with the user's project.
+
+metadata:
+  difficulty: hard
+\end{tcbCodeListing}

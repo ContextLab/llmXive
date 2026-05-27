@@ -1,0 +1,610 @@
+\documentclass[]{ant_tech_report}
+
+\usepackage{wrapfig}
+\usepackage{float}
+
+\titleformat*{\paragraph}{\bfseries\itshape}
+
+\let\proposition\relax
+\let\endproposition\relax
+\let\theproposition\relax
+\newtheorem{proposition}{Proposition}
+\newtheorem*{proposition*}{Proposition}
+
+\newcommand{\todo}[1]{\textcolor{red}{\bfseries [TODO: #1]}}
+\newcommand{\zhangsq}[1]{\textcolor{blue}{#1}}
+
+\title{Rethinking Cross-Layer Information Routing in Diffusion Transformers}
+
+
+\author{%
+\parbox{\textwidth}{\centering
+Chao Xu$^{*,2}$,
+Maohua Li$^{*,1,2,\sharp}$,
+Qirui Li$^{2,3,\sharp}$,
+Yixuan Xu$^{2}$,
+Yanke Zhou$^{1,2,\sharp}$,
+Yunhe Li$^{2,4,\sharp}$\\[1mm]
+Cuifeng Shen$^{2}$,
+Hanlin Tang$^{\dagger,2}$,
+Kan Liu$^{2}$,
+Tao Lan$^{2}$,
+Lin Qu$^{2}$,
+Shao-Qun Zhang$^{\S,1}$
+}}
+
+\affiliation{%
+\parbox{\textwidth}{\centering\small
+$^1$Nanjing University \quad $^2$Alibaba Group \quad $^3$Zhejiang University \quad $^4$City University of Hong Kong
+}}
+\renewcommand{\contributionlist}{\vspace{-4mm}}
+
+\newcommand{\authorfootnotes}{%
+  \begingroup
+  \renewcommand{\thefootnote}{\fnsymbol{footnote}}%
+  \footnotetext[1]{Equal contribution. Chao Xu initiated the project and built the codebase and infra; Maohua Li refined the idea, led the paper writing and REPA-related work. \quad \textsuperscript{$\dagger$}Project lead \quad \textsuperscript{\S}Corresponding author \quad $^\sharp$Work done during internship at Alibaba}%
+  \endgroup
+}
+\checkdata[E-mail]{wanghaisheng.whs@alibaba-inc.com, zhangsq@lamda.nju.edu.cn}
+
+\abstract{
+Diffusion Transformers (DiTs) have become a de facto backbone of modern visual generation, and nearly every major axis of their design --- tokenization, attention, conditioning, objectives, and latent autoencoders --- has been extensively revisited. The residual stream that governs how information accumulates across layers, however, has been directly inherited from the original Transformer.
+% , which defines a fixed, time-agnostic, and uniform-weighted aggregation of all preceding layer outputs. 
+In this paper, we present a systematic empirical analysis of cross-layer information flow in DiTs, jointly along depth and denoising timestep, and identify three concrete symptoms of traditional residual addition, namely monotonic forward magnitude inflation, sharp backward gradient decay, and pronounced block-wise redundancy. Motivated by this diagnosis, we propose Diffusion-Adaptive Routing (\textsc{DAR}), a drop-in residual replacement that performs \emph{learnable, timestep-adaptive, and non-incremental} aggregation over the history of sublayer outputs. Moreover, the proposed \textsc{DAR} is compatible with many modern Transformer enhancement methods, such as REPA. On ImageNet $256\times256$, \textsc{DAR} improves SiT-XL/2 by $2.11$ FID ($7.56$ vs.\ $9.67$) and matches the baseline's converged quality with $8.75\times$ fewer training iterations. Stacked on top of REPA, it yields a $2\times$ training acceleration in the early stage, suggesting cross-layer information routing as an underexplored design axis in diffusion modeling, one that operates orthogonally to existing representation-alignment objectives. Beyond pretraining, \textsc{DAR} can also be applied during the fine-tuning stage of large-scale T2I models and preserves high-frequency details during Distribution Matching Distillation.
+}
+
+\begin{document}
+
+
+\maketitle
+\authorfootnotes
+
+
+\vspace{-1.7em}
+\begin{center}
+\captionsetup{type=figure}
+\centering
+
+% Make the whole figure block match the abstract-like text width
+\begin{minipage}{0.84\textwidth}
+\centering
+
+\begin{subfigure}[t]{0.48\linewidth}
+\vspace{13pt}
+\centering
+\hspace*{5pt}%
+\includegraphics[width=0.98\linewidth]{figs/PAGE1.pdf}
+\caption{DMD visual comparison}
+\label{fig:visual_comparison}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\linewidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{figs/fid_training_curve.pdf}
+\caption{Training FID curves}
+\label{fig:fid_curve}
+\end{subfigure}
+
+\end{minipage}
+
+\caption{Overview of the main empirical results. (a) Our method preserves high-frequency details during DMD. (b) Training FID curves on ImageNet $256\times256$.}
+\label{fig:fid_training_curve}
+\end{center}
+
+
+\vspace{-0.5em}
+\section{Introduction}  \label{sec:introduction}
+Advances in the design and optimization of Diffusion Transformers (DiTs) that replace convolutional U-Nets with token-based Transformer denoisers~\citep{peebles2023scalable} have led to significant breakthroughs in modern visual generation tasks~\citep{wu2025qwen,kong2024hunyuanvideo,flux2024,hacohen2026ltx,cai2025z,seedream2025seedream}. A central challenge for modern visual generation with DiTs is to capture the time-varying dynamics of the denoising process by developing architectural innovations. Recent years have seen extensive efforts devoted to key components of DiTs, including macro structure design~\citep{bao2023all,peebles2023scalable,esser2024scaling,li2024hunyuandit}, attention mechanisms~\citep{xie2024sana,chen2023pixart,peebles2023scalable}, conditioning mechanisms~\citep{tan2025ominicontrol,zhang2025easycontrol}, learning objectives~\citep{yu2025repa,leng2025repae}, latent autoencoders~\citep{yao2025reconstruction,chen2024deep,zheng2025diffusion}, and causal and autoregressive DiTs~\citep{deng2024causal,huang2025self,cheng2025playing}. However, the pre-normalized residual stream in DiTs and its variants --- a fundamental design inherited from standard NLP practice --- has remained largely unchanged, leaving open the question of its role in governing cross-layer information accumulation during the time-varying denoising process.
+
+This work starts with an in-depth investigation of cross-layer information routing in DiTs, jointly along depth and denoising timestep. On the one hand, our analysis suggests that this seemingly innocuous default residual addition in DiTs gives rise to three symptoms that emerge in lockstep with depth: hidden-state magnitudes inflate monotonically, backward gradients decay sharply, and adjacent transformer blocks become increasingly redundant, as shown in Fig.~\ref{fig:diagnostic}. Strikingly, these symptoms collectively echo the \emph{PreNorm dilution} phenomenon~\citep{xiong2020layer} recently characterized in Large Language Models (LLMs)~\citep{team2026attention,li2026siamesenorm}. On the other hand, cross-layer information flow within DiTs is inherently time-varying: as denoising progresses across a continuum of noise levels, the intermediate representations that matter most should shift from coarse-structure features in high-noise regimes to fine-detail features in low-noise regimes~\citep{ho2020denoising,sclocchi2025phase}. Thus, the \emph{fixed, time-agnostic, and uniform-weighted} aggregation, as in conventional LLMs, is poorly suited to DiTs.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/symptoms.pdf}
+\vspace{-0.8em}
+\caption{Three diagnostic symptoms of standard residual routing in DiTs across depth: forward magnitude inflation, backward gradient decay, and block-wise redundancy. Measured at $t{=}1.0$.}
+\label{fig:diagnostic}
+\vspace{-1em}
+\end{figure*}
+
+Several works have revisited the depth-wise structure of DiTs. A representative line of research~\citep{bao2023all,tian2024u,chen2025towards,li2024hunyuandit} grafts U-Net-style long skip connections onto DiTs to bridge shallow and deep layers, with the goal of restoring the fixed hierarchical inductive bias of U-Nets, rather than enabling dynamic and timestep-aware aggregation across layers. Our key insight is that the denoising timestep --- the very dimension that distinguishes DiTs from a standard Transformer --- should play a vital role in adaptive routing. This motivates depth-wise aggregation mechanisms in DiTs to be \emph{learnable, timestep-adaptive, and non-incremental}, so as to capture time-varying dynamics.
+
+Building on the above insights, this work elevates cross-layer information routing in DiTs from an inherited convention to an explicit design axis, with contributions on two complementary fronts.
+
+\textbf{On the diagnostic side}, we conduct, to the best of our knowledge, the first systematic study of cross-layer information flow in DiTs, decomposed jointly by depth and denoising timestep. We reveal that the three symptoms identified above and illustrated in Fig.~\ref{fig:diagnostic} persist throughout training and vary systematically with the noise level, thereby suggesting that the role of the pre-normalized residual stream extends beyond stabilizing deep training, and exposing a spatiotemporal structure of PreNorm dilution that is invisible to LLM-side analyses.
+
+\textbf{On the methodological side}, we propose Diffusion-Adaptive Routing (\textsc{DAR}), a drop-in residual replacement that performs \emph{learnable, timestep-adaptive, and non-incremental} aggregation. Inspired by~\citep{team2026attention}, we replace the running residual at each sublayer with a softmax attention over preceding sublayer outputs, where the query is computed from the current adaLN-modulated hidden state, allowing the routing mechanism to inherit both content and timestep dependence from DiT's existing conditioning pathway. This preserves the isotropic and homogeneous Transformer stack without introducing manually specified layer pairing, and remains compatible with modern Transformer enhancement methods, such as REPA~\citep{yu2025repa}.
+
+Empirically, on ImageNet 256$\times$256, \textsc{DAR} consistently outperforms vanilla SiT in our experiments, achieving $7.56$ FID with SiT-XL/2 ($2.11\downarrow$ over the baseline at matched compute) while matching the baseline's converged quality in roughly $8.75 \times$ fewer training iterations. Critically, the gains of \textsc{DAR} are orthogonal to representation-alignment objectives: combining \textsc{DAR} with REPA~\citep{yu2025repa} yields a $2\times$ training acceleration in the early stage over REPA alone. This suggests that cross-layer information routing is a promising and underexplored direction for improving diffusion models, complementary to existing learning objectives. Quantitatively, the three dilution symptoms identified by our diagnosis tighten in lockstep with these FID gains, linking the diagnostic findings to the observed performance gains.
+
+Overall, the main contributions of this paper are summarized as follows
+\begin{itemize}
+    \item We conduct, to the best of our knowledge, the first comprehensive investigation of the cross-layer information flow in DiTs along both depth and denoising timestep and identify three concrete symptoms of the prevailing residual structure in DiTs, that is, \emph{forward magnitude inflation}, \emph{backward gradient decay}, and \emph{block-wise redundancy}.
+    \item We propose \textsc{DAR}, a drop-in residual replacement for DiTs that performs \emph{learnable, timestep-adaptive, and non-incremental} aggregation. The design operates purely along the depth dimension, preserving the isotropic and homogeneous Transformer stack, and remains compatible with many modern Transformer enhancement methods, such as REPA.
+    \item Our method improves both convergence speed and final quality of diffusion transformers: on SiT, we achieve $8.75 \times$ faster training and a $2.11$ FID improvement over the baseline. Stacked on top of REPA~\citep{yu2025repa}, it yields a $2\times$ training acceleration in the early stage over REPA alone, demonstrating that depth-wise routing operates synergistically with existing representation-alignment objectives.
+\end{itemize}
+The rest of this paper is organized as follows. Section~\ref{sec:rw} reviews previous studies related to this work. Section~\ref{sec:diagnose} presents an in-depth investigation of cross-layer information flow in DiTs. Section~\ref{sec:dar} introduces DAR. Section~\ref{sec:experiment} conducts experiments to demonstrate the effectiveness of our proposed DAR. Section~\ref{sec:conclusions} concludes this work.
+
+
+
+\section{Related Work}  \label{sec:rw}
+
+This section reviews seminal studies on cross-layer information routing and DiT architectures. An extended discussion is provided in Appendix~\ref{app:relatedworks}.
+\vspace{-1em}
+\paragraph{Evolution of Cross-Layer Information Routing.} Cross-layer information routing in deep networks begins with standard residual connections, where layers communicate through fixed additive recursion~\citep{he2016deep,srivastava2015highway}. Subsequent work mainly improves this residual pathway for optimization stability, including gated or scaled variants such as ReZero~\citep{bachlechner2021rezero}, LayerScale~\citep{touvron2021going}, and DeepNorm~\citep{wang2024deepnet}, which adjust residual strength without fundamentally changing the routing topology. Beyond single-stream propagation, Hyper-Connections~\citep{zhu2024hyper} introduces multi-stream recurrence with learned mixing, which mHC~\citep{xie2025mhc} subsequently refines by imposing doubly stochastic constraints on the mixing for more stable signal propagation at scale. In parallel, another line of work grants layers more direct access to earlier representations, from dense connectivity in DenseNet~\citep{huang2017densely} to learned depth aggregation in DenseFormer~\citep{pagliardini2024denseformer} and explicit depth-wise softmax attention in Attention Residuals~\citep{team2026attention}. Overall, prior studies show a clear transition from fixed residual recursion toward learned, selective, and increasingly dynamic routing across depth. Despite the rapid architectural evolution of generative Transformers, the depth-wise routing dimension remains far less explored than these architectural developments.
+
+
+\paragraph{Evolution of Diffusion Transformers.} DiTs have evolved from ViT-style U-Net replacements to specialized architectures for scalable generation. U-ViT shows that noisy image patches, timesteps, and conditions can be treated as tokens in a Transformer denoiser while retaining long skip connections~\citep{bao2023all}. DiTs further simplify this design into a pure latent-space Transformer and establish clear scaling behavior~\citep{peebles2023scalable}. Subsequent work has mainly progressed along two directions. One improves multimodal fusion and conditioning. For example, PixArt~\citep{chen2024pixart, chen2023pixart, chen2024pixartdelta} retains conventional cross-attention, whereas MM-DiT~\citep{esser2024scaling} shifts to a unified self-attention framework. This trend also accompanies the adoption of stronger language models as condition encoders: Lumina-T2X~\citep{gao2024lumina}, Playground v3~\citep{Liu2024PlaygroundVI}, and Sana~\citep{xie2024sana} use decoder-only LLMs as text encoders, while Qwen-Image~\citep{wu2025qwen} further extends this design with a vision-language encoder. The other direction advances generative formulations and training objectives. SiT~\citep{ma2024sit} unifies diffusion- and flow-based objectives, while Stable Diffusion 3~\citep{esser2024scaling} stresses rectified-flow training at scale. Notably, REPA~\citep{yu2025repa} accelerates DiT training by introducing a representation-alignment objective that aligns hidden states of DiTs with pretrained visual representations. Overall, the recent evolution of DiTs has focused heavily on backbone scaling, conditioning pathways, and training objectives, whereas the residual pathway itself has remained largely unchanged.
+
+
+% \section{Preliminaries}
+
+% \subsection{Diffusion and Flow models}
+% Diffusion and flow models both learn a continuous transformation from noise to data, but parameterize the dynamics differently. In diffusion models, a forward noising process perturbs a data sample $x_0$ into $q(x_t \mid x_0) = \mathcal{N}(\alpha_t x_0, \sigma_t^2 I)$, where $t \in [0,1]$ controls the noise level. A network then learns the reverse dynamics, e.g., by predicting the noise, the clean sample, or the score $\nabla_{x_t} \log p_t(x_t)$~\citep{ho2020denoising,song2020score}. In continuous time, this corresponds to a forward SDE and a reverse-time SDE or probability-flow ODE. By contrast, flow-based models learn a deterministic velocity field $\frac{d x_t}{dt} = v_{\theta}(x_t,t)$ that transports samples along a prescribed path from a simple source distribution to the data distribution. Flow Matching then trains $v_\theta$ to match the target velocity along such predefined probability paths between noise and data~\citep{lipman2022flow}. Diffusion paths can be viewed as a special case of this framework, while rectified flow favors straighter transport paths for more efficient sampling~\citep{liu2022flow}.
+
+\section{Diagnosing Cross-Layer Information Flow in DiTs}   \label{sec:diagnose}
+
+In this section, we provide an empirical investigation of cross-layer information routing in DiTs, jointly along depth and denoising timestep. 
+We analyze two models: a vanilla SiT-XL/2 baseline and a static variant of \textsc{DAR} with chunk size $S = 4$. Both models are checkpointed after $600\text{K}$ training iterations, and diagnostics are computed on $4096$ ImageNet samples. For each transformer block $k \in \{1, \ldots, 28\}$, we record three statistics of its output hidden state $z_k$. The first is the forward magnitude $\mathrm{RMS}(z_k)$ (root-mean-square of the feature values, averaged over batch and tokens). The second is the backward gradient magnitude $\mathrm{RMS}(\partial\mathcal{L}/\partial z_k)$, where $\mathcal{L}$ is the velocity-prediction MSE used for SiT training. The third is the block similarity $\cos(z_k, z_{k+1})$, defined as the per-token cosine similarity between consecutive block outputs averaged over batch and tokens. For \textsc{DAR}, we use $z_k$ to denote the aggregated state passed to block $k+1$; when $k = 28$, $z_k$ denotes the final aggregated state fed to the prediction head.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig_baseline_vs_attnres_source_mixing.pdf}
+\vspace{-0.8em}
+\caption{Source-mixing patterns across denoising timesteps. For the SiT model with standard residual routing, we add measurement-only scalar gates initialized to $1$ on historical residual sources, keep the forward pass unchanged, and plot loss gradients with respect to the gates as counterfactual source importance; for \textsc{DAR}, we plot the learned softmax routing weights.}
+\label{fig:baseline_source_mixing}
+\vspace{-1.2em}
+\end{figure*}
+
+Fig.~\ref{fig:diagnostic} plots the forward hidden-state magnitude, backward gradient magnitude, and block-wise similarity as functions of the Transformer block index. The blue curves, corresponding to the standard residual baseline, reveal three diagnostic symptoms that all intensify with depth. The forward hidden-state magnitude grows monotonically from $\sim 15.5$ at block 1 to $\sim 1576$ at block 28, corresponding to roughly $100\times$ inflation. Combined with the unit-RMS normalization applied at each block input, this growth forces deeper blocks to produce ever-larger raw outputs in order to retain influence over the residual stream, echoing the \emph{PreNorm dilution} phenomenon characterized in LLMs~\citep{xiong2020layer,team2026attention,li2026siamesenorm}. The backward gradient magnitude drops sharply after the first five blocks. Early blocks receive substantial signal ($\sim 5 \times 10^{-7}$), whereas later blocks are lower by more than an order of magnitude and remain close to zero throughout the deep stack. This pattern suggests that the standard residual pathway provides limited control over gradient flow, leaving deeper layers with substantially weaker optimization signals. The per-token cosine similarity between consecutive block outputs stays above $0.9$ throughout the deep stack, indicating that neighboring deep blocks produce highly similar representations. This high similarity suggests substantial representational redundancy under the standard residual routing.
+
+We next probe the timestep dimension, the key axis that distinguishes DiTs from standard Transformers. For \textsc{DAR}, the softmax weights $\alpha_{i\to l}(t)$ are directly observable; for the SiT baseline, which exposes no router by construction, we attach a scalar gate initialized to $1$ on each historical residual source and read out the gradient of the denoising loss with respect to that gate as a counterfactual importance of how a baseline-equivalent router would reweight each source if one existed, while keeping the forward pass numerically identical to the unmodified baseline. Fig.~\ref{fig:baseline_source_mixing} visualizes both quantities at a shallow and a deep location, and two observations stand out. Although the baseline never sees a router during training, its counterfactual importance map already varies systematically along $t$ at both depths, with the preferred sources at high noise differing visibly from those at low noise --- the standard residual stack exhibits timestep-dependent source preferences, suggesting the value of timestep-conditioned aggregation. \textsc{DAR}'s learned weights provide the missing degree of freedom suggested by this diagnostic: the softmax concentrates sharply on a small subset of historical sources, and this selection itself shifts smoothly with $t$ at both shallow and deep blocks, confirming that timestep-adaptive cross-layer routing is not an externally imposed inductive bias but a latent need of the DiT residual pathway that \textsc{DAR} directly meets.
+
+Taken together, these findings point to an inherent rigidity in standard residual routing, which is associated with three issues: PreNorm dilution driven by residual-stream magnitude growth~\citep{nguyen2019transformers,xiong2020layer,li2026siamesenorm,team2026attention}, imbalanced gradient propagation across depth~\citep{team2026attention,xie2025mhc,zhu2024hyper}, and high feature similarity and redundancy~\citep{jiang2024tracing,song2024sleb,men2025shortgpt,chen2026sortblock}. These observations suggest that standard residuals provide cross-layer propagation, but lack adaptive control over which previous representations should be emphasized or suppressed.
+
+
+\section{Exploring Cross-Layer Interaction Spaces in DiTs}   \label{sec:dar}
+
+\subsection{Cross-layer Routing in DiTs}
+
+\begin{wrapfigure}{r}{0.43\textwidth}
+\vspace{-0.6em}
+\centering
+\includegraphics[width=0.41\textwidth]{figs/DAR.pdf}
+\caption{Overview of the proposed Diffusion-Adaptive Routing (\textsc{DAR}) and previous methods.}
+\label{fig:dar}
+\vspace{-0.8em}
+\end{wrapfigure}
+
+Motivated by the diagnostic results, we revisit how existing DiT architectures route information. Rather than viewing cross-layer information routing as a post-hoc architectural add-on, we treat it as a fundamental design dimension that is already implicitly instantiated in DiTs.
+
+\paragraph{Standard residual routing in DiTs.}
+Standard DiTs inherit the residual routing of the original Transformer. For clarity, we treat each self-attention or MLP sublayer as an individual transformation:
+\begin{equation}
+    h_{l+1} = h_l + f_l(h_l; t) \ ,
+\end{equation}
+where $h_l \in \mathbb{R}^{T \times d}$ denotes the hidden token sequence entering sublayer $l$, $t$ is the diffusion or flow timestep, and $f_l$ is the corresponding attention or MLP transformation. We omit the conditioning signal for simplicity. Unrolling the recurrence gives
+\begin{equation}
+    h_l = h_0 + \sum_{i=0}^{l-1} f_i(h_i; t) \ .
+\end{equation}
+Standard DiTs already perform a form of cross-layer information routing. However, this routing pattern is fixed, since all previous outputs enter the residual stream with unit coefficients. Thus, standard DiTs cannot explicitly decide which earlier representations should be retrieved or suppressed at a given depth or denoising stage.
+
+
+\paragraph{U-Net-like skip routing.}
+Previous works~\citep{bao2023all,tian2024u,chen2025towards,li2024hunyuandit} introduce a U-Net-like routing pattern for diffusion models. Abstractly, for a deep layer $l$, U-Net-like long skip routing augments its input with a paired shallow representation
+\begin{equation}
+    \tilde{h}_l = \psi_l\left(h_{l}, h_{\pi(l)}\right) \ ,
+\end{equation}
+where $\pi(l) < l$ indexes the corresponding shallow layer and $\psi_l$ denotes the skip-fusion operation. The layer update can then be written as
+\begin{equation}
+    h_{l+1} = \tilde{h}_l + f_l(\tilde{h}_l; t) \ .
+\end{equation}
+From a routing perspective, U-Net-like skip routing shows that diffusion Transformers can benefit from multi-level feature fusion. Nevertheless, the routing topology in U-Net-like skip routing remains manually specified, and this connection pattern weakens the homogeneity that makes Transformers naturally scalable.
+
+\subsection{Diffusion-Adaptive Routing}
+\label{sec:DAR}
+
+Drawing on the recently proposed Attention Residuals (AttnRes) framework~\citep{team2026attention}, which replaces fixed residual accumulation with softmax attention over depth, we instantiate Diffusion-Adaptive Routing (\textsc{DAR}) for DiTs with several design choices tailored to the diffusion setting. Let $v_i = f_i(h_i; t)$ denote the output of the $i$-th sublayer with $v_0 = h_0$ the input embedding. In contrast to the standard residual routing that accumulates these sources into a single running stream $h_l = h_0 + \sum_{i<l} v_i$ with unit weights, the proposed \textsc{DAR} replaces the unweighted sum with a softmax-weighted aggregation
+\begin{equation} 
+    h_l = \sum_{i=0}^{l-1} \alpha_{i \to l}(t)\, v_i 
+    \quad\text{with}\quad
+    \alpha_{i \to l}(t) = \frac{\exp\bigl(q_l(t)^{\top} k_i / \sqrt{d}\bigr)}{\sum_{j=0}^{l-1} \exp\bigl(q_l(t)^{\top} k_j / \sqrt{d}\bigr)} \ ,
+\end{equation}
+where $k_i = \mathrm{RMSNorm}(v_i)$ is the key associated with source $v_i$, and the softmax is computed over the source set $\mathcal{S}_l = \{v_0, v_1, \ldots, v_{l-1}\}$. The aggregated $h_l$ then enters the sublayer transformation following $v_l = f_l(h_l; t)$.
+
+\paragraph{Query parameterization.} The per-layer query $q_l(t)$ admits two natural choices
+\begin{equation}
+    q_l(t) = \begin{cases}
+        w_l \ , & \text{(static)} \\[2pt]
+        W_q^{(l)}\, v_{l-1} \ , & \text{(dynamic)}
+    \end{cases}
+\end{equation}
+where $w_l \in \mathbb{R}^d$ is a layer-specific learnable vector and $W_q^{(l)} \in \mathbb{R}^{d \times d}$ is a layer-specific projection. Notably, this is a sharp departure from the LLM-side observation in AttnRes, where the dynamic variant improves only marginally over the static one. We attribute this departure to the diffusion timestep dimension unique to DiTs, which is a structural feature absent in the LLM setting and fundamentally reshapes how the per-layer query should be conditioned. We elaborate on this point below.
+
+\paragraph{Timestep injection.} Concretely, the main difference between static and dynamic query parameterization lies in how $t$ enters the per-layer query. The former keeps $w_l$ time-independent by construction, whereas the latter injects $t$ implicitly since the network input $x_t$ is itself a noised latent and further amplified at each sublayer through DiT's adaLN-Zero conditioning pathway. Additionally, we consider an explicit injection variant that augments $w_l$ with the timestep embedding $e(t)$ reused from DiT's existing $t$-embedder, i.e., $q_l(t) = w_l + e(t)$ at no additional parameter cost. The final layer of the $t$-embedder is zero-initialized, so that $e(t)=0$ at initialization and the model exactly recovers the pure static variant at the start of training. Overall, this yields three query variants of timestep injection: pure static, explicit timestep injection, and dynamic. A more detailed comparison that disentangles timestep awareness from input dependence is provided in Appendix~\ref{sec:time}.
+
+\paragraph{Chunked aggregation.} Retaining all $L$ source vectors increases the activation footprint linearly with depth. To reduce this cost, we support a chunked variant that partitions the $L$ sublayers into $N$ chunks of size $S = L/N$. Each chunk $n$ is summarized by a single representation $c_n := v_{nS}$, i.e., the output of its last sublayer. For any sublayer $l$ in chunk $n$, the source set is replaced by
+\begin{equation}
+\mathcal{S}_l \;=\; \underbrace{\{c_0, c_1, \ldots, c_{n-1}\}}_{\text{prior chunk summaries}} \;\cup\; \underbrace{\{v_{(n-1)S+1}, \ldots, v_{l-1}\}}_{\text{current intra-chunk sources}} \ ,
+\end{equation}
+which consists of summaries from previous chunks together with the full set of sources within the current chunk. The softmax aggregation therefore runs over $|\mathcal{S}_l| \le S + N$ sources, reducing source memory from $O(Ld)$ to $O((S + N)d)$. Our chunked design differs from the LLM-side instantiation of AttnRes in both the choice of chunk summary and the chunk size. We analyze this gap and its dependence on depth in Appendix~\ref{sec:chunk}.
+
+
+\section{Experiments}   \label{sec:experiment}
+
+\subsection{Setup}
+
+\paragraph{Implementation details.} Unless otherwise specified, we follow the setup of SiT~\citep{ma2024sit}. We train on ImageNet-1K~\citep{russakovsky2015imagenet} at $256 \times 256$ resolution, with the same data preprocessing as SiT. To ensure a fair comparison, we retrain SiT-XL/2 from scratch under the identical training recipe. For experiments combining DAR with REPA~\citep{yu2025repa}, we follow the original REPA configuration. We do not use any additional training tricks beyond those in the original SiT recipe. Full hyperparameters and experimental details are provided in Appendix~\ref{impl}.
+
+\paragraph{Evaluation.} We report Fréchet Inception Distance (FID;~\citep{heusel2017gans}), Inception Score (IS;~\citep{salimans2016improved}), spatial Fréchet Inception Distance (sFID;~\citep{nash2021generating}), precision and recall (Pre. and Rec.~\citep{kynkaanniemi2019improved}), computed using 50,000 samples. We use both ODE and SDE samplers as in SiT, with 250 function evaluations by default; unless otherwise specified, we report ODE results.
+
+
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\second}[1]{\underline{#1}}
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{3.0pt}
+\renewcommand{\arraystretch}{1.12}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcc|ccccc|ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multirow{2}{*}{\textbf{Iters.}}
+& \multirow{2}{*}{\textbf{Params}}
+& \multicolumn{5}{c|}{\textbf{w/o guidance}}
+& \multicolumn{5}{c}{\textbf{w/ guidance}} \\
+\cmidrule(lr){4-8} \cmidrule(lr){9-13}
+& & 
+& FID$\downarrow$ & sFID$\downarrow$ & IS$\uparrow$ & Prec.$\uparrow$ & Rec.$\uparrow$
+& FID$\downarrow$ & sFID$\downarrow$ & IS$\uparrow$ & Prec.$\uparrow$ & Rec.$\uparrow$ \\
+\midrule
+
+\multicolumn{13}{l}{\textit{\textbf{Standard Residuals}}} \\
+\midrule
+
+DiT$_{\textsc{ode}}$
+& \multirow{2}{*}{1.75M}
+& \multirow{2}{*}{675M}
+& 10.58 & 5.64 & 114.2 & 0.65 & 0.67
+& 2.25 & 4.29 & 239.2 & 0.80 & 0.59 \\
+
+DiT$_{\textsc{sde}}$
+& 
+& 
+& 9.62 & -- & 121.5 & 0.67 & 0.67
+& 2.27 & -- & 278.2 & 0.83 & 0.57 \\
+
+SiT$_{\textsc{ode}}$
+& \multirow{2}{*}{1.75M}
+& \multirow{2}{*}{675M}
+& 9.67 & 6.40 & 124.1 & 0.66 & 0.68
+& 2.15 & 4.60 & 258.1 & 0.81 & 0.60 \\
+
+SiT$_{\textsc{sde}}$
+& 
+& 
+& 8.61 & 6.32 & 131.7 & 0.68 & 0.67
+& 2.06 & 4.49 & 270.3 & 0.82 & 0.59 \\
+
+SiT-Plus$_{\textsc{ode}}$
+& \multirow{2}{*}{1M}
+& \multirow{2}{*}{752M}
+& 10.85 & 5.57 & 115.2 & 0.66 & 0.67
+& 2.36 & 4.40 & 244.6 & 0.80 & 0.58 \\
+
+SiT-Plus$_{\textsc{sde}}$
+& 
+& 
+& 10.02 & 5.18 & 119.9 & 0.68 & 0.66
+& 2.34 & 4.56 & 254.1 & 0.82 & 0.57 \\
+
+\midrule
+\multicolumn{13}{l}{\textit{\textbf{U-Net-Like Routing}}} \\
+\midrule
+
+U-ViT-H/2$_{\textsc{ode}}$
+& 500K
+& 585M
+& -- & -- & -- & -- & --
+& 2.29 & 5.68 & 263.9 & 0.82 & 0.57 \\
+
+U-DiT-L$_{\textsc{sde}}$
+& 250K
+& 810M
+& 7.54 & 5.27 & 135.5 & 0.70 & 0.66
+& 3.00 & 4.40 & 286.6 & \textbf{0.86} & 0.52 \\
+
+\midrule
+\multicolumn{13}{l}{\textit{\textbf{Our Method}}} \\
+\midrule
+
+Static c4$_{\textsc{ode}}$
+& \multirow{2}{*}{600K}
+& \multirow{2}{*}{675M}
+& 7.56 & 5.18 & 131.1 & 0.69 & 0.68
+& 2.08 & 4.42 & 272.9 & 0.83 & \textbf{0.61} \\
+
+Static c4$_{\textsc{sde}}$
+& 
+& 
+& \textbf{6.92} & 5.27 & \textbf{138.8} & 0.70 & 0.67
+& 2.23 & 4.49 & \textbf{287.0} & 0.84 & 0.57 \\
+
+Dynamic c4$_{\textsc{ode}}$
+& \multirow{2}{*}{500K}
+& \multirow{2}{*}{751M}
+& 8.07 & \textbf{5.07} & 129.0 & 0.68 & \textbf{0.69}
+& \textbf{2.05} & \textbf{4.39} & 270.1 & 0.82 & 0.60 \\
+
+Dynamic c4$_{\textsc{sde}}$
+& 
+& 
+& 7.39 & 5.20 & 134.7 & \textbf{0.71} & 0.67
+& 2.17 & 4.49 & 284.8 & 0.83 & 0.57 \\
+
+\bottomrule
+\end{tabular}
+}
+\caption{
+System-level comparison on ImageNet $256 \times 256$ generation, with and without classifier-free guidance~\citep{ho2022classifier}, with the best results marked in \textbf{bold}. We use CFG with $w=1.5$. Here, c4 denotes a chunk size of $4$.
+}
+\label{tab:imagenet256_main}
+\vspace{-0.8em}
+\end{table*}
+
+
+\subsection{Better Quality and Faster Convergence}
+\label{sec:exp_quality_speed}
+
+We first show in Tab.~\ref{tab:imagenet256_main} that \textsc{DAR} improves both final quality and convergence speed. Compared to the vanilla SiT-XL/2 baseline trained for $1.75\text{M}$ iterations, the static variant of \textsc{DAR} achieves a substantially better FID of $6.92$ (SDE) without CFG, while training for only $600\text{K}$ iterations. The dynamic variant attains the best ODE FID with CFG ($2.05$), again outperforming the SiT baseline with far fewer training iterations. To rule out the possibility that these gains arise simply from increased model size, we further train SiT-Plus, a widened SiT-XL/2 matched to the $752$M parameter count of dynamic c4. Despite using $2\times$ the training budget, SiT-Plus still trails \textsc{DAR} by a wide margin, confirming that the gains of \textsc{DAR} cannot be explained simply by parameter scaling.
+
+A natural follow-up question is whether the gains of \textsc{DAR} merely reproduce what can already be achieved by equipping DiTs with U-Net-like skip pathways. We therefore compare against two representative models from this family in Tab.~\ref{tab:imagenet256_main}: U-ViT-H/2~\citep{bao2023all} and U-DiT-L~\citep{tian2024u}. Under SDE with CFG, \textsc{DAR} static c4 outperforms U-DiT-L by $0.77$ FID while using only $0.83\times$ as many parameters. Under ODE, \textsc{DAR} dynamic c4 further improves over U-ViT-H/2 by $0.24$ FID. The gap is informative: hand-designed skip topologies wire shallow and deep layers together at predetermined depths and with fixed, time-invariant fusion weights, whereas \textsc{DAR} replaces these manual choices with learned and timestep-adaptive aggregation. Most importantly, \textsc{DAR} preserves the isotropic, homogeneous Transformer stack that underlies modern scaling.
+
+
+\subsection{Timestep Awareness Is Crucial for Routing in DiTs}
+\label{sec:time}
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\small
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{100K} & \textbf{200K} & \textbf{400K} \\
+\midrule
+Static w/o $t$-injection & 22.36 & 15.47 & 11.51 \\
+Dynamic            & 13.95 & 9.29 & 8.10 \\
+Static w/ $t$-injection  & 17.39 & 10.12 & 7.97 \\
+
+\bottomrule
+\end{tabular}
+\caption{Ablation on timestep awareness in \textsc{DAR}. We report FID$\downarrow$ at different training iterations.}
+\label{tab:timestep_awareness}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{100K} & \textbf{200K} & \textbf{300K} \\
+\midrule
+SiT + REPA  & 9.89 & 6.89 & 6.29 \\
+DAR + REPA  & 7.09 & 5.92 & 5.68 \\
+\bottomrule
+\end{tabular}
+\caption{Compatibility with REPA. We report FID$\downarrow$ at different training iterations.}
+\label{tab:repa_orthogonal}
+\end{minipage}
+\vspace{-1.5em}
+\end{table*}
+
+\begin{wrapfigure}{l}{0.45\textwidth}
+    \vspace{-0.6em}
+    \centering
+    \includegraphics[width=0.44\textwidth]{figs/fig_t_decode_agg_only_paper.pdf}
+    \caption{Linear-probe test $R^2$ for decoding the scalar denoising timestep $t$ from the aggregated hidden states that feed the router at each depth in DAR-Dynamic.}
+    \label{fig:fig_t}
+    \vspace{-0.8em}
+    \end{wrapfigure}
+
+Cross-layer information routing in DiTs differs fundamentally from its LLM counterpart in one key respect: the denoising timestep $t$ is a first-class control signal that modulates every layer's computation, and the very motivation for adaptive routing, that different noise levels demand different mixtures of shallow and deep features, presupposes that the router itself is aware of $t$. The three query parameterizations of \S\ref{sec:DAR} differ precisely in how this awareness is introduced. The pure static variant, $q_l = w_l$, leaves the router blind to the timestep. The dynamic variant, $\smash{q_l(t) = W_q^{(l)} v_{l-1}}$, derives its query from the most recent sublayer output, so any timestep information already encoded in $v_{l-1}$ is naturally inherited by the routing weights. We refer to this as implicit timestep injection. The explicit-injection variant, $q_l(t) = w_l + e(t)$, instead reuses DiT's existing timestep embedding to add a direct timestep signal to an otherwise time-invariant query, at no additional parameter cost. As shown in Tab.~\ref{tab:timestep_awareness}, both timestep-aware variants substantially outperform the timestep-blind baseline at matched compute. This supports the view that timestep awareness---regardless of how it is injected---is the key ingredient.
+
+The effectiveness of the dynamic variant rests on a non-trivial premise: the input to the dynamic query, $v_{l-1}$, actually retains sufficient timestep information for $\smash{W_q^{(l)}}$ to extract. We test this premise directly with a linear-probe diagnostic. For a frozen DAR-Dynamic checkpoint, we sweep $t$ over a uniform grid while holding the underlying $(x_0, x_1)$ image-noise pairs fixed, collect the aggregated hidden state $h_l$ that feeds each sublayer's router, and fit a ridge regressor that maps the pooled feature back to the scalar $t$ on disjoint pair-level train/test splits. Fig.~\ref{fig:fig_t} reports the resulting test $R^2$ across all $28$ blocks. Both the attention and MLP aggregator inputs sit well above the raw input latents $x_t$ baseline ($R^2 \approx 0.80$) at every depth, exceed $0.95$ within the first five blocks, and remain close to $1.0$ throughout the deep stack. Thus the timestep is not merely present but linearly decodable from the very tensors the dynamic query consumes, confirming that $\smash{q_l(t) = W_q^{(l)} v_{l-1}}$ enjoys direct access to a strong $t$-signal without any explicit conditioning, and is consistent with the mechanism underlying the early-training advantage of the dynamic variant.
+
+\subsection{DAR Is Orthogonal to REPA}
+REPA~\citep{yu2025repa} accelerates DiT training by aligning intermediate hidden states with a pretrained visual encoder, an objective-level intervention that leaves the residual pathway untouched. \textsc{DAR}, in contrast, restructures how those hidden states are aggregated across depth, a purely architectural change that is agnostic to the training loss. The two interventions therefore act along orthogonal axes, and a natural question is whether their gains compound or merely overlap. Tab.~\ref{tab:repa_orthogonal} answers this directly: stacking \textsc{DAR} on top of REPA improves FID from $9.89$ to $7.09$ at $100\text{K}$ iterations and from $6.89$ to $5.92$ at $200\text{K}$ iterations. Notably, \textsc{DAR}+REPA at $100\text{K}$ already surpasses the $200\text{K}$ FID of REPA alone, indicating that the routing-level and representation-level accelerations compound rather than offset each other.
+
+\subsection{Chunk Size Choices}
+\label{sec:chunk}
+
+\begin{wraptable}{r}{0.40\textwidth}
+\vspace{-1.0em}
+\centering
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.12}
+\small
+\begin{tabular}{lccc}
+\toprule
+Chunk size & 1 & 4 & 8 \\
+\midrule
+FID$\downarrow$ & 10.41 & 8.39  & 11.14 \\
+IS$\uparrow$    & 107.2 & 121.7 & 103.51 \\
+\bottomrule
+\end{tabular}
+\caption{Effects of chunk size $S$ in chunked aggregation on SiT-XL/2, ImageNet $256{\times}256$, no classifier-free guidance.}
+\label{tab:chunk_size}
+\vspace{-0.8em}
+\end{wraptable}
+
+The chunked aggregation in \S\ref{sec:DAR} exposes a single knob, the chunk size $S$, that interpolates between two extremes: $S=1$ degenerates to the dense, all-source variant where every sublayer output enters the routing softmax, while large $S$ collapses each chunk to a single summary $c_n$ and aggressively compresses the source set. Tab.~\ref{tab:chunk_size} reports a sweep of $S \in \{1, 4, 8\}$ on \textsc{DAR} under matched compute ($300\text{K}$ iterations) and reveals a clear U-shaped pattern with $S = 4$ at the bottom. We now show that this U-shaped pattern is not coincidental: the cost can be decomposed into two competing terms whose unique minimum lies precisely in the $S \approx 4$ regime predicted for \textsc{DAR}.
+
+Under a mild rate-distortion model, the per-aggregator cost of chunked aggregation decomposes additively as
+\begin{equation}
+\mathcal{L}(S) \;=\; \log\bigl(L/S + S\bigr) \;+\; \alpha \, \log S 
+\quad\text{with}\quad \alpha \in (0, 1) \ ,
+\label{eq:chunk_cost}
+\end{equation}
+where $L$ is the total number of sublayers and $S \in (0, L]$ denotes the chunk size. The first term is the maximum-entropy lower bound on a softmax over $|\mathcal{S}|$ slots and caps the routing precision attainable by a bounded-norm query; the second is the rate-distortion cost of compressing $S$ sublayer outputs into a single $d$-dimensional summary, with $\alpha$ discounting the loss to reflect partial recoverability through vertical attention over earlier summaries.
+
+\begin{proposition}[U-shaped cost of chunked aggregation] \label{prop:u_shape}
+Let $L>0$ and $\alpha\in(0,1)$. Then $\mathcal{L}(S)$ in
+Eq.~\eqref{eq:chunk_cost} is strictly decreasing on $(0,S^\star)$ and strictly
+increasing on $(S^\star,\infty)$, where
+\begin{equation}
+S^\star=\sqrt{L \cdot \frac{1-\alpha}{1+\alpha}}.
+\label{eq:S_star}
+\end{equation}
+Consequently, $\mathcal{L}(S)$ is U-shaped and has a unique global minimizer at
+$S^\star$.
+\end{proposition}
+
+A detailed proof and further analysis are provided in Appendix~\ref{app:chunk_proof}.
+
+\subsection{Large-Scale T2I Model Post-Training}
+
+Beyond ImageNet, we apply Distribution Matching Distillation~\citep{yin2024one,yin2024improved} to Qwen-Image~\citep{wu2025qwen} equipped with \textsc{DAR}. We find that adaptive cross-layer information routing helps the distilled model preserve high-frequency details, including sharp edges and fine textures, which are easily attenuated during aggressive few-step distillation. Full setup and samples are deferred to Appendix~\ref{t2i}.
+
+\section{Conclusion}  \label{sec:conclusions}
+In this paper, we conducted a systematic investigation of cross-layer information routing in DiTs, jointly along depth and denoising timestep, identified three symptoms of the pre-normalized residual stream inherited from the original Transformer---forward magnitude inflation, backward gradient decay, and block-wise redundancy---and accordingly proposed \textsc{DAR}, a drop-in residual replacement that performs learnable, timestep-adaptive, and non-incremental aggregation. On ImageNet $256{\times}256$, \textsc{DAR} attains a best FID of $6.92$ on SiT-XL/2, matches the baseline with $8.75\times$ fewer iterations, and further delivers a $2\times$ early-stage speedup over REPA. These results identify cross-layer routing as an underexplored design axis that complements prevailing advances in diffusion modeling. Further discussion of limitations and future work is provided in Appendix~\ref{limitations}.
+
+
+% \begin{ack}
+% Use unnumbered first level headings for the acknowledgments. All acknowledgments
+% go at the end of the paper before the list of references. Moreover, you are required to declare
+% funding (financial activities supporting the submitted work) and competing interests (related financial activities outside the submitted work).
+% More information about this disclosure can be found at: \url{https://neurips.cc/Conferences/2026/PaperInformation/FundingDisclosure}.
+
+
+% Do {\bf not} include this section in the anonymized submission, only in the final paper. You can use the \texttt{ack} environment provided in the style file to automatically hide this section in the anonymized submission.
+% \end{ack}
+
+% BibTeX bibliography
+% Compile with: pdflatex main && bibtex main && pdflatex main && pdflatex main
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\noindent In the Appendix, we provide supplementary materials for our work ``Rethinking Cross-Layer Information Routing in
+Diffusion Transformers'', organized according to the corresponding sections in the main paper.
+
+
+\section{More Discussion on Related Work}
+\label{app:relatedworks}
+
+\subsection{Diffusion Models}
+
+Diffusion models were originally formulated as a finite-step Markov chain that progressively corrupts data with Gaussian noise and learns to reverse the process via a variational bound \citep{sohl2015deep,ho2020denoising}, and \citet{song2020score} unified this view with score matching by recasting the forward and reverse processes as a continuous-time SDE with an equivalent probability-flow ODE. Subsequent work refined the noise schedule and parameterization \citep{nichol2021improved,kingma2021variational,karras2022elucidating, song2020denoising}. To avoid pixel-space cost, latent diffusion performs denoising in the compressed latent space of a pretrained autoencoder \citep{rombach2022high}. A parallel line reformulated generation as learning a deterministic velocity field that transports noise to data, with Flow Matching \citep{lipman2022flow} regressing onto the conditional velocity along a prescribed probability path and Rectified Flow \citep{liu2022flow} favoring straight transport for few-step inference; SiT \citep{ma2024sit} casts diffusion- and flow-based objectives under a single interpolant framework, and Stable Diffusion 3 \citep{esser2024scaling} scales rectified-flow training to large text-to-image models. Diffusion models have since become a dominant generative paradigm, achieving remarkable success in image generation~\citep{wu2025qwen, xie2024sana, flux2024}, image editing~\citep{labs2025flux, ci2025describe, zhang2025test}, video generation~\citep{yang2024cogvideox, wan2025wan}, and related visual synthesis tasks.
+
+\section{Proof of Proposition and Empirical Verification}
+\label{app:chunk_proof}
+
+For convenience, we restate the proposition.
+\setcounter{proposition}{0}
+\renewcommand{\theHproposition}{appendix.\arabic{proposition}}
+\begin{proposition}[U-shaped cost of chunked aggregation]
+Let $L>0$ and $\alpha\in(0,1)$. Then $\mathcal{L}(S)$ in
+Eq.~\eqref{eq:chunk_cost} is strictly decreasing on $(0,S^\star)$ and strictly
+increasing on $(S^\star,\infty)$, where
+\begin{equation}
+S^\star=\sqrt{L \cdot \frac{1-\alpha}{1+\alpha}}.
+\end{equation}
+Consequently, $\mathcal{L}(S)$ is U-shaped and has a unique global minimizer at
+$S^\star$.
+\end{proposition}
+
+\begin{proof}
+Differentiating Eq.~\eqref{eq:chunk_cost} yields
+\[
+\mathcal{L}'(S)
+=
+\frac{S^2 - L}{S(S^2 + L)}
++
+\frac{\alpha}{S}
+=
+\frac{(1+\alpha)S^2-(1-\alpha)L}{S(S^2+L)} \ .
+\]
+Since $S(S^2+L)>0$ for all $S>0$, the sign of $\mathcal{L}'(S)$ is determined by
+\[
+(1+\alpha)S^2-(1-\alpha)L \ .
+\]
+Thus,
+\[
+\mathcal{L}'(S)<0 \quad \text{for} \quad S<S^\star \ ,
+\qquad
+\mathcal{L}'(S)=0 \quad \text{for} \quad S=S^\star \ ,
+\qquad
+\mathcal{L}'(S)>0 \quad \text{for} \quad S>S^\star \ ,
+\]
+where
+\[
+S^\star=\sqrt{L \cdot \frac{1-\alpha}{1+\alpha}} \ .
+\]
+Therefore, $\mathcal{L}(S)$ is strictly decreasing on $(0,S^\star)$ and strictly
+increasing on $(S^\star,\infty)$, which proves that $S^\star$ is the unique
+global minimizer.
+\end{proof}
+
+\paragraph{Empirical agreement.}
+For SiT-XL/2 (depth $28$, two sublayers per chunk, hence $L = 56$), Eq.~\eqref{eq:S_star} predicts $S^\star \in [3.7, 4.9]$ over the realistic range $\alpha \in [0.4, 0.7]$, identifying $S = 4$ as the model-predicted optimum. This agrees quantitatively with Tab.~\ref{tab:chunk_size}: $S = 4$ improves on both the under-compressed extreme $S = 1$ (no chunking, $|\mathcal{S}| = L$, dominated by the routing-entropy term) and the over-compressed $S = 8$ (small $|\mathcal{S}|$ but large per-summary distortion). It also clarifies why the LLM-side instantiation of AttnRes~\citep{team2026attention} adopts a larger chunk size: their depth $L$ is several times that of SiT-XL/2, and Eq.~\eqref{eq:S_star} predicts $S^\star$ to scale as $\sqrt{L}$, so deeper backbones should mechanically prefer larger chunks. We therefore use $S = 4$ throughout the main experiments, and conjecture that scaling DiTs to substantially deeper backbones will require a proportionally larger chunk size.
+
+
+\section{Additional Implementation Details}
+\label{impl}
+
+\subsection{Experimental Configuration}
+
+Unless otherwise specified, all ImageNet experiments follow the training recipe of SiT~\citep{ma2024sit}. We train models with a global batch size of $1024$, a learning rate of $1 \times 10^{-4}$, and bfloat16 mixed precision. All compared models are trained under the same optimization and data-processing settings unless explicitly stated otherwise. For experiments involving REPA~\citep{yu2025repa}, we adopt the original REPA configuration. Specifically, we use DINOv2-B as the pretrained visual encoder, set the representation-alignment coefficient to $0.5$, and apply the alignment loss to the hidden representation at the eighth layer. No additional modifications are introduced beyond replacing the residual routing mechanism with
+the proposed \textsc{DAR}. To ensure a fair comparison, we rerun the SiT and REPA baselines under our experimental setting rather than directly copying numbers from prior work.
+
+\subsection{Compute Resources}
+Experiments were conducted on NVIDIA H20 GPUs with 192 CPU cores and 1024 GB of system memory. For the DAR-static-c4 configuration, each training step takes approximately 0.59 seconds.
+
+\subsection{Additional Implementation Details for DAR}
+
+\paragraph{Dedicated final aggregator.} In our design, the final aggregator that produces the input to the prediction layer has access not only to the prior chunk summaries but also to all raw sublayer outputs of the last chunk        
+\begin{equation}
+\mathcal{S}_{\text{final}} \;=\; \underbrace{\{c_0, c_1, \ldots, c_{N-1}\}}_{\text{prior chunk summaries}} \;\cup\;               
+\underbrace{\{v_{(N-1)S+1}, v_{(N-1)S+2}, \ldots, v_L\}}_{\text{raw last-chunk sublayer outputs}} \ .                                    
+\end{equation}
+This is in contrast to AttnRes, whose final layer aggregates strictly over the $N$ chunk summaries. The intuition is that the most recent sublayer outputs carry the most task-specific signal; thus, exposing them in raw form, rather than compressed into a single summary, lets the final layer recover fine-grained information that the chunk-level summary would otherwise discard. This yields about a 2-point FID gain after $200\text{K}$ training iterations.
+
+\paragraph{REPA-specific implementation.} For experiments that combine \textsc{DAR} with REPA, we depart from the dedicated final aggregator described above and instead let the last chunk reuse its own MLP aggregator parameters --- the static/dynamic query ($w_l$ or $W_q^{(l)}$) and the per-source $\mathrm{RMSNorm}$ --- to perform the final aggregation. This is an empirically motivated design that improves performance.
+
+\section{Details of Large-Scale T2I Model Post-Training}
+\label{t2i}
+
+For large-scale T2I post-training, we apply DMD to Qwen-Image~\citep{wu2025qwen} with \textsc{DAR} inserted into the MM-DiT backbone. We use LoRA fine-tuning with rank $64$, and train the student branch with a learning rate of $5 \times 10^{-6}$ together with a fake branch learning rate of $2 \times 10^{-6}$. Distillation is performed with $4$ denoising steps and guidance scale $4.0$. We train at $1024^2$ resolution using bfloat16 mixed precision and a per-GPU batch size of $1$. More visualizations are provided in the supplementary materials.
+
+\section{Infrastructure}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=1\textwidth]{figs/infra_benchmark.pdf}
+\caption{Infrastructure benchmark of the fused Triton implementation for \textsc{DAR}. Left: latency speedup over a naive implementation as a function of the number of routed sources $N$. Right: activation-memory saving, shown for the dynamic/static variants and the forward/backward passes.}
+\label{fig:infra_benchmark}
+\end{figure*}
+
+A naive implementation of \textsc{DAR}'s vertical aggregation $h_l = \sum_{i<l} \alpha_{i\to l}(t)\,v_i$ decomposes into separate kernels for per-source RMSNorm, query--key dot product, softmax, and weighted sum, each launching its own CUDA kernel, materializing $[N, B, T, D]$-shaped intermediates in HBM, and reading the source tensor four times per forward pass; since $N$ scales with depth, this baseline is both memory- and bandwidth-bound. We collapse the entire forward path into a single Triton kernel that uses an online-softmax recurrence to fuse the normalization constant with the weighted accumulator in one streaming loop over the $N$ sources, so that $\{v_i\}_{i<l}$ is read from HBM exactly once and all per-source intermediates --- $\mathrm{RMS}(v_i)$, $k_i$, $q^{\top}k_i$, $\exp(\cdot)$ --- live entirely in registers. The backward kernel applies the same idea in two passes: it first streams the sources to recover the softmax statistics $(m, Z, s)$, then streams them again to recompute the RMSNorm intermediates on the fly and emit $\partial\mathcal{L}/\partial v_i$, $\partial\mathcal{L}/\partial q$, and $\partial\mathcal{L}/\partial w_{\textsc{norm}}$ in two HBM reads instead of four to five; we further fuse the downstream LayerNorm and adaLN \texttt{modulate} into the same kernel. Microbenchmarks at the SiT-XL/2 working point ($N=57$) in Fig.~\ref{fig:infra_benchmark} show the fused kernel reducing forward latency from $22.5$\,ms to $1.96$\,ms ($11.5\times$) and backward from $115.8$\,ms to $13.6$\,ms ($8.5\times$) for the dynamic variant, with peak activation memory dropping by $78.7\%$ in the forward and $74.6\%$ in the backward pass (and up to $82.1\%$ for the static variant); the savings grow monotonically with $N$, keeping the chunked aggregator viable as DiTs scale to deeper backbones. The fused kernel is numerically equivalent to the reference PyTorch path up to floating-point reordering and serves as a drop-in replacement used throughout the main paper.
+
+\section{Limitations and Future Work}
+\label{limitations}
+
+We view the most compelling next step as pushing \textsc{DAR} along the two scale axes that dominate modern generative Transformers: large-scale pretraining and large-scale post-training. On the pretraining side, state-of-the-art T2I and T2V backbones such as MM-DiT~\citep{esser2024scaling}, Qwen-Image~\citep{wu2025qwen}, FLUX~\citep{flux2024}, and HunyuanVideo~\citep{kong2024hunyuanvideo} routinely scale to several billion parameters with substantially deeper Transformer stacks, where the PreNorm-dilution symptoms diagnosed in Section~\ref{sec:diagnose} should manifest more severely than in SiT-XL/2; Eq.~\eqref{eq:S_star} further predicts that the optimal chunk size grows as $\sqrt{L}$, hinting that the headroom for \textsc{DAR} may widen rather than saturate with depth, which makes a systematic scaling study on multi-billion-parameter MM-DiT and video-DiT pretraining the most natural and informative follow-up direction we envision. On the post-training side, our preliminary DMD~\citep{yin2024one,yin2024improved} experiment on Qwen-Image equipped with \textsc{DAR} (Appendix~\ref{t2i}) suggests that the better-conditioned gradient flow afforded by adaptive routing has a detail-preserving effect on otherwise brittle distillation procedures where the vanilla counterpart diverges, and we plan to extend this observation to a broader family of post-training objectives---including supervised fine-tuning, RL-style preference optimization, and few-step distillation---across multiple large-scale T2I and T2V backbones, to assess whether \textsc{DAR} can serve as a general-purpose technique for the increasingly diverse landscape of diffusion post-training.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newpage
+% \input{checklist.tex}
+
+
+\end{document}

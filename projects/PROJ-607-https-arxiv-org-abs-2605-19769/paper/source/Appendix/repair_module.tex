@@ -1,0 +1,162 @@
+\section{Case Study: Self-Evolving Verification in a Programmatic Verifier}
+\label{app:self-evolving-verification-case-study}
+
+This appendix provides a concrete example of the self-evolving verification
+layer described in Section~\ref{sec:self-evolving-verification}. The goal of this
+layer is to use execution-grounded feedback to refine the verification stack and
+improve future task synthesis. The example below illustrates a common failure
+mode: the agent completed the task, but the verifier queried an outdated
+application schema and therefore incorrectly marked several satisfied criteria as
+failed. By comparing the programmatic verdict against an LLM reference judgment
+on a fixed trajectory, the system identifies the verifier-side defect and updates
+the verification logic accordingly.
+
+\paragraph{Task.}
+We use the darktable task \texttt{darktable\_batch\_rate\_and\_tag}. The agent is
+instructed to import three images, create the tag \texttt{batch\_processed},
+attach the tag to all three images, and assign ratings of one, three, and five
+stars to \texttt{img\_001.png}, \texttt{img\_002.png}, and
+\texttt{img\_003.png}, respectively. The recorded run was produced by
+\texttt{kimi-k2.6} and completed in 53 interaction steps. The trajectory was then
+frozen and reused throughout the self-evolution procedure.
+
+\paragraph{Reference judgment.}
+An LLM judge inspected the full trajectory, post-action screenshots, and final
+state. It judged all ten criteria as satisfied: the three images were imported,
+the tag \texttt{batch\_processed} was visible and attached to all images, and the
+final star ratings matched the requested values. In particular, the judge found
+that the tag was created while all three images were selected, and that the final
+state showed the expected image information and rating flags for each image.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llccc}
+\toprule
+Round & Source & Passed & Failed & Divergences \\
+\midrule
+0 & Programmatic verifier before evolution & 6 & 4 & 4 \\
+0 & LLM reference judgment & 10 & 0 & -- \\
+1 & Programmatic verifier after evolution & 10 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{
+Self-evolution outcome for \texttt{darktable\_batch\_rate\_and\_tag}. The initial
+verifier incorrectly failed four tag-related criteria. After updating the
+verification logic using execution-grounded feedback, the programmatic verdict
+agreed with the LLM reference on all ten criteria.
+}
+\label{tab:darktable-self-evolving-outcome}
+\end{table}
+
+\paragraph{Detected disagreement.}
+The comparator found four disagreements between the LLM reference judgment and
+the programmatic verifier. All four involved tag state: whether the tag
+\texttt{batch\_processed} existed, and whether it was attached to each of the
+three imported images. In each case, the LLM judge returned \textsc{True}, while
+the verifier returned \textsc{False}. The comparator classified all four
+disagreements as verifier-side failures, meaning that the task had been completed
+but the checker misjudged the final state.
+
+\begin{table}[H]
+\centering
+\small
+\caption{
+Criterion-level disagreements before self-evolution. All failures share the
+same root cause: the verifier checked tag metadata using an outdated database
+assumption.
+}
+\begin{tabular}{clccc}
+\toprule
+Criterion & Description & Verifier & Judge & Classification \\
+\midrule
+3 & Tag \texttt{batch\_processed} exists & False & True & \texttt{verifier\_wrong} \\
+4 & \texttt{img\_001} has tag & False & True & \texttt{verifier\_wrong} \\
+5 & \texttt{img\_002} has tag & False & True & \texttt{verifier\_wrong} \\
+6 & \texttt{img\_003} has tag & False & True & \texttt{verifier\_wrong} \\
+\bottomrule
+\end{tabular}
+\label{tab:darktable-self-evolving-disagreements}
+\end{table}
+
+\paragraph{Root cause.}
+All four failures were caused by a single verifier bug. The darktable verifier
+assumed that the table \texttt{tags} lived in \texttt{library.db}. In the current
+darktable state, however, tag definitions are stored in \texttt{data.db}, while
+image-tag associations remain in \texttt{library.db}. As a result, tag-related
+SQL queries failed with a missing-table error and were counted as negative
+verifier results, even though the final application state contained the expected
+tag assignments.
+
+\paragraph{Verifier evolution.}
+The self-evolving layer was allowed to modify only the verifier implementation
+and documentation, not the agent trajectory, sandbox state, task specification,
+or expected output. The verifier update made three changes. First,
+\texttt{check\_tag\_exists} and the corresponding tag-query endpoint were
+rerouted to query \texttt{data.db}. Second, the image-tag checker was rewritten
+to join \texttt{library.db}'s \texttt{tagged\_images} table with
+\texttt{data.db}'s \texttt{tags} table. Third, the verifier documentation was
+updated to reflect the actual darktable schema. These changes preserve the same
+public checker interface while aligning the internal inspection logic with the
+real application state.
+
+\begin{table}[H]
+\centering
+\small
+\caption{
+Summary of the verifier evolution. The public checker interface was unchanged;
+only the internal SQL source and join path were updated.
+}
+\begin{tabular}{p{0.28\linewidth}p{0.31\linewidth}p{0.31\linewidth}}
+\toprule
+Check & Before evolution & After evolution \\
+\midrule
+Tag existence &
+Query \texttt{main.tags} inside \texttt{library.db}. &
+Query \texttt{main.tags} inside \texttt{data.db}. \\
+\addlinespace
+Image-tag assignment &
+Join \texttt{main.tagged\_images} with \texttt{main.tags} inside \texttt{library.db}. &
+Join \texttt{main.tagged\_images} from \texttt{library.db} with \texttt{data.tags} from attached \texttt{data.db}. \\
+\bottomrule
+\end{tabular}
+\label{tab:darktable-self-evolving-update}
+\end{table}
+
+\paragraph{Before and after.}
+The tag-existence check required only changing the database queried by the
+existing SQL statement:
+\begin{verbatim}
+# Before
+rows = _query_sqlite(LIBRARY_DB, sql, (tag_name, f"%|{tag_name}"))
+
+# After
+rows = _query_sqlite(DATA_DB, sql, (tag_name, f"%|{tag_name}"))
+\end{verbatim}
+
+The image-tag checker required a cross-database join:
+\begin{verbatim}
+# Before
+SELECT t.id AS tag_id, t.name AS tag_name
+FROM main.tagged_images ti
+JOIN main.tags t ON ti.tagid = t.id
+WHERE ti.imgid = ? AND (t.name = ? OR t.name LIKE ?)
+
+# After
+SELECT t.id AS tag_id, t.name AS tag_name
+FROM main.tagged_images ti
+JOIN data.tags t ON ti.tagid = t.id
+WHERE ti.imgid = ? AND (t.name = ? OR t.name LIKE ?)
+\end{verbatim}
+
+\paragraph{Outcome.}
+After self-evolution, the verifier was re-executed on the same cached final
+state. The updated verifier passed all ten criteria and had zero remaining
+divergences from the LLM reference judgment. This example demonstrates how the
+self-evolving verification layer provides an additional feedback channel for the
+synthesis pipeline: it identifies brittle verifier assumptions, such as
+application schema drift, updates the executable inspection logic, and records
+which application states require more careful grounding in future task
+generation. In this way, OpenComputer improves its verifier stack over time
+while preserving the core principle that agent performance is scored by
+executable, application-grounded checks.

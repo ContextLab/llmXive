@@ -1,0 +1,16 @@
+
+\section{Discussion}
+
+\subsection{Metric Relationship}
+\label{app:metric_relationship}
+Proactivity and completeness are related but intentionally separated. In real user-agent interaction, a final outcome may improve either because the agent proactively identifies hidden requirements or because the user eventually spells them out. {\bench} follows the latter interaction to exhaustion. The simulated user continues until every hidden intent has been completed, elicited, or explicitly provided. Thus, the final trajectory contains the complete set of user requirements, either through the agent's own initiative or through oracle-like user provision. Under this protocol, \textsc{Proc} measures who drives requirement discovery, while \textsc{Comp} measures whether the agent converts the resulting trajectory into correct artifacts and decisions. The two scores therefore need not move together. A reactive agent can obtain high \textsc{Comp} after receiving many user-provided intents, while a proactive agent can still lose \textsc{Comp} by mishandling files, tools, formats, or downstream constraints. This separation lets us analyze the trade-off between surfacing latent requirements and completing the final workflow.
+
+\subsection{Hidden Intents and Checklists}
+\label{app:hidden_intents_checklists}
+
+Hidden intents and checklists serve different roles in our benchmark.
+
+\paragraph{Hidden intents.} Hidden intents describe latent requirements that are not stated in the initial request but should guide the agent's behavior during interaction. They capture what a proactive assistant should infer, ask about, or act on before the user explicitly provides the information. Such intents may involve user preferences, task constraints, output conventions, or cross-session dependencies. Therefore, hidden intents are used to evaluate how the agent handles underspecification and whether it reduces the need for user intervention.
+
+\paragraph{Checklists.}
+Checklists, in contrast, define verifiable criteria for task completion. They specify what must be true of the final trajectory or produced artifacts, such as whether a required file is created, whether an output follows the requested format, whether a tool action succeeds, or whether a generated artifact contains the necessary content. A checklist item may depend on a hidden intent, but it is evaluated only as an outcome requirement. This separation lets us distinguish proactive behavior from final correctness. An agent may complete a task after the user provides all missing requirements, leading to high completeness but lower proactivity. Conversely, an agent may correctly identify hidden intents but still fail to satisfy some concrete checklist items, leading to high proactivity but lower completeness.

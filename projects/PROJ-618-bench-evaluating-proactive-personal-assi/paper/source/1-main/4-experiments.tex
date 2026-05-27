@@ -1,0 +1,78 @@
+
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Setup}
+\label{sec:exp_setup}
+
+\paragraph{Model Setup.}
+We evaluate nine frontier LLMs spanning distinct model families: GPT-5.4 \citep{gpt54}, Gemini-3.1 Pro \citep{gemini31pro}, Claude 4.6 Opus \citep{claudeopus46}, DeepSeek V3.2 \citep{liu2025deepseek}, MiniMax M2.7 \citep{minimax2026m27}, Kimi K2.5 \citep{team2026kimi}, Seed2.0 Pro \citep{seed20pro}, GLM-5.1 \citep{zai2026glm51}, and Qwen3.6 Plus \citep{qwen36plus}. 
+All models are evaluated under the same agentic scaffold, adapted from Nanobot \citep{nanobot}, so that performance differences primarily reflect model capability rather than scaffold-specific components.
+
+\paragraph{Environment Setup.}
+We use the default decoding parameters for all models and enable thinking. We report $\textsc{Proc}$ and $\textsc{Comp}$ as the main metrics. Since long-horizon agent behavior can be stochastic \citep{mustahsan2025stochasticity}, we run each task three times with independent trajectories and report averaged results with standard deviations for robust estimation. We use GPT-5.4 as the base model for the user agent and as the rubric-based grader, with temperature set to zero.
+
+\subsection{Main Results}
+\label{sec:exp_main}
+
+\input{0.1-table/overall}
+
+Table~\ref{tab:overall_results} reports the aggregate performance of all evaluated models across the five user domains.
+
+\paragraph{Model trends.}
+The aggregate results show that {\bench} is challenging and discriminative. Across the nine models, average \textsc{Comp} ranges from 52.1 to 67.6, while average \textsc{Proc} ranges from 43.1 to 67.0, leaving room for further progress. GPT-5.4 achieves the highest average \textsc{Proc} at 67.0, while Claude 4.6 Opus obtains the highest average \textsc{Comp} at 67.6. Qwen3.6 Plus is also competitive on both dimensions, with 64.0 \textsc{Proc} and 64.1 \textsc{Comp}. The standard deviations are generally small, with most values below 2.0, which indicates that the aggregate trends are stable across repeated runs. Notably, Qwen3.6 Plus maintains low standard deviations while achieving strong scores on both metrics. At the same time, the rankings are not identical across metrics. For example, Kimi K2.5 reaches 61.6 \textsc{Comp} but only 43.1 \textsc{Proc}, whereas Seed2.0 Pro reaches 58.4 \textsc{Proc} but 52.1 \textsc{Comp}. This suggests that completing visible workflow requirements and proactively handling underspecified user needs remain related but distinct capabilities.
+
+\paragraph{Domain trends.}
+Performance varies substantially across user domains. Pharmacist tasks are the easiest overall, with the highest average \textsc{Proc} and \textsc{Comp}. This is consistent with many Pharmacist instances in {\bench} being grounded in concrete local files, literature summaries, lab records, and domain-specific skills needed for the workflow. Researcher tasks show a different pattern, with relatively low \textsc{Proc} despite strong \textsc{Comp}. This domain often involves research planning, rebuttal preparation, literature synthesis, and other challenging tasks with less standardized workflows. Law Trainee and Financier have the lowest average \textsc{Comp}. Their workflows often require risk-oriented legal or financial judgment, which makes task completion more difficult. These results show that {\bench} captures variation across domains. Concrete case studies are provided in App.~\ref{app:case_study}.
+
+\subsection{Analysis}
+\label{sec:analysis}
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=0.98\linewidth]{0.0-figure/task_type.pdf}
+    \caption{\textsc{Comp} and \textsc{Proc} for ({\color{blue}a, b, c}) three representative task workflow categories following the fine-grained taxonomy in Tab.~\ref{tab:task_taxonomy} of App.~\ref{app:taxonomy_of_benchmark_tasks}, and ({\color{blue}d}) the overall average across all tasks. The gray dashed line indicates \textsc{Comp} = \textsc{Proc}.}
+    \label{fig:task_type_scatter}
+    \vspace{-14 pt}
+\end{figure}
+
+\paragraph{Performance by task type.}
+Fig.~\ref{fig:task_type_scatter} ({a, b, c}) compares \textsc{Comp} and \textsc{Proc} on three representative task categories. Detailed per-category results are reported in App.~\ref{app:exp_task_type} and Tab.~\ref{tab:task_type_scores}. Legal matter operations and handoffs (H) show the largest gap, with high average \textsc{Comp} but low average \textsc{Proc} (84.1\% vs. 38.1\%). In these cases, agents can often draft the requested document, but they fail to ensure that the matter is ready for handoff, leaving hidden intents about missing materials, blockers, and follow-up actions for the user to surface. Similarly, consumer selection, commerce, and media actions (Q) are more completion-oriented (70.8\% \textsc{Comp} vs. 58.2\% \textsc{Proc}). Drug design, formulation, and product benchmarking (K) show the opposite pattern, with higher \textsc{Proc} than \textsc{Comp} (84.9\% vs. 68.0\%). Here, hidden intents are often grounded in concrete scientific constraints, such as assumptions and experimental evidence, which agents can infer more easily than they can produce a fully comprehensive technical synthesis. Overall, performance varies across task categories and metrics, suggesting that different workflow structures stress different model capabilities.
+
+\paragraph{Distinguishing proactivity from completeness.}
+Fig.~\ref{fig:task_type_scatter} ({d}) compares aggregate \textsc{Proc} and \textsc{Comp} from Tab.~\ref{tab:overall_results}. The two metrics are positively related, as several high-scoring models appear near the upper-right region, but they measure different aspects of assistance. Since {\bench} continues until each hidden intent is either resolved by the agent or supplied by the simulated user, a reactive model can still recover a reasonable \textsc{Comp} score after the missing requirements become explicit. \textsc{Proc} instead measures whether the agent reduces this burden by resolving hidden intents or eliciting them before the user has to provide them.
+
+The off-diagonal cases make this distinction clear. Kimi K2.5 attains a relatively high \textsc{Comp} score but a much lower \textsc{Proc} score, suggesting that it can execute tasks once constraints are stated, yet often waits for the user to reveal those constraints step by step. \textbf{This contrast reveals a practical decoupling between proactivity and completeness, where reactive recovery can preserve final task quality while shifting requirement discovery back to the user.} Seed2.0 Pro shows the reverse pattern, with higher \textsc{Proc} than \textsc{Comp}, indicating that early discovery of hidden intents is not sufficient when final execution remains weak. 
+This behavior is consistent with our evaluation design, where hidden intents capture latent interaction requirements and checklist items capture verifiable obligations in the final outcome (App.~\ref{app:hidden_intents_checklists}). By making this gap observable, {\bench} tests whether agents merely complete underspecified workflows after user intervention or proactively reduce the user burden while moving those workflows toward successful completion.
+
+\begin{wrapfigure}{r}{0.55\textwidth}
+    % \vspace{-12 pt}
+    \centering
+    \includegraphics[width=\linewidth]{0.0-figure/turn_proactivity.pdf}
+    \vspace{-16 pt}
+    \caption{Relationship between average interaction turns per task and model-level \textsc{Proc}. Each point denotes one model.}
+    \label{fig:turn_count}
+    \vspace{-8 pt}
+\end{wrapfigure}
+\paragraph{Turn count and interaction cost.}
+Turn count provides an observable measure of the interaction cost. In {\bench}, a session continues until each hidden intent receives a terminal status ({\intentcompleted}, {\intentinferred}, and {\intentprovided}). More turns therefore indicate that the agent needed additional user input before the task became fully specified. This cost is not identical to user burden, since some extra turns may come from useful clarifications that reduce ambiguity. We therefore treat turn count as \textit{a complementary measure rather than a substitute for \textsc{Proc}}. 
+Fig.~\ref{fig:turn_count} shows a negative association. GPT-5.4, Claude 4.6 Opus, and Qwen3.6 Plus lie in the low-turn and high-\textsc{Proc} region, suggesting that they more often resolve hidden intents through early action or focused elicitation. Kimi K2.5 has the highest average turn count and the lowest \textsc{Proc}, which indicates that its trajectories more often depend on user-supplied information. This pattern is consistent with the results in Sec.~\ref{sec:exp_main} and supports the design goal of {\bench}. A proactive assistant should improve final task outcomes while minimizing avoidable interaction needed to uncover and address the user's unstated requirements.
+
+
+\begin{wrapfigure}{r}{0.47\textwidth}
+    \vspace{-12 pt}
+    \centering
+    \includegraphics[width=\linewidth]{0.0-figure/ablation_study.pdf}
+    \vspace{-12 pt}
+    \caption{Ablation on the final task of each strong dependency group: six per user, aggregated across five roles. \emph{Ours} uses the original trajectories, while \emph{w/o dependencies} removes preceding sessions from the same group.}
+    \label{fig:ablation_study}
+    \vspace{-16 pt}
+\end{wrapfigure}
+\paragraph{Prior interactions support proactive intent resolution.}
+We ablate each strong dependency group to test whether earlier sessions help agents resolve later hidden intents. For each group, we remove the preceding sessions and evaluate only the final task. As shown in Fig.~\ref{fig:ablation_study}, removing history substantially reduces \textsc{Proc} while leaving \textsc{Comp} mostly stable. GPT-5.4 drops from 78.5 to 64.9, MiniMax M2.7 from 64.8 to 59.7, and DeepSeek V3.2 from 61.9 to 52.1 on \textsc{Proc}, with an average decrease of 9.5 points. By contrast, \textsc{Comp} decreases by only 2.5 points on average. This suggests that the preceding sessions are useful for resolving hidden intents before the user spells them out. Once those sessions are removed, agents can still recover some final-task quality through later user feedback, but they lose much of the ability to act proactively. This ablation confirms the importance of prior interaction for proactive intent resolution in later tasks.
+
+\paragraph{More experiments.}
+We provide additional analyses in App.~\ref{app:experiments}.
+The judge reliability study (App.~\ref{app:judge_reliability}) shows low disagreement (< 4\%) under expert audits and independent frontier model audits.
+App.~\ref{app:hidden_intents_status} reports hidden-intent terminal status distributions, App.~\ref{app:exp_task_type} breaks down performance by task type, and App.~\ref{app:failure_analysis} summarizes failure patterns with concrete examples from App.~\ref{app:case_study}.
+

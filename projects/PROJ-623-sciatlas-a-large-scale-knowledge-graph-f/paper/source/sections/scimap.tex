@@ -1,0 +1,89 @@
+\section{\ours}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1.\textwidth]{figures/schema.pdf}
+    \caption{\textbf{Schema of {\ours}}. By integrating 9 kinds of entity nodes and 12 kinds of relational edges, {\ours} provides a structured topological cognitive substrate that dismantles disciplinary barriers and furnishes AI agents with a global perspective. The complete schema (including entities, relations, attributions) of {\ours} can be found in Appx.\ref{app:schema}.}
+    \label{fig:schema}
+\end{figure*}
+
+\subsection{Overview of {\ours}}
+\paragraph{Schema.}
+In Fig.\ref{fig:schema}, we present the complete schema of {\ours}.
+{\ours} is constructed with academic literature as its core, encompassing entities such as \texttt{Author}, \texttt{Institution}, \texttt{Keyword}, \texttt{Source}, \texttt{Topic}, \texttt{Field}, \texttt{Subfield}, and \texttt{Domain} centered around the \texttt{Paper} entity.
+With the help of these hybrid entities, the papers are organized directly or indirectly in four levels:
+\begin{itemize}[itemsep=1.5ex]
+    \item \textbf{Semantic level}. The citation relationship (\texttt{CITES}) and relevance relationship (\texttt{RELATED\_TO}) establish direct semantic connections between papers.
+    \item \textbf{Conceptual level}. Each paper is associated with its most salient keywords, and the \texttt{COOCCUR} relationships among keywords within papers indirectly link papers at the conceptual level.
+    \item \textbf{Direction level}. Different domains, fields, subfields, and topics organize papers into hierarchical structures at the disciplinary and research direction levels.
+    \item \textbf{Social level}. \texttt{COAUTHOR} relationships among authors and \texttt{AUTHORED} relationships between authors and papers, together with the \texttt{AFFILIATED\_WITH} relationships between authors and institutions, form indirect relationships between papers at the social organizational level.
+\end{itemize}
+These multi-level organizational structures constitute a complex paper relationship network, providing a robust structural foundation for deep retrieval and reasoning over {\ours}.
+
+\input{tables/statistics}
+
+\paragraph{Statistics.}
+{\ours} covers 26 academic disciplines (see Fig.\ref{fig:field_distribution}) with a total of 43.30 million papers.
+Medicine holds the largest share (18.56\%), followed by Social Sciences (10.70\%), Engineering (9.43\%), Biochemistry, Genetics and Molecular Biology (6.44\%), and Computer Science (6.29\%).
+The five disciplines above collectively account for 51.43\% of the total paper volume, reflecting the concentration of core disciplines.
+The remaining fields range from Arts and Humanities (3.33\%) to Veterinary (0.16\%), ensuring broad disciplinary representation.
+In terms of scale, in Tab.\ref{tab:statistics}, {\ours} contains 109.70 million authors, 3.76 million keywords, and 0.12 million institutions, connected by billions of relational edges across 11 relationship types.
+This combination of comprehensive disciplinary coverage and massive entity volume positions {\ours} as a large‑scale, multi‑disciplinary knowledge graph for topological scientific search.
+
+\subsection{{\ours} Construction}
+\label{sec:construction}
+
+The primary data source for our knowledge graph is from OpenAlex\footnote{\url{https://openalex.org/}.}, a fully open-source library of scholarly resources encompassing over 480 million academic publications.
+Each paper contains rich metadata, including authors, abstracts, institutions, publication dates, venues, references, citation counts, topics, open-access status, PDF URL, etc.
+Building upon this foundation, we construct our knowledge graph through the following primary steps:
+
+\paragraph{Data Restructuring and Filtering.}
+First, we extract different entity types from OpenAlex and preserve only key attributes for each entity.
+Subsequently, since OpenAlex data is also sourced from the internet and contains substantial noise, we normalize and deduplicate the names of various entities (e.g., paper titles, institution names) after standardization.
+Notably, we do not deduplicate authors due to the prevalence of name duplication and ambiguity.
+We also discard entities lacking critical attributes (e.g., paper PDF URLs).
+We then filter out non-English papers and papers with very short abstracts to ensure high-quality.
+Next, we establish edges based on the inter-entity information stored within each entity (e.g., authors and references contained in papers).
+Since OpenAlex assigns a unique ID to each entity, we directly utilize these IDs to match corresponding entities and construct relationships.
+
+\paragraph{Keyword Extraction.}
+Although OpenAlex includes a \texttt{Concept} entity type as the core concept of papers, it is excessively sparse (only 65K entries, far fewer than the 480M paper corpus) and more critically, these concepts remain at a macroscopic and superficial level (e.g., ``artificial intelligence''), failing to genuinely represent the core concepts and terms within individual papers.
+These limitations are insufficient for complex academic relational reasoning in KG, motivating us to construct denser and truly useful keywords.
+Specifically, we employ a lightweight open-source LLM (Qwen3-30B-A3B-Instruct-2507 \citep{qwen3}) as an extractor to identify keywords from paper abstracts.
+Recognizing that many contemporary papers tend to emphasize narrative packaging, which often obscures their academic essence, and the same concept may be expressed differently across distinct domains, we deliberately instruct the LLM to avoid paper-specific terminology or system names, as well as highly customized or marketing-style expressions.
+Instead, we prioritize those fundamental phrases that are reusable across numerous papers.
+For each paper, we extract 3-8 core keywords to constitute the \texttt{Keyword} entity.
+The LLM will also assign an \textit{importance score} to each keyword, which serves as the attribute for the \texttt{HAS\_KEYWORD} edge.
+Please see Appx.\ref{app:keyword_prompt} for the detailed prompt of keyword extraction.
+To capture associations among keywords, we establish \texttt{COOCUR} relations between keywords appearing in the same paper, with \textit{co-occurrence frequency} serving as edge weights to indicate the strength of association between keywords.
+
+\begin{tcolorbox}[breakable,colback=persona!20!white, colframe=persona!60!black, title=\textbf{Examples of Good and Bad Keywords}]
+    \label{good_bad_keywords}
+    \textbf{Good Keywords:} protein structure prediction, idea evaluation, wireless communication, energy optimization, fault detection, monto carlo simulation\\
+    
+    \textbf{Bad Keywords:} hierarchical dual-path adaptive learning framework, multi-stage cross-modal feature fusion architecture, novel high-performance prototype system, AlphaEvolve
+\end{tcolorbox}
+
+\paragraph{Semantic Embedding.}
+To support hybrid and efficient KG retrieval, we incorporate pre-computed semantic vectors into {\ours} in addition to plain text.
+Specifically, we select the three most semantically rich fields: paper title, paper abstract, and keyword.
+We first normalize each field (format and case), then employ \texttt{bge-large-en-v1.5} \citep{bge} as the embedding model.
+The semantic vectors derived from the titles and abstracts are integrated as paper attributes, while those derived from the keywords are incorporated as keyword attributes.
+
+Finally, we organize all entities, attributes, and edges together and deploy {\ours} using Neo4j\footnote{\url{https://neo4j.com/}.}.
+
+\subsection{{\ours} Update}
+To accommodate rapid knowledge iteration, we propose several approaches for SciMap updates:
+
+\paragraph{Using with Online Resources.}
+\label{sec:real_time_update}
+OpenAlex provides daily-updated API endpoints\footnote{\url{https://developers.openalex.org/api-reference/introduction}.} supporting daily updates for entities such as papers, authors, and institutions. Users can retrieve information for desired papers directly through the API, follow the pipeline described in \S\ref{sec:construction} to extract keywords, compute semantic embeddings, and extract inter-entity relationships aligned with the {\ours} schema, and finally import them into the database via Neo4j Cypher language.
+Although OpenAlex encompasses the vast majority of literature available on the internet, rare cases of absent papers may occur.
+For such scenarios, we recommend GROBID\footnote{\url{https://github.com/grobidOrg/grobid}.}, a very lightweight information extraction tool specifically designed for technical and scientific publications, which can rapidly extract metadata, including titles, authors, abstracts, and references, from paper's PDF file, serving as an efficient alternative to the OpenAlex API.
+We will open our KG construction code to support the evolution.
+
+\paragraph{Periodic Update.}
+OpenAlex compiles changefiles\footnote{\url{https://developers.openalex.org/download/changefiles}.} of the latest updates every two months compared to the previous version.
+Our team will periodically update our knowledge graph based on these releases.
+Users who have already deployed the system locally can also maintain their knowledge graph periodically.
+Our pipeline supports one-click import from OpenAlex downloaded files to {\ours}.

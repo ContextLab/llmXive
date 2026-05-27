@@ -1,0 +1,448 @@
+
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\setcounter{section}{0}
+\renewcommand{\thetable}{\Alph{table}}
+\renewcommand{\thefigure}{\Alph{figure}}
+\renewcommand{\thesection}{\Alph{section}}
+\setlength{\abovecaptionskip}{-0.1em}
+\setlength{\belowcaptionskip}{0pt}
+
+\section{Implementation Details}
+\label{sec:app_implementation}
+
+\subsection{Network Architecture}
+\label{sec:app_architecture}
+
+\boldstart{Backbone.}
+The encoder adopts a DINOv2 ViT-L/14~\citep{oquab2023dinov2} backbone with patch size~14 and augments it with 2D rotary position embeddings. Decoder blocks alternate between intra-view self-attention and cross-view joint attention, producing feature tokens of dimension $d\!=\!1024$. For pose-free operation the backbone additionally embeds per-pixel intrinsic information via a 4th-degree positional encoding applied at pixel level.
+
+\boldstart{Point and camera heads.}
+The point head is a 5-layer transformer decoder (dimension 1024, 16 heads, MLP ratio~4) followed by a linear projection that outputs three channels (two lateral coordinates and one log-depth), upsampled via pixel-shuffle~\citep{shi2016real} to $14\!\times$ the token resolution. The camera head shares the same transformer depth and head count but reduces the output dimension to~512, mean-pools the decoded tokens via adaptive average pooling, and maps them through two residual $1\!\times\!1$ convolution blocks and two MLP layers to produce per-view SE(3) poses.
+
+\boldstart{Primitive head.}
+The primitive head is structurally identical to the point head but its input features are additively fused with zero-initialized patch-embedded RGB tokens before decoding, providing the branch with direct access to appearance information. Its output dimension is $1 + d_{\mathrm{tri}}$, where $d_{\mathrm{tri}} = 3 + 4 + 3 + 1 = 11$ consists of three scale logits, a four-component quaternion, three zeroth-order spherical-harmonic (SH) coefficients, and one blur parameter. All dense heads employ an upscale token ratio of~2 and generate predictions at $14 \times 14$ points per patch, yielding a dense prediction map at the input image resolution.
+
+\boldstart{Normal refinement U-Net.}
+The geometry-anchored normal refinement head is a lightweight U-Net with 4 encoder--decoder scales. Each scale consists of a convolution stage (conv $\to$ GroupNorm $\to$ GELU) followed by 2 residual convolution blocks, all using $3\!\times\!3$ kernels. The channel progression through the encoder is $36 \to 72 \to 144 \to 288$ and is mirrored in the decoder, which upsamples with bilinear interpolation and concatenates skip features. The network receives 11 input channels comprising the raw geometry normal (3), the smoothed geometry normal (3), the downsampled RGB image (3), the predicted depth (1), and the validity mask (1). The output layer operates in residual mode with a scale factor of~0.25, where both weights and biases are zero-initialized so that the head starts as an identity mapping and gradually learns corrections. Training uses mixed-precision bfloat16 with gradient checkpointing enabled to reduce memory.
+
+\subsection{Loss Formulation}
+\label{sec:app_loss}
+
+We expand each term of the training objective $\mathcal{L}$ in Sec.~\ref{sec:supervision} of the main paper. With per-term weights, the total objective is
+\begin{equation}
+    \mathcal{L} = \lambda_{\mathrm{photo}}\,\mathcal{L}_{\mathrm{photo}} + \lambda_{\mathrm{cam}}\,\mathcal{L}_{\mathrm{cam}} + \lambda_{\mathrm{normal}}\,\mathcal{L}_{\mathrm{normal}}.
+    \label{eq:app_total}
+\end{equation}
+
+\boldstart{Photometric term.}
+Let $\hat{\mathbf{I}}$ and $\mathbf{I}^{*}$ denote the rendered and ground-truth images. The photometric term combines a pixel-wise mean-squared error and a perceptual LPIPS loss~\citep{zhang2018unreasonable}:
+\begin{equation}
+    \mathcal{L}_{\mathrm{photo}} = \lambda_{\mathrm{mse}}\,\bigl\|\hat{\mathbf{I}} - \mathbf{I}^{*}\bigr\|_2^2 + \lambda_{\mathrm{lpips}}\,\mathrm{LPIPS}(\hat{\mathbf{I}},\,\mathbf{I}^{*}).
+    \label{eq:app_photo}
+\end{equation}
+
+\boldstart{Camera term.}
+The camera term is a sum over all ordered view pairs of a Huber loss $\mathcal{L}_{\mathrm{trans}}$ on the relative translation and an angular loss $\mathcal{L}_{\mathrm{rot}}$ on the relative rotation:
+\begin{equation}
+    \mathcal{L}_{\mathrm{cam}} = \omega_t\,\mathcal{L}_{\mathrm{trans}} + \omega_r\,\mathcal{L}_{\mathrm{rot}}.
+    \label{eq:app_cam}
+\end{equation}
+The pairwise form is invariant to the choice of global coordinate frame and provides denser supervision than per-view absolute regression, since every view pair contributes an independent constraint.
+
+\boldstart{Normal term.}
+Let $\mathcal{V}$ be the set of valid pixels (those satisfying the geometry mask, the finite-value check, and an optional object mask). The normal term is a cosine-similarity loss between the refined normal $\mathbf{n}_{\mathrm{ref}}$ and the monocular teacher normal $\mathbf{n}_{\mathrm{tch}}$:
+\begin{equation}
+    \mathcal{L}_{\mathrm{normal}} = \frac{1}{|\mathcal{V}|}\sum_{i \in \mathcal{V}} \bigl(1 - \mathbf{n}_{\mathrm{ref},i}^{\top}\mathbf{n}_{\mathrm{tch},i}\bigr).
+    \label{eq:app_normal}
+\end{equation}
+
+
+
+\subsection{Training Protocol}
+\label{sec:app_training}
+
+\boldstart{Pre-training initialization.}
+The backbone and decoder weights are initialized from PI3~\citep{wang2025pi}, a pretrained pose-free Gaussian splatting model. The normal refinement U-Net and all triangle-specific adapter parameters are initialized from scratch with zero-initialization as described above.
+
+\boldstart{Training schedule.}
+All training and testing are conducted on NVIDIA A100 GPUs. For RE10K, we train for 150K steps at $224 \times 224$ resolution. For DL3DV, we first train for 100K steps at $224 \times 224$ resolution, then continue training for another 100K steps at $224 \times 448$ resolution. The number of context views is sampled uniformly from $[2, 8]$ per iteration during multi-view training, and the context frame gap warms up from $[40, 50]$ to $[50, 200]$ frames on RE10K and from $[15, 30]$ to $[20, 50]$ on DL3DV. Unless otherwise noted, the learning rate is $5 \times 10^{-5}$ with a backbone multiplier of $0.01\times$ and batch size~1 per GPU. The fixed 6-view checkpoints use the same dataset-specific step budgets and resolution schedules, but keep the number of context views fixed to~6; for this setting, the learning rate is raised to $1 \times 10^{-4}$ and the batch size is increased to~4 across 4~GPUs. The YoNoSplat baseline follows the same training strategy as our model for controlled comparison.
+
+\boldstart{Resolution and fair comparison.}
+Following YoNoSplat~\citep{ye2025yonosplat}, we adopt its resolution and fair-comparison protocol for novel-view synthesis: we use the $224 \times 224$ version of our model because it best aligns with the experimental settings of the other baselines. Different prior methods adopt different input resolutions: MVSplat~\citep{chen2024mvsplat} and NoPoSplat~\citep{ye2024no} use $256 \times 256$, while DepthSplat~\citep{xu2024depthsplat} uses $256 \times 448$. Due to computational constraints and to avoid noise from in-house reproduction, it is not feasible to retrain every baseline and our model at a unified resolution. As in YoNoSplat, we keep comparisons fair in two ways. First, our $224 \times 224$ model has the smallest receptive size among the compared methods; because all methods first center-crop and then resize their inputs, square crops provide the most conservative receptive coverage. Second, since our model uses the smallest receptive size, rendered outputs from other methods can be center-cropped and resized so that all quantitative and qualitative comparisons are performed on the same image content.
+
+\boldstart{Optimizer.}
+We use AdamW with a linear warm-up of 2{,}000 steps and gradient clipping at~0.5.
+
+\boldstart{Scheduled sampling.}
+The probability of using predicted poses increases linearly from~0 to~0.9 between steps 160K and 200K during Stage~1 on RE10K.
+
+\boldstart{Progressive sharpening schedules.}
+The opacity exponent $e(t)$ ramps from $e_{\mathrm{init}} = 1$ to $e_{\mathrm{final}} = 2$ over the warm-up phase. The opacity temperature $\tau(t)$ ramps from $\tau_{\mathrm{init}} = 1.0$ to $\tau_{\mathrm{final}} = 5.0$ over $16{,}000$ steps. The blur multiplier $\beta(t)$ decays from $\beta_{\mathrm{init}} = 1.0$ to $\beta_{\mathrm{final}} = 0.5$ over $16{,}000$ steps.
+
+\boldstart{Large-loss filtering.}
+After 40K warm-up steps, training samples whose total loss exceeds~0.2 (or with MSE~$>$~0.06 or pose loss~$>$~1.0) have their loss contribution scaled to a negligible value.
+
+\subsection{Mono-Normal Teacher}
+\label{sec:app_mono_teacher}
+
+The monocular normal teacher is the Omnidata DPT normal estimator~\citep{eftekhar2021omnidata} with a ViT-B/ResNet-50 hybrid backbone (variant ``vitb\_rn50\_384''). Teacher normals are computed offline for every input view and resized to match the prediction resolution via bilinear interpolation. The bootstrap schedule described in Sec.~\ref{sec:normal_pipeline} of the main paper uses $t_{\mathrm{tk}} = 6{,}000$ steps and $t_{\mathrm{bl}} = 20{,}000$ steps.
+
+\section{Baseline Mesh Extraction: Quantitative Details}
+\label{sec:app_baseline_mesh}
+
+The main paper describes the TSDF fusion pipeline used for Gaussian baselines and the direct export pipeline of \method at a conceptual level. Here we report the exact numerical parameters used in both pipelines, which are necessary for reproducibility.
+
+\boldstart{TSDF fusion parameters.}
+The TSDF volume uses a voxel size of~0.005, SDF truncation of~0.1, and depth truncation of~5.0. Pixels with rendered alpha below~0.3 are masked out. During post-processing, connected component analysis retains the 50 largest clusters and removes clusters with fewer than~50 triangles.
+
+\boldstart{Direct export parameters.}
+The opacity threshold for triangle pruning is~0.10 after temperature scaling with $\tau$ set to the final training temperature of~5.0. Vertex deduplication uses quantized position hashing at precision~$10^{-5}$ with normal-octant keying to prevent merging across opposing face orientations. Per-triangle colors are computed from the 0th-order SH coefficients as $\mathbf{c} = \mathrm{clamp}(\mathrm{SH}_0 \cdot C_0 + 0.5,\, 0,\, 1)$ with $C_0 = \frac{1}{2\sqrt{\pi}} \approx 0.282$. The entire export completes in less than~0.1\,s on a single GPU, compared to more than~15\,s for TSDF fusion.
+
+\section{Primitive Rendering Comparison}
+\label{sec:app_prim_render}
+
+The main paper reports rendering quality under \emph{mesh rendering}, which matches the simulation-ready objective of \method: a standard triangle rasterizer consumes the exported mesh directly. For completeness, we also report \emph{primitive rendering}, in which each method renders using its own native rasterizer prior to any mesh export (Gaussian splatting for baselines, triangle splatting for \method). Tables~\ref{tab:app_prim_dl3dv} and~\ref{tab:app_prim_re10k} report primitive-rendering metrics on DL3DV and RE10K, and Table~\ref{tab:app_prim_to_mesh} summarizes the primitive-to-mesh PSNR degradation for each method. Qualitative primitive-rendering comparisons are shown in Fig.~\ref{fig:nvs_qual_prim}.
+
+\boldstart{Observations.}
+Under primitive rendering, Gaussian baselines attain their strongest numerical scores because their smooth radial falloff provides locally forgiving gradient coverage at render time. When the same models are consumed as meshes, however, the TSDF-fusion step discards these smooth primitives and yields a substantially lower mesh-rendering PSNR (see Table~\ref{tab:app_prim_to_mesh}). \method exhibits a markedly smaller primitive-to-mesh degradation because the rendering primitives \emph{are} the exported triangles, so no information is lost during mesh construction. This property is central to the simulation-ready claim: the same representation used during training and inference can be consumed as a mesh with minimal quality loss, without relying on fragile post-hoc surface extraction.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_prim_re10k_01.pdf}
+\caption{\textbf{Primitive-rendering comparison on RE10K.} Each method is rendered with its own native rasterizer (Gaussian splatting for baselines, triangle splatting for \method). Compared with the mesh-rendering results in Fig.~\ref{fig:nvs_qual_mesh_re10k}, Gaussian baselines appear closer to \method under primitive rendering, but this quality does not transfer to the exported mesh used by downstream simulation and graphics pipelines.}
+\label{fig:nvs_qual_prim}
+\label{fig:nvs_qual_prim_re10k}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_prim_dl3dv_01.pdf}
+\caption{\textbf{Primitive-rendering comparison on DL3DV.} Rows correspond to 6, 12, and 24 input views, and each method is rendered with its own native rasterizer before mesh export. These results provide the counterpart to Fig.~\ref{fig:nvs_qual_mesh_dl3dv}: Gaussian baselines can look substantially stronger before TSDF fusion, but their native rendering quality is not the representation consumed by standard mesh pipelines.}
+\label{fig:nvs_qual_prim_dl3dv}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textbf{Primitive rendering on DL3DV.} Metrics reported under each method's native rasterizer. Mesh-rendering results under the same evaluation protocol are reported in the main paper (Table~\ref{tab:main_dl3dv_nvs}).}
+\label{tab:app_prim_dl3dv}
+\resizebox{0.76\textwidth}{!}{
+\begin{tabular}{l|ccc|ccc|ccc}
+\toprule
+& \multicolumn{3}{c|}{6 views} & \multicolumn{3}{c|}{12 views} & \multicolumn{3}{c}{24 views} \\
+Method & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+MVSplat      &  22.83 & 0.772 & 0.190 & 21.29 & 0.721 & 0.244   & 19.93 & 0.672 & 0.293 \\
+DepthSplat   & 23.56 & 0.806 & 0.150 & 21.89 & 0.759 & 0.196 & 20.09 & 0.699 & 0.256 \\
+AnySplat     & 19.79 & 0.579 & 0.257 & 19.95 & 0.587 & 0.272 & 20.21 & 0.608 & 0.274 \\
+YoNoSplat    & 23.88 & 0.793 & 0.154 & 22.91 & 0.762 & 0.180 & 22.22 & 0.740 & 0.199 \\
+
+\midrule
+\method (Ours) & 23.22 & 0.768 &  0.218 & 21.87 & 0.726 & 0.260 & 21.16 & 0.704 &  0.282 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textbf{Primitive rendering on RE10K (6 views).} Metrics are reported under each method's native rasterizer before mesh export. These numbers contextualize Table~\ref{tab:main_re10k}: Gaussian baselines are competitive under their original splatting renderers, but the downstream mesh-rendering protocol exposes the quality loss introduced by TSDF conversion.}
+\label{tab:app_prim_re10k}
+\resizebox{0.46\textwidth}{!}{
+\begin{tabular}{l|ccc}
+\toprule
+Method & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+MVSplat      & 24.27 & 0.839 & 0.146 \\
+DepthSplat   & 25.32 & 0.849 & 0.139 \\
+AnySplat     & 17.78      & 0.551      &     0.348   \\
+YoNoSplat    & 27.19 & 0.889 & 0.106 \\
+MeshSplat    & 22.90 & 0.788 & 0.188 \\
+SurfelSplat  & 17.86 & 0.573 & 0.373 \\
+\midrule
+\method (Ours) &  26.46   &   0.870    &  0.130      \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textbf{Primitive$\to$Mesh degradation on RE10K (6 views).} We report PSNR under primitive rendering (Prim.) and mesh rendering (Mesh), and their difference $\Delta$. A smaller $|\Delta|$ indicates that the exported mesh faithfully preserves the rendering quality of the native primitives.}
+\label{tab:app_prim_to_mesh}
+\resizebox{0.48\textwidth}{!}{
+\begin{tabular}{l|ccc}
+\toprule
+Method & Prim. PSNR & Mesh PSNR & $\Delta$PSNR \\
+\midrule
+MVSplat      & 24.27 & 13.57 & $-$10.70 \\
+DepthSplat   & 25.32 & 19.65 & $-$5.67 \\
+YoNoSplat    & 27.19 & 21.07 & $-$6.12 \\
+MeshSplat    & 22.90 & 19.72 & $-$3.18 \\
+SurfelSplat  & 17.86 &  9.09 & $-$8.77 \\
+\midrule
+\method (Ours) &  26.46  & 23.25 &  -3.21\\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{Opacity Mapping Analysis}
+\label{sec:app_opacity_derivation}
+
+The opacity mapping in Eq.~\eqref{eq:opacity} satisfies four useful properties. First, boundary values are preserved for all $e > 0$ since $o(0;\,e) = 0$ and $o(1;\,e) = 1$, ensuring that fully transparent and fully opaque primitives remain unchanged regardless of the schedule. Second, when $e = 1$ the mapping reduces to identity ($o = p$), providing a natural starting point. Third, as $e$ increases, intermediate values of $p$ are pushed toward~0 or~1 so that $o(p;\,e) \to \mathbf{1}_{p > 0.5}$ in the limit $e \to \infty$, progressively binarizing the opacity field. Fourth, the mapping is differentiable everywhere in $(0,1)$ for $e > 0$, ensuring stable gradient flow.
+
+The temperature factor described in Sec.~\ref{sec:progressive} increases linearly from $\tau_{\mathrm{init}} = 1.0$ to $\tau_{\mathrm{final}} = 5.0$ over 16{,}000 steps (experiment config overrides the decoder default of 8{,}000 steps). The dual mechanism, combining the exponent-based nonlinearity with temperature-driven sharpening, provides a richer curriculum than either component alone. An alpha floor of~0.02 is applied during early training to prevent premature pruning of uncertain primitives.
+
+\section{Triangle Adapter Details}
+\label{sec:app_triangle_adapter}
+
+The main paper describes the triangle construction process at the formula level (Eq.~\eqref{eq:vertex}). Here we provide code-level details necessary for reproduction.
+
+The canonical equilateral template uses three vertices:
+\[
+(0,\, 0.577,\, 0),\quad
+(-0.5,\, -0.289,\, 0),\quad
+(0.5,\, -0.289,\, 0).
+\]
+It is pre-scaled by a factor of~4. The three sigmoid-mapped scale logits are bounded to $[s_{\min},\, s_{\max}]$ and converted to world-space sizes using the predicted depth and a pixel-footprint multiplier derived from the inverse intrinsic matrix. During Stage~1 on RE10K the range is $[0.5, 18.0]$; during Stage~2 it is $[1.2, 15.0]$.
+
+An optional coverage boosting mechanism increases the scale of low-confidence triangles. When the opacity falls below a threshold of~0.20, the scale is boosted proportionally to the gap between the threshold and the opacity, encouraging uncertain triangles to cover a wider area and receive more photometric gradients.
+
+The blur parameter $\hat{\sigma}$ is converted to a positive value via $\sigma = \mathrm{sigmoid}(\hat{\sigma}) \cdot \beta(t) + \epsilon$, where $\beta(t)$ decays linearly from 1.0 to 0.5 over 16{,}000 steps.
+
+At pixels where the geometry-based tangent-frame rotation is valid, the network's predicted quaternion is overridden by the geometry-derived quaternion. At invalid pixels (boundary pixels and degenerate cross products) the network quaternion is retained as a fallback.
+
+\section{Additional Results on ScanNet}
+\label{sec:supp_scannet_nvs}
+
+Table~\ref{tab:nvs_scannet} reports novel-view synthesis results on ScanNet under the zero-shot setting, using models trained on RE10K without fine-tuning. Following the convention adopted in the main paper, we report mesh rendering as the primary metric, with primitive rendering included for reference. Despite the significant domain gap between real-estate walkthrough videos and indoor scans, \method maintains competitive performance under mesh rendering. The primitive-to-mesh degradation observed on the training datasets carries over to this unseen domain: Gaussian baselines lose a large margin of PSNR when their TSDF meshes are rendered as triangles, while \method remains stable, confirming that the direct-export property is a domain-robust effect rather than a dataset-specific artifact.
+
+\begin{table}[!htbp]
+\centering
+\caption{\textbf{Novel-view synthesis on ScanNet (zero-shot, 6 views).} Models trained on RE10K, evaluated without fine-tuning. Primitive rendering (Prim.) is each method's native rasterization; mesh rendering (Mesh) rasterizes the exported mesh.}
+\label{tab:nvs_scannet}
+\resizebox{0.78\textwidth}{!}{
+\begin{tabular}{l|ccc|ccc}
+\toprule
+& \multicolumn{3}{c|}{Prim.} & \multicolumn{3}{c}{Mesh} \\
+Method & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+MVSplat     & 17.64 & 0.639 & 0.345 & 11.72 & 0.320 & 0.625 \\
+DepthSplat  & 17.15 & 0.589 & 0.438 & 16.06 & 0.534 & 0.519 \\
+AnySplat    & 13.18 & 0.420 & 0.571 & 12.67 & 0.430 & 0.598\\
+YoNoSplat   & 22.99 & 0.809 & 0.240 & 16.69 & 0.587 & 0.445 \\
+MeshSplat   & 17.62 & 0.633 & 0.352 & 14.35 & 0.482 & 0.578 \\
+SurfelSplat & 12.69 & 0.329 & 0.592 & 11.05 & 0.385 & 0.752 \\
+\midrule
+\method (Ours) & 22.61 & 0.796 & 0.265 & 17.03 & 0.540 & 0.530 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{Additional Ablation Studies}
+\label{sec:app_ablation}
+
+The main-paper ablation (Table~\ref{tab:ablation}) validates the four key design choices at a coarse level. Here we provide finer-grained studies on hyperparameters and architectural variants. Consistent with the main paper, all tables in this section report surface geometry (CD, F1) together with mesh-rendering quality (PSNR, LPIPS), so that every design choice is evaluated on the same simulation-ready metrics used in the main experiments.
+
+
+
+
+\subsection{Triangle Scale Range}
+\label{sec:app_ablation_scale}
+
+Table~\ref{tab:ablation_scale} examines the effect of the triangle scale range $[s_{\min}, s_{\max}]$. A range that is too narrow limits the model's ability to cover large surface regions, reducing recall. A range that is too wide permits excessively large triangles that introduce rendering artifacts.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Ablation on triangle scale range} (RE10K, 6 views).}
+\label{tab:ablation_scale}
+\resizebox{0.62\textwidth}{!}{
+\begin{tabular}{cc|cc|cc}
+\toprule
+$s_{\min}$ & $s_{\max}$ & CD$\downarrow$ & F1$\uparrow$ & PSNR$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+0.5 & 10.0 & 0.189 & 0.619 &22.14  & 0.375 \\
+0.5 & 18.0 & 0.190 & 0.708 & 23.25 & 0.318 \\
+1.2 & 15.0 & 0.192 & 0.615 & 22.49 & 0.357 \\
+1.2 & 25.0 & 0.181 & 0.631 & 19.97 & 0.452 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Blur Schedule}
+\label{sec:app_ablation_blur}
+
+Table~\ref{tab:ablation_blur} isolates the effect of blur scheduling. Without scheduling (fixed low blur) early training suffers from poor gradient coverage. A fixed high blur allows stable training but produces soft surfaces. The default schedule decaying from~1.0 to~0.5 over 16K steps achieves the best balance.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Ablation on blur scheduling} (RE10K, 6 views).}
+\label{tab:ablation_blur}
+\resizebox{0.72\textwidth}{!}{
+\begin{tabular}{l|cc|cc}
+\toprule
+Blur strategy & CD$\downarrow$ & F1$\uparrow$ & PSNR$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+Fixed low ($\beta = 0.1$)     & 0.185 &0.640  & 21.44 &0.402   \\
+Fixed high ($\beta = 1.0$)    & 0.223  & 0.542 & 20.90 &  0.434\\
+Schedule $1.0 \to 0.5$ (8K)    &0.217   & 0.571 &  21.05&  0.418 \\
+Schedule $1.0 \to 0.5$ (16K)   & 0.190 & 0.708 & 23.25 & 0.318 \\
+Schedule $1.0 \to 0.1$ (16K)   & 0.212 &  0.588& 21.26  & 0.384 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+
+
+\subsection{Opacity Temperature}
+\label{sec:app_ablation_temperature}
+
+Table~\ref{tab:ablation_temperature} studies the opacity temperature schedule. Without temperature scaling ($\tau = 1.0$ throughout) the opacity distribution remains soft and the resulting semi-transparent surfaces degrade mesh quality. A very high final temperature ($\tau = 25.0$) produces near-binary opacities that cause gradient instability.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Ablation on opacity temperature} (RE10K, 6 views).}
+\label{tab:ablation_temperature}
+\resizebox{0.68\textwidth}{!}{
+\begin{tabular}{l|cc|cc}
+\toprule
+Temperature schedule & CD$\downarrow$ & F1$\uparrow$ & PSNR$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+Fixed $\tau = 1.0$              &0.183  & 0.637 & 20.88 & 0.439 \\
+$\tau\!\!: 1.0 \to 5.0$ (16K)     & 0.190 & 0.708 & 23.25 & 0.318  \\
+$\tau\!\!: 1.0 \to 10.0$ (16K)   &  0.204 & 0.560 & 21.87 & 0.379 \\
+$\tau\!\!: 1.0 \to 25.0$ (16K)   &0.232  &  0.454&  17.23& 0.477 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{Additional Simulation Experiments}
+\label{sec:app_simulation}
+
+The main paper summarizes robotic grasping, ball dynamics, and multi-platform locomotion in Unity and NVIDIA Isaac Sim (Fig.~\ref{fig:sim_demo}). Here we expand the simulation demonstrations into four-frame dynamic sequences using the directly exported triangle meshes without any manual cleanup or format conversion. Frames are ordered from left to right by time.
+
+\subsection{Rigid-Body Dynamics}
+\label{sec:app_rigid_body}
+We evaluate the physical utility of our reconstructed meshes through two rigid-body scenarios simulated in NVIDIA Isaac Sim with the PhysX backend. First, in a ball drop experiment, a sphere is released from various heights onto the surface. The resulting collision responses--including intricate bounce trajectories--demonstrate that our mesh faithfully captures the underlying geometry with high fidelity. Second, in an object stacking experiment, we place multiple rigid objects on the reconstructed surfaces. The sustained stability of these stacks highlights the exceptional surface flatness and normal consistency achieved by our method, ensuring reliable contact physics for downstream interaction tasks.
+
+\subsection{Legged Locomotion}
+\label{sec:app_locomotion}
+
+A simulated quadruped robot traverses outdoor scenes reconstructed by \method. The robot's foothold planning directly leverages the mesh surface normals and collision geometry. In scenes containing stairs and chairs, the robot successfully navigates the terrain.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_sim_unity_character.pdf}
+\caption{\textbf{Unity character navigation.} The exported \method mesh is imported into Unity as static scene geometry for character navigation and collision handling. The four frames show temporal progression from $t=1$ to $t=4$ and demonstrate usable collision surfaces without manual cleanup, conversion from Gaussian primitives, or scene-specific mesh repair.}
+\label{fig:supp_sim_unity_character}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_sim_unity_interaction.pdf}
+\caption{\textbf{Unity object interaction.} We load the reconstructed mesh into Unity and interact with the scene using standard engine collision and physics components. The four frames show temporal progression from $t=1$ to $t=4$; stable contact with reconstructed surfaces indicates that the exported triangle mesh is directly usable for interactive applications, rather than only for image rendering.}
+\label{fig:supp_sim_unity_interaction}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_sim_isaac_h1.pdf}
+\caption{\textbf{Isaac Sim humanoid locomotion.} The four frames show the H1 humanoid moving over the same exported \method mesh from $t=1$ to $t=4$. This sequence expands the compact main-paper demonstration by showing continuous contact-rich locomotion on the reconstructed triangle geometry, without an intermediate reconstruction or mesh-repair stage.}
+\label{fig:supp_sim_isaac_h1}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_sim_isaac_quad.pdf}
+\caption{\textbf{Isaac Sim quadruped locomotion.} A quadruped traverses the exported \method mesh using the simulator's native collision and contact solver. The four frames show temporal progression from $t=1$ to $t=4$ and illustrate that the same mesh representation supports different embodied agents and locomotion patterns.}
+\label{fig:supp_sim_isaac_quad}
+\end{figure}
+
+
+
+
+\section{More Visual Comparisons}
+\label{sec:app_visual}
+
+We provide additional qualitative comparisons on RE10K~\citep{zhou2018stereo}, DL3DV~\cite{ling2024dl3dv}, and ScanNet~\cite{dai2017scannet}. These figures exclude scenes already shown in the main-paper visual pages. Fig.~\ref{fig:supp_nvs_re10k_all} groups the remaining RE10K mesh-rendering comparisons under one caption, Fig.~\ref{fig:supp_nvs_dl3dv_02} shows additional DL3DV mesh-rendering examples, and Figs.~\ref{fig:supp_prim_re10k_02} and~\ref{fig:supp_prim_dl3dv_02} show additional primitive-rendering examples. Figs.~\ref{fig:supp_mesh_re10k_01} and~\ref{fig:supp_scannet_depth_normal_01} show remaining textured-mesh and depth/normal examples, and Figs.~\ref{fig:supp_scannet_prim_render}--\ref{fig:supp_scannet_mesh_render} show zero-shot ScanNet rendering results.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_nvs_re10k_mesh_render_01.pdf}
+\vspace{0.10cm}
+\includegraphics[width=\textwidth]{figures/supp_nvs_re10k_mesh_render_02.pdf}
+\vspace{0.10cm}
+\includegraphics[width=\textwidth]{figures/supp_nvs_re10k_mesh_render_03.pdf}
+\caption{\textbf{Additional mesh-rendering comparisons on RE10K.} We group all remaining RE10K mesh-rendering examples under one figure to avoid splitting identical comparisons across separate captions. Each group contains six input views, mesh-rendered baseline results, \method, and the ground-truth target view. Since every image is rendered from the exported mesh, artifacts reflect the quality of the representation available to downstream graphics and simulation systems.}
+\label{fig:supp_nvs_re10k_all}
+\label{fig:supp_nvs_re10k_01}
+\label{fig:supp_nvs_re10k_02}
+\label{fig:supp_nvs_re10k_03}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_nvs_dl3dv_mesh_render_02.pdf}
+\caption{\textbf{Additional mesh-rendering comparisons on DL3DV.} These examples are not used in the main-paper visual page. The comparison again isolates mesh-rendering quality: all methods are evaluated after export, so sharper results indicate a mesh that better preserves the original image evidence.}
+\label{fig:supp_nvs_dl3dv_02}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_prim_re10k_02.pdf}
+\caption{\textbf{Additional primitive-rendering comparisons on RE10K.} Each method is rendered under its own native rasterizer before mesh export. These examples complement Fig.~\ref{fig:supp_nvs_re10k_all} by showing that strong Gaussian primitive renderings do not necessarily translate into high-quality exported meshes.}
+\label{fig:supp_prim_re10k_02}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_prim_dl3dv_02.pdf}
+\caption{\textbf{Additional primitive-rendering comparisons on DL3DV.} Native primitive renderings are shown for the same evaluation style as the DL3DV mesh-rendering figures. The contrast with Fig.~\ref{fig:supp_nvs_dl3dv_02} illustrates why mesh rendering is the relevant protocol for simulation-ready reconstruction.}
+\label{fig:supp_prim_dl3dv_02}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_mesh_re10k_export_01.pdf}
+\caption{\textbf{Additional textured mesh comparisons on RE10K.} The figure visualizes the remaining exported textured meshes rather than target-view renders. TSDF-fused Gaussian meshes often show over-smoothed surfaces, missing thin structures, and fragmented regions, while \method preserves direct triangle geometry and appearance in the exported representation.}
+\label{fig:supp_mesh_re10k_01}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_depth_normal_scannet_01.pdf}
+\caption{\textbf{Additional depth and normal comparisons on ScanNet.} This example is not used in the main-paper visual page. All methods are trained on RE10K and evaluated on ScanNet without fine-tuning; \method produces smoother, geometrically coherent normals aligned with surface boundaries, while Gaussian baselines often produce noisy orientation fields under the domain shift.}
+\label{fig:supp_scannet_depth_normal_01}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_scannet_prim_render.pdf}
+\caption{\textbf{Primitive-rendering comparison on ScanNet.} Each method is rendered with its native primitive representation on zero-shot ScanNet scenes. These fixed-resolution renders are inserted without border cropping, preserving each method's original output frame and avoiding artificial enlargement or truncation of any baseline result.}
+\label{fig:supp_scannet_prim_render}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/supp_scannet_mesh_render.pdf}
+\caption{\textbf{Mesh-rendering comparison on ScanNet.} We render each exported mesh with the same triangle pipeline in the zero-shot setting. Fixed-resolution outputs are inserted without border cropping, so the comparison preserves the full rendered frame for every baseline, including methods whose exported meshes contain large empty regions or incomplete surfaces.}
+\label{fig:supp_scannet_mesh_render}
+\end{figure}
+
+
+
+
+
+
+
+
+\section{Mesh Evaluation Protocol}
+\label{sec:app_mesh_eval}
+
+The mesh metrics reported in the main paper (Tables~\ref{tab:main_dl3dv_surface} and~\ref{tab:main_re10k}) follow the standard protocol of MeshSplat~\citep{chang2025meshsplat} and ScanNet~\citep{dai2017scannet}. Both the predicted and ground-truth meshes are sampled into point clouds and voxel-downsampled at resolution~0.02 to ensure uniform density. One-sided distances are computed as $d(A, B) = \frac{1}{|A|} \sum_{\mathbf{a} \in A} \min_{\mathbf{b} \in B} \|\mathbf{a} - \mathbf{b}\|$, yielding Chamfer Distance $\mathrm{CD} = d(\mathcal{M}_p, \mathcal{M}_g) + d(\mathcal{M}_g, \mathcal{M}_p)$. Precision and Recall are the fractions of predicted and ground-truth points within distance $\delta = 0.05$ of each other, and the F1 score is their harmonic mean. All nearest-neighbor queries use KD-trees (Open3D) and all metrics are computed in the world coordinate frame.
