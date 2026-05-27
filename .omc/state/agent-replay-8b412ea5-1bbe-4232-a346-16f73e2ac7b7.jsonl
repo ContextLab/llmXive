@@ -1,0 +1,14 @@
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"superpowers:brainstorming"}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"pipeline"}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"pipeline"}
+{"t":0,"agent":"aaf539f","agent_type":"general-purpose","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a9ba649","agent_type":"general-purpose","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"af9d41c","agent_type":"general-purpose","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a059f72","agent_type":"general-purpose","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"aaf539f","agent_type":"general-purpose","event":"agent_stop","success":true,"duration_ms":64447}
+{"t":0,"agent":"af9d41c","agent_type":"general-purpose","event":"agent_stop","success":true,"duration_ms":62909}
+{"t":0,"agent":"a9ba649","agent_type":"general-purpose","event":"agent_stop","success":true,"duration_ms":88055}
+{"t":0,"agent":"a059f72","agent_type":"general-purpose","event":"agent_stop","success":true,"duration_ms":109974}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"pipeline"}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"pipeline"}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"pipeline"}
