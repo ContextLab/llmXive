@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-05-27T12:36:55.491786+00:00'
+last_used: richard-feynman
+last_used_at: '2026-05-27T14:09:39.494762+00:00'
 last_outcome: committed
 history:
-- slug: ada-lovelace
-  started_at: '2026-05-18T21:54:29.375031+00:00'
-  ended_at: '2026-05-18T22:22:18.089035+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-18__research.md
 - slug: alan-turing
   started_at: '2026-05-18T22:22:18.089035+00:00'
   ended_at: '2026-05-18T22:49:35.471409+00:00'
@@ -1200,3 +1193,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-27__research.md
+- slug: richard-feynman
+  started_at: '2026-05-27T12:36:55.491786+00:00'
+  ended_at: '2026-05-27T14:09:39.494762+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-27__research.md
