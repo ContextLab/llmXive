@@ -1,0 +1,106 @@
+
+\documentclass{mindlab}
+
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{subcaption}  % 放在导言区
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{wrapfig}
+\usepackage{simpleicons}
+% NOTE: including geometry package
+% The geometery package modifies some page properties when used. This can dramatically change the page margins, leading to severe template violation, and potential desk rejection. If the package is required, it can be used with the "pass" flag to skip the default page modifications, as in the following line:
+% \usepackage[pass]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstdefinestyle{a2uiprompt}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  framerule=0pt
+}
+\lstnewenvironment{minted}[2][]{\lstset{style=a2uiprompt}}{}
+\DeclareRobustCommand{\huggingfaceicon}{{\normalfont\simpleicon{huggingface}}}
+\DeclareRobustCommand{\githubicon}{{\normalfont\simpleicon{github}}}
+
+\title{Macaron-A2UI: A Model for Generative UI in Personal Agents}
+% 全员 Mind Lab：\author{...} 与 \affiliation{\small{Mind Lab}} 均不带可选角标（见 research-paper-writing skill）
+\author{Fancy Kong}
+\author{Congjie Zheng}
+\author{Murphy Zhuang}
+\author{Rio Yang}
+\author{Sueky Zhang}
+\author{Hao Fu}
+\author{Gene Jin}
+\author{Song Cao}
+\author{Kaijie Chen}
+\author{Andrew Chen}
+\author{Pony Ma}
+\affiliation{\small{Mind Lab}}
+\metadata[\huggingfaceicon\ Models]{\url{https://huggingface.co/collections/mindlab-research/macaron-a2ui}}
+\metadata[\githubicon\ Benchmark]{\url{https://github.com/MindLab-Research/Macaron-A2UI-Bench}}
+\metadata[\faEnvelope\ Correspondence]{\texttt{\textcolor{mindlabblue}{\{fancy, andrew, pony\}@mindlab.ltd}}}
+\metadata[\faCalendar\ Date]{May 2026}
+
+\abstract{As personal agents evolve to handle complex, user-centric tasks, static plain-text chat is rapidly becoming a bottleneck. Generative UI emerges as the necessary new interface layer, dynamically synthesizing the right controls, options, and state from the interaction context in real time. We present Macaron-A2UI, a model for Generative UI in personal agents. Our goal is to move beyond text-only interaction by enabling agents to generate natural language together with lightweight, executable UI actions for information collection, preference refinement, confirmation, and multi-goal organization. We build a large-scale Generative UI corpus from heterogeneous dialogue sources, introduce A2UI-Bench for controlled evaluation, and train 30B, 235B and 754B models with parameter-efficient LoRA-based supervised fine-tuning followed by reward-driven reinforcement learning. 
+The best Macaron-A2UI model reaches 75.6 overall on A2UI-Bench without explicit schema hints, surpassing the strongest full-schema frontier baseline. We release the models, benchmark, and evaluation protocol to support future work on Generative UI for personal agents.}
+
+% \author{Antiquus S.~Hippocampus, Natalia Cerebro \& Amelie P. Amygdale \thanks{ Use footnote for providing further information
+% about author (webpage, alternative address)---\emph{not} for acknowledging
+% funding agencies.  Funding acknowledgements go at the end of the paper.} \\
+% Department of Computer Science\\
+% Cranberry-Lemon University\\
+% Pittsburgh, PA 15213, USA \\
+% \texttt{\{hippo,brain,jen\}@cs.cranberry-lemon.edu} \\
+% \And
+% Ji Q. Ren \& Yevgeny LeNet \\
+% Department of Computational Neuroscience \\
+% University of the Witwatersrand \\
+% Joburg, South Africa \\
+% \texttt{\{robot,net\}@wits.ac.za} \\
+% \AND
+% Coauthor \\
+% Affiliation \\
+% Address \\
+% \texttt{email}
+% }
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\begin{document}
+
+\maketitle
+
+\input{Sections/1-introduction}
+\input{Sections/2-relatedworks}
+\input{Sections/3-problem}
+\input{Sections/4-data}
+\input{Sections/5-bench}
+\input{Sections/6-experiment}
+\input{Sections/7-conclusion}
+
+
+\bibliography{colm2026_conference}
+\bibliographystyle{colm2026_conference}
+
+\appendix
+\section{Appendix}
+\input{Appendix/sec1}
+\input{Appendix/training}
+\input{Appendix/prompts}
+\input{Appendix/case_examples}
+
+\end{document}

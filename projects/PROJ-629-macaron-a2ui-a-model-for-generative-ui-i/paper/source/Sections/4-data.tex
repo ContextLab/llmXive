@@ -1,0 +1,190 @@
+% \section{Dataset}
+
+% \paragraph{Source corpora and coverage.}
+% SGD, MultiWoz, Annomi, Esconv
+
+% \paragraph{LLM-assisted annotation pipeline}
+% Determine whether the current round is suitable for UI development;
+% If suitable, determine the UI type;
+
+% Complete fields and semantic constraints;
+
+% Map the original natural language interaction into A2UI expressions.
+
+% \paragraph{Rule-based validation and repair}
+% schema validation, component whitelist validation, field normalization, surface/action repair, illegal output rollback, etc
+
+% \paragraph{Dataset statistics and quality checks}
+
+% Suggested packages:
+% \usepackage{booktabs}
+% \usepackage{graphicx}
+% \usepackage{multirow}
+% \usepackage{array}
+
+\section{A2UI Corpus Construction}
+\label{sec:data}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{Figures/pipeline.jpg}
+    \caption{Overview of the A2UI corpus construction pipeline. Source dialogues are normalized and mapped to intermediate interaction actions; task-oriented data are converted with rule-first generators, open-domain data are annotated through the Editor--Author process, and all outputs pass deterministic post-processing, validation, and retry before entering the final corpus.}
+    \label{fig:data-pipeline}
+\end{figure}
+
+We construct an A2UI-grounded dialogue corpus from four heterogeneous source datasets: MultiWOZ~2.2, Schema-Guided Dialogue (SGD), ESConv, and AnnoMI. Our goal is not only to attach valid A2UI payloads to existing conversations, but to build training data that teaches a model three behaviors simultaneously: when to produce UI, what UI to produce, and how to produce protocol-compliant UI under lightweight prompting.
+
+\subsection{Source Corpora and A2UI-Oriented Sample Construction}
+\label{subsec:data-source}
+
+We begin with four dialogue corpora that cover complementary interaction regimes: task-oriented assistance (MultiWOZ and SGD), emotional support (ESConv), and motivational interviewing (AnnoMI). These sources differ substantially in annotation schema, dialogue length, and interaction styles, thus requiring normalization to a unified sample format.
+
+\paragraph{Basic unit of supervision.}
+A \emph{dialogue} denotes a sampled source conversation segment. A \emph{training sample} is a $(\texttt{context}, \texttt{response})$ pair, where \texttt{context} contains the full dialogue history up to the current assistant turn, and \texttt{response} contains the assistant's natural-language reply together with an optional A2UI payload. One dialogue can therefore yield multiple training samples, one per assistant response. Following the rest of the paper, we use \emph{turn} to refer to such a training sample. A \emph{UI-turn} is a sample whose response contains a non-empty A2UI message. A \emph{text-only turn} contains only natural language and no A2UI.
+
+\paragraph{Dialogue normalization.}
+Before A2UI annotation, we merge consecutive utterances from the same speaker to obtain strict user--assistant alternation. This step removes dataset-specific segmentation artifacts and yields a consistent dialogue history format across all four sources.
+
+\paragraph{Unified intermediate representation.}
+To bridge heterogeneous source annotations, we map dataset-specific signals into a compact intermediate interaction representation. For MultiWOZ and SGD, dialogue acts, intents, and slot annotations are mapped to actions such as collecting missing constraints, presenting options, and confirming a decision. For ESConv and AnnoMI, support strategies and counseling behaviors are mapped to interaction patterns such as guided selection, reflection support, confidence elicitation, or action planning. We then map these intermediate actions to A2UI component families. For example, categorical choices are mapped to selection widgets, numeric or ordinal values to slider-style controls, boolean fields to check boxes, and temporal arguments to date/time inputs.
+
+Table~\ref{tab:corpus_composition} summarizes the resulting corpus composition. In total,
+we sample 4,306 base dialogues and obtain 14,245 assistant-turn training samples, including
+10,080 original samples and 4,165 component-targeted augmented samples. Two dataset-specific
+decisions are worth noting. First, for AnnoMI, we retain only the high-quality subset and then
+expand it through component-targeted augmentation, which increases coverage of counseling
+and motivational-interviewing interaction patterns. Second, for SGD, we use a single-turn
+sampling strategy for most dialogues, selecting one highly informative assistant turn per
+dialogue in order to maximize service coverage rather than dialogue depth.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrrr}
+\toprule
+Source & Domain & Base dlg. & Orig. / Aug. & Samples & UI / Text & UI ratio \\
+\midrule
+MultiWOZ & Task-oriented & 997 & 3,673 / 1,751 & 5,424 & 4,361 / 1,063 & 80.4\% \\
+SGD & Task-oriented & 3,109 & 3,692 / 1,065 & 4,757 & 3,761 / 996 & 79.1\% \\
+ESConv & Emotional support & 100 & 760 / 338 & 1,098 & 604 / 494 & 55.0\% \\
+AnnoMI & Motiv. interview. & 100 & 1,955 / 1,011 & 2,966 & 1,484 / 1,482 & 50.0\% \\
+\midrule
+Total & -- & 4,306 & 10,080 / 4,165 & 14,245 & 10,210 / 4,035 & 71.7\% \\
+\bottomrule
+\end{tabular}
+\caption{
+Corpus composition by source. Base dlg. counts sampled source dialogues before augmentation.
+Orig. / Aug. denotes assistant-turn training samples from base dialogues and component-targeted augmentation.
+UI / Text denotes samples with and without A2UI payloads.
+}
+\label{tab:corpus_composition}
+\end{table}
+
+\subsection{Hybrid A2UI Annotation and Augmentation Pipeline}
+\label{subsec:data-pipeline}
+
+We construct A2UI responses with a hybrid rule-and-LLM pipeline. The core design principle is to use deterministic structure whenever source annotations already constrain the interaction semantics, and to mainly use LLMs where the source dialogue leaves UI decisions under-specified.
+
+\paragraph{Task-oriented data.}
+For MultiWOZ and SGD, UI generation is primarily rule-driven. We use a state-machine-style conversion process that tracks surface lifecycle events such as creation, update, and removal across turns. The source annotations determine what information is missing, what options are available, and what confirmation or correction step is needed next. The generator then instantiates the corresponding A2UI surfaces and widgets. In this regime, LLMs are used mainly to rewrite or polish user-facing text so that the final responses read naturally while preserving the original dialogue semantics.
+
+\paragraph{Open-domain data.}
+For ESConv and AnnoMI, source annotations do not directly specify a concrete UI. We therefore use a two-stage LLM process. An \emph{Editor} pass first plans the dialogue globally, deciding which turns should contain UI and what interaction type is appropriate. An \emph{Author} pass then generates the local component content for each selected turn, including widget text, option semantics, and layout-level organization. This decomposition helps separate \emph{whether} UI should appear from \emph{how} it should be expressed.
+
+\paragraph{Deterministic post-processing.}
+After initial A2UI generation, we apply rule-based post-processing to correct frequent structural issues prior to validation. These fixes include enum normalization (e.g., icon names), data-binding type correction, field completion for partially specified components, and simple layout constraints needed by the renderer.
+
+\paragraph{Component-targeted augmentation.}
+To improve coverage of low-frequency components, we add 4{,}165 augmented samples, accounting for 29.2\% of the final training set. Augmentation is targeted rather than uniform: we primarily expand under-represented layout, interactive, and multimedia components such as rows, slider-like controls, icons, images, date/time inputs, modals, tabs, check boxes, video proxies, and audio proxies. This design increases structural diversity without overwhelming the corpus with synthetic negatives or unrealistic UI patterns.
+
+
+
+\subsection{Validation and Repair}
+\label{subsec:data-validation}
+
+We validate all generated UI-turns with a four-level linting pipeline:
+\emph{format} validation checks whether the response can be parsed as valid json structured output;
+\emph{structure} validation checks required fields, component typing, and enum correctness;
+\emph{data-binding} validation checks field/value compatibility and binding completeness;
+and \emph{semantic} validation performs lightweight consistency checks between UI structure and intended interaction semantics.
+
+Any generated sample that fails validation is retried with concise error feedback, for up to
+three attempts per sample. After deterministic post-processing and lint validation, 91.3\%
+of UI-turns pass on the first attempt. Error-feedback retry recovers an additional 7.6\%,
+yielding a final renderability rate of 99.2\% over all UI-turns, with only 85 samples failing
+after three attempts.
+
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{6pt}
+% \begin{tabular}{lcc}
+% \toprule
+% Validation outcome & Count & Share of UI-turns \\
+% \midrule
+% First-pass success & 9,320 & 91.3\% \\
+% Fixed on 2nd attempt & 703 & 6.9\% \\
+% Fixed on 3rd attempt & 75 & 0.7\% \\
+% Failed after 3 attempts & 85 & 0.8\% \\
+% \midrule
+% Final renderable UI-turns & 10,125 / 10,210 & 99.2\% \\
+% \bottomrule
+% \end{tabular}
+% \caption{Validation and repair statistics on UI-turns. First-pass success is measured after deterministic post-processing and lint validation.}
+% \label{tab:validation-summary}
+% \end{table}
+
+\subsection{Dataset Statistics and Characteristics}
+\label{subsec:data-stats}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/train_v4_top10_component_bar.pdf}
+        \caption{Top-10 component frequencies.}
+        \label{fig:component-dist}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/train_v4_response_archetype_pie.pdf}
+        \caption{Response-level supervision archetypes.}
+        \label{fig:data_coverage}
+    \end{subfigure}
+    \caption{Dataset statistics of the training corpus. (a) shows the top-10 component frequencies, and (b) shows the response-level supervision archetypes.}
+    \label{fig:dataset_stats}
+\end{figure}
+
+As summarized in Table~\ref{tab:corpus_composition}, the final training set contains
+14,245 assistant-turn samples, including 10,210 UI-turns and 4,035 text-only turns, yielding
+an overall UI ratio of 71.7%.
+
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{4.5pt}
+% \begin{tabular}{lrrrrrr}
+% \toprule
+% Source & Total & Original & Aug. & UI & No-UI & UI ratio \\
+% \midrule
+% MultiWOZ & 5,424 & 3,673 & 1,751 & 4,361 & 1,063 & 80.4\% \\
+% SGD & 4,757 & 3,692 & 1,065 & 3,761 & 996 & 79.1\% \\
+% ESConv & 1,098 & 760 & 338 & 604 & 494 & 55.0\% \\
+% AnnoMI & 2,966 & 1,955 & 1,011 & 1,484 & 1,482 & 50.0\% \\
+% \midrule
+% Total & 14,245 & 10,080 & 4,165 & 10,210 & 4,035 & 71.7\% \\
+% \bottomrule
+% \end{tabular}
+% \caption{Per-source sample distribution. ``Original'' and ``Aug.'' denote samples originating from base dialogues and component-targeted augmentation, respectively.}
+% \label{tab:data-distribution}
+% \end{table}
+
+This distribution reflects the interaction properties of the source corpora. Task-oriented datasets naturally have a high UI ratio, around 80\%, because many assistant turns correspond to structured information collection, result presentation, or confirmation. In contrast, ESConv and AnnoMI are intentionally closer to a balanced setting: in many supportive or counseling dialogues, pure text is more appropriate for conveying empathy, reflection, or self‑disclosure, and forcing UI into those turns would distort the original interaction style.
+
+The text-only turns in our corpus are mostly natural rather than artificially synthesized. Of the 4{,}035 no-UI samples, 3{,}277 (81.2\%) are drawn directly from source dialogues, while only 758 (18.8\%) are introduced through augmentation.
+
+At the component level, the corpus contains roughly 189k instances. Structural elements such as \texttt{Label}, \texttt{Column}, \texttt{Row}, and \texttt{Card} dominate the scaffolding of the UI, while interactive elements such as buttons, selection widgets, slider-like controls, and date/time inputs provide the supervision needed for user-facing interaction design. 
+Figure~\ref{fig:component-dist} visualizes this component distribution and highlights the contribution of augmentation to long-tail coverage.
+
+Figures~\ref{fig:data_coverage} provide a complementary view of corpus coverage. At the component level, the training data covers both common layout primitives and task-critical interactive widgets. Frequent structural components such as \texttt{Column}, \texttt{Row}, and \texttt{Card} provide supervision for compositional UI layout, while interactive components such as \texttt{Button}, \texttt{SelectionList}, \texttt{TickSlider}, \texttt{SelectionWrap}, and \texttt{DateTimeInput} expose the model to a broad range of executable interaction patterns. At the response level, the corpus is also diverse in supervision archetypes: beyond text-only turns, it contains substantial coverage of selection- or slider-based interaction, button-driven actions, mixed form-and-selection responses, display-oriented UI, and explicit form input. Together, these statistics suggest that the corpus does not merely teach surface syntax, but covers a meaningful subset of A2UI structures ranging from basic layout composition to interactive decision support and structured information collection.

@@ -1,0 +1,110 @@
+\section{Application Scenarios}
+\label{sec:scenarios}
+
+Protocols matter when they make difficult coordination feel ordinary. The previous section described FP's architecture. This section turns to the kinds of systems that architecture is meant to support, and then follows one concrete scenario in which all planes of the protocol become active.
+
+\subsection{Where FP applies}
+\label{subsec:scenario-overview}
+
+FP is built around a simple observation. As agents become more capable, they begin to face coordination problems that human organizations have long managed through roles, contracts, budgets, audits, and markets. These problems do not appear in only one domain. They recur whenever autonomous entities must discover one another, delegate work, exchange resources, enforce policy, and leave evidence that can be inspected later.
+
+One recurring case is cross-protocol interoperation. A single workflow may combine tool invocation through MCP, agent-to-agent delegation through A2A, and controllable user-interface delegation through A2UI \cite{mcp_spec,a2a_spec,a2ui_spec}. Without a foundation layer, each path brings its own notion of identity, session state, authority, and logging. FP provides a shared substrate of entities, sessions, envelopes, and traces, so that heterogeneous interactions can compose over one control surface.
+
+A second case is organization and governance. As agents specialize, the unit of coordination shifts from a single assistant to a team, service network, or institution. FP treats organizations, roles, membership, and delegation as protocol objects. Policy enforcement points can gate sensitive transitions, while a shared evidence spine supports internal review and external compliance \cite{agi_economics,virtual_agent_economies}.
+
+Economic activity is another natural setting. Service procurement, resource allocation, and marketplace interaction require metering, attestation, settlement, and dispute handling. FP represents these as ledger-agnostic primitives, so that economic relationships can be audited without requiring a particular payment rail \cite{ucp_spec}.
+
+The same logic also applies to social coordination and collective governance. Open agent networks can amplify useful coordination, but they can also amplify manipulation, spam, and instruction injection. FP makes communities representable as organizations with explicit moderation roles, policy hooks, and provenance signals. This turns social governance into a protocol-level capability rather than an application-specific afterthought \cite{moltbook_site,wired_moltbook,microsoft_openclaw_security}.
+
+Finally, FP is especially relevant when autonomy must coexist with supervision. In domains such as healthcare, finance, research, and government, systems need ways to limit unnecessary data exposure, require human approval for sensitive transitions, and preserve provenance records that auditors can later inspect. These categories are not independent. Real deployments usually combine several of them. The following scenario makes this combination concrete.
+
+\subsection{A concrete example: an AI company with human oversight}
+\label{subsec:concrete-example}
+
+Consider a small AI company created by a human founder to deliver a software product. The company is not a traditional firm with a large staff. It is an organization of specialized agents, external tools, service providers, and human checkpoints. It must discover and hire outside capabilities, coordinate heterogeneous participants, manage budgets, and remain auditable as work proceeds. The example is useful because it brings every FP plane into view without requiring a contrived setting.
+
+Figure~\ref{fig:scenario-flow} sketches the lifecycle. The phases are presented in order for clarity, although in practice they can overlap and repeat as the organization evolves.
+
+\begin{figure}[!ht]
+    \centering
+    \small
+    \setlength{\tabcolsep}{0pt}
+    \begin{tabular}{c@{\hspace{4pt}}c@{\hspace{4pt}}c@{\hspace{4pt}}c@{\hspace{4pt}}c@{\hspace{4pt}}c}
+    \fbox{\parbox{2.1cm}{\centering\strut Establish\\organization\strut}}
+    & $\xrightarrow{\hspace{8pt}}$
+    & \fbox{\parbox{2.1cm}{\centering\strut Discover \&\\hire entities\strut}}
+    & $\xrightarrow{\hspace{8pt}}$
+    & \fbox{\parbox{2.1cm}{\centering\strut Collaborate\\across roles\strut}}
+    & \\[8pt]
+    & & & & $\downarrow$ & \\[4pt]
+    \fbox{\parbox{2.1cm}{\centering\strut Audit \&\\oversight\strut}}
+    & $\xleftarrow{\hspace{8pt}}$
+    & \fbox{\parbox{2.1cm}{\centering\strut Settle \&\\account\strut}}
+    & $\xleftarrow{\hspace{8pt}}$
+    & \fbox{\parbox{2.1cm}{\centering\strut Execute \&\\transact\strut}}
+    & \\
+    \end{tabular}
+    \caption{Lifecycle of the AI company scenario. Each phase maps to one or more FP planes. The flow is representative rather than strictly sequential, since phases can overlap and repeat as the organization evolves.}
+    \label{fig:scenario-flow}
+\end{figure}
+
+\subsubsection{Phase 1: Establishing the organization}
+
+The founder registers as an Entity on a local Host and creates an organization, which is also represented as an Entity, with its own governance policy. She then registers three internal agent entities: a \emph{planner} for task decomposition, a \emph{developer} for code generation and testing, and a \emph{reviewer} for quality assurance. Each receives an FP address, a cryptographic identity, and a role inside the organization.
+
+This phase exercises the Entity \& Trust Plane and the Interaction \& Organization Plane. The unified entity model gives humans, agents, tools, services, and organizations the same addressing and identity surface. At the same time, roles, membership, and approval rules become protocol objects rather than application-level conventions. A rule such as ``deployments require human approval'' can therefore be attached to the organization and enforced at protocol boundaries.
+
+\subsubsection{Phase 2: Discovering and hiring external entities}
+
+The planner needs a GPU provider for training and an MCP-compatible code-search tool for development. It queries the network's discovery mechanism, which aggregates publicly discoverable EntityCards from the local Host, its children, and its parent. Discovery returns lightweight metadata, such as name, kind, capability summary, and pricing hints, without exposing full schemas.
+
+After comparing candidates, the organization engages the GPU provider and the code-search tool by forming trust relationships and establishing sessions with scoped roles and budget limits. The external entities are now addressable within FP's routing graph and remain subject to the organization's access-control policies.
+
+Here the Transport \& Routing Plane provides discovery and reachability, while progressive disclosure keeps the evaluation phase lightweight. The Entity \& Trust Plane supplies the identity basis through EntityCard exchange, and the Interaction \& Organization Plane turns a service relationship into an inspectable session with roles and budget ceilings.
+
+\subsubsection{Phase 3: Heterogeneous group collaboration}
+
+The founder assigns a task: ``ship the authentication module.'' The planner decomposes the task and distributes the subtasks. The developer writes code and invokes the external code-search tool through FP's MCP bridge. The reviewer inspects the output. Before deployment, the founder receives a human-approval request.
+
+These interactions involve humans, agents, and tools, but they do not require separate coordination mechanisms. They pass through the same envelope, routing, and checkpoint infrastructure. Messages are signed, routed through the host tree, and validated by the checkpoint pipeline before reaching their handlers. The session maintains one trace across all participants, preserving correlation and causal links.
+
+This phase mainly exercises the Interaction \& Organization Plane, the Transport \& Routing Plane, and Configuration \& Profiles. Sessions, activities, and event streams coordinate the work. Routing connects local and remote entities, with offline queues handling transient disconnections. Bridges allow external providers and MCP-compatible tools to appear on the FP surface without changing their original protocols.
+
+\subsubsection{Phase 4: Economic activity}
+
+The GPU provider reports metered usage, such as compute-hours and token consumption, as structured records attached to the session's activities. When the work is complete, it issues a signed receipt that attests to what was delivered and references an external payment rail for settlement. The organization's budget ceiling, set when the session was created, is enforced throughout the interaction. A payment checkpoint in the access-control pipeline can reject messages that would exceed the authorized spend.
+
+This phase brings together economic primitives and oversight. Metering, receipts, settlement references, and dispute signals represent the transaction lifecycle within the protocol. Budget policy is enforced at a checkpoint, and receipts can be verified by third parties without exposing sensitive payloads.
+
+\subsubsection{Phase 5: Oversight and audit}
+
+Throughout the lifecycle, policy decisions leave structured traces. The reviewer's approval, the founder's deployment authorization, the payment checkpoint's budget decision, and any rejected messages are recorded as events. Provenance records bind these decisions to the policies and evidence that produced them, creating an audit trail that can be inspected later by parties who were not present during execution.
+
+When the founder reviews the completed project, she can ask which entity performed each action, under which policy, with what economic outcome, and whether any access-control decisions were overridden. If a dispute arises with the GPU provider, the same evidence spine supports resolution without reconstructing state from scattered logs.
+
+This final phase shows why Entity \& Trust and Regulation \& Oversight must work together. Signatures on envelopes help make records tamper-evident, while policy enforcement points, provenance records, and dispute signals make the lifecycle auditable.
+
+\begin{table}[!ht]
+\centering
+\caption{How the AI company scenario exercises the FP planes.}
+\label{tab:scenario-planes}
+\footnotesize
+\begin{tabular}{@{}p{0.24\textwidth} p{0.32\textwidth} p{0.36\textwidth}@{}}
+\toprule
+\textbf{Phase} & \textbf{Main FP planes} & \textbf{Protocol role} \\
+\midrule
+Establish organization & Entity \& Trust; Interaction \& Organization & Register entities, assign roles, and attach governance policy. \\
+Discover and hire entities & Transport \& Routing; Entity \& Trust; Interaction \& Organization & Discover capabilities, verify identity, and create scoped sessions. \\
+Collaborate across roles & Interaction \& Organization; Transport \& Routing; Configuration \& Profiles & Coordinate humans, agents, and tools through shared envelopes and bridges. \\
+Execute and transact & Interaction \& Organization; Regulation \& Oversight & Meter usage, issue receipts, and enforce budget policy. \\
+Audit and oversight & Regulation \& Oversight; Entity \& Trust & Preserve provenance, validate decisions, and support dispute resolution. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{What the example shows}
+\label{subsec:scenario-takeaway}
+
+The scenario exercises all five planes in FP's architecture. The Entity \& Trust Plane handles registration and identity. The Transport \& Routing Plane handles discovery and message routing. The Interaction \& Organization Plane handles organizational structure, sessions, and economic primitives. The Regulation \& Oversight Plane handles policy enforcement and audit. Configuration \& Profiles handle the protocol bridges.
+
+The important point is not that the scenario requires many special mechanisms. It is the opposite. The same entity model that represents the founder also represents an external GPU provider. The same checkpoint pipeline that enforces access control can enforce budget limits. The same envelope that carries a task message can also carry a payment receipt. This uniformity is the practical consequence of FP's design: a small protocol core that composes, rather than a collection of point solutions that must later be stitched together.

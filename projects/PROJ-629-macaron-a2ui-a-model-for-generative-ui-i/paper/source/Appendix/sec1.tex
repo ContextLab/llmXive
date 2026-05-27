@@ -1,0 +1,83 @@
+\subsection{A2UI Rendering Implementation}
+\label{appendix:rendering}
+
+To evaluate the visual quality of model-generated A2UI outputs, we require a faithful rendering implementation that transforms the raw JSON message stream into a fully interactive widget tree. We implement this renderer as a Flutter Web application, which serves both as the production chat client and as the headless rendering backend for automated visual evaluation. This subsection describes the renderer architecture, the message protocol it consumes, and the full component catalog it supports.
+
+\paragraph{Message Protocol and Rendering Pipeline.}
+An A2UI output from the model is a JSON array of \emph{messages}, each carrying exactly one of four action types. A \texttt{beginRendering} message declares a new UI surface by specifying a \texttt{surfaceId} and the root component tree to display. A \texttt{surfaceUpdate} message patches an existing surface by replacing, inserting, or removing subtrees at specified paths within the component hierarchy. A \texttt{dataModelUpdate} message writes key-value pairs into a reactive data model that components can bind to via JSON pointer paths, enabling dynamic state such as pre-filled form values, selection defaults, and conditional visibility. A \texttt{deleteSurface} message removes a previously rendered surface entirely. The renderer processes these messages sequentially through an \texttt{A2uiMessageProcessor}, which maintains the current surface state and incrementally reconciles the Flutter widget tree after each message. This incremental design means that the renderer does not simply re-render from scratch on each update; instead, it applies structural diffs, which is important both for production responsiveness and for faithfully reflecting the multi-message outputs that models produce.
+
+\paragraph{Component Catalog.}
+The renderer resolves component types through a pluggable \emph{catalog} system. Each catalog entry (a \texttt{CatalogItem}) maps a component type name and an optional \texttt{extensionType} to a Flutter widget builder, a JSON Schema describing the component's data contract, and metadata about whether the component accepts children. Our evaluation uses the Macaron design catalog, which registers 23 component types organized into four functional categories. Table~\ref{tab:component-catalog} provides the complete listing. \emph{Interactive} components accept user input and can dispatch actions back to the conversational agent (e.g., a selection event, a form submission, or a button tap), which is the core mechanism through which A2UI enables structured user responses beyond free-text typing. \emph{Display} components present information without accepting input, providing the visual scaffolding (text, images, progress indicators) that contextualizes the interactive elements. \emph{Layout} components control spatial arrangement of their children without contributing semantic content themselves.
+
+\begin{table}[h]
+\centering
+
+\small
+\begin{tabular}{llp{7.2cm}}
+\toprule
+\textbf{Component} & \textbf{Role} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{l}{\textit{Selection \& Input}} \\
+SelectionList & Interactive & Vertical list with check indicators; supports multi-select with min/max constraints \\
+SelectionGrid & Interactive & Adaptive 1--3 column grid with overlay check indicators \\
+SelectionWrap & Interactive & Horizontal flow wrap with pill-style chips for compact multi-select \\
+OrderedSelectionList & Interactive & Vertical list showing pick order as numbered badges \\
+ActionSelectionList & Interactive & Single-select list that locks and dispatches an action on first tap \\
+DropdownSelection & Interactive & Button-like trigger with anchored dropdown menu for single-select \\
+DateTimeInput & Interactive & Date and/or time picker trigger with localized display formatting \\
+PasswordKeypad & Interactive & Six-digit numeric keypad with auto-submit on completion \\
+\midrule
+\multicolumn{3}{l}{\textit{Scalar \& Continuous Input}} \\
+TickSlider & Interactive & Discrete slider snapping to evenly spaced tick marks \\
+\midrule
+\multicolumn{3}{l}{\textit{Action}} \\
+Button & Interactive & Three visual styles (primary, secondary, plain) with action dispatch \\
+\midrule
+\multicolumn{3}{l}{\textit{Navigation \& Overlay}} \\
+Tabs & Interactive & Capsule-track tab bar with animated thumb and swipe-enabled pages \\
+Carousel & Interactive & Horizontal page view with peek-through adjacent pages \\
+FullScreenModal & Interactive & Entry-point child triggers a full-screen overlay for detail content \\
+\midrule
+\multicolumn{3}{l}{\textit{Text \& Rich Content}} \\
+Label & Display & Styled text with 3 color variants $\times$ 9 typographic sizes (27 combinations) \\
+MarkdownView & Display & Renders markdown (headings, emphasis, lists, code blocks, blockquotes) \\
+\midrule
+\multicolumn{3}{l}{\textit{Data Visualization \& Media}} \\
+LinearProgress & Display & Horizontal progress bar with animated fill \\
+CircularProgress & Display & Circular arc indicator with optional center icon and value label \\
+Image & Display & Network or asset image in four size presets (40--full width) \\
+Icon & Display & SVG icon from a custom registry with line and filled styles \\
+OrderedDisplayList & Display & Static vertical list with fixed-order numbered badges \\
+\midrule
+\multicolumn{3}{l}{\textit{Layout \& Structure}} \\
+Card & Layout & Rounded container with warm background and vertical child spacing \\
+Column & Layout & Vertical stack with configurable spacing, distribution, and alignment \\
+Row & Layout & Horizontal stack with spacing and expansion semantics \\
+Divider & Layout & Dashed line separator (horizontal or vertical) \\
+\bottomrule
+\end{tabular}
+
+\caption{A2UI component catalog used in our evaluation. Components are grouped by functional role. ``Interactive'' components accept user input and can dispatch actions; ``Display'' components present information read-only; ``Layout'' components arrange children spatially.}
+\label{tab:component-catalog}
+\end{table}
+
+\paragraph{Preview Stage and Render Page.}
+For automated evaluation, the Flutter application exposes a dedicated \texttt{/render} route that accepts the full A2UI message array as a URL query parameter. The route parses the JSON payload, extracts the \texttt{surfaceId} from the first message that contains one (falling back to a default identifier), and feeds the messages into the same \texttt{A2uiRenderer} and \texttt{A2uiMessageProcessor} used in the production chat interface. The rendered widget tree is displayed inside a \texttt{PreviewStage} container---a width-constrained, rounded-corner card with configurable dimensions (default 420\,px wide, up to 1600\,px tall) and inner padding (24\,px). The stage applies a subtle drop shadow and clips overflow to its rounded boundary, simulating the visual context of a chat bubble. Once the Flutter layout engine completes its build and layout passes, the page signals readiness by setting a DOM attribute (\texttt{data-render-status="ready"}) on the document body. This attribute serves as the synchronization signal for the external screenshot tool. The use of a real Flutter widget tree, rather than a mock renderer or static HTML approximation, ensures that the screenshots faithfully reflect the exact visual output that end users would see, including all spacing, overflow, clipping, and interactive-state rendering behaviors that are impossible to predict from the JSON alone.
+
+
+\subsection{VLM-Based Visual Evaluation}
+\label{appendix:visual-eval}
+
+Beyond the protocol-level (L1) and LLM-judge-based (L2/L3) evaluation described in the main text, we introduce an auxiliary visual evaluation layer that assesses the \emph{actual rendered appearance} of model-generated A2UI outputs. The motivation is straightforward: a model output can be structurally valid JSON that satisfies all schema constraints, yet still produce a visually broken or misleading user interface when rendered by a real UI framework. To close this gap, we implement a fully automated pipeline that captures a screenshot of the rendered output (using the renderer described in \S\ref{appendix:rendering}) and submits it alongside dialogue context to a vision-language model (VLM) for structured quality assessment.
+
+\paragraph{Render Check Gate.}
+Before entering the visual evaluation pipeline, each sample must pass a lightweight \emph{render check} that detects seven categories of render-critical defects not covered by the schema validator. These rules were derived from failure patterns observed during iterative development of the A2UI renderer and codified as deterministic checks over the raw JSON message array. Specifically, the render check verifies: (1)~selection-type components that reference a data model path must explicitly provide a \texttt{literalArray} field, since the renderer cannot resolve dynamic bindings at screenshot time; (2)~\texttt{TickSlider} widgets must not appear as direct children of \texttt{Row} layouts, which causes an unbounded-width crash in Flutter's flex algorithm; (3)~a single assistant response must contain at most one \texttt{surfaceId}, as the renderer instantiates one surface per response and multiple IDs produce undefined behavior; (4)~\texttt{Button.action.context} must be a JSON array rather than a dictionary, matching the renderer's deserialization expectation; (5)~selection item values must be plain strings rather than wrapped objects such as \texttt{\{literalString: ...\}}; (6)~\texttt{DateTimeInput} temporal bounds (\texttt{firstDate}, \texttt{lastDate}) must be ISO-8601 strings and boolean flags (\texttt{enableDate}, \texttt{enableTime}) must be actual booleans; and (7)~every \texttt{dataModelUpdate} message must include a \texttt{path} field. Samples that fail any of these checks are excluded from the visual evaluation and additionally receive a floor penalty of 1.0 on all L2 and L3 dimensions in the main evaluation, since a render-breaking output cannot meaningfully serve the user regardless of its semantic quality.
+
+\paragraph{Screenshot Capture and Cropping.}
+Samples that pass the render check are rendered by the Flutter Web application described in \S\ref{appendix:rendering}. We use Playwright with a Chromium backend to navigate to the render URL, wait for the \texttt{data-render-status="ready"} signal, and capture a full-page screenshot. Because full-page mode can produce excessive whitespace for short UIs while preserving scrollable content for long ones, we apply an automatic cropping step: the script identifies the page background color from corner pixel samples, scans inward from all four edges to find the bounding box of non-background content, and crops to that region with a small margin to retain card borders and drop shadows. For multi-turn (depth) evaluation tasks, the visual pipeline does not produce a single composite screenshot; instead, each episode step is treated as an independent visual evaluation target with its own per-step A2UI messages, dialogue context, and user message. Target identifiers follow the convention \texttt{\{task\_id\}\_\_step\{XX\}} to maintain traceability, ensuring that intermediate-turn visual quality issues are not masked by a final-turn screenshot that may happen to look correct.
+
+\paragraph{VLM Judge.}
+Each cropped screenshot is submitted to a VLM judge along with the task description, scenario definition, dialogue context, current user message, and the assistant's text response. The judge is instructed to evaluate strictly based on what is \emph{visibly shown} in the screenshot, without assuming that off-screen or hidden content is acceptable. The evaluation uses three dimensions, each scored on a 1--5 integer scale. \textbf{V1 (Visual Integrity)} assesses whether the rendered UI is legible, well-bounded, and visually stable, penalizing clipping, overflow, text touching edges, cramped layouts, broken widgets, low contrast, visible error text, and large empty regions that make the interface feel poorly composed. \textbf{V2 (Task Alignment)} checks whether the visible labels, options, values, and information hierarchy match the assistant's text response and the current task context, penalizing mismatched content, missing key information, misleading wording, and UIs that appear tidy but do not actually serve the user's current need. \textbf{V3 (Action Clarity)} evaluates whether the user can determine the next action from the screenshot alone, penalizing hidden or weak primary controls, confusing affordances, missing selection state, overcrowded interactive elements, and any layout that would leave the user uncertain about what to do next. The judge must return a structured JSON object with a per-dimension score and short reason, a list of detected issues, and a one-sentence overall note. Responses that omit any dimension, contain non-numeric scores, or report scores outside the 1--5 range are rejected and retried up to three times before being marked as judge failures.
+
+\paragraph{Relationship to L1--L3 Evaluation.}
+The visual evaluation layer is complementary to, rather than redundant with, the three-level main evaluation. L1 verifies protocol and schema correctness through deterministic rules; L2 and L3 assess task construction quality and interaction experience quality through LLM judges that read the raw A2UI JSON. The visual layer instead evaluates the \emph{end-to-end rendered result} as a user would perceive it, capturing rendering-specific defects (layout overflow, widget crashes, cropped text) that are invisible at the JSON level. In particular, two outputs with identical L1/L2/L3 scores can produce very different visual outcomes if one triggers a subtle renderer edge case. The visual evaluation is therefore best understood as a ``last mile'' quality check on the actual user-facing artifact.

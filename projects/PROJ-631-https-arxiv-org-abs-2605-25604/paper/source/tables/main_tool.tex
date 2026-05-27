@@ -1,0 +1,44 @@
+\begin{table}[t!]
+    \centering
+    \caption{Performance comparison across different methods on Live, Non-Live, and Multi-Turn in BFCL-v4. \textbf{Acc.}: Output Accuracy (\%). \textbf{Format.}: The Rate (\%) of output content conforming to the required format. DVAO achieves state-of-the-art performance with both scores in average.}
+    \scalebox{0.845}{
+    \begin{tabular}{l rr rr rr rr}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{Live}} & \multicolumn{2}{c}{\textbf{Non-Live}} & \multicolumn{2}{c}{\textbf{Multi-Turn}} & \multicolumn{2}{c}{\textbf{Average}} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+    & \textbf{Acc.} & \textbf{Format.} & \textbf{Acc.} & \textbf{Format.} & \textbf{Acc.} & \textbf{Format.} & \textbf{Acc.} & \textbf{Format.} \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{9}{c}{\textbf{Qwen2.5-3B-Instruct}} \\
+    \addlinespace[0.25em]
+    Model & 59.44 & 11.02 & 47.10 & 4.89 & 1.75 & 1.08 & 36.10 & 5.66 \\
+    ~+ GRPO & 59.73 & 10.35 & 47.94 & 5.18 & 2.00 & 1.29 & 36.56 & 5.61 \\
+    \addlinespace[0.1em]
+    \hline
+    \addlinespace[0.25em]
+    ~+ RC & 67.51 & 61.71 & 79.94 & 83.45 & 5.62 & 36.29 & 51.02 & 60.48 \\
+    ~+ AC & 69.43 & 67.04 & 82.35 & 84.82 & 8.62 & 42.20 & 53.47 & 64.69 \\
+    ~+ GDPO & 67.73 & 65.08 & 82.08 & 84.53 & 8.38 & 48.04 & 52.73 & 65.88 \\
+    \addlinespace[0.1em]
+    \rowcolor{lightblue}
+    ~\textbf{+ DVAO} & \textbf{72.73} & \textbf{77.44} & \textbf{84.75} & \textbf{95.11} & \textbf{12.50} & \textbf{57.40} & \textbf{56.66} & \textbf{76.65} \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{9}{c}{\textbf{Qwen2.5-7B-Instruct}} \\
+    \addlinespace[0.25em]
+    Model & 62.92 & 0.0 & 69.56 & 0.0 & 11.00 & 0.0 & 47.83 & 0.00 \\
+    ~+ GRPO & 68.76 & 0.0 & 81.65 & 0.0 & 6.38 & 0.0 & 52.26 & 0.00 \\
+    \addlinespace[0.1em]
+    \hline
+    \addlinespace[0.25em]
+    ~+ RC & 75.06 & \textbf{87.58} & 85.33 & \textbf{96.11} & 14.75 & 45.56 & 58.38 & 76.42 \\
+    ~+ AC & 63.80 & 67.39 & 56.21 & 85.40 & 12.75 & 51.33 & 44.25 & 68.04 \\
+    ~+ GDPO & 76.17 & 68.90 & 86.73 & 85.83 & 17.50 & 49.63 & 60.13 & 68.12 \\
+    \addlinespace[0.1em]
+    \rowcolor{lightblue}
+    ~\textbf{+ DVAO} & \textbf{79.68} & 77.93 & \textbf{87.06} & 95.11 & \textbf{22.25} & \textbf{64.58} & \textbf{63.00} & \textbf{79.21} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \label{tab:main_tool}
+\end{table}

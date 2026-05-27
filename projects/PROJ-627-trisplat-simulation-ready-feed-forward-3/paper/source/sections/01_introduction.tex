@@ -1,0 +1,34 @@
+\section{Introduction}
+
+Reconstructing 3D scenes from images is a long-standing problem in computer vision.
+For robotics, augmented reality, and embodied perception~\citep{qureshi2024splatsim,chhablani2025embodiedsplat}, reconstructed scenes must support collision checking, contact-rich planning, and physics simulation.
+Since engines such as NVIDIA Isaac Sim, Unity, and Unreal, as well as finite-element solvers and path tracers, build on triangle meshes, \emph{simulation-ready} reconstruction must produce explicit meshes that these engines can ingest directly.
+Classical and learned multi-view pipelines~\citep{schoenberger2016sfm,schoenberger2016mvs,furukawa2015multi} can yield meshes, but they rely on multi-stage optimization, are sensitive to calibration, and degrade when views are sparse or poses are unknown.
+
+
+Recent feed-forward models~\citep{yu2021pixelnerf,chen2021mvsnerf,chen2024mvsplat,zhang2025advances} sidestep per-scene optimization by predicting geometry and rendering primitives directly from images.
+Gaussian splatting methods~\citep{kerbl20233d,charatan2024pixelsplat,chen2024mvsplat,xu2024depthsplat,wang2025volsplat} demonstrate efficient, high-quality novel-view synthesis, and pose-free models~\citep{wang2024dust3r,zhang2025flare,wang2025vggt,ye2024no,ye2025yonosplat} show that camera estimation and reconstruction can be learned jointly.
+However, they adopt Gaussian primitives with only implicit surfaces, or point maps with no surface structure. Extracting a usable mesh then requires costly post-hoc TSDF fusion or Poisson reconstruction, breaking the feed-forward promise.
+Geometry-aware variants~\citep{huang20242d,yu2024gaussian,lyu20243dgsr,chang2025meshsplat,daisurfelsplat} encourage stronger geometric structure but still rely on per-scene optimization or auxiliary extraction for mesh recovery.
+On the mesh-generation side, models such as InstantMesh~\citep{xu2024instantmesh}, MeshLRM~\citep{wei2024meshlrm}, MeshFormer~\citep{liu2024meshformer}, and earlier object reconstruction methods~\citep{choy20163d,kanazawa2018learning,wang2018pixel2mesh} directly predict meshes, yet they target object-level reconstruction from controlled viewpoints and do not handle unposed, scene-level inputs.
+
+To close this gap, we present \method, a simulation-ready feed-forward model whose native representation is a set of oriented triangle primitives.
+Our design follows three observations:
+(i)~for simulation readiness, the rendering primitive itself must be a surface element---triangles satisfy this by construction and can be exported as a mesh without any intermediate extraction;
+(ii)~triangle orientation should be \emph{anchored} to predicted local geometry rather than learned as an unconstrained variable, providing a strong prior that improves surface fidelity;
+and (iii)~triangles are more sensitive to orientation errors than Gaussian splats, making explicit normal bootstrapping and validity-aware training essential.
+As illustrated in Fig.~\ref{fig:pipeline}, given unposed images, \method jointly predicts local 3D point maps, per-pixel triangle attributes, camera poses, and optional focal lengths in a single forward pass.
+Geometry normals from the predicted point maps are refined by an image-conditioned normal head, warm-started from a monocular teacher, and stabilized by validity-aware masking.
+The refined normals form local tangent frames that orient each triangle, tying surface geometry to rendering per pixel.
+Each primitive is instantiated from a canonical triangle template with learned center, scale, rotation, appearance, opacity, and blur, rendered with a differentiable triangle rasterizer~\citep{Held2025Triangle}, and sharpened from soft primitives into crisp surface elements.
+Because the representation is explicitly triangular, the rendering primitives themselves form a mesh that can be loaded into physics engines, collision detectors, and standard rendering pipelines without post-processing.
+
+
+Experiments on RealEstate10K~\citep{zhou2018stereo} and DL3DV~\citep{ling2024dl3dv} show that \method delivers mesh-rendering quality that surpasses state-of-the-art Gaussian feed-forward baselines while consistently outperforming them on surface accuracy metrics.
+Notably, when all methods export meshes for standard triangle rendering, Gaussian baselines suffer a substantial quality drop due to lossy TSDF fusion, whereas \method exhibits minimal degradation since its rendering primitives are already the mesh.
+Zero-shot evaluation on ScanNet~\citep{dai2017scannet} further confirms cross-dataset generalization, and ablation studies validate the complementary contributions of each proposed component.
+
+Our contributions can be summarized as follows.
+First, we propose \method, a feed-forward network whose native representation is oriented triangle primitives, jointly predicting geometry, appearance, and camera poses from sparse, unposed images in a single forward pass.
+Second, we design a normal-anchored triangle construction pipeline that derives orientation from predicted point-map geometry, refines it with a dedicated image-conditioned head, and stabilizes training through mono-normal bootstrapping and validity-aware masking.
+Third, we show that the triangle-native representation eliminates post-hoc mesh extraction: the rendering output is directly consumable by physics engines and standard rendering pipelines, making feed-forward reconstruction simulation-ready.

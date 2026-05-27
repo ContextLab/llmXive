@@ -1,0 +1,427 @@
+\begin{thebibliography}{84}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020denoising}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock \emph{Advances in neural information processing systems}, 33:\penalty0 6840--6851, 2020.
+
+\bibitem[Kong et~al.(2024)Kong, Tian, Zhang, Min, Dai, Zhou, Xiong, Li, Wu, Zhang, et~al.]{kong2024hunyuanvideo}
+Weijie Kong, Qi~Tian, Zijian Zhang, Rox Min, Zuozhuo Dai, Jin Zhou, Jiangfeng Xiong, Xin Li, Bo~Wu, Jianwei Zhang, et~al.
+\newblock Hunyuanvideo: A systematic framework for large video generative models.
+\newblock \emph{arXiv preprint arXiv:2412.03603}, 2024.
+
+\bibitem[Wan et~al.(2025{\natexlab{a}})Wan, Wang, Ai, Wen, Mao, Xie, Chen, Yu, Zhao, Yang, et~al.]{wan2025wan}
+Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di~Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et~al.
+\newblock Wan: Open and advanced large-scale video generative models.
+\newblock \emph{arXiv preprint arXiv:2503.20314}, 2025{\natexlab{a}}.
+
+\bibitem[Polyak et~al.(2024)Polyak, Zohar, Brown, Tjandra, Sinha, Lee, Vyas, Shi, Ma, Chuang, et~al.]{polyak2024moviegen}
+Adam Polyak, Amit Zohar, Andrew Brown, Andros Tjandra, Animesh Sinha, Ann Lee, Apoorv Vyas, Bowen Shi, Chih-Yao Ma, Ching-Yao Chuang, et~al.
+\newblock Movie gen: A cast of media foundation models.
+\newblock \emph{arXiv preprint arXiv:2410.13720}, 2024.
+
+\bibitem[Brooks et~al.(2024)Brooks, Peebles, Holmes, DePue, Guo, Jing, Schnurr, Taylor, Luhman, Luhman, et~al.]{brooks2024sora}
+Tim Brooks, Bill Peebles, Connor Holmes, Will DePue, Yufei Guo, Leo Jing, David Schnurr, Joe Taylor, Troy Luhman, Eric Luhman, et~al.
+\newblock Video generation models as world simulators.
+\newblock \emph{OpenAI Blog}, 1\penalty0 (8):\penalty0 1, 2024.
+
+\bibitem[Bruce et~al.(2024)Bruce, Dennis, Edwards, Parker-Holder, Shi, Hughes, Lai, Mavalankar, Steigerwald, Apps, et~al.]{bruce2024genie}
+Jake Bruce, Michael~D Dennis, Ashley Edwards, Jack Parker-Holder, Yuge Shi, Edward Hughes, Matthew Lai, Aditi Mavalankar, Richie Steigerwald, Chris Apps, et~al.
+\newblock Genie: Generative interactive environments.
+\newblock In \emph{Forty-first International Conference on Machine Learning}, 2024.
+
+\bibitem[Parker-Holder et~al.(2024)Parker-Holder, Ball, Bruce, Dasagi, Holsheimer, Kaplanis, Moufarek, Scully, Shar, Shi, et~al.]{deepmind2024genie2}
+Jack Parker-Holder, Philip Ball, Jake Bruce, Vibhavari Dasagi, Kristian Holsheimer, Christos Kaplanis, Alexandre Moufarek, Guy Scully, Jeremy Shar, Jimmy Shi, et~al.
+\newblock Genie 2: A large-scale foundation world model.
+\newblock \url{https://deepmind.google/discover/blog/genie-2-a-large-scale-foundation-world-model/}, 2024.
+
+\bibitem[Ball et~al.(2025)Ball, Bauer, Belletti, Brownfield, Ephrat, Fruchter, Gupta, Holsheimer, Holynski, Hron, Kaplanis, Limont, McGill, Oliveira, Parker-Holder, Perbet, Scully, Shar, Spencer, Tov, Villegas, Wang, Yung, Baetu, Berbel, Bridson, Bruce, Buttimore, Chakera, Chandra, Collins, Cullum, Damoc, Dasagi, Gazeau, Gbadamosi, Han, Hirst, Kachra, Kerley, Kjems, Knoepfel, Koriakin, Lo, Lu, Mehring, Moufarek, Nandwani, Oliveira, Pardo, Park, Pierson, Poole, Ran, Salimans, Sanchez, Saprykin, Shen, Sidhwani, Smith, Stanton, Tomlinson, Vijaykumar, Wang, Wingfield, Wong, Xu, Yew, Young, Zubov, Eck, Erhan, Kavukcuoglu, Hassabis, Gharamani, Hadsell, van~den Oord, Mosseri, Bolton, Singh, and Rockt{\"a}schel]{ball2025genie3}
+Philip~J. Ball, Jakob Bauer, Frank Belletti, Bethanie Brownfield, Ariel Ephrat, Shlomi Fruchter, Agrim Gupta, Kristian Holsheimer, Aleksander Holynski, Jiri Hron, Christos Kaplanis, Marjorie Limont, Matt McGill, Yanko Oliveira, Jack Parker-Holder, Frank Perbet, Guy Scully, Jeremy Shar, Stephen Spencer, Omer Tov, Ruben Villegas, Emma Wang, Jessica Yung, Cip Baetu, Jordi Berbel, David Bridson, Jake Bruce, Gavin Buttimore, Sarah Chakera, Bilva Chandra, Paul Collins, Alex Cullum, Bogdan Damoc, Vibha Dasagi, Maxime Gazeau, Charles Gbadamosi, Woohyun Han, Ed~Hirst, Ashyana Kachra, Lucie Kerley, Kristian Kjems, Eva Knoepfel, Vika Koriakin, Jessica Lo, Cong Lu, Zeb Mehring, Alex Moufarek, Henna Nandwani, Valeria Oliveira, Fabio Pardo, Jane Park, Andrew Pierson, Ben Poole, Helen Ran, Tim Salimans, Manuel Sanchez, Igor Saprykin, Amy Shen, Sailesh Sidhwani, Duncan Smith, Joe Stanton, Hamish Tomlinson, Dimple Vijaykumar, Luyu Wang, Piers Wingfield, Nat Wong, Keyang Xu, Christopher Yew, Nick Young, Vadim Zubov, Douglas Eck, Dumitru Erhan, Koray Kavukcuoglu, Demis Hassabis, Zoubin Gharamani, Raia Hadsell, A{\"a}ron van~den Oord, Inbar Mosseri, Adrian Bolton, Satinder Singh, and Tim Rockt{\"a}schel.
+\newblock Genie 3: A new frontier for world models.
+\newblock \url{https://deepmind.google/discover/blog/genie-3-a-new-frontier-for-world-models/}, 2025.
+
+\bibitem[He et~al.(2025)He, Peng, Liu, Wang, Zhang, Cui, Kang, Jiang, An, Ren, et~al.]{he2025matrixgame2}
+Xianglong He, Chunli Peng, Zexiang Liu, Boyang Wang, Yifan Zhang, Qi~Cui, Fei Kang, Biao Jiang, Mengyin An, Yangyang Ren, et~al.
+\newblock Matrix-game 2.0: An open-source real-time and streaming interactive world model.
+\newblock \emph{arXiv preprint arXiv:2508.13009}, 2025.
+
+\bibitem[Wang et~al.(2026)Wang, Liu, Li, Huang, Xu, Kang, An, Wang, Jiang, Wei, et~al.]{he2026matrixgame3}
+Zile Wang, Zexiang Liu, Jaixing Li, Kaichen Huang, Baixin Xu, Fei Kang, Mengyin An, Peiyu Wang, Biao Jiang, Yichen Wei, et~al.
+\newblock Matrix-game 3.0: Real-time and streaming interactive world model with long-horizon memory.
+\newblock \emph{arXiv preprint arXiv:2604.08995}, 2026.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Tang, Xu, Wu, Zhou, Shao, Yu, Cao, and Lu]{li2025hunyuangamecraft}
+Jiaqi Li, Junshu Tang, Zhiyong Xu, Longhuang Wu, Yuan Zhou, Shuai Shao, Tianbao Yu, Zhiguo Cao, and Qinglin Lu.
+\newblock Hunyuan-gamecraft: High-dynamic interactive game video generation with hybrid history condition.
+\newblock \emph{arXiv preprint arXiv:2506.17201}, 2\penalty0 (3):\penalty0 6, 2025{\natexlab{a}}.
+
+\bibitem[Tang et~al.(2025)Tang, Liu, Li, Wu, Yang, Zhao, Gong, Yuan, Shao, Zhang, et~al.]{tang2025interbench}
+Junshu Tang, Jiacheng Liu, Jiaqi Li, Longhuang Wu, Haoyu Yang, Penghao Zhao, Siruis Gong, Xiang Yuan, Shuai Shao, Linfeng Zhang, et~al.
+\newblock Hunyuan-gamecraft-2: Instruction-following interactive game world model.
+\newblock \emph{arXiv preprint arXiv:2511.23429}, 2025.
+
+\bibitem[Hu et~al.(2023)Hu, Russell, Yeo, Murez, Fedoseev, Kendall, Shotton, and Corrado]{hu2023gaia1}
+Anthony Hu, Lloyd Russell, Hudson Yeo, Zak Murez, George Fedoseev, Alex Kendall, Jamie Shotton, and Gianluca Corrado.
+\newblock Gaia-1: A generative world model for autonomous driving.
+\newblock \emph{arXiv preprint arXiv:2309.17080}, 2023.
+
+\bibitem[Gao et~al.(2024)Gao, Yang, Chen, Chitta, Qiu, Geiger, Zhang, and Li]{gao2024vista}
+Shenyuan Gao, Jiazhi Yang, Li~Chen, Kashyap Chitta, Yihang Qiu, Andreas Geiger, Jun Zhang, and Hongyang Li.
+\newblock Vista: A generalizable driving world model with high fidelity and versatile controllability.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 91560--91596, 2024.
+
+\bibitem[Yang et~al.(2023)Yang, Du, Ghasemipour, Tompson, Kaelbling, Schuurmans, and Abbeel]{yang2023unisim}
+Sherry Yang, Yilun Du, Kamyar Ghasemipour, Jonathan Tompson, Leslie Kaelbling, Dale Schuurmans, and Pieter Abbeel.
+\newblock Learning interactive real-world simulators.
+\newblock \emph{arXiv preprint arXiv:2310.06114}, 2023.
+
+\bibitem[Zhu et~al.(2024)Zhu, Wu, Guo, Liu, Cheang, and Kong]{zhu2024irasim}
+Fangqi Zhu, Hongtao Wu, Song Guo, Yuxiao Liu, Chilam Cheang, and Tao Kong.
+\newblock Irasim: Learning interactive real-robot action simulators.
+\newblock \emph{arXiv preprint arXiv:2406.14540}, 1\penalty0 (2):\penalty0 3, 2024.
+
+\bibitem[HunyuanWorld(2025)]{sun2025hyworldplay}
+Team HunyuanWorld.
+\newblock Hy-world 1.5: A systematic framework for interactive world modeling with real-time latency and geometric consistency.
+\newblock \emph{arXiv preprint}, 2025.
+
+\bibitem[Mao et~al.(2025{\natexlab{a}})Mao, Lin, Li, Li, Peng, He, Pang, Chi, Qiao, and Zhang]{chen2025yume}
+Xiaofeng Mao, Shaoheng Lin, Zhen Li, Chuanhao Li, Wenshuo Peng, Tong He, Jiangmiao Pang, Mingmin Chi, Yu~Qiao, and Kaipeng Zhang.
+\newblock Yume: An interactive world generation model.
+\newblock \emph{arXiv preprint arXiv:2507.17744}, 2025{\natexlab{a}}.
+
+\bibitem[Mao et~al.(2025{\natexlab{b}})Mao, Li, Li, Xu, Ying, He, Pang, Qiao, and Zhang]{mao2025yume15}
+Xiaofeng Mao, Zhen Li, Chuanhao Li, Xiaojie Xu, Kaining Ying, Tong He, Jiangmiao Pang, Yu~Qiao, and Kaipeng Zhang.
+\newblock Yume-1.5: A text-controlled interactive world generation model.
+\newblock \emph{arXiv preprint arXiv:2512.22096}, 2025{\natexlab{b}}.
+
+\bibitem[Team et~al.(2026{\natexlab{a}})Team, Gao, Wang, Zeng, Zhu, Cheng, Li, Wang, Xu, Ma, et~al.]{gao2026lingbot}
+Robbyant Team, Zelin Gao, Qiuyu Wang, Yanhong Zeng, Jiapeng Zhu, Ka~Leong Cheng, Yixuan Li, Hanlin Wang, Yinghao Xu, Shuailei Ma, et~al.
+\newblock Advancing open-source world models.
+\newblock \emph{arXiv preprint arXiv:2601.20540}, 2026{\natexlab{a}}.
+
+\bibitem[Huang et~al.(2024)Huang, He, Yu, Zhang, Si, Jiang, Zhang, Wu, Jin, Chanpaisit, et~al.]{huang2024vbench}
+Ziqi Huang, Yinan He, Jiashuo Yu, Fan Zhang, Chenyang Si, Yuming Jiang, Yuanhan Zhang, Tianxing Wu, Qingyang Jin, Nattapol Chanpaisit, et~al.
+\newblock Vbench: Comprehensive benchmark suite for video generative models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21807--21818, 2024.
+
+\bibitem[Zheng et~al.(2025)Zheng, Huang, Liu, Zou, He, Zhang, Gu, Zhang, He, Zheng, et~al.]{zheng2025vbench2}
+Dian Zheng, Ziqi Huang, Hongbo Liu, Kai Zou, Yinan He, Fan Zhang, Lulu Gu, Yuanhan Zhang, Jingwen He, Wei-Shi Zheng, et~al.
+\newblock Vbench-2.0: Advancing video generation benchmark suite for intrinsic faithfulness.
+\newblock \emph{arXiv preprint arXiv:2503.21755}, 2025.
+
+\bibitem[Xu et~al.(2026)Xu, Lin, He, Feng, Mao, Yin, Zhang, and Ge]{xu2026worldmark}
+Xiaojie Xu, Zhengyuan Lin, Kang He, Yukang Feng, Xiaofeng Mao, Yuanyang Yin, Kaipeng Zhang, and Yongtao Ge.
+\newblock Worldmark: A unified benchmark suite for interactive video world models.
+\newblock \emph{arXiv preprint arXiv:2604.21686}, 2026.
+
+\bibitem[Ye et~al.(2026)Ye, Lu, Jiang, Gu, Zhao, Liang, Pan, Zhang, Wu, and Wang]{ye2026mind}
+Yixuan Ye, Xuanyu Lu, Yuxin Jiang, Yuchao Gu, Rui Zhao, Qiwei Liang, Jiachun Pan, Fengda Zhang, Weijia Wu, and Alex~Jinpeng Wang.
+\newblock Mind: Benchmarking memory consistency and action control in world models.
+\newblock \emph{arXiv preprint arXiv:2602.08025}, 2026.
+
+\bibitem[Wu et~al.(2026{\natexlab{a}})Wu, Cai, Zhao, Feng, Dang, Song, Tian, Zhu, Lei, Dou, et~al.]{wu2026omniworldbench}
+Meiqi Wu, Zhixin Cai, Fufangchen Zhao, Xiaokun Feng, Rujing Dang, Bingze Song, Ruitian Tian, Jiashu Zhu, Jiachen Lei, Hao Dou, et~al.
+\newblock Omni-worldbench: Towards a comprehensive interaction-centric evaluation for world models.
+\newblock \emph{arXiv preprint arXiv:2603.22212}, 2026{\natexlab{a}}.
+
+\bibitem[Liang et~al.(2025)Liang, Kong, Yan, Liu, Yang, Huang, Yin, Zuo, Hu, Zhu, et~al.]{worldlens2025}
+Ao~Liang, Lingdong Kong, Tianyi Yan, Hongsi Liu, Wesley Yang, Ziqi Huang, Wei Yin, Jialong Zuo, Yixuan Hu, Dekai Zhu, et~al.
+\newblock Worldlens: Full-spectrum evaluations of driving world models in real world.
+\newblock \emph{arXiv preprint arXiv:2512.10958}, 2025.
+
+\bibitem[Ho et~al.(2022)Ho, Salimans, Gritsenko, Chan, Norouzi, and Fleet]{ho2022video}
+Jonathan Ho, Tim Salimans, Alexey Gritsenko, William Chan, Mohammad Norouzi, and David~J Fleet.
+\newblock Video diffusion models.
+\newblock \emph{Advances in neural information processing systems}, 35:\penalty0 8633--8646, 2022.
+
+\bibitem[Blattmann et~al.(2023)Blattmann, Rombach, Ling, Dockhorn, Kim, Fidler, and Kreis]{blattmann2023align}
+Andreas Blattmann, Robin Rombach, Huan Ling, Tim Dockhorn, Seung~Wook Kim, Sanja Fidler, and Karsten Kreis.
+\newblock Align your latents: High-resolution video synthesis with latent diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 22563--22575, 2023.
+
+\bibitem[Yang et~al.(2024)Yang, Teng, Zheng, Ding, Huang, Xu, Yang, Hong, Zhang, Feng, et~al.]{yang2024cogvideox}
+Zhuoyi Yang, Jiayan Teng, Wendi Zheng, Ming Ding, Shiyu Huang, Jiazheng Xu, Yuanming Yang, Wenyi Hong, Xiaohan Zhang, Guanyu Feng, et~al.
+\newblock Cogvideox: Text-to-video diffusion models with an expert transformer.
+\newblock \emph{arXiv preprint arXiv:2408.06072}, 2024.
+
+\bibitem[{OpenAI}(2025{\natexlab{a}})]{openai2025sora2}
+{OpenAI}.
+\newblock {Sora 2}.
+\newblock \url{https://openai.com/zh-Hans-CN/index/sora-2/}, 2025{\natexlab{a}}.
+
+\bibitem[{Kuaishou Technology}(2025)]{kuaishou2025kling3}
+{Kuaishou Technology}.
+\newblock Kling 3.0 pro.
+\newblock \url{https://klingai.com}, 2025.
+
+\bibitem[{Google DeepMind}(2025)]{deepmind2025veo3}
+{Google DeepMind}.
+\newblock {Veo 3}: State-of-the-art video generation with audio.
+\newblock \url{https://deepmind.google/models/veo/}, 2025.
+
+\bibitem[Wan et~al.(2025{\natexlab{b}})Wan, Wang, Ai, Wen, Mao, Xie, Chen, Yu, Zhao, Yang, et~al.]{wan2025wan27}
+Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di~Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et~al.
+\newblock Wan: Open and advanced large-scale video generative models.
+\newblock \emph{arXiv preprint arXiv:2503.20314}, 2025{\natexlab{b}}.
+
+\bibitem[Seedance et~al.(2026)Seedance, Chen, Chen, Chen, Chen, Chen, Chen, Cheng, Cheng, Cheng, et~al.]{gao2026seedance2}
+Team Seedance, De~Chen, Liyang Chen, Xin Chen, Ying Chen, Zhuo Chen, Zhuowei Chen, Feng Cheng, Tianheng Cheng, Yufeng Cheng, et~al.
+\newblock Seedance 2.0: Advancing video generation for world complexity.
+\newblock \emph{arXiv preprint arXiv:2604.14148}, 2026.
+
+\bibitem[{Shengshu Technology}(2025)]{shengshu2025viduq3}
+{Shengshu Technology}.
+\newblock Vidu q3 pro.
+\newblock \url{https://www.vidu.com}, 2025.
+
+\bibitem[HaCohen et~al.(2024)HaCohen, Chiprut, Brazowski, Shalem, Moshe, Richardson, Levin, Shiran, Zabari, Gordon, et~al.]{lightricks2025ltx}
+Yoav HaCohen, Nisan Chiprut, Benny Brazowski, Daniel Shalem, Dudu Moshe, Eitan Richardson, Eran Levin, Guy Shiran, Nir Zabari, Ori Gordon, et~al.
+\newblock Ltx-video: Realtime video latent diffusion.
+\newblock \emph{arXiv preprint arXiv:2501.00103}, 2024.
+
+\bibitem[Gu(2025)]{nvidia2025cosmos}
+Jinwei Gu.
+\newblock Cosmos world foundation models for physical ai.
+\newblock In \emph{Proceedings of the 3rd International Workshop on Rich Media With Generative AI}, pages 39--39, 2025.
+
+\bibitem[Team et~al.(2025)Team, Cai, Huang, Kang, Li, Liang, Ma, Ren, Wei, Xie, et~al.]{cai2025longcat}
+Meituan~LongCat Team, Xunliang Cai, Qilong Huang, Zhuoliang Kang, Hongyu Li, Shijun Liang, Liya Ma, Siyu Ren, Xiaoming Wei, Rixu Xie, et~al.
+\newblock Longcat-video technical report.
+\newblock \emph{arXiv preprint arXiv:2510.22200}, 2025.
+
+\bibitem[Heusel et~al.(2017)Heusel, Ramsauer, Unterthiner, Nessler, and Hochreiter]{heusel2017fid}
+Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter.
+\newblock Gans trained by a two time-scale update rule converge to a local nash equilibrium.
+\newblock \emph{Advances in neural information processing systems}, 30, 2017.
+
+\bibitem[Unterthiner et~al.(2018)Unterthiner, Van~Steenkiste, Kurach, Marinier, Michalski, and Gelly]{unterthiner2019fvd}
+Thomas Unterthiner, Sjoerd Van~Steenkiste, Karol Kurach, Raphael Marinier, Marcin Michalski, and Sylvain Gelly.
+\newblock Towards accurate generative models of video: A new metric \& challenges.
+\newblock \emph{arXiv preprint arXiv:1812.01717}, 2018.
+
+\bibitem[Ha and Schmidhuber(2018)]{ha2018world}
+David Ha and J{\"u}rgen Schmidhuber.
+\newblock World models.
+\newblock \emph{arXiv preprint arXiv:1803.10122}, 2\penalty0 (3):\penalty0 440, 2018.
+
+\bibitem[LeCun et~al.(2022)]{lecun2022path}
+Yann LeCun et~al.
+\newblock A path towards autonomous machine intelligence version 0.9. 2, 2022-06-27.
+\newblock \emph{Open Review}, 62\penalty0 (1):\penalty0 1--62, 2022.
+
+\bibitem[{Alibaba Token Hub}(2026)]{alibaba2026happyoyster}
+{Alibaba Token Hub}.
+\newblock {Happy Oyster}: An open-ended world model for real-time world creation and interaction.
+\newblock \url{https://happyoyster.cn/}, 2026.
+
+\bibitem[{World Labs}(2025)]{worldlabs2025marble}
+{World Labs}.
+\newblock Marble: A multimodal world model.
+\newblock \url{https://www.worldlabs.ai/blog/marble-world-model}, 2025.
+
+\bibitem[Huang et~al.(2025)Huang, Zhang, Xu, He, Yu, Dong, Ma, Chanpaisit, Si, Jiang, et~al.]{huang2024vbenchplus}
+Ziqi Huang, Fan Zhang, Xiaojie Xu, Yinan He, Jiashuo Yu, Ziyue Dong, Qianli Ma, Nattapol Chanpaisit, Chenyang Si, Yuming Jiang, et~al.
+\newblock Vbench++: Comprehensive and versatile benchmark suite for video generative models.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence}, 2025.
+
+\bibitem[Liu et~al.(2024)Liu, Cun, Liu, Wang, Zhang, Chen, Liu, Zeng, Chan, and Shan]{liu2024evalcrafter}
+Yaofang Liu, Xiaodong Cun, Xuebo Liu, Xintao Wang, Yong Zhang, Haoxin Chen, Yang Liu, Tieyong Zeng, Raymond Chan, and Ying Shan.
+\newblock Evalcrafter: Benchmarking and evaluating large video generation models.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 22139--22149, 2024.
+
+\bibitem[Bansal et~al.(2024)Bansal, Lin, Xie, Zong, Yarom, Bitton, Jiang, Sun, Chang, and Grover]{bansal2024videophy}
+Hritik Bansal, Zongyu Lin, Tianyi Xie, Zeshun Zong, Michal Yarom, Yonatan Bitton, Chenfanfu Jiang, Yizhou Sun, Kai-Wei Chang, and Aditya Grover.
+\newblock Videophy: Evaluating physical commonsense for video generation.
+\newblock \emph{arXiv preprint arXiv:2406.03520}, 2024.
+
+\bibitem[Meng et~al.(2024)Meng, Liao, Tan, Shao, Lu, Zhang, Cheng, Li, Qiao, and Luo]{meng2024phygenbench}
+Fanqing Meng, Jiaqi Liao, Xinyu Tan, Wenqi Shao, Quanfeng Lu, Kaipeng Zhang, Yu~Cheng, Dianqi Li, Yu~Qiao, and Ping Luo.
+\newblock Towards world simulator: Crafting physical commonsense-based benchmark for video generation.
+\newblock \emph{arXiv preprint arXiv:2410.05363}, 2024.
+
+\bibitem[Duan et~al.(2025)Duan, Yu, Chen, Fei-Fei, and Wu]{duan2024worldscore}
+Haoyi Duan, Hong-Xing Yu, Sirui Chen, Li~Fei-Fei, and Jiajun Wu.
+\newblock Worldscore: A unified evaluation benchmark for world generation.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 27713--27724, 2025.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Fang, Chen, Yang, Cao, Wong, Luo, Wang, Yin, Gonzalez, et~al.]{wang2024worldmodelbench}
+Dacheng Li, Yunhao Fang, Yukang Chen, Shuo Yang, Shiyi Cao, Justin Wong, Michael Luo, Xiaolong Wang, Hongxu Yin, Joseph~E Gonzalez, et~al.
+\newblock Worldmodelbench: Judging video generation models as world models.
+\newblock \emph{arXiv preprint arXiv:2502.20694}, 2025{\natexlab{b}}.
+
+\bibitem[Shang et~al.(2026)Shang, Li, Ma, Su, Jin, Wang, Jin, Zhang, Tang, Su, et~al.]{shang2026worldarena}
+Yu~Shang, Zhuohang Li, Yiding Ma, Weikang Su, Xin Jin, Ziyou Wang, Lei Jin, Xin Zhang, Yinzhou Tang, Haisheng Su, et~al.
+\newblock Worldarena: A unified benchmark for evaluating perception and functional utility of embodied world models.
+\newblock \emph{arXiv preprint arXiv:2602.08971}, 2026.
+
+\bibitem[Han et~al.(2025)Han, Li, Chen, Yuan, Wu, Deng, Leong, Du, Fu, Li, et~al.]{han2025videobench}
+Hui Han, Siyuan Li, Jiaqi Chen, Yiwen Yuan, Yuling Wu, Yufan Deng, Chak~Tou Leong, Hanwen Du, Junchen Fu, Youhua Li, et~al.
+\newblock Video-bench: Human-aligned video generation benchmark.
+\newblock In \emph{Proceedings of the Computer Vision and Pattern Recognition Conference}, pages 18858--18868, 2025.
+
+\bibitem[Liu et~al.(2023)Liu, Li, Ren, Gao, Li, Chen, Sun, and Hou]{liu2024fetv}
+Yuanxin Liu, Lei Li, Shuhuai Ren, Rundong Gao, Shicheng Li, Sishuo Chen, Xu~Sun, and Lu~Hou.
+\newblock Fetv: A benchmark for fine-grained evaluation of open-domain text-to-video generation.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 62352--62387, 2023.
+
+\bibitem[Gu et~al.(2026)Gu, Liu, Zeng, Nagarajan, Zhu, Hong, Fan, Yan, Zhou, Liu, and Wang]{gu2025phyworldbench}
+Jing Gu, Xian Liu, Yu~Zeng, Ashwin Nagarajan, Fangrui Zhu, Daniel Hong, Yue Fan, Qianqi Yan, Kaiwen Zhou, Ming-Yu Liu, and Xin~Eric Wang.
+\newblock "phyworldbench": A comprehensive evaluation of physical realism in text-to-video models, 2026.
+\newblock URL \url{https://arxiv.org/abs/2507.13428}.
+
+\bibitem[Cai et~al.(2025)Cai, Qiu, Ma, Zhao, Zhou, Huang, Kordjamshidi, Zhang, Xiao, Gu, et~al.]{cai2025mmgr}
+Zefan Cai, Haoyi Qiu, Tianyi Ma, Haozhe Zhao, Gengze Zhou, Kung-Hsiang Huang, Parisa Kordjamshidi, Minjia Zhang, Wen Xiao, Jiuxiang Gu, et~al.
+\newblock Mmgr: Multi-modal generative reasoning.
+\newblock \emph{arXiv preprint arXiv:2512.14691}, 2025.
+
+\bibitem[Upadhyay et~al.(2026)Upadhyay, Zhang, Solomon, Agrawal, Boreddy, Narayana, Ba, Wong, de~Melo, and Kadambi]{upadhyay2026worldbench}
+Rishi Upadhyay, Howard Zhang, Jim Solomon, Ayush Agrawal, Pranay Boreddy, Shruti~Satya Narayana, Yunhao Ba, Alex Wong, Celso~M de~Melo, and Achuta Kadambi.
+\newblock Worldbench: Disambiguating physics for diagnostic evaluation of world models.
+\newblock \emph{arXiv preprint arXiv:2601.21282}, 2026.
+
+\bibitem[Lu et~al.(2025)Lu, Luo, Tu, Li, Zhu, Yu, Wang, Chen, Peng, Li, et~al.]{lu2025_4dworldbench}
+Yiting Lu, Wei Luo, Peiyan Tu, Haoran Li, Hanxin Zhu, Zihao Yu, Xingrui Wang, Xinyi Chen, Xinge Peng, Xin Li, et~al.
+\newblock 4dworldbench: A comprehensive evaluation framework for 3d/4d world generation models.
+\newblock \emph{arXiv preprint arXiv:2511.19836}, 2025.
+
+\bibitem[Team et~al.(2026{\natexlab{b}})Team, Gao, Zhou, Xiang, Liu, Yang, Chen, Ahmad, Zeng, Bannur, Huang, Liu, Gu, Yang, Liu, Hu, Liu, and Xing]{gao2026wrena}
+PAN Team, Qiyue Gao, Kun Zhou, Jiannan Xiang, Zihan Liu, Dequan Yang, Junrong Chen, Arif Ahmad, Cong Zeng, Ganesh Bannur, Xinqi Huang, Zheqi Liu, Yi~Gu, Yichi Yang, Guangyi Liu, Zhiting Hu, Zhengzhong Liu, and Eric Xing.
+\newblock World reasoning arena, 2026{\natexlab{b}}.
+
+\bibitem[Qin et~al.(2024)Qin, Shi, Yu, Wang, Zhou, Li, Yin, Liu, Sheng, Shao, et~al.]{lian2024worldsimbench}
+Yiran Qin, Zhelun Shi, Jiwen Yu, Xijun Wang, Enshen Zhou, Lijun Li, Zhenfei Yin, Xihui Liu, Lu~Sheng, Jing Shao, et~al.
+\newblock Worldsimbench: Towards video generation models as world simulators.
+\newblock \emph{arXiv preprint arXiv:2410.18072}, 2024.
+
+\bibitem[Yue et~al.(2025)Yue, Huang, Liao, Chen, Zhou, Chen, Yao, and Ren]{yue2025ewmbench}
+Hu~Yue, Siyuan Huang, Yue Liao, Shengcong Chen, Pengfei Zhou, Liliang Chen, Maoqing Yao, and Guanghui Ren.
+\newblock Ewmbench: Evaluating scene, motion, and semantic quality in embodied world models.
+\newblock \emph{arXiv preprint arXiv:2505.09694}, 2025.
+
+\bibitem[Zhang et~al.(2025)Zhang, Jiang, Dai, Lu, Uzunoglu, Zhang, Wei, Wang, Patel, Liang, et~al.]{zhang2025worldinworld}
+Jiahan Zhang, Muqing Jiang, Nanru Dai, Taiming Lu, Arda Uzunoglu, Shunchi Zhang, Yana Wei, Jiahao Wang, Vishal~M Patel, Paul~Pu Liang, et~al.
+\newblock World-in-world: World models in a closed-loop world.
+\newblock \emph{arXiv preprint arXiv:2510.18135}, 2025.
+
+\bibitem[Zhou et~al.(2026)Zhou, Shao, Wang, Zong, Li, and Waslander]{zhou2026drivinggen}
+Yang Zhou, Hao Shao, Letian Wang, Zhuofan Zong, Hongsheng Li, and Steven~L Waslander.
+\newblock Drivinggen: A comprehensive benchmark for generative video world models in autonomous driving.
+\newblock \emph{arXiv preprint arXiv:2601.01528}, 2026.
+
+\bibitem[{Google}(2025)]{google2025nanobanana2}
+{Google}.
+\newblock Nano banana 2.
+\newblock \url{https://blog.google/innovation-and-ai/technology/ai/nano-banana-2/}, 2025.
+
+\bibitem[{OpenAI}(2025{\natexlab{b}})]{openai2025gptimage}
+{OpenAI}.
+\newblock {GPT-Image-1.5}.
+\newblock \url{https://openai.com/zh-Hans-CN/index/new-chatgpt-images-is-here/}, 2025{\natexlab{b}}.
+
+\bibitem[Ma et~al.(2025)Ma, Wu, Sun, and Li]{hpsv3}
+Yuhang Ma, Xiaoshi Wu, Keqiang Sun, and Hongsheng Li.
+\newblock Hpsv3: Towards wide-spectrum human preference score, 2025.
+\newblock URL \url{https://arxiv.org/abs/2508.03789}.
+
+\bibitem[Li et~al.(2025{\natexlab{c}})Li, Tucker, Cole, Wang, Jin, Ye, Kanazawa, Holynski, and Snavely]{li2024megasam}
+Zhengqi Li, Richard Tucker, Forrester Cole, Qianqian Wang, Linyi Jin, Vickie Ye, Angjoo Kanazawa, Aleksander Holynski, and Noah Snavely.
+\newblock Megasam: Accurate, fast and robust structure and motion from casual dynamic videos.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 10486--10496, 2025{\natexlab{c}}.
+
+\bibitem[Fu et~al.(2023)Fu, Tamir, Sundaram, Chai, Zhang, Dekel, and Isola]{fu2023dreamsim}
+Stephanie Fu, Netanel Tamir, Shobhita Sundaram, Lucy Chai, Richard Zhang, Tali Dekel, and Phillip Isola.
+\newblock Dreamsim: Learning new dimensions of human visual similarity using synthetic data.
+\newblock \emph{arXiv preprint arXiv:2306.09344}, 2023.
+
+\bibitem[Soucek and Lokoc(2024)]{soucek2020transnet}
+Tom{\'a}s Soucek and Jakub Lokoc.
+\newblock Transnet v2: An effective deep network architecture for fast shot transition detection.
+\newblock In \emph{Proceedings of the 32nd ACM International Conference on Multimedia}, pages 11218--11221, 2024.
+
+\bibitem[Ravi et~al.(2024)Ravi, Gabeur, Hu, Hu, Ryali, Ma, Khedr, R{\"a}dle, Rolland, Gustafson, et~al.]{ravi2024sam2}
+Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman R{\"a}dle, Chloe Rolland, Laura Gustafson, et~al.
+\newblock Sam 2: Segment anything in images and videos.
+\newblock \emph{arXiv preprint arXiv:2408.00714}, 2024.
+
+\bibitem[Lin et~al.(2025)Lin, Chen, Liew, Chen, Li, Shi, Feng, and Kang]{lin2025depthanything3}
+Haotong Lin, Sili Chen, Junhao Liew, Donny~Y Chen, Zhenyu Li, Guang Shi, Jiashi Feng, and Bingyi Kang.
+\newblock Depth anything 3: Recovering the visual space from any views.
+\newblock \emph{arXiv preprint arXiv:2511.10647}, 2025.
+
+\bibitem[An et~al.(2026)An, Kupyn, Uscidda, Colaco, Ahuja, Belongie, Gonzalez-Franco, and Gazulla]{an2026vggrpo}
+Zhaochong An, Orest Kupyn, Th{\'e}o Uscidda, Andrea Colaco, Karan Ahuja, Serge Belongie, Mar Gonzalez-Franco, and Marta~Tintore Gazulla.
+\newblock Vggrpo: Towards world-consistent video generation with 4d latent reward.
+\newblock \emph{arXiv preprint arXiv:2603.26599}, 2026.
+
+\bibitem[Du et~al.(2026)Du, Ye, Cong, Li, Ni, Agarwal, Zhou, Li, Balestriero, and Wang]{du2026videogpa}
+Hongyang Du, Junjie Ye, Xiaoyan Cong, Runhao Li, Jingcheng Ni, Aman Agarwal, Zeqi Zhou, Zekun Li, Randall Balestriero, and Yue Wang.
+\newblock Videogpa: Distilling geometry priors for 3d-consistent video generation.
+\newblock \emph{arXiv preprint arXiv:2601.23286}, 2026.
+
+\bibitem[Oquab et~al.(2023)Oquab, Darcet, Moutakanni, Vo, Szafraniec, Khalidov, Fernandez, Haziza, Massa, El-Nouby, et~al.]{oquab2024dinov2}
+Maxime Oquab, Timoth{\'e}e Darcet, Th{\'e}o Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, et~al.
+\newblock Dinov2: Learning robust visual features without supervision.
+\newblock \emph{arXiv preprint arXiv:2304.07193}, 2023.
+
+\bibitem[Bai et~al.(2025)Bai, Cai, Chen, Chen, Chen, Cheng, Deng, Ding, Gao, Ge, et~al.]{Qwen3-VL}
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, et~al.
+\newblock Qwen3-vl technical report.
+\newblock \emph{arXiv preprint arXiv:2511.21631}, 2025.
+
+\bibitem[Seedance et~al.(2025)Seedance, Chen, Chen, Chen, Chen, Chen, Chen, Cheng, Cheng, Cheng, et~al.]{gao2025seedance15}
+Team Seedance, Heyi Chen, Siyan Chen, Xin Chen, Yanfei Chen, Ying Chen, Zhuo Chen, Feng Cheng, Tianheng Cheng, Xinqi Cheng, et~al.
+\newblock Seedance 1.5 pro: A native audio-visual joint generation foundation model.
+\newblock \emph{arXiv preprint arXiv:2512.13507}, 2025.
+
+\bibitem[Bansal et~al.(2025)Bansal, Peng, Bitton, Goldenberg, Grover, and Chang]{bansal2025videophy2}
+Hritik Bansal, Clark Peng, Yonatan Bitton, Roman Goldenberg, Aditya Grover, and Kai-Wei Chang.
+\newblock Videophy-2: A challenging action-centric physical commonsense evaluation in video generation.
+\newblock \emph{arXiv preprint arXiv:2503.06800}, 2025.
+
+\bibitem[{ACE Robotics}(2026)]{ace2026kairos}
+{ACE Robotics}.
+\newblock Kairos 3.0-4b: Real-time generative world model for embodied intelligence.
+\newblock \url{https://github.com/kairos-agi/kairos-sensenova/tree/main}, 2026.
+
+\bibitem[Dai et~al.(2025)Dai, Jiang, Wang, Xu, and Qi]{fantasyworld2025}
+Yixiang Dai, Fan Jiang, Chiyu Wang, Mu~Xu, and Yonggang Qi.
+\newblock Fantasyworld: Geometry-consistent world modeling via unified video and 3d prediction.
+\newblock \emph{arXiv preprint arXiv:2509.21657}, 2025.
+
+\bibitem[Team et~al.(2026{\natexlab{c}})Team, Shen, Zhang, Liu, Ji, Bao, Zhai, Liu, Guo, Wang, et~al.]{inspatio2026}
+InSpatio Team, Donghui Shen, Guofeng Zhang, Haomin Liu, Haoyu Ji, Hujun Bao, Hongjia Zhai, Jialin Liu, Jing Guo, Nan Wang, et~al.
+\newblock Inspatio-world: A real-time 4d world simulator via spatiotemporal autoregressive modeling.
+\newblock \emph{arXiv preprint arXiv:2604.07209}, 2026{\natexlab{c}}.
+
+\bibitem[Zhu et~al.(2025)Zhu, Feng, Zheng, Gao, Tao, Wan, Zhou, and Lu]{zhu2025astra}
+Yixuan Zhu, Jiaqi Feng, Wenzhao Zheng, Yuan Gao, Xin Tao, Pengfei Wan, Jie Zhou, and Jiwen Lu.
+\newblock Astra: General interactive world model with autoregressive denoising.
+\newblock \emph{arXiv preprint arXiv:2512.08931}, 2025.
+
+\bibitem[Wu et~al.(2026{\natexlab{b}})Wu, He, Cheng, Yang, Zhang, Kang, Cai, Wei, Guo, Li, et~al.]{wu2026infiniteworld}
+Ruiqi Wu, Xuanhua He, Meng Cheng, Tianyu Yang, Yong Zhang, Zhuoliang Kang, Xunliang Cai, Xiaoming Wei, Chunle Guo, Chongyi Li, et~al.
+\newblock Infinite-world: Scaling interactive world models to 1000-frame horizons via pose-free hierarchical memory.
+\newblock \emph{arXiv preprint arXiv:2602.02393}, 2026{\natexlab{b}}.
+
+\bibitem[Schuhmann et~al.(2022)Schuhmann, Beaumont, Vencu, Gordon, Wightman, Cherti, Coombes, Katta, Mullis, Wortsman, et~al.]{schuhmann2022laion5b}
+Christoph Schuhmann, Romain Beaumont, Richard Vencu, Cade Gordon, Ross Wightman, Mehdi Cherti, Theo Coombes, Aarush Katta, Clayton Mullis, Mitchell Wortsman, et~al.
+\newblock Laion-5b: An open large-scale dataset for training next generation image-text models.
+\newblock \emph{Advances in neural information processing systems}, 35:\penalty0 25278--25294, 2022.
+
+\bibitem[Ke et~al.(2021)Ke, Wang, Wang, Milanfar, and Yang]{ke2021musiq}
+Junjie Ke, Qifei Wang, Yilin Wang, Peyman Milanfar, and Feng Yang.
+\newblock Musiq: Multi-scale image quality transformer.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on computer vision}, pages 5148--5157, 2021.
+
+\bibitem[Li et~al.(2023)Li, Zhu, Han, Hou, Guo, and Cheng]{li2023amt}
+Zhen Li, Zuo-Liang Zhu, Ling-Hao Han, Qibin Hou, Chun-Le Guo, and Ming-Ming Cheng.
+\newblock Amt: All-pairs multi-field transforms for efficient frame interpolation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 9801--9810, 2023.
+
+\end{thebibliography}

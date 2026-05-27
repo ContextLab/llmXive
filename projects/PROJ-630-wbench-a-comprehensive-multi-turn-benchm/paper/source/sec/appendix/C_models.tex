@@ -1,0 +1,210 @@
+\section{Evaluated Models}
+\label{app:models}
+
+\subsection{Per-Model Configuration}
+\label{app:model_details}
+
+
+\begin{table}[H]
+\caption[Detailed overview of evaluated models]{Detailed overview of all \nummodel evaluated models. ``Params'' = parameter count (--- if undisclosed). ``Frames'' = number of frames generated per interaction turn (RT = real-time streaming). ``Inference : Video'' is the ratio of wall-clock generation time to the duration of the produced video, lower is faster.}
+\vspace{+1mm}
+\label{tab:evaluated_models}
+\centering
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lclclrcl@{}}
+\toprule
+\textbf{Model} & \textbf{Access} & \textbf{Architecture} & \textbf{Params} & \textbf{Resolution} & \textbf{Frames} & \textbf{Inference : Video} & \textbf{Hardware / Note} \\
+\midrule
+
+\multicolumn{8}{@{}l}{\textit{Text-driven models}} \\
+\addlinespace[2pt]
+Seedance 1.5~\cite{gao2025seedance15}        & API    & -             & ---  & 1280$\times$720  & 120 & ---     & API \\
+Wan 2.7~\cite{wan2025wan27}                  & API    & -             & ---  & 1920$\times$1080 & 80  & ---     & API \\
+Kling 3.0~\cite{kuaishou2025kling3}          & API    & -             & ---  & 1280$\times$720  & 120 & ---     & API \\
+YUME 1.5~\cite{mao2025yume15}                & Open   & DiT             & 5B   & 1280$\times$704  & 58  & $1.7$   & A100 80G \\
+HY-Video 1.5~\cite{kong2024hunyuanvideo}     & Open   & DiT             & 8B   & 848$\times$480   & 120 & ---     & A100 80G \\
+LTX 2.3~\cite{lightricks2025ltx}             & Open   & DiT      & 22B  & 1536$\times$1024 & 120 & ---     & A100 80G \\
+LongCat~\cite{cai2025longcat}                & Open   & DiT             & 14B  & 832$\times$480   & 48  & $621.8$ & A100 80G \\
+Kairos 3.0~\cite{ace2026kairos}              & Open   & DiT             & 4B   & 832$\times$480   & 96  & ---     & A100 80G \\
+Cosmos 2.5~\cite{nvidia2025cosmos}           & Open   & DiT             & 2B   & 1280$\times$704  & 93  & ---     & A100 80G \\
+
+\addlinespace[4pt]
+\multicolumn{8}{@{}l}{\textit{Camera-controlled models}} \\
+\addlinespace[2pt]
+LingBot-World~\cite{gao2026lingbot}          & Open   & Multi-stage DiT & 14B  & 1280$\times$704  & 32  & $268.8$ & A100 80G \\
+HY-World 1.5~\cite{sun2025hyworldplay}       & Open   & Streaming DiT   & 8B   & 832$\times$480   & 96  & $18.8$  & A100 80G \\
+Fantasy-World~\cite{fantasyworld2025}        & Open   & DiT + 3D head   & 14B  & 592$\times$336   & 80  & $2320$  & A100 80G \\
+InSpatio-World~\cite{inspatio2026}           & Open   & V2V AR DiT      & 1.3B & 832$\times$480   & 96  & ---     & A100 80G \\
+Astra~\cite{zhu2025astra}                    & Open   & AR DiT  & 2B   & 832$\times$480   & 80  & $30.0$  & A100 80G \\
+
+\addlinespace[4pt]
+\multicolumn{8}{@{}l}{\textit{Action-conditioned models}} \\
+\addlinespace[2pt]
+Happy Oyster~\cite{alibaba2026happyoyster}   & Closed & ---             & ---  & 1280$\times$720  & RT  & ---     & Web interface \\
+Matrix-Game 3.0~\cite{he2026matrixgame3}     & Open   & AR Diffusion    & 6B   & 1280$\times$704  & 70  & $0.5$   & A100 80G \\
+Genie 3~\cite{ball2025genie3}                & Closed & ---  & ---  & 1280$\times$720  & RT  & ---     & Web interface \\
+Matrix-Game 2.0~\cite{he2025matrixgame2}     & Open   & AR Diffusion    & 2B   & 640$\times$352   & 48  & $5.6$   & A100 80G \\
+HY-GameCraft~\cite{li2025hunyuangamecraft}   & Open   & Hist-Cond DiT   & 13B  & 832$\times$480   & 132 & $2.5$   & A100 80G \\
+Infinite-World~\cite{wu2026infiniteworld}    & Open   & Hierarchical DiT & 1.5B & 896$\times$448   & 160 & $49.2$  & A100 80G \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsubsection{Text-driven Models}
+
+Since these models do not natively accept action signals, we adopt an iterative I2V protocol: for each interaction turn, we extract the last frame of the previous clip, construct a text prompt that combines the world-setting description with the current interaction instruction, and generate the next video segment.
+
+\myparagraph{Seedance~1.5~\cite{gao2025seedance15}.}
+Seedance~1.5 is ByteDance's commercial video generation model, accessed through a closed-source API.
+It supports image-conditioned generation at up to 1280$\times$720 resolution and 120 frames per clip.
+In \benchmark, it is evaluated under the iterative I2V protocol, with interaction instructions injected as text prompts.
+
+\myparagraph{Wan~2.7~\cite{wan2025wan27}.}
+Wan~2.7 is a publicly released checkpoint in the open-source Wan model family, developed by Alibaba.
+It supports multi-resolution video synthesis at up to 1280$\times$720 and 80 frames per clip, with full open weights available for reproducible research.
+In \benchmark, it is evaluated under the same iterative I2V protocol.
+
+\myparagraph{Kling~3.0~\cite{kuaishou2025kling3}.}
+Kling~3.0 is Kuaishou's commercial video generation model, accessed through a closed-source API.
+It supports image-conditioned generation with interaction instructions provided as natural-language prompts.
+In \benchmark, it is evaluated under the iterative I2V protocol.
+
+\myparagraph{YUME~1.5~\cite{mao2025yume15}.}
+YUME~1.5 is the first fully open-source interactive world model to support the combined capabilities of text-to-world generation, image-to-world initialization, and text-driven event editing, all within a single Diffusion Transformer.
+For \benchmark, we use the released \texttt{Yume-5B-720P} checkpoint, which contains approximately $5.2$B parameters.
+Unlike keyboard-driven world models, YUME~1.5 uses natural language to specify both the scene content and the desired interaction, making it the only IWM in this evaluation that shares the same text-based control interface as the general I2V models.
+Its training combines large-scale text-video paired data with curated interactive gameplay footage, enabling the model to ground language descriptions in plausible world dynamics.
+Each turn is assembled by concatenating fixed-size $29$-frame iterations, with the number of iterations per turn chosen to best approximate the target turn duration.
+
+\myparagraph{HunyuanVideo~1.5~\cite{kong2024hunyuanvideo}.}
+HunyuanVideo~1.5 is Tencent's open-source video generation model based on a causal 3D full-attention DiT, pre-trained on a large-scale video and image corpus.
+The released 480p I2V checkpoint contains roughly $8.3$B transformer parameters.
+Its architecture jointly models spatial and temporal attention without factorized approximations, enabling high visual fidelity and strong temporal coherence across long clips.
+The model supports image-conditioned generation at 848$\times$480 and 120 frames, making it well-suited for multi-turn evaluation where each turn requires consistent subject appearance and background layout.
+
+\myparagraph{LTX~2.3~\cite{lightricks2025ltx}.}
+LTX~2.3 is a lightweight 2B-parameter latent Diffusion Transformer developed by Lightricks, optimized for real-time or near-real-time inference on consumer hardware.
+It leverages a highly compressed latent space with a spatiotemporal VAE and a shallow attention stack to achieve fast sampling with minimal quality degradation.
+While its parameter count is an order of magnitude smaller than other I2V models in this evaluation, LTX~2.3 represents an important operating point for deployment-constrained scenarios, and we include it to assess the trade-off between model scale and interaction adherence.
+
+\myparagraph{LongCat-Video~\cite{cai2025longcat}.}
+LongCat-Video is a DiT model developed by Meituan, explicitly designed for long-video generation via a native video-continuation mechanism.
+Its released DiT transformer has approximately $13.6$B parameters.
+Unlike standard I2V models that generate each clip independently, LongCat-Video conditions each new segment on a sliding window of the most recent frames encoded into a latent prefix, which provides short-horizon temporal context beyond the last conditioning frame.
+This architectural choice makes it a natural baseline for multi-turn evaluation, as segment-level continuity is directly supported by the model design rather than enforced only by the evaluation protocol.
+
+\myparagraph{Kairos~3.0~\cite{ace2026kairos}.}
+Kairos is a DiT-based video generation model from ACE Robotics, originally developed to support embodied intelligence applications that require egocentric video synthesis conditioned on navigation commands.
+For \benchmark, we use the officially released \texttt{kairos-common-4B-720P-16fps} checkpoint, which contains roughly $4.05$B parameters.
+Its training pipeline incorporates large volumes of first-person footage collected from both simulated and real-world environments, endowing the model with a strong prior over forward-facing camera dynamics.
+We evaluate Kairos under the standard iterative I2V protocol using text prompts, treating it as a general I2V baseline that benefits from egocentric pre-training.
+
+\myparagraph{Cosmos-Predict~2.5~\cite{nvidia2025cosmos}.}
+Cosmos~2.5 is NVIDIA's world foundation model, pre-trained on a large-scale mixture of real-world video, physical simulation output, and synthetic robotics demonstrations.
+For \benchmark, we evaluate the Cosmos-Predict2.5 2B post-trained variant (\texttt{2B/post-trained}) in image-to-world mode, which generates $93$ frames per turn at $1280\times704$ resolution.
+The Cosmos platform is designed as a general-purpose foundation for physical AI, with a Diffusion Transformer backbone that supports world-consistent video generation conditioned on text, images, or structured action specifications.
+Although Cosmos is primarily positioned for robotics and autonomous-driving applications, we include it as a general-purpose I2V baseline given its large-scale pre-training and publicly available weights.
+
+\subsubsection{Camera-controlled Models}
+
+These models natively accept camera-control inputs in the form of 6DoF camera parameter matrices.
+For each interaction turn, we provide the model with the last generated frame and a camera trajectory, represented as a sequence of 6DoF camera matrices derived from the current navigation instruction.
+The model then generates the next video segment conditioned on this prescribed viewpoint change.
+
+\myparagraph{LingBot-World~\cite{gao2026lingbot}.}
+LingBot-World is an interactive world model targeting minute-level generation horizons with sub-second latency at 8~fps, designed for long-context robotic simulation.
+It is built on a Wan2.2 14B I2V backbone and consumes camera-pose sequences as the control signal: the given navigation action is first converted into a deterministic pose sequence by a geometric mapping and then fed to the backbone for frame generation, with no learned planner involved.
+For \benchmark, we use the officially released \texttt{lingbot-world-base-cam} checkpoint.
+Training data is a hybrid mixture of real-world footage, game-engine recordings, and synthetic renderings, providing broad coverage of camera dynamics and scene diversity.
+
+\myparagraph{HY-World~1.5~\cite{sun2025hyworldplay}.}
+HY-World~1.5 is Tencent Hunyuan's streaming Diffusion Transformer for real-time interactive world generation, built on the 480p I2V branch of HunyuanVideo~1.5.
+The deployed transformer contains roughly $8.3$B parameters.
+It introduces a dual action representation that encodes both discrete keyboard tokens and continuous camera deltas, together with a reconstituted context memory module that compresses long-horizon history into a fixed-size token buffer to maintain geometric consistency across hundreds of generation steps.
+This design allows the model to sustain coherent spatial layouts and stable subject appearances over extended multi-turn trajectories, which is directly reflected in its leading navigation adherence scores on \benchmark.
+
+\myparagraph{Fantasy-World~\cite{fantasyworld2025}.}
+Fantasy-World achieves geometry-consistent interactive world modeling by augmenting a standard video Diffusion Transformer with a parallel geometric prediction branch that jointly estimates depth, point, and camera trajectory maps for each generated frame.
+For \benchmark, we use the officially released \texttt{acvlab/FantasyWorld-Wan2.1-I2V-14B-480P} adapter.
+Within each generation segment, the estimated geometric representations are fed back as conditioning signals for subsequent frames via IRG blocks, creating an implicit 3D consistency loop that constrains the generated video to respect plausible spatial structure.
+Across segments, only the last RGB frame is carried forward as the next conditioning input, so the geometric feedback operates at the segment level rather than globally across the whole video.
+The model is trained on a curated dataset of game-engine renderings with dense geometric annotations, and it is evaluated on navigation cases in \benchmark where the 3D geometric consistency signal is most informative.
+
+\myparagraph{InSpatio-World~\cite{inspatio2026}.}
+InSpatio-World introduces a state-anchored world modeling paradigm for 4D exploration, in which the world state is represented as a set of spatiotemporal anchor tokens that persist across steps and are updated incrementally as the user navigates.
+For \benchmark, we use the officially released $1.3$B distilled configuration, \texttt{InSpatio-World-1.3B}.
+Generation is performed via a causal block-wise autoregressive pipeline with KV caching, where each new latent block is conditioned on the current action and the cached history of previously generated blocks, rather than in a single-shot V2V pass.
+Since the V2V interface expects a fixed-length video input, we construct it by replicating the initial conditioning frame up to the required number of frames.
+InSpatio-World achieves strong spatial consistency scores due to its explicit state-maintenance mechanism, despite operating at a higher dynamic degree than most camera-controlled baselines.
+
+\myparagraph{Astra~\cite{zhu2025astra}.}
+Astra is a general interactive world model based on an autoregressive denoising framework that jointly predicts the next-frame latent and its denoising trajectory conditioned on an action token sequence.
+It is built on a Wan2.1-T2V-1.3B base with an action-conditioned adapter, and the combined model contains roughly $2$B parameters.
+Operating at 832$\times$480 resolution, Astra prioritizes temporal coherence and action responsiveness over raw visual fidelity, and its open-source architecture makes it accessible for ablation studies and downstream fine-tuning.
+The model is evaluated at its native resolution, and scores are reported without upsampling to ensure fair comparison.
+
+\subsubsection{Action-conditioned Models}
+
+These models natively accept discrete or continuous action signals and generate subsequent observations conditioned on the full action history.
+
+\myparagraph{Happy~Oyster~\cite{alibaba2026happyoyster}.}
+Happy~Oyster is Alibaba's real-time interactive world creation system, supporting two distinct interaction paradigms: a \emph{directing} mode in which the user issues discrete navigation commands, such as W/A/S/D and rotation keys, and a \emph{wandering} mode in which the model autonomously explores an initialized world.
+The model is built on a streaming generative architecture that renders video frames at native resolution with low latency, allowing real-time human-in-the-loop interaction through its official web interface.
+Like Genie~3, it is evaluated following the standardized web-based protocol in Appendix~\ref{app:genie3_eval}.
+
+\myparagraph{Matrix-Game~2.0~\cite{he2025matrixgame2} and Matrix-Game~3.0~\cite{he2026matrixgame3}.}
+Matrix-Game is a series of autoregressive diffusion models for interactive world generation developed by the Skywork team.
+Matrix-Game~2.0 introduces a few-step AR diffusion framework that decouples temporal prediction from per-frame quality refinement, enabling real-time streaming generation with competitive visual quality; the released distilled transformer has approximately $1.6$B parameters.
+Matrix-Game~3.0 scales the architecture and adds a camera-aware memory retrieval module that indexes previously generated keyframes for spatial consistency, and achieves 40~fps at 720p; the released base transformer has approximately $6.5$B parameters.
+For \benchmark, Matrix-Game~3.0 is evaluated using the web-interface protocol described in Appendix~\ref{app:genie3_eval}, where a human operator issues keyboard commands and the resulting video stream is screen-captured for offline metric computation.
+Matrix-Game~2.0 generates each rollout through a global iterative schedule of fixed-size $40$-frame chunks, with $57$ frames for the first chunk, and the resulting sequence is partitioned into per-turn clips.
+We evaluate both versions to trace the progression of the Matrix-Game design across generations.
+
+\myparagraph{Genie~3~\cite{ball2025genie3}.}
+Genie~3 is Google DeepMind's third-generation interactive world model, generating diverse and visually rich playable environments at 24~fps conditioned on keyboard and mouse inputs.
+The model is built on a large-scale autoregressive Transformer trained on internet-scale gameplay video, enabling multi-minute visual memory and zero-shot generalization to novel scene descriptions from a single conditioning image.
+Because Genie~3 does not expose a public API, evaluation on \benchmark follows the web-interface protocol described in Appendix~\ref{app:genie3_eval}, where a human operator issues keyboard commands and the resulting video stream is screen-captured for offline metric computation.
+
+\myparagraph{Hunyuan-GameCraft~\cite{li2025hunyuangamecraft}.}
+Hunyuan-GameCraft is Tencent's interactive game video generation model, employing a history-conditioned DiT architecture that conditions each new frame on a rolling window of past frames and control tokens.
+The deployed model is built on the full HunyuanVideo dual-stream Transformer, and the distilled checkpoint we evaluate contains roughly $13$B parameters.
+The model is trained on a large-scale dataset of over one million gameplay recordings across more than 100 AAA games with paired keyboard and mouse annotations, specializing it for high-dynamic game-engine-style interactions where rapid camera movement, character animation, and environmental changes must be rendered consistently.
+It supports real-time generation via model distillation, taking keyboard and mouse as native input modalities.
+Each turn is assembled by concatenating fixed-size $33$-frame segments, with the number of segments per turn chosen as $\lceil T_{\text{turn}} / T_{\text{seg}} \rceil$ to best approximate the target turn duration $T_{\text{turn}}$.
+
+\myparagraph{Infinite-World~\cite{wu2026infiniteworld}.}
+Infinite-World is an interactive world model developed at Nankai University and Meituan, designed to scale generation horizons to 1000+ frames without explicit geometric priors.
+It is built on a Wan2.1-T2V-1.3B base with an additional action encoder, and the combined checkpoint contains roughly $1.5$B parameters.
+The model generates video autoregressively, conditioning each new chunk on the latent representation of previously generated frames together with the current discrete keyboard action, which allows it to sustain coherent spatial layouts over very long rollouts.
+Each turn is assembled by concatenating fixed-size $80$-frame iterations, with the number of iterations per turn chosen to best approximate the target turn duration.
+
+
+\subsubsection{Inference Speed Analysis}
+
+\cref{tab:evaluated_models} also reports the generation efficiency of some evaluated models, measured by the ratio between wall-clock generation time and the duration of the produced video. This value can be interpreted as seconds of computation per second of output video; equivalently, for frame-based generation, it corresponds to $\mathrm{fps}\times s_{\text{frame}}$, where $s_{\text{frame}}$ denotes the average generation time per frame. Lower values indicate faster generation, and values below $1$ indicate faster-than-real-time generation.
+
+For text-driven models, the reported value corresponds to the time required for a single API call or local inference pass to generate one video clip. For camera-controlled and action-conditioned models, we measure the wall-clock time required to generate the number of frames used for one evaluation turn and divide it by the corresponding video duration. All locally deployed models are evaluated on a single NVIDIA A100 80GB GPU to ensure comparable efficiency measurements, while API- or web-only models are marked separately when their underlying hardware or runtime is not accessible.
+
+
+\subsection{Web-Based Evaluation Protocol (Genie~3 \& Happy~Oyster)}
+\label{app:genie3_eval}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/genie.pdf}
+\caption[Automated web-based evaluation pipeline]{Automated web-based evaluation pipeline for Genie~3 and Happy~Oyster. Given an initial image and a text prompt, the browser-use agent follows four steps: \textbf{Step~1} fills in the prompt, image, and perspective; \textbf{Step~2} waits for world loading to complete; \textbf{Step~3} executes the interaction script with each turn lasting 5 seconds; \textbf{Step~4} downloads the recorded video.}
+\label{fig:genie_eval_pipeline}
+\end{figure}
+
+
+Genie~3~\cite{ball2025genie3} and Happy~Oyster~\cite{alibaba2026happyoyster} are only accessible through preview web interfaces and do not expose public APIs or downloadable weights.
+To enable programmatic evaluation at scale, we automate the entire interaction pipeline using Claude Code's browser-use capability, which controls Chrome via structured commands.
+As illustrated in \cref{fig:genie_eval_pipeline}, the process is decomposed into four steps:
+\textbf{(1)~Fill}: the script fills in the text prompt, uploads the initial image, and configures the perspective setting on the model's web page;
+\textbf{(2)~Loading}: the script waits for the model to finish loading the world;
+\textbf{(3)~Auto Interaction}: once world loading is detected as complete, the script automatically executes the pre-defined interaction sequence, holding each navigation key for 5 seconds per turn;
+\textbf{(4)~Downloading}: the generated video is downloaded for offline evaluation.

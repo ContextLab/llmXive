@@ -1,0 +1,88 @@
+\section{\benchmark Evaluation Suite}
+\label{sec:evaluation_suite}
+
+
+\benchmark decomposes evaluation into five complementary dimensions, each targeting a distinct aspect of world model fidelity.
+In total, the evaluation suite comprises \numsubmetric fine-grained sub-metrics across these \textbf{five dimensions}. Detailed descriptions of each metric are provided in \cref{app:metric_details}.
+All sub-metric scores are linearly rescaled to $[0, 100]$ for direct comparability across dimensions, with higher values indicating better performance.
+
+
+\myparagraph{$\bullet$~\tagbox{dimVQ}{Video Quality.}}
+\label{sec:d1_video_quality}
+Video quality measures the perceptual quality of the generated video irrespective of the conditioning signal.
+We adopt five sub-metrics from VBench~\cite{huang2024vbench}:
+\tagbox{dimVQ}{V.1}\,Aesthetic Quality,
+\tagbox{dimVQ}{V.2}\,Imaging Quality,
+\tagbox{dimVQ}{V.3}\,Temporal Flickering,
+\tagbox{dimVQ}{V.4}\,Dynamic Degree and
+\tagbox{dimVQ}{V.5}\,Motion Smoothness,
+plus \tagbox{dimVQ}{V.6}\,HPSv3-Norm~\cite{hpsv3}, a percentile-normalized human-preference reward score.
+
+\myparagraph{$\bullet$~\tagbox{dimSA}{Setting Adherence.}}
+Setting adherence measures whether the generated video faithfully reflects the specified world setting $\mathcal{W}$.
+We evaluate two sub-metrics below:
+
+\myparagraph{\tagbox{dimSA}{S.1}\,Scene Adherence.}
+We decompose the environment prompt into an \emph{initially visible} part (\eg terrain, buildings in the initial frame) and an \emph{offscreen} part (\eg a river behind the camera) expected to appear later.
+A VLM scores both components: whether initially visible elements remain consistent throughout, and whether described but offscreen elements eventually appear.
+
+\myparagraph{\tagbox{dimSA}{S.2}\,Subject Adherence.}
+We decompose the subject prompt into an \emph{appearance} part (\eg fur color, clothing) and a \emph{motion} part (\eg gait, agility).
+A VLM\footnote{Unless otherwise noted, all VLM scoring in this paper uses \texttt{doubao-seed-2-0-lite-260215}.} scores whether the subject's visual attributes match the described appearance, and whether its movement style matches declared motion priors.
+
+
+\myparagraph{$\bullet$~\tagbox{dimIA}{Interaction Adherence.}}
+Interaction adherence evaluates whether the model correctly executes the requested interaction $\mathcal{I}$.
+Navigation is assessed using geometric pose estimation, while the remaining three types are evaluated through structured VLM scoring with binary criteria per turn.
+
+\myparagraph{\tagbox{dimIA}{I.1}\,Navigation Score.}
+We estimate per-frame camera poses with MegaSaM~\cite{li2024megasam} and compare against a synthetic ground-truth trajectory built from the action sequence.
+The GT encodes perspective-dependent semantics: first-person rotations produce heading changes, while third-person rotations produce orbital motion around the subject.
+After alignment and arc-length resampling, we compute normalized Absolute Trajectory Error (nATE) as the accuracy term, and cross-turn trajectory consistency for repeated actions. The final score averages both.
+
+\myparagraph{\tagbox{dimIA}{I.2}\,Event Editing and \tagbox{dimIA}{I.3}\,Subject Action Adherence.}
+We use a unified turn-level VLM protocol for these two interaction types. For each turn, the VLM inspects the corresponding video segment with five binary checks derived from the action specification: change detection, event occurrence, completion, detail accuracy, and anomaly absence. Each satisfied check contributes one point, giving a $[0,5]$ grade that is averaged across turns per case then scaled to a 100-point score. The complete prompt templates and scoring details are provided in Appendix~\ref{app:event_edit_detail} and~\ref{app:subject_action_detail}.
+
+\myparagraph{\tagbox{dimIA}{I.4}\,Perspective Switching Adherence.}
+We score perspective switching with a stricter categorical protocol. The early and late frames of each relevant turn are jointly checked against three binary criteria: transition visibility, target-type consistency, and structural compliance of the new viewpoint. A turn is counted as successful only when all three hold, and the case score is the fraction percentage of successful turns. Details are provided in Appendix~\ref{app:persp_switch_detail}.
+
+
+\myparagraph{$\bullet$~\tagbox{dimCO}{Consistency.}}
+Consistency measures whether scene geometry, object appearance, and perspective anchoring remain stable as the camera moves and interactions accumulate.
+
+\myparagraph{\tagbox{dimCO}{C.1}\,Spatial Consistency and \tagbox{dimCO}{C.2}\,Gated Spatial Consistency.}
+For roundtrip trajectories~\cite{ye2026mind} (\eg $\text{left}\!\times\!2 \rightarrow \text{right}\!\times\!2$), we use MegaSaM-estimated camera poses to locate the return frame best matching the initial viewpoint, then compute DreamSim~\cite{fu2023dreamsim} perceptual similarity with the first frame.
+The \emph{gated} variant additionally samples intermediate frames and computes their minimum similarity to the first frame, suppressing the score when the video barely moves.
+
+\myparagraph{\tagbox{dimCO}{C.3}\,Segment Continuity.}
+We use TransNetV2~\cite{soucek2020transnet} to detect unexpected hard cuts within each generated video.
+The model-level score is the fraction of videos without any detected scene cuts.
+
+\myparagraph{\tagbox{dimCO}{C.4}\,Perspective Consistency.}
+We track the subject with SAM2~\cite{ravi2024sam2} and measure how stable its centroid remains across frames, weighted by the fraction of frames in which the subject is visible.
+
+\myparagraph{\tagbox{dimCO}{C.5}\,Geometric Consistency and \tagbox{dimCO}{C.6}\,Photometric Consistency.}
+We use Depth Anything 3~\cite{lin2025depthanything3} to estimate per-frame depth and camera poses, then reproject pixels across views.
+Geometric consistency measures 3D structural coherence via reprojection displacement~\cite{an2026vggrpo}, while photometric consistency measures appearance stability via pixel-level PSNR between reprojected frame pairs~\cite{du2026videogpa}.
+
+\myparagraph{\tagbox{dimCO}{C.7}\,Subject Consistency.}
+We apply SAM2 masks to isolate the subject and retain only frames where it is visible, then average two complementary signals: DINOv2~\cite{oquab2024dinov2} adjacent-frame cosine similarity for local continuity, and CLIP first-frame anchored similarity for global drift detection.
+
+\myparagraph{\tagbox{dimCO}{C.8}\,Background Consistency.}
+Following VBench~\cite{huang2024vbench}, we measure the mean pairwise CLIP cosine similarity between consecutive frames, capturing temporal stability of the background appearance.
+
+
+\vspace{1mm}
+\myparagraph{$\bullet$~\tagbox{dimPH}{Physical.}}
+Physical dimension assesses whether the generated world obeys declared physical rules, covering both high-level causal fidelity and low-level visual plausibility.
+
+\myparagraph{\tagbox{dimPH}{P.1}\,Causal Fidelity.}
+Causal fidelity is evaluated with a two-stage VLM protocol using three-point grading. Frames are uniformly sampled across all turns and fed to the VLM as a single sequence for holistic assessment.
+\textbf{Stage~1} assesses \emph{global plausibility}, focusing on \emph{rendering-physics violations} such as motion continuity, object permanence, and character physics, as well as \emph{causal inconsistencies} where effects occur without causes, causes fail to produce effects, or unrelated objects unexpectedly appear. Instructed actions are excluded.
+\textbf{Stage~2} assesses \emph{context-conditioned accuracy} over seven physics sub-dimensions: fluid and smoke, collision, surface tracks, deformation, wind, reflection, and human motion. For each case, a separate VLM assistant first identifies applicable sub-dimensions from scene metadata, action descriptions, and the initial frame under strict criteria. For example, \emph{fluid} is selected only when visible liquid or smoke is present. The selected sub-dimensions are manually verified and adjusted, kept fixed across all models, and used as the only sub-dimensions scored by the VLM evaluator.
+The final per-case score averages the Stage~1 score and the mean Stage~2 score, then scales to 0--100. Further details on the dimension split and prompts are provided in \ref{app:causal_fidelity_detail}.
+
+
+\myparagraph{\tagbox{dimPH}{P.2}\,Visual Plausibility.}
+We fine-tune a pretrained Qwen3-VL-30B-A3B~\cite{Qwen3-VL} on in-house expert-annotated data to automatically score low-level physical artifacts such as geometric distortion, object penetration, and unnatural deformation, producing a continuous $[1, 5]$ score, normalized to $[0, 100]$.
+This complements causal fidelity, which targets high-level rule compliance, by catching pervasive visual implausibilities that do not require case-specific questions. Details are in ~\cref{app:visual_plausibility_detail}.

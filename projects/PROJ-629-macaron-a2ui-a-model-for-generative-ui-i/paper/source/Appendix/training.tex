@@ -1,0 +1,43 @@
+\section{Experiments}
+\subsection{Training Details}
+\begin{table*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{8pt}
+  \begin{tabular}{lll}
+  \toprule
+  \textbf{Parameter} & \textbf{SFT} & \textbf{GRPO} \\
+  \midrule
+  Training objective & Supervised fine-tuning & Group Relative Policy Optimization \\
+  LoRA rank & 16 & 16 \\
+  Batch size & 32 & 32 \\
+  Learning rate & $1\times10^{-4}$ & $3\times10^{-5}$ \\
+  Training length & 1 epoch & 50 steps \\
+  Sequence / generation length & max length $=4096$ & max generation tokens $=2200$ \\
+  Optimizer $\beta_1$ & 0.9 & / \\
+  Optimizer $\beta_2$ & 0.95 & / \\
+  Optimizer $\epsilon$ & $1\times10^{-8}$ & / \\
+  Random seed & 42 & shuffle seed $=0$ \\
+  Group size & / & 8 \\
+  Sampling temperature & / & 1.0 \\
+  Sampling concurrency & / & 8 \\
+  Judge model & / & \texttt{openai/gpt-5.1} \\
+  Judge concurrency & / & 32 \\
+  Reward weight ($L1$) & / & 0.2 \\
+  Reward weight ($L2$) & / & 0.4 \\
+  Reward weight ($L3$) & / & 0.4 \\
+  \bottomrule
+  \end{tabular}
+  \caption{Main model-agnostic hyperparameters used in SFT and GRPO. We omit dataset paths, model names, logging options, preview-saving settings,
+  prompt-mode switches, and other engineering details that do not materially affect the training rule itself.}
+  \label{tab:appendix_training_hparams}
+  \end{table*}
+
+Our training pipeline contains two stages: supervised fine-tuning (SFT) followed by GRPO.
+  For clarity and reproducibility, we report only the model-agnostic hyperparameters that directly affect optimization, sampling, or reward
+  composition, while omitting engineering-specific options such as logging, checkpoint naming, preview dumping, prompt-format switches, and task
+  filtering flags.
+  For SFT, we used LoRA adaptation with standard Adam-style optimization.
+  For GRPO, we optimized grouped rollouts with judge-based rewards, where the final reward combined structural quality and higher-level judge scores
+  using fixed weights.
+  Table~\ref{tab:appendix_training_hparams} summarizes the main settings.

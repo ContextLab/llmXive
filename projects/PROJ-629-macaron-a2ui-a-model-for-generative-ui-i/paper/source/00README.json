@@ -1,0 +1,33 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "colm2026_conference.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Optimistic.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Optimistic.ttf.bak-os2v4"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/optimistic.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "colm2026_conference.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "colm2026_conference.bst"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

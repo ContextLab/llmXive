@@ -1,0 +1,130 @@
+\section{Additional Experimental Results}
+\label{app:results}
+
+\subsection{Full Split Results on Text-Driven Models}
+\label{app:full_split_text}
+
+\cref{tab:full_split_text} reports the complete per-sub-metric scores for all nine text-driven models evaluated on the \textbf{full test set} (\numvideo cases). Unlike \cref{tab:full_results_transposed}, which is restricted to the navigation subset shared across paradigms, this table includes all interaction types (navigation, event editing, subject action, and perspective switching) and uses the full-split consistency metrics (gated spatial consistency, geometric consistency, and photometric consistency).
+
+Several patterns emerge. Kling~3.0 and Wan~2.7 achieve the strongest interaction adherence, particularly in event editing and subject action, while perspective switching remains universally difficult (average 30.7). LongCat-Video and HunyuanVideo lead consistency metrics but exhibit limited dynamic degree, confirming a trade-off between motion magnitude and temporal stability. Wan~2.7 leads causal fidelity by a wide margin (83.3 \vs the 74.7 average), while visual plausibility scores cluster within a narrow 4.6-point range across all models. No single text-driven model dominates across all evaluation axes.
+
+\begin{table}[H]
+\caption[Full split results on text-driven models]{Full per-sub-metric results for text-driven models on the \textbf{full test set} (\numvideo cases). All scores $\in [0,100]$, higher is better. \textbf{Bold} = best, \underline{underline} = second best per row.}
+\vspace{+1mm}
+\label{tab:full_split_text}
+\centering
+\renewcommand{\arraystretch}{1.4}
+\setlength{\tabcolsep}{7.0pt}
+\renewcommand{\icon}[1]{\raisebox{-0.15em}{\makebox[1.2em][c]{\includegraphics[height=1.1em,width=1.1em,keepaspectratio]{figures/icon/#1}}}\hspace{0.1em}}
+\newcommand{\iconbgB}[2]{\cellcolor{#1}\rule{0pt}{1.6em}\raisebox{-0.05em}{\makebox[1.2em][c]{\includegraphics[height=1.1em,width=1.1em,keepaspectratio]{figures/icon/#2}}}}
+\newcommand{\gB}[1]{\textcolor{gray}{#1}}
+\begin{tabular}{@{}cl| *{9}{c} c @{}}
+\thickhline
+\textbf{} & \textbf{Metrics}
+  & \rotatebox{90}{\textbf{Seedance 1.5}}
+  & \rotatebox{90}{\textbf{Wan 2.7}}
+  & \rotatebox{90}{\textbf{Kling 3.0}}
+  & \rotatebox{90}{\textbf{YUME 1.5}}
+  & \rotatebox{90}{\textbf{HY-Video 1.5}}
+  & \rotatebox{90}{\textbf{LTX 2.3}}
+  & \rotatebox{90}{\textbf{LongCat-Video}}
+  & \rotatebox{90}{\textbf{Kairos}}
+  & \rotatebox{90}{\textbf{Cosmos 2.5}}
+  & \rotatebox{90}{\textit{Average}} \\
+\noalign{\vskip -1pt}
+\textbf{} & \textbf{}
+  & \iconbgB{blue!10}{bytedance.png}
+  & \iconbgB{blue!10}{wan.png}
+  & \iconbgB{blue!10}{kling.jpeg}
+  & \iconbgB{blue!10}{shlab.png}
+  & \iconbgB{blue!10}{hunyuan.png}
+  & \iconbgB{blue!10}{lightrix.jpeg}
+  & \iconbgB{blue!10}{longcat.png}
+  & \iconbgB{blue!10}{kairos.png}
+  & \iconbgB{blue!10}{cosmos.png}
+  & \\
+\hline
+\multirow{7}{*}{\rotatebox{90}{\textbf{Video Quality}}}
+  & Aesthetic   & 59.7 & 59.6 & 61.3 & 59.3 & \underline{61.9} & 56.9 & \textbf{64.7} & 58.4 & 60.1 & \gB{60.2} \\
+  & Imaging     & \underline{69.8} & 68.1 & 67.7 & 65.7 & 67.4 & 62.3 & \textbf{69.8} & 63.6 & 67.2 & \gB{66.8} \\
+  & Flickering  & 93.4 & 93.0 & 94.5 & 94.8 & 95.5 & 94.1 & 94.9 & \textbf{96.3} & \underline{96.0} & \gB{94.7} \\
+  & Dynamic     & \underline{98.3} & \textbf{99.3} & 89.9 & 86.1 & 68.8 & 94.4 & 59.7 & 63.5 & 42.4 & \gB{78.0} \\
+  & Smoothness  & 97.6 & 96.6 & 97.9 & 97.7 & \textbf{98.8} & 96.8 & 97.7 & 97.9 & \underline{98.3} & \gB{97.7} \\
+  & HPSv3-Norm  & \underline{72.9} & 69.4 & 68.8 & 62.0 & 67.5 & 57.7 & \textbf{76.3} & 58.8 & 65.9 & \gB{66.6} \\
+  & \textbf{Average} & \textbf{82.0} & \underline{81.0} & 80.0 & 77.6 & 76.6 & 77.1 & 77.2 & 73.1 & 71.7 & \gB{77.2} \\
+\hline
+\multirow{3}{*}{\rotatebox{90}{\textbf{Setting}}}
+  & Scene       & 71.6 & \underline{88.3} & \textbf{89.0} & 53.1 & 77.6 & 81.3 & 53.1 & 52.2 & 72.4 & \gB{71.0} \\
+  & Subject     & \underline{94.3} & \textbf{94.6} & 92.9 & 91.7 & 93.6 & 89.2 & 91.5 & 88.5 & \underline{94.3} & \gB{92.3} \\
+  & \textbf{Average} & 82.9 & \textbf{91.5} & \underline{91.0} & 72.4 & 85.6 & 85.2 & 72.3 & 70.3 & 83.3 & \gB{81.6} \\
+\hline
+\multirow{5}{*}{\rotatebox{90}{\textbf{Interaction}}}
+  & Navigation  & 68.0 & 66.0 & 70.3 & \textbf{72.0} & \underline{71.8} & 67.6 & 63.1 & 65.1 & 64.1 & \gB{67.6} \\
+  & Event Editing  & 80.4 & \textbf{84.0} & \underline{81.4} & 57.8 & 63.8 & 53.0 & 50.4 & 46.8 & 48.2 & \gB{62.9} \\
+  & Subject Action & 80.0 & \underline{83.4} & \textbf{85.6} & 47.0 & 55.6 & 51.8 & 48.4 & 41.4 & 41.6 & \gB{59.4} \\
+  & Persp.\ Switching & \underline{45.0} & \textbf{55.0} & \textbf{55.0} & 16.7 & 27.6 & 25.0 & 18.3 & 13.3 & 20.0 & \gB{30.7} \\
+  & \textbf{Average} & 68.3 & \underline{72.1} & \textbf{73.1} & 48.4 & 54.7 & 49.4 & 45.1 & 41.6 & 43.5 & \gB{55.1} \\
+\hline
+\multirow{9}{*}{\rotatebox{90}{\textbf{Consistency}}}
+  & Background  & 89.6 & 89.5 & \underline{92.7} & 92.0 & 92.4 & 89.3 & \textbf{94.7} & 91.8 & 92.4 & \gB{91.6} \\
+  & Spatial     & 72.7 & 71.0 & 75.3 & 71.5 & \underline{79.2} & 70.2 & \textbf{83.3} & 76.8 & 78.1 & \gB{75.3} \\
+  & Gated Spatial & 72.4 & 71.0 & \textbf{75.1} & 71.4 & \textbf{75.1} & 70.2 & 66.2 & 62.0 & \underline{74.3} & \gB{70.9} \\
+  & Perspective & 62.7 & 62.2 & 76.8 & 48.0 & \textbf{86.6} & 69.8 & \underline{81.5} & 76.3 & 84.3 & \gB{72.0} \\
+  & Segment     & 92.4 & 65.6 & 92.7 & \textbf{99.3} & \textbf{99.3} & 77.8 & \underline{98.6} & 94.1 & 93.1 & \gB{90.3} \\
+  & Geometric   & 83.6 & 82.6 & 89.4 & 91.1 & \underline{94.4} & 81.1 & \textbf{94.7} & 91.5 & 94.2 & \gB{89.2} \\
+  & Photometric & 76.7 & 75.5 & 80.4 & \textbf{84.1} & 81.4 & 79.4 & 81.5 & \underline{82.1} & \underline{82.1} & \gB{80.4} \\
+  & Subject Cross & 89.3 & 88.7 & 88.5 & 89.4 & \underline{91.5} & 86.7 & \textbf{92.4} & 90.7 & 91.8 & \gB{89.9} \\
+  & \textbf{Average} & 79.9 & 75.8 & \underline{83.9} & 80.9 & \textbf{87.5} & 78.1 & 86.6 & 83.2 & 86.3 & \gB{82.4} \\
+\hline
+\multirow{3}{*}{\rotatebox{90}{\textbf{Physical}}}
+  & Causal Fidelity     & 76.0 & \textbf{83.3} & \underline{78.0} & 72.7 & 75.0 & 74.0 & 76.0 & 62.7 & 74.7 & \gB{74.7} \\
+  & Visual Plausibility & \underline{60.5} & 59.8 & 60.4 & 58.1 & 59.3 & 56.3 & \textbf{60.8} & 58.2 & 59.3 & \gB{59.2} \\
+  & \textbf{Average} & 68.2 & \textbf{71.6} & \underline{69.2} & 65.4 & 67.1 & 65.1 & 68.4 & 60.5 & 67.0 & \gB{67.0} \\
+\thickhline
+\end{tabular}
+\end{table}
+
+\subsection{Human-Preference Annotation Platform and Protocol}
+\label{app:human_annotation}
+
+This section provides additional details on the human-preference annotation study described in Section~\ref{sec:human_validation}, including the annotation platform interface, task design, annotator training, and quality control procedures.
+
+\myparagraph{Platform overview.}
+We deploy a custom web-based annotation platform (\cref{fig:human_platform}) built on top of an internal labeling system.
+The platform supports side-by-side video playback with synchronized controls, allowing annotators to play, pause, seek, and replay both videos simultaneously before making a judgment.
+Each annotation task presents a single pairwise comparison for one evaluation dimension.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/annotation_platform.png}
+\caption[Human-preference annotation platform]{Human-preference annotation platform. Each task is a blind pairwise comparison between two models, with the annotator choosing among \emph{A better}, \emph{B better}, \emph{Tie}, or \emph{Discard}.}
+\label{fig:human_platform}
+\end{figure}
+
+\myparagraph{Task design.}
+We organize the human study into nine dimension-level task sheets that together cover the four interaction-adherence metrics, two setting-level metrics, aesthetic quality, spatial consistency, and physics compliance. Each sheet contains a set of pairwise comparisons drawn from a fixed pool of evaluated models and navigation/semantic cases, and all pairs within a sheet follow the same per-dimension question. For most dimensions, we enumerate all $\binom{10}{2}=45$ pairs among the ten sampled models; for interaction adherence, only four text-driven I2V models expose the full set of non-navigation interactions and we enumerate all $\binom{4}{2}=6$ pairs. The left-right assignment of Video~A and Video~B is randomized independently for each task to eliminate position bias. Overall, the nine sheets amount to roughly $13.5$K pairwise annotation tasks.
+
+
+\myparagraph{Dimension-specific instructions.}
+Each task is presented with a short dimension-specific question, a contextual hint that discloses only the information needed for that dimension (so that annotators are not biased by unrelated axes), and a three-line checklist (\emph{focus / ignore / preference}) that explicitly decouples the target dimension from other quality signals. Each dimension is expanded below, with the contextual hint shown in italics and the \emph{focus / ignore / preference} lines listed verbatim from the platform.
+
+
+\myparagraph{Annotator training.}
+We recruit a large-scale crowdsource annotation pool of 400 annoors are required to complete a training phase consisting of:
+\begin{itemize}[nosep,leftmargin=*]
+  \item \textbf{Orientation session}: A 30-minute briefing explaining the five evaluation dimensions, the annotation interface, and common pitfalls (e.g., confusing visual quality with interaction accuracy).
+  \item \textbf{Practice tasks}: Each annotator completes 20 practice comparisons with pre-determined gold labels and must achieve $\geq 80\%$ agreement to proceed. During this phase, the research team reviews annotator responses, identifies common mistakes and ambiguities, and provides clarifications to ensure consistent understanding of the annotation workflow and sub-dimension-specific criteria.
+
+
+\end{itemize}
+
+\myparagraph{Quality control.}
+We employ several mechanisms to ensure annotation quality throughout the study:
+\begin{itemize}[nosep,leftmargin=*]
+  \item \textbf{Triple redundancy}: Every comparison is independently judged by three annotators; the final label is determined by majority vote.
+  \item \textbf{Gold-standard checks}: 5\% of tasks are seeded with gold-standard pairs, where the quality difference is, where the an is clear and verified by the authors. Annotators whose accurwhose accuracy on gold-standard tasks falls below 85\% tasks agged for further further review.
+  \item \textbf{Expert sampling review}: In addition to automatic quality checks, expert reviewers conduct sampled inspections over the completed annotations. For batches whose sampled accuracy is below 80\%, the corresponding annotations are rejected and returned for re-annotation. Experts also correct inconsistent or ambiguous labels when necessary, thereby mitigating residual noise from crowdsource judgments.
+\end{itemize}
+
+\myparagraph{Annotation statistics.}
+In total, the nine dimension-level sheets contain $13{,}515$ pairwise comparison tasks spanning $8$ evaluated models and $10$ evaluation dimensions. These tasks are completed by a 400-person crowdsource annotation pool under the quality-control protocol described above, including triple redundancy, gold-standard checks, completion-time filtering, and expert sampled review. The per-dimension human-metric alignment that results from this study is reported in \cref{fig:human_alignment} in the main text.

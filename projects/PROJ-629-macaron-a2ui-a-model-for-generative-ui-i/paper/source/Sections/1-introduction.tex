@@ -1,0 +1,45 @@
+\section{Introduction}
+%第一段先讲 motivation。核心点不是“UI 很酷”，而是：很多对话任务天然包含结构化交互需求，比如信息收集、偏好选择、确认、分支引导、多意图并行处理。纯文本交互在这些场景里往往低效、冗长，而且会增加用户输入负担和认知负担。相比之下，A2UI 这类声明式 UI 协议给了模型一个统一的方式去输出更自然的交互界面。
+
+
+% Many dialogue tasks inherently contain structured interaction requirements, such as information collection, preference selection, confirmation, branch guidance, and multi-intent parallel processing. Plain text interaction is often inefficient and lengthy in these scenarios, and it also increases the input burden and cognitive burden on users. In contrast, declarative UI protocols like A2UI provide models with a unified way to output more natural interactive interfaces.
+
+% %第二段讲 gap。现有工作大多停留在：要么是纯文本对话；要么是 GUI agent / code generation / web agent；要么是结构化 JSON 输出，但没有真正把“何时出 UI、出什么 UI、如何评估多轮 UI 交互质量”系统化地做成一个学习问题。
+% Most of the current work remains at: either plain text dialogue; Either GUI agent/code generation/web agent; Either it is structured JSON output, but it has not truly systematized "when to release the UI, what kind of UI to release, and how to evaluate the quality of multi-round UI interactions" into a learning question.
+
+% %第三段讲 challenge。你可以把挑战归成三类：一是数据缺失，没有现成的大规模多轮 A2UI 对话语料；二是评测缺失，不清楚一个模型“会不会 A2UI”到底怎么测；三是训练难点，协议掌握、触发时机、多轮交互质量都不是单纯 next-token imitation 能解决的。
+% The challenges can be classified into three categories: The first is the lack of data, as there is no ready-made large-scale multi-round A2UI dialogue corpus; The second issue is the lack of evaluation, and it is not clear exactly how to measure whether a model "can perform A2UI". The third is the training difficulty. The mastery of the protocol, the timing of triggering, and the quality of multi-round interactions cannot be simply solved by the imitation of the next token.
+
+
+% %第四段讲你们的方案闭环：从现有多种异质对话语料出发，构建 A2UI-grounded corpus；进一步定义任务族和多层指标，形成 benchmark；最后通过 schema-light SFT 和 RL 训练模型，在 30B 与 235B 模型上取得提升。
+% Starting from the existing multiple heterogeneous dialogue corpora, construct the A2UI-grounded corpus; Further define task families and multi-level metrics to form benchmarks; Finally, the models were trained through schema-light SFT and RL, and improvements were achieved on the 30B and 235B models.
+
+Powerful AI agents and code-generating models are changing the core assumptions behind software interfaces. Human-computer interaction no longer relies solely on fixed screens designed for broad populations~\citep{findlater2004comparison}. Interfaces are instead becoming flexible and personalized. They can be created at the moment of interaction to match the user's goal, context, and next actions~\citep{gajos2010automatically}. This shift establishes Generative UI as an essential direction for future software development. The agent can create an appropriate interaction surface when plain text is insufficient~\citep{todi2021adapting}.
+
+This flexibility materializes as executable interfaces generated within the interaction loop. These interfaces prove vital for tasks requiring structured interaction~\citep{cohen2019foundations}. Users often must provide information, compare options, confirm decisions, or organize multiple goals in a single turn~\citep{norman1986cognitive, qian2025userbench, budzianowski2018multiwoz, kong2026infopo}. Here, long text replies slow reading and increase cognitive load. Lightweight generative interfaces address this directly, making complex interactions shorter, clearer, and easier to complete~\citep{avula2022effects}.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.95\linewidth]{Figures/main.pdf}
+    \caption{Many dialogue turns that are cumbersome in plain text become more efficient when the assistant can render lightweight structured interfaces.}
+    \label{fig:intro}
+\end{figure}
+
+While modern language models readily produce structured outputs~\citep{dong2025protod, geng2025generating, patil2025berkeley}, Generative UI for personal agents remains underexplored as a complete learning problem~\citep{chen2025generative, liu2026alignui}. Current research primarily focuses on plain-text dialogue, code generation~\citep{wu2024uicoder, si2025design2code, wu2026autowebworld}, or navigating existing interfaces~\citep{zhao2025worldgui, wu2025gui}. A unified formulation of agent-side UI generation is still missing. Specifically, the field lacks large-scale UI-grounded dialogue supervision, evaluation benchmarks that separate protocol validity from interaction quality, and evidence that models can internalize this capability without relying on long schema prompts.
+
+% Recent progress in language models has made this direction more realistic. Dialogue research has increasingly moved beyond purely reactive, text-only response generation toward mixed-initiative, proactive, and collaborative interaction, where the assistant may need to ask clarifying questions, steer the interaction, or externalize intermediate structure rather than only reply in free text (Cohen, 2019; Wu et al., 2023; Nie et al., 2024; Dong et al., 2025; Yoon et al., 2025). At the same time, recent studies in conversational search and dialogue evaluation suggest that complex multi-turn interactions are poorly captured by simple one-shot answer quality, and instead require more fine-grained assessment of interaction structure, initiative, and turn-level effectiveness (Kelly et al., 2022; Mo et al., 2025; Acikgoz et al., 2025). Still, multi-turn conversational UI generation has not yet been established as a complete learning problem. Existing work usually focuses either on plain-text dialogue, interface or webpage synthesis from instructions or screenshots, or agents that act over already existing interfaces (Si et al., 2025; Zhao et al., 2025). These settings leave a gap for assistant-side interface generation under a fixed declarative protocol, especially when the goal is to unify natural dialogue, executable structure, and stable evaluation in a single framework.
+
+In this paper, we study Generative UI for personal agents as a learning problem. Given a system instruction, dialogue history, and the current user message, the model produces a unified response containing natural language and an executable UI action sequence. We instantiate this interface using A2UI, a declarative UI protocol~\citep{a2ui_v08}. This provides a renderable, automatically checkable foundation to rigorously study when an agent should generate a UI, its structural content, and its overall utility.
+
+To support this formulation, we convert four heterogeneous dialogue sources into a Generative UI corpus of over 14,000 samples using a hybrid rule-and-LLM approach with deterministic validation. And we introduce A2UI-Bench which evaluates protocol validity, interaction quality and visual metrics.
+
+Using this setup, we train Generative UI assistants through a parameter-efficient two-stage recipe. LoRA-based supervised fine-tuning establishes text-UI grounding, and reinforcement learning subsequently improves executable interaction quality. This approach targets the minimal-prompt regime, requiring models to internalize UI generation directly. Experiments across model scales demonstrate our pipeline's effectiveness.
+Notably, our best model achieves an overall score of 75.6, surpassing the strongest full-prompt frontier baseline, confirming that Generative UI competence can be successfully internalized.
+
+Our work makes three contributions. 
+
+\begin{itemize}
+    \item First, we introduce a scalable pipeline for transforming heterogeneous dialogue corpora into multi-turn Generative UI interaction data, combining LLM-based UI annotation with rule-based repair and validation for renderability.
+    \item Second, we establish a benchmark for Generative UI interaction modeling, with three task families and a three-level evaluation framework that measures protocol validity, task progression, and user experience.
+    \item Third, we develop a parameter-efficient two-stage training recipe, combining LoRA-based schema-light SFT and reward-driven RL, showing that executable UI generation can be internalized without long schema prompts at inference time.
+\end{itemize}

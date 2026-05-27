@@ -1,0 +1,78 @@
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{#1}}}
+
+\providecommand{\thinslash}{\hspace{1pt}/\hspace{1pt}}
+\providecommand{\tagbox}[2]{\smash{\setlength{\fboxsep}{2.3pt}\raisebox{0.5pt}{\colorbox{#1}{#2}}}\vphantom{#2}}
+\providecommand{\sul}[1]{\smash{\underline{#1}}\vphantom{#1}}
+
+\providecolor{dimVQ}{RGB}{191,219,254}
+\providecolor{dimSA}{RGB}{187,247,208}
+\providecolor{dimIA}{RGB}{253,213,159}
+\providecolor{dimCO}{RGB}{216,180,254}
+\providecolor{dimPH}{RGB}{253,182,182}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\textcolor{gray!25}{\ding{55}}}
+\newcommand{\omark}{\makebox[0.8em]{\textcolor{gray!60}{$\bigcirc$}}}
+\newcommand{\myrule}{\specialrule{1pt}{2pt}{2pt}}
+\makeatletter
+\newcommand{\thickhline}{%
+    \noalign{\ifnum0=`}\fi \hrule height 1pt
+    \futurelet\reserved@a\@xhline
+}
+
+\newcommand{\mytoprule}{%
+    \noalign{\ifnum0=`}\fi
+    \vskip\abovetopsep
+    \hrule height\heavyrulewidth
+    \vskip\belowrulesep
+    \futurelet\reserved@a\@xhline
+}
+\newcommand{\mymidrule}{%
+    \noalign{\ifnum0=`}\fi
+    \vskip\aboverulesep
+    \hrule height\lightrulewidth
+    \vskip\belowrulesep
+    \futurelet\reserved@a\@xhline
+}
+\newcommand{\mybottomrule}{%
+    \noalign{\ifnum0=`}\fi
+    \vskip\aboverulesep
+    \hrule height\heavyrulewidth
+    \vskip\belowbottomsep
+    \futurelet\reserved@a\@xhline
+}
+\makeatother
+
+\newcommand{\vs}{\textit{vs.}\xspace}
+\newcommand{\myparagraph}[1]{\vspace{-0.1em}\noindent\textbf{#1}\hspace{0.3em}}
+\newcommand{\inlinehead}[1]{\noindent{\textbf{#1}}}
+\newcommand{\sfbf}[1]{{\sffamily\bfseries #1}}
+\newcommand{\icon}[1]{\raisebox{-0.15em}{\makebox[1.2em][c]{\includegraphics[height=1em,width=1em,keepaspectratio]{figures/icon/#1}}}\hspace{0.2em}}
+
+\DeclareRobustCommand{\benchmark}{\textsc{WBench}\xspace}
+\pdfstringdefDisableCommands{\def\benchmark{WBench }}
+
+\newcommand{\DoAppendixToC}{%
+  \ifdefined\startcontents
+    \startcontents
+    \printcontents{}{1}{\noindent\textbf{\Large{Appendix Contents}}\par\vspace{0.5em}}%
+    \vspace{0.5em}%
+  \fi
+}
+
+\newcommand{\eg}{\textit{e.g.}\xspace}
+\newcommand{\ie}{\textit{i.e.}\xspace}
+\newcommand{\etc}{\textit{etc.}\xspace}
+
+\newcommand{\rk}[1]{\rlap{\,{\fontsize{4}{4.5}\selectfont\ifnum#1>5\relax\textcolor{gray!40}{(#1)}\else(#1)\fi}}}
+
+\newcommand{\mcup}[2]{\begin{tabular}{@{}c@{\,}c@{}}\makecell{#1\\#2} & $\uparrow$\end{tabular}}
+\newcommand{\mcdn}[2]{\begin{tabular}{@{}c@{\,}c@{}}\makecell{#1\\#2} & $\downarrow$\end{tabular}}
+
+\newcommand{\nummodel}{{20}\xspace}
+\newcommand{\numvideo}{289\xspace}
+\newcommand{\numturn}{1,058\xspace}
+\newcommand{\numnavi}{158\xspace}
+\newcommand{\numsubmetric}{{22}\xspace}

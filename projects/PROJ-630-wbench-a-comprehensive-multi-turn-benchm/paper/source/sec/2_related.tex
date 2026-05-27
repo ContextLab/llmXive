@@ -1,0 +1,54 @@
+\section{Related Work}
+\label{sec:related_work}
+
+\textbf{Video Generation Models.}
+Video generation has evolved rapidly, from early U-Net-based diffusion models~\cite{ho2020denoising,ho2022video,blattmann2023align} to scalable Diffusion Transformers~\cite{yang2024cogvideox,polyak2024moviegen,kong2024hunyuanvideo} trained with flow-matching objectives on large-scale data, yielding longer, higher-resolution, and temporally coherent outputs.
+Building on this foundation, the current frontier like Sora~2~\cite{openai2025sora2}, Kling~3.0~\cite{kuaishou2025kling3}, Veo~3~\cite{deepmind2025veo3}, Wan~2.7~\cite{wan2025wan27}, and others~\cite{gao2026seedance2,shengshu2025viduq3,kong2024hunyuanvideo,lightricks2025ltx,nvidia2025cosmos,cai2025longcat}, collectively advance cinematic quality, prompt adherence, efficient inference, physical grounding, and long-horizon continuation.
+Despite these advances, evaluation still centers on distributional metrics (FID~\cite{heusel2017fid}, FVD~\cite{unterthiner2019fvd}), text-alignment scores, or multi-dimensional quality suites~\cite{huang2024vbench}, none of which probe interactive controllability or world-modeling competence.
+
+
+\textbf{Interactive Video World Models.}
+World models~\cite{ha2018world,lecun2022path} predict environment evolution in response to actions. While traditionally realized as latent state-space models, recent video generators have enabled a new paradigm: \emph{interactive video world models} that directly synthesize next frames from the current observation and an action signal, enabling closed-loop simulation. Although early systems also appeared in robotic manipulation and autonomous driving, such as UniSim~\cite{yang2023unisim}, IRASim~\cite{zhu2024irasim}, GAIA-1~\cite{hu2023gaia1}, and Vista~\cite{gao2024vista}, we focus on the open-domain branch most relevant to \benchmark.
+Among world models evaluated in this work, YUME~1.5~\cite{mao2025yume15} represents language-driven interaction, using natural-language actions for multi-turn world evolution, while HY-World~1.5~\cite{sun2025hyworldplay} and LingBot-World~\cite{gao2026lingbot} represent camera-controlled generation with an emphasis on navigation and geometric consistency.
+Action-conditioned systems such as Hunyuan-GameCraft~\cite{li2025hunyuangamecraft,tang2025interbench}, Matrix-Game~2.0~\cite{he2025matrixgame2}, and Matrix-Game~3.0~\cite{he2026matrixgame3} push real-time keyboard-and-mouse control, with Matrix-Game~3.0 further improving long-horizon consistency through explicit memory. Closed-source systems such as Genie~3~\cite{ball2025genie3}, Happy~Oyster~\cite{alibaba2026happyoyster}, and Marble~\cite{worldlabs2025marble} further highlight the momentum of this area.
+
+
+\textbf{World Model Evaluation.}
+As shown in \cref{tab:benchmark_comparison}, existing benchmarks fall into two broad groups.
+Non-interactive suites such as VBench~\cite{huang2024vbench,huang2024vbenchplus,zheng2025vbench2}, EvalCrafter~\cite{liu2024evalcrafter}, and VideoPhy~\cite{bansal2024videophy,meng2024phygenbench} assess video quality, text alignment, or physical commonsense, but do not take action inputs or evaluate multi-turn interaction.
+Among world model benchmarks, WorldScore~\cite{duan2024worldscore} evaluates camera-trajectory-conditioned generation, WorldModelBench~\cite{wang2024worldmodelbench} studies decision-oriented world-model quality, WorldArena~\cite{shang2026worldarena} targets embodied agents in closed domains, MIND~\cite{ye2026mind} probes closed-loop memory consistency, Omni-WorldBench~\cite{wu2026omniworldbench} focuses on causal interaction, WorldLens~\cite{worldlens2025} targets autonomous driving, and WorldMark~\cite{xu2026worldmark} measures navigation consistency.
+Additional efforts examine complementary aspects~\cite{han2025videobench,liu2024fetv,gu2025phyworldbench,cai2025mmgr,upadhyay2026worldbench,lu2025_4dworldbench,gao2026wrena,lian2024worldsimbench,yue2025ewmbench,zhang2025worldinworld,tang2025interbench,zhou2026drivinggen}.
+Despite this rapid progress, no existing benchmark jointly covers (i) diverse open-domain scenes, (ii) both first- and third-person perspectives with perspective-dependent action semantics, (iii) a comprehensive interaction taxonomy spanning navigation, subject action, event editing, and perspective switching, and (iv) multi-turn closed-loop evaluation targeting long-horizon consistency and physics compliance.
+\benchmark fills this gap with a unified framework across all four axes, instantiated through \numsubmetric fine-grained automatic sub-metrics.
+
+
+\begin{table}[t]
+\caption[Comparison with representative benchmarks]{Comparison with representative benchmarks. Input: {\small\textsf{\textbf{T}}}\,=\,text, {\small\faVideo}\,=\,camera, {\small\faGamepad}\,=\,action. FPP\hspace{1pt}/\hspace{1pt}TPP: first-\hspace{1pt}/\hspace{1pt}third-person perspective. Navi, SA, EE, PS: navigation, subject action, event editing, and perspective switching. Qual, Adh, Inter, Cons, Phys: video quality, setting adherence, interaction adherence, consistency, and physics compliance. Full comparison is provided in \cref{tab:benchmark_comparison_full}.}
+\vspace{+1mm}
+\label{tab:benchmark_comparison}
+\centering
+\renewcommand{\arraystretch}{1.05}
+\footnotesize
+\setlength{\tabcolsep}{4.4pt}
+\newcommand{\iOn}[1]{#1}
+\newcommand{\iOff}[1]{\textcolor{black!15}{#1}}
+\begin{tabular}{@{}l c cc cccc ccccc rr@{}}
+\toprule
+\multirow{2.5}{*}{\textbf{Benchmark}} & \multirow{2.5}{*}{\textbf{Input}} & \multicolumn{2}{c}{\textbf{Persp.}} & \multicolumn{4}{c}{\textbf{Interactions}} & \multicolumn{5}{c}{\textbf{Dimensions}} & \multicolumn{2}{c}{\textbf{Scale}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-8} \cmidrule(lr){9-13} \cmidrule(l){14-15}
+& & \textbf{FPP} & \textbf{TPP} & \textbf{Navi} & \textbf{SA} & \textbf{EE} & \textbf{PS} & \textbf{Qual} & \textbf{Adh} & \textbf{Inter} & \textbf{Cons} & \textbf{Phys} & \textbf{Cases} & \textbf{Turns} \\
+\midrule
+VBench~\cite{huang2024vbench}                     & \iOn{\textsf{\textbf{T}}}\,\iOff{\faVideo}\,\iOff{\faGamepad}     & -- & -- & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & 946   & 946   \\
+WorldScore~\cite{duan2024worldscore}              & \iOn{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOff{\faGamepad}     & \cmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & 3,000 & 3,000 \\
+WorldModelBench~\cite{wang2024worldmodelbench}    & \iOn{\textsf{\textbf{T}}}\,\iOff{\faVideo}\,\iOff{\faGamepad}     & \cmark & -- & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark & 350   & 350   \\
+MIND~\cite{ye2026mind}                            & \iOff{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOff{\faGamepad}     & \cmark & -- & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark & 250   & --    \\
+WorldArena~\cite{shang2026worldarena}             & \iOn{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOff{\faGamepad}      & \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \cmark & 500   & 500   \\
+Omni-WorldBench~\cite{wu2026omniworldbench}       & \iOn{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOff{\faGamepad}      & \cmark & -- & \cmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \cmark & 1,068 & 1,068 \\
+WorldLens~\cite{worldlens2025}                    & \iOff{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOff{\faGamepad}     & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark & 26k   & --   \\
+WorldMark~\cite{xu2026worldmark}                  & \iOn{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOn{\faGamepad}     & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark & 500   & --    \\
+\midrule
+\textbf{\benchmark (Ours)}                        & \iOn{\textsf{\textbf{T}}}\,\iOn{\faVideo}\,\iOn{\faGamepad}       & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \numvideo  & \numturn \\
+\bottomrule
+\end{tabular}
+\vspace{-1.6mm}
+\end{table}

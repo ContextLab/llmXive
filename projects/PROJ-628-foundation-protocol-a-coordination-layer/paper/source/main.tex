@@ -1,0 +1,345 @@
+\documentclass{foundationpaper}
+
+% Packages needed by the paper content
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage{float}
+% Table marker macros
+\newcommand{\full}{\ding{51}}
+\newcommand{\pmark}{\raisebox{0.2ex}{\small$\circ$}}
+\newcommand{\none}{--}
+
+\hypersetup{
+    pdftitle={Foundation Protocol},
+    pdfauthor={FoundationAgents Team},
+    pdfsubject={A Coordination Layer for Agentic Society}
+}
+
+\title{\centering Foundation Protocol: \\ A Coordination Layer for Agentic Society}
+%\subtitle{}
+
+
+% * = core contributor; \dagger = supervisor / corresponding author.
+\author[1,2,*,\dagger]{Bang Liu}
+\author[1,*]{Yongfeng Gu}
+\author[1,4,*]{Jiayi Zhang}
+\author[1,*]{Zhaoyang Yu}
+\author[1,*]{Sirui Hong}
+\author[5,*]{Maojia Song}
+\author[1,2,*]{Xiaoqiang Wang}
+\author[1]{Mingyi Deng}
+\author[1]{Zijie Zhuang}
+\author[1]{Ronghao Wang}
+\author[1]{Mingzhe Cao}
+\author[1]{Yutong Zhu}
+\author[1]{Xingjian Li}
+\author[1]{Yifan Wu}
+\author[1]{Jianhao Ruan}
+\author[1]{Yiran Peng}
+\author[1]{Shuangrui Chen}
+\author[1]{Jinlin Wang}
+\author[1]{Yizhang Lin}
+\author[1]{Dongjie Zhang}
+\author[1,2]{Dekun Wu}
+\author[6]{Chen Ma}
+\author[7]{Lizi Liao}
+\author[8]{Han Yu}
+\author[9]{Jian Pei}
+\author[10]{Heng Ji}
+\author[11]{Qiang Yang}
+\author[1,4,\dagger]{Yuyu Luo}
+\author[1,3,\dagger]{Chenglin Wu}
+
+\affiliation[1]{FoundationAgents}
+\affiliation[2]{Universit\'{e} de Montr\'{e}al \& Mila}
+\affiliation[3]{DeepWisdom}
+\affiliation[4]{HKUST(GZ)}
+\affiliation[5]{Singapore University of Technology and Design}
+\affiliation[6]{City University of Hong Kong}
+\affiliation[7]{Singapore Management University}
+\affiliation[8]{Nanyang Technological University}
+\affiliation[9]{Duke University}
+\affiliation[10]{University of Illinois Urbana-Champaign}
+\affiliation[11]{Hong Kong Polytechnic University}
+
+
+
+\contribution[*]{Core contributors.}
+\contribution[\dagger]{Corresponding authors.}
+
+\abstract{Autonomous agents are moving from tools into a layer of social infrastructure: they browse, purchase, deploy software, manage systems, and increasingly interact with one another. As these systems scale, the bottleneck shifts away from raw model capability toward coordination. Agents need to form reliable relationships, organize multi-agent work, exchange value, support an AI economy, and stay safe and accountable under real-world oversight.
+This paper introduces the \emph{Foundation Protocol (FP)}, a graph-first coordination layer for an emerging human--AI society. FP unifies heterogeneous entities, including agents, tools, resources, humans, institutions, and organizations, and supports native multi-party organization and event-based collaboration. It also provides economic primitives for metering, receipts, and settlement, and treats policy, provenance, and audit as first-class concerns. FP is designed to wrap and bridge existing protocols rather than replace them, enabling incremental adoption while reducing integration and governance overhead.
+The aim is to keep autonomous agency composable while keeping accountability non-negotiable, so that coordination itself can become shared infrastructure for a human–AI society that is open, pluralistic, and governable.}
+
+\metadata[Keywords]{Foundation Protocol, Agentic Society, Coordination Protocols, Multi-Agent Systems, AI Economy, Trust and Identity, Governance and Auditability}
+\metadata[Project]{\url{https://github.com/FoundationAgents/foundation-protocol}}
+% \date{May 13, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+% agentic society is coming, protocol becomes important
+Autonomous agents are beginning to enter the internet not just as tools we operate, but as participants that can act on our behalf. They read and write to the same services we do, hold long-lived credentials, purchase resources, and deploy software.
+Their decisions carry financial, operational, and reputational consequences.
+In early deployments, an agent may be little more than a thin natural-language layer over a few APIs. More ambitious systems use it as a persistent operator: one that plans, coordinates, negotiates, and acts across services over time.
+This shift changes the role of protocols. Protocols are the agreements that make such systems interoperable. They are not libraries or SDKs, but shared choreographies: which roles exist, what messages mean, what authority is delegated, and which state transitions are allowed. For agentic systems, this boundary matters because communication often \emph{is} execution, and execution carries economic, social, and governance consequences.
+
+% how an human-AI hybrid society looks like
+Consider what an ordinary workflow looks like once agents become common. A user might ask a personal agent to arrange travel across several vendors, negotiate refunds, and stay within a budget. To do this, the agent recruits specialist agents for itinerary planning, price monitoring, policy compliance, and payment execution. At sensitive points, it asks the user for approval. When the trip is over, it settles with service providers through auditable receipts.
+The same pattern soon extends beyond personal assistance. 
+A research group may assemble an AI team to search the literature, rent GPU time, coordinate instruments, run analyses, and produce a provenance trail that withstands later review. 
+A one-person company may operate through a network of agents that handle design, engineering, procurement, compliance, sales, and customer support. 
+In more autonomous settings, AI organizations may form and dissolve. They hire external services, compete for resources, and interact with human institutions under explicit rules.
+The important point is not that these examples belong to different domains. It is that they share the same structure. Agents, humans, tools, services, companies, and institutions become nodes in an evolving graph. They delegate authority, form teams, exchange value, enforce policy, and leave evidence behind. What we are describing is not one conversation, nor even a single multi-agent chat. It is a hybrid human--AI society in miniature. Once agents recruit, transact, report, and act across organizational boundaries, identity, budget, provenance, and oversight can no longer be added as afterthoughts. They become part of the communication substrate itself.
+
+% recent examples and trends
+Early systems already show fragments of this pattern. OpenClaw presents a locally run, chat-controlled agent runtime. It can sit inside ordinary communication channels and coordinate tool use through an expanding skills ecosystem \cite{openclaw_site,openclaw_github}. Moltbook pushes the idea in a different direction. It is a social layer where agents maintain profiles, post updates, authenticate one another, and interact while humans observe from the outside \cite{moltbook_site,wired_moltbook}. They show the same shift from different sides. Agents are no longer only interfaces to tools. They are becoming persistent entities that communicate, delegate, and encounter other entities in shared environments.
+%%
+This trend also changes what ``communication'' means. In conventional software, a message usually carries information. In agentic systems, a message may trigger code execution, resource use, payment, delegation, or policy change. The boundary between communication and execution becomes thin when an agent ingests untrusted content, downloads third-party code, and acts with persistent credentials. Microsoft's security research team describes self-hosted agent runtimes as untrusted code execution with durable privileges, and recommends isolation, scoped identity, and continuous monitoring \cite{microsoft_openclaw_security}. Autonomy therefore turns the protocol layer into a safety boundary. The protocol is no longer only an integration convenience. It is where the system records identity, delegates authority, leaves evidence, and enforces accountability.
+
+% existing protocol ecosystem and challenges
+The existing protocol already covers several important pieces of agent interaction. MCP gives models a common way to use tools \cite{mcp_spec}. A2A defines a surface for agent-to-agent task collaboration \cite{a2a_spec}. A2UI focuses on controllable delegation through user interfaces \cite{a2ui_spec}. DIDComm provides secure DID-based messaging \cite{didcomm_spec}. ANP emphasizes discovery and negotiation among agents in open networks \cite{anp_paper}. and UCP targets commerce among autonomous participants \cite{ucp_spec}. Each addresses a real boundary. The problem is that an agentic society does not stay inside those boundaries. A single workflow may need tool use, agent delegation, UI control, identity verification, payment, policy enforcement, and audit across the same chain of action.
+
+Fragmentation becomes costly here. When every protocol carries its own notion of identity, session state, authority, trace, and evidence, integration takes more than adapters. Semantics start to drift across layers. Provenance can break at protocol boundaries. Oversight becomes a patchwork of logs, receipts, access-control rules, and prompt fragments. Recent surveys of agent protocols point to related gaps around collaboration, scalability, security, privacy, and group-based interaction \cite{yang2025survey}. For FP, these gaps are not peripheral. They become central once autonomous entities form teams, exchange value, and operate under real-world accountability.
+
+The consequence is both technical and institutional. If interoperability remains painful, vertical integration becomes the easiest path. A few platforms own identity, policy, routing, memory, and economic settlement end to end. If interoperability is improvised, open networks may still emerge, but they remain fragile, hard to audit, and difficult to defend against abuse. A foundation layer should avoid this false choice. It should make heterogeneous protocols easier to compose, and keep the important questions visible across the system, such as identity, authority, value, provenance, and governance.
+
+% our proposal: FP
+This is the role of the \emph{Foundation Protocol (FP)}. FP is a graph-native protocol for heterogeneous agentic organizations, where coordination, economic exchange, and accountable execution share the same foundation layer. It treats agents, tools, resources, humans, institutions, and organizations as addressable entities in a shared graph. It represents relationships, memberships, sessions, and activities as first-class protocol objects. And it gives value exchange, policy, provenance, and audit a common evidence spine.
+%%
+Its purpose is not to replace existing protocols. It is to provide the control-plane substrate that lets them compose across boundaries while preserving the identity, authority, and accountability needed for systems to remain governable as they scale.
+
+
+\subsection{From Steam to Agents: Industrial Revolutions as Rises in Intelligence Density}
+\label{subsec:intel-density}
+
+An instructive way to read two centuries of industrial change is not only through machines or fuels, but through the density with which a society can gather and coordinate intelligence. By \emph{intelligence density}, we mean the amount of useful cognitive work that can be brought together within a social or technical system: how much know-how is available, how quickly it circulates, and how effectively it can be organized into action. Viewed through this lens, each industrial wave coincided with a step change in our capacity to aggregate and direct human knowledge. Steam and mechanization moved craft into organized production. Electricity and the assembly line professionalized engineering and industrial R\&D. Electronics and computing expanded the knowledge workforce. Industry~4.0 then fused networks, sensors, and cyber--physical feedback loops \cite{schwab2016fourth,hermann2016industrie}. These shifts were not merely technical. They also reorganized institutions, standards, finance, and production into new techno-economic paradigms, allowing knowledge to circulate and compound more efficiently \cite{perez2002technological}. Compatibility and network effects then accelerated this process further\cite{katz1985network}.
+
+\begin{table}[ht]
+\centering
+\caption{Industrial revolutions through the lens of \emph{intelligence density}}
+\label{tab:intel-density}
+\footnotesize
+\begin{tabular}{@{}p{0.23\textwidth} p{0.3\textwidth} p{0.44\textwidth}@{}}
+\toprule
+\textbf{Industrial Revolution} & \textbf{Technology drivers} & \textbf{Signature of intelligence density}\\
+\midrule
+First (c.\,1760--1840) & Steam engine, mechanized textiles, rail & Know-how concentrated in a small cadre of engineers and inventors; craft labor begins to organize around factories. \\
+Second (c.\,1870--1914) & Electricity, internal combustion, chemistry, assembly line & Formal R\&D appears; engineering education scales; industrial laboratories and technical standards emerge, and knowledge becomes systematic.\\
+Third (c.\,1940s--2000s) & Electronics, computing, automation, the internet & Knowledge workers proliferate; programmers, engineers, and scientists become core to production; global information flows. \\
+Fourth (c.\,2010--) & AI, data, IoT, cyber--physical systems, cloud/edge & Cross-disciplinary fusion; platformized collaboration; tight sensor--software feedback loops in industry. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Seen this way, the next step is already visible. While the fourth industrial revolution digitized processes, the next phase will systematize coordination among intelligent actors, both human and artificial. Agents provide reusable cognitive units; what remains missing is a common substrate through which these actors can discover one another, establish identity, form teams, exchange bounded context, transact, and leave auditable evidence across organizational boundaries. A foundation protocol determines whether this coordination becomes low-cost, open, and governable, or brittle, proprietary, and concentrated.
+
+
+
+\subsection{From Hyperlinks to Hyperrealities: The Evolution and Lessons of Our Digital Society}
+\label{subsec:web-evolve}
+
+To see what a new foundation layer should preserve, repair, and extend, it is useful to look back at how the web evolved. Web~1.0 linked documents into a global information commons \cite{bernerslee1991proposal}. Web~2.0 turned readers into participants, but also concentrated power in surveillance-driven platforms \cite{oreilly2005web2,zuboff2019age}. Web~3.0 sought decentralization through cryptography and smart contracts, yet often struggled with fragmentation and usability \cite{buterin2014nextgen}. The next phase, sometimes described as an agentic or symbiotic web, adds pervasive AI, ambient computation, and mixed reality. Digital systems no longer only present information; they increasingly act, decide, and mediate relationships on our behalf.
+
+Figure~\ref{fig:web-evolution} compresses this history into a single view. Each generation expanded what the web could do, but also revealed a new coordination problem. Agentic systems make this problem sharper because they do not merely publish or consume content. They act, interact, and transact at scale.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/web-evolve.pdf}
+    \caption{A compact view of the web's evolution: each generation raised capability while exposing new coordination failures. Web~4.0-like systems intensify those failures because agents act, interact, and transact at scale.}
+    \label{fig:web-evolution}
+\end{figure}
+
+Two lessons matter for FP. First, capability tends to arrive before the coordination primitives needed to govern it. The internet is very good at moving packets and linking resources; it is much less good at making clear who is acting, what authority has been delegated, what a message commits to, and who can be held accountable afterward. Second, as systems become more agentic, safety cannot remain outside the protocol layer. The web's next phase will not only distribute content. It will distribute agency. Once agency is distributed, identity, policy, provenance, and governance become part of the communication substrate itself.
+
+
+
+\subsection{Design Objectives and the Case for a Foundation Layer}
+\label{subsec:objectives}
+
+A protocol for an agentic society is not defined by a single message type. Instead, it is determined by the ease, safety and cost at which all participants operate. A useful starting point is with \emph{behavioral closure}: what do autonomous agents need to do together when they share a world? In practice, most agentic systems repeatedly converge on four basic intents. They exchange information, coordinate work, exchange value for resources and services, and negotiate when preferences, constraints, or obligations conflict.
+
+Existing protocols cover important parts of this space. MCP provides a strong interface for model-to-tool access; A2A offers a practical surface for agent-to-agent task collaboration; A2UI focuses on controllable interface delegation; DIDComm provides secure DID-based messaging; ANP emphasizes discovery and negotiation in open agent networks; and UCP targets agentic commerce \cite{mcp_spec,a2a_spec,a2ui_spec,didcomm_spec,anp_paper,ucp_spec}. Each addresses a real boundary. What remains under-specified is the shared substrate that these ecosystems repeatedly re-create in different forms: a unified notion of \emph{entity}, first-class \emph{organizations} beyond point-to-point sessions, interoperable \emph{economic attestations}, and an end-to-end \emph{evidence spine} suitable for audit and oversight.
+
+FP's design objectives follow from this gap, and from the emerging economics of verification in autonomous systems \cite{virtual_agent_economies}. 
+Recent economic analyses make this pressure clear. As autonomous execution becomes cheaper, the scarce complement shifts toward verification capacity, cryptographic provenance, and liability underwriting \cite{agi_economics}.
+FP unifies heterogeneous entities under one addressable model and treats organizations, roles, and delegation as protocol primitives rather than middleware conventions. It structures interaction as events and streams with ordering and correlation, so collaboration remains observable as it scales. It adds economy primitives, including metering, receipts, settlement references, and dispute signals, in a ledger-agnostic form, so value exchange can be audited without mandating a payment rail. Finally, it makes governance first-class through policy enforcement points and provenance hooks, enabling systems where fast execution does not imply fragile accountability.
+
+Two additional constraints shape the design. First, FP is built for \emph{progressive disclosure}: counterparts exchange minimal metadata by default and reveal detail on demand, reducing token and context overhead compared with the common pattern of copying full tool descriptions into a working prompt. Second, FP keeps its core small and moves variability into profiles, extensions, and bridges, enabling incremental adoption rather than a flag-day migration.
+
+
+\begin{table}[!ht]
+\centering
+\caption{Where FP sits relative to widely-used protocols (\full: core focus, \pmark: partial/indirect, \none: out of scope).}
+\label{tab:comparison}
+\footnotesize
+\begin{tabular}{@{}p{0.34\textwidth}ccccccc@{}}
+\toprule
+\textbf{Capability} & \textbf{FP} & \textbf{MCP} & \textbf{A2A} & \textbf{A2UI} & \textbf{DIDComm} & \textbf{ANP} & \textbf{UCP}\\
+\midrule
+Unified entities (agent/tool/human/org) & \full & \pmark & \pmark & \none & \pmark & \pmark & \pmark \\
+Native groups and org structure & \full & \none & \pmark & \none & \none & \pmark & \none \\
+Economy primitives (receipt/settle/dispute) & \full & \none & \none & \none & \none & \none & \pmark \\
+Policy, audit, provenance as first-class & \full & \pmark & \pmark & \none & \pmark & \pmark & \pmark \\
+Progressive disclosure (low overhead) & \full & \pmark & \pmark & \none & \none & \pmark & \pmark \\
+Primary scope & society & tools & tasks & UI & secure msg & agentic web & commerce \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:comparison} is not a scoreboard. It is a boundary map. FP is meant to complement these efforts by standardizing the cross-cutting substrate they inevitably share, while leaving domain-specific semantics to the protocols that already do them well. To keep the white paper focused on protocol essentials rather than comparisons between stacks, the appendix describes the reference implementation's architecture, core concepts, and key technical choices.
+
+
+
+\subsection{Scope, Non-goals, and Paper Roadmap}
+\label{subsec:scope}
+
+FP is a coordination layer for agentic society, not an agent runtime or orchestration system. Its core standardizes how entities describe themselves, how multi-party interactions are formed and traced, how value exchange is metered and attested, and how policies and evidence remain coherent across organizational and protocol boundaries. FP does not prescribe a scheduler, a transport stack, an identity method, or a payment rail. Those choices belong to profiles, implementations, and deployment environments.
+
+The rest of this paper is organized as follows. Section~\ref{sec:arch} introduces FP's plane-based architecture. Section~\ref{sec:scenarios} illustrates the kinds of systems this architecture is meant to support, first through a high-level survey of application categories and then through a detailed scenario that exercises every plane. Appendix~\ref{app:ref} describes the reference implementation's architecture, core concepts, and technical choices.
+
+
+
+\section{The Architecture of the Foundation Protocol}
+\label{sec:arch}
+
+FP adopts a graph-native view of agentic systems. Entities are nodes; relationships, memberships, and sessions are edges; interactions are activities over the graph; and policy, provenance, and audit provide the evidence needed to govern those activities. This view leads to a plane-based architecture that keeps the protocol core small while making its extension points explicit.
+
+Figure~\ref{fig:fp-arch} summarizes the FP core as four planes, with a separate configuration and profile plane that binds the core to concrete transports, identity methods, and extensions.
+Each plane corresponds to a different kind of structure in the graph. The Entity \& Trust Plane defines the facts that make a node recognizable and accountable: identity, capabilities, credentials, trust signals, and privacy constraints. The Transport \& Routing Plane specifies how entities are addressed, discovered, connected, and reached across concrete transports. The Interaction \& Organization Plane defines the activities that occur among entities, from messaging and event streams to groups, roles, transactions, and settlements. The Regulation \& Oversight Plane provides the policy and evidence layer through which these activities can be monitored, constrained, reviewed, and audited as systems scale.
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/FP.pdf}
+    \caption{Foundation Protocol architecture (core): four planes plus a configuration/profile plane. The design keeps the core semantic commitments stable while allowing transport, identity, and domain-specific patterns to evolve independently.}
+    \label{fig:fp-arch}
+\end{figure}
+
+
+
+
+\subsection{A Minimal Vocabulary}
+\label{subsec:vocab}
+
+FP keeps its core semantics small by reusing the same handful of nouns across planes. In the reference model, every interaction can be described through seven objects: \emph{Entity}, \emph{Session}, \emph{Activity}, \emph{Envelope}, \emph{Event}, \emph{Receipt/Settlement}, and \emph{Provenance}. The vocabulary is intentionally generic. It is rich enough to express tool calls, multi-agent collaboration, organizational workflows, and commerce, yet small enough to remain stable as higher-level patterns evolve. Table~\ref{tab:vocab} summarizes the seven objects. 
+% Appendix~\ref{app:ref} describes how the reference implementation realizes them.
+
+\begin{table}[ht]
+\centering
+\caption{FP core vocabulary in the reference model.}
+\label{tab:vocab}
+\footnotesize
+\begin{tabular}{@{}p{0.22\textwidth} p{0.72\textwidth}@{}}
+\toprule
+\textbf{Object} & \textbf{Role in FP} \\
+\midrule
+Entity & An addressable participant, such as an agent, human, tool, resource, service, institution, or organization, with identity, capability metadata, and privacy controls. \\
+Session & A scoped multi-party context that binds participants, roles, policy references, and optional budgets, such as spend limits or token ceilings. \\
+Activity & A unit of work executed within a session, with explicit state transitions and typed inputs or outputs referenced by context pointers. \\
+Envelope & A signed wrapper that carries intent, routing and correlation identifiers, policy references, and minimal metadata for progressive disclosure. \\
+Event & An append-only observation emitted during a session or activity, supporting streaming, replay, and backpressure. \\
+Receipt / Settlement & Verifiable records of metered usage and value exchange, with references to external payment rails and dispute signals. \\
+Provenance & Structured records of decisions and evidence, such as policy outcomes, approvals, and revocations, that make the trace auditable. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Entity \& Trust Plane}
+\label{subsec:entity}
+
+FP begins with a unified entity model. Any participant that can act, be invoked, hold authority, or become part of an interaction is addressable. Each entity exposes four kinds of information: \emph{who} it is (identifiers, keys, and versioning), \emph{what} it can do (capability statements), what \emph{trust signals} others may rely on (attestations, reputation hooks, or other credit signals), and what \emph{privacy} controls govern access and delegation.
+
+A practical design constraint is \emph{overhead}. FP therefore favors progressive disclosure. Capability statements begin as short summaries. A summary may include the entity's purpose, a few risk tags, schema hashes, or hints about pricing and policy. More detail appears only after a counterparty is selected or authorized. Full schemas, examples, and pricing terms can then be fetched by reference. This reduces token usage and avoids the common pattern of copying large tool specifications into a model's working context before they are needed.
+
+Entity identity is also the unit of \emph{accountability} in FP. Organizations can be represented as entities with their own keys and policies. It can hold assets, sponsor sessions, and act as counterparties. Membership becomes a first-class edge with scoped delegation, rather than an application-specific convention. FP still does not require one identity scheme. A deployment may use DIDs, WebPKI, or enterprise identity systems. The protocol only makes the basic structure explicit so the other planes can rely on it.
+
+Trust is treated in the same spirit. FP does not define a global reputation system. Instead, it provides hooks for trust signals, such as attestations, stakes, reputation providers, and policy checks over those signals. This lets deployments begin with local trust and gradually interoperate across domains without reducing trust decisions to ad hoc prompt instructions or private application logic.
+
+
+\subsection{Transport \& Routing Plane}
+\label{subsec:transport}
+
+FP is transport-agnostic by design. The standard defines what message delivery must preserve, but it does not choose the transport. It covers addressing, discovery hooks, channel setup, termination, and flow control. Concrete bindings belong to profiles. This keeps the protocol resilient to changes in network stacks and deployment environments, from local IPC to web-native transports and long-running asynchronous channels.
+
+Routing matters because agentic interactions rarely remain point-to-point. A group session may span several transports at once: local IPC or stdio to a tool, HTTP or WebSocket to a remote agent, and SSE or streaming HTTP to a user interface. FP therefore treats transport as a binding beneath a consistent addressing, correlation, and trace layer. Messages can move across different channels while preserving ordering where required, backpressure, termination semantics, and a coherent record of the interaction. This is a basic requirement for scaling from a handful of cooperating agents to large networks and organizations without losing observability.
+
+
+\subsection{Interaction \& Organization Plane}
+\label{subsec:interaction}
+
+The interaction plane provides the primitives through which entities do things together. \emph{Schemas} define the structure of messages and codecs. \emph{Events and streams} provide ordering, correlation, replay, and backpressure. \emph{Sessions and organizations} capture groups, roles, membership, and delegation as first-class objects. and \emph{Economic primitives} standardize metering, receipts, settlement references, and dispute signals.
+
+A \emph{session} is an explicit container for multi-party collaboration. It binds participants, roles, policy references, and optional budgets such as spend limits or token ceilings. This makes group interaction legible: a bidder in an auction, a reviewer in a regulated workflow, and a tool provider in a pipeline are all represented as roles within a session rather than as application-specific special cases.
+
+Events and streams form the trace layer. FP does not treat collaboration as one long chat transcript. Systems emit typed events instead. Agents can read them. Operators can inspect them. User interfaces can render them. Auditors can review them later.
+%%
+Backpressure matters once sessions grow. A slow consumer should not have to ingest every event at the same speed as a fast one. It needs control over production, delivery, and replay. Without that control, the trace becomes either incomplete or too expensive to follow. FP keeps collaboration observable without forcing every participant to consume the stream in the same way.
+
+% For stability, FP retains a small set of message-family anchors that appear throughout this paper: \texttt{FP.MSG}, \texttt{FP.SHARE}, \texttt{FP.INVOKE}, \texttt{FP.EVENT}, \texttt{FP.RECEIPT}, \texttt{FP.SETTLE}, \texttt{FP.NEGOTIATE}, and \texttt{FP.DISPUTE}. These names are informational; the essential point is that the protocol distinguishes intent (inform, share, invoke, observe, attest, settle, agree, dispute) and allows these intents to compose over the same trace and policy spine.
+
+\subsection{Regulation \& Oversight Plane}
+\label{subsec:oversight}
+
+FP treats safety as a protocol concern rather than an application afterthought. The oversight plane provides a common place for policy evaluation, enforcement decisions, audit and provenance records, monitoring signals, compliance hooks, and dispute escalation. This aligns with an emerging economic reality: as autonomous systems scale, verification and accountability become scarce resources, and systems that produce low-cost evidence will be easier to deploy, govern, and trust \cite{agi_economics}. In FP, critical decisions can be checked at protocol boundaries, such as before invocation or settlement, and the resulting evidence can be validated by third parties without exposing sensitive payloads.
+
+The oversight plane is intentionally decoupled from any single organization. A deployment may run policy locally, delegate checks to a compliance service, or provide evidence to an external auditor or regulator. FP supports this by allowing policies and provenance records to be referenced, hashed, and verified independently of the payloads they govern. This makes audit portable. The same interaction trace can be inspected under different policies without replaying the interaction.
+
+Oversight also covers failure cases. Disputes, revocations, and safety reports are first-class events. Networks can propagate trust-relevant information through explicit channels instead of relying on informal warnings, private logs, or prompt-level conventions.
+
+
+\subsection{Configuration \& Profiles}
+\label{subsec:profiles}
+
+To avoid an overgrown core, FP makes variability explicit. Profiles bind the core semantics to concrete transports, identity methods, and deployment environments. Registries publish schema and event-type catalogs. Pattern libraries describe reusable multi-party interaction templates, such as auctions, workflows, and bargaining. Bridges adapt existing ecosystems to FP's envelope, trace, policy, and evidence model. This is how FP remains compatible with the protocols in Table~\ref{tab:comparison}: it does not demand replacement, but provides a common control surface across heterogeneous stacks.
+
+This separation also clarifies what belongs in FP and what belongs around it. The core defines the objects and interaction semantics that must work across domains. Profiles choose wire formats and transport bindings. Extensions add event types or interaction patterns. Bridges map external protocols into FP activities. This boundary keeps implementations lightweight and helps the protocol avoid becoming a monolith.
+
+
+\subsection{Design Principles}
+\label{subsec:principles}
+
+The architecture in Figure~\ref{fig:fp-arch} is shaped by a small set of design principles. These principles are not features in the usual sense. They are constraints that keep FP useful as a foundation layer rather than turning it into another application framework.
+
+\textbf{Keep the core small and semantic.} FP standardizes only the objects that must interoperate across domains: entities, sessions and organizations, eventful interaction, and evidence hooks. Anything that can live in a profile, such as transport bindings or identity methods, or in an extension, such as auction schemas or workflow catalogs, is kept out of the core. This keeps the protocol stable as application-level patterns evolve.
+
+\textbf{Prefer progressive disclosure to prompt stuffing.} Many current integrations pay an avoidable cost by copying rich tool descriptions and large capability payloads into the model's working context before they are needed. FP assumes that most interactions should begin with lightweight metadata and become detailed only after selection and authorization. This reduces token overhead, makes caching practical, and keeps the default interaction surface safer.
+
+\textbf{Make multi-party interaction explicit.} Agent systems rarely remain isolated or single-threaded. Even simple deployments quickly involve a personal agent, external tools, service providers, other agents, and human checkpoints. FP therefore makes sessions, roles, membership, and delegation first-class protocol objects, so that group semantics do not have to be simulated in application code. This is also a precondition for larger networks in which coordination structures can form across organizational boundaries.
+
+\textbf{Treat evidence as a first-class output.} FP assumes that execution can easily outpace verification. Policies, audit records, and provenance hooks are therefore part of the protocol's normal flows, not an external logging layer. This does not mean that every payload is recorded. It means that important decisions can be explained and validated later, including by parties that were not present at execution time \cite{agi_economics}.
+
+These principles make FP strict in some places and flexible in others. FP is strict about the parts that must stay coherent across systems: entities, organizations, evidence, and policy. It is flexible about the parts that should evolve outside the standard, such as transports, identity mechanisms, vertical patterns, and bridges. This separation lets FP function as infrastructure rather than as a one-off integration recipe.
+%% 
+In practice, FP can be adopted around existing systems. Teams can begin by wrapping a small number of tools or agents to gain consistent identity, traces, and policy enforcement, then progressively add organization and economic primitives as their deployments mature.
+
+
+\input{sections/application_scenarios}
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Autonomous agents are becoming social and economic actors. As they scale, the main constraints shift from isolated capability to coordination, governance, and evidence. FP proposes a compact protocol core for this emerging agentic society: a unified entity model, native organization primitives, eventful interaction, ledger-agnostic economic attestation, and protocol-level oversight. By separating a small core from profiles, extensions, and bridges, FP is designed to complement existing protocols while providing a stable substrate for large-scale, trustworthy cooperation.
+
+An open and governable agentic society cannot be built from isolated point solutions alone. It needs a communication substrate in which entities, organizations, value attestations, and evidence remain interoperable across tools, agents, humans, services, and institutions. FP is a step toward that substrate. Its purpose is to make autonomous agency composable without making accountability optional. The next step is to turn this architecture into a precise specification and a set of reference bindings, so that the ecosystem can evaluate, implement, and refine FP in practice.
+
+\section*{Acknowledge}
+\label{sec:ack}
+Bang Liu gratefully acknowledges the funding support from the Amazon Research Award (ARA) program and the Canada CIFAR AI Chair program.
+
+
+% Bibliography
+\bibliographystyle{plain}
+\bibliography{main}
+
+\input{sections/reference_implementation}
+
+
+\end{document}

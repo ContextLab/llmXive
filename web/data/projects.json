@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 634,
+    "active_projects": 639,
     "ai_contributors": 7,
-    "human_contributors": 744,
+    "human_contributors": 792,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2523,
-    "total_contributors": 751
+    "total_contributions": 2579,
+    "total_contributors": 799
   },
   "contributors": [
     {
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 537,
+      "contribution_count": 536,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -1075,6 +1075,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Andrew Chen"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1125,6 +1133,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Fancy Kong"
+    },
+    {
+      "areas": [
         "computer science",
         "linguistics"
       ],
@@ -1168,6 +1184,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Kaijie Chen"
+    },
+    {
+      "areas": [
         "computer science",
         "linguistics"
       ],
@@ -1204,6 +1228,30 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Murphy Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Pony Ma"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Rio Yang"
+    },
+    {
+      "areas": [
         "computer science",
         "engineering"
       ],
@@ -1227,6 +1275,22 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Sirui Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Song Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Sueky Zhang"
     },
     {
       "areas": [
@@ -1270,6 +1334,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Xiyuan Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xunliang Cai"
     },
     {
       "areas": [
@@ -1402,14 +1474,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Andrew Chen"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Andrew Lei"
     },
     {
@@ -1467,6 +1531,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Baixuan Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bang Liu"
     },
     {
       "areas": [
@@ -1578,7 +1650,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Bohan Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Bokai Yan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Botao Ye"
     },
     {
       "areas": [
@@ -1734,6 +1822,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chen Ma"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -1787,6 +1883,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Chengli Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chenglin Wu"
     },
     {
       "areas": [
@@ -1906,6 +2010,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Congjie Zheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Congyu Zhang"
     },
     {
@@ -1979,6 +2091,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Deheng Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dekun Wu"
     },
     {
       "areas": [
@@ -2062,6 +2182,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dongjie Zhang"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -2102,6 +2230,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Donny Y. Chen"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -2139,14 +2275,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "F. Mao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Fancy Kong"
     },
     {
       "areas": [
@@ -2234,6 +2362,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Fengjiao Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Fengyi Fu"
     },
     {
@@ -2307,6 +2443,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ga\u00ebl Varoquaux"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Gene Jin"
     },
     {
       "areas": [
@@ -2442,6 +2586,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Han Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Hang Yuan"
     },
     {
@@ -2475,6 +2627,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Hanzhong Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hao Fu"
     },
     {
       "areas": [
@@ -2611,6 +2771,30 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Harrison F. Stropkay"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Heng Ji"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Henghui Ding"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hengrui Hu"
     },
     {
       "areas": [
@@ -2866,6 +3050,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jiamu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jian Pei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jianghao Lin"
     },
     {
@@ -2875,6 +3075,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiangjie Zhen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jianhao Ruan"
     },
     {
       "areas": [
@@ -2947,6 +3155,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiayi Lin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiayi Zhang"
     },
     {
       "areas": [
@@ -3034,6 +3250,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jinchuan Shi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jindong Li"
     },
     {
@@ -3091,6 +3315,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jinjing Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinlin Wang"
     },
     {
       "areas": [
@@ -3286,14 +3518,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Kaijie Chen"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -3307,6 +3531,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kailin Lyu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kaining Ying"
     },
     {
       "areas": [
@@ -3738,6 +3970,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Lizi Liao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Logan Liu"
     },
     {
@@ -3827,6 +4067,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mairui Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Maojia Song"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Marc Pollefeys"
     },
     {
       "areas": [
@@ -3962,7 +4218,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Mingyi Deng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mingyu Ding"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mingzhe Cao"
     },
     {
       "areas": [
@@ -3995,14 +4267,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Muhao Chen"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Murphy Zhuang"
     },
     {
       "areas": [
@@ -4186,14 +4450,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Pony Ma"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Qi Dai"
     },
     {
@@ -4219,6 +4475,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qiang Tong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qiang Yang"
     },
     {
       "areas": [
@@ -4410,14 +4674,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Rio Yang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Rohan Kumar Das"
     },
     {
@@ -4443,6 +4699,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Rongbin Tan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ronghao Wang"
     },
     {
       "areas": [
@@ -4730,6 +4994,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Shuangrui Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shuhan Song\u00a7"
     },
     {
@@ -4802,6 +5074,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Sirui Hong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Sirui Zhang"
     },
     {
@@ -4834,6 +5114,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Siyu Ren"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Siyuan Li"
     },
     {
@@ -4843,14 +5131,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Siyuan Liang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Song Cao"
     },
     {
       "areas": [
@@ -4891,14 +5171,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Sudong Wang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Sueky Zhang"
     },
     {
       "areas": [
@@ -5171,6 +5443,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Weijie Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weijie Wang"
     },
     {
       "areas": [
@@ -5522,6 +5802,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiaoqiang Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiaoxiao Xu"
     },
     {
@@ -5595,6 +5883,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xing Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xingjian Li"
     },
     {
       "areas": [
@@ -5778,7 +6074,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Xujiang Zhao"
+      "name": "Xuezhi Cao"
     },
     {
       "areas": [
@@ -5786,7 +6082,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Xunliang Cai"
+      "name": "Xujiang Zhao"
     },
     {
       "areas": [
@@ -6026,6 +6322,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yifan Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yifan Yang"
     },
     {
@@ -6138,6 +6442,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yiran Peng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yitong Wang"
     },
     {
@@ -6163,6 +6475,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yiyan Ji"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yizhang Lin"
     },
     {
       "areas": [
@@ -6203,6 +6523,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yongdong Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yongfeng Gu"
     },
     {
       "areas": [
@@ -6554,6 +6882,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yutong Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuxiang Chen"
     },
     {
@@ -6634,6 +6970,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yuyu Luo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuzhuo Miao"
     },
     {
@@ -6658,6 +7002,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zeyu Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zeyu Zheng"
     },
     {
@@ -6667,6 +7019,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhaolong Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhaoyang Yu"
     },
     {
       "areas": [
@@ -6946,6 +7306,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zijie Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zikai Zhou"
     },
     {
@@ -6978,6 +7346,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zimu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zisu Huang"
     },
     {
@@ -6995,6 +7371,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ziwei Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ziwen Wang"
     },
     {
       "areas": [
@@ -7021,7 +7405,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-27T08:20:45.691970+00:00",
+  "generated_at": "2026-05-27T09:12:36.150687+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -7259,29 +7643,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-587-episodic-future-thinking-in-llms-impleme",
-          "project_id": "PROJ-587-episodic-future-thinking-in-llms-impleme",
-          "title": "Episodic Future Thinking in LLMs: Implementing Mental Time Travel"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-591-neuromorphic-transformer-networks-spikin",
-          "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-          "title": "Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-549-exploring-the-distribution-of-smooth-num",
-          "project_id": "PROJ-549-exploring-the-distribution-of-smooth-num",
-          "title": "Exploring the Distribution of Smooth Numbers in Short Intervals"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-592-phenomenological-ai-first-person-experie",
-          "project_id": "PROJ-592-phenomenological-ai-first-person-experie",
-          "title": "Phenomenological AI: First-Person Experience Modeling in Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-594-quantum-cognition-in-llms-superposition",
-          "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-          "title": "Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7303,29 +7687,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-587-episodic-future-thinking-in-llms-impleme",
-          "project_id": "PROJ-587-episodic-future-thinking-in-llms-impleme",
-          "title": "Episodic Future Thinking in LLMs: Implementing Mental Time Travel"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-591-neuromorphic-transformer-networks-spikin",
-          "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-          "title": "Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-549-exploring-the-distribution-of-smooth-num",
-          "project_id": "PROJ-549-exploring-the-distribution-of-smooth-num",
-          "title": "Exploring the Distribution of Smooth Numbers in Short Intervals"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-592-phenomenological-ai-first-person-experie",
-          "project_id": "PROJ-592-phenomenological-ai-first-person-experie",
-          "title": "Phenomenological AI: First-Person Experience Modeling in Language Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-594-quantum-cognition-in-llms-superposition",
-          "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-          "title": "Quantum Cognition in LLMs: Superposition States for Ambiguous Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7347,29 +7731,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7391,29 +7775,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7434,29 +7818,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7477,29 +7861,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7523,29 +7907,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7575,29 +7959,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7619,29 +8003,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7662,29 +8046,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7706,29 +8090,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7749,29 +8133,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7800,29 +8184,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7846,29 +8230,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -7901,29 +8285,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-625-https-arxiv-org-abs-2605-20708",
-          "project_id": "PROJ-625-https-arxiv-org-abs-2605-20708",
-          "title": "Rethinking Cross-Layer Information Routing in Diffusion Transformers"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
+          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+          "title": "https://arxiv.org/abs/2605.25604"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-622-https-arxiv-org-abs-2605-23463",
-          "project_id": "PROJ-622-https-arxiv-org-abs-2605-23463",
-          "title": "StepAudio 2.5 Technical Report"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-          "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-624-lens-rethinking-training-efficiency-for",
-          "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-          "title": "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
+          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-          "title": "SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
         }
       ],
       "inputs": [
@@ -29996,7 +30380,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30024,14 +30408,6 @@
             "research_question_validator",
             "specifier"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
         }
       ],
       "citation_summary": {
@@ -30048,7 +30424,7 @@
         "type": "markdown"
       },
       "current_stage": "clarified",
-      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30153,7 +30529,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": "google.gemma-3-27b-it",
+      "submitter": null,
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-17T04:28:52.579110+00:00",
       "upstream_feedback": null
@@ -70357,9 +70733,839 @@
       "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills",
       "updated_at": "2026-05-26T09:12:09.026884+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/idea/trisplat-simulation-ready-feed-forward-3.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weijie Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zimu Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinchuan Shi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zeyu Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Botao Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Marc Pollefeys",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Donny Y. Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bohan Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-27T09:10:29.535458+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
+        "repo_path": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Sparse-view 3D reconstruction is increasingly addressed with feed-forward splatting networks that predict explicit primitives directly from images. Yet most existing methods remain centered on Gaussian primitives and expose surfaces only indirectly: extracting a usable mesh for downstream simulation, physics\u2026",
+      "field": "computer science",
+      "id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 3.048839,
+          "ended_at": "2026-05-27T09:10:31.888073+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-27T09:10:28.839234+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction",
+      "updated_at": "2026-05-27T09:10:30.110308+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-628-foundation-protocol-a-coordination-layer/idea/foundation-protocol-a-coordination-layer.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bang Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yongfeng Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayi Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhaoyang Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sirui Hong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maojia Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoqiang Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mingyi Deng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zijie Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ronghao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mingzhe Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yutong Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xingjian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yifan Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jianhao Ruan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yiran Peng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuangrui Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinlin Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yizhang Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongjie Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dekun Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chen Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lizi Liao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Han Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jian Pei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Heng Ji",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiang Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuyu Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenglin Wu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-27T09:10:32.424067+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
+        "repo_path": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Autonomous agents are moving from tools into a layer of social infrastructure: they browse, purchase, deploy software, manage systems, and increasingly interact with one another. As these systems scale, the bottleneck shifts away from raw model capability toward coordination. Agents need to form reliable\u2026",
+      "field": "computer science",
+      "id": "PROJ-628-foundation-protocol-a-coordination-layer",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.734906,
+          "ended_at": "2026-05-27T09:10:34.623362+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-27T09:10:31.888456+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Foundation Protocol: A Coordination Layer for Agentic Society",
+      "updated_at": "2026-05-27T09:10:32.722967+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fancy Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Congjie Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Murphy Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rio Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sueky Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hao Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Gene Jin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaijie Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pony Ma",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-27T09:10:35.243445+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
+        "repo_path": "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "As personal agents evolve to handle complex, user-centric tasks, static plain-text chat is rapidly becoming a bottleneck. Generative UI emerges as the necessary new interface layer, dynamically synthesizing the right controls, options, and state from the interaction context in real time. We present Macaron-A2UI, a\u2026",
+      "field": "computer science",
+      "id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.708461,
+          "ended_at": "2026-05-27T09:10:37.332108+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-27T09:10:34.623647+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents",
+      "updated_at": "2026-05-27T09:10:35.546249+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/idea/wbench-a-comprehensive-multi-turn-benchm.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaining Ying",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hengrui Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Siyu Ren",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiamu Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fengjiao Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziwen Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuezhi Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xunliang Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Henghui Ding",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-27T09:10:37.839831+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
+        "repo_path": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Interactive world models are advancing rapidly, yet existing benchmarks cover only part of the required competencies, leaving no unified standard for systematic evaluation. To fill this gap, we introduce WBench, a comprehensive multi-turn benchmark for interactive world model evaluation along five dimensions, namely\u2026",
+      "field": "computer science",
+      "id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 4.75028,
+          "ended_at": "2026-05-27T09:10:42.082696+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-27T09:10:37.332416+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation",
+      "updated_at": "2026-05-27T09:10:40.368995+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-27T09:10:52.979686+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
+        "repo_path": "projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.25604 Submitted by: github-actions[bot] (Intake from human-submission issue #234.)",
+      "field": "other",
+      "id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 12.768622,
+          "ended_at": "2026-05-27T09:10:54.851607+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-27T09:10:42.082985+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2605.25604",
+      "updated_at": "2026-05-27T09:10:53.115930+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 12.768622,
+      "ended_at": "2026-05-27T09:10:54.851607+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-27T09:10:42.082985+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 4.75028,
+      "ended_at": "2026-05-27T09:10:42.082696+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-27T09:10:37.332416+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.708461,
+      "ended_at": "2026-05-27T09:10:37.332108+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-27T09:10:34.623647+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.734906,
+      "ended_at": "2026-05-27T09:10:34.623362+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-27T09:10:31.888456+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 3.048839,
+      "ended_at": "2026-05-27T09:10:31.888073+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-27T09:10:28.839234+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -76687,80 +77893,6 @@
       "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T20:44:50.696469Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 0.000451,
-      "ended_at": "2026-05-16T20:44:50.631526Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T20:44:50.631075Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "David Krakauer (simulated)",
-      "duration_s": 91.691343,
-      "ended_at": "2026-05-16T20:17:24.807637+00:00",
-      "excerpt": "The proposal to map methodological evolution as a graph structure is not merely a technical convenience; it is a recognition that the history of science itself possesses a topology. We often speak of the lineage of ideas as if it were a ri\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "david-krakauer",
-      "project_id": "PROJ-569-intern-atlas-a-methodological-evolution",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/reviews/david-krakauer-simulated__2026-05-16__paper.md",
-      "started_at": "2026-05-16T20:15:53.116294+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Daniel Kahneman (simulated)",
-      "duration_s": 45.787632,
-      "ended_at": "2026-05-16T19:52:29.109798+00:00",
-      "excerpt": "Consider a simple case. Two observers rate the same child's social interaction. Observer A knows the child received the mindfulness intervention; Observer B does not. System 1 will want to see improvement in Observer A's ratings, even when\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "daniel-kahneman",
-      "project_id": "PROJ-008-psychology-research",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-008-psychology-research/reviews/research/daniel-kahneman-simulated__2026-05-16__research.md",
-      "started_at": "2026-05-16T19:51:43.322166+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Dan Rockmore (simulated)",
-      "duration_s": 34.736643,
-      "ended_at": "2026-05-16T19:25:59.629368+00:00",
-      "excerpt": "There's something quietly elegant about treating methodological evolution as a graph structure. I've spent years tracing how mathematical ideas\u2014from the Riemann Hypothesis to knot invariants\u2014travel through communities, sometimes leaping ac\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "dan-rockmore",
-      "project_id": "PROJ-569-intern-atlas-a-methodological-evolution",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/dan-rockmore-simulated__2026-05-16__research.md",
-      "started_at": "2026-05-16T19:25:24.892725+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Aristotle (simulated)",
-      "duration_s": 172.933436,
-      "ended_at": "2026-05-16T18:51:32.833412+00:00",
-      "excerpt": "Of the inquiry into CTCF binding, we may distinguish four causes. The material cause is the nucleotide sequence itself. The formal cause is the motif shape. The efficient cause is the protein binding. The final cause is the chromatin archi\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "aristotle",
-      "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/reviews/research/aristotle-simulated__2026-05-16__research.md",
-      "started_at": "2026-05-16T18:48:39.899976+00:00"
     }
   ],
   "schema_version": "2.0.0"
