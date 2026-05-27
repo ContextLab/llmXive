@@ -7405,7 +7405,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-27T09:49:07.532846+00:00",
+  "generated_at": "2026-05-27T09:52:05.682077+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -70751,7 +70751,7 @@
         "data": null,
         "idea": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/idea/trisplat-simulation-ready-feed-forward-3.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
         "paper_spec": null,
@@ -70838,10 +70838,10 @@
       },
       "created_at": "2026-05-27T09:10:29.535458+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
-        "repo_path": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Sparse-view 3D reconstruction is increasingly addressed with feed-forward splatting networks that predict explicit primitives directly from images. Yet most existing methods remain centered on Gaussian primitives and expose surfaces only indirectly: extracting a usable mesh for downstream simulation, physics\u2026",
@@ -70878,7 +70878,7 @@
         "data": null,
         "idea": "projects/PROJ-628-foundation-protocol-a-coordination-layer/idea/foundation-protocol-a-coordination-layer.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
         "paper_spec": null,
@@ -71133,10 +71133,10 @@
       },
       "created_at": "2026-05-27T09:10:32.424067+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
-        "repo_path": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Autonomous agents are moving from tools into a layer of social infrastructure: they browse, purchase, deploy software, manage systems, and increasingly interact with one another. As these systems scale, the bottleneck shifts away from raw model capability toward coordination. Agents need to form reliable\u2026",
@@ -71173,7 +71173,7 @@
         "data": null,
         "idea": "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -71284,10 +71284,10 @@
       },
       "created_at": "2026-05-27T09:10:35.243445+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
-        "repo_path": "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/idea/macaron-a2ui-a-model-for-generative-ui-i.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "As personal agents evolve to handle complex, user-centric tasks, static plain-text chat is rapidly becoming a bottleneck. Generative UI emerges as the necessary new interface layer, dynamically synthesizing the right controls, options, and state from the interaction context in real time. We present Macaron-A2UI, a\u2026",
@@ -71324,7 +71324,7 @@
         "data": null,
         "idea": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/idea/wbench-a-comprehensive-multi-turn-benchm.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/pdf/2605.25874.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
         "paper_spec": null,
@@ -71419,10 +71419,10 @@
       },
       "created_at": "2026-05-27T09:10:37.839831+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
-        "repo_path": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/pdf/2605.25874.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/pdf/2605.25874.pdf",
+        "repo_path": "projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/pdf/2605.25874.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Interactive world models are advancing rapidly, yet existing benchmarks cover only part of the required competencies, leaving no unified standard for systematic evaluation. To fill this gap, we introduce WBench, a comprehensive multi-turn benchmark for interactive world model evaluation along five dimensions, namely\u2026",
@@ -71459,7 +71459,7 @@
         "data": null,
         "idea": "projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-631-https-arxiv-org-abs-2605-25604/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -71481,10 +71481,10 @@
       },
       "created_at": "2026-05-27T09:10:52.979686+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
-        "repo_path": "projects/PROJ-631-https-arxiv-org-abs-2605-25604/idea/https-arxiv-org-abs-2605-25604.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-631-https-arxiv-org-abs-2605-25604/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.25604 Submitted by: github-actions[bot] (Intake from human-submission issue #234.)",
