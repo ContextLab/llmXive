@@ -31,12 +31,24 @@
     "classified_at": "2026-05-24T03:43:01Z",
     "verdict": false
   },
+  "PROJ-587-episodic-future-thinking-in-llms-impleme::1.6.0": {
+    "classified_at": "2026-05-27T03:40:14Z",
+    "verdict": false
+  },
   "PROJ-588-narrative-archaeology-reverse-engineerin::1.6.0": {
     "classified_at": "2026-05-23T03:29:33Z",
     "verdict": false
   },
   "PROJ-589-dream-state-learning-implementing-rem-li::1.6.0": {
     "classified_at": "2026-05-23T03:20:45Z",
+    "verdict": false
+  },
+  "PROJ-591-neuromorphic-transformer-networks-spikin::1.6.0": {
+    "classified_at": "2026-05-27T03:36:03Z",
+    "verdict": false
+  },
+  "PROJ-592-phenomenological-ai-first-person-experie::1.6.0": {
+    "classified_at": "2026-05-27T03:28:26Z",
     "verdict": false
   }
 }
