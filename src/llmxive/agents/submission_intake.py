@@ -38,6 +38,7 @@ from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import chat_with_fallback
+from llmxive.librarian import LIBRARIAN_DEFAULT_FIELDS
 from llmxive.state import project as project_store
 from llmxive.types import AgentRegistryEntry, Project, Stage
 
@@ -597,12 +598,13 @@ class SubmissionIntakeAgent(Agent):
 
 # Valid research fields the LLM may classify a new project into (matches the
 # prompt's "Valid fields" list). Used to validate the verdict's `field` value.
-VALID_FIELDS: frozenset[str] = frozenset({
-    "biology", "chemistry", "computer science", "materials science",
-    "mathematics", "neuroscience", "physics", "psychology", "statistics",
+# Built from the librarian's canonical default-field list (single source of
+# truth, Constitution Principle I — see #116) PLUS the broader
+# submission-classification extras; do NOT re-type the canonical nine here.
+VALID_FIELDS: frozenset[str] = frozenset(LIBRARIAN_DEFAULT_FIELDS) | {
     "astronomy", "environmental science", "economics", "engineering",
     "medicine", "philosophy", "linguistics", "other",
-})
+}
 
 
 def _triage_feedback_llm(

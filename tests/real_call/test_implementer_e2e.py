@@ -142,12 +142,17 @@ def test_implementer_e2e_writing_fixture() -> None:
         # SC-001 wall-clock budget (logged as duration_s). The implementer
         # makes one real Dartmouth (qwen-122b) call + one lualatex compile
         # per task, sequentially (spec-mandated one-task-at-a-time workflow).
-        # Measured: ~410s locally, but the standard GitHub Actions runner is
-        # ~2.4x slower (~16 min) — the original 600s budget was set from
-        # local timing and is not achievable on the actual CI runner. 1200s
-        # (20 min) matches the measured runner reality with headroom while
-        # still catching a genuine performance regression / hang.
-        assert log.duration_s <= 1200.0, (
+        # Measured ~410s locally, but a standard GitHub Actions runner is
+        # ~2.4x slower, and the backend now treats a transient "model not
+        # found" (a model briefly unloaded on Dartmouth's vLLM cluster) as
+        # retryable — walking the free peer-model fallback chain instead of
+        # failing fast. That resilience is correct but adds real wall-clock
+        # when blips occur (a CI run hit 1264s on three tasks). 2400s (40 min)
+        # is generous headroom over that observed worst case — absorbing a run
+        # where every task walks the fallback chain — while still catching a
+        # genuine hang (bounded anyway by the 180s per-request deadline × the
+        # finite retry/fallback fan-out).
+        assert log.duration_s <= 2400.0, (
             f"SC-001 budget exceeded: {log.duration_s:.1f}s"
         )
 

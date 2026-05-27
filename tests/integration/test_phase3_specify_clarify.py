@@ -452,6 +452,23 @@ class TestPhase3EndToEnd:
 
         pid = "PROJ-261-evaluating-the-impact-of-code-duplicatio"
         proj_state_pre = project_store.load(pid, repo_root=REPO_ROOT)
+        # This Phase-3 e2e test is DESTRUCTIVE: validate_phase3 only accepts a
+        # project at 'project_initialized', and the `finally` rolls the project
+        # back to that stage (deleting the generated spec.md). Once PROJ-261 has
+        # been carried forward past Phase 3 (e.g. to 'clarified' for Phase 4),
+        # running this would clobber the downstream phase's input. Skip unless
+        # the project is still parked at its Phase-3 entry stage.
+        pre_stage = (
+            proj_state_pre.current_stage.value
+            if hasattr(proj_state_pre.current_stage, "value")
+            else str(proj_state_pre.current_stage)
+        )
+        if pre_stage != "project_initialized":
+            pytest.skip(
+                f"PROJ-261 is at {pre_stage!r}, not 'project_initialized' — it has "
+                "been carried forward past Phase 3; running this destructive e2e "
+                "would clobber the downstream phase input."
+            )
         try:
             proc = subprocess.run(
                 [sys.executable, "scripts/validate_phase3.py", "--project", pid],

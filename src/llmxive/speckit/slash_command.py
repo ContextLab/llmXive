@@ -139,6 +139,7 @@ class SlashCommandAgent(abc.ABC):
             )
             runlog.append_entry(entry)
             _maybe_write_inspection(
+                agent=self,
                 ctx=ctx, started=started, ended=ended, outcome=outcome,
                 failure_reason=failure_reason, messages=messages,
                 llm_response_text=llm_response_text, model_used=model_used,
@@ -158,6 +159,7 @@ def _maybe_write_inspection(
     llm_response_text: str,
     model_used: str,
     backend_used: BackendName,
+    agent: "SlashCommandAgent | None" = None,
 ) -> None:
     """Spec 011 / FR-003 inspection-record hook (opt-in via env var).
 
@@ -176,6 +178,10 @@ def _maybe_write_inspection(
         from llmxive.speckit._inspection import capture
         sys_prompt = next((m.content for m in messages if m.role == "system"), "")
         usr_prompt = next((m.content for m in messages if m.role == "user"), "")
+        # spec 014 / FR-004: an agent that ran an analyze loop (the Tasker)
+        # accumulates per-round sub-records on ``_inspection_rounds``; capture
+        # them here. Every other agent leaves the attribute unset → ``[]``.
+        rounds = list(getattr(agent, "_inspection_rounds", []) or [])
         capture(
             project_id=ctx.project_id,
             agent_name=ctx.agent_name,
@@ -192,6 +198,7 @@ def _maybe_write_inspection(
             reset_artifacts=[],
             error=failure_reason,
             spec_root=Path(env_dir).parent.parent,  # env points at .../inspections/<project_id>; spec_root = .../  (two parents up)
+            rounds=rounds,
         )
     except Exception:  # noqa: BLE001 — never block an agent on a capture failure
         pass

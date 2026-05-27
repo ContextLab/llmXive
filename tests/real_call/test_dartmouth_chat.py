@@ -16,26 +16,31 @@ import pytest
     reason="DARTMOUTH_CHAT_API_KEY not set",
 )
 def test_dartmouth_real_chat() -> None:
-    from llmxive.backends.dartmouth import DartmouthBackend
+    from llmxive.backends.dartmouth import DartmouthBackend, is_free_model
     from llmxive.backends.base import ChatMessage
 
     backend = DartmouthBackend()
     models = backend.list_models()
     assert isinstance(models, list) and models, "list_models() should return >=1 model"
 
-    # Prefer the v1 default model (qwen.qwen3.5-122b). It is a *reasoning*
+    # v1 uses ONLY free Dartmouth models (Constitution Principle IV). The
+    # catalog also lists paid external providers (gpt-5, claude, gemini, ...)
+    # which DartmouthBackend.chat refuses, so this test must select a *free*
+    # model. Prefer the v1 default qwen.qwen3.5-122b. It is a *reasoning*
     # model: it emits internal <think> tokens that count toward the
     # completion budget but are stripped from .content. With too small a
     # max_tokens the reasoning block consumes the entire budget and we
     # get '' back with finish_reason=length — which dartmouth.py correctly
     # surfaces as a TransientBackendError so the router falls through to a
     # peer. So this test must give it a generous budget (see below).
-    # Fall back to gemma-3-27b (non-reasoning) or anything not flagged.
-    preferred = ("qwen.qwen3.5-122b", "google.gemma-3-27b-it")
-    model_id = next((m for m in preferred if m in models), None)
+    # Fall back to gemma-4-31B (non-reasoning) or any other free model.
+    preferred = ("qwen.qwen3.5-122b", "google.gemma-4-31B-it")
+    model_id = next((m for m in preferred if m in models and is_free_model(m)), None)
     if model_id is None:
-        non_reasoning = [m for m in models if "gpt-oss" not in m and "reasoning" not in m.lower()]
-        model_id = non_reasoning[0] if non_reasoning else models[0]
+        free = [m for m in models if is_free_model(m)]
+        assert free, "no free Dartmouth model available in the catalog"
+        non_reasoning = [m for m in free if "gpt-oss" not in m and "reasoning" not in m.lower()]
+        model_id = (non_reasoning or free)[0]
 
     # Reasoning models can burn 1-2K tokens on a <think> block even for a
     # trivial prompt; 4096 leaves comfortable headroom for the answer.

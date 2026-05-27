@@ -24,6 +24,12 @@ from .manifest import ManifestItem, RuleFired, add_item, new_manifest
 # Literal placeholder strings drawn from .specify/templates/*.md
 # We extract them at runtime so we stay in sync with template evolution.
 PLACEHOLDER_BRACKET_RE = re.compile(r"\[[A-Z][^\]]{2,80}\]")  # [FEATURE NAME], [Brief Title], etc.
+
+# Structural task-format labels (e.g. "[US1]", "[Story]", "[TaskID]") appear
+# VERBATIM in a *real* tasks.md ("- [ ] T001 [P] [US1] ...") — they are required
+# format markers, not fill-in placeholders. They MUST NOT be learned as template
+# phrases, or every correctly-formatted tasks.md would mis-classify 'template'.
+STRUCTURAL_LABEL_RE = re.compile(r"^\[(Story\??|US\d+|TaskID|ID|P\??)\]$")
 ACTION_REQUIRED_RE = re.compile(r"ACTION REQUIRED:", re.IGNORECASE)
 META_INSTRUCTION_RE = re.compile(
     r"(fill (?:them|it|this|out|in) (?:out )?with the right|placeholders\?|REMOVE IF UNUSED)",
@@ -43,8 +49,12 @@ def _load_template_phrases(templates_dir: Path) -> list[str]:
     phrases: list[str] = []
     for tmpl in sorted(templates_dir.glob("*.md")):
         text = tmpl.read_text()
-        # Take [Bracketed Placeholder] strings
-        phrases.extend(PLACEHOLDER_BRACKET_RE.findall(text))
+        # Take [Bracketed Placeholder] strings, excluding structural task-format
+        # labels that legitimately survive into a real tasks.md.
+        phrases.extend(
+            p for p in PLACEHOLDER_BRACKET_RE.findall(text)
+            if not STRUCTURAL_LABEL_RE.match(p)
+        )
         # Take meta-instruction sentences
         for m in META_INSTRUCTION_RE.finditer(text):
             phrases.append(m.group(0))
@@ -58,9 +68,34 @@ def _load_template_phrases(templates_dir: Path) -> list[str]:
     return out
 
 
+def _placeholder_scan_text(text: str) -> str:
+    """Return ``text`` with content that legitimately contains brackets removed,
+    so template-placeholder detection (Rules 1 & 2) sees only standalone
+    ``[PLACEHOLDER]`` tokens in prose.
+
+    Strips fenced code/diagram blocks (```...``` and ~~~...~~~ — e.g. a mermaid
+    ER diagram or an ASCII data-flow chart whose node labels look like
+    ``[Dataset Download]``), HTML comments, and markdown link/image targets
+    (``[text](url)``, ``[text][ref]``). Brackets in those constructs are
+    CONTENT, not fill-in placeholders, and previously caused real planner
+    artifacts to mis-classify ``template`` (spec 014).
+    """
+    t = re.sub(r"```.*?```", "", text, flags=re.S)
+    t = re.sub(r"~~~.*?~~~", "", t, flags=re.S)
+    t = re.sub(r"<!--.*?-->", "", t, flags=re.S)
+    t = re.sub(r"!?\[[^\]]*\]\([^)]*\)", "", t)   # [text](url) / ![alt](url)
+    t = re.sub(r"!?\[[^\]]*\]\[[^\]]*\]", "", t)  # [text][ref]
+    return t
+
+
 def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[RuleFired]]:
     """Classify one artifact as real | partial | template."""
     text = Path(path).read_text()
+    # Rule 2 (raw bracket density) operates on a "scan" view with fenced blocks,
+    # HTML comments, and markdown links removed — brackets there are content
+    # (mermaid labels, code, link text), not placeholders. Rule 1 (learned
+    # phrases) uses the full text.
+    scan = _placeholder_scan_text(text)
     rules: list[RuleFired] = []
 
     # Rule 0: legacy migration with substantive body -> always real
@@ -76,6 +111,11 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
     hits = 0
     sample_hits: list[str] = []
     for phrase in template_phrases:
+        # Rule 1 matches LEARNED template phrases (e.g. "[REMOVE IF UNUSED]",
+        # "[FEATURE]") against the FULL text — they are genuine template signals
+        # wherever they appear, including inside a template's fenced examples.
+        # (Structural task labels like "[US1]" are already excluded at learn
+        # time, so a real tasks.md does not trip this rule.)
         if phrase and phrase in text:
             hits += 1
             if len(sample_hits) < 3:
@@ -93,10 +133,20 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
             ))
         return "template", rules
 
-    # Rule 2: unfilled bracket density
-    brackets = PLACEHOLDER_BRACKET_RE.findall(text)
+    # Rule 2: unfilled bracket density (on the scan view).
+    # Count ONLY multi-word descriptive placeholders ("[FEATURE NAME]",
+    # "[e.g., ...]", "[Brief Title]") — the genuine "saturated unfilled
+    # template" signal. Single-token brackets are excluded: they are either
+    # real template placeholders ("[FEATURE]", "[DATE]"), which Rule 1 already
+    # catches from the learned set, OR LLM-emitted labels/annotations
+    # ("[P]", "[US1]", "[REVISION]", "[X]") that legitimately appear in a real
+    # tasks.md and must not be mistaken for unfilled placeholders.
+    brackets = [
+        b for b in PLACEHOLDER_BRACKET_RE.findall(scan)
+        if not STRUCTURAL_LABEL_RE.match(b) and " " in b[1:-1].strip()
+    ]
     if brackets and len(brackets) >= 6:
-        # treat >=6 unfilled bracket placeholders as template
+        # treat >=6 unfilled multi-word bracket placeholders as template
         rules.append(RuleFired(
             rule_id="unfilled_bracket_density",
             evidence_snippet=f"{len(brackets)} bracket markers; sample={brackets[:3]}",
@@ -119,19 +169,46 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
 
 
 def _body_density(text: str) -> tuple[int, int]:
-    """Count (short, total) section bodies between H2+ headings."""
+    """Count (short, total) section bodies between H2+ headings.
+
+    A section counts as "short" only when it has essentially no content of any
+    kind. Markdown tables, fenced code/diagram blocks (```...``` — including
+    mermaid), and list items all count as real content: a data-model.md that
+    specifies entities via attribute tables or an ER diagram is NOT "partial".
+    A parent heading whose immediate body is empty because its content lives in
+    deeper subsections (e.g. ``## Entity Definitions`` followed by ``### Foo``)
+    is structural, not missing content, and is likewise not short.
+
+    Spec 014 bug-fix: the previous implementation stripped fenced blocks before
+    measuring, so a legitimately diagram/table/code-heavy artifact (mermaid ER
+    diagram, per-entity tables, fenced CSV schemas) was mis-classified
+    ``partial`` and the Planner could never advance any project past
+    ``clarified``. Genuinely empty/stub sections (headings with no content) are
+    still flagged; literal-template artifacts are still caught earlier by the
+    template-phrase and bracket-density rules.
+    """
     headings = list(HEADING_RE.finditer(text))
     if not headings:
         return 0, 0
     short = 0
     total = 0
     for i, h in enumerate(headings):
+        level = len(h.group(1))
         body_start = h.end()
         body_end = headings[i + 1].start() if i + 1 < len(headings) else len(text)
-        body = text[body_start:body_end].strip()
-        # strip code fences + HTML comments
-        body = re.sub(r"```.*?```", "", body, flags=re.S)
-        body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+        raw_body = text[body_start:body_end]
+        # Parent heading: the next heading is deeper and the immediate body is
+        # whitespace-only -> content lives in the children; not "missing".
+        if (
+            i + 1 < len(headings)
+            and len(headings[i + 1].group(1)) > level
+            and not raw_body.strip()
+        ):
+            total += 1
+            continue
+        # Strip only template meta-instruction comments. KEEP fenced blocks,
+        # tables, and lists — they are real content.
+        body = re.sub(r"<!--.*?-->", "", raw_body, flags=re.S)
         body_clean = re.sub(r"\s+", " ", body).strip()
         if len(body_clean) < 20:
             short += 1

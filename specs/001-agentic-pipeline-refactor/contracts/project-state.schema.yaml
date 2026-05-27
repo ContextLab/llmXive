@@ -72,6 +72,9 @@ properties:
       - ready_for_implementation
       - paper_revision_blocked
       - posted
+      # Spec 013 / FR-030: publisher blocks a project after 5 consecutive
+      # Zenodo failures (cleared via `llmXive project republish`).
+      - publish_blocked
       # Cross-stage states
       - human_input_needed
       - blocked

@@ -74,6 +74,193 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_table_and_diagram_heavy_data_model_classifies_real(self):
+        """Spec 014 regression: a substantive data-model.md whose sections are
+        an ER mermaid diagram, per-entity attribute tables, fenced CSV schemas,
+        and parent headings must classify 'real' — NOT 'partial'. The previous
+        body-density rule stripped fenced blocks before measuring and counted
+        table/diagram-heavy sections as empty, blocking the Planner forever."""
+        tmp = Path(tempfile.mkdtemp(prefix="dm_test_"))
+        try:
+            dm = tmp / "data-model.md"
+            dm.write_text(textwrap.dedent("""\
+                # Data Model: Example
+
+                ## Entity Relationships
+
+                ```mermaid
+                erDiagram
+                    CodeSegment ||--o{ CloneDensityMetric : "has"
+                    CodeSegment ||--o{ ModelMetric : "has"
+                ```
+
+                ## Entity Definitions
+
+                ### CodeSegment
+
+                Represents a discrete unit of Python code extracted from the corpus.
+
+                | Attribute | Type | Required | Description |
+                |-----------|------|----------|-------------|
+                | segment_id | string | YES | Unique identifier |
+                | file_path | string | YES | Original file path |
+                | ast_hash | string | YES | SHA256 of canonical AST |
+
+                ### CloneDensityMetric
+
+                Computed syntactic clone density for a segment.
+
+                | Attribute | Type | Required | Description |
+                |-----------|------|----------|-------------|
+                | metric_id | string | YES | Unique identifier |
+                | density_score | float | YES | matched / total |
+
+                ## CSV File Schemas
+
+                ### clone_density_metrics.csv
+
+                ```csv
+                segment_id,threshold,density_score
+                abc123,0.8,0.42
+                ```
+
+                ## Data Flow
+
+                Segments are extracted, hashed, scored for density, then evaluated
+                by the model; the correlation step joins density and model metrics.
+            """))
+            cls, rules = classify(dm, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "real",
+                msg=f"table/diagram data-model misclassified {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_real_tasks_md_with_format_labels_classifies_real(self):
+        """Spec 014 regression: a real tasks.md uses the required structural
+        labels [P]/[US1]/[Story], which are ALSO present in tasks-template.md.
+        They must NOT be learned as template placeholders, or every correctly
+        formatted tasks.md would mis-classify 'template'. The tasks-template
+        itself must still classify 'template' (it has real placeholders)."""
+        tmp = Path(tempfile.mkdtemp(prefix="tasks_test_"))
+        try:
+            tasks = tmp / "tasks.md"
+            tasks.write_text(textwrap.dedent("""\
+                # Tasks: Evaluating Code Duplication Impact
+
+                **Input**: Design documents from specs/001-x/
+
+                ## Phase 1: Setup
+
+                - [ ] T001 Create project structure in src/dup/
+                - [ ] T002 [P] Configure pytest in pyproject.toml
+
+                ## Phase 3: User Story 1 (Priority: P1)
+
+                - [ ] T003 [P] [US1] Implement AST parser in src/dup/parser.py
+                - [ ] T004 [US1] Implement clone scorer in src/dup/score.py
+                - [ ] T005 [P] [US2] Add perplexity probe in src/dup/probe.py
+                - [ ] T006 [US2] Wire correlation in src/dup/correlate.py
+                - [ ] T007 [US3] Emit results to data/results/out.csv
+            """))
+            cls, rules = classify(tasks, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "real",
+                msg=f"real tasks.md misclassified {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+            # The template itself must still be caught.
+            tmpl_cls, _ = classify(TEMPLATES_DIR / "tasks-template.md", templates_dir=TEMPLATES_DIR)
+            self.assertEqual(tmpl_cls, "template")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_fenced_flowchart_bracket_labels_not_template(self):
+        """Spec 014 regression: bracketed node labels inside a fenced block
+        (a mermaid/ASCII data-flow chart, e.g. '[Dataset Download] -> ...') are
+        diagram CONTENT, not unfilled [PLACEHOLDER] markers, and must not trip
+        the bracket-density rule. A doc saturated with standalone bracket
+        placeholders in prose must still classify template."""
+        tmp = Path(tempfile.mkdtemp(prefix="flow_test_"))
+        try:
+            ok = tmp / "data-model.md"
+            ok.write_text(textwrap.dedent("""\
+                # Data Model: Example
+
+                ## Widget
+
+                | field | type |
+                |-------|------|
+                | id | string |
+
+                ## Data Flow
+
+                ```
+                [Dataset Download] -> data/raw/
+                [Clone Detection] -> data/processed/clones.csv
+                [Perplexity Compute] -> data/processed/ppl.csv
+                [Bug Detection Eval] -> data/results/bugs.csv
+                [Correlation] -> data/results/corr.csv
+                [Plotting] -> data/results/plots/
+                ```
+            """))
+            self.assertEqual(classify(ok, templates_dir=TEMPLATES_DIR)[0], "real")
+
+            # Standalone bracket placeholders in PROSE still flag template.
+            bad = tmp / "bad.md"
+            bad.write_text(
+                "# Doc\n\nFill these: [Alpha Value] [Beta Value] [Gamma Value] "
+                "[Delta Value] [Epsilon Value] [Zeta Value] [Eta Value].\n"
+            )
+            self.assertEqual(classify(bad, templates_dir=TEMPLATES_DIR)[0], "template")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_genuinely_empty_sections_still_partial(self):
+        """The body-density rule must still flag headings-with-no-content so the
+        bug-fix above does not weaken genuine partial detection."""
+        tmp = Path(tempfile.mkdtemp(prefix="empty_test_"))
+        try:
+            empty = tmp / "data-model.md"
+            empty.write_text(
+                "# Doc\n\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n\n## Epsilon\n"
+            )
+            cls, rules = classify(empty, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "partial",
+                msg=f"empty-section doc should be partial; got {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_single_token_bracket_annotations_not_template(self):
+        """Spec 014 regression: a real tasks.md the Tasker annotates with
+        single-token brackets ([REVISION], [P], [US1]) must NOT trip the
+        bracket-density rule (those are labels/annotations, not unfilled
+        placeholders). Only multi-word descriptive placeholders count. A doc
+        saturated with multi-word descriptive placeholders still classifies."""
+        tmp = Path(tempfile.mkdtemp(prefix="anno_test_"))
+        try:
+            tasks = tmp / "tasks.md"
+            tasks.write_text(
+                "# Tasks: Dipole Prediction\n\n## Phase 1\n\n"
+                + "".join(
+                    f"- [ ] T{i:03d} [P] [US1] [REVISION] Implement step {i} in src/m{i}.py\n"
+                    for i in range(1, 9)
+                )
+            )
+            self.assertEqual(classify(tasks, templates_dir=TEMPLATES_DIR)[0], "real")
+
+            # Multi-word descriptive placeholders in prose still flag template.
+            bad = tmp / "bad.md"
+            bad.write_text(
+                "# Doc\n\nFill: [Alpha Value Here] [Beta Value Here] [Gamma Value Here] "
+                "[Delta Value Here] [Epsilon Value Here] [Zeta Value Here] [Eta Value Here].\n"
+            )
+            self.assertEqual(classify(bad, templates_dir=TEMPLATES_DIR)[0], "template")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
 
 class TestAuditEndToEnd(unittest.TestCase):
     def setUp(self):

@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+description: "Schema for clone density metrics output"
+properties:
+  segment_id:
+    type: string
+    description: "Unique identifier for code segment"
+    pattern: "^[a-zA-Z0-9_.-]+:[0-9]+:[0-9]+$"
+  clone_density:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of duplicate subtrees"
+  threshold:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Clone detection threshold used"
+  duplicate_count:
+    type: integer
+    minimum: 0
+    description: "Number of matching subtrees"
+  total_subtrees:
+    type: integer
+    minimum: 1
+    description: "Total subtrees analyzed"
+required:
+  - segment_id
+  - clone_density
+  - threshold
+  - duplicate_count
+  - total_subtrees
+additionalProperties: false

@@ -1,0 +1,795 @@
+resolved_at: '2026-05-22T06:33:17.396193+00:00'
+datasets:
+- intent: 10.1038/sdata.2014.22
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: QM9
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yairschiff/qm9/resolve/main/data/train-00000-of-00001-baa918c342229731.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19525
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yairschiff/qm9/resolve/main/data/train-00000-of-00001-baa918c342229731.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hassanharb/gaps-qm9-1k/resolve/main/data/train-00000-of-00001-3e8a1863fa44a20f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10926772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16847162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11583221
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274793
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8276902
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20581
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20440
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.19050
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/140414-veda-generation-of-3d-molecules-via-variance-exploding-diffusion-with-annealing
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/141649-connectivity-guided-sparsification-of-2-fwl-gnns-preserving-full-expressivity-with-improved-efficiency
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 165737
+      parsed: true
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijies.org/portfolio-item/B114213020226/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6798322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6785285
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20336924
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20336924
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.35637.03045
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20337461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20337461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://digitalcollection.zhaw.ch/handle/11475/35505
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://digitalcollection.zhaw.ch/handle/11475/35070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20302630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20302630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20264624
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20264624
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20264590
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mustafakeser/injection-molding-QA/resolve/main/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mustafakeser/injection-molding-QA/resolve/main/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20338739
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20338739
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20338666
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20338666
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Augustine_University_Post_UTME_Form_2026_Is_Out_o8039478772_-_0803-947-8772_Candidates_must_meet_course-specific_requirements_and_follow_the_entry_rules_to_qualify_for_admission_consideration_Dr_Mercy_Anthony_o8039478772_23408039478772_/32357664
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/media/Video_2_Automated_geolocation_of_diverse_impulsive_events_using_total_electron_content_measurements_mp4/32357871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5603468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20229077
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20229077
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20225485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20225485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/24/items/1.0072850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-011
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Datamatrix_used_in_the_study_New_turiasaur_specimens_from_the_Bathonian_of_India_and_their_paleobiogeographic_significance_/32347131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Literature_review_on_best_practice_approaches_to_in-home_domestic_assistance_including_payment_models/32261097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10323271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962265
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/843489
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.98sf7m0tr
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.c2fqz61dg
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18998875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18998875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nakala.fr/10.34847/nkl.8c1d4385
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Table_1_for_the_manuscript_Multi-part_papers_in_neuroscience_and_neuroimaging_publication_patterns_and_structural_characteristics/32357889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Datamatrix_used_in_the_study_New_turiasaur_specimens_from_the_Bathonian_of_India_and_their_paleobiogeographic_significance_/32347131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14186325
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20338477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20338477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: B3LYP
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6689657075b0d7666e1ac8cc/2b49c0ae0ea7470f8d2d79d4d3befb42cd5b469d47d83f0dd85ff21fefdc9c88?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20260522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260522T063254Z&X-Amz-Expires=3600&X-Amz-Signature=092ce06952a92879ba3268a46a80c7c05877bf03c12949324e6e8e69f65fa502&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27000000001-000253696.json%3B+filename%3D%22000000001-000253696.json%22%3B&response-content-type=application%2Fjson&x-amz-checksum-mode=ENABLED&x-id=GetObject&Expires=1779435174&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc3OTQzNTE3NH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82Njg5NjU3MDc1YjBkNzY2NmUxYWM4Y2MvMmI0OWMwYWUwZWE3NDcwZjhkMmQ3OWQ0ZDNiZWZiNDJjZDViNDY5ZDQ3ZDgzZjBkZDg1ZmYyMWZlZmRjOWM4OCoifV19&Signature=DzhbpMAGog9XbhKiQpQ8I7MP4gfx1d9TkTHdDtCkgqCs8FV5uYBt-pZwL4bXwBvQbpOVRtLLBg1e4kAcEP~zdte~oJVMnN-ewGQBv79OUrjYJhpOYwUcOTfe2drGasu1W2eJtuopjIibs4pTQ0Gc7v0KgrtxlucRazP0dnROAXmKdymPxbDfiCaE4kKr3Qe-ob5XPglBVO0XbNEebshGSYH6-pMcf-CJ7pvnLsdQpyb3h0pflSeAx0aDwfCc51T7LPdAgsD6uyu~8RF99g9YppDOHD1RKU5FlXO3Fouk857GWHRC-sEZ7GeZffbyoQV5cmq5NhoTqIZx-m9abDT2rw__&Key-Pair-Id=K2L8F4GPSG1IFC
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Haoruili46/b3lyp_pm6_chon300nosalt/resolve/main/b3lyp_merged_00000000-00099999.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/Haoruili46/b3lyp_pm6/resolve/main/data/b3lyp_merged_00000000-00399999.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://figshare.com/articles/dataset/Supplementary_Table_1_for_the_manuscript_Multi-part_papers_in_neuroscience_and_neuroimaging_publication_patterns_and_structural_characteristics/32357889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Datamatrix_used_in_the_study_New_turiasaur_specimens_from_the_Bathonian_of_India_and_their_paleobiogeographic_significance_/32347131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Accompanying_data_and_scripts_for_Temperature_reorganises_developmental_time_during_thyroid_hormone-driven_fish_metamorphosis_/31062505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CUT_Tag_data_of_histone_modifications_in_muscle_tissue_of_i_Litopenaeus_vannamei_i_/29890097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6676034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18893836
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4603759
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10565552
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19564688
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scholarsportal.info/ip-blocked/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Solvothermal_synthesis_X-ray_crystal_structure_DFT_ADME_and_exploring_antipsychotic_potential_of_Pb_Tpy_NO_sub_3_sub_sub_2_sub_complex/32351267
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Solvothermal_synthesis_X-ray_crystal_structure_DFT_ADME_and_exploring_antipsychotic_potential_of_Pb_Tpy_NO_sub_3_sub_sub_2_sub_complex/32351267/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20327120
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20327120
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

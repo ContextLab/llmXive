@@ -160,13 +160,17 @@ def test_publisher_sandbox_e2e_first_publication() -> None:
         assert len(pub.doi_versions) == 1
 
         # HEAD the DOI URL — sandbox DOIs resolve to the record page.
-        # 200 = resolved; 302 = redirect to sandbox.zenodo.org; 403 is
-        # what doi.org returns for sandbox DOIs when the user-agent is
-        # absent — that still counts as "the DOI is registered and the
-        # resolver knows about it" (the deposition itself is the proof
-        # of publication; this HEAD is a smoke check on the resolver).
+        # Any 2xx/3xx means the resolver knows about the DOI: 200 =
+        # resolved; 202 = DataCite "Accepted", returned for a freshly
+        # minted DOI that is still propagating; 3xx = redirect to
+        # sandbox.zenodo.org. 403 is what doi.org returns for sandbox
+        # DOIs when the user-agent is absent — that still counts as "the
+        # DOI is registered and the resolver knows about it". The only
+        # real failure is 404 (DOI unknown) or a 5xx. The deposition
+        # itself is the proof of publication; this HEAD is a smoke check
+        # on the resolver.
         r = requests.head(pub.doi_url, allow_redirects=True, timeout=30.0)
-        assert r.status_code in (200, 302, 403), (
+        assert (200 <= r.status_code < 400) or r.status_code == 403, (
             f"DOI URL didn't resolve: {pub.doi_url} → {r.status_code}"
         )
     finally:
@@ -217,10 +221,12 @@ def test_publisher_sandbox_versioning_preserves_original_doi() -> None:
             f"expected 2 doi_versions; got {len(new_pub.doi_versions)}"
         )
         # Original DOI URL still registered (FR-027). Sandbox DOIs
-        # often return 403 to bare HEAD requests; what we care about is
-        # that the resolver KNOWS about the DOI (i.e. didn't 404).
+        # often return 403 to bare HEAD requests, and a just-minted DOI
+        # can still be propagating (202 DataCite "Accepted"); what we
+        # care about is that the resolver KNOWS about the DOI (i.e.
+        # didn't 404). Any 2xx/3xx or 403 proves that.
         r = requests.head(original_doi_url, allow_redirects=True, timeout=30.0)
-        assert r.status_code != 404 and r.status_code in (200, 302, 403), (
+        assert (200 <= r.status_code < 400) or r.status_code == 403, (
             f"original DOI no longer resolves: {original_doi_url} → {r.status_code}"
         )
     finally:

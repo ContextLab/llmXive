@@ -1,0 +1,69 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: FeatureSet Schema
+description: Schema for extracted molecular features (3D and 2D)
+type: object
+properties:
+  mol_id:
+    type: string
+    description: "Foreign key to Molecule entity"
+  features_3d:
+    type: object
+    description: "3D coordinate features (serialized)"
+    properties:
+      coordinates:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+      atom_positions:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+    required:
+      - coordinates
+  features_2d:
+    type: object
+    description: "2D connectivity features (serialized)"
+    properties:
+      adjacency:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+      atom_degrees:
+        type: array
+        items:
+          type: integer
+    required:
+      - adjacency
+  fingerprint:
+    type: array
+    items:
+      type: integer
+      enum: [0, 1]
+    minItems: 2048
+    maxItems: 2048
+    description: "Morgan fingerprint (radius=2, n_bits=2048)"
+  coulomb_mat:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Coulomb matrix (N×N symmetric)"
+  extracted_at:
+    type: string
+    format: date-time
+    description: "Feature extraction timestamp (ISO 8601)"
+required:
+  - mol_id
+  - features_3d
+  - features_2d
+  - fingerprint
+  - coulomb_mat
+  - extracted_at
+additionalProperties: false

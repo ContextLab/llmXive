@@ -16,6 +16,7 @@ Stage transitions:
 
 from __future__ import annotations
 
+import difflib
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,18 @@ from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
 from llmxive.speckit.analyze_cmd import is_clean, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+
+
+def _unified_diff(before: str, after: str, path: str) -> str:
+    """Return a unified diff string for an inspection round's file rewrite."""
+    return "".join(
+        difflib.unified_diff(
+            before.splitlines(keepends=True),
+            after.splitlines(keepends=True),
+            fromfile=f"a/{path}",
+            tofile=f"b/{path}",
+        )
+    )
 
 
 class TaskerAgent(SlashCommandAgent):
@@ -185,6 +198,11 @@ class TaskerAgent(SlashCommandAgent):
 
         spec_path = Path(mechanical_output["spec_path"])
         plan_path = Path(mechanical_output["plan_path"])
+        # spec 014 / FR-004 (T007): accumulate one observability sub-record per
+        # analyze round into self._inspection_rounds. This is OBSERVABILITY
+        # ONLY — no decision/branch below reads it. _maybe_write_inspection in
+        # slash_command.py picks it up via getattr(agent, "_inspection_rounds").
+        self._inspection_rounds: list[dict[str, Any]] = []
         for round_idx in range(TASKER_MAX_REVISION_ROUNDS):
             try:
                 report = run_analyze(
@@ -201,6 +219,16 @@ class TaskerAgent(SlashCommandAgent):
                       "skipping further analyze rounds")
                 break
             if is_clean(report):
+                # T007 observability: a clean analyze pass is still a round —
+                # record the report it received (no Mode-B patch, no rewrites).
+                self._inspection_rounds.append({
+                    "round_index": round_idx,
+                    "analyze_report": report,
+                    "mode_b_patch": None,
+                    "verdict": "clean",
+                    "files_rewritten": [],
+                    "diffs": {},
+                })
                 # Persist the round count alongside tasks.md for SC-012.
                 round_record = (
                     ctx.project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
@@ -242,9 +270,28 @@ class TaskerAgent(SlashCommandAgent):
                 break
             doc = _parse_tasker_response(patch_response.text)
             if not isinstance(doc, dict):
+                # T007 observability: an unparseable Mode-B response is still a
+                # round — record the report + raw patch so the inspection trail
+                # shows why nothing was rewritten.
+                self._inspection_rounds.append({
+                    "round_index": round_idx,
+                    "analyze_report": report,
+                    "mode_b_patch": patch_response.text,
+                    "verdict": None,
+                    "files_rewritten": [],
+                    "diffs": {},
+                })
                 # Couldn't parse — let the next round retry rather than
                 # silently dropping the patches.
                 continue
+            # T007 observability: snapshot the three artifacts so we can emit a
+            # before/after diff for whichever ones this round rewrites.
+            _round_before = {
+                "spec.md": spec_path.read_text(encoding="utf-8") if spec_path.exists() else "",
+                "plan.md": plan_path.read_text(encoding="utf-8") if plan_path.exists() else "",
+                "tasks.md": tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else "",
+            }
+            _files_rewritten: list[str] = []
             for issue in doc.get("issues_resolved", []) or []:
                 f = issue.get("file")
                 patch = issue.get("patch", "")
@@ -274,6 +321,25 @@ class TaskerAgent(SlashCommandAgent):
                             f"no markdown headers. Skipping."
                         )
                         continue
+                if f == "spec.md":
+                    # FR-012 (spec 014): refuse a Mode-B patch that DELETES
+                    # requirements from spec.md. The LLM otherwise "resolves"
+                    # analyze findings by gutting the spec (observed on
+                    # PROJ-262: 12 FR / 5 SC -> 0 FR / 2 SC across rounds) —
+                    # the exact "weaken the constraint to make analyze pass"
+                    # the constitution forbids ("fix the code, not the test").
+                    # The set of distinct FR-/SC- identifiers MUST NOT shrink.
+                    _ids_re = r"\b(?:FR|SC)-\d+"
+                    _cur = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
+                    _cur_ids = set(_re_inner.findall(_ids_re, _cur))
+                    _new_ids = set(_re_inner.findall(_ids_re, patch))
+                    if len(_new_ids) < len(_cur_ids):
+                        print(
+                            f"[tasker] refusing Mode-B spec.md patch: it drops "
+                            f"requirements ({len(_cur_ids)} -> {len(_new_ids)} "
+                            f"FR/SC ids); a constraint would be deleted. Skipping."
+                        )
+                        continue
                 # Spec 010 fix: the original escalate branch wrote `patch`
                 # to disk verbatim; if the LLM returned a diff here, it
                 # would pollute the canonical file. Reuse the same
@@ -288,10 +354,32 @@ class TaskerAgent(SlashCommandAgent):
                     continue
                 if f == "spec.md":
                     spec_path.write_text(patch, encoding="utf-8")
+                    _files_rewritten.append("spec.md")
                 elif f == "plan.md":
                     plan_path.write_text(patch, encoding="utf-8")
+                    _files_rewritten.append("plan.md")
                 elif f == "tasks.md":
                     tasks_path.write_text(patch, encoding="utf-8")
+                    _files_rewritten.append("tasks.md")
+            # T007 observability: record this Mode-B round (before any
+            # escalate short-circuit so a cap-hit round is still captured).
+            _round_after = {
+                "spec.md": spec_path.read_text(encoding="utf-8") if spec_path.exists() else "",
+                "plan.md": plan_path.read_text(encoding="utf-8") if plan_path.exists() else "",
+                "tasks.md": tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else "",
+            }
+            _round_diffs = {
+                fn: _unified_diff(_round_before[fn], _round_after[fn], fn)
+                for fn in dict.fromkeys(_files_rewritten)
+            }
+            self._inspection_rounds.append({
+                "round_index": round_idx,
+                "analyze_report": report,
+                "mode_b_patch": patch_response.text,
+                "verdict": doc.get("verdict"),
+                "files_rewritten": list(dict.fromkeys(_files_rewritten)),
+                "diffs": _round_diffs,
+            })
             if doc.get("verdict") == "escalate":
                 # Escalate flag — caller transitions project to
                 # human_input_needed.

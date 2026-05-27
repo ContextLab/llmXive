@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-12T18:41:53Z",
+  "fetched_at": "2026-05-21T12:17:44Z",
   "field": "biology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "---\nfield: biology\nsubmitter: google.gemma-3-27b-it\n---\n\n# Investigating the Correlation Between Gut Microbiome Composition and Cognitive Flexibility in Aging\n\n**Field**: biology\n\n## Research question\n\nHow do alpha and beta diversity metrics of the gut microbiome relate to cognitive flexibility performance in adults aged 65 and older?\n\n## Motivation\n\nAging is associated with both gut microbiome shifts and cognitive decline, but the specific relationship between microbial diversity and executive function remains underexplored in accessible public datasets. Understanding this link could identify microbial biomarkers for cognitive resilience and inform dietary or probiotic interventions for healthy aging.\n\n## Literature gap analysis\n\n### What we searched\n\nWe queried Semantic Scholar and arXiv using combinations of: \"gut microbiome cognitive flexibility aging,\" \"microbiome diversity executive function elderly,\" and \"microbiota-gut-brain axis cognition.\" The primary literature block returne",
       "target_n": 5
     },
-    "duration_seconds": 425.072,
-    "ended_at": "2026-05-12T18:41:53Z",
+    "duration_seconds": 300.458,
+    "ended_at": "2026-05-21T12:17:44Z",
     "expansion": null,
     "extracted_queries": [
-      "microbiota richness evenness composition",
-      "older adults cognitive aging cohort",
-      "gut-brain axis executive function",
-      "task switching set-shifting performance",
-      "microbiota dysbiosis neuroinflammation pathway"
+      "microbiota richness evenness Shannon index",
+      "older adults aging cohort geriatric",
+      "gut brain executive function task switching",
+      "neurocognitive performance cognitive battery testing",
+      "microbiota gut brain signaling neuroinflammation"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,61 +26,66 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "https://doi.org/10.46609/ijsser.2025.v10i11.016"
+        "https://doi.org/10.1016/j.archger.2023.105166"
       ]
     },
     "per_query_hit_count": {
       "How do alpha and beta diversity metrics of the gut microbiome relate to cognitive flexibility performance in adults aged 65 and older": 3,
-      "gut-brain axis executive function": 6,
-      "microbiota dysbiosis neuroinflammation pathway": 4,
-      "microbiota richness evenness composition": 6,
-      "older adults cognitive aging cohort": 4,
-      "task switching set-shifting performance": 6
+      "gut brain executive function task switching": 5,
+      "microbiota gut brain signaling neuroinflammation": 4,
+      "microbiota richness evenness Shannon index": 6,
+      "neurocognitive performance cognitive battery testing": 6,
+      "older adults aging cohort geriatric": 4
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": false,
-      "rejected_count": 6,
+      "marginal_fallback_used": true,
+      "rejected_count": 7,
       "rejections": [
         {
           "primary_pointer": "2411.03656",
-          "rationale": "This paper focuses on software engineering requirements for digital health applications rather than biological or cognitive metrics, failing to measure gut microbiome diversity or cognitive flexibility. It falls under the rejection rule for being off-domain regarding the specific scientific constructs and mechanisms central to the user's question.",
+          "rationale": "This paper focuses on software engineering requirements for digital health tools, which is an off-domain construct unrelated to the biological relationship between gut microbiome diversity and cognitive flexibility. It shares only the \"older adult\" population keyword while addressing a distinct scientific domain (Software Engineering vs. Microbiology/Neuroscience).",
           "title": "Requirements Engineering for Older Adult Digital Health Software: A Systematic Literature Review"
         },
         {
           "primary_pointer": "2403.05031",
-          "rationale": "The paper investigates the effects of a virtual reality intervention on cognitive inhibition, lacking any measurement of gut microbiome diversity or the specific gut-brain axis mechanism central to the user's question. It fails the inclusion criteria because it addresses a distinct cognitive construct (inhibition vs. flexibility) and does not measure the independent variable (microbiome metrics) required for the literature review.",
+          "rationale": "This paper does not measure gut microbiome diversity metrics or investigate their relationship with cognitive performance, focusing instead on the effects of a VR intervention on cognitive inhibition. It fails to address the core biological mechanism or specific variables (alpha/beta diversity) required for the user's research question.",
           "title": "LightSword: A Customized Virtual Reality Exergame for Long-Term Cognitive Inhibition Training in Older Adults"
         },
         {
-          "primary_pointer": "https://doi.org/10.71150/jm.2503002",
-          "rationale": "The paper measures gut microbiome diversity (matching the independent variable) but fails to address the cognitive outcome variable or the specific elderly population, meaning it does not satisfy inclusion criteria (a) or (b) regarding the mechanism or domain. It lacks the necessary connection to the user's core research mechanism (diversity-cognition link) and empirical setting (in vivo older adults).",
-          "title": "Prebiotic potential of proso millet and quinoa: Effects on gut microbiota composition and functional metabolic pathways."
+          "primary_pointer": "https://doi.org/10.1152/japplphysiol.00008.2025",
+          "rationale": "The paper fails to measure the dependent variable (cognitive flexibility) and targets a distinct population (young females) rather than the user's specified domain (adults aged 65+), rendering it off-domain for a literature review on the gut-brain axis in the elderly.",
+          "title": "Hormonal Birth Control Is Associated with Altered Gut Microbiota Beta-Diversity in Physically Active Females Across the Menstrual Cycle: A Pilot Trial."
+        },
+        {
+          "primary_pointer": "https://doi.org/10.3389/fcimb.2024.1356197",
+          "rationale": "The paper investigates ocular surface microbiota and obesity rather than the gut microbiome and cognitive flexibility, making it off-domain despite sharing microbiome diversity metrics. It fails to address the specific biological system (gut) or outcome (cognition) required by the user's research question.",
+          "title": "Altered ocular surface microbiota in obesity: a case-control study"
         },
         {
           "primary_pointer": "https://doi.org/10.1016/j.archger.2023.105166",
-          "rationale": "This paper investigates psychological resilience and general cognitive impairment (MMSE) without measuring gut microbiome diversity metrics or cognitive flexibility. It lacks the specific independent variable (microbiome) and precise dependent variable construct required to contribute evidence to a literature review on the gut-brain axis in aging.",
+          "rationale": "The paper has no measurable connection to the user's core mechanism or independent variable, as it investigates psychological resilience and general cognitive impairment rather than gut microbiome diversity metrics and cognitive flexibility.",
           "title": "Association of psychological resilience and cognitive function in older adults: Based on the Ma' anshan Healthy Aging Cohort Study."
         },
         {
-          "primary_pointer": "https://doi.org/10.3390/ijerph16193767",
-          "rationale": "This paper investigates a distinct independent variable (ambient air pollution) rather than the user's specific biological mechanism (gut microbiome diversity), meaning it has no measurable connection to the core relationship under investigation. While it shares the population and outcome domain, it does not measure the microbiome variables or the specific gut-brain pathway required for inclusion in a literature review on this specific correlation.",
-          "title": "Exposure to Ambient Air Pollution and Cognitive Impairment in Community-Dwelling Older Adults: The Korean Frailty and Aging Cohort Study"
+          "primary_pointer": "2602.07785",
+          "rationale": "This paper is off-domain entirely from the user's research question. While it studies older adults (overlapping population) and mentions \"cognitive risk\" as a covariate, it measures digital exclusion and technology access rather than gut microbiome diversity metrics (alpha/beta diversity) or cognitive flexibility performance. There is no measurable connection to the microbiome-cognition mechanism, variables, or empirical setting the user is investigating.",
+          "title": "Digital exclusion among middle-aged and older adults in China: age-period-cohort evidence from three national surveys, 2011-2022"
         },
         {
-          "primary_pointer": "2602.07785",
-          "rationale": "This paper is off-domain entirely; it investigates digital exclusion and demographic effects rather than gut microbiome diversity metrics or cognitive flexibility performance. While it shares the population (older adults) and mentions \"cognitive risk\" as a covariate, it does not measure the biological mechanism or variables specified in the user's question.",
-          "title": "Digital exclusion among middle-aged and older adults in China: age-period-cohort evidence from three national surveys, 2011-2022"
+          "primary_pointer": "https://doi.org/10.3390/medicina62010091",
+          "rationale": "This paper does not measure alpha or beta diversity metrics of the gut microbiome, nor does it examine the relationship between microbiome diversity and cognitive flexibility; it only studies the effects of a probiotic intervention on cognitive outcomes without characterizing the underlying microbiome composition or diversity metrics. While it measures cognitive flexibility (Task Switching) in what may be an overlapping population, it fails to address the core independent variable (gut microbiom",
+          "title": "ExoBDNF Probiotic Supplementation Enhances Cognition in Subjective Cognitive Decline"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-05-12T18:34:48Z",
+    "started_at": "2026-05-21T12:12:44Z",
     "term_input": {
       "normalized": "how do alpha and beta diversity metrics of the gut microbiome relate to cognitive flexibility performance in adults aged 65 and older",
       "raw": "How do alpha and beta diversity metrics of the gut microbiome relate to cognitive flexibility performance in adults aged 65 and older"
@@ -101,7 +106,7 @@
           "primary_pointer": "2505.02975"
         },
         "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Navigating Privacy and Trust: AI Assistants as Social Support for Older Adults')",
-        "failed_at": "2026-05-12T18:36:32Z",
+        "failed_at": "2026-05-21T12:14:32Z",
         "reason": "query_irrelevant"
       },
       {
@@ -122,36 +127,7 @@
           "primary_pointer": "https://doi.org/10.3389/fmicb.2025.1616681"
         },
         "details": "query-relevance 0.231 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Dynamics in gut microbiota diversity, composition, and assembly reveal the adaptability of invasive snail Pomacea canaliculata during hibernation in rice fields')",
-        "failed_at": "2026-05-12T18:36:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "The present systematic review and meta‐analysis aimed to summarize the associations between gut microbiota composition and non‐alcoholic fatty liver disease. To compare the differences between individuals with or without NAFLD, the standardized mean difference and 95% confidence interval were computed for each α‐diversity index and relative abundance of gut microbes. The β‐diversity indices were summarized in a qualitative manner. A total of 54 studies with 8894 participants were included. Overall, patients with NAFLD had moderate reduction in α‐diversity indices including Shannon (SMD = −0.36, 95% CI = [−0.53, −0.19], p < 0.001) and Chao 1 (SMD = −0.42, 95% CI = [−0.68, −0.17], p = 0.001), but no significant differences were found for Simpson, observed species, phylogenetic diversity, richness, abundance‐based coverage estimator, and evenness (p ranged from 0.081 to 0.953). Over 75% of the included studies reported significant differences in β‐diversity. Although there was substantial interstudy heterogeneity, especially for analyses at the phylum, class, and family levels, the majority of the included studies showed alterations in the depletion of anti‐inflammatory microbes (i.e., Ruminococcaceae and Coprococcus) and the enrichment of proinflammatory microbes (i.e., Fusobacterium and Escherichia) in patients with NAFLD. Perturbations in gut microbiota were associated with NAFLD, commonly reflected by a reduction in beneficial species and an increase in the pathogenic species.",
-          "claimed_authors": [
-            "Xin Su",
-            "Shiyun Chen",
-            "Jia-zi Liu",
-            "Yonghui Feng",
-            "Eerdun Han",
-            "Xiaolei Hao",
-            "Minqi Liao",
-            "Jun Cai",
-            "Shi-wen Zhang",
-            "Jianxiang Niu",
-            "Shihua He",
-            "Shaofen Huang",
-            "K. Lo",
-            "Fangfang Zeng"
-          ],
-          "claimed_title": "Composition of gut microbiota and non‐alcoholic fatty liver disease: A systematic review and meta‐analysis",
-          "claimed_venue": "Obesity Reviews",
-          "claimed_year": 2023,
-          "primary_pointer": "https://doi.org/10.1111/obr.13646"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Composition of gut microbiota and non‐alcoholic fatty liver disease: A systematic review and meta‐analysis')",
-        "failed_at": "2026-05-12T18:36:35Z",
+        "failed_at": "2026-05-21T12:14:33Z",
         "reason": "query_irrelevant"
       },
       {
@@ -167,7 +143,365 @@
           "primary_pointer": "2511.02766"
         },
         "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Microbes in the Moonlight: How the Gut Microbiota Influences Sleep')",
-        "failed_at": "2026-05-12T18:36:35Z",
+        "failed_at": "2026-05-21T12:14:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that a positive integer $n$ is a Fibonacci number of even index if and only if $\\langle n\\varphi\\rangle+\\frac{1}{n}>1$.",
+          "claimed_authors": [
+            "Achille Frigeri"
+          ],
+          "claimed_title": "A note on Fibonacci number of even index",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.08305"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='A note on Fibonacci number of even index')",
+        "failed_at": "2026-05-21T12:14:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Alzheimer's disease is the most common form of dementia in the western world, however there is no cure available for this devastating neurodegenerative disorder. Despite clinical and experimental evidence implicating the intestinal microbiota in a number of brain disorders, its impact on Alzheimer's disease is not known. We generated a germ-free mouse model of Alzheimer's disease and discovered a drastic reduction of cerebral Ab amyloid pathology when compared to control Alzheimer's disease animals with intestinal microbiota. Sequencing bacterial 16S rRNA from fecal samples revealed a remarkable shift in the gut microbiota of conventionally-raised Alzheimer's disease mice as compared to healthy, wild-type mice. Colonization of germ-free Alzheimer mice with harvested microbiota from conventionally-raised Alzheimer mice dramatically increased cerebral Ab pathology. In contrast, colonization with microbiota from control wild-type mice was ineffective in increasing cerebral Ab levels. Our results indicate a microbial involvement in the development of Alzheimer's disease pathology, and suggest that microbiota may contribute to the development of neurodegenerative diseases.",
+          "claimed_authors": [
+            "T. Harach",
+            "N. Marungruang",
+            "N. Dutilleul",
+            "V. Cheatham",
+            "K. D. Mc Coy",
+            "J. J. Neher",
+            "M. Jucker",
+            "F. Fåk",
+            "T.",
+            "Lasser",
+            "T. Bolmont"
+          ],
+          "claimed_title": "Reduction of Alzheimer's disease beta-amyloid pathology in the absence of gut microbiota",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.02273"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title=\"Reduction of Alzheimer's disease beta-amyloid pathology in the absence of gut microbiota\")",
+        "failed_at": "2026-05-21T12:14:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "With an increasing number of older people across low and middle income countries such as India, longitudinal observational research is required to understand the processes of aging, care seeking behaviours and outcomes in such groups. As most of the older adults in such regions live in rural areas with limited resources, and with no such cohorts available to carry out such studies, we have establied a first of its kind geriatric rural cohort in eastern India. This study describes the profile of a large cohort of 18,389 rural older adults, aged 50 years or more, that was built within a Health, Demography and Environment Surveillance System (HDESS). The study primarily focuses on profiling older adults’ sociodemographic and health characteristics, as well as their healthcare-seeking behavior patterns. We use exploratory regression analysis to understand factors influencing care-seeking preferences. We use R software packages for analysis and data management. The entire population of HDESS is 76,391 which has been establihed in 50 villages of Tigiria, Odisha state in eastern India, between 2021 and 2022. This cohort provides a valuable longitudinal platform for studying aging processes, chronic disease progression, and intervention implementation. Self-reported prevalence of chronic conditions and multimorbidity was 9.5%, with diabetes (10.6%) and hypertension (22.0%) the most common ones. Most rural older adults, irrespective of their wealth status, preferred public to private healthcare facilities (91%) for either mild illness, general care or emergency/severe illness. To reduce informal healthcare seeking behaviour (8.3%) of older adults in rural India, services need to be available, but social factors must also be addressed. The DISHA-G cohort provides a unique longitudinal platform to study aging and healthcare-seeking behaviors in rural India. Key findings reveal significant reliance on public healthcare and significant informal care-seeking, influenced by insurance coverage and socioeconomic status, highlighting barriers to formal care. Policy initiatives should focus on expanding health insurance coverage, improving accessibility to public healthcare, and addressing socioeconomic barriers to reduce reliance on informal care among rural older adults.",
+          "claimed_authors": [
+            "J. Kshatri",
+            "Tanveer Rehman",
+            "D. Janssen",
+            "S. Shenkin",
+            "S. K. Palo",
+            "Sanghamitra Pati"
+          ],
+          "claimed_title": "Demography Integrated Surveillance for Health Assessment-Geriatric (DISHA-G), a rural cohort of older adults in Odisha, India",
+          "claimed_venue": "Discover Public Health",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.1186/s12982-025-00686-4"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Demography Integrated Surveillance for Health Assessment-Geriatric (DISHA-G), a rural cohort of older adults in Odisha, India')",
+        "failed_at": "2026-05-21T12:14:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "This study aimed to verify the association between the consumption of omega-3-rich (n-3) fish and depressive symptoms in older adults living in Southern Brazil. This is a cross-sectional analysis with data from the second wave of the EpiFloripa Aging cohort study (2013/2014) including 1,130 individuals aged 60 years or older. The presence of depressive symptoms was measured by the 15-items Geriatric Depression Scale (GDS-15), and the consumption of n-3-rich fish by a question of weekly frequency. The minimum set of variables for adjustment was defined using directed acyclic graph (DAG). Poisson regression with robust error variance was applied (adjusted by Model 1: demographic and socioeconomic variables, Model 2: added behavioral variables, Model 3: added health variables). We identified the prevalence of depressive symptoms in 19% of older adults and 51.8% reported eating n-3-rich fish once a week. Models 1 and 3 showed an inverse association between n-3-rich fish and depressive symptoms. However, the association was reduced when behavioral factors (leisure-time physical activity) were included in Model 2. These findings suggest that n-3-rich fish intake tends to be associated with depressive symptoms in older adults. However, other factors, such as physical exercise, are as pivotal as n-3 fatty acids in preventing the development of depressive symptoms.",
+          "claimed_authors": [
+            "Gilciane Ceolin",
+            "G. Rockenbach",
+            "S. C. Confortin",
+            "E. d’Orsi",
+            "J. D. Moreira"
+          ],
+          "claimed_title": "Association between the consumption of omega-3-rich fish and depressive symptoms in older adults living in a middle-income country: EpiFloripa Aging cohort study.",
+          "claimed_venue": "Cadernos de Saúde Pública",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.1590/0102-311xen011422"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Association between the consumption of omega-3-rich fish and depressive symptoms in older adults living in a middle-income country: EpiFloripa Aging cohort study.')",
+        "failed_at": "2026-05-21T12:14:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "R. Pizzie",
+            "Nikita Raman",
+            "David J. M. Kraemer"
+          ],
+          "claimed_title": "Math anxiety and executive function: Neural influences of task switching on arithmetic processing",
+          "claimed_venue": "Cognitive, Affective, & Behavioral Neuroscience",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.3758/s13415-020-00770-z"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Math anxiety and executive function: Neural influences of task switching on arithmetic processing')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "On a daily basis, we constantly deal with changing environmental cues and perceptual conflicts and as such, our brains must flexibly adapt to current demands in order to act appropriately. Brains become more efficient and are able to switch states more readily by increasing the complexity of their neural networks. However, it is unclear how brain signal complexity relates to behavior in young adults performing cognitively demanding executive function tasks. Here we used multiscale entropy analysis and multivariate statistics on EEG data while participants performed a bivalency effect task-switching paradigm to show that brain signal complexity in young adults increases as task demands increase, that increases in brain signal complexity are associated with both speed gains and losses depending on scalp location, and that more difficult tasks are associated with more circumscribed complexity across the scalp. Overall, these findings highlight a critical role for brain signal complexity in predicting behavior on an executive function task among young adults.",
+          "claimed_authors": [
+            "J. Grundy",
+            "R. Barker",
+            "John A. E. Anderson",
+            "J. Shedden"
+          ],
+          "claimed_title": "The relation between brain signal complexity and task difficulty on an executive function task",
+          "claimed_venue": "NeuroImage",
+          "claimed_year": 2019,
+          "primary_pointer": "https://doi.org/10.1016/j.neuroimage.2019.05.045"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='The relation between brain signal complexity and task difficulty on an executive function task')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D medical image processing with deep learning greatly suffers from a lack of data. Thus, studies carried out in this field are limited compared to works related to 2D natural image analysis, where very large datasets exist. As a result, powerful and efficient 2D convolutional neural networks have been developed and trained. In this paper, we investigate a way to transfer the performance of a two-dimensional classiffication network for the purpose of three-dimensional semantic segmentation of brain tumors. We propose an asymmetric U-Net network by incorporating the EfficientNet model as part of the encoding branch. As the input data is in 3D, the first layers of the encoder are devoted to the reduction of the third dimension in order to fit the input of the EfficientNet network. Experimental results on validation and test data from the BraTS 2020 challenge demonstrate that the proposed method achieve promising performance.",
+          "claimed_authors": [
+            "Hicham Messaoudi",
+            "Ahror Belaid",
+            "Mohamed Lamine Allaoui",
+            "Ahcene Zetout",
+            "Mohand Said Allili",
+            "Souhil Tliba",
+            "Douraied Ben Salem",
+            "Pierre-Henri Conze"
+          ],
+          "claimed_title": "Efficient embedding network for 3D brain tumor segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11052"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Efficient embedding network for 3D brain tumor segmentation')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Pro-cognitive agents for chronic psychotic disorders (CPDs) might be detected via experimental medicine models, in which neural targets engaged by the drug predict sensitivity to the drug’s pro-cognitive effects. This study aims to use an experimental medicine model to test the hypothesis that “target engagement” predicts pro-cognitive effects of the NMDA antagonist, memantine (MEM), in CPDs. MATRICS Consensus Cognitive Battery (MCCB) performance was assessed in CPD (n = 41) and healthy subjects (HS; n = 41) in a double-blind, randomized cross-over design of acute (single dose) MEM (placebo vs. 10 or 20 mg p.o.). Measures of prepulse inhibition (PPI) and mismatch negativity previously reported from this cohort substantiated target engagement. Biomarkers predicting MEM neurocognitive sensitivity were assessed. Testing confirmed MCCB deficits associated with CPD diagnosis, age, and anticholinergic exposure. MEM (20 mg p.o.) reduced MCCB performance in HS. To control for significant test order effects, an “order-corrected MEM effect” (OCME) was calculated. In CPD subjects, greater age, positive MEM effects on PPI, and SNP rs1337697 (within the ionotropic NMDA receptor gene, GRIN3A) predicted greater positive OCME with 20 mg MEM. An experimental medicine model to assess acute pro-cognitive drug effects in CPD subjects is feasible but not without challenges. A single MEM 20 mg dose had a negative impact on neurocognition among HS. In CPD patients, age, MEM effects on PPI, and rs1337697 predicted sensitivity to the neurocognitive effects of MEM. Any potential clinical utility of these predictive markers for pro-cognitive effects of MEM in subgroups of CPD patients cannot be inferred without a validating clinical trial.",
+          "claimed_authors": [
+            "Savita G. Bhakta",
+            "Hsun-Hua Chou",
+            "B. Rana",
+            "J. Talledo",
+            "Bryan Balvaneda",
+            "Laura Gaddis",
+            "G. Light",
+            "N. Swerdlow"
+          ],
+          "claimed_title": "Effects of acute memantine administration on MATRICS Consensus Cognitive Battery performance in psychosis: Testing an experimental medicine strategy",
+          "claimed_venue": "Psychopharmacology",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.1007/s00213-016-4291-0"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Effects of acute memantine administration on MATRICS Consensus Cognitive Battery performance in psychosis: Testing an experimental medicine strategy')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Background Neurocognitive functioning is an integral phenotype of 22q11.2 deletion syndrome relating to severity of psychopathology and outcomes. A neurocognitive battery that could be administered remotely to assess multiple cognitive domains would be especially beneficial to research on rare genetic variants, where in-person assessment can be unavailable or burdensome. The current study compares in-person and remote assessments of the Penn computerised neurocognitive battery (CNB). Methods Participants (mean age = 17.82, SD = 6.94 years; 48% female) completed the CNB either in-person at a laboratory (n = 222) or remotely (n = 162). Results Results show that accuracy of CNB performance was equivalent across the two testing locations, while slight differences in speed were detected in 3 of the 11 tasks. Conclusions These findings suggest that the CNB can be used in remote settings to assess multiple neurocognitive domains.",
+          "claimed_authors": [
+            "L. K. White",
+            "N. Hillman",
+            "K. Ruparel",
+            "T. M. Moore",
+            "R. Gallagher",
+            "E. McClellan",
+            "D. Roalf",
+            "J. Scott",
+            "M. Calkins",
+            "D. McGinn",
+            "V. Giunta",
+            "O. Tran",
+            "T. Crowley",
+            "E. Zackai",
+            "B. S. Emanuel",
+            "D. McDonald-McGinn",
+            "R. E. Gur",
+            "R. Gur"
+          ],
+          "claimed_title": "Remote assessment of the Penn computerised neurocognitive battery in individuals with 22q11.2 deletion syndrome",
+          "claimed_venue": "Journal of Intellectual Disability Research",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1111/jir.13115"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Remote assessment of the Penn computerised neurocognitive battery in individuals with 22q11.2 deletion syndrome')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Ryan P. J. Stocker",
+            "H. Khan",
+            "L. Henry",
+            "A. Germain"
+          ],
+          "claimed_title": "Effects of Sleep Loss on Subjective Complaints and Objective Neurocognitive Performance as Measured by the Immediate Post-Concussion Assessment and Cognitive Testing",
+          "claimed_venue": "Archives of Clinical Neuropsychology",
+          "claimed_year": 2017,
+          "primary_pointer": "https://doi.org/10.1093/arclin/acx003"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Effects of Sleep Loss on Subjective Complaints and Objective Neurocognitive Performance as Measured by the Immediate Post-Concussion Assessment and Cognitive Testing')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present a novel algorithm for automatic performance testing that uses an online variant of the Generative Adversarial Network (GAN) to optimize the test generation process. The objective of the proposed approach is to generate, for a given test budget, a test suite containing a high number of tests revealing performance defects. This is achieved using a GAN to generate the tests and predict their outcome. This GAN is trained online while generating and executing the tests. The proposed approach does not require a prior training set or model of the system under test. We provide an initial evaluation the algorithm using an example test system, and compare the obtained results with other possible approaches.\n  We consider that the presented algorithm serves as a proof of concept and we hope that it can spark a research discussion on the application of GANs to test generation.",
+          "claimed_authors": [
+            "Ivan Porres",
+            "Hergys Rexha",
+            "Sébastien Lafond"
+          ],
+          "claimed_title": "Online GANs for Automatic Performance Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.11069"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Online GANs for Automatic Performance Testing')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.3028"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "The human gastrointestinal tract harbors a complex and diverse microbial community. Emerging evidence has revealed bidirectional communication between the gut microbiome and the central nervous system, termed the “microbiota–gut–brain axis”. This axis serves as a critical regulator of glial cell function, positioning it as an essential target for ameliorating the onset and progression of ischemic stroke. In this review, we discuss the developments in the relationship between ischemic stroke and neuroinflammation via MGBA. The gut microbiome plays a critical role in signaling to microglia, astrocytes, and other immune components within this axis. We also summarize the interactions between the gut microbiota and glial cells under both healthy and ischemic stroke conditions. Additionally, we also focus on the role of microbiota-derived metabolites and neurotransmitters in ischemic stroke. Furthermore, we investigate the potential of targeting the intestinal and blood–brain barriers to improve MGBA. Finally, we evaluate the preclinical and clinical evidence for dietary interventions, probiotics, prebiotics, and fecal microbiota transplantation in ischemic stroke. A comprehensive understanding of the MGBA is essential for developing MGBA-based treatment for ischemic stroke.",
+          "claimed_authors": [
+            "Hui Guo",
+            "Xiang Tang",
+            "Xinyi He",
+            "Yizhen Weng",
+            "Quanquan Zhang",
+            "Qi Fang",
+            "Lulu Zhang"
+          ],
+          "claimed_title": "A Comprehensive Review of the Role of the Microbiota–Gut–Brain Axis via Neuroinflammation: Advances and Therapeutic Implications for Ischemic Stroke",
+          "claimed_venue": "Biomolecules",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.3390/biom15070920"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='A Comprehensive Review of the Role of the Microbiota–Gut–Brain Axis via Neuroinflammation: Advances and Therapeutic Implications for Ischemic Stroke')",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Alzheimer's disease (AD) is a neurodegenerative disorder characterized by the accumulation of amyloid-β outside neurons and Tau protein inside neurons. Various pathological mechanisms are implicated in AD, including brain insulin resistance, neuroinflammation, and endocrinal dysregulation of adrenal corticosteroids. These factors collectively contribute to neuronal damage and destruction. Recently, bile acids (BAs), which are metabolites of cholesterol, have shown neuroprotective potential against AD by targeting the above pathological changes. BAs can enter the systematic circulation and cross the blood-brain barrier, subsequently exerting neuroprotective effects by targeting several endogenous receptors. Additionally, BAs interact with the microbiota-gut-brain (MGB) axis to improve immune and neuroendocrine function during AD episodes. Gut microbes impact BA signaling in the brain through their involvement in BA biotransformation. In this review, we summarize the role and molecular mechanisms of BAs in AD while considering the MGB axis and propose novel strategies for preventing the onset and progression of AD.",
+          "claimed_authors": [
+            "Menglu Wu",
+            "Yongyi Cheng",
+            "Ruolin Zhang",
+            "Wenwen Han",
+            "Hanqi Jiang",
+            "Chenchen Bi",
+            "Ziyi Zhang",
+            "Mengfei Ye",
+            "Xiuqin Lin",
+            "Zheng Liu"
+          ],
+          "claimed_title": "Molecular mechanism and therapeutic strategy of bile acids in Alzheimer's disease from the emerging perspective of the microbiota-gut-brain axis.",
+          "claimed_venue": "Biomedicine & pharmacotherapy = Biomedecine & pharmacotherapie",
+          "claimed_year": 2024,
+          "primary_pointer": "https://doi.org/10.1016/j.biopha.2024.117228"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title=\"Molecular mechanism and therapeutic strategy of bile acids in Alzheimer's disease from the emerging perspective of the microbiota-gut-brain axis.\")",
+        "failed_at": "2026-05-21T12:14:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Schizophrenia (SZ) is a severe neuropsychiatric disorder arising from complex interactions between genetic susceptibility and environmental factors. There is growing evidence that immune dysregulation and neuroinflammation are central to its pathogenesis, with the microbiota-gut-brain (MGB) axis playing a critical role. This review synthesizes clinical and preclinical findings to elucidate the relationship between gut microbiota dysbiosis and aberrant inflammatory signaling in the periphery and central nervous system in schizophrenia. We detail how alterations in gut microbiota metabolites, following dysbiosis disrupt blood-brain barrier (BBB) integrity and exacerbate neuroinflammation, ultimately leading to the neuropathology of SZ. The review further explores how gut dysbiosis activates innate immune pathways, including the complement system (e.g., C4) and Toll-like receptors (e.g., TLR4), and examines the bidirectional relationship between cytokine imbalances and gut microbiota. A key focus is placed on the dysregulation of the kynurenine pathway of tryptophan metabolism, which mechanistically links immune activation to neurotransmitter imbalances. Collectively, these findings demonstrate that gut microbiota dysbiosis contributes to the pathophysiology of schizophrenia through multifaceted immune-neuro-endocrine pathways, highlighting the MGB axis as a promising target for novel therapeutic strategies.",
+          "claimed_authors": [
+            "Bo-Wei Su",
+            "Yao Li",
+            "Le-Ying Yang",
+            "Hai-Xia Yang",
+            "Wen-Hao Wang",
+            "Hui-Wen Ren",
+            "Ya-Nan Bao",
+            "J. Lao",
+            "Zhi-Lin Luan"
+          ],
+          "claimed_title": "The role of the microbiota-gut-brain axis in schizophrenia: an immunological perspective",
+          "claimed_venue": "Frontiers in Immunology",
+          "claimed_year": 2025,
+          "primary_pointer": "https://doi.org/10.3389/fimmu.2025.1711756"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='The role of the microbiota-gut-brain axis in schizophrenia: an immunological perspective')",
+        "failed_at": "2026-05-21T12:14:39Z",
         "reason": "query_irrelevant"
       },
       {
@@ -185,391 +519,7 @@
           "primary_pointer": "2409.12209"
         },
         "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Multivariate Analysis of Gut Microbiota Composition and Prevalence of Gastric Cancer')",
-        "failed_at": "2026-05-12T18:36:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The intestinal microbiota plays important roles in digestion and resistance against entero-pathogens. As with other ecosystems, its species composition is resilient against small disturbances but strong perturbations such as antibiotics can affect the consortium dramatically. Antibiotic cessation does not necessarily restore pre-treatment conditions and disturbed microbiota are often susceptible to pathogen invasion. Here we propose a mathematical model to explain how antibiotic-mediated switches in the microbiota composition can result from simple social interactions between antibiotic-tolerant and antibiotic-sensitive bacterial groups. We build a two-species (e.g. two functional-groups) model and identify regions of domination by antibiotic-sensitive or antibiotic-tolerant bacteria, as well as a region of multistability where domination by either group is possible. Using a new framework that we derived from statistical physics, we calculate the duration of each microbiota composition state. This is shown to depend on the balance between random fluctuations in the bacterial densities and the strength of microbial interactions. The singular value decomposition of recent metagenomic data confirms our assumption of grouping microbes as antibiotic-tolerant or antibiotic-sensitive in response to a single antibiotic. Our methodology can be extended to multiple bacterial groups and thus it provides an ecological formalism to help interpret the present surge in microbiome data.",
-          "claimed_authors": [
-            "Vanni Bucci",
-            "Serena Bradde",
-            "Giulio Biroli",
-            "Joao B. Xavier"
-          ],
-          "claimed_title": "Social interaction, noise and antibiotic-mediated switches in the intestinal microbiota",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1203.2883"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Social interaction, noise and antibiotic-mediated switches in the intestinal microbiota')",
-        "failed_at": "2026-05-12T18:36:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "The prevalence and risk factors for subjective cognitive decline (SCD) and its correlation with objective cognition decline (OCD) among community‐dwelling older adults is inconsistent.",
-          "claimed_authors": [
-            "Gui-rong Cheng",
-            "Dan Liu",
-            "Lin-Ya Huang",
-            "Gang-Bin Han",
-            "Fei-fei Hu",
-            "Zhaodong Wu",
-            "Xiao-ming He",
-            "Yu‐Wei Huang",
-            "Ya-fu Yu",
-            "Lang Xu",
-            "Jin-quan Li",
-            "Yu-shan Chen",
-            "Zhen Wei",
-            "Qiong Wu",
-            "Yu-Fei Mei",
-            "Xing-xing Chen",
-            "Yang-ming Ou",
-            "Jing-Jing Zhang",
-            "Meng-Liu Yang",
-            "Peng-fei Lian",
-            "Wei Tan",
-            "Xinquan Xie",
-            "Yan Zeng"
-          ],
-          "claimed_title": "Prevalence and risk factors for subjective cognitive decline and the correlation with objective cognition among community‐dwelling older adults in China: Results from the Hubei memory and aging cohort study",
-          "claimed_venue": "Alzheimer's & Dementia",
-          "claimed_year": 2023,
-          "primary_pointer": "https://doi.org/10.1002/alz.13047"
-        },
-        "details": "query-relevance 0.231 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Prevalence and risk factors for subjective cognitive decline and the correlation with objective cognition among community‐dwelling older adults in China: Results from the Hubei memory and aging cohort study')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "The gut–brain axis links the health of the gut microbiota to cognitive function and mental well-being. Numerous studies suggest that probiotics, particularly strains belonging to Lactobacillus spp. and Bifidobacterium spp., can positively modulate memory, attention, and executive functions, contributing to the prevention of cognitive decline. However, while the use of probiotic capsules and powders is widely documented, the role of probiotic beverages or liquid preparations in brain health remains poorly explored. This systematic review analyzes studies on the efficacy of probiotics in improving cognitive functions from 2020 to 2025, evaluating the potential of probiotic liquid preparations as a delivery vehicle. The results indicate that fermented beverages or liquid suspensions containing probiotics could improve the bioavailability of beneficial microorganisms, promoting synergistic effects with other bioactive components and facilitating treatment adherence. However, the current literature still has methodological limitations and there is a need for further clinical studies to validate the efficacy of this strategy. Probiotic supplementation through functional beverages could represent a promising innovation to improve cognitive health and counteract neurocognitive decline.",
-          "claimed_authors": [
-            "Alfonso Filippone",
-            "Umberto Barbieri",
-            "M. Corbo",
-            "M. Sinigaglia",
-            "Antonio Bevilacqua"
-          ],
-          "claimed_title": "The Gut–Brain Axis and Probiotics in Beverages and Liquid Preparations: A PRISMA Systematic Review on Cognitive Function Enhancement",
-          "claimed_venue": "Beverages",
-          "claimed_year": 2025,
-          "primary_pointer": "https://doi.org/10.3390/beverages11030085"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='The Gut–Brain Axis and Probiotics in Beverages and Liquid Preparations: A PRISMA Systematic Review on Cognitive Function Enhancement')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Autism spectrum disorder (ASD) is a neurodevelopmental disorder characterized by impaired communication and social interactions, and repetitive behavioural patterns. These patterns are believed to be dysfunctional symptoms in executive processing, which impact other cognitive functions such as attention or cognitive flexibility. In recent years, several studies have shown that certain intestinal bacteria may play a role in shaping cognitive networks encompassing emotional and social domains. A microbiota–gut–brain axis is known to exist, establishing several mechanisms by which microbiota may modulate brain development, function and behaviour, including immune, endocrine and neural pathways. As the aetiology of ASD is largely unknown, some studies have shown that intestinal bacteria may be involved in its pathogenesis. The aim of this review was to focus on the role of the gut–brain axis in ASD and, specifically, on its role in executive functions. First, we summarize the relationship between the gastrointestinal and cognitive symptoms of ASD patients. In addition, we highlight the evidence that supports and emphasizes the involvement of gut microbiota, and the putative underlying mechanisms in this population. Finally, we present evidence from preclinical and clinical studies on the modulation of microbiota and their effects on cognitive symptoms, specifically in relation to executive function. In conclusion, manipulation of microbiota could be a positive intervention to improve ASD symptoms. However, more research evaluating the role of microbiota in the cognitive symptoms ASD is needed.",
-          "claimed_authors": [
-            "P. Roman",
-            "L. Rueda-Ruzafa",
-            "D. Cardona",
-            "A. Cortés-Rodríguez"
-          ],
-          "claimed_title": "Gut–brain axis in the executive function of austism spectrum disorder",
-          "claimed_venue": "Behavioural Pharmacology",
-          "claimed_year": 2018,
-          "primary_pointer": "https://doi.org/10.1097/FBP.0000000000000428"
-        },
-        "details": "query-relevance 0.231 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Gut–brain axis in the executive function of austism spectrum disorder')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Background: Recent research highlights the growing importance of the gut–brain axis in neuropsychiatric disorders, including schizophrenia. Particular attention is given to microbial dysbiosis and its influence on neurotransmitter dynamics, systemic inflammation, and cognitive function. Schizophrenia is marked by progressive impairments in attention, working memory, and executive function, often accompanied by hippocampal atrophy—deficits not fully addressed by standard pharmacotherapy. \nAim: This review aims to elucidate the mechanisms through which gut microbiota influence neurotransmitter synthesis and cognitive regulation in schizophrenia, and to evaluate the role of exercise as a potential modulator of both microbiota composition and neuroplasticity. \nMaterial and Methods: A systematic literature review was conducted on March 18, 2025, using a Python-based script to extract relevant studies from PubMed. The search focused on the interactions between schizophrenia, gut microbiota, neurotransmitter systems, and the effects of exercise-based interventions. \nResults: Evidence from clinical and preclinical studies indicates that alterations in gut microbiota significantly affect the synthesis of neuroactive compounds such as serotonin, GABA, and dopamine. Moreover, structured exercise programs have been shown to improve cognitive function, increase hippocampal volume, and positively modulate gut microbial composition, suggesting synergistic benefits when combined with conventional treatment. \nConclusions: Targeted interventions addressing the gut–brain axis—through microbiota modulation and exercise therapy—represent promising adjunctive strategies in the treatment of schizophrenia. These approaches may enhance neurocognitive outcomes and support more personalized, holistic models of care.",
-          "claimed_authors": [
-            "Patrycja Niczyporuk",
-            "Izabela Zajkowska",
-            "Wiktor Warych",
-            "Julia Baran",
-            "Karolina Wojciechowska",
-            "Julia Martowska"
-          ],
-          "claimed_title": "The Role of Physical Activity in Gut–Brain Axis Regulation and Cognitive Enhancement in Schizophrenia",
-          "claimed_venue": "Quality in Sport",
-          "claimed_year": 2025,
-          "primary_pointer": "https://doi.org/10.12775/qs.2025.47.66793"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='The Role of Physical Activity in Gut–Brain Axis Regulation and Cognitive Enhancement in Schizophrenia')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The nature and origin of supermassive black holes (SMBHs) remain an open matter of debate within the scientific community. While various theoretical scenarios have been proposed, each with specific observational signatures, the lack of sufficiently sensitive X-ray observations hinders the progress of observational tests. In this white paper, we present how AXIS will contribute to solving this issue. With an angular resolution of 1.5$^{\\prime\\prime}$ on-axis and minimal off-axis degradation, we have designed a deep survey capable of reaching flux limits in the [0.5-2] keV range of approximately 2$\\times$10$^{-18}$ \\fcgs~ over an area of 0.13 deg$^2$ in approximately 7 million seconds (7 Ms). Furthermore, we have planned an intermediate depth survey covering approximately 2 deg$^2$ and reaching flux limits of about 2$\\times$10$^{-17}$ \\fcgs ~ in order to detect a significant number of SMBHs with X-ray luminosities (L$_X$) of approximately 10$^{42}$ \\lx up to z$\\sim$10. These observations will enable AXIS to detect SMBHs with masses smaller than 10$^5$ \\ms, assuming Eddington-limited accretion and a typical bolometric correction for Type II AGN. AXIS will provide valuable information on the seeding and population synthesis models of SMBH, allowing for more accurate constraints on their initial mass function (IMF) and accretion history from z$\\sim$0-10. To accomplish this, AXIS will leverage the unique synergy of survey telescopes such as JWST, Roman, Euclid, LSST, and the new generation of 30m class telescopes. These instruments will provide optical identification and redshift measurements, while AXIS will discover the smoking gun of nuclear activity, particularly in the case of highly obscured AGN or peculiar UV spectra as predicted and recently observed in the early Universe.",
-          "claimed_authors": [
-            "Nico Cappelluti",
-            "Adi Foord",
-            "Stefano Marchesi",
-            "Fabio Pacucci",
-            "Angelo Ricarte",
-            "Melanie Habouzit",
-            "Fabio Vito",
-            "Meredith Powell",
-            "Michael Koss",
-            "Richard Mushotzky",
-            "the AXIS AGN-SWG"
-          ],
-          "claimed_title": "Surveying the onset and evolution of supermassive black holes at high-z with AXIS",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.07669"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Surveying the onset and evolution of supermassive black holes at high-z with AXIS')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Advanced X-ray Imaging Satellite (AXIS) promises revolutionary science in the X-ray and multi-messenger time domain. AXIS will leverage excellent spatial resolution (<1.5 arcsec), sensitivity (80x that of Swift), and a large collecting area (5-10x that of Chandra) across a 24-arcmin diameter field of view to discover and characterize a wide range of X-ray transients from supernova-shock breakouts to tidal disruption events to highly variable supermassive black holes. The observatory's ability to localize and monitor faint X-ray sources opens up new opportunities to hunt for counterparts to distant binary neutron star mergers, fast radio bursts, and exotic phenomena like fast X-ray transients. AXIS will offer a response time of <2 hours to community alerts, enabling studies of gravitational wave sources, high-energy neutrino emitters, X-ray binaries, magnetars, and other targets of opportunity. This white paper highlights some of the discovery science that will be driven by AXIS in this burgeoning field of time domain and multi-messenger astrophysics.",
-          "claimed_authors": [
-            "The AXIS Time-Domain",
-            "Multi-Messenger Science Working Group",
-            ":",
-            "Riccardo Arcodia",
-            "Franz E. Bauer",
-            "S. Bradley Cenko",
-            "Kristen C. Dage",
-            "Daryl Haggard",
-            "Wynn C. G. Ho",
-            "Erin Kara",
-            "Michael Koss",
-            "Tingting Liu",
-            "Labani Mallick",
-            "Michela Negro",
-            "Pragati Pradhan",
-            "J. Quirola-Vasquez",
-            "Mark T. Reynolds",
-            "Claudio Ricci",
-            "Richard E. Rothschild",
-            "Navin Sridhar",
-            "Eleonora Troja",
-            "Yuhan Yao"
-          ],
-          "claimed_title": "Prospects for Time-Domain and Multi-Messenger Science with AXIS",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.07658"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Prospects for Time-Domain and Multi-Messenger Science with AXIS')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The gut-brain axis is the communication link between the gut and the brain. Although it is known that the gut-brain axis plays a pivotal role in homeostasis, its overall mechanism is still not known. However, for neural synapses, classical molecular communication is described by the formation of ligand-receptor complexes, which leads to the opening of ion channels. Moreover, there are some conditions that need to be fulfilled before the opening of the ion channel. In this study, we consider the gut-brain axis, where neurotransmitters diffuse through the synaptic cleft, considering molecular communication. On the vagus nerve (VN) membrane, i.e., the post-synaptic membrane of the synapse, it undergoes a quantum communication (QC), which initiates the opening of the ion channel, thus initiating the communication signal from the gut to the brain. It evolves a new paradigm of communication approach, Molecular Quantum (MolQ) communication. Based on the QC model, we theoretically analyze the output states, and QC is simulated considering the incoming neurotransmitter's concentration and validated by analyzing the entropy and the mutual information of the input, i.e., neurotransmitter's concentration, and output, i.e., ion channel opening.",
-          "claimed_authors": [
-            "Bitop Maitra",
-            "Ozgur B. Akan"
-          ],
-          "claimed_title": "Molecular Quantum (MolQ) Communication Channel in the Gut-Brain Axis Synapse",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.07106"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Molecular Quantum (MolQ) Communication Channel in the Gut-Brain Axis Synapse')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": null,
-          "claimed_authors": [
-            "D. Gustavson",
-            "L. Altamirano",
-            "Daniel P Johnson",
-            "M. Whisman",
-            "A. Miyake"
-          ],
-          "claimed_title": "Is Set Shifting Really Impaired in Trait Anxiety? Only When Switching Away From an Effortfully Established Task Set",
-          "claimed_venue": "Emotion",
-          "claimed_year": 2017,
-          "primary_pointer": "https://doi.org/10.1037/emo0000212"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Is Set Shifting Really Impaired in Trait Anxiety? Only When Switching Away From an Effortfully Established Task Set')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Attentional set shifting is a core ingredient of cognition, allowing for fast adaptation to changes in the environment. How this skill compares between humans and other primates is not well known. We examined performance of 3- to 5-year-old children and chimpanzees on a new attentional set shifting task. We presented participants with two shelves holding the same set of four boxes. To choose the correct box on each shelf, one has to switch attention depending on which shelf one is currently presented with. Experiment 1 (forty-six 3- to 5-year olds, predominantly European White) established content validity, showing that the majority of errors were specific switching mistakes indicating failure to shift attention. Experiment 2 (one hundred and seventy-eight 3- to 6-year olds, predominantly European White) showed that older children made fewer mistakes, but if mistakes were made, a larger proportion were switching mistakes rather than ‘random’ errors. Experiment 3 (52 chimpanzees) established suitability of the task for non-human great apes and showed that chimpanzees' performance was comparable to the performance of 3- and 4-year olds, but worse than 5-year olds. These results suggest that chimpanzees and young children share attentional set shifting capacities, but that there are unique changes in the human lineage from 5 years of age.",
-          "claimed_authors": [
-            "E. Reindl",
-            "C. Völter",
-            "Z. Civelek",
-            "L. Duncan",
-            "Z. Lugosi",
-            "E. Felsche",
-            "E. Herrmann",
-            "J. Call",
-            "A. Seed"
-          ],
-          "claimed_title": "The shifting shelf task: a new, non-verbal measure for attentional set shifting",
-          "claimed_venue": "Proceedings of the Royal Society B",
-          "claimed_year": 2023,
-          "primary_pointer": "https://doi.org/10.1098/rspb.2022.1496"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='The shifting shelf task: a new, non-verbal measure for attentional set shifting')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Task switching refers to a set of cognitive processes involved in shifting attention from one task to another. In recent years, researchers have applied transcranial direct current stimulation (tDCS) to investigate the causal relationship between the parietal cortex and task switching. However, results from available studies are highly inconsistent. This may be due to the unclear understanding of the underlying mechanisms. Therefore, the current study utilized event-related potential (ERP) analysis to investigate the modulatory effects of tDCS on task-switching processes. Twenty-four subjects were recruited to perform both predictable and unpredictable parity/magnitude tasks under anodal (RA) and sham conditions. The results showed no significant changes in behavioral performance. However, marked tDCS-induced ERP changes were observed. Specifically, for the predictable task switching, compared with the sham condition, the target-N2 component occurred significantly earlier for switch trials than repeat trials under the RA condition in males, while no difference was found in females. For unpredictable task switching, under the sham condition, the P2 peak was significantly larger for switch trials compared with repeat trials, whereas this difference was not observed under the RA condition. These results indicated the causal relationship between the right parietal cortex and exogenous adjustment processes involved in task switching. Moreover, anodal tDCS over the right parietal cortex may lead to the manifestation of gender differences.",
-          "claimed_authors": [
-            "Ziyu Wang",
-            "Yi Zhao",
-            "Xuqun You",
-            "Jimin Liang"
-          ],
-          "claimed_title": "Relationship between the parietal cortex and task switching: Transcranial direct current stimulation combined with an event-related potential study.",
-          "claimed_venue": "Neuroscience",
-          "claimed_year": 2024,
-          "primary_pointer": "https://doi.org/10.1016/j.neuroscience.2024.03.004"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Relationship between the parietal cortex and task switching: Transcranial direct current stimulation combined with an event-related potential study.')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
-          "claimed_authors": [
-            "Dorsaf Sebai",
-            "Abderrazak Jemai",
-            "Imed Bennour"
-          ],
-          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.1154"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
-          "claimed_authors": [
-            "Vittorio Cortellessa",
-            "Daniele Di Pompeo",
-            "Michele Tucci"
-          ],
-          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.13875"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Multiprocessor task scheduling is an important and computationally difficult problem. This paper proposes a comparison study of genetic algorithm and list scheduling algorithm. Both algorithms are naturally parallelizable but have heavy data dependencies. Based on experimental results, this paper presents a detailed analysis of the scalability, advantages and disadvantages of each algorithm. Multiprocessors have emerged as a powerful computing means for running real-time applications, especially where a uni-processor system would not be sufficient enough to execute all the tasks. The high performance and reliability of multiprocessors have made them a powerful computing resource. Such computing environment requires an efficient algorithm to determine when and on which processor a given task should execute. In multiprocessor systems, an efficient scheduling of a parallel program onto the processors that minimizes the entire execution time is vital for achieving a high performance. This scheduling problem is known to be NP- Hard. In multiprocessor scheduling problem, a given program is to be scheduled in a given multiprocessor system such that the program's execution time is minimized. The last job must be completed as early as possible. Genetic algorithm (GA) is one of the widely used techniques for constrained optimization.",
-          "claimed_authors": [
-            "S. R. Vijayalakshmi",
-            "G. Padmavathi"
-          ],
-          "claimed_title": "A Performance Study of GA and LSH in Multiprocessor Job Scheduling",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.1149"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='A Performance Study of GA and LSH in Multiprocessor Job Scheduling')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Major depressive disorder (MDD) is a kind of mental disorder with high mortality, suicide and relapse rates, and might be the world's leading cause of health burden by 2030. Growing evidence suggests that neuroinflammation is closely linked to depressive pathogenesis and suggests that MDD can be called a microglia disease. And activation of the P2X7R/NLRP3 signaling pathway in microglia is a key mechanism causing nerve damage. In addition, it is recently found that gut microbiota might initiate neuroinflammatory processes underlying MDD, and gut microbiota dysbiosis can be affected by sleep to ameliorate neuroinflammatory processes. In this paper, we reviewed recent advances about gut-brain axis interactions with neuroinflammation, which might shed light on the mechanisms and treatment of depression.",
-          "claimed_authors": [
-            "Jiayi Li",
-            "B. Wan",
-            "Le Zhou",
-            "Xin Qian",
-            "Fushun Wang",
-            "Simeng Gu",
-            "Xianjun Ma",
-            "Jason H Huang"
-          ],
-          "claimed_title": "Gut microbiota dysbiosis induces neuroinflammation in major depressive disorders: mechanisms targeting the gut-brain axis",
-          "claimed_venue": "Frontiers in Psychiatry",
-          "claimed_year": 2025,
-          "primary_pointer": "https://doi.org/10.3389/fpsyt.2025.1629182"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Gut microbiota dysbiosis induces neuroinflammation in major depressive disorders: mechanisms targeting the gut-brain axis')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "semantic_scholar",
-          "claimed_abstract": "Background Periodontal pathogen and gut microbiota are closely associated with the pathogenesis of Alzheimer’s disease (AD). Porphyromonas gingivalis (Pg), the keystone periodontal pathogen, can induce cognitive impairment. The gut has a connection and communication with the brain, which is an important aspect of the gut–brain axis (GBA). In the present study, we investigate whether Pg induces cognitive impairment through disturbing the GBA. Methods In this study, Pg was orally administered to mice, three times a week for 1 month. The effects of Pg administration on the gut and brain were evaluated through behaviors, gut microbiota, immune cells, glymphatic pathway clearance, and neuroinflammation. Results Pg induced cognitive impairment and dysbiosis of gut microbiota. The α-diversity parameters did not show significant change after Pg administration. The β-diversity demonstrated that the gut microbiota compositions were different between the Pg-administered and control groups. At the species level, the Pg group displayed a lower abundance of Parabacteroides gordonii and Ruminococcus callidus than the control group, but a higher abundance of Mucispirillum schaedleri. The proportions of lymphocytes in the periphery and myeloid cells infiltrating the brain were increased in Pg-treated animals. In addition, the solute clearance efficiency of the glymphatic system decreased. Neurons in the hippocampus and cortex regions were reduced in mice treated with Pg. Microglia, astrocytes, and apoptotic cells were increased. Furthermore, amyloid plaque appeared in the hippocampus and cortex regions in Pg-treated mice. Conclusions These findings indicate that Pg may play an important role in gut dysbiosis, neuroinflammation, and glymphatic system impairment, which may in turn lead to cognitive impairment.",
-          "claimed_authors": [
-            "L. Chi",
-            "Xiao Cheng",
-            "Lishan Lin",
-            "Tao Yang",
-            "Jianbo Sun",
-            "Yi-wei Feng",
-            "Fengyin Liang",
-            "Z. Pei",
-            "Wei Teng"
-          ],
-          "claimed_title": "Porphyromonas gingivalis-Induced Cognitive Impairment Is Associated With Gut Dysbiosis, Neuroinflammation, and Glymphatic Dysfunction",
-          "claimed_venue": "Frontiers in Cellular and Infection Microbiology",
-          "claimed_year": 2021,
-          "primary_pointer": "https://doi.org/10.3389/fcimb.2021.755925"
-        },
-        "details": "query-relevance 0.231 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Porphyromonas gingivalis-Induced Cognitive Impairment Is Associated With Gut Dysbiosis, Neuroinflammation, and Glymphatic Dysfunction')",
-        "failed_at": "2026-05-12T18:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Pathway Tools is a bioinformatics software environment with a broad set of capabilities. The software provides genome-informatics tools such as a genome browser, sequence alignments, a genome-variant analyzer, and comparative-genomics operations. It offers metabolic-informatics tools, such as metabolic reconstruction, quantitative metabolic modeling, prediction of reaction atom mappings, and metabolic route search. Pathway Tools also provides regulatory-informatics tools, such as the ability to represent and visualize a wide range of regulatory interactions. The software creates and manages a type of organism-specific database called a Pathway/Genome Database (PGDB), which the software enables database curators to interactively edit. It supports web publishing of PGDBs and provides a large number of query, visualization, and omics-data analysis tools. Scientists around the world have created more than 45,000 PGDBs by using Pathway Tools, many of which are curated databases for important model organisms. Those PGDBs can be exchanged using a peer-to-peer database-sharing system called the PGDB Registry.",
-          "claimed_authors": [
-            "Peter D. Karp",
-            "Suzanne M. Paley",
-            "Markus Krummenacker",
-            "Anamika Kothari",
-            "Peter E. Midford",
-            "Pallavi Subhraveti",
-            "Austin Swart",
-            "Lisa Moore",
-            "Ron Caspi"
-          ],
-          "claimed_title": "Pathway Tools version 28.0: Integrated Software for Pathway/Genome Informatics and Systems Biology",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1510.03964"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='How do alpha and beta diversity metrics of the gut microbiome relate to cognitiv', candidate_title='Pathway Tools version 28.0: Integrated Software for Pathway/Genome Informatics and Systems Biology')",
-        "failed_at": "2026-05-12T18:36:36Z",
+        "failed_at": "2026-05-21T12:14:39Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -577,29 +527,226 @@
       {
         "bibliographic_info": {
           "authors": [
-            "K. Patel",
-            "Laasya Bandi"
+            "Yuqing Xiao",
+            "John Grundy",
+            "Anuradha Madugalla"
           ],
-          "title": "The Gut Microbiota, Neuroinflammation, and Cognitive Decline: Connecting Dysbiosis to Alzheimer’s Disease and Aging Brain Health",
-          "venue": "International journal of social science and economic research",
+          "title": "Requirements Engineering for Older Adult Digital Health Software: A Systematic Literature Review",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.03656",
+        "summary": "Growth of the older adult population has led to an increasing interest in technology-supported aged care. However, the area has some challenges such as a lack of caregivers and limitations in understanding the emotional, social, physical, and mental well-being needs of seniors. Furthermore, there is a gap in the understanding between developers and ageing people of their requirements. Digital health can be important in supporting older adults wellbeing, emotional requirements, and social needs. Requirements Engineering (RE) is a major software engineering field, which can help to identify, elicit and prioritize the requirements of stakeholders and ensure that the systems meet standards for performance, reliability, and usability. We carried out a systematic review of the literature on RE for older adult digital health software. This was necessary to show the representatives of the current stage of understanding the needs of older adults in aged care digital health. Using established guidelines outlined by the Kitchenham method, the PRISMA and the PICO guideline, we developed a protocol, followed by the systematic exploration of eight databases. This resulted in 69 primary studies of high relevance, which were subsequently subjected to data extraction, synthesis, and reporting. We highlight key RE processes in digital health software for ageing people. It explored the utilization of technology for older user well-being and care, and the evaluations of such solutions. The review also identified key limitations found in existing primary studies that inspire future research opportunities. The results indicate that requirement gathering and understanding have a significant variation between different studies. The differences are in the quality, depth, and techniques adopted for requirement gathering and these differences are largely due to uneven adoption of RE methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.03656",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:14:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qiuxin Du",
+            "Zhen Song",
+            "Haiyan Jiang",
+            "Xiaoying Wei",
+            "Dongdong Weng",
+            "Mingming Fan"
+          ],
+          "title": "LightSword: A Customized Virtual Reality Exergame for Long-Term Cognitive Inhibition Training in Older Adults",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.05031",
+        "summary": "The decline of cognitive inhibition significantly impacts older adults' quality of life and well-being, making it a vital public health problem in today's aging society. Previous research has demonstrated that Virtual reality (VR) exergames have great potential to enhance cognitive inhibition among older adults. However, existing commercial VR exergames were unsuitable for older adults' long-term cognitive training due to the inappropriate cognitive activation paradigm, unnecessary complexity, and unbefitting difficulty levels. To bridge these gaps, we developed a customized VR cognitive training exergame (LightSword) based on Dual-task and Stroop paradigms for long-term cognitive inhibition training among healthy older adults. Subsequently, we conducted an eight-month longitudinal user study with 12 older adults aged 60 years and above to demonstrate the effectiveness of LightSword in improving cognitive inhibition. After the training, the cognitive inhibition abilities of older adults were significantly enhanced, with benefits persisting for 6 months. This result indicated that LightSword has both short-term and long-term effects in enhancing cognitive inhibition. Furthermore, qualitative feedback revealed that older adults exhibited a positive attitude toward long-term training with LightSword, which enhanced their motivation and compliance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.05031",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:14:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Brito",
+            "Gregory J. Grosicki",
+            "Austin T. Robinson",
+            "Jared W Coburn",
+            "Pablo B Costa",
+            "Kristen E Holmes",
+            "G. Lyon",
+            "Zoe Hakonsson",
+            "Federica Conti",
+            "A. Galpin"
+          ],
+          "title": "Hormonal Birth Control Is Associated with Altered Gut Microbiota Beta-Diversity in Physically Active Females Across the Menstrual Cycle: A Pilot Trial.",
+          "topically_marginal": true,
+          "venue": "Journal of applied physiology",
           "year": 2025
         },
-        "primary_pointer": "https://doi.org/10.46609/ijsser.2025.v10i11.016",
-        "summary": "Alzheimer's disease (AD) and cognitive decline in aging are increasingly linked with chronic neuroinflammation and gut microbiome alterations. Gut microbiome dysbiosis exacerbates the neuroinflammatory effects of aging and, by extension, cognitive deficits (Harach et al., 2017; Hung et al., 2022). This systematic review investigates how gut microbiota dysbiosis affects neuroinflammation and cognition in AD and aging-related cognitive decline. To this end, the prevalence of AD and cognitive decline in the aging population is assessed, and the microbiotagut-brain axis is identified as an underlying regulatory pathway of concern. Next, the means by which dysbiosis leads to CNS inflammatory response are detailed, including leaky gut, systemic inflammatory mediators, and microbiome metabolites such as lipopolysaccharides, SCFAs, amyloids, and bile acids. In humans, microbiota diversity is lower in AD patients, and microbiota generating SCFA are decreased, as are increased SCFA in AD patients, and younger patients with mild cognitive impairment (occurring sooner than normal) have dementia earlier in life than age-matched controls (Hung et al., 2022; Jemimah et al., 2023). This is observed in inflammatory markers in blood and cognitive assessments via standardized assessment tools. In animal models, gut microbiome modulation occurs via germ-free models, fecal transplant, and antibiotics or probiotics to see effects on amyloid burden and cognition (Harach et al., 2017; Zhang et al., 2023). Potential therapeutic interventions include dietary fiber, prebiotics, probiotics, synbiotics, and fecal microbiota transplantations with promising clinical outcomes (Akbari et al., 2016; Hung et al., 2022). The gut-brain axis is a potentially modifiable target to alleviate age-related cognitive decline or prevent its onset.",
+        "primary_pointer": "https://doi.org/10.1152/japplphysiol.00008.2025",
+        "summary": "Understanding changes to gut microbiota composition in response to hormonal birth control (HBC) may provide insight into the microbial mechanisms underlying the metabolic effects of HBC, for example, altered short-chain fatty acid (SCFA) production. Athletes' unique physiological demands may interact with these microbial mechanisms in distinct ways; however, there is limited research on HBC and gut microbiota diversity and composition across different menstrual cycle phases in physically active females. A pilot cohort of physically active females using HBC (oral contraceptives, hormone-based intrauterine devices, or arm implants) and a control group not using HBC (n=12 per group; 22±2yrs, 24±4kg/m2 vs. 22±4yrs, 23±4kg/m2; Ps≥0.496) provided fecal samples alongside self-reported menstrual phase and circulating sex hormones. Alpha diversity (microbial richness and evenness) was assessed using Shannon Index while beta-diversity (microbial composition differences) was analyzed using PERMANOVA based on Bray-Curtis dissimilarity. Circulating estrogen and luteinizing hormone increased from early (days 1-5) to mid-cycle (days 12-17) in both groups (time effect Ps≤0.01), with greater changes in Control (Ps≤0.046) than HBC (Ps≥0.231). While no menstrual phase effect was observed on either diversity measure (Ps≥0.473), beta-diversity differed between Control and HBC groups (P=0.015), reflecting distinct gut microbiota profiles irrespective of menstrual phase. Seven taxa linked to SCFA production were less abundant in the HBC group (unadjusted Ps≤0.046), though significance was lost after adjusting for multiple comparisons. These findings suggest that in physically active females, hormonal contraception influences gut microbial composition, which may have downstream effects on metabolism and performance.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "semantic_scholar",
-          "final_url": "https://ijsser.org/2025files/ijsser_10__374.pdf",
-          "http_status": 200,
-          "pdf_sample_score": 0.3024,
-          "query_relevance_score": 0.3077,
+          "final_url": "https://journals.physiology.org/doi/10.1152/japplphysiol.00008.2025",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
           "redirect_chain": [
-            "https://doi.org/10.46609/ijsser.2025.v10i11.016"
+            "https://doi.org/10.1152/japplphysiol.00008.2025"
           ],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-05-12T18:36:36Z"
+          "verified_at": "2026-05-21T12:14:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenghong Liang",
+            "Limin Wang",
+            "Xiudan Wang",
+            "Yifan Jia",
+            "Qinyuan Xie",
+            "Lingyun Zhao",
+            "H. Yuan"
+          ],
+          "title": "Altered ocular surface microbiota in obesity: a case-control study",
+          "topically_marginal": true,
+          "venue": "Frontiers in Cellular and Infection Microbiology",
+          "year": 2024
+        },
+        "primary_pointer": "https://doi.org/10.3389/fcimb.2024.1356197",
+        "summary": "Purpose This study aimed to investigate the composition of ocular surface microbiota in patients with obesity. Methods This case-control study, spanning from November 2020 to March 2021 at Henan Provincial People’s Hospital, involved 35 patients with obesity and an equivalent number of age and gender-matched healthy controls. By employing 16S rRNA sequencing, this study analyzed the differences in ocular surface microbiota between the two groups. The functional prediction analysis of the ocular surface microbiota was conducted using PICRUSt2. Results The alpha diversity showed no notable differences in the richness or evenness of the ocular surface microbiota when comparing patients with obesity to healthy controls (Shannon index, P=0.1003). However, beta diversity highlighted significant variances in the microbiota composition of these two groups (ANOSIM, P=0.005). LEfSe analysis revealed that the relative abundances of Delftia, Cutibacterium, Aquabacterium, Acidovorax, Caulobacteraceae unclassified, Comamonas and Porphyromonas in patients with obesity were significantly increased (P<0.05). Predictive analysis using PICRUSt2 highlighted a significant enhancement in certain metabolic pathways in patients with obesity, notably xenobiotics metabolism via cytochrome P450 (CYP450), lipid metabolism, and the oligomerization domain (NOD)-like receptor signaling pathway (P<0.05). Conclusions Patients with obesity exhibit a distinct ocular surface core microbiome. The observed variations in this microbiome may correlate with increased activity in CYP450, changes in lipid metabolism, and alterations in NOD-like receptor signaling pathways.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.frontiersin.org/journals/cellular-and-infection-microbiology/articles/10.3389/fcimb.2024.1356197/full",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [
+            "https://doi.org/10.3389/fcimb.2024.1356197",
+            "https://www.frontiersin.org/articles/10.3389/fcimb.2024.1356197/full"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:14:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guo-qing Jiang",
+            "Ye-ke He",
+            "Tengyuan Li",
+            "Qi-rong Qin",
+            "Dan-ni Wang",
+            "F. Huang",
+            "Ye-huan Sun",
+            "Jie Li"
+          ],
+          "title": "Association of psychological resilience and cognitive function in older adults: Based on the Ma' anshan Healthy Aging Cohort Study.",
+          "topically_marginal": true,
+          "venue": "Archives of gerontology and geriatrics (Print)",
+          "year": 2023
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.archger.2023.105166",
+        "summary": "OBJECTIVES\nThe purpose of this study was to explore whether psychological resilience can influence changes in cognitive function in older adults and provide clues and rationale for improving cognitive function and preventing the onset of dementia in the geriatric population.\n\n\nMETHODS\nA total of 2495 older adults aged 60 years or older from the Ma' anshan Healthy Aging Cohort were included in the study. Participants' cognitive functioning and psychological resilience were measured using the MMSE (mini-mental state examination) scale and the SRQS (stress resilience quotient scale) scale during the 5 years of follow-up, and the association was explored. Those with MMSE scores ≤ 17 in the illiterate group, ≤ 20 in the elementary school group, and ≤ 24 in the secondary school and above group were considered cognitive impairment.\n\n\nRESULTS\nThe prevalence of cognitive impairment increased from 6.89% to 14.30% during the five years of follow-up. At 5-year follow-up, the group with the highest psychological resilience had 41 (6.83%) individuals whose cognitive functioning changed from normal to cognitive impairment, while the group with the worst psychological resilience had 114 (18.33%) individuals. The study also found a significant effect of different levels of psychological resilience on changes in cognitive functioning after adjusting for potential confounders. Compared with Q1 (the reference group), the Odds ratio of cognitive decline in Q2, Q3 and Q4 groups were 0.51(0.42,0.64), 0.37(0.29,0.47) and 0.19(0.13,0.27), respectively.\n\n\nCONCLUSIONS\nImproving the level of psychological resilience in older adults may be one way to prevent the incidence of cognitive impairment.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S0167494323002443",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.archger.2023.105166"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:14:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yufei Zhang",
+            "Zhihao Ma"
+          ],
+          "title": "Digital exclusion among middle-aged and older adults in China: age-period-cohort evidence from three national surveys, 2011-2022",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.07785",
+        "summary": "Amid China's ageing and digital shift, digital exclusion among older adults poses an urgent challenge. To unpack this phenomenon, this study disentangles age, period, and cohort effects on digital exclusion among middle-aged and older Chinese adults. Using three nationally representative surveys (CHARLS 2011-2020, CFPS 2010-2022, and CGSS 2010-2021), we fitted hierarchical age-period-cohort (HAPC) models weighted by cross-sectional survey weights and stabilized inverse probability weights for item response. We further assessed heterogeneity by urban-rural residence, region, multimorbidity, and cognitive risk, and evaluated robustness with APC bounding analyses. Across datasets, digital exclusion increased with age and displayed mild non-linearity, with a small midlife easing followed by a sharper rise at older ages. Period effects declined over the 2010s and early 2020s, although the pace of improvement differed across survey windows. Cohort deviations were present but less consistent than age and period patterns, with an additional excess risk concentrated among cohorts born in the 1950s. Rural and western residents, as well as adults with multimorbidity or cognitive risk, remained consistently more excluded. Over the study period, the urban-rural divide showed no evidence of narrowing, whereas the cognitive-risk gap widened. These findings highlight digital inclusion as a vital pathway for older adults to remain integral participants in an evolving digital society.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.07785",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:14:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ching-En Lin",
+            "li-Fen chen",
+            "Wen-Hui Fang",
+            "Chuan-Chia Chang",
+            "Hsin-An Chang"
+          ],
+          "title": "ExoBDNF Probiotic Supplementation Enhances Cognition in Subjective Cognitive Decline",
+          "topically_marginal": true,
+          "venue": "Medicina",
+          "year": 2025
+        },
+        "primary_pointer": "https://doi.org/10.3390/medicina62010091",
+        "summary": "Background and Objectives: Interventions targeting the gut–brain axis offer potential for mitigating Subjective Cognitive Decline (SCD), a critical window for Alzheimer’s prevention. This study evaluated the effects of a novel probiotic supplement, ExoBDNF, on cognitive function, sleep, and emotional distress in adults with SCD. Materials and Methods: In this 9-week open-label study, participants received ExoBDNF supplementation. Efficacy was assessed using the SCD-Questionnaire (SCD-Q), DASS-21, PSQI, MoCA, and a computerized cognitive battery measuring inhibition (Go/No-Go), flexibility (Task Switching), and working memory. Results: Post-intervention analyses revealed significant improvements in subjective cognition (SCD-Q, p < 0.001), sleep quality (PSQI, p < 0.001), and emotional distress (DASS-21, p < 0.001). Objective cognitive performance also improved, with significant gains in MoCA scores (p = 0.047) and executive function metrics. Spearman correlation analysis indicated a significant link between cognitive and emotional changes: longitudinal reductions in SCD scores correlated with concurrent reductions in emotional distress (rho = 0.471, p = 0.009). Furthermore, higher baseline SCD scores predicted greater improvement in emotional outcomes (rho = −0.540, p = 0.002). Conclusions: ExoBDNF supplementation significantly enhanced cognitive performance, sleep quality, and emotional well-being. The findings demonstrate that improvements in subjective cognition are closely tied to alleviated emotional distress, supporting the gut–brain axis as a viable therapeutic target for early-stage cognitive decline.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.mdpi.com/1648-9144/62/1/91",
+          "http_status": 403,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4615,
+          "redirect_chain": [
+            "https://doi.org/10.3390/medicina62010091"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-21T12:14:38Z"
         }
       }
     ]

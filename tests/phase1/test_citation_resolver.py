@@ -74,18 +74,40 @@ def test_doi_redirect_resolves():
 
 
 def test_timeout_fires():
-    """Hard deadline cancels a stuck resolver and returns unreachable."""
-    # httpbin.org/delay/30 sleeps 30s server-side; with timeout=2 we MUST fail
-    # fast. (httpbin is the canonical test endpoint for this.)
-    citation = cr.Citation(
-        raw_text="[Slow](https://httpbin.org/delay/30)",
-        kind="url",
-        identifier="https://httpbin.org/delay/30",
-        line_number=1,
-    )
-    result = cr.resolve_one(citation, timeout=2.0)
-    assert result.stage1_status == "unreachable"
-    assert result.stage1_evidence["api_response_snippet"] is not None
+    """Hard deadline cancels a stuck resolver and returns unreachable with
+    evidence. Uses a LOCAL server that sleeps well past the timeout so the
+    deadline DETERMINISTICALLY fires — the previous version depended on the
+    flaky public httpbin.org/delay/30 endpoint, which (when overloaded)
+    responds fast and takes the non-timeout unreachable path instead."""
+    import http.server
+    import socketserver
+    import threading
+    import time
+
+    class _Slow(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *a):  # silence
+            pass
+
+        def _handle(self):
+            time.sleep(10)  # > the resolve_one timeout below
+            self.send_response(200)
+            self.end_headers()
+
+        do_GET = _handle
+        do_HEAD = _handle
+
+    httpd = socketserver.TCPServer(("127.0.0.1", 0), _Slow)
+    httpd.daemon_threads = True
+    port = httpd.server_address[1]
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        url = f"http://127.0.0.1:{port}/slow"
+        citation = cr.Citation(raw_text=f"[Slow]({url})", kind="url", identifier=url, line_number=1)
+        result = cr.resolve_one(citation, timeout=2.0)
+        assert result.stage1_status == "unreachable"
+        assert result.stage1_evidence["api_response_snippet"] is not None
+    finally:
+        httpd.shutdown()
 
 
 def test_extract_arxiv_md_link():
