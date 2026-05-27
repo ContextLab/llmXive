@@ -3,7 +3,7 @@ assigned_agent: null
 created_at: '2026-05-27T09:10:52.979686Z'
 current_stage: paper_review
 failed_stage: null
-field: other
+field: linguistics
 human_escalation_reason: null
 id: PROJ-631-https-arxiv-org-abs-2605-25604
 last_run_id: null
@@ -14,5 +14,6 @@ revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
-title: https://arxiv.org/abs/2605.25604
-updated_at: '2026-05-27T09:10:53.115930Z'
+title: 'DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement
+  Learning'
+updated_at: '2026-05-27T13:10:55.300410Z'

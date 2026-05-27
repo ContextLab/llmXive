@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 639,
     "ai_contributors": 7,
-    "human_contributors": 792,
+    "human_contributors": 798,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2581,
-    "total_contributors": 799
+    "total_contributions": 2587,
+    "total_contributors": 805
   },
   "contributors": [
     {
@@ -1982,6 +1982,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chuzhan Hao"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2523,6 +2531,30 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Guobin Shen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guochao Jiang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guofeng Quan"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guohua Liu"
     },
     {
       "areas": [
@@ -3299,6 +3331,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jingxuan Wei"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jingyi Song"
     },
     {
       "areas": [
@@ -6710,6 +6750,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuewei Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -7405,7 +7453,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-27T12:36:58.096191+00:00",
+  "generated_at": "2026-05-27T13:12:41.640307+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -7645,7 +7693,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7689,7 +7737,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7733,7 +7781,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7777,7 +7825,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7820,7 +7868,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7863,7 +7911,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7909,7 +7957,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -7961,7 +8009,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8005,7 +8053,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8048,7 +8096,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8092,7 +8140,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8135,7 +8183,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8186,7 +8234,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8232,7 +8280,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -8287,7 +8335,7 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
           "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "https://arxiv.org/abs/2605.25604"
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
@@ -71482,7 +71530,56 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guochao Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jingyi Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guofeng Quan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chuzhan Hao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guohua Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuewei Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -71497,8 +71594,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.25604 Submitted by: github-actions[bot] (Intake from human-submission issue #234.)",
-      "field": "other",
+      "description": "Reinforcement Learning has become a standard paradigm for aligning Large Language Models with human intent and task requirements. While Group Relative Policy Optimization offers an efficient, value-model-free alternative to Proximal Policy Optimization, adapting it to real-world multi-reward settings remains\u2026",
+      "field": "linguistics",
       "id": "PROJ-631-https-arxiv-org-abs-2605-25604",
       "keywords": [],
       "last_run_log": [
@@ -71520,8 +71617,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.25604",
-      "updated_at": "2026-05-27T09:10:53.115930+00:00",
+      "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning",
+      "updated_at": "2026-05-27T13:10:55.300410+00:00",
       "upstream_feedback": null
     }
   ],
