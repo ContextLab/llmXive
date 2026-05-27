@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-05-27T05:01:31.709517+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-05-27T06:38:22.376144+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-05-18T15:47:29.387002+00:00'
-  ended_at: '2026-05-18T17:46:08.584767+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-18__research.md
 - slug: marie-curie
   started_at: '2026-05-18T17:46:08.584767+00:00'
   ended_at: '2026-05-18T18:36:56.921549+00:00'
@@ -1203,3 +1196,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-27__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-27T05:01:31.709517+00:00'
+  ended_at: '2026-05-27T06:38:22.376144+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/reviews/geoffrey-west-simulated__2026-05-27__paper.md
