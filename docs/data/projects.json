@@ -940,7 +940,7 @@
     "human_contributors": 798,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2587,
+    "total_contributions": 2589,
     "total_contributors": 805
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1051,
+      "contribution_count": 1052,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 536,
+      "contribution_count": 537,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -7453,7 +7453,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-27T13:12:41.640307+00:00",
+  "generated_at": "2026-05-27T14:09:42.872030+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -30428,7 +30428,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30456,6 +30456,14 @@
             "research_question_validator",
             "specifier"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
         }
       ],
       "citation_summary": {
@@ -30472,7 +30480,7 @@
         "type": "markdown"
       },
       "current_stage": "clarified",
-      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
+      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30577,7 +30585,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": null,
+      "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-17T04:28:52.579110+00:00",
       "upstream_feedback": null
@@ -54123,7 +54131,7 @@
       },
       "authors": [
         {
-          "contributions": 20,
+          "contributions": 21,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -54164,6 +54172,14 @@
       "id": "PROJ-546-predicting-molecular-properties-from-qua",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 31.046394,
+          "ended_at": "2026-05-27T14:09:39.494762+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-27T14:09:08.448368+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 22.455231,
@@ -54235,20 +54251,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-24T22:19:23.948324+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 177.166953,
-          "ended_at": "2026-05-24T18:55:24.163515+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-24T18:52:26.996562+00:00"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Look, I'm sympathetic to the problem. Quantum chemistry is hard. The electrons are doing their little dance around the nuclei, and calculating all those amplitudes with the right precision takes a lot of work. But here's what worries me.\n\nYou're training a neural network on quantum chemical calculat",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-27__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-27__research.md",
+          "review_path": "projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-27__research.md",
+          "reviewed_at": "2026-05-27T14:09:39.487805Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Richard Feynman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "I read the proposal on predicting molecular properties from quantum chemical calculations. The computational approach is noted. However, I must ask: what measurements will verify these predictions? In our work on radium, we processed tons of pitchblende residue to isolate fractions measurable by wei",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-27__research.md",
@@ -71626,6 +71644,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Richard Feynman (simulated)",
+      "duration_s": 31.046394,
+      "ended_at": "2026-05-27T14:09:39.494762+00:00",
+      "excerpt": "Look, I'm sympathetic to the problem. Quantum chemistry is hard. The electrons are doing their little dance around the nuclei, and calculating all those amplitudes with the right precision takes a lot of work. But here's what worries me.\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "richard-feynman",
+      "project_id": "PROJ-546-predicting-molecular-properties-from-qua",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-27__research.md",
+      "started_at": "2026-05-27T14:09:08.448368+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 22.455231,
       "ended_at": "2026-05-27T12:36:55.491786+00:00",
@@ -78015,16 +78049,6 @@
       "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-16T20:44:50.907320Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 0.000184,
-      "ended_at": "2026-05-16T20:44:50.855712Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-16T20:44:50.855528Z"
     }
   ],
   "schema_version": "2.0.0"
