@@ -29,7 +29,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: flesh_out
@@ -218,7 +218,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   tools:
   - citation_fetcher
   wall_clock_budget_seconds: 300
@@ -316,7 +316,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_writing
@@ -399,7 +399,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: latex_fix
@@ -445,7 +445,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: repository_hygiene
@@ -461,7 +461,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: task_atomizer
@@ -496,7 +496,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_reviewer_writing_quality
@@ -818,7 +818,7 @@ agents:
   fallback_backends:
   - huggingface
   - local
-  default_model: google.gemma-3-27b-it
+  default_model: google.gemma-4-31B-it
   tools: []
   wall_clock_budget_seconds: 300
   paid_opt_in: false

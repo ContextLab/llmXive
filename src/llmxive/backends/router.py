@@ -44,9 +44,11 @@ def make_backend(name: str) -> BaseBackend:
 MODEL_FALLBACKS: dict[str, list[str]] = {
     # Qwen 3.5 122b is a reasoning model; gpt-oss-120b is the closest
     # peer in capability (also reasoning-capable, similar parameter count).
-    "qwen.qwen3.5-122b": ["openai.gpt-oss-120b", "google.gemma-3-27b-it"],
-    "openai.gpt-oss-120b": ["qwen.qwen3.5-122b", "google.gemma-3-27b-it"],
-    "google.gemma-3-27b-it": ["openai.gpt-oss-120b", "qwen.qwen3.5-122b"],
+    # gemma-4-31B-it is the free general fallback. All three are free
+    # (cost-per-token == 0) per chat.dartmouth.edu/api/models.
+    "qwen.qwen3.5-122b": ["openai.gpt-oss-120b", "google.gemma-4-31B-it"],
+    "openai.gpt-oss-120b": ["qwen.qwen3.5-122b", "google.gemma-4-31B-it"],
+    "google.gemma-4-31B-it": ["openai.gpt-oss-120b", "qwen.qwen3.5-122b"],
 }
 
 
