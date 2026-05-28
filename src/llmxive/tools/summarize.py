@@ -22,7 +22,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-__all__ = ["desummarize", "estimate_tokens", "extract_critical", "summarize"]
+__all__ = [
+    "desummarize",
+    "estimate_tokens",
+    "extract_critical",
+    "summarize",
+    "summarize_to_budget",  # back-compat alias for issue #239's documented name
+]
 
 # --- budget ---------------------------------------------------------------
 
@@ -270,3 +276,11 @@ def desummarize(text: str, *, want: list[str] | None = None, max_depth: int = 16
     if not manifest_path.exists():
         raise FileNotFoundError(f"dangling summary manifest: {manifest_path}")
     return _expand_manifest(manifest_path, want, max_depth)
+
+
+# Back-compat alias for the function name documented in issue #239 §3a
+# (``summarize_to_budget``). The spec clarification superseded the name
+# with the inode-table-based ``summarize``; this alias preserves the
+# documented signature so anyone reading the issue can find a callable
+# with that exact name.
+summarize_to_budget = summarize
