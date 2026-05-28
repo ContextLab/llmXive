@@ -135,6 +135,10 @@ class Stage(str, Enum):
     PAPER_REVISION_IN_PROGRESS = "paper_revision_in_progress"
     READY_FOR_IMPLEMENTATION = "ready_for_implementation"
     PAPER_REVISION_BLOCKED = "paper_revision_blocked"
+    # Spec 015 (FR-036/FR-054): mandatory manual maintainer sign-off gate before
+    # any Zenodo DOI mint. Flow: paper_accepted -> publisher(assemble) ->
+    # awaiting_publication_signoff -> [maintainer approves] -> publisher(mint) -> posted.
+    AWAITING_PUBLICATION_SIGNOFF = "awaiting_publication_signoff"
     POSTED = "posted"
     # Spec 013 (FR-030): 5 consecutive Zenodo failures during publication
     # transition the project to PUBLISH_BLOCKED. Operator clears via
