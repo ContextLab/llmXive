@@ -19,13 +19,11 @@ from typing import Any
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
-
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 _TASK_RE = re.compile(
     # T### or T###<letter-suffix> (e.g., T016, T016a, T017b for
@@ -94,8 +92,13 @@ class ImplementerAgent(SlashCommandAgent):
                 ChatMessage(role="system", content="No incomplete tasks remain."),
                 ChatMessage(role="user", content="Reply with `task_id: NONE\\nverdict: completed` only."),
             ]
+        # Spec 015 T030 / discrepancy #1: the research implementer must use a
+        # research-CODE prompt. `agents/prompts/implementer.md` is the paper-revision
+        # LaTeX prompt (used by the separate paper-revision agents/implementer.py);
+        # pointing the research implementer at it produced LaTeX search/replace output
+        # the artifact parser could not apply.
         system = render_prompt(
-            "agents/prompts/implementer.md",
+            "agents/prompts/implementer_research.md",
             {
                 "project_id": ctx.project_id,
                 "next_task_id": mechanical_output["next_task_id"] or "",
@@ -443,7 +446,7 @@ class ImplementerAgent(SlashCommandAgent):
             text = tasks_path.read_text(encoding="utf-8")
             text = re.sub(
                 rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                rf"- [X] \1\2 <!-- ATOMIZE: requested -->",
+                r"- [X] \1\2 <!-- ATOMIZE: requested -->",
                 text,
                 count=1,
                 flags=re.MULTILINE,
