@@ -205,6 +205,13 @@ class TaskerAgent(SlashCommandAgent):
         self._inspection_rounds: list[dict[str, Any]] = []
         for round_idx in range(TASKER_MAX_REVISION_ROUNDS):
             try:
+                # Spec 015 T031 + FR-030: include the project's constitution.md
+                # in analyze inputs (when present) so the analyzer can flag
+                # Constitution-Check violations.
+                _const_path = ctx.project_dir / ".specify" / "memory" / "constitution.md"
+                _const_text = (
+                    _const_path.read_text(encoding="utf-8") if _const_path.exists() else None
+                )
                 report = run_analyze(
                     spec_text=spec_path.read_text(encoding="utf-8"),
                     plan_text=plan_path.read_text(encoding="utf-8"),
@@ -213,6 +220,9 @@ class TaskerAgent(SlashCommandAgent):
                     fallback_backends=ctx.fallback_backends,
                     default_model=ctx.default_model,
                     repo_root=repo,
+                    project_dir=ctx.project_dir,
+                    kind="research",
+                    constitution_text=_const_text,
                 )
             except _BackendError as exc:
                 print(f"[tasker] analyze round {round_idx + 1} failed: {exc}; "
@@ -426,6 +436,7 @@ def _parse_tasker_response(text: str) -> dict | None:
     """
     import json as _json
     import re as _re_local
+
     from llmxive.speckit.yaml_extract import parse_yaml_lenient as _parse_yaml
 
     raw = (text or "").strip()

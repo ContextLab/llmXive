@@ -102,6 +102,17 @@ class PaperTaskerAgent(SlashCommandAgent):
 
         spec_path = Path(mechanical_output["spec_path"])
         plan_path = Path(mechanical_output["plan_path"])
+        # Spec 015 T031 (discrepancy #4) + FR-030: paper analyze now uses a
+        # paper-appropriate prompt (not the reused research tasker.md), and the
+        # paper's constitution is included as a panel input.
+        _paper_const_path = (
+            self._paper_dir(ctx) / ".specify" / "memory" / "constitution.md"
+        )
+        _paper_const_text = (
+            _paper_const_path.read_text(encoding="utf-8")
+            if _paper_const_path.exists()
+            else None
+        )
         for round_idx in range(TASKER_MAX_REVISION_ROUNDS):
             report = run_analyze(
                 spec_text=spec_path.read_text(encoding="utf-8"),
@@ -111,6 +122,9 @@ class PaperTaskerAgent(SlashCommandAgent):
                 fallback_backends=ctx.fallback_backends,
                 default_model=ctx.default_model,
                 repo_root=repo,
+                project_dir=ctx.project_dir,
+                kind="paper",
+                constitution_text=_paper_const_text,
             )
             if is_clean(report):
                 round_record = (

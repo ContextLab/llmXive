@@ -16,8 +16,16 @@ from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
 from llmxive.types import BackendName
 
-
-ANALYZE_SYSTEM_PROMPT_PATH = "agents/prompts/tasker.md"  # Tasker prompt covers analyze in Mode B
+# Spec 015 T031 (discrepancy #4) + FR-030: the analyze prompts are now real prompt
+# files that ARE used (the constant is no longer dead) and paper analyze uses a
+# paper-appropriate prompt rather than reusing the research tasker.md.
+ANALYZE_SYSTEM_PROMPT_PATHS: dict[str, str] = {
+    "research": "agents/prompts/analyze.md",
+    "paper": "agents/prompts/paper_analyze.md",
+}
+# Back-compat: legacy callers may reference the bare name. Points at the research
+# variant — paper callers pass kind="paper".
+ANALYZE_SYSTEM_PROMPT_PATH: str = ANALYZE_SYSTEM_PROMPT_PATHS["research"]
 
 
 def run_analyze(
@@ -30,21 +38,23 @@ def run_analyze(
     default_model: str,
     repo_root: Path | None = None,
     project_dir: Path | None = None,
+    kind: str = "research",
+    constitution_text: str | None = None,
 ) -> str:
     """Issue an analyze pass over the three artifacts; return raw report text.
 
-    The Tasker's prompt (Mode B) accepts the analyze report and the
-    artifacts together to produce patches; here we synthesize the
-    report by asking the model to act as analyze.
+    ``kind`` selects the analyze prompt (``"research"`` or ``"paper"``).
+    ``constitution_text``, when provided, is included as a panel input so the
+    analyzer can flag constitution violations (FR-030).
     """
     repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
-    system = (
-        "You are the Spec Kit /speckit.analyze step. "
-        "Examine the three artifacts (spec.md, plan.md, tasks.md) and produce "
-        "a bulleted list of cross-artifact issues. Each bullet must include: "
-        "(severity: CRITICAL|HIGH|MEDIUM|LOW), (file:section), and a one-sentence summary. "
-        "If no issues are found, return the literal string 'CLEAN' on its own line."
-    )
+    if kind not in ANALYZE_SYSTEM_PROMPT_PATHS:
+        raise ValueError(
+            f"run_analyze: unknown kind {kind!r}; "
+            f"expected one of {sorted(ANALYZE_SYSTEM_PROMPT_PATHS)}"
+        )
+    system = render_prompt(ANALYZE_SYSTEM_PROMPT_PATHS[kind], {}, repo_root=repo)
+
     # Spec 011 / FR-013: inject recent personality + reviewer comments
     # so the analyzer's flagged issues reflect existing feedback. The
     # caller passes project_dir (optional, kept None for legacy callsites).
@@ -53,13 +63,18 @@ def run_analyze(
         from llmxive.speckit._comments_context import render_recent_comments_block
         comments_block = render_recent_comments_block(project_dir)
 
-    user = (
-        f"# spec.md\n\n{spec_text}\n\n"
-        f"# plan.md\n\n{plan_text}\n\n"
-        f"# tasks.md\n\n{tasks_text}\n\n"
-        + (comments_block + "\n\n" if comments_block else "")
-        + "Now produce the analyze report."
-    )
+    parts: list[str] = []
+    if constitution_text:
+        parts.append(f"# constitution.md\n\n{constitution_text}")
+    parts.extend([
+        f"# spec.md\n\n{spec_text}",
+        f"# plan.md\n\n{plan_text}",
+        f"# tasks.md\n\n{tasks_text}",
+    ])
+    if comments_block:
+        parts.append(comments_block)
+    parts.append("Now produce the analyze report.")
+    user = "\n\n".join(parts)
     response = chat_with_fallback(
         [ChatMessage(role="system", content=system), ChatMessage(role="user", content=user)],
         default_backend=default_backend.value,
@@ -73,4 +88,9 @@ def is_clean(report: str) -> bool:
     return report.strip().upper().startswith("CLEAN")
 
 
-__all__ = ["run_analyze", "is_clean"]
+__all__ = [
+    "ANALYZE_SYSTEM_PROMPT_PATH",
+    "ANALYZE_SYSTEM_PROMPT_PATHS",
+    "is_clean",
+    "run_analyze",
+]
