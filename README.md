@@ -46,12 +46,19 @@ specialist** (against the live artifact hash — stale reviews are ignored).
 
 Three terminal outcomes:
 
-- **All specialists accept** → `paper_accepted` → the `paper_publisher`
-  agent (spec 013) pre-reserves a Zenodo DOI, recompiles the PDF with
-  the final `\paperstatus{Auto-Reviewed | Auto-Revised | Published}`
-  byline + DOI + volume/issue, uploads to Zenodo, appends the
-  post-paper appendix (spacer + reviews + revision changelog), writes
-  `paper/publication.yaml`, and transitions to `posted`.
+- **All specialists accept** → `paper_accepted` →
+  `awaiting_publication_signoff`. The transition through to `posted`
+  requires a maintainer to record explicit approval via
+  `llmxive project publish-approve <PROJ-ID>` (spec 015 FR-054 — every
+  real Zenodo DOI mint gated on a manual sign-off). Once approved, the
+  `paper_publisher` agent (spec 013) pre-reserves a Zenodo DOI,
+  recompiles the PDF with the final
+  `\paperstatus{Auto-Reviewed | Auto-Revised | Published}` byline +
+  DOI + volume/issue, uploads to Zenodo, appends the post-paper
+  appendix (spacer + reviews + revision changelog), writes
+  `paper/publication.yaml`, and transitions to `posted`. The graph and
+  the publisher BOTH enforce the sign-off check (defense in depth — no
+  DOI is ever minted without a recorded approval).
 - **Any `fatal` severity** → `brainstormed` (back to the backlog), with a
   rejection rationale appended to the idea record citing each fatal item.
 - **Otherwise** (writing/science items, no fatal) → `paper_revision_in_progress`,
@@ -221,6 +228,8 @@ python -m llmxive preflight                 # fail-fast environment check
 python -m llmxive brainstorm -n 5           # seed 5 brainstormed ideas
 python -m llmxive run --max-tasks 5         # run one scheduled pipeline pass
 python -m llmxive submissions process       # triage open human-submission issues
+python -m llmxive project publish-approve PROJ-001 \
+    --who 'Maintainer Name' --what 'reviewed paper meets standards'  # spec 015 FR-054
 python -m llmxive agents run --agent <name> --project <PROJ-ID>
 ```
 
