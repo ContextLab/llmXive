@@ -145,7 +145,7 @@
 
 ### Implementation
 
-- [ ] T048 [US4] Implement the `reviewspec_for(stage)` registry (per-stage ReviewSpec + EXEMPT set) per contracts/reviewspec-registry.md in `src/llmxive/convergence/reviewspecs.py`
+- [X] T048 [US4] Implement the `reviewspec_for(stage)` registry (per-stage ReviewSpec + EXEMPT set) per contracts/reviewspec-registry.md in `src/llmxive/convergence/reviewspecs.py`
 - [ ] T049 [P] [US4] Author idea panel prompts (`rq_validity`, `novelty`, `feasibility`, optional `idea_quality`) in `agents/prompts/panels/`
 - [ ] T050 [P] [US4] Author spec panel prompts (`requirements_coverage`, `internal_consistency`, `testability`, `scope`) in `agents/prompts/panels/`
 - [ ] T051 [P] [US4] Author plan panel prompts (`methodology`, `spec_coverage`, `data_resources`, `plan_consistency`) in `agents/prompts/panels/`
@@ -157,8 +157,8 @@
 - [ ] T057 [US4] Wire the tasks panel (4 lenses) for `tasker` (and its paper twin `paper_tasker`) + constitution input + deterministic pre-filter; fold spec-014 honest-reporting + per-round budget; route oversized inputs (full spec+plan+tasks+reviews each round) through `tools/summarize` (FR-006) in `src/llmxive/speckit/tasks_cmd.py` + `paper_tasks_cmd.py` + `analyze_cmd.py`
 - [ ] T058 [US4] Research-unit: `implementer` revises code in-loop + re-verifies task assertions against the filesystem (#49); reuse the 8-panel as R1/R3; adaptive kickback in `src/llmxive/speckit/implement_cmd.py`
 - [ ] T059 [US4] Paper-implement: 12-panel as R1/R3 on the assembled paper; `paper_implementer` re-dispatches the right sub-agent (figure/stat/section) as reviser in `src/llmxive/speckit/paper_implement_cmd.py`
-- [ ] T060 [US4] Add the per-project `constitution.md` as a standard panel + analyze input from `specified` onward (fix the `run_analyze` omission) in `src/llmxive/speckit/analyze_cmd.py` + engine
-- [ ] T061 [US4] Wire the publisher into the graph (`paper_accepted → publisher → awaiting_publication_signoff → posted`); remove the direct `paper_accepted→posted` edge in `src/llmxive/pipeline/graph.py`
+- [X] T060 [US4] Add the per-project `constitution.md` as a standard panel + analyze input from `specified` onward (fix the `run_analyze` omission) in `src/llmxive/speckit/analyze_cmd.py` + engine
+- [X] T061 [US4] Wire the publisher into the graph (`paper_accepted → publisher → awaiting_publication_signoff → posted`); remove the direct `paper_accepted→posted` edge in `src/llmxive/pipeline/graph.py`
 - [ ] T062 [US4] Verify every reviewable step runs its panel; exempt steps run no loop; constitution present from `specified` onward; update STATUS.md
 
 **Checkpoint**: convergence reaches every reviewable step.
