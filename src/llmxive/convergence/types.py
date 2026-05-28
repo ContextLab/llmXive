@@ -208,6 +208,7 @@ class ReviewSpec:
     reviser: Reviser | None
     kickback_routing: dict[Severity, str]
     overflow_goal: str
+    advance_stage: str | None = None  # the normal forward stage on convergence
     constitution_input: bool = False
     max_rounds: int = 3
     exempt: bool = False
