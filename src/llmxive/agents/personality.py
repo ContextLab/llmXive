@@ -846,6 +846,25 @@ def dispatch(action: Action, persona: Personality, repo_root: Path) -> DispatchR
     return result
 
 
+def _project_id_from_artifact_path(artifact_rel: str) -> str | None:
+    """Extract the ``PROJ-...`` id from an artifact-relative path of the
+    form ``projects/<PROJ-ID>/...``. Returns ``None`` when the path
+    doesn't follow the canonical layout (e.g. action targeted a
+    non-project artifact). Used by :func:`_dispatch_comment` to decide
+    whether to look up the project's current stage for living-document
+    routing (FR-047).
+    """
+    if not artifact_rel:
+        return None
+    parts = artifact_rel.split("/")
+    if len(parts) < 2 or parts[0] != "projects":
+        return None
+    pid = parts[1]
+    if not pid.startswith("PROJ-"):
+        return None
+    return pid
+
+
 def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> DispatchResult:
     """Comment branch — writes a review file via the canonical
     :func:`llmxive.state.reviews.write` helper.
@@ -856,13 +875,21 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
     paper_reviewer pipeline is the formal review). Score is 0.5 (LLM-
     review per the standard scoring) and may be overridden later if
     spec-008 evolves to require persona-specific verdicts.
+
+    Spec 015 T078 / FR-047: when the target project's current_stage is
+    ``Stage.POSTED`` the comment is NOT a formal review — it's a
+    post-publication discussion contribution. We route it through
+    :func:`llmxive.agents.living_document.ingest_comment` instead, which
+    appends to the per-project living log + recompile queue (the
+    publisher consumes the queue when the maintainer triggers a batched
+    recompile).
     """
     from datetime import datetime
 
     from llmxive.state import reviews as reviews_store
-    from llmxive.types import ReviewerKind, ReviewRecord
+    from llmxive.types import ReviewerKind, ReviewRecord, Stage
 
-    artifact_rel = action.target_artifact_path
+    artifact_rel = action.target_artifact_path or ""
     artifact_abs = repo_root / artifact_rel
     # Pick the review stage based on the artifact path: anything under
     # `<proj>/paper/` is a paper-stage review; everything else is
@@ -887,6 +914,58 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
     triage_lenses = list(
         _PAPER_REVIEW_LENSES if is_paper_stage else _RESEARCH_REVIEW_LENSES
     )
+
+    # Spec 015 T078 / FR-047-048: if the target project is in POSTED,
+    # route the comment through the living-document path. We resolve the
+    # project's current_stage from on-disk state; missing state →
+    # fall through to the legacy review-store path (handles brand-new
+    # projects where the state file hasn't been written yet).
+    project_id = _project_id_from_artifact_path(artifact_rel)
+    project_stage: Stage | None = None
+    if project_id is not None:
+        try:
+            from llmxive.state import project as project_store
+
+            project_stage = project_store.load(
+                project_id, repo_root=repo_root,
+            ).current_stage
+        except FileNotFoundError:
+            project_stage = None
+        except Exception:
+            # Defensive: corrupt state file shouldn't crash the cron tick.
+            # Fall through to the legacy review-store path; the maintainer
+            # will notice the persisted review missed the living-doc log
+            # via the recompile queue counter staying at 0.
+            project_stage = None
+
+    if project_stage == Stage.POSTED and project_id is not None:
+        from llmxive.agents import living_document
+
+        project_dir = repo_root / "projects" / project_id
+        ingest_result = living_document.ingest_comment(
+            project_dir=project_dir,
+            comment_text=body,
+            author=persona.slug,
+            source="personality",
+            stage="posted",
+            lenses=list(_PAPER_REVIEW_LENSES),
+        )
+        if not ingest_result.persisted:
+            return DispatchResult(
+                outcome=OUTCOME_TRIAGE_REJECTED,
+                committed_paths=[],
+                error=(
+                    "living-document triage rejected (stage=posted): "
+                    f"{ingest_result.excluded_reason or 'unknown reason'}"
+                ),
+            )
+        assert ingest_result.log_path is not None  # narrowed by persisted=True
+        try:
+            rel = ingest_result.log_path.relative_to(repo_root).as_posix()
+        except ValueError:
+            rel = ingest_result.log_path.as_posix()
+        return DispatchResult(outcome=OUTCOME_COMMITTED, committed_paths=[rel])
+
     triage_record = triage_submission(
         body,
         source="personality",
