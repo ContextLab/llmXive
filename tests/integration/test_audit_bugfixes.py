@@ -357,3 +357,79 @@ def test_cli_publish_approve_writes_signoff(tmp_path):
     assert record.exists()
     body = record.read_text()
     assert "jeremy" in body and "paper v1 approved" in body
+
+
+# ---- T025 (advancement side) / FR-018 : self-review prevention --------------
+
+
+def test_produced_by_returns_real_agent_from_run_log(tmp_path):
+    """T025 / FR-018: ``_produced_by`` was a stub returning None — self-review
+    prevention only worked by reviewer-name comparison. It now reads
+    ``state/run-log/`` and returns the agent that last wrote the artifact."""
+    from datetime import UTC, datetime, timedelta
+
+    from llmxive.agents.advancement import _produced_by
+    from llmxive.state import runlog
+    from llmxive.types import (
+        BackendName,
+        Outcome,
+        Project,
+        RunLogEntry,
+        Stage,
+    )
+
+    proj_id = "PROJ-025-t-x"
+
+    def _entry(agent: str, outputs: list[str], offset_s: int) -> RunLogEntry:
+        t0 = datetime.now(UTC) + timedelta(seconds=offset_s)
+        return RunLogEntry(
+            run_id="r1", entry_id=f"e-{agent}-{offset_s}", agent_name=agent,
+            project_id=proj_id, task_id="t",
+            inputs=[], outputs=outputs,
+            backend=BackendName.DARTMOUTH, model_name="m",
+            prompt_version="1.0.0",
+            started_at=t0, ended_at=t0 + timedelta(seconds=1),
+            outcome=Outcome.SUCCESS, cost_estimate_usd=0.0,
+        )
+
+    # implementer wrote code/foo.py, then a LATER paper_implementer rewrote it.
+    runlog.append_entry(_entry("implementer", ["code/foo.py"], 0), repo_root=tmp_path)
+    runlog.append_entry(_entry("paper_implementer", ["code/foo.py"], 60), repo_root=tmp_path)
+    runlog.append_entry(_entry("paper_specifier", ["paper/specs/001-x/spec.md"], 30), repo_root=tmp_path)
+
+    proj = Project(
+        id=proj_id, title="t", field="biology",
+        current_stage=Stage.BRAINSTORMED,
+        points_research={}, points_paper={},
+        created_at=datetime.now(UTC), updated_at=datetime.now(UTC),
+        artifact_hashes={},
+    )
+    # Latest writer of code/foo.py is paper_implementer (later ended_at).
+    assert _produced_by(proj, "code/foo.py", repo_root=tmp_path) == "paper_implementer"
+    # Suffix match: full path still resolves.
+    assert _produced_by(
+        proj, f"projects/{proj_id}/code/foo.py", repo_root=tmp_path,
+    ) == "paper_implementer"
+    # Different project_id -> no attribution.
+    proj2 = proj.model_copy(update={"id": "PROJ-026-other-proj"})
+    assert _produced_by(proj2, "code/foo.py", repo_root=tmp_path) is None
+    # Unknown artifact -> None (no fabricated attribution).
+    assert _produced_by(proj, "nowhere.py", repo_root=tmp_path) is None
+
+
+def test_produced_by_handles_missing_run_log(tmp_path):
+    """Defensive: if no run-log exists yet, _produced_by returns None instead
+    of raising (callers tolerate None for "no attribution evidence")."""
+    from datetime import UTC, datetime
+
+    from llmxive.agents.advancement import _produced_by
+    from llmxive.types import Project, Stage
+
+    proj = Project(
+        id="PROJ-027-empty", title="t", field="biology",
+        current_stage=Stage.BRAINSTORMED,
+        points_research={}, points_paper={},
+        created_at=datetime.now(UTC), updated_at=datetime.now(UTC),
+        artifact_hashes={},
+    )
+    assert _produced_by(proj, "anything.md", repo_root=tmp_path) is None

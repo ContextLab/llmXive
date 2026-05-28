@@ -19,7 +19,6 @@ from pathlib import Path
 from llmxive.agents import registry as registry_loader
 from llmxive.agents.lifecycle import is_valid_transition
 from llmxive.config import (
-    PAPER_ACCEPT_THRESHOLD,
     RESEARCH_ACCEPT_THRESHOLD,
 )
 from llmxive.state import citations as citations_store
@@ -174,14 +173,73 @@ class AdvancementError(RuntimeError):
     """Raised when a requested transition is invalid."""
 
 
-def _produced_by(project: Project, artifact_path: str) -> str | None:
-    """Best-effort author lookup from the project's run-log; v1 stub.
+def _produced_by(
+    project: Project, artifact_path: str, *, repo_root: Path | None = None,
+) -> str | None:
+    """Return the agent that most-recently wrote ``artifact_path`` for this
+    project, by scanning ``state/run-log/<YYYY-MM>/*.jsonl`` (spec 015 T025 /
+    FR-018: self-review prevention — previously a stub that returned None).
 
-    A future refinement reads state/run-log/ to find the entry that wrote
-    the artifact and returns entry.agent_name. For v1 we return None so
-    self-review filtering is done by reviewer-name comparison only.
+    Match policy: an entry "wrote" the artifact iff its ``outputs`` list
+    contains the path. Comparison is exact, then suffix (so a callsite that
+    stores ``projects/PROJ-X/code/foo.py`` matches a run-log output recorded as
+    ``code/foo.py`` and vice-versa). Returns the ``agent_name`` of the LATEST
+    matching entry, or ``None`` if no run-log evidence exists.
+
+    ``repo_root`` overrides the default state-root resolution for tests; in
+    production callers omit it and the path falls back to the repo's own state/.
     """
-    return None
+    from pathlib import Path as _Path
+
+    from llmxive.state.runlog import _state_root  # type: ignore[attr-defined]
+
+    try:
+        state_dir = (_Path(repo_root) / "state") if repo_root is not None else _state_root()
+        log_root = state_dir / "run-log"
+    except Exception:
+        return None
+    if not log_root.is_dir():
+        return None
+
+    def _matches(outputs: list[str]) -> bool:
+        target = artifact_path
+        for o in outputs:
+            if o == target:
+                return True
+            # Suffix-match either direction to tolerate relative-vs-absolute
+            # bookkeeping differences.
+            if target.endswith(o) or o.endswith(target):
+                return True
+            # Path-segment compare for robustness against leading "./" etc.
+            try:
+                if _Path(o).as_posix().endswith(_Path(target).as_posix()):
+                    return True
+            except (TypeError, ValueError):
+                pass
+        return False
+
+    from llmxive.types import RunLogEntry
+    latest_agent: str | None = None
+    latest_ended = None
+    for month_dir in sorted(log_root.iterdir(), reverse=True):
+        if not month_dir.is_dir() or month_dir.name.startswith("."):
+            continue
+        for jsonl in sorted(month_dir.glob("*.jsonl"), reverse=True):
+            for line in jsonl.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    entry = RunLogEntry.model_validate_json(line)
+                except Exception:
+                    continue
+                if entry.project_id != project.id:
+                    continue
+                if not _matches(entry.outputs):
+                    continue
+                if latest_ended is None or entry.ended_at > latest_ended:
+                    latest_ended = entry.ended_at
+                    latest_agent = entry.agent_name
+    return latest_agent
 
 
 def _award_review_points(
@@ -402,7 +460,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     _consolidate_action_items(records, live_hash=live_hash),
                     repo_root=repo_root,
                 )
-            except Exception:  # noqa: BLE001 — defensive; rationale failure must not block transition
+            except Exception:
                 pass
             return _transition(project, Stage.BRAINSTORMED)
 
@@ -427,13 +485,15 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                         action_items=_consolidate_action_items(records, live_hash=live_hash),
                         repo_root=repo_root,
                     )
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
             # All papers with writing/science items route through the
             # auto-plan revision pipeline (FR-006/007/009).
             from llmxive.agents.revision_planner import (
-                ArxivIntakeError, RevisionPlanningError, run_revision_pipeline,
+                ArxivIntakeError,
+                RevisionPlanningError,
+                run_revision_pipeline,
             )
             consolidated = _consolidate_action_items(records, live_hash=live_hash)
             kind = "paper_writing" if max_sev == "writing" else "paper_science"
@@ -493,4 +553,4 @@ def commit(project: Project, *, repo_root: Path | None = None) -> None:
     project_store.save(project, repo_root=repo_root)
 
 
-__all__ = ["evaluate", "commit", "AdvancementError"]
+__all__ = ["AdvancementError", "commit", "evaluate"]

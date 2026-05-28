@@ -77,7 +77,7 @@
 - [X] T022 [US2] Implement `Reviewer`/`Reviser` Protocols + adapters wrapping existing agents (8-panel, 12-panel, speckit revisers) in `src/llmxive/convergence/engine.py`
 - [X] T023 [US2] Implement `run_convergence` round loop (R1→R2→R3, per-round budget, route overflow inputs through `summarize`, constitution input) in `src/llmxive/convergence/engine.py`
 - [X] T024 [US2] Implement unanimous-accept test + honest `ConvergenceResult` + per-round inspection record & run-log entry in `src/llmxive/convergence/engine.py`
-- [ ] T025 [US2] Implement stale-verdict detection + self-review prevention (fix the `_produced_by` stub at `advancement.py:177`) in `src/llmxive/convergence/engine.py` and `src/llmxive/agents/advancement.py`
+- [X] T025 [US2] Implement stale-verdict detection + self-review prevention (fix the `_produced_by` stub at `advancement.py:177`) in `src/llmxive/convergence/engine.py` and `src/llmxive/agents/advancement.py`
 - [X] T026 [US2] Implement `route_kickback` (adaptive severity→stage, `KickbackRecord` with unresolved concerns + artifact/review links + plain-language reason) AND emit a `ProgressRecord` per kickback so non-improving cycles are inspectable (FR-017) in `src/llmxive/convergence/kickback.py`
 - [ ] T027 [US2] Refactor the tasker Mode-A/Mode-B analyze loop INTO the engine (Mode-A=authoring, Mode-B=reviser with change-log) in `src/llmxive/speckit/tasks_cmd.py`
 - [X] T028 [US2] Verify honest reporting: a non-converging step records `converged:false` + a kickback (no masked "passed"); confirm via test; update STATUS.md
@@ -93,7 +93,7 @@
 
 ### Tests (write FIRST)
 
-- [ ] T029 [P] [US8] Integration tests asserting each bug is fixed (publisher invoked at `paper_accepted`; research implementer uses a research prompt; no `PAPER_ACCEPT_THRESHOLD`/points read; dead escalations now branch; prompt input/stage drift resolved) in `tests/integration/test_audit_bugfixes.py`
+- [X] T029 [P] [US8] Integration tests asserting each bug is fixed (publisher invoked at `paper_accepted`; research implementer uses a research prompt; no `PAPER_ACCEPT_THRESHOLD`/points read; dead escalations now branch; prompt input/stage drift resolved) in `tests/integration/test_audit_bugfixes.py`
 
 ### Implementation
 
