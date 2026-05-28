@@ -8,9 +8,9 @@
 
 |WS|Tasks|Status|Notes / file refs|
 |-|-|-|-|
-| Setup | T001–T003 | 🟡 | T001 dirs ✅ (`src/llmxive/convergence/`, `calibration/`, `agents/prompts/panels/`); T003 ✅ (`types.py` Stage.AWAITING_PUBLICATION_SIGNOFF; `config.py` CONVERGENCE_MAX_ROUNDS=3, CONVERGENCE_PER_ROUND_BUDGET_SECONDS=600); T002 (this file) ✅ |
-| Foundational | T004–T007 | ⬜ | T004 `convergence/types.py` models; T005/T006 Severity; T007 constitution amendment + FR-053 principle |
-| US1 Summarizer | T008–T018 | 🟡 | `src/llmxive/tools/summarize.py` + tests; re-point `paper_reviewer` (T017). **Validated FIRST.** |
+| Setup | T001–T003 | ✅ | T001 dirs; T002 STATUS.md; T003 Stage.AWAITING_PUBLICATION_SIGNOFF + config CONVERGENCE_MAX_ROUNDS=3/CONVERGENCE_PER_ROUND_BUDGET_SECONDS=600. Imports verified. |
+| Foundational | T004–T007 | ⬜ | T004 `convergence/types.py` models; T005/T006 Severity; T007 constitution amendment + FR-053 principle. **NEXT.** |
+| US1 Summarizer | T008–T018 | 🟡 | **Core done & verified**: `src/llmxive/tools/summarize.py` (T011–T016), edge-case tests `tests/unit/test_summarize_edge_cases.py` (T008), manifest contract `tests/contract/test_summary_manifest.py` (T010) — **12 tests pass, ruff+mypy clean**. **Remaining**: T009 real-call fidelity test (real qwen), T017 re-point `paper_reviewer._build_corpus_with_summaries` to call `summarize` + re-run its suite (SSoT), T018 real-call verification. |
 | US2 Engine | T019–T028 | ⬜ | `convergence/engine.py`, `kickback.py`; refactor tasker Mode-A/B into engine |
 | US8 Bug fixes | T029–T036 | ⬜ | research-implementer prompt, analyze prompt, escalations, prompt drift, arXiv, DOI sign-off gate |
 | US3 Review model | T037–T045 | ⬜ | triage, point removal, status re-expression, migration |

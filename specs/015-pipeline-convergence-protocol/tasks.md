@@ -16,9 +16,9 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Create new package skeletons with `__init__.py`: `src/llmxive/tools/` (ensure exists), `src/llmxive/convergence/` (`__init__,types,engine,kickback,triage,reviewspecs`), `src/llmxive/calibration/` (`__init__,injectors,differential,domains`), and `agents/prompts/panels/` directory
-- [ ] T002 Create `specs/015-pipeline-convergence-protocol/STATUS.md` living progress doc (FR-052): per-workstream status table with direct file references, updated as work proceeds
-- [ ] T003 [P] Add `AWAITING_PUBLICATION_SIGNOFF` to the `Stage` enum in `src/llmxive/types.py`; add a per-round wall-clock budget constant to `src/llmxive/config.py` (point-threshold removal happens in US3)
+- [X] T001 Create new package skeletons with `__init__.py`: `src/llmxive/tools/` (ensure exists), `src/llmxive/convergence/` (`__init__,types,engine,kickback,triage,reviewspecs`), `src/llmxive/calibration/` (`__init__,injectors,differential,domains`), and `agents/prompts/panels/` directory
+- [X] T002 Create `specs/015-pipeline-convergence-protocol/STATUS.md` living progress doc (FR-052): per-workstream status table with direct file references, updated as work proceeds
+- [X] T003 [P] Add `AWAITING_PUBLICATION_SIGNOFF` to the `Stage` enum in `src/llmxive/types.py`; add a per-round wall-clock budget constant to `src/llmxive/config.py` (point-threshold removal happens in US3)
 
 ---
 
@@ -42,18 +42,18 @@
 
 ### Tests (write FIRST, must fail)
 
-- [ ] T008 [P] [US1] Unit edge-case tests (all 7: atomic-unit splitting, cross-chunk refs, cross-chunk logic, numbers, ordering, output cut-off, recursion-loss) in `tests/unit/test_summarize_edge_cases.py`
+- [X] T008 [P] [US1] Unit edge-case tests (all 7: atomic-unit splitting, cross-chunk refs, cross-chunk logic, numbers, ordering, output cut-off, recursion-loss) in `tests/unit/test_summarize_edge_cases.py`
 - [ ] T009 [P] [US1] Real-call fidelity test (verbatim recovery + same critical verdicts on reduced vs full) in `tests/real_call/test_summarize_fidelity.py`
-- [ ] T010 [P] [US1] Contract test for `SummaryManifest`/`SummaryEntry` + no-dangling-pointer invariant in `tests/contract/test_summary_manifest.py`
+- [X] T010 [P] [US1] Contract test for `SummaryManifest`/`SummaryEntry` + no-dangling-pointer invariant in `tests/contract/test_summary_manifest.py`
 
 ### Implementation
 
-- [ ] T011 [US1] Implement `estimate_tokens` + model→budget map (qwen→32768, completion headroom) in `src/llmxive/tools/summarize.py`
-- [ ] T012 [US1] Implement deterministic extraction of check-critical elements (URLs/DOIs/arXiv-ids/citation-keys/FR-SC-task-ids/numbers) in `src/llmxive/tools/summarize.py`
-- [ ] T013 [US1] Implement boundary-aware chunking (generalize `paper_reviewer._chunk_corpus`) in `src/llmxive/tools/summarize.py`
-- [ ] T014 [US1] Implement on-disk inode-table manifest writer (`SummaryManifest`/`SummaryEntry`, content files, nested pointers) in `src/llmxive/tools/summarize.py`
-- [ ] T015 [US1] Implement `summarize()` (fit→verbatim; overflow→recursive pointer hierarchy carrying criticals verbatim at every level; goal-targeted prose summary reusing the cached chunk call) in `src/llmxive/tools/summarize.py`
-- [ ] T016 [US1] Implement `desummarize()` (recursive pointer resolution, `want` filter, depth cap, no dangling refs) in `src/llmxive/tools/summarize.py`
+- [X] T011 [US1] Implement `estimate_tokens` + model→budget map (qwen→32768, completion headroom) in `src/llmxive/tools/summarize.py`
+- [X] T012 [US1] Implement deterministic extraction of check-critical elements (URLs/DOIs/arXiv-ids/citation-keys/FR-SC-task-ids/numbers) in `src/llmxive/tools/summarize.py`
+- [X] T013 [US1] Implement boundary-aware chunking (generalize `paper_reviewer._chunk_corpus`) in `src/llmxive/tools/summarize.py`
+- [X] T014 [US1] Implement on-disk inode-table manifest writer (`SummaryManifest`/`SummaryEntry`, content files, nested pointers) in `src/llmxive/tools/summarize.py`
+- [X] T015 [US1] Implement `summarize()` (fit→verbatim; overflow→recursive pointer hierarchy carrying criticals verbatim at every level; goal-targeted prose summary reusing the cached chunk call) in `src/llmxive/tools/summarize.py`
+- [X] T016 [US1] Implement `desummarize()` (recursive pointer resolution, `want` filter, depth cap, no dangling refs) in `src/llmxive/tools/summarize.py`
 - [ ] T017 [US1] Re-point `paper_reviewer._build_corpus_with_summaries` to call `tools/summarize`; DELETE the forked single-pass logic (SSoT, Const. I) in `src/llmxive/agents/paper_reviewer.py`
 - [ ] T018 [US1] Run edge-case + real-call fidelity tests with real qwen; confirm zero critical-element loss; update STATUS.md
 
