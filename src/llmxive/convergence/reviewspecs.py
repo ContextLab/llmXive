@@ -1,11 +1,11 @@
-"""Per-stage ReviewSpec registry (spec 015 T048, FR-027–031).
+"""Per-stage ReviewSpec registry (spec 015 T048, FR-027-031).
 
 ``reviewspec_for(stage) -> ReviewSpec | None`` is the SSoT lookup the engine
 consults to drive each reviewable step. EXEMPT stages return ``None`` (no
 convergence loop). See ``contracts/reviewspec-registry.md`` for the full table.
 
-For stages whose **panel prompts haven't been authored yet** (T049–T053) or whose
-**agent wiring hasn't landed** (T054–T059), this registry installs TODO-placeholder
+For stages whose **panel prompts haven't been authored yet** (T049-T053) or whose
+**agent wiring hasn't landed** (T054-T059), this registry installs TODO-placeholder
 reviewers/reviser that conform to the Protocol but raise a clear pointer to the
 follow-up task when invoked - fail-loud rather than silently produce empty
 verdicts. Each placeholder names the task that will replace it.
