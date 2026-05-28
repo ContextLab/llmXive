@@ -26,10 +26,10 @@
 
 **⚠️ CRITICAL**: blocks all user stories.
 
-- [ ] T004 Implement all convergence pydantic models (Severity, Concern, ConcernResponse, Verdict, ProgressRecord, ConvergenceResult, ReviewSpec, KickbackRecord, TriageRecord) per data-model.md in `src/llmxive/convergence/types.py`
-- [ ] T005 [P] Implement `Severity` ordering + back-compat mapping from the existing `ActionItem.severity` (`writing|science|fatal`) in `src/llmxive/convergence/types.py`
-- [ ] T006 [P] Contract test: schema validation + Severity ordering for all convergence models in `tests/contract/test_convergence_types.py`
-- [ ] T007 Constitution amendment: rewrite the point-based "Review thresholds" clause in `.specify/memory/constitution.md` to convergence-based unanimous-acceptance AND encode the new convergence principle (FR-053: every step producing reviewable work runs identify→revise→re-review with its panel; 3-round non-convergence kicks the project back with full provenance); bump version (MINOR), add a Sync Impact Report, update the README cross-link
+- [X] T004 Implement all convergence pydantic models (Severity, Concern, ConcernResponse, Verdict, ProgressRecord, ConvergenceResult, ReviewSpec, KickbackRecord, TriageRecord) per data-model.md in `src/llmxive/convergence/types.py`
+- [X] T005 [P] Implement `Severity` ordering + back-compat mapping from the existing `ActionItem.severity` (`writing|science|fatal`) in `src/llmxive/convergence/types.py`
+- [X] T006 [P] Contract test: schema validation + Severity ordering for all convergence models in `tests/contract/test_convergence_types.py`
+- [X] T007 Constitution amendment: rewrite the point-based "Review thresholds" clause in `.specify/memory/constitution.md` to convergence-based unanimous-acceptance AND encode the new convergence principle (FR-053: every step producing reviewable work runs identify→revise→re-review with its panel; 3-round non-convergence kicks the project back with full provenance); bump version (MINOR), add a Sync Impact Report, update the README cross-link
 
 **Checkpoint**: foundation ready.
 
