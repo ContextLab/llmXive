@@ -101,7 +101,7 @@
 - [ ] T031 [P] [US8] Fix dead `ANALYZE_SYSTEM_PROMPT_PATH`; give the paper analyze loop a paper-appropriate prompt; pass `project_dir` so comments are injected in the live loop in `src/llmxive/speckit/analyze_cmd.py`
 - [ ] T032 [P] [US8] Fix dead escalation paths (`clarifier.attempts_so_far` no longer hardcoded 0; `paper_clarifier` branches on `escalate`) in `src/llmxive/speckit/clarify_cmd.py` and `paper_clarify_cmd.py`
 - [ ] T033 [P] [US8] Resolve `code_summary`/`data_summary` prompt input drift (supply or remove) and stage-header drift in `agents/prompts/paper_specifier.md`, `paper_clarifier.md`, and other drifted headers
-- [ ] T034 [P] [US8] arXiv/theoremsearch graceful degradation on transient 429/503/timeout (retry+backoff → recorded "unavailable" notice; non-transient still raises) in `src/llmxive/librarian/theoremsearch*.py`
+- [X] T034 [P] [US8] arXiv/theoremsearch graceful degradation on transient 429/503/timeout (retry+backoff → recorded "unavailable" notice; non-transient still raises) in `src/llmxive/librarian/theoremsearch*.py`
 - [ ] T035 [US8] Implement the manual DOI sign-off gate (FR-054): publisher writes `pending_publication.yaml` + halts at `awaiting_publication_signoff`; `llmxive publish-approve <PROJ-ID>` writes `publication_signoff.yaml`; mint only on matching `content_hash` in `src/llmxive/agents/publisher.py` and `src/llmxive/cli.py`
 - [ ] T036 [US8] Verify all 10 bugs fixed by direct inspection + a real partial run; update STATUS.md
 

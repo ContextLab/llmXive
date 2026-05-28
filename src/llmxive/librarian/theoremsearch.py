@@ -44,6 +44,13 @@ LOGGER = logging.getLogger(__name__)
 API_URL = "https://api.theoremsearch.com/search"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 
+# Spec 015 FR-040: bounded retry-with-backoff on TRANSIENT statuses (rate-limit /
+# gateway / server) and timeouts before degrading. The librarian wrapper already
+# treats a TransientBackendError as "theoremsearch unavailable" (optional enrichment).
+MAX_TRANSIENT_RETRIES = 3
+RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
+_RETRY_BACKOFF_BASE_SECONDS = 1.0
+
 # Modern arXiv IDs (`1306.5434`, optionally `v2`) and old-style IDs
 # (`hep-th/9901001`, optionally a `.XX` subcategory). `ArxivClient.
 # get_by_id` accepts versioned IDs; we strip the version anyway so the
@@ -62,6 +69,7 @@ class TheoremSearchClient:
         *,
         min_interval_seconds: float = 2.0,
         arxiv_client: ArxivClient | None = None,
+        retry_backoff_base_seconds: float = _RETRY_BACKOFF_BASE_SECONDS,
     ) -> None:
         # TheoremSearch documents no rate limit; self-impose a conservative
         # one (one /search per librarian invocation, so 2s is plenty).
@@ -71,6 +79,12 @@ class TheoremSearchClient:
         # Reuse the librarian's shared ArxivClient if provided so its
         # rate limiter is respected globally; else construct a fresh one.
         self._arxiv = arxiv_client or ArxivClient()
+        # Exponential-backoff base for transient retries (tests pass 0).
+        self._retry_backoff_base = retry_backoff_base_seconds
+
+    def _backoff(self, attempt: int) -> None:
+        if self._retry_backoff_base > 0:
+            time.sleep(self._retry_backoff_base * (2 ** attempt))
 
     def _wait_for_slot(self) -> None:
         with self._lock:
@@ -91,20 +105,44 @@ class TheoremSearchClient:
         if not term or not term.strip():
             return []
 
-        self._wait_for_slot()
-        try:
-            resp = requests.post(
-                API_URL,
-                json={"query": term, "limit": limit},
-                headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"},
-                timeout=DEFAULT_TIMEOUT_SECONDS,
+        # FR-040: retry transient failures with exponential backoff, then degrade.
+        resp = None
+        last_error: str | None = None
+        for attempt in range(MAX_TRANSIENT_RETRIES):
+            self._wait_for_slot()
+            try:
+                resp = requests.post(
+                    API_URL,
+                    json={"query": term, "limit": limit},
+                    headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"},
+                    timeout=DEFAULT_TIMEOUT_SECONDS,
+                )
+            except requests.RequestException as exc:
+                last_error = f"request failed: {exc}"
+                self._backoff(attempt)
+                continue
+            if resp.status_code in RETRY_STATUSES:
+                last_error = f"HTTP {resp.status_code}"
+                LOGGER.warning(
+                    "[theoremsearch] transient %s (attempt %d/%d); backing off",
+                    last_error, attempt + 1, MAX_TRANSIENT_RETRIES,
+                )
+                resp = None
+                self._backoff(attempt)
+                continue
+            break  # usable response (success or a non-transient error)
+
+        if resp is None:
+            # Exhausted retries on a transient condition → degrade gracefully
+            # (the librarian wrapper catches this; theoremsearch is optional).
+            raise TransientBackendError(
+                f"TheoremSearch unavailable after {MAX_TRANSIENT_RETRIES} attempts "
+                f"({last_error}) for query {term[:80]!r}"
             )
-        except requests.RequestException as exc:
-            raise TransientBackendError(f"TheoremSearch request failed: {exc}") from exc
 
         if resp.status_code >= 400:
-            # Any 4xx/5xx → treat as "TheoremSearch is unavailable" (NOT
-            # PermanentBackendError — we never want to hard-fail on it).
+            # Non-transient 4xx/5xx → still TransientBackendError (never hard-fail),
+            # but no retry (it will not recover on its own).
             raise TransientBackendError(
                 f"TheoremSearch HTTP {resp.status_code} for query {term[:80]!r}"
             )
