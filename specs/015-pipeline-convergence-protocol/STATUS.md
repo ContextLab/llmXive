@@ -2,7 +2,7 @@
 
 **Living progress doc (FR-052).** Any agent/sub-agent can determine current status by reading this file. Updated as work proceeds. Design SSoT: [the design doc](../../docs/superpowers/specs/2026-05-27-pipeline-convergence-protocol.md); requirements: [spec.md](./spec.md); tasks: [tasks.md](./tasks.md).
 
-**Branch**: `015-pipeline-convergence-protocol`. **Pipeline**: plan ✅ · tasks ✅ · analyze ✅ (0 findings) · implement ✅ (67/85 autonomous tasks done; 18 human-gated/U5-7 remain) · verify ✅ (T084 + T085 partial).
+**Branch**: `015-pipeline-convergence-protocol`. **Pipeline**: plan ✅ · tasks ✅ · analyze ✅ (0 findings) · implement ✅ (78/85 autonomous tasks done; 7 strictly human-gated remain) · verify ✅ (T084 + T085 partial).
 
 ## Completion summary (2026-05-28)
 
@@ -20,19 +20,38 @@ the maintainer's manual gates documented under "Human gates" below.
 | `pytest tests/unit` | 658 passed (2 deselected — pre-existing live-PDF tests misplaced in tests/unit) |
 | `pytest tests/integration` | 253 passed, 1 skipped, 18 deselected |
 | `pytest tests/contract + tests/integration` (full final run, 129s) | **306 passed**, 1 skipped, 18 deselected |
+| `pytest tests/contract + tests/integration + tests/unit` (FINAL full project suite, 137s) | **1020 passed**, 1 skipped, 20 deselected |
 | New spec-015 source files | 15 |
 | New spec-015 test files | 14 |
 
 **Autonomous deliverables**:
 - US1 recursive summarizer (SSoT for overflow-routing across all revisers)
-- US2 convergence engine (R1/R2/R3 + honest reporting + adaptive kickback)
-- US3 review-model overhaul (point system removed; unanimous LLM-panel acceptance; triage for personality/human reviews)
+- US2 convergence engine (R1/R2/R3 + honest reporting + adaptive kickback) + `run_engine_for_project` real-project bridge (T021) + tasker→engine bridge (T027)
+- US3 review-model overhaul (point system removed; unanimous LLM-panel acceptance; triage for personality/human reviews; legacy revision routing unified)
 - US4 per-step panels (9 reviewable stages × {ReviewSpec registry + reviser + panel prompts + integration tests}; 7 EXEMPT stages)
+- **US5 calibration infrastructure (T063-T067, T069)**: 6 flaw injectors + differential adjudication harness + 9-domain anchor papers + per-panel labeled sets + held-out validation test
+- **US6 e2e harness (T071, T072)**: domain-traversal scaffolding + placeholder/truncation scanner + 9 golden + 1 weak project fixtures (idea files materialized under `golden_projects/`)
+- **US7 living-document (T076-T078)**: post-`posted` comment ingestion via triage + Discussion section render + sha256 material-change digest → version-DOI gate
 - US8 audit bug fixes (10 discrepancies, 7 fixed inline + 3 subsumed by US3)
 - Polish: non-speckit inspection hook (T080); invariant tests (T081); SSoT grep audit (T082); docs parity (T083); full verification (T084); per-step verification table (T062).
 
-**Last commit**: `eb6a54dd impl(015): T027 tasker → convergence-engine bridge`.
-**Final maintainer sign-off (T085 line 2)**: PENDING — maintainer to record after manual QC re-walk + e2e dry-run.
+**Last commit**: `b97a8757 impl(015): T072 golden + weak project fixtures (US6)`.
+**78 of 85 tasks complete.**
+
+## Human-gated tasks (cannot be done autonomously)
+
+These 7 remaining tasks ALL require maintainer manual action — the
+infrastructure to execute them is in place; only the human gate remains.
+
+| Task | What the maintainer does | Infrastructure ready |
+|-|-|-|
+| T068 | Run differential calibration with REAL qwen across the 9 domains + manually adjudicate the produced reports | `python -m llmxive.calibration.differential` + `calibration/builder.py` writes ready-to-run sets |
+| T070 | Record the calibration outcomes + adjudication decisions in STATUS.md | Markdown adjudication template in `differential.AdjudicationReport.to_markdown()` |
+| T073 | Run each of the 9 golden projects through the full pipeline to `posted`; record `llmxive project publish-approve <PROJ-ID>` for each per FR-054 | `golden_projects/PROJ-901..909/idea/<slug>.md` materialized; `tests/e2e/test_domain_traversal.py` skip-on-real-tests stubs |
+| T074 | Inspect every produced artifact per domain (spec/plan/tasks/code/data/paper/PDF/DOI/`publication.yaml`); confirm no truncation / placeholder / broken-tool markers | `tests/e2e/test_domain_traversal.scan_for_placeholders()` honesty scanner; `assert_artifact_is_honest()` helper |
+| T075 | Confirm the weak project (PROJ-999) is kicked back at `rq_validity`; co-evaluate against the anchor papers per FR-046 | `weak_project()` accessor + `expected_kickback_lens` recorded |
+| T079 | On a real `posted` project: post an on-topic comment → verify recompile fires + version DOI minted after sign-off; off-topic comment excluded | `agents/living_document.ingest_comment()` + `should_mint_version_doi()` + `is_off_topic()` probe |
+| T085 line 2 | Final maintainer QC sign-off recorded; STATUS.md marked complete | — (human gate by design) |
 
 ## Workstream status
 
