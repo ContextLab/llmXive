@@ -10,7 +10,7 @@
 |-|-|-|-|
 | Setup | T001–T003 | ✅ | T001 dirs; T002 STATUS.md; T003 Stage.AWAITING_PUBLICATION_SIGNOFF + config CONVERGENCE_MAX_ROUNDS=3/CONVERGENCE_PER_ROUND_BUDGET_SECONDS=600. Imports verified. |
 | Foundational | T004–T007 | ⬜ | T004 `convergence/types.py` models; T005/T006 Severity; T007 constitution amendment + FR-053 principle. **NEXT.** |
-| US1 Summarizer | T008–T018 | 🟡 | **Core done & verified**: `src/llmxive/tools/summarize.py` (T011–T016), edge-case tests `tests/unit/test_summarize_edge_cases.py` (T008), manifest contract `tests/contract/test_summary_manifest.py` (T010) — **12 tests pass, ruff+mypy clean**. **Remaining**: T009 real-call fidelity test (real qwen), T017 re-point `paper_reviewer._build_corpus_with_summaries` to call `summarize` + re-run its suite (SSoT), T018 real-call verification. |
+| US1 Summarizer | T008–T018 | ✅ | **DONE & verified.** `src/llmxive/tools/summarize.py` (T011–T016); edge-case tests (T008) + manifest contract (T010) = 12 offline tests pass; **T017** re-pointed `paper_reviewer._build_corpus_with_summaries` to the SSoT `summarize` (24 paper_reviewer tests still pass; old truncate-with-notice superseded); **T009/T018** real-call fidelity `tests/real_call/test_summarize_fidelity.py` **PASSED with real qwen (334s)** — zero critical-element loss through a real-LLM reduction. ruff clean. |
 | US2 Engine | T019–T028 | ⬜ | `convergence/engine.py`, `kickback.py`; refactor tasker Mode-A/B into engine |
 | US8 Bug fixes | T029–T036 | ⬜ | research-implementer prompt, analyze prompt, escalations, prompt drift, arXiv, DOI sign-off gate |
 | US3 Review model | T037–T045 | ⬜ | triage, point removal, status re-expression, migration |

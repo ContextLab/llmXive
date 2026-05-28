@@ -43,7 +43,7 @@
 ### Tests (write FIRST, must fail)
 
 - [X] T008 [P] [US1] Unit edge-case tests (all 7: atomic-unit splitting, cross-chunk refs, cross-chunk logic, numbers, ordering, output cut-off, recursion-loss) in `tests/unit/test_summarize_edge_cases.py`
-- [ ] T009 [P] [US1] Real-call fidelity test (verbatim recovery + same critical verdicts on reduced vs full) in `tests/real_call/test_summarize_fidelity.py`
+- [X] T009 [P] [US1] Real-call fidelity test (verbatim recovery + same critical verdicts on reduced vs full) in `tests/real_call/test_summarize_fidelity.py`
 - [X] T010 [P] [US1] Contract test for `SummaryManifest`/`SummaryEntry` + no-dangling-pointer invariant in `tests/contract/test_summary_manifest.py`
 
 ### Implementation
@@ -55,7 +55,7 @@
 - [X] T015 [US1] Implement `summarize()` (fit→verbatim; overflow→recursive pointer hierarchy carrying criticals verbatim at every level; goal-targeted prose summary reusing the cached chunk call) in `src/llmxive/tools/summarize.py`
 - [X] T016 [US1] Implement `desummarize()` (recursive pointer resolution, `want` filter, depth cap, no dangling refs) in `src/llmxive/tools/summarize.py`
 - [X] T017 [US1] Re-point `paper_reviewer._build_corpus_with_summaries` to call `tools/summarize`; DELETE the forked single-pass logic (SSoT, Const. I) in `src/llmxive/agents/paper_reviewer.py`
-- [ ] T018 [US1] Run edge-case + real-call fidelity tests with real qwen; confirm zero critical-element loss; update STATUS.md
+- [X] T018 [US1] Run edge-case + real-call fidelity tests with real qwen; confirm zero critical-element loss; update STATUS.md
 
 **Checkpoint**: summarizer trusted — downstream overflow handling unblocked.
 
