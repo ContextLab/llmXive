@@ -433,12 +433,61 @@ def build_paper_plan_reviewspec(
     return base
 
 
+def build_tasks_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the research-tasks convergence unit (T057).
+
+    Reviser is the tasker's Mode-B (full-document rewrite); see
+    :class:`TasksReviser`. Deterministic guards (≥10 ``T###``, FR-010
+    ordering, FR-012 constraint preservation) run BEFORE the panel as a
+    pre-filter — they are not the reviser's job."""
+    from .revisers.tasks_reviser import TasksReviser
+
+    base = _spec_research_tasks()
+    base.reviser = TasksReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
+def build_paper_tasks_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the paper-tasks convergence unit (T057).
+
+    Paper-track twin of :func:`build_tasks_reviewspec`; see :class:`PaperTasksReviser`."""
+    from .revisers.tasks_reviser import PaperTasksReviser
+
+    base = _spec_paper_tasks()
+    base.reviser = PaperTasksReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
 __all__ = [
     "EXEMPT_STAGES",
     "build_paper_plan_reviewspec",
     "build_paper_spec_reviewspec",
+    "build_paper_tasks_reviewspec",
     "build_plan_reviewspec",
     "build_spec_reviewspec",
+    "build_tasks_reviewspec",
     "reviewable_stages",
     "reviewspec_for",
 ]
