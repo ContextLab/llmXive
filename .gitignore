@@ -296,3 +296,8 @@ state/audit/pdf/*/screenshots/
 # demand keyed by sha256 of chunk bytes.
 projects/*/paper/.chunk_summaries/
 
+
+# Local agent/runtime state (not part of the repo)
+.omc/
+.summaries/
+.claude/scheduled_tasks.lock

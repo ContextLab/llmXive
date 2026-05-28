@@ -1,13 +1,15 @@
 """Tests for the tasker → convergence-engine bridge (spec 015 T027).
 
-Verifies the migration path that lets TaskerAgent opt into the spec-015
-convergence engine via ``LLMXIVE_TASKER_USE_ENGINE=1``. The bridge:
+Post-T027 production cutover: the engine is the DEFAULT path; the
+``LLMXIVE_TASKER_LEGACY=1`` env var is the emergency rollback. These
+tests cover:
 
-1. ``tasker_engine_enabled()`` honors the env var.
+1. ``tasker_engine_enabled()`` honors the env var (default True post-T027).
 2. ``analyze_findings_to_concerns(...)`` translates legacy analyze-report
    findings into spec-015 Concerns with correct severity mapping.
 3. ``run_tasker_via_engine(...)`` exercises the engine end-to-end on a
-   real on-disk project tree and writes the rewritten tasks.md back.
+   real on-disk project tree and writes the rewritten tasks.md back,
+   gated by the FR-031 deterministic guards (``_legacy_guards``).
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from llmxive.speckit._tasker_engine_bridge import (
     analyze_findings_to_concerns,
     run_tasker_via_engine,
     tasker_engine_enabled,
+    tasker_legacy_enabled,
 )
 
 
@@ -44,22 +47,33 @@ class _FakeBackend:
 # --- env-var flag ---------------------------------------------------------
 
 
-def test_tasker_engine_enabled_default_false(monkeypatch):
+def test_tasker_engine_enabled_default_true_post_T027(monkeypatch):
+    """Post-T027: engine is the DEFAULT. Unset env vars → True."""
     monkeypatch.delenv("LLMXIVE_TASKER_USE_ENGINE", raising=False)
+    monkeypatch.delenv("LLMXIVE_TASKER_LEGACY", raising=False)
+    assert tasker_engine_enabled() is True
+    assert tasker_legacy_enabled() is False
+
+
+def test_tasker_legacy_enabled_when_set(monkeypatch):
+    monkeypatch.delenv("LLMXIVE_TASKER_USE_ENGINE", raising=False)
+    monkeypatch.setenv("LLMXIVE_TASKER_LEGACY", "1")
+    assert tasker_legacy_enabled() is True
+    assert tasker_engine_enabled() is False
+    monkeypatch.setenv("LLMXIVE_TASKER_LEGACY", "true")
     assert tasker_engine_enabled() is False
 
 
-def test_tasker_engine_enabled_when_set(monkeypatch):
-    monkeypatch.setenv("LLMXIVE_TASKER_USE_ENGINE", "1")
-    assert tasker_engine_enabled() is True
-    monkeypatch.setenv("LLMXIVE_TASKER_USE_ENGINE", "true")
-    assert tasker_engine_enabled() is True
-
-
-def test_tasker_engine_disabled_when_false_value(monkeypatch):
+def test_tasker_engine_disabled_when_back_compat_var_false(monkeypatch):
+    """Back-compat: the historic ``LLMXIVE_TASKER_USE_ENGINE=0`` still
+    forces the legacy path (operators with existing scripts get the
+    expected opt-out behavior)."""
+    monkeypatch.delenv("LLMXIVE_TASKER_LEGACY", raising=False)
     monkeypatch.setenv("LLMXIVE_TASKER_USE_ENGINE", "0")
     assert tasker_engine_enabled() is False
     monkeypatch.setenv("LLMXIVE_TASKER_USE_ENGINE", "")
+    # Empty explicit value is treated as falsy (back-compat with the
+    # pre-T027 semantics of the opt-in flag).
     assert tasker_engine_enabled() is False
 
 
@@ -115,24 +129,46 @@ def test_run_tasker_via_engine_rewrites_tasks_md(tmp_path: Path):
     spec_path = spec_dir / "spec.md"
     plan_path = spec_dir / "plan.md"
 
-    tasks_path.write_text("# tasks v1\n- T001 [FR-001]: do X\n")
-    spec_path.write_text("# spec\n## FR\n- FR-001: do X\n- FR-002: do Y\n")
-    plan_path.write_text("# plan\nphase 1: X and Y\n")
+    # Post-T027: the bridge runs FR-031 deterministic guards on every
+    # writeback. tasks.md must have >=5 ``- [ ] T###`` checkbox lines
+    # (the format the production tasker emits), and spec.md must
+    # preserve every FR-/SC- id from the on-disk content.
+    tasks_path.write_text(
+        "# tasks v1\n"
+        "- [ ] T001 [FR-001]: do X\n"
+        "- [ ] T002 [FR-002]: do Y\n"
+        "- [ ] T003 [FR-003]: do Z\n"
+        "- [ ] T004 [FR-004]: do W\n"
+        "- [ ] T005 [FR-005]: do V\n"
+    )
+    spec_path.write_text(
+        "# spec\n"
+        "## FR\n"
+        "- FR-001: do X\n- FR-002: do Y\n- FR-003: do Z\n"
+        "- FR-004: do W\n- FR-005: do V\n- FR-006: do U\n"
+    )
+    plan_path.write_text("# plan\nphase 1: X..V; phase 2: U\n")
 
     findings = [
         {"id": "F001", "class": "coverage",
-         "text": "FR-002 has no corresponding task",
-         "artifact": "tasks.md", "location": "FR-002"},
+         "text": "FR-006 has no corresponding task",
+         "artifact": "tasks.md", "location": "FR-006"},
     ]
 
     new_tasks_md = (
-        "# tasks v2\n- T001 [FR-001]: do X\n- T002 [FR-002]: do Y\n"
+        "# tasks v2\n"
+        "- [ ] T001 [FR-001]: do X\n"
+        "- [ ] T002 [FR-002]: do Y\n"
+        "- [ ] T003 [FR-003]: do Z\n"
+        "- [ ] T004 [FR-004]: do W\n"
+        "- [ ] T005 [FR-005]: do V\n"
+        "- [ ] T006 [FR-006]: do U\n"
     )
     fake_reply = json.dumps({
         "new_tasks_md": new_tasks_md,
         "responses": [
-            {"concern_id": "F001", "response": "added T002",
-             "what_changed": "tasks.md now has T002 satisfying FR-002",
+            {"concern_id": "F001", "response": "added T006",
+             "what_changed": "tasks.md now has T006 satisfying FR-006",
              "artifacts_changed": [f"projects/{project_id}/specs/000-x/tasks.md"]},
         ],
     })
@@ -148,14 +184,16 @@ def test_run_tasker_via_engine_rewrites_tasks_md(tmp_path: Path):
         analyze_findings=findings,
         backend=backend,
         constitution_text="Principle V: real-call testing.",
-        analyze_report_text="coverage: FR-002 has no task",
+        analyze_report_text="coverage: FR-006 has no task",
     )
 
-    # Engine converged + wrote tasks.md back to disk.
+    # Engine converged + wrote tasks.md back to disk (the FR-031 guard
+    # accepts a writeback that has >=5 task IDs AND preserves all
+    # FR/SC ids — both invariants hold for the new content).
     assert result.convergence.converged is True
     assert tasks_path in result.files_written
     assert spec_path in result.files_unchanged
     assert plan_path in result.files_unchanged
     persisted = tasks_path.read_text()
-    assert "T002" in persisted
-    assert "FR-002" in persisted
+    assert "T006" in persisted
+    assert "FR-006" in persisted
