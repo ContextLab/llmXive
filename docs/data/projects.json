@@ -940,7 +940,7 @@
     "human_contributors": 847,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2657,
+    "total_contributions": 2656,
     "total_contributors": 854
   },
   "contributors": [
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 537,
+      "contribution_count": 536,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -7846,7 +7846,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T10:18:45.085717+00:00",
+  "generated_at": "2026-05-28T10:53:10.838952+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -30821,7 +30821,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30851,14 +30851,6 @@
             "specifier",
             "tasker"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
         }
       ],
       "citation_summary": {
@@ -30875,7 +30867,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30980,7 +30972,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": "google.gemma-3-27b-it",
+      "submitter": null,
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-21T19:06:24.765681+00:00",
       "upstream_feedback": null
@@ -72258,7 +72250,7 @@
         "data": null,
         "idea": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -72280,10 +72272,10 @@
       },
       "created_at": "2026-05-28T09:16:46.195177+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
-        "repo_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.26230 Submitted by: github-actions[bot] (Intake from human-submission issue #244.)",
@@ -72320,7 +72312,7 @@
         "data": null,
         "idea": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/idea/mobilegym-a-verifiable-and-highly-parall.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
         "paper_spec": null,
@@ -72431,10 +72423,10 @@
       },
       "created_at": "2026-05-28T09:16:53.036245+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
-        "repo_path": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "We present MobileGym, a browser-hosted, lightweight, fully controllable environment for everyday mobile use, targeting interaction fidelity without replicating proprietary backends. It enables two capabilities previously out of reach for everyday apps: verifiable outcome signals through deterministic state-based\u2026",
@@ -72471,7 +72463,7 @@
         "data": null,
         "idea": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -72493,10 +72485,10 @@
       },
       "created_at": "2026-05-28T09:16:55.907798+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
-        "repo_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.27367 Submitted by: github-actions[bot] (Intake from human-submission issue #242.)",
@@ -72533,7 +72525,7 @@
         "data": null,
         "idea": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -72764,10 +72756,10 @@
       },
       "created_at": "2026-05-28T09:17:03.505175+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
-        "repo_path": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
+        "repo_path": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "The rapid evolution of generative video foundation models has propelled the field toward professional-grade cinematic synthesis. To achieve such demanding quality, the community transitions towards Reinforcement Learning (RL) and agentic workflows. However, reliable evaluation has emerged as a critical bottleneck.\u2026",
@@ -72804,7 +72796,7 @@
         "data": null,
         "idea": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/idea/locateanything-fast-and-high-quality-vis.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
         "paper_spec": null,
@@ -72931,10 +72923,10 @@
       },
       "created_at": "2026-05-28T09:17:06.345355+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
-        "repo_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Vision-language models (VLMs) commonly formulate visual grounding and detection as a coordinate-token generation problem, serializing each 2D box into multiple 1D tokens that are learned and decoded largely independently. This token-by-token decoding mismatches the coupled structure of box geometry and creates a\u2026",
