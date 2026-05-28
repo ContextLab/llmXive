@@ -234,7 +234,7 @@
 - [X] T082 [P] SSoT grep audit: confirm the old forked summarizer, point-scoring, and dual routing are deleted/re-pointed (Const. I) — record evidence in STATUS.md
 - [X] T083 Documentation parity: update READMEs, docstrings, web docs for all changed behavior; update `requirements.txt`/`pyproject.toml` if deps changed
 - [X] T084 Full verification suite: `ruff check .` + `mypy src/llmxive` + `pytest tests/unit tests/contract tests/integration` + `LLMXIVE_REAL_TESTS=1 pytest tests/real_call tests/e2e` + `python -m llmxive.checks.prompts`; fix CODE until green (never weaken tests)
-- [ ] T085 Final manual QC sign-off recorded; STATUS.md marked complete
+- [ ] T085 Final manual QC sign-off recorded; STATUS.md marked complete _(autonomous prep done — STATUS.md completion summary + final verification table added; awaiting maintainer sign-off line)_
 
 ---
 

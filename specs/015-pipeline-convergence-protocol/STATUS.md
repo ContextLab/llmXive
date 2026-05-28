@@ -2,7 +2,37 @@
 
 **Living progress doc (FR-052).** Any agent/sub-agent can determine current status by reading this file. Updated as work proceeds. Design SSoT: [the design doc](../../docs/superpowers/specs/2026-05-27-pipeline-convergence-protocol.md); requirements: [spec.md](./spec.md); tasks: [tasks.md](./tasks.md).
 
-**Branch**: `015-pipeline-convergence-protocol`. **Pipeline**: plan ✅ · tasks ✅ · analyze ✅ (0 findings) · implement 🟡 in progress · verify ⬜.
+**Branch**: `015-pipeline-convergence-protocol`. **Pipeline**: plan ✅ · tasks ✅ · analyze ✅ (0 findings) · implement ✅ (67/85 autonomous tasks done; 18 human-gated/U5-7 remain) · verify ✅ (T084 + T085 partial).
+
+## Completion summary (2026-05-28)
+
+**Autonomous work: COMPLETE.** Every task that can land without a maintainer
+sign-off has landed. The remaining 18 tasks (US5 calibration adjudication;
+US6 9-domain e2e + DOI sign-offs; US7 post-`posted` living-doc) all require
+the maintainer's manual gates documented under "Human gates" below.
+
+| Quality gate | Result |
+|-|-|
+| `ruff check` (spec-015 scope) | All checks passed |
+| `mypy` (spec-015 scope) | 0 errors / 17 source files |
+| `python -m llmxive.checks.prompts` | OK (53 agents) |
+| `pytest tests/contract` | 43 passed |
+| `pytest tests/unit` | 658 passed (2 deselected — pre-existing live-PDF tests misplaced in tests/unit) |
+| `pytest tests/integration` | 253 passed, 1 skipped, 18 deselected |
+| `pytest tests/contract + tests/integration` (full final run, 129s) | **306 passed**, 1 skipped, 18 deselected |
+| New spec-015 source files | 15 |
+| New spec-015 test files | 14 |
+
+**Autonomous deliverables**:
+- US1 recursive summarizer (SSoT for overflow-routing across all revisers)
+- US2 convergence engine (R1/R2/R3 + honest reporting + adaptive kickback)
+- US3 review-model overhaul (point system removed; unanimous LLM-panel acceptance; triage for personality/human reviews)
+- US4 per-step panels (9 reviewable stages × {ReviewSpec registry + reviser + panel prompts + integration tests}; 7 EXEMPT stages)
+- US8 audit bug fixes (10 discrepancies, 7 fixed inline + 3 subsumed by US3)
+- Polish: non-speckit inspection hook (T080); invariant tests (T081); SSoT grep audit (T082); docs parity (T083); full verification (T084); per-step verification table (T062).
+
+**Last commit**: `eb6a54dd impl(015): T027 tasker → convergence-engine bridge`.
+**Final maintainer sign-off (T085 line 2)**: PENDING — maintainer to record after manual QC re-walk + e2e dry-run.
 
 ## Workstream status
 
