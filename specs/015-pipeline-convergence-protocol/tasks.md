@@ -229,9 +229,9 @@
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-- [ ] T080 Add an inspection hook to the non-speckit `Agent` base so `flesh_out`/validator capture inspection records (close design §9 gap) + tests in `src/llmxive/agents/base.py`
-- [ ] T081 [P] Verify every agent invocation + convergence round writes a run-log entry; schema-validate every written artifact; project state never silently stalls — verification test in `tests/integration/test_invariants.py`
-- [ ] T082 [P] SSoT grep audit: confirm the old forked summarizer, point-scoring, and dual routing are deleted/re-pointed (Const. I) — record evidence in STATUS.md
+- [X] T080 Add an inspection hook to the non-speckit `Agent` base so `flesh_out`/validator capture inspection records (close design §9 gap) + tests in `src/llmxive/agents/base.py`
+- [X] T081 [P] Verify every agent invocation + convergence round writes a run-log entry; schema-validate every written artifact; project state never silently stalls — verification test in `tests/integration/test_invariants.py`
+- [X] T082 [P] SSoT grep audit: confirm the old forked summarizer, point-scoring, and dual routing are deleted/re-pointed (Const. I) — record evidence in STATUS.md
 - [ ] T083 Documentation parity: update READMEs, docstrings, web docs for all changed behavior; update `requirements.txt`/`pyproject.toml` if deps changed
 - [ ] T084 Full verification suite: `ruff check .` + `mypy src/llmxive` + `pytest tests/unit tests/contract tests/integration` + `LLMXIVE_REAL_TESTS=1 pytest tests/real_call tests/e2e` + `python -m llmxive.checks.prompts`; fix CODE until green (never weaken tests)
 - [ ] T085 Final manual QC sign-off recorded; STATUS.md marked complete

@@ -21,7 +21,7 @@
 | US5 Calibration | T063–T070 | ⬜ | injectors, differential harness, 9 domains, held-out. **Manual adjudication gate.** |
 | US6 E2E | T071–T075 | ⬜ | 9-domain traversal to `posted`. **Manual DOI sign-off gate (FR-054).** |
 | US7 Living-doc | T076–T079 | ⬜ | post-`posted` comments → recompile → version DOI |
-| Polish | T080–T085 | ⬜ | non-speckit inspection hook, invariants, SSoT grep audit, docs, full suite, final QC |
+| Polish | T080–T085 | 🟡 | **Done**: T080 non-speckit inspection hook (`Agent.run()` now writes `<LLMXIVE_INSPECTION_DIR>/non-speckit/<project_id>/<agent_name>.json` matching the speckit schema; failures never propagate; 4 tests). T081 invariants test (`tests/integration/test_invariants.py`, 10 tests covering every-result-advances-or-kicks-back, severity-coverage, valid-Stage targets, exempt-reviewable disjoint, constitution_input invariant, padded missing responses, monotonic concern_history, JSON round-trip, kickback reason non-empty, engine refuses exempt). T082 SSoT grep audit — see the table above (point-scoring removed; old summarizer re-pointed; dual revision-routing unified via legacy_kickback adapter; summarizer SSoT adopted in 8 files). **Remaining**: T083 docs parity sweep; T084 full verification suite; T085 final QC sign-off. |
 
 Legend: ✅ done · 🟡 in progress · ⬜ not started.
 
@@ -31,3 +31,23 @@ Legend: ✅ done · 🟡 in progress · ⬜ not started.
 
 ## Decisions that supersede the design doc (from /speckit-clarify, 2026-05-27)
 Overflow floor = on-disk inode-table pointers + recursive desummarize (NOT truncate-with-notice) · NO global kickback cap (per-step 3-round cap kept) · all 9 domains e2e to `posted` · real public DOIs gated by manual sign-off · calibration = differential clean-vs-injected + manual adjudication (no fixed over-flag %) · no `posted`/`done` projects exist → migrate in-flight only.
+
+## T082 — SSoT grep audit (2026-05-28) — Constitution Principle I
+
+Verified that the spec-015 design's three "must be deleted/re-pointed" SSoT
+items have actually landed, per Constitution Principle I.
+
+| Item | Audit query | Finding | Status |
+|-|-|-|-|
+| **Point-scoring removed** (T041) | `grep accept_total\|_award_review_points\|RESEARCH_ACCEPT_THRESHOLD\|PAPER_ACCEPT_THRESHOLD` in `src/llmxive` | Only `config.py` (tombstones set to 0.0 for web/about.html back-compat) + comments in `advancement.py` documenting the removal. NO actual usages. | ✅ |
+| **Old forked summarizer re-pointed** (T017) | `grep truncate_with_notice\|paper_reviewer._build_corpus_with_summaries` | Only one reference in `tools/summarize.py` docstring (documentation; it says "Generalizes…", not "forks"). `paper_reviewer.py` itself now imports + uses the SSoT `summarize`. | ✅ |
+| **Dual paper-revision routing unified** (T042) | `grep paper_revision_in_progress\|paper_revision_blocked` | 6 files: `types.py` defines the enum (still valid stages); `cli.py` has `unblock-revision` command; `graph.py` + `advancement.py` have the T042 migration markers pointing at the engine's `KickbackRecord`; `revision_planner.py` is the spec-012 module (legacy, deletion deferred to T021); `convergence/legacy_kickback.py` is the T042 unified adapter. **Documented + adapted; deletion gated on T021** (engine becoming the sole revision driver). | 🟡 documented |
+| **Summarizer SSoT adopted** (T017 + revisers) | `grep tools.summarize.summarize\|tools.summarize import summarize` | 8 files: all 6 revisers + `triage.py` + `paper_reviewer.py`. NO ad-hoc per-module summarization survives. | ✅ |
+
+**Legacy revision-routing deletion (T021 follow-up)**: the dual scheme stays
+in code (with markers) because the engine isn't yet the sole revision driver.
+Once T021 lands, both `revision_planner.py` and the transient-stage routing
+in `graph.py` can be deleted; `legacy_kickback.py` then becomes the only
+projection path. Until then, the adapter ensures dashboards + downstream
+tooling see ONE `KickbackRecord` shape regardless of which scheme produced
+the revision event.
