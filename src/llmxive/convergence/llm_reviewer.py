@@ -111,6 +111,124 @@ _CODE_FENCE_RE = re.compile(
     r"```(?:yaml|yml)?\s*\n(.*?)\n```", re.DOTALL | re.IGNORECASE,
 )
 
+# LLM-emitted YAML often has un-quoted ``text:`` / ``location:`` values
+# containing apostrophes / parens / colons that crash ``yaml.safe_load``,
+# OR multi-line free-form text where the continuation line isn't properly
+# indented as a YAML continuation. We re-format such lines as block
+# scalars (``key: |\n  value``) before re-parsing as a last-resort
+# fallback. See ``_safe_yaml_load`` and ``_reformat_unquoted_scalars``.
+_PROBLEMATIC_CHARS_RE = re.compile(r"['\"]")
+
+
+_FREE_TEXT_KEYS = ("text", "location", "response", "what_changed")
+_KEY_LINE_RE = re.compile(
+    r"^(?P<indent>[ \t]*)(?P<key>[A-Za-z_][\w-]*)\s*:(?:\s+(?P<value>.*))?$"
+)
+_LIST_ITEM_RE = re.compile(r"^[ \t]*-(?:\s|$)")
+_DOC_BOUNDARY_RE = re.compile(r"^(?:---|\.\.\.)\s*$")
+
+
+def _reformat_unquoted_scalars(yaml_text: str) -> str:
+    """Best-effort: rewrite ``text:`` / ``location:`` / ``response:`` /
+    ``what_changed:`` scalar values that contain apostrophes / quotes OR
+    that span multiple lines (LLMs frequently emit free-form text after
+    one of these keys without continuation indentation) as YAML block
+    scalars (``key: |\\n  value\\n  continuation``).
+
+    The transformation is conservative: it only touches lines whose key
+    is in ``_FREE_TEXT_KEYS``; everything else is preserved verbatim.
+
+    The repair walks line-by-line so it can greedily absorb continuation
+    lines that don't match a structural pattern (next key, list item,
+    document boundary). This handles the real production failure mode
+    where the LLM emits ``text: foo`` followed by an unindented next
+    line that YAML interprets as a new top-level scalar.
+    """
+    lines = yaml_text.splitlines()
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = _KEY_LINE_RE.match(line)
+        if (
+            m is not None
+            and m.group("key") in _FREE_TEXT_KEYS
+            and m.group("value")
+        ):
+            key = m.group("key")
+            indent = m.group("indent")
+            value = m.group("value").rstrip()
+            inner_indent = indent + "  "
+            # If the value already starts with a YAML scalar/flow
+            # marker (``'``, ``"``, ``[``, ``{``, ``|``, ``>``), the LLM
+            # already produced valid YAML — don't touch it. This
+            # preserves the well-formed-input invariant.
+            already_proper_scalar = value.startswith(
+                ("'", '"', "[", "{", "|", ">")
+            )
+            # Detect whether repair is needed: problematic chars in
+            # value OR a continuation line that's not properly
+            # indented as a YAML continuation of this scalar.
+            needs_repair = (
+                not already_proper_scalar
+                and bool(_PROBLEMATIC_CHARS_RE.search(value))
+            )
+            block_lines = [value]
+            j = i + 1
+            while j < len(lines):
+                nxt = lines[j]
+                if not nxt.strip():
+                    break
+                if _DOC_BOUNDARY_RE.match(nxt):
+                    break
+                if _LIST_ITEM_RE.match(nxt) and (
+                    len(nxt) - len(nxt.lstrip())
+                ) <= len(indent):
+                    break
+                nxt_m = _KEY_LINE_RE.match(nxt)
+                if nxt_m is not None and (
+                    len(nxt_m.group("indent")) <= len(indent)
+                ):
+                    break
+                # Lower-indent continuation → YAML structural breakage,
+                # absorb into block scalar.
+                if len(nxt) - len(nxt.lstrip()) < len(inner_indent):
+                    needs_repair = True
+                block_lines.append(nxt.strip())
+                j += 1
+            if needs_repair:
+                out.append(f"{indent}{key}: |")
+                for b in block_lines:
+                    out.append(f"{inner_indent}{b}")
+                i = j
+                continue
+        out.append(line)
+        i += 1
+    return "\n".join(out) + ("\n" if yaml_text.endswith("\n") else "")
+
+
+def _safe_yaml_load(yaml_text: str) -> object:
+    """Robust YAML loader for LLM frontmatter.
+
+    1. Try the standard ``yaml.safe_load``.
+    2. If that fails, re-format un-quoted text-like scalars as block
+       scalars (handles the common LLM mistake of emitting unquoted values
+       with apostrophes inside) and retry.
+    3. If retry also fails, raise the ORIGINAL ``YAMLError`` (so the
+       caller's error message points at the LLM's actual output, not at
+       the repaired version).
+    """
+    try:
+        return yaml.safe_load(yaml_text)
+    except yaml.YAMLError as orig_err:
+        repaired = _reformat_unquoted_scalars(yaml_text)
+        if repaired == yaml_text:
+            raise
+        try:
+            return yaml.safe_load(repaired)
+        except yaml.YAMLError:
+            raise orig_err from None
+
 
 def _parse_response(
     response_text: str, *, lens: str, stage: str, default_artifact: str,
@@ -152,7 +270,7 @@ def _parse_response(
             f"{response_text[:200]!r}"
         )
     try:
-        meta = yaml.safe_load(m.group(1)) or {}
+        meta = _safe_yaml_load(m.group(1)) or {}
     except yaml.YAMLError as exc:
         raise RuntimeError(
             f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"

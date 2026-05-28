@@ -122,12 +122,23 @@ _SEED_POSITIVES: dict[str, str] = {
 # injectors are intentionally skipped (e.g. the circular_rq injector
 # requires an idea-style artifact; running it on a plan doesn't make
 # sense).
-_STAGE_INJECTORS: dict[str, tuple[str, ...]] = {
-    "idea": ("circular_rq",),
-    "spec": ("gutted_requirement",),
-    "plan": ("fabricated_data", "plan_tasks_contradiction"),
-    "tasks": ("fr_without_task", "gutted_requirement"),
-    "paper": ("nonexistent_citation",),
+#
+# Entries are ``(injector_name, expected_lens_override | None)``. The
+# override exists because some injectors are appropriate on multiple
+# stages but the lens that SHOULD catch them differs by stage. For
+# example, ``gutted_requirement`` weakens MUST→should markers; on the
+# TASKS stage this is a ``constraint_preservation`` violation (the
+# tasks dropped the spec's constraint), but on the SPEC stage itself
+# the same change is a ``requirements_coverage`` issue (the spec no
+# longer requires what it should). The injector's default
+# ``expected_lens`` comes from its registry entry in ``injectors.py``;
+# this map can override it per stage.
+_STAGE_INJECTORS: dict[str, tuple[tuple[str, str | None], ...]] = {
+    "idea": (("circular_rq", None),),
+    "spec": (("gutted_requirement", "requirements_coverage"),),
+    "plan": (("fabricated_data", None), ("plan_tasks_contradiction", None)),
+    "tasks": (("fr_without_task", None), ("gutted_requirement", None)),
+    "paper": (("nonexistent_citation", None),),
 }
 
 
@@ -166,15 +177,19 @@ def build_set_for_stage(stage: str) -> list[CalibrationSetEntry]:
             description=f"Synthetic clean {stage} artifact (calibration positive).",
         ),
     ]
-    for injector_name in _STAGE_INJECTORS.get(stage, ()):
-        fn, lens = INJECTORS[injector_name]
+    for injector_name, lens_override in _STAGE_INJECTORS.get(stage, ()):
+        fn, default_lens = INJECTORS[injector_name]
         injection: Injection = fn(positive_text)  # type: ignore[operator]
+        # Per-stage lens override (see comment on _STAGE_INJECTORS); if
+        # the stage doesn't override it, fall back to the injector's
+        # default lens from its INJECTORS registry entry.
+        effective_lens = lens_override or default_lens
         entries.append(
             CalibrationSetEntry(
                 stage=stage,
                 label=f"negative_{injector_name}",
                 text=injection.text,
-                expected_lens=lens,
+                expected_lens=effective_lens,
                 description=injection.description,
             )
         )
