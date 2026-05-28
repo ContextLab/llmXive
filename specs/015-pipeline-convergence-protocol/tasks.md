@@ -122,7 +122,7 @@
 ### Implementation
 
 - [X] T039 [US3] Implement `triage()` (quality filter + safety/on-topic + stage-aware aspect-mapping + preservation/exclusion) in `src/llmxive/convergence/triage.py`
-- [ ] T040 [US3] Route the personality cron (`agents/personality.py`) AND human GitHub comments through `triage` as advisory inputs (one SSoT path; preserve the `(simulated)` suffix)
+- [X] T040 [US3] Route the personality cron (`agents/personality.py`) AND human GitHub comments through `triage` as advisory inputs (one SSoT path; preserve the `(simulated)` suffix)
 - [X] T041 [US3] Remove the point system: delete `_award_review_points`, the `RESEARCH_ACCEPT_THRESHOLD`/`PAPER_ACCEPT_THRESHOLD` comparisons and the majority-vote, in `src/llmxive/agents/advancement.py`; remove the thresholds from `src/llmxive/config.py`; make `advancement` a thin `ConvergenceResult` reader
 - [X] T042 [US3] Collapse the two revision-routing schemes (graph transient-stage block + spec-012 dual scheme) into the engine outcome (#51) in `src/llmxive/pipeline/graph.py` and `src/llmxive/agents/advancement.py`
 - [X] T043 [US3] Re-express the public status model (Backlog→Ready→Done) in convergence terms in `README.md` + the web about page; update `src/llmxive/agents/status_reporter.py` (retain `projects.json` regen + issue comment + issue close on `posted`); update `src/llmxive/agents/repository_hygiene.py` to keep asserting the line-count-delta + gitignore patterns under the new status model (FR-026)
