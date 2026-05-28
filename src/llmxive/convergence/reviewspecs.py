@@ -480,8 +480,41 @@ def build_paper_tasks_reviewspec(
     return base
 
 
+def build_implement_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    project_root: object | None = None,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the research-implement convergence unit (T058).
+
+    The reviser is :class:`ImplementerReviser` (multi-artifact code edit +
+    post-revise filesystem re-verification per discrepancy #49). The
+    reviewers (8-panel: idea_quality / creativity /
+    implementation_correctness / implementation_completeness / code_quality
+    / data_quality / filesystem_hygiene / research_reviewer) are REUSED
+    from the existing prompts under ``agents/prompts/research_reviewer*.md``
+    — their wiring as live Reviewer Protocol-conformant instances also
+    lands here. (Today this returns TodoReviewers; T058 follow-up wiring
+    is the panel-side completion.)"""
+    from .revisers.implementer_reviser import ImplementerReviser
+
+    base = _spec_research_unit()
+    base.reviser = ImplementerReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        project_root=project_root,  # type: ignore[arg-type]
+        model=model,
+    )
+    return base
+
+
 __all__ = [
     "EXEMPT_STAGES",
+    "build_implement_reviewspec",
     "build_paper_plan_reviewspec",
     "build_paper_spec_reviewspec",
     "build_paper_tasks_reviewspec",
