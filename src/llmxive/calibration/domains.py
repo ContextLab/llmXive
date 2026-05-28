@@ -62,7 +62,10 @@ class AnchorPaper:
 _ANCHOR_BIOLOGY = AnchorPaper(
     field_name="biology",
     title=(
-        "A Programmable Dual-RNA-Guided DNA Endonuclease in Adaptive "
+        # CrossRef record uses an en-dash (U+2013) in the title;
+        # match it verbatim so downstream string-equality citation checks
+        # don't fail on ASCII vs en-dash. Verified via CrossRef API.
+        "A Programmable Dual-RNA–Guided DNA Endonuclease in Adaptive "  # noqa: RUF001
         "Bacterial Immunity"
     ),
     authors=("Jinek M", "Chylinski K", "Fonfara I", "Hauer M",
