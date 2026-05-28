@@ -116,12 +116,12 @@
 
 ### Tests (write FIRST)
 
-- [ ] T037 [P] [US3] Integration test for triage (quality + safety/on-topic filter + stage-aware aspect-mapping + preservation) in `tests/integration/test_triage.py`
+- [X] T037 [P] [US3] Integration test for triage (quality + safety/on-topic filter + stage-aware aspect-mapping + preservation) in `tests/integration/test_triage.py`
 - [ ] T038 [P] [US3] Test: no advancement path reads accumulated points (grep guard + behavioral) in `tests/integration/test_no_points.py`
 
 ### Implementation
 
-- [ ] T039 [US3] Implement `triage()` (quality filter + safety/on-topic + stage-aware aspect-mapping + preservation/exclusion) in `src/llmxive/convergence/triage.py`
+- [X] T039 [US3] Implement `triage()` (quality filter + safety/on-topic + stage-aware aspect-mapping + preservation/exclusion) in `src/llmxive/convergence/triage.py`
 - [ ] T040 [US3] Route the personality cron (`agents/personality.py`) AND human GitHub comments through `triage` as advisory inputs (one SSoT path; preserve the `(simulated)` suffix)
 - [ ] T041 [US3] Remove the point system: delete `_award_review_points`, the `RESEARCH_ACCEPT_THRESHOLD`/`PAPER_ACCEPT_THRESHOLD` comparisons and the majority-vote, in `src/llmxive/agents/advancement.py`; remove the thresholds from `src/llmxive/config.py`; make `advancement` a thin `ConvergenceResult` reader
 - [ ] T042 [US3] Collapse the two revision-routing schemes (graph transient-stage block + spec-012 dual scheme) into the engine outcome (#51) in `src/llmxive/pipeline/graph.py` and `src/llmxive/agents/advancement.py`
