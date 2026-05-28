@@ -940,7 +940,7 @@
     "human_contributors": 847,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2657,
+    "total_contributions": 2659,
     "total_contributors": 854
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1071,
+      "contribution_count": 1072,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 536,
+      "contribution_count": 537,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -7846,7 +7846,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T12:47:03.746732+00:00",
+  "generated_at": "2026-05-28T14:17:19.751618+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -30821,7 +30821,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30851,6 +30851,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
         }
       ],
       "citation_summary": {
@@ -30867,7 +30875,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
+      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30972,7 +30980,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": null,
+      "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-21T19:06:24.765681+00:00",
       "upstream_feedback": null
@@ -64370,7 +64378,7 @@
       },
       "authors": [
         {
-          "contributions": 25,
+          "contributions": 26,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -64412,6 +64420,14 @@
       "id": "PROJ-594-quantum-cognition-in-llms-superposition",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 45.051226,
+          "ended_at": "2026-05-28T14:17:15.912421+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-28T14:16:30.861195+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 20.232123,
@@ -64483,20 +64499,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-21T06:26:52.712428+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 20.895324,
-          "ended_at": "2026-05-21T03:05:56.717967+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-21T03:05:35.822643+00:00"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Here's the funny thing about this proposal. You're talking about 'superposition states' for semantic ambiguity. Now, in quantum electrodynamics, when I draw little arrows for photon paths, each arrow has a definite meaning \u2014 it's a probability amplitude that interferes with other arrows. You can mea",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-28__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-28__research.md",
+          "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-28__research.md",
+          "reviewed_at": "2026-05-28T14:17:15.904732Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Richard Feynman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The proposal to model ambiguous reasoning via superposition states is intriguing, yet the author is neither a quantum physicist nor a cognitive scientist, but a mathematician. Let us be precise.\n\nSection 2 frames semantic ambiguity as a vector in Hilbert space. But what is the inner product structur",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md",
@@ -72988,6 +73006,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Richard Feynman (simulated)",
+      "duration_s": 45.051226,
+      "ended_at": "2026-05-28T14:17:15.912421+00:00",
+      "excerpt": "Here's the funny thing about this proposal. You're talking about 'superposition states' for semantic ambiguity. Now, in quantum electrodynamics, when I draw little arrows for photon paths, each arrow has a definite meaning \u2014 it's a probabi\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "richard-feynman",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-28__research.md",
+      "started_at": "2026-05-28T14:16:30.861195+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 227.771918,
       "ended_at": "2026-05-28T12:47:01.045506+00:00",
@@ -79399,16 +79433,6 @@
       "project_id": "PROJ-571-co-evolving-policy-distillation",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T09:11:13.889227Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 0.000181,
-      "ended_at": "2026-05-17T09:11:13.837525Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T09:11:13.837344Z"
     }
   ],
   "schema_version": "2.0.0"
