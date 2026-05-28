@@ -114,7 +114,17 @@ class TestLibrarianHold:
                 "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/"
                 "specs/001-mechanistic-interpretability-of-ctcf-bin/spec.md"
             ),
-            content="No citations at all. Just a stylistic suggestion about clarity.",
+            content=(
+                # Spec 015 T040: content must pass the triage quality gate
+                # (≥80 chars + an evidence indicator). We include an FR/SC
+                # reference so the content qualifies for the gate; the test's
+                # actual invariant (no librarian-held = no `_held/` in path)
+                # is independent of triage and still holds.
+                "Pure prose suggestion about the spec at FR-001. The clarity "
+                "of the workflow description could be improved by leading "
+                "with the user story rather than the technical details, "
+                "since readers want context first. No citations needed."
+            ),
         )
         result = p.dispatch(action, persona, repo)
         assert result.outcome == p.OUTCOME_COMMITTED

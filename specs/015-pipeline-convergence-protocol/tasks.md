@@ -233,7 +233,7 @@
 - [X] T081 [P] Verify every agent invocation + convergence round writes a run-log entry; schema-validate every written artifact; project state never silently stalls — verification test in `tests/integration/test_invariants.py`
 - [X] T082 [P] SSoT grep audit: confirm the old forked summarizer, point-scoring, and dual routing are deleted/re-pointed (Const. I) — record evidence in STATUS.md
 - [ ] T083 Documentation parity: update READMEs, docstrings, web docs for all changed behavior; update `requirements.txt`/`pyproject.toml` if deps changed
-- [ ] T084 Full verification suite: `ruff check .` + `mypy src/llmxive` + `pytest tests/unit tests/contract tests/integration` + `LLMXIVE_REAL_TESTS=1 pytest tests/real_call tests/e2e` + `python -m llmxive.checks.prompts`; fix CODE until green (never weaken tests)
+- [X] T084 Full verification suite: `ruff check .` + `mypy src/llmxive` + `pytest tests/unit tests/contract tests/integration` + `LLMXIVE_REAL_TESTS=1 pytest tests/real_call tests/e2e` + `python -m llmxive.checks.prompts`; fix CODE until green (never weaken tests)
 - [ ] T085 Final manual QC sign-off recorded; STATUS.md marked complete
 
 ---
