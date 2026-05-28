@@ -1,0 +1,54 @@
+\begin{table*}[h]
+\centering
+\subfloat[
+% \textbf{Pose estimation accuracy.} Increasing the number of input views consistently improves camera pose estimation performance measured by Auc30.
+\textbf{Pose estimation accuracy.} We report the area under the curve (AUC30)$\uparrow$ for pose evaluation.
+\label{tab:view_ablation_a}
+]{
+\begin{minipage}{0.48\linewidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\multirow{2}{*}{\textbf{\# Views}} &
+\multicolumn{5}{c}{AUC30$\uparrow$} \\
+\cmidrule(lr){2-6}
+& HiRoom & ETH3D & DTU & 7Scenes & ScanNet$++$ \\
+\midrule
+4 views  & \underline{63.61} & 35.80 & 84.25 & 71.62 & 60.12 \\
+10 views & \textbf{67.22} & 74.68 & 92.37 & 84.73 & 87.45 \\
+30 views & - & \underline{82.35} & \underline{94.29}  & \underline{85.22} & \underline{94.61} \\
+50 views & - & \textbf{82.62} & \textbf{98.00} & \textbf{86.85} &  \textbf{95.30} \\
+\bottomrule
+\end{tabular}}
+\end{minipage}
+}
+\hfill
+\subfloat[
+\textbf{3D reconstruction accuracy.} We report Overall$\downarrow$ for DTU, while F-score$\uparrow$ is reported for the remaining benchmarks.
+\label{tab:view_ablation_b}
+]{
+\begin{minipage}{0.48\linewidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\multirow{2}{*}{\textbf{\# Views}} &
+\multicolumn{5}{c}{F-score$\uparrow$ / Overall$\downarrow$} \\
+\cmidrule(lr){2-6}
+& HiRoom & ETH3D & DTU & 7Scenes & ScanNet$++$ \\
+\midrule
+4 views  & \underline{8.65} & 10.56 & 6.95 & 12.00 & 10.10 \\
+10 views & \textbf{18.25} & 45.79 & 4.76 & 36.08 & 35.77 \\
+30 views & - & \underline{58.82} & \underline{3.58} & \underline{40.47} & \underline{57.62} \\
+50 views & - & \textbf{65.46} & \textbf{2.03} & \textbf{45.92} &  \textbf{65.72} \\
+\bottomrule
+\end{tabular}}
+\end{minipage}
+}
+\vspace{-10pt}
+\caption{\textbf{Ablation study on the number of input views.}
+Increasing the number of views improves both camera pose estimation accuracy and 3D reconstruction quality, indicating that richer cross-view information substantially benefits geometric reconstruction.}
+\label{tab:abl_maxview}
+\vspace{-10pt}
+\end{table*}

@@ -1,0 +1,397 @@
+% % Training-only dataset usage. Methods aligned with main results table.
+% % SLAM-based and Chunk-wise methods removed. GCT renamed to LingBot-map.
+% % Training-free methods (FastVGGT, InfiniteVGGT) removed since they have no training data.
+% % Three categories: End-to-end (11), Online/streaming (10), Test-Time Training (3).
+% % Variants of the same model collapsed to one column.
+% %
+% % Column striping requires \usepackage[table]{xcolor} in the preamble.
+% \begin{table*}[h]
+% \caption{\textbf{Dataset usage across all methods}. 
+% %
+% A checkmark indicates that the dataset is used for model training, pretraining, fine-tuning, or teacher/student training; evaluation-only, qualitative-only, and runtime benchmark datasets are not marked.
+% %
+% This table does not include the training dataset for the pre-trained checkpoint.
+% }
+% \centering
+% \tiny
+% \setlength{\tabcolsep}{1.7pt}
+% \renewcommand{\arraystretch}{1.4}
+% \providecommand{\cmark}{\checkmark}
+% \providecommand{\rot}[1]{\rotatebox{60}{#1}}
+% % Light blue tint for alternating columns
+% \definecolor{altcolblue}{RGB}{225,237,250}
+% \resizebox{\textwidth}{!}{
+% \begin{tabular}{l>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc}
+% \toprule
+% Dataset
+% & \multicolumn{11}{c}{End-to-end}
+% & \multicolumn{10}{c}{Online / streaming}
+% & \multicolumn{3}{c}{Test-Time Training} \\
+% \cmidrule(lr){2-12}\cmidrule(lr){13-22}\cmidrule(lr){23-25}
+% & \rot{AMB3R}
+% & \rot{DA3}
+% & \rot{DUSt3R}
+% & \rot{Fast3R}
+% & \rot{MapAnything}
+% & \rot{MASt3R}
+% & \rot{MUSt3R}
+% & \rot{OmniVGGT}
+% & \rot{$\pi^3$}
+% & \rot{VGGT}
+% & \rot{WorldMirror}
+% & \rot{CUT3R}
+% & \rot{LingBot-map}
+% & \rot{LongStream}
+% & \rot{MonST3R}
+% & \rot{PAGE-4D}
+% & \rot{Point3R}
+% & \rot{Spann3R}
+% & \rot{STream3R}
+% & \rot{StreamVGGT}
+% & \rot{WinT3R}
+% & \rot{TTT3R}
+% & \rot{Scal3R}
+% & \rot{LoGeR} \\
+% \midrule
+% CO3D~\citep{reizenstein2021co3d} &  & \cmark & \cmark & \cmark &  & \cmark & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  \\
+% RealEstate10K~\citep{zhou2018stereomagnification} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% ScanNet~\citep{dai2017scannet} & \cmark &  &  &  &  &  &  & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark \\
+% ScanNet++~\citep{yeshwanth2023scannet++} & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark & \cmark \\
+% ARKitScenes~\citep{dehghan2021arkitscenes} &  & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark \\
+% Habitat~\citep{savva2019habitat} &  &  & \cmark & \cmark &  & \cmark & \cmark &  & \cmark & \cmark & \cmark &  &  &  &  &  &  & \cmark &  &  &  &  &  &  \\
+% BlendedMVS~\citep{yao2020blendedmvs} &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  \\
+% MegaDepth~\citep{li2018megadepth} &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+% DL3DV~\citep{ling2024dl3dv} &  & \cmark &  &  & \cmark &  & \cmark & \cmark &  & \cmark & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \cmark & \cmark & \cmark \\
+% MapFree~\citep{arnold2022mapfree} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \cmark & \cmark &  \\
+% WildRGBD~\citep{xia2024wildrgbd} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark &  \\
+% Waymo~\citep{sun2020waymo} & \cmark & \cmark & \cmark &  &  & \cmark &  & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  & \cmark &  & \cmark \\
+% VirtualKITTI~\citep{cabon2020vkitti} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark &  & \cmark &  & \cmark & \cmark & \cmark &  &  & \cmark &  &  & \cmark &  & \cmark & \cmark & \cmark \\
+% TartanAir~\citep{wang2020tartanair} &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  & \cmark &  &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark \\
+% Unreal4K~\citep{tosi2021unreal} &  & \cmark &  &  & \cmark & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  &  &  &  & \cmark &  & \cmark \\
+% MVS-Synth~\citep{huang2018mvs} & \cmark & \cmark &  &  & \cmark &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark &  &  & \cmark &  &  & \cmark &  & \cmark & \cmark &  \\
+% HyperSim~\citep{roberts2021hypersim} & \cmark & \cmark &  &  &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+% Mapillary~\citep{antequera2020mapillary} &  &  &  &  & \cmark &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  &  & \cmark &  \\
+% ASE~\citep{avetisyan2024scenescript} &  & \cmark &  &  & \cmark &  &  &  &  & \cmark & \cmark &  & \cmark & \cmark &  &  &  &  & \cmark &  &  &  & \cmark &  \\
+% ADT~\citep{pan2023aria} & \cmark & \cmark &  &  &  &  &  &  &  & \cmark &  &  & \cmark & \cmark &  &  &  &  &  &  &  &  & \cmark &  \\
+% PointOdyssey~\citep{zheng2023pointodyssey} &  & \cmark &  & \cmark &  &  &  &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  &  & \cmark &  & \cmark &  &  \\
+% Spring~\citep{mehl2023spring} &  & \cmark &  &  & \cmark &  &  & \cmark &  &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark &  &  & \cmark &  & \cmark &  & \cmark \\
+% Dynamic Replica~\citep{Karaev_2023_dynamic_stereo} &  &  &  &  & \cmark &  &  & \cmark &  &  &  & \cmark &  &  &  & \cmark &  &  & \cmark &  &  & \cmark &  &  \\
+% ParallelDomain-4D~\citep{vanhoorick2024gcd} &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% SAIL-VOS 3D~\citep{hu2021sailvos3d} &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% OmniObject3D~\citep{wu2023omniobject3d} & \cmark & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  & \cmark &  &  & \cmark &  & \cmark &  &  \\
+% StaticThings3D~\citep{schroeppel2022rmvd} &  &  & \cmark &  &  & \cmark & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% TartanGround~\citep{patel2025tartanground} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% Matterport3D~\citep{chang2017matterport3d} &  &  &  &  &  &  &  & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% BEDLAM~\citep{black2023bedlam} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \cmark &  &  \\
+% UASOL~\citep{bauer2019uasol} &  &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% MVImgNet~\citep{yu2023mvimgnet} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% CoP3D~\citep{sinha2023cop3d} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% EDEN~\citep{le2021eden} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% IRS~\citep{wang2021irs} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% Synscapes~\citep{wrenninge2018synscapes} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% 3D Ken Burns~\citep{niklaus2019kenburns} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% SmartPortraits~\citep{kornilova2022smartportraits} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% UrbanSyn~\citep{gomez2025urbansyn} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% HOI4D~\citep{liu2022hoi4d} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  \\
+% Kubric~\citep{greff2022kubric} &  &  &  &  &  &  &  & \cmark &  & \cmark &  &  & \cmark & \cmark &  & \cmark &  &  &  &  &  &  &  &  \\
+% Replica~\citep{straub2019replica} &  & \cmark &  &  &  &  &  &  &  & \cmark &  &  & \cmark & \cmark &  &  &  &  &  &  &  &  & \cmark &  \\
+% Objaverse~\citep{deitke2023objaverse} &  & \cmark &  &  &  &  &  &  &  & \cmark &  &  & \cmark & \cmark &  &  &  &  &  &  &  &  &  &  \\
+% Texverse~\citep{zhang2025texverse} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% GTA-SfM~\citep{wang2020flow} & \cmark & \cmark &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  & \cmark &  &  &  \\
+% SceneNet RGB-D~\citep{mccormac2016scenenet} &  & \cmark &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  \\
+% MatrixCity~\citep{li2023matrixcity} &  & \cmark &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  & \cmark &  & \cmark &  \\
+% Mid-Air~\citep{fonder2019midair} &  &  &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% KITTI-360~\citep{liao2021kitti360} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% Gibson~\citep{xia2018gibson} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% HM3D~\citep{ramakrishnan2021hm3d} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% Taskonomy~\citep{zamir2018taskonomy} &  & \cmark &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  & \cmark &  & \cmark &  \\
+% MegaSynth~\citep{jiang2025megasynth} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% OmniWorld~\citep{zhou2025omniworld} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \cmark \\
+% Trellis~\citep{xiang2025structured} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% TauAgent~\citep{gil2021online} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Structured3D~\citep{zheng2020structured3d} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% DIML Outdoor~\citep{cho2021diml} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% DDAD~\citep{guizilini2020packnet} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Argoverse~\citep{chang2019argoverse} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Lyft~\citep{houston2021one} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% PandaSet~\citep{xiao2021pandaset} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% DSEC~\citep{gehrig2021dsec} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Driving Stereo~\citep{yang2019drivingstereo} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Cityscapes~\citep{cordts2016cityscapes} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% \midrule
+% \textbf{\#Datasets} & 11 & 42 & 8 & 8 & 13 & 13 & 13 & 19 & 14 & 17 & 15 & 32 & 30 & 14 & 4 & 5 & 14 & 6 & 15 & 13 & 12 & 32 & 18 & 12 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \label{tab:merged_dataset_usage_training_only}
+% \end{table*}
+
+
+
+%  % Training-only dataset usage. Methods aligned with main results table.
+% % SLAM-based and Chunk-wise methods removed. GCT renamed to LingBot-map.
+% % Training-free methods (FastVGGT, InfiniteVGGT) removed since they have no training data.
+% % Three categories: End-to-end (11), Online/streaming (10), Test-Time Training (3).
+% % Variants of the same model collapsed to one column.
+% %
+% % Column striping requires \usepackage[table]{xcolor} in the preamble.
+% \begin{table*}[t]
+% % Light blue tint for alternating columns; orange marks inherited pre-training data.
+% \definecolor{altcolblue}{RGB}{225,237,250}
+% \definecolor{pretrainmark}{RGB}{197,90,17}
+% \providecommand{\cmark}{\checkmark}
+% \providecommand{\pmark}{\textcolor{pretrainmark}{\checkmark}}
+% \providecommand{\datasetcount}[2]{\textcolor{pretrainmark}{#1}~(#2)}
+% \providecommand{\rot}[1]{\rotatebox{60}{#1}}
+% \caption{\textbf{Dataset usage across all methods}. 
+% %
+% \textcolor{green!55!black}{\checkmark} indicates datasets directly used for model training, fine-tuning, or teacher/student training; \textcolor{pretrainmark}{\checkmark} indicates that the method is initialized from a pretrained checkpoint whose backbone has been trained on the corresponding dataset.
+% %
+% The last row reports the total number of datasets used by the model or inherited from its pretrained checkpoint, with the number of datasets directly used in the model's own training shown in \textcolor{pretrainmark}{parentheses}.
+% %
+% Evaluation-only, qualitative-only, and runtime benchmark datasets are not marked.
+% }
+% \centering
+% \tiny
+% \setlength{\tabcolsep}{1.7pt}
+% \renewcommand{\arraystretch}{1.4}
+% \resizebox{\textwidth}{!}{
+% \begin{tabular}{l>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc}
+% \toprule
+% Dataset
+% & \multicolumn{11}{c}{End-to-end}
+% & \multicolumn{10}{c}{Online / streaming}
+% & \multicolumn{3}{c}{Test-Time Training} \\
+% \cmidrule(lr){2-12}\cmidrule(lr){13-22}\cmidrule(lr){23-25}
+% & \rot{AMB3R}
+% & \rot{DA3}
+% & \rot{DUSt3R}
+% & \rot{Fast3R}
+% & \rot{MapAnything}
+% & \rot{MASt3R}
+% & \rot{MUSt3R}
+% & \rot{OmniVGGT}
+% & \rot{$\pi^3$}
+% & \rot{VGGT}
+% & \rot{WorldMirror}
+% & \rot{CUT3R}
+% & \rot{LingBot-map}
+% & \rot{LongStream}
+% & \rot{MonST3R}
+% & \rot{PAGE-4D}
+% & \rot{Point3R}
+% & \rot{Spann3R}
+% & \rot{STream3R}
+% & \rot{StreamVGGT}
+% & \rot{WinT3R}
+% & \rot{TTT3R}
+% & \rot{Scal3R}
+% & \rot{LoGeR} \\
+% \midrule
+% CO3D~\citep{reizenstein2021co3d} & \pmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark \\
+% RealEstate10K~\citep{zhou2018stereomagnification} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+% ScanNet~\citep{dai2017scannet} & \cmark &  &  &  &  &  &  & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark &  & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark &  & \cmark \\
+% ScanNet++~\citep{yeshwanth2023scannet++} & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  & \pmark &  & \cmark & \cmark & \cmark &  & \cmark & \pmark & \cmark & \cmark \\
+% ARKitScenes~\citep{dehghan2021arkitscenes} &  & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  &  & \pmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark &  & \cmark \\
+% Habitat~\citep{savva2019habitat} & \pmark &  & \cmark & \cmark &  & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \pmark &  & \pmark & \pmark & \pmark & \pmark & \cmark & \pmark & \pmark & \pmark & \pmark &  & \pmark \\
+% BlendedMVS~\citep{yao2020blendedmvs} & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark \\
+% MegaDepth~\citep{li2018megadepth} & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \pmark & \cmark & \pmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark \\
+% DL3DV~\citep{ling2024dl3dv} & \pmark & \cmark &  &  & \cmark &  & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark &  &  & \cmark & \pmark &  & \pmark & \cmark & \cmark \\
+% MapFree~\citep{arnold2022mapfree} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \pmark & \cmark &  \\
+% WildRGBD~\citep{xia2024wildrgbd} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark \\
+% Waymo~\citep{sun2020waymo} & \cmark & \cmark & \cmark & \pmark &  & \cmark &  & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \pmark & \pmark &  & \cmark \\
+% VirtualKITTI~\citep{cabon2020vkitti} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark &  & \pmark & \cmark & \cmark \\
+% TartanAir~\citep{wang2020tartanair} &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  & \cmark &  &  &  & \cmark &  & \cmark & \pmark & \cmark & \cmark \\
+% Unreal4K~\citep{tosi2021unreal} &  & \cmark &  &  & \cmark & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \pmark &  & \cmark \\
+% MVS-Synth~\citep{huang2018mvs} & \cmark & \cmark &  &  & \cmark &  &  & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark &  & \pmark & \cmark & \pmark \\
+% HyperSim~\citep{roberts2021hypersim} & \cmark & \cmark &  &  &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark \\
+% Mapillary~\citep{antequera2020mapillary} & \pmark &  &  &  & \cmark &  &  & \pmark & \pmark & \cmark & \pmark &  &  & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  & \cmark & \pmark \\
+% ASE~\citep{avetisyan2024scenescript} & \pmark & \cmark &  &  & \cmark &  &  & \pmark & \pmark & \cmark & \cmark &  & \cmark & \cmark &  & \pmark &  &  & \cmark & \pmark &  &  & \cmark & \pmark \\
+% ADT~\citep{pan2023aria} & \cmark & \cmark &  &  &  &  &  & \pmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  & \cmark & \pmark \\
+% PointOdyssey~\citep{zheng2023pointodyssey} & \pmark & \cmark &  & \cmark &  &  &  & \pmark & \pmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  & \pmark &  & \pmark \\
+% Spring~\citep{mehl2023spring} &  & \cmark &  &  & \cmark &  &  & \cmark &  &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  & \pmark &  & \cmark \\
+% Dynamic Replica~\citep{Karaev_2023_dynamic_stereo} &  &  &  &  & \cmark &  &  & \cmark &  &  &  & \cmark &  &  &  & \cmark &  &  & \cmark &  &  & \pmark &  &  \\
+% ParallelDomain-4D~\citep{vanhoorick2024gcd} &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% SAIL-VOS 3D~\citep{hu2021sailvos3d} &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% OmniObject3D~\citep{wu2023omniobject3d} & \cmark & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  & \cmark &  & \cmark & \cmark &  & \pmark &  &  \\
+% StaticThings3D~\citep{schroeppel2022rmvd} &  &  & \cmark & \pmark &  & \cmark & \cmark &  &  &  &  & \pmark &  &  & \pmark &  & \pmark & \pmark & \pmark &  & \pmark & \pmark &  &  \\
+% TartanGround~\citep{patel2025tartanground} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  & \cmark \\
+% Matterport3D~\citep{chang2017matterport3d} &  &  &  &  &  &  &  & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% BEDLAM~\citep{black2023bedlam} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% UASOL~\citep{bauer2019uasol} &  &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% MVImgNet~\citep{yu2023mvimgnet} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% CoP3D~\citep{sinha2023cop3d} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% EDEN~\citep{le2021eden} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% IRS~\citep{wang2021irs} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+% Synscapes~\citep{wrenninge2018synscapes} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% 3D Ken Burns~\citep{niklaus2019kenburns} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+% SmartPortraits~\citep{kornilova2022smartportraits} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+% UrbanSyn~\citep{gomez2025urbansyn} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% HOI4D~\citep{liu2022hoi4d} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+% Kubric~\citep{greff2022kubric} & \pmark &  &  &  &  &  &  & \cmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \cmark &  &  & \pmark & \pmark &  &  &  & \pmark \\
+% Replica~\citep{straub2019replica} & \pmark & \cmark &  &  &  &  &  & \pmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  & \cmark & \pmark \\
+% Objaverse~\citep{deitke2023objaverse} & \pmark & \cmark &  &  &  &  &  & \pmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  &  & \pmark \\
+% Texverse~\citep{zhang2025texverse} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% GTA-SfM~\citep{wang2020flow} & \cmark & \cmark &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  & \cmark &  &  & \pmark \\
+% SceneNet RGB-D~\citep{mccormac2016scenenet} &  & \cmark &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  \\
+% MatrixCity~\citep{li2023matrixcity} &  & \cmark &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  & \cmark &  & \cmark & \pmark \\
+% Mid-Air~\citep{fonder2019midair} &  &  &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  & \pmark \\
+% KITTI-360~\citep{liao2021kitti360} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% Gibson~\citep{xia2018gibson} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% HM3D~\citep{ramakrishnan2021hm3d} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+% Taskonomy~\citep{zamir2018taskonomy} &  & \cmark &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  & \cmark &  & \cmark & \pmark \\
+% MegaSynth~\citep{jiang2025megasynth} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% OmniWorld~\citep{zhou2025omniworld} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \cmark \\
+% Trellis~\citep{xiang2025structured} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% TauAgent~\citep{gil2021online} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Structured3D~\citep{zheng2020structured3d} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% DIML Outdoor~\citep{cho2021diml} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% DDAD~\citep{guizilini2020packnet} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Argoverse~\citep{chang2019argoverse} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Lyft~\citep{houston2021one} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% PandaSet~\citep{xiao2021pandaset} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% DSEC~\citep{gehrig2021dsec} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Driving Stereo~\citep{yang2019drivingstereo} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% Cityscapes~\citep{cordts2016cityscapes} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+% \midrule
+% \textbf{\#Datasets} & \datasetcount{22}{11} & \datasetcount{42}{42} & \datasetcount{8}{8} & \datasetcount{10}{8} & \datasetcount{13}{13} & \datasetcount{13}{13} & \datasetcount{13}{13} & \datasetcount{27}{19} & \datasetcount{24}{14} & \datasetcount{17}{17} & \datasetcount{23}{15} & \datasetcount{34}{32} & \datasetcount{30}{30} & \datasetcount{19}{18} & \datasetcount{11}{4} & \datasetcount{20}{6} & \datasetcount{16}{14} & \datasetcount{9}{6} & \datasetcount{36}{29} & \datasetcount{21}{13} & \datasetcount{15}{12} & \datasetcount{34}{0} & \datasetcount{18}{18} & \datasetcount{29}{13} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \label{tab:merged_dataset_usage_training_only}
+% \end{table*}
+
+
+
+ % Training-only dataset usage. Methods aligned with main results table.
+% SLAM-based and Chunk-wise methods removed. GCT renamed to LingBot-map.
+% Training-free methods (FastVGGT, InfiniteVGGT) removed since they have no training data.
+% Three categories: End-to-end (11), Online/streaming (10), Test-Time Training (3).
+% Variants of the same model collapsed to one column.
+%
+% Column striping requires \usepackage[table]{xcolor} in the preamble.
+\begin{table*}[h]
+% Light blue tint for alternating columns; orange marks inherited pre-training data.
+\definecolor{altcolblue}{RGB}{225,237,250}
+\definecolor{pretrainmark}{RGB}{197,90,17}
+\providecommand{\cmark}{\checkmark}
+\providecommand{\pmark}{\textcolor{pretrainmark}{\checkmark}}
+\providecommand{\datasetcount}[2]{\textcolor{pretrainmark}{#1}~(#2)}
+\providecommand{\rot}[1]{\rotatebox{60}{#1}}
+\caption{\textbf{Dataset usage across all methods}. 
+%
+\textcolor{green!55!black}{\checkmark} indicates datasets directly used for model training, fine-tuning, or teacher/student training; \textcolor{pretrainmark}{\checkmark} indicates datasets inherited from a pretrained checkpoint whose backbone has been trained on the corresponding dataset.
+%
+The last row reports total used (trained): the first number counts all datasets either directly used by the method or inherited through its pretrained checkpoint, while the number in parentheses counts only datasets used to train or fine-tune the method itself. Identical values, e.g., 42~(42), indicate that no additional datasets are inherited.
+%
+Evaluation-only, qualitative-only, and runtime benchmark datasets are not marked.
+}
+\centering
+\tiny
+\setlength{\tabcolsep}{1.7pt}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc>{\columncolor{altcolblue}}cc}
+\toprule
+Dataset
+& \multicolumn{11}{c}{End-to-end}
+& \multicolumn{10}{c}{Online / streaming}
+& \multicolumn{3}{c}{Test-Time Training} \\
+\cmidrule(lr){2-12}\cmidrule(lr){13-22}\cmidrule(lr){23-25}
+& \rot{AMB3R}
+& \rot{DA3}
+& \rot{DUSt3R}
+& \rot{Fast3R}
+& \rot{MapAnything}
+& \rot{MASt3R}
+& \rot{MUSt3R}
+& \rot{OmniVGGT}
+& \rot{$\pi^3$}
+& \rot{VGGT}
+& \rot{WorldMirror}
+& \rot{CUT3R}
+& \rot{LingBot-map}
+& \rot{LongStream}
+& \rot{MonST3R}
+& \rot{PAGE-4D}
+& \rot{Point3R}
+& \rot{Spann3R}
+& \rot{STream3R}
+& \rot{StreamVGGT}
+& \rot{WinT3R}
+& \rot{TTT3R}
+& \rot{Scal3R}
+& \rot{LoGeR} \\
+\midrule
+CO3D~\citep{reizenstein2021co3d} & \pmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark \\
+RealEstate10K~\citep{zhou2018stereomagnification} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+ScanNet~\citep{dai2017scannet} & \cmark &  &  &  &  &  &  & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark &  & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark &  & \cmark \\
+ScanNet++~\citep{yeshwanth2023scannet++} & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  & \pmark &  & \cmark & \cmark & \cmark &  & \cmark & \pmark & \cmark & \cmark \\
+ARKitScenes~\citep{dehghan2021arkitscenes} &  & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  &  & \pmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark &  & \cmark \\
+Habitat~\citep{savva2019habitat} & \pmark &  & \cmark & \cmark &  & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark &  &  & \pmark & \pmark & \pmark & \pmark & \cmark & \pmark & \pmark & \pmark &  &  & \pmark \\
+BlendedMVS~\citep{yao2020blendedmvs} & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark \\
+MegaDepth~\citep{li2018megadepth} & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \pmark & \cmark & \pmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark \\
+DL3DV~\citep{ling2024dl3dv} & \pmark & \cmark &  &  & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark &  &  & \cmark & \pmark &  & \pmark & \cmark & \cmark \\
+MapFree~\citep{arnold2022mapfree} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \pmark & \cmark &  \\
+WildRGBD~\citep{xia2024wildrgbd} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark \\
+Waymo~\citep{sun2020waymo} & \cmark & \cmark & \cmark & \pmark &  & \cmark &  & \cmark &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark & \pmark & \pmark &  & \cmark \\
+VirtualKITTI~\citep{cabon2020vkitti} & \cmark & \cmark &  &  &  & \cmark & \cmark & \cmark & \pmark & \cmark & \pmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark &  & \pmark & \cmark & \cmark \\
+TartanAir~\citep{wang2020tartanair} &  & \cmark &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark & \cmark &  & \cmark &  &  &  & \cmark &  & \cmark & \pmark & \cmark & \cmark \\
+Unreal4K~\citep{tosi2021unreal} &  & \cmark &  &  & \cmark & \cmark & \cmark & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \pmark &  & \cmark \\
+MVS-Synth~\citep{huang2018mvs} & \cmark & \cmark &  &  & \cmark &  &  & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark &  & \pmark & \cmark & \pmark \\
+HyperSim~\citep{roberts2021hypersim} & \cmark & \cmark &  &  &  &  &  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \pmark & \cmark &  & \cmark & \cmark & \cmark & \pmark & \cmark & \cmark \\
+Mapillary~\citep{antequera2020mapillary} & \pmark &  &  &  & \cmark &  &  & \pmark & \pmark & \cmark & \pmark &  &  & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  & \cmark & \pmark \\
+ASE~\citep{avetisyan2024scenescript} & \pmark & \cmark &  &  & \cmark &  &  & \pmark & \pmark & \cmark & \cmark &  & \cmark & \cmark &  & \pmark &  &  & \cmark & \pmark &  &  & \cmark & \pmark \\
+ADT~\citep{pan2023aria} & \cmark & \cmark &  &  &  &  &  & \pmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  & \cmark & \pmark \\
+PointOdyssey~\citep{zheng2023pointodyssey} & \pmark & \cmark &  & \cmark &  &  &  & \pmark & \pmark & \cmark & \pmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  & \pmark &  & \pmark \\
+Spring~\citep{mehl2023spring} &  & \cmark &  &  & \cmark &  &  & \cmark &  &  &  & \cmark &  & \cmark & \cmark & \cmark & \cmark &  & \cmark & \cmark &  & \pmark &  & \cmark \\
+Dynamic Replica~\citep{Karaev_2023_dynamic_stereo} &  &  &  &  & \cmark &  &  & \cmark &  &  &  & \cmark &  &  &  & \cmark &  &  & \cmark &  &  & \pmark &  &  \\
+ParallelDomain-4D~\citep{vanhoorick2024gcd} &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+SAIL-VOS 3D~\citep{hu2021sailvos3d} &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+OmniObject3D~\citep{wu2023omniobject3d} & \cmark & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  & \cmark &  & \cmark & \cmark &  & \pmark &  &  \\
+StaticThings3D~\citep{schroeppel2022rmvd} &  &  & \cmark & \pmark &  & \cmark & \cmark &  &  &  &  &  &  &  & \pmark &  & \pmark & \pmark & \pmark &  & \pmark &  &  &  \\
+TartanGround~\citep{patel2025tartanground} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  & \cmark \\
+Matterport3D~\citep{chang2017matterport3d} &  &  &  &  &  &  &  & \cmark &  &  & \cmark & \cmark & \cmark &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+BEDLAM~\citep{black2023bedlam} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+UASOL~\citep{bauer2019uasol} &  &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+MVImgNet~\citep{yu2023mvimgnet} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+CoP3D~\citep{sinha2023cop3d} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+EDEN~\citep{le2021eden} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+IRS~\citep{wang2021irs} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+Synscapes~\citep{wrenninge2018synscapes} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+3D Ken Burns~\citep{niklaus2019kenburns} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+SmartPortraits~\citep{kornilova2022smartportraits} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \pmark &  &  \\
+UrbanSyn~\citep{gomez2025urbansyn} &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+HOI4D~\citep{liu2022hoi4d} &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  & \cmark &  &  & \pmark &  &  \\
+Kubric~\citep{greff2022kubric} & \pmark &  &  &  &  &  &  & \cmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \cmark &  &  & \pmark & \pmark &  &  &  & \pmark \\
+Replica~\citep{straub2019replica} & \pmark & \cmark &  &  &  &  &  & \pmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  & \cmark & \pmark \\
+Objaverse~\citep{deitke2023objaverse} & \pmark & \cmark &  &  &  &  &  & \pmark & \pmark & \cmark & \pmark &  & \cmark & \cmark &  & \pmark &  &  & \pmark & \pmark &  &  &  & \pmark \\
+Texverse~\citep{zhang2025texverse} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+GTA-SfM~\citep{wang2020flow} & \cmark & \cmark &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  & \cmark &  &  & \pmark \\
+SceneNet RGB-D~\citep{mccormac2016scenenet} &  & \cmark &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  & \cmark &  \\
+MatrixCity~\citep{li2023matrixcity} &  & \cmark &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  & \cmark &  & \cmark & \pmark \\
+Mid-Air~\citep{fonder2019midair} &  &  &  &  &  &  &  &  & \cmark &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  & \pmark \\
+KITTI-360~\citep{liao2021kitti360} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+Gibson~\citep{xia2018gibson} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+HM3D~\citep{ramakrishnan2021hm3d} &  &  &  &  &  &  &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  \\
+Taskonomy~\citep{zamir2018taskonomy} &  & \cmark &  &  &  &  &  &  & \cmark &  &  &  &  &  &  &  &  &  &  &  & \cmark &  & \cmark & \pmark \\
+MegaSynth~\citep{jiang2025megasynth} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+OmniWorld~\citep{zhou2025omniworld} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \cmark \\
+Trellis~\citep{xiang2025structured} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+TauAgent~\citep{gil2021online} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+Structured3D~\citep{zheng2020structured3d} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+DIML Outdoor~\citep{cho2021diml} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+DDAD~\citep{guizilini2020packnet} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+Argoverse~\citep{chang2019argoverse} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+Lyft~\citep{houston2021one} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+PandaSet~\citep{xiao2021pandaset} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+DSEC~\citep{gehrig2021dsec} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+Driving Stereo~\citep{yang2019drivingstereo} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+Cityscapes~\citep{cordts2016cityscapes} &  & \cmark &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\midrule
+\textbf{\#Datasets: total used (trained)} & \datasetcount{22}{11} & \datasetcount{42}{42} & \datasetcount{8}{8} & \datasetcount{10}{8} & \datasetcount{13}{13} & \datasetcount{14}{14} & \datasetcount{13}{13} & \datasetcount{27}{19} & \datasetcount{24}{14} & \datasetcount{17}{17} & \datasetcount{23}{15} & \datasetcount{32}{32} & \datasetcount{30}{30} & \datasetcount{19}{18} & \datasetcount{11}{4} & \datasetcount{20}{6} & \datasetcount{16}{14} & \datasetcount{9}{6} & \datasetcount{36}{29} & \datasetcount{21}{13} & \datasetcount{15}{12} & \datasetcount{32}{0} & \datasetcount{18}{18} & \datasetcount{29}{13} \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:merged_dataset_usage_training_only}
+\end{table*}

@@ -1,0 +1,9 @@
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{asset/fig_comparison_copy_2.pdf}
+\vspace{-10pt}
+\caption{\textbf{Comparison of restoration denoising spaces.}
+(a) A {restore-then-reconstruct} pipeline first performs pixel-space restoration prior to 3D reconstruction. However, performing restoration in a single-view setting~\cite{zamir2022restormer, conde2024high, chen2023hierarchical} or within a heavily compressed VAE-based latent space~\cite{mao2025sir, kingma2013auto} fails to preserve cross-view consistency and fine-grained geometric details, which often results in suboptimal geometric reconstruction. (b) In contrast, our \textbf{Geometry-Aware Representation Denoising (GARD)} operates on geometry-aware latent representations within a feed-forward reconstruction model, enabling the joint recovery of restored images and consistent 3D geometry across views.}
+\label{fig:comparison}
+% \vspace{-10pt}
+\end{figure}

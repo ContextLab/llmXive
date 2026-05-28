@@ -1,0 +1,170 @@
+\section{Detail of \ours}
+\label{appendix:dan}
+\subsection{Model Architecture}
+\ours is built upon the Giant variant of Depth-Anything-3~\citep{lin2025depth}.
+%
+The backbone adopts the DINOv2~\citep{oquab2023dinov2} ViT-Giant (\texttt{vitg}) architecture, in which Alternating Attention, QK-Norm, and Rotary Position Embedding (RoPE) are enabled starting from the 13th layer, while the \texttt{cat\_token} and \texttt{scale\_token} are retained. 
+%
+Multi-scale features are extracted from the 19th, 27th, 33rd, and 39th layers. 
+%
+The depth and ray prediction heads are instantiated as a DualDPT module with an input dimension of $3072$, a feature dimension of $256$, output channels of $[256, 512, 1024, 1024]$, and an output dimension of $2$.
+%
+The Scale Head is implemented as a 3-layer MLP (input $1536$, hidden $1024$, ReLU activation, Softplus output), and the Camera Encoder has an output dimension of $1536$. 
+%
+All weights are initialized from the officially released \texttt{da3-giant-1.1} checkpoint.
+
+\subsection{Training Objective}
+In \ours, all input images $\mathbf{I} = \{I_i\}^N_{i=1}$, together with the available camera parameters $\mathbf{C} = \{C_i\}^N_{i=1}=\{K_i,G_i\}^N_{i=1}$ (if provided), are fed into the network $\mathcal{G}$, which predicts the complete ray maps $\hat{\mathbf{R}}$, depth maps $\hat{\mathbf{D}}$, scale $\hat{S}$, and their corresponding confidence maps $\hat{\mathbf{Y}}_d, \hat{\mathbf{Y}}_r$ in an end-to-end manner:
+\begin{equation}
+\mathcal{G}\left(\mathbf{I},\mathbf{C}\right)=(\hat{\mathbf{R}},\hat{\mathbf{D}}, \hat{\mathbf{Y}}_d,\hat{\mathbf{Y}}_r,\hat{S}).
+\end{equation}
+%
+The total training objective is a weighted sum of five task-specific $\ell_1$ terms,
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{depth}} + \alpha\,\mathcal{L}_{\text{grad}} + \mathcal{L}_{\text{ray}} + \mathcal{L}_{\text{pmap}} + \mathcal{L}_{\text{scale}},
+\label{eq:total_loss}
+\end{equation}
+with $\alpha=1$.
+%
+Let $m_p\!\in\!\{0,1\}$ denote the per-pixel validity mask of the ground truth and $\Omega=\{p\mid m_p=1\}$ the set of valid pixels across all $N$ views, with $|\Omega|$ its cardinality. We detail each term below.
+
+\noindent\textbf{Confidence-weighted regression.}
+Following~\citet{wang2024dust3r,leroy2024mast3r}, each dense prediction is supervised with a confidence-weighted $\ell_1$ regression term. 
+%
+Given a prediction $\hat{x}$, its confidence $\hat{y}$, and the ground truth $x$, the per-pixel regression and confidence terms are
+\begin{equation}
+\ell_{\text{reg}}(\hat{x},x\,;p) = \| \hat{x}_p-x_p \|_1,\qquad
+\ell_{\text{conf}}(\hat{x},x,\hat{y}\,;p) = \gamma\,\hat{y}_p\,\ell_{\text{reg}}(\hat{x},x\,;p) - \beta\log \hat{y}_p,
+\label{eq:conf_reg}
+\end{equation}
+where $\gamma$ and $\beta$ balance the data term and the confidence regularizer that prevents $\hat{y}\!\to\!0$.
+
+\noindent\textbf{Depth loss.}
+For the predicted depth map $\hat{\mathbf{D}}$ with confidence $\hat{\mathbf{Y}}_d$, the depth term aggregates the confidence-weighted and plain $\ell_1$ terms over valid pixels:
+\begin{equation}
+\mathcal{L}_{\text{depth}}(\hat{\mathbf{D}},\mathbf{D}\,;\hat{\mathbf{Y}}_d)
+= \tfrac{1}{|\Omega|}\sum_{p\in\Omega}\!\Big(
+\gamma\,\hat{Y}_{d,p}\,\big|\hat{D}_p - D_p\big| - \beta\log \hat{Y}_{d,p} + \big|\hat{D}_p - D_p\big|
+\Big).
+\end{equation}
+
+\noindent\textbf{Depth-gradient loss.}
+To preserve sharp edges while enforcing smoothness on planar regions, we penalize the discrepancy between the depth gradients of the prediction and the ground truth:
+\begin{equation}
+\mathcal{L}_{\text{grad}}(\hat{\mathbf{D}},\mathbf{D}) = \|\nabla_x \hat{\mathbf{D}} - \nabla_x \mathbf{D}\|_1 + \|\nabla_y \hat{\mathbf{D}} - \nabla_y \mathbf{D}\|_1,
+\end{equation}
+where $\nabla_x$ and $\nabla_y$ are the horizontal and vertical finite difference operators. In practice, this term is evaluated in a multi-scale manner over $J$ dyadic scales (stride $2^{j}$, $j=0,\dots,J\!-\!1$) and averaged.
+
+\noindent\textbf{Ray loss.}
+The ray map $\hat{\mathbf{R}}\in\mathbb{R}^{N\times H\times W\times 6}$ encodes per-pixel camera origins $\hat{\mathbf{o}}$ and viewing directions $\hat{\mathbf{d}}$. With its confidence $\hat{\mathbf{Y}}_r$, the ray loss mirrors the depth term:
+\begin{equation}
+\mathcal{L}_{\text{ray}}(\hat{\mathbf{R}},\mathbf{R}\,;\hat{\mathbf{Y}}_r)
+= \tfrac{1}{|\Omega|}\sum_{p\in\Omega}\!\Big(
+\gamma\,\hat{Y}_{r,p}\,\|\hat{\mathbf{R}}_p - \mathbf{R}_p\|_1 - \beta\log \hat{Y}_{r,p} + \|\hat{\mathbf{R}}_p - \mathbf{R}_p\|_1
+\Big).
+\end{equation}
+
+\noindent\textbf{Point-map loss.}
+We recover the 3D world points by back-projecting depth along the predicted rays, $\hat{\mathbf{P}} = \hat{\mathbf{D}}\odot\hat{\mathbf{d}} + \hat{\mathbf{o}}$, and supervise them with a masked $\ell_1$ against the ground-truth world points $\mathbf{P}$:
+\begin{equation}
+\mathcal{L}_{\text{pmap}}(\hat{\mathbf{D}}\odot\hat{\mathbf{d}}+\hat{\mathbf{o}},\,\mathbf{P}) = \frac{1}{|\Omega|}\sum_{p\in\Omega}\big\|\hat{\mathbf{P}}_p - \mathbf{P}_p \big\|_1.
+\end{equation}
+
+\noindent\textbf{Scale loss.}
+The predicted global scale $\hat{S}$ is supervised against the ground-truth scale factor $S$ via a log-space $\ell_1$ term,
+\begin{equation}
+\mathcal{L}_{\text{scale}}(\hat{S},S) = \big\| f_{\log}(\hat{S}) - f_{\log}(S) \big\|_1,\qquad
+f_{\log}:\mathbf{x}\mapsto \tfrac{\mathbf{x}}{\|\mathbf{x}\|}\,\log(1+\|\mathbf{x}\|),
+\end{equation}
+which compresses the dynamic range of absolute scale and yields stable gradients across scenes of drastically different sizes.
+
+\noindent\textbf{Ground-truth preprocessing and scale target.}
+To remove the inherent scene-scale ambiguity across heterogeneous training data and keep the magnitudes of different modalities consistent, all ground-truth signals are canonicalized in a two-step procedure before loss computation.
+%
+\emph{(i) Coordinate canonicalization.} The first frame is taken as the reference: we apply the \mbox{cam-to-world} transform of the first camera to all extrinsics, and accordingly transform the ground-truth world points $\mathbf{P}$ into the first-camera coordinate frame.
+%
+\emph{(ii) Scale normalization.} We then compute the per-scene scale factor as the mean $\ell_2$ norm of the valid reprojected world points,
+\begin{equation}
+S \;=\; \frac{1}{|\Omega|}\sum_{p\in\Omega} \|\mathbf{P}_p\|_2,
+\label{eq:gt_scale}
+\end{equation}
+and divide the ground-truth world points, depths and camera translations by $S$:
+\begin{equation}
+\mathbf{P}\!\leftarrow\!\mathbf{P}/S,\qquad
+\mathbf{D}\!\leftarrow\!\mathbf{D}/S,\qquad
+\mathbf{t}\!\leftarrow\!\mathbf{t}/S.
+\end{equation}
+%
+The resulting scalar $S$ is also kept as the regression target of the scale head, so that $\hat{S}$ in $\mathcal{L}_{\text{scale}}$ learns to recover the absolute metric scale that the other dense predictions are invariant to. During inference, the predicted $\hat{S}$ is multiplied back to lift the normalized geometry into its metric space.
+%
+We set $\gamma=1.0$ and $\beta=0.2$ for all confidence-weighted terms, use $J=3$ scales for the multi-scale gradient loss, and apply quantile filtering with $\tau=0.98$ to suppress outliers.
+
+\subsection{Camera Conditioning Training}
+\label{sec:pose_cond}
+We adopt a \emph{stochastic pose-conditioning} scheme at training time: for each mini-batch we flip a Bernoulli coin with probability $p\in[0,1]$, and inject the ground-truth camera as an auxiliary input only when the coin turns up, i.e.\
+\begin{equation}
+u \sim \mathrm{Bernoulli}(p),\qquad
+(\hat{\mathbf{R}},\hat{\mathbf{D}},\hat{\mathbf{Y}}_d,\hat{\mathbf{Y}}_r,\hat{S}) =
+\begin{cases}
+\mathcal{G}(\mathbf{I},\tilde{\mathbf{G}},\mathbf{K}), & u=1,\\[2pt]
+\mathcal{G}(\mathbf{I}), & u=0,
+\end{cases}
+\end{equation}
+where $\tilde{\mathbf{G}}$ denotes the canonicalized ground-truth extrinsics described below, and $\mathbf{K}=\{K_i\}_{i=1}^{N}$ the intrinsics. When $u=0$, the encoder instead receives a learnable placeholder camera token $\mathbf{e}_c$; when $u=1$, $(\tilde{\mathbf{G}},\mathbf{K})$ is tokenized and replaces $\mathbf{e}_c$, so that the encoder attends to geometrically grounded pose cues.
+
+\noindent\textbf{Extrinsic Normalization for Conditioning.}
+The extrinsics fed into the network are preprocessed independently from the supervision pipeline of Eq.~\eqref{eq:gt_scale}, so as to remain agnostic to the absolute metric scale. Specifically, given the world-to-camera matrices $\{G_i\}_{i=1}^{N}$, we (i) right-multiply by $G_1^{-1}$ so that the first view becomes the canonical frame, and (ii) divide the translation components by the median camera-centre distance $\bar{d}$:
+\begin{equation}
+\tilde{G}_i \;=\; G_i\,G_1^{-1},\qquad
+\tilde{G}_i[{:}3,3] \;\leftarrow\; \tilde{G}_i[{:}3,3]\,/\,\max(\bar{d},\,\epsilon),
+\end{equation}
+with $\bar{d}=\mathrm{median}_i\,\|\mathbf{c}_i\|_2$ and $\mathbf{c}_i$ the camera centre extracted from $\tilde{G}_i^{-1}$. This keeps the conditioning signal in a scale-invariant canonical frame and prevents trivial leakage of the ground-truth scale through the pose input (which is instead supervised via $\mathcal{L}_{\text{scale}}$).
+
+\subsection{Training Datasets}
+
+\input{tabs/training_datasets}
+
+We train \ours model using images from 18 datasets, including: \dataset (7 datasets in total), HyperSim~\citep{roberts2021hypersim}, Infinigen~\citep{raistrick2024infinigen}, Spring~\citep{mehl2023spring}, MapFree~\citep{arnold2022mapfree}, Matterport 3D~\citep{ramakrishnan2021hm3d}, MVS-Synth~\citep{huang2018mvs},  ScanNet++~\citep{yeshwanth2023scannet++}, TartanAir~\citep{wang2020tartanair}, Unreal 4K~\citep{tosi2021unreal}, Virtual KITTI~\citep{cabon2020vkitti}, Waymo~\citep{sun2020waymo}.
+%
+These datasets cover normal, egocentric, and wrist view perspectives, both synthetic and real-world content, indoor and outdoor environments, as well as static and dynamic scenes. 
+%
+Such a diverse composition preserves a strong generalization capability for \ours.
+%
+Table~\ref{dataset-table} summarizes the statistics of the datasets we used. 
+%
+In each epoch, we sample a fixed total number of samples from the training datasets, with their mixture ratio indicated by the ``Training Prob'' column in the table.
+
+\subsection{Frame Sampling Strategy} For every batch, we select between 2 and 18 frames from multiple random training scenes while maintaining a constant total of 18 frames within each batch.
+%
+We sample each batch of images based on the Euclidean distance to the camera pose. 
+%
+For each frame, all other frames are ranked according to their pose distance, and the top $N$ ($N$ depends on the frame density in each dataset) closest frames are selected as its valid range. 
+%
+Then, for each sequence, we randomly choose one frame as the anchor frame and sample the remaining frames from its valid range.
+
+
+\subsection{Training Configuration}
+Our \ours architecture follows DA3-Giant~\citep{lin2025depth} with $L = 40$ Transformer blocks and is initialized by pre-trained weights.
+%
+During training, each batch incorporates ground-truth camera information as auxiliary input with probability $p=20\%$.
+%
+The training runs end-to-end on 4 NVIDIA H200 GPUs over seven days.
+%
+Training is conducted in BF16 mixed precision with a fixed random seed of $42$ for $10$ epochs in total. 
+%
+The per-device batch size is $18$ frames, and gradient accumulation is performed every $2$ steps.
+%
+During training, the backbone, depth and ray prediction head, camera encoder, and scale head are jointly optimized, whereas the camera decoder is kept frozen (we use the ray map branch).
+%
+Since the 3D Gaussian Splatting branch is not involved in this work, its corresponding GS Head is also frozen.
+%
+Gradient checkpointing is further enabled to reduce GPU memory consumption.
+%
+We employ the AdamW optimizer with $\beta_1 = 0.9$, $\beta_2 = 0.95$, $\epsilon = 1 \times 10^{-8}$, and a weight decay of $0.01$. A layer-wise learning rate scheme is adopted: $1 \times 10^{-5}$ for the backbone, $2 \times 10^{-5}$ for the prediction head, camera encoder. 
+%
+The learning rate follows a cosine decay schedule with linear warm-up, where the warm-up stage lasts $5{,}000$ steps and the minimum learning rate factor is $0.1$. Gradient clipping is applied with a maximum norm of $1.0$.
+%
+To enhance robustness across varying aspect ratios, multi-scale training is performed
+over $17$ resolutions, where the width is fixed at $504$ and the height ranges
+from $280$ to $504$ with a step of $14$.
+

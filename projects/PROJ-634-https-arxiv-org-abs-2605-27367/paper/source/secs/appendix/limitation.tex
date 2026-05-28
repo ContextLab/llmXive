@@ -1,0 +1,22 @@
+\section{Limitations}
+\label{appendix:limit}
+
+We report the limitations of \benchmark in this section.
+
+\noindent\textbf{Evaluation Cost.} 
+Evaluating 41 models across 100+ scenes per model under the dense regime is time-consuming. This can be mitigated by distributing evaluation across multiple GPUs in parallel.
+
+\noindent\textbf{Memory Constraints.}
+All evaluations are conducted on H200 GPUs with 141\,GB VRAM. 
+%
+We have not tested models under larger memory configurations such as B100 or B200, and performance or behavior may differ on such hardware.
+
+\noindent\textbf{Hyperparameter Selection.}
+We acknowledge that some evaluated methods may require task- or scene-specific hyperparameter tuning to achieve optimal performance. However, such tuning falls outside the scope of this benchmark. We follow the recommended configurations provided in each method's official codebase to ensure a fair and consistent comparison across all methods.
+
+\noindent\textbf{Expanding Method Coverage.}
+As of the submission deadline, a number of newly released models continue to be open-sourced. 
+%
+Therefore, we cannot guarantee complete coverage of all existing methods.
+%
+We commit to continuously integrating and evaluating new methods as they become available.

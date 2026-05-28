@@ -1,0 +1,52 @@
+\section{Related Work}
+\label{appendix:related}
+
+\textbf{Spatial foundation models for visual geometry.}
+Recent advances in visual geometry have shifted 3D reconstruction from optimization-heavy pipelines toward spatial foundation models that directly infer scene geometry, camera parameters, and point cloud from images. 
+%
+Early influential systems such as DUSt3R~\citep{wang2024dust3r} and MASt3R~\citep{leroy2024mast3r} reformulate geometric reconstruction as dense pointmap prediction, substantially simplifying pose-free 3D reconstruction and 3D-grounded image matching. 
+%
+Although these methods still rely on global alignment or optimization-based post-processing, they establish a strong foundation for subsequent feed-forward reconstruction models. 
+%
+Building on this direction, end-to-end feed-forward methods aim to recover visual geometry in a single network pass. 
+%
+VGGT~\citep{wang2025vggt} predicts camera parameters, depth maps, pointmaps, and point tracks in a unified transformer framework, while Fast3R~\citep{yang2025fast3r} scales feed-forward reconstruction to large unordered image collections and FastVGGT~\citep{shen2025fastvggt} accelerates VGGT-style inference without retraining. 
+%
+MUSt3R~\citep{cabon2025must3r} extends stereo-style reconstruction to multi-view settings, and MapAnything~\citep{keetha2026mapanything} supports flexible geometric inputs such as poses, depths, intrinsics, and partial reconstructions for universal metric 3D reconstruction. 
+%
+More model families further expand this paradigm: OmniVGGT~\citep{peng2025omnivggt} incorporates omni-modality prior for reconstruction; $\pi^3$ removes the dependence on reference frames through a fully permutation-equivariant architecture, predicting affine-invariant camera poses, and scale-invariant local pointmaps; AMB3R~\citep{wang2025amb3r} introduces a backend module for more accurate metric-scale reconstruction; DA3 and its variants~\citep{lin2025depth} recover consistent 3D geometry from arbitrary visual inputs across multiple model scales; and WorldMirror~\citep{liu2025worldmirror} explores any-prior prompting to unify diverse 3D representations. 
+%
+Together, these feed-forward spatial foundation models demonstrate strong reconstruction capability on bounded image sets, but their performance can degrade when applied to long videos, streaming inputs, or large-scale scenes where memory, consistency, and drift become critical.
+%
+Moreover, processing long sequences with these models incurs prohibitive GPU memory consumption and increased inference latency.
+
+
+\textbf{Long-sequence, online, and test-time training models.}
+To handle realistic video streams, recent work has extended spatial foundation models from bounded image sets to online, chunk-wise, SLAM-based, and test-time adaptive settings. 
+%
+Online and streaming methods maintain temporal or spatial memory, recurrent states, or compact historical context as new frames arrive. 
+%
+Spann3R~\citep{wang2024spann3r} introduces spatial memory for incremental 3D reconstruction, CUT3R~\citep{wang2025cut3r} uses a persistent recurrent state for continuous 3D perception, and MonST3R~\citep{zhang2024monst3r} extends DUSt3R-style reconstruction to dynamic scenes with motion. 
+%
+Point3R~\citep{point3r} employs explicit spatial pointer memory for streaming reconstruction, while Stream3R~\citep{stream3r2025}, StreamVGGT~\citep{streamVGGT}, Page4D~\citep{zhou2025page4d}, InfiniteVGGT~\citep{yuan2026infinitevggt}, WinT3R~\citep{li2025wint3r}, LongStream~\citep{cheng2026longstream}, and LingBot-Map~\citep{chen2026lingbotmap} investigate different memory mechanisms, window designs, causal attention strategies, and long-horizon update rules for scalable online geometry estimation. 
+%
+Another line processes long videos in chunks and then aligns local reconstructions into a global scene. VGGT-Long~\citep{deng2025vggtlong}, $\pi^3$-Long~\citep{deng2025vggtlong}, and DA3-Streaming~\citep{deng2025vggtlong} follow this chunk-wise strategy to extend powerful feed-forward backbones or model variants to kilometer-scale or long-sequence reconstruction. 
+%
+In parallel, SLAM-based systems such as MASt3R-SLAM~\citep{murai2024_mast3rslam} and VGGT-SLAM~\citep{maggio2025vggt-slam} combine learned 3D priors with classical mapping and tracking components to improve real-time dense reconstruction. 
+%
+Finally, test-time training methods, including TTT3R~\citep{chen2025ttt3r}, Scal3R~\citep{xie2026scal3r}, ZipMap~\citep{jin2026zipmap} and LoGeR~\citep{zhang2026loger}, adapt the model or scene representation during inference to improve large-scale consistency and reduce drift. 
+%
+These methods reveal an emerging trend: the central challenge of spatial foundation models is no longer only accurate single-shot reconstruction, but also scalable memory management, temporal consistency, dynamic-scene robustness, and long-range geometric alignment under realistic visual streams.
+
+\textbf{Related benchmarks for visual geometry.}
+Several recent efforts have introduced systematic benchmarks for 3D reconstruction and visual geometry. Robust MVD~\citep{schroeppel2022rmvd} focuses on cross-dataset generalization for multi-view depth estimation, while E3D-Bench~\citep{cong2025e3d} provides a broader evaluation covering depth, reconstruction, pose estimation, and novel-view synthesis.
+%
+In addition, several model works construct their own evaluation protocols, including DA3~\citep{lin2025depth}, $\pi^3$~\citep{wang2025pi3}, and MapAnything~\citep{keetha2026mapanything}.
+%
+Among these, E3D-Bench is the most comprehensive standalone effort, supporting cross-method comparison across multiple tasks. 
+%
+However, it does not provide comparisons across various domains and paradigms.
+%
+The remaining model-specific suites are largely tied to individual model studies and lack a unified protocol for controlled cross-paradigm comparison.
+%
+In contrast, \benchmark provides a standalone, deterministic, and tag-aware benchmark that enables systematic analysis across diverse input densities, viewpoint types, scene dynamics, and foundation model paradigms.

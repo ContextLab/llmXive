@@ -1,0 +1,161 @@
+\section{\benchmark Design}
+\begin{figure*}
+    \centering
+    \includegraphics[width=1\linewidth]{figs/geobench_combined.png}
+    \caption{\textbf{Overview of \benchmark.} (Left) Distribution of all scene categories and their corresponding counts. (Right) Data sources and the median number of frames per scene under sparse, medium, and dense input settings.
+    %
+    The number on each circle indicates the number of scenes.
+}
+    \label{fig:statistics}
+    % \vspace{-15pt}
+\end{figure*}
+
+\benchmark is built upon a large-scale collection of heterogeneous 3D vision datasets, covering a diverse spectrum of scene categories, capture conditions, and viewpoint configurations.
+%
+Fig.~\ref{fig:statistics} provides an overview of \benchmark: the left panel shows the breakdown of scene categories and their corresponding counts, and the right panel reports the data sources alongside the median number of frames per scene across different settings.
+%
+This multi-dimensional design allows \benchmark to evaluate model capabilities 
+across a wide range of conditions in a principled and systematic way.
+
+\subsection{Data Collection and Curation}
+\label{sec:data}
+
+\benchmark unifies heterogeneous 3D vision datasets under a common, deterministic evaluation protocol.
+%
+Raw datasets are first normalized into a shared per-scene representation comprising \textit{RGB frames}, \textit{metric depth maps}, \textit{camera-to-world poses}, and \textit{camera intrinsics}, and are subsequently curated into a fixed set of evaluation scene indices.
+%
+Each scene index is stored as a JSON record that specifies, for every (scene, view-density) pair, the exact frame indices to be consumed by a method.
+%
+By decoupling data ingestion from evaluation, this design ensures that all methods are assessed on identical inputs and that results remain fully reproducible across repeated runs.
+
+% \subsubsection{Data Sources and Taxonomy}
+% \label{sec:data:sources}
+
+We aggregate 19 publicly available real-world and synthetic datasets, spanning the principal axes relevant to modern 3D perception: \emph{environment} (indoor/outdoor), \emph{dynamics} (static/dynamic), \emph{viewpoint} (normal/egocentric/wrist), and \emph{data type} (real/synthetic).
+%
+For example, the whole dataset can be classified into four distinct subsets according to the \emph{dynamics} and \emph{data type} axes: static-real, static-synthetic, dynamic-real, and dynamic-synthetic:
+%
+(1) \textbf{Static-real.} 7-Scenes~\citep{shotton20137scenes}, DTU~\citep{jensen2014dtu}, NRGBD~\citep{azinovic2022Neuralrgbd}, Scannet++~\citep{yeshwanth2023scannet++}, Tanks~\&~Temples~\citep{Knapitsch2017tanks}, and ETH3D~\citep{schops2017eth3d} provide high-quality ground-truth geometry under static conditions, covering settings from close-range tabletop scans to large-scale outdoor architecture.
+(2) \textbf{Static-synthetic.} Hiroom~\citep{lin2025depth}.
+(3) \textbf{Dynamic-real.} TUM-Dynamic~\citep{sturm12tumdynamic}, DROID~\citep{khazatsky2024droid}, Xperience~\citep{xperience_10m}, Waymo~\citep{sun2020waymo}, and KITTI-Odometry~\citep{geiger2012kittiod} capture dynamic indoor activities as well as street-scale driving scenarios.
+(4) \textbf{Dynamic-synthetic.} ADT~\citep{pan2023aria}, RLBench~\citep{james2020rlbench} with Colosseum~\citep{pumacay2024colosseum},  RoboTwin~\citep{chen2025robotwin}, Robolab~\citep{yang2026robolab}, Virtual KITTI~2~\citep{cabon2020vkitti}, and OmniWorld-Game~\citep{zhou2025omniworld} provide dense photorealistic sequences for dynamic and robotic settings that are otherwise costly to acquire in the real world.
+%
+We also collect a \textbf{Single-frame Mixture} including Lingbot-Depth~\citep{lingbot-depth2026} and all the above datasets, which contributes one-shot \texttt{rgb/depth/intrinsic} triplets, used exclusively in the monocular depth evaluation.
+%
+We refer the reader to Tab.~\ref{tab:datasets_summary} in Appendix~\ref{appendix:full_benchmark} for a complete overview of all datasets included in \benchmark.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.86\textwidth]{figs/droid.pdf}
+  \vspace{-8pt}
+  \caption{\textbf{DROID data curation pipeline.} We obtain metric depth from stereo sequences via S$^2$M$^2$~\protect\citep{min2025s2m2}, with initial camera poses estimated by MapAnything~\protect\citep{keetha2026mapanything}. 
+  %
+  Gripper and contact affordance masks are segmented using SAM3. 
+  %
+  Then the camera poses are refined via bundle adjustment using the RGBs, initial camera poses, and masks.}
+  \label{fig:droid}
+\end{figure}
+
+To obtain high-quality, depth-consistent real-world wrist-view sequences, we design a dedicated data curation pipeline for the DROID~\citep{khazatsky2024droid} dataset, as illustrated in Fig.~\ref{fig:droid}.
+%
+We feed stereo video sequences into the S$^2$M$^2$~\citep{min2025s2m2} stereo depth estimation model to obtain per-frame metric depth for the left image, with unreliable points filtered out via confidence thresholding.
+%
+The resulting image sequence and metric depth maps are then passed to MapAnything~\citep{keetha2026mapanything} to obtain initial camera poses.
+%
+In parallel, we apply SAM3~\citep{carion2025sam3} to segment dynamic regions, including the gripper and objects it interacts with, on a set of keyframes, and propagate the masks to the full sequence. 
+%
+These masks exclude dynamic foreground regions from the Bundle Adjustment optimization, which assumes a static scene background.
+%
+Finally, leveraging the initial camera poses along with RGB images and the obtained masks, we perform depth \& photometric bundle adjustment to refine the camera poses, yielding globally aligned point clouds.
+%
+Other data pipeline and implementation details are provided in Appendix~\ref{appendix:pipeline}.
+
+
+\subsection{Multi-density Evaluation Regimes}
+\label{sec:data:regimes}
+
+A central principle of our benchmark is that each method is evaluated across multiple temporal resolutions on the same scene, rather than on arbitrarily truncated clips. 
+%
+From each curated scene, we generate four parallel entries corresponding to distinct view-density regimes: \textbf{\textsc{Single}}, \textbf{\textsc{Sparse}}, \textbf{\textsc{Medium}}, and \textbf{\textsc{Dense}}. 
+%
+These regimes are designed to probe complementary failure modes: \textsc{Single} isolates monocular depth priors; \textsc{Sparse} stresses wide-baseline reconstruction from unordered views; \textsc{Medium} reflects the moderate-overlap inputs typical of SfM and SLAM; and \textsc{Dense} evaluates long-horizon online estimation. 
+%
+Because all four regimes are derived from the same underlying scene, scene difficulty and density-related difficulty can be disentangled.
+
+\textbf{\textsc{Single}}.
+For each scene, we fix a single deterministic frame index that is consistent across all evaluations.
+%
+This ensures that frame selection is reproducible across machines and independent of wall-clock time.
+
+\textbf{\textsc{Sparse}}.
+Sparse-view selection is formulated as a \textit{weighted set-cover problem} over the scene's 3D voxel support.
+%
+Let $\mathcal{V}$ denote the set of all voxels in the scene, and let $\mathcal{F}$ denote the candidate frames.
+%
+Each frame $f \in \mathcal{F}$ covers a subset of voxels $V_f \subseteq \mathcal{V}$.
+%
+We greedily select frames to maximize cumulative voxel coverage until a small frame budget $K$ is reached.
+%
+This deterministic procedure promotes viewpoint diversity and is robust to variations in trajectory speed, producing a compact set of views that jointly covers the scene rather than merely temporally distant frames.
+%
+The full selection objective is given in Appendix~\ref{app:regime-details}.
+
+\textbf{\textsc{Medium}}.
+The medium regime retains the set-cover formulation of the sparse regime but favors view overlap over diversity.
+%
+Let $\mathcal{V}$ be the coarsened voxel set and $\mathcal{F}$ the candidate frames.
+%
+The selected frame set $\mathcal{S}$ is obtained by greedily maximizing voxel coverage, subject to a length-adaptive frame budget.
+%
+This procedure encourages mid-range overlap among views rather than extreme viewpoint diversity.
+%
+The corresponding budgeted objective is detailed in Appendix~\ref{app:regime-details}.
+
+\textbf{\textsc{Dense}}.
+The dense regime targets the opposite end of the spectrum: an online, long-horizon setting in which a method must ingest essentially every frame of a trajectory and reconstruct temporally coherent geometry. 
+%
+Accordingly, the goal is not to \emph{select} views in the set-cover sense, but to preserve temporal continuity while avoiding the trivial inflation of evaluation cost caused by near-duplicate consecutive frames. 
+%
+In practice, however, processing arbitrarily long trajectories can exceed the memory limits of some methods; therefore, we impose a maximum frame budget to ensure that the dense evaluation remains feasible across all methods.
+
+% Given a scene with $N$ frames and a target budget of $T!=!500$ frames, we retain all frames when $N!\le!T$. Otherwise, we subsample the trajectory with stride
+% $s \;=\; \lceil N / T \rceil$
+% yielding approximately $T$ evenly spaced frames per scene.
+
+\subsection{Evaluated Models} 
+In this work, we evaluate 31 methods with 41 model variants in total. 
+%
+We categorize the evaluated methods into six paradigms: \textit{1) Optimization-based} methods, including DUSt3R~\citep{wang2024dust3r} and MASt3R~\citep{leroy2024mast3r}; \textit{2) End-to-End Feed-Forward} methods, including VGGT~\citep{wang2025vggt}, Fast3R~\citep{yang2025fast3r}, FastVGGT~\citep{shen2025fastvggt}, MUSt3R~\citep{cabon2025must3r}, MapAnything~\citep{keetha2026mapanything}, OmniVGGT~\citep{peng2025omnivggt}, $\pi^3$~\citep{wang2025pi3}, AMB3R~\citep{wang2025amb3r}, DepthAnything3~\citep{lin2025depth}, WorldMirror~\citep{liu2025worldmirror}, and VGGT-Omega~\citep{wang2026vggtomega};  \textit{3) Online/Streaming} methods, including Spann3r~\citep{wang2024spann3r}, CUT3R~\citep{wang2025cut3r}, MonST3R~\citep{zhang2024monst3r}, Point3R~\citep{point3r}, Stream3R~\citep{stream3r2025}, StreamVGGT~\citep{streamVGGT}, PAGE4D~\citep{zhou2025page4d}, InfiniteVGGT~\citep{yuan2026infinitevggt}, WinT3R~\citep{li2025wint3r}, LongStream~\citep{cheng2026longstream} and LingBot-Map~\citep{chen2026lingbotmap}; \textit{4) Chunk-based} methods, including VGGT-Long~\citep{deng2025vggtlong}, Pi-Long~\citep{deng2025vggtlong} and DA3-Streaming~\citep{deng2025vggtlong}; \textit{5) SLAM-based} methods, including MASt3R-SLAM~\citep{murai2024_mast3rslam} and VGGT-SLAM~\citep{maggio2025vggt-slam2}; and \textit{6) Test-Time Training} methods, including TTT3R~\citep{chen2025ttt3r}, Scal3R~\citep{xie2026scal3r} and LoGeR~\citep{zhang2026loger}.
+%
+All evaluated models are listed in Table~\ref{tab:main_leaderboard_filtered}. 
+
+\subsection{Task Description and Metrics}
+To comprehensively assess the capabilities of each model, we design five general evaluation tasks across different settings as follows. 
+%
+Appendix~\ref{appendix:metrics} reports complete metric definitions.
+
+ 
+\textbf{Camera Pose Estimation.} Given an input image sequence, we evaluate pairwise camera geometry using Relative Rotation Accuracy (RRA) and Relative Translation Accuracy (RTA), following~\citet{wang2025vggt}.
+%
+We use \textit{RAcc}$_{x}$ and \textit{TAcc}$_{x}$ to denote the fraction of pairs with angular errors below threshold $x$, and AUC$_{x}$ as the area under the joint accuracy curve of RRA and RTA up to threshold~$x$.
+
+\textbf{Camera Trajectory Estimation.} 
+For continuous image sequences, \emph{i.e.}, our medium and dense input settings, we additionally compute Absolute Trajectory Error~(\textit{ATE}), Relative Translation Error~(\textit{RPE}$_t$), and Relative Rotation Error~(\textit{RPE}$_r$), all evaluated after global Sim(3) alignment with the ground-truth trajectory, following~\citet{teed2021droid-slam}.
+
+\textbf{Depth Estimation.} 
+For single/multi-view depth estimation, we compute \textit{AbsRel}, \textit{SqRel}, \textit{RMSE}, \textit{LogRMSE}, and threshold (inlier, $\delta_{\tau}$) metrics over all valid pixels with respect to the ground-truth depth, where the inlier ratio indicates the percentage of pixels with correct predictions.
+%
+Predicted depths are aligned to the ground truth via median alignment by default.
+%
+For models with metric-scale prediction capability, we additionally report AbsRel 
+both before and after alignment.
+
+\textbf{Dense-View Reconstruction.} 
+We evaluate scene-level 3D reconstruction on a subset of scenes. 
+%
+Given the ground-truth and reconstructed point sets, we compute \textit{Accuracy} and \textit{Completeness}, and report the \textit{F-score} (harmonic mean of Precision and Recall) and the \textit{Overall} score, defined as (Accuracy + Completeness) / 2, following~\citet{lin2025depth}.
+
+\textbf{Prior-Enhanced Prediction.} 
+This task targets methods that accept auxiliary prior inputs (e.g., MapAnything, OmniVGGT~\citep{keetha2026mapanything,peng2025omnivggt}).  
+%
+We evaluate their performance under two settings: with all ground-truth depth priors provided, and with all ground-truth camera pose priors provided.

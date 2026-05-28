@@ -1,0 +1,72 @@
+% =========================================================================
+% Datasets summary — overview of all source datasets and tags used in
+% benchmark/scene_indices/all_scenes.json.
+%
+% Columns: # | Dataset | Environment | Dynamics | View Type | Source |
+%          #Scenes (Single | Sparse | Medium | Dense) | #Frames
+%
+% Density abbreviations: Single = Single Frame, S = Sparse, M = Medium, D = Dense.
+%
+% Styling matches the other tables in Table/:
+%   - Alternating subcol shading on tag/numeric columns.
+%   - \toprule / \midrule / \bottomrule from booktabs.
+%   - Same \arraystretch and tabcolsep as dense.tex / maintable.tex.
+% Requires in preamble:
+%   \usepackage[table]{xcolor}
+%   \usepackage{booktabs}
+%   \usepackage{multirow}
+%   \definecolor{subcol}{RGB}{235,243,251}
+%   \definecolor{catgray}{RGB}{230,230,230}
+% =========================================================================
+\begin{table*}[t]
+\centering
+\caption{\textbf{Source Datasets and Scene Attributes Used in Our Benchmark.}
+We summarize the datasets together with their per-dataset attribute tags.
+%
+The four \textit{\#Scenes} sub-columns report the number of scenes evaluated
+under each input regime (\textit{Single Frame}, \textit{Sparse}, \textit{Medium},
+\textit{Dense}); ``--'' marks regimes in which a dataset does not participate.
+\textit{\#Frames} is the total frame count actually consumed across all regimes.
+}
+\label{tab:datasets_summary}
+\resizebox{\textwidth}{!}{%
+\renewcommand{\arraystretch}{1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{c l >{\columncolor{subcol}}c c >{\columncolor{subcol}}c c >{\columncolor{subcol}}c c >{\columncolor{subcol}}c c >{\columncolor{subcol}}r}
+\toprule
+\multirow{2.5}{*}{\textbf{\#}}
+& \multirow{2.5}{*}{\textbf{Dataset}}
+& \multirow{2.5}{*}{\textbf{Environment}}
+& \multirow{2.5}{*}{\textbf{Dynamics}}
+& \multirow{2.5}{*}{\textbf{View Type}}
+& \multirow{2.5}{*}{\textbf{Source}}
+& \multicolumn{4}{c}{\textbf{\#Scenes}}
+& \multirow{2.5}{*}{\textbf{\#Frames}} \\
+\cmidrule(lr){7-10}
+ & & & & & & \textbf{Single} & \textbf{Sparse} & \textbf{Medium} & \textbf{Dense} & \\
+\midrule
+1  & 7-Scenes~\citep{shotton20137scenes}          & Indoor  & Static  & Normal & Real       & 7  & 7  & 7  & 7  & 7{,}242  \\
+2  & ADT~\citep{pan2023aria}                      & Indoor  & Dynamic & Egocentric    & Simulation & 4  & 4  & 4  & 4  & 2{,}112  \\
+3  & DROID~\citep{khazatsky2024droid}             & Indoor  & Dynamic & Wrist  & Real       & 16 & 16 & 16 & 16 & 3{,}440  \\
+4  & DTU~\citep{jensen2014dtu}                     & Indoor  & Static  & Normal & Real       & 13 & 13 & 13 & -- & 431      \\
+5  & ETH3D~\citep{schops2017eth3d}                 & Both    & Static  & Normal & Real       & 8  & 8  & 8  & -- & 150      \\
+6  & Hiroom~\citep{lin2025depth}                  & Indoor  & Static  & Normal & Simulation & 6  & 6  & 6  & -- & 90       \\
+7  & KITTI-Odometry~\citep{geiger2012kittiod}     & Outdoor & Dynamic & Normal & Real       & -- & -- & -- & 11 & 12{,}973 \\
+8  & LingBot-Depth~\citep{lingbot-depth2026}      & Both    & Static  & Mixed  & Mixed      & 50 & -- & -- & -- & 50       \\
+9  & NRGBD~\citep{azinovic2022Neuralrgbd}                 & Indoor  & Static  & Normal & Real       & 8  & 8  & 8  & 8  & 10{,}945 \\
+10 & OmniWorld~\citep{zhou2025omniworld}          & Outdoor & Dynamic & Normal & Simulation & 5  & 5  & 5  & 4  & 2{,}033  \\
+11 & RLBench~\citep{james2020rlbench}             & Indoor  & Dynamic & Wrist  & Simulation & 10 & 10 & 10 & 8  & 1{,}887  \\
+12 & Robolab~\citep{yang2026robolab}              & Indoor  & Dynamic & Wrist  & Simulation & 8  & 8  & 8  & 8  & 9{,}360  \\
+13 & RoboTwin~\citep{chen2025robotwin}            & Indoor  & Dynamic & Wrist  & Simulation & 8  & 8  & 8  & 7  & 1{,}695  \\
+14 & ScanNet++~\citep{yeshwanth2023scannet++}     & Indoor  & Static  & Normal & Real       & 11 & 11 & 11 & 11 & 4{,}137  \\
+15 & Tanks and Temples~\citep{Knapitsch2017tanks} & Both    & Static  & Normal & Real       & 4  & 4  & 4  & 4  & 934      \\
+16 & TUM~\citep{sturm12tumdynamic}                & Indoor  & Dynamic & Normal & Real       & 6  & 6  & 6  & 6  & 6{,}657  \\
+17 & V-KITTI~\citep{cabon2020vkitti}              & Outdoor & Dynamic & Normal & Simulation & 5  & 5  & 5  & 5  & 2{,}851  \\
+18 & Waymo~\citep{sun2020waymo}                   & Outdoor & Dynamic & Normal & Real       & 8  & 8  & 8  & 8  & 2{,}464  \\
+19 & Xperience~\citep{xperience_10m}              & Indoor  & Dynamic & Egocentric    & Real       & 2  & 2  & 2  & 2  & 3{,}089  \\
+\midrule
+\multicolumn{6}{r}{\textbf{Total}} & \textbf{179} & \textbf{129} & \textbf{129} & \textbf{109} & \textbf{72{,}540} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

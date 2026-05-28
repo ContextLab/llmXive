@@ -1,0 +1,50 @@
+\section{Extended Experimental Results}
+
+%\vspace{10pt}
+\subsection{Feature Similarity Analysis}
+To further validate the effectiveness of the proposed GARD framework, we investigate the feature similarity across the transformer layers of the feed-forward reconstructor. Since the GARD denoiser is trained to map low-quality (LQ) degraded feature representations to their corresponding high-quality (HQ) clean representations, we measure the similarity between the restored representations and the clean representations to assess the extent to which the degraded feature representations are effectively recovered. Specifically, the feature similarity at transformer layer $l$ is computed as follows:
+\begin{equation}
+\mathrm{Sim}^{l} = 
+\frac{
+\mathbf{z}_{\text{res}}^{l}
+\cdot 
+\mathbf{z}_{\text{clean}}^{l}
+}{
+\left\lVert \mathbf{z}_{\text{res}}^{l} \right\rVert
+\left\lVert \mathbf{z}_{\text{clean}}^{l} \right\rVert
+},
+\end{equation}
+where $\mathbf{z}_{\text{res}}^{l}$ and $\mathbf{z}_{\text{clean}}^{l}$ are the restored and clean multi-view representations at layer $l$, respectively. Fig.~\ref{fig:suppl_feat_sim} visualizes this similarity for two independent scenes. In the baseline setting, without using the GARD denoiser, the similarity to the clean representation progressively decreases as the representations propagate through deeper layers, indicating that severe degradations cause a gradual loss of geometric information in the encoded features. In contrast, applying GARD at an early layer initially improves the similarity between restored and clean representations. These results provide a rationale for the improved reconstruction and pose estimation performance, demonstrating that GARD effectively maintains high-fidelity representations throughout the pipeline.
+% \vspace{-5pt}
+\input{suppl/suppl_fig/suppl_feat_sim}
+
+
+\subsection{Feature Cost Volume Visualization}
+Fig.~\ref{fig:suppl_cost_volume} further presents qualitative correspondence attention visualizations of the three feature cost volumes~\cite{kingma2013auto, oquab2023dinov2, depthanything3} analyzed in Fig.~\ref{fig:geo_aware} of the main paper. Specifically, for each red query point in the reference view, we visualize the attention region under (a) clean high-quality (HQ) multi-view inputs and (b) progressively increasing degradation levels of degraded multi-view inputs (mild, moderate, and heavy). Both quantitative and qualitative results reveal a clear performance hierarchy of DA3 $>$ DINOv2 $\gg$ VAE in terms of correspondence accuracy and robustness. Comparing the three feature cost volume representations through attention correspondence, DA3 features produce the sharpest and most geometrically consistent correspondences across views under both clean and degraded conditions, whereas DINOv2 achieves reasonably accurate matching with less precise and less stable response regions. In contrast, VAE features exhibit highly scattered and ambiguous correspondences under both clean and degraded conditions, reflecting limited geometry-aware representation quality caused by heavy latent compression. As the degradation severity increases, DA3 maintains strong localization and geometric consistency, whereas DINOv2 gradually deteriorates and VAE fails to preserve reliable correspondences.
+\input{suppl/suppl_fig/suppl_cost_volume}
+
+
+
+\subsection{Multi-View Depth Estimation}
+Tab.~\ref{supple_tab:da3_giant_depth} further presents the multi-view depth estimation evaluation. We report AbsRel$\downarrow$ and $\delta_1\uparrow$, which measure the absolute relative depth error and the percentage of predicted depths within a threshold ratio of $1.25$ from the ground-truth depth, respectively. GARD demonstrates superior depth estimation performance on the DA3~\cite{depthanything3} benchmark datasets, outperforming all baseline methods on four datasets while exhibiting only a marginal performance gap on DTU. These results underscore the effectiveness of restoration in a geometry-aware representation space for enhancing downstream multi-view depth estimation. By restoring degraded observations directly in this space, our method preserves cross-view geometric consistency and fine-grained structural details that are essential for accurate depth prediction. In contrast, single-view restoration methods are inherently unable to enforce geometric consistency across views, while VAE-based multi-view baselines are constrained by compression bottlenecks that limit the preservation of detailed geometric structures. As a result, baseline methods are more vulnerable to severe degradations, often producing blurred structures and visible artifacts, whereas our method yields sharper and more geometrically coherent depth maps across views, as further illustrated in the qualitative depth evaluation results in Fig.~\ref{fig:fig_suppl_depth}.
+\input{suppl/suppl_tab/da3_giant_depth}
+
+
+\subsection{Multi-View Restoration}
+We additionally compare our method with SIR-Diff~\cite{mao2025sir}, a multi-view diffusion-based restoration model that leverages Spatial-3D ResNet blocks and 3D self-attention Transformers for effective restoration of degraded multi-view inputs. As the official pretrained checkpoints and training code were not publicly available, we contacted the authors for clarification and implemented the method based on the available unofficial training code together with the details provided in the paper. While we carefully followed the described training protocol to ensure a fair comparison, some components of the unofficial implementation were incomplete, which made full reproduction of the reported results challenging. Nevertheless, we made our best effort to faithfully follow the method as described. The quantitative comparisons are presented in Tab.~\ref{tab:sirdiff_compare}, and the qualitative results are provided in Fig.~\ref{fig:fig_suppl_sirdiff}. While SIR-Diff can produce reasonable restorations under mild degradation settings, its performance degrades noticeably under stronger corruption levels, where it often introduces artifacts and structural inconsistencies. As a result, its effectiveness for downstream geometric tasks becomes limited in challenging scenarios.
+\vspace{-10pt}
+\input{suppl/suppl_tab/sirdiff}
+\vspace{-15pt}
+\input{suppl/suppl_fig/suppl_sirdiff}
+
+
+% As one of the representative multi-view restoration baselines, we carefully reproduced the SIR-Diff pipeline and evaluated the restored outputs using the same downstream geometric estimation framework. However, since the official implementation and pretrained checkpoints are not publicly available, exact reproduction was not possible. We further provide qualitative results of the reproduced SIR-Diff model in Fig.~\ref{fig:fig_suppl_3d_recon} under challenging degradation conditions. In our reproduction, the restored images generated by SIR-Diff still contained severe artifacts and structural distortions under strong degradations, which significantly degraded downstream geometric performance. Therefore, to ensure a fair comparison under the same evaluation setting, we additionally train and evaluate our GARD denoiser in the VAE-based latent space as a complementary baseline. Through this comparison, we demonstrate that denoising in a geometry-aware representation space is more effective for preserving cross-view consistency and accurate 3D geometry than restoration in a compressed VAE-based latent space.
+
+
+
+
+\subsection{Multi-View Encoder Backbone}
+We further evaluate the effectiveness of the GARD denoiser across encoder backbones of varying capacity by training it on a different multi-view encoder. Specifically, we train the GARD denoiser using representations from DA3-BASE. In contrast to DA3-GIANT, which comprises 40 transformer layers and 1.10B parameters, DA3-BASE consists of 12 layers and 0.11B parameters. Following the same design as DA3-GIANT, we apply the GARD denoiser within the DA3-BASE feature space by inserting it at encoder layer $K=4$, denoted as \textbf{GARD}$_{\textbf{BASE}}$. We report the pose estimation, 3D reconstruction, and depth estimation results in Tab.~\ref{tab:suppl_tab:da3_base_pose}, Tab.~\ref{supple_tab:da3_base_recon}, and Tab.~\ref{supple_tab:da3_base_depth}, respectively.
+\input{suppl/suppl_tab/da3_base_pose}
+\input{suppl/suppl_tab/da3_base_recon}
+\input{suppl/suppl_tab/da3_base_depth}

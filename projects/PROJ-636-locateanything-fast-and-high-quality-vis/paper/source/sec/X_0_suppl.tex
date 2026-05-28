@@ -1,0 +1,200 @@
+\section{Training and Inference Configurations}
+
+\subsection{Training Details}
+
+In this section, we provide extended details regarding our data mixture strategy, the multiphase training pipeline of our base VLM and the LocateAnything model. We also elaborate on two key system-level techniques that are critical for efficient training under our dual-formulation design: \textit{Stream Packing} for maximizing GPU utilization, and \textit{MagiAttention}~\citep{magiattention2025} for natively supporting the heterogeneous attention masks required by our NTP+MTP joint training.
+
+To provide a comprehensive overview of our entire training pipeline, Tab.~\ref{tab:details_sft} summarizes the detailed optimization hyperparameters and configurations across all four progressive stages of \textbf{LocateAnything}.
+
+\input{supp/training_details}
+
+\subsubsection{Base VLM Training (World Knowledge Injection)}
+To establish a robust foundational understanding of world knowledge before introducing specialized detection and grounding tasks, we first pretrain our base VLM. This initial alignment phase strictly excludes any detection or bounding-box grounding data and is divided into the first two progressive stages. (1) \textbf{Stage 1 (Visual Concept Initialization):} In this stage, the model is trained exclusively on caption-related datasets, detailed in the ``Captioning \& Knowledge'' category of Tab.~\ref{tab:data_sft}. This enables the native any-resolution visual encoder to align fundamental visual features with textual descriptions effectively. (2) \textbf{Stage 2 (Comprehensive Multimodal Learning):} Building upon the basic captioning capability, we expand the training corpus to encompass all datasets listed in Tab.~\ref{tab:data_sft}. This comprehensive mixture spans a wide spectrum of domains, including Mathematics \& Code, Science, Chart \& Table reasoning, extensive OCR tasks (Naive OCR and OCR QA), General VQA, Text-only instruction tuning, and basic Counting. Fully integrating these diverse datasets ensures the base model develops strong reasoning and comprehensive multimodal capabilities.
+
+\input{supp/data}
+
+\subsubsection{LocateAnything Fine-Tuning (Detection and Grounding Enhancement)}
+Following the initial world-knowledge alignment, we then train the LocateAnything model using a carefully designed two-stage SFT strategy tailored for fine-grained detection and grounding. This constitutes the final two stages of our pipeline (leveraging the data presented in Fig. 5 of the main text). 
+(1) \textbf{Stage 3 (Comprehensive Detection and Grounding):} We incorporate a massive mixture of 138M queries into the overall training data to equip the model with comprehensive grounding and detection capabilities. During this stage, all model components are fully unfrozen and trained. We set the maximum sequence length to 25,600 and employ a learning rate of $4 \times 10^{-5}$ with a Cosine schedule. 
+(2) \textbf{Stage 4 (Dense Detection Enhancement):} To further boost the model's recall in dense scenes, we reduce the proportion of general training data to 20\% while significantly increasing the proportion of data containing many objects per image (\eg, MOT20Det, SKU110K). All components remain trainable, and the maximum sequence length is maintained at 25,600. The learning rate is decayed to $1 \times 10^{-5}$.
+
+\subsubsection{Stream Packing}
+A key challenge for training with our dual-formulation (NTP + MTP) design is that different samples, after block-wise expansion, exhibit highly variable sequence lengths. Na\"ive padding-based batching leads to significant GPU memory waste and low arithmetic utilization. To address this, we adopt an \textit{online stream packing} strategy that dynamically assembles multiple variable-length samples into a single, densely packed sequence of a target budget (\eg, 36,864 tokens). Concretely, our packing pipeline operates through three core mechanisms. First, via \textbf{Weighted Sampling}, an infinite iterator draws samples from multiple heterogeneous datasets according to pre-specified mixing weights. Second, utilizing \textbf{Best-Fit Buffering}, a fixed-size buffer (default size 32) stores pending samples. When assembling a batch, the packer first scans the buffer for the \textit{largest} sample that still fits into the remaining token budget---a best-fit decreasing heuristic that empirically yields $>$95\% packing efficiency. If no buffered sample fits, a freshly drawn sample is either appended directly (if it fits) or placed into the buffer for future use. Third, through \textbf{Big-Rocks-First Seeding}, after yielding a completed batch, the packer seeds the next batch with the \textit{largest} sample currently in the buffer, ensuring that oversized samples are never starved. Each packed sequence carries a \texttt{sub\_sample\_lengths} tensor that records the constituent sample boundaries. This metadata is consumed downstream by the attention kernel to construct the correct per-sample attention mask within the packed sequence, preventing cross-contamination between unrelated samples.
+
+
+
+\subsubsection{MagiAttention for Heterogeneous Mask Training}
+Our dual-formulation training produces a \textit{heterogeneous} attention mask that combines standard causal attention (for the NTP stream) with block-causal and bidirectional intra-block patterns (for the MTP stream), all within a single packed sequence potentially containing multiple samples. When further combined with stream packing, the resulting attention mask becomes highly irregular and sample-dependent, making it incompatible with conventional Flash-Attention kernels that assume a uniform causal or full-attention pattern.
+
+To efficiently handle this, we leverage \textbf{MagiAttention}~\citep{magiattention2025}, a distributed attention framework designed for ultra-long contexts with heterogeneous masks. Together, stream packing and MagiAttention form a synergistic training infrastructure: packing maximizes token-level utilization within each GPU, while MagiAttention ensures that the resulting heterogeneous attention masks are handled both correctly and efficiently across the distributed training cluster.
+
+
+\subsection{Inference Details}
+We provide a detailed description of the inference pipeline, including the generation modes, the semi-autoregressive generation loop, the box-aware decoding strategies, and the hyperparameter configurations used across all evaluations.
+
+\subsubsection{Generation Hyperparameters}
+We employ nucleus sampling with a temperature of $0.7$ and top-$p$ of $0.9$ to balance diversity and precision. A repetition penalty of $1.1$ is applied to discourage duplicate predictions. KV cache is enabled throughout inference to avoid redundant computation. The block size for MTP generation is set to $6$ (\ie, $n_{\text{future}} = 6$), meaning each parallel decoding step predicts up to $6$ tokens simultaneously. The maximum number of newly generated tokens is set to $8{,}192$. All models are evaluated in BF16 precision with a batch size of $1$.
+
+
+\subsubsection{KV Cache Management} 
+After each MTP step, the KV cache is truncated to include only the positions corresponding to actually committed tokens (\ie, the prefix up to the current generation frontier). The mask tokens and the duplicated anchor token are evicted, ensuring that subsequent steps attend only to the ground-truth generation history. This truncation is essential for maintaining consistency between the causal prefix seen during training and the KV cache state during inference.
+
+
+\section{LocateAnything-Data Construction}
+
+\subsection{Leveraging Existing Open-Source Data}
+We begin by collecting high-quality detection and grounding datasets from the open-source community and performing unified format cleaning and normalization. As illustrated in Fig.~\ref{fig:dataset_stats} of the main paper, the collected data span six domains, covering diverse visual scenarios.
+
+Except for GroundCUA~\citep{feizi2025grounding}, we use the original labels for all other GUI datasets. The GroundCUA dataset, however, requires additional processing because its original labels typically correspond only to short descriptions of UI elements. To enrich the grounding queries for this specific dataset, we augment the GroundCUA annotations using Qwen3-VL~\citep{bai2025qwen3vltechnicalreport}. Specifically, given the original \textit{bbox}, \textit{label}, and \textit{category}, we first render the target bounding box on the screenshot and crop a local region around it. The full screenshot, the cropped region, together with the label, category, and platform metadata are then provided to Qwen3-VL~\citep{bai2025qwen3vltechnicalreport}. After determining whether the target element is visually identifiable, the model generates natural language descriptions from three complementary perspectives: \textit{appearance}, describing visual attributes such as color, shape, iconography, or textual content; \textit{spatial}, describing the element's relative position with respect to other UI components; and \textit{functional}, describing the user intent or interaction semantics associated with the element. Through this process, the original discrete text labels of GroundCUA are transformed into richer, multi-dimensional grounding queries that are both descriptive and interpretable.
+
+Referring and grounding datasets themselves are relatively limited in scale. To address this, we aggregate several widely used benchmarks, including Flickr30k Entities~\citep{plummer2016flickr30kentitiescollectingregiontophrase}, gRefCOCO~\citep{he2023grecgeneralizedreferringexpression}, RefCOCO~\citep{yu2016modelingcontextreferringexpressions}, HumanPart~\citep{yu2016modelingcontextreferringexpressions}, and HumanRef~\citep{jiang2025rexomni}. In addition, we incorporate large-scale detection datasets such as OpenImages~\citep{kuznetsova2020open}, Objects365~\citep{Shao_2019_ICCV}, and images collected from Unsplash. These datasets serve as raw sources for constructing our multi-target grounding data engine, as discussed in Sec.~\ref{sec:Multi-Targets Grounding Data Engine}.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/data-engine.pdf}
+    \caption{\textbf{Data engine for multi-targets grounding.} \textbf{Top:} For detection datasets with gt boxes, we use each box category as a prompt to Qwen3-VL~\citep{bai2025qwen3vltechnicalreport} to synthesize detailed object-centric queries, including attributes, spatial relations, and reasoning cues. These queries are then fed to Molmo~\citep{deitke2025molmo} to predict candidate points, from which we retain the points falling inside the corresponding gt boxes as reliable supervision. \textbf{Bottom:} For a large collection of high-quality unlabeled images, Qwen3-VL directly generates diverse queries from the image. Such queries can be used to prompt Molmo for point prediction, followed by SAM 3~\citep{carion2025sam3segmentconcepts} to produce boxes, or directly prompt Rex-Omni~\citep{jiang2025rexomni} to generate boxes. All generated boxes are finally post-verified by Qwen3-VL.}
+    \label{fig:multi-targets-data-engine}
+    \vspace{1mm}
+\end{figure*}
+
+Another critical issue in existing detection and grounding datasets is that they almost exclusively contain \textit{positive} samples. Training on such data can lead to hallucination behaviors, where the model predicts bounding boxes even when the query is unrelated to the image. To mitigate this issue, we explicitly construct negative samples across domains. The proportion of negative queries varies depending on the domain statistics (see Tab.~\ref{tab:data_statistics}). Concretely, we generate queries referring to objects that do not exist in the image, and assign them the \textit{negative block} described in Fig.~\ref{fig:method1} of the main paper. This design enables the model to learn to abstain when no valid grounding target is present.
+
+\subsection{Multi-Targets Grounding Data Engine}
+\label{sec:Multi-Targets Grounding Data Engine}
+
+
+
+Existing open-source grounding datasets are relatively limited in scale and diversity. To construct a large-scale multi-target grounding dataset, we design a data engine that automatically synthesizes grounding annotations from both labeled detection data and unlabeled images, as illustrated in Fig.~\ref{fig:multi-targets-data-engine}.
+
+\paragraph{From Detection Datasets:}
+We first leverage high-quality detection datasets such as Open Images~\citep{kuznetsova2020open} and Objects365~\citep{Shao_2019_ICCV}. For each ground-truth bounding box, we use its category label as a prompt to Qwen3-VL~\citep{bai2025qwen3vltechnicalreport} to generate a set of detailed object-centric queries, including attributes, spatial relations, and reasoning cues. These queries are then used to prompt Molmo~\citep{deitke2025molmo} to predict candidate points. Since the ground-truth boxes are known, we retain only the points that fall inside the corresponding bounding boxes, which serve as reliable grounding supervision.
+
+\paragraph{From Unlabeled Images:}
+To further expand the diversity of grounding targets, we additionally collect large amounts of high-quality unlabeled images from Unsplash and SA-1B~\citep{kirillov2023segment}. For each image, Qwen3-VL directly generates a diverse set of natural language queries describing potential objects or regions. These queries can be used to prompt Molmo~\citep{deitke2025molmo} to predict points, which are subsequently converted into bounding boxes using SAM 3~\citep{carion2025sam3segmentconcepts}. Alternatively, the queries can directly prompt Rex-Omni~\citep{jiang2025rexomni} to predict bounding boxes. 
+
+To ensure annotation quality, all generated boxes are finally verified by Qwen3-VL\citep{bai2025qwen3vltechnicalreport} through a post-checking stage, filtering out inconsistent predictions.
+
+\subsection{Task-Specific Prompt Design}
+
+As detailed in Tab.~\ref{tab:task_prompts}, we present a comprehensive overview of the versatile perception tasks supported by our unified framework, alongside their corresponding output formats and question templates. To seamlessly integrate diverse visual grounding and detection capabilities, we design specific textual prompts for each task. The model handles a wide spectrum of region-based tasks that output bounding boxes, including Object Detection, Text Grounding, Scene Text Detection, and Document Layout Analysis. Furthermore, it supports fine-grained localization tasks such as Pointing, which outputs specific coordinate points. For complex referring and interactive tasks like Phrase Grounding and GUI Grounding, the framework flexibly predicts either single/multiple boxes or points depending on the user's intent. Within the prompt templates, \texttt{[PHRASE]} represents a free-form natural language description, while \texttt{[CATEGORIES]} denotes a comma-separated list of target category names. This unified prompting strategy enables the model to effectively bridge natural language instructions with precise spatial coordinate decoding.
+
+\input{supp/prompt}
+
+\subsection{Data Statistics and Distribution}
+We analyze the statistical characteristics of the collected dataset.
+Tab.~\ref{tab:data_statistics} summarizes the dataset statistics across six domains. 
+In total, the dataset contains over 139M queries with more than 22M negative samples. 
+
+Our dataset also exhibits strong multi-target grounding characteristics. 
+The number of targets associated with each query varies substantially across domains. 
+As illustrated in Fig.~\ref{fig:target-per-query}, the distribution of targets per query follows a long-tailed pattern: most queries correspond to a small number of targets, while a non-negligible portion involve a large number of instances.
+
+We further analyze the linguistic properties of the queries. 
+As shown in Fig.~\ref{fig:categroy-per-query}, query length varies across domains, reflecting different grounding paradigms and language patterns used to describe visual targets.
+
+
+Overall, these statistics highlight the scale, diversity, and multi-target nature of our dataset, which together provide a strong foundation for training models capable of handling heterogeneous visual domains and complex language queries.
+\input{tables/query_stats}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/target-per-query.pdf}
+    \caption{Distribution of the number of targets per query across different domains. The x-axis shows the number of targets associated with a query, while the y-axis (log scale) indicates the number of queries. }
+    \label{fig:target-per-query}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+    \vspace{+2mm}
+    \centering
+    \includegraphics[width=\textwidth]{figures/categroy-per-query.pdf}
+    \caption{Distribution of query length across domains. The x-axis represents the number of words in the target description (excluding template text), and the y-axis (log scale) shows the number of queries.}
+    \label{fig:categroy-per-query}
+\end{figure*}
+
+
+\section{Additional Experiments}
+
+\subsection{Results on Pointing Tasks}
+To further evaluate the fine-grained spatial perception of our model, we benchmark LocateAnything-3B on point-based localization tasks, where the model must predict a point that falls within the target's bounding box or segmentation mask. As detailed in Tab.~\ref{tab:pointing}, LocateAnything-3B (evaluated under Hybrid Mode) achieves state-of-the-art results across a diverse suite of benchmarks. 
+
+
+
+It significantly outperforms contemporary vision-language models, including larger networks like OVIS2.5-9B and point-centric specialists such as Rex-Omni-3B. Notably, our model scores 83.9 F1@Point on COCO and exhibits exceptional resilience in heavily packed environments, reaching 87.6 F1@Point on Dense200. Furthermore, it demonstrates superior alignment of complex human intents to spatial regions, achieving 84.7 F1@Point on HumanRef and 91.0 F1@Point on the RefCOCOg test set. These results underscore the effectiveness of our box-aligned training paradigm and the massive scale of LocateAnything-Data in establishing precise geometric alignments, extending seamlessly to point-based generation.
+
+\input{supp/pointing}
+
+\subsection{Comprehensive Performance Across Decoding Modes}
+In this section, we provide a detailed breakdown of LocateAnything's performance across its three on-demand decoding modes: \textbf{Fast}, \textbf{Hybrid}, and \textbf{Slow}. These modes allow for a dynamic trade-off between geometric precision and inference latency, as summarized in Tab.~\ref{tab:grand_summary_tasks}.
+
+\input{supp/mode}
+
+\subsection{Backbone Generalization}
+To examine whether Parallel Box Decoding (PBD) depends on a specific vision-language backbone, we instantiate the same decoding design on Qwen3-VL-4B~\citep{bai2025qwen3vltechnicalreport}. Following the controlled setting used for the ablation study in the main paper, this variant is trained exclusively on COCO, isolating the effect of the decoding formulation from large-scale data scaling.
+
+\begin{wraptable}[6]{r}{0.40\textwidth}
+    \vspace{-5mm}
+    \captionsetup{
+        width=\linewidth,
+        justification=raggedright,
+        singlelinecheck=false
+    }
+    \setlength{\abovecaptionskip}{0pt}
+    \setlength{\belowcaptionskip}{2pt}
+    \caption{\textbf{Backbone generalization.}}
+    \label{tab:backbone_generalization}
+    \small
+    \renewcommand{\arraystretch}{0.88}
+    \setlength{\tabcolsep}{3.2pt}
+    \resizebox{\linewidth}{!}{%
+        \begin{tabular}{@{}llcc@{}}
+            \toprule
+            \textbf{Backbone} & \textbf{Decoding} & \textbf{F1} & \textbf{BPS} \\
+            \midrule
+            Qwen3-VL-4B & NTP (baseline) & 50.8 & 2.8 \\
+            Qwen3-VL-4B & + PBD (Slow) & \textbf{52.2} & 2.8 \\
+            Qwen3-VL-4B & + PBD (Fast) & 49.6 & \textbf{11.4} \\
+            \rowcolor{lightblue!10}
+            Qwen3-VL-4B & + PBD (Hybrid) & \underline{52.0} & \underline{9.4} \\
+            \bottomrule
+        \end{tabular}%
+    }
+    \vspace{-5mm}
+\end{wraptable}
+
+As shown in Tab.~\ref{tab:backbone_generalization}, PBD consistently improves the speed--accuracy trade-off on Qwen3-VL-4B. The Hybrid configuration improves COCO F1 from $50.8$ to $52.0$ while increasing throughput from $2.8$ to $9.4$ BPS. These results indicate that the benefits of box-aligned parallel decoding are not tied to a particular backbone architecture.
+
+\subsection{Mode Analysis and Throughput}
+Our on-demand decoding modes allow for a dynamic trade-off between geometric precision and inference latency. (1) \textbf{Slow Mode (Next-Token Prediction):} Utilizing standard autoregressive generation, this mode consistently establishes the upper bound for localization accuracy (\eg, peak F1@mIoU of 55.1 on COCO and 79.8 on DocLayNet). By processing tokens sequentially, it maintains superior spatial awareness and robust handling of dense object clusters. (2) \textbf{Fast Mode (Multi-Token Prediction):} This mode maximizes inference throughput to \textbf{15.3 BPS} by predicting full geometric elements in parallel. While it incurs slight accuracy drops in complex or highly dense scenarios, its high-velocity output makes it ideal for real-time applications. (3) \textbf{Hybrid Mode (Adaptive Decoding):} Serving as the optimal choice for production pipelines, this mode defaults to parallel decoding and selectively falls back to autoregressive generation only when spatial ambiguity or format irregularities are detected. Operating at a highly competitive \textbf{12.7 BPS}, it preserves the speed gains of parallelization while maintaining precise outputs.
+
+\subsection{Experimental Setup}
+To ensure transparency and reproducibility, all performance metrics are reported under specific configurations. For \textbf{Throughput Benchmarking}, all values, measured in Boxes Per Second (BPS), were evaluated specifically on the COCO dataset to provide a consistent baseline for speed comparison. Regarding \textbf{Input Resolution}, images for the \textbf{COCO} and \textbf{LVIS} benchmarks were resized with the short side set to 840 pixels. For all other benchmarks, the model was evaluated using the original resolution of the source data.
+
+\clearpage
+
+\subsection{Qualitative Comparisons}
+\label{sec:qualitative_comparison}
+
+% Figure 1: Referring Expression Comprehension
+\begin{figure*}[!htbp]
+    \vspace{-1mm}
+    \centering
+    \includegraphics[width=\textwidth]{figures/vis_rec.pdf}
+    \caption{\textbf{Qualitative comparison on Referring Expression Comprehension (REC).} Compared to Qwen3-VL and Rex-Omni, LocateAnything demonstrates superior compositional grounding capabilities. It accurately aligns nuanced, free-form human intents (e.g., spatial or attribute-based queries) with correct visual regions.}
+    \label{fig:vis_rec}
+\end{figure*}
+
+% Figure 2: Dense Object Detection
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/vis_dod.pdf}
+    \caption{\textbf{Qualitative comparison on Dense Object Detection (DOD).} This figure illustrates performance in highly dense and heavily overlapping environments, such as stacked logs and abacus beads. While traditional token-by-token generation models (Qwen3-VL) and point-based models (Rex-Omni) suffer from severe omissions or spatial ambiguity (blurring boundaries between adjacent objects), LocateAnything maintains compact, well-separated, and highly accurate bounding boxes. This confirms the effectiveness of our block-level intra-attention and dense-aware Stage-2 training.}
+    \label{fig:vis_dod}
+\end{figure*}
+
+% Figure 3: OCR and Layout Grounding
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/vis_ocr.pdf}
+    \caption{\textbf{Qualitative comparison on Optical Character Recognition (OCR).} For scene text (e.g., magazine covers) and structured documents (e.g., tables), LocateAnything yields tightly bounded boxes around text elements. The baseline models frequently exhibit format irregularities or merge distinct text blocks. Our parallel decoding, combined with the Hybrid Mode fallback for complex spatial layouts, ensures high-precision localization without sacrificing structural coherence.}
+    \label{fig:vis_ocr}
+\end{figure*}

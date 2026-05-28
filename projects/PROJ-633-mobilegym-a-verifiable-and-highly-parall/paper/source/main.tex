@@ -1,0 +1,356 @@
+% !TEX program = xelatex
+% ============================================================
+\documentclass[11pt]{article}
+
+\usepackage[preprint]{acl}             % review mode: anonymous, with line numbers
+
+% ─── Fonts (XeLaTeX path, aligned with acl_lualatex.tex template) ───
+\usepackage[english]{babel}
+\babelfont{rm}{TeXGyreTermesX}         % Times-equivalent OpenType font (replaces \usepackage{times})
+\usepackage{latexsym}
+
+% ─── Math / typesetting / figures ───
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{subcaption}
+\usepackage{pifont}
+
+% ─── Code ───
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!8},
+  keywordstyle=\color{blue!70!black},
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!60!black},
+  numbers=none,
+  xleftmargin=0pt,
+  xrightmargin=0pt,
+  showstringspaces=false,
+  aboveskip=10pt,
+  belowskip=6pt,
+}
+
+% ─── Custom commands ───
+\newcommand{\sys}{\textsc{MobileGym}}
+\newcommand{\bench}{\textsc{MobileGym-Bench}}
+\newcommand{\cmark}{{\color{green!60!black}\ding{51}}}
+\newcommand{\xmark}{{\color{red!70!black}\ding{55}}}
+
+% ─── Title and authors ───
+\title{\sys{}: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research}
+
+\author{
+  \begin{tabular}{c}
+    Dingbang Wu\textsuperscript{1,*} \quad Rui Hao\textsuperscript{1,*} \quad Haiyang Wang\textsuperscript{2} \quad Shuzhe Wu \quad Han Xiao\textsuperscript{3} \\
+    Zhenghong Li\textsuperscript{1} \quad Bojiang Zhou\textsuperscript{1} \quad Zheng Ju\textsuperscript{1} \quad Zichen Liu\textsuperscript{1} \\
+    Lue Fan\textsuperscript{1,$\dagger,\ddagger$} \quad Zhaoxiang Zhang\textsuperscript{1,$\dagger$}
+  \end{tabular} \\
+  \textsuperscript{1}Institute of Automation, Chinese Academy of Sciences \\
+  \textsuperscript{2}Peking University \quad
+  \textsuperscript{3}The Chinese University of Hong Kong \\
+  \texttt{lue.fan@ia.ac.cn},\ \texttt{zhaoxiang.zhang@ia.ac.cn} \\[2pt]
+  \textsuperscript{*}Equal contribution.\quad \textsuperscript{$\dagger$}Corresponding authors.\quad \textsuperscript{$\ddagger$}Project lead. \\
+  Project page: \url{https://mobilegym.github.io}.
+}
+
+\begin{document}
+\setlength\titlebox{12\baselineskip}
+\maketitle
+
+% ============================================================
+\begin{abstract}
+We present \sys{}, a \textbf{browser-hosted, lightweight, fully controllable simulation platform for everyday mobile use}, targeting \emph{interaction fidelity} without replicating proprietary backends. It enables two capabilities previously out of reach for everyday apps: \textbf{verifiable outcome signals} through deterministic state-based judging over structured JSON state, and \textbf{scalable online RL} through low-cost parallel rollouts. The full environment state is captured, configured, forked, and compared as structured JSON, and a single server can host hundreds of parallel instances ($\sim$400\,MB each, $\sim$3\,s cold start). A layered state model and a declarative task-definition framework keep state programmability and task creation practical at scale, and a single programmatic judging mechanism delivers both deterministic evaluation verdicts and dense RL rewards. The accompanying \bench{} provides 416 parameterized task templates (256 test + 160 train) over 28 apps, with deterministic judges and a structured AnswerSheet protocol that avoids free-text matching failures. In a Sim-to-Real case study, GRPO on Qwen3-VL-4B-Instruct gains $+$12.8\,pt on the 256-task test set, and on a 59-task real-device signal subset, real-device execution retains 95.1\% of the simulation-side training gain.
+\end{abstract}
+
+
+% ============================================================
+\section{Introduction}\label{sec:intro}
+% ============================================================
+
+\begin{figure}[t]
+  \vspace{7pt}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/demo.pdf}
+  \caption{\textbf{Example screens from \sys{}.} Annotated launcher and messaging screens showing \sys{}'s configurable and sandboxed capabilities.}
+  \label{fig:simulator-screenshots}
+\end{figure}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure1.pdf}
+  \caption{\textbf{End-to-end workflow of \sys{}.} A structured state supports task instantiation, parallel rollout forking, and state-diff verification. The resulting judgments are then converted into benchmark metrics and RL rewards.}
+  \label{fig:teaser}
+\end{figure*}
+
+Mobile GUI agents have advanced rapidly in operating smartphones from screenshots and natural-language instructions~\cite{UITARS,AutoGLM,UIVenus15,GUIOw15,UIGenie}, yet current evaluation and training environments remain divided by a basic trade-off. Emulator-based environments such as AndroidWorld and AndroidLab~\cite{AndroidWorld,AndroidLab} offer repeatable evaluation but mainly cover system utilities and simple open-source apps, and scaling to online training requires many heavyweight emulator instances. Real-device benchmarks such as MobileBench-OL~\cite{MobileBenchOL} reach everyday apps, but live accounts, backend state, app-version drift, real-world consequences, and the cost of maintaining many devices and accounts make episodes difficult to control, reproduce, and parallelize. Neither route provides the combination needed for progress. First, environments need \textbf{verifiable outcome signals}, so benchmark verdicts and RL rewards are deterministic and grounded in actual task state rather than unreliable VLM judgments. Second, they need \textbf{scalable online training}: online RL has become an important capability driver for GUI agents~\cite{UIVenus15,UITARS2,AgentCPMGUI}, while offline trajectories struggle to cover dynamic GUI variations~\cite{MAIUI}.
+
+The barriers are inherent to how everyday apps work. Everyday-app state is \textbf{unreadable}: internal state such as balances and orders is difficult to inspect through \texttt{adb} and accessibility trees, while VLM judges are intrinsically unreliable and further constrained by discrete screenshots that provide only partial evidence. It is \textbf{unwritable}: reproducible evaluation and online RL require resetting to known initial conditions, yet task-relevant state is split across proprietary storage, caches, and remote services, making desired states difficult to configure or restore. It is \textbf{unforkable}: large-scale online training benefits from parallel rollouts, and group-based methods such as GRPO further require multiple rollouts from identical initial states, yet live apps provide neither cheap replication nor state forking. Finally, many actions are \textbf{irreversible}, risking real messages, real transfers, or permanent account changes. These constraints make everyday apps structurally resistant to reproducible experimentation, even though they are natural targets for mobile-agent research. Scalability poses a further challenge: even for the apps emulators do support, each instance requires gigabytes of RAM, making large-scale parallel rollouts impractical on commodity hardware --- let alone for everyday apps that are resource-intensive or restrict emulator execution.
+
+
+Yet GUI agents observe only screenshots and act through discrete actions, so a lightweight simulator with fully programmable state can be sufficient --- it only needs \emph{interaction fidelity}, producing realistic screens in response to agent actions. We introduce \sys{}, a browser-hosted Android-like simulation environment built on this principle. App data, OS state, and device context are represented as structured JSON, and the same mechanism makes state readable for deterministic outcome checking, writable for configuration and reset, forkable for parallel rollouts, and fully sandboxed for high-consequence actions. Agents observe only screenshots, while researchers retain full programmatic control. Each browser instance uses roughly 400\,MB of RAM and cold-starts in about 3\,s, enabling hundreds of parallel instances on a single server. For query tasks, a structured AnswerSheet protocol replaces brittle free-text matching with typed, GUI-submitted fields. Figure~\ref{fig:simulator-screenshots} shows example simulated screens, and Figure~\ref{fig:teaser} shows the end-to-end pipeline.
+
+Our main contributions are:
+
+\begin{itemize}
+  \item \textbf{The \sys{} platform} (§\ref{sec:system}): a lightweight, browser-hosted Android-like simulation environment, including 12 everyday apps covering the major categories of daily mobile use and 16 system apps. Its modular app architecture and declarative task framework support easy extension, and a single machine can host hundreds of parallel instances.
+
+  \item \textbf{Programmable state and verification mechanisms} (§\ref{sec:system:state}, §\ref{sec:bench:design}): full-environment state represented as structured JSON that supports deterministic judging, snapshot-based rollout forking, side-effect detection, and a typed AnswerSheet protocol that avoids free-text matching failures.
+
+  \item \textbf{\bench{}} (§\ref{sec:bench}): 416 parameterized task templates (256 test + 160 train) covering major categories of everyday mobile use, with deterministic judges, empirically calibrated difficulty strata, and diagnostic metrics.
+
+  \item \textbf{Empirical validation} (§\ref{sec:exp}): benchmark results across 9 agents (9.4\%--58.8\% SR), a GRPO training study gaining $+$12.8\,pt on the 256-task test set, a real-device study retaining 95.1\% of the simulated gain on a real-device signal subset, and a VLM-judge audit showing 10.2\% misjudgment.
+\end{itemize}
+
+
+% ============================================================
+\section{Related Work}\label{sec:related}
+% ============================================================
+
+\begin{table*}[t]
+  \centering\small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccc>{\columncolor{gray!8}}c}
+    \toprule
+    & \textbf{AndroidWorld} & \textbf{AndroidLab} & \textbf{MobileWorld} & \textbf{MobileBench-OL} & \textbf{\sys{}} \\
+    \midrule
+    Runtime              & Emulator          & Emulator          & Emulator             & Real device        & Browser \\
+    App types            & System + open-source & System + open-source & System + surrogates & Real everyday apps   & Simulated everyday + system \\
+    Everyday app coverage   & \xmark            & \xmark            & Surrogates           & \cmark\ (real)     & \cmark\ (simulated) \\
+    Apps / task units    & 20 / 116 templates & 9 / 138 instances & 20 / 201 tasks      & 80 / 1080 instances & 28 / 416 templates \\
+    Verification         & adb programmatic  & UI-tree + LLM     & SQL + hooks          & XPath rules        & State-based programmatic \\
+    Full environment state comparison & \xmark & \xmark & \xmark & \xmark & \cmark \\
+    Snapshot \& restore  & App-data snapshot & AVD snapshot      & AVD snapshot         & \xmark             & JSON (ms-level) \\
+    State customization  & Limited           & Limited           & Partial (SQL)        & \xmark             & Full (JSON) \\
+    Online RL-ready      & Limited           & Limited           & Limited              & \xmark             & \cmark \\
+    Memory per instance  & $\sim$4.5\,GB     & $\sim$6\,GB       & $\geq$4.5\,GB        & N/A                & $\sim$400\,MB \\
+    Disk footprint       & $\sim$20\,GB      & $\sim$9\,GB       & $\geq$20\,GB         & N/A                & $\sim$50\,MB \\
+    Cold start           & $\sim$78\,s       & ---               & ---                  & N/A                & $\sim$3\,s \\
+    Parameterized tasks  & \cmark            & \xmark            & \xmark               & \xmark             & \cmark \\
+    Sim-to-Real validation & N/A             & N/A               & N/A                  & N/A                & Validated \\
+    \bottomrule
+  \end{tabular}%
+  }
+  \caption{Comparison of mobile GUI agent benchmarks and infrastructures. Task-unit labels follow each benchmark's native counting unit. AndroidLab additionally releases 10.5k offline SFT trajectories, not counted here. \textit{Validated} denotes the real-device transfer study in §\ref{sec:exp:sim2real}, where 95.1\% of the simulation-side training gain on the 59-task signal subset is retained. Resource details are in Appendix~\ref{app:perf}.}
+  \label{tab:comparison}
+\end{table*}
+
+\paragraph{Real-device and emulator route.} Existing mobile GUI agent environments run tasks on a heavyweight Android emulator or physical device and judge them externally, either through programmatic queries to interfaces such as \texttt{adb}, accessibility trees, UI-tree, or XPath rules, or through VLM-based screenshot judges. On system utilities and open-source apps, deterministic verification is feasible: AndroidWorld~\cite{AndroidWorld} judges 116 emulator tasks through \texttt{adb}, AndroidLab~\cite{AndroidLab} adds UI-tree matching with an LLM verifier for query-answer subtasks, and MobileWorld~\cite{MobileWorld} queries backend databases directly. A3~\cite{A3} targets 20 mainstream Google Play apps via Appium and adopts MLLM-as-judge to handle their dynamic content, trading determinism for coverage. MobileBench-OL~\cite{MobileBenchOL} runs 1080 tasks across 80 Chinese-language everyday apps on physical phones, the closest prior attempt at real everyday-app evaluation. Its XPath rules are brittle to unexpected popups and to minor app or backend updates, and the physical-device setup does not support parallel rollouts. All inherit the constraints discussed in §\ref{sec:intro}. Table~\ref{tab:comparison} compares representative environments.
+
+\paragraph{Other mobile GUI benchmarks.} SPA-Bench~\cite{SPABench}, Mobile-Bench~\cite{MobileBench}, ProBench~\cite{ProBench}, MVISU-Bench~\cite{MVISUBench}, UI-NEXUS~\cite{UINEXUS}, and ColorBench~\cite{ColorBench} contribute task suites along axes orthogonal to environment infrastructure, and inform \bench{}'s taxonomy design (§\ref{sec:bench:taxonomy}).
+
+\paragraph{Synthesis and trajectory-replay environments.} GUI-Genesis~\cite{GUI-GENESIS} reconstructs real apps as lightweight web environments from interaction trajectories with code-native rewards, but each environment covers only a single task trajectory. UISim~\cite{UISim} and ViMo~\cite{ViMo} adopt image-generation approaches. However, visual prediction errors can accumulate over long horizons, making these environments less suitable for RL with deterministic state transitions. OpenApps~\cite{OpenApps} focuses on reliability measurement with 6 FastHTML applications and shares the lightweight design philosophy of \sys{}, while pursuing a different goal.
+
+\paragraph{Verifiable environments in other domains.} Beyond mobile, verifiable interactive environments have been built in the web domain (WebShop~\cite{WebShop}, WebArena~\cite{WebArena}, VisualWebArena~\cite{VisualWebArena}, WebGym~\cite{WebGym}, AutoWebWorld~\cite{AutoWebWorld}, InfiniteWeb~\cite{InfiniteWeb}), the desktop OS domain (OSWorld~\cite{OSWorld}, macOSWorld~\cite{macOSWorld}), and over simulated Python APIs (AppWorld~\cite{AppWorld}).
+
+\paragraph{RL-based GUI agent training.} DigiRL~\cite{DigiRL} demonstrates a substantial advantage of online RL over SFT for device control. UI-TARS-2~\cite{UITARS2} deploys thousands of VMs to enable large-scale RL rollouts. UI-Venus-1.5~\cite{UIVenus15} introduces full-trajectory online RL with model fusion and achieves 77.6\% SOTA on AndroidWorld. GUI-Owl-1.5~\cite{GUIOw15} proposes the MRPO algorithm to address conflicts in multi-platform RL training. MobileGUI-RL~\cite{MobileGUIRL}, Mobile-R1~\cite{MobileR1}, UI-R1~\cite{UIR1}, GUI-R1~\cite{GUIR1} explore curriculum-style and R1-style training.
+
+
+% ============================================================
+\section{The \sys{} Platform}\label{sec:system}
+% ============================================================
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure2.pdf}
+  \caption{\textbf{System capabilities and state model of \sys{}.} App views are produced by composing read-mostly \emph{World Data}, a per-environment \emph{Runtime Overlay}, and the \emph{OS Runtime}. The resulting structured environment state supports snapshot/reset/fork and deterministic state-diff judging.}
+  \label{fig:arch}
+\end{figure*}
+
+\sys{} is a browser-hosted Android-like simulation environment. Its app data, OS settings, and device properties are represented as explicit structured state, which the benchmark layer can configure, reset, snapshot, fork, and compare (Figure~\ref{fig:arch}).
+
+\subsection{System Design}\label{sec:system:design}
+
+\paragraph{Interaction fidelity target.} \sys{} does not aim to reproduce real everyday app backends or pixel-level Android internals. Its target is the interaction surface available to GUI agents: visual screens, touch and typing responses, navigation, cross-app handoffs, and task-relevant state transitions. As summarized in Figure~\ref{fig:arch}, this requires Android-like runtime mechanisms such as task stacks, keyboard, notification, and permission flows, shared resources, intent routing, content sharing, and back-key dispatch. These mechanisms are implemented in the browser over structured local state, making the same interaction semantics readable, writable, and forkable for evaluation and RL. Implementation details are in Appendix~\ref{app:system-detail}.
+
+\paragraph{Layered state model.} The environment separates large, mostly read-only \emph{world data}, compact per-environment \emph{runtime state}, and OS runtime state. World data contains public entities such as posts and products, while runtime state contains data that can be changed by the agent, such as the current user's profile or app settings. Agent operations write only to runtime state, and views are produced by overlaying this layer on the read-only world data. Only runtime state is exposed for configuration, reset, judging, and comparison, keeping snapshots small and stable while preserving all agent-induced changes for full-environment state comparison.
+
+\paragraph{Declarative navigation specification.} The UI navigation of every app is modeled as a declarative finite-state machine, built at development time into a per-app specification file. The same file drives runtime navigation and static analysis, including task-trajectory enumeration, and auto-generation of new tasks. The formal definition and guard syntax are provided in Appendix~\ref{app:efsm}.
+
+\paragraph{Interface and extensibility.} The Benchmark layer maps agent outputs to a unified 17-action abstraction (Appendix~\ref{app:action-space}), executes actions through Playwright with coordinates normalized to $[0,1000]$, and returns only screenshots. On the app side, \sys{} provides a repeatable module architecture that separates UI pages, app-local runtime state, declarative navigation, replaceable default data, and world data, allowing new apps and features to reuse the shared OS lifecycle, reset, snapshot, rollout, and judging interfaces (Appendix~\ref{app:system-detail}).
+
+\subsection{State Programmability}\label{sec:system:state}
+
+\paragraph{Verifiable outcome signals.} Task success is judged by \textbf{programmatic state verification}: each task has a deterministic judge that inspects environment state. This provides deterministic, fine-grained outcome signals without unreliable VLM judgments.
+
+\paragraph{State serialization and multi-instance replication.} The full environment state can be serialized as structured JSON and restored on demand, enabling exact reset and forking from any snapshot, supporting RL methods such as GRPO. For irreversible operations (transfers, deactivation, deletions, etc.), the consequence-free simulator allows full restoration after each trajectory.
+
+\paragraph{Full environment state comparison.} The fully structured state enables full-environment state comparison between an episode's initial and terminal states, reporting any mutation outside the task's expected outcome as an \emph{unexpected side effect}. For personal mobile agents, this distinction is critical: an agent may complete the requested goal while, for example, sending an unintended message. This mechanism defines the \textbf{Unexpected Side Effects} metric (§\ref{sec:bench:eval}). Existing programmatic mobile benchmarks do not provide this environment-wide signal, and VLM judges can only approximate it from screenshots without deterministic guarantees.
+
+% ============================================================
+\section{The \bench{}}\label{sec:bench}
+% ============================================================
+
+\bench{} is a suite of 416 parameterized task templates (256 test + 160 train, strictly disjoint) built on top of the \sys{} platform. It covers major categories of everyday mobile use.  Detailed information about the 28 apps and representative task examples is listed in Appendix~\ref{app:apps}.
+
+\subsection{Task Taxonomy}\label{sec:bench:taxonomy}
+
+Prior task taxonomies often couple unrelated dimensions, such as mixing app count with subtask count~\cite{MobileBench}. We factor the task space along four orthogonal axes:
+\begin{itemize}
+  \item \textbf{Scope} --- how many apps a task involves. S1: single-app, S2: two-app, S3: three or more.
+  \item \textbf{Objective} --- what the task asks for. Operate: state-changing actions, query: information retrieval, hybrid: both.
+  \item \textbf{Composition} --- how subtasks are structured. Atomic: a single action, sequential: an ordered chain, transfer: cross-app handoff, deep-dive: multi-step drill-down.
+  \item \textbf{Difficulty} --- how hard the task is for current models. L1: easy, L2: moderate, L3: hard, L4: very hard. Calibrated post-hoc using eight reference models, details in §\ref{sec:bench:difficulty}.
+\end{itemize}
+Each task is additionally annotated with 1--4 capability tags from a 13-tag vocabulary. The full taxonomy and tag definitions are provided in Appendix~\ref{app:taxonomy}.
+
+\subsection{Task Design}\label{sec:bench:design}
+
+Two design choices shape the task suite: parameterized instantiation for diversity, and AnswerSheet fields for query-task judging reliability.
+
+\paragraph{Parameterized task instantiation.} The 416 entries in \bench{} are \textbf{templates}, not fixed instances. Each template is instantiated at runtime through three sources of variation: \textbf{(i) instruction variation}, where semantically equivalent goal phrasings are sampled; \textbf{(ii) parameter sampling}, where slot values are drawn from curated sets, numeric ranges, or the current environment state; and \textbf{(iii) environment configuration}, where app state such as contacts or order history is set through shared base data or per-task injections before rollout. Together, these variations reduce memorization of fixed instances and expand task diversity without requiring each instance to be authored separately. Across finite parameter ranges, they yield over 27,000 distinct task instances, not counting templates with continuous ranges that contribute unbounded additional instances.
+
+\paragraph{The AnswerSheet protocol.} Existing mobile benchmarks often judge free-text query answers with string-similarity or substring heuristics~\cite{AndroidWorld,MobileWorld}, which can reject equivalent phrasings or falsely accept answers that leak reasoning text containing the gold answer. \sys{} instead moves answer submission into the GUI: query tasks end with the agent filling an \textbf{AnswerSheet} form whose fields declare types and show format hints (Figure~\ref{fig:answersheet}). This preserves a natural form-filling interaction for GUI-specialized agents, while the submitted typed state is checked by type-specific matchers such as exact text, numeric tolerance, format, or choice checks. Details are in Appendix~\ref{app:answersheet}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/answersheet.pdf}
+\caption{\textbf{AnswerSheet protocol.} Free-text heuristics can reject equivalent answers or accept leaked reasoning that contains the gold answer. AnswerSheet instead uses GUI form filling and type-specific checks over typed fields.}
+  \label{fig:answersheet}
+\end{figure}
+
+\subsection{Evaluation Protocol}\label{sec:bench:eval}
+
+We report success, progress, termination, and side-effect diagnostics under fixed step budgets.
+
+\paragraph{Metrics.} \textbf{Success Rate (SR)}, the fraction of tasks judged successful, is the primary metric. Diagnostics include \textbf{Progress Rate (PR)}, the fraction of subtasks passed; \textbf{False Complete (FC)}, episodes where the agent declares completion without success; \textbf{Unexpected Side Effects (USE)}, episodes with unexpected state changes; and \textbf{Overdue Termination (OT)}, episodes where the agent reaches the goal but continues until truncation.
+
+\paragraph{Execution setup.} The simulator is reset before each task, and agents observe only screenshots. Each task is assigned one of four step budgets (15, 30, 45, or 60), manually verified to comfortably exceed its optimal completion length. Tasks with AnswerSheet receive an additional 15-step budget.
+
+\subsection{Model-Calibrated Difficulty Strata}\label{sec:bench:difficulty}
+
+Motivated by benchmark-curation precedents such as BBH, which identifies hard tasks using prior model and human-rater performance~\cite{BBH}, four difficulty levels are assigned by \textbf{post-hoc empirical calibration}. We evaluate eight reference models\footnote{Gemini 3.1 Pro, Doubao-Seed-2.0-Pro, Qwen3.6-Plus, AutoGLM-Phone-9B, UI-TARS-1.5-8B, UI-Venus-1.5-8B, GUI-Owl-1.5-8B-Think, Step-GUI-4B.} on the test set and stratify tasks by mean SR and PR: L1 (SR${\geq}$75\%, PR${\geq}$75\%, $n{=}20$), L2 (remaining tasks with SR${\geq}$25\%, PR${\geq}$50\%, $n{=}73$), L3 (remaining tasks with SR${>}$0, PR${\geq}$25\%, $n{=}83$), and L4 (otherwise, $n{=}80$). These are diagnostic strata rather than intrinsic labels, and the calibration excludes Qwen3-VL-4B-Instruct and its fine-tuned variants used in §\ref{sec:exp:sim2real}. A reference-model robustness check is reported in Appendix~\ref{app:panel-sensitivity}.
+
+
+% ============================================================
+\section{Experiments}\label{sec:exp}
+% ============================================================
+
+We evaluate 9 agents on \bench{} (Table~\ref{tab:main-results}). Open-source models use 4 trials with re-sampled parameters; proprietary models use one due to API cost, with one additional run for Gemini 3.1 Pro, the strongest model, to estimate variation.
+
+\subsection{Benchmark Results}\label{sec:exp:bench}
+
+\begin{table*}[t]
+  \centering\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcc|cccc|ccc}
+    \toprule
+    & \multicolumn{2}{c|}{\textbf{Overall (\%)}} & \multicolumn{4}{c|}{\textbf{Difficulty SR (\%)}} & \multicolumn{3}{c}{\textbf{Diagnostics (\%)}} \\
+    \textbf{Model} & \textbf{SR} & \textbf{PR} & \textbf{L1 (20)} & \textbf{L2 (73)} & \textbf{L3 (83)} & \textbf{L4 (80)} & \textbf{FC} & \textbf{OT} & \textbf{USE} \\
+    \midrule
+    \rowcolor{gray!8} \multicolumn{10}{l}{\textit{Proprietary models}} \\
+    Gemini 3.1 Pro       & 58.8 \scriptsize{$\pm$1.4} & 72.1 &  97.5 & 83.6 & 63.3 & 21.9 & 34.0 & 0.2 &  5.5 \\
+    Doubao-Seed-2.0-Pro  & 52.0$^\dagger$             & 63.6 & 100.0 & 93.2 & 48.2 &  6.2 & 33.6 & 0.4 &  4.7 \\
+    Qwen3.6-Plus         & 45.7$^\dagger$             & 59.2 & 100.0 & 78.1 & 44.6 &  3.8 & 34.0 & 0.4 & 14.5 \\
+    \midrule
+    \rowcolor{gray!8} \multicolumn{10}{l}{\textit{Open-source GUI-specialized models}} \\
+    AutoGLM-Phone-9B     & 20.0 \scriptsize{$\pm$1.3} & 35.3 & 86.2 & 33.6 &  9.6 & 1.9 & 39.6 & 0.6 & 12.6 \\
+    UI-TARS-1.5-8B       & 13.8 \scriptsize{$\pm$1.7} & 26.3 & 77.5 & 21.9 &  3.0 & 1.6 & 38.6 & 0.2 & 11.0 \\
+    UI-Venus-1.5-8B      & 15.4 \scriptsize{$\pm$2.4} & 28.3 & 85.0 & 21.9 &  6.0 & 1.9 & 22.9 & 0.5 &  7.7 \\
+    GUI-Owl-1.5-8B-Think & 15.1 \scriptsize{$\pm$0.9} & 28.8 & 76.2 & 26.0 &  4.2 & 1.2 & 30.4 & 0.9 & 14.1 \\
+    Step-GUI-4B          & 12.9 \scriptsize{$\pm$1.1} & 25.7 & 83.8 & 17.8 &  2.4 & 1.6 & 37.0 & 0.8 &  7.6 \\
+    \midrule
+    \rowcolor{gray!8} \multicolumn{10}{l}{\textit{Open-source generalist models}} \\
+    Qwen3-VL-4B-Instruct          &  9.4 \scriptsize{$\pm$0.6} & 20.1 & 71.2 & 12.3 &  0.6 & 0.3 & 15.9 & 0.4 & 10.0 \\
+    \bottomrule
+  \end{tabular*}
+\caption{Main results on the \bench{} test set (256 tasks). Overall reports Success Rate (SR) and Progress Rate (PR); Difficulty SR reports SR within calibrated difficulty strata L1--L4, with task counts in parentheses; Diagnostics report False Complete (FC), Overdue Termination (OT), and Unexpected Side Effects (USE). $\pm$ denotes standard deviation across trials; $^\dagger$ marks single-run results. See §\ref{sec:bench:eval} for metrics and Appendix~\ref{app:results-detail} for details.}
+  \label{tab:main-results}
+\end{table*}
+
+Two observations stand out from Table~\ref{tab:main-results}. Additional experimental results are in Appendix~\ref{app:results-detail}.
+
+\paragraph{Difficulty stratification.} SR decreases monotonically from L1 to L4 for all 9 models, while overall SR spans 9.4\%--58.8\%, giving a 6$\times$ performance range without top saturation or bottom floor effects. L1 already separates proprietary and open-source agents, and L4 acts as the frontier discriminator: only Gemini 3.1 Pro retains meaningful performance at 21.9\%, while all other proprietary models reach at most 6.2\% and all open-source GUI specialists at most 1.9\%.
+
+\paragraph{Unexpected side effects.} USE captures unintended agent operations that modify state unrelated to the task. It does not simply decrease with model capability: across the 9 models it ranges from 4.7\% to 14.5\%, and even open-source GUI specialists with similar SRs (12.9--15.4\%) differ nearly 2$\times$ in USE (7.6--14.1\%). This diagnostic is enabled by \sys{}'s full-environment state comparison. Screenshot or UI-tree judges cannot reliably expose off-target changes hidden in app-internal or backend state.
+
+\subsection{Sim-to-Real Transfer}\label{sec:exp:sim2real}
+
+We view this real-device experiment as an existence proof that
+training in \sys{} can produce behavior that survives real-device
+execution, not as a comprehensive sim-to-real study.
+
+We fine-tune Qwen3-VL-4B-Instruct with GRPO~\cite{GRPO} on \sys{}'s 160-task train set for 10 steps, using a single node with 3 RTX Pro 6000s and 96 parallel environment instances. Key hyperparameters are $\mathrm{lr}=10^{-6}$, group size $k{=}8$, batch size $bs{=}12$, KL 0.01, DAPO~\cite{DAPO}-style asymmetric clip-higher (0.2/0.28). The reward is a PR-shaped dense signal, with multiplicative penalties for AnswerSheet error, side effects, false completion, and overdue/post-success abort. Details are provided in Appendix~\ref{app:exp-config}.
+
+\paragraph{Training gains on the simulation side.} Training raises overall SR from 9.4\% to 22.2\% (\textbf{$+$12.8\,pt}) on the 256-task \bench{} test set. Broken down by difficulty, SR changes from 71.2\% to 92.5\% on L1, 12.3\% to 37.7\% on L2, 0.6\% to 11.7\% on L3, and 0.3\% to 1.2\% on L4. The lift is largest on L2 and nearly flat on L4, suggesting that training is most effective where the base model already exhibits moderate capability, while the hardest tasks remain capacity-limited. The trained 4B model surpasses the 9B AutoGLM-Phone-9B on L1--L3, while both remain near zero on L4.
+
+
+
+\paragraph{Real-device evaluation design.} We evaluate on a Redmi Note 12 Turbo ($1080\times2400$). We stratify the 256-task test set by the base/trained models' pass counts over four simulator rollouts: Uplift (base $\leq$1, trained $\geq$3; 26 tasks), Stable-pass (both $\geq$3; 21 tasks), Mid (all remaining cases; 20 tasks), Regression (base $\geq$3, trained $\leq$1; 0 tasks), and Stable-fail (both $\leq$1; 189 tasks). The three signal buckets (Uplift, Mid, Stable-pass) contain 67 tasks, of which 59 can be safely and equivalently run on the real device after excluding 8 tasks involving unreproducible account state or irreversible operations. Running all 189 Stable-fail tasks on a single real device serially would be costly  and manual state restoration, while these tasks, by definition, exhibit no simulation-side training gain to transfer. We therefore randomly sample 15 as a negative-control check. The real-device setting differs from simulation in UI details, app data, real-app variability, and task entities such as contacts or POIs. Details in Appendix~\ref{app:sim2real-buckets}.
+
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure3.pdf}
+  \caption{\textbf{Sim-to-Real transfer of GRPO training gains.} Per-bucket Success Rate on the 59-task signal-bucket subset and the overall Signal Total. In the legend, Sim/Real denotes the evaluation environment and Base/Trained denotes before/after GRPO. Sim columns are 4-seed averages, Real columns are pass@1 and all manually audited (Appendix~\ref{app:vlm-audit}).}
+  \label{fig:sim2real}
+\end{figure}
+
+\paragraph{Results.} On the 59-task signal-bucket subset, training raises the real-device pass rate from 32.2\% to 72.9\% (\textbf{$+$40.7\,pt}), closely matching the simulation-side increase from 33.9\% to 76.7\% (\textbf{$+$42.8\,pt}). This corresponds to \textbf{95.1\% retained gain}. The absolute sim--real gaps are small for both the base model (1.7\,pt) and the trained model (3.8\,pt) (Figure~\ref{fig:sim2real}). The 15 randomly sampled Stable-fail tasks yield 0/15 success for both models on the real device, consistent with simulation. Because the real-device environment and task entities differ from the simulator, the lift more plausibly reflects transferable policies than memorization.
+
+\paragraph{Trajectory-length check.} Successful trajectories on \texttt{operate} tasks have similar lengths in simulation and on device: 5.00 vs.\ 6.03 steps for the base model and 10.08 vs.\ 12.20 for the trained model. We exclude \texttt{query}/\texttt{hybrid} tasks because AnswerSheet adds simulator-only steps. Details in Appendix~\ref{app:fidelity-breakdown}.
+
+\paragraph{Failure-recovery example.} In a real-device Reddit post-creation task, the selected community required a flair before the Post button could be enabled. The base model looped on the disabled button until the step budget was exhausted, while the trained model identified the missing flair requirement and succeeded in 22 steps (Appendix~\ref{app:case-study}).
+
+\paragraph{VLM judge error analysis.} Manual review of all 118 signal-bucket real-device trajectories identifies 12 errors for Qwen3.6-Plus (5/59 base, 7/59 trained; 10.2\% overall). Re-judging the same trajectories with GPT-5.4~\cite{GPT54} also yields 12/118 errors, although on a partially different subset. These results suggest that VLM-judge errors are not specific to a single judge model, while programmatic state verification avoids this failure mode. Detailed counts are in Appendix~\ref{app:vlm-audit}.
+
+\subsection{Efficiency Analysis}\label{sec:exp:efficiency}
+
+\sys{} runs in the browser with roughly 1/10 the memory and under 1/100 the disk footprint of emulator-based setups (Table~\ref{tab:comparison}). In our measurements, 256 parallel instances on one server used $<$10\% CPU and $\sim$100\,GB RAM, completing a full 256-task benchmark evaluation in about 6 minutes. By contrast, MAI-UI~\cite{MAIUI} reports requiring 10 bare-metal cloud servers (960 vCPUs, 3{,}840\,GB RAM total) to reach 512 parallel Android-emulator instances for online RL. This single-node parallel capacity makes concurrent online RL (§\ref{sec:exp:sim2real}) feasible without dedicated cluster infrastructure. Appendix~\ref{app:cost} quantifies the API cost of using VLM judges instead of code-level judging.
+
+
+% ============================================================
+\section{Conclusion}\label{sec:conclusion}
+% ============================================================
+
+\sys{} turns everyday mobile use into a fully controllable simulation platform for GUI agent research. By targeting interaction fidelity rather than replicating proprietary backends, \sys{} makes everyday-app state readable for deterministic verification, writable for reset and configuration, forkable for parallel online RL, and consequence-free for high-risk operations. The \bench{} suite operationalizes this environment with 416 parameterized task templates, calibrated difficulty strata, structured AnswerSheet-based evaluation, and diagnostic metrics including unexpected side effects. Experiments across 9 agents show substantial headroom on everyday mobile tasks, and the Sim-to-Real study shows that most of the simulation-side training gain transfers to real-device execution. The same controllable infrastructure could also be used for safety-alignment research, robustness testing, and training-data generation (Appendix~\ref{app:broader-uses}). More broadly, \sys{} shows that interaction-fidelity simulation can make everyday mobile tasks available for reproducible research and scalable training, without relying on real accounts, device farms, or proprietary backends.
+
+
+% ============================================================
+\section*{Limitations}
+% ============================================================
+
+\paragraph{Visual appearance modeling.} Observed visual differences between \sys{} and the corresponding real apps mainly include subtle layout details, animations, and certain app-specific icons. The Sim-to-Real experiment (§\ref{sec:exp:sim2real}) provides one quantitative datapoint that this level of visual similarity can support behavioral policy transfer. Tasks that depend heavily on recognizing exact app-specific icons may still be affected during transfer.
+
+\paragraph{Backend and dynamic-content modeling.} \sys{} models agent-facing interaction semantics rather than real service backends. Server-driven content such as ads, pop-ups, recommendation feeds, and real-time messages is represented as controllable JSON state, which favors deterministic reset, reproducible evaluation, and stable RL reward signals. This design does not capture backend-only or stochastic phenomena such as live recommendation dynamics, fraud checks, latency spikes, or server-side policy changes unless they are explicitly modeled as controllable state. Controllable dynamic-content injection is architecturally supported and left for future study.
+
+\paragraph{Functional coverage of simulated apps.} Each simulated app implements the main everyday-use scenarios of its real counterpart rather than the full feature surface. Less common features remain out of scope. Expanding within-app coverage is future work.
+
+
+
+% ============================================================
+\section*{Ethical Considerations}
+% ============================================================
+
+\sys{} is a \textbf{fully sandboxed} research infrastructure. All simulation of commercial apps is disconnected from any real service, real account, real funds, or personal data.
+
+\paragraph{Legality of commercial-app simulation.} The commercial apps reproduced in \sys{} are used only for academic research and model evaluation. Their trademarks, brand names, and visual elements remain the property of their respective owners. \sys{} does not reuse or distribute any official code or client components. The simulator UI is independently implemented with LLM-assisted programming and, due to the limits of model-based reproduction, differs from the real apps in pixel-level visual details. The environment runs in the browser, is offline, and never touches real accounts or funds. We do not claim any commercial or derivative use.
+
+\paragraph{Double-edged nature of evaluating high-risk operation capabilities.} The high-risk subset (Appendix Table~\ref{tab:high-risk-results}) consists of 14 tasks: 7 standalone payment operations (Payment) and 7 high-consequence tasks drawn from Test256 (Test256-Risk, including account deactivation, large transfers, bulk deletions, etc.). Gemini 3.1 Pro reaches 64.3\% on Payment and 71.4\% on Test256-Risk, while smaller open-source GUI specialists remain at $\leq$10.7\% on Payment. Trajectory inspection finds no evidence of explicit refusal in either tier: frontier models attempt the operation and largely succeed, whereas open-source models attempt but fail. \textbf{We explicitly state that this is a report of execution capability, not an endorsement of such autonomous operations.} Under the current training paradigm, ``execution capability'' and ``operational caution'' are not decoupled. Frontier models, when instructed, execute irreversible operations with high success and no intrinsic caution gating. We argue that capability evaluation must be paired with safety alignment. The ability of \sys{} to simulate irreversible operations provides a no-real-risk testing infrastructure for follow-up safety-alignment research, which is an important part of its value.
+
+\paragraph{Misuse risk and mitigation.} Any GUI-agent training infrastructure could potentially be used to automate malicious behavior. \sys{} is, by design, a research tool for capability evaluation and safety research, not a production deployment. We encourage using \sys{} for defensive research as well—safety alignment, prompt-injection robustness, and refusal training.
+
+\paragraph{Societal impact.} The safe-simulation properties of \sys{}—zero-consequence operations, one-click reset, built-in difficulty levels—naturally make it suitable for \textbf{digital-literacy education}. Learners can repeatedly practice tasks such as contact lookup, mobile payment, and ticket booking in a fully simulated environment without any real consequences. We encourage the community to explore positive social applications of \sys{} in digital inclusion, customer-service training, and AI-safety education.
+
+
+% ============================================================
+% References
+% ============================================================
+\bibliography{references}
+
+% ============================================================
+% Appendix
+% ============================================================
+\input{appendix}
+
+
+\end{document}

@@ -1,0 +1,63 @@
+\pdfoutput=1
+\documentclass[10pt,logo,copyright]{nvidiatechreport}
+\linespread{1.15}
+
+\input{packages}
+
+\definecolor{MyRed}{RGB}{216,56,58}
+\definecolor{MyBlue}{RGB}{69,127,228}
+\definecolor{MyOrange}{RGB}{238,130,47}
+\definecolor{MyGreen}{RGB}{90,194,149}
+\definecolor{lightblue}{rgb}{0.46,0.73,0.00}
+
+\captionsetup{belowskip=-1.5em}
+
+\title{LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding}
+
+\author{Shihao Wang$^{1*}$, ~~Shilong Liu$^{2*}$, ~~Yuanguo Kuang$^{1}$, ~~Xinyu Wei$^{1}$, ~~Yangzhou Liu$^{3}$, ~~Zhiqi Li, ~~Yunze Man$^{4*}$, ~~Guo Chen$^{3*}$, ~~Andrew Tao, ~~Guilin Liu, ~~Jan Kautz, ~~Lei Zhang$^{1}$, ~~Zhiding Yu$^\dagger$}
+
+\begin{document}
+
+\maketitle
+
+\vspace{-8mm}
+
+\noindent
+\textbf{Links:}
+{
+\hypersetup{urlcolor=nvidiagreen}
+\href{https://github.com/NVlabs/Eagle/tree/main/Embodied}{GitHub} |
+\href{https://huggingface.co/nvidia/LocateAnything-3B}{HF Model} | 
+\href{https://huggingface.co/spaces/nvidia/LocateAnything}{HF Demo} |
+\href{https://research.nvidia.com/labs/lpr/locate-anything/}{Project Page}
+}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/teaser.pdf} 
+    \caption{\textbf{Versatile tasks of LocateAnything with parallel box decoding.}
+    \textbf{Top:} LocateAnything supports diverse localization tasks under a unified vision-language model.
+    \textbf{Bottom:} Textual digit decoding spells coordinates digit by digit, and quantized coordinate decoding predicts coordinate tokens sequentially.
+    In contrast, \textbf{Parallel Box Decoding} predicts each geometric unit (\eg, a bounding box) in a single forward pass.}
+    \label{fig:teaser}
+\end{figure}
+
+\input{sec/0_abstract}
+\abscontent
+\vspace{-10mm}
+\input{sec/1_intro}
+\input{sec/2_related_works}
+\input{sec/3_0_method}
+\input{sec/4_0_experiments}
+\input{sec/5_conclusion}
+
+\clearpage
+\appendix
+
+\input{sec/X_0_suppl}
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\end{document}

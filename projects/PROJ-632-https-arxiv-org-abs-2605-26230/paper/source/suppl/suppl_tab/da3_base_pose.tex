@@ -1,0 +1,183 @@
+\begin{table*}[h]
+\caption{\textbf{Quantitative pose estimation results.} We report AUC5$\uparrow$ and AUC30$\uparrow$ for camera pose estimation on the DA3 benchmark~\cite{depthanything3} using the DA3-BASE~\cite{depthanything3} checkpoint as the feed-forward 3D reconstruction model. The best result is highlighted in \textbf{bold} and the second best is \underline{underlined}.}
+\label{tab:suppl_tab:da3_base_pose}
+\centering
+%\setlength{\tabcolsep}{4pt}
+%\renewcommand{\arraystretch}{1.15}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcccccccccccccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c}{\textbf{HiRoom}}
+& \multicolumn{2}{c}{\textbf{ETH3D}}
+& \multicolumn{2}{c}{\textbf{DTU}}
+& \multicolumn{2}{c}{\textbf{7Scenes}}
+& \multicolumn{2}{c}{\textbf{ScanNet$++$}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+
+& AUC5$\uparrow$ & AUC30$\uparrow$
+& AUC5$\uparrow$ & AUC30$\uparrow$
+& AUC5$\uparrow$ & AUC30$\uparrow$
+& AUC5$\uparrow$ & AUC30$\uparrow$
+& AUC5$\uparrow$ & AUC30$\uparrow$ \\
+\midrule
+
+\textit{Input Conditions} \\
+\midrule
+% HQ Input
+% & 35.14    & 84.05
+% & 23.95    & 63.46
+% & 53.13    & 91.05
+% & 34.53    & 82.91
+% & 37.62    & 69.70
+% \\
+
+HQ Input
+&   35.21        &       84.11
+&   23.79         &      62.61
+&   53.53        &       91.21
+&   34.47        &       83.02
+&   37.68        &       69.81
+\\
+
+% LQ Input
+% & \underline{0.53}    & 12.13
+% & 1.01    & 11.30
+% & 5.85    & 58.89
+% & \underline{3.04}    & \underline{28.22}
+% & \underline{4.37}    & \underline{33.29}
+% \\
+
+LQ Input
+&   0.56    &   12.14   
+&   1.01    &   11.44    
+&   5.97    &   58.78    
+&   3.04    &   28.26    
+&   0.40    &   10.49
+\\
+
+\midrule
+
+\textit{Single-View Restoration} \\
+\midrule
+% Restormer~\cite{zamir2022restormer}
+% & 0.47    & \underline{12.85}
+% & \underline{2.14}    & 17.33
+% & 4.54    & 56.76
+% & 0.00    & 2.70
+% & 0.00    & 0.99    
+% \\
+
+Restormer~\cite{zamir2022restormer}
+&   0.45    &       12.78
+&   \underline{2.18}    &       17.25
+&   4.44    &       56.56
+&   4.88    &       48.20
+&   \underline{5.20}    &       \underline{37.84}
+\\
+
+
+% HI-Diff~\cite{chen2023hierarchical}
+% & 0.20    & 5.72
+% & 1.17    &\underline{19.29}
+% & 5.11    & 50.90
+% & 0.00    & 2.15
+% & 0.00    & 0.98
+% \\
+
+HI-Diff~\cite{chen2023hierarchical}
+&   0.19    &       05.68
+&   1.13    &       19.33
+&   4.84    &       50.57
+&   1.96    &       25.55
+&   3.02    &       26.56
+\\
+
+
+% InstructIR~\cite{conde2024high}
+% & 0.63   & 11.63
+% & 1.37   & 16.34
+% & \underline{22.72}  & \underline{75.97}
+% & 0.00   & {3.52}
+% & 0.00   & 1.48
+% \\
+
+InstructIR~\cite{conde2024high}
+&   0.66    &       11.62
+&   1.41    &       16.58
+&   \underline{22.76}    &       \underline{76.01}
+&   3.61    &        39.58
+&   2.75    &       25.80
+\\
+
+MoCE-IR~\cite{zamfir2024complexityexperts}
+&   0.91    &     17.15
+&   2.02   &      \underline{22.36}
+&   16.92    &     67.94  
+&   4.12    &      35.75 
+&   4.24    &     27.72   
+\\
+
+
+\midrule
+
+\textit{Multi-View Restoration} \\
+\midrule
+
+VRT~\cite{liang2024vrt}
+&    0.62   &    12.79   
+&    1.65   &    16.70   
+&    6.38   &    57.11   
+&    1.33   &    24.21   
+&    2.40   &    23.30
+\\
+
+
+FMA-Net~\cite{Youk_2024_CVPR}
+&   0.04    &       06.92
+&   0.80    &       15.35
+&   2.52    &       36.87
+&   0.25   &        12.96
+&   1.00    &       19.15
+\\
+
+
+VAE$_\text{MVD}$
+&    \underline{7.88}   &     \textbf{58.91  }
+&    0.24   &     7.05 
+&    11.11   &    60.42  
+&    \underline{11.49}   &    \underline{51.48}
+&    1.37   &     20.60
+\\
+
+
+
+
+
+% \textbf{GARD (Ours)}
+% & \textbf{8.05}    & \textbf{58.60}
+% & \textbf{6.58}    & \textbf{32.62}
+% & \textbf{24.20}   & \textbf{76.14}
+% & \textbf{4.01}    & \textbf{40.26}
+% & \textbf{17.44}   & \textbf{56.13}
+% \\
+
+\textbf{GARD$_\textbf{BASE}$ (Ours)}
+&    \textbf{8.14}   &       \underline{58.60}
+&    \textbf{6.50}   &       \textbf{32.55}
+&    \textbf{24.06}   &      \textbf{76.12}
+&    \textbf{23.11}   &      \textbf{68.56}
+&    \textbf{17.22}   &      \textbf{55.69}
+\\
+
+
+
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+

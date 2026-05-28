@@ -1,0 +1,29 @@
+\begin{table}[!tbp]
+    \vspace{4mm}
+    \caption{Detailed configuration for each training stage of \textbf{LocateAnything}.}
+    \centering
+    \setlength{\tabcolsep}{12pt}
+    \renewcommand{\arraystretch}{1.2}
+    \resizebox{0.98\textwidth}{!}{%
+    \begin{tabular}{@{}l|c|c|c|c}
+        \toprule
+        \textbf{Stages} & \textbf{Stage 1} & \textbf{Stage 2} & \textbf{Stage 3} & \textbf{Stage 4} \\ 
+        \midrule
+        \textbf{Objective} & \multicolumn{2}{c|}{\makecell[c]{\textbf{World Knowledge} \\ \textbf{Injection}}} & \multicolumn{2}{c}{\makecell[c]{\textbf{Detection \& Grounding} \\ \textbf{Enhancement}}} \\
+        \midrule
+        \textbf{Dataset} & \makecell[c]{Caption} & \makecell[c]{General VQA} & \makecell[c]{Detection \& Grounding} & \makecell[c]{20\% Previous  + Dense} \\
+        \midrule
+        \textbf{Learning Rate} & 2 $\times 10^{-4}$ & 4 $\times 10^{-5}$ & 4 $\times 10^{-5}$ & 1 $\times 10^{-5}$ \\
+        \textbf{Optimizer} & AdamW & AdamW & AdamW & AdamW \\
+        \textbf{Weight Decay} & 0.01 & 0.01 & 0.01 & 0.01 \\
+        \textbf{LR Schedule} & Cosine & Cosine & Cosine & Cosine \\
+        \textbf{Max Sequence Length} & 32768 & 32768 & 25600 & 25600 \\
+        \textbf{Trainable Components} & MLP & All & All & All \\
+        \midrule
+        \textbf{Number of GPUs} & 64 & 256 & 256 & 256 \\
+        \textbf{Training Steps} & 2000 & 20000 & 25000 & 5000 \\
+        \bottomrule
+    \end{tabular}
+    }
+    \label{tab:details_sft}
+\end{table}

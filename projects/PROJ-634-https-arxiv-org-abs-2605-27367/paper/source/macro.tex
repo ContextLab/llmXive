@@ -1,0 +1,58 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% use packages (additional)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+\usetikzlibrary{fadings}
+\usepackage{array}
+\usepackage{tcolorbox}
+\usepackage{threeparttable}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% new command
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Project-specific macros
+\newcommand{\benchmark}{SpatialBench\xspace}
+\newcommand{\dataset}{DA-Next-5M\xspace}
+\newcommand{\ours}{DA-Next\xspace}
+
+% Ranking palette
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}}
+\definecolor{subcol}{RGB}{255,255,255}
+\definecolor{bestred}{RGB}{120,170,220}
+\definecolor{secondorange}{RGB}{175,205,235}
+\definecolor{thirdyellow}{RGB}{215,232,248}
+\definecolor{trainmark}{RGB}{0,180,0}
+\definecolor{oomred}{RGB}{252,228,228}
+\definecolor{catgray}{RGB}{230,230,230}
+\definecolor{altcolblue}{RGB}{225,237,250}
+\definecolor{pretrainmark}{RGB}{197,90,17}
+\definecolor{gaingreen}{RGB}{30,140,60}
+\definecolor{lossred}{RGB}{200,30,30}
+\definecolor{navyblue}{HTML}{0071BC}
+
+% Observation box
+\DeclareRobustCommand{\observationbox}[2][blue!5]{%
+\begin{tcolorbox}[
+        breakable,
+        left=0pt,
+        right=0pt,
+        top=0pt,
+        bottom=0pt,
+        colback=#1,
+        colframe=#1,
+        width=\columnwidth,
+        arc=1pt,outer arc=1pt,
+        ]
+        #2
+\end{tcolorbox}
+}
+
+\newcommand{\TODO}[1]{\textcolor{red}{#1}}
+\newcommand{\FINISH}{\textcolor{green}{FINISH}}
+
+% NeurIPS checklist macros
+\newcommand{\answerYes}[1][]{\textcolor{blue}{[Yes]#1}}
+\newcommand{\answerNo}[1][]{\textcolor{orange}{[No]#1}}
+\newcommand{\answerNA}[1][]{\textcolor{gray}{[N/A]#1}}

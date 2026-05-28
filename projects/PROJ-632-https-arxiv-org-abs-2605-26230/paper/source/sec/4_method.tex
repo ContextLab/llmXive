@@ -1,0 +1,89 @@
+
+% \section{Re$^3$: Representation Denoising for Joint Restoration and Reconstruction}
+% \section{GARD: Geometry-Aware Representation Denoising for Restoration and Reconstruction}
+% \section{Re$^3$: Representation Denoising for Unified Restoration and Reconstruction}
+% \section{GARD: Geometry-Aware Representation Denoising}
+
+% \section{Method}
+% We propose a novel framework that performs denoising directly in the geometry-aware feature space of a frozen feed-forward 3D reconstruction model~\cite{depthanything3}. Specifically, given noisy multi-view observations, our framework employs a multi-view latent diffusion model~\cite{wang2025ddt, zheng2025diffusion} to restore the degraded intermediate feature representations produced by the feed-forward reconstructor. Our approach enables simultaneous recovery of clean RGB images and accurate 3D scene geometry in a single forward pass with dedicated decoders, without retraining the underlying backbone.
+
+
+% \section{GARD: Geometry-Aware Representation Denoising}
+\section{Method}
+We propose a novel framework that performs denoising directly in the geometry-aware feature space of a frozen feed-forward 3D reconstruction model~\cite{depthanything3}. Our framework learns a multi-view latent diffusion model~\cite{wang2025ddt, zheng2025diffusion} to restore the degraded intermediate feature representations produced by the feed-forward reconstructor. This design enables simultaneous recovery of clean RGB images and accurate 3D scene geometry in a single forward pass with dedicated decoders~\cite{depthanything3, jang2026gld}, without retraining the underlying backbone.
+
+% In the following, we first formulate the problem and discuss the motivation for representation-level restoration (Sec.~3.1), including the limitations of conventional pixel-space denoising approaches. We then present the proposed GARD framework (Sec.~3.2), including the geometry-aware feature analysis, latent diffusion formulation, flow-matching objective, and attention alignment strategy.
+
+
+\subsection{Task Formulation and Motivation}
+
+Given a set of $V$ degraded multi-view images $\mathbf{I}_{\text{deg}} \in \mathbb{R}^{V \times H \times W \times 3}$, where $H$ and $W$ denote the image height and width respectively, \ our objective is to recover both the restored images $\mathbf{I}_{\text{res}} \in \mathbb{R}^{V \times H \times W \times 3}$ and the underlying 3D scene geometry $\mathbf{G} = \{\mathbf{G}_\text{depth}, \mathbf{G}_\text{pose}\}$. Here, $\mathbf{G}_\text{depth} \in \mathbb{R}^{V \times H \times W \times 1}$ denotes the per-view depth maps, and $\mathbf{G}_\text{pose} \in \mathbb{R}^{V \times 9}$ represents the corresponding camera pose parameters, consisting of translation and rotation quaternions.
+
+
+
+%\subsection{Motivation}
+\paragraph{Limitations of pixel-space denoising.}
+As illustrated in Fig.~\ref{fig:comparison} (a), a straightforward solution is to adopt a {restore-then-reconstruct} pipeline, in which degraded inputs are first processed by a restoration denoiser $\mathcal{S}(\cdot)$ to obtain restored images, $\mathbf{I}_{\text{res}} = \mathcal{S}(\mathbf{I}_{\text{deg}})$, which are subsequently fed into the feed-forward reconstructor $\mathcal{F}(\cdot)$ for geometry estimation, i.e., $\mathbf{G} = \mathcal{F}(\mathbf{I}_{\text{res}})$. In practice, $\mathcal{S}(\cdot)$ can be instantiated using existing image restoration models~\cite{zamir2022restormer, chen2023hierarchical, conde2024high, zamfir2024complexityexperts, liang2024vrt, Youk_2024_CVPR}. Despite its conceptual simplicity, this pipeline inherits two fundamental limitations. First, the majority of restoration methods operate on single-view inputs, consequently, applying $\mathcal{S}(\cdot)$ independently to each view fails to leverage multi-view complementary information for effective restoration and cannot enforce cross-view geometric consistency due to its fundamental architecture design. This often leads to view-dependent artifacts and inconsistencies that propagate to the feed-forward 3D reconstructor, resulting in poor geometry estimation performance. 
+
+Second, existing multi-view restoration methods remain constrained by both their modeling assumptions and underlying representation spaces. While video restoration models~\cite{liang2024vrt, Youk_2024_CVPR} can exploit complementary information across multiple views, these models are predominantly trained on temporally adjacent video frames and rely heavily on short-range temporal coherence, limiting their generalization to sparse multi-view scenarios. Furthermore, although a recent multi-view restoration approach~\cite{mao2025sir} explicitly models sparse cross-view interactions, it performs restoration in a heavily compressed VAE latent space~\cite{kingma2013auto}, thereby introducing an information bottleneck that removes fine-grained spatial structures and high-frequency details. Such information is critical for establishing accurate cross-view correspondences, and its absence can substantially degrade downstream 3D reconstruction performance. Collectively, these limitations hinder the effective exploitation of complementary multi-view information and restrict the preservation of geometric consistency and fine-grained scene structure during restoration.
+
+
+% Second, existing multi-view restoration methods remain constrained by both their modeling assumptions and underlying representation spaces. Video restoration models~\cite{liang2024vrt, Youk_2024_CVPR} primarily exploit temporal coherence between adjacent frames, limiting their applicability to sparse multi-view settings with large viewpoint variation. Furthermore, a recent multi-view restoration approach~\cite{mao2025sir} attempts to address this issue, it still performs restoration in a heavily compressed VAE latent space~\cite{kingma2013auto}, introducing an information bottleneck that discards fine-grained spatial details and high-frequency structures. Such information is critical for establishing accurate correspondences across views, and its loss can significantly impair downstream 3D reconstruction (Fig.~\ref{fig:geo_aware}). In summary, pixel-space denoising fails to effectively leverage complementary multi-view information for restoration and geometric consistency due to its single-view processing, and is further constrained by a suboptimal VAE restoration space that limits faithful reconstruction.
+
+
+\paragraph{Representation space perspective.}
+Recent advances in Representation Autoencoders (RAEs)~\cite{zheng2025diffusion, tong2026scaling, kumar2026learning} further highlight the limitations of conventional compressed latent spaces such as VAEs, demonstrating that richer, high-dimensional representations are crucial for preserving structural and semantic information. This observation suggests that restoration performance is fundamentally tied to the expressiveness of the underlying representation. In our case, the intermediate feature space $\mathbf{z}$ of the feed-forward 3D reconstruction model $\mathcal{F}(\cdot)$ is inherently geometry-aware due to cross-view interactions encoded by the multi-view transformer encoder $\mathcal{E}(\cdot)$, making it a more suitable domain for multi-view denoising. These observations further motivate restoration mechanisms that operate directly in geometry-aware representation spaces, enabling the joint preservation of visual fidelity and multi-view consistency.
+
+\input{fig/architecture}
+\input{fig/geometry_aware_feature}
+\subsection{GARD: Geometry-Aware Representation Denoising}
+\paragraph{Overview.}
+To address the limitations of pixel-based and VAE-based latent-space restoration~\cite{mao2025sir, kingma2013auto}, we propose \textbf{Geometry-Aware Representation Denoising (GARD)} to perform denoising directly in the geometry-aware feature space of a feed-forward reconstructor $\mathcal{F}(\cdot)$. 
+%The key idea is to restore intermediate multi-view representations within a single forward pass of the reconstructor, enabling joint recovery of visual fidelity and geometric consistency. 
+As illustrated in Fig.~\ref{fig:architecture} (a), the restoration denoiser $\mathcal{S}_{\theta}(\cdot)$, which we refer to as the GARD denoiser, operates directly within the feature representation space of a pretrained feed-forward reconstruction model $\mathcal{F}(\cdot)$. 
+
+Specifically, the reconstructor $\mathcal{F}(\cdot)$ comprises a multi-view encoder $\mathcal{E}(\cdot)$ and a geometry decoder $\mathcal{D}(\cdot)$. The encoder $\mathcal{E}(\cdot)$ maps the input images to a latent feature representation $\mathbf{z} = \mathcal{E}(\mathbf{I})$, where $\mathbf{z} \in \mathbb{R}^{V \times N \times C}$, with $N$ denoting the number of tokens and $C$ the feature dimensionality. The geometry decoder $\mathcal{D}(\cdot)$ subsequently predicts the scene geometry from the latent representation, i.e., $\mathbf{G} = \mathcal{D}(\mathbf{z})$. Specifically, given degraded inputs $\mathbf{I}_{\text{deg}}$, they are first encoded by an $L$-layer multi-view encoder $\mathcal{E}(\cdot)$ to produce layer-wise latent representations $\{\mathbf{z}_{\text{deg}}^{l}\}_{l=1}^{L} = \mathcal{E}(\mathbf{I}_{\text{deg}})$. The GARD denoiser $\mathcal{S}_{\theta}(\cdot)$, implemented as a multi-view latent diffusion model, composed of transformer attention layers is inserted at the $K$-th layer of $\mathcal{E}$ to refine the degraded feature representation at layer $K$, yielding $\mathbf{z}_{\text{res}}^{K} = \mathcal{S}_{\theta}(\mathbf{z}_{\text{deg}}^{K})$. This refined representation is subsequently propagated through the remaining encoder layers, producing restored features $\{\mathbf{z}_{\text{res}}^{l}\}_{l=K}^{L}$. From these restored features, four feature levels $\mathcal{Z}_{\text{res}} = \{\mathbf{z}_{\text{res}}^{l}\}_{l \in \mathcal{M}}$, with $|\mathcal{M}| = 4$, are selected and provided as input to two task-specific decoders: a geometry decoder $\mathcal{D}(\cdot)$ for 3D geometry estimation and an RGB decoder $\mathcal{D}_{\text{rgb}}(\cdot)$ for image restoration. Note that the geometry decoder $\mathcal{D}(\cdot)$ is part of the feed-forward reconstructor, while the RGB image decoder $\mathcal{D}_{\text{rgb}}(\cdot)$ is adapted from \cite{jang2026gld} and fine-tuned for our framework. The final outputs are given by $\mathbf{G} = \mathcal{D}(\mathcal{Z}_{\text{res}})$ and $\mathbf{I}_{\text{res}} = \mathcal{D}_{\text{rgb}}(\mathcal{Z}_{\text{res}})$. By learning the GARD denoiser within the multi-view encoder and performing denoising directly in the geometry-aware feature space, the proposed framework enables simultaneous image restoration and 3D scene reconstruction in a single forward pass, without requiring separate restoration and reconstruction stages or retraining the underlying backbone.
+
+
+
+\paragraph{Geometry-aware feature analysis.}
+We first investigate the geometric encoding capability of feature representations produced by the multi-view encoder $\mathcal{E}(\cdot)$ to evaluate their effectiveness for representation-level denoising. Specifically, we adopt Depth Anything 3 (DA3) as our representative multi-view encoder and compare its feature representations with those of VAE~\cite{kingma2013auto} and DINOv2~\cite{oquab2023dinov2}. To this end, we measure keypoint correspondence accuracy using PCK by constructing feature-based cost volumes from the three different representations. Through two experiments, we demonstrate that DA3 encodes more geometry-aware representations than the alternatives. (1) Under clean high-quality (HQ) multi-view inputs, DA3 achieves the highest PCK across all three evaluation thresholds. (2) Under progressively increasing degradation levels (mild, moderate, and heavy), DA3 features exhibit superior robustness to input corruption. As shown in Fig.~\ref{fig:geo_aware}, the feature representations of DA3 consistently produce higher PCK scores and maintain stronger robustness across degradation levels compared to VAE- and DINOv2-based features. These results indicate that the multi-view encoder more effectively preserves geometric structure, making it more suitable for representation-level denoising and downstream 3D reconstruction tasks. Refer to Fig.~\ref{fig:suppl_cost_volume} in the supplementary material for qualitative visualizations of feature cost-volume correspondences for each representation.
+
+
+
+
+\paragraph{Representation denoiser model.}
+The GARD denoiser $\mathcal{S}_{\theta}(\cdot)$ is a multi-view diffusion architecture built on the $\text{DiT}^{\text{DH}}$ design from RAE~\cite{zheng2025diffusion}, which is well-suited for denoising in high-dimensional feature spaces. As illustrated in Fig.~\ref{fig:architecture} (c), it adopts an encoder and a wide decoder structure augmented with interleaved global attention layers to enable multi-view representation learning. Specifically, the model interleaves frame-level attention and global cross-view attention to aggregate contextual information both within and across views. Frame-level attention captures local spatial structure within each view, while global attention enables the model to exploit cross-view correspondences and enforce geometric consistency across multi-view feature representations.
+
+
+
+\paragraph{Interpolated flow matching loss.}
+The GARD denoiser $\mathcal{S}_{\theta}(\cdot)$ is trained to perform restoration on the $K$-th layer feature representation $\mathbf{z}_{\text{deg}}^{K}$ within the multi-view encoder $\mathcal{E}$. Unlike prior works that define flow trajectories from Gaussian noise to the clean representations~\cite{zheng2025diffusion, duan2025dit4sr}, we use the degraded latent itself as the source distribution, since $\mathbf{z}_{\text{deg}}^{K}$ already retains meaningful structural and geometric information beneficial for restoration. To improve robustness, we introduce a noise-perturbed source representation $\tilde{\mathbf{z}}_{\text{deg}}^{K} = \mathbf{z}_{\text{deg}}^{K} + \alpha \boldsymbol{\epsilon}$, where $\boldsymbol{\epsilon} \sim \mathcal{N}(0,\mathbf{I})$ and $\alpha \in [0,1]$ controls the perturbation magnitude. The resulting optimization objective follows the standard flow matching formulation:
+
+\begin{equation}
+\mathcal{L}_{\text{flow}}
+=
+\mathbb{E}_{t,
+\mathbf{z}_{\text{deg}}^{K},
+\mathbf{z}_{\text{clean}}^{K}}
+\left[
+\left\|
+{v}(\mathbf{z}_t,t)
+-
+{v}^{*}(\mathbf{z}_t,t)
+\right\|_2^2
+\right].
+\end{equation}
+
+where $\mathbf{z}_t = (1-t)\tilde{\mathbf{z}}_{\text{deg}}^{K} + t\mathbf{z}_{\text{clean}}^{K}$, $t \sim \mathcal{U}(0,1)$ with the predicted velocity field as ${v}(\mathbf{z}_t,t) = \mathbf{v}_t = \mathcal{S}_{\theta}(\mathbf{z}_t,t)$ and ground-truth velocity field as ${v}^{*}(\mathbf{z}_t,t) = \mathbf{v}^*_t=\mathbf{z}_{\text{clean}}^{K} - \tilde{\mathbf{z}}_{\text{deg}}^{K}$. The restored representation is obtained by integrating the learned velocity field with an ODE solver, after which it is propagated through the remaining encoder layers and decoded for both geometry estimation and image restoration. An illustration is provided in Fig.~\ref{fig:architecture} (b).
+
+
+
+
+
+\paragraph{Attention alignment loss.}
+While the flow-matching objective enforces feature-level alignment, it does not explicitly encourage learning of cross-view correspondences. We therefore regularize the attention maps within the GARD denoiser $\mathcal{S}_{\theta}(\cdot)$ to align with geometrically consistent correspondence maps following prior attention alignment works~\cite{kwon2025cameo, nam2025emergenttemporalcorrespondencesvideo, jin2025matrixmasktrackalignment}. Specifically, we encourage the global attention weights for the $J$-th layer of the GARD denoiser to focus on geometrically corresponding regions rather than spurious artifacts. Let $\mathbf{A}^J \in \mathbb{R}^{V \times N \times N}$ denote the global attention map of the $J$-th layer within $\mathcal{S}_{\theta}(\cdot)$, and $\mathbf{A}^* \in \mathbb{R}^{V \times N \times N}$ denote the target correspondence maps obtained from the point cloud of clean multi-view inputs. The alignment loss is defined using cross-entropy as follows:
+\begin{equation}
+\mathcal{L}_{\text{attn}} = - \mathbb{E} \left[ \mathbf{A}^{*} \log \mathbf{A}^{J} \right].
+\end{equation}
+and is optimized jointly with the flow-matching objective, yielding the total loss $\mathcal{L} = \mathcal{L}_{\text{flow}} + \lambda_{\text{attn}} \mathcal{L}_{\text{attn}}$, where $\lambda_\text{attn}$ denotes the attention alignment loss coefficient. This supervision promotes sharper and more coherent attention patterns, thereby improving both reconstruction accuracy and structural fidelity. Further details and visualizations of the attention target correspondence maps and the effects of attention alignment are provided in Fig.~\ref{fig:suppl_attn_target} and Fig.~\ref{fig:suppl_attn} of the supplementary material.

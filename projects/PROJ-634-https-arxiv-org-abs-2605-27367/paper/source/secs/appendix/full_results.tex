@@ -1,0 +1,69 @@
+\section{The Complete \benchmark Results}
+\label{appendix:completeresults}
+
+\textbf{Per-regime Breakdowns of the Main Table.} We present detailed per-regime results for the single-frame, sparse, medium, and dense input settings in Tab.~\ref{tab:sub_single}, Tab.~\ref{tab:sub_sparse}, Tab.~\ref{tab:sub_medium}, and Tab.~\ref{tab:sub_dense}, respectively, complementing the aggregated results in Tab.~\ref{tab:main_leaderboard_filtered}.
+
+\noindent\textbf{Performance Comparison on Each Dataset.}
+We present per-dataset metric breakdowns for all evaluated methods in this section.
+
+\begin{itemize}
+  \item \textbf{7-Scenes.} Per-dataset results on 7-Scenes are reported in Table~\ref{tab:dataset_7scenes}.
+  \item \textbf{ADT.} Per-dataset results on Aria Digital Twin (ADT) are reported in Table~\ref{tab:dataset_adt}.
+  \item \textbf{DROID.} Per-dataset results on DROID are reported in Table~\ref{tab:dataset_droid}.
+  \item \textbf{DTU.} Per-dataset results on DTU are reported in Table~\ref{tab:dataset_dtu}.
+  \item \textbf{ETH3D.} Per-dataset results on ETH3D are reported in Table~\ref{tab:dataset_eth3d}.
+  \item \textbf{HiRoom.} Per-dataset results on HiRoom are reported in Table~\ref{tab:dataset_hiroom}.
+  \item \textbf{KITTI Odometry.} Per-dataset results on KITTI Odometry are reported in Table~\ref{tab:dataset_kittiodometry}.
+  \item \textbf{Lingbot-Depth.} Per-dataset results on Lingbot are reported in Table~\ref{tab:dataset_lingbot}.
+  \item \textbf{NRGBD.} Per-dataset results on NRGBD are reported in Table~\ref{tab:dataset_nrgbd}.
+  \item \textbf{OmniWorld.} Per-dataset results on OmniWorld are reported in Table~\ref{tab:dataset_omniworld}.
+  \item \textbf{RLBench.} Per-dataset results on RLBench are reported in Table~\ref{tab:dataset_rlbench}.
+  \item \textbf{Robolab.} Per-dataset results on Robolab are reported in Table~\ref{tab:dataset_robolab}.
+  \item \textbf{RoboTwin.} Per-dataset results on RoboTwin are reported in Table~\ref{tab:dataset_robotwin}.
+  \item \textbf{Xperience.} Per-dataset results on Xperience are reported in Table~\ref{tab:dataset_ropedia}.
+  \item \textbf{ScanNet++.} Per-dataset results on ScanNet++ are reported in Table~\ref{tab:dataset_scannetpp}.
+  \item \textbf{Tanks and Temples.} Per-dataset results on Tanks and Temples are reported in Table~\ref{tab:dataset_tanksandtemples}.
+  \item \textbf{TUM RGB-D.} Per-dataset results on TUM RGB-D are reported in Table~\ref{tab:dataset_tum}.
+  \item \textbf{Virtual KITTI.} Per-dataset results on Virtual KITTI are reported in Table~\ref{tab:dataset_vkitti}.
+  \item \textbf{Waymo.} Per-dataset results on Waymo are reported in Table~\ref{tab:dataset_waymo}.
+\end{itemize}
+
+\noindent\textbf{Metric Depth Evaluation.}
+Tab.~\ref{tab:metric_depth} compares the native metric-depth prediction quality of all six metric-scale-capable methods on \benchmark, evaluated without median/scale alignment across single-frame, sparse, and medium input settings.
+
+\input{tabs/single}
+\input{tabs/sparse}
+\input{tabs/medium}
+\input{tabs/dense}
+\clearpage
+
+%
+%These results consistently indicate that broader training data coverage across domains leads to substantial performance gains.
+%
+%For example, DA3 is trained on 17 datasets spanning indoor and outdoor domains, which contributes to its consistently strong performance across both Indoor and Outdoor groups.
+%
+%Furthermore, under comparable data scales, careful data post-processing and pseudo-GT synthesis can also yield significant improvements in reconstruction accuracy.
+%
+
+\input{tabs/datasets/7scenes}
+\input{tabs/datasets/adt}
+\input{tabs/datasets/droid}
+\input{tabs/datasets/dtu}
+\input{tabs/datasets/eth3d}
+\input{tabs/datasets/hiroom}
+\input{tabs/datasets/kitti_odometry}
+\input{tabs/datasets/lingbot}
+\input{tabs/datasets/nrgbd}
+\input{tabs/datasets/omniworld}
+\input{tabs/datasets/rlbench}
+\input{tabs/datasets/robolab}
+\input{tabs/datasets/robotwin}
+\input{tabs/datasets/ropedia}
+\input{tabs/datasets/scannetpp}
+\input{tabs/datasets/tanks_and_temples}
+\input{tabs/datasets/tum}
+\input{tabs/datasets/vkitti}
+\input{tabs/datasets/waymo}
+\clearpage
+
+\input{tabs/metric_depth_table}

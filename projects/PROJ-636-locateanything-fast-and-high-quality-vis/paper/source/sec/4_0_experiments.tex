@@ -1,0 +1,86 @@
+\section{Experiments}
+\subsection{Training Details and Evaluation Setup}
+\noindent\textbf{Training Details.}
+We first conduct an initial training on the base VLM with focus entirely on world-knowledge alignment, during which all detection and grounding data are excluded. We then apply a two-stage supervised fine-tuning to the base VLM to train our LocateAnything model. In Stage-1, we incorporate a massive mixture of 138M queries into the overall training data to equip the model with comprehensive grounding and detection capabilities. In Stage-2, we reduce the proportion of general training data to 20\% while significantly increasing the proportion of data containing many objects per image (\eg, MOT20Det~\citep{dendorfer2020motchallengebenchmarksinglecameramultiple}, SKU110K~\citep{goldman2019precise}) to enhance the model's ability in dense detection. For model ablations, we train all models exclusively on the COCO dataset~\citep{lin2014microsoft} to strictly isolate PBD's architectural benefits from our massive 138M data. Detailed configurations for both the base VLM and the subsequent LocateAnything model training are provided in the \textbf{supplementary materials}.
+\input{tables/common_object_detection}
+
+
+\vspace{+1mm}
+\noindent\textbf{Compared Methods.} We compare LocateAnything against three categories of methods. \textbf{(1) Specialized detectors}, including representative general detection models such as DETR~\citep{carion2020end} and Deformable-DETR~\citep{zhu2021deformabledetrdeformabletransformers}, \etc, open-set detectors such as Grounding DINO~\citep{liu2023grounding}, leading document layout analysis model DocLayout-YOLO~\citep{zhao2024doclayout}, and text detection model PaddleOCRv5~\citep{cui2025paddleocr}. \textbf{(2) General-purpose VLMs with grounding capabilities}, including Qwen3-VL~\citep{bai2025qwen3vltechnicalreport}, DeepSeek-VL2~\citep{wu2024deepseekvl2mixtureofexpertsvisionlanguagemodels}, OVIS2.5~\citep{lu2025ovis25technicalreport}, MiMo-VL~\citep{coreteam2025mimovltechnicalreport}, and SEED1.5-VL~\citep{guo2025seed15vltechnicalreport}, \etc. These models adopt textual coordinate representations with standard next-token prediction, providing a direct comparison to our parallel box decoding paradigm. \textbf{(3) VLM-based detection and grounding specialists}, including Rex-Omni~\citep{jiang2025rexomni}, which is the most related work to ours targeting unified detection and grounding in a VLM framework. For GUI grounding, we also include several domain-specific expert models~\citep{liu_infigui-r1_2025, xie_scaling_2025, liu2025scalecua,yang_gta1_2025, ye_mobile-agent-v3_2025, zhou_mai-ui_2025, team_ui-venus-15_2026}.
+
+\vspace{+1mm}
+\noindent\textbf{Evaluation Setup.} Following the evaluation framework established in Rex-Omni~\citep{jiang2025rexomni}, we conduct a comprehensive assessment across multiple visual perception tasks.
+Object Detection is evaluated on COCO for common objects, LVIS~\citep{gupta2019lvis} for long-tailed distributions, and VisDrone \citep{du2019visdrone} and Dense200~\citep{jiang2025rexomni} for dense and tiny object scenarios. Language-aware Grounding tasks include Referring Expression Comprehension (REC) on RefCOCOg~\citep{kazemzadeh-etal-2014-referitgame} and HumanRef~\citep{jiang2025referring}. Interactive tasks are evaluated through GUI Grounding on ScreenSpot-Pro~\citep{li2025screenspot}. Additionally, Layout Grounding on DocLayNet~\citep{pfitzmann2022doclaynet} and M6Doc~\citep{cheng2023m6doc}, along with OCR (text detection and recognition) on TotalText~\citep{ch2017total}, are reported together under scene text and document understanding tasks. 
+
+The metric for each task is summarized as follows. \textit{(1) Box-based outputs}: For detection, layout, and OCR tasks, a prediction is considered correct (\ie, a true positive) if its Intersection over Union (IoU) with the ground truth exceeds a certain threshold. The F1-score is reported at $IoU = 0.5$, $IoU = 0.95$, and as a mean over thresholds ($mIoU$). \textit{(2) Point-based outputs}: For pointing tasks, a prediction is considered correct if the predicted point falls within the ground-truth segmentation mask or bounding box. We similarly report the F1-score for these point-based outputs based on this correctness criterion.
+
+\input{tables/dense_object_detection}
+
+\vspace{-2mm}
+\subsection{Main Results}
+In this section, we report the accuracy metrics and the throughput (measured in boxes per second, BPS on a single NVIDIA H100 GPU with a batch size of 1) of LocateAnything under the default \textit{Hybrid Mode}. The results of \textit{Fast} and \textit{Slow Mode} are provided in the \textbf{supplementary materials}.
+
+\input{tables/gui_grounding}
+
+\vspace{+1mm}
+\noindent\textbf{High-Quality Multi-Object Detection.}
+Our model exhibits robust generalization in both common and complex dense object detection scenarios. On general detection benchmarks reported in Tab.~\ref{tab:lvis_coco_f1_merged}, LocateAnything improves the mean F1 by +3.8\% on LVIS and +1.8\% on COCO compared to Rex-Omni, despite sharing an identical model size. Crucially, the model effectively learns the generalized spatial distribution, transferring its detection capabilities to unseen, heavily packed object types. This is evidenced by its performance on the dense detection benchmarks in Tab.~\ref{tab:dense_object_detection}, where it achieves 39.9 mean F1 on VisDrone, substantially outperforming Rex-Omni which scores 35.8. Similarly, it reaches a competitive 58.7 mean F1 on Dense200, demonstrating superior boundary delineation and instance separation in heavily overlapping environments.
+
+\input{tables/ocr}
+
+\vspace{+1mm}
+\noindent\textbf{Precise Open-World Localization Ability.}
+LocateAnything demonstrates exceptional fine-grained localization capabilities across diverse open-world benchmarks, including user interface grounding, document layout parsing, and referring expression comprehension. As shown in Tab.~\ref{tab:gui_grounidng}, on the ScreenSpot-Pro~\citep{li2025screenspot}, it achieves a SOTA mean F1 of 60.3, surpassing generalist VLMs like Qwen3-VL-30B-A3B and specialized models tailored for UI tasks such as GUI-Owl-32B. Furthermore, in document understanding tasks detailed in Tab.~\ref{tab:layout_ocr_merged}, LocateAnything establishes a new standard by reaching 76.8 and 70.1 mean F1 on DocLayNet and M6Doc, respectively, outperforming Rex-Omni by substantial margins. This precise spatial reasoning extends to complex referring tasks, as shown in Tab.~\ref{tab:referring_detection}, where the model seamlessly aligns nuanced human intents with visual regions, achieving 78.7 mean F1 on the HumanRef benchmark and remaining highly competitive on RefCOCOg against top-tier models.
+
+\vspace{+1mm}
+\noindent\textbf{Superior Decoding Speed.}
+A key advantage of our model is its drastically reduced decoding steps. As shown in Tab.~\ref{tab:lvis_coco_f1_merged}, our model achieves 12.7 BPS under the default hybrid mode, over 10$\times$ faster than textual-based Qwen3-VL (1.1 BPS) and 2.5$\times$ faster than quantized-based Rex-Omni (5.0 BPS).
+
+\input{tables/referring_object_detection}
+
+
+\vspace{-2mm}
+\subsection{Ablation Study}
+\vspace{-1mm}
+We conduct ablation studies on the COCO dataset to validate our core designs. The results are shown in Tab.~\ref{tab:combined_ablation} and Fig.~\ref{fig:chart}.
+
+\noindent\textbf{Coordinate Representation.} As Tab.~\ref{tab:combined_ablation}(a) shows, under the NTP paradigm, Textual and Quantized representations yield sub-optimal performance (49.1 and 50.1 mean F1, respectively) due to forced token-by-token generation. Our PBD (Slow Mode) achieves the highest F1-score of 52.1, proving that a box-aligned formulation provides stronger supervision for spatial reasoning than 1D serialization, without sacrificing throughput.
+
+\noindent\textbf{MTP Formulation.} Tab.~\ref{tab:combined_ablation}(b) compares our box-aligned MTP against existing structure-agnostic MTP formulations. Methods like SDLM and Block Diffusion force the model to learn spurious, unaligned cross-boundary patterns, suffering from lower accuracy and limited acceleration (\eg, SDLM-B6 achieves 46.1 F1-score at 5.5 BPS). Furthermore, structure-agnostic methods (\eg, SDLM-B4, B6, B8) exhibit a strict speed-accuracy trade-off, where increasing the block size yields only marginal throughput gains while consistently degrading the F1-score. In contrast, our PBD strictly aligns MTP blocks with structured bounding box units, dramatically outpacing existing methods in throughput (16.9 BPS) while improving the mean F1 to 49.6.
+
+\noindent\textbf{Decoding Mode.} Tab.~\ref{tab:combined_ablation}(c) ablates the impact of our dual-formulation training ($\mathcal{L}_{\mathrm{ntp}}$ and $\mathcal{L}_{\mathrm{blk}}$). Training with isolated losses limits the model's potential; joint training successfully pushes the Slow Mode upper bound from 50.1 to 52.1 F1-score. During inference, Fast Mode (MTP) maximizes throughput (16.9 BPS) but induces accuracy drops in complex scenes. Hybrid Mode seamlessly resolves this trade-off, preserving most speed gains (13.2 BPS) while achieving robust, high-precision localization (51.6 F1-score).
+
+
+
+\noindent\textbf{Box Output Order.} We investigate four spatial sorting strategies in Fig.~\ref{fig:chart} (left): \textit{X-Y Corner Order} (sorting by the x-coordinate of the left-top corner, then by the y-coordinate), \textit{Center Distance} (the distance of the bounding box center point to the origin), \textit{Area} (sorted from largest to smallest), and \textit{Random} (shuffled randomly). Results show X-Y Corner Order yields the highest F1-score. We take this setting as  default in dataset construction.
+
+\input{tables/ablation}
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/static.pdf}
+\caption{\textbf{Ablation Study on Box Ordering and Decoding Speed.} \textbf{Left:} Effect of different box sorting strategies on the F1-score. \textbf{Right:} Comparison of Generation Time (bars) and Throughput (lines) across varying numbers of predicted boxes for Textual, Quantized, and Parallel box decoding.}
+\label{fig:chart}
+\vspace{+2mm}
+\end{figure}
+
+\noindent\textbf{Throughput.} 
+We compare generation time and throughput with NTP methods in Fig.~\ref{fig:chart} (right).
+As target boxes increase from 20 to 300, NTP methods suffer from a severe latency bottleneck. In contrast, the Parallel method exhibits little increase in generation time, increasing throughput from 12 BPS to $\sim$25 BPS in dense scenes. These findings confirm that PBD effectively breaks the decoding bottleneck, achieving a $2\times$ to $6\times$ speedup.
+
+
+
+\subsection{Qualitative Results}
+Fig.~\ref{fig:vis} visualizes representative grounding results of our model. Visual comparisons with other methods are provided in the \textbf{supplementary materials}. We observe three consistent behaviors.
+\textbf{(i) Compositional grounding:} our model handles attribute/part/spatial/reasoning-style queries well with consistent spatial alignment, supported by the diversity and coverage of our training data.
+\textbf{(ii) Robustness to large instance counts:} as targets grow from sparse to crowded settings, the predicted boxes remain structured and accurate, reflecting the precision of our box-level decoding. This robustness is further strengthened by our Stage-2 training that emphasizes many-object images, improving dense localization in practice. Moreover, our Hybrid Mode maintains most of the parallel decoding speed while improving output stability in multi-instance generation.
+\textbf{(iii) Reliable localization in clutter:} boxes stay compact and well-separated under occlusion, repetitive textures, and grid-like dense layouts. Our hybrid inference mode further stabilizes these hard cases by detecting unreliable parallel blocks and falling back to NTP re-decoding when needed.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/vis_cases.pdf} 
+    \caption{\textbf{Qualitative results}. Each row shows test cases with varying numbers of target objects and diverse box scales. Different colors indicate different query categories, including \textcolor{MyRed}{attribute}, \textcolor{MyBlue}{part}, \textcolor{MyOrange}{reasoning}, and \textcolor{MyGreen}{spatial} queries. Our model consistently localizes targets across diverse scene domains, arbitrary image resolutions, free-form textual queries, and an arbitrary number of objects, demonstrating strong robustness.
+}
+    \label{fig:vis}
+\end{figure}

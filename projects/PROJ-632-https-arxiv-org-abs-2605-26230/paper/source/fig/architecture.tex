@@ -1,0 +1,8 @@
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{asset/fig_architecture_copy_8.pdf}
+  \vspace{-10pt}
+\caption{\textbf{Overview of the GARD framework.}
+(a) The GARD denoiser $\mathcal{S}_\theta(\cdot)$ is learned within the representation space of a frozen multi-view encoder~\cite{depthanything3} to restore degraded intermediate representations $\mathbf{z}_{\text{deg}}^K$ into restored representations $\mathbf{z}_{\text{res}}^K$ before they are propagated through the remaining encoder layers. The restored representations $\mathcal{Z}_{\text{res}}$ are then decoded by their respective decoders to produce geometry predictions and restored RGB images. (b) The GARD denoiser is optimized using an interpolated flow matching loss together with an attention alignment loss, which jointly learns the mapping from degraded to clean feature representations while preserving geometric consistency through explicit alignment of attention maps. (c) The GARD denoiser adopts a multi-view latent diffusion architecture~\cite{zheng2025diffusion}, comprising a DDT encoder~\cite{wang2025ddt} and a DDT wide decoder, with global attention layers inserted to enable multi-view modeling, thereby facilitating global context aggregation and reconstruction of high-dimensional multi-view representations.}
+\label{fig:architecture}
+\end{figure}

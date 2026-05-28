@@ -1,0 +1,184 @@
+\section{Additional Findings}
+\label{appendix:other_findings}
+
+
+\subsection{Do More Input Frames Always Lead to Better Results?}
+A natural assumption in 3D reconstruction is that more input frames yield better geometric estimates. 
+%
+However, Tab.~\ref{tab:main_leaderboard_filtered} reveals a more nuanced picture.
+%
+Under the sparse regime, where inputs consist of only a few frames with large inter-frame baselines and limited overlap, most models struggle with geometric estimation due to insufficient visual correspondence.
+%
+Increasing the number of input frames from sparse to medium consistently improves both depth and camera pose metrics across paradigms, confirming that a moderate level of multi-view overlap is beneficial.
+%
+However, further extending to the dense regime does not uniformly bring additional gains. 
+%
+For many feed-forward models, dense inputs introduce redundant or near-duplicate frames that add memory pressure without providing useful new geometric constraints, leading to stagnating or even degraded performance on reconstruction.
+%
+This non-monotonic behavior suggests that the relationship between input density and reconstruction quality is task- and model-dependent, rather than strictly increasing.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{For bounded 3D reconstruction tasks, there exists an optimal input density range that maximizes reconstruction quality. Too few frames leave geometric constraints underspecified, while excessive inputs can introduce redundancy and hurt performance, making careful input density selection as important as model choice.}
+}
+
+\begin{comment}
+\subsection{Can Injecting GT Priors Drive Performance to a Perfect Level?} 
+
+\input{tabs/prior_table}
+
+Tab.~\ref{tab:prior_ablation_combined} presents an ablation study on the effect of injecting ground-truth depth and camera pose priors for five prior-aware models (DA3-Giant, MapAnything, OmniVGGT, $\pi^3$-X, and WorldMirror) across sparse and medium input settings, evaluated on depth, camera, trajectory, and point cloud metrics.
+%
+All prior-aware models benefit from depth prior injection to varying degrees, with depth metrics approaching near-GT-level accuracy across the board.
+%
+However, the effect of camera pose priors is more nuanced.
+%
+DA3-Giant and MapAnything exhibit strong prior adherence: injecting GT camera poses leads to highly consistent pose predictions, with AUC@15 maintained above 90\% under all settings.
+%
+In contrast, OmniVGGT, $\pi^{3}$-X, and WorldMirror show moderate improvements but fail to fully conform to the injected camera poses under challenging conditions (see Fig.~\ref{Fig.bad_case} in Sec.~\ref{prior_vis}), partially overriding them with their own predictions.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{Injecting GT depth priors consistently drives depth estimation to near-perfect accuracy, yet camera pose priors yield inconsistent gains — some models partially override the injected poses with their own predictions and fail under challenging conditions.}
+}
+
+
+%
+\subsection{Is Test-Time Training a Free Lunch?}
+\begin{wraptable}{r}{0.6\textwidth}
+\centering
+\vspace{-8pt}
+\caption{\textbf{TTT vs.\ Base model across input length regimes.}
+For each (Base model, TTT) pair, we report aggregate camera-pose \textbf{AUC@30} ($\uparrow$) and global trajectory \textbf{ATE} ($\downarrow$), formatted as \emph{base} $\rightarrow$ \emph{TTT}. {\color{ForestGreen}Green} marks improvement, {\color{red}red} marks regression.  $^{\dagger}$ Vanilla VGGT OOMs under \emph{Dense}.
+}
+\label{tab:ttt_length_ablation}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{l l c c}
+\toprule
+\textbf{Regime} & \textbf{Pair} & \textbf{AUC@30}~$\uparrow$ & \textbf{ATE}~$\downarrow$ \\
+\midrule
+\multirow{3}{*}{Sparse}
+ & CUT3R / TTT3R & 0.519 $\rightarrow$ {\color{red}0.470}        & --- \\
+ & VGGT / Scal3R & 0.700 $\rightarrow$ {\color{ForestGreen}0.732} & --- \\
+ & Pi3 / LoGeR   & 0.742 $\rightarrow$ {\color{red}0.708}        & --- \\
+\midrule
+\multirow{3}{*}{Medium}
+ & CUT3R / TTT3R & 0.469 $\rightarrow$ {\color{ForestGreen}0.493} & 2.68 $\rightarrow$ {\color{ForestGreen}2.34} \\
+ & VGGT / Scal3R & 0.687 $\rightarrow$ {\color{red}0.670}         & 0.73 $\rightarrow$ {\color{ForestGreen}0.40} \\
+ & Pi3 / LoGeR   & 0.749 $\rightarrow$ {\color{red}0.714}         & 0.57 $\rightarrow$ {\color{red}0.57} \\
+\midrule
+\multirow{3}{*}{Dense}
+ & CUT3R / TTT3R & 0.165 $\rightarrow$ {\color{ForestGreen}0.321} & 25.5 $\rightarrow$ {\color{ForestGreen}21.1} \\
+ & VGGT$^{\dagger}$ / Scal3R & N/A $\rightarrow$ {\color{ForestGreen}0.480}           & N/A $\rightarrow$ \color{ForestGreen}{2.40} \\
+ & Pi3 / LoGeR   & 0.524 $\rightarrow$ {\color{ForestGreen}0.598} & 16.4 $\rightarrow$ {\color{ForestGreen}4.60} \\
+\bottomrule
+\end{tabular}
+%\vspace{-10pt}
+\end{wraptable}
+
+Tab.~\ref{tab:ttt_length_ablation} contrasts three pairs of feedforward 3D foundation models with their test-time training (TTT) descendants: CUT3R~\citep{wang2025cut3r} / TTT3R~\citep{chen2025ttt3r}, VGGT~\citep{wang2025vggt} / Scal3R~\citep{xie2026scal3r}, and Pi3~\citep{wang2025pi3} / LoGeR~\citep{zhang2026loger} across \emph{Sparse}, \emph{Medium}, and \emph{Dense}, summarized by aggregate camera-pose \textbf{AUC@30} ($\uparrow$) and global trajectory \textbf{ATE} ($\downarrow$).
+%
+Specifically, the TTT methods are designed to digest sequences longer than the context their base models were trained on.
+%
+For example, Scal3R inserts chunk-wise Global Context Memory into VGGT, and LoGeR augments Pi3 with a parametric TTT memory plus sliding-window attention.
+%
+Therefore, the natural prior is that TTT should pay off most when sequences are long, and least when they are short and discontinuous.
+%
+The \emph{Dense} block confirms this expectation. 
+%
+TTT3R nearly doubles AUC@30 ($0.165\!\to\!0.321$, $+95\%$) and cuts ATE by $17.5\%$; LoGeR lifts AUC@30 by $14.1\%$ and reduces ATE by $72\%$ over Pi3; Scal3R is the \textit{only} VGGT-family model that runs at all, since vanilla VGGT OOMs under thousand-frame inputs.
+%
+In the \emph{Medium} setting, inputs contain a mix of short and moderately long segments, which limits the benefit of TTT. 
+%
+Gains become inconsistent across metrics: AUC@30 improves only for TTT3R ($+5.1\%$) while regressing for Scal3R ($-2.5\%$) and LoGeR ($-4.7\%$); ATE narrows for TTT3R ($-12.7\%$) and Scal3R ($-45.2\%$) but stays flat for LoGeR ($0.57\!\to\!0.57$).
+%
+In the \emph{Sparse} setting, inputs consist of only $4$--$15$ frames with large baselines and limited temporal continuity, making it difficult for TTT methods to perform effective test-time updates. 
+%
+As a result, the end-to-end base models outperform their TTT counterparts on AUC@30 in two of the three pairs, with only Scal3R holding even ($+4.7\%$).
+%
+\observationbox{
+\textbf{Takeaway}: \textit{TTT's gains are concentrated on \emph{dense} long sequences, where it consistently improves both pairwise camera pose accuracy and global trajectory consistency over the base models, which confirms that TTT is engineered as a length-generalization mechanism rather than as a universal free lunch.}
+}
+
+\end{comment}
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=0.9\columnwidth]{figs/averagedataset.png}
+\caption{\textbf{Training Data Domain Coverage vs.\ Overall Ranking Across Domain Groups.}
+%
+We compare the best-performing methods from each paradigm on five domain groups in \benchmark: \textit{Indoor}, \textit{Outdoor}, \textit{Autonomous Driving}, \textit{Wrist-view}, and \textit{Ego-view}, where $N$ denotes the number of datasets in each group.
+%
+Colored cells report the per-domain ranking of each method, while scatter points indicate whether the corresponding training set includes in-domain data from that group.
+}
+\vspace{-4pt}
+\label{Fig.corelation_average} %
+\end{figure}
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=0.9\columnwidth]{figs/sparse.png}
+\caption{\textbf{Training Data Domain Coverage vs.\ Overall Ranking Across Domain Groups (Sparse).}
+%
+We compare the best-performing methods from each paradigm on five domain groups in \benchmark under the sparse regime, where $N$ denotes the number of datasets in each group.
+%
+Colored cells report the per-domain ranking of each method, while scatter points indicate whether the corresponding training set includes in-domain data from that group.
+}
+\vspace{-4pt}
+\label{Fig.corelation_sparse} %
+\end{figure}
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=0.9\columnwidth]{figs/medium.png}
+\caption{\textbf{Training Data Domain Coverage vs.\ Overall Ranking Across Domain Groups (Medium).}
+%
+We compare the best-performing methods from each paradigm on five domain groups in \benchmark under the medium regime, where $N$ denotes the number of datasets in each group.
+%
+Colored cells report the per-domain ranking of each method, while scatter points indicate whether the corresponding training set includes in-domain data from that group.
+}
+\vspace{-4pt}
+\label{Fig.corelation_medium} %
+\end{figure}
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=0.9\columnwidth]{figs/dense.png}
+\caption{\textbf{Training Data Domain Coverage vs.\ Overall Ranking Across Domain Groups (Dense).}
+%
+We compare the best-performing methods from each paradigm on five domain groups in \benchmark under the dense regime, where 
+$N$ denotes the number of datasets in each group.
+%
+Colored cells report the per-domain ranking of each method, while scatter points indicate whether the corresponding training set includes in-domain data from that group.
+%
+Empty cells indicate that the method runs out of memory under the corresponding input regime.
+}
+\vspace{-4pt}
+\label{Fig.corelation_dense} %
+\end{figure}
+
+\subsection{How to Select the Right Spatial Foundation Model for Your Task?}
+%
+Fig.~\ref{Fig.corelation_average} presents the overall ranking of the best-performing methods from each paradigm (Feed-Forward, Chunk-wise, Online, and TTT) across different domain subsets of \benchmark.
+%
+The overall ranking is computed from the weighted Average column of each per-domain sub-table, aggregating four complementary metrics: AbsRel, AUC@30, ATE, and F-Score.
+%
+We partition \benchmark into five domain groups: G1: Indoor, G2: Outdoor, G3: Driving, G4: Wrist-view, and G5: Ego-view.
+%
+The colored cells report the ranking of each method on each domain, while the scatter points indicate whether the method's training data includes in-domain samples from the corresponding group.
+%
+Fig.~\ref{Fig.corelation_sparse}, Fig.~\ref{Fig.corelation_medium}, and Fig.~\ref{Fig.corelation_dense} present the per-domain ranking breakdowns under the sparse, medium, and dense input settings, respectively.
+
+Fig.~\ref{Fig.corelation_average} reveals that model rankings are highly 
+inconsistent across domain groups and input density settings.
+%
+This inconsistency stems from two factors: the training data coverage of each method, and their architectural design choices that favor different operating regimes (\emph{e.g.}, long-sequence streaming methods naturally excel on dense, 
+extended trajectories but may underperform on sparse multi-view inputs).
+%
+This finding gives a guideline for downstream deployment: selecting a spatial foundation model for a target application requires verifying not only its general benchmark performance, but also whether its training mixture covers the relevant domain.
+%
+Furthermore, for practitioners preparing fine-tuning datasets, these results suggest that domain match matters more than dataset volume: prioritizing data from the target domain, even in modest quantities, is likely to yield greater gains than simply increasing the total number of training scenes from unrelated distributions.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{No single model dominates across all domains and input regimes. Domain coverage in training data is the primary predictor of per-domain ranking, and should be the first consideration when selecting or fine-tuning a spatial foundation model for a specific downstream application.}
+}
+\clearpage

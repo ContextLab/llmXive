@@ -1,0 +1,601 @@
+\section{Benchmark Details}
+\label{appendix:benchmarkdetails}
+
+In this section, we provide a comprehensive description of \benchmark.
+%
+We first detail the composition of our dataset collection (Sec.~\ref{app:regime-details}), covering the 19 source datasets and the three multi-density evaluation regimes (\textit{Sparse}, \textit{Medium}, and \textit{Dense}).
+%
+We then describe the hardware configuration and general experimental settings (Sec.~\ref{appendix:metrics}), followed by the complete mathematical definitions of all evaluation metrics used to assess camera pose estimation and depth prediction quality.
+%
+Next, we report the implementation details and hyperparameters for each evaluated method, organized by category: optimization-based, feed-forward, streaming, chunk-based, SLAM-based, and test-time training approaches.
+%
+Finally, we present qualitative visualizations of prior-enhanced models and summarize the training datasets used by all compared methods.
+
+\subsection{Benchmark Composition}
+\label{appendix:full_benchmark}
+
+Our benchmark aggregates \textbf{19} publicly available source datasets, spanning indoor and outdoor scenes, static reconstructions and dynamic sequences, and three viewpoint regimes (third-person, egocentric, and wrist-mounted), captured from both real sensors and simulation.
+%
+A complete summary of these datasets, together with their per-scene attribute tags, the supported input regimes (Single Frame, Sparse, Medium, Dense), and the number of evaluated scenes and frames, is provided in Table~\ref{tab:datasets_summary}.
+%
+In total, the benchmark contains \textbf{546} scenes and
+\textbf{72{,}540} evaluation frames.
+
+
+
+\input{tabs/benchmark_summary}
+\subsection{Multi-density Evaluation Regime Details}
+\label{app:regime-details}
+
+
+\textbf{\textsc{Sparse regime.}}
+Sparse-view selection is implemented as a deterministic set-cover procedure.
+Let $\mathcal{V}$ denote the voxel support of a scene and $\mathcal{F}$ the set of candidate frames.
+Each frame $f \in \mathcal{F}$ covers a subset of voxels $V_f \subseteq \mathcal{V}$.
+Given a frame budget $K$, the selected frame set is defined as
+\[
+\mathcal{S}
+=
+\arg\max_{S \subseteq \mathcal{F},\, |S| \le K}
+\left|
+\bigcup_{f \in S} V_f
+\right|.
+\]
+In practice, we optimize this objective greedily by repeatedly selecting the frame that provides the largest marginal increase in voxel coverage.
+
+\textbf{\textsc{Medium regime.}}
+The medium regime uses the same coverage objective but applies a length-adaptive frame budget.
+For a scene with $N$ frames, the selected set satisfies
+\[
+\mathcal{S}
+=
+\arg\max_{S \subseteq \mathcal{F},\, F_{\min}(N) \le |S| \le F_{\max}(N)}
+\left|
+\bigcup_{f \in S} V_f
+\right|,
+\]
+where $F_{\min}(N)$ and $F_{\max}(N)$ define the admissible range of selected frames.
+This prevents over-pruning short sequences and over-sampling long ones while preserving moderate view overlap.
+
+\textbf{\textsc{Dense regime.}}
+For dense evaluation, the goal is to preserve temporal continuity while bounding evaluation cost.
+%
+Given a scene with $N$ frames and a target maximum budget of $T=500$ frames, we retain all frames when $N \le T$.
+Otherwise, we subsample the trajectory with a stride
+\[
+s = \left\lceil \frac{N}{T} \right\rceil,
+\]
+which yields approximately $T$ evenly spaced frames per scene.
+Datasets with too few valid frames or too few eligible trajectories after filtering are not included in the \textsc{Dense} regime.
+%
+Accordingly, missing dense entries in the per-dataset results tables indicate unavailable evaluation indices rather than failed method runs.
+
+\subsection{General Setting of the Benchmark}
+All experiments are run on a single workstation with the following configuration: 2$\times$ Intel Xeon Platinum 8580 processors (60 cores / 120 threads per socket, 240 logical cores in total), 2 TB of system memory, and 8$\times$ NVIDIA H200 GPUs, each with 141 GB of memory and pairwise connected through 18-link NVLink (NV18). 
+%
+The system runs Ubuntu 22.04 with CUDA 12.8 and NVIDIA driver 570.148.08.
+%
+For all methods, we prioritize using the resolution recommended by each method for inference.
+%
+Specifically, for methods that only support a fixed resolution (\emph{e.g.}, Spann3R at $224 \times 224$), we resize the image such that the width matches the target resolution while preserving the original aspect ratio, followed by a center crop. For all other methods, inference is performed at a resolution of $512$ or $518$ pixels, depending on each model's patch stride ($16$ or $14$, respectively).
+
+
+
+\subsection{Evaluation Metrics}
+%=======================================================
+\label{appendix:metrics}
+%=======================================================
+
+We provide the complete mathematical definitions of all evaluation metrics used in \benchmark.
+%
+Throughout, $N$ denotes the number of input frames in a scene, indexed by $i\in\{1,\ldots,N\}$.
+%
+Each camera pose $G_i\in SE(3)$ is a \emph{world-to-camera} transformation, decomposed as $G_i=[R_i\mid t_i]$ with rotation $R_i\in SO(3)$ and translation $t_i\in\mathbb{R}^3$, so that the camera centre in world coordinates is $\mathbf{c}_i=-R_i^{\top}t_i$.
+%
+Ground-truth quantities carry a superscript star (e.g.\ $R_i^*$, $t_i^*$, $\mathbf{c}_i^*=-{R_i^*}^{\!\top}t_i^*$) and predicted quantities carry a hat (e.g.\ $\hat{R}_i$, $\hat{t}_i$, $\hat{\mathbf{c}}_i=-\hat{R}_i^{\top}\hat{t}_i$).
+%
+$D_p$ and $\hat{D}_p$ denote the ground-truth and predicted depth at pixel $p$, and $\mathbf{P}_p$, $\hat{\mathbf{P}}_p$ the corresponding 3D world points.
+
+%-------------------------------------------------------
+\subsubsection{Camera Pose Estimation}
+\label{appendix:metrics:pose}
+%-------------------------------------------------------
+
+Camera pose estimation is evaluated via pairwise relative geometry across all $|\mathcal{P}|$ ordered pairs $\mathcal{P}=\{(i,j)\mid 1\!\le\!i\!<\!j\!\le\!N\}$.
+
+\textbf{Relative rotation error.} The relative rotation from camera $i$ to camera $j$ is
+\begin{equation}
+  R_{ij}^{*} = R_j^{*}\,{R_i^{*}}^{\!\top},
+  \qquad
+  \hat{R}_{ij} = \hat{R}_j\,\hat{R}_i^{\top}.
+\end{equation}
+The pairwise rotation error is the geodesic distance on $SO(3)$:
+\begin{equation}
+  e^{R}_{ij}
+  = \arccos\!\left(\frac{\operatorname{tr}\!\bigl({R_{ij}^{*}}^{\!\top}\hat{R}_{ij}\bigr)-1}{2}\right)
+  \;\in\; [0^{\circ},\,180^{\circ}].
+  \label{eq:rre}
+\end{equation}
+The \emph{Relative Rotation Accuracy} (\textit{RAcc}) at threshold $x$ is the fraction of pairs whose rotation error falls below $x$:
+\begin{equation}
+  \mathrm{RAcc}_{x}
+  = \frac{1}{|\mathcal{P}|}\sum_{(i,j)\in\mathcal{P}}
+    \mathbf{1}\!\left[e^{R}_{ij} < x\right].
+  \label{eq:racc}
+\end{equation}
+
+\textbf{Relative translation error.}
+Since the predicted trajectory may carry an arbitrary global scale, translation quality is measured by the \emph{angular deviation} between the translation components of the predicted and ground-truth pairwise relative poses, with the $180^{\circ}$ direction ambiguity folded out.
+%
+Let
+\begin{equation}
+  t_{ij}^{*}\;=\;\bigl[(G_i^{*})^{-1}G_j^{*}\bigr]_{\mathrm{trans}}\;=\;R_i^{*\top}\bigl(t_j^{*}-t_i^{*}\bigr),
+  \qquad
+  \hat{t}_{ij}\;=\;\bigl[\hat{G}_i^{-1}\hat{G}_j\bigr]_{\mathrm{trans}}\;=\;\hat{R}_i^{\top}\bigl(\hat{t}_j-\hat{t}_i\bigr)
+\end{equation}
+denote the translation components of the relative SE(3) poses, expressed in camera $i$'s local frame, with corresponding unit directions
+\begin{equation}
+  \tau_{ij}^{*} = \frac{t_{ij}^{*}}{\|t_{ij}^{*}\|_2},
+  \qquad
+  \hat{\tau}_{ij} = \frac{\hat{t}_{ij}}{\|\hat{t}_{ij}\|_2}.
+\end{equation}
+The pairwise translation error is
+\begin{equation}
+  e^{t}_{ij}
+  = \arccos\!\left(\bigl|\tau_{ij}^{*}\cdot\hat{\tau}_{ij}\bigr|\right)
+  \;\in\; [0^{\circ},\,90^{\circ}],
+  \label{eq:rte}
+\end{equation}
+where the absolute value absorbs the inherent $180^{\circ}$ direction ambiguity under unknown global scale.
+%
+The \emph{Relative Translation Accuracy} (\textit{TAcc}) at threshold $x$ is
+\begin{equation}
+  \mathrm{TAcc}_{x}
+  = \frac{1}{|\mathcal{P}|}\sum_{(i,j)\in\mathcal{P}}
+    \mathbf{1}\!\left[e^{t}_{ij} < x\right].
+  \label{eq:tacc}
+\end{equation}
+
+\textbf{AUC.}
+The joint accuracy curve measures the fraction of pairs for which \emph{both} rotation and translation errors are below threshold $x$:
+\begin{equation}
+  \mathrm{Acc}_{x}
+  = \frac{1}{|\mathcal{P}|}\sum_{(i,j)\in\mathcal{P}}
+    \mathbf{1}\!\left[\max\!\left(e^{R}_{ij},\,e^{t}_{ij}\right) < x\right].
+  \label{eq:acc_joint}
+\end{equation}
+The \emph{Area Under the Curve} up to a maximum threshold $x_{\max}$ is
+\begin{equation}
+  \mathrm{AUC}_{x_{\max}}
+  = \frac{1}{x_{\max}}\int_{0}^{x_{\max}}\mathrm{Acc}_{x}\,\mathrm{d}x,
+  \label{eq:auc}
+\end{equation}
+approximated in practice by linear interpolation over a uniform grid of thresholds $x\in[0^{\circ},x_{\max}]$.
+
+%-------------------------------------------------------
+\subsubsection{Camera Trajectory Estimation}
+\label{appendix:metrics:traj}
+%-------------------------------------------------------
+
+For continuous image sequences (medium and dense regimes), the predicted trajectory $\{\hat{R}_i,\hat{\mathbf{c}}_i\}_{i=1}^{N}$ is first aligned to the ground truth $\{R_i^{*},\mathbf{c}_i^{*}\}_{i=1}^{N}$ via a global $\mathrm{Sim}(3)$ transformation.
+%
+Specifically, we solve for scale $s^{*}\!>0$, rotation $\bar{R}^{*}\!\in SO(3)$, and translation $\bar{\mathbf{t}}^{*}\!\in\mathbb{R}^{3}$ by minimising
+\begin{equation}
+  \min_{s,\,\bar{R},\,\bar{\mathbf{t}}}
+  \sum_{i=1}^{N}
+  \bigl\|s\,\bar{R}\,\hat{\mathbf{c}}_i + \bar{\mathbf{t}} - \mathbf{c}_i^{*}\bigr\|_2^2,
+  \label{eq:sim3_align}
+\end{equation}
+yielding scale-aligned camera centres
+$\tilde{\mathbf{c}}_i = s^{*}\bar{R}^{*}\hat{\mathbf{c}}_i + \bar{\mathbf{t}}^{*}$ and correspondingly aligned rotations $\tilde{R}_i = \bar{R}^{*}\hat{R}_i$. Let $\tilde{T}_i\in SE(3)$ denote the resulting aligned camera pose.
+
+\textbf{Absolute Trajectory Error (ATE).}
+\begin{equation}
+  \mathrm{ATE}
+  = \sqrt{\frac{1}{N}\sum_{i=1}^{N}
+    \bigl\|\tilde{\mathbf{c}}_i - \mathbf{c}_i^{*}\bigr\|_2^2}\,.
+  \label{eq:ate}
+\end{equation}
+
+\textbf{Relative Pose Error.}
+For consecutive frame pairs with temporal displacement $\Delta=1$, the ground-truth and aligned-predicted relative SE(3) motions are
+\begin{align}
+  \delta T_i^{*}    &= (G_i^{*})^{-1}\,G_{i+1}^{*},
+  &\delta\tilde{T}_i &= \tilde{T}_i^{-1}\,\tilde{T}_{i+1},\\
+  \delta R_i^{*}    &= R_{i+1}^{*}\,{R_i^{*}}^{\!\top},
+  &\delta\tilde{R}_i &= \tilde{R}_{i+1}\,\tilde{R}_i^{\top},
+\end{align}
+and the per-step pose-error matrix is $E_i = (\delta T_i^{*})^{-1}\,\delta\tilde{T}_i \in SE(3)$.
+The \emph{Relative Translation Error} and \emph{Relative Rotation Error}, each averaged over all $N\!-\!1$ consecutive windows, are
+\begin{align}
+  \mathrm{RPE}_{t}
+  &= \frac{1}{N-1}\sum_{i=1}^{N-1}
+    \bigl\|\,[E_i]_{\mathrm{trans}}\,\bigr\|_2,
+  \label{eq:rpet}\\
+  \mathrm{RPE}_{r}
+  &= \frac{1}{N-1}\sum_{i=1}^{N-1}
+    \arccos\!\left(\frac{\operatorname{tr}\!\bigl({\delta R_i^{*}}^{\!\top}\delta\tilde{R}_i\bigr)-1}{2}\right),
+  \label{eq:rper}
+\end{align}
+where $[E_i]_{\mathrm{trans}}$ denotes the translation component of $E_i$. This follows the standard \texttt{evo}-library RPE definition adopted by the DROID-SLAM evaluation protocol.
+ATE and $\mathrm{RPE}_{t}$ are reported in metres; $\mathrm{RPE}_{r}$ is in degrees.
+
+%-------------------------------------------------------
+\subsubsection{Depth Estimation}
+\label{appendix:metrics:depth}
+%-------------------------------------------------------
+Let $\Omega_D = \{p \mid D_p > 0\}$ denote the set of pixels with valid ground-truth depth in a given frame.
+%
+For models that do not produce metric-scale output, the predicted depth $\hat{D}_p$ is first rescaled by the per-frame \emph{median alignment}:
+\begin{equation}
+  \hat{D}_p \;\leftarrow\; s\cdot\hat{D}_p,
+  \qquad
+  s = \operatorname*{median}_{p\in\Omega_D}\!\left(\frac{D_p}{\hat{D}_p}\right).
+  \label{eq:median_align}
+\end{equation}
+%
+All depth metrics reported in this paper are computed after median-scale alignment, unless otherwise specified.
+
+\textbf{Absolute Relative Error (AbsRel).}
+\begin{equation}
+  \mathrm{AbsRel}
+  = \frac{1}{|\Omega_D|}\sum_{p\in\Omega_D}
+    \frac{\left|D_p - \hat{D}_p\right|}{D_p}.
+  \label{eq:absrel}
+\end{equation}
+
+\textbf{Squared Relative Error (SqRel).}
+\begin{equation}
+  \mathrm{SqRel}
+  = \frac{1}{|\Omega_D|}\sum_{p\in\Omega_D}
+    \frac{\left(D_p - \hat{D}_p\right)^{2}}{D_p}.
+  \label{eq:sqrel}
+\end{equation}
+
+\textbf{Root Mean Squared Error (RMSE).}
+\begin{equation}
+  \mathrm{RMSE}
+  = \sqrt{\frac{1}{|\Omega_D|}\sum_{p\in\Omega_D}\!\left(D_p - \hat{D}_p\right)^{2}}\,.
+  \label{eq:rmse}
+\end{equation}
+
+\textbf{Log-scale RMSE (LogRMSE).}
+\begin{equation}
+  \mathrm{LogRMSE}
+  = \sqrt{\frac{1}{|\Omega_D|}\sum_{p\in\Omega_D}\!\left(\log D_p - \log\hat{D}_p\right)^{2}}\,.
+  \label{eq:logrmse}
+\end{equation}
+
+\textbf{Threshold Inlier Ratio ($\delta_{\tau}$).}
+\begin{equation}
+  \delta_{\tau}
+  = \frac{1}{|\Omega_D|}
+    \left|\left\{p\in\Omega_D\;\Bigg|\;
+      \max\!\left(\frac{D_p}{\hat{D}_p},\;\frac{\hat{D}_p}{D_p}\right) < \tau
+    \right\}\right|.
+  \label{eq:delta}
+\end{equation}
+We report $\delta_{1.03}$, $\delta_{1.05}$, and $\delta_{1.10}$, following the RMVD evaluation protocol of~\citet{schroeppel2022rmvd}.
+%
+For AbsRel, SqRel, RMSE, and LogRMSE, lower is better; for $\delta_{\tau}$, higher is better.
+
+%-------------------------------------------------------
+\subsubsection{Dense-View Reconstruction}
+\label{appendix:metrics:recon}
+%-------------------------------------------------------
+
+Scene-level reconstruction quality is evaluated by comparing the predicted and ground-truth point clouds on ScanNet++~\citep{yeshwanth2023scannet++}, NRGBD~\citep{azinovic2022Neuralrgbd}, DTU~\citep{jensen2014dtu}, Hiroom~\citep{lin2025depth}, and 7-Scenes~\citep{shotton20137scenes}, following the protocol of DA3-Bench~\citep{lin2025depth}.
+
+The ground-truth point cloud $\mathcal{P}^{*}$ is obtained by uniformly sampling 
+$10^{6}$ points from the GT mesh, which is reconstructed via offline TSDF fusion 
+of all available RGB-D frames.
+%
+The predicted point cloud $\hat{\mathcal{P}}$ is obtained via online TSDF fusion of the model's per-frame predicted depth maps and camera poses, from which a triangle mesh is extracted and uniformly resampled to $10^{6}$ points.
+
+Before computing metrics, both point clouds undergo dataset-specific preprocessing.
+%
+For ScanNet++, NRGBD, and DTU, $\hat{\mathcal{P}}$ is cropped to the axis-aligned bounding box of $\mathcal{P}^{*}$ inflated by $0.1$\,m to exclude out-of-range predictions. 
+%
+No cropping is applied for 7-Scenes and Hiroom.
+%
+Both point clouds are then voxel-downsampled with dataset-specific voxel sizes: $0.02$\,m for ScanNet++ and NRGBD, $0.01$\,m for DTU, and $4/512$\,m (${\approx}7.8$\,mm) for 7-Scenes and Hiroom.
+
+We report two complementary families of Chamfer-based metrics.
+
+\noindent\textbf{Threshold-based Precision and Recall.}
+\begin{align}
+  \mathrm{Precision}
+  &= \frac{1}{|\hat{\mathcal{P}}|}\sum_{\hat{\mathbf{P}}_m\in\hat{\mathcal{P}}}
+    \mathbf{1}\!\left[\min_{\mathbf{P}_n^{*}\in\mathcal{P}^{*}}
+    \bigl\|\hat{\mathbf{P}}_m - \mathbf{P}_n^{*}\bigr\|_2 < d_{\tau}\right], \\
+  \mathrm{Recall}
+  &= \frac{1}{|\mathcal{P}^{*}|}\sum_{\mathbf{P}_n^{*}\in\mathcal{P}^{*}}
+    \mathbf{1}\!\left[\min_{\hat{\mathbf{P}}_m\in\hat{\mathcal{P}}}
+    \bigl\|\mathbf{P}_n^{*} - \hat{\mathbf{P}}_m\bigr\|_2 < d_{\tau}\right].
+\end{align}
+Precision is the fraction of predicted points within $d_{\tau}$ of any GT point. 
+Recall is the fraction of GT points covered by the prediction within $d_{\tau}$. 
+Both are reported as percentages.
+
+\noindent\textbf{Mean Chamfer Accuracy and Completeness (metres).}
+\begin{align}
+  \overline{\mathrm{Acc}}
+  &= \frac{1}{|\hat{\mathcal{P}}|}\sum_{\hat{\mathbf{P}}_m\in\hat{\mathcal{P}}}
+    \min_{\mathbf{P}_n^{*}\in\mathcal{P}^{*}}\bigl\|\hat{\mathbf{P}}_m - 
+    \mathbf{P}_n^{*}\bigr\|_2, \\
+  \overline{\mathrm{Comp}}
+  &= \frac{1}{|\mathcal{P}^{*}|}\sum_{\mathbf{P}_n^{*}\in\mathcal{P}^{*}}
+    \min_{\hat{\mathbf{P}}_m\in\hat{\mathcal{P}}}\bigl\|\mathbf{P}_n^{*} - 
+    \hat{\mathbf{P}}_m\bigr\|_2,
+\end{align}
+which measures the mean nearest-neighbor distances in metres.
+
+\noindent\textbf{F-score and Overall.}
+\begin{align}
+  \text{F-score} &= \frac{2\cdot\mathrm{Precision}\cdot\mathrm{Recall}}
+    {\mathrm{Precision}+\mathrm{Recall}}\quad(\%), \\
+  \text{Overall}  &= \frac{\overline{\mathrm{Acc}}+\overline{\mathrm{Comp}}}{2}
+    \quad(\mathrm{m}).
+\end{align}
+F-score is the harmonic mean of threshold-based precision and recall. 
+Overall is the mean of the two Chamfer distances, reported in metres. 
+The distance threshold is set to $d_{\tau}=0.05$\,m across all datasets.
+
+\subsection{Evaluated Models Details}
+\label{sec:model_overview}
+
+We group the 32 methods (41 variants) into six paradigms.
+%
+For each model, we briefly summarize its core idea, and then list the key inference-time configuration adopted in our benchmark.
+%
+Unless otherwise noted, every model is driven by a unified \texttt{ModelAdapter} interface that feeds a complete scene (RGB tensors, GT intrinsics used only for evaluation) to the model and collects \texttt{pred\_depth}, \texttt{pred\_pose} (cam-to-world), and optionally \texttt{pred\_pointcloud}/\texttt{pred\_confidence}; depth is aligned to GT by median scaling before computing metrics unless the model produces metric depth.
+
+%=======================================================
+\subsubsection{Optimization-based Methods}
+%=======================================================
+
+\textbf{DUSt3R}~\citep{wang2024dust3r} regresses per-pair dense point maps in a canonical coordinate frame, and recovers a globally consistent reconstruction by a gradient-based global alignment over all image pairs.
+%
+In our benchmark, the ViT-Large 512 checkpoint (\texttt{naver/DUSt3R\_ViTLarge\_BaseDecoder\_512\_dpt}) is used, with \texttt{niter}=300, \texttt{schedule}=\texttt{cosine}, \texttt{lr}=0.01 for the global aligner, and inputs resized to width~512 aligned to a stride of 16.
+
+\textbf{MASt3R}~\citep{leroy2024mast3r} extends DUSt3R with a dense matching head that produces robust 2D correspondences, enabling metric-scale recovery through a sparse global optimizer. We use the metric checkpoint \texttt{naver/MASt3R\_ViTLarge\_BaseDecoder\_512\_catmlpdpt\_metric} with \texttt{niter}=300, \texttt{schedule}=\texttt{linear}, \texttt{lr}=0.01, input width 512 (align 16), and median depth scaling for final evaluation.
+
+%=======================================================
+\subsubsection{End-to-End Feed-Forward Methods}
+%=======================================================
+
+\textbf{VGGT}~\citep{wang2025vggt} is a single forward model using a unified transformer that jointly predicts camera poses, depth maps, and point clouds for an arbitrary set of views.
+%
+We run \texttt{facebook/VGGT-1B} at the native 518-pixel resolution; no extra iterative refinement is applied.
+
+\textbf{VGGT-Omega}~\citep{wang2026vggtomega} We use official implementation code and \texttt{VGGT-Omega-1B-512} checkpoint and run VGGT-Omega-1B at the native 512-pixel resolution. 
+
+\textbf{Fast3R}~\citep{yang2025fast3r} performs one-shot multi-view prediction for up to a thousand views, using factorized global attention to scale VGGT-style reconstruction to long sequences.
+%
+We use \texttt{jedyang97/Fast3R\_ViT\_Large\_512} with input width~512 (align~16) and \texttt{niter\_PnP}=100 for the auxiliary PnP-RANSAC pose estimation.
+
+\textbf{FastVGGT}~\citep{shen2025fastvggt} accelerates VGGT by a training-free token-merging scheme that drops redundant cross-view tokens inside the transformer.
+%
+In our runs (checkpoint \texttt{checkpoints/fastvggt/model\_tracker\_fixed\_e20.pt}) we set \texttt{merging}=0 (baseline layer) with \texttt{merge\_ratio}=0.9 and \texttt{enable\_point}=\texttt{false} to save memory.
+
+\textbf{MUSt3R}~\citep{cabon2025must3r} couples DUSt3R-style pair prediction with a multi-view registrar that produces a single globally aligned reconstruction without per-scene optimization.
+%
+We use \texttt{MUSt3R\_512.pth} at width~512 (align~16), with \texttt{preserve\_gpu\_mem}=\texttt{true} and \texttt{num\_refinements\_iterations}=1.
+
+\textbf{MapAnything}~\citep{keetha2026mapanything} is a universal feed-forward reconstructor that can ingest any combination of images, poses, intrinsics and depth priors and output metric-scale dense geometry.
+%
+We evaluate MapAnything on the \texttt{facebook/map-anything} checkpoint with \texttt{memory\_efficient\_inference}=\texttt{true} and \texttt{use\_amp}=\texttt{true}.
+
+\textbf{OmniVGGT}~\citep{peng2025omnivggt} augments VGGT with a Geo-Adapter so that any subset of camera poses with intrinsics and depths can be injected as priors.
+%
+We run \texttt{Livioni/OmniVGGT} in its prior-free configuration for the main comparison, and additionally use its prior-injection branch in Table~\ref{tab:prior_ablation_combined}.
+
+\textbf{Pi3} (\textbf{$\pi^{3}$})~\citep{wang2025pi3} removes the reference-frame bias of VGGT-style models with a permutation-equivariant design, predicting depth and cameras in a symmetric manner across views.
+%
+We evaluate \texttt{yyfz233/Pi3} and its metric variant \texttt{yyfz233/Pi3X}.
+%
+Pi3X additionally predicts metric-scale depth and is evaluated without scale alignment.
+%
+Pi3X also supports causal prior information injection, which is also used in Table~\ref{tab:prior_ablation_combined}.
+
+\textbf{AMB3R}~\citep{wang2025amb3r} introduces an attention-based multi-branch backbone that outputs metric-scale depth and poses in one forward pass.
+%
+We use \texttt{checkpoints/amb3r/amb3r.pt} with \texttt{depth\_alignment}=\texttt{none} and \texttt{data\_type}=\texttt{bf16}.
+
+\textbf{Depth Anything 3 (DA3)}~\citep{lin2025depth} is a scalable 3D foundation model based on transformers trained on large-scale data.
+%
+We benchmark four sizes: \textbf{DA3-Small} (\texttt{depth-anything/DA3-SMALL}), \textbf{DA3-Base} (\texttt{depth-anything/DA3-BASE}), \textbf{DA3-Large 1.1} (\texttt{depth-anything/DA3-LARGE-1.1}) and \textbf{DA3-Giant 1.1} (\texttt{depth-anything/DA3-GIANT-1.1}), all with reference-view strategy \texttt{ref\_view\_strategy}=\texttt{first} for fair comparison.
+%
+The two-branch variant \textbf{DA3Nested} (\texttt{depth-anything/DA3NESTED-GIANT-LARGE-1.1}) outputs metric-scale depth by combining an anyview Giant branch with a metric Large branch.
+%
+
+\textbf{WorldMirror}~\citep{liu2025worldmirror} is a unified feed-forward reconstruction model that can flexibly condition on (pose, depth, intrinsic) priors.
+%
+We use \texttt{tencent/HunyuanWorld-Mirror} with \texttt{cond\_flags}=[0,0,0] (no prior) for the main benchmark.
+
+%=======================================================
+\subsubsection{Online / Streaming Methods}
+%=======================================================
+
+\textbf{Spann3R}~\citep{wang2024spann3r} builds an external spatial memory on top of DUSt3R so that each incoming frame can be incrementally fused into a shared canonical frame.
+%
+We use \texttt{spann3r\_101.pth} at a resolution of 224 (align~16) with \texttt{inference\_mode}=\texttt{online}, \texttt{use\_feat}=\texttt{false} and
+\texttt{focal\_mode}=\texttt{weiszfeld}.
+
+\textbf{CUT3R}~\citep{wang2025cut3r} performs continuous updating of a persistent internal scene state, regressing dense geometry frame-by-frame. We use the default CUT3R checkpoint at width~512 (align~16) with \texttt{focal\_mode}=\texttt{weiszfeld} for focal estimation.
+
+\textbf{MonST3R}~\citep{zhang2024monst3r} specializes DUSt3R for dynamic scenes by injecting temporal smoothness, optical-flow, and translation losses into the global optimizer.
+%
+We use \texttt{Junyi42/MonST3R\_PO-TA-S-W\_ViTLarge\_BaseDecoder\_512\_dpt} at width~512 (align~16) with \texttt{niter}=300, \texttt{schedule}=\texttt{linear}, \texttt{lr}=0.01, \texttt{batch\_size}=16, \texttt{winsize}=5, \texttt{scenegraph\_type}=\texttt{swinstride}, \texttt{flow\_loss\_weight}=0.01, \texttt{flow\_loss\_threshold}=25, \texttt{flow\_loss\_start\_iter}=0.1, \texttt{sam2\_mask\_refine}=\texttt{true}, \texttt{batchify}=\texttt{true} (\texttt{temporal\_smoothing\_weight}=0.01, \texttt{translation\_weight}=1.0, \texttt{shared\_focal}=\texttt{true}).
+
+
+\textbf{Point3R}~\citep{point3r} maintains an explicit online 3D point memory that grows as new frames arrive, enabling streaming reconstruction with constant-time per-frame cost. We use \texttt{point3r\_512.pth} at width~512 (align~16) with \texttt{focal\_mode}=\texttt{weiszfeld}.
+
+\textbf{Stream3R}~\citep{stream3r2025} formulates multi-view reconstruction as causal next-token prediction over pointmaps, enabling an efficient StreamVGGT-style decoder. 
+%
+We use \texttt{yslan/STream3R} checkpoint and implement \texttt{stream} and \texttt{window} variants using default settings.
+
+\textbf{StreamVGGT}~\citep{streamVGGT} is a streaming counterpart of VGGT with temporally causal cross-view attention and KV-caching.
+%
+We use \texttt{lch01/StreamVGGT} in the default online mode.
+
+\textbf{PAGE4D}~\citep{zhou2025page4d} extends VGGT to 4D reconstruction by modeling both static scene geometry and dynamic motion components.
+%
+We use \texttt{checkpoints/page4d/checkpoint\_nomask.pt} in its default configuration.
+
+\textbf{InfiniteVGGT}~\citep{yuan2026infinitevggt} augments StreamVGGT with a rolling KV-cache, so that arbitrarily long sequences can be processed with bounded memory.
+%
+We use \texttt{lch01/StreamVGGT} as the backbone, image width 518 (align~14) and \texttt{total\_budget}=1{,}200{,}000 KV-tokens.
+
+\textbf{WinT3R}~\citep{li2025wint3r} employs a sliding-window transformer with a camera-token pool to capture long-range geometry cheaply.
+%
+We use \texttt{lizizun/WinT3R} at width~512 (align~16) with \texttt{inference\_mode}=\texttt{online}, \texttt{window\_size}=4, \texttt{state\_size}=1024 and \texttt{ret\_first\_pred}=\texttt{false}.
+
+\textbf{LongStream}~\citep{cheng2026longstream} builds on a VGGT backbone with a keyframe-driven long-context memory module to target long-horizon streaming reconstruction.
+%
+We use \texttt{NicolasCC/LongStream} at width~518 (align~14) under \texttt{streaming\_mode}=\texttt{causal} with \texttt{keyframe\_stride}=8, \texttt{keyframe\_mode}=\texttt{fixed} and \texttt{rel\_pose\_num\_iterations}=4, and evaluate two inference variants: \emph{batch-refresh} and \emph{streaming-refresh} with a sliding window of size~48.
+%
+The \texttt{refresh} parameter is set to 3 for \emph{batch-refresh} and 7 for \emph{streaming-refresh}.
+%
+In addition, we disable the scale token prediction of LongStream, as we observe that enabling metric scale prediction introduces erroneous outliers in depth estimation metrics on our benchmark, despite the model natively supporting metric-scale output.
+
+
+\textbf{LingBot-Map}~\citep{chen2026lingbotmap} is an online mapping model designed for streaming data, supporting both per-frame streaming and window-based inference with KV-cache sliding windows.
+%
+We evaluate two variants: \textbf{LingBot-Map (windowed)} with \texttt{mode}=\texttt{windowed}, \texttt{window\_size}=64, \texttt{overlap\_size}=16, \texttt{num\_scale\_frames}=8, \texttt{kv\_cache\_sliding\_window}=64 and \texttt{camera\_num\_iterations}=4; and \textbf{LingBot-Map (streaming)} with adaptive \texttt{keyframe\_interval}, \texttt{kv\_cache\_sliding\_window}=64, \texttt{kv\_cache\_scale\_frames}=8 and SDPA attention (\texttt{use\_sdpa}=\texttt{false}, \texttt{enable\_3d\_rope}=\texttt{true}). Both variants use \texttt{image\_size}=518, \texttt{patch\_size}=14 and \texttt{enable\_point}=\texttt{false}. The medium regime runs use the long-context checkpoint \texttt{lingbot-map-long.pt}, while the sparse and single-frame settings use the short-context \texttt{lingbot-map.pt} checkpoint.
+
+%=======================================================
+\subsubsection{Chunk-based Methods}
+%=======================================================
+
+\textbf{VGGT-Long}~\citep{deng2025vggtlong} scales VGGT to long sequences by overlapping-chunk inference and cross-chunk Sim(3) alignment.
+%
+We use \texttt{facebook/VGGT-1B} as the backbone with \texttt{chunk\_size}=60 and \texttt{overlap}=30.
+%
+The chunked streaming variant \textbf{DA3-Streaming} uses backbone \texttt{depth-anything/DA3-GIANT-1.1} with \texttt{chunk\_size}=60, \texttt{overlap}=30 and \texttt{ref\_view\_strategy}=\texttt{first} for long sequences.
+%
+The long-sequence variant \textbf{Pi-Long} (built on the Pi3 backbone) also uses \texttt{chunk\_size}=60, \texttt{overlap}=30.
+
+%=======================================================
+\subsubsection{SLAM-based Methods}
+%=======================================================
+
+\textbf{MASt3R-SLAM}~\citep{murai2024_mast3rslam} integrates MASt3R's metric dense
+matcher into a SLAM pipeline that jointly estimates camera trajectory and
+metric geometry.
+%
+We use \texttt{MASt3R\_ViTLarge\_BaseDecoder\_512\_catmlpdpt\_metric.pth} in uncalibrated mode (\texttt{use\_calib}=\texttt{false}), with explicit overrides \texttt{img\_size}=512 and \texttt{c\_conf\_threshold}=1.5 (point-cloud filtering); the remaining tracking hyper-parameters use the official \texttt{config/base.yaml} defaults (\texttt{C\_conf}=0.0, \texttt{Q\_conf}=1.5, \texttt{min\_match\_frac}=0.05, \texttt{max\_iters}=50).
+
+
+\textbf{VGGT-SLAM}~\citep{maggio2025vggt-slam2} turns VGGT into a SLAM system
+by constructing overlapping submaps and performing Sim(3) cross-submap
+alignment with loop closures.
+%
+We use \texttt{facebook/VGGT-1B} with \texttt{submap\_size}=32, \texttt{overlapping\_window\_size}=3, \texttt{max\_loops}=0 (no loop closure), \texttt{conf\_threshold}=25.0, \texttt{lc\_thres}=0.95 and \texttt{use\_optical\_flow}=\texttt{true}.
+
+%=======================================================
+\subsubsection{Test-Time Training Methods}
+%=======================================================
+
+\textbf{TTT3R}~\citep{chen2025ttt3r} performs per-sequence test-time training on top of a CUT3R-style backbone, fine-tuning a small set of parameters to adapt to each scene.
+%
+We use \texttt{cut3r\_512\_dpt\_4\_64.pth} at width~512 (align~16) with \texttt{focal\_mode}=\texttt{weiszfeld}.
+
+\textbf{Scal3R}~\citep{xie2026scal3r} introduces a scalable pipeline that processes long videos in blocks with loop-level test-time refinement.
+%
+We use \texttt{xbillowy/Scal3R} at width~518 (align~14) with \texttt{block\_size}=60, \texttt{overlap\_size}=30 (20 for dense), \texttt{loop\_size}=20, \texttt{use\_xyz\_align}=1 and \texttt{test\_use\_amp}=\texttt{false}.
+
+\textbf{LoGeR}~\citep{zhang2026loger} is a long-context hybrid-memory geometry model that combines test-time training with sliding-window attention.
+%
+We evaluate the \texttt{LoGeR} and \texttt{LoGeR}$^*$ variants from \texttt{Junyi42/LoGeR} at width~518 (align~14) with \texttt{window\_size}=32, \texttt{overlap\_size}=3 and \texttt{reset\_every}=1 (TTT-state reset across windows). For \texttt{LoGeR} we set \texttt{se3}=\texttt{false}, \texttt{sim3}=\texttt{false}; for \texttt{LoGeR}$^*$ we set \texttt{se3}=\texttt{true}, \texttt{sim3}=\texttt{false}.
+
+
+\subsection{\benchmark Visualizations}
+\label{prior_vis}
+
+\textbf{Qualitative Comparison on Representative \benchmark Cases.}
+Fig.~\ref{fig:representative_cases} visualizes four representative cases from
+\benchmark, covering short indoor reconstruction, dense outdoor driving, dense
+indoor long-horizon reconstruction, and wrist-view out-of-distribution input.
+Each case shows the sampled input views, point-cloud reconstructions from
+representative methods, and the corresponding depth and camera metrics.
+
+\begin{figure*}[p]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figs/representative_cases.pdf}
+  \caption{\textbf{Representative benchmark cases.}
+  We show input views, per-method point-cloud reconstructions, and depth/camera
+  metrics for four representative scenes spanning short indoor reconstruction,
+  dense outdoor driving, dense indoor long-horizon reconstruction, and wrist-view
+  OOD input.}
+  \label{fig:representative_cases}
+\end{figure*}
+
+
+\textbf{Qualitative Comparison on Prior-Enhanced Models.}
+Fig.~\ref{Fig.prior_both}, Fig.~\ref{Fig.prior_cam}, and Fig.~\ref{Fig.prior_depth} present qualitative comparisons of prior-aware models under joint camera and depth prior injection, camera-only prior injection, and depth-only prior injection settings, respectively.
+
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=\columnwidth]{figs/prior_both.pdf}
+\caption{\textbf{Qualitative Comparison on Prior-Enhanced Models with Auxiliary Camera and Depth Information}. We visualize the reconstruction quality of DA3-Giant, MapAnything, OmniVGGT, Pi3, and WorldMirror under the setting where both camera and depth prior information are provided as auxiliary inputs.
+%
+For each scene, the right panel reports the depth AbsRel and camera AUC@30 metrics 
+for each method.} 
+\label{Fig.prior_both} %
+\end{figure}
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=\columnwidth]{figs/prior_cam.pdf}
+\caption{\textbf{Qualitative Comparison on Prior-Enhanced Models with Auxiliary Camera Information}. We visualize the reconstruction quality of DA3-Giant, MapAnything, OmniVGGT, Pi3, and WorldMirror under the setting where camera prior information is provided as auxiliary inputs.
+%
+For each scene, the right panel reports the depth AbsRel and camera AUC@30 metrics 
+for each method.} 
+\label{Fig.prior_cam} %
+\end{figure}
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=\columnwidth]{figs/prior_depth.pdf}
+\caption{\textbf{Qualitative Comparison on Prior-Enhanced Models with Auxiliary Depth Information}. We visualize the reconstruction quality of DA3-Giant, MapAnything, OmniVGGT, Pi3, and WorldMirror under the setting where depth prior information is provided as auxiliary inputs.
+%
+For each scene, the right panel reports the depth AbsRel and camera AUC@30 metrics 
+for each method.} 
+\label{Fig.prior_depth} %
+\end{figure}
+
+\textbf{Bad Cases For Prior-Enhanced Models.}
+Fig.~\ref{Fig.bad_case} illustrates representative failure cases of prior-aware 
+models under challenging conditions, including object-centric scenes, extreme no-overlap
+view, and out-of-distribution wrist-view sequences.
+%
+MapAnything fails on object-centric scenes when GT camera priors are injected.  
+%
+WorldMirror fails on out-of-distribution scenes such as wrist-view sequences, even with both camera and depth priors provided.
+%
+OmniVGGT breaks down under extreme no-overlap conditions.
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=\columnwidth]{figs/bad_case.pdf}
+\caption{\textbf{Failure Cases on Challenging Scenes.} We visualize failure cases 
+of MapAnything, WorldMirror, and OmniVGGT across three challenging scenes. } 
+\label{Fig.bad_case} 
+\end{figure}
+
+\subsection{Evaluated Models and Training Datasets in \benchmark}
+In this subsection, we summarize the training data and annotations used by all evaluated methods. 
+%
+Tab.~\ref{tab:merged_dataset_usage_training_only} presents the training datasets of all compared methods, excluding training-free and chunk-wise methods, as they do not involve explicit training.
+%
+Evaluation-only, qualitative-only, and runtime benchmark datasets are not marked.
+%
+\textcolor{trainmark}{\checkmark} indicates datasets directly used for model training. 
+\textcolor{pretrainmark}{\checkmark} indicates that the method is initialized from a pretrained checkpoint whose backbone has been trained on the corresponding dataset.
+%
+Tab.~\ref{tab:dataset_profile_summary_cited} presents the properties of each dataset, including scene type, real-world vs.\ synthetic domain, the presence of dynamic content, and public license information.
+
+\input{tabs/models-datasets}
+\input{tabs/datasets_license}

@@ -1,0 +1,16 @@
+\begin{abstract}
+
+
+Multi-view 3D reconstruction has achieved remarkable progress with the advent of feed-forward 3D reconstruction models. However, these models are typically trained and evaluated under ideal, degradation-free imaging conditions, whereas real-world observations often contain degradations that differ significantly from such settings. Improving robustness for multi-view 3D reconstruction under degraded conditions therefore remains an important challenge. We present \textbf{Geometry-Aware Representation Denoising (GARD)}, a novel framework that performs diffusion-based multi-view restoration directly in the feature space of a feed-forward 3D reconstruction model. This design exploits the \textit{geometry-aware feature representations} of the 3D reconstructor to effectively recover accurate scene geometry. Furthermore, by employing an additional RGB image decoder, the refined representations can also be used to restore high-quality RGB images, thereby enabling the simultaneous recovery of 3D scene geometry and high-quality imagery. Comprehensive experiments on the Depth Anything 3 (DA3) benchmark demonstrate the effectiveness of the proposed GARD framework. 
+
+% Our code and weights will be publicly released for full reproducibility.
+
+% achieves superior detail preservation, cross-view consistency, and correspondence quality, translating into strong improvements in pose estimation, 3D reconstruction, depth estimation, and image restoration.
+
+
+\end{abstract}
+
+
+% \begin{abstract}
+% Multi-view 3D reconstruction has advanced significantly with the emergence of feed-forward reconstruction models, enabling efficient and scalable scene understanding from multi-view imagery. Despite their strong performance, these models are predominantly trained and evaluated under ideal, degradation-free imaging conditions, while real-world observations frequently suffer from various degradations such as blur, noise, and low-light artifacts. This domain gap substantially limits their robustness and practical applicability, making degradation-aware multi-view reconstruction an important yet underexplored challenge. We present Geometry-Aware Representation Denoising (GARD), a novel framework that performs diffusion-based multi-view restoration directly within the feature space of a feed-forward reconstructor. By operating on geometry-aware latent representations, GARD effectively preserves cross-view consistency and structural correspondence, enabling more reliable recovery of accurate 3D scene geometry. In addition, a lightweight decoder transforms the refined representations into high-quality RGB outputs, allowing the simultaneous restoration of scene geometry and visual appearance within a unified framework. Extensive experiments on the DA3 benchmark demonstrate that GARD achieves superior detail preservation, cross-view consistency, and correspondence quality, leading to substantial improvements across multiple downstream tasks, including camera pose estimation, 3D reconstruction, depth estimation, and image restoration.
+% \end{abstract}

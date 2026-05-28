@@ -1,0 +1,39 @@
+\begin{table*}[!t]
+\centering
+\caption{Statistics of the collected data across six domains. We report the total number of queries and negative samples, together with the maximum and mean numbers of targets and categories per query (/ Q), and targets per image (/ I). \textit{Query length} measures the number of words in the target description after removing template text, reflecting the actual linguistic content used to describe grounding targets.}
+\vspace{-1mm}
+\label{tab:data_statistics}
+\resizebox{1.0\textwidth}{!}{
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{l|c|c|cc|cc|cc|cc}
+\toprule
+\multirow{2}{*}{\textbf{Domain}} &
+\multirow{2}{*}{\textbf{\#Queries}} &
+\multirow{2}{*}{\textbf{\#Negative}} &
+\multicolumn{2}{c|}{\textbf{Targets / Q}} &
+\multicolumn{2}{c|}{\textbf{Categories / Q}} &
+\multicolumn{2}{c|}{\textbf{Query Length}} &
+\multicolumn{2}{c}{\textbf{Targets / I}} \\
+\cline{4-5}\cline{6-7}\cline{8-9}\cline{10-11}
+& & &
+\multicolumn{1}{c}{\textbf{Max}} &
+\multicolumn{1}{c}{\textbf{Mean}} &
+\multicolumn{1}{c}{\textbf{Max}} &
+\multicolumn{1}{c}{\textbf{Mean}} &
+\multicolumn{1}{c}{\textbf{Max}} &
+\multicolumn{1}{c}{\textbf{Mean}} &
+\multicolumn{1}{c}{\textbf{Max}} &
+\multicolumn{1}{c}{\textbf{Mean}} \\
+\midrule
+Detection & 93,351,373 & 21,021,509 & 745  & 6.29  & 43   & 2.47 & 251 & 24.19 & 3,725 & 30.68 \\
+GUI       & 23,009,535 & 0          & 14   & 1.03  & 14   & 1.03 & 351 & 4.07  & 8,690 & 7.95  \\
+Referring & 10,141,597 & 93,396     & 818  & 2.12  & 1    & 0.89 & 53  & 5.48  & 6,938 & 9.65  \\
+OCR       & 5,052,040  & 0          & 2,337 & 11.89 & 1,258 & 10.4 & 51  & 1.17  & 2,337 & 28.67 \\
+Layout    & 4,859,914  & 1,384,804  & 176  & 4.92  & 15   & 1.31 & 30  & 2.2   & 880   & 21.17 \\
+Pointing  & 3,148,098  & 353,366    & 675  & 3.25  & 1    & 0.89 & 189 & 2.63  & 1,575 & 14.92 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-1mm}
+\end{table*}
