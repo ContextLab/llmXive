@@ -79,7 +79,7 @@
 - [X] T024 [US2] Implement unanimous-accept test + honest `ConvergenceResult` + per-round inspection record & run-log entry in `src/llmxive/convergence/engine.py`
 - [X] T025 [US2] Implement stale-verdict detection + self-review prevention (fix the `_produced_by` stub at `advancement.py:177`) in `src/llmxive/convergence/engine.py` and `src/llmxive/agents/advancement.py`
 - [X] T026 [US2] Implement `route_kickback` (adaptive severity→stage, `KickbackRecord` with unresolved concerns + artifact/review links + plain-language reason) AND emit a `ProgressRecord` per kickback so non-improving cycles are inspectable (FR-017) in `src/llmxive/convergence/kickback.py`
-- [ ] T027 [US2] Refactor the tasker Mode-A/Mode-B analyze loop INTO the engine (Mode-A=authoring, Mode-B=reviser with change-log) in `src/llmxive/speckit/tasks_cmd.py`
+- [X] T027 [US2] Refactor the tasker Mode-A/Mode-B analyze loop INTO the engine (Mode-A=authoring, Mode-B=reviser with change-log) in `src/llmxive/speckit/tasks_cmd.py`
 - [X] T028 [US2] Verify honest reporting: a non-converging step records `converged:false` + a kickback (no masked "passed"); confirm via test; update STATUS.md
 
 **Checkpoint**: engine usable by every step.
