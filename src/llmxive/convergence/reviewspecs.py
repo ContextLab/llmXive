@@ -364,8 +364,33 @@ def build_spec_reviewspec(
     return base
 
 
+def build_paper_spec_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the paper-spec convergence unit (T055).
+
+    Mirrors :func:`build_spec_reviewspec` for the paper track. Returns a
+    ReviewSpec with a real :class:`PaperSpecReviser` bound; reviewer-side
+    placeholders stay until T058 wires the paper-spec panel."""
+    from .revisers.paper_spec_reviser import PaperSpecReviser
+
+    base = _spec_paper_spec()
+    base.reviser = PaperSpecReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
 __all__ = [
     "EXEMPT_STAGES",
+    "build_paper_spec_reviewspec",
     "build_spec_reviewspec",
     "reviewable_stages",
     "reviewspec_for",
