@@ -105,7 +105,7 @@ def _map_lenses(text: str, lenses: list[str]) -> list[str]:
 
 # --- public API --------------------------------------------------------------
 
-JudgeFn = Callable[[str, str, list[str]], dict]
+JudgeFn = Callable[[str, str, list[str]], dict[str, object]]
 
 
 def triage_submission(
@@ -128,7 +128,13 @@ def triage_submission(
         verdict = judge_fn(review_text, stage, lenses)
         quality_pass = bool(verdict.get("quality_pass"))
         safe_on_topic = bool(verdict.get("safe_on_topic"))
-        mapped_lenses = list(verdict.get("mapped_lenses") or [])
+        # Narrow the dict[str, object] value at this boundary — the judge_fn
+        # contract returns mapped_lenses as a sequence of lens-name strings,
+        # but mypy can only confirm it once we isinstance-check.
+        raw_ml = verdict.get("mapped_lenses")
+        mapped_lenses = (
+            [str(x) for x in raw_ml] if isinstance(raw_ml, (list, tuple)) else []
+        )
     else:
         quality_pass = len(review_text.strip()) >= _MIN_QUALITY_CHARS and _has_evidence(review_text)
         safe_on_topic = (not _is_unsafe(review_text)) and _on_topic(review_text, stage, lenses)

@@ -146,11 +146,11 @@
 ### Implementation
 
 - [X] T048 [US4] Implement the `reviewspec_for(stage)` registry (per-stage ReviewSpec + EXEMPT set) per contracts/reviewspec-registry.md in `src/llmxive/convergence/reviewspecs.py`
-- [ ] T049 [P] [US4] Author idea panel prompts (`rq_validity`, `novelty`, `feasibility`, optional `idea_quality`) in `agents/prompts/panels/`
-- [ ] T050 [P] [US4] Author spec panel prompts (`requirements_coverage`, `internal_consistency`, `testability`, `scope`) in `agents/prompts/panels/`
-- [ ] T051 [P] [US4] Author plan panel prompts (`methodology`, `spec_coverage`, `data_resources`, `plan_consistency`) in `agents/prompts/panels/`
-- [ ] T052 [P] [US4] Author tasks panel prompts (`coverage`, `ordering`, `executability`, `constraint_preservation`) in `agents/prompts/panels/`
-- [ ] T053 [P] [US4] Author paper-track panel prompts (paper-spec/paper-plan/paper-tasks lenses) in `agents/prompts/panels/`
+- [X] T049 [P] [US4] Author idea panel prompts (`rq_validity`, `novelty`, `feasibility`, optional `idea_quality`) in `agents/prompts/panels/`
+- [X] T050 [P] [US4] Author spec panel prompts (`requirements_coverage`, `internal_consistency`, `testability`, `scope`) in `agents/prompts/panels/`
+- [X] T051 [P] [US4] Author plan panel prompts (`methodology`, `spec_coverage`, `data_resources`, `plan_consistency`) in `agents/prompts/panels/`
+- [X] T052 [P] [US4] Author tasks panel prompts (`coverage`, `ordering`, `executability`, `constraint_preservation`) in `agents/prompts/panels/`
+- [X] T053 [P] [US4] Author paper-track panel prompts (paper-spec/paper-plan/paper-tasks lenses) in `agents/prompts/panels/`
 - [ ] T054 [US4] Collapse `specifier`+`clarifier` into ONE spec convergence unit (reviewed once after clarify); route oversized authoring inputs (all `idea/*.md` + comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/specify_cmd.py` + `clarify_cmd.py`
 - [ ] T055 [US4] Collapse `paper_specifier`+`paper_clarifier` into ONE paper-spec unit; route oversized authoring inputs (full research spec+plan+tasks + comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/paper_specify_cmd.py` + `paper_clarify_cmd.py`
 - [ ] T056 [US4] Wire `planner` (and its paper twin `paper_planner`) as reviser + plan panel; keep deterministic guards as a pre-filter; route oversized authoring inputs (spec+constitution+template+dataset+comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/plan_cmd.py` + `paper_plan_cmd.py`

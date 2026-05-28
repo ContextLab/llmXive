@@ -13,7 +13,7 @@ verdicts. Each placeholder names the task that will replace it.
 
 from __future__ import annotations
 
-from .types import Concern, ConcernResponse, ReviewSpec, Severity
+from .types import Concern, ConcernResponse, Reviewer, ReviewSpec, Severity
 
 # --- EXEMPT stages (FR-029): no convergence loop runs here ---------------
 
@@ -61,7 +61,7 @@ class _TodoReviser:
         self.name = name
         self._wiring_task = wiring_task
 
-    def revise(  # type: ignore[no-untyped-def]
+    def revise(
         self, artifacts: dict[str, str], concerns: list[Concern],
     ) -> tuple[dict[str, str], list[ConcernResponse]]:
         raise NotImplementedError(
@@ -71,7 +71,11 @@ class _TodoReviser:
         )
 
 
-def _todo_reviewers(lenses: list[str], *, prompt_task: str, wiring_task: str) -> list[_TodoReviewer]:
+def _todo_reviewers(lenses: list[str], *, prompt_task: str, wiring_task: str) -> list[Reviewer]:
+    """Build placeholder reviewers. Return type is ``list[Reviewer]`` (not
+    ``list[_TodoReviewer]``) because ``list`` is invariant — ``ReviewSpec.reviewers``
+    expects ``list[Reviewer]`` and ``_TodoReviewer`` structurally satisfies the
+    Protocol."""
     return [_TodoReviewer(lens, prompt_task=prompt_task, wiring_task=wiring_task) for lens in lenses]
 
 
