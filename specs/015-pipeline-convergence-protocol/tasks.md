@@ -29,7 +29,7 @@
 - [ ] T004 Implement all convergence pydantic models (Severity, Concern, ConcernResponse, Verdict, ProgressRecord, ConvergenceResult, ReviewSpec, KickbackRecord, TriageRecord) per data-model.md in `src/llmxive/convergence/types.py`
 - [ ] T005 [P] Implement `Severity` ordering + back-compat mapping from the existing `ActionItem.severity` (`writing|science|fatal`) in `src/llmxive/convergence/types.py`
 - [ ] T006 [P] Contract test: schema validation + Severity ordering for all convergence models in `tests/contract/test_convergence_types.py`
-- [ ] T007 Constitution amendment: rewrite the point-based "Review thresholds" clause in `.specify/memory/constitution.md` to convergence-based unanimous-acceptance; bump version (MINOR), add a Sync Impact Report, update the README cross-link
+- [ ] T007 Constitution amendment: rewrite the point-based "Review thresholds" clause in `.specify/memory/constitution.md` to convergence-based unanimous-acceptance AND encode the new convergence principle (FR-053: every step producing reviewable work runs identify→revise→re-review with its panel; 3-round non-convergence kicks the project back with full provenance); bump version (MINOR), add a Sync Impact Report, update the README cross-link
 
 **Checkpoint**: foundation ready.
 
@@ -78,7 +78,7 @@
 - [ ] T023 [US2] Implement `run_convergence` round loop (R1→R2→R3, per-round budget, route overflow inputs through `summarize`, constitution input) in `src/llmxive/convergence/engine.py`
 - [ ] T024 [US2] Implement unanimous-accept test + honest `ConvergenceResult` + per-round inspection record & run-log entry in `src/llmxive/convergence/engine.py`
 - [ ] T025 [US2] Implement stale-verdict detection + self-review prevention (fix the `_produced_by` stub at `advancement.py:177`) in `src/llmxive/convergence/engine.py` and `src/llmxive/agents/advancement.py`
-- [ ] T026 [US2] Implement `route_kickback` (adaptive severity→stage, `KickbackRecord` with unresolved concerns + artifact/review links + plain-language reason) in `src/llmxive/convergence/kickback.py`
+- [ ] T026 [US2] Implement `route_kickback` (adaptive severity→stage, `KickbackRecord` with unresolved concerns + artifact/review links + plain-language reason) AND emit a `ProgressRecord` per kickback so non-improving cycles are inspectable (FR-017) in `src/llmxive/convergence/kickback.py`
 - [ ] T027 [US2] Refactor the tasker Mode-A/Mode-B analyze loop INTO the engine (Mode-A=authoring, Mode-B=reviser with change-log) in `src/llmxive/speckit/tasks_cmd.py`
 - [ ] T028 [US2] Verify honest reporting: a non-converging step records `converged:false` + a kickback (no masked "passed"); confirm via test; update STATUS.md
 
@@ -125,7 +125,7 @@
 - [ ] T040 [US3] Route the personality cron (`agents/personality.py`) AND human GitHub comments through `triage` as advisory inputs (one SSoT path; preserve the `(simulated)` suffix)
 - [ ] T041 [US3] Remove the point system: delete `_award_review_points`, the `RESEARCH_ACCEPT_THRESHOLD`/`PAPER_ACCEPT_THRESHOLD` comparisons and the majority-vote, in `src/llmxive/agents/advancement.py`; remove the thresholds from `src/llmxive/config.py`; make `advancement` a thin `ConvergenceResult` reader
 - [ ] T042 [US3] Collapse the two revision-routing schemes (graph transient-stage block + spec-012 dual scheme) into the engine outcome (#51) in `src/llmxive/pipeline/graph.py` and `src/llmxive/agents/advancement.py`
-- [ ] T043 [US3] Re-express the public status model (Backlog→Ready→Done) in convergence terms in `README.md` + the web about page; update `src/llmxive/agents/status_reporter.py` (retain `projects.json` regen + issue comment + issue close on `posted`)
+- [ ] T043 [US3] Re-express the public status model (Backlog→Ready→Done) in convergence terms in `README.md` + the web about page; update `src/llmxive/agents/status_reporter.py` (retain `projects.json` regen + issue comment + issue close on `posted`); update `src/llmxive/agents/repository_hygiene.py` to keep asserting the line-count-delta + gitignore patterns under the new status model (FR-026)
 - [ ] T044 [US3] Implement in-flight project migration (re-evaluate under unanimous convergence on next tick); confirm the no-`posted`/`done`-projects assumption holds in `state/projects/`
 - [ ] T045 [US3] Verify points removed (full-repo grep) + triage advisory-only; update STATUS.md
 
@@ -151,10 +151,10 @@
 - [ ] T051 [P] [US4] Author plan panel prompts (`methodology`, `spec_coverage`, `data_resources`, `plan_consistency`) in `src/llmxive/agents/prompts/panels/`
 - [ ] T052 [P] [US4] Author tasks panel prompts (`coverage`, `ordering`, `executability`, `constraint_preservation`) in `src/llmxive/agents/prompts/panels/`
 - [ ] T053 [P] [US4] Author paper-track panel prompts (paper-spec/paper-plan/paper-tasks lenses) in `src/llmxive/agents/prompts/panels/`
-- [ ] T054 [US4] Collapse `specifier`+`clarifier` into ONE spec convergence unit (reviewed once after clarify) in `src/llmxive/speckit/specify_cmd.py` + `clarify_cmd.py`
-- [ ] T055 [US4] Collapse `paper_specifier`+`paper_clarifier` into ONE paper-spec unit in `src/llmxive/speckit/paper_specify_cmd.py` + `paper_clarify_cmd.py`
-- [ ] T056 [US4] Wire `planner` as reviser + plan panel; keep deterministic guards as a pre-filter in `src/llmxive/speckit/plan_cmd.py`
-- [ ] T057 [US4] Wire the tasks panel (4 lenses) + constitution input + deterministic pre-filter; fold spec-014 honest-reporting + per-round budget in `src/llmxive/speckit/tasks_cmd.py` + `analyze_cmd.py`
+- [ ] T054 [US4] Collapse `specifier`+`clarifier` into ONE spec convergence unit (reviewed once after clarify); route oversized authoring inputs (all `idea/*.md` + comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/specify_cmd.py` + `clarify_cmd.py`
+- [ ] T055 [US4] Collapse `paper_specifier`+`paper_clarifier` into ONE paper-spec unit; route oversized authoring inputs (full research spec+plan+tasks + comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/paper_specify_cmd.py` + `paper_clarify_cmd.py`
+- [ ] T056 [US4] Wire `planner` (and its paper twin `paper_planner`) as reviser + plan panel; keep deterministic guards as a pre-filter; route oversized authoring inputs (spec+constitution+template+dataset+comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/plan_cmd.py` + `paper_plan_cmd.py`
+- [ ] T057 [US4] Wire the tasks panel (4 lenses) for `tasker` (and its paper twin `paper_tasker`) + constitution input + deterministic pre-filter; fold spec-014 honest-reporting + per-round budget; route oversized inputs (full spec+plan+tasks+reviews each round) through `tools/summarize` (FR-006) in `src/llmxive/speckit/tasks_cmd.py` + `paper_tasks_cmd.py` + `analyze_cmd.py`
 - [ ] T058 [US4] Research-unit: `implementer` revises code in-loop + re-verifies task assertions against the filesystem (#49); reuse the 8-panel as R1/R3; adaptive kickback in `src/llmxive/speckit/implement_cmd.py`
 - [ ] T059 [US4] Paper-implement: 12-panel as R1/R3 on the assembled paper; `paper_implementer` re-dispatches the right sub-agent (figure/stat/section) as reviser in `src/llmxive/speckit/paper_implement_cmd.py`
 - [ ] T060 [US4] Add the per-project `constitution.md` as a standard panel + analyze input from `specified` onward (fix the `run_analyze` omission) in `src/llmxive/speckit/analyze_cmd.py` + engine
