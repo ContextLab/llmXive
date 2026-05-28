@@ -178,7 +178,7 @@
 
 - [X] T064 [US5] Implement `calibration/injectors.py` (trivial/circular RQ, FR-without-task, gutted requirement, fabricated data, nonexistent citation, plan↔tasks contradiction; each tagged with expected lens)
 - [X] T065 [US5] Implement `calibration/differential.py` (run clean+injected, diff verdicts, write a markdown adjudication report for extra findings)
-- [ ] T066 [US5] Implement `calibration/domains.py` (≥1 real peer-reviewed anchor paper per 9 `LIBRARIAN_DEFAULT_FIELDS` + HF-daily + backlog sample + held-out flag)
+- [X] T066 [US5] Implement `calibration/domains.py` (≥1 real peer-reviewed anchor paper per 9 `LIBRARIAN_DEFAULT_FIELDS` + HF-daily + backlog sample + held-out flag)
 - [ ] T067 [US5] Build per-panel labeled calibration sets (positives + injected negatives) for each reviewable step under `specs/015-pipeline-convergence-protocol/calibration/`
 - [ ] T068 [US5] Run differential calibration per panel per domain with REAL qwen calls (repeated for noise-robustness); produce adjudication reports; tune sensitivity adaptively with manual QC
 - [ ] T069 [US5] Validate domain-generality on the held-out field with un-tuned prompts in `tests/real_call/test_calibration_heldout.py`
