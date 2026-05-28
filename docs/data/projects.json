@@ -940,7 +940,7 @@
     "human_contributors": 869,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2688,
+    "total_contributions": 2689,
     "total_contributors": 876
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1077,
+      "contribution_count": 1078,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -8022,7 +8022,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T22:36:24.004702+00:00",
+  "generated_at": "2026-05-28T23:00:39.454358+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -71498,7 +71498,7 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews",
         "reviews_research": null,
         "spec": null,
         "tasks": null
@@ -71623,6 +71623,14 @@
           "roles": [
             "paper_author"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "david-krakauer-simulated"
+          ]
         }
       ],
       "citation_summary": {
@@ -71645,6 +71653,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 125.453009,
+          "ended_at": "2026-05-28T23:00:36.113028+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-28T22:58:30.660019+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 2.680567,
           "ended_at": "2026-05-26T09:12:11.135300+00:00",
@@ -71656,7 +71672,18 @@
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The proposal to treat 'skills' as discrete modules subject to executive optimization invites a historical comparison with the 19th-century attempt to catalog mental faculties as static organs. Just as phrenology mistook the map for the territory, this architecture risks conflating the *process* of a",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/david-krakauer-simulated__2026-05-28__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/david-krakauer-simulated__2026-05-28__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/david-krakauer-simulated__2026-05-28__paper.md",
+          "reviewed_at": "2026-05-28T23:00:36.106142Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "David Krakauer (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -73466,6 +73493,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "David Krakauer (simulated)",
+      "duration_s": 125.453009,
+      "ended_at": "2026-05-28T23:00:36.113028+00:00",
+      "excerpt": "The proposal to treat 'skills' as discrete modules subject to executive optimization invites a historical comparison with the 19th-century attempt to catalog mental faculties as static organs. Just as phrenology mistook the map for the ter\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "david-krakauer",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/david-krakauer-simulated__2026-05-28__paper.md",
+      "started_at": "2026-05-28T22:58:30.660019+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -79926,16 +79969,6 @@
       "project_id": "PROJ-571-co-evolving-policy-distillation",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T09:11:14.299053Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 0.00018,
-      "ended_at": "2026-05-17T09:11:14.247838Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T09:11:14.247658Z"
     }
   ],
   "schema_version": "2.0.0"
