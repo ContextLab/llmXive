@@ -1,6 +1,6 @@
 {
   "stage": "spec",
   "label": "negative_gutted_requirement",
-  "expected_lens": "constraint_preservation",
-  "description": "Weakened requirement-strength markers (MUST \u2192 should; required \u2192 optional; exactly \u2192 approximately). Expected lens: constraint_preservation (REQUIREMENT-class \u2014 silent constraint relaxation). 2 markers weakened."
+  "expected_lens": "requirements_coverage",
+  "description": "Weakened requirement-strength markers (MUST \u2192 should; required \u2192 optional; exactly \u2192 approximately). Expected lens: constraint_preservation (REQUIREMENT-class \u2014 silent constraint relaxation). 2 markers weakened. (Stage `spec` override: catching lens is `requirements_coverage` rather than the injector's default `constraint_preservation`.)"
 }

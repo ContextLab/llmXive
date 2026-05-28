@@ -184,13 +184,25 @@ def build_set_for_stage(stage: str) -> list[CalibrationSetEntry]:
         # the stage doesn't override it, fall back to the injector's
         # default lens from its INJECTORS registry entry.
         effective_lens = lens_override or default_lens
+        # Append the effective-lens note to the description when the
+        # stage's lens differs from the injector's hardcoded default,
+        # so the on-disk label sidecar shows the resolved lens
+        # consistently with `expected_lens`.
+        description = injection.description
+        if lens_override and lens_override != default_lens:
+            description = (
+                description.rstrip(".") + ". "
+                f"(Stage `{stage}` override: catching lens is "
+                f"`{lens_override}` rather than the injector's default "
+                f"`{default_lens}`.)"
+            )
         entries.append(
             CalibrationSetEntry(
                 stage=stage,
                 label=f"negative_{injector_name}",
                 text=injection.text,
                 expected_lens=effective_lens,
-                description=injection.description,
+                description=description,
             )
         )
     return entries
