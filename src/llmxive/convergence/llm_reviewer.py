@@ -68,16 +68,32 @@ _STAGE_PREFIX: dict[str, str] = {
     "paper_tasked": "paper_tasks",
 }
 
+# Some stages reuse PRE-EXISTING per-lens prompt files that live at the
+# ``agents/prompts/`` root rather than under ``panels/`` — specifically
+# the spec-015 ``paper_review`` (12-panel) and ``research_review``
+# (8-panel) stages, which were established before the panels/ directory
+# convention. Mapping is ``stage → (relative_root, basename_pattern)``;
+# ``basename_pattern`` is formatted with the ``lens`` name. Lookup
+# falls through to ``_STAGE_PREFIX`` if a stage isn't here.
+_EXTERNAL_PROMPT_ROOTS: dict[str, tuple[str, str]] = {
+    "paper_review": ("agents/prompts", "paper_reviewer_{lens}.md"),
+    "research_review": ("agents/prompts", "research_reviewer_{lens}.md"),
+}
+
 
 def _prompt_path_for(*, stage: str, lens: str, repo_root: Path) -> Path:
     override = _FILENAME_OVERRIDES.get((stage, lens))
     if override is not None:
         return repo_root / _PANEL_DIR_REL / override
+    external = _EXTERNAL_PROMPT_ROOTS.get(stage)
+    if external is not None:
+        root_rel, pattern = external
+        return repo_root / root_rel / pattern.format(lens=lens)
     prefix = _STAGE_PREFIX.get(stage)
     if prefix is None:
         raise ValueError(
             f"unknown stage {stage!r}; no panel-prompt prefix mapping. "
-            f"Known: {sorted(_STAGE_PREFIX)!r}"
+            f"Known: {sorted({*_STAGE_PREFIX, *_EXTERNAL_PROMPT_ROOTS})!r}"
         )
     return repo_root / _PANEL_DIR_REL / f"panel_{prefix}_{lens}.md"
 
