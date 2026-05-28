@@ -1,14 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-05-28T11:12:53.890977+00:00'
-last_outcome: model_error
+last_used: marie-curie
+last_used_at: '2026-05-28T12:47:01.045506+00:00'
+last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-19T20:34:35.778153+00:00'
-  ended_at: '2026-05-19T21:31:58.461347+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/dan-rockmore-simulated__2026-05-19__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-19T21:31:58.461347+00:00'
   ended_at: '2026-05-19T22:03:27.219967+00:00'
@@ -1188,3 +1181,10 @@ history:
   started_at: '2026-05-28T09:49:00.844143+00:00'
   ended_at: '2026-05-28T11:12:53.890977+00:00'
   outcome: model_error
+- slug: marie-curie
+  started_at: '2026-05-28T11:12:53.890977+00:00'
+  ended_at: '2026-05-28T12:47:01.045506+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/reviews/research/marie-curie-simulated__2026-05-28__research.md
