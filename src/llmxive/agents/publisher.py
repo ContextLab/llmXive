@@ -13,7 +13,7 @@ import hashlib
 import json
 import re
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -38,7 +38,6 @@ from llmxive.types import (
     Stage,
     VolumeIssue,
 )
-
 
 _PUBLISH_BLOCKED_AFTER = 5  # FR-030
 
@@ -197,7 +196,7 @@ class PaperPublisher(Agent):
         return []
 
     def run(self, ctx: AgentContext) -> RunLogEntry:
-        started = datetime.now(timezone.utc)
+        started = datetime.now(UTC)
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
@@ -210,13 +209,34 @@ class PaperPublisher(Agent):
             project = project_state.load(ctx.project_id, repo_root=repo)
             if project is None:
                 raise FileNotFoundError(f"no project state for {ctx.project_id}")
-            if project.current_stage != Stage.PAPER_ACCEPTED:
+            # Spec 015 T035 / FR-036 + FR-054: publisher runs at PAPER_ACCEPTED OR
+            # AWAITING_PUBLICATION_SIGNOFF, and refuses to mint a DOI unless the
+            # maintainer sign-off has been recorded. Defense-in-depth alongside the
+            # graph gate: no Zenodo DOI is minted without explicit
+            # `llmxive project publish-approve`.
+            if project.current_stage not in (
+                Stage.PAPER_ACCEPTED, Stage.AWAITING_PUBLICATION_SIGNOFF,
+            ):
                 outcome = Outcome.SKIPPED
                 failure_reason = (
                     f"current_stage={project.current_stage.value} "
-                    f"(expected paper_accepted); no-op"
+                    f"(expected paper_accepted or awaiting_publication_signoff); no-op"
                 )
-                ended = datetime.now(timezone.utc)
+                ended = datetime.now(UTC)
+                return self._emit_run_log(
+                    ctx, started, ended, outcome, failure_reason, outputs,
+                    backend_used, model_used,
+                )
+            from llmxive.speckit._publication_signoff import read_signoff
+            project_memory_dir = repo / "projects" / project.id / ".specify" / "memory"
+            signoff = read_signoff(project_memory_dir)
+            if signoff is None:
+                outcome = Outcome.SKIPPED
+                failure_reason = (
+                    "awaiting manual maintainer DOI sign-off (FR-054); "
+                    "run `llmxive project publish-approve <PROJ-ID> --who X --what Y`"
+                )
+                ended = datetime.now(UTC)
                 return self._emit_run_log(
                     ctx, started, ended, outcome, failure_reason, outputs,
                     backend_used, model_used,
@@ -295,7 +315,7 @@ class PaperPublisher(Agent):
             concept_doi = published.concept_doi
 
             # Write publication.yaml.
-            ended = datetime.now(timezone.utc)
+            ended = datetime.now(UTC)
             doi_version = DOIVersion(
                 doi=doi,
                 version_index=(len(metadata.get("doi_versions") or []) + 1),
@@ -353,7 +373,7 @@ class PaperPublisher(Agent):
             n = _bump_failure_counter(repo, ctx.project_id, failed=True)
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
-            ended = datetime.now(timezone.utc)
+            ended = datetime.now(UTC)
             if n >= _PUBLISH_BLOCKED_AFTER:
                 try:
                     project_state.update(
@@ -368,7 +388,7 @@ class PaperPublisher(Agent):
                         f"{failure_reason} [transitioned to publish_blocked "
                         f"after {n} consecutive failures]"
                     )
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
             raise
         finally:

@@ -271,3 +271,89 @@ def test_clarifier_attempt_cap_writes_human_input(tmp_path):
         agent.write_artifacts(ctx, mech, resp)
     hin = proj / ".specify" / "memory" / "human_input_needed.yaml"
     assert hin.exists()
+
+
+# ---- T035 / FR-036 + FR-054 : publisher wiring + manual DOI sign-off --------
+
+
+def test_signoff_helper_round_trip(tmp_path):
+    """T035: write/read/has_signoff round-trip with FR-054 fields."""
+    from llmxive.speckit._publication_signoff import (
+        clear_signoff,
+        has_signoff,
+        read_signoff,
+        write_signoff,
+    )
+    mem = tmp_path / ".specify" / "memory"
+    assert not has_signoff(mem)
+    p = write_signoff(mem, who="jeremy", what="paper v1; 12 panel accept", kind="initial")
+    assert p.exists() and has_signoff(mem)
+    record = read_signoff(mem)
+    assert record is not None
+    assert record["who"] == "jeremy"
+    assert record["what"] == "paper v1; 12 panel accept"
+    assert record["kind"] == "initial"
+    assert record["when"]  # iso timestamp present
+    clear_signoff(mem)
+    assert not has_signoff(mem)
+
+
+def test_signoff_rejects_empty_who_or_what(tmp_path):
+    """T035: FR-054 record must have a non-empty who AND what."""
+    import pytest as _pt
+
+    from llmxive.speckit._publication_signoff import write_signoff
+    mem = tmp_path / "m"
+    with _pt.raises(ValueError):
+        write_signoff(mem, who="", what="x")
+    with _pt.raises(ValueError):
+        write_signoff(mem, who="x", what="  ")
+    with _pt.raises(ValueError):
+        write_signoff(mem, who="x", what="y", kind="bogus")
+
+
+def test_graph_paper_accepted_routes_to_awaiting_signoff():
+    """T035 / FR-036: paper_accepted no longer shortcuts to posted — it routes to
+    AWAITING_PUBLICATION_SIGNOFF, where it stays until signoff is recorded."""
+    src = (_REPO / "src" / "llmxive" / "pipeline" / "graph.py").read_text()
+    assert "return Stage.AWAITING_PUBLICATION_SIGNOFF" in src
+    assert "if cur == Stage.AWAITING_PUBLICATION_SIGNOFF:" in src
+    assert "from llmxive.speckit._publication_signoff import has_signoff" in src
+
+
+def test_publisher_refuses_to_mint_without_signoff():
+    """T035 / FR-054: even at paper_accepted, the publisher SKIPS with a clear
+    reason until the sign-off record exists (defense-in-depth gate)."""
+    src = (_REPO / "src" / "llmxive" / "agents" / "publisher.py").read_text()
+    assert "from llmxive.speckit._publication_signoff import read_signoff" in src
+    assert "awaiting manual maintainer DOI sign-off (FR-054)" in src
+    assert "AWAITING_PUBLICATION_SIGNOFF" in src
+    cli_src = (_REPO / "src" / "llmxive" / "cli.py").read_text()
+    assert '"publish-approve"' in cli_src
+    assert "_cmd_project_publish_approve" in cli_src
+
+
+def test_cli_publish_approve_writes_signoff(tmp_path):
+    """T035 / FR-054: `llmxive project publish-approve` writes the signoff
+    record under the project's .specify/memory."""
+    import os
+
+    from llmxive.cli import main
+
+    proj_id = "PROJ-T035-cli"
+    (tmp_path / "projects" / proj_id).mkdir(parents=True)
+    cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        rc = main([
+            "project", "publish-approve", proj_id,
+            "--who", "jeremy", "--what", "paper v1 approved",
+            "--kind", "initial",
+        ])
+    finally:
+        os.chdir(cwd)
+    assert rc == 0
+    record = tmp_path / "projects" / proj_id / ".specify" / "memory" / "publication_signoff.yaml"
+    assert record.exists()
+    body = record.read_text()
+    assert "jeremy" in body and "paper v1 approved" in body

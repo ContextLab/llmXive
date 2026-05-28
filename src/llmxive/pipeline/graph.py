@@ -14,28 +14,28 @@ without changing public APIs.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
+from llmxive.agents import registry as registry_loader
 from llmxive.agents.advancement import evaluate as advancement_evaluate
+from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.idea_lifecycle import (
     BrainstormAgent,
     FleshOutAgent,
     IdeaSelectorAgent,
     ResearchQuestionValidatorAgent,
 )
-from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.lifecycle import is_valid_transition
 from llmxive.agents.paper_initializer import PaperInitializerAgent
 from llmxive.agents.paper_reviewer import PaperReviewerAgent
 from llmxive.agents.project_initializer import (
     ProjectInitializerAgent,
-    transition_to_project_initialized,
 )
 from llmxive.agents.research_reviewer import ResearchReviewerAgent
-from llmxive.agents import registry as registry_loader
 from llmxive.agents.runner import run_agent
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.implement_cmd import ImplementerAgent
@@ -51,11 +51,9 @@ from llmxive.speckit.tasks_cmd import TaskerAgent
 from llmxive.state import project as project_store
 from llmxive.types import (
     AgentRegistryEntry,
-    BackendName,
     Project,
     Stage,
 )
-
 
 # Map (current_stage, agent_name) — the agent invoked when a project is
 # at the keyed stage. The agent's run() drives the transition to the
@@ -265,7 +263,7 @@ def run_one_step(
         project = project.model_copy(
             update={
                 "current_stage": next_stage,
-                "updated_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(UTC),
             }
         )
         project_store.save(project, repo_root=repo)
@@ -381,7 +379,7 @@ def run_one_step(
             )
         update_fields: dict[str, Any] = {
             "current_stage": next_stage,
-            "updated_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(UTC),
             "last_run_id": run_id,
         }
         # The Project schema requires human_escalation_reason when stage
@@ -431,7 +429,7 @@ def _decide_next_stage(
         if idea_dir.is_dir():
             archive_dir = idea_dir / ".archive"
             archive_dir.mkdir(parents=True, exist_ok=True)
-            ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
             for md in sorted(idea_dir.glob("*.md")):
                 # Don't archive diagnostic side-files; just the canonical
                 # idea body. We move only non-diagnostic .md files.
@@ -524,8 +522,21 @@ def _decide_next_stage(
         return Stage.CLARIFIED  # back to research clarified
     if cur == Stage.PAPER_FUNDAMENTAL_FLAWS:
         return Stage.BRAINSTORMED
+    # Spec 015 T035 / FR-036 + FR-054: PAPER_ACCEPTED no longer shortcuts directly
+    # to POSTED (the publisher was unwired AND no manual DOI sign-off existed).
+    # Now: PAPER_ACCEPTED -> AWAITING_PUBLICATION_SIGNOFF (the publisher assembles
+    # the manuscript during this transition), then AWAITING_PUBLICATION_SIGNOFF ->
+    # POSTED ONLY when the maintainer's sign-off record
+    # (`.specify/memory/publication_signoff.yaml`) has been written via
+    # `llmxive publish-approve`. The publisher itself also enforces this gate
+    # (defense in depth) so no DOI is ever minted without a recorded approval.
     if cur == Stage.PAPER_ACCEPTED:
-        return Stage.POSTED
+        return Stage.AWAITING_PUBLICATION_SIGNOFF
+    if cur == Stage.AWAITING_PUBLICATION_SIGNOFF:
+        from llmxive.speckit._publication_signoff import has_signoff
+        if has_signoff(project_dir / ".specify" / "memory"):
+            return Stage.POSTED
+        return Stage.AWAITING_PUBLICATION_SIGNOFF
 
     return STAGE_AFTER_AGENT.get(cur, cur)
 
@@ -537,4 +548,4 @@ def _collect_idea_inputs(project_dir: Path, repo: Path) -> list[str]:
     return [str(p.relative_to(repo)) for p in sorted(idea_dir.glob("*.md"))]
 
 
-__all__ = ["run_one_step", "STAGE_TO_AGENT", "STAGE_AFTER_AGENT"]
+__all__ = ["STAGE_AFTER_AGENT", "STAGE_TO_AGENT", "run_one_step"]

@@ -12,7 +12,8 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC
 
 from llmxive import credentials as cred_mod
 from llmxive import preflight
@@ -226,14 +227,13 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     without network access. The fallback is logged so cron operators
     notice when the LLM path is broken.
     """
-    from datetime import datetime, timezone
-    from pathlib import Path
     import random
     import re
+    from datetime import datetime
+    from pathlib import Path
 
     from llmxive.agents import idea_lifecycle
     from llmxive.agents import registry as registry_loader
-    from llmxive.agents.base import AgentContext
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.router import chat_with_fallback
     from llmxive.state import project as project_store
@@ -251,7 +251,7 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     field_pool = [args.field] if args.field else list(LIBRARIAN_DEFAULT_FIELDS)
 
     n_target = max(1, args.count)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     try:
         entry = registry_loader.get("brainstorm")
@@ -318,7 +318,7 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
                 title = m.group(1).strip().strip("*").strip()
                 break
         if not title:
-            print(f"[brainstorm] no title heading in response; skipping", file=sys.stderr)
+            print("[brainstorm] no title heading in response; skipping", file=sys.stderr)
             continue
         if any(title.lower() == t.lower() for t in existing_titles):
             print(f"[brainstorm] duplicate title {title!r}; skipping", file=sys.stderr)
@@ -458,7 +458,7 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
             for f in heal_summary["failed"]:
                 print(f"[submissions] heal failed for {f['project']}: {f['reason']}",
                       file=sys.stderr)
-    except Exception as exc:  # noqa: BLE001 — heal is best-effort
+    except Exception as exc:
         print(f"[submissions] heal pass failed (non-fatal): {exc!r}", file=sys.stderr)
 
     # ── list open human-submission issues (paginated) ──
@@ -523,8 +523,8 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
 
 def _cmd_speckit_audit_artifacts(args: argparse.Namespace) -> int:
     """`llmxive speckit audit-artifacts` (FR-007)."""
-    from pathlib import Path
     import json
+    from pathlib import Path
 
     from llmxive.audit.speckit_prune import audit_artifacts
 
@@ -548,7 +548,6 @@ def _cmd_speckit_audit_artifacts(args: argparse.Namespace) -> int:
 def _cmd_speckit_prune_templates(args: argparse.Namespace) -> int:
     """`llmxive speckit prune-templates` (FR-008/FR-009)."""
     from pathlib import Path
-    import json
 
     from llmxive.audit.speckit_prune import prune_templates
 
@@ -581,13 +580,13 @@ def _cmd_speckit_prune_templates(args: argparse.Namespace) -> int:
 
 def _cmd_pdf_audit(args: argparse.Namespace) -> int:
     """`llmxive pdf-pipeline audit <path>` (FR-014)."""
-    from datetime import datetime, timezone
+    from datetime import datetime
     from pathlib import Path
 
     from llmxive.pipeline.pdf_pipeline.audit import audit_directory, audit_pdf
 
     path = Path(args.path)
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     out_dir = Path(args.out_dir) / today
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -622,7 +621,7 @@ def _cmd_project_unblock(args: argparse.Namespace) -> int:
     was recorded (mtime check). On success, transitions the project to
     PAPER_REVIEW (or PAPER_MINOR_REVISION if --to-minor is passed).
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
     from pathlib import Path
 
     from llmxive.state import project as project_store
@@ -632,7 +631,7 @@ def _cmd_project_unblock(args: argparse.Namespace) -> int:
     repo = Path.cwd()
     try:
         project = project_store.load(project_id, repo_root=repo)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[unblock] ERROR: cannot load {project_id}: {exc}", file=sys.stderr)
         return 2
 
@@ -657,7 +656,7 @@ def _cmd_project_unblock(args: argparse.Namespace) -> int:
         )
         return 2
     latest_round = round_files[-1]
-    file_mtime = datetime.fromtimestamp(latest_round.stat().st_mtime, tz=timezone.utc)
+    file_mtime = datetime.fromtimestamp(latest_round.stat().st_mtime, tz=UTC)
     if file_mtime <= project.updated_at:
         print(
             f"[unblock] ERROR: {latest_round.name} mtime ({file_mtime.isoformat()}) is "
@@ -670,11 +669,42 @@ def _cmd_project_unblock(args: argparse.Namespace) -> int:
     target = Stage.PAPER_MINOR_REVISION if args.to_minor else Stage.PAPER_REVIEW
     project = project.model_copy(update={
         "current_stage": target,
-        "updated_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(UTC),
         "revision_spec_path": None,
     })
     project_store.save(project, repo_root=repo)
     print(f"[unblock] {project_id}: paper_revision_blocked → {target.value}")
+    return 0
+
+
+def _cmd_project_publish_approve(args: argparse.Namespace) -> int:
+    """`llmxive project publish-approve <PROJ-ID> --who X --what Y` (spec 015 / FR-054).
+
+    Records the mandatory manual maintainer sign-off before any Zenodo DOI is
+    minted (initial publication or living-document version). The publisher and
+    the pipeline graph both refuse to advance past
+    ``AWAITING_PUBLICATION_SIGNOFF`` until this record exists.
+    """
+    from pathlib import Path
+
+    from llmxive.speckit._publication_signoff import write_signoff
+
+    project_id = args.project_id
+    repo = Path.cwd()
+    project_dir = repo / "projects" / project_id
+    if not project_dir.is_dir():
+        print(f"[publish-approve] ERROR: no project dir {project_dir}", file=sys.stderr)
+        return 2
+    memory_dir = project_dir / ".specify" / "memory"
+    try:
+        path = write_signoff(memory_dir, who=args.who, what=args.what, kind=args.kind)
+    except ValueError as exc:
+        print(f"[publish-approve] ERROR: {exc}", file=sys.stderr)
+        return 2
+    print(
+        f"[publish-approve] {project_id}: recorded {args.kind} sign-off "
+        f"by {args.who!r} → {path.relative_to(repo)}"
+    )
     return 0
 
 
@@ -813,6 +843,27 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_unblock.set_defaults(func=_cmd_project_unblock)
 
+    # Spec 015 T035 / FR-054: manual maintainer DOI sign-off before any Zenodo
+    # publication. Records who/when/what to .specify/memory/publication_signoff.yaml.
+    p_signoff = project_subs.add_parser(
+        "publish-approve",
+        help="record manual maintainer sign-off for DOI mint (FR-054)",
+    )
+    p_signoff.add_argument("project_id", help="e.g. PROJ-261-evaluating-the-impact-...")
+    p_signoff.add_argument(
+        "--who", required=True,
+        help="approver identity (e.g. github login or human-readable name)",
+    )
+    p_signoff.add_argument(
+        "--what", required=True,
+        help="one-line description of what is being approved (e.g. 'paper v1, all 12 reviewers accept')",
+    )
+    p_signoff.add_argument(
+        "--kind", choices=("initial", "version"), default="initial",
+        help="initial publication or a living-document version DOI (default: initial)",
+    )
+    p_signoff.set_defaults(func=_cmd_project_publish_approve)
+
     return parser
 
 
@@ -826,4 +877,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["main", "build_parser"]
+__all__ = ["build_parser", "main"]
