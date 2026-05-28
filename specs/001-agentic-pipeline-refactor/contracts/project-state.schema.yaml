@@ -71,6 +71,8 @@ properties:
       - paper_revision_in_progress
       - ready_for_implementation
       - paper_revision_blocked
+      # Spec 015 / FR-036+FR-054: manual maintainer DOI sign-off gate before posting.
+      - awaiting_publication_signoff
       - posted
       # Spec 013 / FR-030: publisher blocks a project after 5 consecutive
       # Zenodo failures (cleared via `llmXive project republish`).

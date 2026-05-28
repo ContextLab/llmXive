@@ -60,7 +60,6 @@ class TestArxivIntakeFallback:
         # just verify the path-selection logic by reading the source.
         # An integration-style test would need the full agents-registry
         # stack which is out of unit-test scope.
-        from llmxive.agents.paper_reviewer import PaperReviewerAgent
         # Sanity: confirm the file references the metadata.json fallback.
         src = Path(__file__).resolve().parents[2] / "src" / "llmxive" / "agents" / "paper_reviewer.py"
         text = src.read_text()
@@ -76,7 +75,6 @@ class TestArxivIntakeFallback:
         """A project with NEITHER paper/specs/ NOR paper/metadata.json
         is a real precondition violation — the reviewer must still
         hard-fail with an actionable message."""
-        from llmxive.agents.paper_reviewer import PaperReviewerAgent
         # Just confirm the source still has the hard-fail branch.
         src = Path(__file__).resolve().parents[2] / "src" / "llmxive" / "agents" / "paper_reviewer.py"
         text = src.read_text()

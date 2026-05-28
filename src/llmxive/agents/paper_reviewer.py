@@ -621,11 +621,11 @@ class PaperReviewerAgent(Agent):
             items = []
         from llmxive.types import action_item_id  # local import to avoid cycle at module load
         import re as _re
-        normalized: list[dict] = []
+        normalized: list[dict[str, Any]] = []
         for raw in items:
             if not isinstance(raw, dict):
                 continue
-            text = raw.get("text")
+            text = str(raw.get("text") or "").strip()
             severity = raw.get("severity")
             if not text or severity not in ("writing", "science", "fatal"):
                 continue

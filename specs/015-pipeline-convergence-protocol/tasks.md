@@ -97,10 +97,10 @@
 
 ### Implementation
 
-- [ ] T030 [P] [US8] Author a real research-code implementer prompt `src/llmxive/agents/prompts/implementer_research.md`; point the research implementer at it (registry + stop hardcoding the LaTeX prompt) in `src/llmxive/speckit/implement_cmd.py`
+- [ ] T030 [P] [US8] Author a real research-code implementer prompt `agents/prompts/implementer_research.md`; point the research implementer at it (registry + stop hardcoding the LaTeX prompt) in `src/llmxive/speckit/implement_cmd.py`
 - [ ] T031 [P] [US8] Fix dead `ANALYZE_SYSTEM_PROMPT_PATH`; give the paper analyze loop a paper-appropriate prompt; pass `project_dir` so comments are injected in the live loop in `src/llmxive/speckit/analyze_cmd.py`
 - [ ] T032 [P] [US8] Fix dead escalation paths (`clarifier.attempts_so_far` no longer hardcoded 0; `paper_clarifier` branches on `escalate`) in `src/llmxive/speckit/clarify_cmd.py` and `paper_clarify_cmd.py`
-- [ ] T033 [P] [US8] Resolve `code_summary`/`data_summary` prompt input drift (supply or remove) and stage-header drift in `src/llmxive/agents/prompts/paper_specifier.md`, `paper_clarifier.md`, and other drifted headers
+- [ ] T033 [P] [US8] Resolve `code_summary`/`data_summary` prompt input drift (supply or remove) and stage-header drift in `agents/prompts/paper_specifier.md`, `paper_clarifier.md`, and other drifted headers
 - [ ] T034 [P] [US8] arXiv/theoremsearch graceful degradation on transient 429/503/timeout (retry+backoff → recorded "unavailable" notice; non-transient still raises) in `src/llmxive/librarian/theoremsearch*.py`
 - [ ] T035 [US8] Implement the manual DOI sign-off gate (FR-054): publisher writes `pending_publication.yaml` + halts at `awaiting_publication_signoff`; `llmxive publish-approve <PROJ-ID>` writes `publication_signoff.yaml`; mint only on matching `content_hash` in `src/llmxive/agents/publisher.py` and `src/llmxive/cli.py`
 - [ ] T036 [US8] Verify all 10 bugs fixed by direct inspection + a real partial run; update STATUS.md
@@ -146,11 +146,11 @@
 ### Implementation
 
 - [ ] T048 [US4] Implement the `reviewspec_for(stage)` registry (per-stage ReviewSpec + EXEMPT set) per contracts/reviewspec-registry.md in `src/llmxive/convergence/reviewspecs.py`
-- [ ] T049 [P] [US4] Author idea panel prompts (`rq_validity`, `novelty`, `feasibility`, optional `idea_quality`) in `src/llmxive/agents/prompts/panels/`
-- [ ] T050 [P] [US4] Author spec panel prompts (`requirements_coverage`, `internal_consistency`, `testability`, `scope`) in `src/llmxive/agents/prompts/panels/`
-- [ ] T051 [P] [US4] Author plan panel prompts (`methodology`, `spec_coverage`, `data_resources`, `plan_consistency`) in `src/llmxive/agents/prompts/panels/`
-- [ ] T052 [P] [US4] Author tasks panel prompts (`coverage`, `ordering`, `executability`, `constraint_preservation`) in `src/llmxive/agents/prompts/panels/`
-- [ ] T053 [P] [US4] Author paper-track panel prompts (paper-spec/paper-plan/paper-tasks lenses) in `src/llmxive/agents/prompts/panels/`
+- [ ] T049 [P] [US4] Author idea panel prompts (`rq_validity`, `novelty`, `feasibility`, optional `idea_quality`) in `agents/prompts/panels/`
+- [ ] T050 [P] [US4] Author spec panel prompts (`requirements_coverage`, `internal_consistency`, `testability`, `scope`) in `agents/prompts/panels/`
+- [ ] T051 [P] [US4] Author plan panel prompts (`methodology`, `spec_coverage`, `data_resources`, `plan_consistency`) in `agents/prompts/panels/`
+- [ ] T052 [P] [US4] Author tasks panel prompts (`coverage`, `ordering`, `executability`, `constraint_preservation`) in `agents/prompts/panels/`
+- [ ] T053 [P] [US4] Author paper-track panel prompts (paper-spec/paper-plan/paper-tasks lenses) in `agents/prompts/panels/`
 - [ ] T054 [US4] Collapse `specifier`+`clarifier` into ONE spec convergence unit (reviewed once after clarify); route oversized authoring inputs (all `idea/*.md` + comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/specify_cmd.py` + `clarify_cmd.py`
 - [ ] T055 [US4] Collapse `paper_specifier`+`paper_clarifier` into ONE paper-spec unit; route oversized authoring inputs (full research spec+plan+tasks + comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/paper_specify_cmd.py` + `paper_clarify_cmd.py`
 - [ ] T056 [US4] Wire `planner` (and its paper twin `paper_planner`) as reviser + plan panel; keep deterministic guards as a pre-filter; route oversized authoring inputs (spec+constitution+template+dataset+comments) through `tools/summarize` (FR-006) in `src/llmxive/speckit/plan_cmd.py` + `paper_plan_cmd.py`

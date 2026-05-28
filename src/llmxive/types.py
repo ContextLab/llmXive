@@ -312,7 +312,7 @@ class ReviewRecord(_Strict):
     reviewer_kind: ReviewerKind
     artifact_path: str
     artifact_hash: Sha256Field
-    score: Literal[0.0, 0.5, 1.0]
+    score: float
     verdict: Literal[
         "accept",
         "minor_revision",
@@ -337,6 +337,16 @@ class ReviewRecord(_Strict):
     # non-empty for non-accept (validator below). Old records (without this
     # field) load with the default empty list — back-compat preserved.
     action_items: list[ActionItem] = Field(default_factory=list)
+
+    @field_validator("score")
+    @classmethod
+    def _score_in_allowed_set(cls, v: float) -> float:
+        # Spec 015 removes the point system, but this field is retained for
+        # back-compat with stored records; preserve the historical constraint.
+        # (Replaces a Literal[float] annotation, which is invalid per PEP 586.)
+        if v not in (0.0, 0.5, 1.0):
+            raise ValueError("score must be one of 0.0, 0.5, 1.0")
+        return v
 
     @model_validator(mode="after")
     def _score_matches_verdict(self) -> ReviewRecord:
