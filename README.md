@@ -22,10 +22,15 @@ validator) → `specified` → `clarified` → `planned` → `tasked` (+ analyze
 `in progress` (the implementer writes code, runs real tests, collects data; the
 librarian verifies citations) → `research review`.
 
-Research review needs **both** a points threshold **and** an accept verdict from
-**every** specialist reviewer in the lane — seven of them: idea quality,
-creativity, implementation correctness, completeness, code quality, data
-quality, filesystem hygiene.
+Research review (spec 015 / #239) runs as an **identify → revise → re-review**
+convergence loop driven by the 8-reviewer panel (idea quality, creativity,
+implementation correctness, completeness, code quality, data quality,
+filesystem hygiene, plus the generic research reviewer). Each panelist raises
+critical concerns; the implementer addresses every concern with a per-concern
+change-log; each panelist re-judges its own concerns. The gate is **unanimous
+panel acceptance** within the 3-round cap; otherwise the project is **kicked
+back** to the appropriate prior stage (adaptive by worst unresolved severity)
+carrying full provenance. There is no accumulated point system.
 
 ### The paper pipeline
 
@@ -76,7 +81,10 @@ The twelve specialist reviewers (writing quality, logical consistency,
 claim accuracy, over-reach, safety/ethics, scientific evidence,
 statistical analysis, code quality, data quality, text formatting,
 figure critic, jargon police) each emit action items in their lane.
-Human reviews count double; self-review is rejected by the schema.
+Human and simulated-personality reviews are **advisory inputs**, routed
+through a stage-aware triage (quality + safety + on-topic filters) to the
+matching LLM reviewer's lens — they inform a reviewer's verdict but never
+directly gate advancement. Self-review is rejected by the schema.
 
 arXiv-submitted papers (third-party, source frozen) skip the writing-
 revision pipeline. Instead the consolidated action items land in
@@ -176,7 +184,7 @@ never duplicates data, it derives it.
   feedback; the `submission_intake` agent (hourly cron) triages it to the right
   pipeline step.
 - **Review existing content** — sign in with GitHub and add a verdict on a
-  project's spec, plan, code, data, or paper. Human reviews count double.
+  project's spec, plan, code, data, or paper. Human reviews are advisory inputs (triaged + routed to the matching LLM reviewer's lens, never a gate).
 - **Explore the pipeline / agent registry** — the About page's pipeline diagram
   and "Agent registry" button open in-place modals with each step's
   inputs/outputs/agents/examples and each agent's prompt + tools.
@@ -278,7 +286,7 @@ About page):
 3. **Provide feedback** — leave feedback on any artifact; it's triaged within
    the hour.
 4. **Review existing content** — add a human review on a project at a review
-   stage. Human reviews count double.
+   stage. Human reviews are advisory inputs (triaged + routed to the matching LLM reviewer's lens, never a gate).
 
 ## License
 
