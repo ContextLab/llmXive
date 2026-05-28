@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-05-28T03:48:55.777547+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-05-28T05:26:44.163050+00:00'
 last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-05-19T13:38:04.829768+00:00'
-  ended_at: '2026-05-19T15:06:06.903007+00:00'
-  outcome: librarian_held
-  action: propose_arxiv
-  committed_paths:
-  - state/personality-submissions/_held/20260519T150606Z__stephen-wolfram.yaml
 - slug: stephen-wolfram
   started_at: '2026-05-19T15:06:06.903007+00:00'
   ended_at: '2026-05-19T16:36:29.750930+00:00'
@@ -1191,3 +1184,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/eric-kandel-simulated__2026-05-28__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-28T03:48:55.777547+00:00'
+  ended_at: '2026-05-28T05:26:44.163050+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/freeman-dyson-simulated__2026-05-28__research.md
