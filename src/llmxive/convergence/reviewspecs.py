@@ -388,9 +388,56 @@ def build_paper_spec_reviewspec(
     return base
 
 
+def build_plan_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the research-plan convergence unit (T056).
+
+    The reviser edits MULTIPLE design docs (plan.md + research.md +
+    data-model.md + quickstart.md + contracts/*); see :class:`PlanReviser`."""
+    from .revisers.plan_reviser import PlanReviser
+
+    base = _spec_research_plan()
+    base.reviser = PlanReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
+def build_paper_plan_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the paper-plan convergence unit (T056).
+
+    Paper-track twin of :func:`build_plan_reviewspec`; see :class:`PaperPlanReviser`."""
+    from .revisers.plan_reviser import PaperPlanReviser
+
+    base = _spec_paper_plan()
+    base.reviser = PaperPlanReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
 __all__ = [
     "EXEMPT_STAGES",
+    "build_paper_plan_reviewspec",
     "build_paper_spec_reviewspec",
+    "build_plan_reviewspec",
     "build_spec_reviewspec",
     "reviewable_stages",
     "reviewspec_for",
