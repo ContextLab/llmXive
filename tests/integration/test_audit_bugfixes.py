@@ -202,6 +202,45 @@ def test_clarifier_escalate_verdict_writes_human_input(tmp_path):
     assert hin.exists(), "escalate verdict must write human_input_needed.yaml"
 
 
+def test_paper_specifier_supplies_code_and_data_summary(tmp_path):
+    """T033 (discrepancy #10): paper_specifier.md advertised code_summary /
+    data_summary inputs the code never supplied. The build_prompt must now
+    inject both, with content drawn from the project's code/ and data/ trees."""
+    from llmxive.speckit.paper_specify_cmd import PaperSpecifierAgent
+
+    proj = tmp_path / "projects" / "PROJ-T033-x"
+    (proj / "code").mkdir(parents=True)
+    (proj / "data").mkdir(parents=True)
+    (proj / "code" / "baseline.py").write_text("def run(): pass\n", encoding="utf-8")
+    (proj / "data" / "results.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+    (proj / "specs" / "001-x").mkdir(parents=True)
+    (proj / "specs" / "001-x" / "spec.md").write_text("research spec body", encoding="utf-8")
+    (proj / "paper" / ".specify" / "templates").mkdir(parents=True)
+    (proj / "paper" / ".specify" / "templates" / "spec-template.md").write_text(
+        "template body", encoding="utf-8",
+    )
+    (proj / "paper" / "specs").mkdir()
+
+    from unittest.mock import patch
+    agent = PaperSpecifierAgent()
+    ctx = _make_ctx("PROJ-T033-x", proj, "paper_specifier")
+    mech = {
+        "FEATURE_NUM": "001", "FEATURE_DIR": str(proj / "paper" / "specs" / "001-x"),
+        "BRANCH_NAME": "001-x",
+    }
+    # The system prompt file lives in the real repo; build_prompt uses
+    # ctx.project_dir.parent.parent to find it. Stub it for this offline test —
+    # the user-message content (code_summary / data_summary) is what we verify.
+    with patch("llmxive.speckit.paper_specify_cmd.render_prompt", return_value="<system>"):
+        msgs = agent.build_prompt(ctx, mech)
+    user_msg = next(m.content for m in msgs if m.role == "user")
+    assert "# code_summary" in user_msg
+    assert "# data_summary" in user_msg
+    # The actual files appear in the summaries.
+    assert "baseline.py" in user_msg
+    assert "results.csv" in user_msg
+
+
 def test_clarifier_attempt_cap_writes_human_input(tmp_path):
     """T032: when the persisted attempt count reaches TASKER_MAX_REVISION_ROUNDS
     on a failing run, the clarifier escalates to human input."""
