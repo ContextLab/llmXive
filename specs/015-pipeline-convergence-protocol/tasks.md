@@ -70,7 +70,7 @@
 
 - [X] T019 [P] [US2] Unit tests for the round loop (R1/R2/R3, 3-round cap, honest `converged`, stale-verdict + self-review detection, per-round budget) in `tests/unit/test_convergence_engine.py`
 - [X] T020 [P] [US2] Unit tests for kickback routing (worst-severity→stage, full-provenance record) in `tests/unit/test_kickback.py`
-- [ ] T021 [P] [US2] Integration test: single-step convergence on a real project (Tasks step) in `tests/integration/test_convergence_tasks_step.py`
+- [X] T021 [P] [US2] Integration test: single-step convergence on a real project (Tasks step) in `tests/integration/test_convergence_tasks_step.py`
 
 ### Implementation
 
