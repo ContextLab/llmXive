@@ -215,12 +215,12 @@
 
 ### Tests (write FIRST)
 
-- [ ] T076 [P] [US7] Integration test: comment → log → recompile → Discussion section → version-DOI gate (and off-topic exclusion) in `tests/integration/test_living_document.py`
+- [X] T076 [P] [US7] Integration test: comment → log → recompile → Discussion section → version-DOI gate (and off-topic exclusion) in `tests/integration/test_living_document.py`
 
 ### Implementation
 
-- [ ] T077 [US7] Implement post-`posted` comment ingestion via `triage` → project log + batched recompile queue in `src/llmxive/agents/publisher.py` (or a `living_document.py` module)
-- [ ] T078 [US7] Implement Discussion-section render/update + material-PDF-change detection; mint a NEW Zenodo version DOI via the same FR-054 sign-off gate, only on material change in `src/llmxive/agents/publisher.py`
+- [X] T077 [US7] Implement post-`posted` comment ingestion via `triage` → project log + batched recompile queue in `src/llmxive/agents/publisher.py` (or a `living_document.py` module)
+- [X] T078 [US7] Implement Discussion-section render/update + material-PDF-change detection; mint a NEW Zenodo version DOI via the same FR-054 sign-off gate, only on material change in `src/llmxive/agents/publisher.py`
 - [ ] T079 [US7] Verify on a real `posted` project (post US6): on-topic comment recompiles + version DOI after sign-off; off-topic excluded, no recompile; update STATUS.md
 
 **Checkpoint**: published papers are living documents.
