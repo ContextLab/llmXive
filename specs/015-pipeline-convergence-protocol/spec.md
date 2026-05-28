@@ -34,6 +34,11 @@ This feature follows the precedent of specs 011/012/014: validation uses **real*
 - Q: How much of the living-document / discussion board (§2b) must this feature deliver? → A: **Full** — triaged post-publication comments append to the project log AND trigger a batched recompile that renders/updates a Discussion section AND mints a new Zenodo version DOI when the PDF materially changes.
 - Q: How are projects currently in-flight under the point model handled when points are removed? → A: **Migrate forward + re-evaluate** — re-express the public status model in convergence terms and re-evaluate any in-flight project under unanimous-panel convergence on its next tick (one clean model everywhere).
 - Q: What happens when, even after deterministic extraction, the check-critical verbatim elements of a review input cannot all fit in the model's context budget? → A: **Inode-table content-addressing.** Over-budget content is replaced with a **pointer to file(s) on disk**, which may themselves contain further pointers (to other files) or summaries — a hierarchy analogous to filesystem inode tables. Critical elements are NEVER silently dropped; they live on disk and are paged in on demand. On the ingestion side, every relevant agent must support **iteratively/recursively dereferencing** these pointer/summary structures to read in what it needs. This must be reliable and is implemented by a **core paired set of functions** (working names `summarize` / `desummarize`) that agents call as needed, and must be comprehensively tested. This SUPERSEDES the design doc's "last-resort hard-truncate WITH A NOTICE."
+- Q: Where should validation runs publish? → A: **Real public publication** (real Zenodo DOI, real GitHub issue close, real site post) for all end-to-end runs — with one mandatory safeguard for the duration of this spec's implementation: **the maintainer must manually examine and sign off BEFORE any DOI is minted** (initial publication AND every living-document version DOI). No DOI is created without a recorded human approval.
+- Q: How many of the 9 domains must be demonstrated end-to-end? → A: **All 9 domains** must traverse the entire pipeline to `posted` end-to-end (the held-out domain additionally validates prompt generality at the unit level).
+- Q: What is the calibration acceptance method/target? → A: A **differential clean-vs-injected** test, NOT a fixed numeric over-flag ceiling. For each calibration case: (1) review the clean artifact; (2) review the same artifact with a known injected flaw; (3) confirm the injected flaw is caught in (2) and absent from (1). Any ADDITIONAL findings get **manual adjudication** (Claude evaluates; maintainer spot-checks) to decide true-problem vs false-positive. Minor false positives that resolve within one review/revision round are acceptable; many false positives → reduce sensitivity; a missed injected flaw → increase sensitivity. Tuning is adaptive, not a preset percentage.
+- Q: What bounds the total number of kickbacks before a project gives up? → A: **No upper limit.** Each kickback carries full provenance and each cycle is expected to monotonically improve the project until it converges. The per-step cap (3 rounds → kickback) is retained, but there is NO global "give-up" budget; the engine never abandons a convergable project. Loud terminal states remain only for genuine agent/tool/backend failures, not for convergence exhaustion.
+- Q: How are already-`posted`/`done` projects handled at point-system cutover? → A: **Non-issue — no `posted`/`done` projects currently exist.** Migration therefore applies only to in-flight projects (re-evaluated under unanimous convergence on their next tick); there is no completed/published work to grandfather or re-review.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -113,26 +118,26 @@ A maintainer needs the reviewers calibrated so that a sufficiently high-quality 
 
 **Why this priority**: Unanimous acceptance demands well-calibrated reviewers — one over-strict reviewer forces a kickback; one under-strict reviewer rubber-stamps bad work. This is the explicit "tricky and high-impact" workstream and the hard success criterion of the feature.
 
-**Independent Test**: For each panel, run its labeled set and measure recall on injected critical flaws and the over-flag rate on the good set; calibrate prompts on a subset of fields and validate on a **held-out** field; confirm the un-tuned prompt still meets targets on the held-out domain.
+**Independent Test**: For each panel, run the differential clean-vs-injected test on its labeled set, manually adjudicate any extra findings, and adaptively tune sensitivity; calibrate prompts on a subset of fields and validate on a **held-out** field; confirm the un-tuned prompt still catches injected flaws without systematic over-flagging on the held-out domain.
 
 **Acceptance Scenarios**:
 
-1. **Given** a per-panel labeled set, **When** the panel reviews it, **Then** it catches 100% of injected critical flaws (by the correct lens) and keeps the over-flag rate on good artifacts below the calibration target.
+1. **Given** a calibration case in clean and injected forms, **When** the panel reviews both, **Then** it catches the injected critical flaw (by the correct lens) in the injected form and not in the clean form, and any extra findings are manually adjudicated as true-problem vs false-positive.
 2. **Given** a real published paper reverse-engineered into an idea for each of the 9 domains, **When** pushed through a step's panel, **Then** the panel accepts it (no fabricated critical that blocks good work).
 3. **Given** prompts calibrated on a subset of fields, **When** evaluated on a held-out field, **Then** the same un-tuned prompts still meet recall + over-flag targets (domain-generality).
-4. **Given** noise from model temperature, **When** a case is run K times, **Then** a high fraction (not a single lucky pass) meets the target.
+4. **Given** noise from model temperature, **When** the differential check is repeated, **Then** the injected flaw is reliably caught across runs; systematic false positives or misses drive a recorded sensitivity adjustment.
 
 ### User Story 6 — End-to-end traversal proof on real projects (Priority: P1)
 
-A maintainer needs proof that the assembled system delivers the goal property: push real high-quality project(s) through the **entire** pipeline and confirm they reach `posted`; push weak project(s) through and confirm they are rejected or kicked back. Every produced artifact is **directly inspected** for truncation, missing artifacts, broken tools, or poor quality; PROJ-261 (computer science) and PROJ-262 (chemistry) serve as end-to-end smoke tests (real, two domains) — they are smoke tests, NOT the quality bar. The quality bar is the calibration workstream (US5).
+A maintainer needs proof that the assembled system delivers the goal property: push a real high-quality project in **each of the 9 domains** through the **entire** pipeline and confirm each reaches `posted`; push weak project(s) through and confirm they are rejected or kicked back. Every produced artifact is **directly inspected** for truncation, missing artifacts, broken tools, or poor quality. PROJ-261 (computer science) and PROJ-262 (chemistry) are two of the nine domains; the per-step calibration workstream (US5) is the quality bar that makes this traversal reliable.
 
 **Why this priority**: This is the integration proof. A green per-step result can still hide an integration failure (e.g., a step that summarizes away a critical element, a kickback loop, the publisher never minting a DOI).
 
-**Independent Test**: Run a golden positive project through every stage to `posted` K times and confirm a high pass-rate; run a weak project and confirm rejection/kickback; open every produced artifact (spec/plan/tasks/code/data/paper/PDF/DOI/publication.yaml) and confirm by direct inspection it is real, complete, untruncated, and domain-appropriate.
+**Independent Test**: Run a real high-quality project in each of the 9 domains through every stage to `posted` (repeated for noise-robustness; real publication after the manual DOI sign-off); run a weak project and confirm rejection/kickback; open every produced artifact (spec/plan/tasks/code/data/paper/PDF/DOI/publication.yaml) and confirm by direct inspection it is real, complete, untruncated, and domain-appropriate.
 
 **Acceptance Scenarios**:
 
-1. **Given** a golden positive project, **When** run end-to-end across K runs, **Then** it reaches `posted` at a high rate with a real Zenodo DOI, a compiled PDF, and `publication.yaml`.
+1. **Given** a golden positive project in each of the 9 domains, **When** run end-to-end, **Then** each reaches `posted` with a real public Zenodo DOI (minted after the manual sign-off), a compiled PDF, and `publication.yaml`.
 2. **Given** a weak project, **When** run end-to-end, **Then** it is rejected or kicked back (does not reach `posted`).
 3. **Given** any completed end-to-end run, **When** the maintainer inspects each artifact, **Then** there is no silent truncation, no missing artifact, no broken-tool placeholder, and no agent that marked a task done with placeholder content.
 
@@ -147,7 +152,7 @@ A maintainer needs published papers to behave as **living documents**: after a p
 **Acceptance Scenarios**:
 
 1. **Given** a `posted` project, **When** an on-topic, safe, evidence-based comment arrives, **Then** it is appended to the project log and queued for the batched recompile.
-2. **Given** a batch of queued comments that materially change the PDF, **When** the recompile runs, **Then** the paper's Discussion section is added/updated and a new Zenodo version DOI is minted; if the PDF is not materially changed, no new DOI is minted.
+2. **Given** a batch of queued comments that materially change the PDF, **When** the recompile runs and the maintainer signs off, **Then** the paper's Discussion section is added/updated and a new Zenodo version DOI is minted; if the PDF is not materially changed, no new DOI is minted.
 3. **Given** an off-topic or unsafe comment, **When** triage runs, **Then** it is excluded from the log and triggers no recompile.
 
 ### User Story 8 — Audit bug fixes wired so the pipeline actually works (Priority: P1)
@@ -178,7 +183,7 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 
 **Convergence / review (US2–US5):**
 - A single over-strict reviewer that forces an avoidable kickback (calibration failure) vs. a genuine non-convergence — distinguished by calibration targets.
-- A kickback that re-enters a stage and fails to converge again (kickback loop / livelock) — bounded by a total budget; surfaces as a loud, inspectable terminal state, never an infinite loop or silent stall.
+- A kickback that re-enters a stage carries full provenance so the next attempt improves; there is NO global kickback cap (each cycle is expected to improve toward convergence). Lack of progress (identical unresolved concerns recurring with no improvement) is tracked and surfaced as an inspectable signal, but the engine does not abandon a convergable project; only genuine agent/tool/backend failures reach a loud terminal state.
 - Self-review prevention: a reviewer must not review work it produced.
 - Stale verdicts: a reviewer's prior verdict on a since-changed artifact must not count as a current pass.
 - Advisory review that maps to no covered lens → routed to the step's generic reviewer, else recorded-but-not-actioned; still preserved if quality+safety+on-topic.
@@ -214,7 +219,7 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 - **FR-014**: On non-convergence the engine MUST emit a **kickback record** (unresolved concerns + links to all artifacts/reviews + plain-language non-convergence explanation) and route the project to the prior stage matching the **worst unresolved severity** (adaptive kickback).
 - **FR-015**: The engine MUST persist a complete inspection trail of every concern, response, change-log, and verdict, replacing the bespoke `tasker_rounds`/inspection mechanisms.
 - **FR-016**: The engine MUST report convergence **honestly** — it MUST NOT mark a step passed/converged when panelists have not all passed (fixing the spec-014 masked non-convergence; `converged` reflects reality).
-- **FR-017**: The total work budget across kickbacks MUST be bounded; a project that cannot converge after kickbacks reaches a loud, inspectable terminal state (never an infinite loop or silent stall).
+- **FR-017**: There MUST be NO global upper bound on the number of kickbacks/iterations; each kickback MUST carry full provenance so successive attempts monotonically improve the artifact until unanimous convergence (the engine never abandons a convergable project). The per-step cap (3 rounds → kickback) is retained. Loud, inspectable terminal states (FR-049/FR-050) apply only to genuine agent/tool/backend failures — NOT to convergence exhaustion. The engine MUST track and expose per-kickback progress so a non-improving cycle is inspectable.
 - **FR-018**: A reviewer MUST NOT review work it produced (self-review prevention; the existing `_produced_by` stub is fixed), and a stale verdict (on a since-changed artifact) MUST NOT count as a current pass.
 
 **C. Review model (points removed; unanimous gate; advisory triage; migration)**
@@ -225,7 +230,7 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 - **FR-022**: Quality+safety+on-topic advisory reviews MUST be preserved in the project folder and included in the publication's review log; unsafe / poor-quality / not-family-friendly / off-topic reviews MUST be excluded from the publication log. Unmapped advisory reviews route to the step's generic reviewer, else are recorded-but-not-actioned.
 - **FR-023**: The simulated-personality cron MUST feed the review-intake producer (one unified review flow with human comments).
 - **FR-024**: The public status model (README / about-page Backlog→Ready→Done) MUST be re-expressed in convergence terms (no point totals), and `status_reporter` MUST reflect the new model.
-- **FR-025**: Projects in-flight under the point model at cutover MUST be migrated forward and re-evaluated under unanimous convergence on their next tick (one clean model everywhere).
+- **FR-025**: Projects in-flight under the point model at cutover MUST be migrated forward and re-evaluated under unanimous convergence on their next tick (one clean model everywhere). No `posted`/`done` projects currently exist, so there is no completed/published work to grandfather or retroactively re-review; migration applies only to in-flight projects.
 - **FR-026**: `status_reporter` MUST continue to regenerate `web/data/projects.json`, post the GitHub issue comment, and recompute the project-status metrics; `repository_hygiene` MUST continue to enforce its line-count-delta and gitignore assertions; reaching `posted` MUST still close the linked GitHub issue (per #58) — under the new convergence status model.
 
 **D. Per-step adapters & routing**
@@ -242,7 +247,7 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 **E. Audit bug fixes**
 
 - **FR-035**: A real research-code implementer prompt MUST replace the mis-pointed paper-revision LaTeX prompt for the research `implementer`.
-- **FR-036**: The publisher MUST be wired into the graph as `paper_accepted → publisher → posted` (Zenodo DOI, final compile, `publication.yaml`), removing the direct `paper_accepted → posted` shortcut.
+- **FR-036**: The publisher MUST be wired into the graph as `paper_accepted → publisher → posted` (real public Zenodo DOI, final compile, `publication.yaml`), removing the direct `paper_accepted → posted` shortcut. For the duration of this spec's implementation, the publisher MUST pause for a **manual maintainer sign-off BEFORE minting any DOI** (see FR-054); it MUST NOT mint a DOI without recorded human approval.
 - **FR-037**: The dead `ANALYZE_SYSTEM_PROMPT_PATH` constant and the paper analyze loop's reuse of the research `tasker.md` prompt MUST be fixed (paper gets a paper-appropriate analyze).
 - **FR-038**: Dead escalation paths MUST be fixed (`clarifier.attempts_so_far` no longer hardcoded `0`; `paper_clarifier` branches on `escalate`).
 - **FR-039**: The `code_summary`/`data_summary` prompt input drift in `paper_specifier`/`paper_clarifier` MUST be resolved (supply the inputs or remove the advertisement); prompt/stage-header drift MUST be corrected to match graph wiring.
@@ -251,16 +256,16 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 **F. Calibration & validation**
 
 - **FR-041**: A per-panel labeled calibration set MUST exist with **negatives** (good artifacts with a specific injected flaw + the known lens that must catch it) and **positives** (≥1 real human-peer-reviewed published paper per domain for all 9 fields, reverse-engineered into an llmXive idea; plus HF top-5 daily papers and a sample of the real brainstorm backlog).
-- **FR-042**: Each panel MUST achieve **100% recall on injected critical flaws** (caught by the correct lens) and keep the over-flag rate on the good set below the calibration target.
+- **FR-042**: Calibration MUST use a **differential clean-vs-injected** method per case: review the clean artifact, review the same artifact with a known injected flaw, and confirm the injected flaw is caught (by the correct lens) in the injected review AND absent from the clean review. ADDITIONAL findings in either review MUST receive **manual adjudication** (Claude evaluates; the maintainer spot-checks) to classify each as a true problem or a false positive.
 - **FR-043**: Calibration MUST be validated for **domain-generality**: prompts calibrated on a subset of fields MUST still meet targets on a **held-out** field (un-tuned).
-- **FR-044**: Calibration cases MUST be run K times for **noise-robustness**; a high fraction (not a single pass) MUST meet the target.
-- **FR-045**: End-to-end traversal MUST be validated on real projects: golden positive(s) reach `posted` at a high rate across K runs; weak project(s) are rejected/kicked back; PROJ-261/262 serve as smoke tests (not the quality bar).
+- **FR-044**: Sensitivity MUST be tuned **adaptively** from the differential results: minor false positives that resolve within one review/revision round are acceptable; many false positives → reduce sensitivity; any missed injected flaw → increase sensitivity. Cases MUST be run repeatedly for noise-robustness (model temperature), repeating the differential comparison rather than relying on a single run.
+- **FR-045**: End-to-end traversal MUST be validated on real projects across **all 9 domains**: a real high-quality project per domain MUST traverse the entire pipeline to `posted` (real publication after the FR-054 sign-off); weak project(s) MUST be rejected/kicked back. PROJ-261 (computer science) and PROJ-262 (chemistry) serve as two of the nine; the held-out domain (FR-043) also validates prompt generality at the unit level.
 - **FR-046**: The maintainer MUST perform **real (manual) quality-control** spot-checks (co-evaluation: the real published paper is the domain-expertise anchor; Claude critically evaluates pipeline output against it; the maintainer spot-checks a sample), and the results MUST be recorded.
 
 **G. Living document**
 
 - **FR-047**: After `posted`, on-topic/safe/evidence-based comments (human or personality, via triage) MUST be appended to the project log and queued for a batched recompile.
-- **FR-048**: The batched recompile MUST add/update a **Discussion section** in the published paper and mint a **new Zenodo version DOI** when (and only when) the recompile materially changes the PDF; it MUST NOT block or rewind current progress.
+- **FR-048**: The batched recompile MUST add/update a **Discussion section** in the published paper and mint a **new Zenodo version DOI** when (and only when) the recompile materially changes the PDF; the new version DOI is also gated by the manual sign-off of FR-054. The maintainer judges materiality at sign-off; the system batches queued comments so trivial edits do not each trigger a DOI. It MUST NOT block or rewind current progress.
 
 **H. Cross-cutting invariants (no silent shortcuts)**
 
@@ -269,6 +274,7 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 - **FR-051**: Every agent invocation MUST produce an inspection record (prompt(s), raw response(s), parsed/structured output, before/after diffs of modified files), and non-speckit Agent steps (e.g., `flesh_out`, validator) MUST gain an inspection hook (closing the gap where only speckit steps recorded inspections).
 - **FR-052**: A **living status/progress document** with direct, continuously-updated references to the relevant files MUST be maintained throughout implementation so any agent or sub-agent can determine current status by reading the relevant file(s); the design doc (`docs/superpowers/specs/2026-05-27-pipeline-convergence-protocol.md`) is the SSoT for design decisions.
 - **FR-053**: The constitutional principle MUST be encoded: *every step producing reviewable work runs identify→revise→re-review with that step's panel; 3-round non-convergence kicks the project back with full provenance.*
+- **FR-054**: For the duration of this spec's implementation, **no Zenodo DOI (initial publication OR living-document version) may be minted without a recorded manual maintainer sign-off**. The publisher MUST present the to-be-published artifact for inspection and pause; only after explicit human approval does it mint the real public DOI, close the GitHub issue, and post to the site. The approval (who/when/what) MUST be recorded in the run-log/inspection trail.
 
 ### Key Entities
 
@@ -291,15 +297,16 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 - **SC-002**: A reviewer operating on the `summarize`d form of a real artifact reaches the same critical verdicts as on the full form (no verdict changes caused by reduction).
 - **SC-003**: Every reviewable step runs the identify→revise→re-review cycle and either converges (unanimous acceptance ≤3 rounds) or emits a kickback record; in 100% of runs the persisted `converged` flag matches the actual panel outcome (no masked non-convergence).
 - **SC-004**: No advancement path anywhere reads accumulated review points; the public status model and `status_reporter` show convergence-based status; an in-flight project re-evaluates under unanimous convergence on its next tick.
-- **SC-005**: For every panel, recall on injected critical flaws is 100% (caught by the correct lens) and the over-flag rate on good artifacts is below the calibration target, sustained across K repeated runs (noise-robust).
+- **SC-005**: For every panel and every calibration case, the differential clean-vs-injected test confirms the injected critical flaw is caught (by the correct lens) in the injected review and absent from the clean review, across repeated runs; any additional findings are manually adjudicated, with minor one-round-resolvable false positives accepted and systematic false positives or missed injected flaws driving a recorded sensitivity adjustment.
 - **SC-006**: The same un-tuned prompts meet the recall + over-flag targets on a held-out domain (domain-generality demonstrated, not just on tuned fields).
-- **SC-007**: At least one real high-quality project per validated domain reaches `posted` end-to-end across K runs at a high pass-rate, with a real Zenodo DOI, a compiled PDF, and `publication.yaml`; at least one weak project is rejected/kicked back.
+- **SC-007**: A real high-quality project in **each of the 9 domains** reaches `posted` end-to-end, each with a real public Zenodo DOI (minted only after the FR-054 manual sign-off), a compiled PDF, and `publication.yaml`; at least one weak project is rejected/kicked back. Runs are repeated for noise-robustness.
 - **SC-008**: Every artifact produced in an end-to-end run passes direct inspection — no silent truncation, no missing artifact, no broken-tool placeholder, no task marked done with placeholder content.
 - **SC-009**: All 10 audit discrepancies + arXiv resilience are fixed and verified (e.g., a `paper_accepted` project invokes the publisher and obtains a DOI; the research implementer uses a research-code prompt; `PAPER_ACCEPT_THRESHOLD` and point thresholds are gone).
 - **SC-010**: A `posted` project accepts a real on-topic comment, recompiles a Discussion section, and mints a new version DOI on material change; an off-topic/unsafe comment is excluded and triggers no recompile.
 - **SC-011**: Human/personality reviews never directly gate advancement; only quality+safety+on-topic ones reach the matching LLM reviewer and the publication review log.
 - **SC-012**: The maintainer's manual QC spot-checks (co-evaluation against the anchor papers) are recorded and pass for the validated sample.
 - **SC-013**: Every agent invocation (including each convergence round) has a run-log entry and an inspection record; project state never silently stalls.
+- **SC-014**: No Zenodo DOI is minted anywhere during this spec's implementation without a recorded manual maintainer sign-off; the approval record (who/when/what) is present for every minted DOI.
 
 ## Assumptions
 
@@ -307,9 +314,11 @@ A maintainer needs every wiring bug from the audit fixed, because several block 
 - "Reviewable step" = a step producing an artifact that can be critiqued; mechanical scaffolding/dispatch/maintenance steps are exempt (FR-029).
 - Real model calls use the free Dartmouth-hosted models per the project's free-first constitution (no paid models); the qwen3.5-122b context bound is the binding overflow constraint.
 - The 9 domains are exactly `LIBRARIAN_DEFAULT_FIELDS`; "held-out domain" is one of these excluded from prompt tuning.
-- PROJ-261 (computer science) and PROJ-262 (chemistry) exist and are usable as end-to-end smoke projects; golden positives are sourced from real published literature + the HF daily feed (exact picks finalized during implementation).
-- The "3-round" cap and "unanimous acceptance" gate are fixed defaults from the design decisions; the total cross-kickback budget is a tunable bound set during implementation.
+- PROJ-261 (computer science) and PROJ-262 (chemistry) exist and serve as two of the nine end-to-end domains; a real high-quality project is sourced for each of the other 7 domains from real published literature + the HF daily feed (exact picks finalized during implementation). All 9 are demonstrated end-to-end to `posted`.
+- The "3-round" per-step cap and "unanimous acceptance" gate are fixed defaults from the design decisions; there is NO global cross-kickback budget — iteration continues (with full-provenance kickbacks) until convergence, on the expectation that each cycle improves the project.
 - The maintainer is available to perform manual QC spot-checks and is the human-in-the-loop for co-evaluation (not a domain expert in all 9 fields — the anchor paper supplies domain expertise).
+- Validation publishes for real (public Zenodo DOI, GitHub issue close, site post), gated by a mandatory manual maintainer sign-off before every DOI minting for the duration of this spec's implementation.
+- No `posted`/`done` projects currently exist, so point-system migration applies only to in-flight projects and there is no published work to grandfather.
 
 ## Dependencies
 
