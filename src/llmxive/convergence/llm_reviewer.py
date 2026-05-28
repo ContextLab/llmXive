@@ -232,6 +232,7 @@ class LLMReviewer:
         backend: Any,
         repo_root: Path,
         model: str | None = None,
+        max_tokens: int | None = 8192,
     ) -> None:
         self.name = lens
         self._lens = lens
@@ -239,6 +240,12 @@ class LLMReviewer:
         self._backend = backend
         self._repo_root = Path(repo_root)
         self._model = model
+        # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
+        # chain-of-thought tokens count against the response budget. The
+        # 512-default of OpenAI-shaped APIs is far too small for panel
+        # reviews; 8192 is the empirically-safe floor for the spec/plan/
+        # tasks panels (verified by the calibration smoke test).
+        self._max_tokens = max_tokens
         # Eager-load the system prompt — fail fast if missing.
         self._system_prompt = _load_system_prompt(
             stage=stage, lens=lens, repo_root=self._repo_root,
@@ -403,10 +410,20 @@ class LLMReviewer:
         return "(unknown)"
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
+        # Pass max_tokens through when the backend supports it (Dartmouth
+        # does; the fake-backend test doubles tolerate the kwarg via
+        # **kw). Falling back to bare chat() on backends that don't.
+        kwargs: dict[str, Any] = {}
         if self._model is not None:
-            response = self._backend.chat(messages, model=self._model)
-        else:
-            response = self._backend.chat(messages)
+            kwargs["model"] = self._model
+        if self._max_tokens is not None:
+            kwargs["max_tokens"] = self._max_tokens
+        try:
+            response = self._backend.chat(messages, **kwargs)
+        except TypeError:
+            # Backend didn't accept max_tokens — retry without it.
+            kwargs.pop("max_tokens", None)
+            response = self._backend.chat(messages, **kwargs)
         return getattr(response, "text", "") or ""
 
 
