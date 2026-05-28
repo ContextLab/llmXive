@@ -54,7 +54,7 @@
 - [X] T014 [US1] Implement on-disk inode-table manifest writer (`SummaryManifest`/`SummaryEntry`, content files, nested pointers) in `src/llmxive/tools/summarize.py`
 - [X] T015 [US1] Implement `summarize()` (fit→verbatim; overflow→recursive pointer hierarchy carrying criticals verbatim at every level; goal-targeted prose summary reusing the cached chunk call) in `src/llmxive/tools/summarize.py`
 - [X] T016 [US1] Implement `desummarize()` (recursive pointer resolution, `want` filter, depth cap, no dangling refs) in `src/llmxive/tools/summarize.py`
-- [ ] T017 [US1] Re-point `paper_reviewer._build_corpus_with_summaries` to call `tools/summarize`; DELETE the forked single-pass logic (SSoT, Const. I) in `src/llmxive/agents/paper_reviewer.py`
+- [X] T017 [US1] Re-point `paper_reviewer._build_corpus_with_summaries` to call `tools/summarize`; DELETE the forked single-pass logic (SSoT, Const. I) in `src/llmxive/agents/paper_reviewer.py`
 - [ ] T018 [US1] Run edge-case + real-call fidelity tests with real qwen; confirm zero critical-element loss; update STATUS.md
 
 **Checkpoint**: summarizer trusted — downstream overflow handling unblocked.

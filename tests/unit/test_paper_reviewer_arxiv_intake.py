@@ -304,11 +304,16 @@ class TestChunkedSummarization:
             chunk_size=15_000,
             summarize_fn=fake_summarize,
         )
-        assert "AUTO-SUMMARIZED CHUNK" in out
-        assert "NOTICE: The full paper source exceeded" in out
+        # Spec 015 T017: corpus reduction now delegates to the SSoT summarizer,
+        # which returns a budget-bounded inode-table pointer block (superseding the
+        # old AUTO-SUMMARIZED/NOTICE framing). The per-chunk summaries still appear,
+        # and the full source is recoverable on disk (no silent loss).
+        from llmxive.tools.summarize import desummarize
+        assert out.startswith("[[LLMXIVE-SUMMARY v1]]")
         assert "<<summary of " in out
-        # Output must be substantially smaller than the raw corpus.
-        assert len(out) < 10_000
+        assert len(out) < len(big)  # substantially smaller than the raw corpus
+        restored = desummarize(out)
+        assert restored.count("\\section{Section") == 5
 
     def test_build_corpus_caches_summaries_across_calls(
         self, tmp_path: Path,
@@ -344,13 +349,14 @@ class TestChunkedSummarization:
         )
         assert a == b, "cached output must be byte-identical to first run"
 
-    def test_build_corpus_falls_back_to_truncation_without_summarizer(
+    def test_build_corpus_uses_inode_table_without_summarizer(
         self, tmp_path: Path,
     ) -> None:
-        """When `summarize_fn=None`, we fall back to the truncation
-        behavior of `_concat_tex` so callers without a backend (e.g.,
-        unit tests) still get a usable corpus."""
+        """Spec 015 T017: with `summarize_fn=None` the corpus builder no longer
+        TRUNCATES — it returns the SSoT inode-table pointer block, and the full
+        source is recoverable on disk (no silent loss)."""
         from llmxive.agents.paper_reviewer import _build_corpus_with_summaries
+        from llmxive.tools.summarize import desummarize
         src = tmp_path / "source"
         src.mkdir()
         big = "X" * 60_000
@@ -358,9 +364,12 @@ class TestChunkedSummarization:
             r"\documentclass{article}\begin{document}" + big + r"\end{document}",
             encoding="utf-8",
         )
-        out = _build_corpus_with_summaries(src, final_budget=10_000)
-        # Truncation marker from _concat_tex.
-        assert "truncated to fit budget" in out
+        out = _build_corpus_with_summaries(
+            src, final_budget=10_000, cache_dir=tmp_path / "c",
+        )
+        assert out.startswith("[[LLMXIVE-SUMMARY v1]]")
+        # No truncation: the full 60K-char body is recoverable on disk.
+        assert desummarize(out).count("X") >= 60_000
 
 
 class TestBibSummary:

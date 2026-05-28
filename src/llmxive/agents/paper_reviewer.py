@@ -277,38 +277,40 @@ def _build_corpus_with_summaries(
     cache_dir: Path | None = None,
 ) -> str:
     """Return a corpus for the reviewer prompt. If the raw `.tex`
-    concatenation fits in `final_budget`, return verbatim. Otherwise:
-    chunk the corpus, summarize each chunk with `summarize_fn`, and
-    return a notice + joined summaries.
-
-    The chunked path requires `summarize_fn`. Falling back to truncation
-    when none is provided keeps unit tests (which run without a backend)
-    working.
+    concatenation fits in `final_budget` (chars), return it verbatim.
+    Otherwise delegate context reduction to the SSoT ``tools/summarize``
+    primitive (spec 015 T017): it builds an on-disk inode-table that
+    preserves every section heading / numeric claim / citation / ref
+    verbatim and pages content in on demand, superseding the previous
+    truncate-with-notice fallback. ``chunk_size`` is retained for
+    backward compatibility with callers but is no longer used (chunking
+    is budget-derived inside the primitive).
     """
+    from llmxive.tools.summarize import summarize
+
     raw = _gather_raw_concat(source_dir)
-    if not raw or len(raw) <= final_budget:
+    if not raw:
         return raw
-    if summarize_fn is None:
-        # No summarizer — fall back to truncation (legacy behavior).
-        return _concat_tex(source_dir, max_chars=final_budget)
-    chunks = _chunk_corpus(raw, max_chunk_size=chunk_size)
-    summary_blocks: list[str] = []
-    for i, chunk in enumerate(chunks, start=1):
-        summary = _cached_summarize(chunk, summarize_fn, cache_dir=cache_dir)
-        summary_blocks.append(
-            f"=== AUTO-SUMMARIZED CHUNK {i}/{len(chunks)} "
-            f"({len(chunk)} bytes -> {len(summary)} bytes) ===\n{summary}"
-        )
-    header = (
-        "=== NOTICE: The full paper source exceeded the reviewer's "
-        f"context budget ({len(raw)} > {final_budget} bytes). It was "
-        f"split into {len(chunks)} chunks and each chunk was summarized "
-        "by an LLM in isolation. The summaries preserve section "
-        "headings, numeric claims, references, and quoted material; "
-        "redundant prose was dropped. Treat the summaries as faithful "
-        "but lossy transcripts of the original. ===\n\n"
+    goal = (
+        "preserve every section/subsection heading, numeric claim, percentage, "
+        "\\cite/\\citep/\\citet key, \\ref/\\label, and figure caption verbatim"
     )
-    return header + "\n\n".join(summary_blocks)
+    token_budget = max(1, final_budget // 4)  # ~4 chars/token
+
+    inner = summarize_fn  # local binding so the closure narrows the Optional
+
+    def _fn(chunk: str, _goal: str) -> str:
+        # Preserve the existing 1-arg summarize_fn contract + disk memoization.
+        assert inner is not None  # _fn is only wired when a summarizer was provided
+        return _cached_summarize(chunk, inner, cache_dir=cache_dir)
+
+    return summarize(
+        raw,
+        goal=goal,
+        token_budget=token_budget,
+        cache_dir=str(cache_dir) if cache_dir is not None else None,
+        summarize_fn=(_fn if inner is not None else None),
+    )
 
 
 def _summarize_bibfile(source_dir: Path, *, max_chars: int = 30_000) -> str:
