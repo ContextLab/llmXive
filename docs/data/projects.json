@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 639,
+    "active_projects": 644,
     "ai_contributors": 7,
-    "human_contributors": 798,
+    "human_contributors": 847,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2606,
-    "total_contributors": 805
+    "total_contributions": 2655,
+    "total_contributors": 854
   },
   "contributors": [
     {
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 537,
+      "contribution_count": 536,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -1367,6 +1367,15 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Yang Li"
+    },
+    {
+      "areas": [
+        "computer science",
+        "engineering"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Yang Yang"
     },
     {
@@ -1466,6 +1475,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Alan Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Alexy Li"
     },
     {
@@ -1475,6 +1492,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Andrew Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Andrew Tao"
     },
     {
       "areas": [
@@ -1499,6 +1524,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Anya Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Anyi Rao"
     },
     {
       "areas": [
@@ -1642,6 +1675,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Bohai Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Bohan Zhang"
     },
     {
@@ -1651,6 +1692,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Bohan Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bojiang Zhou"
     },
     {
       "areas": [
@@ -2046,6 +2095,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dalu Feng"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -2155,6 +2212,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ding Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dingbang Wu"
     },
     {
       "areas": [
@@ -2394,6 +2459,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Frank Guan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Frank Hutter"
     },
     {
@@ -2506,6 +2579,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Guilin Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Guiming Chen"
     },
     {
@@ -2515,6 +2596,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Guiquan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guo Chen"
     },
     {
       "areas": [
@@ -2610,7 +2699,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Haiyang Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Han Cai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Han Xiao"
     },
     {
       "areas": [
@@ -2707,6 +2812,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haobin Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haobin Zhong"
     },
     {
       "areas": [
@@ -2866,6 +2979,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Hongbo Fu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Hongliang Fei"
     },
     {
@@ -2995,6 +3116,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "James Zou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jan Kautz"
     },
     {
       "areas": [
@@ -3502,6 +3631,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Juntao Ma"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -3547,6 +3684,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kai Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kai Zheng"
     },
     {
       "areas": [
@@ -3818,6 +3963,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Lei Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Leigang Qu"
     },
     {
@@ -4054,6 +4207,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lue Fan"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -4075,6 +4236,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Luxin Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lvmin Zhang"
     },
     {
       "areas": [
@@ -4107,6 +4276,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mairui Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Maneesh Agrawala"
     },
     {
       "areas": [
@@ -4171,6 +4348,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mengting Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mengzhou Luo"
     },
     {
       "areas": [
@@ -4758,6 +4943,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Rui Hao"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -4803,6 +4996,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ruijia Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruilin Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruiqi Wang"
     },
     {
       "areas": [
@@ -4950,6 +5159,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shihao Wang"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -4990,6 +5207,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shilong Liu"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -5003,6 +5228,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shoham Grunblat"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shuai Li"
     },
     {
       "areas": [
@@ -5067,6 +5300,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shuofei Qiao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shuzhe Wu"
     },
     {
       "areas": [
@@ -5179,6 +5420,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Song Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Songlin Yang"
     },
     {
       "areas": [
@@ -5850,6 +6099,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiaotong Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiaoxiao Xu"
     },
     {
@@ -5979,6 +6236,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xinyu Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xinyu Wei"
     },
     {
       "areas": [
@@ -6138,6 +6403,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xuyi Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ya Zhang"
     },
     {
@@ -6198,14 +6471,6 @@
     },
     {
       "areas": [
-        "engineering"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Yang Li"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -6235,6 +6500,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yang Yue"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yangzhou Liu"
     },
     {
       "areas": [
@@ -6326,6 +6599,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yidan Huang"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -6387,6 +6668,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yifei Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yihang Bo"
     },
     {
       "areas": [
@@ -6662,6 +6951,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuanguo Kuang"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -6818,6 +7115,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yujia Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yujun Wu"
     },
     {
@@ -6906,6 +7211,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yunze Man"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuqi Zhu"
     },
     {
@@ -6931,6 +7244,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yutong Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuwei Guo"
     },
     {
       "areas": [
@@ -7074,7 +7395,31 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhaoxiang Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhaoyang Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhe Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhenchen Tang"
     },
     {
       "areas": [
@@ -7098,7 +7443,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zheng Ju"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zheng Lin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhenghong Li"
     },
     {
       "areas": [
@@ -7115,6 +7476,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhengren Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhengwei Peng"
     },
     {
       "areas": [
@@ -7170,6 +7539,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhiding Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhifei Xie"
     },
     {
@@ -7203,6 +7580,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhining Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhiqi Li"
     },
     {
       "areas": [
@@ -7299,6 +7684,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zichao Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zichen Liu"
     },
     {
       "areas": [
@@ -7453,7 +7846,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T08:20:24.661742+00:00",
+  "generated_at": "2026-05-28T09:18:34.179658+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -7691,29 +8084,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -7735,29 +8128,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -7779,29 +8172,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -7823,29 +8216,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -7866,29 +8259,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -7909,29 +8302,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -7955,29 +8348,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8007,29 +8400,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8051,29 +8444,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8094,29 +8487,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8138,29 +8531,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8181,29 +8574,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8232,29 +8625,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8278,29 +8671,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -8333,29 +8726,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-631-https-arxiv-org-abs-2605-25604",
-          "project_id": "PROJ-631-https-arxiv-org-abs-2605-25604",
-          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
+          "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "project_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-          "title": "WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-628-foundation-protocol-a-coordination-layer",
-          "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-          "title": "Foundation Protocol: A Coordination Layer for Agentic Society"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230",
+          "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+          "title": "https://arxiv.org/abs/2605.26230"
         }
       ],
       "inputs": [
@@ -30428,7 +30821,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30458,14 +30851,6 @@
             "specifier",
             "tasker"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "google.gemma-3-27b-it",
-          "roles": [
-            "brainstorm_submitter"
-          ]
         }
       ],
       "citation_summary": {
@@ -30482,7 +30867,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30587,7 +30972,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": "google.gemma-3-27b-it",
+      "submitter": null,
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-21T19:06:24.765681+00:00",
       "upstream_feedback": null
@@ -71838,9 +72223,782 @@
       "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning",
       "updated_at": "2026-05-27T13:10:55.300410+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-28T09:16:46.195177+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
+        "repo_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/idea/https-arxiv-org-abs-2605-26230.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.26230 Submitted by: github-actions[bot] (Intake from human-submission issue #244.)",
+      "field": "other",
+      "id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 21.946737,
+          "ended_at": "2026-05-28T09:16:52.369890+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-28T09:16:30.423153+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2605.26230",
+      "updated_at": "2026-05-28T09:16:50.460972+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/idea/mobilegym-a-verifiable-and-highly-parall.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dingbang Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rui Hao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haiyang Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuzhe Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Han Xiao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhenghong Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bojiang Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zheng Ju",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zichen Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lue Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhaoxiang Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-28T09:16:53.036245+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
+        "repo_path": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "We present MobileGym, a browser-hosted, lightweight, fully controllable environment for everyday mobile use, targeting interaction fidelity without replicating proprietary backends. It enables two capabilities previously out of reach for everyday apps: verifiable outcome signals through deterministic state-based\u2026",
+      "field": "computer science",
+      "id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.853322,
+          "ended_at": "2026-05-28T09:16:55.223546+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-28T09:16:52.370224+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research",
+      "updated_at": "2026-05-28T09:16:53.330884+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-28T09:16:55.907798+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
+        "repo_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/idea/https-arxiv-org-abs-2605-27367.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.27367 Submitted by: github-actions[bot] (Intake from human-submission issue #242.)",
+      "field": "other",
+      "id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 4.387527,
+          "ended_at": "2026-05-28T09:16:59.611320+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-28T09:16:55.223793+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2605.27367",
+      "updated_at": "2026-05-28T09:16:57.631972+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Songlin Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haobin Zhong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruilin Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaotong Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuai Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kai Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuyi Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhe Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhenchen Tang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yang Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bohai Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhengwei Peng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yidan Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mengzhou Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yihang Bo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dalu Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yujia Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Juntao Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruiqi Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lvmin Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuwei Guo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Frank Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maneesh Agrawala",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongbo Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Alan Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anyi Rao",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-28T09:17:03.505175+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
+        "repo_path": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/idea/evalverse-pipeline-aware-and-expert-cali.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "The rapid evolution of generative video foundation models has propelled the field toward professional-grade cinematic synthesis. To achieve such demanding quality, the community transitions towards Reinforcement Learning (RL) and agentic workflows. However, reliable evaluation has emerged as a critical bottleneck.\u2026",
+      "field": "computer science",
+      "id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 6.114794,
+          "ended_at": "2026-05-28T09:17:05.726356+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-28T09:16:59.611562+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation",
+      "updated_at": "2026-05-28T09:17:03.807757+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/idea/locateanything-fast-and-high-quality-vis.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shihao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shilong Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuanguo Kuang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyu Wei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yangzhou Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiqi Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunze Man",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guo Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Tao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guilin Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jan Kautz",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiding Yu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-28T09:17:06.345355+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
+        "repo_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Vision-language models (VLMs) commonly formulate visual grounding and detection as a coordinate-token generation problem, serializing each 2D box into multiple 1D tokens that are learned and decoded largely independently. This token-by-token decoding mismatches the coupled structure of box geometry and creates a\u2026",
+      "field": "computer science",
+      "id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 5.208842,
+          "ended_at": "2026-05-28T09:17:10.935439+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-28T09:17:05.726597+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding",
+      "updated_at": "2026-05-28T09:17:09.085647+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 5.208842,
+      "ended_at": "2026-05-28T09:17:10.935439+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-28T09:17:05.726597+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 6.114794,
+      "ended_at": "2026-05-28T09:17:05.726356+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-28T09:16:59.611562+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 4.387527,
+      "ended_at": "2026-05-28T09:16:59.611320+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-28T09:16:55.223793+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.853322,
+      "ended_at": "2026-05-28T09:16:55.223546+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-28T09:16:52.370224+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 21.946737,
+      "ended_at": "2026-05-28T09:16:52.369890+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-28T09:16:30.423153+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -78190,74 +79348,6 @@
       "project_id": "PROJ-571-co-evolving-policy-distillation",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T09:11:13.674909Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "David Krakauer (simulated)",
-      "duration_s": 92.961755,
-      "ended_at": "2026-05-17T08:44:33.025498+00:00",
-      "excerpt": "One is tempted to view memory in these multi-agent systems as a distributed ledger, a ledger that must be kept accurate. But the history of cognition suggests otherwise. In human groups, the very act of remembering together is an act of ne\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "david-krakauer",
-      "project_id": "PROJ-586-social-memory-networks-modeling-collecti",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/david-krakauer-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T08:43:00.063743+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Daniel Kahneman (simulated)",
-      "duration_s": 127.444839,
-      "ended_at": "2026-05-17T07:52:03.777650+00:00",
-      "excerpt": "Consider a simple experiment: ask the model to judge whether a coin flip will be heads or tails, then immediately ask it to generate a justification. System\u202f1 will leap to a confident answer; System\u202f2, prompted by the self\u2011questioning loop\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "daniel-kahneman",
-      "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-      "project_stage": "brainstormed",
-      "review_path": "projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/daniel-kahneman-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T07:49:56.332811+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Dan Rockmore (simulated)",
-      "duration_s": 25.542881,
-      "ended_at": "2026-05-17T06:33:56.652279+00:00",
-      "excerpt": "There's something rather poetic about this proposal\u2014taking the brain's own story-keeping machinery and asking whether we can read it back like a palimpsest. I've spent time thinking about how law, too, is essentially data: statutes, cases,\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "dan-rockmore",
-      "project_id": "PROJ-588-narrative-archaeology-reverse-engineerin",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-588-narrative-archaeology-reverse-engineerin/reviews/research/dan-rockmore-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T06:33:31.109398+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 0.000185,
-      "ended_at": "2026-05-17T05:45:42.602222Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T05:45:42.602037Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 0.000218,
-      "ended_at": "2026-05-17T05:45:42.551090Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T05:45:42.550872Z"
     }
   ],
   "schema_version": "2.0.0"
