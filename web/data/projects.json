@@ -940,7 +940,7 @@
     "human_contributors": 869,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2687,
+    "total_contributions": 2688,
     "total_contributors": 876
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1076,
+      "contribution_count": 1077,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -8022,7 +8022,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T21:08:13.395795+00:00",
+  "generated_at": "2026-05-28T21:17:15.845712+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -70903,12 +70903,21 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews",
         "reviews_research": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "dan-rockmore-simulated",
+            "marie-curie-simulated"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -70996,14 +71005,6 @@
           "roles": [
             "paper_author"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "marie-curie-simulated"
-          ]
         }
       ],
       "citation_summary": {
@@ -71027,6 +71028,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 101.397611,
+          "ended_at": "2026-05-28T21:17:12.047563+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-28T21:15:30.649952+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 227.771918,
           "ended_at": "2026-05-28T12:47:01.045506+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -71046,6 +71055,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Imagine a cartographer in the 17th century, tasked with drawing the borders of the Republic of Letters. She has ink and parchment, but the land is shifting\u2014new discoveries bloom overnight, old certainties erode. This is the tension SciAtlas seeks to solve: to fix the fluid topography of science into",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md",
+          "review_path": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md",
+          "reviewed_at": "2026-05-28T21:17:12.039689Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Dan Rockmore (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The proposal for SciAtlas describes a method for organizing scientific knowledge through a graph. However, it does not specify how the system accounts for the physical measurement of new substances. In our work with pitchblende, the evidence was not found in existing records, but in the painstaking ",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/reviews/research/marie-curie-simulated__2026-05-28__research.md",
@@ -73439,6 +73458,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 101.397611,
+      "ended_at": "2026-05-28T21:17:12.047563+00:00",
+      "excerpt": "Imagine a cartographer in the 17th century, tasked with drawing the borders of the Republic of Letters. She has ink and parchment, but the land is shifting\u2014new discoveries bloom overnight, old certainties erode. This is the tension SciAtla\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md",
+      "started_at": "2026-05-28T21:15:30.649952+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -79887,16 +79922,6 @@
       "project_id": "PROJ-571-co-evolving-policy-distillation",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T09:11:14.196513Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 0.000202,
-      "ended_at": "2026-05-17T09:11:14.145621Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T09:11:14.145419Z"
     }
   ],
   "schema_version": "2.0.0"
