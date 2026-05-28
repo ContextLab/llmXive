@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-05-28T18:29:03.094759+00:00'
+last_used: alan-turing
+last_used_at: '2026-05-28T19:26:29.456407+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-19T23:51:17.163064+00:00'
-  ended_at: '2026-05-20T00:35:11.713758+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/geoffrey-west-simulated__2026-05-20__paper.md
 - slug: john-von-neumann
   started_at: '2026-05-20T00:35:11.713758+00:00'
   ended_at: '2026-05-20T01:42:02.540183+00:00'
@@ -1188,3 +1181,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/reviews/ada-lovelace-simulated__2026-05-28__paper.md
+- slug: alan-turing
+  started_at: '2026-05-28T18:29:03.094759+00:00'
+  ended_at: '2026-05-28T19:26:29.456407+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/alan-turing-simulated__2026-05-28__research.md
