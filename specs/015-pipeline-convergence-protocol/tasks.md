@@ -141,7 +141,7 @@
 ### Tests (write FIRST)
 
 - [ ] T046 [P] [US4] Integration tests: idea/spec/plan/tasks panels run on a real project in `tests/integration/test_panels_research.py`
-- [ ] T047 [P] [US4] Integration tests: paper-spec/paper-plan/paper-tasks/paper-implement panels in `tests/integration/test_panels_paper.py`
+- [X] T047 [P] [US4] Integration tests: paper-spec/paper-plan/paper-tasks/paper-implement panels in `tests/integration/test_panels_paper.py`
 
 ### Implementation
 
