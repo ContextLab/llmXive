@@ -13,12 +13,11 @@ from typing import Any
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.clarify_cmd import CLARIFY_MARKER_RE
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
 class PaperClarifierAgent(SlashCommandAgent):
@@ -31,6 +30,9 @@ class PaperClarifierAgent(SlashCommandAgent):
             raise FileNotFoundError(f"no paper spec.md in {ctx.project_dir}/paper/specs/")
         return candidates[0]
 
+    def _memory_dir(self, ctx: SlashCommandContext) -> Path:
+        return ctx.project_dir / "paper" / ".specify" / "memory"
+
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         spec_path = self._spec_path(ctx)
         text = spec_path.read_text(encoding="utf-8")
@@ -41,11 +43,16 @@ class PaperClarifierAgent(SlashCommandAgent):
             }
             for i, m in enumerate(CLARIFY_MARKER_RE.finditer(text))
         ]
+        # Spec 015 T032 / discrepancy #5: persist + read real paper-clarifier
+        # attempts (was hardcoded 0; escalate verdict was never branched on).
+        from llmxive.speckit._clarify_attempts import read_attempts
+        memory_dir = self._memory_dir(ctx)
         return {
             "spec_path": str(spec_path),
             "spec_text": text,
             "markers": markers,
-            "attempts_so_far": 0,
+            "attempts_so_far": read_attempts(memory_dir),
+            "memory_dir": str(memory_dir),
         }
 
     def build_prompt(
@@ -91,6 +98,7 @@ class PaperClarifierAgent(SlashCommandAgent):
     ) -> list[str]:
         repo = ctx.project_dir.parent.parent
         spec_path = Path(mechanical_output["spec_path"])
+        markers = mechanical_output.get("markers", []) or []
         try:
             report = parse_yaml_lenient(llm_response.text)
         except yaml.YAMLError as exc:
@@ -102,6 +110,50 @@ class PaperClarifierAgent(SlashCommandAgent):
         spec_text = mechanical_output["spec_text"]
         patches = report.get("patches", []) or []
         patches_by_index = {p.get("marker_index"): p for p in patches if p.get("marker_index") is not None}
+
+        # Spec 015 T032 / discrepancy #5: branch on the LLM's ``escalate`` verdict
+        # (previously ignored — the escalate path was dead) AND the attempt cap,
+        # and REMOVE the silent "Resolved by default" stub substitution that
+        # violated the no-silent-shortcuts invariant. Match the research
+        # clarifier's loud-failure behavior.
+        from llmxive.config import TASKER_MAX_REVISION_ROUNDS
+        from llmxive.speckit._clarify_attempts import (
+            bump_attempts,
+            reset_attempts,
+            write_human_input_needed,
+        )
+        memory_dir = Path(
+            mechanical_output.get("memory_dir") or self._memory_dir(ctx),
+        )
+        verdict = report.get("verdict") if isinstance(report, dict) else None
+        if verdict == "escalate":
+            new_n = bump_attempts(memory_dir)
+            reason = (
+                f"paper_clarifier emitted verdict=escalate after {new_n} attempt(s); "
+                f"unresolved markers={len(markers) - len(patches_by_index)}"
+            )
+            write_human_input_needed(memory_dir, reason)
+            raise RuntimeError(reason)
+        if markers and len(patches_by_index) < len(markers):
+            new_n = bump_attempts(memory_dir)
+            missing = [
+                m["question"] for i, m in enumerate(markers)
+                if i not in patches_by_index
+            ]
+            if new_n >= TASKER_MAX_REVISION_ROUNDS:
+                reason = (
+                    f"paper_clarifier hit attempt cap ({new_n} >= "
+                    f"{TASKER_MAX_REVISION_ROUNDS}); {len(missing)} markers still "
+                    f"unresolved: {missing!r}"
+                )
+                write_human_input_needed(memory_dir, reason)
+                raise RuntimeError(reason)
+            raise RuntimeError(
+                f"Paper clarifier left {len(missing)} of {len(markers)} markers "
+                f"unresolved (attempt {new_n}/{TASKER_MAX_REVISION_ROUNDS}); will "
+                f"not advance. Unresolved: {missing!r}"
+            )
+
         count_holder = {"n": 0}
 
         def _sub(match: re.Match[str]) -> str:
@@ -110,14 +162,16 @@ class PaperClarifierAgent(SlashCommandAgent):
             patch = patches_by_index.get(idx)
             if patch and patch.get("replacement"):
                 return patch["replacement"]
-            question = (match.group("bq") or match.group("mq") or "").strip()
-            return f"_(Resolved by default; LLM clarifier could not pin a value: {question})_"
+            # Unreachable thanks to the gate above; keep the marker in place so a
+            # next tick can retry rather than silently writing a stub.
+            return match.group(0)
 
         spec_text = CLARIFY_MARKER_RE.sub(_sub, spec_text)
         spec_path.write_text(spec_text, encoding="utf-8")
         # FR-009: real-only guard — paper clarify must not regress spec into template
         from llmxive.speckit._real_only_guard import guard_emit
         guard_emit(spec_path, repo_root=repo, unlink_on_fail=False)
+        reset_attempts(memory_dir)
         return [str(spec_path.relative_to(repo))]
 
 

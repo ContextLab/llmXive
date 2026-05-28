@@ -18,13 +18,11 @@ from typing import Any
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
-
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 CLARIFY_MARKER_RE = re.compile(
     # Match BOTH the canonical bracket form `[NEEDS CLARIFICATION: …]`
@@ -43,13 +41,14 @@ class ClarifierAgent(SlashCommandAgent):
         return "speckit.clarify"
 
     def _spec_path(self, ctx: SlashCommandContext) -> Path:
-        repo = ctx.project_dir.parent.parent
-        feature_dir_str = ctx.metadata if isinstance(ctx, dict) else None  # type: ignore[unreachable]
         # Find the project's spec.md by walking specs/.
         candidates = sorted(ctx.project_dir.glob("specs/*/spec.md"))
         if not candidates:
             raise FileNotFoundError(f"no spec.md in {ctx.project_dir}/specs/")
         return candidates[0]
+
+    def _memory_dir(self, ctx: SlashCommandContext) -> Path:
+        return ctx.project_dir / ".specify" / "memory"
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         spec_path = self._spec_path(ctx)
@@ -61,11 +60,16 @@ class ClarifierAgent(SlashCommandAgent):
             }
             for i, m in enumerate(CLARIFY_MARKER_RE.finditer(text))
         ]
+        # Spec 015 T032 / discrepancy #5: persist + read real attempt count so the
+        # escalation path (cap → human_input_needed) is actually reachable.
+        from llmxive.speckit._clarify_attempts import read_attempts
+        memory_dir = self._memory_dir(ctx)
         return {
             "spec_path": str(spec_path),
             "spec_text": text,
             "markers": markers,
-            "attempts_so_far": 0,
+            "attempts_so_far": read_attempts(memory_dir),
+            "memory_dir": str(memory_dir),
         }
 
     def build_prompt(
@@ -114,21 +118,50 @@ class ClarifierAgent(SlashCommandAgent):
         patches = report.get("patches", []) or []
         patches_by_index = {p.get("marker_index"): p for p in patches if p.get("marker_index") is not None}
 
-        # Quality gate: every [NEEDS CLARIFICATION] marker MUST have a
-        # real replacement. If the LLM produced fewer patches than there
-        # are markers, fail the stage rather than papering over with
-        # stub text — the Tasker and reviewers cannot recover from a
-        # hidden "Resolved by default" lie. The pipeline graph treats
-        # this as a real failure (no advancement to clarified) so the
-        # next scheduler tick will retry the Clarifier.
+        # Spec 015 T032 / discrepancy #5: real escalation. Read the persisted
+        # attempt count (mechanical_step put it here; legacy callers omit the key
+        # → derive from ctx). Branch on the LLM's explicit ``escalate`` verdict OR
+        # the attempt cap; either way drop human_input_needed.yaml + raise.
+        from llmxive.config import TASKER_MAX_REVISION_ROUNDS
+        from llmxive.speckit._clarify_attempts import (
+            bump_attempts,
+            reset_attempts,
+            write_human_input_needed,
+        )
+        memory_dir = Path(
+            mechanical_output.get("memory_dir") or self._memory_dir(ctx),
+        )
+        verdict = report.get("verdict") if isinstance(report, dict) else None
+        if verdict == "escalate":
+            new_n = bump_attempts(memory_dir)
+            reason = (
+                f"clarifier emitted verdict=escalate after {new_n} attempt(s); "
+                f"unresolved markers={len(markers) - len(patches_by_index)}"
+            )
+            write_human_input_needed(memory_dir, reason)
+            raise RuntimeError(reason)
+        # Quality gate: every [NEEDS CLARIFICATION] marker MUST have a real
+        # replacement. If the LLM produced fewer patches than markers, fail the
+        # stage rather than papering over with stub text — and if we've hit the
+        # attempt cap, escalate to human input rather than looping forever.
         if markers and len(patches_by_index) < len(markers):
+            new_n = bump_attempts(memory_dir)
             missing = [
                 m["question"] for i, m in enumerate(markers)
                 if i not in patches_by_index
             ]
+            if new_n >= TASKER_MAX_REVISION_ROUNDS:
+                reason = (
+                    f"clarifier hit attempt cap ({new_n} >= "
+                    f"{TASKER_MAX_REVISION_ROUNDS}); {len(missing)} markers still "
+                    f"unresolved: {missing!r}"
+                )
+                write_human_input_needed(memory_dir, reason)
+                raise RuntimeError(reason)
             raise RuntimeError(
-                f"Clarifier left {len(missing)} of {len(markers)} markers unresolved; "
-                f"will not advance. Unresolved: {missing!r}"
+                f"Clarifier left {len(missing)} of {len(markers)} markers unresolved "
+                f"(attempt {new_n}/{TASKER_MAX_REVISION_ROUNDS}); will not advance. "
+                f"Unresolved: {missing!r}"
             )
 
         count_holder = {"n": 0}
@@ -149,6 +182,8 @@ class ClarifierAgent(SlashCommandAgent):
         # FR-009: real-only guard — clarify must not regress a spec into template territory
         from llmxive.speckit._real_only_guard import guard_emit
         guard_emit(spec_path, repo_root=repo, unlink_on_fail=False)
+        # T032: successful clarify clears the attempt counter.
+        reset_attempts(memory_dir)
         return [str(spec_path.relative_to(repo))]
 
 
@@ -221,4 +256,4 @@ def _escape_newlines_in_json_strings(text: str) -> str:
     return "".join(out)
 
 
-__all__ = ["ClarifierAgent", "TASKER_MAX_REVISION_ROUNDS"]
+__all__ = ["TASKER_MAX_REVISION_ROUNDS", "ClarifierAgent"]

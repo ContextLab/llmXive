@@ -117,3 +117,118 @@ def test_analyze_rejects_unknown_kind():
             default_backend=BackendName.DARTMOUTH, fallback_backends=[],
             default_model="m", repo_root=_REPO, kind="bogus",
         )
+
+
+# ---- T032 / discrepancy #5 : dead escalation paths --------------------------
+
+
+def test_clarifier_attempts_persistence_round_trip(tmp_path):
+    """T032 (research clarifier side): attempts_so_far is now read from disk
+    instead of hardcoded 0; bump persists; reset clears."""
+    from llmxive.speckit._clarify_attempts import (
+        bump_attempts,
+        read_attempts,
+        reset_attempts,
+        write_human_input_needed,
+    )
+    mem = tmp_path / ".specify" / "memory"
+    assert read_attempts(mem) == 0
+    assert bump_attempts(mem) == 1
+    assert bump_attempts(mem) == 2
+    assert read_attempts(mem) == 2
+    reset_attempts(mem)
+    assert read_attempts(mem) == 0
+    hin = write_human_input_needed(mem, "test reason")
+    assert hin.exists() and "test reason" in hin.read_text()
+
+
+def test_paper_clarifier_no_silent_resolved_by_default_stub():
+    """T032 (paper side): paper_clarifier previously substituted a silent
+    'Resolved by default' stub when patches were missing — a no-silent-shortcuts
+    violation. It must now raise like the research clarifier does. (The phrase
+    "Resolved by default" may remain in a doc/comment as historical reference;
+    the executable stub substitution is what must be gone.)"""
+    src = (_REPO / "src" / "llmxive" / "speckit" / "paper_clarify_cmd.py").read_text()
+    # The exact runtime stub substitution must be gone.
+    assert "Resolved by default; LLM clarifier could not pin" not in src, \
+        "paper_clarifier still substitutes the silent 'Resolved by default' stub"
+    # both clarifiers must reach the same loud-failure helpers
+    assert "write_human_input_needed" in src
+    assert "TASKER_MAX_REVISION_ROUNDS" in src
+
+
+def _make_ctx(project_id: str, project_dir, agent_name: str):
+    from pathlib import Path as _P
+
+    from llmxive.speckit.slash_command import SlashCommandContext
+    from llmxive.types import BackendName
+    return SlashCommandContext(
+        project_id=project_id,
+        project_dir=project_dir,
+        run_id="t032-run",
+        task_id="t032-task",
+        inputs=[],
+        expected_outputs=[],
+        prompt_template_path=_P("/dev/null"),
+        default_backend=BackendName.DARTMOUTH,
+        fallback_backends=[],
+        default_model="qwen.qwen3.5-122b",
+        prompt_version="1.0.0",
+        agent_name=agent_name,
+    )
+
+
+def test_clarifier_escalate_verdict_writes_human_input(tmp_path):
+    """T032: when the LLM emits ``verdict: escalate`` the clarifier writes
+    human_input_needed.yaml + raises (the path was previously dead)."""
+    import pytest as _pt
+
+    from llmxive.backends.base import ChatResponse
+    from llmxive.speckit.clarify_cmd import ClarifierAgent
+
+    proj = tmp_path / "projects" / "PROJ-T032-x"
+    (proj / "specs" / "001-test").mkdir(parents=True)
+    spec = proj / "specs" / "001-test" / "spec.md"
+    spec.write_text("Some spec [NEEDS CLARIFICATION: what model?]", encoding="utf-8")
+
+    agent = ClarifierAgent()
+    ctx = _make_ctx("PROJ-T032-x", proj, "clarifier")
+    mech = agent.mechanical_step(ctx)
+    resp = ChatResponse(text='{"verdict": "escalate", "patches": []}', model="m", backend="dartmouth")
+
+    with _pt.raises(RuntimeError, match="escalate"):
+        agent.write_artifacts(ctx, mech, resp)
+    hin = proj / ".specify" / "memory" / "human_input_needed.yaml"
+    assert hin.exists(), "escalate verdict must write human_input_needed.yaml"
+
+
+def test_clarifier_attempt_cap_writes_human_input(tmp_path):
+    """T032: when the persisted attempt count reaches TASKER_MAX_REVISION_ROUNDS
+    on a failing run, the clarifier escalates to human input."""
+    import pytest as _pt
+    import yaml as _yaml
+
+    from llmxive.backends.base import ChatResponse
+    from llmxive.config import TASKER_MAX_REVISION_ROUNDS
+    from llmxive.speckit.clarify_cmd import ClarifierAgent
+
+    proj = tmp_path / "projects" / "PROJ-T032-y"
+    (proj / "specs" / "001-test").mkdir(parents=True)
+    (proj / ".specify" / "memory").mkdir(parents=True)
+    spec = proj / "specs" / "001-test" / "spec.md"
+    spec.write_text("Spec [NEEDS CLARIFICATION: x]", encoding="utf-8")
+    # Pre-seed attempts to one below the cap so this run trips it.
+    (proj / ".specify" / "memory" / "clarifier_attempts.yaml").write_text(
+        _yaml.safe_dump({"attempts": TASKER_MAX_REVISION_ROUNDS - 1}), encoding="utf-8",
+    )
+
+    agent = ClarifierAgent()
+    ctx = _make_ctx("PROJ-T032-y", proj, "clarifier")
+    mech = agent.mechanical_step(ctx)
+    # Empty patches -> unresolved marker -> bump hits cap -> escalate.
+    resp = ChatResponse(text='{"patches": []}', model="m", backend="dartmouth")
+
+    with _pt.raises(RuntimeError, match="cap"):
+        agent.write_artifacts(ctx, mech, resp)
+    hin = proj / ".specify" / "memory" / "human_input_needed.yaml"
+    assert hin.exists()
