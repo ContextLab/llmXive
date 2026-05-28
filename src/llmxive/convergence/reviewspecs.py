@@ -512,9 +512,36 @@ def build_implement_reviewspec(
     return base
 
 
+def build_paper_implement_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the paper-implement convergence unit (T059).
+
+    The reviser is :class:`PaperImplementReviser` (multi-artifact paper-side
+    edit; dispatches to sub-agents internally based on each concern's
+    lens). The reviewers (12-panel) are REUSED from
+    ``agents/prompts/paper_reviewer*.md``; live Reviewer-Protocol wiring
+    of the panel lands as the T059 follow-up."""
+    from .revisers.paper_implement_reviser import PaperImplementReviser
+
+    base = _spec_paper_implement()
+    base.reviser = PaperImplementReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
 __all__ = [
     "EXEMPT_STAGES",
     "build_implement_reviewspec",
+    "build_paper_implement_reviewspec",
     "build_paper_plan_reviewspec",
     "build_paper_spec_reviewspec",
     "build_paper_tasks_reviewspec",
