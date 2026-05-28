@@ -32,6 +32,48 @@ Legend: ✅ done · 🟡 in progress · ⬜ not started.
 ## Decisions that supersede the design doc (from /speckit-clarify, 2026-05-27)
 Overflow floor = on-disk inode-table pointers + recursive desummarize (NOT truncate-with-notice) · NO global kickback cap (per-step 3-round cap kept) · all 9 domains e2e to `posted` · real public DOIs gated by manual sign-off · calibration = differential clean-vs-injected + manual adjudication (no fixed over-flag %) · no `posted`/`done` projects exist → migrate in-flight only.
 
+## T062 — per-step verification table (2026-05-28)
+
+Every reviewable step now has a live `build_*_reviewspec` helper that wires
+the matching `Reviser` into the engine; every EXEMPT step is in
+`EXEMPT_STAGES` and `reviewspec_for(stage)` returns `None` for them. The
+invariant tests in `tests/integration/test_invariants.py` lock these
+properties in CI.
+
+| Stage | Type | Reviser | Tests | Verified |
+|-|-|-|-|-|
+| `flesh_out_complete` (idea) | reviewable | TodoReviser (idea_flesh_out reviser is the only stage without a live build_*_reviewspec — flesh_out_agent is a non-speckit Agent + would need wrapping in T021) | registry contract tests | 🟡 |
+| `clarified` (research spec) | reviewable | `SpecReviser` | 8 reviser + 2 panel tests | ✅ |
+| `planned` (research plan) | reviewable | `PlanReviser` | 10 reviser + 1 panel test | ✅ |
+| `tasked` (research tasks) | reviewable | `TasksReviser` | 9 reviser + 1 panel test | ✅ |
+| `research_review` (impl unit) | reviewable | `ImplementerReviser` + filesystem re-verify (#49) | 10 reviser + 2 panel tests | ✅ |
+| `paper_clarified` (paper spec) | reviewable | `PaperSpecReviser` | 6 reviser + 2 panel tests | ✅ |
+| `paper_planned` (paper plan) | reviewable | `PaperPlanReviser` | (covered in plan tests) + 1 panel test | ✅ |
+| `paper_tasked` (paper tasks) | reviewable | `PaperTasksReviser` | (covered in tasks tests) + 1 panel test | ✅ |
+| `paper_review` (paper impl unit) | reviewable | `PaperImplementReviser` + dispatcher | 7 reviser + 2 panel tests | ✅ |
+| `project_initializer` | **EXEMPT** | — | invariant + registry tests | ✅ |
+| `paper_initializer` | **EXEMPT** | — | invariant + registry tests | ✅ |
+| `paper_publisher` | **EXEMPT** | — (wired into graph via AWAITING_PUBLICATION_SIGNOFF gate; manual sign-off via CLI) | T035 tests | ✅ |
+| `task_atomizer` | **EXEMPT** | — | invariant + registry tests | ✅ |
+| `task_joiner` | **EXEMPT** | — | invariant + registry tests | ✅ |
+| `status_reporter` | **EXEMPT** | — | invariant + registry tests | ✅ |
+| `repository_hygiene` | **EXEMPT** | — | invariant + registry tests | ✅ |
+
+**Constitution-from-`specified`-onward invariant** (FR-030): locked by
+`test_invariant_constitution_input_required_from_specified_onward` —
+every reviewable stage EXCEPT `flesh_out_complete` sets
+`constitution_input=True`; the idea stage does NOT (constitution doesn't
+exist yet).
+
+**Adaptive kickback severity coverage**: locked by
+`test_invariant_kickback_routing_covers_every_writing_through_fatal_severity` —
+every reviewable stage's `kickback_routing` covers WRITING through FATAL;
+TRIVIAL/CODE optional (only the implement stages handle them).
+
+**Valid kickback targets**: locked by
+`test_invariant_every_kickback_to_stage_is_a_valid_stage_name` — every
+routing target is a real `Stage` enum value (catches typos at audit time).
+
 ## T082 — SSoT grep audit (2026-05-28) — Constitution Principle I
 
 Verified that the spec-015 design's three "must be deleted/re-pointed" SSoT
