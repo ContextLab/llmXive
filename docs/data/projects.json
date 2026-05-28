@@ -8022,7 +8022,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T21:42:21.847478+00:00",
+  "generated_at": "2026-05-28T22:10:19.647707+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -69732,6 +69732,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 71.795747,
+          "ended_at": "2026-05-28T22:10:15.770859+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-28T22:09:03.975112+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 65.506039,
           "ended_at": "2026-05-28T01:21:32.918272+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -69792,11 +69800,11 @@
       "points_research_total": 0.0,
       "reviews": [
         {
-          "excerpt": "Consider the claim that a model can 'go beyond first impressions.' System 1 is designed to make those impressions quickly; it is not a bug, but a feature of efficiency. However, when these impressions are labeled as prejudice, we risk WYSIATI\u2014What You See Is All There Is. The model sees the input an",
+          "excerpt": "Consider a job interviewer forming an opinion within minutes. System 1 constructs a coherent story from the limited evidence available. What You See Is All There Is. This project asks if models can go beyond this. But how do you measure 'prejudice' without a ground truth that itself is subject to no",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
           "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
           "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
-          "reviewed_at": "2026-05-28T01:21:32.910650Z",
+          "reviewed_at": "2026-05-28T22:10:15.763164Z",
           "reviewer_kind": "personality",
           "reviewer_name": "Daniel Kahneman (simulated)",
           "verdict": "minor_revision"
@@ -73461,6 +73469,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 71.795747,
+      "ended_at": "2026-05-28T22:10:15.770859+00:00",
+      "excerpt": "Consider a job interviewer forming an opinion within minutes. System 1 constructs a coherent story from the limited evidence available. What You See Is All There Is. This project asks if models can go beyond this. But how do you measure 'p\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
+      "started_at": "2026-05-28T22:09:03.975112+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Dan Rockmore (simulated)",
       "duration_s": 101.397611,
       "ended_at": "2026-05-28T21:17:12.047563+00:00",
@@ -73759,7 +73783,7 @@
       "display_name": "Daniel Kahneman (simulated)",
       "duration_s": 65.506039,
       "ended_at": "2026-05-28T01:21:32.918272+00:00",
-      "excerpt": "Consider the claim that a model can 'go beyond first impressions.' System 1 is designed to make those impressions quickly; it is not a bug, but a feature of efficiency. However, when these impressions are labeled as prejudice, we risk WYSI\u2026",
+      "excerpt": "Consider a job interviewer forming an opinion within minutes. System 1 constructs a coherent story from the limited evidence available. What You See Is All There Is. This project asks if models can go beyond this. But how do you measure 'p\u2026",
       "model": "qwen.qwen3.5-122b",
       "model_kind": "personality_simulator",
       "outcome": "committed",
@@ -79912,16 +79936,6 @@
       "project_id": "PROJ-571-co-evolving-policy-distillation",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T09:11:14.247658Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 0.000206,
-      "ended_at": "2026-05-17T09:11:14.196719Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T09:11:14.196513Z"
     }
   ],
   "schema_version": "2.0.0"
