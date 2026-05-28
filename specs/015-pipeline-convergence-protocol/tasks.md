@@ -103,7 +103,7 @@
 - [X] T033 [P] [US8] Resolve `code_summary`/`data_summary` prompt input drift (supply or remove) and stage-header drift in `agents/prompts/paper_specifier.md`, `paper_clarifier.md`, and other drifted headers
 - [X] T034 [P] [US8] arXiv/theoremsearch graceful degradation on transient 429/503/timeout (retry+backoff → recorded "unavailable" notice; non-transient still raises) in `src/llmxive/librarian/theoremsearch*.py`
 - [X] T035 [US8] Implement the manual DOI sign-off gate (FR-054): publisher writes `pending_publication.yaml` + halts at `awaiting_publication_signoff`; `llmxive publish-approve <PROJ-ID>` writes `publication_signoff.yaml`; mint only on matching `content_hash` in `src/llmxive/agents/publisher.py` and `src/llmxive/cli.py`
-- [ ] T036 [US8] Verify all 10 bugs fixed by direct inspection + a real partial run; update STATUS.md
+- [X] T036 [US8] Verify all 10 bugs fixed by direct inspection + a real partial run; update STATUS.md
 
 **Checkpoint**: pipeline mechanically sound for real runs.
 
