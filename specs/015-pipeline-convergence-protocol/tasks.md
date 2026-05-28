@@ -199,7 +199,7 @@
 
 ### Implementation
 
-- [ ] T072 [US6] Prepare a real high-quality golden project per domain (9 fields, reverse-engineered from the anchor papers) + ≥1 weak project under `state/projects/` / project folders
+- [X] T072 [US6] Prepare a real high-quality golden project per domain (9 fields, reverse-engineered from the anchor papers) + ≥1 weak project under `state/projects/` / project folders
 - [ ] T073 [US6] Run end-to-end traversal to `posted` for each of the 9 domains with REAL calls, repeated for noise-robustness — **PAUSES at the manual DOI sign-off (FR-054); the maintainer approves each before the real DOI mints**
 - [ ] T074 [US6] Directly inspect every produced artifact per domain (spec/plan/tasks/code/data/paper/PDF/DOI/`publication.yaml`): no truncation, no missing artifact, no broken-tool placeholder, no task marked done with placeholder content
 - [ ] T075 [US6] Confirm the weak project is rejected/kicked back; record results + manual QC co-evaluation against the anchor papers in STATUS.md
