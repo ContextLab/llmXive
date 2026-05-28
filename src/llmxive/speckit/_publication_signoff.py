@@ -47,9 +47,18 @@ def write_signoff(
     what: str,
     kind: str = "initial",
     when: str | None = None,
+    recorded_by_gh_user: str | None = None,
 ) -> Path:
     """Record FR-054 sign-off (who/when/what). ``kind`` distinguishes the initial
-    publication from a living-document version DOI."""
+    publication from a living-document version DOI.
+
+    ``recorded_by_gh_user`` (optional) is the GitHub identity of the
+    operator who actually invoked ``llmxive project publish-approve``,
+    as resolved from ``gh auth status``. When supplied, it's persisted
+    alongside ``who`` so the audit trail captures BOTH the human
+    responsible for the sign-off AND the gh identity that ran the
+    command (these can differ when one maintainer is recording approval
+    on behalf of another)."""
     if not who or not who.strip():
         raise ValueError("publication sign-off requires a non-empty 'who'")
     if not what or not what.strip():
@@ -57,15 +66,55 @@ def write_signoff(
     if kind not in ("initial", "version"):
         raise ValueError(f"publication sign-off kind must be 'initial' or 'version', got {kind!r}")
     memory_dir.mkdir(parents=True, exist_ok=True)
-    record = {
+    record: dict[str, Any] = {
         "who": who.strip(),
         "what": what.strip(),
         "kind": kind,
         "when": when or datetime.now(UTC).isoformat(),
     }
+    if recorded_by_gh_user:
+        record["recorded_by_gh_user"] = recorded_by_gh_user.strip()
     p = _signoff_path(memory_dir)
     p.write_text(yaml.safe_dump(record, sort_keys=True), encoding="utf-8")
     return p
+
+
+def resolve_gh_user() -> str | None:
+    """Return the GitHub username from ``gh auth status``, or ``None``
+    if ``gh`` isn't available, the user isn't logged in, or stdout
+    parsing fails. Pure read; no side effects.
+
+    Used by ``llmxive project publish-approve`` to bind the FR-054
+    sign-off to a real GitHub identity (audit trail). When the CLI
+    can't resolve the identity, the operator MUST pass ``--who``
+    explicitly + an explicit ``--allow-no-gh-identity`` opt-out.
+    """
+    import re
+    import shutil
+    import subprocess
+
+    if shutil.which("gh") is None:
+        return None
+    try:
+        proc = subprocess.run(
+            ["gh", "auth", "status"],
+            check=False, capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    # ``gh auth status`` writes its hostname/user line to STDERR by
+    # default. Look for "Logged in to github.com account <user>" or
+    # the older "Logged in to github.com as <user>".
+    text = proc.stderr + "\n" + proc.stdout
+    m = re.search(
+        r"Logged in to github\.com(?:\s+account)?\s+(?:as\s+)?([A-Za-z0-9-]+)",
+        text,
+    )
+    if m is None:
+        return None
+    return m.group(1)
 
 
 def clear_signoff(memory_dir: Path) -> None:
@@ -80,5 +129,6 @@ __all__ = [
     "clear_signoff",
     "has_signoff",
     "read_signoff",
+    "resolve_gh_user",
     "write_signoff",
 ]

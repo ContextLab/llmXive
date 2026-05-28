@@ -699,16 +699,26 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
 
 
 def _cmd_project_publish_approve(args: argparse.Namespace) -> int:
-    """`llmxive project publish-approve <PROJ-ID> --who X --what Y` (spec 015 / FR-054).
+    """`llmxive project publish-approve <PROJ-ID> [--who X] --what Y` (spec 015 / FR-054).
 
     Records the mandatory manual maintainer sign-off before any Zenodo DOI is
     minted (initial publication or living-document version). The publisher and
     the pipeline graph both refuse to advance past
     ``AWAITING_PUBLICATION_SIGNOFF`` until this record exists.
+
+    Identity binding: ``--who`` defaults to the active ``gh auth status``
+    identity. The CLI refuses to record a sign-off without an identity
+    unless ``--allow-no-gh-identity`` is passed. The resolved gh identity
+    is ALSO recorded as ``recorded_by_gh_user`` so audit reviewers see
+    both the responsible human AND the actual operator (which may differ
+    when one maintainer is recording on behalf of another).
     """
     from pathlib import Path
 
-    from llmxive.speckit._publication_signoff import write_signoff
+    from llmxive.speckit._publication_signoff import (
+        resolve_gh_user,
+        write_signoff,
+    )
 
     project_id = args.project_id
     repo = Path.cwd()
@@ -716,15 +726,59 @@ def _cmd_project_publish_approve(args: argparse.Namespace) -> int:
     if not project_dir.is_dir():
         print(f"[publish-approve] ERROR: no project dir {project_dir}", file=sys.stderr)
         return 2
+
+    gh_user = resolve_gh_user()
+    who = args.who or gh_user
+    if not who:
+        if not args.allow_no_gh_identity:
+            print(
+                "[publish-approve] ERROR: could not resolve the active "
+                "GitHub identity (gh CLI not installed, not logged in, "
+                "or parsing failed) AND --who was not provided. Either "
+                "log in with `gh auth login`, pass --who explicitly, or "
+                "pass --allow-no-gh-identity to record an unbound "
+                "sign-off (FR-054 audit trail will be weaker).",
+                file=sys.stderr,
+            )
+            return 2
+        # The operator explicitly opted out of identity binding — we
+        # still require --who to be passed.
+        if not args.who:
+            print(
+                "[publish-approve] ERROR: --allow-no-gh-identity also "
+                "requires --who to be passed explicitly (the sign-off "
+                "MUST identify a responsible human).",
+                file=sys.stderr,
+            )
+            return 2
+        who = args.who
+
+    if args.who and gh_user and args.who.strip() != gh_user:
+        # Operator is recording on behalf of someone else. Allowed, but
+        # the discrepancy is surfaced in stderr so it's visible in CI
+        # logs / audit trails (the recorded_by_gh_user YAML field also
+        # captures the gh identity).
+        print(
+            f"[publish-approve] NOTE: --who ({args.who!r}) differs from "
+            f"the active gh identity ({gh_user!r}); both will be "
+            f"recorded in the sign-off YAML.",
+            file=sys.stderr,
+        )
+
     memory_dir = project_dir / ".specify" / "memory"
     try:
-        path = write_signoff(memory_dir, who=args.who, what=args.what, kind=args.kind)
+        path = write_signoff(
+            memory_dir, who=who, what=args.what, kind=args.kind,
+            recorded_by_gh_user=gh_user,
+        )
     except ValueError as exc:
         print(f"[publish-approve] ERROR: {exc}", file=sys.stderr)
         return 2
     print(
         f"[publish-approve] {project_id}: recorded {args.kind} sign-off "
-        f"by {args.who!r} → {path.relative_to(repo)}"
+        f"by {who!r}"
+        + (f" (gh identity: {gh_user!r})" if gh_user else " (no gh identity)")
+        + f" → {path.relative_to(repo)}"
     )
     return 0
 
@@ -872,8 +926,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_signoff.add_argument("project_id", help="e.g. PROJ-261-evaluating-the-impact-...")
     p_signoff.add_argument(
-        "--who", required=True,
-        help="approver identity (e.g. github login or human-readable name)",
+        "--who", default=None,
+        help="approver identity (default: the active `gh auth` username). "
+             "If --who differs from the gh identity, BOTH are recorded.",
     )
     p_signoff.add_argument(
         "--what", required=True,
@@ -882,6 +937,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_signoff.add_argument(
         "--kind", choices=("initial", "version"), default="initial",
         help="initial publication or a living-document version DOI (default: initial)",
+    )
+    p_signoff.add_argument(
+        "--allow-no-gh-identity", action="store_true",
+        help="explicit opt-out for the gh-identity binding (rare; "
+             "still requires --who). FR-054 audit trail is weaker without "
+             "a gh identity.",
     )
     p_signoff.set_defaults(func=_cmd_project_publish_approve)
 
