@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 644,
     "ai_contributors": 7,
-    "human_contributors": 847,
+    "human_contributors": 858,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2659,
-    "total_contributors": 854
+    "total_contributions": 2672,
+    "total_contributors": 865
   },
   "contributors": [
     {
@@ -1075,6 +1075,15 @@
     },
     {
       "areas": [
+        "computer science",
+        "other"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Ziwei Liu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
@@ -1147,6 +1156,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Hanlin Tang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Hao Li"
     },
     {
       "areas": [
@@ -1435,15 +1452,6 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Zihao Li"
-    },
-    {
-      "areas": [
-        "computer science",
-        "other"
-      ],
-      "contribution_count": 2,
-      "kind": "human",
-      "name": "Ziwei Liu"
     },
     {
       "areas": [
@@ -2227,6 +2235,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Dingwen Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Dingyu Yao"
     },
     {
@@ -2379,6 +2395,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Fangzhou Hong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Fanny Riols"
     },
     {
@@ -2468,6 +2492,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Frank Hutter"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fushuo Huo"
     },
     {
       "areas": [
@@ -2779,14 +2811,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Hao Li"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Hao Meng"
     },
     {
@@ -2855,6 +2879,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haosong Peng"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -2892,6 +2924,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haoyue Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haozhao Wang"
     },
     {
       "areas": [
@@ -3268,6 +3308,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jianzhu Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiaqi Chen"
     },
     {
       "areas": [
@@ -5027,6 +5075,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Runmao Yao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Runquan Gui"
     },
     {
@@ -5827,6 +5883,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Wenchao Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Wendi Li"
     },
     {
@@ -6412,6 +6476,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ya Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yalun Dai"
     },
     {
       "areas": [
@@ -7079,6 +7151,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuhao Pan"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -7388,6 +7468,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhaolong Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhaoxi Chen"
     },
     {
       "areas": [
@@ -7846,7 +7934,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T14:17:19.751618+00:00",
+  "generated_at": "2026-05-28T15:11:51.489716+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -8084,6 +8172,11 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8092,11 +8185,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8128,6 +8216,11 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8136,11 +8229,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8172,6 +8260,11 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8180,11 +8273,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8216,6 +8304,11 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8224,11 +8317,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8259,6 +8347,11 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8267,11 +8360,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8302,6 +8390,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8310,11 +8403,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8348,6 +8436,11 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8356,11 +8449,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8400,6 +8488,11 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8408,11 +8501,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8444,6 +8532,11 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8452,11 +8545,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8487,6 +8575,11 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8495,11 +8588,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8531,6 +8619,11 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8539,11 +8632,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8574,6 +8662,11 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8582,11 +8675,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8625,6 +8713,11 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8633,11 +8726,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8671,6 +8759,11 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8679,11 +8772,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -8726,6 +8814,11 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
+          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis",
           "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
           "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding"
@@ -8734,11 +8827,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
           "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367",
-          "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-          "title": "https://arxiv.org/abs/2605.27367"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall",
@@ -72521,7 +72609,112 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haosong Peng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiaqi Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhao Pan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runmao Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yalun Dai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fushuo Huo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fangzhou Hong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhaoxi Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haozhao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dingwen Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziwei Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenchao Xu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -72536,8 +72729,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.27367 Submitted by: github-actions[bot] (Intake from human-submission issue #242.)",
-      "field": "other",
+      "description": "While spatial foundation models have demonstrated impressive performance on standard datasets, a critical question remains: are they truly all-round players capable of generalizing robustly across diverse downstream tasks, arbitrary viewpoints, shifting scene domains, varying input densities, and specific hardware\u2026",
+      "field": "computer science",
       "id": "PROJ-634-https-arxiv-org-abs-2605-27367",
       "keywords": [],
       "last_run_log": [
@@ -72559,8 +72752,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.27367",
-      "updated_at": "2026-05-28T09:16:57.631972+00:00",
+      "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?",
+      "updated_at": "2026-05-28T15:10:09.239350+00:00",
       "upstream_feedback": null
     },
     {
