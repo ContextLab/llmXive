@@ -315,7 +315,12 @@ def _build_registry() -> dict[str, ReviewSpec]:
 
 def reviewspec_for(stage: str) -> ReviewSpec | None:
     """Return the per-step ``ReviewSpec``, or ``None`` for EXEMPT / non-reviewable
-    stages. The mapping mirrors ``contracts/reviewspec-registry.md``."""
+    stages. The mapping mirrors ``contracts/reviewspec-registry.md``.
+
+    The returned spec uses TODO-placeholder revisers/reviewers; callers that
+    need a LIVE spec (with real LLM-backed revisers) should use the
+    ``build_*_reviewspec`` helpers in ``llmxive.convergence.revisers`` —
+    e.g. :func:`build_spec_reviewspec` for the ``clarified`` stage."""
     if stage in EXEMPT_STAGES:
         return None
     return _build_registry().get(stage)
@@ -326,4 +331,42 @@ def reviewable_stages() -> list[str]:
     return sorted(_build_registry().keys())
 
 
-__all__ = ["EXEMPT_STAGES", "reviewable_stages", "reviewspec_for"]
+def build_spec_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the spec convergence unit (T054).
+
+    The returned spec has a real :class:`SpecReviser` as its ``.reviser`` —
+    the rest of the spec (reviewers, kickback routing, advance_stage, etc.)
+    is identical to the static ``reviewspec_for("clarified")``. Panel
+    reviewers remain ``_TodoReviewer`` placeholders until T058 wires the
+    spec panel.
+
+    Importing locally so this module stays import-clean for callers that
+    never touch the live reviser path.
+    """
+    # Local import: keeps ``revisers/`` out of the import graph for callers
+    # who only need the static registry (and avoids any future cycle if a
+    # reviser ever needs to import from this module).
+    from .revisers.spec_reviser import SpecReviser
+
+    base = _spec_research_spec()
+    base.reviser = SpecReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
+__all__ = [
+    "EXEMPT_STAGES",
+    "build_spec_reviewspec",
+    "reviewable_stages",
+    "reviewspec_for",
+]
