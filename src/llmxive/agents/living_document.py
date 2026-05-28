@@ -76,6 +76,8 @@ def ingest_comment(
     source: str = "human",
     stage: str = "posted",
     lenses: list[str] | None = None,
+    backend: object | None = None,
+    model: str = "qwen.qwen3.5-122b",
 ) -> IngestResult:
     """Ingest one post-``posted`` comment.
 
@@ -85,6 +87,11 @@ def ingest_comment(
     originally reviewed under). Preserved comments are appended to the
     project's living log; rejected comments produce a no-op
     :class:`IngestResult` carrying the triage reason.
+
+    When ``backend`` is provided, the triage uses the LLM-based intent
+    classifier from :mod:`llmxive.convergence.triage` (recommended for
+    production); falls back to the keyword matcher when ``backend`` is
+    None (for tests + offline diagnostic use).
     """
     if lenses is None:
         # Default to the paper-review panel's lens set (same as
@@ -95,12 +102,17 @@ def ingest_comment(
             "overreach", "safety_ethics", "code_quality", "data_quality",
             "text_formatting", "writing_quality",
         ]
+    judge = None
+    if backend is not None:
+        from llmxive.convergence.triage import llm_topic_judge
+        judge = llm_topic_judge(backend, model=model)
     record = triage_submission(
         comment_text,
         source="human" if source not in {"human", "personality"} else source,  # type: ignore[arg-type]
         author=author,
         stage=stage,
         lenses=lenses,
+        judge_fn=judge,
     )
     if not record.preserved:
         return IngestResult(
@@ -300,11 +312,25 @@ def commit_digest(project_dir: Path, digest: str) -> None:
 # --- off-topic vs on-topic --------------------------------------------
 
 
-def is_off_topic(comment_text: str, *, lenses: list[str] | None = None) -> bool:
+def is_off_topic(
+    comment_text: str,
+    *,
+    lenses: list[str] | None = None,
+    backend: object | None = None,
+    model: str = "qwen.qwen3.5-122b",
+) -> bool:
     """Convenience wrapper for the off-topic check used by the
     publisher's UI / GitHub-action layer to give an immediate
-    yes/no answer without persisting. Mirrors triage's on-topic
-    rule."""
+    yes/no answer without persisting.
+
+    When ``backend`` is provided, the triage uses an LLM-based intent
+    classifier (the same one ``ingest_comment`` uses for production
+    triage); this is the recommended path for T079 verification
+    because the LLM judge is robust to clever off-topic comments that
+    happen to name-drop a lens. When ``backend`` is None, the triage
+    falls back to the cheap keyword-matching path (suitable for tests
+    + offline diagnostic probes).
+    """
     if lenses is None:
         lenses = [
             "claim_accuracy", "logical_consistency", "statistical_analysis",
@@ -312,12 +338,17 @@ def is_off_topic(comment_text: str, *, lenses: list[str] | None = None) -> bool:
             "overreach", "safety_ethics", "code_quality", "data_quality",
             "text_formatting", "writing_quality",
         ]
+    judge = None
+    if backend is not None:
+        from llmxive.convergence.triage import llm_topic_judge
+        judge = llm_topic_judge(backend, model=model)
     record = triage_submission(
         comment_text,
         source="human",
         author="<probe>",
         stage="posted",
         lenses=lenses,
+        judge_fn=judge,
     )
     return not record.safe_on_topic
 

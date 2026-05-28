@@ -168,4 +168,84 @@ def triage_submission(
     )
 
 
-__all__ = ["triage_submission"]
+_LLM_TOPIC_JUDGE_PROMPT = """You are triaging a comment on a scientific project at stage `{stage}`.
+
+Classify the comment along three axes and return YAML frontmatter (no prose).
+Return EXACTLY these three keys:
+
+```yaml
+---
+quality_pass: <true|false>  # true iff the comment cites specific evidence (a number, FR/SC/task id, citation, URL, or quoted phrase), is concrete (not vague), and is meaningfully long
+safe_on_topic: <true|false>  # true iff the comment is safe (no harassment, hate, threats, NSFW) AND on-topic for stage `{stage}` (substantively about a scientific concern, not a generic / unrelated mention)
+mapped_lenses: [<lens>, ...]  # subset of the available lenses below (possibly empty) whose concern the comment actually addresses
+---
+```
+
+Available lenses: {lenses}
+
+Comment:
+\"\"\"
+{text}
+\"\"\"
+"""
+
+
+def llm_topic_judge(
+    backend: object,
+    *,
+    model: str = "qwen.qwen3.5-122b",
+    max_tokens: int = 512,
+) -> JudgeFn:
+    """Factory for an LLM-backed :class:`JudgeFn` that ``triage_submission``
+    accepts via its ``judge_fn`` parameter.
+
+    The returned function calls the backend with a short triage prompt
+    and parses the LLM's YAML response into the ``{quality_pass,
+    safe_on_topic, mapped_lenses}`` dict that ``triage_submission`` needs.
+
+    On any backend error / parse failure / unsafe content in the LLM's
+    own response, the judge FAILS CLOSED — returning
+    ``{quality_pass: False, safe_on_topic: False, mapped_lenses: []}`` so
+    the caller treats the comment as rejected rather than accidentally
+    waving through unprocessable input.
+    """
+    from llmxive.backends.base import ChatMessage
+
+    def _judge(text: str, stage: str, lenses: list[str]) -> dict[str, object]:
+        prompt = _LLM_TOPIC_JUDGE_PROMPT.format(
+            stage=stage, lenses=", ".join(lenses) or "(none)", text=text,
+        )
+        try:
+            resp = backend.chat(  # type: ignore[attr-defined]
+                [ChatMessage(role="user", content=prompt)],
+                model=model,
+                max_tokens=max_tokens,
+            )
+            raw = resp.text
+        except Exception:
+            return {"quality_pass": False, "safe_on_topic": False, "mapped_lenses": []}
+
+        # Parse YAML frontmatter using the robust loader the panel
+        # reviewers use (handles unquoted scalars + multi-line text).
+        import re as _re
+
+        from llmxive.convergence.llm_reviewer import _safe_yaml_load
+        m = _re.search(r"---\s*\n(.*?)\n---", raw, _re.DOTALL)
+        if m is None:
+            return {"quality_pass": False, "safe_on_topic": False, "mapped_lenses": []}
+        try:
+            data = _safe_yaml_load(m.group(1)) or {}
+        except Exception:
+            return {"quality_pass": False, "safe_on_topic": False, "mapped_lenses": []}
+        if not isinstance(data, dict):
+            return {"quality_pass": False, "safe_on_topic": False, "mapped_lenses": []}
+        ml = data.get("mapped_lenses") or []
+        return {
+            "quality_pass": bool(data.get("quality_pass")),
+            "safe_on_topic": bool(data.get("safe_on_topic")),
+            "mapped_lenses": [str(x) for x in ml] if isinstance(ml, (list, tuple)) else [],
+        }
+    return _judge
+
+
+__all__ = ["JudgeFn", "llm_topic_judge", "triage_submission"]
