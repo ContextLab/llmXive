@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-05-28T00:32:24.740488+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-05-28T01:21:32.918272+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-19T09:07:24.282965+00:00'
-  ended_at: '2026-05-19T10:43:15.955188+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-19__research.md
 - slug: richard-feynman
   started_at: '2026-05-19T10:43:15.955188+00:00'
   ended_at: '2026-05-19T12:04:09.327481+00:00'
@@ -1191,3 +1184,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-549-exploring-the-distribution-of-smooth-num/reviews/research/dan-rockmore-simulated__2026-05-28__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-28T00:32:24.740488+00:00'
+  ended_at: '2026-05-28T01:21:32.918272+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md

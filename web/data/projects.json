@@ -940,7 +940,7 @@
     "human_contributors": 798,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2599,
+    "total_contributions": 2601,
     "total_contributors": 805
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1063,
+      "contribution_count": 1064,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -981,7 +981,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 536,
+      "contribution_count": 537,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -7453,7 +7453,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T01:17:42.332148+00:00",
+  "generated_at": "2026-05-28T01:21:36.801394+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -30428,7 +30428,7 @@
         "citations": "state/citations/PROJ-261-evaluating-the-impact-of-code-duplicatio.yaml",
         "code": null,
         "data": null,
-        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/research_question_validation.md",
+        "idea": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/idea/evaluating-the-impact-of-code-duplicatio.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -30458,6 +30458,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
         }
       ],
       "citation_summary": {
@@ -30474,7 +30482,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Verdict: pass The question asks about a relationship between code structural properties (syntactic clone density) and model performance metrics (perplexity, bug detection accuracy), independent of any specific ML architecture or training approach. The phenomenon of interest is how code redundancy affects model\u2026",
+      "description": "Field: Computer Science How does the local density of syntactic code clones correlate with the perplexity and bug-detection accuracy of pre-trained language models on open-source Python code? Code duplication is a well-documented liability for human maintainability, yet its influence on Large Language Model (LLM)\u2026",
       "field": "computer science",
       "id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "keywords": [],
@@ -30579,7 +30587,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio",
-      "submitter": null,
+      "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
       "updated_at": "2026-05-21T19:06:24.765681+00:00",
       "upstream_feedback": null
@@ -68911,7 +68919,7 @@
       },
       "authors": [
         {
-          "contributions": 5,
+          "contributions": 6,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -69030,6 +69038,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 65.506039,
+          "ended_at": "2026-05-28T01:21:32.918272+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-28T01:20:27.412233+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 137.281965,
           "ended_at": "2026-05-25T21:28:15.407953+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -69081,6 +69097,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Consider the claim that a model can 'go beyond first impressions.' System 1 is designed to make those impressions quickly; it is not a bug, but a feature of efficiency. However, when these impressions are labeled as prejudice, we risk WYSIATI\u2014What You See Is All There Is. The model sees the input an",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
+          "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
+          "reviewed_at": "2026-05-28T01:21:32.910650Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Daniel Kahneman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "Consider a simple illustration: show a brief vignette where a model is presented with a neutral description of a person (e.g., \"quiet, introverted, enjoys books\"). System\u202f1 quickly labels the person as a \"librarian\" \u2013 an instance of the representativeness heuristic. The authors mention this intuitio",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-25__paper.md",
@@ -71740,6 +71766,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 65.506039,
+      "ended_at": "2026-05-28T01:21:32.918272+00:00",
+      "excerpt": "Consider the claim that a model can 'go beyond first impressions.' System 1 is designed to make those impressions quickly; it is not a bug, but a feature of efficiency. However, when these impressions are labeled as prejudice, we risk WYSI\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-620-perception-or-prejudice-can-mllms-go-bey",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md",
+      "started_at": "2026-05-28T01:20:27.412233+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -78111,16 +78153,6 @@
       "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T05:45:42.293461Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 0.000214,
-      "ended_at": "2026-05-17T05:45:42.242019Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T05:45:42.241805Z"
     }
   ],
   "schema_version": "2.0.0"
