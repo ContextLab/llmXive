@@ -1,0 +1,431 @@
+"""LLMReviewer — live Reviewer-Protocol implementation backed by a chat LLM.
+
+Wraps a backend + a per-lens panel prompt (under
+``agents/prompts/panels/panel_<stage>_<lens>.md``) + the SSoT
+``_shared/panel_review_block.md`` output contract into a class that
+satisfies :class:`llmxive.convergence.types.Reviewer`.
+
+The class is what unblocks the spec-015 end-to-end real-call calibration
+runs (T068 prerequisite) — the registry's ``_TodoReviewer`` placeholders
+fail loud when invoked; this class provides the actual implementation
+each lens needs.
+
+The reviewer:
+
+1. Loads its lens-specific prompt + the shared output contract from
+   disk (the prompt files were authored in T049-T053).
+2. On ``identify``: composes a system+user message pair (system = lens
+   prompt + shared block; user = the artifacts dict serialized as
+   labeled sections), calls the backend, parses the YAML-frontmatter
+   response, and returns the structured concerns.
+3. On ``rereview``: prepends the prior concerns to the user message
+   so the LLM does the diff-check the shared block describes (no
+   fresh independent critique), then parses the verdict per concern.
+
+Honest failure modes: missing prompt file → RuntimeError; unparseable
+YAML frontmatter → RuntimeError; concerns missing required fields →
+RuntimeError. The engine treats RuntimeError as a non-convergence
+signal — no silent acceptance of a malformed review.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import re
+import uuid
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+from llmxive.backends.base import ChatMessage
+
+from .types import Concern, Severity, Verdict
+
+# --- prompt loading -------------------------------------------------------
+
+
+_SHARED_PROMPT_REL = "agents/prompts/_shared/panel_review_block.md"
+_PANEL_DIR_REL = "agents/prompts/panels"
+
+# File-naming overrides (mirrors tests/contract/test_panel_prompts.py):
+# the inner "plan_" / "paper_plan_" prefix is dropped when the lens
+# would double-prefix.
+_FILENAME_OVERRIDES: dict[tuple[str, str], str] = {
+    ("planned", "plan_consistency"): "panel_plan_consistency.md",
+    ("paper_planned", "plan_constitution_consistency"): (
+        "panel_paper_plan_constitution_consistency.md"
+    ),
+}
+
+_STAGE_PREFIX: dict[str, str] = {
+    "flesh_out_complete": "idea",
+    "clarified": "spec",
+    "planned": "plan",
+    "tasked": "tasks",
+    "paper_clarified": "paper_spec",
+    "paper_planned": "paper_plan",
+    "paper_tasked": "paper_tasks",
+}
+
+
+def _prompt_path_for(*, stage: str, lens: str, repo_root: Path) -> Path:
+    override = _FILENAME_OVERRIDES.get((stage, lens))
+    if override is not None:
+        return repo_root / _PANEL_DIR_REL / override
+    prefix = _STAGE_PREFIX.get(stage)
+    if prefix is None:
+        raise ValueError(
+            f"unknown stage {stage!r}; no panel-prompt prefix mapping. "
+            f"Known: {sorted(_STAGE_PREFIX)!r}"
+        )
+    return repo_root / _PANEL_DIR_REL / f"panel_{prefix}_{lens}.md"
+
+
+def _load_system_prompt(*, stage: str, lens: str, repo_root: Path) -> str:
+    """Concatenate the per-lens prompt + the SSoT panel-review block."""
+    lens_path = _prompt_path_for(stage=stage, lens=lens, repo_root=repo_root)
+    if not lens_path.exists():
+        raise RuntimeError(
+            f"panel prompt not found: {lens_path}. Expected at this path "
+            f"per the panel-prompt convention; check T049-T053 authoring."
+        )
+    shared_path = repo_root / _SHARED_PROMPT_REL
+    if not shared_path.exists():
+        raise RuntimeError(
+            f"SSoT shared panel block not found: {shared_path}. Spec-015 "
+            "T048 should have authored this."
+        )
+    return lens_path.read_text() + "\n\n---\n\n" + shared_path.read_text()
+
+
+# --- response parsing -----------------------------------------------------
+
+
+_YAML_FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---", re.DOTALL)
+
+
+def _parse_response(
+    response_text: str, *, lens: str, stage: str, default_artifact: str,
+) -> tuple[str, list[Concern]]:
+    """Parse the LLM's YAML-frontmatter response into (verdict, concerns).
+
+    The output contract (defined in ``_shared/panel_review_block.md``):
+
+    ```yaml
+    ---
+    reviewer_name: <lens>
+    reviewer_kind: llm
+    stage: <stage>
+    artifact_path: <path>
+    artifact_hash: <hash>
+    verdict: accept | minor_revision | major_revision | reject
+    concerns:
+      - severity: trivial | code | ...
+        location: "..."
+        text: "..."
+    ---
+    <prose body>
+    ```
+
+    Raises ``RuntimeError`` on missing frontmatter / invalid YAML /
+    missing required fields — engine treats as non-convergence.
+    """
+    m = _YAML_FRONTMATTER_RE.search(response_text.strip())
+    if m is None:
+        raise RuntimeError(
+            f"LLMReviewer[{lens}]: response has no YAML frontmatter "
+            f"(missing `---` delimiters). First 200 chars: "
+            f"{response_text[:200]!r}"
+        )
+    try:
+        meta = yaml.safe_load(m.group(1)) or {}
+    except yaml.YAMLError as exc:
+        raise RuntimeError(
+            f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"
+        ) from exc
+    if not isinstance(meta, dict):
+        raise RuntimeError(
+            f"LLMReviewer[{lens}]: frontmatter must be a YAML mapping; "
+            f"got {type(meta).__name__}"
+        )
+    verdict = str(meta.get("verdict", "")).strip().lower() or "accept"
+    raw_concerns = meta.get("concerns") or []
+    if not isinstance(raw_concerns, list):
+        raise RuntimeError(
+            f"LLMReviewer[{lens}]: `concerns:` must be a list; got "
+            f"{type(raw_concerns).__name__}"
+        )
+    concerns: list[Concern] = []
+    for i, c in enumerate(raw_concerns):
+        if not isinstance(c, dict):
+            continue
+        sev_raw = str(c.get("severity", "writing")).strip().lower()
+        try:
+            sev = Severity(sev_raw)
+        except ValueError as exc:
+            raise RuntimeError(
+                f"LLMReviewer[{lens}]: concern {i} has unknown severity "
+                f"{sev_raw!r}; expected one of {[s.value for s in Severity]!r}"
+            ) from exc
+        concerns.append(Concern(
+            id=str(c.get("id") or f"{lens}-{uuid.uuid4().hex[:8]}"),
+            reviewer=lens,
+            severity=sev,
+            artifact=str(c.get("artifact") or default_artifact),
+            location=str(c.get("location") or ""),
+            text=str(c.get("text") or ""),
+        ))
+    return verdict, concerns
+
+
+# --- LLMReviewer ---------------------------------------------------------
+
+
+def _serialize_artifacts(artifacts: dict[str, str]) -> str:
+    """Render the artifacts dict into a human-readable user message."""
+    parts: list[str] = []
+    for path, content in artifacts.items():
+        # Special keys (those starting with __) become labeled context
+        # blocks rather than file-headed sections.
+        if path.startswith("__") and path.endswith("__"):
+            label = path.strip("_").replace("_", " ").title()
+            parts.append(f"# {label}\n\n{content}")
+        else:
+            parts.append(f"## {path}\n\n{content}")
+    return "\n\n".join(parts)
+
+
+def _serialize_concerns(concerns: list[Concern]) -> str:
+    """Format a concern list for the re-review path."""
+    return "\n".join(
+        f"- id: {c.id}\n  severity: {c.severity.value}\n  "
+        f"location: {c.location!r}\n  text: {c.text!r}"
+        for c in concerns
+    )
+
+
+class LLMReviewer:
+    """Live Reviewer for one panel lens.
+
+    Conforms structurally to :class:`llmxive.convergence.types.Reviewer`.
+    """
+
+    def __init__(
+        self,
+        *,
+        lens: str,
+        stage: str,
+        backend: Any,
+        repo_root: Path,
+        model: str | None = None,
+    ) -> None:
+        self.name = lens
+        self._lens = lens
+        self._stage = stage
+        self._backend = backend
+        self._repo_root = Path(repo_root)
+        self._model = model
+        # Eager-load the system prompt — fail fast if missing.
+        self._system_prompt = _load_system_prompt(
+            stage=stage, lens=lens, repo_root=self._repo_root,
+        )
+
+    # --- public Protocol methods --------------------------------------
+
+    def identify(
+        self,
+        artifacts: dict[str, str],
+        *,
+        constitution: str | None,
+        advisory: list[str],
+    ) -> list[Concern]:
+        user = self._compose_identify_user(
+            artifacts=artifacts, constitution=constitution, advisory=advisory,
+        )
+        messages = [
+            ChatMessage(role="system", content=self._system_prompt),
+            ChatMessage(role="user", content=user),
+        ]
+        response_text = self._call_backend(messages)
+        default_artifact = self._pick_default_artifact(artifacts)
+        _, concerns = _parse_response(
+            response_text,
+            lens=self._lens,
+            stage=self._stage,
+            default_artifact=default_artifact,
+        )
+        return concerns
+
+    def rereview(
+        self,
+        artifacts: dict[str, str],
+        own_concerns: list[Concern],
+        responses: list[Any],
+        *,
+        constitution: str | None,
+        advisory: list[str],
+    ) -> list[Verdict]:
+        user = self._compose_rereview_user(
+            artifacts=artifacts,
+            own_concerns=own_concerns,
+            responses=responses,
+            constitution=constitution,
+            advisory=advisory,
+        )
+        messages = [
+            ChatMessage(role="system", content=self._system_prompt),
+            ChatMessage(role="user", content=user),
+        ]
+        response_text = self._call_backend(messages)
+        default_artifact = self._pick_default_artifact(artifacts)
+        _, new_concerns = _parse_response(
+            response_text,
+            lens=self._lens,
+            stage=self._stage,
+            default_artifact=default_artifact,
+        )
+        # Build verdicts: for each PRIOR concern, fail if it appears in
+        # new_concerns (by id) else pass. New concerns (no matching id)
+        # are surfaced via the Verdict.new_concerns field on a synthetic
+        # first verdict so the engine sees them — same shape the engine
+        # already expects.
+        new_by_id = {c.id: c for c in new_concerns}
+        verdicts: list[Verdict] = []
+        for prior in own_concerns:
+            still_open = prior.id in new_by_id
+            verdicts.append(Verdict(
+                concern_id=prior.id,
+                reviewer=self._lens,
+                status="fail" if still_open else "pass",
+            ))
+        # Any new concerns the reviewer surfaced with NO matching prior
+        # id are attached to the first verdict's `new_concerns`. If
+        # there's no prior verdict (corner case), they're dropped — the
+        # engine's contract is "rereview judges only OWN prior concerns".
+        truly_new = [c for c in new_concerns if c.id not in {p.id for p in own_concerns}]
+        if truly_new and verdicts:
+            verdicts[0] = Verdict(
+                concern_id=verdicts[0].concern_id,
+                reviewer=verdicts[0].reviewer,
+                status=verdicts[0].status,
+                new_concerns=truly_new,
+            )
+        return verdicts
+
+    # --- internal helpers ----------------------------------------------
+
+    def _compose_identify_user(
+        self,
+        *,
+        artifacts: dict[str, str],
+        constitution: str | None,
+        advisory: list[str],
+    ) -> str:
+        sections: list[str] = []
+        sections.append("# Stage")
+        sections.append(self._stage)
+        sections.append("# Artifacts under review")
+        sections.append(_serialize_artifacts(artifacts))
+        if constitution:
+            sections.append("# Constitution (FR-030)")
+            sections.append(constitution)
+        if advisory:
+            sections.append("# Advisory inputs (human / personality triage)")
+            sections.append("\n\n".join(advisory))
+        sections.append("# Task")
+        sections.append(
+            "Apply YOUR lens only. Return the YAML-frontmatter response "
+            "per the shared output contract. Use the lens name "
+            f"{self._lens!r} in `reviewer_name`."
+        )
+        return "\n\n".join(sections)
+
+    def _compose_rereview_user(
+        self,
+        *,
+        artifacts: dict[str, str],
+        own_concerns: list[Concern],
+        responses: list[Any],
+        constitution: str | None,
+        advisory: list[str],
+    ) -> str:
+        sections: list[str] = []
+        sections.append("# Stage")
+        sections.append(self._stage)
+        sections.append("# Artifacts (revised — what you are RE-reviewing)")
+        sections.append(_serialize_artifacts(artifacts))
+        sections.append("# Your prior concerns (with their `id`s)")
+        sections.append(_serialize_concerns(own_concerns))
+        if responses:
+            sections.append("# Reviser's responses to those concerns")
+            sections.append("\n".join(
+                f"- concern_id: {r.concern_id}\n"
+                f"  response: {getattr(r, 'response', '')!r}\n"
+                f"  what_changed: {getattr(r, 'what_changed', '')!r}"
+                for r in responses
+            ))
+        if constitution:
+            sections.append("# Constitution (FR-030)")
+            sections.append(constitution)
+        if advisory:
+            sections.append("# Advisory inputs")
+            sections.append("\n\n".join(advisory))
+        sections.append("# Task")
+        sections.append(
+            "RE-REVIEW: per the shared output contract's R3 rules. For "
+            "each prior concern decide whether it has been ADEQUATELY "
+            "ADDRESSED. Return concerns with the ORIGINAL `id`s preserved "
+            "for any still unresolved + new concerns with fresh ids. Do "
+            "NOT generate a fresh independent critique."
+        )
+        return "\n\n".join(sections)
+
+    def _pick_default_artifact(self, artifacts: dict[str, str]) -> str:
+        """Return the first non-context artifact key as the default
+        `artifact` for concerns that don't specify one."""
+        for key in artifacts:
+            if not (key.startswith("__") and key.endswith("__")):
+                return key
+        return "(unknown)"
+
+    def _call_backend(self, messages: list[ChatMessage]) -> str:
+        if self._model is not None:
+            response = self._backend.chat(messages, model=self._model)
+        else:
+            response = self._backend.chat(messages)
+        return getattr(response, "text", "") or ""
+
+
+# --- convenience: bulk panel construction --------------------------------
+
+
+def build_panel(
+    *,
+    stage: str,
+    lenses: list[str],
+    backend: Any,
+    repo_root: Path,
+    model: str | None = None,
+) -> list[LLMReviewer]:
+    """Build a full LLMReviewer panel for one stage. Drivers (T068
+    calibration, T073 traversal) call this to wire the registry's
+    placeholder reviewers with live implementations."""
+    return [
+        LLMReviewer(
+            lens=lens, stage=stage, backend=backend,
+            repo_root=repo_root, model=model,
+        )
+        for lens in lenses
+    ]
+
+
+# Stable artifact hash helper (used by drivers that want to populate
+# `artifact_hash` in their YAML before passing to the LLM).
+
+
+def sha256_hex(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+__all__ = ["LLMReviewer", "build_panel", "sha256_hex"]
