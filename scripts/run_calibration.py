@@ -174,6 +174,7 @@ def run_stage(*, stage: str, model: str, domain: str, max_tokens: int,
 
     backend = _make_backend(model=model, max_tokens=max_tokens)
     outcomes: list[_Outcome] = []
+    errors: list[tuple[str, str]] = []  # (label, error message snippet)
     print(f"[calibration] stage={stage!r}  entries={len(entries)}  model={model!r}",
           flush=True)
     for label, text, expected_lens in entries:
@@ -188,8 +189,20 @@ def run_stage(*, stage: str, model: str, domain: str, max_tokens: int,
                   flush=True)
         except Exception as exc:
             elapsed = time.monotonic() - t0
-            print(f"[calibration] {label!s:30}  ERROR after {elapsed:.1f}s: {exc}",
+            err_str = str(exc)
+            print(f"[calibration] {label!s:30}  ERROR after {elapsed:.1f}s: {err_str}",
                   flush=True)
+            errors.append((label, err_str))
+            # Dartmouth Chat outage detector: the API responds with an HTML
+            # redirect to outage.dartmouth.edu during planned maintenance.
+            # No point continuing — abort fast so we don't burn 25 min per
+            # subsequent entry.
+            if "outage.dartmouth.edu" in err_str or "Moved Temporarily" in err_str:
+                raise SystemExit(
+                    f"[calibration] aborting: detected Dartmouth Chat outage "
+                    f"(entry {label!r} got HTML redirect to outage page). "
+                    f"Re-run after https://api.dartmouth.edu recovers."
+                ) from exc
             result = ConvergenceResult(
                 stage=stage, converged=False, rounds_used=0,
             )
@@ -201,6 +214,14 @@ def run_stage(*, stage: str, model: str, domain: str, max_tokens: int,
             print(f"[calibration] timeout budget exceeded ({elapsed:.1f}s > "
                   f"{timeout_s}s); skipping remaining entries.", flush=True)
             break
+
+    # Honesty gate: if EVERY entry errored, abort without writing a misleading
+    # "0 caught / N missed" report (which the workflow would happily commit).
+    if errors and len(errors) == len(outcomes):
+        raise SystemExit(
+            f"[calibration] aborting: all {len(errors)} entries errored. "
+            f"First error: {errors[0][1][:200]!r}. No report written."
+        )
 
     runs = _outcomes_to_calibration_runs(stage, outcomes)
     report = adjudicate(runs, domain=domain)
