@@ -97,11 +97,14 @@ A long URL exists at https://github.com/xrenaf/MEMLENS.
             encoding="utf-8",
         )
 
+    # Spec 015 T042: the implementer now picks up projects at
+    # PAPER_REVIEW with a non-empty revision_spec_path; the deleted
+    # READY_FOR_IMPLEMENTATION stage has been removed.
     proj = Project(
         id=pid,
         title="Fixture Paper",
         field="test",
-        current_stage=Stage.READY_FOR_IMPLEMENTATION,
+        current_stage=Stage.PAPER_REVIEW,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
         revision_spec_path=f"specs/auto-revisions/{pid}/round-1",
@@ -132,7 +135,9 @@ def test_implementer_e2e_writing_fixture() -> None:
         # (d) stage transition
         proj = project_state.load(pid, repo_root=_REPO)
         assert proj is not None
-        assert proj.current_stage in {Stage.PAPER_REVIEW, Stage.PAPER_REVISION_BLOCKED}, (
+        # Spec 015 T042: PAPER_REVIEW (success) or AGENT_BLOCKED
+        # (truly opaque failure → operator triage).
+        assert proj.current_stage in {Stage.PAPER_REVIEW, Stage.AGENT_BLOCKED}, (
             f"unexpected stage {proj.current_stage.value!r}"
         )
 

@@ -312,6 +312,10 @@ def _build_registry() -> dict[str, ReviewSpec]:
     """Build the per-stage map lazily so importing this module is side-effect-free."""
     if _REGISTRY:
         return _REGISTRY
+    # NOTE: research_review + paper_review are added by the lazy
+    # build helpers at the bottom of this module — they exist for
+    # symmetry and reviewspec_for(...) lookup, even though their
+    # "reviser" is the engine-adapter (kickback-only, reviser=None).
     builders = (
         _spec_idea, _spec_research_spec, _spec_research_plan, _spec_research_tasks,
         _spec_research_unit, _spec_paper_spec, _spec_paper_plan, _spec_paper_tasks,
@@ -580,15 +584,88 @@ def build_paper_implement_reviewspec(
     return base
 
 
+# --- Spec 015 T042: research-review and paper-review review-stage specs ---
+#
+# The 8-panel research-review stage + the 12-panel paper-review stage
+# share a key property: they have NO in-loop reviser. Every non-accept
+# verdict immediately kicks back. The "reviser" slot is therefore the
+# SOLE-WRITER adapter
+# :func:`llmxive.convergence.revision_adapter.kickback_to_revision_spec`,
+# invoked by the calling agent (advancement.py / implementer.py) AFTER
+# the engine emits a KickbackRecord.
+#
+# The static ``_spec_research_unit()`` + ``_spec_paper_implement()``
+# defined earlier in this module hold the panel + kickback-routing
+# tables that the build_*_reviewspec helpers below clone. T042 sets the
+# ``reviser`` slot to None on the cloned spec so the engine's
+# R1→kickback path fires on any R1 concerns.
+
+
+def build_research_review_reviewspec(
+    *,
+    backend: object | None = None,
+    repo_root: object | None = None,
+    project_id: str | None = None,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build the LIVE ``ReviewSpec`` for the research-review convergence
+    unit (T042 WS3 / FR-034).
+
+    Returns the 8-panel ``_spec_research_unit()`` template with the
+    reviser slot set to None — the engine treats that as "kickback on
+    any R1 concerns". The calling agent
+    (``llmxive.agents.advancement.evaluate``) feeds the resulting
+    KickbackRecord through
+    :func:`llmxive.convergence.revision_adapter.kickback_to_revision_spec`
+    to write the auto-revisions round dir the implementer picks up.
+
+    ``backend`` / ``repo_root`` / ``project_id`` / ``model`` are
+    accepted for API parity with the other ``build_*`` helpers."""
+    _ = (backend, repo_root, project_id, model)
+    base = _spec_research_unit()
+    base.reviser = None
+    base.max_rounds = 1
+    return base
+
+
+def build_paper_review_reviewspec(
+    *,
+    backend: object | None = None,
+    repo_root: object | None = None,
+    project_id: str | None = None,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build the LIVE ``ReviewSpec`` for the paper-review convergence
+    unit (T042 WS4 / FR-034).
+
+    Returns the 12-panel ``_spec_paper_implement()`` template with the
+    reviser slot set to None — the engine treats that as "kickback on
+    any R1 concerns". The calling agent
+    (``llmxive.agents.advancement.evaluate``) feeds the resulting
+    KickbackRecord through
+    :func:`llmxive.convergence.revision_adapter.kickback_to_revision_spec`
+    to write the auto-revisions round dir the implementer picks up.
+
+    ``backend`` / ``repo_root`` / ``project_id`` / ``model`` are
+    accepted for API parity with the other ``build_*`` helpers."""
+    _ = (backend, repo_root, project_id, model)
+    base = _spec_paper_implement()
+    base.reviser = None
+    base.max_rounds = 1
+    return base
+
+
 __all__ = [
     "EXEMPT_STAGES",
     "build_idea_reviewspec",
     "build_implement_reviewspec",
     "build_paper_implement_reviewspec",
     "build_paper_plan_reviewspec",
+    "build_paper_review_reviewspec",
     "build_paper_spec_reviewspec",
     "build_paper_tasks_reviewspec",
     "build_plan_reviewspec",
+    "build_research_review_reviewspec",
     "build_spec_reviewspec",
     "build_tasks_reviewspec",
     "reviewable_stages",

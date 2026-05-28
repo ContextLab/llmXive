@@ -19,7 +19,6 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-
 # ----- action item id (spec 012) ---------------------------------------------
 
 # Strip section/figure references (e.g., "in Section 4.1", "Figure 3") before
@@ -109,7 +108,17 @@ class Stage(str, Enum):
     # Research-quality review
     RESEARCH_REVIEW = "research_review"
     RESEARCH_ACCEPTED = "research_accepted"
-    RESEARCH_MINOR_REVISION = "research_minor_revision"
+    # Spec 015 T042 / FR-034: the 7 transient revision stages
+    # (RESEARCH_MINOR_REVISION, RESEARCH_FULL_REVISION? - kept,
+    # PAPER_MINOR_REVISION, PAPER_MAJOR_REVISION_WRITING/SCIENCE,
+    # PAPER_REVISION_IN_PROGRESS, READY_FOR_IMPLEMENTATION,
+    # PAPER_REVISION_BLOCKED) were DELETED. The convergence engine is
+    # the sole inter-stage revision driver: every non-convergence emits
+    # a ``KickbackRecord`` whose ``to_stage`` is a regular (stable)
+    # stage like ``tasked`` / ``clarified`` / ``brainstormed``, and the
+    # auto-revisions directory (specs/auto-revisions/<id>/round-N/)
+    # carries the per-concern work for the implementer agent to pick
+    # up. See ``llmxive.convergence.revision_adapter`` for the bridge.
     RESEARCH_FULL_REVISION = "research_full_revision"
     RESEARCH_REJECTED = "research_rejected"
     # Paper drafting Spec Kit pipeline
@@ -124,17 +133,7 @@ class Stage(str, Enum):
     # Final paper review
     PAPER_REVIEW = "paper_review"
     PAPER_ACCEPTED = "paper_accepted"
-    PAPER_MINOR_REVISION = "paper_minor_revision"
-    PAPER_MAJOR_REVISION_WRITING = "paper_major_revision_writing"
-    PAPER_MAJOR_REVISION_SCIENCE = "paper_major_revision_science"
     PAPER_FUNDAMENTAL_FLAWS = "paper_fundamental_flaws"
-    # Convergence-pipeline stages (spec 012):
-    #   PAPER_REVISION_IN_PROGRESS  — auto-plan pipeline is generating a revision spec
-    #   READY_FOR_IMPLEMENTATION    — revision spec ready; implementer agent picks it up
-    #   PAPER_REVISION_BLOCKED      — analyzer stuck; terminal until human unblock
-    PAPER_REVISION_IN_PROGRESS = "paper_revision_in_progress"
-    READY_FOR_IMPLEMENTATION = "ready_for_implementation"
-    PAPER_REVISION_BLOCKED = "paper_revision_blocked"
     # Spec 015 (FR-036/FR-054): mandatory manual maintainer sign-off gate before
     # any Zenodo DOI mint. Flow: paper_accepted -> publisher(assemble) ->
     # awaiting_publication_signoff -> [maintainer approves] -> publisher(mint) -> posted.
@@ -147,6 +146,12 @@ class Stage(str, Enum):
     # Cross-stage states
     HUMAN_INPUT_NEEDED = "human_input_needed"
     BLOCKED = "blocked"
+    # Spec 015 T042 / FR-034 generic agent-failsafe state. Reached when
+    # an agent's failsafe (e.g. implementer's 5-consecutive-failure
+    # diagnostic) cannot classify the failure into an actionable Concern.
+    # Cleared via `llmxive project unblock-agent <PROJ-ID>` after the
+    # operator edits the action items file.
+    AGENT_BLOCKED = "agent_blocked"
 
 
 class ArtifactKind(str, Enum):
@@ -226,9 +231,13 @@ class Project(_Strict):
     speckit_paper_dir: str | None = None
     revision_round: int = Field(default=0, ge=0)
     human_escalation_reason: str | None = None
-    # Spec 012: points to a completed RevisionSpec dir when current_stage
-    # == READY_FOR_IMPLEMENTATION. Cleared back to None when the implementer
-    # agent completes and the project re-enters PAPER_REVIEW.
+    # Spec 015 T042: points to the most-recent auto-revisions directory
+    # (specs/auto-revisions/<id>/round-N/) written by
+    # ``llmxive.convergence.revision_adapter.kickback_to_revision_spec``
+    # whenever the convergence engine emits a KickbackRecord. The
+    # implementer agent polls projects with this set + a non-empty
+    # auto-revisions tasks.md and applies the per-Concern work in place.
+    # Cleared back to None when the implementer completes a round.
     revision_spec_path: str | None = None
 
     @field_validator("points_research", "points_paper")

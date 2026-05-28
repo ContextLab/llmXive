@@ -48,7 +48,6 @@ properties:
       # Research-quality review
       - research_review
       - research_accepted
-      - research_minor_revision
       - research_full_revision
       - research_rejected
       # Paper drafting Spec Kit pipeline
@@ -63,14 +62,7 @@ properties:
       # Final paper review
       - paper_review
       - paper_accepted
-      - paper_minor_revision
-      - paper_major_revision_writing
-      - paper_major_revision_science
       - paper_fundamental_flaws
-      # Convergence pipeline (spec 012)
-      - paper_revision_in_progress
-      - ready_for_implementation
-      - paper_revision_blocked
       # Spec 015 / FR-036+FR-054: manual maintainer DOI sign-off gate before posting.
       - awaiting_publication_signoff
       - posted
@@ -80,6 +72,10 @@ properties:
       # Cross-stage states
       - human_input_needed
       - blocked
+      # Spec 015 T042 / FR-034: generic agent-failsafe sink. Reached
+      # when an agent's diagnostic mode cannot classify a failure into
+      # an actionable Concern. Cleared via `llmxive project unblock-agent`.
+      - agent_blocked
   points_research:
     type: object
     additionalProperties: false
@@ -140,7 +136,7 @@ properties:
     description: "Set when current_stage=human_input_needed."
   revision_spec_path:
     type: ["string", "null"]
-    description: "Spec 012: path to the completed RevisionSpec dir when current_stage=ready_for_implementation; null otherwise."
+    description: "Spec 015 T042: path to the most-recent auto-revisions round dir written by the convergence engine adapter; null otherwise."
 
 # Cross-field invariants enforced by the runtime (pydantic):
 #  - current_stage='research_accepted' => points_research.research_review meets the

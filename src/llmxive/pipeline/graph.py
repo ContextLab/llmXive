@@ -242,16 +242,15 @@ def run_one_step(
 
     agent_name = STAGE_TO_AGENT.get(project.current_stage)
 
-    # Revision states are transient: route them forward immediately
-    # without invoking an agent (the next scheduled run will pick the
-    # routed target up).
+    # Spec 015 T042 / FR-034: the 7 transient revision stages were deleted.
+    # The remaining stages that need pass-through routing (no agent runs
+    # for them) are: RESEARCH_FULL_REVISION / RESEARCH_REJECTED (kept for
+    # terminal-ish judgments), PAPER_FUNDAMENTAL_FLAWS (same), and
+    # PAPER_ACCEPTED (publisher-bound). Each of those resolves to its
+    # forward stage in ``_decide_next_stage`` below.
     if agent_name is None and project.current_stage in {
-        Stage.RESEARCH_MINOR_REVISION,
         Stage.RESEARCH_FULL_REVISION,
         Stage.RESEARCH_REJECTED,
-        Stage.PAPER_MINOR_REVISION,
-        Stage.PAPER_MAJOR_REVISION_WRITING,
-        Stage.PAPER_MAJOR_REVISION_SCIENCE,
         Stage.PAPER_FUNDAMENTAL_FLAWS,
         Stage.PAPER_ACCEPTED,
     }:
@@ -498,39 +497,19 @@ def _decide_next_stage(
         evaluated = advancement_evaluate(project, repo_root=repo_root)
         return evaluated.current_stage
 
-    # US3 revision-state routing (T068). These states are transient —
-    # they record what the reviewer pool decided, and the very next
-    # scheduled run routes the project to the appropriate prior stage
-    # so the right agent picks it up:
-    #   research_minor_revision → tasked   (re-Tasker)
-    #   research_full_revision  → clarified (back to Specifier
-    #                             effectively, via Planner→Tasker)
-    #   research_rejected       → brainstormed (back to Brainstorm)
-    #
-    # Spec 015 T042 / discrepancy #6: this routing scheme PLUS the
-    # spec-012 ``paper_revision_in_progress`` / ``ready_for_implementation``
-    # / ``paper_revision_blocked`` scheme in ``advancement.py`` are BOTH
-    # legacy. The unified replacement is the convergence engine's
-    # ``KickbackRecord`` + ``route_kickback`` (``llmxive.convergence.kickback``).
-    # Until T021 fully wires the engine to drive every revision decision,
-    # legacy outcomes can be projected onto the unified shape via
-    # :func:`llmxive.convergence.legacy_kickback.kickback_from_graph_stage`.
-    # DO NOT add new transient revision stages here — emit a KickbackRecord
-    # from the engine instead.
-    if cur == Stage.RESEARCH_MINOR_REVISION:
-        return Stage.TASKED
+    # Spec 015 T042 / FR-034: the 7 transient revision stages were
+    # DELETED. Routing decisions for any non-convergence are now made
+    # by ``advancement.py``'s engine-adapter path (which emits a
+    # KickbackRecord whose ``to_stage`` is one of the stable stages
+    # below). Only the kept "terminal-ish judgment" stages still need
+    # forward routing here:
+    #   research_full_revision  → clarified
+    #   research_rejected       → brainstormed
+    #   paper_fundamental_flaws → brainstormed
     if cur == Stage.RESEARCH_FULL_REVISION:
         return Stage.CLARIFIED
     if cur == Stage.RESEARCH_REJECTED:
         return Stage.BRAINSTORMED
-
-    # US5 paper-revision routing.
-    if cur == Stage.PAPER_MINOR_REVISION:
-        return Stage.PAPER_TASKED
-    if cur == Stage.PAPER_MAJOR_REVISION_WRITING:
-        return Stage.PAPER_CLARIFIED
-    if cur == Stage.PAPER_MAJOR_REVISION_SCIENCE:
-        return Stage.CLARIFIED  # back to research clarified
     if cur == Stage.PAPER_FUNDAMENTAL_FLAWS:
         return Stage.BRAINSTORMED
     # Spec 015 T035 / FR-036 + FR-054: PAPER_ACCEPTED no longer shortcuts directly

@@ -1,10 +1,22 @@
-"""llmXive-implementer agent (spec 013 / US1+US2, FR-001..FR-019).
+"""llmXive-implementer agent (spec 013 / US1+US2, FR-001..FR-019;
+spec 015 T042 / FR-034 diagnostic failsafe).
 
-Picks projects whose `current_stage == READY_FOR_IMPLEMENTATION`,
-processes each task in the revision spec's `tasks.md`, applies LLM-
+Picks projects whose ``current_stage in {PAPER_REVIEW, RESEARCH_REVIEW}``
+with a non-empty ``revision_spec_path`` (set by
+:func:`llmxive.convergence.revision_adapter.kickback_to_revision_spec`
+whenever the convergence engine emits a non-convergence KickbackRecord).
+Processes each task in the revision spec's `tasks.md`, applies LLM-
 generated edits to `paper/source/main.tex` (and, for science-class
 tasks, `projects/<id>/code/`), rolls back per-task on compile failure,
-and routes the project back to `PAPER_REVIEW` for re-review.
+and routes the project back to the source review stage for re-review.
+
+Spec 015 T042: the 5-consecutive-failure failsafe now runs through a
+diagnostic mode (:mod:`llmxive.agents.implementer_diagnostics`). On
+classifiable failures the implementer synthesizes a fresh round-N+1
+revision spec carrying the diagnosed problem as a work-item. Only on
+TRULY opaque (``UNKNOWN``) failures does the project halt at
+:class:`Stage.AGENT_BLOCKED` — replacing the deleted
+``PAPER_REVISION_BLOCKED`` hard-halt with a learning loop.
 
 Contract: specs/013-paper-revision-implementer/contracts/implementer-agent.md
 """
@@ -15,34 +27,31 @@ import hashlib
 import json
 import re
 import subprocess
-import tempfile
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
 import yaml
 
 from llmxive.agents.base import Agent, AgentContext
-from llmxive.agents.prompts import render_prompt, load_prompt
+from llmxive.agents.prompts import load_prompt, render_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
 from llmxive.pipeline import authors as authors_module
-from llmxive.state import project as project_state, runlog
+from llmxive.state import project as project_state
 from llmxive.state import revision_history as rh_state
+from llmxive.state import runlog
 from llmxive.types import (
     AuthorEntry,
-    BackendName,
     ImplementerLog,
     ImplementerLogEntry,
     Outcome,
-    Project,
     RevisionRound,
     RunLogEntry,
     Stage,
 )
-
 
 # Canonical display identity for author lists, run logs, and the
 # revision_history.yaml `implementer_agent` field. NOT the registry
@@ -306,7 +315,7 @@ class LLMXiveImplementer(Agent):
         return []
 
     def run(self, ctx: AgentContext) -> RunLogEntry:
-        started = datetime.now(timezone.utc)
+        started = datetime.now(UTC)
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
@@ -320,20 +329,28 @@ class LLMXiveImplementer(Agent):
                 raise FileNotFoundError(
                     f"no project state for {ctx.project_id}"
                 )
-            if project.current_stage != Stage.READY_FOR_IMPLEMENTATION:
+            # Spec 015 T042: the 3 transient revision stages are gone.
+            # The implementer now picks up any project at PAPER_REVIEW /
+            # RESEARCH_REVIEW (or AGENT_BLOCKED — for a one-shot retry
+            # after operator unblock) that carries a non-empty
+            # ``revision_spec_path`` pointing at an auto-revisions round
+            # dir written by the convergence engine's adapter.
+            _IMPLEMENTABLE = {
+                Stage.PAPER_REVIEW,
+                Stage.RESEARCH_REVIEW,
+                Stage.AGENT_BLOCKED,
+            }
+            if project.current_stage not in _IMPLEMENTABLE or not project.revision_spec_path:
                 outcome = Outcome.SKIPPED
                 failure_reason = (
                     f"current_stage={project.current_stage.value} "
-                    f"(expected ready_for_implementation); no-op"
+                    f"(expected one of {{paper_review, research_review, "
+                    f"agent_blocked}}) or empty revision_spec_path "
+                    f"({project.revision_spec_path!r}); no-op"
                 )
                 return self._emit_run_log(
                     ctx, started, outcome, failure_reason, outputs,
                     backend_used, model_used,
-                )
-            if not project.revision_spec_path:
-                raise ValueError(
-                    f"project {project.id} at READY_FOR_IMPLEMENTATION "
-                    "has no revision_spec_path; cannot proceed"
                 )
 
             # Derive the round number from the revision_spec_path the
@@ -364,7 +381,7 @@ class LLMXiveImplementer(Agent):
                 if outcome_entry.status == "done":
                     success_count += 1
 
-            ended = datetime.now(timezone.utc)
+            ended = datetime.now(UTC)
             tasks_done = sum(1 for e in log_entries if e.status == "done")
             tasks_failed = sum(1 for e in log_entries if e.status == "compile-failed")
             tasks_skipped = sum(1 for e in log_entries if e.status == "skipped")
@@ -484,26 +501,128 @@ class LLMXiveImplementer(Agent):
             )
             rh_state.append_round(project.id, round_summary, repo_root=repo)
 
-            # FR-015: 3-consecutive-zero-success failsafe.
+            # Spec 015 T042 / FR-034: diagnostic-mode failsafe.
+            # FR-015 (spec 013) introduced a 3-consecutive-zero-success
+            # failsafe that simply halted at the deleted
+            # ``PAPER_REVISION_BLOCKED`` stage. With T042, the failsafe
+            # now LEARNS: on every consecutive zero-round we collect the
+            # round's error context, run it through
+            # :func:`implementer_diagnostics.classify_failure`, and:
+            #   - On a classifiable failure → synthesize a Concern and
+            #     write a fresh round-N+1 revision spec via the engine
+            #     adapter so the NEXT implementer pass picks up the
+            #     diagnosed problem AS WORK. The project stays in the
+            #     active review stage with a refreshed revision spec.
+            #   - On UNKNOWN (truly opaque) → halt at
+            #     :class:`Stage.AGENT_BLOCKED` for operator triage.
+            from llmxive.agents.implementer_diagnostics import (
+                FailureClass,
+                classify_failure,
+                synth_kickback_from_failure,
+            )
+            from llmxive.convergence.revision_adapter import (
+                kickback_to_revision_spec,
+            )
+
             zero_round = success_count == 0
             new_zero_count = _bump_zero_round_counter(
                 project.id, zero_round, repo_root=repo,
             )
-            if new_zero_count >= 3:
-                next_stage = Stage.PAPER_REVISION_BLOCKED
-            else:
-                next_stage = Stage.PAPER_REVIEW
-
-            # Transition (FR-013..FR-015) — clears revision_spec_path.
-            project_state.update(
-                project.id,
-                {
-                    "current_stage": next_stage.value,
-                    "revision_spec_path": None,
-                    "updated_at": ended.isoformat(),
-                },
-                repo_root=repo,
+            # The source review stage to return to depends on where the
+            # round came from — paper-side projects go back to
+            # PAPER_REVIEW; research-side to RESEARCH_REVIEW. We default
+            # to whichever was set on the project before the run.
+            source_review_stage = (
+                Stage.RESEARCH_REVIEW
+                if project.current_stage == Stage.RESEARCH_REVIEW
+                else Stage.PAPER_REVIEW
             )
+
+            failsafe_triggered = new_zero_count >= 3
+            if failsafe_triggered:
+                # Aggregate the round's failure context for the classifier.
+                error_log_text = "\n".join(
+                    (e.error_reason or "") for e in log_entries if e.error_reason
+                )
+                last_command = "lualatex"  # the round's compile gate
+                classification = classify_failure(
+                    error_log_text, last_command=last_command,
+                )
+                if classification.cls == FailureClass.UNKNOWN:
+                    # Truly opaque → escalate to operator triage.
+                    next_stage = Stage.AGENT_BLOCKED
+                    # Drop a human_input_needed.yaml so the operator
+                    # surface picks it up immediately.
+                    self._write_agent_blocked_marker(
+                        repo, project.id,
+                        classification=classification,
+                        zero_count=new_zero_count,
+                    )
+                    project_state.update(
+                        project.id,
+                        {
+                            "current_stage": next_stage.value,
+                            "human_escalation_reason": (
+                                f"implementer failsafe: {new_zero_count} "
+                                f"consecutive zero-success rounds; "
+                                f"diagnostic mode could not classify the "
+                                f"failure (FailureClass.UNKNOWN). "
+                                f"Evidence: {classification.evidence[:200]}"
+                            ),
+                            "revision_spec_path": None,
+                            "updated_at": ended.isoformat(),
+                        },
+                        repo_root=repo,
+                    )
+                else:
+                    # Classifiable → synthesize a Concern, write a fresh
+                    # round dir, route back to the source review stage so
+                    # the next implementer pass picks the diagnosis up.
+                    primary = _find_primary_tex(source_dir) if source_dir.is_dir() else "paper/source/main.tex"
+                    artifact_rel = (
+                        f"projects/{project.id}/paper/source/{primary}"
+                    )
+                    next_round = round_number + 1
+                    synth_kb = synth_kickback_from_failure(
+                        classification,
+                        project_id=project.id,
+                        artifact_path=artifact_rel,
+                        round_num=next_round,
+                    )
+                    new_spec_dir = kickback_to_revision_spec(
+                        synth_kb,
+                        project_id=project.id,
+                        repo_root=repo,
+                        round_num=next_round,
+                    )
+                    new_rel = new_spec_dir.relative_to(repo)
+                    next_stage = source_review_stage
+                    project_state.update(
+                        project.id,
+                        {
+                            "current_stage": next_stage.value,
+                            "revision_spec_path": str(new_rel),
+                            "updated_at": ended.isoformat(),
+                        },
+                        repo_root=repo,
+                    )
+                    # Reset the zero-round counter — the failsafe's
+                    # learning loop just produced a fresh action item;
+                    # the next round STARTS over for counter purposes.
+                    _bump_zero_round_counter(
+                        project.id, zero_round=False, repo_root=repo,
+                    )
+            else:
+                next_stage = source_review_stage
+                project_state.update(
+                    project.id,
+                    {
+                        "current_stage": next_stage.value,
+                        "revision_spec_path": None,
+                        "updated_at": ended.isoformat(),
+                    },
+                    repo_root=repo,
+                )
 
         except Exception as exc:
             outcome = Outcome.FAILED
@@ -516,6 +635,36 @@ class LLMXiveImplementer(Agent):
             )
 
     # --- Helpers --------------------------------------------------------
+
+    def _write_agent_blocked_marker(
+        self,
+        repo: Path,
+        project_id: str,
+        *,
+        classification,
+        zero_count: int,
+    ) -> None:
+        """Drop a human_input_needed.yaml marker for the operator surface.
+
+        Called only when the diagnostic mode cannot classify the failure
+        (Stage.AGENT_BLOCKED path). The marker is the SAME shape every
+        other agent uses for human escalation so the dashboard / CLI
+        pickers don't need a new format."""
+        marker_dir = repo / "projects" / project_id / ".specify" / "memory"
+        marker_dir.mkdir(parents=True, exist_ok=True)
+        marker = marker_dir / "human_input_needed.yaml"
+        payload = {
+            "source": "implementer_diagnostics",
+            "reason": (
+                f"implementer failsafe: {zero_count} consecutive "
+                f"zero-success rounds; diagnostic mode could not "
+                f"classify the failure (FailureClass.UNKNOWN)."
+            ),
+            "classification": str(classification.cls.value),
+            "evidence": classification.evidence[:1000],
+            "raised_at": datetime.now(UTC).isoformat(),
+        }
+        marker.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
     def _process_task(
         self,
@@ -568,7 +717,7 @@ class LLMXiveImplementer(Agent):
                 model=self.entry.default_model,
             )
             response_text = response.text or ""
-        except Exception as exc:  # noqa: BLE001 — defensive
+        except Exception as exc:
             return ImplementerLogEntry(
                 task_id=task["id"],
                 status="skipped",
@@ -720,7 +869,7 @@ class LLMXiveImplementer(Agent):
         backend_used,
         model_used: str,
     ) -> RunLogEntry:
-        ended = datetime.now(timezone.utc)
+        ended = datetime.now(UTC)
         entry = RunLogEntry(
             run_id=ctx.run_id,
             entry_id=str(uuid4()),

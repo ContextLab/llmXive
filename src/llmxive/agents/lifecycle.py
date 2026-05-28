@@ -7,10 +7,9 @@ T100) populate the map; the Advancement-Evaluator Agent consults it.
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from llmxive.types import Stage
-
 
 # Stage transition map: source stage -> set of allowed target stages.
 # Populated incrementally as user stories are implemented; the
@@ -57,22 +56,37 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # specialist reviewers run before research_review, so we allow
     # the same outgoing transitions as research_review (review
     # records already exist on disk; advancement_evaluate decides).
+    #
+    # Spec 015 T042 / FR-034: the convergence engine is the sole
+    # inter-stage revision driver. RESEARCH_REVIEW emits a
+    # ``KickbackRecord`` on non-convergence whose ``to_stage`` is one
+    # of the regular stable stages below; non-convergence does NOT
+    # produce a transient revision stage anymore. RESEARCH_FULL_REVISION
+    # / RESEARCH_REJECTED are kept (they record terminal-ish judgments
+    # the engine still emits to flag the work as escalated).
     Stage.RESEARCH_COMPLETE: {
         Stage.RESEARCH_REVIEW,
         Stage.RESEARCH_ACCEPTED,
-        Stage.RESEARCH_MINOR_REVISION,
         Stage.RESEARCH_FULL_REVISION,
         Stage.RESEARCH_REJECTED,
+        # Engine kickback targets (T042):
+        Stage.TASKED,
+        Stage.CLARIFIED,
+        Stage.BRAINSTORMED,
     },
     # Research-quality review (US3):
     Stage.RESEARCH_REVIEW: {
         Stage.RESEARCH_ACCEPTED,
-        Stage.RESEARCH_MINOR_REVISION,
         Stage.RESEARCH_FULL_REVISION,
         Stage.RESEARCH_REJECTED,
+        # Engine kickback targets (T042):
+        Stage.TASKED,
+        Stage.CLARIFIED,
+        Stage.BRAINSTORMED,
+        # T042 diagnostic-mode failsafe:
+        Stage.AGENT_BLOCKED,
     },
     Stage.RESEARCH_ACCEPTED: {Stage.PAPER_DRAFTING_INIT},
-    Stage.RESEARCH_MINOR_REVISION: {Stage.TASKED},  # re-Tasker
     Stage.RESEARCH_FULL_REVISION: {Stage.CLARIFIED},  # back to clarified with feedback
     Stage.RESEARCH_REJECTED: {Stage.BRAINSTORMED},
     # Paper Spec Kit pipeline (US4):
@@ -88,43 +102,54 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.PAPER_COMPLETE: {
         Stage.PAPER_REVIEW,
         Stage.PAPER_ACCEPTED,
-        Stage.PAPER_MINOR_REVISION,
-        Stage.PAPER_MAJOR_REVISION_WRITING,
-        Stage.PAPER_MAJOR_REVISION_SCIENCE,
         Stage.PAPER_FUNDAMENTAL_FLAWS,
+        # Engine kickback targets (T042):
+        Stage.PAPER_TASKED,
+        Stage.PAPER_CLARIFIED,
+        Stage.CLARIFIED,
+        Stage.BRAINSTORMED,
     },
     # Final paper review (US5).
     #
-    # Spec 012 adds three new outgoing transitions from PAPER_REVIEW to
-    # support the convergence pipeline:
-    #   - BRAINSTORMED (direct reject when any action item has severity=fatal)
-    #   - PAPER_REVISION_IN_PROGRESS (auto-plan kicks off for writing/science)
-    # The old direct transitions (PAPER_MINOR_REVISION / WRITING / SCIENCE /
-    # FUNDAMENTAL_FLAWS) remain valid for back-compat with deployments that
-    # don't yet have the auto-plan revision pipeline wired up.
+    # Spec 015 T042 / FR-034: the 7 transient revision stages were
+    # deleted; the convergence engine emits a KickbackRecord that routes
+    # directly to a regular stable stage. PAPER_FUNDAMENTAL_FLAWS is
+    # retained for terminal-ish "trash the project" judgments.
     Stage.PAPER_REVIEW: {
         Stage.PAPER_ACCEPTED,
-        Stage.PAPER_MINOR_REVISION,
-        Stage.PAPER_MAJOR_REVISION_WRITING,
-        Stage.PAPER_MAJOR_REVISION_SCIENCE,
         Stage.PAPER_FUNDAMENTAL_FLAWS,
-        Stage.PAPER_REVISION_IN_PROGRESS,
+        # Engine kickback targets (T042):
+        Stage.PAPER_TASKED,
+        Stage.PAPER_CLARIFIED,
+        Stage.CLARIFIED,
         Stage.BRAINSTORMED,
+        # T042 diagnostic-mode failsafe:
+        Stage.AGENT_BLOCKED,
     },
-    Stage.PAPER_ACCEPTED: {Stage.POSTED},
-    Stage.PAPER_MINOR_REVISION: {Stage.PAPER_TASKED},
-    Stage.PAPER_MAJOR_REVISION_WRITING: {Stage.PAPER_CLARIFIED},
-    Stage.PAPER_MAJOR_REVISION_SCIENCE: {Stage.CLARIFIED},  # back to research clarify
+    Stage.PAPER_ACCEPTED: {Stage.AWAITING_PUBLICATION_SIGNOFF},
+    # Spec 015 / FR-054: PAPER_ACCEPTED -> AWAITING_PUBLICATION_SIGNOFF
+    # (publisher assembles), then AWAITING_PUBLICATION_SIGNOFF -> POSTED
+    # once the maintainer's sign-off record exists. PUBLISH_BLOCKED is
+    # reached after 5 consecutive Zenodo failures.
+    Stage.AWAITING_PUBLICATION_SIGNOFF: {
+        Stage.POSTED,
+        Stage.PUBLISH_BLOCKED,
+        Stage.AWAITING_PUBLICATION_SIGNOFF,  # no-op self-loop until sign-off
+    },
+    Stage.PUBLISH_BLOCKED: {Stage.PAPER_ACCEPTED},  # operator `project republish`
     Stage.PAPER_FUNDAMENTAL_FLAWS: {Stage.BRAINSTORMED},
-    # Convergence-pipeline stages (spec 012):
-    Stage.PAPER_REVISION_IN_PROGRESS: {
-        Stage.READY_FOR_IMPLEMENTATION,
-        Stage.PAPER_REVISION_BLOCKED,
-    },
-    Stage.READY_FOR_IMPLEMENTATION: {Stage.PAPER_REVIEW},
-    Stage.PAPER_REVISION_BLOCKED: {
+    # Spec 015 T042: AGENT_BLOCKED is the unified failsafe sink for any
+    # agent whose own retries are exhausted AND whose diagnostic mode
+    # can't classify the failure into an actionable Concern. Cleared via
+    # CLI `llmxive project unblock-agent` (operator must edit action
+    # items first). Reusable for any agent.
+    Stage.AGENT_BLOCKED: {
         Stage.PAPER_REVIEW,
-        Stage.PAPER_MINOR_REVISION,
+        Stage.RESEARCH_REVIEW,
+        Stage.PAPER_TASKED,
+        Stage.PAPER_CLARIFIED,
+        Stage.TASKED,
+        Stage.CLARIFIED,
         Stage.BRAINSTORMED,
     },
     Stage.POSTED: set(),  # terminal
@@ -145,4 +170,4 @@ def all_stages() -> Iterable[Stage]:
     return Stage
 
 
-__all__ = ["ALLOWED_TRANSITIONS", "is_valid_transition", "successors", "all_stages"]
+__all__ = ["ALLOWED_TRANSITIONS", "all_stages", "is_valid_transition", "successors"]

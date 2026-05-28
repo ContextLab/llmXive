@@ -132,13 +132,49 @@ items have actually landed, per Constitution Principle I.
 |-|-|-|-|
 | **Point-scoring removed** (T041) | `grep accept_total\|_award_review_points\|RESEARCH_ACCEPT_THRESHOLD\|PAPER_ACCEPT_THRESHOLD` in `src/llmxive` | Only `config.py` (tombstones set to 0.0 for web/about.html back-compat) + comments in `advancement.py` documenting the removal. NO actual usages. | ✅ |
 | **Old forked summarizer re-pointed** (T017) | `grep truncate_with_notice\|paper_reviewer._build_corpus_with_summaries` | Only one reference in `tools/summarize.py` docstring (documentation; it says "Generalizes…", not "forks"). `paper_reviewer.py` itself now imports + uses the SSoT `summarize`. | ✅ |
-| **Dual paper-revision routing unified** (T042) | `grep paper_revision_in_progress\|paper_revision_blocked` | 6 files: `types.py` defines the enum (still valid stages); `cli.py` has `unblock-revision` command; `graph.py` + `advancement.py` have the T042 migration markers pointing at the engine's `KickbackRecord`; `revision_planner.py` is the spec-012 module (legacy, deletion deferred to T021); `convergence/legacy_kickback.py` is the T042 unified adapter. **Documented + adapted; deletion gated on T021** (engine becoming the sole revision driver). | 🟡 documented |
+| **Dual paper-revision routing unified** (T042 FULL REFACTOR — 2026-05-28) | `grep RESEARCH_MINOR_REVISION\|PAPER_MAJOR_REVISION_SCIENCE\|PAPER_MAJOR_REVISION_WRITING\|PAPER_MINOR_REVISION\|PAPER_REVISION_IN_PROGRESS\|PAPER_REVISION_BLOCKED\|READY_FOR_IMPLEMENTATION` in `src/llmxive` | **All 7 transient stages DELETED**. The convergence engine is now the SOLE inter-stage revision driver. `revision_planner.py` + `legacy_kickback.py` DELETED. New `convergence/revision_adapter.py` is the SOLE bridge from `KickbackRecord` → auto-revisions dir contract. | ✅ |
 | **Summarizer SSoT adopted** (T017 + revisers) | `grep tools.summarize.summarize\|tools.summarize import summarize` | 8 files: all 6 revisers + `triage.py` + `paper_reviewer.py`. NO ad-hoc per-module summarization survives. | ✅ |
 
-**Legacy revision-routing deletion (T021 follow-up)**: the dual scheme stays
-in code (with markers) because the engine isn't yet the sole revision driver.
-Once T021 lands, both `revision_planner.py` and the transient-stage routing
-in `graph.py` can be deleted; `legacy_kickback.py` then becomes the only
-projection path. Until then, the adapter ensures dashboards + downstream
-tooling see ONE `KickbackRecord` shape regardless of which scheme produced
-the revision event.
+## T042 FULL REFACTOR (2026-05-28) — convergence engine = sole revision driver
+
+The dual revision-routing scheme is **eliminated**. The convergence
+engine is now the SOLE inter-stage revision driver per FR-034. The
+deleted modules + stages are no longer reachable; their roles are
+played by engine-native paths.
+
+### Workstream outcomes
+
+| WS | Change | Files |
+|-|-|-|
+| WS1 | Stage enum cleanup: 7 transient stages deleted (`RESEARCH_MINOR_REVISION`, `PAPER_MAJOR_REVISION_SCIENCE/WRITING`, `PAPER_MINOR_REVISION`, `PAPER_REVISION_IN_PROGRESS`, `READY_FOR_IMPLEMENTATION`, `PAPER_REVISION_BLOCKED`); new generic `AGENT_BLOCKED` failsafe sink added. | `src/llmxive/types.py`, `src/llmxive/agents/lifecycle.py`, `specs/001-agentic-pipeline-refactor/contracts/project-state.schema.yaml` |
+| WS2 | Engine → auto-revisions adapter: `kickback_to_revision_spec(kickback, *, project_id, repo_root, round_num, revision_kind) -> Path` writes the spec-012 directory contract (spec/plan/tasks/analyze/result.yaml + `state/revisions/index.yaml`) byte-compatible with the deprecated planner output. Implementer read path UNCHANGED. | NEW `src/llmxive/convergence/revision_adapter.py`; DELETED `src/llmxive/agents/revision_planner.py` |
+| WS3 | `build_research_review_reviewspec(...)` — 8-panel research-review wrapper; reviser=None (engine kickbacks on R1 concerns); kickback routing: WRITING → tasked, METHODOLOGY → clarified, SCIENCE/FATAL → brainstormed. | `src/llmxive/convergence/reviewspecs.py` |
+| WS4 | `build_paper_review_reviewspec(...)` — 12-panel paper-review wrapper; reviser=None; kickback routing: WRITING → paper_tasked, METHODOLOGY → paper_clarified, SCIENCE → clarified (research side), FATAL → brainstormed. | `src/llmxive/convergence/reviewspecs.py` |
+| WS5 | `advancement.py` cutover: paper-review + research-review evaluator paths now synthesize a `KickbackRecord` from consolidated action items and call `kickback_to_revision_spec` to write the auto-revisions dir. Project STAYS at PAPER_REVIEW / RESEARCH_REVIEW with `revision_spec_path` set. No transient-stage transitions. | `src/llmxive/agents/advancement.py` |
+| WS6 | `graph.py` cutover: pass-through routing for the 7 transient stages REMOVED; only kept the `RESEARCH_FULL_REVISION` / `RESEARCH_REJECTED` / `PAPER_FUNDAMENTAL_FLAWS` / `PAPER_ACCEPTED` branches. | `src/llmxive/pipeline/graph.py`, `src/llmxive/pipeline/scheduler.py` (NEVER_PICK updated) |
+| WS7 | `paper_implement_cmd.py` rewritten: `[kind:...]`-token dispatcher replaced with `build_paper_implement_reviewspec` + `run_convergence`. The 12-panel reviews the assembled paper; the LIVE `PaperImplementReviser` emits revised file bodies + per-concern `dispatched_to` labels. | `src/llmxive/speckit/paper_implement_cmd.py` |
+| WS8 | **Implementer failsafe DIAGNOSTIC MODE** (NEW per design caveat): `classify_failure(error_log_text, last_command) -> FailureClassification` returns one of `BROKEN_LATEX`, `MISSING_TOOL`, `MODEL_ERROR`, `PARSE_ERROR`, `UNKNOWN`. On a classifiable failure the implementer synthesizes a `Concern` (METHODOLOGY for LaTeX/parse; SCIENCE for missing-tool/model errors) and calls the adapter to write round-N+1's spec dir — the diagnosed problem becomes WORK for the next pass. Only on UNKNOWN does the project halt at `Stage.AGENT_BLOCKED`. Failsafe is now a learning loop, not a hard halt. | NEW `src/llmxive/agents/implementer_diagnostics.py`; `src/llmxive/agents/implementer.py` (5-failure block rewritten) |
+| CLI | `llmxive project unblock` renamed → `llmxive project unblock-agent`. Gated on `Stage.AGENT_BLOCKED`; mtime-validation gate preserved (operator must edit auto-revisions tasks.md/spec.md or legacy state/revisions YAML first). | `src/llmxive/cli.py` |
+
+### Tests
+
+| Test | Count | Status |
+|-|-|-|
+| NEW `tests/unit/test_revision_adapter.py` | 14 | All pass; directory contract verified (5 artifacts + index.yaml) |
+| NEW `tests/unit/test_implementer_diagnostics.py` | 17 | All pass; covers each classification + Concern synthesis + adapter round-trip |
+| REPLACED `tests/integration/test_paper_review_flow.py` | 6 | All pass; verifies engine-adapter path + unanimous accept + fatal-to-brainstormed |
+| REPLACED `tests/integration/test_research_review_flow.py` | 5 | All pass; engine-adapter on minor_revision; full_revision + reject back-compat preserved |
+| REPLACED `tests/integration/test_revision_in_progress_idempotency.py` | 3 | All pass; new `AGENT_BLOCKED` in `_NEVER_PICK`; PAPER_REVIEW / RESEARCH_REVIEW remain pickable |
+| REPLACED `tests/unit/test_cli_project_unblock.py` | 5 | All pass; new `unblock-agent` semantics + auto-revisions mtime gate |
+| DELETED `tests/integration/test_legacy_kickback.py` | (was 13) | Removed — `legacy_kickback.py` is gone |
+| DELETED `tests/unit/test_revision_planner.py` | (was ~10) | Removed — `revision_planner.py` is gone |
+| Full suite `tests/contract + tests/integration + tests/unit` | **1116 passed, 1 skipped** in 789s | Green |
+
+### Status row updates
+
+| WS | Old | New |
+|-|-|-|
+| US3 Review-model overhaul → T042 | "documented + adapted; deletion gated on T021" | ✅ **DELETED**. 7 stages + `revision_planner.py` + `legacy_kickback.py` removed. Engine is SSoT. |
+| T082 SSoT grep audit → "Dual revision routing unified" | 🟡 documented | ✅ |
+| US4 → paper_implement_cmd | T059 wired, dispatcher untouched | ✅ paper_implement_cmd now uses engine path (T059 wired to production) |
+| NEW: T042 diagnostic mode | — | ✅ failure-classifier learning loop replaces the legacy hard-halt |

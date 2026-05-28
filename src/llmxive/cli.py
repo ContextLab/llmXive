@@ -612,14 +612,17 @@ def _cmd_pdf_audit(args: argparse.Namespace) -> int:
     return 0 if agg["total_failures"] == 0 else 1
 
 
-def _cmd_project_unblock(args: argparse.Namespace) -> int:
-    """`llmxive project unblock <PROJ-ID>` (spec 012 / FR-023).
+def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
+    """`llmxive project unblock-agent <PROJ-ID>` (spec 015 / FR-034).
 
-    Operator escape hatch for projects stuck at PAPER_REVISION_BLOCKED.
-    Refuses to no-op-unblock: requires the operator to have actually
-    modified `state/revisions/<PROJ-ID>/round-<N>.yaml` since the block
-    was recorded (mtime check). On success, transitions the project to
-    PAPER_REVIEW (or PAPER_MINOR_REVISION if --to-minor is passed).
+    Operator escape hatch for projects stuck at :class:`Stage.AGENT_BLOCKED`
+    (the new generic agent-failsafe sink that replaces the deleted
+    ``PAPER_REVISION_BLOCKED``). Refuses to no-op-unblock: requires the
+    operator to have actually modified an action items file
+    (``specs/auto-revisions/<PROJ-ID>/round-*/`` or
+    ``state/revisions/<PROJ-ID>/round-*.yaml``) since the block was
+    recorded (mtime check). On success, routes the project back to the
+    review stage that emitted the diagnostic (defaulting to PAPER_REVIEW).
     """
     from datetime import datetime
     from pathlib import Path
@@ -632,48 +635,66 @@ def _cmd_project_unblock(args: argparse.Namespace) -> int:
     try:
         project = project_store.load(project_id, repo_root=repo)
     except Exception as exc:
-        print(f"[unblock] ERROR: cannot load {project_id}: {exc}", file=sys.stderr)
+        print(f"[unblock-agent] ERROR: cannot load {project_id}: {exc}", file=sys.stderr)
         return 2
 
-    if project.current_stage != Stage.PAPER_REVISION_BLOCKED:
+    if project.current_stage != Stage.AGENT_BLOCKED:
         print(
-            f"[unblock] ERROR: {project_id} is at {project.current_stage.value}, "
-            f"not paper_revision_blocked; refusing to unblock.",
+            f"[unblock-agent] ERROR: {project_id} is at "
+            f"{project.current_stage.value}, not agent_blocked; refusing "
+            f"to unblock.",
             file=sys.stderr,
         )
         return 2
 
-    # FR-023(b): require the action-items file to have been touched since the block.
-    # We approximate "since the block" as "in the last 24h relative to project.updated_at"
-    # OR "mtime is newer than project.updated_at" if the file exists.
-    revisions_dir = repo / "state" / "revisions" / project_id
-    round_files = sorted(revisions_dir.glob("round-*.yaml")) if revisions_dir.is_dir() else []
-    if not round_files:
+    # FR-034(b): the operator MUST have touched an action items file
+    # since the block. We look BOTH at
+    # ``state/revisions/<PROJ-ID>/round-*.yaml`` (legacy) and
+    # ``specs/auto-revisions/<PROJ-ID>/round-*/`` (spec 015 adapter).
+    candidates: list[Path] = []
+    legacy_dir = repo / "state" / "revisions" / project_id
+    if legacy_dir.is_dir():
+        candidates.extend(sorted(legacy_dir.glob("round-*.yaml")))
+    auto_revs = repo / "specs" / "auto-revisions" / project_id
+    if auto_revs.is_dir():
+        # The implementer reads tasks.md; an operator edits THAT to
+        # change scope.
+        for round_dir in sorted(auto_revs.glob("round-*")):
+            for fname in ("tasks.md", "spec.md"):
+                p = round_dir / fname
+                if p.is_file():
+                    candidates.append(p)
+    if not candidates:
         print(
-            f"[unblock] ERROR: no state/revisions/{project_id}/round-*.yaml files found. "
+            f"[unblock-agent] ERROR: no auto-revisions files found under "
+            f"specs/auto-revisions/{project_id}/ or state/revisions/{project_id}/. "
             f"Nothing to validate as 'operator-edited'.",
             file=sys.stderr,
         )
         return 2
-    latest_round = round_files[-1]
-    file_mtime = datetime.fromtimestamp(latest_round.stat().st_mtime, tz=UTC)
+    latest = max(candidates, key=lambda p: p.stat().st_mtime)
+    file_mtime = datetime.fromtimestamp(latest.stat().st_mtime, tz=UTC)
     if file_mtime <= project.updated_at:
         print(
-            f"[unblock] ERROR: {latest_round.name} mtime ({file_mtime.isoformat()}) is "
-            f"NOT newer than project.updated_at ({project.updated_at.isoformat()}). "
-            f"Refusing no-op-unblock — edit the action items first.",
+            f"[unblock-agent] ERROR: {latest.name} mtime ({file_mtime.isoformat()}) "
+            f"is NOT newer than project.updated_at "
+            f"({project.updated_at.isoformat()}). Refusing no-op-unblock — "
+            f"edit the action items first.",
             file=sys.stderr,
         )
         return 2
 
-    target = Stage.PAPER_MINOR_REVISION if args.to_minor else Stage.PAPER_REVIEW
+    target = (
+        Stage.RESEARCH_REVIEW if args.to_research else Stage.PAPER_REVIEW
+    )
     project = project.model_copy(update={
         "current_stage": target,
         "updated_at": datetime.now(UTC),
-        "revision_spec_path": None,
+        # Keep revision_spec_path so the implementer picks the edited
+        # action items up next tick.
     })
     project_store.save(project, repo_root=repo)
-    print(f"[unblock] {project_id}: paper_revision_blocked → {target.value}")
+    print(f"[unblock-agent] {project_id}: agent_blocked → {target.value}")
     return 0
 
 
@@ -829,19 +850,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_pdf_audit.set_defaults(func=_cmd_pdf_audit)
 
-    # Spec 012 / FR-023: project unblock CLI.
+    # Spec 015 / FR-034: project unblock-agent CLI (renamed from `unblock`).
     p_project = subs.add_parser("project", help="project state operations")
     project_subs = p_project.add_subparsers(dest="project_cmd", required=True)
     p_unblock = project_subs.add_parser(
-        "unblock",
-        help="manually unblock a project stuck at paper_revision_blocked",
+        "unblock-agent",
+        help="manually unblock a project stuck at agent_blocked",
     )
     p_unblock.add_argument("project_id", help="e.g. PROJ-564-qwen-image-vae-2-0-...")
     p_unblock.add_argument(
-        "--to-minor", action="store_true",
-        help="transition to paper_minor_revision (default: paper_review)",
+        "--to-research", action="store_true",
+        help="route back to research_review (default: paper_review)",
     )
-    p_unblock.set_defaults(func=_cmd_project_unblock)
+    p_unblock.set_defaults(func=_cmd_project_unblock_agent)
 
     # Spec 015 T035 / FR-054: manual maintainer DOI sign-off before any Zenodo
     # publication. Records who/when/what to .specify/memory/publication_signoff.yaml.

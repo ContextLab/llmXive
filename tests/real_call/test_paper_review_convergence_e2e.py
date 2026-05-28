@@ -1,23 +1,21 @@
-"""End-to-end convergence test for spec 012 / SC-001 / T050.
+"""End-to-end convergence test for spec 015 T042 / FR-034.
 
 Real-call workflow gates this on ``LLMXIVE_REAL_TESTS=1``. The test
-exercises the FULL spec-012 pipeline against a fixture project (no
-external service mocks for the in-scope logic):
+exercises the FULL convergence-engine + adapter pipeline against a
+fixture project (no external service mocks for the in-scope logic):
 
   1. Build a fixture home-grown project with action_items recorded.
-  2. Verify the advancement evaluator routes to PAPER_REVISION_IN_PROGRESS
-     and the revision_planner produces a complete revision-spec dir.
+  2. Verify the advancement evaluator's engine-adapter path writes a
+     real auto-revisions round dir and leaves the project at
+     PAPER_REVIEW with ``revision_spec_path`` set.
   3. Verify state/revisions/index.yaml is updated.
-  4. Simulate the implementer agent transitioning back to PAPER_REVIEW.
-  5. Verify the re-review protocol activates (rereview block present in
-     paper_reviewer.build_messages output) when a specialist has prior
-     records.
+  4. Verify all 5 directory artifacts exist (spec/plan/tasks/analyze/result).
 
-This test does NOT call Dartmouth: the deterministic v1 of revision_planner
-emits artifacts directly from action items (no LLM round-trip), and the
-re-review prompt assembly is pure-Python. The "real-call" gate is here
-because Constitution III requires the integrated pipeline to be tested
-against REAL filesystem state + REAL pydantic validation, not mocks.
+This test does NOT call Dartmouth: the adapter is deterministic, and
+the re-review prompt assembly is pure-Python. The "real-call" gate is
+here because Constitution III requires the integrated pipeline to be
+tested against REAL filesystem state + REAL pydantic validation, not
+mocks.
 """
 
 from __future__ import annotations
@@ -37,7 +35,6 @@ pytestmark = pytest.mark.skipif(
 
 
 from llmxive.agents.advancement import evaluate
-from llmxive.agents.revision_planner import run_revision_pipeline
 from llmxive.state import project as project_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
@@ -106,8 +103,10 @@ def _write_review(
 
 
 class TestConvergenceE2E:
-    def test_writing_revision_lands_in_ready_for_implementation(self, tmp_path: Path) -> None:
-        """Full cycle: PAPER_REVIEW → PAPER_REVISION_IN_PROGRESS → READY_FOR_IMPLEMENTATION."""
+    def test_writing_revision_writes_auto_revisions_round_dir(self, tmp_path: Path) -> None:
+        """Spec 015 T042: writing-class action items produce a
+        KickbackRecord → adapter writes an auto-revisions round dir →
+        project STAYS at PAPER_REVIEW with revision_spec_path set."""
         pid = "PROJ-100-e2e-writing"
         _save_project(tmp_path, pid, stage=Stage.PAPER_REVIEW)
         _make_home_grown(tmp_path, pid)
@@ -124,13 +123,10 @@ class TestConvergenceE2E:
 
         project = project_store.load(pid, repo_root=tmp_path)
         new_project = evaluate(project, repo_root=tmp_path)
-        # Should be READY_FOR_IMPLEMENTATION (advancement chains through
-        # PAPER_REVISION_IN_PROGRESS → revision_planner → ready).
-        assert new_project.current_stage == Stage.READY_FOR_IMPLEMENTATION
+        assert new_project.current_stage == Stage.PAPER_REVIEW
         assert new_project.revision_spec_path is not None
-        assert (tmp_path / new_project.revision_spec_path).is_dir()
-        # Verify all 5 artifacts emitted
         spec_dir = tmp_path / new_project.revision_spec_path
+        assert spec_dir.is_dir()
         for name in ("spec.md", "plan.md", "tasks.md", "analyze-report.md", "result.yaml"):
             assert (spec_dir / name).is_file(), f"missing {name}"
         # Index updated

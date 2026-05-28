@@ -1,12 +1,23 @@
-"""Paper-Implementer dispatcher (T092).
+"""Paper-Implementer dispatcher (spec 015 T042 / FR-034 rewrite).
 
-Picks the next incomplete task from the paper's tasks.md, parses
-its `[kind:<value>]` token, and routes to the matching sub-agent.
-Persists progress per-task by checking the box. Transitions:
-  `paper_analyzed` → `paper_in_progress` (first task picked) →
-  `paper_complete` (last `[ ]` becomes `[X]` AND LaTeX builds AND
-   every paper-stage citation is verified AND proofreader-flag-list
-   is empty).
+Drives the per-paper-task implementation loop via the convergence
+engine. Replaces the prior ``[kind:<value>]``-token dispatcher with the
+convergence-engine path: the 12-panel paper-implement convergence unit
+(:func:`llmxive.convergence.reviewspecs.build_paper_implement_reviewspec`)
+reviews the assembled paper-side artifacts, and each per-Concern
+response from the LIVE :class:`PaperImplementReviser` carries the
+``dispatched_to`` field naming the sub-agent that handled the fix
+(paper_writing / paper_figure_generation / paper_statistics /
+proofreader / latex_fix). The reviser itself emits the revised file
+bodies inline; the agent here is responsible for atomic write-back and
+tasks.md bookkeeping.
+
+Transitions: ``paper_analyzed`` → ``paper_in_progress`` (first run) →
+``paper_complete`` (every ``[ ]`` becomes ``[X]`` AND LaTeX builds AND
+every paper-stage citation is verified AND the proofreader-flag list is
+empty). On engine non-convergence the agent leaves the task incomplete
+and surfaces the KickbackRecord's reason in a paper-side
+``human_input_needed.yaml`` marker.
 """
 
 from __future__ import annotations
@@ -17,15 +28,13 @@ from typing import Any
 
 import yaml
 
-from llmxive.agents.base import AgentContext
-from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
-from llmxive.config import LEAF_TASK_BUDGET_SECONDS
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
-
-# Same task regex as the research-stage Implementer plus a [kind:...] capture.
-# Allow alphanumeric suffix (T016a) for revision sub-tasks.
+# Same task regex as the research-stage Implementer plus the
+# ``[kind:...]`` capture, kept for back-compat parsing only — the
+# dispatcher itself ignores it (the engine + reviser now decide who
+# handles what).
 _TASK_RE = re.compile(
     r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?=\s|$)(?P<rest>.*)$",
     re.MULTILINE,
@@ -33,13 +42,13 @@ _TASK_RE = re.compile(
 _KIND_RE = re.compile(r"\[kind:(?P<kind>[a-z\-_]+)\]", re.IGNORECASE)
 
 
-# Mapping from `[kind:...]` value to the agent name in the registry that
-# the dispatcher routes to.
+# Retained for back-compat with tests that probe the legacy mapping; the
+# dispatcher no longer routes through it.
 KIND_TO_AGENT: dict[str, str] = {
     "prose": "paper_writing",
     "figure": "paper_figure_generation",
     "statistics": "paper_statistics",
-    "lit-search": "lit_search",       # tool wrapper, not a registered agent
+    "lit-search": "lit_search",
     "reference-verification": "reference_validator",
     "proofread": "proofreader",
     "latex-build": "latex_build",
@@ -48,10 +57,20 @@ KIND_TO_AGENT: dict[str, str] = {
 
 
 class PaperImplementerAgent(SlashCommandAgent):
-    """Dispatches paper-stage tasks to the appropriate sub-agent."""
+    """Engine-driven paper-stage implementer (T042 WS7).
+
+    Picks the next ``[ ]`` task in the paper's tasks.md and runs ONE
+    convergence cycle against the assembled paper-side artifacts. The
+    LIVE reviser
+    (:class:`llmxive.convergence.revisers.paper_implement_reviser.PaperImplementReviser`)
+    emits the revised file body + a per-concern ``dispatched_to`` label;
+    we atomically write the new file body and mark the task complete.
+    """
 
     def slash_command_name(self) -> str:
         return "speckit.implement"
+
+    # --- directory helpers ----------------------------------------------
 
     def _paper_dir(self, ctx: SlashCommandContext) -> Path:
         return ctx.project_dir / "paper"
@@ -100,41 +119,49 @@ class PaperImplementerAgent(SlashCommandAgent):
             "all_complete": next_task is None and bool(completed),
         }
 
+    # --- LLM prompt (kept for SlashCommandAgent ABC) --------------------
+    #
+    # The engine path does not consult this prompt — the LIVE reviser
+    # owns its own messages. We return a sentinel so the SlashCommandAgent
+    # parent doesn't try to call the model with an empty payload.
+
     def build_prompt(
         self,
         ctx: SlashCommandContext,
         mechanical_output: dict[str, Any],
     ) -> list[ChatMessage]:
-        repo = ctx.project_dir.parent.parent
         if mechanical_output.get("all_complete") or not mechanical_output.get("next_task_id"):
             return [
                 ChatMessage(role="system", content="No incomplete paper tasks remain."),
                 ChatMessage(role="user", content="Reply: `task_id: NONE\\nverdict: all_complete`"),
             ]
-        system = render_prompt(
-            "agents/prompts/paper_implementer.md",
-            {
-                "project_id": ctx.project_id,
-                "next_task_id": mechanical_output["next_task_id"] or "",
-                "next_task_kind": mechanical_output.get("next_task_kind") or "(none)",
-            },
-            repo_root=repo,
-        )
-        from llmxive.speckit._comments_context import render_recent_comments_block
-        comments_block = render_recent_comments_block(ctx.project_dir)
-        user = (
-            f"# tasks.md (paper)\n\n{mechanical_output['tasks_text']}\n\n"
-            f"# next task\n\n{mechanical_output['next_task_line']}\n\n"
-            f"# parsed kind\n\n{mechanical_output['next_task_kind'] or '(none)'}\n\n"
-            f"# completed task ids\n\n{mechanical_output['completed_task_ids']}\n\n"
-            f"# leaf budget\n\n{LEAF_TASK_BUDGET_SECONDS}\n\n"
-            + (comments_block + "\n\n" if comments_block else "")
-            + "# Task\n\nReturn the YAML dispatch document."
-        )
         return [
-            ChatMessage(role="system", content=system),
-            ChatMessage(role="user", content=user),
+            ChatMessage(role="system", content="(unused — engine path drives this agent)"),
+            ChatMessage(role="user", content="(see write_artifacts; engine is the actual driver)"),
         ]
+
+    # --- engine path ----------------------------------------------------
+
+    def _gather_paper_artifacts(self, project_dir: Path) -> dict[str, str]:
+        """Collect every paper-side artifact the 12-panel reviews.
+
+        Returns ``{repo_relative_key: file_contents}``. The map keys are
+        the same shape :class:`PaperImplementReviser._is_paper_artifact`
+        recognises so the reviser's update path can match them."""
+        out: dict[str, str] = {}
+        paper_dir = project_dir / "paper"
+        source_dir = paper_dir / "source"
+        if source_dir.is_dir():
+            for tex in sorted(source_dir.rglob("*.tex")):
+                try:
+                    rel = tex.relative_to(project_dir.parent.parent).as_posix()
+                except ValueError:
+                    rel = tex.relative_to(project_dir).as_posix()
+                try:
+                    out[rel] = tex.read_text(encoding="utf-8")
+                except OSError:
+                    continue
+        return out
 
     def write_artifacts(
         self,
@@ -146,60 +173,102 @@ class PaperImplementerAgent(SlashCommandAgent):
         if mechanical_output.get("all_complete"):
             return []
 
-        kind = mechanical_output.get("next_task_kind")
         task_id = mechanical_output.get("next_task_id")
         if not task_id:
             return []
-        if kind not in KIND_TO_AGENT:
-            # Bad task — escalate.
-            esc = ctx.project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml"
+
+        # --- engine path -------------------------------------------------
+        from llmxive.backends.router import get_backend
+        from llmxive.convergence.engine import run_convergence
+        from llmxive.convergence.reviewspecs import build_paper_implement_reviewspec
+
+        try:
+            backend = get_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+
+        artifacts = self._gather_paper_artifacts(ctx.project_dir)
+        if not artifacts:
+            esc = (
+                ctx.project_dir / "paper" / ".specify" / "memory"
+                / "human_input_needed.yaml"
+            )
             esc.parent.mkdir(parents=True, exist_ok=True)
             esc.write_text(
-                yaml.safe_dump(
-                    {
-                        "reason": (
-                            f"paper task {task_id} has unknown or missing [kind:...] token "
-                            f"(parsed: {kind!r})"
-                        ),
-                        "task_id": task_id,
-                    }
-                ),
+                yaml.safe_dump({
+                    "reason": (
+                        f"paper task {task_id}: no paper-side artifacts found "
+                        f"under projects/{ctx.project_id}/paper/source/"
+                    ),
+                    "task_id": task_id,
+                }),
                 encoding="utf-8",
             )
             return []
 
-        sub_agent_name = KIND_TO_AGENT[kind]
-        # Dispatch by spawning the right sub-agent inline.
-        from llmxive.agents import registry as registry_loader
+        outputs: list[str] = []
         try:
-            sub_entry = registry_loader.get(sub_agent_name)
-        except KeyError:
-            # The sub-agent isn't registered (e.g., lit_search is a tool,
-            # not an agent). Treat as no-op for v1; the dispatcher
-            # still marks the task done so the pipeline progresses.
-            sub_entry = None
-
-        sub_outputs: list[str] = []
-        if sub_entry is not None:
-            sub_agent = _make_sub_agent(sub_agent_name, sub_entry)
-            if sub_agent is not None:
-                sub_ctx = AgentContext(
-                    project_id=ctx.project_id,
-                    run_id=ctx.run_id,
-                    task_id=task_id,
-                    inputs=[],
-                    expected_outputs=[],
-                    metadata={
-                        "task_description": mechanical_output["next_task_line"],
-                        "task_id": task_id,
-                    },
+            if backend is None:
+                raise RuntimeError("no usable backend resolved for paper-implement engine path")
+            spec = build_paper_implement_reviewspec(
+                backend=backend,
+                repo_root=repo,
+                project_id=ctx.project_id,
+                model=ctx.default_model,
+            )
+            result = run_convergence(
+                spec, artifacts, producer="paper_implementer",
+            )
+            # Atomic write-back of any artifact the reviser updated.
+            for resp in result.response_history:
+                for art_rel in resp.artifacts_changed:
+                    body = artifacts.get(art_rel)
+                    if body is None:
+                        continue
+                    abs_path = (repo / art_rel).resolve()
+                    abs_path.parent.mkdir(parents=True, exist_ok=True)
+                    abs_path.write_text(body, encoding="utf-8")
+                    outputs.append(art_rel)
+            if not result.converged and result.kickback is not None:
+                esc = (
+                    ctx.project_dir / "paper" / ".specify" / "memory"
+                    / "human_input_needed.yaml"
                 )
-                sub_agent.run(sub_ctx)
+                esc.parent.mkdir(parents=True, exist_ok=True)
+                esc.write_text(
+                    yaml.safe_dump({
+                        "reason": (
+                            f"paper task {task_id} non-convergence: "
+                            f"{result.kickback.reason}"
+                        ),
+                        "task_id": task_id,
+                        "kickback_to_stage": result.kickback.to_stage,
+                        "worst_severity": result.kickback.worst_severity.value,
+                    }),
+                    encoding="utf-8",
+                )
+                return outputs
+        except Exception as exc:
+            # Engine path failed entirely — surface to the operator. We
+            # do NOT swallow this; the next tick will retry.
+            esc = (
+                ctx.project_dir / "paper" / ".specify" / "memory"
+                / "human_input_needed.yaml"
+            )
+            esc.parent.mkdir(parents=True, exist_ok=True)
+            esc.write_text(
+                yaml.safe_dump({
+                    "reason": (
+                        f"paper task {task_id} engine failure: "
+                        f"{type(exc).__name__}: {exc}"
+                    ),
+                    "task_id": task_id,
+                }),
+                encoding="utf-8",
+            )
+            return outputs
 
-        # Mark the task complete in tasks.md regardless of whether the
-        # sub-agent fully succeeded — the run-log records the sub-agent's
-        # outcome separately, and the proofreader gate catches incomplete
-        # work at paper_complete time.
+        # Mark the task complete in tasks.md.
         tasks_path = Path(mechanical_output["tasks_path"])
         text = tasks_path.read_text(encoding="utf-8")
         text = re.sub(
@@ -210,11 +279,15 @@ class PaperImplementerAgent(SlashCommandAgent):
             flags=re.MULTILINE,
         )
         tasks_path.write_text(text, encoding="utf-8")
-        return [str(tasks_path.relative_to(repo)), *sub_outputs]
+        outputs.append(str(tasks_path.relative_to(repo)))
+        return outputs
 
 
 def _make_sub_agent(name: str, entry):  # type: ignore[no-untyped-def]
-    """Lazy factory for the dispatched sub-agents."""
+    """Retained for back-compat with prior callers (tests etc.). The
+    engine path no longer uses this — the LIVE
+    :class:`PaperImplementReviser` chooses dispatch internally via the
+    reviser prompt's ``dispatched_to`` field."""
     if name == "paper_writing":
         from llmxive.agents.paper_writing import PaperWritingAgent
         return PaperWritingAgent(entry)
@@ -234,12 +307,8 @@ def _make_sub_agent(name: str, entry):  # type: ignore[no-untyped-def]
         from llmxive.agents.latex_build import LatexFixAgent
         return LatexFixAgent(entry)
     if name == "reference_validator":
-        # Reference-Validator's full run() is non-LLM; the dispatcher
-        # invokes it through validate_artifact() at the artifact-write
-        # gate already. For an explicit reference-verification task,
-        # we re-run validate_artifact on every modified artifact.
         return None
     return None
 
 
-__all__ = ["PaperImplementerAgent", "KIND_TO_AGENT"]
+__all__ = ["KIND_TO_AGENT", "PaperImplementerAgent"]

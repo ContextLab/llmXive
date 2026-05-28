@@ -46,7 +46,6 @@ from llmxive.pipeline import lock as lockmod
 from llmxive.state import project as project_store
 from llmxive.types import Project, Stage
 
-
 # Canonical stage progression — earliest → latest. The further down the
 # list a stage is, the higher its base priority score (closer to a
 # published paper = more valuable to advance).
@@ -83,23 +82,23 @@ PRIORITY: list[Stage] = STAGE_PROGRESSION
 
 # Stages a project can sit at that should NEVER be picked by the
 # scheduler: explicit human-only handoffs and terminal end states.
+#
+# Spec 015 T042 / FR-034: the 3 spec-012 transient stages
+# (PAPER_REVISION_IN_PROGRESS, READY_FOR_IMPLEMENTATION,
+# PAPER_REVISION_BLOCKED) were DELETED. The new generic
+# :class:`Stage.AGENT_BLOCKED` replaces PAPER_REVISION_BLOCKED's
+# "operator must edit action items" role and is the new failsafe sink.
 _NEVER_PICK: set[Stage] = {
     Stage.HUMAN_INPUT_NEEDED,
     Stage.BLOCKED,
     Stage.POSTED,
-    # Spec 012 / FR-009: scheduler MUST NOT re-trigger work on a project
-    # while its revision-spec auto-plan is running. The driver that owns
-    # the planning loop is the only entity that should advance such
-    # projects.
-    Stage.PAPER_REVISION_IN_PROGRESS,
-    # Spec 013: PAPER_REVISION_BLOCKED + PUBLISH_BLOCKED are operator-action
-    # states (3 consecutive zero-success implementer rounds; 5 consecutive
-    # Zenodo failures). Cleared via `llmxive project republish`.
-    # READY_FOR_IMPLEMENTATION is now PICKABLE — the `llmXive-implementer`
-    # agent introduced in spec 013 consumes those projects (was an
-    # explicit out-of-scope item in spec 012; now in scope).
-    Stage.PAPER_REVISION_BLOCKED,
+    # Spec 013: PUBLISH_BLOCKED is operator-action (5 consecutive Zenodo
+    # failures). Cleared via `llmxive project republish`.
     Stage.PUBLISH_BLOCKED,
+    # Spec 015 T042: AGENT_BLOCKED is the unified failsafe sink. Cleared
+    # via `llmxive project unblock-agent` (operator must edit action
+    # items first).
+    Stage.AGENT_BLOCKED,
 }
 
 
@@ -234,12 +233,12 @@ def pick_next_n(
 
 
 __all__ = [
+    "COMMENT_BONUS_PER",
+    "MAX_COMMENT_BONUS",
+    "PRIORITY",
+    "STAGE_GROWTH_BASE",
+    "STAGE_PROGRESSION",
     "pick_next",
     "pick_next_n",
     "priority_score",
-    "PRIORITY",
-    "STAGE_PROGRESSION",
-    "STAGE_GROWTH_BASE",
-    "COMMENT_BONUS_PER",
-    "MAX_COMMENT_BONUS",
 ]

@@ -66,7 +66,6 @@ _PHASE_GROUP_BY_STAGE: dict[Stage, str] = {
     Stage.RESEARCH_COMPLETE: "research_speckit",
     Stage.RESEARCH_REVIEW: "research_review",
     Stage.RESEARCH_ACCEPTED: "research_review",
-    Stage.RESEARCH_MINOR_REVISION: "research_review",
     Stage.RESEARCH_FULL_REVISION: "research_review",
     Stage.RESEARCH_REJECTED: "research_review",
     Stage.PAPER_DRAFTING_INIT: "paper_speckit",
@@ -79,15 +78,15 @@ _PHASE_GROUP_BY_STAGE: dict[Stage, str] = {
     Stage.PAPER_COMPLETE: "paper_speckit",
     Stage.PAPER_REVIEW: "paper_review",
     Stage.PAPER_ACCEPTED: "paper_review",
-    Stage.PAPER_MINOR_REVISION: "paper_review",
-    Stage.PAPER_MAJOR_REVISION_WRITING: "paper_review",
-    Stage.PAPER_MAJOR_REVISION_SCIENCE: "paper_review",
     Stage.PAPER_FUNDAMENTAL_FLAWS: "paper_review",
-    # Spec 012 convergence pipeline stages
-    Stage.PAPER_REVISION_IN_PROGRESS: "paper_review",
-    Stage.READY_FOR_IMPLEMENTATION: "paper_review",
-    Stage.PAPER_REVISION_BLOCKED: "paper_review",
+    Stage.AWAITING_PUBLICATION_SIGNOFF: "paper_review",
+    Stage.PUBLISH_BLOCKED: "blocked",
+    # Spec 015 T042: generic agent-failsafe sink.
+    Stage.AGENT_BLOCKED: "blocked",
     Stage.POSTED: "posted",
+    Stage.VALIDATED: "idea",
+    Stage.VALIDATOR_REVISE: "idea",
+    Stage.VALIDATOR_REJECTED: "idea",
     Stage.HUMAN_INPUT_NEEDED: "blocked",
     Stage.BLOCKED: "blocked",
 }
@@ -1078,7 +1077,7 @@ def _project_reviews(repo: Path, project_id: str) -> list[dict[str, Any]]:
                     end = text.index("\n---\n", 4)
                     front = _yaml.safe_load(text[4:end]) or {}
                     body = text[end + 5:]
-                except (ValueError, Exception):  # noqa: BLE001
+                except (ValueError, Exception):
                     front = {}
                     body = text
             reviewer_name = front.get("reviewer_name") or path.stem.split("__")[0]
@@ -1125,7 +1124,7 @@ def _project_revision_history(repo: Path, project_id: str) -> list[dict[str, Any
     try:
         import yaml as _yaml
         data = _yaml.safe_load(hist_path.read_text(encoding="utf-8")) or {}
-    except Exception:  # noqa: BLE001
+    except Exception:
         return []
     rounds = data.get("rounds", []) or []
     if not isinstance(rounds, list):
@@ -1176,7 +1175,7 @@ def _upstream_feedback_summary(repo: Path, project_id: str) -> dict[str, Any] | 
     try:
         import yaml as _yaml
         data = _yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    except Exception:  # noqa: BLE001
+    except Exception:
         return None
     rounds = data.get("rounds", []) or []
     if not isinstance(rounds, list):

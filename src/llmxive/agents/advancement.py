@@ -339,16 +339,18 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
     # have an accept record), matching the paper-side gate. No accumulated
     # threshold, no _award_review_points call. Human / simulated-personality
     # reviews are advisory inputs via stage-aware triage, never points.
+    #
+    # Spec 015 T042 / FR-034: the 3 transient research-revision stages
+    # (RESEARCH_MINOR_REVISION + reuse of full / rejected) were deleted.
+    # The convergence engine is the sole inter-stage revision driver:
+    # on non-unanimous-accept we emit a KickbackRecord routed by adaptive
+    # severity to a stable stage (TASKED/CLARIFIED/BRAINSTORMED) via
+    # ``llmxive.convergence.revision_adapter.kickback_to_revision_spec``.
     if project.current_stage == Stage.RESEARCH_REVIEW:
         records = reviews_store.list_for(project.id, stage="research", repo_root=repo_root)
         winning = _winning_recommendation(records)
         required = _required_specialists("research_reviewer_", repo_root=repo_root)
         all_accept = _all_specialists_accept(records, required)
-        # Defensive default mirroring the paper-side
-        # `_all_specialists_accept_most_recent`: when no specialists are
-        # configured (e.g., a test harness without a registry), we additionally
-        # require ≥1 accept AND zero non-accept records. This replaces the
-        # backstop role the removed RESEARCH_ACCEPT_THRESHOLD used to play.
         has_any_accept = any(r.verdict == "accept" for r in records)
         has_any_non_accept = any(r.verdict != "accept" for r in records)
         unanimous = all_accept and (
@@ -356,13 +358,76 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         )
         if unanimous and not _has_blocking_citations(cits):
             return _transition(project, Stage.RESEARCH_ACCEPTED)
-        if winning == "minor_revision":
-            return _transition(project, Stage.RESEARCH_MINOR_REVISION)
-        if winning == "full_revision":
-            return _transition(project, Stage.RESEARCH_FULL_REVISION)
+        # FATAL judgments still need to be representable. The engine path
+        # below routes the rest; here we keep the (rare) full-reject and
+        # full-revision codepaths so a winning_recommendation of `reject`
+        # / `full_revision` is honored on records that pre-date the engine.
         if winning == "reject":
             return _transition(project, Stage.RESEARCH_REJECTED)
-        return project  # not enough votes yet
+        if winning == "full_revision":
+            return _transition(project, Stage.RESEARCH_FULL_REVISION)
+        # Spec 015 T042 engine path: a winning `minor_revision` (or any
+        # other non-accept) now triggers the convergence-adapter kickback.
+        # We don't run the engine itself here (advancement is a non-LLM
+        # evaluator) — instead we project the available action items
+        # straight onto a synthetic KickbackRecord whose worst-severity
+        # adapts the legacy verdict, and let the adapter write the
+        # auto-revisions dir for the implementer to pick up. The PROJECT
+        # STAYS at RESEARCH_REVIEW; the implementer transitions it back
+        # out after applying the revision.
+        consolidated = _consolidate_action_items(records)
+        if consolidated:
+            from llmxive.convergence.revision_adapter import (
+                kickback_to_revision_spec,
+            )
+            from llmxive.convergence.types import (
+                Concern,
+                KickbackRecord,
+                Severity,
+                from_legacy_severity,
+                worst_severity,
+            )
+            engine_concerns = [
+                Concern(
+                    id=str(getattr(it, "id", "") or "000000000000")[:12].ljust(12, "0"),
+                    reviewer="research_reviewer",
+                    severity=from_legacy_severity(
+                        getattr(it, "severity", "writing") or "writing"
+                    ),
+                    artifact=f"projects/{project.id}/specs/",
+                    location="",
+                    text=getattr(it, "text", "") or "",
+                    round=1,
+                )
+                for it in consolidated
+            ]
+            worst = worst_severity([c.severity for c in engine_concerns])
+            kb = KickbackRecord(
+                from_stage="research_review",
+                to_stage=("tasked" if worst in {Severity.WRITING, Severity.REQUIREMENT, Severity.CODE}
+                         else ("clarified" if worst in {Severity.METHODOLOGY}
+                               else "brainstormed")),
+                worst_severity=worst,
+                unresolved_concerns=engine_concerns,
+                artifact_links=[f"projects/{project.id}/specs/"],
+                reason=(
+                    "advancement.evaluate: research-review non-convergence; "
+                    "routing via engine adapter."
+                ),
+            )
+            spec_dir = kickback_to_revision_spec(
+                kb,
+                project_id=project.id,
+                repo_root=repo_root or Path(__file__).resolve().parents[3],
+            )
+            rel = spec_dir.relative_to(
+                repo_root or Path(__file__).resolve().parents[3]
+            )
+            return project.model_copy(update={
+                "current_stage": Stage.RESEARCH_REVIEW,
+                "revision_spec_path": str(rel),
+            })
+        return project  # not enough votes / no action items yet
 
     # Paper-review handling (spec 012 convergence pipeline; spec 015 T041 removed
     # the redundant _award_review_points bookkeeping — the all-specialists-accept
@@ -387,24 +452,41 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         # Spec 012 / FR-004-008: severity-based routing.
         max_sev = _max_severity_across_specialists(records, live_hash=live_hash)
 
-        # Back-compat for legacy records (prompt_version 1.0.x) with no
-        # action_items: fall back to the pre-spec-012 `_winning_recommendation`
-        # so we don't regress projects whose reviewers haven't yet been
-        # re-run under the new prompts. _max_severity returns None in this
-        # case, which lets us detect "no spec-012-style data available".
+        # Spec 015 T042 / FR-034: the 3 transient paper-revision stages
+        # (PAPER_MINOR_REVISION, PAPER_MAJOR_REVISION_WRITING/SCIENCE)
+        # + the 3 spec-012 stages (PAPER_REVISION_IN_PROGRESS,
+        # READY_FOR_IMPLEMENTATION, PAPER_REVISION_BLOCKED) were ALL
+        # deleted. The convergence engine + adapter is the SOLE inter-
+        # stage revision driver: on non-convergence we synthesize a
+        # KickbackRecord, run it through
+        # :func:`kickback_to_revision_spec` to write an auto-revisions
+        # round dir, and KEEP the project at PAPER_REVIEW with
+        # ``revision_spec_path`` set so the implementer picks it up.
+        # On classifiable diagnostic failures the implementer's failsafe
+        # itself writes the next round; on UNKNOWN failures it routes
+        # to ``Stage.AGENT_BLOCKED``.
+        #
+        # Back-compat: if a record set is legacy-only (no action_items),
+        # we still need to make a routing decision. We fall back to
+        # `_winning_recommendation` for those records and route the
+        # FATAL judgments through legacy stages that still exist
+        # (RESEARCH_REJECTED-equivalent: PAPER_FUNDAMENTAL_FLAWS;
+        # rejection-to-backlog: BRAINSTORMED via FATAL severity).
         if max_sev is None and not _all_specialists_accept_most_recent(
             records, required, live_hash=live_hash
         ):
             winning = _winning_recommendation(records)
-            if winning == "minor_revision":
-                return _transition(project, Stage.PAPER_MINOR_REVISION)
-            if winning == "major_revision_writing":
-                return _transition(project, Stage.PAPER_MAJOR_REVISION_WRITING)
-            if winning == "major_revision_science":
-                return _transition(project, Stage.PAPER_MAJOR_REVISION_SCIENCE)
             if winning == "fundamental_flaws":
                 return _transition(project, Stage.PAPER_FUNDAMENTAL_FLAWS)
-            return project
+            # legacy minor / major rev → engine kickback path below
+            # with a synthesized SCIENCE severity for major_science and
+            # WRITING for the others.
+            if winning in {"minor_revision", "major_revision_writing"}:
+                max_sev = "writing"
+            elif winning == "major_revision_science":
+                max_sev = "science"
+            else:
+                return project  # not enough info yet
 
         if max_sev == "fatal":
             # Reject to backlog with consolidated fatal items appended to
@@ -420,20 +502,23 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 pass
             return _transition(project, Stage.BRAINSTORMED)
 
-        # Spec 012 → 013 (in flight): per the 2026-05-18 user clarification,
-        # arxiv-intake papers are NO LONGER auto-accepted-with-caveats.
-        # The journal's value proposition is that LLM agents apply the
-        # revisions (and join the author list on the revised manuscript).
-        # Both home-grown AND arxiv-intake papers now route through the
-        # same auto-plan revision pipeline; the upstream_feedback.yaml
-        # is retained as a record but no longer gates the transition.
         if max_sev in ("writing", "science"):
             from llmxive.agents.upstream_feedback import is_arxiv_intake, record_round
+            from llmxive.convergence.revision_adapter import (
+                kickback_to_revision_spec,
+            )
+            from llmxive.convergence.types import (
+                Concern,
+                KickbackRecord,
+                Severity,
+                from_legacy_severity,
+                worst_severity,
+            )
             project_dir = (repo_root or Path(__file__).resolve().parents[3]) / "projects" / project.id
             if is_arxiv_intake(project_dir):
                 # Preserve the upstream_feedback annotation for diagnostics
                 # but DON'T short-circuit to PAPER_ACCEPTED. Fall through
-                # to the standard revision pipeline below.
+                # to the engine-adapter path below.
                 try:
                     record_round(
                         project.id,
@@ -444,49 +529,52 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 except Exception:
                     pass
 
-            # All papers with writing/science items route through the
-            # auto-plan revision pipeline (FR-006/007/009).
-            from llmxive.agents.revision_planner import (
-                ArxivIntakeError,
-                RevisionPlanningError,
-                run_revision_pipeline,
-            )
             consolidated = _consolidate_action_items(records, live_hash=live_hash)
-            kind = "paper_writing" if max_sev == "writing" else "paper_science"
-            # Move to PAPER_REVISION_IN_PROGRESS first so the scheduler's
-            # idempotency rule kicks in (FR-009). Even if the planner
-            # fails below, the project doesn't get re-triggered until
-            # someone unblocks it.
-            project = _transition(project, Stage.PAPER_REVISION_IN_PROGRESS)
-            try:
-                result = run_revision_pipeline(
-                    project.id, consolidated, revision_kind=kind, repo_root=repo_root,
-                )
-            except ArxivIntakeError:
-                # Defensive — we already checked is_arxiv_intake above. If
-                # the planner still detects this case, stay at PAPER_REVISION_IN_PROGRESS
-                # so a human notices.
+            if not consolidated:
+                # Nothing actionable yet — stay at PAPER_REVIEW for more
+                # reviews to arrive.
                 return project
-            except RevisionPlanningError:
-                # Planner emitted partial state but failed. Transition to
-                # blocked so the operator notices + can unblock.
-                return _transition(project, Stage.PAPER_REVISION_BLOCKED)
-
-            # Spec 015 T042 / discrepancy #6: the spec-012 scheme below
-            # (``ready_for_implementation`` / ``paper_revision_blocked``)
-            # is legacy — see ``llmxive.convergence.legacy_kickback`` for
-            # the engine-native ``KickbackRecord`` projection. Until T021
-            # makes the engine the sole revision driver, this block stays
-            # but emits adapter-compatible outcomes only.
-            if result.final_outcome == "ready_for_implementation":
-                return project.model_copy(update={
-                    "current_stage": Stage.READY_FOR_IMPLEMENTATION,
-                    "revision_spec_path": str(result.revision_spec_path.relative_to(
-                        repo_root or Path(__file__).resolve().parents[3]
-                    )),
-                })
-            # final_outcome == "paper_revision_blocked"
-            return _transition(project, Stage.PAPER_REVISION_BLOCKED)
+            engine_concerns = [
+                Concern(
+                    id=str(getattr(it, "id", "") or "000000000000")[:12].ljust(12, "0"),
+                    reviewer="paper_reviewer",
+                    severity=from_legacy_severity(
+                        getattr(it, "severity", "writing") or "writing"
+                    ),
+                    artifact=f"projects/{project.id}/paper/source/",
+                    location="",
+                    text=getattr(it, "text", "") or "",
+                    round=1,
+                )
+                for it in consolidated
+            ]
+            worst = worst_severity([c.severity for c in engine_concerns])
+            kb = KickbackRecord(
+                from_stage="paper_review",
+                to_stage=("paper_tasked" if worst in {
+                    Severity.WRITING, Severity.REQUIREMENT, Severity.CODE,
+                } else ("paper_clarified" if worst == Severity.METHODOLOGY
+                        else ("clarified" if worst == Severity.SCIENCE
+                              else "brainstormed"))),
+                worst_severity=worst,
+                unresolved_concerns=engine_concerns,
+                artifact_links=[f"projects/{project.id}/paper/source/"],
+                reason=(
+                    "advancement.evaluate: paper-review non-convergence; "
+                    "routing via engine adapter."
+                ),
+            )
+            repo = repo_root or Path(__file__).resolve().parents[3]
+            spec_dir = kickback_to_revision_spec(
+                kb,
+                project_id=project.id,
+                repo_root=repo,
+            )
+            rel = spec_dir.relative_to(repo)
+            return project.model_copy(update={
+                "current_stage": Stage.PAPER_REVIEW,
+                "revision_spec_path": str(rel),
+            })
 
         # No specialists yet, or some other non-canonical state — keep
         # waiting at PAPER_REVIEW for more reviews.
