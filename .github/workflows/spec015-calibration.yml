@@ -83,6 +83,18 @@ jobs:
             --max-tokens "$MAX_TOKENS" \
             2>&1 | tee calibration-run.log
 
+      # Upload the produced report (+ run log) as an artifact BEFORE
+      # attempting any git commit. Calibration runs are expensive (~25 min);
+      # a race-condition push failure shouldn't lose the output.
+      - name: Upload calibration outputs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec015-calibration-output
+          path: |
+            calibration-run.log
+            specs/015-pipeline-convergence-protocol/calibration/reports/
+
       - name: Commit + push the report
         if: always()
         env:
@@ -96,26 +108,42 @@ jobs:
                   calibration-run.log || true
           if git diff --cached --quiet; then
             echo "No new report to commit."
-          else
-            TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-            git commit -m "calib(015): ${STAGE} run (${TIMESTAMP}) (#239)
-
-            Triggered via workflow_dispatch with:
-              stage=${STAGE}
-              domain=${DOMAIN}
-              max_tokens=${MAX_TOKENS}
-
-            Maintainer: review the produced report under
-            specs/015-pipeline-convergence-protocol/calibration/reports/
-            and fill in the adjudication checklist per FR-046.
-
-            Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
-            git push
+            exit 0
           fi
+          TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+          git commit -m "calib(015): ${STAGE} run (${TIMESTAMP}) (#239)
 
-      - name: Upload run log as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: calibration-run-log
-          path: calibration-run.log
+          Triggered via workflow_dispatch with:
+            stage=${STAGE}
+            domain=${DOMAIN}
+            max_tokens=${MAX_TOKENS}
+
+          Maintainer: review the produced report under
+          specs/015-pipeline-convergence-protocol/calibration/reports/
+          and fill in the adjudication checklist per FR-046.
+
+          Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
+
+          # Race-condition handling: the calibration step takes ~25 min,
+          # during which other commits may have landed on the branch. Pull
+          # --rebase to replay our single commit on top, then push. Retry
+          # up to 3 times in case multiple concurrent runs are competing.
+          BRANCH="${GITHUB_REF##*/}"
+          for attempt in 1 2 3; do
+            echo "::group::Push attempt ${attempt}"
+            git fetch origin "${BRANCH}"
+            if git pull --rebase origin "${BRANCH}"; then
+              if git push origin "HEAD:${BRANCH}"; then
+                echo "::endgroup::"
+                echo "Pushed on attempt ${attempt}."
+                exit 0
+              fi
+            fi
+            echo "::endgroup::"
+            echo "Attempt ${attempt} failed; sleeping before retry."
+            sleep $((attempt * 5))
+          done
+          echo "::error::Could not push the calibration report after 3 attempts."
+          echo "The report artifact has been uploaded above; download from"
+          echo "the workflow's Artifacts section."
+          exit 1
