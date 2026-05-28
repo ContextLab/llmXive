@@ -1,0 +1,6 @@
+{
+  "stage": "plan",
+  "label": "negative_plan_tasks_contradiction",
+  "expected_lens": "plan_consistency",
+  "description": "Added a methodology assertion to plan.md that contradicts the tasks file (plan says supervised regression; tasks implies unsupervised clustering). Expected lens: plan_consistency (METHODOLOGY-class \u2014 plan\u2194tasks disagreement)."
+}

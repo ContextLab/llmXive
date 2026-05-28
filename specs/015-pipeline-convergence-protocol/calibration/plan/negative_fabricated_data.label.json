@@ -1,0 +1,6 @@
+{
+  "stage": "plan",
+  "label": "negative_fabricated_data",
+  "expected_lens": "data_resources",
+  "description": "Injected reference to 'OpenNeuro ds999999 (FABRICATED \u2014 does not exist)'. The dataset_resolver pre-filter should fail on it; if the panel reaches the lens, data_resources should flag it as METHODOLOGY-class. (1 dataset reference replaced/added)."
+}

@@ -1,0 +1,6 @@
+{
+  "stage": "plan",
+  "label": "positive",
+  "expected_lens": null,
+  "description": "Synthetic clean plan artifact (calibration positive)."
+}

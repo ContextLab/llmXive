@@ -1,0 +1,6 @@
+{
+  "stage": "tasks",
+  "label": "negative_fr_without_task",
+  "expected_lens": "coverage",
+  "description": "Declared FR-999 (in a comment line) without adding a task referencing it. Expected lens: coverage (REQUIREMENT-class \u2014 orphaned requirement)."
+}

@@ -1,0 +1,6 @@
+{
+  "stage": "paper",
+  "label": "positive",
+  "expected_lens": null,
+  "description": "Synthetic clean paper artifact (calibration positive)."
+}

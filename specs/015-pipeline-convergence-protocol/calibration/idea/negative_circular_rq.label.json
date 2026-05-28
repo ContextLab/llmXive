@@ -1,0 +1,6 @@
+{
+  "stage": "idea",
+  "label": "negative_circular_rq",
+  "expected_lens": "rq_validity",
+  "description": "Replaced the research question with a circular phrasing ('accurate because accurate'). Expected lens: rq_validity (SCIENCE-class \u2014 the question itself is broken)."
+}
