@@ -8,4 +8,4 @@ Hypothesis: The IOI circuit is robust across architectures of similar scale; cir
 
 Methods: Implement the original IOI probe; run on Pythia + OPT; compare circuit graphs by edit-distance; ablate each identified head to confirm causal role.
 
-Feasibility: implementable with free-model LLM panels + publicly available data; no paid services or proprietary compute required.
+Feasibility: implementable with free open-source tooling + publicly available data; no paid services or proprietary compute required.

@@ -8,4 +8,4 @@ Hypothesis: Selection stability scales sub-linearly with n/p; the 1SE criterion 
 
 Methods: Bootstrap-resample each dataset 500 times; fit Lasso with both criteria; report stability + held-out MSE per dataset + pooled.
 
-Feasibility: implementable with free-model LLM panels + publicly available data; no paid services or proprietary compute required.
+Feasibility: implementable with free open-source tooling + publicly available data; no paid services or proprietary compute required.

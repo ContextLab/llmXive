@@ -8,4 +8,4 @@ Hypothesis: Larger LLMs exhibit human-like risk aversion for gains + risk seekin
 
 Methods: Implement the K-T lottery battery as a prompt template; run 100 trials per lottery per model with temperature sweep; fit per-model Prospect-Theory parameters via MLE; bootstrap CIs.
 
-Feasibility: implementable with free-model LLM panels + publicly available data; no paid services or proprietary compute required.
+Feasibility: implementable with free open-source tooling + publicly available data; no paid services or proprietary compute required.
