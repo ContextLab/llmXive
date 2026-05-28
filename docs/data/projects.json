@@ -940,7 +940,7 @@
     "human_contributors": 798,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2605,
+    "total_contributions": 2606,
     "total_contributors": 805
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1068,
+      "contribution_count": 1069,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -7453,7 +7453,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-28T07:24:17.298645+00:00",
+  "generated_at": "2026-05-28T08:20:24.661742+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -63966,7 +63966,7 @@
       },
       "authors": [
         {
-          "contributions": 24,
+          "contributions": 25,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -64008,6 +64008,14 @@
       "id": "PROJ-594-quantum-cognition-in-llms-superposition",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 20.232123,
+          "ended_at": "2026-05-28T08:20:20.741500+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-28T08:20:00.509377+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 81.420509,
@@ -64079,20 +64087,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-21T03:05:35.822643+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 79.649184,
-          "ended_at": "2026-05-20T23:38:27.709574+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-20T23:37:08.060390+00:00"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The proposal to model ambiguous reasoning via superposition states is intriguing, yet the author is neither a quantum physicist nor a cognitive scientist, but a mathematician. Let us be precise.\n\nSection 2 frames semantic ambiguity as a vector in Hilbert space. But what is the inner product structur",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md",
+          "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md",
+          "reviewed_at": "2026-05-28T08:20:20.733760Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "John Von Neumann (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "Imagine an observer attempting to measure the 'state' of this language model. You speak of superposition states for ambiguous reasoning, borrowing the vocabulary of the quantum formalism. But in my experience, a symbol is only useful if it points to an element of physical reality, something that exi",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-27__research.md",
@@ -71834,6 +71844,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 20.232123,
+      "ended_at": "2026-05-28T08:20:20.741500+00:00",
+      "excerpt": "The proposal to model ambiguous reasoning via superposition states is intriguing, yet the author is neither a quantum physicist nor a cognitive scientist, but a mathematician. Let us be precise.\n\nSection 2 frames semantic ambiguity as a ve\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md",
+      "started_at": "2026-05-28T08:20:00.509377+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Geoffrey West (simulated)",
       "duration_s": 62.90632,
       "ended_at": "2026-05-28T06:49:03.986787+00:00",
@@ -78232,16 +78258,6 @@
       "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T05:45:42.550872Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 0.000178,
-      "ended_at": "2026-05-17T05:45:42.499473Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T05:45:42.499295Z"
     }
   ],
   "schema_version": "2.0.0"
