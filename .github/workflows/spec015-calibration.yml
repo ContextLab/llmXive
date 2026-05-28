@@ -1,0 +1,121 @@
+name: spec015 — differential calibration
+
+# Runs `scripts/run_calibration.py` against the on-disk calibration set
+# and commits the produced adjudication reports.
+#
+# Triggers:
+# - `workflow_dispatch` — manual trigger from the GitHub Actions UI;
+#   the maintainer picks a stage + domain label.
+# - `schedule` (commented out by default) — weekly automatic runs once
+#   the maintainer is comfortable letting it auto-run.
+#
+# Permissions: needs `contents: write` to commit the report back to the
+# calibration reports directory.
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Which stage to calibrate (spec/plan/tasks/paper_spec/paper_plan/paper_tasks/paper_implement/all)'
+        required: true
+        default: 'spec'
+        type: choice
+        options:
+          - spec
+          - plan
+          - tasks
+          - paper_spec
+          - paper_plan
+          - paper_tasks
+          - paper_implement
+          - all
+      domain:
+        description: 'Domain label written into the report header (or "(unspecified)")'
+        required: false
+        default: '(unspecified)'
+        type: string
+      max_tokens:
+        description: 'Per-call max_tokens for the reasoning model (default 8192)'
+        required: false
+        default: '8192'
+        type: string
+  # Uncomment to run weekly once the workflow is trusted:
+  # schedule:
+  #   - cron: '0 6 * * 0'  # 06:00 UTC Sundays
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install package (with dev extras)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+
+      - name: Run differential calibration
+        env:
+          DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          # Inputs piped via env (safer than direct ${{ ... }} expansion
+          # in run: blocks — workflow_dispatch is write-access-only but
+          # we follow the same hardening as untrusted-input workflows).
+          STAGE: ${{ inputs.stage }}
+          DOMAIN: ${{ inputs.domain }}
+          MAX_TOKENS: ${{ inputs.max_tokens }}
+        run: |
+          mkdir -p specs/015-pipeline-convergence-protocol/calibration/reports
+          python scripts/run_calibration.py \
+            --stage "$STAGE" \
+            --domain "$DOMAIN" \
+            --max-tokens "$MAX_TOKENS" \
+            2>&1 | tee calibration-run.log
+
+      - name: Commit + push the report
+        if: always()
+        env:
+          STAGE: ${{ inputs.stage }}
+          DOMAIN: ${{ inputs.domain }}
+          MAX_TOKENS: ${{ inputs.max_tokens }}
+        run: |
+          git config user.name 'spec015-calibration-bot'
+          git config user.email 'spec015-calibration-bot@users.noreply.github.com'
+          git add specs/015-pipeline-convergence-protocol/calibration/reports/ \
+                  calibration-run.log || true
+          if git diff --cached --quiet; then
+            echo "No new report to commit."
+          else
+            TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+            git commit -m "calib(015): ${STAGE} run (${TIMESTAMP}) (#239)
+
+            Triggered via workflow_dispatch with:
+              stage=${STAGE}
+              domain=${DOMAIN}
+              max_tokens=${MAX_TOKENS}
+
+            Maintainer: review the produced report under
+            specs/015-pipeline-convergence-protocol/calibration/reports/
+            and fill in the adjudication checklist per FR-046.
+
+            Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
+            git push
+          fi
+
+      - name: Upload run log as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calibration-run-log
+          path: calibration-run.log
