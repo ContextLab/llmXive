@@ -91,7 +91,7 @@ properties in CI.
 
 | Stage | Type | Reviser | Tests | Verified |
 |-|-|-|-|-|
-| `flesh_out_complete` (idea) | reviewable | TodoReviser (idea_flesh_out reviser is the only stage without a live build_*_reviewspec — flesh_out_agent is a non-speckit Agent + would need wrapping in T021) | registry contract tests | 🟡 |
+| `flesh_out_complete` (idea) | reviewable | `FleshOutReviser` (via `build_idea_reviewspec(...)`, FR-027) | 8 reviser + 2 panel tests | ✅ |
 | `clarified` (research spec) | reviewable | `SpecReviser` | 8 reviser + 2 panel tests | ✅ |
 | `planned` (research plan) | reviewable | `PlanReviser` | 10 reviser + 1 panel test | ✅ |
 | `tasked` (research tasks) | reviewable | `TasksReviser` | 9 reviser + 1 panel test | ✅ |

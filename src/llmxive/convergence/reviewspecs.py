@@ -83,6 +83,13 @@ def _todo_reviewers(lenses: list[str], *, prompt_task: str, wiring_task: str) ->
 
 
 def _spec_idea() -> ReviewSpec:
+    """Idea convergence unit (4-lens panel + FleshOutReviser).
+
+    The reviser is wired LIVE via :func:`build_idea_reviewspec` — the
+    placeholder ``_TodoReviser`` here keeps the static registry
+    Protocol-conformant for callers that don't have a backend to bind
+    (matching the pattern used for every other reviewable stage's static
+    spec; ``build_*_reviewspec`` swaps in the LLM-bound reviser)."""
     return ReviewSpec(
         stage="flesh_out_complete",
         artifacts=["idea/*.md"],
@@ -90,7 +97,10 @@ def _spec_idea() -> ReviewSpec:
             ["rq_validity", "novelty", "feasibility", "idea_quality"],
             prompt_task="T049", wiring_task="T054",
         ),
-        reviser=_TodoReviser("flesh_out", wiring_task="T054"),
+        reviser=_TodoReviser(
+            "flesh_out",
+            wiring_task="build_idea_reviewspec (FleshOutReviser, FR-027)",
+        ),
         kickback_routing={
             Severity.WRITING: "brainstormed",
             Severity.REQUIREMENT: "brainstormed",
@@ -331,6 +341,38 @@ def reviewable_stages() -> list[str]:
     return sorted(_build_registry().keys())
 
 
+def build_idea_reviewspec(
+    *,
+    backend: object,
+    repo_root: object,
+    project_id: str,
+    model: str | None = None,
+) -> ReviewSpec:
+    """Build a LIVE ``ReviewSpec`` for the idea convergence unit (FR-027).
+
+    The returned spec has a real :class:`FleshOutReviser` as its
+    ``.reviser`` — the rest of the spec (reviewers, kickback routing,
+    advance_stage, etc.) is identical to the static
+    ``reviewspec_for("flesh_out_complete")``. Panel reviewers remain
+    ``_TodoReviewer`` placeholders until panel-side wiring lands (the
+    same pattern every other ``build_*_reviewspec`` helper uses).
+
+    Idea is the EARLIEST reviewable stage; ``constitution_input`` stays
+    ``False`` because the constitution doesn't exist yet at this stage
+    (FR-030 — see the invariant test in
+    ``tests/integration/test_invariants.py``)."""
+    from .revisers.flesh_out_reviser import FleshOutReviser
+
+    base = _spec_idea()
+    base.reviser = FleshOutReviser(
+        backend=backend,
+        repo_root=repo_root,  # type: ignore[arg-type]
+        project_id=project_id,
+        model=model,
+    )
+    return base
+
+
 def build_spec_reviewspec(
     *,
     backend: object,
@@ -540,6 +582,7 @@ def build_paper_implement_reviewspec(
 
 __all__ = [
     "EXEMPT_STAGES",
+    "build_idea_reviewspec",
     "build_implement_reviewspec",
     "build_paper_implement_reviewspec",
     "build_paper_plan_reviewspec",

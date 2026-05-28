@@ -30,6 +30,7 @@ import pytest
 
 from llmxive.convergence.engine import run_convergence
 from llmxive.convergence.reviewspecs import (
+    build_idea_reviewspec,
     build_implement_reviewspec,
     build_plan_reviewspec,
     build_spec_reviewspec,
@@ -106,6 +107,93 @@ def _replace_panel(spec, reviewers):  # type: ignore[no-untyped-def]
     spec.reviewers, so this is the simplest wiring)."""
     spec.reviewers = list(reviewers)
     return spec
+
+
+# --- Idea stage end-to-end ------------------------------------------------
+
+
+def test_idea_panel_runs_end_to_end_through_engine(tmp_path: Path):
+    """FleshOutReviser + a 1-lens panel (rq_validity) that raises one
+    concern then accepts in R3 → ``converged=True`` at round 1; the
+    engine advances to ``validated`` (the idea convergence unit's
+    ``advance_stage``)."""
+    idea_key = "projects/PROJ-000-test/idea/an-idea.md"
+    artifacts = {
+        idea_key: (
+            "# An idea\n## Research question\nDoes X cause Y?\n"
+            "## Methodology sketch\n- Use data\n"
+        ),
+    }
+    concern = Concern(
+        id="I1", reviewer="rq_validity", severity=Severity.METHODOLOGY,
+        artifact=idea_key, location="Research question",
+        text="research question reads as method-grounded — needs phenomenon framing",
+    )
+    reviewer = _ScriptedReviewer(
+        "rq_validity",
+        initial_concerns=[concern],
+        accepts_per_round={1: ["I1"]},
+    )
+    fake_reply = json.dumps({
+        "new_idea_md": (
+            "# An idea\n## Research question\n"
+            "Does X (measured channel A) predict Y (channel B)?\n"
+            "## Methodology sketch\n- Use https://uci.example.org/dataset.csv\n"
+        ),
+        "responses": [
+            {"concern_id": "I1", "response": "Reframed phenomenologically",
+             "what_changed": "RQ now names independent channels",
+             "artifacts_changed": [idea_key]},
+        ],
+    })
+    backend = _FakeBackend(responses=[fake_reply])
+    spec = build_idea_reviewspec(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-test",
+    )
+    _replace_panel(spec, [reviewer])
+    result = run_convergence(spec, artifacts)
+
+    assert result.converged is True
+    assert result.rounds_used == 1
+    assert result.next_stage == "validated"
+    assert any(c.id == "I1" for c in result.concern_history)
+    assert any(r.concern_id == "I1" for r in result.response_history)
+
+
+def test_idea_panel_kickbacks_route_to_brainstormed(tmp_path: Path):
+    """Idea panel that NEVER accepts → cap-hit → ``converged=False`` with
+    a ``KickbackRecord`` routed to ``brainstormed`` (the idea stage's only
+    upstream stage; FATAL-class concerns flow back to a different idea)."""
+    idea_key = "projects/PROJ-000-test/idea/an-idea.md"
+    artifacts = {idea_key: "# An idea\nresearch question: trivial.\n"}
+    concern = Concern(
+        id="I1", reviewer="idea_quality", severity=Severity.SCIENCE,
+        artifact=idea_key, location="",
+        text="idea is fundamentally unsalvageable",
+    )
+    reviewer = _ScriptedReviewer(
+        "idea_quality",
+        initial_concerns=[concern],
+        accepts_per_round={},  # never accepts
+    )
+    fake_reply = json.dumps({
+        "new_idea_md": "# An idea v_n\n",
+        "responses": [{"concern_id": "I1", "response": "tried", "what_changed": "edited"}],
+    })
+    backend = _FakeBackend(responses=[fake_reply] * 5)
+    spec = build_idea_reviewspec(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-test",
+    )
+    _replace_panel(spec, [reviewer])
+    result = run_convergence(spec, artifacts)
+
+    assert result.converged is False
+    assert result.rounds_used == spec.max_rounds
+    assert result.kickback is not None
+    # Every severity at the idea stage routes back to brainstormed (the
+    # only prior stage).
+    assert result.kickback.to_stage == "brainstormed"
+    assert result.kickback.worst_severity == Severity.SCIENCE
 
 
 # --- Spec stage end-to-end ------------------------------------------------
