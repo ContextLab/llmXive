@@ -104,6 +104,13 @@ def _load_system_prompt(*, stage: str, lens: str, repo_root: Path) -> str:
 
 _YAML_FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---", re.DOTALL)
 
+# Code-fence stripper: many models wrap the YAML in ```yaml ... ``` or
+# bare ``` ... ``` fences. We accept either + look for the frontmatter
+# inside.
+_CODE_FENCE_RE = re.compile(
+    r"```(?:yaml|yml)?\s*\n(.*?)\n```", re.DOTALL | re.IGNORECASE,
+)
+
 
 def _parse_response(
     response_text: str, *, lens: str, stage: str, default_artifact: str,
@@ -131,7 +138,13 @@ def _parse_response(
     Raises ``RuntimeError`` on missing frontmatter / invalid YAML /
     missing required fields — engine treats as non-convergence.
     """
-    m = _YAML_FRONTMATTER_RE.search(response_text.strip())
+    # Strip a leading code fence if present — many LLMs wrap the YAML
+    # in ```yaml ... ``` blocks even though the prompt asks for raw YAML.
+    candidate = response_text.strip()
+    fence_m = _CODE_FENCE_RE.search(candidate)
+    if fence_m is not None:
+        candidate = fence_m.group(1).strip()
+    m = _YAML_FRONTMATTER_RE.search(candidate)
     if m is None:
         raise RuntimeError(
             f"LLMReviewer[{lens}]: response has no YAML frontmatter "
