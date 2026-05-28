@@ -181,7 +181,7 @@
 - [X] T066 [US5] Implement `calibration/domains.py` (≥1 real peer-reviewed anchor paper per 9 `LIBRARIAN_DEFAULT_FIELDS` + HF-daily + backlog sample + held-out flag)
 - [X] T067 [US5] Build per-panel labeled calibration sets (positives + injected negatives) for each reviewable step under `specs/015-pipeline-convergence-protocol/calibration/`
 - [ ] T068 [US5] Run differential calibration per panel per domain with REAL qwen calls (repeated for noise-robustness); produce adjudication reports; tune sensitivity adaptively with manual QC
-- [ ] T069 [US5] Validate domain-generality on the held-out field with un-tuned prompts in `tests/real_call/test_calibration_heldout.py`
+- [X] T069 [US5] Validate domain-generality on the held-out field with un-tuned prompts in `tests/real_call/test_calibration_heldout.py`
 - [ ] T070 [US5] Record calibration + manual adjudication outcomes in STATUS.md and the calibration reports
 
 **Checkpoint**: panels calibrated and domain-general.
@@ -195,7 +195,7 @@
 
 ### Tests (write FIRST)
 
-- [ ] T071 [P] [US6] E2E harness (drive to `posted`; weak-project rejection; artifact inspection assertions) in `tests/e2e/test_domain_traversal.py`
+- [X] T071 [P] [US6] E2E harness (drive to `posted`; weak-project rejection; artifact inspection assertions) in `tests/e2e/test_domain_traversal.py`
 
 ### Implementation
 
