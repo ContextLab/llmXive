@@ -472,6 +472,12 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 # blocked so the operator notices + can unblock.
                 return _transition(project, Stage.PAPER_REVISION_BLOCKED)
 
+            # Spec 015 T042 / discrepancy #6: the spec-012 scheme below
+            # (``ready_for_implementation`` / ``paper_revision_blocked``)
+            # is legacy — see ``llmxive.convergence.legacy_kickback`` for
+            # the engine-native ``KickbackRecord`` projection. Until T021
+            # makes the engine the sole revision driver, this block stays
+            # but emits adapter-compatible outcomes only.
             if result.final_outcome == "ready_for_implementation":
                 return project.model_copy(update={
                     "current_stage": Stage.READY_FOR_IMPLEMENTATION,

@@ -506,6 +506,17 @@ def _decide_next_stage(
     #   research_full_revision  → clarified (back to Specifier
     #                             effectively, via Planner→Tasker)
     #   research_rejected       → brainstormed (back to Brainstorm)
+    #
+    # Spec 015 T042 / discrepancy #6: this routing scheme PLUS the
+    # spec-012 ``paper_revision_in_progress`` / ``ready_for_implementation``
+    # / ``paper_revision_blocked`` scheme in ``advancement.py`` are BOTH
+    # legacy. The unified replacement is the convergence engine's
+    # ``KickbackRecord`` + ``route_kickback`` (``llmxive.convergence.kickback``).
+    # Until T021 fully wires the engine to drive every revision decision,
+    # legacy outcomes can be projected onto the unified shape via
+    # :func:`llmxive.convergence.legacy_kickback.kickback_from_graph_stage`.
+    # DO NOT add new transient revision stages here — emit a KickbackRecord
+    # from the engine instead.
     if cur == Stage.RESEARCH_MINOR_REVISION:
         return Stage.TASKED
     if cur == Stage.RESEARCH_FULL_REVISION:
