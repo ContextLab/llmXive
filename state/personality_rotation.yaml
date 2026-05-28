@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-05-28T21:17:12.047563+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-05-28T22:10:15.770859+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-20T03:06:07.651922+00:00'
-  ended_at: '2026-05-20T04:55:17.940391+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-20__research.md
 - slug: richard-feynman
   started_at: '2026-05-20T04:55:17.940391+00:00'
   ended_at: '2026-05-20T06:24:41.973037+00:00'
@@ -1188,3 +1181,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md
+- slug: daniel-kahneman
+  started_at: '2026-05-28T21:17:12.047563+00:00'
+  ended_at: '2026-05-28T22:10:15.770859+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md
