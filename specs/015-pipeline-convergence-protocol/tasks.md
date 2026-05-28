@@ -127,7 +127,7 @@
 - [ ] T042 [US3] Collapse the two revision-routing schemes (graph transient-stage block + spec-012 dual scheme) into the engine outcome (#51) in `src/llmxive/pipeline/graph.py` and `src/llmxive/agents/advancement.py`
 - [X] T043 [US3] Re-express the public status model (Backlog→Ready→Done) in convergence terms in `README.md` + the web about page; update `src/llmxive/agents/status_reporter.py` (retain `projects.json` regen + issue comment + issue close on `posted`); update `src/llmxive/agents/repository_hygiene.py` to keep asserting the line-count-delta + gitignore patterns under the new status model (FR-026)
 - [X] T044 [US3] Implement in-flight project migration (re-evaluate under unanimous convergence on next tick); confirm the no-`posted`/`done`-projects assumption holds in `state/projects/`
-- [ ] T045 [US3] Verify points removed (full-repo grep) + triage advisory-only; update STATUS.md
+- [X] T045 [US3] Verify points removed (full-repo grep) + triage advisory-only; update STATUS.md
 
 **Checkpoint**: one clean convergence-based gate everywhere.
 
