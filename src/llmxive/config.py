@@ -15,8 +15,12 @@ from pathlib import Path
 
 # Defaults documented in spec.md / plan.md / research.md.
 DEFAULTS: dict[str, float | int] = {
-    "RESEARCH_ACCEPT_THRESHOLD": 5.0,
-    "PAPER_ACCEPT_THRESHOLD": 5.0,
+    # Spec 015 T041 / FR-019: RESEARCH_ACCEPT_THRESHOLD / PAPER_ACCEPT_THRESHOLD
+    # are RETAINED in DEFAULTS for back-compat with stored web/about.html
+    # consumers, but advancement no longer reads them. They are no longer the
+    # gate — unanimous LLM-panel acceptance is the sole gate everywhere.
+    "RESEARCH_ACCEPT_THRESHOLD": 0.0,
+    "PAPER_ACCEPT_THRESHOLD": 0.0,
     "TASKER_MAX_REVISION_ROUNDS": 5,
     "LEAF_TASK_BUDGET_SECONDS": 300,
     "SANDBOX_BUDGET_SECONDS": 240,
@@ -87,17 +91,17 @@ CONVERGENCE_PER_ROUND_BUDGET_SECONDS: int = int(get("CONVERGENCE_PER_ROUND_BUDGE
 
 
 __all__ = [
-    "RESEARCH_ACCEPT_THRESHOLD",
-    "PAPER_ACCEPT_THRESHOLD",
-    "TASKER_MAX_REVISION_ROUNDS",
-    "LEAF_TASK_BUDGET_SECONDS",
-    "SANDBOX_BUDGET_SECONDS",
     "CITATION_TITLE_OVERLAP_THRESHOLD",
-    "STAGE_ADVANCEMENT_RATE_WINDOW_DAYS",
     "CONVERGENCE_MAX_ROUNDS",
     "CONVERGENCE_PER_ROUND_BUDGET_SECONDS",
     "DEFAULTS",
-    "get",
+    "LEAF_TASK_BUDGET_SECONDS",
+    "PAPER_ACCEPT_THRESHOLD",
+    "RESEARCH_ACCEPT_THRESHOLD",
+    "SANDBOX_BUDGET_SECONDS",
+    "STAGE_ADVANCEMENT_RATE_WINDOW_DAYS",
+    "TASKER_MAX_REVISION_ROUNDS",
     "about_page_published",
     "all_keys",
+    "get",
 ]

@@ -18,15 +18,15 @@ from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
 from llmxive.agents.lifecycle import is_valid_transition
-from llmxive.config import (
-    RESEARCH_ACCEPT_THRESHOLD,
-)
+
+# Spec 015 T041 / FR-019: the RESEARCH_ACCEPT_THRESHOLD / PAPER_ACCEPT_THRESHOLD
+# point gates were removed; advancement no longer reads any point threshold from
+# config. The sole gate is unanimous LLM-panel acceptance.
 from llmxive.state import citations as citations_store
 from llmxive.state import project as project_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
     Project,
-    ReviewerKind,
     ReviewRecord,
     Stage,
     VerificationStatus,
@@ -242,53 +242,12 @@ def _produced_by(
     return latest_agent
 
 
-def _award_review_points(
-    project: Project,
-    records: list[ReviewRecord],
-    *,
-    bucket: str,
-    citations: list[citations_store.Citation],
-    is_paper_stage: bool,
-) -> Project:
-    """Sum eligible review records into the right point bucket.
-
-    Eligibility filters:
-    1. The record's artifact_hash matches the live artifact's hash
-       (anti-tamper).
-    2. The reviewer is not the artifact's author (self-review prohibited).
-    3. The reviewed artifact has no citation in unreachable/mismatch
-       status (FIX C2 — Reference-Validator gates point award).
-    """
-    bad_artifacts: set[str] = {
-        c.artifact_path
-        for c in citations
-        if c.verification_status in (VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH)
-    }
-    awarded: float = 0.0
-    for rec in records:
-        if rec.artifact_path in bad_artifacts:
-            continue
-        live_hash = project.artifact_hashes.get(rec.artifact_path)
-        if live_hash and live_hash != rec.artifact_hash:
-            continue
-        author = _produced_by(project, rec.artifact_path)
-        if author and author == rec.reviewer_name:
-            continue
-        # Reject un-authenticated human reviews. Anyone could drop a
-        # YAML file into reviews/ claiming reviewer_kind=human; the
-        # github_authenticated flag is set only by the OAuth-backed
-        # submission flow.
-        if rec.reviewer_kind == ReviewerKind.HUMAN and not rec.github_authenticated:
-            continue
-        awarded += rec.score
-    target = (
-        project.points_paper if is_paper_stage else project.points_research
-    )
-    target = dict(target)
-    target[bucket] = round(target.get(bucket, 0.0) + awarded, 2)
-    if is_paper_stage:
-        return project.model_copy(update={"points_paper": target})
-    return project.model_copy(update={"points_research": target})
+# Spec 015 T041 / FR-019: `_award_review_points` was REMOVED with the point
+# system. Unanimous LLM-panel acceptance is now the sole gate; human and
+# simulated-personality reviews are advisory inputs via stage-aware triage
+# (`llmxive.convergence.triage`), never points. The `points_research` /
+# `points_paper` fields on Project are retained on disk for back-compat but no
+# advancement-decision path reads them.
 
 
 def _winning_recommendation(records: list[ReviewRecord]) -> str | None:
@@ -374,26 +333,28 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         else:
             return project
 
-    # Research-review handling (US3 wiring; placeholder logic now).
+    # Research-review handling.
+    # Spec 015 T041 / FR-019/FR-020: point system REMOVED. The sole gate is now
+    # unanimous LLM-panel acceptance (every required research_reviewer_* must
+    # have an accept record), matching the paper-side gate. No accumulated
+    # threshold, no _award_review_points call. Human / simulated-personality
+    # reviews are advisory inputs via stage-aware triage, never points.
     if project.current_stage == Stage.RESEARCH_REVIEW:
         records = reviews_store.list_for(project.id, stage="research", repo_root=repo_root)
-        project = _award_review_points(
-            project,
-            records,
-            bucket="research_review",
-            citations=cits,
-            is_paper_stage=False,
-        )
-        accept_total = sum(r.score for r in records if r.verdict == "accept")
         winning = _winning_recommendation(records)
         required = _required_specialists("research_reviewer_", repo_root=repo_root)
         all_accept = _all_specialists_accept(records, required)
-        # Both gates must pass: enough points AND every specialist accepts.
-        if (
-            accept_total >= RESEARCH_ACCEPT_THRESHOLD
-            and all_accept
-            and not _has_blocking_citations(cits)
-        ):
+        # Defensive default mirroring the paper-side
+        # `_all_specialists_accept_most_recent`: when no specialists are
+        # configured (e.g., a test harness without a registry), we additionally
+        # require ≥1 accept AND zero non-accept records. This replaces the
+        # backstop role the removed RESEARCH_ACCEPT_THRESHOLD used to play.
+        has_any_accept = any(r.verdict == "accept" for r in records)
+        has_any_non_accept = any(r.verdict != "accept" for r in records)
+        unanimous = all_accept and (
+            bool(required) or (has_any_accept and not has_any_non_accept)
+        )
+        if unanimous and not _has_blocking_citations(cits):
             return _transition(project, Stage.RESEARCH_ACCEPTED)
         if winning == "minor_revision":
             return _transition(project, Stage.RESEARCH_MINOR_REVISION)
@@ -403,16 +364,11 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
             return _transition(project, Stage.RESEARCH_REJECTED)
         return project  # not enough votes yet
 
-    # Paper-review handling (spec 012 convergence pipeline).
+    # Paper-review handling (spec 012 convergence pipeline; spec 015 T041 removed
+    # the redundant _award_review_points bookkeeping — the all-specialists-accept
+    # gate was always the actual decision).
     if project.current_stage == Stage.PAPER_REVIEW:
         records = reviews_store.list_for(project.id, stage="paper", repo_root=repo_root)
-        project = _award_review_points(
-            project,
-            records,
-            bucket="paper_review",
-            citations=cits,
-            is_paper_stage=True,
-        )
         required = _required_specialists("paper_reviewer_", repo_root=repo_root)
         # Spec 012 / FR-003: most-recent verdict per specialist against the
         # live artifact hash. For the live_hash, we use the most common
