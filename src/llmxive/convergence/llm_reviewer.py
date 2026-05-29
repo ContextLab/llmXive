@@ -137,8 +137,14 @@ _PROBLEMATIC_CHARS_RE = re.compile(r"['\"]")
 
 
 _FREE_TEXT_KEYS = ("text", "location", "response", "what_changed")
+# Matches a YAML key line OR a list-item-key line:
+#   "    text: value"
+#   "    - text: value"
+# The optional ``listmarker`` group captures the ``- `` prefix when it
+# applies, so the block-scalar wrapper can preserve it during repair.
 _KEY_LINE_RE = re.compile(
-    r"^(?P<indent>[ \t]*)(?P<key>[A-Za-z_][\w-]*)\s*:(?:\s+(?P<value>.*))?$"
+    r"^(?P<indent>[ \t]*)(?P<listmarker>-\s+)?(?P<key>[A-Za-z_][\w-]*)"
+    r"\s*:(?:\s+(?P<value>.*))?$"
 )
 _LIST_ITEM_RE = re.compile(r"^[ \t]*-(?:\s|$)")
 _DOC_BOUNDARY_RE = re.compile(r"^(?:---|\.\.\.)\s*$")
@@ -173,8 +179,15 @@ def _reformat_unquoted_scalars(yaml_text: str) -> str:
         ):
             key = m.group("key")
             indent = m.group("indent")
+            listmarker = m.group("listmarker") or ""
             value = m.group("value").rstrip()
-            inner_indent = indent + "  "
+            # The "effective" indent for block-scalar continuation is
+            # ``indent + listmarker`` (when the key was preceded by a
+            # ``- ``, the YAML continuation indent must align past the
+            # marker, not just past the leading whitespace). Inner indent
+            # for the scalar's content is +2 from there.
+            effective_indent = indent + listmarker
+            inner_indent = effective_indent + "  "
             # If the value already starts with a YAML scalar/flow
             # marker (``'``, ``"``, ``[``, ``{``, ``|``, ``>``), the LLM
             # already produced valid YAML — don't touch it. This
@@ -213,7 +226,10 @@ def _reformat_unquoted_scalars(yaml_text: str) -> str:
                 block_lines.append(nxt.strip())
                 j += 1
             if needs_repair:
-                out.append(f"{indent}{key}: |")
+                # Preserve the list-marker (``- ``) prefix when the key
+                # was at a list-item position; otherwise just emit the
+                # key + block-scalar indicator.
+                out.append(f"{indent}{listmarker}{key}: |")
                 for b in block_lines:
                     out.append(f"{inner_indent}{b}")
                 i = j
@@ -244,9 +260,13 @@ def _force_block_scalar_all_freetext_keys(yaml_text: str) -> str:
         m = _KEY_LINE_RE.match(line)
         if m is not None and m.group("key") in _FREE_TEXT_KEYS and m.group("value"):
             indent = m.group("indent")
+            listmarker = m.group("listmarker") or ""
             key = m.group("key")
             value = m.group("value").rstrip()
-            inner_indent = indent + "  "
+            # Preserve the list-marker (``- ``) prefix; YAML block-
+            # scalar continuation indent must align past the marker.
+            effective_indent = indent + listmarker
+            inner_indent = effective_indent + "  "
             # Strip leading/trailing quote chars from the value so a
             # block scalar doesn't start with " or '.
             cleaned = value.strip("\"'")
@@ -269,7 +289,7 @@ def _force_block_scalar_all_freetext_keys(yaml_text: str) -> str:
                     break
                 block_lines.append(nxt.strip().strip("\"'"))
                 j += 1
-            out.append(f"{indent}{key}: |")
+            out.append(f"{indent}{listmarker}{key}: |")
             for b in block_lines:
                 out.append(f"{inner_indent}{b}")
             i = j

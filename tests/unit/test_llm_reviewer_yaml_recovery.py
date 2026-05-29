@@ -246,6 +246,59 @@ def test_unbalanced_single_quoted_scalar_recovers():
     assert "p=0.04" in text
 
 
+def test_list_item_key_form_double_quoted_with_invalid_escape_recovers():
+    """Production crash from re-run 26613660779 (paper_implement):
+
+      LLMReviewer[figure_critic]: frontmatter is not valid YAML:
+      while scanning a double-quoted scalar
+        in "<unicode string>", line 8, column 11:
+            - text: "LaTeX source content for paper/ ...
+                      ^
+        found unknown escape character 'c'
+
+    Two failure modes combined:
+    1. The key is in list-item form (``- text: "..."``), so the
+       conservative repair's _KEY_LINE_RE used to NOT match (regex
+       only handled bare ``key: value``). Fixed by adding the
+       optional ``listmarker`` group to _KEY_LINE_RE.
+    2. The value is a double-quoted scalar containing ``\\c`` — YAML
+       interprets backslash sequences in double-quoted scalars and
+       crashes on unknown escapes. Fixed by Stage-3 aggressive repair
+       force-wrapping as block scalar (which uses LITERAL semantics,
+       no escape interpretation).
+    """
+    bad = (
+        "concerns:\n"
+        "    - severity: writing\n"
+        '      text: "LaTeX source content for paper/main.tex includes \\caption{...} '
+        'on line 12 — Figure 2 is referenced but missing"\n'
+    )
+    out = _safe_yaml_load(bad)
+    assert len(out["concerns"]) == 1
+    text = out["concerns"][0]["text"]
+    assert "LaTeX source content" in text
+    assert "Figure 2" in text
+
+
+def test_list_item_key_form_with_continuation_preserves_list_structure():
+    """When a list-item-form ``- text:`` value spans multiple lines
+    (mis-indented continuation), the repair must preserve the
+    list-marker prefix in the rewritten block scalar so the YAML
+    structure stays intact."""
+    bad = (
+        "concerns:\n"
+        "  - severity: writing\n"
+        "    text: First line that's a problem (with 'quotes')\n"
+        "  and a continuation that breaks parsing\n"
+        "  - severity: science\n"
+        "    text: second concern, well-formed\n"
+    )
+    out = _safe_yaml_load(bad)
+    assert len(out["concerns"]) == 2
+    assert "First line" in out["concerns"][0]["text"]
+    assert "second concern" in out["concerns"][1]["text"]
+
+
 def test_block_mapping_indent_error_falls_back_gracefully():
     """When the LLM emits a structurally-invalid YAML (e.g. wrong
     indentation creates an unparseable block mapping), the recovery
