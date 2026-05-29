@@ -263,3 +263,67 @@ def test_paper_plan_reviser_name():
 
 def test_plan_reviser_name():
     assert PlanReviser.name == "planner"
+
+
+# --- NEW delimited contract (robustness fix) ------------------------------
+
+
+def test_plan_reviser_parses_delimited_multi_artifact(tmp_path: Path):
+    """Multi-doc revisers MUST parse the delimited contract: one artifact
+    block per changed file, with bodies (LaTeX-ish, quote-heavy) taken
+    VERBATIM — no escaping that the old embedded-JSON form required."""
+    plan_key = "specs/000-x/plan.md"
+    data_model_key = "specs/000-x/data-model.md"
+    artifacts = {
+        plan_key: "# plan v1",
+        data_model_key: "# data-model v1",
+        "specs/000-x/spec.md": "# spec\n- FR-001: X",
+    }
+    concerns = [
+        Concern(
+            id="C1", reviewer="methodology", severity=Severity.METHODOLOGY,
+            artifact=plan_key, location="M", text="add control group.",
+        ),
+    ]
+    new_plan = 'Methodology: regression with control; uses "$R^2$" and \\beta.\n'
+    new_dm = "entity: trial\n  seed: int\n"
+    reply = (
+        "```json\n"
+        '{"responses": [{"concern_id": "C1", "response": "added control", '
+        '"what_changed": "plan gained control group", "artifacts_changed": ["'
+        + plan_key
+        + '"]}]}\n```\n\n'
+        f"===BEGIN_ARTIFACT {plan_key}===\n{new_plan}===END_ARTIFACT===\n"
+        f"===BEGIN_ARTIFACT {data_model_key}===\n{new_dm}===END_ARTIFACT===\n"
+    )
+    backend = _FakeBackend(response_text=reply)
+    reviser = PlanReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    updated, responses = reviser.revise(artifacts, concerns)
+
+    assert updated[plan_key] == new_plan.rstrip("\n")
+    assert updated[data_model_key] == new_dm.rstrip("\n")
+    # Unchanged source spec untouched.
+    assert updated["specs/000-x/spec.md"] == artifacts["specs/000-x/spec.md"]
+    assert responses[0].concern_id == "C1"
+
+
+def test_plan_reviser_delimited_rejects_path_outside_plan_set(tmp_path: Path):
+    """The path-validation still fires on the delimited contract: a block for
+    a non-plan path must raise (honest reporting), not silently land."""
+    plan_key = "specs/000-x/plan.md"
+    artifacts = {plan_key: "# plan v1", "specs/000-x/spec.md": "# spec"}
+    reply = (
+        "```json\n{\"responses\": []}\n```\n"
+        f"===BEGIN_ARTIFACT {plan_key}===\n# plan v2\n===END_ARTIFACT===\n"
+        "===BEGIN_ARTIFACT specs/000-x/spec.md===\n# malicious\n===END_ARTIFACT===\n"
+    )
+    backend = _FakeBackend(response_text=reply)
+    reviser = PlanReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    with pytest.raises(RuntimeError, match="outside the plan set"):
+        reviser.revise(artifacts, [])

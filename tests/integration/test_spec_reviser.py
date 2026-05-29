@@ -253,3 +253,81 @@ def test_revise_raises_when_no_spec_artifact_present(tmp_path: Path):
     )
     with pytest.raises(ValueError, match=r"no 'spec\.md' artifact"):
         reviser.revise({"idea/x.md": "hi"}, [])
+
+
+# --- NEW delimited contract (robustness fix) ------------------------------
+
+
+def test_revise_parses_delimited_format_with_hostile_body(tmp_path: Path):
+    """The reviser MUST parse the NEW delimited contract where the revised
+    spec.md is emitted VERBATIM between ===BEGIN_ARTIFACT/===END_ARTIFACT===
+    markers — including a body full of quotes / ``$`` / backslashes that would
+    have broken the old embedded-JSON-string ``json.loads``."""
+    spec_path = "specs/000-x/spec.md"
+    artifacts = {spec_path: _fixture_spec_with_markers()}
+    concerns = _fixture_concerns()
+
+    hostile_spec = (
+        "# Spec — PROJ-test-x\n\n"
+        'He wrote "threshold 0.5" and a LaTeX fence $\\alpha < 0.05$.\n'
+        "A regex: \\d+ and a path C:\\Users\\x.\n\n"
+        "## Functional Requirements\n- FR-002: use threshold 0.5.\n"
+    )
+    # The naive embedded-JSON form of this body is invalid JSON — proving the
+    # delimited contract is what makes it parse.
+    with pytest.raises(json.JSONDecodeError):
+        json.loads('{"new_spec_md": "' + hostile_spec + '"}')
+
+    reply = (
+        "```json\n"
+        '{"responses": ['
+        '{"concern_id": "C1", "response": "picked 0.5", '
+        '"what_changed": "FR-002 names 0.5", "artifacts_changed": ["'
+        + spec_path
+        + '"]},'
+        '{"concern_id": "C2", "response": "pinned SC", '
+        '"what_changed": "added test path", "artifacts_changed": ["'
+        + spec_path
+        + '"]}]}\n'
+        "```\n\n"
+        f"===BEGIN_ARTIFACT {spec_path}===\n"
+        f"{hostile_spec}\n"
+        "===END_ARTIFACT===\n"
+    )
+    backend = _FakeBackend(response_text=reply)
+    reviser = SpecReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    updated, responses = reviser.revise(artifacts, concerns)
+
+    assert updated[spec_path] == hostile_spec
+    assert {r.concern_id for r in responses} == {"C1", "C2"}
+    assert all(r.artifacts_changed == [spec_path] for r in responses)
+
+    # The prompt MUST now carry the delimited-contract instruction.
+    user_msg = backend.last_messages[1].content
+    assert "===BEGIN_ARTIFACT" in user_msg
+    assert spec_path in user_msg
+
+
+def test_revise_backward_compat_legacy_new_spec_md(tmp_path: Path):
+    """A backend that still answers in the OLD embedded-JSON ``new_spec_md``
+    shape MUST keep working (no delimited markers → legacy fallback)."""
+    spec_path = "specs/000-x/spec.md"
+    artifacts = {spec_path: _fixture_spec_with_markers()}
+    fake_reply = {
+        "new_spec_md": "# legacy revised spec\nFR-002: threshold 0.5\n",
+        "responses": [
+            {"concern_id": "C1", "response": "ok", "what_changed": "done",
+             "artifacts_changed": [spec_path]},
+        ],
+    }
+    backend = _FakeBackend(response_text=json.dumps(fake_reply))
+    reviser = SpecReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    updated, responses = reviser.revise(artifacts, _fixture_concerns()[:1])
+    assert updated[spec_path] == "# legacy revised spec\nFR-002: threshold 0.5\n"
+    assert responses[0].concern_id == "C1"

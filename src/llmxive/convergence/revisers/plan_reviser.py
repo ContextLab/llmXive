@@ -25,7 +25,6 @@ addresses panel concerns that the deterministic guards couldn't catch
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +33,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -41,7 +45,6 @@ from ._self_consistency import (
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
-    _strip_json_fences,
 )
 
 # Artifact path-suffix patterns that mark "plan-stage" artifacts the reviser
@@ -240,30 +243,14 @@ class _AbstractPlanReviser:
             "# Recent reviewer / personality comments\n\n"
             f"{comments_block or '(no recent comments)'}\n\n"
             "# Task\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "updated_artifacts": {\n'
-            '    "<artifact_path>": "<the FULL revised content of that file>"\n'
-            "  },\n"
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<how you addressed this concern>",\n'
-            '     "what_changed": "<concrete diff summary>",\n'
-            '     "artifacts_changed": ["<one of the artifact paths above>"]}\n'
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `updated_artifacts` MUST include the FULL revised text of every "
-            "  artifact you change. Omit unchanged artifacts entirely (do NOT "
-            "  re-emit them with identical content).\n"
-            "- The paths you may emit MUST match these inputs exactly:\n"
-            f"{artifact_paths}\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
+            "Revise the plan-stage artifacts to address every panel concern. "
+            "Emit one artifact block per file you change; omit unchanged files. "
+            "The paths you may emit MUST match these inputs exactly:\n"
+            f"{artifact_paths}\n\n"
             "- If a concern is rooted in the source spec (not the plan), "
-            "  describe what's needed in `response` and tag `what_changed` "
-            "  with 'spec-root cause; flagged for kickback'.\n"
+            "describe what's needed in `response` and set `what_changed` to "
+            "'spec-root cause; flagged for kickback'.\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -281,20 +268,20 @@ class _AbstractPlanReviser:
         concerns: list[Concern],
         valid_paths: list[str],
     ) -> tuple[dict[str, str], list[ConcernResponse]]:
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            raw_updates, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=valid_paths
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"{type(self).__name__}: backend did not return parseable JSON: "
                 f"{exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        raw_updates = obj.get("updated_artifacts")
-        if not isinstance(raw_updates, dict):
+        if not raw_updates:
             raise RuntimeError(
                 f"{type(self).__name__}: response JSON has no usable "
-                f"'updated_artifacts' map; got: {type(raw_updates).__name__}"
+                "'updated_artifacts' map; got: 0 artifacts"
             )
         valid_set = set(valid_paths)
         updates: dict[str, str] = {}
@@ -312,35 +299,7 @@ class _AbstractPlanReviser:
                 f"outside the plan set: {rejected!r}. Valid: {sorted(valid_set)!r}"
             )
 
-        responses_raw = obj.get("responses") or []
-        by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
-
-        responses: list[ConcernResponse] = []
-        for c in concerns:
-            r = by_id.get(c.id)
-            if r is None:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=c.id,
-                        response="<missing>",
-                        what_changed="reviser produced no response for this concern",
-                        artifacts_changed=[],
-                    )
-                )
-                continue
-            responses.append(
-                ConcernResponse(
-                    concern_id=c.id,
-                    response=str(r.get("response", "")).strip() or "<empty>",
-                    what_changed=str(r.get("what_changed", "")).strip() or "<empty>",
-                    artifacts_changed=[
-                        str(x) for x in (r.get("artifacts_changed") or [])
-                    ],
-                )
-            )
+        responses = build_concern_responses(responses_raw, concerns)
         return updates, responses
 
 

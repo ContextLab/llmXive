@@ -18,7 +18,6 @@ to fix a flagged figure / stat / section. NO per-sub-agent review.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +26,7 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import RESPONSE_FORMAT_BLOCK, parse_reviser_response
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -35,7 +35,6 @@ from .implementer_reviser import _PER_ARTIFACT_SUMMARIZE_THRESHOLD_TOKENS
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
-    _strip_json_fences,
 )
 
 
@@ -285,37 +284,23 @@ class PaperImplementReviser:
             "You are the paper_implementer dispatcher. For each concern, "
             "dispatch internally to the right sub-agent (paper_writing, "
             "paper_figure_generation, paper_statistics, proofreader, "
-            "latex_build/latex_fix) and emit the revised file(s).\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "updated_artifacts": {\n'
-            '    "<artifact_path>": "<the FULL new file contents>"\n'
-            "  },\n"
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<which sub-agent handled this + the fix>",\n'
-            '     "what_changed": "<concrete diff summary>",\n'
-            '     "artifacts_changed": ["<paths actually edited>"],\n'
-            '     "dispatched_to": "<paper_writing|paper_figure_generation|'
-            "paper_statistics|proofreader|latex_fix>\"}\n"
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `updated_artifacts` MUST contain the FULL new contents of "
-            "  every file you change (not patches). Omit unchanged files.\n"
-            "- The paths you may emit MUST match these inputs exactly:\n"
-            f"{artifact_paths}\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
-            "- Science- or methodology-class concerns belong to the "
-            "  research side, not the paper. For those: describe what's "
-            "  needed in `response` and tag `what_changed` with "
-            "  'science-root cause; flagged for kickback to research side'.\n"
-            "- Numerical fences: when revising a numerical claim, the "
-            "  result MUST stay within the paper spec's declared fence "
-            "  range. If the actual result violates the fence, flag it as "
-            "  science-root cause — do NOT massage the number to fit.\n"
+            "latex_build/latex_fix) and emit the revised file(s). Emit one "
+            "artifact block per file you change; omit unchanged files. The "
+            "paths you may emit MUST match these inputs exactly:\n"
+            f"{artifact_paths}\n\n"
+            "Each change-log entry MAY additionally carry a "
+            '"dispatched_to" field naming the sub-agent that handled it '
+            "(paper_writing|paper_figure_generation|paper_statistics|"
+            "proofreader|latex_fix).\n\n"
+            "- Science- or methodology-class concerns belong to the research "
+            "side, not the paper. For those: describe what's needed in "
+            "`response` and set `what_changed` to 'science-root cause; flagged "
+            "for kickback to research side'.\n"
+            "- Numerical fences: when revising a numerical claim, the result "
+            "MUST stay within the paper spec's declared fence range. If the "
+            "actual result violates the fence, flag it as science-root cause — "
+            "do NOT massage the number to fit.\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -333,21 +318,16 @@ class PaperImplementReviser:
         concerns: list[Concern],
         valid_paths: list[str],
     ) -> tuple[dict[str, str], list[ConcernResponse]]:
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            raw_updates, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=valid_paths
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"PaperImplementReviser: backend did not return parseable "
                 f"JSON: {exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        raw_updates = obj.get("updated_artifacts")
-        if not isinstance(raw_updates, dict):
-            raise RuntimeError(
-                "PaperImplementReviser: response JSON has no usable "
-                f"'updated_artifacts' map; got: {type(raw_updates).__name__}"
-            )
         valid_set = set(valid_paths)
         updates: dict[str, str] = {}
         rejected: list[str] = []
@@ -363,11 +343,10 @@ class PaperImplementReviser:
                 f"Valid: {sorted(valid_set)!r}"
             )
 
-        responses_raw = obj.get("responses") or []
         by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
+        for raw in responses_raw:
+            if isinstance(raw.get("concern_id"), str):
+                by_id[raw["concern_id"]] = raw
 
         responses: list[ConcernResponse] = []
         for c in concerns:

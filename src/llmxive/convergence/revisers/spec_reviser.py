@@ -24,7 +24,6 @@ reviser must see the full text it is editing.
 
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,6 +34,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -153,7 +157,7 @@ class SpecReviser:
         ) -> tuple[dict[str, str], list[ConcernResponse]]:
             # The reviser MUST produce a structured response so the engine can
             # build ConcernResponse records without re-parsing the spec body.
-            messages = self._build_messages(bundle, concerns, extra_instructions)
+            messages = self._build_messages(bundle, concerns, spec_path, extra_instructions)
             response_text = self._call_backend(messages)
             new_spec, responses = self._parse_response(
                 response_text, concerns, spec_path
@@ -231,7 +235,11 @@ class SpecReviser:
         return bundle
 
     def _build_messages(
-        self, bundle: _SpecBundle, concerns: list[Concern], extra_instructions: str = ""
+        self,
+        bundle: _SpecBundle,
+        concerns: list[Concern],
+        spec_path: str,
+        extra_instructions: str = "",
     ) -> list[ChatMessage]:
         """Compose the system + user messages for the revision call.
 
@@ -271,26 +279,13 @@ class SpecReviser:
             "# Recent reviewer / personality comments\n\n"
             f"{bundle.comments_block or '(no recent comments)'}\n\n"
             "# Task\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "new_spec_md": "<the FULL revised spec.md, all sections>",\n'
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<how you addressed this concern>",\n'
-            '     "what_changed": "<concrete diff summary>",\n'
-            '     "artifacts_changed": ["spec.md"]}\n'
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `new_spec_md` MUST be the complete spec.md (not a patch / diff).\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
-            "- Every `[NEEDS CLARIFICATION]` marker MUST be replaced with a real "
-            "  answer in `new_spec_md` (no markers remain).\n"
-            "- If a concern cannot be addressed without idea-level changes, "
-            "  describe what's needed in `response` and leave `what_changed` "
-            "  saying 'idea-root cause; flagged for kickback'.\n"
+            "Revise `spec.md` to address every panel concern AND replace every "
+            "`[NEEDS CLARIFICATION]` marker with a real answer (no markers may "
+            f"remain). The ONLY editable artifact is:\n- {spec_path}\n\n"
+            "If a concern cannot be addressed without idea-level changes, "
+            "describe what's needed in `response` and set `what_changed` to "
+            "'idea-root cause; flagged for kickback'.\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -312,57 +307,37 @@ class SpecReviser:
         """Parse the LLM's JSON reply; return (new_spec_md, [ConcernResponse, ...]).
 
         Failure modes the reviser handles HONESTLY (no silent papering-over):
-        - Missing JSON: raises ``RuntimeError`` (engine treats as non-convergence).
-        - Missing ``new_spec_md`` field: raises.
+        - Neither delimited markers nor parseable legacy JSON: raises
+          ``RuntimeError`` (engine treats as non-convergence).
+        - Parseable but no revised spec.md: raises ``no usable 'new_spec_md'``.
         - Fewer responses than concerns: pads with explicit "no response from
           reviser" entries flagged as ``response="<missing>"`` so the engine's
           R3 phase sees them and fails the concern.
+
+        The new delimited contract (``===BEGIN_ARTIFACT <path>===``) carries the
+        spec body VERBATIM so quotes / ``$`` / backslashes can never break the
+        parse; legacy ``new_spec_md`` JSON still parses for backward compat.
         """
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            artifacts_by_path, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=[spec_path]
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"SpecReviser: backend did not return parseable JSON: {exc}; "
                 f"first 200 chars of response: {response_text[:200]!r}"
             ) from exc
 
-        new_spec = obj.get("new_spec_md")
+        new_spec = artifacts_by_path.get(spec_path)
         if not isinstance(new_spec, str) or not new_spec.strip():
             raise RuntimeError(
                 "SpecReviser: response JSON has no usable 'new_spec_md' string; "
                 f"got: {type(new_spec).__name__}"
             )
 
-        responses_raw = obj.get("responses") or []
-        by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
-
-        responses: list[ConcernResponse] = []
-        for c in concerns:
-            r = by_id.get(c.id)
-            if r is None:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=c.id,
-                        response="<missing>",
-                        what_changed="reviser produced no response for this concern",
-                        artifacts_changed=[],
-                    )
-                )
-                continue
-            responses.append(
-                ConcernResponse(
-                    concern_id=c.id,
-                    response=str(r.get("response", "")).strip() or "<empty>",
-                    what_changed=str(r.get("what_changed", "")).strip() or "<empty>",
-                    artifacts_changed=[
-                        str(x) for x in (r.get("artifacts_changed") or [spec_path])
-                    ],
-                )
-            )
+        responses = build_concern_responses(
+            responses_raw, concerns, default_artifacts=[spec_path]
+        )
         return new_spec, responses
 
 

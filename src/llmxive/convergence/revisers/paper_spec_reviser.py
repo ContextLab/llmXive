@@ -21,7 +21,6 @@ Differences from the research-side SpecReviser:
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +29,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -38,7 +42,6 @@ from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
     _scan_markers,
-    _strip_json_fences,
 )
 
 
@@ -131,6 +134,7 @@ class PaperSpecReviser:
         ) -> tuple[dict[str, str], list[ConcernResponse]]:
             messages = self._build_messages(
                 paper_spec_md=paper_spec_md,
+                spec_path=spec_path,
                 research_bundle=research_bundle,
                 code_summary=code_summary,
                 data_summary=data_summary,
@@ -199,6 +203,7 @@ class PaperSpecReviser:
         self,
         *,
         paper_spec_md: str,
+        spec_path: str,
         research_bundle: str,
         code_summary: str,
         data_summary: str,
@@ -239,26 +244,14 @@ class PaperSpecReviser:
             "# Recent reviewer / personality comments\n\n"
             f"{comments_block or '(no recent comments)'}\n\n"
             "# Task\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "new_spec_md": "<the FULL revised paper spec.md>",\n'
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<how you addressed this concern>",\n'
-            '     "what_changed": "<concrete diff summary>",\n'
-            '     "artifacts_changed": ["paper/spec.md"]}\n'
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `new_spec_md` MUST be the complete paper spec.md.\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
-            "- Every `[NEEDS CLARIFICATION]` marker MUST be replaced.\n"
+            "Revise the paper spec.md to address every panel concern AND "
+            "replace every `[NEEDS CLARIFICATION]` marker. The ONLY editable "
+            f"artifact is:\n- {spec_path}\n\n"
             "- If a concern is rooted in the research-side science (not the "
-            "  paper spec text itself), describe what's needed in `response` "
-            "  and tag `what_changed` with 'science-root cause; flagged for "
-            "  kickback to research side'.\n"
+            "paper spec text itself), describe what's needed in `response` and "
+            "set `what_changed` to 'science-root cause; flagged for kickback "
+            "to research side'.\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -273,51 +266,26 @@ class PaperSpecReviser:
     def _parse_response(
         self, response_text: str, concerns: list[Concern], spec_path: str
     ) -> tuple[str, list[ConcernResponse]]:
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            artifacts_by_path, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=[spec_path]
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"PaperSpecReviser: backend did not return parseable JSON: "
                 f"{exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        new_spec = obj.get("new_spec_md")
+        new_spec = artifacts_by_path.get(spec_path)
         if not isinstance(new_spec, str) or not new_spec.strip():
             raise RuntimeError(
                 "PaperSpecReviser: response JSON has no usable 'new_spec_md' "
                 f"string; got: {type(new_spec).__name__}"
             )
 
-        responses_raw = obj.get("responses") or []
-        by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
-
-        responses: list[ConcernResponse] = []
-        for c in concerns:
-            r = by_id.get(c.id)
-            if r is None:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=c.id,
-                        response="<missing>",
-                        what_changed="reviser produced no response for this concern",
-                        artifacts_changed=[],
-                    )
-                )
-                continue
-            responses.append(
-                ConcernResponse(
-                    concern_id=c.id,
-                    response=str(r.get("response", "")).strip() or "<empty>",
-                    what_changed=str(r.get("what_changed", "")).strip() or "<empty>",
-                    artifacts_changed=[
-                        str(x) for x in (r.get("artifacts_changed") or [spec_path])
-                    ],
-                )
-            )
+        responses = build_concern_responses(
+            responses_raw, concerns, default_artifacts=[spec_path]
+        )
         return new_spec, responses
 
 

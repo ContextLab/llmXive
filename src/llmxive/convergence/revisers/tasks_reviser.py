@@ -28,7 +28,6 @@ NEVER the current tasks.md or the current analyze report) through
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -37,6 +36,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -44,7 +48,6 @@ from ._self_consistency import (
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
-    _strip_json_fences,
 )
 
 
@@ -166,6 +169,7 @@ class _AbstractTasksReviser:
         ) -> tuple[dict[str, str], list[ConcernResponse]]:
             messages = self._build_messages(
                 tasks_md=tasks_md,
+                tasks_path=tasks_path,
                 spec_md=spec_md,
                 plan_md=plan_md,
                 analyze_report=analyze_report,
@@ -215,6 +219,7 @@ class _AbstractTasksReviser:
         self,
         *,
         tasks_md: str,
+        tasks_path: str,
         spec_md: str,
         plan_md: str,
         analyze_report: str,
@@ -253,29 +258,17 @@ class _AbstractTasksReviser:
             "# Recent reviewer / personality comments\n\n"
             f"{comments_block or '(no recent comments)'}\n\n"
             "# Task\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "new_tasks_md": "<the FULL revised tasks.md document>",\n'
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<how you addressed this concern>",\n'
-            '     "what_changed": "<concrete diff summary>",\n'
-            '     "artifacts_changed": ["tasks.md"]}\n'
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `new_tasks_md` MUST be the COMPLETE tasks.md (not a patch).\n"
-            "- You MUST preserve every existing `T###` id that is still "
-            "  in scope; renumbering causes downstream-task confusion.\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
+            "Rewrite tasks.md to address every panel concern. The ONLY "
+            f"editable artifact is:\n- {tasks_path}\n\n"
+            "- You MUST preserve every existing `T###` id that is still in "
+            "scope; renumbering causes downstream-task confusion.\n"
             "- If a concern is rooted in the plan (not the tasks), describe "
-            "  what's needed in `response` and tag `what_changed` with "
-            "  'plan-root cause; flagged for kickback'.\n"
+            "what's needed in `response` and set `what_changed` to "
+            "'plan-root cause; flagged for kickback'.\n"
             "- Do NOT weaken any FR/SC the spec declares — task deliverables "
-            "  must MATCH or EXCEED the spec's constraint level "
-            "  (FR-012 / `constraint_preservation` lens).\n"
+            "must MATCH or EXCEED the spec's constraint level "
+            "(FR-012 / `constraint_preservation` lens).\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -290,51 +283,26 @@ class _AbstractTasksReviser:
     def _parse_response(
         self, response_text: str, concerns: list[Concern], tasks_path: str
     ) -> tuple[str, list[ConcernResponse]]:
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            artifacts_by_path, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=[tasks_path]
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"{type(self).__name__}: backend did not return parseable JSON: "
                 f"{exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        new_tasks = obj.get("new_tasks_md")
+        new_tasks = artifacts_by_path.get(tasks_path)
         if not isinstance(new_tasks, str) or not new_tasks.strip():
             raise RuntimeError(
                 f"{type(self).__name__}: response JSON has no usable "
                 f"'new_tasks_md' string; got: {type(new_tasks).__name__}"
             )
 
-        responses_raw = obj.get("responses") or []
-        by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
-
-        responses: list[ConcernResponse] = []
-        for c in concerns:
-            r = by_id.get(c.id)
-            if r is None:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=c.id,
-                        response="<missing>",
-                        what_changed="reviser produced no response for this concern",
-                        artifacts_changed=[],
-                    )
-                )
-                continue
-            responses.append(
-                ConcernResponse(
-                    concern_id=c.id,
-                    response=str(r.get("response", "")).strip() or "<empty>",
-                    what_changed=str(r.get("what_changed", "")).strip() or "<empty>",
-                    artifacts_changed=[
-                        str(x) for x in (r.get("artifacts_changed") or [tasks_path])
-                    ],
-                )
-            )
+        responses = build_concern_responses(
+            responses_raw, concerns, default_artifacts=[tasks_path]
+        )
         return new_tasks, responses
 
 

@@ -23,7 +23,6 @@ than the spec reviser's.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +31,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -39,7 +43,6 @@ from ._self_consistency import (
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
-    _strip_json_fences,
 )
 
 # Suffixes the engine may pass for the idea artifact. The idea body is the
@@ -133,6 +136,7 @@ class FleshOutReviser:
         ) -> tuple[dict[str, str], list[ConcernResponse]]:
             messages = self._build_messages(
                 idea_md=idea_md,
+                idea_path=idea_path,
                 comments_block=comments_block,
                 concerns=concerns,
                 extra_instructions=extra_instructions,
@@ -173,6 +177,7 @@ class FleshOutReviser:
         self,
         *,
         idea_md: str,
+        idea_path: str,
         comments_block: str,
         concerns: list[Concern],
         extra_instructions: str = "",
@@ -198,29 +203,17 @@ class FleshOutReviser:
             "# Recent reviewer / personality comments\n\n"
             f"{comments_block or '(no recent comments)'}\n\n"
             "# Task\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "new_idea_md": "<the FULL revised idea Markdown, all sections>",\n'
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<how you addressed this concern>",\n'
-            '     "what_changed": "<concrete description of the change>",\n'
-            '     "artifacts_changed": ["idea/<slug>.md"]}\n'
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `new_idea_md` MUST be the COMPLETE rewritten idea (not a patch / diff).\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
+            "Rewrite the idea Markdown to address every panel concern. The "
+            f"ONLY editable artifact is:\n- {idea_path}\n\n"
             "- Preserve any existing `## Search trail` block verbatim — it is "
-            "  written by the librarian, not yours to edit.\n"
+            "written by the librarian, not yours to edit.\n"
             "- If a concern's root cause is upstream of the idea body (the "
-            "  brainstormed seed is itself unsalvageable), describe what's "
-            "  needed in `response` and tag `what_changed` with "
-            "  'idea-root cause; flagged for kickback'.\n"
+            "brainstormed seed is itself unsalvageable), describe what's needed "
+            "in `response` and set `what_changed` to "
+            "'idea-root cause; flagged for kickback'.\n"
             "- NEVER fabricate citations — reference only items already cited "
-            "  in the idea body.\n"
+            "in the idea body.\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -239,59 +232,38 @@ class FleshOutReviser:
         concerns: list[Concern],
         idea_path: str,
     ) -> tuple[str, list[ConcernResponse]]:
-        """Parse the LLM's JSON reply; return (new_idea_md, [ConcernResponse, ...]).
+        """Parse the LLM reply; return (new_idea_md, [ConcernResponse, ...]).
 
         Failure modes (NO silent papering-over):
-        - Missing/unparseable JSON: raises ``RuntimeError``.
-        - Missing ``new_idea_md``: raises.
-        - Fewer responses than concerns: pads with explicit
-          ``<missing>`` entries so R3 sees them and fails the concern.
+        - Neither delimited markers nor parseable legacy JSON: ``RuntimeError``.
+        - Parseable but no revised idea body: raises ``no usable 'new_idea_md'``.
+        - Fewer responses than concerns: pads with explicit ``<missing>``
+          entries so R3 sees them and fails the concern.
+
+        The delimited contract carries the idea body VERBATIM so quotes / ``$``
+        / backslashes can never break the parse; legacy ``new_idea_md`` JSON
+        still parses for backward compat.
         """
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            artifacts_by_path, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=[idea_path]
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"FleshOutReviser: backend did not return parseable JSON: {exc}; "
                 f"first 200 chars of response: {response_text[:200]!r}"
             ) from exc
 
-        new_idea = obj.get("new_idea_md")
+        new_idea = artifacts_by_path.get(idea_path)
         if not isinstance(new_idea, str) or not new_idea.strip():
             raise RuntimeError(
                 "FleshOutReviser: response JSON has no usable 'new_idea_md' "
                 f"string; got: {type(new_idea).__name__}"
             )
 
-        responses_raw = obj.get("responses") or []
-        by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
-
-        responses: list[ConcernResponse] = []
-        for c in concerns:
-            r = by_id.get(c.id)
-            if r is None:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=c.id,
-                        response="<missing>",
-                        what_changed="reviser produced no response for this concern",
-                        artifacts_changed=[],
-                    )
-                )
-                continue
-            responses.append(
-                ConcernResponse(
-                    concern_id=c.id,
-                    response=str(r.get("response", "")).strip() or "<empty>",
-                    what_changed=str(r.get("what_changed", "")).strip() or "<empty>",
-                    artifacts_changed=[
-                        str(x) for x in (r.get("artifacts_changed") or [idea_path])
-                    ],
-                )
-            )
+        responses = build_concern_responses(
+            responses_raw, concerns, default_artifacts=[idea_path]
+        )
         return new_idea, responses
 
 

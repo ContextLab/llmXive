@@ -25,7 +25,6 @@ written back when the LLM emits edits — summarization is for the
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any
@@ -35,6 +34,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -42,7 +46,6 @@ from ._self_consistency import (
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
-    _strip_json_fences,
 )
 
 # Per-artifact threshold above which we summarize for the prompt. This is
@@ -342,35 +345,19 @@ class ImplementerReviser:
             "# Recent reviewer / personality comments\n\n"
             f"{comments_block or '(no recent comments)'}\n\n"
             "# Task\n\n"
-            "Return a single JSON document with this exact shape:\n\n"
-            "```json\n"
-            "{\n"
-            '  "updated_artifacts": {\n'
-            '    "<artifact_path>": "<the FULL new file contents>"\n'
-            "  },\n"
-            '  "responses": [\n'
-            '    {"concern_id": "<id>",\n'
-            '     "response": "<how you addressed this concern>",\n'
-            '     "what_changed": "<concrete diff summary + which files>",\n'
-            '     "artifacts_changed": ["<artifact paths actually edited>"]}\n'
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "Rules:\n"
-            "- `updated_artifacts` MUST contain the FULL new contents of "
-            "  every file you change (not patches). Omit unchanged files.\n"
-            "- The paths you may emit MUST match these inputs exactly:\n"
-            f"{artifact_paths}\n"
-            "- Every panel concern MUST have one entry in `responses`.\n"
+            "Revise the code/data artifacts to address every panel concern. "
+            "Emit one artifact block per file you change; omit unchanged files. "
+            "The paths you may emit MUST match these inputs exactly:\n"
+            f"{artifact_paths}\n\n"
             "- Code-class concerns are fixed in-loop. Methodology- or "
-            "  science-class concerns are described in `response` with "
-            "  `what_changed` tagged 'methodology-root cause; flagged "
-            "  for kickback' (the engine will route them to the right "
-            "  earlier stage).\n"
+            "science-class concerns are described in `response` with "
+            "`what_changed` set to 'methodology-root cause; flagged for "
+            "kickback' (the engine will route them to the right earlier "
+            "stage).\n"
             "- Real-only (Constitution V): do NOT introduce mocks, fake "
-            "  fallbacks, or paid-only model calls. If a concern would "
-            "  require those, leave the code unchanged and explain why "
-            "  in `response`.\n"
+            "fallbacks, or paid-only model calls. If a concern would require "
+            "those, leave the code unchanged and explain why in `response`.\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
         user_text += extra_instructions
 
@@ -388,21 +375,20 @@ class ImplementerReviser:
         concerns: list[Concern],
         valid_paths: list[str],
     ) -> tuple[dict[str, str], list[ConcernResponse]]:
-        payload = _strip_json_fences(response_text)
         try:
-            obj = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            raw_updates, responses_raw = parse_reviser_response(
+                response_text, expected_artifacts=valid_paths
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
                 f"ImplementerReviser: backend did not return parseable JSON: "
                 f"{exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        raw_updates = obj.get("updated_artifacts")
-        if not isinstance(raw_updates, dict):
-            raise RuntimeError(
-                "ImplementerReviser: response JSON has no usable "
-                f"'updated_artifacts' map; got: {type(raw_updates).__name__}"
-            )
+        # An EMPTY artifact map is legitimate here: the implementer may make
+        # zero code edits in a round and still surface filesystem-verification
+        # findings (issue #49). So — unlike the spec/tasks revisers — we do
+        # NOT raise on an empty map.
         valid_set = set(valid_paths)
         updates: dict[str, str] = {}
         rejected: list[str] = []
@@ -418,35 +404,7 @@ class ImplementerReviser:
                 f"Valid: {sorted(valid_set)!r}"
             )
 
-        responses_raw = obj.get("responses") or []
-        by_id: dict[str, dict[str, Any]] = {}
-        for r in responses_raw:
-            if isinstance(r, dict) and isinstance(r.get("concern_id"), str):
-                by_id[r["concern_id"]] = r
-
-        responses: list[ConcernResponse] = []
-        for c in concerns:
-            r = by_id.get(c.id)
-            if r is None:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=c.id,
-                        response="<missing>",
-                        what_changed="reviser produced no response for this concern",
-                        artifacts_changed=[],
-                    )
-                )
-                continue
-            responses.append(
-                ConcernResponse(
-                    concern_id=c.id,
-                    response=str(r.get("response", "")).strip() or "<empty>",
-                    what_changed=str(r.get("what_changed", "")).strip() or "<empty>",
-                    artifacts_changed=[
-                        str(x) for x in (r.get("artifacts_changed") or [])
-                    ],
-                )
-            )
+        responses = build_concern_responses(responses_raw, concerns)
         return updates, responses
 
 
