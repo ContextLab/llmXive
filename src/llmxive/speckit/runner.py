@@ -120,4 +120,4 @@ def init_speckit_in(project_dir: Path) -> None:
     (target_root / "memory").mkdir(exist_ok=True)
 
 
-__all__ = ["run_script", "init_speckit_in"]
+__all__ = ["init_speckit_in", "run_script"]

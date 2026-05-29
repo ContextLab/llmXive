@@ -16,12 +16,11 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from collections.abc import Iterable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable
 
 import yaml
-
 
 SCHEMA_VERSION = 1
 
@@ -115,7 +114,7 @@ def record_round(
     rounds = existing.setdefault("rounds", [])
     rounds.append({
         "round_number": len(rounds) + 1,
-        "triggered_at": datetime.now(timezone.utc).isoformat(),
+        "triggered_at": datetime.now(UTC).isoformat(),
         "verdict_class": verdict_class,
         "note": note,
         "action_items": items_yaml,
@@ -154,7 +153,7 @@ def append_rejection_rationale(
     rationale_lines = [
         "",
         "",
-        f"## Rejection rationale ({datetime.now(timezone.utc).date().isoformat()})",
+        f"## Rejection rationale ({datetime.now(UTC).date().isoformat()})",
         "",
         "Paper-stage review found one or more `fatal`-severity action items. "
         "The underlying research question is returned to the backlog so a "
@@ -175,7 +174,7 @@ def append_rejection_rationale(
 
 __all__ = [
     "SCHEMA_VERSION",
+    "append_rejection_rationale",
     "is_arxiv_intake",
     "record_round",
-    "append_rejection_rationale",
 ]

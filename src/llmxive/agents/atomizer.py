@@ -18,13 +18,11 @@ from uuid import uuid4
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
-
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 MAX_ATOMIZATION_DEPTH = 4
 
@@ -88,4 +86,4 @@ class TaskAtomizerAgent(Agent):
         return [str(out_path.relative_to(repo))]
 
 
-__all__ = ["TaskAtomizerAgent", "MAX_ATOMIZATION_DEPTH"]
+__all__ = ["MAX_ATOMIZATION_DEPTH", "TaskAtomizerAgent"]

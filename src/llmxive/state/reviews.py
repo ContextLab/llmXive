@@ -23,7 +23,6 @@ import yaml
 from llmxive.contract_validate import validate
 from llmxive.types import ReviewRecord
 
-
 _FRONTMATTER_RE: re.Pattern[str] = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
     re.DOTALL,
@@ -128,4 +127,4 @@ def prior_reviews_for_specialist(
     return matching
 
 
-__all__ = ["write", "read", "list_for", "prior_reviews_for_specialist", "SelfReviewRefused"]
+__all__ = ["SelfReviewRefused", "list_for", "prior_reviews_for_specialist", "read", "write"]

@@ -11,7 +11,7 @@ immediately with a precondition-specific message, not silent skips.
 from __future__ import annotations
 
 import json
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +26,7 @@ CONTRACTS_DIR: Path = (
 )
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_schema(name: str) -> dict[str, Any]:
     candidates = [
         CONTRACTS_DIR / f"{name}.schema.yaml",
@@ -74,4 +74,4 @@ def list_contracts() -> list[str]:
     return names
 
 
-__all__ = ["validate", "is_valid", "list_contracts", "CONTRACTS_DIR"]
+__all__ = ["CONTRACTS_DIR", "is_valid", "list_contracts", "validate"]

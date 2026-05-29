@@ -27,7 +27,6 @@ from llmxive.librarian.dataset_resolver import (
 from llmxive.speckit.runner import run_script
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
-
 _FILE_MARKER_RE = re.compile(
     r"<!--\s*FILE:\s*(?P<path>[^\s]+)\s*-->\s*\n",
     re.IGNORECASE,
@@ -182,7 +181,7 @@ class PlannerAgent(SlashCommandAgent):
             feature_dir = repo / feature_dir
         feature_dir.mkdir(parents=True, exist_ok=True)
 
-        from llmxive.speckit._real_only_guard import guard_emit, TemplateRefused
+        from llmxive.speckit._real_only_guard import guard_emit
         from llmxive.speckit._research_guard import (
             assert_artifact_set_complete,
             assert_data_model_contracts_consistent,

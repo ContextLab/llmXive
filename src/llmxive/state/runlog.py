@@ -9,7 +9,7 @@ postmortem (FIX C7 — guarantees SC-003 100% compliance).
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from jsonschema import ValidationError
@@ -63,7 +63,7 @@ def append_entry(entry: RunLogEntry, *, repo_root: Path | None = None) -> Path:
     _check_cost_invariant(entry)
 
     state_dir = (repo_root / "state") if repo_root else _state_root()
-    month = entry.started_at.astimezone(timezone.utc).strftime("%Y-%m")
+    month = entry.started_at.astimezone(UTC).strftime("%Y-%m")
     log_dir = state_dir / "run-log" / month
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / f"{entry.run_id}.jsonl"
@@ -130,13 +130,13 @@ def latest_for_project(project_id: str, *, repo_root: Path | None = None) -> Run
 
 def now_utc() -> datetime:
     """UTC-aware current time helper used across run-log writers."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 __all__ = [
+    "CostInvariantError",
     "append_entry",
-    "read_entries",
     "latest_for_project",
     "now_utc",
-    "CostInvariantError",
+    "read_entries",
 ]

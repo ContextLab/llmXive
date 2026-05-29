@@ -16,11 +16,10 @@ from typing import Any
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
 @dataclass

@@ -12,10 +12,10 @@ the writer validates required fields before writing.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
 
 from . import __version__ as AUDIT_VERSION
 
@@ -49,7 +49,7 @@ class ManifestItem:
 
 
 def utcnow_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def new_manifest(auditor: str) -> dict:

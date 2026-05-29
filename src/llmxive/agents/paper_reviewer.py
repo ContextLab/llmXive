@@ -13,9 +13,10 @@ from __future__ import annotations
 
 import hashlib
 import re
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import yaml
 
@@ -30,7 +31,6 @@ from llmxive.types import (
     ReviewerKind,
     ReviewRecord,
 )
-
 
 _FRONTMATTER_RE = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
@@ -514,7 +514,7 @@ class PaperReviewerAgent(Agent):
             prior_for_self = reviews_store.prior_reviews_for_specialist(
                 ctx.project_id, self.entry.name, stage="paper", repo_root=repo,
             )
-        except Exception:  # noqa: BLE001 — defensive; prior-loading must not break review
+        except Exception:
             prior_for_self = []
         if prior_for_self:
             most_recent = prior_for_self[-1]
@@ -596,7 +596,7 @@ class PaperReviewerAgent(Agent):
         front["model_name"] = response.model
         front["backend"] = response.backend
         front["prompt_version"] = self.entry.prompt_version
-        front["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+        front["reviewed_at"] = datetime.now(UTC).isoformat()
 
         # Normalize score: the LLM occasionally picks a verdict but
         # forgets the verdict↔score binding (e.g., verdict=accept with
@@ -619,8 +619,9 @@ class PaperReviewerAgent(Agent):
         items = front.get("action_items") or []
         if not isinstance(items, list):
             items = []
-        from llmxive.types import action_item_id  # local import to avoid cycle at module load
         import re as _re
+
+        from llmxive.types import action_item_id  # local import to avoid cycle at module load
         normalized: list[dict[str, Any]] = []
         for raw in items:
             if not isinstance(raw, dict):

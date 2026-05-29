@@ -18,14 +18,13 @@ import json
 import re
 import shutil
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pdfplumber
 
 from llmxive.pipeline.pdf_pipeline.classify_failure import classify
-
 
 # Tolerance for pixel-level figure-width measurement (px).
 FIGURE_WIDTH_TOLERANCE_PX = 4
@@ -36,7 +35,7 @@ CANONICAL_WIDTH_FRACTIONS = (0.45, 1.0, 1.0)  # narrow, column, full (column == 
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _paper_id_from_path(p: Path) -> str:
@@ -172,7 +171,7 @@ def _check_figure_widths(pdf_path: Path, page_no: int) -> list[dict[str, Any]]:
         return failures
     try:
         imgs = convert_from_path(str(pdf_path), first_page=page_no, last_page=page_no, dpi=100)
-    except Exception:  # noqa: BLE001 — pixel rendering is best-effort
+    except Exception:
         return failures
     if not imgs:
         return failures
@@ -246,9 +245,9 @@ def audit_pdf(pdf_path: Path, out_dir: Path) -> dict[str, Any]:
             else:
                 report["summary"]["passed_pages"] += 1
 
-    except Exception as exc:  # noqa: BLE001 — crash-tolerance per FR-014 / Q3
+    except Exception as exc:
         # Quarantine the PDF and record the crash.
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
         quarantine_dir = (
             pdf_path.parent.parent.parent.parent / "state" / "audit" / "pdf" / "_quarantine" / today
         )
@@ -316,4 +315,4 @@ def audit_directory(papers_dir: Path, out_dir: Path) -> dict[str, Any]:
     return aggregate
 
 
-__all__ = ["audit_pdf", "audit_directory"]
+__all__ = ["audit_directory", "audit_pdf"]

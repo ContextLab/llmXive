@@ -12,10 +12,8 @@ Storage: extends ``state/personality_rotation.yaml`` with a
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import yaml
-
 
 # Number of consecutive same-position contributions required to trigger the hint.
 DIVERSITY_THRESHOLD = 3

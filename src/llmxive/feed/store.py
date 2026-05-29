@@ -17,9 +17,9 @@ import json
 import os
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 try:
     from ulid import ULID  # python-ulid package
@@ -36,7 +36,7 @@ except ImportError:  # pragma: no cover — handled in T004 dependency add
 
 
 def utcnow_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 # Trivial item kinds (per spec FR-027 clarification): may be omitted from manifest

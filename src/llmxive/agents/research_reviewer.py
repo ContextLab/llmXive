@@ -14,24 +14,20 @@ project advances to `research_accepted` / `research_minor_revision` /
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import yaml
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
-from llmxive.state import project as project_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
     AgentRegistryEntry,
-    BackendName,
-    ReviewRecord,
     ReviewerKind,
+    ReviewRecord,
 )
-
 
 _FRONTMATTER_RE = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
@@ -155,7 +151,7 @@ class ResearchReviewerAgent(Agent):
         front["model_name"] = response.model
         front["backend"] = response.backend
         front["prompt_version"] = self.entry.prompt_version
-        front["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+        front["reviewed_at"] = datetime.now(UTC).isoformat()
 
         # Compute the artifact_hash from the live tasks.md.
         project_dir = self._project_dir(ctx)

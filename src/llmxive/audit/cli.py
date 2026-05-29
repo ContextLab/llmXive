@@ -16,9 +16,8 @@ from __future__ import annotations
 
 import argparse
 import shutil
-import subprocess
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from . import run_audit
@@ -35,7 +34,7 @@ def _parse_since(value: str | None) -> str | None:
     else:
         # treat as ISO
         return value
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return (now - delta).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 

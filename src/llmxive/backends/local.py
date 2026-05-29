@@ -7,7 +7,7 @@ evaluator) where a 3B-class model is sufficient.
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from llmxive.backends.base import (
     BaseBackend,
@@ -38,7 +38,10 @@ class LocalBackend(BaseBackend):
         temperature: float | None = None,
     ) -> ChatResponse:
         try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore[import-not-found]
+            from transformers import (  # type: ignore[import-not-found]
+                AutoModelForCausalLM,
+                AutoTokenizer,
+            )
         except ImportError as exc:
             raise PermanentBackendError(
                 "transformers is not installed; required by local backend"

@@ -31,9 +31,10 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from datetime import date as _date
-from typing import Any, Sequence
+from datetime import UTC
+from typing import Any
 
 _LOG = logging.getLogger(__name__)
 
@@ -344,8 +345,8 @@ def _today_utc() -> str:
 
     Tests / manual runs can still pass an explicit `--date YYYY-MM-DD`.
     """
-    from datetime import datetime, timedelta, timezone
-    return (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+    from datetime import datetime, timedelta
+    return (datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%d")
 
 
 def cli_main(argv: Sequence[str] | None = None) -> int:

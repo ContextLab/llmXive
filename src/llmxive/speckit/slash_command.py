@@ -25,7 +25,7 @@ from __future__ import annotations
 import abc
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -88,7 +88,7 @@ class SlashCommandAgent(abc.ABC):
         """
 
     def run(self, ctx: SlashCommandContext) -> RunLogEntry:
-        started = datetime.now(timezone.utc)
+        started = datetime.now(UTC)
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
@@ -119,7 +119,7 @@ class SlashCommandAgent(abc.ABC):
             failure_reason = f"{type(exc).__name__}: {exc}"
             raise
         finally:
-            ended = datetime.now(timezone.utc)
+            ended = datetime.now(UTC)
             entry = RunLogEntry(
                 run_id=ctx.run_id,
                 entry_id=str(uuid4()),
@@ -159,7 +159,7 @@ def _maybe_write_inspection(
     llm_response_text: str,
     model_used: str,
     backend_used: BackendName,
-    agent: "SlashCommandAgent | None" = None,
+    agent: SlashCommandAgent | None = None,
 ) -> None:
     """Spec 011 / FR-003 inspection-record hook (opt-in via env var).
 
@@ -200,7 +200,7 @@ def _maybe_write_inspection(
             spec_root=Path(env_dir).parent.parent,  # env points at .../inspections/<project_id>; spec_root = .../  (two parents up)
             rounds=rounds,
         )
-    except Exception:  # noqa: BLE001 — never block an agent on a capture failure
+    except Exception:
         pass
 
 
@@ -242,7 +242,7 @@ def _validate_artifact_citations(
                 artifact_hash=hash_file(path),
                 repo_root=repo,
             )
-        except Exception:  # noqa: BLE001 — never let validation kill a write
+        except Exception:
             # Non-fatal: validation is best-effort during artifact writes.
             # The blocking gates upstream (Advancement-Evaluator) re-check
             # the persisted citations YAML on every transition decision.

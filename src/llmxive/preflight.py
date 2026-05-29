@@ -21,9 +21,8 @@ from pathlib import Path
 
 from llmxive import credentials as cred_mod
 from llmxive.agents import registry as registry_loader
-from llmxive.config import all_keys, about_page_published
+from llmxive.config import about_page_published, all_keys
 from llmxive.contract_validate import list_contracts
-
 
 REQUIRED_TOOLS = ["git"]
 OPTIONAL_TOOLS = ["pdflatex", "uvx", "uv", "pipx"]
@@ -134,4 +133,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["main", "PreflightError"]
+__all__ = ["PreflightError", "main"]

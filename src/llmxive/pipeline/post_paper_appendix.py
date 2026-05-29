@@ -25,7 +25,6 @@ from pathlib import Path
 
 import yaml
 
-
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
 
@@ -42,7 +41,7 @@ def latex_escape(s: str) -> str:
 
 def _escape_inside_texttt(s: str) -> str:
     """Escape special chars inside `\texttt{...}` (already a monospace
-    box; we don't want to convert `_` → `\textbackslash{}_`, just `\_`)."""
+    box; we don't want to convert `_` → `\textbackslash{}_`, just `\\_`)."""
     s = s.replace("\\", r"\textbackslash{}")
     s = s.replace("&", r"\&").replace("%", r"\%").replace("$", r"\$")
     s = s.replace("#", r"\#").replace("_", r"\_")

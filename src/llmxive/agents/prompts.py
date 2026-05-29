@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from string import Template
 
 _TOKEN_RE = re.compile(r"\{\{\s*(?P<name>[a-z_][a-z0-9_]*)\s*\}\}", re.IGNORECASE)
 
@@ -49,4 +48,4 @@ def render_prompt(
     return substitute(load_prompt(prompt_path, repo_root=repo_root), values)
 
 
-__all__ = ["load_prompt", "substitute", "render_prompt"]
+__all__ = ["load_prompt", "render_prompt", "substitute"]

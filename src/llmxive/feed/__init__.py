@@ -10,7 +10,7 @@ with audit log at
 Single source of truth (Constitution I): all reads/writes go through FeedStore.
 """
 
-from .store import FeedStore, PackedFeed  # noqa: F401
-from .manifest import ManifestValidator, parse_manifest_block  # noqa: F401
+from .manifest import ManifestValidator, parse_manifest_block
+from .store import FeedStore, PackedFeed
 
-__all__ = ["FeedStore", "PackedFeed", "ManifestValidator", "parse_manifest_block"]
+__all__ = ["FeedStore", "ManifestValidator", "PackedFeed", "parse_manifest_block"]

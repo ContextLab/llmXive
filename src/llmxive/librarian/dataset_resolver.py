@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 
 import requests
 
-from llmxive.librarian.dataset_sources import DatasetCandidate, USER_AGENT
+from llmxive.librarian.dataset_sources import USER_AGENT, DatasetCandidate
 
 _SAMPLE_BYTES = 256 * 1024   # cap the sample download at 256 KB
 _SNIFF_TIMEOUT = 20
@@ -314,7 +314,7 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
     return ResolvedDatasets(datasets=resolved)
 
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import yaml
 
@@ -323,7 +323,7 @@ def write_manifest(rd: ResolvedDatasets, *, project_dir: Path) -> Path:
     out = Path(project_dir) / ".specify" / "memory" / "resolved_datasets.yaml"
     out.parent.mkdir(parents=True, exist_ok=True)
     doc = {
-        "resolved_at": datetime.now(timezone.utc).isoformat(),
+        "resolved_at": datetime.now(UTC).isoformat(),
         "datasets": [
             {"intent": d.intent, "status": d.status,
              "candidates": d.candidates, "candidates_tried": d.candidates_tried}

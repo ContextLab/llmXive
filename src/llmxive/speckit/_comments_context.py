@@ -76,4 +76,4 @@ def render_recent_comments_block(
     return "\n".join(lines).rstrip() + "\n"
 
 
-__all__ = ["render_recent_comments_block", "DEFAULT_LIMIT", "PER_COMMENT_MAX_CHARS"]
+__all__ = ["DEFAULT_LIMIT", "PER_COMMENT_MAX_CHARS", "render_recent_comments_block"]

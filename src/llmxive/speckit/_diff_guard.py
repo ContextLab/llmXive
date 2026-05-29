@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import re
 
-
 _HUNK_RE = re.compile(r"^@@ -\d+(,\d+)? \+\d+(,\d+)? @@", re.MULTILINE)
 _OLD_FILE_RE = re.compile(r"^--- (?:a/|/dev/null|b/|/)", re.MULTILINE)
 _NEW_FILE_RE = re.compile(r"^\+\+\+ (?:b/|a/|/dev/null|/)", re.MULTILINE)

@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.state import citations as citations_store
@@ -158,7 +158,7 @@ def validate_artifact(
     from agents.tools.citation_fetcher import fetch_citation
 
     extracted = extract_citations(artifact_text)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Read existing citations and drop any old entries for this artifact.
     existing = citations_store.load(project_id, repo_root=repo)

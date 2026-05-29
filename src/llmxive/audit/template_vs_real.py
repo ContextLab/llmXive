@@ -12,9 +12,7 @@ Outputs an Audit Manifest. Pruning is a separate mode invoked by audit.cli.
 
 from __future__ import annotations
 
-import json
 import re
-from glob import glob
 from pathlib import Path
 from typing import Any
 

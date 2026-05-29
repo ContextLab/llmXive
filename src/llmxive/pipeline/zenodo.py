@@ -20,7 +20,6 @@ import requests
 
 from llmxive.credentials import load_zenodo_token
 
-
 PRODUCTION_BASE = "https://zenodo.org/api"
 SANDBOX_BASE = "https://sandbox.zenodo.org/api"
 
@@ -86,7 +85,7 @@ class ZenodoClient:
         try:
             body = r.json()
             msg = body.get("message") or body
-        except Exception:  # noqa: BLE001
+        except Exception:
             msg = r.text[:500]
         raise ZenodoAPIError(r.status_code, str(msg))
 

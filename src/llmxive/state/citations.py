@@ -70,4 +70,4 @@ def title_overlap(cited_title: str, fetched_title: str) -> float:
     return len(cited & fetched) / len(cited)
 
 
-__all__ = ["load", "save", "tokenize_title", "title_overlap"]
+__all__ = ["load", "save", "title_overlap", "tokenize_title"]

@@ -218,8 +218,8 @@ def cleanup_venv(project_dir: Path) -> None:
 
 __all__ = [
     "ExecutionResult",
-    "ensure_venv",
-    "run_python_script",
-    "run_pytest",
     "cleanup_venv",
+    "ensure_venv",
+    "run_pytest",
+    "run_python_script",
 ]

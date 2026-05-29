@@ -39,4 +39,4 @@ def list_names(*, repo_root: Path | None = None) -> list[str]:
     return [a.name for a in load(repo_root=repo_root).agents]
 
 
-__all__ = ["load", "get", "list_names"]
+__all__ = ["get", "list_names", "load"]

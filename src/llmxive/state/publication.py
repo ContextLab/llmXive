@@ -20,7 +20,6 @@ import yaml
 
 from llmxive.types import DOIVersion, Publication
 
-
 _MIRROR_FIELDS = ("doi", "doi_url", "zenodo_id", "volume", "issue", "doi_versions")
 
 

@@ -27,7 +27,6 @@ import yaml
 
 from llmxive.types import Project
 
-
 _BLOB_BASE = "https://github.com/ContextLab/llmXive/blob/main"
 
 
@@ -91,7 +90,7 @@ def close_issue_for_project(repo: Path, project: Project, *, dry_run: bool = Fal
         body_lines.append(f"- Final paper: [{pdf_path.name}]({pdf_url})")
     body_lines += [
         "",
-        f"Full artifact log: <https://context-lab.com/llmXive/#paper>",
+        "Full artifact log: <https://context-lab.com/llmXive/#paper>",
     ]
     body = "\n".join(body_lines)
     if dry_run:

@@ -8,6 +8,7 @@ paths (FR-007 anti-tamper).
 from __future__ import annotations
 
 import hashlib
+from datetime import UTC
 from pathlib import Path
 
 import yaml
@@ -47,11 +48,11 @@ def save(project: Project, *, repo_root: Path | None = None) -> Path:
         prev = load(project.id, repo_root=repo_root)
         if prev.current_stage != project.current_stage:
             import json as _json
-            from datetime import datetime as _dt, timezone as _tz
+            from datetime import datetime as _dt
             history = path.with_suffix(".history.jsonl")
             history.parent.mkdir(parents=True, exist_ok=True)
             entry = {
-                "at": _dt.now(_tz.utc).isoformat(),
+                "at": _dt.now(UTC).isoformat(),
                 "from_stage": prev.current_stage.value,
                 "to_stage": project.current_stage.value,
                 "last_run_id": project.last_run_id,
@@ -121,4 +122,4 @@ def refresh_artifact_hashes(project: Project, *, repo_root: Path | None = None) 
     return project.model_copy(update={"artifact_hashes": new_hashes})
 
 
-__all__ = ["load", "save", "list_all", "hash_file", "refresh_artifact_hashes"]
+__all__ = ["hash_file", "list_all", "load", "refresh_artifact_hashes", "save"]

@@ -488,7 +488,7 @@ def heal_paper_metadata(repo_root: Path) -> dict[str, Any]:
                 updates["updated_at"] = datetime.now(UTC)
                 project = project.model_copy(update=updates)
                 project_store.save(project, repo_root=repo_root)
-        except Exception as exc:  # noqa: BLE001 — defensive
+        except Exception as exc:
             summary["failed"].append({"project": pdir.name,
                                        "reason": f"state update failed: {exc}"})
             continue
@@ -826,7 +826,7 @@ def process_submission_issue(
             "comment_url": result.comment_url,
             "error": result.error,
         })
-    except Exception as exc:  # noqa: BLE001 — never block intake on a log write
+    except Exception as exc:
         print(f"[submissions] could not write run-log entry for #{number}: {exc!r}",
               file=__import__("sys").stderr)
     return result

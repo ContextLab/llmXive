@@ -14,12 +14,11 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import httpx
-
 
 LIVENESS_CACHE_PATH = Path("state/audit/liveness-cache.json")
 LIVENESS_TIMEOUT_SEC = float(os.environ.get("LIVENESS_TIMEOUT_SEC", "10"))
@@ -37,7 +36,7 @@ class InvalidPointerKind(ValueError):
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _load_cache(path: Path = LIVENESS_CACHE_PATH) -> dict[str, dict[str, Any]]:
@@ -61,10 +60,10 @@ def _is_fresh(entry: dict[str, Any]) -> bool:
     if not checked_at:
         return False
     try:
-        ts = datetime.strptime(checked_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        ts = datetime.strptime(checked_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
     except ValueError:
         return False
-    return datetime.now(timezone.utc) - ts < timedelta(days=LIVENESS_CACHE_TTL_DAYS)
+    return datetime.now(UTC) - ts < timedelta(days=LIVENESS_CACHE_TTL_DAYS)
 
 
 def check_pointer(
@@ -116,4 +115,4 @@ def check_pointer(
     return entry
 
 
-__all__ = ["check_pointer", "InvalidPointerKind", "LIVENESS_CACHE_PATH"]
+__all__ = ["LIVENESS_CACHE_PATH", "InvalidPointerKind", "check_pointer"]

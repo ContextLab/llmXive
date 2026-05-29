@@ -13,8 +13,9 @@ from __future__ import annotations
 
 import abc
 import threading
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Callable, Iterable, TypeVar
+from typing import TypeVar
 
 
 @dataclass(frozen=True)
@@ -79,7 +80,7 @@ def invoke_with_deadline(
     def _runner() -> None:
         try:
             result.append(fn())
-        except BaseException as exc:  # noqa: BLE001 — carried to caller thread
+        except BaseException as exc:
             error.append(exc)
 
     worker = threading.Thread(
@@ -123,8 +124,8 @@ class BaseBackend(abc.ABC):
 
 
 __all__ = [
-    "BaseBackend",
     "BackendError",
+    "BaseBackend",
     "ChatMessage",
     "ChatResponse",
     "PermanentBackendError",

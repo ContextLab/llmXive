@@ -103,7 +103,7 @@ def list_authors(metadata_path: Path) -> list[AuthorEntry]:
             continue
         try:
             out.append(AuthorEntry.model_validate(r))
-        except Exception:  # noqa: BLE001 — defensive against legacy junk
+        except Exception:
             # Try with default kind=human if a bare {"name": "..."} entry
             try:
                 out.append(AuthorEntry(name=str(r.get("name", "")), kind="human"))
