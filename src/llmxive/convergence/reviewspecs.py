@@ -13,6 +13,8 @@ verdicts. Each placeholder names the task that will replace it.
 
 from __future__ import annotations
 
+from typing import cast
+
 from .types import Concern, ConcernResponse, Reviewer, ReviewSpec, Severity
 
 # --- EXEMPT stages (FR-029): no convergence loop runs here ---------------
@@ -77,6 +79,38 @@ def _todo_reviewers(lenses: list[str], *, prompt_task: str, wiring_task: str) ->
     expects ``list[Reviewer]`` and ``_TodoReviewer`` structurally satisfies the
     Protocol."""
     return [_TodoReviewer(lens, prompt_task=prompt_task, wiring_task=wiring_task) for lens in lenses]
+
+
+def _wire_live_panel(
+    base: ReviewSpec, *, backend: object, repo_root: object, model: str | None,
+) -> None:
+    """Replace ``base``'s static ``_TodoReviewer`` placeholders with a live
+    ``LLMReviewer`` panel — one reviewer per lens (FR-027/FR-028; completes the
+    T054-T059 panel-side wiring the ``build_*_reviewspec`` docstrings reference).
+
+    No-op when ``backend`` is None so callers that only exercise the static
+    reviser / kickback routing (some unit fixtures) keep the placeholders and
+    don't accidentally require a real backend."""
+    if backend is None:
+        return
+    from pathlib import Path as _Path
+
+    from .llm_reviewer import build_panel
+
+    lenses: list[str] = [
+        str(getattr(r, "lens", None) or getattr(r, "name", "")) for r in base.reviewers
+    ]
+    # ``build_panel`` returns ``list[LLMReviewer]``; ``ReviewSpec.reviewers`` is
+    # ``list[Reviewer]`` (invariant). LLMReviewer structurally satisfies the
+    # Reviewer Protocol, so the cast is sound (mirrors ``_todo_reviewers``).
+    panel = build_panel(
+        stage=base.stage,
+        lenses=lenses,
+        backend=backend,
+        repo_root=_Path(str(repo_root)),
+        model=model,
+    )
+    base.reviewers = cast("list[Reviewer]", panel)
 
 
 # --- Per-stage ReviewSpec table (FR-027/FR-028 + contracts/reviewspec-registry.md) ---
@@ -374,6 +408,7 @@ def build_idea_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -407,6 +442,7 @@ def build_spec_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -431,6 +467,7 @@ def build_paper_spec_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -454,6 +491,7 @@ def build_plan_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -476,6 +514,7 @@ def build_paper_plan_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -501,6 +540,7 @@ def build_tasks_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -523,6 +563,7 @@ def build_paper_tasks_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -555,6 +596,7 @@ def build_implement_reviewspec(
         project_root=project_root,  # type: ignore[arg-type]
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 
@@ -581,6 +623,7 @@ def build_paper_implement_reviewspec(
         project_id=project_id,
         model=model,
     )
+    _wire_live_panel(base, backend=backend, repo_root=repo_root, model=model)
     return base
 
 

@@ -80,6 +80,20 @@ _EXTERNAL_PROMPT_ROOTS: dict[str, tuple[str, str]] = {
     "research_review": ("agents/prompts", "research_reviewer_{lens}.md"),
 }
 
+# Per-(stage, lens) basename overrides for the external (reused 8-/12-panel)
+# prompts whose lens name doesn't match the established filename: the
+# code/data lenses carry a ``_research``/``_paper`` suffix, and the generic
+# ``research_reviewer``/``paper_reviewer`` lens uses the un-suffixed base
+# prompt. Resolved under the stage's _EXTERNAL_PROMPT_ROOTS root.
+_EXTERNAL_FILENAME_OVERRIDES: dict[tuple[str, str], str] = {
+    ("research_review", "code_quality"): "research_reviewer_code_quality_research.md",
+    ("research_review", "data_quality"): "research_reviewer_data_quality_research.md",
+    ("research_review", "research_reviewer"): "research_reviewer.md",
+    ("paper_review", "paper_reviewer"): "paper_reviewer.md",
+    ("paper_review", "code_quality"): "paper_reviewer_code_quality_paper.md",
+    ("paper_review", "data_quality"): "paper_reviewer_data_quality_paper.md",
+}
+
 
 def _prompt_path_for(*, stage: str, lens: str, repo_root: Path) -> Path:
     override = _FILENAME_OVERRIDES.get((stage, lens))
@@ -88,7 +102,8 @@ def _prompt_path_for(*, stage: str, lens: str, repo_root: Path) -> Path:
     external = _EXTERNAL_PROMPT_ROOTS.get(stage)
     if external is not None:
         root_rel, pattern = external
-        return repo_root / root_rel / pattern.format(lens=lens)
+        basename = _EXTERNAL_FILENAME_OVERRIDES.get((stage, lens), pattern.format(lens=lens))
+        return repo_root / root_rel / basename
     prefix = _STAGE_PREFIX.get(stage)
     if prefix is None:
         raise ValueError(
