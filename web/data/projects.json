@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 649,
     "ai_contributors": 7,
-    "human_contributors": 869,
+    "human_contributors": 910,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2697,
-    "total_contributors": 876
+    "total_contributions": 2742,
+    "total_contributors": 917
   },
   "contributors": [
     {
@@ -1041,6 +1041,15 @@
     {
       "areas": [
         "computer science",
+        "other"
+      ],
+      "contribution_count": 4,
+      "kind": "human",
+      "name": "Ziwei Liu"
+    },
+    {
+      "areas": [
+        "computer science",
         "linguistics"
       ],
       "contribution_count": 3,
@@ -1075,15 +1084,6 @@
     },
     {
       "areas": [
-        "computer science",
-        "other"
-      ],
-      "contribution_count": 3,
-      "kind": "human",
-      "name": "Ziwei Liu"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
@@ -1098,6 +1098,15 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Bin Wang"
+    },
+    {
+      "areas": [
+        "computer science",
+        "other"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Bo Li"
     },
     {
       "areas": [
@@ -1183,6 +1192,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Huchuan Lu"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1198,6 +1215,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Jingrui He"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Jun Gao"
     },
     {
       "areas": [
@@ -1655,14 +1680,6 @@
     },
     {
       "areas": [
-        "other"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Bo Li"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -1764,6 +1781,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Busheng Zhang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Byung-Kwan Lee"
     },
     {
       "areas": [
@@ -2103,6 +2128,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dahua Lin"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -2380,6 +2413,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Fangfang Lin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fangfu Liu"
     },
     {
       "areas": [
@@ -2695,6 +2736,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guowei Xu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -2724,6 +2773,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haishan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haiwen Diao"
     },
     {
       "areas": [
@@ -2788,6 +2845,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Hanghang Tong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hanming Deng"
     },
     {
       "areas": [
@@ -2999,6 +3064,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Himabindu Lakkaraju"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3095,6 +3168,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Huangyuan Su"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -3108,14 +3189,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Huaxiu Yao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Huchuan Lu"
     },
     {
       "areas": [
@@ -3140,6 +3213,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Hyunhee Park"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Igor Gilitschenski"
     },
     {
       "areas": [
@@ -3260,6 +3341,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiahao Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiahao Wang"
     },
     {
       "areas": [
@@ -3675,14 +3764,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Jun Gao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Jun Xiao"
     },
     {
@@ -3756,6 +3837,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kai Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Kai He"
     },
     {
       "areas": [
@@ -4067,6 +4156,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Lei Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Lei Zhang"
     },
     {
@@ -4108,6 +4205,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Letian Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Lewei Lu"
     },
     {
       "areas": [
@@ -4220,6 +4325,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Linjie Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Linjun Dai"
     },
     {
       "areas": [
@@ -4547,6 +4660,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Mingxuan Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mingyi Deng"
     },
     {
@@ -4564,6 +4685,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mingzhe Cao"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Minki Kang"
     },
     {
       "areas": [
@@ -4719,6 +4848,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pavlo Molchanov"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -4780,6 +4917,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Pengfei Tan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Penghao Wu"
     },
     {
       "areas": [
@@ -4964,6 +5109,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qiyuan Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Quan Wang"
     },
     {
       "areas": [
@@ -5187,7 +5340,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ryo Hachiuma"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Saiyong Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sanja Fidler"
     },
     {
       "areas": [
@@ -5212,6 +5381,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Seungryong Kim"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sham M. Kakade"
     },
     {
       "areas": [
@@ -5351,6 +5528,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shizhe Diao"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -5468,6 +5653,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Sijin Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Silei Wu"
     },
     {
       "areas": [
@@ -5611,6 +5804,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Sung Ju Hwang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Tao Jiang"
     },
     {
@@ -5659,6 +5860,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Tianchang Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Tianhe Wu"
     },
     {
@@ -5668,6 +5877,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tianjiao Deng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianshi Cao"
     },
     {
       "areas": [
@@ -5859,6 +6076,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Weichen Fan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Weijia Mao"
     },
     {
@@ -5932,6 +6157,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Weiquan Huang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Weirui Ye"
     },
     {
       "areas": [
@@ -6467,7 +6700,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xuanchi Ren"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xuanhe Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuanyu Zheng"
     },
     {
       "areas": [
@@ -6879,6 +7128,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yilun Du"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -7079,6 +7336,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu-Chiang Frank Wang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -7116,6 +7381,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuanguo Kuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuanhan Zhang"
     },
     {
       "areas": [
@@ -7195,7 +7468,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yue Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yueming Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yueqi Duan"
     },
     {
       "areas": [
@@ -7236,6 +7525,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuhan Zhan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuhao Dong"
     },
     {
       "areas": [
@@ -7420,6 +7717,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuwei Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuwei Niu"
     },
     {
       "areas": [
@@ -7695,6 +8000,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhenting Qi"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -7811,6 +8124,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhongang Cai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhongwei Xie"
     },
     {
@@ -7844,6 +8165,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zi-Han Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zian Wang"
     },
     {
       "areas": [
@@ -8022,7 +8351,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-29T12:05:53.758101+00:00",
+  "generated_at": "2026-05-29T13:09:05.396948+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -8262,27 +8591,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8306,27 +8635,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8350,27 +8679,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8394,27 +8723,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8437,27 +8766,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8480,27 +8809,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8526,27 +8855,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8578,27 +8907,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8622,27 +8951,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8665,27 +8994,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8709,27 +9038,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8752,27 +9081,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8803,27 +9132,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8849,27 +9178,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -8904,27 +9233,27 @@
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
           "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "https://arxiv.org/abs/2605.28816"
+          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
+          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
+          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
+          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
+          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+          "title": "Self-Improving Language Models with Bidirectional Evolutionary Search"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
           "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
           "title": "https://arxiv.org/abs/2605.28293"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "https://arxiv.org/abs/2605.28774"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "https://arxiv.org/abs/2605.28820"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814",
-          "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-          "title": "https://arxiv.org/abs/2605.28814"
         }
       ],
       "inputs": [
@@ -73643,7 +73972,64 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guowei Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhenting Qi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huangyuan Su",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weirui Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Himabindu Lakkaraju",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sham M. Kakade",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yilun Du",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -73658,8 +74044,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28814 Submitted by: github-actions[bot] (Intake from human-submission issue #249.)",
-      "field": "other",
+      "description": "Search has been proposed as an effective method for self-improving language models and agentic systems, both for post-training sample generation and for inference. However, widely used methods such as best-of-N sampling and tree search face two fundamental limitations: they are guided by sparse verification signals,\u2026",
+      "field": "linguistics",
       "id": "PROJ-637-https-arxiv-org-abs-2605-28814",
       "keywords": [],
       "last_run_log": [
@@ -73681,8 +74067,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.28814",
-      "updated_at": "2026-05-29T09:11:53.602503+00:00",
+      "title": "Self-Improving Language Models with Bidirectional Evolutionary Search",
+      "updated_at": "2026-05-29T13:07:01.179852+00:00",
       "upstream_feedback": null
     },
     {
@@ -73705,7 +74091,176 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haiwen Diao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiahao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Penghao Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhao Dong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuwei Niu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yue Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhongang Cai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Weichen Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Linjun Dai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Silei Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuanyu Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mingxuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuanhan Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hanming Deng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huchuan Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Quan Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lewei Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dahua Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziwei Liu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -73720,8 +74275,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28820 Submitted by: github-actions[bot] (Intake from human-submission issue #248.)",
-      "field": "other",
+      "description": "Current vision-language models (VLMs) typically stitch together separate image encoders and language decoders via multi-stage alignment, a modular framework that inevitably fragments pixel-level signals across frames and scatters early pixel-word interactions. In parallel, native VLMs, despite impressive performance\u2026",
+      "field": "computer science",
       "id": "PROJ-638-https-arxiv-org-abs-2605-28820",
       "keywords": [],
       "last_run_log": [
@@ -73743,8 +74298,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.28820",
-      "updated_at": "2026-05-29T09:12:13.089800+00:00",
+      "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale",
+      "updated_at": "2026-05-29T13:07:01.322060+00:00",
       "upstream_feedback": null
     },
     {
@@ -73767,7 +74322,64 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Minki Kang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shizhe Diao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ryo Hachiuma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sung Ju Hwang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pavlo Molchanov",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu-Chiang Frank Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Byung-Kwan Lee",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -73782,8 +74394,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28774 Submitted by: github-actions[bot] (Intake from human-submission issue #247.)",
-      "field": "other",
+      "description": "Vision-language models with extended reasoning succeed on complex problems, but many real-world problems require external tools that internal reasoning alone often cannot resolve. Agentic reasoning therefore interleaves two behaviors with a structural asymmetry: thinking (the self-contained default) and tool use (a\u2026",
+      "field": "linguistics",
       "id": "PROJ-639-https-arxiv-org-abs-2605-28774",
       "keywords": [],
       "last_run_log": [
@@ -73805,8 +74417,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.28774",
-      "updated_at": "2026-05-29T09:12:15.393687+00:00",
+      "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning",
+      "updated_at": "2026-05-29T13:07:01.483048+00:00",
       "upstream_feedback": null
     },
     {
@@ -73891,7 +74503,88 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fangfu Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kai He",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianchang Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianshi Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sanja Fidler",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yueqi Duan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Igor Gilitschenski",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zian Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuanchi Ren",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -73906,8 +74599,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28816 Submitted by: github-actions[bot] (Intake from human-submission issue #245.)",
-      "field": "other",
+      "description": "World models for interactive video generation have largely focused on single-agent settings, where future observations are generated from a single control signal. However, many generated environments require multi-agent interaction: multiple players, robots, or embodied agents act simultaneously within a shared space.\u2026",
+      "field": "computer science",
       "id": "PROJ-641-https-arxiv-org-abs-2605-28816",
       "keywords": [],
       "last_run_log": [
@@ -73929,8 +74622,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.28816",
-      "updated_at": "2026-05-29T09:12:20.504875+00:00",
+      "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players",
+      "updated_at": "2026-05-29T13:07:16.713153+00:00",
       "upstream_feedback": null
     }
   ],
