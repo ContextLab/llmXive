@@ -24,6 +24,7 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import repo_root as _repo_root
 from llmxive.state import reviews as reviews_store
+from llmxive.state import runlog as runlog_store
 from llmxive.types import (
     AgentRegistryEntry,
     ReviewerKind,
@@ -167,16 +168,21 @@ class ResearchReviewerAgent(Agent):
 
         record = ReviewRecord.model_validate(front)
 
-        # Look up the artifact's author for self-review prevention.
-        # The runtime cannot infer authorship reliably yet (US3 stub),
-        # so we pass None — Pydantic still enforces the per-verdict score
-        # rules at validate time.
+        # Self-review prevention (discrepancy #7 / #49): resolve the agent that
+        # actually produced the reviewed artifact from the run-log so
+        # reviews_store refuses a reviewer reviewing its own output. (For the
+        # research panel the producer is the tasker/implementer — disjoint from
+        # the research_reviewer* names — so this is defense-in-depth; None when
+        # the run-log has no record of the artifact, preserving prior behavior.)
+        producer = runlog_store.producer_of_artifact(
+            ctx.project_id, record.artifact_path, repo_root=repo
+        )
         path = reviews_store.write(
             record,
             body=body,
             stage="research",
             review_type="research",
-            produced_by_agent=None,
+            produced_by_agent=producer,
             repo_root=repo,
         )
         return [str(path.relative_to(repo))]

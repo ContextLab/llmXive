@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from jsonschema import ValidationError  # type: ignore[import-untyped]  # installed, no stubs
+from pydantic import ValidationError as PydanticValidationError
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
@@ -85,6 +86,22 @@ def append_entry(entry: RunLogEntry, *, repo_root: Path | None = None) -> Path:
     return log_file
 
 
+def _parse_run_log_entry(line: str) -> RunLogEntry | None:
+    """Parse one ``.jsonl`` line as a RunLogEntry, or None if it isn't one.
+
+    Run-log files also hold FOREIGN records that are not pipeline RunLogEntry
+    rows — notably personality-activity entries written by ``personality.py``
+    (``action``/``personality_slug``/``display_name`` ... no ``run_id``). The
+    strict RunLogEntry model rejects them; every reader here wants only true
+    run-log entries, so non-matching lines are skipped rather than crashing
+    (the readers previously raised ValidationError on the first such line)."""
+    try:
+        return RunLogEntry.model_validate_json(line)
+    except PydanticValidationError:
+        # Foreign record (e.g. personality activity) — not a RunLogEntry.
+        return None
+
+
 def read_entries(run_id: str, *, repo_root: Path | None = None) -> list[RunLogEntry]:
     """Read every entry written for a given run_id, in append order."""
     state_dir = (repo_root / "state") if repo_root else _state_root()
@@ -101,7 +118,9 @@ def read_entries(run_id: str, *, repo_root: Path | None = None) -> list[RunLogEn
         for line in candidate.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
-            entries.append(RunLogEntry.model_validate_json(line))
+            parsed = _parse_run_log_entry(line)
+            if parsed is not None:
+                entries.append(parsed)
     return entries
 
 
@@ -119,7 +138,9 @@ def latest_for_project(project_id: str, *, repo_root: Path | None = None) -> Run
             for line in reversed(jsonl.read_text(encoding="utf-8").splitlines()):
                 if not line.strip():
                     continue
-                entry = RunLogEntry.model_validate_json(line)
+                entry = _parse_run_log_entry(line)
+                if entry is None:
+                    continue
                 if entry.project_id == project_id:
                     if latest is None or entry.ended_at > latest.ended_at:
                         latest = entry
@@ -127,6 +148,44 @@ def latest_for_project(project_id: str, *, repo_root: Path | None = None) -> Run
             if latest is not None:
                 return latest
     return latest
+
+
+def producer_of_artifact(
+    project_id: str, artifact_path: str, *, repo_root: Path | None = None
+) -> str | None:
+    """Return the ``agent_name`` that most recently recorded ``artifact_path``
+    in its run-log ``outputs`` for ``project_id``, or None if none did.
+
+    Used for self-review prevention (discrepancy #7 / #49): a reviewer whose
+    name equals the artifact's producer must not review its own output (the
+    ``reviews_store.write`` guard refuses it). Resolving the real producer here
+    replaces the former ``produced_by_agent=None`` stub. Scans newest-first and
+    returns on the first match (the most-recently-logged producer). Matching is
+    by posix path with suffix tolerance so a run-log ``outputs`` entry and a
+    ReviewRecord ``artifact_path`` (both repo-relative) compare robustly.
+    """
+    if not artifact_path:
+        return None
+    state_dir = (repo_root / "state") if repo_root else _state_root()
+    log_root = state_dir / "run-log"
+    if not log_root.is_dir():
+        return None
+    target = artifact_path.replace("\\", "/").strip("/")
+    for month_dir in sorted(log_root.iterdir(), reverse=True):
+        if not month_dir.is_dir() or month_dir.name.startswith("."):
+            continue
+        for jsonl in sorted(month_dir.glob("*.jsonl"), reverse=True):
+            for line in reversed(jsonl.read_text(encoding="utf-8").splitlines()):
+                if not line.strip():
+                    continue
+                entry = _parse_run_log_entry(line)
+                if entry is None or entry.project_id != project_id:
+                    continue
+                for out in entry.outputs:
+                    o = out.replace("\\", "/").strip("/")
+                    if o == target or o.endswith("/" + target) or target.endswith("/" + o):
+                        return entry.agent_name
+    return None
 
 
 def now_utc() -> datetime:

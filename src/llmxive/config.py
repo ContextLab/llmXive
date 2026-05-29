@@ -36,12 +36,6 @@ def repo_root() -> Path:
 
 # Defaults documented in spec.md / plan.md / research.md.
 DEFAULTS: dict[str, float | int] = {
-    # Spec 015 T041 / FR-019: RESEARCH_ACCEPT_THRESHOLD / PAPER_ACCEPT_THRESHOLD
-    # are RETAINED in DEFAULTS for back-compat with stored web/about.html
-    # consumers, but advancement no longer reads them. They are no longer the
-    # gate — unanimous LLM-panel acceptance is the sole gate everywhere.
-    "RESEARCH_ACCEPT_THRESHOLD": 0.0,
-    "PAPER_ACCEPT_THRESHOLD": 0.0,
     "TASKER_MAX_REVISION_ROUNDS": 5,
     "LEAF_TASK_BUDGET_SECONDS": 300,
     "SANDBOX_BUDGET_SECONDS": 240,
@@ -100,8 +94,6 @@ def all_keys() -> list[str]:
 
 
 # Module-level convenience constants (resolved at import time).
-RESEARCH_ACCEPT_THRESHOLD: float = float(get("RESEARCH_ACCEPT_THRESHOLD"))
-PAPER_ACCEPT_THRESHOLD: float = float(get("PAPER_ACCEPT_THRESHOLD"))
 TASKER_MAX_REVISION_ROUNDS: int = int(get("TASKER_MAX_REVISION_ROUNDS"))
 LEAF_TASK_BUDGET_SECONDS: int = int(get("LEAF_TASK_BUDGET_SECONDS"))
 SANDBOX_BUDGET_SECONDS: int = int(get("SANDBOX_BUDGET_SECONDS"))
@@ -117,8 +109,6 @@ __all__ = [
     "CONVERGENCE_PER_ROUND_BUDGET_SECONDS",
     "DEFAULTS",
     "LEAF_TASK_BUDGET_SECONDS",
-    "PAPER_ACCEPT_THRESHOLD",
-    "RESEARCH_ACCEPT_THRESHOLD",
     "SANDBOX_BUDGET_SECONDS",
     "STAGE_ADVANCEMENT_RATE_WINDOW_DAYS",
     "TASKER_MAX_REVISION_ROUNDS",

@@ -41,12 +41,24 @@ def doc() -> str:
 
 
 def test_overflow_produces_bounded_pointer_block(doc, tmp_path):
-    """Edge 6 (output cut-off): the returned block stays within budget."""
+    """Edge 6 (output cut-off): the PROSE chunk-summaries are bounded by the
+    budget, but the critical-element section is MANDATORY and complete (§3a):
+    every critical element is inlined verbatim in the rendered block — not just
+    on disk — even if that pushes the block past the soft budget, because
+    silently dropping a URL/DOI/id is worse than overflowing the target. So the
+    block is bounded by ``budget + size(critical-element list)`` (the list is
+    small in practice), and every critical element is present in the block."""
     block = summarize(doc, goal="preserve every URL/DOI verbatim", token_budget=BUDGET,
                       cache_dir=tmp_path)
     assert block.startswith("[[LLMXIVE-SUMMARY v1]]")
-    assert estimate_tokens(block) <= BUDGET
     assert estimate_tokens(doc) > BUDGET  # sanity: the doc really did overflow
+    # Every critical element appears verbatim in the rendered block itself.
+    crit = list(dict.fromkeys(extract_critical(doc)))
+    for c in crit:
+        assert c in block, f"critical element missing from rendered block: {c!r}"
+    # Prose is bounded: the only allowed overage is the mandatory critical list.
+    crit_tokens = estimate_tokens("\n".join(f"- {c}" for c in crit))
+    assert estimate_tokens(block) <= BUDGET + crit_tokens + 100
 
 
 def test_no_critical_element_lost_roundtrip(doc, tmp_path):

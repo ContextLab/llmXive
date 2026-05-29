@@ -27,6 +27,7 @@ from llmxive.backends.router import chat_with_fallback
 from llmxive.config import repo_root as _repo_root
 from llmxive.state import citations as citations_store
 from llmxive.state import reviews as reviews_store
+from llmxive.state import runlog as runlog_store
 from llmxive.types import (
     AgentRegistryEntry,
     ReviewerKind,
@@ -662,12 +663,17 @@ class PaperReviewerAgent(Agent):
                 front["artifact_path"] = str(meta_path.relative_to(repo))
 
         record = ReviewRecord.model_validate(front)
+        # Self-review prevention (discrepancy #7 / #49): resolve the real
+        # producer of the reviewed artifact from the run-log (was a None stub).
+        producer = runlog_store.producer_of_artifact(
+            ctx.project_id, record.artifact_path, repo_root=repo
+        )
         path = reviews_store.write(
             record,
             body=body,
             stage="paper",
             review_type="paper",
-            produced_by_agent=None,
+            produced_by_agent=producer,
             repo_root=repo,
         )
         return [str(path.relative_to(repo))]

@@ -190,29 +190,53 @@ def _build_manifest(
 def _render_pointer_block(manifest_path: Path, *, goal: str, budget: int) -> str:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     entries = manifest["entries"]
-    n_crit = sum(len(e["critical"]) for e in entries)
+    # Dedupe ALL critical elements across every chunk, preserving first-seen
+    # order. These MUST appear verbatim in the rendered block a reviewer reads
+    # — not merely on disk (issue §3a: "critical elements carried verbatim
+    # through every recursion level"). The previous implementation inlined
+    # critical elements PER CHUNK and broke out of the loop on budget overflow,
+    # so under a tight budget a reviewer could see only some — or zero — of
+    # them (everything after the break was dropped from the block).
+    all_crit: list[str] = []
+    seen: set[str] = set()
+    for e in entries:
+        for c in e["critical"]:
+            if c not in seen:
+                seen.add(c)
+                all_crit.append(c)
     header = (
         f"{_MARKER} manifest={manifest_path.resolve()}\n"
         f"goal: {goal}\n"
-        f"{len(entries)} chunk(s), {n_crit} critical element(s) preserved verbatim on disk. "
+        f"{len(entries)} chunk(s), {len(all_crit)} critical element(s) preserved verbatim. "
         f"Use desummarize() to page in full content.\n\n"
     )
-    notice = ("[... additional chunks/critical elements omitted from this block but "
-              "preserved on disk; call desummarize() to retrieve them all.]\n")
+    # Inline the FULL deduped critical-element list FIRST, and UNCONDITIONALLY:
+    # even if it alone exceeds the (soft) token budget, silently dropping a
+    # URL/DOI/number/id is worse than overflowing the target. Prose
+    # chunk-summaries then fill whatever budget remains.
+    crit_section = ""
+    if all_crit:
+        crit_section = (
+            "CRITICAL ELEMENTS (verbatim — all preserved):\n"
+            + "\n".join(f"- {c}" for c in all_crit)
+            + "\n\n"
+        )
+    notice = ("[... chunk prose-summaries truncated to fit the token budget; ALL "
+              "critical elements are listed above and full content is on disk — "
+              "call desummarize() to retrieve it.]\n")
     notice_reserve = estimate_tokens(notice)
     body_parts: list[str] = []
-    used = estimate_tokens(header)
+    used = estimate_tokens(header) + estimate_tokens(crit_section)
     truncated = False
     for e in entries:
-        crit_inline = ", ".join(e["critical"]) if e["critical"] else "(none)"
-        part = f"## {e['element_id']}\n{e['summary']}\ncritical: {crit_inline}\n\n"
-        # reserve room for the trailing notice so the rendered block stays within budget
+        part = f"## {e['element_id']}\n{e['summary']}\n\n"
+        # reserve room for the trailing notice so the prose stays within budget
         if used + estimate_tokens(part) + notice_reserve > budget:
             truncated = True
             break
         body_parts.append(part)
         used += estimate_tokens(part)
-    block = header + "".join(body_parts)
+    block = header + crit_section + "".join(body_parts)
     if truncated:
         block += notice
     return block
