@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Literal, Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # --- Severity -------------------------------------------------------------
 
@@ -79,24 +79,71 @@ class _Strict(BaseModel):
 
 
 class Concern(_Strict):
-    """A single critical finding raised in R1 (or newly in R3)."""
+    """A single critical finding raised in R1 (or newly in R3).
+
+    ``text`` MUST be a non-empty, non-whitespace-only description of the
+    finding (``min_length=1`` + whitespace-stripping validator). A concern
+    without text is structurally meaningless — the panel claims a problem
+    exists but never says what — and gets silently rendered downstream as
+    ``... — `` with nothing after the em-dash. We reject those at the
+    model layer (mirrors the existing ``ActionItem.text: min_length=1``
+    invariant in ``llmxive.types``) so the bug surfaces at the source.
+
+    ``location`` stays optional (default ``""``) because some panel
+    prompts emit it as a free-form pointer that is naturally absent for
+    whole-artifact concerns; the SSoT ``panel_review_block.md`` schema
+    treats it as an aid to the reviser, not a structural requirement.
+    """
 
     id: str
     reviewer: str
     severity: Severity
     artifact: str
     location: str = ""
-    text: str
+    text: str = Field(min_length=1)
     round: int = 1
+
+    @field_validator("text")
+    @classmethod
+    def _text_not_whitespace_only(cls, v: str) -> str:
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError(
+                "Concern.text must contain non-whitespace content "
+                "(empty / whitespace-only concerns are structurally invalid)"
+            )
+        return stripped
 
 
 class ConcernResponse(_Strict):
-    """The reviser's per-concern reply (R2)."""
+    """The reviser's per-concern reply (R2).
+
+    Both ``response`` and ``what_changed`` are required non-empty: a
+    reviser that returns an empty ``response`` claims to have addressed
+    a concern with no description, and an empty ``what_changed`` claims
+    a change happened without saying what. Both are equivalent to the
+    empty-``Concern.text`` bug and rejected at the same layer. The
+    existing reviser implementations all substitute explicit
+    placeholders (``"<missing>"`` / ``"<empty>"``) when the LLM omits
+    the field, so this validator never breaks the honest fail-loud
+    path — it only catches programmer mistakes.
+    """
 
     concern_id: str
-    response: str
-    what_changed: str
+    response: str = Field(min_length=1)
+    what_changed: str = Field(min_length=1)
     artifacts_changed: list[str] = Field(default_factory=list)
+
+    @field_validator("response", "what_changed")
+    @classmethod
+    def _not_whitespace_only(cls, v: str) -> str:
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError(
+                "ConcernResponse fields must contain non-whitespace content "
+                "(empty / whitespace-only responses are structurally invalid)"
+            )
+        return stripped
 
 
 class Verdict(_Strict):

@@ -57,6 +57,9 @@ def test_paper_implement_reviser_edits_paper_artifacts(tmp_path: Path):
         "__paper_plan_md__": "# paper plan\nfigure-budget: 3",
         "__results_md__": "# results\neffect_size = 0.35",
         "__constitution__": "Principle V: real-call testing.",
+        # __tasks_md__ MUST be supplied or PaperImplementReviser
+        # short-circuits (the [kind:...] dispatcher has nothing to route).
+        "__tasks_md__": "[kind:paper_writing] T001 expand methods section",
     }
     concerns = [
         Concern(
@@ -105,6 +108,9 @@ def test_paper_implement_reviser_isolates_paper_from_research(tmp_path: Path):
         paper_tex: r"\documentclass{article}",
         "src/proj/util.py": "def add(a, b): return a + b",
         "specs/000-x/spec.md": "# research spec",
+        # __tasks_md__ MUST be supplied or PaperImplementReviser
+        # short-circuits before its filesystem-isolation check runs.
+        "__tasks_md__": "[kind:paper_writing] T001 rewrite preamble",
     }
     fake_reply = {
         "updated_artifacts": {
@@ -154,7 +160,14 @@ def test_paper_implement_reviser_pads_missing_responses(tmp_path: Path):
         Concern(id="P2", reviewer="statistical_analysis", severity=Severity.SCIENCE,
                 artifact=paper_tex, location="", text="y"),
     ]
-    _, responses = reviser.revise({paper_tex: r"\documentclass{a}"}, concerns)
+    _, responses = reviser.revise(
+        {
+            paper_tex: r"\documentclass{a}",
+            # __tasks_md__ MUST be present or the reviser short-circuits.
+            "__tasks_md__": "[kind:paper_writing] T001 expand figure",
+        },
+        concerns,
+    )
     by_id = {r.concern_id: r for r in responses}
     assert by_id["P2"].response == "<missing>"
 
@@ -167,7 +180,15 @@ def test_paper_implement_reviser_rejects_non_json(tmp_path: Path):
         summarize_cache_dir=tmp_path / "summarize_cache",
     )
     with pytest.raises(RuntimeError, match="parseable JSON"):
-        reviser.revise({paper_tex: r"\documentclass{a}"}, [])
+        reviser.revise(
+            {
+                paper_tex: r"\documentclass{a}",
+                # __tasks_md__ MUST be present or the reviser short-circuits
+                # before reaching the JSON-parse path under test.
+                "__tasks_md__": "[kind:paper_writing] T001 something",
+            },
+            [],
+        )
 
 
 def test_paper_implement_reviser_name():

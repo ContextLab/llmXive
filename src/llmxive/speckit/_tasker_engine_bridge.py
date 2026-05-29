@@ -122,6 +122,18 @@ def analyze_findings_to_concerns(
         cls = (f.get("class") or f.get("lens") or "writing").strip().lower()
         severity = _FINDING_CLASS_TO_SEVERITY.get(cls, Severity.WRITING)
         finding_id = str(f.get("id") or f"F{i + 1:03d}")
+        # Concern.text is now ``min_length=1`` (spec-015 fix for the
+        # empty-text bug). Findings missing both ``text`` and ``message``
+        # were already a degenerate input — the analyzer claimed a problem
+        # but never described it. Synthesize a placeholder so the bridge
+        # stays robust (the upstream finding ID still surfaces) instead of
+        # silently producing an empty-text Concern.
+        raw_text = str(f.get("text") or f.get("message") or "").strip()
+        if not raw_text:
+            raw_text = (
+                f"<analyze-finding {finding_id} (class={cls}) had no "
+                f"text/message field>"
+            )
         concerns.append(
             Concern(
                 id=finding_id,
@@ -129,7 +141,7 @@ def analyze_findings_to_concerns(
                 severity=severity,
                 artifact=str(f.get("artifact") or default_artifact_path),
                 location=str(f.get("location") or ""),
-                text=str(f.get("text") or f.get("message") or ""),
+                text=raw_text,
             )
         )
     return concerns
@@ -302,12 +314,6 @@ def run_tasker_via_engine(
     )
     spec.reviser = guarded
 
-    extra_inputs: dict[str, str] = {
-        "__analyze_report__": analyze_report_text,
-    }
-    if constitution_text:
-        extra_inputs["__constitution__"] = constitution_text
-
     # Snapshot originals BEFORE the runner mutates anything: we apply
     # the engine's guard-filtered output ourselves below.
     artifact_paths_map = {
@@ -318,6 +324,21 @@ def run_tasker_via_engine(
         for key, p in artifact_paths_map.items()
     }
 
+    # Supply EVERY sentinel key the TasksReviser reads (FR-049 fail-loud
+    # invariant enforced by run_engine_for_project). Empty string is
+    # acceptable when an input is legitimately empty (e.g. no comments
+    # block, no prior reviews) — the reviser's `artifacts.get("__X__", "")`
+    # fallback then sees the explicit empty rather than a silently-missing
+    # key. See _REQUIRED_EXTRA_INPUTS_PER_STAGE['tasked'] for the contract.
+    extra_inputs: dict[str, str] = {
+        "__analyze_report__": analyze_report_text,
+        "__prior_reviews__": "",
+        "__constitution__": constitution_text or "",
+        "__comments_block__": "",
+        "__spec_md__": originals.get(spec_key, ""),
+        "__plan_md__": originals.get(plan_key, ""),
+    }
+
     # write_back=False: we apply guards ourselves (via _GuardedReviser)
     # and write to disk below.
     result = run_engine_for_project(
@@ -326,6 +347,7 @@ def run_tasker_via_engine(
         extra_inputs=extra_inputs,
         repo_root=repo_root,
         write_back=False,
+        constitution=constitution_text,
     )
 
     # Apply the post-guard view to disk. ``guarded.post_revise_view``

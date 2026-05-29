@@ -419,13 +419,27 @@ def _parse_response(
                 f"LLMReviewer[{lens}]: concern {i} has unknown severity "
                 f"{sev_raw!r}; expected one of {[s.value for s in Severity]!r}"
             ) from exc
+        # Reject empty / whitespace-only / non-string `text` BEFORE we
+        # construct the Concern. The model-layer validator (Concern.text:
+        # min_length=1) catches it too, but raising RuntimeError here
+        # produces the engine-recognised non-convergence signal (matches
+        # the surrounding severity-rejection style) instead of a
+        # pydantic ValidationError. ``location`` is intentionally NOT
+        # required (see Concern docstring).
+        text_raw = c.get("text", "")
+        if not isinstance(text_raw, str) or not text_raw.strip():
+            raise RuntimeError(
+                f"LLMReviewer[{lens}]: concern {i} has empty/missing text; "
+                f"the LLM produced a concern with severity {sev_raw!r} but "
+                f"no description. This is a structurally invalid concern."
+            )
         concerns.append(Concern(
             id=str(c.get("id") or f"{lens}-{uuid.uuid4().hex[:8]}"),
             reviewer=lens,
             severity=sev,
             artifact=str(c.get("artifact") or default_artifact),
             location=str(c.get("location") or ""),
-            text=str(c.get("text") or ""),
+            text=text_raw.strip(),
         ))
     return verdict, concerns
 

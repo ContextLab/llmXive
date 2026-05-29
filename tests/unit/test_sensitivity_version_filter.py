@@ -31,9 +31,12 @@ def _make_run(*, expected_lens: str, caught: bool) -> CalibrationRun:
     concerns = []
     verdicts = []
     if caught:
+        # Spec-015: Concern.text is now ``min_length=1`` — the
+        # recommender only cares about the lens shape, so use an
+        # explicit synthetic marker rather than empty text.
         c = Concern(
             id="C001", reviewer=expected_lens, severity=Severity.SCIENCE,
-            artifact="x", location="", text="",
+            artifact="x", location="", text="<synthesized-injected-concern>",
         )
         concerns.append(c)
         verdicts.append(Verdict(concern_id=c.id, reviewer=expected_lens, status="fail"))
@@ -177,7 +180,7 @@ def test_adjudication_keys_preserve_original_report_indices():
         if caught:
             ic = Concern(
                 id="I001", reviewer="methodology", severity=Severity.SCIENCE,
-                artifact="x", location="", text="",
+                artifact="x", location="", text="<synthesized-injected-concern>",
             )
             injected_concerns.append(ic)
             injected_verdicts.append(

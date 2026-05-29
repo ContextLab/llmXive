@@ -243,6 +243,9 @@ def test_paper_implement_convergence_dispatched_to_sub_agent(tmp_path: Path):
         methods_tex: r"\section{Methods}brief",
         "paper/source/main.tex": r"\documentclass{article}",
         "__paper_spec_md__": "# paper spec\n- claim X",
+        # __tasks_md__ MUST be supplied or PaperImplementReviser
+        # short-circuits (the [kind:...] dispatcher has nothing to route).
+        "__tasks_md__": "[kind:paper_writing] T001 expand methods section",
     }
     concern = Concern(
         id="PI1", reviewer="writing_quality", severity=Severity.WRITING,
@@ -280,7 +283,12 @@ def test_paper_implement_science_class_kicks_back_to_research_side(tmp_path: Pat
     """Per the registry, METHODOLOGY/SCIENCE concerns on paper-review
     route back to research-side `clarified` (not paper-side)."""
     main_tex = "paper/source/main.tex"
-    artifacts = {main_tex: r"\documentclass{a}"}
+    artifacts = {
+        main_tex: r"\documentclass{a}",
+        # __tasks_md__ MUST be supplied or PaperImplementReviser
+        # short-circuits before the kickback-routing logic under test runs.
+        "__tasks_md__": "[kind:statistical_analysis] T001 redo test",
+    }
     concern = Concern(
         id="PI1", reviewer="statistical_analysis", severity=Severity.SCIENCE,
         artifact=main_tex, location="Results",

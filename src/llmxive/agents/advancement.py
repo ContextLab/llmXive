@@ -435,7 +435,13 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     ),
                     artifact=f"projects/{project.id}/specs/",
                     location="",
-                    text=getattr(it, "text", "") or "",
+                    # Spec-015: Concern.text is now ``min_length=1``.
+                    # ActionItem.text is already non-empty, but legacy
+                    # records (without action_items) may pass through
+                    # here with an empty fallback. Use an explicit
+                    # marker rather than risk ValidationError.
+                    text=(getattr(it, "text", "") or "").strip()
+                         or "<no text on legacy action item>",
                     round=1,
                 )
                 for it in consolidated
@@ -582,7 +588,10 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     ),
                     artifact=f"projects/{project.id}/paper/source/",
                     location="",
-                    text=getattr(it, "text", "") or "",
+                    # Spec-015: Concern.text is now ``min_length=1`` —
+                    # see the research_reviewer branch above for rationale.
+                    text=(getattr(it, "text", "") or "").strip()
+                         or "<no text on legacy action item>",
                     round=1,
                 )
                 for it in consolidated

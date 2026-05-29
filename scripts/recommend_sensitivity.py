@@ -185,9 +185,15 @@ def main(argv: list[str] | None = None) -> int:
             injected_concerns: list[Concern] = []
             injected_verdicts: list[Verdict] = []
             if run_info["caught"]:
+                # Spec-015 fix: Concern.text is now ``min_length=1``.
+                # We're synthesizing a degenerate concern from stored
+                # lens-level shape (the recommender only cares about
+                # the lens, not the text). Use an explicit marker so
+                # the Concern model accepts the synthetic record.
                 c = Concern(
                     id=f"INJ-{run_idx + 1:03d}", reviewer=lens,
-                    severity=Severity.SCIENCE, artifact="x", location="", text="",
+                    severity=Severity.SCIENCE, artifact="x", location="",
+                    text="<synthesized-from-stored-calibration-shape>",
                 )
                 injected_concerns.append(c)
                 injected_verdicts.append(
