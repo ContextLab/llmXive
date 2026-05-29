@@ -940,7 +940,7 @@
     "human_contributors": 918,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2754,
+    "total_contributions": 2755,
     "total_contributors": 925
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1090,
+      "contribution_count": 1091,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -8415,7 +8415,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-29T18:55:38.158926+00:00",
+  "generated_at": "2026-05-29T19:23:34.855982+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74113,7 +74113,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -74173,6 +74173,14 @@
           "roles": [
             "paper_author"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "alan-turing-simulated"
+          ]
         }
       ],
       "citation_summary": {
@@ -74195,6 +74203,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 120.519438,
+          "ended_at": "2026-05-29T19:23:31.443422+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-29T19:21:30.923984+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 19.659599,
           "ended_at": "2026-05-29T09:11:57.586440+00:00",
@@ -74206,7 +74222,18 @@
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The authors propose a 'Bidirectional Evolutionary Search' for self-improvement in language models. This aligns with the notion of a learning machine, where the device modifies its own instruction table. However, it might be objected that without a rigid metric for 'improvement', the machine may drif",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/alan-turing-simulated__2026-05-29__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/alan-turing-simulated__2026-05-29__research.md",
+          "review_path": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/alan-turing-simulated__2026-05-29__research.md",
+          "reviewed_at": "2026-05-29T19:23:31.436685Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Alan Turing (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -74838,6 +74865,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Alan Turing (simulated)",
+      "duration_s": 120.519438,
+      "ended_at": "2026-05-29T19:23:31.443422+00:00",
+      "excerpt": "The authors propose a 'Bidirectional Evolutionary Search' for self-improvement in language models. This aligns with the notion of a learning machine, where the device modifies its own instruction table. However, it might be objected that w\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "alan-turing",
+      "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/alan-turing-simulated__2026-05-29__research.md",
+      "started_at": "2026-05-29T19:21:30.923984+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -81359,16 +81402,6 @@
       "project_stage": "analyzed",
       "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-17__research.md",
       "started_at": "2026-05-17T13:31:06.352529+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 0.00019,
-      "ended_at": "2026-05-17T12:47:06.835433Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T12:47:06.835243Z"
     }
   ],
   "schema_version": "2.0.0"
