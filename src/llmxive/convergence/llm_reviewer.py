@@ -390,11 +390,22 @@ def _parse_response(
             f"got {type(meta).__name__}"
         )
     verdict = str(meta.get("verdict", "")).strip().lower() or "accept"
-    raw_concerns = meta.get("concerns") or []
+    # Spec-015 SSoT schema uses ``concerns:``; the legacy 12-panel +
+    # 8-panel prompts (paper_reviewer_*.md / research_reviewer_*.md)
+    # emit ``action_items:`` per the pre-spec-015 v1.1.0 reviewer
+    # contract. Accept either key as the source of structured
+    # findings — when BOTH are present, ``concerns`` wins (the LLM
+    # explicitly produced the SSoT shape). Same fields (text +
+    # severity); the legacy ``writing|science|fatal`` severity
+    # values are a strict subset of the spec-015 Severity enum so
+    # no mapping is needed.
+    raw_concerns = meta.get("concerns")
+    if not raw_concerns:
+        raw_concerns = meta.get("action_items") or []
     if not isinstance(raw_concerns, list):
         raise RuntimeError(
-            f"LLMReviewer[{lens}]: `concerns:` must be a list; got "
-            f"{type(raw_concerns).__name__}"
+            f"LLMReviewer[{lens}]: `concerns:`/`action_items:` must be "
+            f"a list; got {type(raw_concerns).__name__}"
         )
     concerns: list[Concern] = []
     for i, c in enumerate(raw_concerns):
