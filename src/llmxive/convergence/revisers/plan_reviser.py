@@ -34,6 +34,10 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._self_consistency import (
+    invoke_reviser_backend,
+    run_with_self_consistency,
+)
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
@@ -155,21 +159,34 @@ class _AbstractPlanReviser:
                     cache_dir=self._summarize_cache_dir,
                 )
 
-        messages = self._build_messages(
-            plan_artifacts=plan_artifacts,
-            source_spec=source_spec,
-            constitution=constitution,
-            comments_block=comments_block,
-            concerns=concerns,
-        )
-        response_text = self._call_backend(messages)
-        updates, responses = self._parse_response(
-            response_text, concerns, list(plan_artifacts.keys())
-        )
+        def _run_pass(
+            extra_instructions: str = "",
+        ) -> tuple[dict[str, str], list[ConcernResponse]]:
+            messages = self._build_messages(
+                plan_artifacts=plan_artifacts,
+                source_spec=source_spec,
+                constitution=constitution,
+                comments_block=comments_block,
+                concerns=concerns,
+                extra_instructions=extra_instructions,
+            )
+            response_text = self._call_backend(messages)
+            updates, responses = self._parse_response(
+                response_text, concerns, list(plan_artifacts.keys())
+            )
+            new_artifacts = dict(artifacts)
+            new_artifacts.update(updates)
+            return new_artifacts, responses
 
-        new_artifacts = dict(artifacts)
-        new_artifacts.update(updates)
-        return new_artifacts, responses
+        # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
+        return run_with_self_consistency(
+            backend=self._backend,
+            model=self._model,
+            repo_root=self._repo_root,
+            concerns=concerns,
+            first_pass=_run_pass(),
+            redo=_run_pass,
+        )
 
     # --- internal helpers ---------------------------------------------------
 
@@ -194,6 +211,7 @@ class _AbstractPlanReviser:
         constitution: str,
         comments_block: str,
         concerns: list[Concern],
+        extra_instructions: str = "",
     ) -> list[ChatMessage]:
         system_text = render_prompt(
             self._system_prompt_path,
@@ -247,6 +265,7 @@ class _AbstractPlanReviser:
             "  describe what's needed in `response` and tag `what_changed` "
             "  with 'spec-root cause; flagged for kickback'.\n"
         )
+        user_text += extra_instructions
 
         return [
             ChatMessage(role="system", content=system_text),
@@ -254,11 +273,7 @@ class _AbstractPlanReviser:
         ]
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
-        if self._model is not None:
-            response = self._backend.chat(messages, model=self._model)
-        else:
-            response = self._backend.chat(messages)
-        return getattr(response, "text", "") or ""
+        return invoke_reviser_backend(self, messages)
 
     def _parse_response(
         self,

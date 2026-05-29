@@ -27,6 +27,10 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._self_consistency import (
+    invoke_reviser_backend,
+    run_with_self_consistency,
+)
 from .implementer_reviser import _PER_ARTIFACT_SUMMARIZE_THRESHOLD_TOKENS
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
@@ -184,22 +188,36 @@ class PaperImplementReviser:
                     cache_dir=self._summarize_cache_dir,
                 )
 
-        messages = self._build_messages(
-            view_artifacts=view_artifacts,
-            paper_spec=paper_spec,
-            paper_plan=paper_plan,
-            results_md=results_md,
-            constitution=constitution,
-            comments_block=comments_block,
+        def _run_pass(
+            extra_instructions: str = "",
+        ) -> tuple[dict[str, str], list[ConcernResponse]]:
+            messages = self._build_messages(
+                view_artifacts=view_artifacts,
+                paper_spec=paper_spec,
+                paper_plan=paper_plan,
+                results_md=results_md,
+                constitution=constitution,
+                comments_block=comments_block,
+                concerns=concerns,
+                extra_instructions=extra_instructions,
+            )
+            response_text = self._call_backend(messages)
+            updates, responses = self._parse_response(
+                response_text, concerns, valid_paths=list(paper_artifacts.keys()),
+            )
+            updated = dict(artifacts)
+            updated.update(updates)
+            return updated, responses
+
+        # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
+        return run_with_self_consistency(
+            backend=self._backend,
+            model=self._model,
+            repo_root=self._repo_root,
             concerns=concerns,
+            first_pass=_run_pass(),
+            redo=_run_pass,
         )
-        response_text = self._call_backend(messages)
-        updates, responses = self._parse_response(
-            response_text, concerns, valid_paths=list(paper_artifacts.keys()),
-        )
-        updated = dict(artifacts)
-        updated.update(updates)
-        return updated, responses
 
     # --- internal helpers ---------------------------------------------------
 
@@ -230,6 +248,7 @@ class PaperImplementReviser:
         constitution: str,
         comments_block: str,
         concerns: list[Concern],
+        extra_instructions: str = "",
     ) -> list[ChatMessage]:
         system_text = render_prompt(
             self._system_prompt_path,
@@ -298,6 +317,7 @@ class PaperImplementReviser:
             "  range. If the actual result violates the fence, flag it as "
             "  science-root cause — do NOT massage the number to fit.\n"
         )
+        user_text += extra_instructions
 
         return [
             ChatMessage(role="system", content=system_text),
@@ -305,11 +325,7 @@ class PaperImplementReviser:
         ]
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
-        if self._model is not None:
-            response = self._backend.chat(messages, model=self._model)
-        else:
-            response = self._backend.chat(messages)
-        return getattr(response, "text", "") or ""
+        return invoke_reviser_backend(self, messages)
 
     def _parse_response(
         self,

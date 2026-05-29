@@ -36,6 +36,13 @@ class _FakeBackend:
     responses: list[str]
 
     def chat(self, messages, model=None):  # type: ignore[no-untyped-def]
+        # FR-011 self-consistency audit turns are content-distinct from
+        # revision turns (their system prompt opens with the audit banner).
+        # Return a clean "ok" audit reply for those WITHOUT consuming a
+        # queued revision reply, so multi-round revision scripts stay aligned.
+        sys_text = getattr(messages[0], "content", "") if messages else ""
+        if "auditing a revision you just produced" in sys_text:
+            return _FakeResponse(text="ok: true\nproblems: []\n")
         if not self.responses:
             raise RuntimeError("_FakeBackend ran out of canned responses")
         return _FakeResponse(text=self.responses.pop(0))

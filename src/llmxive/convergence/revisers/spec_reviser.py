@@ -35,6 +35,10 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._self_consistency import (
+    invoke_reviser_backend,
+    run_with_self_consistency,
+)
 
 # Conservative default: room for the spec, concerns, response, AND a margin
 # for the model's own thinking. The summarizer trims the idea+comments side
@@ -144,15 +148,30 @@ class SpecReviser:
         )
         bundle = self._apply_overflow_routing(bundle)
 
-        # The reviser MUST produce a structured response so the engine can
-        # build ConcernResponse records without re-parsing the spec body.
-        messages = self._build_messages(bundle, concerns)
-        response_text = self._call_backend(messages)
-        new_spec, responses = self._parse_response(response_text, concerns, spec_path)
+        def _run_pass(
+            extra_instructions: str = "",
+        ) -> tuple[dict[str, str], list[ConcernResponse]]:
+            # The reviser MUST produce a structured response so the engine can
+            # build ConcernResponse records without re-parsing the spec body.
+            messages = self._build_messages(bundle, concerns, extra_instructions)
+            response_text = self._call_backend(messages)
+            new_spec, responses = self._parse_response(
+                response_text, concerns, spec_path
+            )
+            updated = dict(artifacts)
+            updated[spec_path] = new_spec
+            return updated, responses
 
-        updated = dict(artifacts)
-        updated[spec_path] = new_spec
-        return updated, responses
+        # FR-011 self-consistency pass: first pass, then ONE corrective re-pass
+        # if the model's audit of its own revision flags problems.
+        return run_with_self_consistency(
+            backend=self._backend,
+            model=self._model,
+            repo_root=self._repo_root,
+            concerns=concerns,
+            first_pass=_run_pass(),
+            redo=_run_pass,
+        )
 
     # --- internal helpers ---------------------------------------------------
 
@@ -212,7 +231,7 @@ class SpecReviser:
         return bundle
 
     def _build_messages(
-        self, bundle: _SpecBundle, concerns: list[Concern]
+        self, bundle: _SpecBundle, concerns: list[Concern], extra_instructions: str = ""
     ) -> list[ChatMessage]:
         """Compose the system + user messages for the revision call.
 
@@ -273,6 +292,7 @@ class SpecReviser:
             "  describe what's needed in `response` and leave `what_changed` "
             "  saying 'idea-root cause; flagged for kickback'.\n"
         )
+        user_text += extra_instructions
 
         return [
             ChatMessage(role="system", content=system_text),
@@ -281,12 +301,7 @@ class SpecReviser:
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
         """Invoke the configured backend; return the response text."""
-        if self._model is not None:
-            response = self._backend.chat(messages, model=self._model)
-        else:
-            response = self._backend.chat(messages)
-        # ChatResponse(text, model, backend) per backends/base.py
-        return getattr(response, "text", "") or ""
+        return invoke_reviser_backend(self, messages)
 
     def _parse_response(
         self,

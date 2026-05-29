@@ -35,6 +35,10 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+from ._self_consistency import (
+    invoke_reviser_backend,
+    run_with_self_consistency,
+)
 from .spec_reviser import (
     _DEFAULT_INPUT_TOKEN_BUDGET,
     _approx_tokens,
@@ -216,47 +220,61 @@ class ImplementerReviser:
                     cache_dir=self._summarize_cache_dir,
                 )
 
-        messages = self._build_messages(
-            view_artifacts=view_artifacts,
-            tasks_text=tasks_text,
-            spec_text=spec_text,
-            plan_text=plan_text,
-            constitution=constitution,
-            analyze_report=analyze_report,
-            comments_block=comments_block,
-            concerns=concerns,
-        )
-        response_text = self._call_backend(messages)
-        updates, responses = self._parse_response(
-            response_text, concerns, valid_paths=list(code_artifacts.keys()),
-        )
-
-        updated = dict(artifacts)
-        updated.update(updates)
-
-        # Filesystem re-verification (#49): if the engine passed a tasks_md
-        # AND a real project root resolves, check that every [X] task's
-        # named paths exist post-revise. Unverified items become synthetic
-        # responses so R3 sees the failure.
-        if tasks_text and self._project_root.exists():
-            unverified = verify_task_assertions(
-                tasks_text, repo_root=self._project_root,
+        def _run_pass(
+            extra_instructions: str = "",
+        ) -> tuple[dict[str, str], list[ConcernResponse]]:
+            messages = self._build_messages(
+                view_artifacts=view_artifacts,
+                tasks_text=tasks_text,
+                spec_text=spec_text,
+                plan_text=plan_text,
+                constitution=constitution,
+                analyze_report=analyze_report,
+                comments_block=comments_block,
+                concerns=concerns,
+                extra_instructions=extra_instructions,
             )
-            for task_id, missing_path in unverified:
-                responses.append(
-                    ConcernResponse(
-                        concern_id=f"<filesystem-unverified:{task_id}>",
-                        response=(
-                            f"Task {task_id} is marked complete but the "
-                            f"deliverable `{missing_path}` does not exist "
-                            f"on disk under {self._project_root}."
-                        ),
-                        what_changed="<filesystem-unverified>",
-                        artifacts_changed=[],
-                    )
-                )
+            response_text = self._call_backend(messages)
+            updates, responses = self._parse_response(
+                response_text, concerns, valid_paths=list(code_artifacts.keys()),
+            )
 
-        return updated, responses
+            updated = dict(artifacts)
+            updated.update(updates)
+
+            # Filesystem re-verification (#49): if the engine passed a tasks_md
+            # AND a real project root resolves, check that every [X] task's
+            # named paths exist post-revise. Unverified items become synthetic
+            # responses so R3 sees the failure.
+            if tasks_text and self._project_root.exists():
+                unverified = verify_task_assertions(
+                    tasks_text, repo_root=self._project_root,
+                )
+                for task_id, missing_path in unverified:
+                    responses.append(
+                        ConcernResponse(
+                            concern_id=f"<filesystem-unverified:{task_id}>",
+                            response=(
+                                f"Task {task_id} is marked complete but the "
+                                f"deliverable `{missing_path}` does not exist "
+                                f"on disk under {self._project_root}."
+                            ),
+                            what_changed="<filesystem-unverified>",
+                            artifacts_changed=[],
+                        )
+                    )
+
+            return updated, responses
+
+        # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
+        return run_with_self_consistency(
+            backend=self._backend,
+            model=self._model,
+            repo_root=self._repo_root,
+            concerns=concerns,
+            first_pass=_run_pass(),
+            redo=_run_pass,
+        )
 
     # --- internal helpers ---------------------------------------------------
 
@@ -288,6 +306,7 @@ class ImplementerReviser:
         analyze_report: str,
         comments_block: str,
         concerns: list[Concern],
+        extra_instructions: str = "",
     ) -> list[ChatMessage]:
         system_text = render_prompt(
             self._system_prompt_path,
@@ -353,6 +372,7 @@ class ImplementerReviser:
             "  require those, leave the code unchanged and explain why "
             "  in `response`.\n"
         )
+        user_text += extra_instructions
 
         return [
             ChatMessage(role="system", content=system_text),
@@ -360,11 +380,7 @@ class ImplementerReviser:
         ]
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
-        if self._model is not None:
-            response = self._backend.chat(messages, model=self._model)
-        else:
-            response = self._backend.chat(messages)
-        return getattr(response, "text", "") or ""
+        return invoke_reviser_backend(self, messages)
 
     def _parse_response(
         self,
