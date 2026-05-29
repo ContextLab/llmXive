@@ -76,15 +76,18 @@ def chat_with_fallback(
     import time as _time
 
     if max_tokens is None:
-        # 32K default — tokens cost time but not money on Dartmouth's
-        # community plan, so we use the largest sensible budget.
-        # Implementer artifacts are full files (model classes,
-        # baselines, integration tests) that frequently exceeded 8K
-        # and got truncated mid-dict producing SyntaxError. 32K covers
-        # essentially all single-file outputs (qwen3.5-122b 32K ctx,
-        # gpt-oss-120b and gemma-3-27b-it have 128K ctx so headroom
-        # for the prompt is plenty).
-        max_tokens = 32768
+        # 128K default — tokens cost time but not money on Dartmouth's
+        # community plan, so we use the largest sensible budget. Per
+        # the API model registry (verified 2026-05-29):
+        #   qwen.qwen3.5-122b     max_input_tokens=256000  (was assumed 32K)
+        #   openai.gpt-oss-120b   max_input_tokens=128000
+        #   google.gemma-3-27b-it 128K context
+        # ``max_output_tokens`` is unset on the vLLM-hosted models, so
+        # there is no hard server-side cap; output is bounded by
+        # ``max_input_tokens - input_tokens``. 128K is the highest cap
+        # that fits every model in MODEL_FALLBACKS without per-model
+        # branching.
+        max_tokens = 131_072
     chain = [default_backend, *fallback_backends]
     errors: list[str] = []
     msg_list = list(messages)

@@ -33,12 +33,21 @@ __all__ = [
 # --- budget ---------------------------------------------------------------
 
 CHARS_PER_TOKEN = 4  # heuristic, consistent with paper_reviewer.py ("180KB ~= 45K tokens")
-DEFAULT_MODEL_BUDGET = 32_768  # qwen3.5-122b 32K ctx (router.py:78-87)
+# Per the Dartmouth API model registry (verified 2026-05-29 via
+# https://chat.dartmouth.edu/api/models): every reasoning-capable model
+# we use has a 128K+ context window. qwen3.5-122b's actual
+# ``max_input_tokens`` is 256K — the old 32K constant was a back-of-the-
+# envelope estimate that left ~87% of the context unused. The numbers
+# below are the ``max_input_tokens`` reported by the API; subtract the
+# completion reserve below to leave room for output + reasoning.
+DEFAULT_MODEL_BUDGET = 128_000  # safe fallback for any unknown model
 COMPLETION_RESERVE = 0.25  # leave headroom for the model's own output
 _MODEL_BUDGETS: dict[str, int] = {
-    "qwen.qwen3.5-122b": 32_768,
-    "google.gemma-4-31B-it": 128_000,
+    "qwen.qwen3.5-122b": 200_000,
+    "qwen.qwen3-vl:32b": 200_000,
     "openai.gpt-oss-120b": 128_000,
+    "google.gemma-3-27b-it": 128_000,
+    "google.gemma-4-31B-it": 128_000,
 }
 _MARKER = "[[LLMXIVE-SUMMARY v1]]"
 _SCHEMA = "llmxive-summary/1"
