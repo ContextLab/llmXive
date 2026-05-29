@@ -35,6 +35,7 @@ from llmxive.agents.paper_reviewer import PaperReviewerAgent
 from llmxive.agents.project_initializer import (
     ProjectInitializerAgent,
 )
+from llmxive.agents.publisher import PaperPublisher
 from llmxive.agents.research_reviewer import ResearchReviewerAgent
 from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
@@ -95,6 +96,13 @@ STAGE_TO_AGENT: dict[Stage, str] = {
     # paper_review (handled by advancement.evaluate).
     Stage.PAPER_COMPLETE: "paper_reviewer",
     Stage.PAPER_REVIEW: "paper_reviewer",
+    # FR-021/036/054 (discrepancy #2 / #58): the publisher runs at
+    # AWAITING_PUBLICATION_SIGNOFF. It self-gates on the maintainer DOI
+    # sign-off — no sign-off → no-op (stays awaiting); sign-off present →
+    # final compile + Zenodo DOI + publication.yaml + transition to POSTED.
+    # (PAPER_ACCEPTED → AWAITING_PUBLICATION_SIGNOFF is the pass-through flip
+    # in _decide_next_stage; the publisher is the SOLE driver of → POSTED.)
+    Stage.AWAITING_PUBLICATION_SIGNOFF: "paper_publisher",
 }
 
 
@@ -148,6 +156,7 @@ _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "research_reviewer": ResearchReviewerAgent,
     "paper_initializer": PaperInitializerAgent,
     "paper_reviewer": PaperReviewerAgent,
+    "paper_publisher": PaperPublisher,
 }
 
 _SPECKIT_AGENTS: dict[str, type[SlashCommandAgent]] = {
@@ -240,6 +249,7 @@ def run_one_step(
     """
     repo = repo_root or _repo_root()
     run_id = run_id or str(uuid4())
+    entry_stage = project.current_stage  # for the POSTED issue-close hook below
 
     agent_name = STAGE_TO_AGENT.get(project.current_stage)
 
@@ -392,16 +402,18 @@ def run_one_step(
                 "a tighter brainstorm or terminate."
             )
         project = project.model_copy(update=update_fields)
-        # Issue-lifecycle hook: close the linked GitHub issue when the
-        # project transitions to POSTED. Best-effort — failures here do
-        # not abort the pipeline.
-        if next_stage == Stage.POSTED:
-            try:
-                from llmxive.integrations import issues as issues_mod
-                issues_mod.close_issue_for_project(repo, project)
-            except Exception as exc:  # pragma: no cover — telemetry only
-                print(f"[graph] issue-close hook failed for {project.id}: {exc}")
     project_store.save(project, repo_root=repo)
+    # Issue-lifecycle hook: close the linked GitHub issue when the project
+    # REACHES POSTED this step — whether via a graph transition or the
+    # publisher's OWN self-transition (paper_publisher sets POSTED directly
+    # via project_state.update, so the graph sees no next_stage change).
+    # Best-effort — failures here do not abort the pipeline.
+    if project.current_stage == Stage.POSTED and entry_stage != Stage.POSTED:
+        try:
+            from llmxive.integrations import issues as issues_mod
+            issues_mod.close_issue_for_project(repo, project)
+        except Exception as exc:  # pragma: no cover — telemetry only
+            print(f"[graph] issue-close hook failed for {project.id}: {exc}")
     return project
 
 
@@ -513,20 +525,18 @@ def _decide_next_stage(
         return Stage.BRAINSTORMED
     if cur == Stage.PAPER_FUNDAMENTAL_FLAWS:
         return Stage.BRAINSTORMED
-    # Spec 015 T035 / FR-036 + FR-054: PAPER_ACCEPTED no longer shortcuts directly
-    # to POSTED (the publisher was unwired AND no manual DOI sign-off existed).
-    # Now: PAPER_ACCEPTED -> AWAITING_PUBLICATION_SIGNOFF (the publisher assembles
-    # the manuscript during this transition), then AWAITING_PUBLICATION_SIGNOFF ->
-    # POSTED ONLY when the maintainer's sign-off record
-    # (`.specify/memory/publication_signoff.yaml`) has been written via
-    # `llmxive publish-approve`. The publisher itself also enforces this gate
-    # (defense in depth) so no DOI is ever minted without a recorded approval.
+    # Spec 015 T035 / FR-036 + FR-054 (discrepancy #2 / #58): PAPER_ACCEPTED
+    # does NOT shortcut to POSTED. PAPER_ACCEPTED -> AWAITING_PUBLICATION_SIGNOFF
+    # is a pass-through flip here; at AWAITING the `paper_publisher` agent runs
+    # (STAGE_TO_AGENT) and is the SOLE driver of -> POSTED: it self-gates on the
+    # maintainer sign-off and only transitions after the real compile + Zenodo
+    # DOI + publication.yaml succeed. We must NOT auto-advance AWAITING -> POSTED
+    # here: doing so would mark a project POSTED with no DOI/publication.yaml if
+    # the publisher hadn't (or couldn't) run. So AWAITING stays AWAITING until
+    # the publisher itself sets POSTED (seen on the post-agent reload).
     if cur == Stage.PAPER_ACCEPTED:
         return Stage.AWAITING_PUBLICATION_SIGNOFF
     if cur == Stage.AWAITING_PUBLICATION_SIGNOFF:
-        from llmxive.speckit._publication_signoff import has_signoff
-        if has_signoff(project_dir / ".specify" / "memory"):
-            return Stage.POSTED
         return Stage.AWAITING_PUBLICATION_SIGNOFF
 
     return STAGE_AFTER_AGENT.get(cur, cur)

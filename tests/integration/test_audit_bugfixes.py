@@ -313,12 +313,24 @@ def test_signoff_rejects_empty_who_or_what(tmp_path):
 
 
 def test_graph_paper_accepted_routes_to_awaiting_signoff():
-    """T035 / FR-036: paper_accepted no longer shortcuts to posted — it routes to
-    AWAITING_PUBLICATION_SIGNOFF, where it stays until signoff is recorded."""
+    """T035 / FR-036 + discrepancy #2/#58: paper_accepted no longer shortcuts to
+    posted — it routes to AWAITING_PUBLICATION_SIGNOFF, where the paper_publisher
+    agent runs (STAGE_TO_AGENT) and is the SOLE driver of -> POSTED. The graph
+    must NOT auto-advance AWAITING -> POSTED on its own (that would post a project
+    with no DOI/publication.yaml); the publisher self-gates on the signoff."""
+    from llmxive.pipeline.graph import STAGE_TO_AGENT
+    from llmxive.types import Stage
+
+    # PAPER_ACCEPTED is a pass-through flip to AWAITING in _decide_next_stage.
     src = (_REPO / "src" / "llmxive" / "pipeline" / "graph.py").read_text()
+    assert "if cur == Stage.PAPER_ACCEPTED:" in src
     assert "return Stage.AWAITING_PUBLICATION_SIGNOFF" in src
-    assert "if cur == Stage.AWAITING_PUBLICATION_SIGNOFF:" in src
-    assert "from llmxive.speckit._publication_signoff import has_signoff" in src
+    # The publisher is now actually wired (discrepancy #2 was that it never ran).
+    assert STAGE_TO_AGENT[Stage.AWAITING_PUBLICATION_SIGNOFF] == "paper_publisher"
+    # The graph itself must NOT mint POSTED — only the publisher does. Assert the
+    # AWAITING branch no longer auto-advances to POSTED.
+    awaiting_branch = src.split("if cur == Stage.AWAITING_PUBLICATION_SIGNOFF:", 1)[1][:200]
+    assert "return Stage.POSTED" not in awaiting_branch
 
 
 def test_publisher_refuses_to_mint_without_signoff():
