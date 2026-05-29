@@ -30,6 +30,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.backends.dartmouth import DartmouthBackend
+from llmxive.calibration.builder import (
+    _IDEA_POSITIVE,
+    _PLAN_POSITIVE,
+    _SPEC_POSITIVE,
+    _TASKS_POSITIVE,
+)
 from llmxive.calibration.differential import CalibrationRun, adjudicate
 from llmxive.calibration.injectors import Injection
 from llmxive.convergence.engine import run_convergence
@@ -134,6 +140,117 @@ class _Outcome:
     elapsed_s: float
 
 
+def _load_constitution() -> str:
+    """Read the repo-level constitution; return ``""`` if absent.
+
+    The calibration runner uses the repo's own constitution as the
+    closest available stand-in for a project constitution (the
+    calibration harness runs against synthetic artifacts that have no
+    project of their own). The repo path is the convention used by
+    every research-side speckit command in ``src/llmxive/speckit/``.
+    """
+    const_path = REPO_ROOT / ".specify" / "memory" / "constitution.md"
+    if const_path.exists():
+        return const_path.read_text(encoding="utf-8")
+    return ""
+
+
+def _supporting_artifacts_for_stage(stage: str) -> dict[str, str]:
+    """Build the sentinel ``__X__`` artifact dict each stage's reviser
+    consults beyond its primary artifact.
+
+    Without these, the panel emits "spec.md not provided" /
+    "constitution.md not provided" concerns that look like real findings
+    — the spec-015 calibration repro symptom (every panel reporting
+    "X not provided" on calibration runs).
+
+    The supporting context comes from the SYNTHETIC seed positives in
+    :mod:`llmxive.calibration.builder` (NOT from real on-disk artifacts).
+    Calibration's whole point is narrow evaluation — using the seed
+    positives for the upstream stages is intentional: the panel sees
+    coherent upstream context that the negative-injected artifact
+    should be evaluated against.
+
+    Some keys are legitimately empty (no comments / no prior reviews /
+    no analyze report exists for the synthetic seeds). Empty string is
+    acceptable — the reviser's ``artifacts.get("__X__", "")`` fallback
+    sees the explicit empty rather than a silently-missing key.
+    """
+    constitution = _load_constitution()
+    # All keys default to "" so the reviser's `.get(key, "")` returns
+    # the supplied empty rather than the default — keeps the fail-loud
+    # contract explicit.
+    common_empty = {
+        "__comments_block__": "",
+        "__prior_reviews__": "",
+        "__analyze_report__": "",
+        "__spec_template__": "",
+        "__code_summary__": "",
+        "__data_summary__": "",
+    }
+    if stage == "spec":
+        # spec_reviser pulls __idea_md__, __comments_block__, __spec_template__.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__idea_md__": _IDEA_POSITIVE,
+        }
+    if stage == "plan":
+        # plan_reviser pulls __constitution__, __comments_block__, __spec_md__.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+        }
+    if stage == "tasks":
+        # tasks_reviser pulls __analyze_report__, __prior_reviews__,
+        # __constitution__, __comments_block__, __spec_md__, __plan_md__.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+            "__plan_md__": _PLAN_POSITIVE,
+        }
+    if stage == "paper_spec":
+        # paper_spec_reviser pulls __code_summary__, __data_summary__,
+        # __constitution__, __comments_block__. The code/data summaries
+        # don't exist in the synthetic harness; supply empty strings so
+        # the key is present (the reviser sees explicit empty).
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+        }
+    if stage == "paper_plan":
+        # PaperPlanReviser shares plan_reviser.py — same contract as plan.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+        }
+    if stage == "paper_tasks":
+        # PaperTasksReviser shares tasks_reviser.py — same contract as tasks.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+            "__plan_md__": _PLAN_POSITIVE,
+        }
+    if stage == "paper_implement":
+        # paper_implement_reviser pulls __paper_spec_md__, __paper_plan_md__,
+        # __results_md__, __tasks_md__, __constitution__, __comments_block__.
+        # No synthetic seed exists for results.md (it's a real-data
+        # artifact in production); supply empty so the key is present.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__paper_spec_md__": _SPEC_POSITIVE,
+            "__paper_plan_md__": _PLAN_POSITIVE,
+            "__tasks_md__": _TASKS_POSITIVE,
+            "__results_md__": "",
+        }
+    return {**common_empty, "__constitution__": constitution}
+
+
 def _run_one(
     *, stage: str, label: str, text: str, backend: object, model: str,
 ) -> ConvergenceResult:
@@ -147,8 +264,14 @@ def _run_one(
         model=model,
     )
     artifacts_key = _artifact_key_for_stage(stage)
-    artifacts = {artifacts_key: text}
-    return run_convergence(spec, artifacts)
+    # Supply the primary artifact PLUS every sentinel ``__X__`` key the
+    # stage's reviser reads (FR-049 fail-loud). Without the sentinels
+    # the panel emits "X not provided" concerns that look like real
+    # findings (spec-015 calibration repro symptom).
+    extras = _supporting_artifacts_for_stage(stage)
+    artifacts = {artifacts_key: text, **extras}
+    constitution = extras.get("__constitution__") or None
+    return run_convergence(spec, artifacts, constitution=constitution)
 
 
 def _artifact_key_for_stage(stage: str) -> str:

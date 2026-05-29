@@ -116,6 +116,11 @@ def test_run_engine_for_project_rewrites_tasks_md_on_disk(tmp_path: Path):
         artifact_paths=artifact_paths,
         extra_inputs={"__constitution__": "Principle V: real-call testing."},
         repo_root=repo_root,
+        # Partial fixture: this test only exercises the project_runner
+        # bridge mechanics (load → engine → write-back), not the
+        # tasked-stage's full reviser contract. Opt out of the FR-049
+        # fail-loud sentinel-key check.
+        require_full_extra_inputs=False,
     )
 
     # Engine converged successfully.
@@ -177,6 +182,7 @@ def test_run_engine_for_project_kickback_writes_nothing(tmp_path: Path):
         artifact_paths=artifact_paths,
         repo_root=repo_root,
         write_back=False,  # kickback: read-only run
+        require_full_extra_inputs=False,  # partial fixture (see test above)
     )
 
     assert result.convergence.converged is False
@@ -214,6 +220,7 @@ def test_run_engine_for_project_dry_run_with_write_back_false(tmp_path: Path):
         artifact_paths={tasks_key: paths["tasks_md"]},
         repo_root=repo_root,
         write_back=False,
+        require_full_extra_inputs=False,  # partial fixture (see test above)
     )
 
     # Engine converged + the file IS marked unchanged on disk.

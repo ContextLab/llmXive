@@ -22,6 +22,7 @@ and surfaces the KickbackRecord's reason in a paper-side
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import Any
@@ -30,6 +31,21 @@ import yaml
 
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+
+_LOG = logging.getLogger(__name__)
+
+# Sentinel artifact keys the PaperImplementReviser reads via
+# ``artifacts.get("__X__", "")``. SSoT for the contract lives in
+# :data:`llmxive.convergence.project_runner._REQUIRED_EXTRA_INPUTS_PER_STAGE`
+# (key 'paper_review'); kept in sync.
+_PAPER_IMPLEMENT_EXTRA_KEYS = (
+    "__paper_spec_md__",
+    "__paper_plan_md__",
+    "__results_md__",
+    "__tasks_md__",
+    "__constitution__",
+    "__comments_block__",
+)
 
 # Same task regex as the research-stage Implementer plus the
 # ``[kind:...]`` capture, kept for back-compat parsing only — the
@@ -163,6 +179,65 @@ class PaperImplementerAgent(SlashCommandAgent):
                     continue
         return out
 
+    def _gather_paper_extras(
+        self, project_dir: Path, feature_dir: Path,
+    ) -> dict[str, str]:
+        """Load the sentinel ``__X__`` artifacts the PaperImplementReviser
+        consults (paper spec/plan, results.md, tasks.md, constitution,
+        comments block).
+
+        FR-049 fail-loud contract: every key in
+        :data:`_PAPER_IMPLEMENT_EXTRA_KEYS` is ALWAYS present in the
+        returned dict. Missing files map to empty string AND log a
+        warning so operators see the under-supply (the calibration
+        repro showed paper panels emitting "spec.md not provided" when
+        these weren't supplied). The reviser handles ``""`` gracefully.
+        """
+        paper_dir = project_dir / "paper"
+        paper_spec = feature_dir / "spec.md"
+        paper_plan = feature_dir / "plan.md"
+        paper_tasks = feature_dir / "tasks.md"
+        # results.md lives at paper/results.md per the standard layout
+        # observed under projects/PROJ-023-*/paper/.
+        results_md = paper_dir / "results.md"
+        # Constitution: prefer project-level (.specify/memory/constitution.md
+        # under the project tree); fall back to nothing if absent. Keep
+        # this path consistent with the research-side TaskerAgent which
+        # reads the same file (see tasks_cmd.py).
+        const_path = project_dir / ".specify" / "memory" / "constitution.md"
+
+        def _read_or_warn(path: Path, role: str) -> str:
+            if path.exists():
+                try:
+                    return path.read_text(encoding="utf-8")
+                except OSError as exc:
+                    _LOG.warning(
+                        "paper_implement: could not read %s (%s): %s",
+                        role, path, exc,
+                    )
+                    return ""
+            _LOG.warning(
+                "paper_implement: %s not found at %s; supplying empty "
+                "string to the engine (the panel may emit a "
+                "'not provided' concern). Fix by creating the file or "
+                "running the upstream stage that produces it.",
+                role, path,
+            )
+            return ""
+
+        return {
+            "__paper_spec_md__": _read_or_warn(paper_spec, "paper spec.md"),
+            "__paper_plan_md__": _read_or_warn(paper_plan, "paper plan.md"),
+            "__tasks_md__": _read_or_warn(paper_tasks, "paper tasks.md"),
+            "__results_md__": _read_or_warn(results_md, "paper results.md"),
+            "__constitution__": _read_or_warn(const_path, "constitution.md"),
+            # comments_block is assembled by the comments-context module
+            # for the research-side commands; the paper-implement path
+            # historically didn't surface comments. Supply empty so the
+            # reviser sees an explicit key (fail-loud contract).
+            "__comments_block__": "",
+        }
+
     def write_artifacts(
         self,
         ctx: SlashCommandContext,
@@ -178,12 +253,12 @@ class PaperImplementerAgent(SlashCommandAgent):
             return []
 
         # --- engine path -------------------------------------------------
-        from llmxive.backends.router import get_backend
+        from llmxive.backends.router import make_backend
         from llmxive.convergence.engine import run_convergence
         from llmxive.convergence.reviewspecs import build_paper_implement_reviewspec
 
         try:
-            backend = get_backend(ctx.default_backend.value)
+            backend = make_backend(ctx.default_backend.value)
         except Exception:
             backend = None
 
@@ -206,6 +281,17 @@ class PaperImplementerAgent(SlashCommandAgent):
             )
             return []
 
+        # FR-049 fail-loud: supply the sentinel ``__X__`` keys the
+        # PaperImplementReviser reads. Without these the panel emits
+        # "paper spec.md not provided" / "constitution.md not provided"
+        # concerns that look like real findings — the spec-015
+        # calibration repro symptom. _gather_paper_extras ALWAYS returns
+        # every contract key (empty string when the file is missing).
+        feature_dir = Path(mechanical_output["feature_dir"])
+        extras = self._gather_paper_extras(ctx.project_dir, feature_dir)
+        artifacts = {**artifacts, **extras}
+        constitution_text = extras["__constitution__"] or None
+
         outputs: list[str] = []
         try:
             if backend is None:
@@ -218,6 +304,7 @@ class PaperImplementerAgent(SlashCommandAgent):
             )
             result = run_convergence(
                 spec, artifacts, producer="paper_implementer",
+                constitution=constitution_text,
             )
             # Atomic write-back of any artifact the reviser updated.
             for resp in result.response_history:
