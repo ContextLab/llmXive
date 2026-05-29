@@ -9,6 +9,45 @@ written an accept review** before the project can advance to
 RESEARCH_ACCEPTED or PAPER_ACCEPTED. The list of required specialists
 is read from agents/registry.yaml at evaluation time (any agent whose
 name starts with `research_reviewer_` or `paper_reviewer_`).
+
+Two distinct rejection semantics (post spec-015 T042 + maintainer review):
+
+  * **Engine kickback** (the modern path): a panel surfaces specific,
+    actionable concerns; the engine writes ``auto-revisions/round-N/``
+    with per-concern tasks; the project STAYS at RESEARCH_REVIEW or
+    PAPER_REVIEW with ``revision_spec_path`` set; the implementer
+    picks up the round + applies the revisions. This is FORMATIVE
+    feedback — "fix these specific things and try again."
+
+  * **Terminal-judgment stages** (kept, NOT folded into engine):
+    ``RESEARCH_REJECTED``, ``RESEARCH_FULL_REVISION``, and
+    ``PAPER_FUNDAMENTAL_FLAWS`` are retained because they encode a
+    SUMMATIVE editorial verdict that the engine kickback shape can't
+    represent:
+
+      - ``RESEARCH_REJECTED`` — winning recommendation is ``reject``;
+        the panel judges the submission isn't redeemable in its
+        current shape. The project transitions back to BRAINSTORMED
+        (lifecycle.ALLOWED_TRANSITIONS) so the author can re-pitch
+        from scratch.
+      - ``RESEARCH_FULL_REVISION`` — winning recommendation is
+        ``full_revision``; the panel asks for ground-up rewrite, not
+        a per-concern revision. Transitions back to CLARIFIED.
+      - ``PAPER_FUNDAMENTAL_FLAWS`` — the paper-track equivalent of
+        ``RESEARCH_REJECTED``; transitions back to BRAINSTORMED.
+
+    These stages are surfaced in ``web_data.py`` as the public
+    "rejected" status — the project tracker MUST be able to render
+    them as distinct from active projects. Folding them into engine
+    kickback would lose that public-status distinction AND would
+    require the engine to be able to represent "panel said REJECT
+    outright," which the per-concern shape can't.
+
+    The codepath at lines ~365-368 (winning_recommendation == "reject"
+    / "full_revision") is the live producer of these stages for
+    legacy records that pre-date the engine; new engine-produced
+    records use the kickback path below. The two paths coexist
+    deliberately.
 """
 
 from __future__ import annotations
