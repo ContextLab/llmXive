@@ -143,6 +143,35 @@ def _parse_self_consistency_reply(text: str) -> SelfConsistencyResult:
     return SelfConsistencyResult(ok=ok, problems=problems)
 
 
+# qwen3.5-122b (the default panel/reviser model) is a *reasoning* model: its
+# hidden chain-of-thought tokens count against the response budget, so the
+# OpenAI-shaped 512-token default is fully consumed by reasoning → empty content
+# + finish_reason=length → TransientBackendError. Reviser/self-consistency calls
+# go straight to ``backend.chat`` (not the router), so they must pass an adequate
+# budget themselves. 131072 matches ``chat_with_fallback``'s default and leaves
+# ample input room within qwen's 256K context.
+_REASONING_MAX_TOKENS = 131_072
+
+
+def _chat_reasoning_safe(
+    backend: Any, messages: list[ChatMessage], model: str | None
+) -> Any:
+    """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
+    gracefully for backends / test fakes whose signature omits the kwargs."""
+    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
+    if model is not None:
+        kwargs["model"] = model
+    try:
+        return backend.chat(messages, **kwargs)
+    except TypeError:
+        # Fake/legacy signature: retry without max_tokens, then bare.
+        kwargs.pop("max_tokens", None)
+        try:
+            return backend.chat(messages, **kwargs)
+        except TypeError:
+            return backend.chat(messages)
+
+
 def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     """Shared backend call for a reviser's revision turn.
 
@@ -151,11 +180,7 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     when the backend yields no text).
     """
     model = getattr(reviser, "_model", None)
-    backend = reviser._backend
-    if model is not None:
-        response = backend.chat(messages, model=model)
-    else:
-        response = backend.chat(messages)
+    response = _chat_reasoning_safe(reviser._backend, messages, model)
     return getattr(response, "text", "") or ""
 
 
@@ -198,10 +223,7 @@ def self_consistency_pass(
             ChatMessage(role="system", content=system_text),
             ChatMessage(role="user", content=user_text),
         ]
-        if model is not None:
-            response = backend.chat(messages, model=model)
-        else:
-            response = backend.chat(messages)
+        response = _chat_reasoning_safe(backend, messages, model)
         reply_text = getattr(response, "text", "") or ""
         if not reply_text.strip():
             raise ValueError("self-consistency reply was empty")
