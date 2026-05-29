@@ -49,6 +49,13 @@ class _FakeBackend:
     last_messages: list = None  # type: ignore[assignment]
 
     def chat(self, messages, model=None):  # type: ignore[no-untyped-def]
+        # FR-011 self-consistency audit turns are content-distinct (their
+        # system prompt opens with the audit banner). Return a clean 'ok'
+        # audit reply for those WITHOUT recording them as last_messages, so
+        # the revision call's messages stay observable for assertions.
+        sys_text = getattr(messages[0], "content", "") if messages else ""
+        if "auditing a revision you just produced" in sys_text:
+            return _FakeResponse(text="ok: true\nproblems: []\n")
         self.last_messages = list(messages)
         return _FakeResponse(text=self.response_text)
 
