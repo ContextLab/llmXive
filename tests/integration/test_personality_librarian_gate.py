@@ -14,7 +14,6 @@ import json
 import shutil
 from pathlib import Path
 
-import pytest
 import yaml
 
 from llmxive.agents import personality as p

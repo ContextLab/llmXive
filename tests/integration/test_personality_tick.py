@@ -18,10 +18,8 @@ from __future__ import annotations
 
 import json
 import shutil
-from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
 import yaml
 
 from llmxive.agents import personality as p
@@ -70,7 +68,7 @@ def _make_repo(tmp_path: Path) -> Path:
             "points_research": {},
             "revision_round": 0,
             "speckit_paper_dir": None,
-            "speckit_research_dir": f"specs/001-mechanistic-interpretability-of-ctcf-bin",
+            "speckit_research_dir": "specs/001-mechanistic-interpretability-of-ctcf-bin",
             "title": "CTCF Interpretability",
             "updated_at": "2026-05-13T00:00:00+00:00",
         }),

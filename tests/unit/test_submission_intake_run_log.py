@@ -16,8 +16,6 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 
 def _read_run_log_lines(repo: Path) -> list[dict]:
     log_root = repo / "state" / "run-log"

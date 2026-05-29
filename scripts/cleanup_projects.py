@@ -17,15 +17,15 @@ from __future__ import annotations
 
 import argparse
 import re
+import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "src"))
-import shutil
 
 import yaml  # noqa: E402
 
@@ -100,7 +100,7 @@ def improve_titles_from_content(repo: Path, *, apply: bool) -> int:
         if apply:
             new = project.model_copy(update={
                 "title": candidate,
-                "updated_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(UTC),
             })
             project_store.save(new, repo_root=repo)
         fixed += 1
@@ -297,7 +297,7 @@ def migrate_legacy_design(repo: Path, project: Project, *, apply: bool) -> bool:
     new_project = project.model_copy(update={
         "current_stage": Stage.SPECIFIED,
         "speckit_research_dir": str(feature_dir.relative_to(repo).as_posix()),
-        "updated_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(UTC),
     })
     project_store.save(new_project, repo_root=repo)
 

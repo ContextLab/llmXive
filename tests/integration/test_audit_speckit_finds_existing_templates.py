@@ -22,7 +22,6 @@ from pathlib import Path
 
 from llmxive.audit.template_vs_real import audit
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 

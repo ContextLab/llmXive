@@ -5,7 +5,9 @@ from __future__ import annotations
 import unittest
 
 from llmxive.pipeline.pdf_pipeline.normalize_figures import (
-    _parse_width_to_ratio, _ratio_to_bucket, normalize,
+    _parse_width_to_ratio,
+    _ratio_to_bucket,
+    normalize,
 )
 
 

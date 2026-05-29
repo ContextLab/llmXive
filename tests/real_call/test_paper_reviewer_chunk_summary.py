@@ -17,14 +17,13 @@ import os
 
 import pytest
 
+from llmxive.agents.paper_reviewer import _summarize_chunk
+from llmxive.credentials import load_dartmouth_key
+
 pytestmark = pytest.mark.skipif(
     os.environ.get("LLMXIVE_REAL_TESTS") != "1",
     reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
 )
-
-
-from llmxive.agents.paper_reviewer import _summarize_chunk
-from llmxive.credentials import load_dartmouth_key
 
 
 _CORE = r"""
@@ -53,7 +52,7 @@ necessity} claim central to the benchmark.
 """.strip()
 
 # Pad to a realistic chunk size (~30KB) so the summarizer has actual
-# verbose prose to compress. Real production chunks are 80–100KB; we
+# verbose prose to compress. Real production chunks are 80-100KB; we
 # use 30KB here to keep the test under 3 minutes while still hitting
 # the "input long enough that summarization makes sense" regime.
 _PADDING = (
@@ -75,7 +74,7 @@ def test_summarize_chunk_preserves_required_macros() -> None:
     # real-call gate is set but the env doesn't have the key).
     try:
         load_dartmouth_key()
-    except Exception as exc:  # noqa: BLE001 — defensive, test must not crash
+    except Exception as exc:
         pytest.skip(f"Dartmouth API key unavailable: {exc}")
 
     summary = _summarize_chunk(

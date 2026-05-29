@@ -54,9 +54,7 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from pylatexenc.latexwalker import (
-        LatexWalker, LatexEnvironmentNode, LatexMacroNode, LatexCommentNode,
-    )
+    from pylatexenc.latexwalker import LatexWalker
 except ImportError:
     LatexWalker = None  # type: ignore
 
@@ -455,7 +453,6 @@ _SAFE_FORWARD_PACKAGES = {
     "graphicx",                       # llmxive provides it, but harmless
     "epsfig",                         # legacy graphics
     "wrapfig",                        # text-wrap around figures
-    "amsthm",                         # theorem/proof envs
     "thmtools",
     "footmisc",                       # footnote variants
     "anyfontsize",                    # arbitrary font sizes in math
@@ -711,7 +708,8 @@ def _forwarded_tcolorbox(source: str) -> list[str]:
 
     for m in re.finditer(r"\\tcbuselibrary\s*(?:\[[^\]]*\])?\s*\{[^}]*\}", src):
         if m.group(0) not in seen:
-            seen.add(m.group(0)); libs.append(m.group(0))
+            seen.add(m.group(0))
+            libs.append(m.group(0))
 
     for m in re.finditer(r"\\tcbset\b", src):
         arg, _ = _capture_braced_arg(src, m.end())
@@ -723,7 +721,8 @@ def _forwarded_tcolorbox(source: str) -> list[str]:
         if arg is not None and re.search(r"/\.(?:style|append\s*style|code|init)\b", arg):
             piece = "\\tcbset{" + arg + "}"
             if piece not in seen:
-                seen.add(piece); sets.append(piece)
+                seen.add(piece)
+                sets.append(piece)
 
     for cmd in _TCB_DEF_CMDS:
         for m in re.finditer(r"\\" + cmd + r"\b", src):
@@ -731,7 +730,8 @@ def _forwarded_tcolorbox(source: str) -> list[str]:
             piece = "\\" + cmd
             bm = re.match(r"\s*\[[^\]]*\]", src[i:])      # optional [init]
             if bm:
-                piece += src[i:i + bm.end()]; i += bm.end()
+                piece += src[i:i + bm.end()]
+                i += bm.end()
             name, i = _capture_braced_arg(src, i)          # {name}
             if name is None:
                 continue
@@ -739,7 +739,8 @@ def _forwarded_tcolorbox(source: str) -> list[str]:
             for _ in range(2):                              # optional [n][default]
                 bm = re.match(r"\s*\[[^\]]*\]", src[i:])
                 if bm:
-                    piece += src[i:i + bm.end()]; i += bm.end()
+                    piece += src[i:i + bm.end()]
+                    i += bm.end()
                 else:
                     break
             body, i = _capture_braced_arg(src, i)           # {body}
@@ -747,7 +748,8 @@ def _forwarded_tcolorbox(source: str) -> list[str]:
                 continue
             piece += "{" + body + "}"
             if name.strip() not in seen:
-                seen.add(name.strip()); defs.append(piece)
+                seen.add(name.strip())
+                defs.append(piece)
 
     return libs + sets + defs
 
@@ -1275,7 +1277,7 @@ def _move_table_captions_below(body: str) -> str:
     cap_re = re.compile(r"\\caption\s*\{", re.IGNORECASE)
     lab_re = re.compile(r"^\s*\\label\s*\{[^}]*\}", re.IGNORECASE)
     out: list[str] = []
-    for env in ("table\\*?",):
+    for _env in ("table\\*?",):
         # We rebuild `body` per env; only `table` for now (figure already
         # below by convention). The list is here so adding more later
         # is a one-line change.
@@ -1479,7 +1481,7 @@ def _convert_wrapped_env(body: str, env_src: str, env_dst: str) -> str:
     Inside the wrapfigure the source's `\\includegraphics[width=\\linewidth]`
     means `\\linewidth` is the WRAP container's width (e.g. `0.3\\linewidth`
     of the page). Once we convert to a plain `figure`, `\\linewidth` means
-    the full text width, and the figure renders 3× too large — visible
+    the full text width, and the figure renders 3x too large -- visible
     overflow into footers on the published PDF. So we capture the wrap
     width arg (the third `{W}` brace) and rewrite every inner
     `\\includegraphics[width=\\linewidth]` / `\\includegraphics[width=\\columnwidth]`
@@ -1869,7 +1871,7 @@ def extract(
     # Author: PREFER the canonical `paper/metadata.json::authors` list
     # captured at intake from the arXiv API. It's a clean list of plain
     # names — free of the affiliation superscripts, footnote markers
-    # (†/‡/∗), embedded institution logos, and \href markup that pollute a
+    # (dagger/double-dagger/asterisk markers), embedded institution logos, and \href markup that pollute a
     # transplanted LaTeX `\author{}` block. Mining the source's `\author`
     # leaked exactly that cruft onto the title page (PROJ-570:
     # "Hanzhong Guo1,2 Jie Wu2,†…", PROJ-572: "Keming Wu1,12,†CUBE …",

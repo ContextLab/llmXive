@@ -26,7 +26,7 @@ import argparse
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -71,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
         print("error: pdftoppm not found on PATH; install poppler", file=sys.stderr)
         return 2
 
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     shots_root = Path(args.out_root) / today / "screenshots"
 
     papers_dir = Path(args.papers_dir)

@@ -10,21 +10,16 @@ Covers:
 from __future__ import annotations
 
 import hashlib
-import tempfile
 from pathlib import Path
 
-import pytest
-
 from llmxive.agents.implementer import (
-    apply_search_and_replace,
-    apply_unified_diff,
-    _is_forbidden_deletion,
     _parse_llm_edit,
     _restore,
     _snapshot,
     _validate_edit_path,
+    apply_search_and_replace,
+    apply_unified_diff,
 )
-
 
 # ---- search_and_replace --------------------------------------------------
 

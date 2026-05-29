@@ -8,8 +8,6 @@ import sys
 import textwrap
 from pathlib import Path
 
-import pytest
-
 from tests.phase1 import citation_resolver as cr
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

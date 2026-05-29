@@ -6,16 +6,14 @@ import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 import yaml
 
 from llmxive.audit.speckit_prune import (
+    _walk_back_to_real_stage,
     audit_artifacts,
     prune_templates,
-    _walk_back_to_real_stage,
 )
-
 
 _FIXTURES_ROOT = Path(__file__).resolve().parents[1] / "fixtures" / "audit"
 
@@ -108,7 +106,7 @@ class TestPruneTransitiveDeletion(unittest.TestCase):
             self.assertTrue((spec_dir / "plan.md").exists())
             self.assertTrue((spec_dir / "tasks.md").exists())
 
-            report = prune_templates(repo, apply=True)
+            prune_templates(repo, apply=True)
 
             # spec.md and tasks.md (template) gone; plan.md (real) survives.
             self.assertFalse((spec_dir / "spec.md").exists(), "spec.md should be deleted")

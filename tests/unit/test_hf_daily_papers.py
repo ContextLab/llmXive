@@ -13,6 +13,8 @@ Covers:
 
 from __future__ import annotations
 
+from datetime import UTC
+
 from llmxive.hf_daily_papers import (
     BOT_SUBMITTER,
     ISSUE_LABELS,
@@ -143,11 +145,11 @@ class TestDateFallback:
     """
 
     def test_today_utc_defaults_to_yesterday(self) -> None:
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
 
         from llmxive.hf_daily_papers import _today_utc
 
-        expected = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+        expected = (datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%d")
         assert _today_utc() == expected
 
     def test_fetch_falls_back_on_400(self, monkeypatch) -> None:

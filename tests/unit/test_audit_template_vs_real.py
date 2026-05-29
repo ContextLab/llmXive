@@ -16,7 +16,6 @@ from pathlib import Path
 
 from llmxive.audit.template_vs_real import audit, classify
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = REPO_ROOT / ".specify" / "templates"
 FIXTURE_REAL = REPO_ROOT / "tests" / "fixtures" / "audit" / "speckit_real"

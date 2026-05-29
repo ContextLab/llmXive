@@ -11,7 +11,7 @@ CostInvariantError guard (T103) makes any non-zero cost fail-fast.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -48,7 +48,7 @@ def test_runlog_writer_blocks_non_zero_cost(tmp_path: Path) -> None:
     for sub in ("projects", "run-log", "locks", "citations"):
         (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     entry = RunLogEntry(
         run_id="11111111-1111-1111-1111-111111111111",
         entry_id="22222222-2222-2222-2222-222222222222",
@@ -75,7 +75,7 @@ def test_zero_cost_runlog_succeeds(tmp_path: Path) -> None:
     for sub in ("projects", "run-log", "locks", "citations"):
         (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     entry = RunLogEntry(
         run_id="44444444-4444-4444-4444-444444444444",
         entry_id="55555555-5555-5555-5555-555555555555",

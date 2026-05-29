@@ -46,14 +46,14 @@ def _english_dominance(s: str) -> float:
         cp = ord(ch)
         # Basic Latin (0000-007F), Latin-1-Supplement (0080-00FF),
         # General Punctuation (2000-206F), and a few stray
-        # mathematical-operator chars LLMs love (×, –, —, ', ", …).
-        if cp <= 0x024F or (0x2000 <= cp <= 0x206F) or ch in "×∼≈≤≥":
+        # mathematical-operator chars LLMs love (×, –, —, ', ", …).  # noqa: RUF003 -- documents the intentional unicode test data on the next line
+        if cp <= 0x024F or (0x2000 <= cp <= 0x206F) or ch in "×∼≈≤≥":  # noqa: RUF001 -- intentional unicode chars the loader must count as acceptable
             n_english += 1
     return n_english / len(s)
 
 
 def _content_words(text: str) -> set[str]:
-    """Set of length-≥4 lowercased tokens, used for Jaccard distinctness."""
+    """Set of length->=4 lowercased tokens, used for Jaccard distinctness."""
     import re
     return {w.lower() for w in re.findall(r"[A-Za-z]{4,}", text)}
 

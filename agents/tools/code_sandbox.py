@@ -16,7 +16,6 @@ requirements.txt.
 from __future__ import annotations
 
 import os
-import shutil
 import signal
 import subprocess
 import sys
@@ -153,4 +152,4 @@ def run_python(
             pass
 
 
-__all__ = ["SandboxResult", "SandboxError", "run_python"]
+__all__ = ["SandboxError", "SandboxResult", "run_python"]

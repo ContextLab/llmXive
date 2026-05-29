@@ -3,7 +3,7 @@
 Validates every file under ``agents/prompts/personalities/`` against
 ``contracts/personality-prompt-frontmatter.schema.yaml``. The
 front-matter rules — required fields, slug pattern, summary word
-count, sources length 3–6 — are enforced by the loader. This test is
+count, sources length 3-6 -- are enforced by the loader. This test is
 the structural integrity check that runs on every commit.
 
 PER F4 NOTE: this test also serves as the HOOK for the human-review of

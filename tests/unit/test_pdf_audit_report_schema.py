@@ -8,7 +8,6 @@ from pathlib import Path
 
 import jsonschema
 
-
 SCHEMA_PATH = (
     Path(__file__).resolve().parents[2]
     / "specs"

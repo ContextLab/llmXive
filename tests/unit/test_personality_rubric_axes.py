@@ -5,11 +5,9 @@ from __future__ import annotations
 import unittest
 
 from llmxive.audit.personality_rubric import (
-    RubricScores,
     score_full,
     score_spec010_axes,
 )
-
 
 PERSONA_SIGNALS = ["Lovelace objection", "symbolic computation", "Bernoulli algorithm"]
 
@@ -43,7 +41,7 @@ class TestSpec010Axes(unittest.TestCase):
             ],
             "interest_signal": "Lovelace objection",
         }
-        pp, aw, is_ = score_spec010_axes(fm, PERSONA_SIGNALS)
+        pp, _aw, _is = score_spec010_axes(fm, PERSONA_SIGNALS)
         self.assertEqual(pp, 0)
 
     def test_unverified_adjacent_work_fails_axis(self) -> None:
@@ -55,7 +53,7 @@ class TestSpec010Axes(unittest.TestCase):
             ],
             "interest_signal": "Lovelace objection",
         }
-        pp, aw, is_ = score_spec010_axes(fm, PERSONA_SIGNALS)
+        _pp, aw, _is = score_spec010_axes(fm, PERSONA_SIGNALS)
         self.assertEqual(aw, 0)
 
     def test_interest_signal_not_in_persona_signals(self) -> None:
@@ -71,7 +69,7 @@ class TestSpec010Axes(unittest.TestCase):
             ],
             "interest_signal": "Some Other Signal Not In The List",
         }
-        pp, aw, is_ = score_spec010_axes(fm, PERSONA_SIGNALS)
+        _pp, _aw, is_ = score_spec010_axes(fm, PERSONA_SIGNALS)
         self.assertEqual(is_, 0)
 
     def test_abstain_with_no_adjacent_work_passes(self) -> None:

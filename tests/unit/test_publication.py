@@ -7,16 +7,13 @@ Covers T037 + the F9 finding remediation (metadata.json mirror assertion).
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-
-import yaml
 
 from llmxive.state import publication as pub_state
 from llmxive.types import AuthorEntry, DOIVersion, Publication
 
-
-_NOW = datetime(2026, 5, 19, 10, 30, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 5, 19, 10, 30, 0, tzinfo=UTC)
 
 
 def _make_publication(project_id: str = "PROJ-001-test") -> Publication:

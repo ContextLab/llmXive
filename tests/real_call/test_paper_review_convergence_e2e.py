@@ -21,22 +21,14 @@ mocks.
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 import yaml
 
-
-pytestmark = pytest.mark.skipif(
-    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
-    reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
-)
-
-
 from llmxive.agents.advancement import evaluate
 from llmxive.state import project as project_store
-from llmxive.state import reviews as reviews_store
 from llmxive.types import (
     ActionItem,
     BackendName,
@@ -46,8 +38,13 @@ from llmxive.types import (
     Stage,
 )
 
+pytestmark = pytest.mark.skipif(
+    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
+    reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
+)
 
-_NOW = datetime.now(timezone.utc)
+
+_NOW = datetime.now(UTC)
 
 
 def _save_project(repo: Path, project_id: str, *, stage: Stage = Stage.PAPER_REVIEW) -> Project:

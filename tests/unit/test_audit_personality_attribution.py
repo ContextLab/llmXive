@@ -11,8 +11,6 @@ import importlib.util
 import json
 from pathlib import Path
 
-import pytest
-
 # Load the script as a module by file path.
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "audit_personality_attribution.py"
 spec = importlib.util.spec_from_file_location("audit_mod", SCRIPT)
@@ -56,7 +54,7 @@ class TestAudit:
                 "outcome": "committed",
             },
         ])
-        n, viol, rows = audit_mod.audit(tmp_path / "state" / "run-log")
+        _n, viol, rows = audit_mod.audit(tmp_path / "state" / "run-log")
         assert viol == 1
         assert "model_name" in rows[0]["problems"]
 
@@ -72,7 +70,7 @@ class TestAudit:
                 "outcome": "committed",
             },
         ])
-        n, viol, rows = audit_mod.audit(tmp_path / "state" / "run-log")
+        _n, viol, rows = audit_mod.audit(tmp_path / "state" / "run-log")
         assert viol == 1
         assert "(simulated)" in rows[0]["problems"]
 

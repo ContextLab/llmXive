@@ -16,8 +16,8 @@ import pytest
     reason="DARTMOUTH_CHAT_API_KEY not set",
 )
 def test_dartmouth_real_chat() -> None:
-    from llmxive.backends.dartmouth import DartmouthBackend, is_free_model
     from llmxive.backends.base import ChatMessage
+    from llmxive.backends.dartmouth import DartmouthBackend, is_free_model
 
     backend = DartmouthBackend()
     models = backend.list_models()

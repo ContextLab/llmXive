@@ -10,7 +10,8 @@ Pure file-fixture-driven; no LLM calls. Asserts:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+import random
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -19,7 +20,6 @@ from llmxive.pipeline import lock as lockmod
 from llmxive.pipeline import scheduler
 from llmxive.state import project as project_store
 from llmxive.types import Project, Stage
-
 
 _RESEARCH_STAGES_NEEDING_DIR = {
     Stage.SPECIFIED, Stage.CLARIFY_IN_PROGRESS, Stage.CLARIFIED,
@@ -34,7 +34,7 @@ _PAPER_STAGES_NEEDING_DIR = {
 
 
 def _make(repo: Path, project_id: str, stage: Stage, *, age_days: int = 0) -> Project:
-    now = datetime.now(timezone.utc) - timedelta(days=age_days)
+    now = datetime.now(UTC) - timedelta(days=age_days)
     kwargs: dict[str, object] = {
         "id": project_id,
         "title": project_id,
@@ -63,9 +63,6 @@ def _bootstrap_state(repo: Path) -> None:
         (repo / "state" / sub).mkdir(parents=True, exist_ok=True)
 
 
-import random
-
-
 def _picked_distribution(repo: Path, *, n_samples: int = 400) -> dict[str, int]:
     """Sample pick_next() `n_samples` times with a fresh seeded RNG and
     return a histogram of project_ids. Used for probabilistic assertions."""
@@ -81,7 +78,7 @@ def _picked_distribution(repo: Path, *, n_samples: int = 400) -> dict[str, int]:
 
 def test_in_progress_strongly_preempts_analyzed(tmp_path: Path) -> None:
     """IN_PROGRESS is one rank deeper than ANALYZED in STAGE_PROGRESSION;
-    its base weight is STAGE_GROWTH_BASE^1 ≈ 1.5× higher. Over many
+    its base weight is STAGE_GROWTH_BASE^1 ~= 1.5x higher. Over many
     samples, IN_PROGRESS should win the strong majority of picks."""
     _bootstrap_state(tmp_path)
     _make(tmp_path, "PROJ-001-fresh", Stage.ANALYZED, age_days=10)
@@ -160,7 +157,7 @@ def test_comments_boost_priority(tmp_path: Path) -> None:
     """Two projects at the same stage; the one with more comments should
     get a noticeable share boost."""
     _bootstrap_state(tmp_path)
-    p_quiet = _make(tmp_path, "PROJ-500-quiet", Stage.ANALYZED, age_days=1)
+    _make(tmp_path, "PROJ-500-quiet", Stage.ANALYZED, age_days=1)
     p_busy = _make(tmp_path, "PROJ-501-busy", Stage.ANALYZED, age_days=1)
     # Plant 10 comments on PROJ-501.
     reviews_dir = tmp_path / "projects" / p_busy.id / "reviews" / "research"

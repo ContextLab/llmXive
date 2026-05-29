@@ -8,8 +8,6 @@ Verifies:
 
 from __future__ import annotations
 
-import shutil
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -18,7 +16,6 @@ from llmxive.speckit._real_only_guard import (
     assert_real_or_raise,
     is_real,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_REAL = REPO_ROOT / "tests" / "fixtures" / "audit" / "speckit_real" / "spec.md"

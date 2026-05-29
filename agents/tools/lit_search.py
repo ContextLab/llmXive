@@ -114,7 +114,7 @@ def lit_search(query: str, max_results: int = 8) -> list[Paper]:
     librarian = LibrarianAgent(entry)
     try:
         result = librarian.invoke(term=query, target_n=max_results)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("librarian.invoke failed; lit_search returning []: %s", exc)
         return []
 

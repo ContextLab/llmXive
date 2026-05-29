@@ -22,7 +22,6 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Iterable
 
 try:
     import yaml
@@ -83,7 +82,7 @@ def _verify_url(url: str, label_tokens: list[str]) -> tuple[bool, str]:
     try:
         resp = requests.get(url, timeout=15, allow_redirects=True,
                             headers={"User-Agent": _BROWSER_UA})
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         return False, f"fetch failed: {e}"
     if resp.status_code in (401, 403, 451):
         return True, f"HTTP {resp.status_code} (paywall/region — citation valid, body not checked)"

@@ -31,7 +31,7 @@ class TestSelectNext:
     def test_lex_next_after_each_slot(self) -> None:
         pool = _pool(["a", "b", "c", "d", "e"])
         # Walk the rotation through every slot.
-        slugs = [pp.slug for pp in pool]
+        _slugs = [pp.slug for pp in pool]
         assert p.select_next(pool, "a").slug == "b"
         assert p.select_next(pool, "b").slug == "c"
         assert p.select_next(pool, "c").slug == "d"

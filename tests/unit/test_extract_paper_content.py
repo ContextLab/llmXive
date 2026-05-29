@@ -12,6 +12,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -99,7 +100,7 @@ Hello world.
         assert r"\end{document}" not in body
 
     def test_no_document_returns_empty_body(self, ex) -> None:
-        pre, body = ex._slice_document(r"\documentclass{article} no body")
+        _pre, body = ex._slice_document(r"\documentclass{article} no body")
         assert body == ""
 
 
@@ -340,7 +341,7 @@ class TestForwardedPackages:
         # `! Option clash for package natbib` (PROJ-603). We forward a
         # bare \usepackage{natbib} instead — a no-op re-request.
         out = ex._forwarded_packages(r"\usepackage[numbers, sort&compress]{natbib}")
-        natbib_lines = [l for l in out if "natbib" in l]
+        natbib_lines = [line for line in out if "natbib" in line]
         assert natbib_lines == [r"\usepackage{natbib}"]
 
     def test_dedupe_across_sources(self, ex) -> None:
@@ -348,7 +349,7 @@ class TestForwardedPackages:
             r"\usepackage{natbib}", r"\RequirePackage{natbib}"
         )
         # Same package + same opts → dedupe
-        assert len([l for l in out if "natbib" in l]) == 1
+        assert len([line for line in out if "natbib" in line]) == 1
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -542,7 +543,7 @@ class TestCleanTitle:
         src = tmp_path / "paper" / "source"
         src.mkdir(parents=True)
         (tmp_path / "paper" / "metadata.json").write_text(
-            '{"title": "%s"}' % title, encoding="utf-8")
+            f'{{"title": "{title}"}}', encoding="utf-8")
         return src
 
     def test_subtitle_title_uses_metadata(self, ex, tmp_path: Path) -> None:
@@ -606,13 +607,12 @@ class TestDisabledMacroForwarding:
             r"\providecommand{\vect}[1]{\bm{#1}}" "\n"
         )
         out = ex._forwarded_newcommands(source)
-        joined = "\n".join(out)
         # Every emitted line must be brace-balanced.
         for line in out:
             nb = __import__("re").sub(r"\\[{}]", "", line)
             assert nb.count("{") == nb.count("}"), line
         # The good macro still comes through.
-        assert any(r"\vect" in l for l in out)
+        assert any(r"\vect" in line for line in out)
 
 
 class TestAlgorithmConflict:
@@ -620,7 +620,7 @@ class TestAlgorithmConflict:
     algpseudocode/algorithmic — the clash leaks a ~1-inch text column over
     the whole document (107-page blowup). Keep the family the body uses."""
 
-    PKGS = [r"\usepackage{algorithm}", r"\usepackage{algpseudocode}",
+    PKGS: ClassVar[list] = [r"\usepackage{algorithm}", r"\usepackage{algpseudocode}",
             r"\usepackage[ruled]{algorithm2e}"]
 
     def test_algorithmicx_body_drops_algorithm2e(self, ex) -> None:

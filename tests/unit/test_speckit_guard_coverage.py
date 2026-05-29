@@ -7,10 +7,8 @@ the guard (`assert_real_or_raise` or `guard_emit`).
 
 from __future__ import annotations
 
-import ast
 import unittest
 from pathlib import Path
-
 
 SPECKIT_ROOT = Path(__file__).resolve().parents[2] / "src" / "llmxive" / "speckit"
 
@@ -57,10 +55,10 @@ class TestGuardModuleExists(unittest.TestCase):
     def test_guard_is_importable(self) -> None:
         # Sanity: the guard module must exist and expose its API.
         from llmxive.speckit._real_only_guard import (
+            TemplateRefused,
             assert_real_or_raise,
             guard_emit,
             is_real,
-            TemplateRefused,
         )
         # Smoke: the public surface is callable.
         self.assertTrue(callable(assert_real_or_raise))

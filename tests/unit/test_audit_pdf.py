@@ -13,9 +13,7 @@ import json
 import unittest
 from pathlib import Path
 
-from llmxive.audit.pdf_auditor import audit, scan_pdf
-from llmxive.audit.manifest import write_manifest
-
+from llmxive.audit.pdf_auditor import audit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DOCS_PAPERS = REPO_ROOT / "docs" / "papers"

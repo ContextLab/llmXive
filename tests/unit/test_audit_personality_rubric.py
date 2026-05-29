@@ -94,7 +94,7 @@ class TestIsManufactured(unittest.TestCase):
         self.assertNotIn("specific_question", missing)
 
     def test_not_manufactured_with_pointer(self):
-        m, missing = is_manufactured(_tick(
+        m, _missing = is_manufactured(_tick(
             "Reminiscent of arxiv:2301.01234 — same construction, different domain."
         ))
         self.assertFalse(m)
