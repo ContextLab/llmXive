@@ -35,7 +35,7 @@ def run_audit(name: str, **kwargs: Any) -> dict:
 
 
 # Import sub-modules so they self-register. Done at end to avoid circular imports.
-from . import (
+from . import (  # noqa: E402  (deferred to break the auditor<->package cycle)
     feedback_loop,  # noqa: F401
     manifest,  # noqa: F401
     pdf_auditor,  # noqa: F401

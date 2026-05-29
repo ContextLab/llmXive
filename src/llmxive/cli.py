@@ -232,7 +232,6 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     from datetime import datetime
     from pathlib import Path
 
-    from llmxive.agents import idea_lifecycle
     from llmxive.agents import registry as registry_loader
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.router import chat_with_fallback
@@ -258,7 +257,6 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     except KeyError:
         print("error: brainstorm agent not registered", file=sys.stderr)
         return 1
-    agent = idea_lifecycle.BrainstormAgent(entry)
 
     rng = random.Random()
     created = 0

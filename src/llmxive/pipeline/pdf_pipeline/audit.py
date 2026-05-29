@@ -66,7 +66,7 @@ def _check_literal_commands(page_text: str) -> list[dict[str, Any]]:
 
 _CITE_AUTHOR_YEAR_RE = re.compile(r"\(\s*[A-Z][A-Za-z]+(?:\s+et\s+al\.?)?,\s*(?:19|20)\d{2}[a-z]?\s*\)")
 _CITE_SUPERSCRIPT_RE = re.compile(r"¹|²|³|[⁰-⁹]")
-_CITE_SQUARE_RE = re.compile(r"\[\d+(?:[–—\-,\s]+\d+)*\]")
+_CITE_SQUARE_RE = re.compile(r"\[\d+(?:[–—\-,\s]+\d+)*\]")  # noqa: RUF001  (en/em-dash are real citation-range separators)
 
 
 def _check_cite_style(page_text: str) -> list[dict[str, Any]]:

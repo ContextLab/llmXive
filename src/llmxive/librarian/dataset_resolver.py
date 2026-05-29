@@ -12,10 +12,16 @@ import json
 import re
 import zipfile
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
 
 import requests
+import yaml
 
+from llmxive.librarian import dataset_sources as _sources
+from llmxive.librarian import verify as _verify
 from llmxive.librarian.dataset_sources import USER_AGENT, DatasetCandidate
+from llmxive.librarian.verify import query_relevance_score
 
 _SAMPLE_BYTES = 256 * 1024   # cap the sample download at 256 KB
 _SNIFF_TIMEOUT = 20
@@ -130,9 +136,6 @@ def sniff_format(url: str) -> FormatReport:
     return FormatReport(ok, fmt, len(sample), None if ok else "unrecognized/non-dataset content")
 
 
-from llmxive.librarian import verify as _verify
-
-
 @dataclass(frozen=True)
 class VerifiedDataset:
     intent: str
@@ -204,11 +207,6 @@ def probe_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifyRes
     )
     return VerifyResult("verified", c.url, None, dataset)
 
-
-from pathlib import Path
-
-from llmxive.librarian import dataset_sources as _sources
-from llmxive.librarian.verify import query_relevance_score
 
 _DOI_RE = re.compile(r"\b(10\.\d{4,9}/[^\s)\]\"'>}]+)", re.IGNORECASE)
 # Capitalized/alnum dataset-name tokens, e.g. QM9, ImageNet, CIFAR-10, MD17.
@@ -312,11 +310,6 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
             candidates_tried=tried,
         ))
     return ResolvedDatasets(datasets=resolved)
-
-
-from datetime import UTC, datetime
-
-import yaml
 
 
 def write_manifest(rd: ResolvedDatasets, *, project_dir: Path) -> Path:

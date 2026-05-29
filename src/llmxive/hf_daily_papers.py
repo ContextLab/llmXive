@@ -248,7 +248,7 @@ def _list_recent_paper_issue_urls(repo: str, *, per_page: int = 100) -> set[str]
         text = proc.stdout.strip()
         try:
             data = json.loads(text)
-            chunks = [data] if isinstance(data, list) else [data]
+            chunks = [data]
         except json.JSONDecodeError:
             # adjacent arrays
             text = text.replace("][", ",")

@@ -67,7 +67,7 @@ def extract_citations(artifact_text: str) -> list[ExtractedCitation]:
     out: list[ExtractedCitation] = []
 
     # Markdown links first — they carry titles.
-    for i, m in enumerate(_MARKDOWN_LINK_RE.finditer(artifact_text)):
+    for m in _MARKDOWN_LINK_RE.finditer(artifact_text):
         url = m.group("url")
         key = ("url", url)
         if key in seen:

@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import re
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -76,7 +76,7 @@ SnakeNameField = Annotated[str, Field(pattern=SNAKE_NAME_RE.pattern)]
 # ----- enums ------------------------------------------------------------------
 
 
-class Stage(str, Enum):
+class Stage(StrEnum):
     """Project lifecycle stages (FR-003).
 
     Mirrors the enum in contracts/project-state.schema.yaml. The
@@ -154,7 +154,7 @@ class Stage(str, Enum):
     AGENT_BLOCKED = "agent_blocked"
 
 
-class ArtifactKind(str, Enum):
+class ArtifactKind(StrEnum):
     IDEA = "idea"
     TECHNICAL_DESIGN = "technical_design"
     IMPLEMENTATION_PLAN = "implementation_plan"
@@ -166,39 +166,39 @@ class ArtifactKind(str, Enum):
     PROJECT_STATE = "project_state"
 
 
-class BackendName(str, Enum):
+class BackendName(StrEnum):
     DARTMOUTH = "dartmouth"
     # The HF Inference-API backend was removed (2026-05-29): HF models run
     # LOCALLY via the `local`/transformers backend, with no API token.
     LOCAL = "local"
 
 
-class BackendKind(str, Enum):
+class BackendKind(StrEnum):
     OPENAI_COMPATIBLE = "openai_compatible"
     HF_INFERENCE = "hf_inference"
     LOCAL_TRANSFORMERS = "local_transformers"
 
 
-class CitationKind(str, Enum):
+class CitationKind(StrEnum):
     URL = "url"
     ARXIV = "arxiv"
     DOI = "doi"
     DATASET = "dataset"
 
 
-class VerificationStatus(str, Enum):
+class VerificationStatus(StrEnum):
     VERIFIED = "verified"
     UNREACHABLE = "unreachable"
     MISMATCH = "mismatch"
     PENDING = "pending"
 
 
-class ReviewerKind(str, Enum):
+class ReviewerKind(StrEnum):
     LLM = "llm"
     HUMAN = "human"
 
 
-class Outcome(str, Enum):
+class Outcome(StrEnum):
     SUCCESS = "success"
     FAILED = "failed"
     SKIPPED = "skipped"

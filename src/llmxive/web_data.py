@@ -601,7 +601,7 @@ def _recent_activity(repo: Path, *, limit: int = 500) -> list[dict[str, Any]]:
                 except json.JSONDecodeError:
                     continue
                 entries.append(e)
-        # We over-collect 4×limit to give the sort room — if the latest
+        # We over-collect 4x limit to give the sort room — if the latest
         # month has only `limit//4` ticks, we still want to surface the
         # tail from the prior month.
         if len(entries) >= limit * 4:
@@ -918,11 +918,11 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
     # Filter junk entries — colons, commas, periods, semicolons sometimes leak
     # from arXiv parses where a label like "Mind Lab :" gets split into "Mind
     # Lab" + ":". Also skip bots and empty strings.
-    _JUNK_AUTHORS = {":", ",", ".", ";", "-", "—", "–"}
+    _JUNK_AUTHORS = {":", ",", ".", ";", "-", "—", "–"}  # noqa: RUF001  (en/em-dash are real junk-author tokens to strip)
     raw_authors = metadata_authors or frontmatter_authors
     seen_norm: set[str] = set()
     for author in raw_authors:
-        name = (author or "").strip().strip(":,.;-—–").strip()
+        name = (author or "").strip().strip(":,.;-—–").strip()  # noqa: RUF001
         if not name or name in _JUNK_AUTHORS:
             continue
         if _is_bot_submitter(name):
@@ -1443,7 +1443,7 @@ def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any
     """
     # Junk-author filter (arXiv label-parse glitches sometimes emit `:`,
     # `,`, or other lone punctuation as an "author"). Applied per-entry.
-    _JUNK_AUTHORS = {":", ",", ".", ";", "-", "—", "–"}
+    _JUNK_AUTHORS = {":", ",", ".", ";", "-", "—", "–"}  # noqa: RUF001  (en/em-dash are real junk-author tokens to strip)
 
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for p in projects:
@@ -1474,7 +1474,7 @@ def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any
                 raw_authors.extend(str(a) for a in (fm.get("paper_authors") or []))
         seen_for_project: set[str] = set()
         for author in raw_authors:
-            name = (author or "").strip().strip(":,.;-—–").strip()
+            name = (author or "").strip().strip(":,.;-—–").strip()  # noqa: RUF001
             if not name or name in _JUNK_AUTHORS:
                 continue
             if _is_bot_submitter(name):

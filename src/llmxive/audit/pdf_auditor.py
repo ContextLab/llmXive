@@ -35,7 +35,7 @@ UNEVAL_CMD_RE = re.compile(r"\\\\?[A-Za-z]{2,}\{[^}]*\}")
 NON_NUMERIC_REF_RE = re.compile(
     r"\(\s*(?:[A-Z][a-zA-Z]+(?:\s+(?:et\s+al\.?|and|&)\s+[A-Z][a-zA-Z]+)?)\s*,?\s*(?:19|20)\d{2}[a-z]?\s*\)"
 )
-NUMERIC_BRACKET_RE = re.compile(r"\[\s*\d+\s*(?:,\s*\d+\s*)*(?:[-–]\s*\d+\s*)?\]")
+NUMERIC_BRACKET_RE = re.compile(r"\[\s*\d+\s*(?:,\s*\d+\s*)*(?:[-–]\s*\d+\s*)?\]")  # noqa: RUF001  (en-dash is a real citation-range separator)
 
 # Section numbering: monotonic "<N>" or "<N>.<M>" headings
 SECTION_HEAD_RE = re.compile(r"^(\d+)(?:\.\d+)*\s+\S", re.MULTILINE)

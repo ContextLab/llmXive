@@ -4,7 +4,7 @@ The user's rule (spec 011 / 2026-05-15): comments must affect future
 agent behavior — i.e. when a stage agent runs on a project, the agent
 should be aware of what reviewers and personalities have said about
 the work so far. The standard `Agent` base class injects an
-`activity.jsonl` feed (`runner.py:50–89`), but `SlashCommandAgent`
+`activity.jsonl` feed (`runner.py:50-89`), but `SlashCommandAgent`
 bypasses that flow entirely. This module provides a single helper that
 each speckit `*_cmd.py` calls when building its user prompt.
 

@@ -328,7 +328,7 @@ class PaperPublisher(Agent):
                 prior = pub_state.load(project.id, repo_root=repo)
                 if prior:
                     existing_versions = list(prior.doi_versions)
-            all_versions = existing_versions + [doi_version]
+            all_versions = [*existing_versions, doi_version]
             review_summary = self._summarize_reviews(paper_dir, hist)
             citation = _build_citation_string(
                 authors, str(metadata.get("title") or project.title),
@@ -390,12 +390,14 @@ class PaperPublisher(Agent):
                     )
                 except Exception:
                     pass
-            raise
-        finally:
-            return self._emit_run_log(
-                ctx, started, ended, outcome, failure_reason, outputs,
-                backend_used, model_used,
-            )
+        # Emit exactly once. A ``return`` in ``finally`` previously swallowed
+        # the early SKIPPED returns above and the FAILED path here, double-
+        # appending run-log entries (B012). Agents never propagate — failures
+        # are reported via outcome=FAILED so the cron sweep continues.
+        return self._emit_run_log(
+            ctx, started, ended, outcome, failure_reason, outputs,
+            backend_used, model_used,
+        )
 
     # --- Helpers --------------------------------------------------------
 

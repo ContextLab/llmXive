@@ -397,10 +397,6 @@ class LLMXiveImplementer(Agent):
             if success_count > 0:
                 # Author addition (FR-006..FR-008).
                 metadata_path = paper_dir / "metadata.json"
-                canonical = (
-                    f"{CANONICAL_IMPLEMENTER_NAME} ({self.entry.default_model} on "
-                    f"{self.entry.default_backend.value}, {ended.strftime('%Y-%m-%d')})"
-                )
                 author_added = authors_module.add_implementer(
                     metadata_path,
                     agent_name=CANONICAL_IMPLEMENTER_NAME,
@@ -625,14 +621,17 @@ class LLMXiveImplementer(Agent):
                 )
 
         except Exception as exc:
+            # Agents never propagate: failures are captured into the run log
+            # (outcome=FAILED) so the cron sweep continues. A ``return`` in
+            # ``finally`` previously swallowed this path *and* overrode the
+            # early SKIPPED return above, double-appending run-log entries
+            # (B012). Set the outcome here and emit exactly once below.
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
-            raise
-        finally:
-            return self._emit_run_log(
-                ctx, started, outcome, failure_reason, outputs,
-                backend_used, model_used,
-            )
+        return self._emit_run_log(
+            ctx, started, outcome, failure_reason, outputs,
+            backend_used, model_used,
+        )
 
     # --- Helpers --------------------------------------------------------
 
@@ -934,12 +933,12 @@ def _windowed_view(tex_path: Path, action_item_text: str, *, window: int = 60) -
         # Fall back: include the file head + tail.
         head = lines[: window // 2]
         return "\n".join(
-            [f"{n+1:5d}: {l}" for n, l in enumerate(head)]
+            [f"{n+1:5d}: {ln}" for n, ln in enumerate(head)]
             + ["...", f"(file is {len(lines)} lines; full view truncated)"]
         )
     lo = max(0, target_idx - window // 2)
     hi = min(len(lines), target_idx + window // 2)
-    return "\n".join(f"{n+1:5d}: {l}" for n, l in enumerate(lines[lo:hi], start=lo))
+    return "\n".join(f"{n+1:5d}: {ln}" for n, ln in enumerate(lines[lo:hi], start=lo))
 
 
 def _read_tasks_md(tasks_path: Path) -> list[dict]:
