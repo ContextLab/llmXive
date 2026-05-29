@@ -89,7 +89,7 @@ def test_short_circuit_when_tasks_md_empty(tmp_path: Path):
         id="C001", reviewer="x", severity=Severity.WRITING,
         artifact="x", location="", text="x",
     )]
-    updated, responses = reviser.revise(artifacts, concerns)
+    _updated, responses = reviser.revise(artifacts, concerns)
     assert backend.call_count == 0
     assert len(responses) == 1
 

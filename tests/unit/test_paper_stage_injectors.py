@@ -61,9 +61,9 @@ def test_orphan_plan_section_adds_unauthorized_section():
 def test_both_new_injectors_registered():
     assert "unsupported_claim" in INJECTORS
     assert "orphan_plan_section" in INJECTORS
-    fn, lens = INJECTORS["unsupported_claim"]
+    _fn, lens = INJECTORS["unsupported_claim"]
     assert lens == "claims_supported"
-    fn, lens = INJECTORS["orphan_plan_section"]
+    _fn, lens = INJECTORS["orphan_plan_section"]
     assert lens == "spec_section_coverage"
 
 
