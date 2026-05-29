@@ -47,6 +47,13 @@ _INJECTOR_HEADER_RE = re.compile(r"^##\s+\d+\.\s+Injector:\s+`([^`]+)`", re.MULT
 _LENS_RE = re.compile(r"^-\s+\*\*Expected lens\*\*:\s+`([^`]+)`", re.MULTILINE)
 _STATUS_CAUGHT_RE = re.compile(r"^-\s+\*\*Status\*\*:\s+✅\s+CAUGHT", re.MULTILINE)
 _STATUS_MISSED_RE = re.compile(r"^-\s+\*\*Status\*\*:\s+❌\s+MISSED", re.MULTILINE)
+# Runner-version tag (FR-044 noise robustness). Written by
+# AdjudicationReport.to_markdown(runner_version=...) as an HTML comment
+# on line 2 of the report. Returns None if the report predates the
+# tag (legacy reports stay un-versioned).
+_VERSION_RE = re.compile(
+    r"^<!--\s*runner_version:\s*(\S+)\s*-->\s*$", re.MULTILINE,
+)
 # Adjudicated line examples we accept:
 #   - [legitimate] 1.2: ... — reasoning: ...
 #   - [spurious]   3.1: ... — reasoning: ...
@@ -54,6 +61,13 @@ _STATUS_MISSED_RE = re.compile(r"^-\s+\*\*Status\*\*:\s+❌\s+MISSED", re.MULTIL
 _ADJ_LINE_RE = re.compile(
     r"^-\s+\[(legitimate|spurious|\s)\]\s+(\d+)\.(\d+):", re.MULTILINE,
 )
+
+
+def _parse_runner_version(text: str) -> str | None:
+    """Extract the runner-version tag from a report. Returns ``None``
+    for legacy reports without the tag."""
+    m = _VERSION_RE.search(text)
+    return m.group(1) if m is not None else None
 
 
 def _parse_one_report(text: str) -> tuple[list[dict], dict[tuple[int, int], str]]:
@@ -124,6 +138,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Cumulative spurious-extras count at or above which the "
              "recommendation is REDUCE.",
     )
+    p.add_argument(
+        "--version-filter", default=None,
+        help="FR-044 noise robustness: aggregate ONLY reports whose "
+             "runner_version tag matches this value (typically a git "
+             "short hash). Reports of unknown (untagged) version are "
+             "EXCLUDED when this flag is active. Use 'latest' to "
+             "auto-pick the most-common version across the inputs.",
+    )
     args = p.parse_args(argv)
 
     # Build in-memory AdjudicationReports + a unified adjudication dict
@@ -146,9 +168,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     reports: list[AdjudicationReport] = []
+    report_versions: list[str | None] = []
     unified_adj: dict[tuple[int, int, int], str] = {}
     for ri, report_path in enumerate(args.reports):
         text = report_path.read_text(encoding="utf-8")
+        report_versions.append(_parse_runner_version(text))
         parsed_runs, adjudication = _parse_one_report(text)
         runs: list[CalibrationRun] = []
         for run_idx, run_info in enumerate(parsed_runs):
@@ -190,11 +214,42 @@ def main(argv: list[str] | None = None) -> int:
         for (run_i, fi), verdict in adjudication.items():
             unified_adj[(ri, run_i, fi)] = verdict
 
+    # Resolve --version-filter, including the "latest" auto-pick
+    # convention (most-common runner_version across the input set;
+    # ties broken by lexicographic order so the output is reproducible).
+    version_filter: str | None = args.version_filter
+    if version_filter == "latest":
+        from collections import Counter
+        known = [v for v in report_versions if v is not None]
+        if not known:
+            print(
+                "[recommend-sensitivity] WARNING: --version-filter=latest "
+                "supplied but NO reports carry a runner_version tag. "
+                "Falling back to all-reports aggregation.",
+                file=sys.stderr,
+            )
+            version_filter = None
+        else:
+            counter = Counter(known)
+            # most_common(1) returns [(version, count)]; resolve ties
+            # via lexicographic order on the version string.
+            top_count = counter.most_common(1)[0][1]
+            top_versions = sorted(v for v, c in counter.items() if c == top_count)
+            version_filter = top_versions[0]
+            print(
+                f"[recommend-sensitivity] --version-filter=latest "
+                f"resolved to {version_filter!r} "
+                f"({counter[version_filter]} of {len(reports)} reports).",
+                file=sys.stderr,
+            )
+
     recs = recommend_sensitivity(
         reports,
         adjudication=unified_adj,
         miss_threshold=args.miss_threshold,
         spurious_extras_threshold=args.spurious_threshold,
+        version_filter=version_filter,
+        report_versions=report_versions if version_filter is not None else None,
     )
     rendered = render_recommendations_markdown(recs, panel=args.panel)
 

@@ -96,16 +96,34 @@ class AdjudicationReport:
     def total_extra_findings(self) -> int:
         return sum(len(r.extra_findings_on_clean) for r in self.runs)
 
-    def to_markdown(self, *, domain: str = "(unspecified)") -> str:
+    def to_markdown(
+        self,
+        *,
+        domain: str = "(unspecified)",
+        runner_version: str | None = None,
+    ) -> str:
         """Render the report as a maintainer-readable markdown document.
 
         Sensitivity tuning per the design doc (FR-046) is DIFFERENTIAL +
         manual: there is no fixed over-flag percentage threshold. The
         report calls out every clean-side concern + every miss so the
         maintainer can decide which prompt changes to make.
+
+        Args:
+            domain: domain tag rendered in the header (FR-043).
+            runner_version: optional runner-version identifier (typically
+                the git short hash of the commit that produced the
+                report). When present, the recommender
+                (``llmxive.calibration.sensitivity.recommend_sensitivity``)
+                can filter reports by version so stale calibration data
+                from pre-fix iterations isn't accidentally aggregated
+                with post-fix runs (FR-044 noise robustness across
+                multiple runs of the SAME code state).
         """
         lines: list[str] = []
         lines.append(f"# Calibration adjudication — domain: {domain}")
+        if runner_version:
+            lines.append(f"<!-- runner_version: {runner_version} -->")
         lines.append("")
         lines.append(
             f"**Summary**: {self.caught_count} of {len(self.runs)} "
@@ -113,6 +131,9 @@ class AdjudicationReport:
             f"{self.total_extra_findings} extra finding(s) on clean "
             f"artifacts (each flagged for manual adjudication)."
         )
+        if runner_version:
+            lines.append("")
+            lines.append(f"**Runner version**: `{runner_version}`")
         lines.append("")
         lines.append(
             "Per design SSoT (FR-046): adjustment is DIFFERENTIAL + "

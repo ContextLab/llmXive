@@ -142,6 +142,8 @@ def recommend_sensitivity(
     adjudication: dict[AdjudicationKey, AdjudicationVerdict] | None = None,
     miss_threshold: int = 1,
     spurious_extras_threshold: int = 3,
+    version_filter: str | set[str] | None = None,
+    report_versions: list[str | None] | None = None,
 ) -> list[SensitivityRecommendation]:
     """Adaptive sensitivity recommender (FR-044).
 
@@ -162,11 +164,22 @@ def recommend_sensitivity(
             or above which the recommendation is REDUCE. Defaults to 3
             (per the design doc's "minor FPs that resolve within one
             review/revision round are acceptable; many → reduce").
+        version_filter: optional runner-version filter. When provided
+            alongside ``report_versions``, only reports whose recorded
+            runner-version matches are aggregated. Supports a single
+            version string (exact match) OR a set of acceptable
+            versions. Reports with ``None`` version (unknown) are
+            EXCLUDED when a filter is active (fail closed — don't mix
+            unknown-provenance reports with version-pinned ones).
+        report_versions: parallel list of runner-version strings
+            (one per entry in ``reports``, same order). ``None`` entries
+            mark reports of unknown version. Required when
+            ``version_filter`` is provided.
 
     Returns:
         One :class:`SensitivityRecommendation` per expected_lens that
-        appeared in the reports. Order is sorted by lens name for
-        deterministic output.
+        appeared in the (possibly filtered) reports. Order is sorted
+        by lens name for deterministic output.
 
     The recommender never modifies the reports or the adjudication
     dict — pure read.
@@ -174,7 +187,41 @@ def recommend_sensitivity(
     adjudication = adjudication or {}
     by_lens: dict[str, _LensTally] = defaultdict(_LensTally)
 
+    # Build the (filtered) (report_index, report) iterable. Index is
+    # preserved so adjudication-dict keys (which use the ORIGINAL
+    # report index) still resolve correctly.
+    if version_filter is not None and report_versions is None:
+        raise ValueError(
+            "version_filter requires report_versions to be supplied "
+            "(same length as reports)"
+        )
+    if report_versions is not None and len(report_versions) != len(reports):
+        raise ValueError(
+            f"report_versions length ({len(report_versions)}) must match "
+            f"reports length ({len(reports)})"
+        )
+
+    accepted_versions: set[str] | None
+    if version_filter is None:
+        accepted_versions = None
+    elif isinstance(version_filter, str):
+        accepted_versions = {version_filter}
+    else:
+        accepted_versions = set(version_filter)
+
+    def _included(ri: int) -> bool:
+        if accepted_versions is None:
+            return True
+        if report_versions is None:
+            return True
+        v = report_versions[ri]
+        if v is None:
+            return False  # fail closed
+        return v in accepted_versions
+
     for ri, report in enumerate(reports):
+        if not _included(ri):
+            continue
         for run_i, run in enumerate(report.runs):
             lens = run.expected_lens
             tally = by_lens[lens]

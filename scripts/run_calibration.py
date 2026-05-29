@@ -228,9 +228,26 @@ def run_stage(*, stage: str, model: str, domain: str, max_tokens: int,
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     out_path = REPORTS_DIR / f"{stage}__{ts}.md"
-    out_path.write_text(report.to_markdown(domain=domain))
+    runner_version = _runner_version()
+    out_path.write_text(report.to_markdown(domain=domain, runner_version=runner_version))
     print(f"[calibration] report → {out_path.relative_to(REPO_ROOT)}", flush=True)
     return out_path
+
+
+def _runner_version() -> str | None:
+    """Best-effort runner-version identifier — git short hash of the
+    commit producing this report. Used by FR-044's recommender to
+    filter stale reports out of aggregation. Returns ``None`` if git
+    isn't available or the working tree isn't a git repo."""
+    import subprocess as _sp
+    try:
+        out = _sp.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=REPO_ROOT, stderr=_sp.DEVNULL, timeout=5,
+        ).decode().strip()
+        return out or None
+    except (OSError, _sp.SubprocessError):
+        return None
 
 
 def _outcomes_to_calibration_runs(
