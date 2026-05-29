@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-05-29T16:48:01.385312+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-05-29T18:05:14.947946+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-20T21:35:13.397998+00:00'
-  ended_at: '2026-05-20T22:31:26.051927+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-578-https-arxiv-org-abs-2605-14906/reviews/research/geoffrey-west-simulated__2026-05-20__research.md
 - slug: john-von-neumann
   started_at: '2026-05-20T22:31:26.051927+00:00'
   ended_at: '2026-05-20T23:02:25.388332+00:00'
@@ -1189,3 +1182,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/reviews/stephen-wolfram-simulated__2026-05-29__paper.md
+- slug: ada-lovelace
+  started_at: '2026-05-29T16:48:01.385312+00:00'
+  ended_at: '2026-05-29T18:05:14.947946+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/ada-lovelace-simulated__2026-05-29__paper.md
