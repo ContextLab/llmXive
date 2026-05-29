@@ -6,7 +6,10 @@ reference test fixture. Per Constitution Principle III: no mocks.
 
 from __future__ import annotations
 
+import os
 import random
+
+import pytest
 
 from llmxive.librarian.pdf_sample import (
     PDFSampleResult,
@@ -18,6 +21,14 @@ from llmxive.librarian.pdf_sample import (
 )
 from llmxive.librarian.search import ArxivClient
 from llmxive.librarian.verify import VerificationLog, VerifiedCitation, verify_citation
+
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
+
+# Downloads the real Vaswani arXiv PDF, so it skips outside real-call mode.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="downloads a real arXiv PDF; needs LLMXIVE_REAL_TESTS=1",
+)
 
 # --- Sample-size selection -------------------------------------------------
 
@@ -96,6 +107,7 @@ def test_pdf_url_for_unrecognized_pointer():
 # --- Real PDF download + extraction ---------------------------------------
 
 
+@real_required
 def test_real_arxiv_pdf_extraction():
     """Vaswani PDF is downloadable + pypdf extracts ≥500 words of text."""
     ax = ArxivClient(min_interval_seconds=0.5)

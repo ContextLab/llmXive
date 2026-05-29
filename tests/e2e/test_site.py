@@ -7,6 +7,7 @@ Real DOM, real loaded JSON. No mocks.
 from __future__ import annotations
 
 import json
+import os
 import socket
 import subprocess
 import sys
@@ -14,6 +15,15 @@ import time
 from pathlib import Path
 
 import pytest
+
+# Every test in this module launches a real Chromium browser, which hangs
+# in a sandbox without a usable browser. Gate the whole module behind the
+# real-call opt-in so the default suite skips it.
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
+pytestmark = pytest.mark.skipif(
+    not _REAL,
+    reason="launches a real browser; needs LLMXIVE_REAL_TESTS=1",
+)
 
 playwright = pytest.importorskip("playwright")
 from playwright.sync_api import sync_playwright  # noqa: E402

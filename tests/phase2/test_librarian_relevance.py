@@ -17,12 +17,25 @@ Concrete failure mode caught:
 
 from __future__ import annotations
 
+import os
+
+import pytest
+
 from llmxive.librarian.search import Candidate
 from llmxive.librarian.verify import (
     QUERY_RELEVANCE_THRESHOLD,
     VerificationFailure,
     query_relevance_score,
     verify_citation,
+)
+
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
+
+# This test passes no query, so verify_citation moves past the metadata
+# gate and attempts real URL resolution — skip it outside real-call mode.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="attempts real URL resolution; needs LLMXIVE_REAL_TESTS=1",
 )
 
 # --- Pure-function tests (no HTTP) -------------------------------------------
@@ -97,6 +110,7 @@ def test_verify_citation_rejects_query_irrelevant_candidate() -> None:
     assert "query-relevance" in result.details
 
 
+@real_required
 def test_verify_citation_no_query_disables_gate() -> None:
     """Backward-compat: callers not passing `query` skip the gate. We
     verify by constructing a candidate whose URL would 404 (proving we

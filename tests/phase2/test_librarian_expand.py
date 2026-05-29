@@ -11,6 +11,8 @@ is returned.
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from llmxive.credentials import (
@@ -28,10 +30,18 @@ from llmxive.librarian.search import ArxivClient, SemanticScholarClient
 
 HAS_DM_KEY = bool(load_dartmouth_key(prompt_if_missing=False))
 HAS_SS_KEY = bool(load_semantic_scholar_key(prompt_if_missing=False))
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 
 dm_required = pytest.mark.skipif(
-    not HAS_DM_KEY,
-    reason="DARTMOUTH_CHAT_API_KEY not set; LLM-driven expansion tests need it",
+    not (HAS_DM_KEY and _REAL),
+    reason="DARTMOUTH_CHAT_API_KEY + LLMXIVE_REAL_TESTS=1 needed; LLM-driven expansion tests",
+)
+
+# The iterate_until_target tests hit the real arXiv (and optionally SS)
+# HTTP APIs even without a key, so they must skip outside real-call mode.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="hits real arXiv/SS HTTP; needs LLMXIVE_REAL_TESTS=1",
 )
 
 
@@ -152,6 +162,7 @@ def test_expand_terms_excludes_original():
 # --- iterate_until_target (real backend search) ---------------------------
 
 
+@real_required
 def test_iterate_terminates_on_target_reached():
     """Once verified count ≥ target_n, the loop returns ``success_after_expansion``."""
     # Use a small set of 3 well-known terms; target_n=2.
@@ -172,6 +183,7 @@ def test_iterate_terminates_on_target_reached():
     assert result.total_queries_issued >= 1
 
 
+@real_required
 def test_iterate_records_per_term_hit_count():
     """per_term_hit_count has an entry for each expanded term + the original."""
     expanded = [(1, "transformer attention")]
@@ -189,6 +201,7 @@ def test_iterate_records_per_term_hit_count():
     assert "transformer attention" in result.per_term_hit_count
 
 
+@real_required
 def test_iterate_exhausted_when_no_hits():
     """When backends return zero verifiable candidates, outcome is ``exhausted``."""
     # Use a deliberately bogus expanded term and a high target.
@@ -210,6 +223,7 @@ def test_iterate_exhausted_when_no_hits():
         assert len(result.accumulated_verified) < 5
 
 
+@real_required
 def test_iterate_dedups_across_terms():
     """If the same paper surfaces via two different expanded terms, it
     only appears once in accumulated_verified."""
@@ -229,6 +243,7 @@ def test_iterate_dedups_across_terms():
     assert len(pointers) == len(set(pointers)), f"duplicate pointers in result: {pointers}"
 
 
+@real_required
 def test_iterate_handles_no_ss_client():
     """When SS client is None (no key), iterate works on arXiv only."""
     expanded = [(1, "transformer attention")]
