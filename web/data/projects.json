@@ -8022,7 +8022,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-29T09:38:40.673597+00:00",
+  "generated_at": "2026-05-29T09:52:17.026006+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -73593,7 +73593,7 @@
         "data": null,
         "idea": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/idea/https-arxiv-org-abs-2605-28814.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -73615,10 +73615,10 @@
       },
       "created_at": "2026-05-29T09:11:53.509109+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814/idea/https-arxiv-org-abs-2605-28814.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814/idea/https-arxiv-org-abs-2605-28814.md",
-        "repo_path": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/idea/https-arxiv-org-abs-2605-28814.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28814 Submitted by: github-actions[bot] (Intake from human-submission issue #249.)",
@@ -73655,7 +73655,7 @@
         "data": null,
         "idea": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/idea/https-arxiv-org-abs-2605-28820.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/pdf/2605.28820.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -73677,10 +73677,10 @@
       },
       "created_at": "2026-05-29T09:12:13.004794+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/idea/https-arxiv-org-abs-2605-28820.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/idea/https-arxiv-org-abs-2605-28820.md",
-        "repo_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/idea/https-arxiv-org-abs-2605-28820.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/pdf/2605.28820.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/pdf/2605.28820.pdf",
+        "repo_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/pdf/2605.28820.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28820 Submitted by: github-actions[bot] (Intake from human-submission issue #248.)",
@@ -73717,7 +73717,7 @@
         "data": null,
         "idea": "projects/PROJ-639-https-arxiv-org-abs-2605-28774/idea/https-arxiv-org-abs-2605-28774.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/source/main.tex",
         "paper_spec": null,
@@ -73739,10 +73739,10 @@
       },
       "created_at": "2026-05-29T09:12:15.263978+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/source/main.tex",
-        "repo_path": "projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-639-https-arxiv-org-abs-2605-28774/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28774 Submitted by: github-actions[bot] (Intake from human-submission issue #247.)",
@@ -73779,7 +73779,7 @@
         "data": null,
         "idea": "projects/PROJ-640-https-arxiv-org-abs-2605-28293/idea/https-arxiv-org-abs-2605-28293.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex",
         "paper_spec": null,
@@ -73801,10 +73801,10 @@
       },
       "created_at": "2026-05-29T09:12:17.602529+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex",
-        "repo_path": "projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28293 Submitted by: github-actions[bot] (Intake from human-submission issue #246.)",
@@ -73841,7 +73841,7 @@
         "data": null,
         "idea": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/idea/https-arxiv-org-abs-2605-28816.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/source/main.tex",
         "paper_spec": null,
@@ -73863,10 +73863,10 @@
       },
       "created_at": "2026-05-29T09:12:20.266778+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/source/main.tex",
-        "repo_path": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28816 Submitted by: github-actions[bot] (Intake from human-submission issue #245.)",
