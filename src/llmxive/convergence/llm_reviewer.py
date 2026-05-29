@@ -223,27 +223,100 @@ def _reformat_unquoted_scalars(yaml_text: str) -> str:
     return "\n".join(out) + ("\n" if yaml_text.endswith("\n") else "")
 
 
+def _force_block_scalar_all_freetext_keys(yaml_text: str) -> str:
+    """Last-resort recovery — force EVERY ``text:`` / ``location:`` /
+    ``response:`` / ``what_changed:`` line to a block scalar regardless
+    of what its current value looks like.
+
+    More aggressive than ``_reformat_unquoted_scalars``: it doesn't
+    check for problematic chars or already-proper scalar markers —
+    every free-text key becomes a block scalar that absorbs its
+    continuation up to the next structural line. This is the safety
+    net for LLM outputs whose strings have unbalanced double-quotes
+    (``while scanning a double-quoted scalar``) or other quoting
+    pathologies the conservative pass can't reliably detect.
+    """
+    lines = yaml_text.splitlines()
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = _KEY_LINE_RE.match(line)
+        if m is not None and m.group("key") in _FREE_TEXT_KEYS and m.group("value"):
+            indent = m.group("indent")
+            key = m.group("key")
+            value = m.group("value").rstrip()
+            inner_indent = indent + "  "
+            # Strip leading/trailing quote chars from the value so a
+            # block scalar doesn't start with " or '.
+            cleaned = value.strip("\"'")
+            block_lines = [cleaned]
+            j = i + 1
+            while j < len(lines):
+                nxt = lines[j]
+                if not nxt.strip():
+                    break
+                if _DOC_BOUNDARY_RE.match(nxt):
+                    break
+                if _LIST_ITEM_RE.match(nxt) and (
+                    len(nxt) - len(nxt.lstrip())
+                ) <= len(indent):
+                    break
+                nxt_m = _KEY_LINE_RE.match(nxt)
+                if nxt_m is not None and (
+                    len(nxt_m.group("indent")) <= len(indent)
+                ):
+                    break
+                block_lines.append(nxt.strip().strip("\"'"))
+                j += 1
+            out.append(f"{indent}{key}: |")
+            for b in block_lines:
+                out.append(f"{inner_indent}{b}")
+            i = j
+            continue
+        out.append(line)
+        i += 1
+    return "\n".join(out) + ("\n" if yaml_text.endswith("\n") else "")
+
+
 def _safe_yaml_load(yaml_text: str) -> object:
     """Robust YAML loader for LLM frontmatter.
 
+    Three-stage recovery cascade:
+
     1. Try the standard ``yaml.safe_load``.
-    2. If that fails, re-format un-quoted text-like scalars as block
-       scalars (handles the common LLM mistake of emitting unquoted values
-       with apostrophes inside) and retry.
-    3. If retry also fails, raise the ORIGINAL ``YAMLError`` (so the
-       caller's error message points at the LLM's actual output, not at
-       the repaired version).
+    2. If that fails, run the CONSERVATIVE repair
+       ``_reformat_unquoted_scalars`` (only re-quotes scalars that
+       contain problematic chars or are followed by mis-indented
+       continuation). Try ``yaml.safe_load`` again.
+    3. If that ALSO fails, run the AGGRESSIVE repair
+       ``_force_block_scalar_all_freetext_keys`` (rewrites EVERY
+       ``text``/``location``/``response``/``what_changed`` line as a
+       block scalar regardless of what it looks like). Final attempt.
+    4. If all three attempts fail, raise the ORIGINAL ``YAMLError``
+       so the caller's error message points at the LLM's actual
+       output, not at the repaired version.
     """
     try:
         return yaml.safe_load(yaml_text)
     except yaml.YAMLError as orig_err:
-        repaired = _reformat_unquoted_scalars(yaml_text)
-        if repaired == yaml_text:
-            raise
-        try:
-            return yaml.safe_load(repaired)
-        except yaml.YAMLError:
-            raise orig_err from None
+        # Stage 2: conservative repair.
+        conservative = _reformat_unquoted_scalars(yaml_text)
+        if conservative != yaml_text:
+            try:
+                return yaml.safe_load(conservative)
+            except yaml.YAMLError:
+                pass
+        # Stage 3: aggressive repair (force ALL free-text keys to block
+        # scalars). Run on the ORIGINAL text (not the conservative
+        # output) so the two repairs don't compound into broken output.
+        aggressive = _force_block_scalar_all_freetext_keys(yaml_text)
+        if aggressive != yaml_text:
+            try:
+                return yaml.safe_load(aggressive)
+            except yaml.YAMLError:
+                pass
+        raise orig_err from None
 
 
 def _parse_response(
