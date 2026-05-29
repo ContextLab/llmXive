@@ -28,16 +28,19 @@ import json
 import re
 import subprocess
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Literal, cast
 from uuid import uuid4
 
 import yaml
 
 from llmxive.agents.base import Agent, AgentContext
+from llmxive.agents.implementer_diagnostics import FailureClassification
 from llmxive.agents.prompts import load_prompt, render_prompt
-from llmxive.backends.base import ChatMessage
+from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline import authors as authors_module
@@ -46,6 +49,7 @@ from llmxive.state import revision_history as rh_state
 from llmxive.state import runlog
 from llmxive.types import (
     AuthorEntry,
+    BackendName,
     ImplementerLog,
     ImplementerLogEntry,
     Outcome,
@@ -240,7 +244,7 @@ _JSON_BLOCK_RE = re.compile(
 )
 
 
-def _parse_llm_edit(response_text: str) -> dict | None:
+def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
     """Parse an LLM response into a structured edit dict. Returns None
     if no valid JSON-edit block is found. We extract the first valid
     JSON object that has a `kind` field matching `search_and_replace`
@@ -312,7 +316,7 @@ class LLMXiveImplementer(Agent):
         # required by the ABC; return a sentinel that's never sent.
         return [ChatMessage(role="user", content="(unused — see run())")]
 
-    def handle_response(self, ctx, response):  # type: ignore[override]
+    def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
         return []
 
     def run(self, ctx: AgentContext) -> RunLogEntry:
@@ -641,7 +645,7 @@ class LLMXiveImplementer(Agent):
         repo: Path,
         project_id: str,
         *,
-        classification,
+        classification: FailureClassification,
         zero_count: int,
     ) -> None:
         """Drop a human_input_needed.yaml marker for the operator surface.
@@ -669,15 +673,18 @@ class LLMXiveImplementer(Agent):
     def _process_task(
         self,
         *,
-        task: dict,
-        action_item: dict,
+        task: Mapping[str, object],
+        action_item: Mapping[str, object],
         project_id: str,
         source_dir: Path,
         repo_root: Path,
     ) -> ImplementerLogEntry:
         t_started = time.monotonic()
-        severity = action_item.get("severity") or task.get("severity") or "writing"
-        item_text = action_item.get("text") or task.get("text") or task.get("title") or ""
+        task_id: str = str(task["id"])
+        _sev = action_item.get("severity") or task.get("severity") or "writing"
+        severity: str = str(_sev) if _sev else "writing"
+        _it = action_item.get("text") or task.get("text") or task.get("title") or ""
+        item_text: str = str(_it) if _it else ""
 
         # Build the LLM prompt.
         system_prompt = load_prompt("agents/prompts/implementer.md", repo_root=repo_root)
@@ -696,11 +703,11 @@ class LLMXiveImplementer(Agent):
                 "project_id": project_id,
                 "round_number": str(self._current_round_number),
                 "revision_spec_path": str(self._revision_spec_path),
-                "task_id": task["id"],
+                "task_id": task_id,
                 "severity": severity,
                 "action_item_text": item_text,
                 "manuscript_window": manuscript_window,
-                "science_note": science_note,
+                "science_note": str(science_note) if science_note else "",
             },
             repo_root=repo_root,
         )
@@ -719,9 +726,9 @@ class LLMXiveImplementer(Agent):
             response_text = response.text or ""
         except Exception as exc:
             return ImplementerLogEntry(
-                task_id=task["id"],
+                task_id=task_id,
                 status="skipped",
-                action_item_severity=severity if severity in {"writing", "science"} else None,
+                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
                 action_item_text=item_text,
                 duration_s=time.monotonic() - t_started,
                 error_reason=f"LLM call failed: {type(exc).__name__}: {exc}",
@@ -730,9 +737,9 @@ class LLMXiveImplementer(Agent):
         edit = _parse_llm_edit(response_text)
         if edit is None:
             return ImplementerLogEntry(
-                task_id=task["id"],
+                task_id=task_id,
                 status="skipped",
-                action_item_severity=severity if severity in {"writing", "science"} else None,
+                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
                 action_item_text=item_text,
                 model_response_excerpt=response_text[:500],
                 duration_s=time.monotonic() - t_started,
@@ -741,15 +748,15 @@ class LLMXiveImplementer(Agent):
 
         # Path validation (FR-019).
         target = _validate_edit_path(
-            edit.get("file", ""), project_id=project_id, severity=severity, repo_root=repo_root,
+            str(edit.get("file", "")), project_id=project_id, severity=severity, repo_root=repo_root,
         )
         if target is None:
             return ImplementerLogEntry(
-                task_id=task["id"],
+                task_id=task_id,
                 status="skipped",
-                action_item_severity=severity if severity in {"writing", "science"} else None,
+                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
                 action_item_text=item_text,
-                edit_kind=edit.get("kind"),
+                edit_kind=cast('Literal["search_and_replace", "unified_diff"] | None', edit.get("kind")),
                 model_response_excerpt=response_text[:500],
                 duration_s=time.monotonic() - t_started,
                 error_reason=f"edit targets disallowed path: {edit.get('file')!r} (severity={severity})",
@@ -761,14 +768,14 @@ class LLMXiveImplementer(Agent):
 
         # Apply.
         if edit["kind"] == "search_and_replace":
-            result = apply_search_and_replace(target, edit.get("search", ""), edit.get("replace", ""))
+            result = apply_search_and_replace(target, str(edit.get("search", "")), str(edit.get("replace", "")))
         elif edit["kind"] == "unified_diff":
-            result = apply_unified_diff(target, edit.get("diff", ""))
+            result = apply_unified_diff(target, str(edit.get("diff", "")))
         else:
             return ImplementerLogEntry(
-                task_id=task["id"],
+                task_id=task_id,
                 status="skipped",
-                action_item_severity=severity if severity in {"writing", "science"} else None,
+                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
                 action_item_text=item_text,
                 duration_s=time.monotonic() - t_started,
                 error_reason=f"unknown edit kind: {edit.get('kind')!r}",
@@ -776,9 +783,9 @@ class LLMXiveImplementer(Agent):
 
         if not result.applied:
             return ImplementerLogEntry(
-                task_id=task["id"],
+                task_id=task_id,
                 status="skipped" if "file-not-found" not in (result.reject_reason or "") else "file-not-found",
-                action_item_severity=severity if severity in {"writing", "science"} else None,
+                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
                 action_item_text=item_text,
                 edit_kind=edit["kind"],
                 model_response_excerpt=response_text[:500],
@@ -791,9 +798,9 @@ class LLMXiveImplementer(Agent):
         if not ok:
             _restore(snap)
             return ImplementerLogEntry(
-                task_id=task["id"],
+                task_id=task_id,
                 status="compile-failed",
-                action_item_severity=severity if severity in {"writing", "science"} else None,
+                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
                 action_item_text=item_text,
                 edit_kind=edit["kind"],
                 files_modified=result.files_modified,
@@ -809,7 +816,7 @@ class LLMXiveImplementer(Agent):
             needs_data = _run_referenced_analysis_scripts(target, repo_root=repo_root)
             if needs_data:
                 return ImplementerLogEntry(
-                    task_id=task["id"],
+                    task_id=task_id,
                     status="needs-external-data",
                     action_item_severity="science",
                     action_item_text=item_text,
@@ -823,9 +830,9 @@ class LLMXiveImplementer(Agent):
                 )
 
         return ImplementerLogEntry(
-            task_id=task["id"],
+            task_id=task_id,
             status="done",
-            action_item_severity=severity if severity in {"writing", "science"} else None,
+            action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
             action_item_text=item_text,
             edit_kind=edit["kind"],
             files_modified=result.files_modified,
@@ -866,7 +873,7 @@ class LLMXiveImplementer(Agent):
         outcome: Outcome,
         failure_reason: str | None,
         outputs: list[str],
-        backend_used,
+        backend_used: BackendName,
         model_used: str,
     ) -> RunLogEntry:
         ended = datetime.now(UTC)
@@ -926,8 +933,8 @@ def _windowed_view(tex_path: Path, action_item_text: str, *, window: int = 60) -
     ][:4]
     target_idx = None
     for i, line in enumerate(lines):
-        lo = line.lower()
-        if all(w in lo for w in words) and words:
+        line_lower = line.lower()
+        if all(w in line_lower for w in words) and words:
             target_idx = i
             break
     if target_idx is None:
@@ -942,12 +949,12 @@ def _windowed_view(tex_path: Path, action_item_text: str, *, window: int = 60) -
     return "\n".join(f"{n+1:5d}: {ln}" for n, ln in enumerate(lines[lo:hi], start=lo))
 
 
-def _read_tasks_md(tasks_path: Path) -> list[dict]:
+def _read_tasks_md(tasks_path: Path) -> list[dict[str, str]]:
     """Parse a revision spec's `tasks.md`. Returns a list of dicts with
     `id`, `severity`, `text` keys."""
     if not tasks_path.is_file():
         return []
-    out: list[dict] = []
+    out: list[dict[str, str]] = []
     pat = re.compile(
         r"^- \[ \] T(\d+)\s*(?:\[P\])?\s*(?:\[([^\]]+)\])?\s+(.*)$", re.M
     )
@@ -966,10 +973,10 @@ def _read_tasks_md(tasks_path: Path) -> list[dict]:
     return out
 
 
-def _read_action_items(round_dir: Path) -> dict[str, dict]:
+def _read_action_items(round_dir: Path) -> dict[str, dict[str, str]]:
     """Read each action-item file (`<id>.md` or `action_<id>.md`) and
     return id → {severity, text, full_body}."""
-    out: dict[str, dict] = {}
+    out: dict[str, dict[str, str]] = {}
     if not round_dir.is_dir():
         return out
     for md in round_dir.glob("*.md"):
@@ -977,7 +984,7 @@ def _read_action_items(round_dir: Path) -> dict[str, dict]:
             continue
         body = md.read_text(encoding="utf-8")
         m = re.match(r"^---\s*\n(.*?)\n---\s*\n(.*)$", body, re.DOTALL)
-        front: dict = {}
+        front: dict[str, object] = {}
         if m:
             try:
                 front = yaml.safe_load(m.group(1)) or {}
@@ -987,10 +994,12 @@ def _read_action_items(round_dir: Path) -> dict[str, dict]:
         else:
             text = body
         item_id = str(front.get("id") or md.stem.replace("action_", ""))
+        _sev2 = front.get("severity", "writing")
+        _txt2 = front.get("text") or text
         out[item_id] = {
             "id": item_id,
-            "severity": front.get("severity", "writing"),
-            "text": (front.get("text") or text)[:1000],
+            "severity": str(_sev2) if _sev2 else "writing",
+            "text": (str(_txt2) if _txt2 else "")[:1000],
         }
     return out
 
@@ -1047,16 +1056,18 @@ def _bump_zero_round_counter(
     Returns the new value. Counter resets on any round with ≥1 success.
     Stored at `state/<id>.implementer.yaml`."""
     state_path = repo_root / "state" / f"{project_id}.implementer.yaml"
-    state: dict = {}
+    state: dict[str, object] = {}
     if state_path.is_file():
         try:
             state = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}
         except yaml.YAMLError:
             state = {}
     if zero_round:
-        state["consecutive_zero_rounds"] = int(state.get("consecutive_zero_rounds", 0)) + 1
+        _czr = state.get("consecutive_zero_rounds", 0)
+        state["consecutive_zero_rounds"] = (int(_czr) if isinstance(_czr, (int, float)) else 0) + 1
     else:
         state["consecutive_zero_rounds"] = 0
     state_path.parent.mkdir(parents=True, exist_ok=True)
     state_path.write_text(yaml.safe_dump(state, sort_keys=False), encoding="utf-8")
-    return int(state["consecutive_zero_rounds"])
+    _result = state["consecutive_zero_rounds"]
+    return int(_result) if isinstance(_result, (int, float)) else 0

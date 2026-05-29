@@ -224,7 +224,7 @@ def _walk_back_to_real_stage(history_path: Path, repo_root: Path) -> str:
         # artifacts have all been deleted by the prune is treated as no-longer
         # surviving — walk further back.
         if any_found and all_real:
-            return stage
+            return str(stage)
     return "flesh_out_complete"
 
 
@@ -232,8 +232,8 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
     """Audit then optionally delete templates + roll stages back. FR-008/FR-009."""
     report = audit_artifacts(repo_root)
     report["apply"] = apply
-    report["deleted_paths"]: list[str] = []
-    report["rolled_back_projects"]: dict[str, dict[str, str]] = {}
+    report["deleted_paths"] = []
+    report["rolled_back_projects"] = {}
     report["run_id"] = str(uuid4())
 
     if not apply:
@@ -274,7 +274,7 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
         # away project state for files the rollback can't recover from).
         proj_yaml = repo_root / "state" / "projects" / f"{project_id}.yaml"
         prior_stage = ""
-        doc = {}
+        doc: dict[str, Any] = {}
         if proj_yaml.exists():
             doc = yaml.safe_load(proj_yaml.read_text()) or {}
             prior_stage = doc.get("current_stage", "")

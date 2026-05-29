@@ -13,6 +13,7 @@ The agent's output records the sub-task tree; the parent task's
 
 from __future__ import annotations
 
+from typing import Any
 from uuid import uuid4
 
 import yaml
@@ -30,7 +31,7 @@ MAX_ATOMIZATION_DEPTH = 4
 class TaskAtomizerAgent(Agent):
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         repo = _repo_root()
-        parent_task = ctx.metadata.get("parent_task", {})
+        parent_task: Any = ctx.metadata.get("parent_task", {})
         current_depth = int(ctx.metadata.get("current_depth", 0))
 
         system = render_prompt(

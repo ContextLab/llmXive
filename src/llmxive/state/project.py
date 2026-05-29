@@ -68,7 +68,7 @@ def save(project: Project, *, repo_root: Path | None = None) -> Path:
 
 
 def update(
-    project_id: str, fields: dict, *, repo_root: Path | None = None,
+    project_id: str, fields: dict[str, object], *, repo_root: Path | None = None,
 ) -> Project:
     """Load a project, apply `fields` as a partial update, save, return
     the new Project. Pydantic re-validates the merged document; any

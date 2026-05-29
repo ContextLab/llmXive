@@ -292,7 +292,7 @@ def audit_directory(papers_dir: Path, out_dir: Path) -> dict[str, Any]:
         if not pdfs:
             pdfs = sorted(papers_dir.glob("**/*.pdf"))
 
-    aggregate = {
+    aggregate: dict[str, Any] = {
         "audited_at": _now_iso(),
         "total_pdfs": len(pdfs),
         "total_failures": 0,

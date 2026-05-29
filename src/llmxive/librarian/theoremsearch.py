@@ -34,7 +34,7 @@ import re
 import threading
 import time
 
-import requests
+import requests  # type: ignore[import-untyped]  # installed, no stubs
 
 from llmxive.backends.base import TransientBackendError
 from llmxive.librarian.search import USER_AGENT, ArxivClient, Candidate

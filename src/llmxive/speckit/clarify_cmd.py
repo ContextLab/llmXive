@@ -115,7 +115,7 @@ class ClarifierAgent(SlashCommandAgent):
             report = {"patches": [], "notes": "non-mapping LLM output coerced to empty patches"}
 
         spec_text = mechanical_output["spec_text"]
-        patches = report.get("patches", []) or []
+        patches: list[dict[str, Any]] = list(report.get("patches", []) or [])
         patches_by_index = {p.get("marker_index"): p for p in patches if p.get("marker_index") is not None}
 
         # Spec 015 T032 / discrepancy #5: real escalation. Read the persisted
@@ -171,7 +171,7 @@ class ClarifierAgent(SlashCommandAgent):
             count_holder["n"] += 1
             patch = patches_by_index.get(idx)
             if patch and patch.get("replacement"):
-                return patch["replacement"]
+                return str(patch["replacement"])
             # Should be unreachable thanks to the gate above, but keep
             # the marker in place so a later run can try again rather
             # than silently advancing.
@@ -187,7 +187,7 @@ class ClarifierAgent(SlashCommandAgent):
         return [str(spec_path.relative_to(repo))]
 
 
-def _parse_clarifier_response(text: str) -> dict | None:
+def _parse_clarifier_response(text: str) -> dict[str, Any] | None:
     """Parse the Clarifier's response, preferring JSON, falling back to YAML.
 
     Why JSON-first: YAML's `key: value` syntax breaks when an LLM puts
@@ -208,17 +208,20 @@ def _parse_clarifier_response(text: str) -> dict | None:
     inner = fence.group(1) if fence else raw
     # Try JSON first.
     try:
-        return _json.loads(inner)
+        parsed = _json.loads(inner)
+        return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
     # Try JSON with raw newlines auto-escaped inside strings.
     try:
-        return _json.loads(_escape_newlines_in_json_strings(inner))
+        parsed = _json.loads(_escape_newlines_in_json_strings(inner))
+        return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
     # Fall back to lenient YAML.
     try:
-        return parse_yaml_lenient(inner)
+        parsed = parse_yaml_lenient(inner)
+        return parsed if isinstance(parsed, dict) else None
     except yaml.YAMLError as exc:
         print(f"[clarify] both JSON and YAML parse failed: {exc}")
         return None

@@ -630,12 +630,18 @@ def _find_unresolved_names(source: str) -> set[str]:
         def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
             for d in node.decorator_list:
                 self.visit(d)
-            for d in (node.args.defaults + node.args.kw_defaults):
-                if d is not None:
-                    self.visit(d)
+            for maybe_d in [*node.args.defaults, *node.args.kw_defaults]:
+                if maybe_d is not None:
+                    self.visit(maybe_d)
             # Don't descend into body.
 
-        visit_AsyncFunctionDef = visit_FunctionDef  # type: ignore[assignment]
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+            for d in node.decorator_list:
+                self.visit(d)
+            for maybe_d in [*node.args.defaults, *node.args.kw_defaults]:
+                if maybe_d is not None:
+                    self.visit(maybe_d)
+            # Don't descend into body.
 
         def visit_ClassDef(self, node: ast.ClassDef) -> None:
             for d in node.decorator_list:
@@ -646,8 +652,10 @@ def _find_unresolved_names(source: str) -> set[str]:
                 self.visit(kw.value)
             # Walk the class body but skip method bodies.
             for stmt in node.body:
-                if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(stmt, ast.FunctionDef):
                     self.visit_FunctionDef(stmt)
+                elif isinstance(stmt, ast.AsyncFunctionDef):
+                    self.visit_AsyncFunctionDef(stmt)
                 else:
                     self.visit(stmt)
 

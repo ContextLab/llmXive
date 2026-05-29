@@ -46,7 +46,7 @@ def project_id_lock(repo_root: Path) -> Iterator[None]:
     lock_file.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        import fcntl  # type: ignore[import-not-found]
+        import fcntl
     except ImportError:
         print(
             "[project_id_lock] fcntl unavailable (non-POSIX?); "

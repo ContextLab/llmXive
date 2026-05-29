@@ -16,7 +16,7 @@ from typing import Any
 
 __version__ = "0.1.0"
 
-_REGISTRY: dict[str, Any] = {}
+_REGISTRY: dict[str, Any] = {}  # auditor-name -> callable(**kwargs) -> dict[str, Any]
 
 
 def register(name: str, fn: Any) -> None:
@@ -24,14 +24,15 @@ def register(name: str, fn: Any) -> None:
     _REGISTRY[name] = fn
 
 
-def run_audit(name: str, **kwargs: Any) -> dict:
+def run_audit(name: str, **kwargs: Any) -> dict[str, Any]:
     """Dispatch to the named auditor and return its manifest dict."""
     if name not in _REGISTRY:
         raise KeyError(
             f"Unknown auditor: {name!r}. Registered: {sorted(_REGISTRY)}. "
             f"Did you forget to import the auditor module?"
         )
-    return _REGISTRY[name](**kwargs)
+    result: dict[str, Any] = _REGISTRY[name](**kwargs)
+    return result
 
 
 # Import sub-modules so they self-register. Done at end to avoid circular imports.

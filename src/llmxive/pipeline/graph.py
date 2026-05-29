@@ -150,7 +150,7 @@ _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "paper_reviewer": PaperReviewerAgent,
 }
 
-_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], SlashCommandAgent]] = {
+_SPECKIT_AGENTS: dict[str, type[SlashCommandAgent]] = {
     "specifier": SpecifierAgent,
     "clarifier": ClarifierAgent,
     "planner": PlannerAgent,

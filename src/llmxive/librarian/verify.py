@@ -31,7 +31,7 @@ import datetime as _dt
 import re
 from typing import Any, Literal
 
-import requests
+import requests  # type: ignore[import-untyped]  # no stub package available
 
 from llmxive.librarian.search import USER_AGENT, Candidate
 
@@ -424,7 +424,7 @@ def _fetch_from_arxiv(arxiv_id: str) -> tuple[str, str | None]:
     we couldn't reach).
     """
     try:
-        import arxiv  # type: ignore[import-not-found]
+        import arxiv
 
         client = arxiv.Client()
         search = arxiv.Search(id_list=[arxiv_id])

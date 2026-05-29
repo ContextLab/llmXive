@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -1374,7 +1375,7 @@ def _normalize_model_name(name: str) -> str:
     return name
 
 
-def _submitter_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
+def _submitter_contributors(repo: Path, projects: Sequence[Any]) -> list[dict[str, Any]]:
     """Each project's idea submitter counts as one contribution.
 
     Distinguishes:
@@ -1435,7 +1436,7 @@ def _submitter_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
     ]
 
 
-def _paper_author_contributors(repo: Path, projects: list) -> list[dict[str, Any]]:
+def _paper_author_contributors(repo: Path, projects: Sequence[Any]) -> list[dict[str, Any]]:
     """Each `paper_authors:` entry in a project's idea front-matter counts as
     one contribution by that human author (FR-007 + the user's "credit goes to
     the paper's authors not just the submitter" rule). Surfaced in the

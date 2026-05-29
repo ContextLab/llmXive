@@ -15,10 +15,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import shutil
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from . import run_audit
 from .manifest import write_manifest
@@ -81,22 +83,22 @@ def _cmd_personality(args: argparse.Namespace) -> int:
         sys.exit(f"FATAL: no persona cards found in {personalities_dir}")
     try:
         # Local import so this CLI is usable even without the script-level helper
-        import importlib.util
         repo_root = Path(args.repo_root).resolve()
         verifier_path = repo_root / "scripts" / "verify_persona_evidence.py"
         if verifier_path.exists():
             spec = importlib.util.spec_from_file_location("verify_persona_evidence", verifier_path)
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)  # type: ignore
-            for card in cards:
-                # Schema-only check (no URL fetch) — fast, deterministic, used in CLI smoke
-                # path. URL fetching is gated by --verify-urls.
-                errors = mod.verify_card(card, fetch_urls=args.verify_urls)
-                if errors:
-                    print("PERSONA CARD ERRORS:")
-                    for e in errors:
-                        print(f"  - {e}")
-                    sys.exit(1)
+            if spec is not None and spec.loader is not None:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                for card in cards:
+                    # Schema-only check (no URL fetch) — fast, deterministic, used in CLI smoke
+                    # path. URL fetching is gated by --verify-urls.
+                    errors = mod.verify_card(card, fetch_urls=args.verify_urls)
+                    if errors:
+                        print("PERSONA CARD ERRORS:")
+                        for e in errors:
+                            print(f"  - {e}")
+                        sys.exit(1)
     except SystemExit:
         raise
     except Exception as exc:  # pragma: no cover — defensive
@@ -141,7 +143,7 @@ def _cmd_speckit(args: argparse.Namespace) -> int:
     return 0
 
 
-def _prune_templates(manifest: dict, repo_root: Path) -> int:
+def _prune_templates(manifest: dict[str, Any], repo_root: Path) -> int:
     """Delete every item classified `template`; remove empty parent dirs."""
     deleted = 0
     for item in manifest["items"]:
@@ -236,7 +238,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return args.handler(args)
+    result: int = args.handler(args)
+    return result
 
 
 if __name__ == "__main__":

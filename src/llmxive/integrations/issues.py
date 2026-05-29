@@ -86,7 +86,7 @@ def close_issue_for_project(repo: Path, project: Project, *, dry_run: bool = Fal
         "",
         f"- Project state: [{pdir}.yaml]({yaml_url})",
     ]
-    if pdf_url:
+    if pdf_url and pdf_path is not None:
         body_lines.append(f"- Final paper: [{pdf_path.name}]({pdf_url})")
     body_lines += [
         "",

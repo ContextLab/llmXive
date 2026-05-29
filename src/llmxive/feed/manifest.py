@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from typing import Any
 
 # Trailing fenced JSON block — accepts ```json comments-considered ... ``` and
 # ```comments-considered ... ``` (info-string variants).
@@ -26,13 +27,14 @@ VALID_RESPONSES = {"addressed", "acknowledged", "rebutted", "deferred"}
 NON_TRIVIAL_KINDS = {"personality_tick", "review", "human_comment", "revision"}
 
 
-def parse_manifest_block(output: str) -> dict | None:
+def parse_manifest_block(output: str) -> dict[str, Any] | None:
     """Extract the trailing ```json comments-considered``` block, if any."""
     m = _FENCE_RE.search(output.rstrip())
     if not m:
         return None
     try:
-        return json.loads(m.group("body"))
+        result = json.loads(m.group("body"))
+        return result if isinstance(result, dict) else None
     except json.JSONDecodeError:
         return None
 
@@ -47,9 +49,11 @@ class ValidationResult:
 class ManifestValidator:
     """Validates a comments-considered manifest produced by an agent."""
 
-    def __init__(self, feed_items: list[dict]):
+    def __init__(self, feed_items: list[dict[str, Any]]):
         # Map by ID for O(1) existence checks
-        self._feed_by_id = {it["id"]: it for it in feed_items if "id" in it}
+        self._feed_by_id: dict[str, dict[str, Any]] = {
+            it["id"]: it for it in feed_items if "id" in it
+        }
 
     def validate_block(self, output: str, *, dispatch_id: str, truncation_in_context: bool) -> ValidationResult:
         manifest = parse_manifest_block(output)
@@ -57,7 +61,7 @@ class ManifestValidator:
             return ValidationResult(ok=False, reason="manifest_block_missing_or_unparseable")
         return self.validate(manifest, dispatch_id=dispatch_id, truncation_in_context=truncation_in_context)
 
-    def validate(self, manifest: dict, *, dispatch_id: str, truncation_in_context: bool) -> ValidationResult:
+    def validate(self, manifest: dict[str, Any], *, dispatch_id: str, truncation_in_context: bool) -> ValidationResult:
         # Required top-level fields
         required = {"dispatch_id", "agent", "feed_snapshot_at", "items", "truncation_acknowledged"}
         missing = required - set(manifest)

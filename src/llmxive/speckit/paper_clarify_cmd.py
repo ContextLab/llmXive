@@ -108,7 +108,7 @@ class PaperClarifierAgent(SlashCommandAgent):
             report = {"patches": []}
 
         spec_text = mechanical_output["spec_text"]
-        patches = report.get("patches", []) or []
+        patches: list[Any] = list(report.get("patches", []) or [])
         patches_by_index = {p.get("marker_index"): p for p in patches if p.get("marker_index") is not None}
 
         # Spec 015 T032 / discrepancy #5: branch on the LLM's ``escalate`` verdict
@@ -161,7 +161,7 @@ class PaperClarifierAgent(SlashCommandAgent):
             count_holder["n"] += 1
             patch = patches_by_index.get(idx)
             if patch and patch.get("replacement"):
-                return patch["replacement"]
+                return str(patch["replacement"])
             # Unreachable thanks to the gate above; keep the marker in place so a
             # next tick can retry rather than silently writing a stub.
             return match.group(0)

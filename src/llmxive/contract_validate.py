@@ -16,7 +16,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from jsonschema import Draft202012Validator, ValidationError
+from jsonschema import (  # type: ignore[import-untyped]  # no stubs available for jsonschema
+    Draft202012Validator,
+    ValidationError,
+)
 
 from llmxive.config import repo_root as _repo_root
 

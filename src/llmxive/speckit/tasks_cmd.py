@@ -209,8 +209,8 @@ class TaskerAgent(SlashCommandAgent):
         from llmxive.speckit._tasker_engine_bridge import (
             tasker_engine_enabled as _tasker_engine_enabled,
         )
+        self._inspection_rounds: list[dict[str, Any]] = []
         if _tasker_engine_enabled():
-            self._inspection_rounds: list[dict[str, Any]] = []
             self._run_engine_path(
                 ctx=ctx,
                 repo=repo,
@@ -224,7 +224,6 @@ class TaskerAgent(SlashCommandAgent):
         # analyze round into self._inspection_rounds. This is OBSERVABILITY
         # ONLY — no decision/branch below reads it. _maybe_write_inspection in
         # slash_command.py picks it up via getattr(agent, "_inspection_rounds").
-        self._inspection_rounds: list[dict[str, Any]] = []
         for round_idx in range(TASKER_MAX_REVISION_ROUNDS):
             try:
                 # Spec 015 T031 + FR-030: include the project's constitution.md
@@ -643,7 +642,7 @@ class TaskerAgent(SlashCommandAgent):
         )
 
 
-def _parse_tasker_response(text: str) -> dict | None:
+def _parse_tasker_response(text: str) -> dict[str, Any] | None:
     """Parse Tasker Mode-B response, preferring JSON, falling back to YAML.
 
     LLMs often emit raw newlines inside JSON string values (which JSON
@@ -671,7 +670,8 @@ def _parse_tasker_response(text: str) -> dict | None:
 
     # Try direct JSON.
     try:
-        return _json.loads(inner)
+        parsed = _json.loads(inner)
+        return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
 
@@ -679,13 +679,15 @@ def _parse_tasker_response(text: str) -> dict | None:
     # the text in/out of double-quoted regions and replace literal
     # control chars with their JSON-escaped form.
     try:
-        return _json.loads(_escape_newlines_in_json_strings(inner))
+        parsed = _json.loads(_escape_newlines_in_json_strings(inner))
+        return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
 
     # Try lenient YAML.
     try:
-        return _parse_yaml(inner)
+        parsed = _parse_yaml(inner)
+        return parsed if isinstance(parsed, dict) else None
     except yaml.YAMLError as exc:
         print(f"[tasker] both JSON and YAML parse failed: {exc}")
         return None

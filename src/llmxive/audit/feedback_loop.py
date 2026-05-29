@@ -38,7 +38,7 @@ def _read_feed_ids(project_dir: Path) -> set[str]:
     return ids
 
 
-def _validate_dispatch(record: dict, feed_ids: set[str]) -> tuple[bool, list[RuleFired]]:
+def _validate_dispatch(record: dict[str, Any], feed_ids: set[str]) -> tuple[bool, list[RuleFired]]:
     """Returns (passes, rules_fired) for one dispatch record."""
     rules: list[RuleFired] = []
     # (a) feed delivery
@@ -71,7 +71,7 @@ def _validate_dispatch(record: dict, feed_ids: set[str]) -> tuple[bool, list[Rul
     return True, rules
 
 
-def audit(*, projects_dir: Path | str, repo_root: Path | str = ".", since: str | None = None, **_: Any) -> dict:
+def audit(*, projects_dir: Path | str, repo_root: Path | str = ".", since: str | None = None, **_: Any) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     projects_dir = Path(projects_dir).resolve()
     if not projects_dir.exists():

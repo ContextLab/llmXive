@@ -75,7 +75,7 @@ def _verdict_cache_path(repo_root: Path) -> Path:
     return repo_root.joinpath(*_VERDICT_CACHE_RELPATH)
 
 
-def _read_verdict_cache(repo_root: Path) -> dict[str, dict]:
+def _read_verdict_cache(repo_root: Path) -> dict[str, dict[str, object]]:
     """Load the flat verdict-cache dict; absent/malformed → ``{}`` (logged)."""
     path = _verdict_cache_path(repo_root)
     if not path.exists():

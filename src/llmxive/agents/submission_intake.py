@@ -116,14 +116,14 @@ def _close_issue(gh: GhFn, issue_number: int) -> None:
 
 # ── helpers ─────────────────────────────────────────────────────────────────
 
-def _labels(issue: dict) -> set[str]:
+def _labels(issue: dict[str, Any]) -> set[str]:
     out = set()
     for lab in issue.get("labels", []) or []:
         out.add(lab["name"] if isinstance(lab, dict) else str(lab))
     return out
 
 
-def _subtype(issue: dict) -> str | None:
+def _subtype(issue: dict[str, Any]) -> str | None:
     labs = _labels(issue)
     if "human-submission" not in labs:
         return None
@@ -530,7 +530,7 @@ _MODEL_ATTR_RE = re.compile(
 _LEGACY_MODEL_BODY_RE = re.compile(r"\*?Model:\s*([^\n*]+)", re.IGNORECASE)
 
 
-def _model_from_comments(comments: list[dict]) -> str | None:
+def _model_from_comments(comments: list[dict[str, Any]]) -> str | None:
     """Scan the issue's comments for a legacy '🤖 Model Attribution' block;
     return the model name if found (most-recent comment wins — later attributions
     supersede earlier ones)."""
@@ -545,10 +545,10 @@ def _model_from_comments(comments: list[dict]) -> str | None:
 
 
 def _resolve_submitter(
-    issue: dict,
+    issue: dict[str, Any],
     *,
     body_submitter: str = "",
-    comments: list[dict] | None = None,
+    comments: list[dict[str, Any]] | None = None,
 ) -> str:
     """Decide who the *author* of a submission is, per the user's rule:
 
@@ -773,7 +773,7 @@ _INTAKE_STATUS_TO_OUTCOME = {
 
 
 def process_submission_issue(
-    issue: dict,
+    issue: dict[str, Any],
     *,
     repo_root: Path,
     gh: GhFn | None = None,
@@ -832,7 +832,7 @@ def process_submission_issue(
     return result
 
 
-def _fetch_comments(gh: GhFn, issue_number: int) -> list[dict]:
+def _fetch_comments(gh: GhFn, issue_number: int) -> list[dict[str, Any]]:
     """Fetch all comments on an issue (paginated)."""
     try:
         rc, out, _ = gh("api", "--paginate", f"repos/{REPO}/issues/{issue_number}/comments?per_page=100")
@@ -840,9 +840,10 @@ def _fetch_comments(gh: GhFn, issue_number: int) -> list[dict]:
             return []
         # `--paginate` may concatenate JSON arrays; handle that.
         try:
-            return json.loads(out)
+            result: list[dict[str, Any]] = json.loads(out)
+            return result
         except json.JSONDecodeError:
-            out_combined: list[dict] = []
+            out_combined: list[dict[str, Any]] = []
             for chunk in re.split(r"\]\s*\[", out):
                 chunk = chunk.strip()
                 if not chunk.startswith("["):
@@ -858,7 +859,7 @@ def _fetch_comments(gh: GhFn, issue_number: int) -> list[dict]:
         return []
 
 
-def _handle_feedback(issue, number, body, author, *, repo: Path, gh: GhFn, registry_entry) -> IntakeResult:
+def _handle_feedback(issue: dict[str, Any], number: int, body: str, author: str, *, repo: Path, gh: GhFn, registry_entry: AgentRegistryEntry | None) -> IntakeResult:
     parsed = _parse_feedback_body(body)
     target_id = parsed["target_id"]
     content = parsed["content"] or body
@@ -959,7 +960,7 @@ def _handle_feedback(issue, number, body, author, *, repo: Path, gh: GhFn, regis
     return IntakeResult(status="ok", action="acknowledged", target=target_id or None, comment_url=cu)
 
 
-def _handle_new_paper(issue, number, body, author, *, repo: Path, gh: GhFn) -> IntakeResult:
+def _handle_new_paper(issue: dict[str, Any], number: int, body: str, author: str, *, repo: Path, gh: GhFn) -> IntakeResult:
     parsed = _parse_new_paper_body(body)
     url = parsed["url"]
     staged = parsed["staged_file"]

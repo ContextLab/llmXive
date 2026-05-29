@@ -66,6 +66,7 @@ from llmxive.state import citations as citations_store
 from llmxive.state import project as project_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
+    Citation,
     Project,
     ReviewRecord,
     Stage,
@@ -194,7 +195,7 @@ def _infer_live_hash(records: list[ReviewRecord]) -> str | None:
 
 def _consolidate_action_items(
     records: list[ReviewRecord], *, live_hash: str | None = None,
-) -> list:
+) -> list[object]:
     """Deduplicate action items by id across all per-specialist
     most-recent non-accept reviews. Preserves first-seen order.
     """
@@ -231,7 +232,7 @@ def _produced_by(
     """
     from pathlib import Path as _Path
 
-    from llmxive.state.runlog import _state_root  # type: ignore[attr-defined]
+    from llmxive.state.runlog import _state_root
 
     try:
         state_dir = (_Path(repo_root) / "state") if repo_root is not None else _state_root()
@@ -632,7 +633,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
     return project
 
 
-def _has_blocking_citations(cits: list[citations_store.Citation]) -> bool:
+def _has_blocking_citations(cits: list[Citation]) -> bool:
     return any(
         c.verification_status in (VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH)
         for c in cits

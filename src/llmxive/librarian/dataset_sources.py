@@ -9,8 +9,9 @@ union of candidates.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]  # no stub package available
 
 USER_AGENT = "llmxive-dataset-resolver/1.0 (https://github.com/ContextLab/llmXive)"
 _TIMEOUT = 20
@@ -36,7 +37,7 @@ _HF_DATA_EXTS = (
 )
 
 
-def _hf_pick_data_file(api, ds_id: str) -> str | None:
+def _hf_pick_data_file(api: Any, ds_id: str) -> str | None:
     """Deterministically pick the best sample-able data file in an HF dataset.
 
     Returns the in-repo path (e.g. ``data/train-...parquet``) or ``None`` when
@@ -46,12 +47,12 @@ def _hf_pick_data_file(api, ds_id: str) -> str | None:
         info = api.dataset_info(ds_id)
     except Exception:
         return None
-    files = [
+    raw_files: list[Any] = [
         getattr(s, "rfilename", None)
         for s in (getattr(info, "siblings", None) or [])
     ]
-    files = [f for f in files if f and not f.startswith(".")]
-    candidates = [f for f in files if f.lower().endswith(_HF_DATA_EXTS)]
+    files: list[str] = [f for f in raw_files if f and not f.startswith(".")]
+    candidates: list[str] = [f for f in files if f.lower().endswith(_HF_DATA_EXTS)]
     if not candidates:
         return None
     # Stable, deterministic order: by extension preference, then path.
@@ -92,53 +93,72 @@ def search_huggingface(intent: str, *, limit: int = 5) -> list[DatasetCandidate]
     return out
 
 
-def _get_json(url: str, *, params: dict | None = None) -> dict | list | None:
+def _get_json(url: str, *, params: dict[str, object] | None = None) -> dict[str, Any] | list[Any] | None:
     try:
         r = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=_TIMEOUT)
         if r.status_code != 200:
             return None
-        return r.json()
+        result: dict[str, Any] | list[Any] = r.json()
+        return result
     except (requests.RequestException, ValueError, OSError):
         return None
 
 
 def search_figshare(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
     data = _get_json("https://api.figshare.com/v2/articles", params={"search_for": intent, "page_size": limit})
+    items: list[Any] = data if isinstance(data, list) else []
     out: list[DatasetCandidate] = []
-    for item in data or []:
+    for item in items:
+        if not isinstance(item, dict):
+            continue
         url = item.get("url_public_html") or item.get("url")
         if url:
-            out.append(DatasetCandidate(intent, url, item.get("title", ""), "figshare"))
+            out.append(DatasetCandidate(intent, str(url), str(item.get("title", "")), "figshare"))
     return out
 
 
 def search_zenodo(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
     data = _get_json("https://zenodo.org/api/records", params={"q": intent, "size": limit})
-    hits = ((data or {}).get("hits") or {}).get("hits") or []
+    data_dict: dict[str, Any] = data if isinstance(data, dict) else {}
+    hits_outer = data_dict.get("hits")
+    hits_inner: dict[str, Any] = hits_outer if isinstance(hits_outer, dict) else {}
+    raw_hits = hits_inner.get("hits")
+    hits_list: list[Any] = raw_hits if isinstance(raw_hits, list) else []
     out: list[DatasetCandidate] = []
-    for h in hits:
-        url = (h.get("links") or {}).get("html") or h.get("doi_url")
+    for h in hits_list:
+        if not isinstance(h, dict):
+            continue
+        links = h.get("links")
+        url = (links.get("html") if isinstance(links, dict) else None) or h.get("doi_url")
         if url:
-            out.append(DatasetCandidate(intent, url, (h.get("metadata") or {}).get("title", ""), "zenodo"))
+            metadata = h.get("metadata")
+            title = metadata.get("title", "") if isinstance(metadata, dict) else ""
+            out.append(DatasetCandidate(intent, str(url), str(title), "zenodo"))
     return out
 
 
 def search_datacite(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
     # intent may be a DOI (resolve) or a free-text query (search).
     looks_doi = intent.strip().lower().startswith("10.")
-    params = {"query": intent, "page[size]": limit} if not looks_doi else None
+    params: dict[str, object] | None = {"query": intent, "page[size]": limit} if not looks_doi else None
     url = f"https://api.datacite.org/dois/{intent}" if looks_doi else "https://api.datacite.org/dois"
     data = _get_json(url, params=params)
-    records = []
+    records: list[Any] = []
     if looks_doi and isinstance(data, dict) and "data" in data:
         records = [data["data"]]
     elif isinstance(data, dict):
-        records = data.get("data") or []
+        raw = data.get("data")
+        records = list(raw) if isinstance(raw, list) else []
     out: list[DatasetCandidate] = []
     for rec in records:
-        attrs = rec.get("attributes") or {}
+        if not isinstance(rec, dict):
+            continue
+        attrs: dict[str, Any] = rec.get("attributes") or {}
         doi = attrs.get("doi")
         if doi:
-            titles = attrs.get("titles") or [{}]
-            out.append(DatasetCandidate(intent, f"https://doi.org/{doi}", titles[0].get("title", ""), "datacite"))
+            titles_raw = attrs.get("titles")
+            titles: list[Any] = titles_raw if isinstance(titles_raw, list) else [{}]
+            first = titles[0] if titles else {}
+            title = first.get("title", "") if isinstance(first, dict) else ""
+            out.append(DatasetCandidate(intent, f"https://doi.org/{doi}", str(title), "datacite"))
     return out

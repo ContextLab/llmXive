@@ -13,6 +13,8 @@ before any further pipeline state mutation.
 
 from __future__ import annotations
 
+import logging as _logging_module
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Final
 
@@ -20,7 +22,7 @@ from typing import Final
 class TemplateRefused(RuntimeError):
     """Raised by assert_real_or_raise when an artifact would commit as template/partial."""
 
-    def __init__(self, path: Path, classification: str, rules_fired: list, missing_context: str):
+    def __init__(self, path: Path, classification: str, rules_fired: Sequence[object], missing_context: str):
         self.path = path
         self.classification = classification
         self.rules_fired = rules_fired
@@ -96,7 +98,7 @@ def is_real(path: Path | str, *, repo_root: Path | str = ".",
 def guard_emit(path: Path | str, *, repo_root: Path | str = ".",
                templates_dir: Path | str | None = None,
                unlink_on_fail: bool = True,
-               logger=None) -> None:
+               logger: _logging_module.Logger | None = None) -> None:
     """Convenience: assert_real_or_raise + on-fail unlink + structured log.
 
     Used at every speckit emit site as a one-liner per FR-009. On failure the

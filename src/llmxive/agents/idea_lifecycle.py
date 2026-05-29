@@ -16,6 +16,7 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
@@ -192,7 +193,7 @@ class FleshOutAgent(_IdeaPhaseAgent):
         query: str,
         title: str,
         field: str,
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Invoke the LibrarianAgent directly per spec 005 / FR-007.
 
         Returns a list of librarian-shaped verified-citation dicts (the

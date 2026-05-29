@@ -22,6 +22,7 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -105,7 +106,7 @@ def render_inline(s: str) -> str:
     """
     spans: list[str] = []
 
-    def stash(m: re.Match) -> str:
+    def stash(m: re.Match[str]) -> str:
         spans.append(m.group(0))
         return f"\x00{len(spans) - 1}\x00"
 
@@ -178,7 +179,7 @@ def render_markdown_body(body: str) -> str:
     return "\n".join(out)
 
 
-def parse_review_file(path: Path) -> dict:
+def parse_review_file(path: Path) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8")
     m = _FRONTMATTER_RE.match(text)
     if not m:

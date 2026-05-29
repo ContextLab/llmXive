@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -24,7 +25,7 @@ LIVENESS_CACHE_PATH = Path("state/audit/liveness-cache.json")
 LIVENESS_TIMEOUT_SEC = float(os.environ.get("LIVENESS_TIMEOUT_SEC", "10"))
 LIVENESS_CACHE_TTL_DAYS = 7
 
-_KIND_RESOLVERS = {
+_KIND_RESOLVERS: dict[str, Callable[[str], str]] = {
     "arxiv": lambda p: f"https://arxiv.org/abs/{p}",
     "doi": lambda p: f"https://doi.org/{p}",
     "url": lambda p: p,
@@ -43,7 +44,8 @@ def _load_cache(path: Path = LIVENESS_CACHE_PATH) -> dict[str, dict[str, Any]]:
     if not path.exists():
         return {}
     try:
-        return json.loads(path.read_text())
+        data: dict[str, dict[str, Any]] = json.loads(path.read_text())
+        return data
     except (OSError, json.JSONDecodeError):
         # Corrupted cache → treat as empty; next save overwrites it.
         return {}
@@ -109,7 +111,7 @@ def check_pointer(
         status = "fail"
         http_code = 0  # connection error / timeout
 
-    entry = {"status": status, "http_code": http_code, "checked_at": _now_iso()}
+    entry: dict[str, Any] = {"status": status, "http_code": http_code, "checked_at": _now_iso()}
     cache[pointer] = entry
     _save_cache(cache, cache_path)
     return entry

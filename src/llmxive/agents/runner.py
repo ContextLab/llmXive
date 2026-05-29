@@ -94,8 +94,8 @@ def _record_dispatch(
     *,
     agent_name: str,
     feed_delivered: bool,
-    manifest: dict | None = None,
-    failure: dict | None = None,
+    manifest: dict[str, object] | None = None,
+    failure: dict[str, object] | None = None,
 ) -> None:
     """Spec 009 FR-034 inputs: record dispatch metadata for the feedback-loop auditor."""
     from llmxive.feed import FeedStore

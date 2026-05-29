@@ -11,7 +11,7 @@ import logging
 import os
 import time
 from collections.abc import Callable, Iterable
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from llmxive.backends.base import (
     BaseBackend,
@@ -142,7 +142,7 @@ def _cloud_models_url() -> str:
     return base.rstrip("/") + "/models"
 
 
-def _fetch_cloud_models() -> list[dict]:
+def _fetch_cloud_models() -> list[dict[str, Any]]:
     """Fetch the raw model catalog (with per-model pricing) from Dartmouth Chat.
 
     We query chat.dartmouth.edu/api/models directly rather than via
@@ -157,7 +157,7 @@ def _fetch_cloud_models() -> list[dict]:
         raise PermanentBackendError(
             "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
         )
-    import requests
+    import requests  # type: ignore[import-untyped]  # no stubs; types-requests not installed
 
     resp = requests.get(
         _cloud_models_url(),
@@ -168,7 +168,7 @@ def _fetch_cloud_models() -> list[dict]:
     return list((resp.json() or {}).get("data") or [])
 
 
-def _model_token_costs(model_obj: dict) -> tuple[float | None, float | None]:
+def _model_token_costs(model_obj: dict[str, Any]) -> tuple[float | None, float | None]:
     """Return (input_cost_per_token, output_cost_per_token) for a catalog entry.
 
     The catalog nests pricing at different depths (internal models under
@@ -335,7 +335,8 @@ class DartmouthBackend(BaseBackend):
             )
 
         client = self._client(model)
-        msg_objs = []
+        from langchain_core.messages import BaseMessage as _BaseMessage
+        msg_objs: list[_BaseMessage] = []
         for m in messages:
             if m.role == "system":
                 msg_objs.append(SystemMessage(content=m.content))

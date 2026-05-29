@@ -135,7 +135,7 @@ def scan_pdf(pdf: Path) -> list[Defect]:
 def _figure_size_check(pdf: Path) -> list[Defect]:
     """Use pdfplumber to extract image-box geometry; flag inconsistent widths."""
     try:
-        import pdfplumber  # type: ignore
+        import pdfplumber
     except ImportError:
         # If pdfplumber is not installed, skip silently — the import-guard test
         # ensures it's present in test environments; production runs surface
@@ -175,7 +175,7 @@ def _figure_size_check(pdf: Path) -> list[Defect]:
     return defects
 
 
-def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Path | str | None = None, **_: Any) -> dict:
+def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Path | str | None = None, **_: Any) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     papers_dir = Path(papers_dir).resolve()
     if not papers_dir.exists():
@@ -213,8 +213,8 @@ def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Pa
         if _is_paper_pdf(p)
     ])
     # dedupe (glob + ** can overlap)
-    seen = set()
-    pdfs = [p for p in pdfs if not (p in seen or seen.add(p))]
+    seen: set[Path] = set()
+    pdfs = [p for p in pdfs if not (p in seen or seen.add(p))]  # type: ignore[func-returns-value]  # set.add returns None; walrus idiom
 
     def _rel(p: Path) -> str:
         try:
@@ -224,7 +224,7 @@ def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Pa
 
     manifest["inputs_scanned"] = [_rel(p) for p in pdfs]
 
-    registry_entries: list[dict] = []
+    registry_entries: list[dict[str, Any]] = []
     for pdf in pdfs:
         defects = scan_pdf(pdf) + _figure_size_check(pdf)
         cls = "passes" if not defects else "fails"

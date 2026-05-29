@@ -110,7 +110,7 @@ class PlannerAgent(SlashCommandAgent):
             repo_root=ctx.project_dir.parent.parent,
         )
         write_manifest(resolved, project_dir=ctx.project_dir)
-        return {  # type: ignore[no-any-return]
+        return {
             "feature_dir": str(feature_dir),
             "spec_path": str(spec_path),
             "script_result": result,

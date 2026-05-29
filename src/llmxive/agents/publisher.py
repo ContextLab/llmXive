@@ -13,6 +13,7 @@ import hashlib
 import json
 import re
 import subprocess
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
@@ -20,7 +21,7 @@ from uuid import uuid4
 import yaml
 
 from llmxive.agents.base import Agent, AgentContext
-from llmxive.backends.base import ChatMessage
+from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline import post_paper_appendix
 from llmxive.pipeline import zenodo as zenodo_module
@@ -47,7 +48,7 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def resolve_badge(rounds_data: list) -> str:
+def resolve_badge(rounds_data: Sequence[object]) -> str:
     """FR-022: determine the `\\paperstatus{...}` value at publication.
 
     - if `paper/revision_history.yaml` is missing OR rounds == [] OR all
@@ -57,8 +58,13 @@ def resolve_badge(rounds_data: list) -> str:
     if not rounds_data:
         return "Auto-Reviewed | Published"
     for r in rounds_data:
-        td = r.tasks_done if hasattr(r, "tasks_done") else r.get("tasks_done", 0)
-        if int(td) > 0:
+        if hasattr(r, "tasks_done"):
+            td: object = r.tasks_done
+        elif isinstance(r, dict):
+            td = r.get("tasks_done", 0)
+        else:
+            td = 0
+        if isinstance(td, (int, float)) and td > 0:
             return "Auto-Reviewed | Auto-Revised | Published"
     return "Auto-Reviewed | Published"
 
@@ -153,13 +159,14 @@ def _bump_failure_counter(
     repo_root: Path, project_id: str, *, failed: bool,
 ) -> int:
     p = _publish_failure_counter_path(repo_root, project_id)
-    state: dict = {}
+    state: dict[str, object] = {}
     if p.is_file():
         try:
             state = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
         except yaml.YAMLError:
             state = {}
-    n = int(state.get("consecutive_failures", 0))
+    _cf = state.get("consecutive_failures", 0)
+    n = int(_cf) if isinstance(_cf, (int, float, str)) else 0  # yaml value is numeric
     n = n + 1 if failed else 0
     state["consecutive_failures"] = n
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -193,7 +200,7 @@ class PaperPublisher(Agent):
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         return [ChatMessage(role="user", content="(deterministic agent — unused)")]
 
-    def handle_response(self, ctx, response):  # type: ignore[override]
+    def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
         return []
 
     def run(self, ctx: AgentContext) -> RunLogEntry:
@@ -278,7 +285,7 @@ class PaperPublisher(Agent):
             # Create draft (pre-reserves DOI) — new deposition for first
             # publication; new version for re-publication.
             if is_republication:
-                draft = client.new_version(int(existing_zenodo_id))
+                draft = client.new_version(int(existing_zenodo_id or 0))
             else:
                 draft = client.create_deposition(zenodo_meta)
             doi = draft.doi
@@ -410,10 +417,10 @@ class PaperPublisher(Agent):
         description: str,
         publication_date: str,
         project_id: str,
-    ) -> dict:
-        creators = []
+    ) -> dict[str, object]:
+        creators: list[dict[str, str]] = []
         for a in authors:
-            entry: dict = {"name": a.name}
+            entry: dict[str, str] = {"name": a.name}
             if a.affiliation:
                 entry["affiliation"] = a.affiliation
             creators.append(entry)
@@ -446,7 +453,7 @@ class PaperPublisher(Agent):
             }
         }
 
-    def _summarize_reviews(self, paper_dir: Path, hist) -> dict:
+    def _summarize_reviews(self, paper_dir: Path, hist: object) -> dict[str, int]:
         reviews_dir = paper_dir / "reviews"
         n_reviewers = 0
         if reviews_dir.is_dir():
@@ -469,7 +476,7 @@ class PaperPublisher(Agent):
         outcome: Outcome,
         failure_reason: str | None,
         outputs: list[str],
-        backend_used,
+        backend_used: BackendName,
         model_used: str,
     ) -> RunLogEntry:
         entry = RunLogEntry(

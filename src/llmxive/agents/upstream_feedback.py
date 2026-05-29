@@ -54,7 +54,7 @@ def _arxiv_id_for(project_id: str, *, repo_root: Path) -> str:
         return ""
 
 
-def _atomic_write_yaml(path: Path, payload: dict) -> None:
+def _atomic_write_yaml(path: Path, payload: dict[str, object]) -> None:
     """Atomic write via .tmp + os.replace; preserves YAML formatting."""
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -66,7 +66,7 @@ def record_round(
     project_id: str,
     *,
     verdict_class: str,
-    action_items: Iterable,
+    action_items: Iterable[object],
     note: str = "",
     repo_root: Path | None = None,
 ) -> Path:
@@ -127,7 +127,7 @@ def record_round(
 
 def append_rejection_rationale(
     project_id: str,
-    fatal_action_items: Iterable,
+    fatal_action_items: Iterable[object],
     *,
     repo_root: Path | None = None,
 ) -> Path | None:

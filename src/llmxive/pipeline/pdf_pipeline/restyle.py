@@ -38,6 +38,7 @@ try:
     import importlib.util as _iu
     _legacy_path = _repo_root() / "scripts" / "restyle_arxiv_paper.py"
     _spec = _iu.spec_from_file_location("_legacy_restyle", _legacy_path)
+    assert _spec is not None, "spec_from_file_location returned None"
     _legacy = _iu.module_from_spec(_spec)
     _spec.loader.exec_module(_legacy)  # type: ignore
     _CONFLICT_PACKAGES = (
@@ -87,11 +88,11 @@ def _strip_class_conflict_packages(src: str, local_styles: set[str] | None = Non
     extras = local_styles or set()
     all_conflicts = _CONFLICT_PACKAGES | extras
 
-    def _sub(m: re.Match) -> str:
+    def _sub(m: re.Match[str]) -> str:
         names = [n.strip() for n in m.group(1).split(",")]
         if any(n in all_conflicts for n in names):
             return "% [llmxive-restyle] stripped: " + m.group(0).strip()
-        return m.group(0)
+        return str(m.group(0))
 
     return USEPKG_RE.sub(_sub, src)
 
@@ -152,10 +153,11 @@ def _wrap_unsupported(src: str) -> str:
     """Wrap any unsupported environment in \\unsupportedblock for loud failure."""
     for env in UNSUPPORTED_ENVS:
         pattern = re.compile(rf"\\begin\{{{env}\}}(.*?)\\end\{{{env}\}}", re.DOTALL)
-        src = pattern.sub(
-            lambda m, env=env: f"\\unsupportedblock{{{env}}}{{{m.group(1)}}}",
-            src,
-        )
+
+        def _wrap(m: re.Match[str], _env: str = env) -> str:
+            return f"\\unsupportedblock{{{_env}}}{{{m.group(1)}}}"
+
+        src = pattern.sub(_wrap, src)
     return src
 
 

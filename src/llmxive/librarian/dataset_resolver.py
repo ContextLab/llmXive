@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
-import requests
+import requests  # type: ignore[import-untyped]  # no stub package available
 import yaml
 
 from llmxive.librarian import dataset_sources as _sources
@@ -219,8 +219,8 @@ _AUTHORITY = {"huggingface": 4, "zenodo": 3, "figshare": 3, "datacite": 2, "sema
 class ResolvedIntent:
     intent: str
     status: str                       # "verified" | "unresolved"
-    candidates: list[dict] = field(default_factory=list)        # top-N verified
-    candidates_tried: list[dict] = field(default_factory=list)  # audit
+    candidates: list[dict[str, object]] = field(default_factory=list)        # top-N verified
+    candidates_tried: list[dict[str, object]] = field(default_factory=list)  # audit
 
 
 @dataclass
@@ -279,7 +279,7 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
     deadline = time.monotonic() + budget_s
     resolved: list[ResolvedIntent] = []
     for intent in extract_dataset_intents(spec_text):
-        tried: list[dict] = []
+        tried: list[dict[str, object]] = []
         verified: list[VerifiedDataset] = []
         for c in _gather_candidates(intent):
             if time.monotonic() > deadline:
@@ -340,6 +340,6 @@ def render_planner_block(rd: ResolvedDatasets) -> str:
         if d.status != "verified":
             lines.append(f"- {d.intent}: NO verified source found (do NOT cite a URL for it).")
             continue
-        urls = ", ".join(c["url"] for c in d.candidates)
+        urls = ", ".join(str(c["url"]) for c in d.candidates)
         lines.append(f"- {d.intent} ({d.candidates[0]['format']}): {urls}")
     return "\n".join(lines)

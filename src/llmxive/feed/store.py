@@ -48,10 +48,10 @@ NON_TRIVIAL_KINDS = {"personality_tick", "review", "human_comment", "revision"}
 class PackedFeed:
     """Result of packing a feed for an agent dispatch context."""
 
-    items: list[dict]                      # delivered items (chronological)
-    truncated: int                         # count of older items omitted
-    feed_snapshot_at: str                  # ISO timestamp
-    truncation_marker: str | None = None   # human-readable marker text
+    items: list[dict[str, Any]]             # delivered items (chronological)
+    truncated: int                           # count of older items omitted
+    feed_snapshot_at: str                    # ISO timestamp
+    truncation_marker: str | None = None     # human-readable marker text
 
     def to_context_block(self) -> str:
         """Render as a markdown block for inclusion in agent input context."""
@@ -131,7 +131,7 @@ class FeedStore:
 
     # ----- Read -----
 
-    def read(self, project_id: str, *, include_audit_statuses: set[str] | None = None) -> list[dict]:
+    def read(self, project_id: str, *, include_audit_statuses: set[str] | None = None) -> list[dict[str, Any]]:
         """Return all feed items for a project.
 
         By default, returns only items whose `audit_status == 'live'`
@@ -142,7 +142,7 @@ class FeedStore:
         if not path.exists():
             return []
         allowed = include_audit_statuses or {"live"}
-        items: list[dict] = []
+        items: list[dict[str, Any]] = []
         with self._locked(path, "r", fcntl.LOCK_SH) as f:
             if f is None:
                 return []
@@ -160,10 +160,10 @@ class FeedStore:
         return self._resolve_edits(items)
 
     @staticmethod
-    def _resolve_edits(items: list[dict]) -> list[dict]:
+    def _resolve_edits(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """For each item with later kind=edit children, replace body with newest edit's body."""
-        by_id = {it["id"]: it for it in items if "id" in it}
-        edits_by_parent: dict[str, list[dict]] = {}
+        by_id: dict[str, dict[str, Any]] = {it["id"]: it for it in items if "id" in it}
+        edits_by_parent: dict[str, list[dict[str, Any]]] = {}
         for it in items:
             if it.get("kind") == "edit" and it.get("parent_id"):
                 edits_by_parent.setdefault(it["parent_id"], []).append(it)
@@ -180,7 +180,7 @@ class FeedStore:
 
     # ----- Append -----
 
-    def append(self, project_id: str, item: dict) -> dict:
+    def append(self, project_id: str, item: dict[str, Any]) -> dict[str, Any]:
         """Append a feed item; fills in id/created_at/audit_status if missing."""
         item = dict(item)
         item.setdefault("id", _new_ulid())
@@ -201,7 +201,7 @@ class FeedStore:
 
     # ----- Edit / retract (T072a, FR-032) -----
 
-    def edit(self, project_id: str, item_id: str, new_body: str, editor: dict) -> dict:
+    def edit(self, project_id: str, item_id: str, new_body: str, editor: dict[str, Any]) -> dict[str, Any]:
         """Edit a feed item by appending a `kind=edit` item; preserve original in audit log."""
         items = self.read(project_id, include_audit_statuses={"live", "rejected", "superseded"})
         original = next((it for it in items if it.get("id") == item_id), None)
@@ -219,7 +219,7 @@ class FeedStore:
             f.flush()
             os.fsync(f.fileno())
         # append new kind=edit item
-        edit_item = {
+        edit_item: dict[str, Any] = {
             "kind": "edit",
             "author": editor,
             "summary": new_body.splitlines()[0][:280] if new_body else "",
@@ -228,7 +228,7 @@ class FeedStore:
         }
         return self.append(project_id, edit_item)
 
-    def retract(self, project_id: str, item_id: str, reason: str, editor: dict) -> None:
+    def retract(self, project_id: str, item_id: str, reason: str, editor: dict[str, Any]) -> None:
         """Mark a feed item as `audit_status=superseded` and log the reason."""
         path = self.feed_path(project_id)
         # Rewrite the JSONL with the targeted item flipped (atomic via tmp + rename, under lock)
@@ -282,7 +282,7 @@ class FeedStore:
         # newest first
         items_rev = list(reversed(items))
 
-        included: list[dict] = []
+        included: list[dict[str, Any]] = []
         used = 0
         body_budget = budget_chars // 2
         for it in items_rev:
@@ -312,7 +312,7 @@ class FeedStore:
 
     # ----- Dispatch metadata ledger (FR-034 inputs) -----
 
-    def record_dispatch(self, project_id: str, record: dict) -> None:
+    def record_dispatch(self, project_id: str, record: dict[str, Any]) -> None:
         """Append a dispatch metadata record to .audit/dispatches/<date>.jsonl."""
         date = time.strftime("%Y-%m-%d", time.gmtime())
         path = self.audit_dir(project_id) / "dispatches" / f"{date}.jsonl"
@@ -323,7 +323,7 @@ class FeedStore:
             f.flush()
             os.fsync(f.fileno())
 
-    def record_rejected(self, project_id: str, contribution: dict) -> None:
+    def record_rejected(self, project_id: str, contribution: dict[str, Any]) -> None:
         """Append a rubric-rejected contribution to .audit/rejected-contributions.jsonl."""
         path = self.audit_dir(project_id) / "rejected-contributions.jsonl"
         with self._locked(path, "a", fcntl.LOCK_EX) as f:

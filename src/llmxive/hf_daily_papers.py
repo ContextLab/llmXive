@@ -226,7 +226,8 @@ def _gh_api_create_issue(repo: str, payload: dict[str, Any]) -> dict[str, Any]:
     proc = subprocess.run(args, input=json.dumps(payload), capture_output=True, text=True)
     if proc.returncode != 0:
         raise RuntimeError(f"gh api failed: {proc.stderr.strip() or proc.stdout.strip()}")
-    return json.loads(proc.stdout)
+    result: dict[str, Any] = json.loads(proc.stdout)
+    return result
 
 
 def _list_recent_paper_issue_urls(repo: str, *, per_page: int = 100) -> set[str]:

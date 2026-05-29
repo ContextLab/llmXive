@@ -12,7 +12,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from jsonschema import ValidationError
+from jsonschema import ValidationError  # type: ignore[import-untyped]  # installed, no stubs
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate

@@ -387,12 +387,21 @@ def load_pool(pool_root: Path | str | None = None) -> PoolLoadResult:
 # T007 / T010: rotation-state YAML IO
 # ---------------------------------------------------------------------------
 
-_ROTATION_DEFAULT = {
+_ROTATION_DEFAULT: dict[str, list[Any] | str | None] = {
     "last_used": None,
     "last_used_at": "1970-01-01T00:00:00+00:00",
     "last_outcome": OUTCOME_ABSTAINED,
     "history": [],
 }
+
+
+def _default_rotation_state() -> RotationState:
+    return RotationState(
+        last_used=None,
+        last_used_at="1970-01-01T00:00:00+00:00",
+        last_outcome=OUTCOME_ABSTAINED,
+        history=[],
+    )
 
 
 def load_rotation_state(state_path: Path | str | None = None) -> RotationState:
@@ -408,20 +417,20 @@ def load_rotation_state(state_path: Path | str | None = None) -> RotationState:
         state_path = Path(ROTATION_PATH)
     state_path = Path(state_path)
     if not state_path.is_file():
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     try:
         raw = state_path.read_text(encoding="utf-8")
     except OSError as exc:
         log.warning("personality: rotation state read failed (%s); recovering with default", exc)
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     try:
         data = yaml.safe_load(raw) or {}
     except yaml.YAMLError as exc:
         log.warning("personality: rotation state YAML parse error (%s); recovering with default", exc)
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     if not isinstance(data, dict):
         log.warning("personality: rotation state not a dict; recovering with default")
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     # Use ``.get`` with defaults so missing keys don't blow up.
     return RotationState(
         last_used=data.get("last_used"),
@@ -887,7 +896,7 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
     from datetime import datetime
 
     from llmxive.state import reviews as reviews_store
-    from llmxive.types import ReviewerKind, ReviewRecord, Stage
+    from llmxive.types import BackendName, ReviewerKind, ReviewRecord, Stage
 
     artifact_rel = action.target_artifact_path or ""
     artifact_abs = repo_root / artifact_rel
@@ -1007,7 +1016,7 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
         reviewed_at=datetime.now(_dt.UTC),
         prompt_version="1.0.0",
         model_name=MODEL_NAME,
-        backend="dartmouth",
+        backend=BackendName.DARTMOUTH,
     )
     try:
         path = reviews_store.write(
@@ -1043,6 +1052,8 @@ def _dispatch_contribute(action: Action, persona: Personality, repo_root: Path) 
     from datetime import datetime
 
     project_id = action.target_project_id
+    if project_id is None:
+        return DispatchResult(outcome=OUTCOME_ABSTAINED, committed_paths=[], error="no target_project_id")
     proj_dir = repo_root / "projects" / project_id
     feedback_dir = proj_dir / "feedback"
     feedback_dir.mkdir(parents=True, exist_ok=True)
@@ -1465,6 +1476,7 @@ def _maybe_advance_pointer(
     if committed_paths:
         history_entry["committed_paths"] = committed_paths
 
+    new_last_used: str | None
     if outcome in ADVANCING_OUTCOMES:
         new_last_used = persona.slug
     else:

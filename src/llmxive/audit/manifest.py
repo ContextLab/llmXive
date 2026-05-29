@@ -16,6 +16,7 @@ from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from . import __version__ as AUDIT_VERSION
 
@@ -52,7 +53,7 @@ def utcnow_iso() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
-def new_manifest(auditor: str) -> dict:
+def new_manifest(auditor: str) -> dict[str, Any]:
     """Start a new manifest with required header fields."""
     if auditor not in AUDITORS:
         raise ValueError(
@@ -69,7 +70,7 @@ def new_manifest(auditor: str) -> dict:
     }
 
 
-def add_item(manifest: dict, item: ManifestItem | dict) -> None:
+def add_item(manifest: dict[str, Any], item: ManifestItem | dict[str, Any]) -> None:
     """Append a manifest item; updates summary counters."""
     if isinstance(item, ManifestItem):
         d = _to_dict(item)
@@ -89,7 +90,7 @@ def add_item(manifest: dict, item: ManifestItem | dict) -> None:
         )
 
 
-def _to_dict(item: ManifestItem) -> dict:
+def _to_dict(item: ManifestItem) -> dict[str, Any]:
     out = asdict(item)
     # Strip None classification + empty defects/rules_fired? Keep fields for schema.
     if out.get("classification") is None:
@@ -102,7 +103,7 @@ def _to_dict(item: ManifestItem) -> dict:
 
 
 def write_manifest(
-    manifest: dict, repo_root: Path | str, *, also_markdown: bool = True
+    manifest: dict[str, Any], repo_root: Path | str, *, also_markdown: bool = True
 ) -> Path:
     """Write manifest to .audit/<auditor>/<ts>.json. Returns the path written.
 
@@ -115,9 +116,9 @@ def write_manifest(
 
     manifest["ended_at"] = utcnow_iso()
     repo_root = Path(repo_root)
-    out_dir = repo_root / ".audit" / manifest["auditor"]
+    out_dir = repo_root / ".audit" / str(manifest["auditor"])
     out_dir.mkdir(parents=True, exist_ok=True)
-    ts = manifest["started_at"].replace(":", "-")
+    ts = str(manifest["started_at"]).replace(":", "-")
     out_path = out_dir / f"{ts}.json"
     out_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
     if also_markdown:
@@ -125,7 +126,7 @@ def write_manifest(
     return out_path
 
 
-def _write_markdown_sibling(manifest: dict, out_path: Path) -> None:
+def _write_markdown_sibling(manifest: dict[str, Any], out_path: Path) -> None:
     lines = [
         f"# Audit Manifest — {manifest['auditor']} (v{manifest['version']})",
         "",
@@ -167,9 +168,10 @@ def _write_markdown_sibling(manifest: dict, out_path: Path) -> None:
     out_path.write_text("\n".join(lines))
 
 
-def read_manifest(path: Path | str) -> dict:
-    return json.loads(Path(path).read_text())
+def read_manifest(path: Path | str) -> dict[str, Any]:
+    result: dict[str, Any] = json.loads(Path(path).read_text())
+    return result
 
 
-def iter_items(manifest: dict) -> Iterable[dict]:
+def iter_items(manifest: dict[str, Any]) -> Iterable[dict[str, Any]]:
     yield from manifest["items"]

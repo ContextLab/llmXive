@@ -42,7 +42,7 @@ class PaperPlannerAgent(SlashCommandAgent):
             cwd=paper_dir,
             expect_json=True,
         )
-        return {  # type: ignore[no-any-return]
+        return {
             "feature_dir": str(feature_dir),
             "spec_path": str(feature_dir / "spec.md"),
             "script_result": result,

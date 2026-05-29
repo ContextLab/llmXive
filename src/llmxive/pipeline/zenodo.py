@@ -16,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]  # no stubs; types-requests not installed
 
 from llmxive.credentials import load_zenodo_token
 

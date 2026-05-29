@@ -21,6 +21,7 @@ import sys
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 DARTMOUTH_KEY_NAME = "DARTMOUTH_CHAT_API_KEY"
 SEMANTIC_SCHOLAR_KEY_NAME = "SEMANTIC_SCHOLAR_API_KEY"
@@ -72,7 +73,7 @@ def check_permissions(path: Path | None = None) -> CredentialsCheck:
     return CredentialsCheck(ok=True, reason=None, path=p, exists=True)
 
 
-def _read_file(path: Path) -> dict:
+def _read_file(path: Path) -> dict[str, Any]:
     try:
         return tomllib.loads(path.read_text(encoding="utf-8"))
     except (OSError, tomllib.TOMLDecodeError):
@@ -139,7 +140,7 @@ def _save_key(toml_field: str, key: str, *, path: Path | None = None) -> Path:
         except OSError:
             pass
     # Merge with any existing keys so saving one doesn't clobber the other.
-    existing: dict = _read_file(p) if p.exists() else {}
+    existing: dict[str, Any] = _read_file(p) if p.exists() else {}
     existing[toml_field] = key.strip()
     lines = [f'{k} = "{_toml_escape(v)}"' for k, v in existing.items() if isinstance(v, str)]
     p.write_text("\n".join(lines) + "\n", encoding="utf-8")

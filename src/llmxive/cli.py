@@ -54,6 +54,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     completed = 0
     for _ in range(max(1, args.max_tasks)):
+        from llmxive.types import Project as _Project
+        project: _Project | None
         if args.project:
             try:
                 project = project_store.load(args.project)
@@ -271,7 +273,7 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
         try:
             system = render_prompt(
                 "agents/prompts/brainstorm.md",
-                {"field": field, "existing_titles": existing_titles},
+                {"field": field, "existing_titles": "\n".join(existing_titles)},
                 repo_root=repo,
             )
         except Exception as exc:
@@ -467,7 +469,7 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
         return 2
     # `gh api --paginate` concatenates JSON arrays — handle either one array or
     # several concatenated arrays.
-    issues: list[dict] = []
+    issues: list[dict[str, object]] = []
     out = out.strip()
     if out:
         try:
