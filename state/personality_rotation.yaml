@@ -1,14 +1,7 @@
 last_used: john-von-neumann
-last_used_at: '2026-05-29T06:31:08.556493+00:00'
-last_outcome: committed
+last_used_at: '2026-05-29T07:53:11.566678+00:00'
+last_outcome: model_error
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-20T13:01:12.804469+00:00'
-  ended_at: '2026-05-20T14:00:31.203065+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/dan-rockmore-simulated__2026-05-20__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-20T14:00:31.203065+00:00'
   ended_at: '2026-05-20T15:16:03.225646+00:00'
@@ -1190,3 +1183,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/john-von-neumann-simulated__2026-05-29__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-29T06:31:08.556493+00:00'
+  ended_at: '2026-05-29T07:53:11.566678+00:00'
+  outcome: model_error
