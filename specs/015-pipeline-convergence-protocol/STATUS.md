@@ -22,7 +22,10 @@ interrupted budget-bump work left mid-edit.
 
 **Final verification (2026-05-29)**: `python -m llmxive.checks.prompts` OK (53 agents);
 `mypy src/llmxive/convergence + tools/summarize.py` 0 errors (19 files);
-`ruff` clean on all spec-015 + touched files; full offline suite green (re-run in progress; pre-rework baseline 1232 passed / 1 skipped).
+`ruff` clean on all spec-015 + touched files; full offline suite GREEN —
+**1232 passed, 1 skipped, 2 deselected** (`tests/contract + tests/integration +
+tests/unit`, 147s; the skip/deselects are the pre-existing live-network PDF
+tests, unrelated to #239).
 
 ## Completion summary (2026-05-28)
 
