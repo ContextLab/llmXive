@@ -14,21 +14,19 @@ narrative paragraph. Per FR-026 + FR-033 + FR-034 + FIX C5/C6:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
+from llmxive.agents import living_document
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import STAGE_ADVANCEMENT_RATE_WINDOW_DAYS
-from llmxive.contract_validate import validate
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 from llmxive.state import project as project_store
-from llmxive.state import runlog
 
 
 def _read_optional(path: Path) -> str:
@@ -60,7 +58,7 @@ def _collect_run_metrics(repo: Path) -> dict[str, Any]:
     # Advancement rate over the configured window: count distinct
     # (project_id, project_id-current_stage) transitions in run-logs
     # whose `ended_at` falls inside the window.
-    cutoff = datetime.now(timezone.utc) - timedelta(days=STAGE_ADVANCEMENT_RATE_WINDOW_DAYS)
+    cutoff = datetime.now(UTC) - timedelta(days=STAGE_ADVANCEMENT_RATE_WINDOW_DAYS)
     advancements = 0
     paid_api_calls = 0
     if runlog_dir.is_dir():
@@ -121,16 +119,75 @@ def _collect_run_metrics(repo: Path) -> dict[str, Any]:
     }
 
 
+def run_living_document_recompiles(*, repo_root: Path) -> list[str]:
+    """FR-048 auto-trigger: scan every ``posted`` project and run a
+    batched recompile for any with queued post-publication comments.
+
+    This is invoked on every cron tick (via :func:`regenerate_web_data`,
+    which every pipeline workflow runs at end-of-tick). For each posted
+    project with ``pending_recompile_count > 0`` it renders the updated
+    Discussion section into the paper source and detects whether the
+    change is material. It deliberately passes NO mint hook to
+    :func:`run_batched_recompile`, so the version DOI ALWAYS pauses at the
+    FR-054 manual sign-off — the auto-trigger never mints (per the chosen
+    AUTO-TRIGGER-but-manual-DOI policy).
+
+    Defensive: a recompile failure for one project is logged and skipped;
+    it must not break the cron tick for the others. Returns the list of
+    project ids that were (attempted to be) recompiled, for telemetry.
+    """
+    from llmxive.types import Stage
+
+    recompiled: list[str] = []
+    try:
+        projects = project_store.list_all(repo_root=repo_root)
+    except Exception as exc:  # pragma: no cover — telemetry only
+        print(f"[status_reporter] could not list projects for recompile: {exc}")
+        return recompiled
+    for project in projects:
+        if project.current_stage != Stage.POSTED:
+            continue
+        project_dir = repo_root / "projects" / project.id
+        try:
+            if living_document.pending_recompile_count(project_dir) == 0:
+                continue
+            result = living_document.run_batched_recompile(
+                project_dir, repo_root=repo_root, mint_version_doi=None,
+            )
+            if result.ran:
+                recompiled.append(project.id)
+        except Exception as exc:  # pragma: no cover — telemetry only
+            print(
+                f"[status_reporter] living-document recompile failed for "
+                f"{project.id}: {type(exc).__name__}: {exc}"
+            )
+            continue
+    return recompiled
+
+
 def regenerate_web_data(*, repo_root: Path | None = None) -> Path:
     """Write web/data/projects.json from current project state.
 
     Emits the v2 schema (specs/002-website-integration/contracts/web-data-v2.schema.yaml)
     via :mod:`llmxive.web_data`. The v1 contract is preserved in
     specs/001 for back-compat but is no longer the writer's target.
+
+    Also fires the FR-048 living-document auto-trigger
+    (:func:`run_living_document_recompiles`) so posted papers with queued
+    post-publication comments get their Discussion section recompiled on
+    every cron tick. The version DOI still pauses at the FR-054 manual
+    sign-off (the auto-trigger never mints).
     """
     from llmxive import web_data
 
     repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    # Fire the living-document recompile auto-trigger BEFORE rebuilding the
+    # web payload, so any Discussion-source updates are reflected. Wrapped
+    # so a recompile fault can never block web-data regeneration.
+    try:
+        run_living_document_recompiles(repo_root=repo)
+    except Exception as exc:  # pragma: no cover — telemetry only
+        print(f"[status_reporter] living-document auto-trigger faulted: {exc}")
     return web_data.write_payload(repo)
 
 
@@ -194,4 +251,8 @@ class StatusReporterAgent(Agent):
         ]
 
 
-__all__ = ["StatusReporterAgent", "regenerate_web_data"]
+__all__ = [
+    "StatusReporterAgent",
+    "regenerate_web_data",
+    "run_living_document_recompiles",
+]
