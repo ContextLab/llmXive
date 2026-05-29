@@ -41,6 +41,7 @@ from llmxive.calibration.injectors import Injection
 from llmxive.convergence.engine import run_convergence
 from llmxive.convergence.llm_reviewer import build_panel
 from llmxive.convergence.reviewspecs import (
+    build_idea_reviewspec,
     build_paper_implement_reviewspec,
     build_paper_plan_reviewspec,
     build_paper_spec_reviewspec,
@@ -58,6 +59,11 @@ REPORTS_DIR = CALIBRATION_ROOT / "reports"
 
 # Stage → (build_*_reviewspec, panel-lens list, on-disk calibration-set subdir)
 _STAGES: dict[str, tuple[object, list[str], str]] = {
+    "idea": (
+        build_idea_reviewspec,
+        ["rq_validity", "novelty", "feasibility", "idea_quality"],
+        "idea",  # injector: circular_rq → rq_validity
+    ),
     "spec": (
         build_spec_reviewspec,
         ["requirements_coverage", "internal_consistency", "testability", "scope"],
@@ -188,6 +194,11 @@ def _supporting_artifacts_for_stage(stage: str) -> dict[str, str]:
         "__code_summary__": "",
         "__data_summary__": "",
     }
+    if stage == "idea":
+        # FleshOutReviser only reads the idea Markdown (the primary artifact)
+        # + __comments_block__. Idea is the EARLIEST stage: NO constitution
+        # exists yet (constitution_input=False), so none is supplied.
+        return {**common_empty}
     if stage == "spec":
         # spec_reviser pulls __idea_md__, __comments_block__, __spec_template__.
         return {
@@ -276,6 +287,8 @@ def _run_one(
 
 def _artifact_key_for_stage(stage: str) -> str:
     return {
+        # FleshOutReviser requires the idea md under a key through /idea/ ending .md.
+        "idea": "projects/PROJ-000-calibration/idea/idea.md",
         "spec": "specs/000-calib/spec.md",
         "plan": "specs/000-calib/plan.md",
         "tasks": "specs/000-calib/tasks.md",
