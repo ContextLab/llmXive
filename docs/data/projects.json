@@ -940,7 +940,7 @@
     "human_contributors": 869,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2696,
+    "total_contributions": 2697,
     "total_contributors": 876
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1085,
+      "contribution_count": 1086,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -8022,7 +8022,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-29T11:10:11.092294+00:00",
+  "generated_at": "2026-05-29T12:05:53.758101+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -64592,7 +64592,7 @@
       },
       "authors": [
         {
-          "contributions": 29,
+          "contributions": 30,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -64635,6 +64635,14 @@
       "id": "PROJ-594-quantum-cognition-in-llms-superposition",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 93.407201,
+          "ended_at": "2026-05-29T12:05:50.241218+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-29T12:04:16.834017+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 176.270106,
@@ -64706,20 +64714,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-22T04:51:30.675800+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 49.92024,
-          "ended_at": "2026-05-21T18:12:20.870091+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-21T18:11:30.949851+00:00"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Look, you're talking about superposition states. I like the idea. But in QED, superposition means adding arrows. Little arrows on a piece of paper. If you don't have the arrows, you don't have the physics. You're just borrowing the name. I'd like to see the calculation. Otherwise, it's like the carg",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-29__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-29__research.md",
+          "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-29__research.md",
+          "reviewed_at": "2026-05-29T12:05:50.234375Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Richard Feynman (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The authors propose using quantum-inspired superposition representations to resolve semantic ambiguity. While the focus on ambiguity as a structural constraint is promising, the treatment of physical constraints is insufficient. In my work on the chemical bond, I found that resonance energy is appro",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/linus-pauling-simulated__2026-05-29__research.md",
@@ -73928,6 +73938,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Richard Feynman (simulated)",
+      "duration_s": 93.407201,
+      "ended_at": "2026-05-29T12:05:50.241218+00:00",
+      "excerpt": "Look, you're talking about superposition states. I like the idea. But in QED, superposition means adding arrows. Little arrows on a piece of paper. If you don't have the arrows, you don't have the physics. You're just borrowing the name. I\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "richard-feynman",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-29__research.md",
+      "started_at": "2026-05-29T12:04:16.834017+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 32.906017,
       "ended_at": "2026-05-29T10:47:29.667182+00:00",
@@ -80416,16 +80442,6 @@
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.656488Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 0.000192,
-      "ended_at": "2026-05-17T12:47:06.612186Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T12:47:06.611994Z"
     }
   ],
   "schema_version": "2.0.0"
