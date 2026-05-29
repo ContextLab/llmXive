@@ -227,7 +227,73 @@ class PlannerAgent(SlashCommandAgent):
         except Exception:
             _unlink_all_written()
             raise
+
+        # --- plan convergence panel (spec-015 / #239) -----------------------
+        # The just-written plan.md + sibling design docs are now reviewed by
+        # the live 4-lens plan panel (methodology / spec_coverage /
+        # data_resources / plan_consistency) via the convergence engine.
+        self._run_plan_panel(ctx, feature_dir, repo)
         return written
+
+    def _run_plan_panel(
+        self,
+        ctx: SlashCommandContext,
+        feature_dir: Path,
+        repo: Path,
+    ) -> None:
+        from llmxive.backends.router import make_backend
+        from llmxive.convergence.reviewspecs import build_plan_reviewspec
+        from llmxive.speckit._stage_panel import (
+            _constitution,
+            _read,
+            render_recent_comments_block,
+            run_stage_panel,
+        )
+
+        try:
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return  # offline / no-LLM: agent already produced the artifacts.
+
+        # The PlanReviser edits plan.md + research.md + data-model.md +
+        # quickstart.md + contracts/*; supply every one that exists under its
+        # canonical key so a revised doc lands at the right path.
+        artifact_paths: dict[str, Path] = {}
+        for name in ("plan.md", "research.md", "data-model.md", "quickstart.md"):
+            p = feature_dir / name
+            if p.exists():
+                artifact_paths[str(p.relative_to(repo))] = p
+        for c in sorted((feature_dir / "contracts").glob("*")):
+            if c.is_file():
+                artifact_paths[str(c.relative_to(repo))] = c
+        # The PlanReviser reads the source spec from a key ending 'spec.md';
+        # include it so the panel evaluates the plan against its spec.
+        spec_path = feature_dir / "spec.md"
+        if spec_path.exists():
+            artifact_paths[str(spec_path.relative_to(repo))] = spec_path
+
+        memory_dir = ctx.project_dir / ".specify" / "memory"
+        constitution_text = _constitution(memory_dir) or None
+        spec = build_plan_reviewspec(
+            backend=backend, repo_root=repo, project_id=ctx.project_id,
+            model=ctx.default_model,
+        )
+        run_stage_panel(
+            stage_label="plan",
+            spec=spec,
+            artifact_paths=artifact_paths,
+            extra_inputs={
+                "__constitution__": constitution_text or "",
+                "__comments_block__": render_recent_comments_block(ctx.project_dir),
+                "__spec_md__": _read(spec_path),
+            },
+            repo_root=repo,
+            memory_dir=memory_dir,
+            producer="planner",
+            constitution=constitution_text,
+        )
 
 
 __all__ = ["PlannerAgent"]

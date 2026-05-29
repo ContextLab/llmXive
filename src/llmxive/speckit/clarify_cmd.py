@@ -184,7 +184,62 @@ class ClarifierAgent(SlashCommandAgent):
         guard_emit(spec_path, repo_root=repo, unlink_on_fail=False)
         # T032: successful clarify clears the attempt counter.
         reset_attempts(memory_dir)
-        return [str(spec_path.relative_to(repo))]
+        outputs = [str(spec_path.relative_to(repo))]
+
+        # --- spec convergence panel (spec-015 / #239) -----------------------
+        # The clarified spec.md is now reviewed by the live 4-lens spec panel
+        # (requirements_coverage / internal_consistency / testability / scope)
+        # via the convergence engine. On all-accept the stage advances as
+        # before; on a non-converging panel a kickback marker is written and a
+        # StagePanelKickback is raised so the graph routes back. backend=None
+        # (offline) skips the panel gracefully.
+        self._run_spec_panel(ctx, spec_path, memory_dir, repo)
+        return outputs
+
+    def _run_spec_panel(
+        self,
+        ctx: SlashCommandContext,
+        spec_path: Path,
+        memory_dir: Path,
+        repo: Path,
+    ) -> None:
+        from llmxive.backends.router import make_backend
+        from llmxive.convergence.reviewspecs import build_spec_reviewspec
+        from llmxive.speckit._stage_panel import (
+            _constitution,
+            _idea_md,
+            _spec_template,
+            render_recent_comments_block,
+            run_stage_panel,
+        )
+
+        try:
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return  # offline / no-LLM: agent already produced the artifact.
+
+        constitution_text = _constitution(memory_dir) or None
+        spec = build_spec_reviewspec(
+            backend=backend, repo_root=repo, project_id=ctx.project_id,
+            model=ctx.default_model,
+        )
+        spec_key = str(spec_path.relative_to(repo))
+        run_stage_panel(
+            stage_label="spec",
+            spec=spec,
+            artifact_paths={spec_key: spec_path},
+            extra_inputs={
+                "__idea_md__": _idea_md(ctx.project_dir),
+                "__comments_block__": render_recent_comments_block(ctx.project_dir),
+                "__spec_template__": _spec_template(ctx.project_dir, repo),
+            },
+            repo_root=repo,
+            memory_dir=memory_dir,
+            producer="specifier+clarifier",
+            constitution=constitution_text,
+        )
 
 
 def _parse_clarifier_response(text: str) -> dict[str, Any] | None:

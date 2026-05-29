@@ -172,7 +172,63 @@ class PaperClarifierAgent(SlashCommandAgent):
         from llmxive.speckit._real_only_guard import guard_emit
         guard_emit(spec_path, repo_root=repo, unlink_on_fail=False)
         reset_attempts(memory_dir)
-        return [str(spec_path.relative_to(repo))]
+        outputs = [str(spec_path.relative_to(repo))]
+
+        # --- paper-spec convergence panel (spec-015 / #239) -----------------
+        # The clarified paper spec.md is reviewed by the live 4-lens paper-spec
+        # panel (reader_scenario_coverage / claims_supported /
+        # required_sections_figures / scope_vs_research) via the engine.
+        self._run_paper_spec_panel(ctx, spec_path, memory_dir, repo)
+        return outputs
+
+    def _run_paper_spec_panel(
+        self,
+        ctx: SlashCommandContext,
+        spec_path: Path,
+        memory_dir: Path,
+        repo: Path,
+    ) -> None:
+        from llmxive.backends.router import make_backend
+        from llmxive.convergence.reviewspecs import build_paper_spec_reviewspec
+        from llmxive.speckit._stage_panel import (
+            _read,
+            render_recent_comments_block,
+            run_stage_panel,
+        )
+
+        try:
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return  # offline / no-LLM: agent already produced the artifact.
+
+        paper_const = (
+            ctx.project_dir / "paper" / ".specify" / "memory" / "constitution.md"
+        )
+        constitution_text = _read(paper_const) or None
+        spec = build_paper_spec_reviewspec(
+            backend=backend, repo_root=repo, project_id=ctx.project_id,
+            model=ctx.default_model,
+        )
+        spec_key = str(spec_path.relative_to(repo))
+        run_stage_panel(
+            stage_label="paper_spec",
+            spec=spec,
+            artifact_paths={spec_key: spec_path},
+            extra_inputs={
+                # code/data summaries are real-data artifacts produced later;
+                # supply empty so the sentinel key is present (fail-loud).
+                "__code_summary__": "",
+                "__data_summary__": "",
+                "__comments_block__": render_recent_comments_block(ctx.project_dir),
+                "__constitution__": constitution_text or "",
+            },
+            repo_root=repo,
+            memory_dir=memory_dir,
+            producer="paper_specifier+paper_clarifier",
+            constitution=constitution_text,
+        )
 
 
 __all__ = ["PaperClarifierAgent"]

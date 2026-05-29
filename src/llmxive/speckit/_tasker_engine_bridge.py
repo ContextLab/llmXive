@@ -296,7 +296,18 @@ def run_tasker_via_engine(
     concerns = analyze_findings_to_concerns(
         analyze_findings, default_artifact_path=tasks_key,
     )
-    spec.reviewers = [_AnalyzeReportReviewer("analyze", concerns)]
+    # spec-015 / #239: run the REAL 4-lens LLM panel
+    # (coverage / ordering / executability / constraint_preservation) wired by
+    # build_tasks_reviewspec ALONGSIDE the spec-014 honest-reporting analyze
+    # reviewer — do NOT drop either. Previously this line OVERWROTE
+    # spec.reviewers with a single _AnalyzeReportReviewer, bypassing the LLM
+    # lenses entirely. ``build_tasks_reviewspec`` wired the live panel via
+    # _wire_live_panel (a no-op only when backend is None, in which case the
+    # remaining reviewers are placeholders that raise — so we filter those out
+    # defensively; the production caller always supplies a real backend).
+    from llmxive.convergence.reviewspecs import _TodoReviewer
+    live_panel = [r for r in spec.reviewers if not isinstance(r, _TodoReviewer)]
+    spec.reviewers = [*live_panel, _AnalyzeReportReviewer("analyze", concerns)]
 
     # Wrap the live reviser with the FR-031 guard pre-filter.
     if spec.reviser is None:

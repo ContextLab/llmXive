@@ -39,7 +39,17 @@ class _FakeResponse:
 class _FakeBackend:
     responses: list[str]
 
-    def chat(self, messages, model=None):  # type: ignore[no-untyped-def]
+    def chat(self, messages, model=None, **kw):  # type: ignore[no-untyped-def]
+        # spec-015 / #239: build_tasks_reviewspec now wires a LIVE 4-lens
+        # LLMReviewer panel that runs ALONGSIDE the analyze reviewer. Serve a
+        # clean accept verdict for those panel calls (and an ok for the FR-011
+        # self-consistency audit turn) so the engine still converges and the
+        # FR-031 guard rollback semantics this test asserts hold unchanged.
+        sys_text = getattr(messages[0], "content", "") if messages else ""
+        if "auditing a revision you just produced" in sys_text:
+            return _FakeResponse(text="ok: true\nproblems: []\n")
+        if "Other panelists cover other aspects" in sys_text:
+            return _FakeResponse(text="---\nverdict: accept\nconcerns: []\n---\n")
         if not self.responses:
             raise RuntimeError("ran out of canned responses")
         return _FakeResponse(text=self.responses.pop(0))

@@ -135,6 +135,14 @@ class PaperTaskerAgent(SlashCommandAgent):
                     yaml.safe_dump({"rounds_used": round_idx + 1}),
                     encoding="utf-8",
                 )
+                # --- paper-tasks convergence panel (spec-015 / #239) -------
+                # Analyze is clean; now run the live paper-tasks panel
+                # (coverage / ordering / executability /
+                # constraint_preservation) before advancing.
+                self._run_paper_tasks_panel(
+                    ctx, spec_path, plan_path, tasks_path, repo,
+                    analyze_report_text=str(report),
+                )
                 return written
 
             mode_b_system = render_prompt(
@@ -196,6 +204,62 @@ class PaperTaskerAgent(SlashCommandAgent):
             encoding="utf-8",
         )
         return written
+
+    def _run_paper_tasks_panel(
+        self,
+        ctx: SlashCommandContext,
+        spec_path: Path,
+        plan_path: Path,
+        tasks_path: Path,
+        repo: Path,
+        *,
+        analyze_report_text: str,
+    ) -> None:
+        from llmxive.backends.router import make_backend
+        from llmxive.convergence.reviewspecs import build_paper_tasks_reviewspec
+        from llmxive.speckit._stage_panel import (
+            _read,
+            render_recent_comments_block,
+            run_stage_panel,
+        )
+
+        try:
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return  # offline / no-LLM: agent already produced the artifacts.
+
+        memory_dir = self._paper_dir(ctx) / ".specify" / "memory"
+        constitution_text = _read(memory_dir / "constitution.md") or None
+        spec = build_paper_tasks_reviewspec(
+            backend=backend, repo_root=repo, project_id=ctx.project_id,
+            model=ctx.default_model,
+        )
+        artifact_paths: dict[str, Path] = {
+            str(tasks_path.relative_to(repo)): tasks_path,
+        }
+        # Context artifacts the reviser reads by suffix (paper-side keys).
+        for p in (spec_path, plan_path):
+            if p.exists():
+                artifact_paths[str(p.relative_to(repo))] = p
+        run_stage_panel(
+            stage_label="paper_tasks",
+            spec=spec,
+            artifact_paths=artifact_paths,
+            extra_inputs={
+                "__analyze_report__": analyze_report_text,
+                "__prior_reviews__": "",
+                "__constitution__": constitution_text or "",
+                "__comments_block__": render_recent_comments_block(ctx.project_dir),
+                "__spec_md__": _read(spec_path),
+                "__plan_md__": _read(plan_path),
+            },
+            repo_root=repo,
+            memory_dir=memory_dir,
+            producer="paper_tasker",
+            constitution=constitution_text,
+        )
 
 
 __all__ = ["PaperTaskerAgent"]
