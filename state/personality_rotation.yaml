@@ -1,14 +1,7 @@
 last_used: eric-kandel
-last_used_at: '2026-05-29T00:37:58.027414+00:00'
-last_outcome: committed
+last_used_at: '2026-05-29T01:42:13.630175+00:00'
+last_outcome: librarian_held
 history:
-- slug: stephen-wolfram
-  started_at: '2026-05-20T07:46:39.337613+00:00'
-  ended_at: '2026-05-20T09:07:16.073089+00:00'
-  outcome: committed
-  action: propose_arxiv
-  committed_paths:
-  - state/personality-submissions/20260520T090716Z__stephen-wolfram.yaml
 - slug: ada-lovelace
   started_at: '2026-05-20T09:07:16.073089+00:00'
   ended_at: '2026-05-20T10:33:19.705114+00:00'
@@ -1188,3 +1181,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/eric-kandel-simulated__2026-05-29__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-29T00:37:58.027414+00:00'
+  ended_at: '2026-05-29T01:42:13.630175+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/_held/freeman-dyson-simulated__2026-05-29__paper.md
