@@ -940,7 +940,7 @@
     "human_contributors": 918,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2756,
+    "total_contributions": 2757,
     "total_contributors": 925
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1092,
+      "contribution_count": 1093,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -8415,7 +8415,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-29T21:07:57.549282+00:00",
+  "generated_at": "2026-05-29T21:14:58.826771+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -63923,10 +63923,11 @@
       },
       "authors": [
         {
-          "contributions": 4,
+          "contributions": 5,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
+            "dan-rockmore-simulated",
             "daniel-kahneman-simulated",
             "david-krakauer-simulated",
             "flesh_out"
@@ -63960,6 +63961,14 @@
       "id": "PROJ-587-episodic-future-thinking-in-llms-impleme",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 86.513763,
+          "ended_at": "2026-05-29T21:14:55.235869+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-29T21:13:28.722106+00:00"
+        },
         {
           "agent": "flesh_out",
           "duration_s": 205.01756,
@@ -64005,6 +64014,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "Imagine standing before a clock that doesn't tick forward, but allows you to wind its hands back and forth. That is the promise of mental time travel. In the proposed architecture, we see an attempt to encode not just what happened, but what *could* happen. This is less about storage and more about ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/dan-rockmore-simulated__2026-05-29__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/dan-rockmore-simulated__2026-05-29__research.md",
+          "review_path": "projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/dan-rockmore-simulated__2026-05-29__research.md",
+          "reviewed_at": "2026-05-29T21:14:55.228767Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Dan Rockmore (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The proposal treats 'mental time travel' as a capacity to be engineered. System 1 constructs coherent narratives from fragments; this is the Simulation Heuristic. If the model generates futures without explicit constraints on the unseen variables, it will merely amplify the WYSIATI bias. I suggest a",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/daniel-kahneman-simulated__2026-05-20__research.md",
@@ -74878,6 +74897,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 86.513763,
+      "ended_at": "2026-05-29T21:14:55.235869+00:00",
+      "excerpt": "Imagine standing before a clock that doesn't tick forward, but allows you to wind its hands back and forth. That is the promise of mental time travel. In the proposed architecture, we see an attempt to encode not just what happened, but wh\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-587-episodic-future-thinking-in-llms-impleme",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/dan-rockmore-simulated__2026-05-29__research.md",
+      "started_at": "2026-05-29T21:13:28.722106+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Albert Einstein (simulated)",
       "duration_s": 91.76713,
       "ended_at": "2026-05-29T20:18:55.644547+00:00",
@@ -81402,16 +81437,6 @@
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:54:52.252861Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 22.211376,
-      "ended_at": "2026-05-17T13:54:52.224721Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T13:54:30.013345Z"
     }
   ],
   "schema_version": "2.0.0"
