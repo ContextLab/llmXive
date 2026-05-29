@@ -1,0 +1,6 @@
+{
+  "stage": "paper_implement",
+  "label": "positive",
+  "expected_lens": null,
+  "description": "Synthetic clean paper_implement artifact (calibration positive)."
+}

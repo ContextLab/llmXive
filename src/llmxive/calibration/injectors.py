@@ -298,6 +298,68 @@ def inject_plan_tasks_contradiction(plan_text: str) -> Injection:
     )
 
 
+# --- per-paper-stage injectors (NEW, post-2026-05-29 calibration run) ---
+
+
+def inject_unsupported_claim(spec_text: str) -> Injection:
+    """Flaw #7 — inject a strong quantitative claim with no supporting
+    evidence into the paper spec.
+
+    Drops a sentinel sentence into the spec that asserts a precise
+    effect size ("our method achieves a 75.3% improvement") without any
+    cited data source, methodology section, or attached numerical
+    fence. The ``claims_supported`` paper_spec lens should flag it as
+    SCIENCE-class (a load-bearing claim with no support contradicts
+    the spec's stated scope).
+    """
+    injected = (
+        "\n\n## INJECTED CLAIM\n\n"
+        "Our method achieves a 75.3% absolute-error reduction across "
+        "all benchmarks (this claim is deliberately fabricated for "
+        "calibration — no supporting data exists in this spec)."
+    )
+    return Injection(
+        text=spec_text + injected,
+        expected_lens="claims_supported",
+        description=(
+            "Injected an unsupported quantitative effect-size claim. "
+            "Expected lens: claims_supported (SCIENCE-class — claim "
+            "with no methodology / data backing)."
+        ),
+        original=spec_text,
+    )
+
+
+def inject_orphan_plan_section(plan_text: str) -> Injection:
+    """Flaw #8 — inject a plan section about a topic the paper spec
+    doesn't mention.
+
+    Adds a sentinel section to ``plan.md`` proposing a "Real-time
+    deployment evaluation" subsection — a topic outside the paper
+    spec's declared scope. The ``spec_section_coverage`` paper_plan
+    lens should flag this as METHODOLOGY-class (the plan invents
+    structure the spec didn't authorize).
+    """
+    injected = (
+        "\n\n## Real-time deployment evaluation (INJECTED)\n\n"
+        "We add a section evaluating end-to-end latency on production "
+        "workloads (this plan section is deliberately fabricated for "
+        "calibration — the paper spec does not mention real-time or "
+        "deployment evaluation)."
+    )
+    return Injection(
+        text=plan_text + injected,
+        expected_lens="spec_section_coverage",
+        description=(
+            "Injected an orphan plan section not authorized by the "
+            "paper spec. Expected lens: spec_section_coverage "
+            "(METHODOLOGY-class — plan invents structure absent from "
+            "the spec)."
+        ),
+        original=plan_text,
+    )
+
+
 # --- registry --------------------------------------------------------------
 
 
@@ -311,6 +373,8 @@ INJECTORS: dict[str, tuple[object, str]] = {
     "fabricated_data": (inject_fabricated_data, "data_resources"),
     "nonexistent_citation": (inject_nonexistent_citation, "claim_accuracy"),
     "plan_tasks_contradiction": (inject_plan_tasks_contradiction, "plan_consistency"),
+    "unsupported_claim": (inject_unsupported_claim, "claims_supported"),
+    "orphan_plan_section": (inject_orphan_plan_section, "spec_section_coverage"),
 }
 
 
@@ -323,5 +387,7 @@ __all__ = [
     "inject_fr_without_task",
     "inject_gutted_requirement",
     "inject_nonexistent_citation",
+    "inject_orphan_plan_section",
     "inject_plan_tasks_contradiction",
+    "inject_unsupported_claim",
 ]

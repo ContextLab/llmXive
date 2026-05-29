@@ -94,6 +94,35 @@ class PaperImplementReviser:
                 "path under paper/source/, paper/figures/, paper/data/, "
                 "or similar."
             )
+        # Short-circuit when no tasks.md is supplied (calibration paths,
+        # test harnesses, etc.). The paper_implementer prompt is a
+        # [kind:...] dispatcher — without tasks.md it has nothing to
+        # route. Crashing the engine with a parse error (the LLM
+        # legitimately responds 'No tasks.md provided') is wrong;
+        # instead return a structured ConcernResponse per concern so
+        # the engine sees an honest 'cannot-dispatch' verdict + can
+        # decide whether to kickback based on the concerns alone.
+        tasks_md = artifacts.get("__tasks_md__", "")
+        if not tasks_md.strip():
+            responses: list[ConcernResponse] = [
+                ConcernResponse(
+                    concern_id=c.id,
+                    response=(
+                        "PaperImplementReviser short-circuit: no "
+                        "tasks.md supplied (__tasks_md__ artifact "
+                        "missing or empty). The reviser is a "
+                        "[kind:...] dispatcher — without tasks.md "
+                        "there is no work to route, so this "
+                        "concern cannot be addressed via the "
+                        "dispatcher. Surface to the panel + let "
+                        "the engine decide whether to kickback."
+                    ),
+                    what_changed="<no-op: tasks.md missing>",
+                    artifacts_changed=[],
+                )
+                for c in concerns
+            ]
+            return artifacts, responses
         paper_spec = artifacts.get("__paper_spec_md__", "")
         paper_plan = artifacts.get("__paper_plan_md__", "")
         results_md = artifacts.get("__results_md__", "")

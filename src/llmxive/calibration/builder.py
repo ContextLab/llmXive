@@ -115,6 +115,16 @@ _SEED_POSITIVES: dict[str, str] = {
     "plan": _PLAN_POSITIVE,
     "tasks": _TASKS_POSITIVE,
     "paper": _PAPER_POSITIVE,
+    # Per-paper-stage seeds (post-2026-05-29 per-stage injectors).
+    # The injectors target stage-appropriate structure (FRs / plan
+    # sections / tasks), so the seeds re-use the research-side seeds
+    # rather than the generic _PAPER_POSITIVE. The 4 paper-track
+    # panels each have their own lens set; the per-stage injectors
+    # were authored to match those lenses.
+    "paper_spec": _SPEC_POSITIVE,
+    "paper_plan": _PLAN_POSITIVE,
+    "paper_tasks": _TASKS_POSITIVE,
+    "paper_implement": _PAPER_POSITIVE,
 }
 
 
@@ -138,6 +148,24 @@ _STAGE_INJECTORS: dict[str, tuple[tuple[str, str | None], ...]] = {
     "spec": (("gutted_requirement", "requirements_coverage"),),
     "plan": (("fabricated_data", None), ("plan_tasks_contradiction", None)),
     "tasks": (("fr_without_task", None), ("gutted_requirement", None)),
+    # The ``paper`` subdir feeds 4 paper-stage panels (paper_spec /
+    # paper_plan / paper_tasks / paper_implement). Each panel has a
+    # DIFFERENT lens set; using the same injector for all 4 leaves
+    # 3 of the 4 panels structurally unable to flag it (e.g.
+    # ``claim_accuracy`` only exists on paper_implement). The
+    # post-2026-05-29 calibration repro showed paper_spec /
+    # paper_plan / paper_tasks all reporting 0/1 caught on
+    # ``nonexistent_citation`` for exactly this reason. Per-stage
+    # injectors target the lens that's actually in that stage's
+    # panel.
+    "paper_spec": (("unsupported_claim", None),),
+    "paper_plan": (("orphan_plan_section", None),),
+    "paper_tasks": (("fr_without_task", "coverage"),),
+    "paper_implement": (("nonexistent_citation", None),),
+    # The legacy ``paper`` umbrella subdir is kept for back-compat;
+    # the runner's _STAGES map points each paper stage at this set
+    # when the per-stage entry above is missing. Used by the
+    # paper_implement-only path historically.
     "paper": (("nonexistent_citation", None),),
 }
 

@@ -167,11 +167,18 @@ def test_plan_tasks_contradiction_appends_assertion():
 # --- registry contract ----------------------------------------------------
 
 
-def test_registry_exposes_all_six_injectors():
-    assert len(INJECTORS) == 6
+def test_registry_exposes_all_injectors():
+    """Post-2026-05-29: 8 total injectors — the original 6 plus two
+    per-paper-stage additions (``unsupported_claim``,
+    ``orphan_plan_section``) authored after the paper-track
+    calibration repro showed that ``nonexistent_citation`` couldn't
+    structurally fire on paper_spec/paper_plan/paper_tasks panels."""
+    assert len(INJECTORS) == 8
     expected = {
         "circular_rq", "fr_without_task", "gutted_requirement",
-        "fabricated_data", "nonexistent_citation", "plan_tasks_contradiction",
+        "fabricated_data", "nonexistent_citation",
+        "plan_tasks_contradiction",
+        "unsupported_claim", "orphan_plan_section",
     }
     assert set(INJECTORS) == expected
 
@@ -187,6 +194,10 @@ def test_registry_lens_metadata_matches_each_injector_output():
         "fabricated_data": "## Data\n- OpenNeuro ds002800",
         "nonexistent_citation": "We show X. Therefore Y.",
         "plan_tasks_contradiction": "## Methodology\nclustering",
+        "unsupported_claim": (
+            "# Spec\n## Functional Requirements\n- FR-001: thing.\n"
+        ),
+        "orphan_plan_section": "# Plan\n## Methodology\nSGD.\n",
     }
     for name, (fn, registered_lens) in INJECTORS.items():
         out = fn(samples[name])  # type: ignore[operator]

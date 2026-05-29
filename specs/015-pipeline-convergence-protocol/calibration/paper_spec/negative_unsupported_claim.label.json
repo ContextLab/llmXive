@@ -1,0 +1,6 @@
+{
+  "stage": "paper_spec",
+  "label": "negative_unsupported_claim",
+  "expected_lens": "claims_supported",
+  "description": "Injected an unsupported quantitative effect-size claim. Expected lens: claims_supported (SCIENCE-class \u2014 claim with no methodology / data backing)."
+}

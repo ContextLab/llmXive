@@ -71,17 +71,20 @@ _STAGES: dict[str, tuple[object, list[str], str]] = {
         build_paper_spec_reviewspec,
         ["reader_scenario_coverage", "claims_supported",
          "required_sections_figures", "scope_vs_research"],
-        "paper",  # paper-spec uses the same calibration positives as other paper steps
+        # Post-2026-05-29: per-stage calibration subdir. The injector
+        # used here (``unsupported_claim``) targets ``claims_supported``
+        # which lives on this panel.
+        "paper_spec",
     ),
     "paper_plan": (
         build_paper_plan_reviewspec,
         ["paper_structure", "spec_section_coverage", "plan_constitution_consistency"],
-        "paper",
+        "paper_plan",  # injector: orphan_plan_section → spec_section_coverage
     ),
     "paper_tasks": (
         build_paper_tasks_reviewspec,
         ["coverage", "ordering", "executability", "constraint_preservation"],
-        "paper",
+        "paper_tasks",  # injector: fr_without_task → coverage (paper-side)
     ),
     "paper_implement": (
         build_paper_implement_reviewspec,
@@ -89,7 +92,7 @@ _STAGES: dict[str, tuple[object, list[str], str]] = {
         # subset relevant to the calibration negative (nonexistent_citation).
         ["claim_accuracy", "scientific_evidence", "writing_quality",
          "figure_critic"],
-        "paper",
+        "paper_implement",  # injector: nonexistent_citation → claim_accuracy
     ),
 }
 
