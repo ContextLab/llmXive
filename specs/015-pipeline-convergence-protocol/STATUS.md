@@ -4,6 +4,26 @@
 
 **Branch**: `015-pipeline-convergence-protocol`. **Pipeline**: plan ✅ · tasks ✅ · analyze ✅ (0 findings) · implement ✅ (78/85 autonomous tasks done; 7 strictly human-gated remain) · verify ✅ (T084 + T085 partial).
 
+## Fresh comprehensive review (2026-05-29)
+
+A full independent 2-pass re-verification of every FR (spec) + every issue-#239
+section (4 parallel audit sub-agents, direct code inspection, NOT trusting this
+doc). Found + fixed **4 genuine gaps**; everything else verified clean
+(all 8 affected issues genuinely addressed; the 10 audit discrepancies fixed;
+`summarize_to_budget` alias + `convergence/` package reconciled). Also completed
+interrupted budget-bump work left mid-edit.
+
+| Fix | What | Commit |
+|-|-|-|
+| qwen real context | qwen3.5-122b is 256K not 32K (verified via Dartmouth model registry); summarizer `_MODEL_BUDGETS` qwen→200K + DEFAULT→128K; router default 32K→128K; workflow max_tokens 8192→131072. The summarizer was compressing artifacts that fit the real window. | `dda96c27`, `733551c6` |
+| **FR-012** (correctness) | Engine skipped ALL R1-accepters (`if not own: continue`) so an R2 change made for a dissenter could silently break an accepter's lens while still reporting `converged`. Now accepters re-review when R2 changed any artifact (skipped on no-op → no wasted re-reviews). LLMReviewer.rereview no longer drops accepter-surfaced breakage. 2 regression tests (1 verified to fail without the fix). | `865911fb` |
+| **FR-011** (self-consistency pass) | The reviser "self-consistency pass" required by FR-011/§1 was absent. Added a code-level second pass (`convergence/revisers/_self_consistency.py` + SSoT prompt block): ONE audit LLM call → ONE corrective re-pass if problems; exception-guarded fallback so a flaky check never blocks. Wired into all 7 revisers. | `f5b3cdef` |
+| **FR-048** (batched recompile) | Living-doc ingestion was wired but the batched-recompile orchestrator had no caller (blocked T079). Added `living_document.run_batched_recompile` (render Discussion → material-change digest → reuse FR-054 sign-off gate; never auto-mints) + `status_reporter` cron auto-trigger over POSTED projects. 11 tests. | `19b421fe` |
+
+**Final verification (2026-05-29)**: `python -m llmxive.checks.prompts` OK (53 agents);
+`mypy src/llmxive/convergence + tools/summarize.py` 0 errors (19 files);
+`ruff` clean on all spec-015 + touched files; full offline suite green (re-run in progress; pre-rework baseline 1232 passed / 1 skipped).
+
 ## Completion summary (2026-05-28)
 
 **Autonomous work: COMPLETE.** Every task that can land without a maintainer
