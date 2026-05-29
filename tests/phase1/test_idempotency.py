@@ -44,7 +44,7 @@ def _sha256_tree(root: Path) -> dict[str, str]:
 
 def _make_registry_entry() -> AgentRegistryEntry:
     """Construct the same registry entry the production runner builds for
-    project_initializer. Mirrors agents/registry.yaml lines 83-97."""
+    project_initializer. Mirrors agents/registry.yaml project_initializer."""
     return AgentRegistryEntry(
         name="project_initializer",
         purpose="Bootstrap a per-project Spec Kit scaffold and render a project constitution.",
@@ -53,7 +53,7 @@ def _make_registry_entry() -> AgentRegistryEntry:
         prompt_path="agents/prompts/project_initializer.md",
         prompt_version="1.0.0",
         default_backend="dartmouth",
-        fallback_backends=["huggingface", "local"],
+        fallback_backends=["local"],
         default_model="qwen.qwen3.5-122b",
         wall_clock_budget_seconds=300,
         paid_opt_in=False,

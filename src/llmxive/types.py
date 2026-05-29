@@ -168,7 +168,8 @@ class ArtifactKind(str, Enum):
 
 class BackendName(str, Enum):
     DARTMOUTH = "dartmouth"
-    HUGGINGFACE = "huggingface"
+    # The HF Inference-API backend was removed (2026-05-29): HF models run
+    # LOCALLY via the `local`/transformers backend, with no API token.
     LOCAL = "local"
 
 

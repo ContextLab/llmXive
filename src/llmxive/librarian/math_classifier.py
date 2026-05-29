@@ -234,7 +234,7 @@ def is_math_theory_question(
             librarian_prompt_version=librarian_prompt_version,
             model=model,
             default_backend=default_backend,
-            fallback_backends=list(fallback_backends or ("huggingface", "local")),
+            fallback_backends=list(fallback_backends or ("local",)),
             repo_root=repo_root,
         ).verdict
     )

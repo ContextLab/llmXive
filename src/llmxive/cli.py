@@ -814,7 +814,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_backends = subs.add_parser("backends", help="backend operations")
     backends_subs = p_backends.add_subparsers(dest="backends_cmd", required=True)
     p_lm = backends_subs.add_parser("list-models", help="list models for a backend")
-    p_lm.add_argument("--backend", required=True, choices=["dartmouth", "huggingface", "local"])
+    p_lm.add_argument("--backend", required=True, choices=["dartmouth", "local"])
     p_lm.set_defaults(func=_cmd_backends_list_models)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")

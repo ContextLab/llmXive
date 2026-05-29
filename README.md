@@ -157,8 +157,9 @@ run-log entry.
 
 All inference runs on free backends: Dartmouth's
 [Discovery cluster](https://rc.dartmouth.edu/ai/computing-resources/discovery-cluster/)
-(primary), [Hugging Face](https://huggingface.co/) (fallback), and local
-transformers (last resort). Long, complex tasks (planning, paper writing, deep
+(primary) and local [transformers](https://huggingface.co/docs/transformers)
+(fallback) — open-weight Hugging Face models run locally, no API token.
+Long, complex tasks (planning, paper writing, deep
 review) go to **Qwen 3.5 122B**; faster classification-shaped tasks (clarifying
 questions, triage, quick judgments) go to **Gemma 3 27B**. No paid services
 (Constitution Principle IV — free-first).
@@ -239,8 +240,8 @@ research/paper stages, `python -m llmxive submissions process` for the website
 intake, and `Deploy Pages` to publish `web/` → `docs/`.
 
 LLM calls need a Dartmouth Chat API key (`DARTMOUTH_CHAT_API_KEY`, or
-`python -m llmxive auth set`); without it the backends fall through to Hugging
-Face (`HF_TOKEN`) then local transformers.
+`python -m llmxive auth set`); without it the backends fall through to local
+transformers (open-weight Hugging Face models run locally; no token required).
 
 ### Audit tools (spec 010)
 

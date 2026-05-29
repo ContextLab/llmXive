@@ -140,7 +140,7 @@ def extract_queries(
     n: int = DEFAULT_QUERY_COUNT,
     model: str = "qwen.qwen3.5-122b",
     default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("huggingface", "local"),
+    fallback_backends: Sequence[str] = ("local",),
 ) -> list[str]:
     """Decompose the research question into N short keyword queries.
 

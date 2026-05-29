@@ -15,7 +15,6 @@ dependencies = [
   "langchain>=0.3",
   "langgraph>=0.2",
   "langchain-dartmouth>=0.3.1",
-  "langchain-huggingface>=0.1",
   "huggingface_hub",
   # Data validation
   "pydantic>=2",

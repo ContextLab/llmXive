@@ -2,9 +2,10 @@
 
 Pure file-fixture-driven; asserts the registry's invariants hold.
 
-The semantic assertion is: with only DARTMOUTH_CHAT_API_KEY (and
-optionally HF_TOKEN) configured, every agent invocation produces a
-run-log entry with `cost_estimate_usd == 0.0`. The runlog writer's
+The semantic assertion is: with only DARTMOUTH_CHAT_API_KEY configured
+(the `local` transformers fallback needs no token), every agent
+invocation produces a run-log entry with `cost_estimate_usd == 0.0`.
+The runlog writer's
 CostInvariantError guard (T103) makes any non-zero cost fail-fast.
 """
 

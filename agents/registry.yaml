@@ -6,12 +6,6 @@ backends:
   - DARTMOUTH_CHAT_API_KEY
   daily_quota_estimate: 100
   is_paid: false
-- name: huggingface
-  kind: hf_inference
-  auth_env_vars:
-  - HF_TOKEN
-  daily_quota_estimate: 50
-  is_paid: false
 - name: local
   kind: local_transformers
   auth_env_vars: []
@@ -27,7 +21,6 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
@@ -42,7 +35,7 @@ agents:
   prompt_version: 1.2.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools:
   - lit_search
@@ -60,7 +53,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
@@ -75,7 +67,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
@@ -90,7 +81,6 @@ agents:
   prompt_version: 1.2.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
@@ -107,7 +97,6 @@ agents:
   prompt_version: 1.6.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 1800
@@ -122,7 +111,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -136,7 +125,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -151,7 +140,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
@@ -165,7 +154,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
@@ -181,7 +170,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
@@ -198,7 +187,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -216,7 +205,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   tools:
@@ -236,7 +224,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
@@ -254,7 +241,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -269,7 +256,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -284,7 +271,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
@@ -299,7 +286,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 900
   paid_opt_in: false
@@ -314,7 +301,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
@@ -329,7 +315,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools:
   - lit_search
@@ -347,7 +333,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools:
   - code_sandbox
@@ -365,7 +351,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools:
   - code_sandbox
@@ -382,7 +368,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -397,7 +383,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 600
@@ -413,7 +398,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -427,7 +412,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -443,7 +428,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
@@ -459,7 +443,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
@@ -477,7 +460,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   wall_clock_budget_seconds: 300
   paid_opt_in: false
@@ -494,7 +477,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   wall_clock_budget_seconds: 300
@@ -510,7 +492,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -526,7 +508,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -542,7 +524,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -558,7 +540,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -574,7 +556,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -590,7 +572,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -606,7 +588,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -622,7 +604,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -638,7 +620,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -654,7 +636,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -670,7 +652,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -686,7 +668,7 @@ agents:
   prompt_version: 1.1.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -702,7 +684,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -718,7 +700,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -734,7 +716,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -750,7 +732,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -766,7 +748,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -782,7 +764,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -798,7 +780,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -816,7 +798,6 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
   - local
   default_model: google.gemma-4-31B-it
   tools: []
@@ -835,7 +816,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 600
@@ -852,7 +833,7 @@ agents:
   prompt_version: 1.0.0
   default_backend: dartmouth
   fallback_backends:
-  - huggingface
+  - local
   default_model: qwen.qwen3.5-122b
   tools: []
   wall_clock_budget_seconds: 1800

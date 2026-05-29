@@ -18,12 +18,10 @@ from llmxive.backends.base import (
     TransientBackendError,
 )
 from llmxive.backends.dartmouth import DartmouthBackend
-from llmxive.backends.huggingface import HuggingFaceBackend
 from llmxive.backends.local import LocalBackend
 
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
-    "huggingface": HuggingFaceBackend,
     "local": LocalBackend,
 }
 
@@ -32,7 +30,7 @@ def make_backend(name: str) -> BaseBackend:
     cls = _REGISTRY.get(name)
     if cls is None:
         raise PermanentBackendError(f"unknown backend: {name!r}")
-    return cls()  # type: ignore[call-arg]
+    return cls()
 
 
 # Per-backend model-fallback chain. When the primary model on a

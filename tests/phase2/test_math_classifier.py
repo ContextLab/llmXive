@@ -62,7 +62,7 @@ def _patch_backend(monkeypatch, backend: _RecordingBackend) -> _RecordingBackend
 _PLUMBING = dict(
     model="qwen.qwen3.5-122b",
     default_backend="dartmouth",
-    fallback_backends=["huggingface", "local"],
+    fallback_backends=["local"],
 )
 
 
