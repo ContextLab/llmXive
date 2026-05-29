@@ -1,0 +1,78 @@
+\section{Preliminaries}
+\label{sec:formulation}
+ 
+This section formalizes the proactive recommendation task within a reinforcement learning framework (Section~\ref{sec:task}), and then analyzes why standard policy gradient estimation fails in this setting (Section~\ref{sec:analysis}).
+ 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figure/Figure2.2_thin.pdf}
+  \caption{Standard policy gradient estimation degenerates into generating nearly identical overlong paths. (\textbf{Top row}) Training dynamics under three reward configurations (CTR, IoI, IoR). Each subplot shows path length (solid) and diversity (dashed) for MovieLens-1M (red) and Amazon-Book (green). (\textbf{Bottom row}) Expected step-level reward $\mathbb{E}[r_t]$ for each component on MovieLens-1M (red) and Amazon-Book (green). All components exhibit positive mean, enabling the length shortcut.}
+  \label{fig:length-collapse}
+\end{figure*}
+ 
+\subsection{Basic Framework}
+\label{sec:task}
+ 
+As introduced in Section~\ref{sec:intro}, proactive recommendation bridges a user's existing preferences to a platform-specified target item via a path of intermediate recommendations. Formally, given a user's interaction history $S_u$ (sequence of interacted items) and a target item $i_T$, the system generates a recommendation path $L_u = (i_1, \ldots, i_L)$, where $L \leq L_{\max}$. 
+ 
+Following standard practice~\cite{zhu2023influential,bi2024proactive}, we employ a user simulator to estimate acceptance probabilities. The simulator is a recommender model (e.g., SASRec~\cite{kang2018self}) trained on real-world interaction data. It provides estimated probability $P(i \mid S)$ that a user would accept item $i$ given the user's interaction sequence $S$ (representing his/her current preferences). This enables reward computation without online feedback.
+
+Path quality is measured along two dimensions: \textbf{Guidance Effectiveness} captures how much the path increases predicted interest in the target, while \textbf{Path Feasibility} captures whether users would accept items along the path. To quantify these dimensions, we adopt three standard metrics~\cite{zhu2023influential,bi2024proactive}. Let $\oplus$ denote sequence concatenation and $\mathrm{Rank}(i \mid S)$ denote the ranking position of item $i$ given by the simulator. The metrics are defined as:
+\begin{align}
+\mathrm{IoI} &:= \log P(i_T \mid S_u \oplus L_u) - \log P(i_T \mid S_u), \nonumber\\
+\mathrm{IoR} &:= \mathrm{Rank}(i_T \mid S_u) - \mathrm{Rank}(i_T \mid S_u \oplus L_u), \nonumber\\
+\mathrm{CTR} &:= \frac{1}{|L_u|} \sum_{k=1}^{|L_u|} P\bigl(i_k \mid S_u \oplus L_u^{<k}\bigr). \nonumber
+\end{align}
+Here IoI (Increment of Interest) and IoR (Increment of Rank) quantify Guidance Effectiveness, while CTR (Click-Through Rate) quantifies Path Feasibility. Effective paths must optimize both dimensions. This naturally motivates a reward defined as a weighted sum of these metrics:
+\begin{equation}
+R_{\text{path}} = \alpha \cdot \mathrm{IoI} + \beta \cdot \mathrm{IoR} + \gamma \cdot \mathrm{CTR}.
+\label{eq:reward}
+\end{equation}
+With path quality explicitly quantified via the reward in Eq.~\eqref{eq:reward}, the goal becomes learning a policy (model) $\pi_\theta(\cdot \mid S_u, i_T)$ that generates high-reward paths. This is naturally framed as an exploration problem: the policy must search a combinatorially large space of candidate paths to discover those with high rewards. 
+RL with policy gradient provides a principled framework for this reward-driven exploration. Specifically, we initialize $\pi_\theta$ with a policy $\pi_0$ pretrained via supervised learning on historical paths (see Appendix~\ref{app:prorl} for details). We then update this policy by iteratively sampling paths from $\pi_\theta$ and optimize via policy gradient ascent on the following objective:
+\begin{equation}
+J(\theta) = \mathbb{E}_{L_u \sim \pi_\theta(\cdot \mid S_u, i_T)}\bigl[R_{\text{path}}\bigr] - \lambda \cdot D_{\mathrm{KL}}\bigl(\pi_\theta \| \pi_0\bigr).
+\label{eq:objective}
+\end{equation}
+The gradient of $J(\theta)$ consists of two parts: the reward term and the KL term. The KL term can be computed analytically given policy distributions, so we focus on estimating the reward term $\nabla_\theta \mathbb{E}_{\pi_\theta}[R]$. By the policy gradient theorem~\cite{sutton1999policy}, given $n$ inputs and $m$ sampled paths per input, the standard gradient estimator for $\nabla_\theta \mathbb{E}_{\pi_\theta}[R]$ is:
+\begin{equation}
+\hat{g}_{\mathrm{std}} = \frac{1}{nm}\sum_{i=1}^{n}\sum_{j=1}^{m}\left[\sum_{t=1}^{L^{(i,j)}} \nabla_\theta \log \pi_\theta^{(i, j, t)} \cdot R^{(i,j)}\right],
+\label{eq:g-std}
+\end{equation}
+where $L^{(i,j)}$ is the path length, $R^{(i,j)}$ is the path reward, and $\pi_\theta^{(i, j, t)}$ denotes the probability. In theory, the policy progressively learns to generate higher-quality paths, moving beyond mere imitation of historical data toward reward-guided discovery. However, as we show next, this standard gradient estimation exhibits severe deficiencies when applied to PRS.
+
+\subsection{The Length Shortcut}
+\label{sec:analysis}
+ 
+Having established the RL formulation, a natural approach is to directly optimize Eq.~\eqref{eq:objective} with the standard estimator $\hat{g}_{\mathrm{std}}$ (Eq.~\eqref{eq:g-std}). However, preliminary experiments reveal that this fails systematically across datasets and reward designs.
+ 
+\textbf{Experimental Setup.} Following Section~\ref{sec:task}, we initialize the policy $\pi_\theta$ with a pretrained model $\pi_0$ and apply standard policy gradient optimization with $L_{\max}=10$. To isolate the effect of each reward component, we train three separate policies using CTR, IoI, and IoR as the sole reward signal respectively. For each configuration, we repeat the entire pipeline (pretraining + RL) five times and report averaged results. At each training step of RL, we compute two quantities over all rollouts across inputs in the batch: (1) \emph{path length}, the average number of generated items; (2) \emph{path diversity}, item-level Jaccard Similarity among paths.
+ 
+\textbf{Empirical Observation.} Figure~\ref{fig:length-collapse} (top row) shows the training dynamics on MovieLens-1M and Amazon-Book. Across all reward configurations, we observe a consistent pattern: path length rapidly increases toward the maximum, while path diversity collapses toward nearly zero. Within a few hundred steps, the policy degenerates into generating nearly identical, maximum-length paths for all inputs. This degeneration is common: it occurs regardless of which reward component is used, suggesting a fundamental issue with standard policy gradient estimation in this setting.
+ 
+ 
+\textbf{Root Cause: Length-Reward Coupling.} We trace this failure to a structural property of path rewards. We show that any reward function $R$ that maps a path to a scalar value admits a natural decomposition into step-level increments:
+\begin{equation}
+\begin{split}
+R(i_1, \ldots, i_L) &= \sum_{t=1}^{L} r_t, \\
+\text{where } r_t &:= R(i_1, \ldots, i_t) - R(i_1, \ldots, i_{t-1}).
+\end{split}
+\label{eq:reward_decomposition}
+\end{equation}
+This decomposition reveals a critical coupling: if the expected step reward $\mathbb{E}_\pi[r_t]$
+\footnote{By expected step reward we actually mean $\mathbb{E}_\pi[r_t | L \ge t]$, since $r_t$ is only defined when the path reaches step $t$. For brevity, we write $\mathbb{E}_\pi[r_t]$ to denote $\mathbb{E}_\pi[r_t | L \ge t]$ when the context is clear.}
+is non-zero, then the expected path reward becomes directly dependent on path length.
+ 
+Figure~\ref{fig:length-collapse} (bottom row) empirically validates this. We compute $\mathbb{E}_{\pi}[r_t]$ by averaging step-level rewards across all rollouts collected during the experiments above. Across both datasets and all three reward components, we observe that step-level rewards exhibit \emph{consistently positive mean}. While IoR shows a slow decreasing trend, it remains positive throughout. This positive bias creates a systematic incentive: on average, longer paths yield higher rewards.
+
+One might argue that if longer paths yield higher rewards, the optimal policy should indeed produce long paths. While the global optimum may well correspond to high-quality long paths, the issue lies in the optimization trajectory, not the optimum itself. In early training, the model encounters length variation far more frequently than quality variation among sampled paths. This enables rapid reward improvement through path extension without exploring diverse, high-quality paths. The model thus converges to a local optimum of lengthy but low-quality paths, never reaching the global optimum. Our ablation study (Section~\ref{sec:ablation_component}) confirms this: removing the length bias yields better final performance with more reasonable path length, demonstrating that the shortcut impedes rather than aids optimization.
+ 
+\textbf{Theoretical Understanding.} Figure~\ref{fig:length-collapse} (top row) reveals a striking pattern: path length converges to $L_{\max}$ within a few hundred updates, long before the model learns effective item selection. This suggests that early gradients primarily shape the ``continue or stop'' decision, leaving ``which item'' to be learned later. To isolate the length mechanism, we consider a simplified model where $\pi_\theta$ stops at each step with a position-independent probability $p=\sigma(\theta)$. The total return $G=\sum_{t=1}^{\tau} r_t$ satisfies $\mathbb{E}[r_t|\tau\ge t]\ge \mu_{\min}>0$ for all $t$, where $\tau\le L_{\max}$ is the stopping time.
+\begin{theorem}[Length Collapse Rate; informal]
+\label{thm:collapse}
+Under this setting, let $p(s)$ denote the stop probability under continuous-time gradient flow at training time $s$. Then $p(s) \to 0$ monotonically at rate $O(1/s)$, and the expected path length converges to $L_{\max}$.
+\end{theorem}
+Formal proof is in Appendix~\ref{app:length_collapse}. The $O(1/s)$ decay shows that when $\mathbb{E}[r_t|\tau\ge t]\ge \mu_{\min}>0$, gradient updates systematically reduce stopping probability $p$, making length collapse a structural consequence rather than a tuning artifact. We term this the \emph{length shortcut}.
+ 
+\textbf{Implication.} The analysis suggests a principle for rectifying policy gradient in PRS: \emph{path extension should yield zero expected gain}. Under such condition, the length shortcut disappears and gradients must come from path quality. Section~\ref{sec:method} introduces our approach.
+

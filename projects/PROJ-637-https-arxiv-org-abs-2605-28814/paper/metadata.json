@@ -1,0 +1,39 @@
+{
+  "arxiv_id": "2605.28814",
+  "arxiv_url": "https://arxiv.org/abs/2605.28814",
+  "title": "https://arxiv.org/abs/2605.28814",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #249",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/Embodied-Minds-Lab/BES"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "images",
+    "images/bes_vs_baselines_overall.pdf",
+    "images/demo.pdf",
+    "images/forward.pdf",
+    "images/bes_full_overall.pdf",
+    "images/teaser.pdf",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "ref.bib",
+    "sections",
+    "sections/method.tex",
+    "sections/intro.tex",
+    "sections/rw.tex",
+    "sections/abs.tex",
+    "sections/conclusion.tex",
+    "sections/theory.tex",
+    "sections/exp.tex",
+    "sections/appendix.tex"
+  ]
+}

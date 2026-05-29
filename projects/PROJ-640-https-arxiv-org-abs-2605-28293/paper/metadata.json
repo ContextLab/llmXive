@@ -1,0 +1,49 @@
+{
+  "arxiv_id": "2605.28293",
+  "arxiv_url": "https://arxiv.org/abs/2605.28293",
+  "title": "https://arxiv.org/abs/2605.28293",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #246",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/hongruhou89/ProRL"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "algorithmic.sty",
+    "algorithm.sty",
+    "example_paper.bib",
+    "fancyhdr.sty",
+    "figure",
+    "figure/Figure2.2_thin.pdf",
+    "figure/Illustrate_proact.pdf",
+    "figure/main_RL_thin.pdf",
+    "figure/prompt_knowledge.pdf",
+    "figure/all_curves_final.pdf",
+    "figure/robustness.pdf",
+    "figure/epoch_length.pdf",
+    "figure/Length_profit.pdf",
+    "figure/pretrain_epoch_all.pdf",
+    "icml2026.bst",
+    "icml2026.sty",
+    "main.tex",
+    "sec",
+    "sec/Impact_statement.tex",
+    "sec/abs.tex",
+    "sec/ack.tex",
+    "sec/appendix.tex",
+    "sec/conclusion.tex",
+    "sec/exp.tex",
+    "sec/intro.tex",
+    "sec/method.tex",
+    "sec/preliminary.tex",
+    "sec/related_work.tex"
+  ]
+}

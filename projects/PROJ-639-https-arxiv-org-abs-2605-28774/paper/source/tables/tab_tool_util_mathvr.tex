@@ -1,0 +1,61 @@
+\begin{table*}[t]
+    \caption{\textbf{Tool utilization rate (\%, $\uparrow$)} per benchmark, mirroring \autoref{tab:main-p1}. Tool utilization is the fraction of evaluation rollouts that emit at least one \toolcall on each benchmark. Non-agent rollouts (no tools) have tool utilization $0$ by construction and are omitted; ``Base'' is the inference-only baseline with tools enabled. Best per column within each size block in \textbf{bold}.}
+    \label{tab:tool-util}
+    \centering
+    \scriptsize
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l ccc cccc cc >{\columncolor{mygray}}c}
+        \toprule
+        \multicolumn{1}{c}{} &
+        \multicolumn{3}{c}{\textbf{Reasoning}} &
+        \multicolumn{4}{c}{\textbf{Perception}} &
+        \multicolumn{2}{c}{\textbf{Search}} &
+        \multicolumn{1}{c}{\multirow{2}{*}[-3pt]{\textbf{Avg.}}} \\
+        \cmidrule(lr){2-4} \cmidrule(lr){5-8} \cmidrule(lr){9-10}
+        \textbf{Method} &
+        \shortstack{Math\\Vision} & \shortstack{Dyna\\Math} & \shortstack{Math\\-VR} &
+        V$^{\star}$ & \shortstack{Visual\\Probe} & \shortstack{HRBen.\\-4K} & \shortstack{HRBen.\\-8K} &
+        \shortstack{HR-MM\\Search} & \shortstack{MM\\Search} & \multicolumn{1}{c}{} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-2B-Thinking}} \\
+        \midrule
+        Base       & 78.3 & 86.4 & 76.7 & 94.8 & 99.1 & 87.5 & 93.0 & 92.8 & 97.3 & 89.5 \\
+        GRPO       & \textbf{96.1} & \textbf{99.0} & \textbf{93.2} & 96.9 & 100.0 & 90.0 & \textbf{94.0} & \textbf{100.0} & \textbf{100.0} & \textbf{96.6} \\
+        SFT        & 38.8 & 34.3 & 8.0  & 95.8 & 100.0 & 79.5 & 80.5 & 91.5 & 95.0 & 69.3 \\
+        \quad+\,GRPO  & 54.6 & 30.7 & 17.1 & 90.1 & 100.0 & 72.0 & 80.5 & 94.1 & 97.0 & 70.7 \\
+        \rowcolor{myblue}
+        \quad+\,\textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+                  & 63.8 & 63.9 & 27.1 & \textbf{99.0} & 100.0 & \textbf{93.0} & 93.0 & 98.7 & 99.0 & 81.9 \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-4B-Thinking}} \\
+        \midrule
+        Base       & 25.7 & 17.0 & 1.6  & 94.8 & 99.1 & 79.5 & 85.5 & 85.2 & 95.7 & 64.9 \\
+        GRPO       & 2.3  & 2.4  & 0.0  & 65.4 & 90.6 & 36.5 & 42.5 & 35.1 & 63.0 & 37.5 \\
+        SFT        & 53.9 & 38.9 & 10.6 & 94.8 & 100.0 & 75.5 & 83.5 & 93.1 & 97.7 & 72.0 \\
+        \quad+\,GRPO  & 38.8 & 27.7 & 8.6  & 80.6 & 100.0 & 64.0 & 74.5 & 91.5 & 95.7 & 64.6 \\
+        \rowcolor{myblue}
+        \quad+\,\textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+                  & \textbf{73.0} & \textbf{96.2} & \textbf{13.3} & \textbf{100.0} & 100.0 & \textbf{100.0} & \textbf{100.0} & \textbf{100.0} & \textbf{100.0} & \textbf{86.9} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-8B-Thinking}} \\
+        \midrule
+        Base       & 62.2 & 50.7 & 22.5 & 94.8 & 100.0 & 84.5 & 85.0 & 94.4 & \textbf{98.7} & 77.0 \\
+        GRPO       & 38.2 & 22.0 & 7.8  & 87.4 & 99.1 & 72.0 & 75.5 & 91.1 & 97.3 & 65.6 \\
+        SFT        & 47.7 & 34.1 & 9.8  & 90.6 & 99.1 & 74.0 & 76.0 & 93.4 & 96.7 & 69.0 \\
+        \quad+\,GRPO  & 46.1 & 30.7 & 7.6  & 92.1 & 99.1 & 73.0 & 78.0 & 97.0 & 97.7 & 69.0 \\
+        \rowcolor{myblue}
+        \quad+\,\textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+                  & \textbf{75.7} & \textbf{63.9} & \textbf{29.1} & \textbf{99.0} & 100.0 & \textbf{90.0} & \textbf{92.0} & \textbf{98.4} & 98.3 & \textbf{82.9} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-32B-Thinking} (inference-only baseline)} \\
+        \midrule
+        Base       & 51.6 & 36.5 & 15.1 & 94.8 & 100.0 & 75.0 & 77.5 & 94.8 & 97.3 & 71.4 \\
+
+        \bottomrule
+    \end{tabular}
+    }
+\end{table*}

@@ -1,0 +1,8 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We identified a \emph{Thinking-Acting Gap} in group-based agentic RL, an asymmetry between thinking (the self-contained default) and tool use (a high-variance auxiliary) that manifests during training as two symptoms: tool use is attempted on a minority of rollouts and tool-using subgroups (the tool-using rollouts within a group) are disproportionately all-wrong, so the advantage at tool-call tokens is non-positive on exactly the questions where tool use would help. AXPO narrows this gap by augmenting the rollout loop with \emph{\toolresample}, which fixes the thinking prefix and concentrates exploration on the tool call itself, paired with uncertainty-based prefix selection. Across nine multimodal benchmarks and three model scales, AXPO consistently outperforms SFT\,+\,GRPO, and at 8B it surpasses the 32B Base baseline on Pass@4 with $4\times$ fewer parameters.
+
+\paragraph{Limitations.}
+Our study assumes verifiable outcome rewards for RL and trains models up to 8B parameters.
+We discuss limitations and the future directions in details in \appref{app:limitations}.

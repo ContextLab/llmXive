@@ -1,0 +1,46 @@
+\section{Introduction}
+\label{sec:intro}
+
+Large language models (LLMs) and vision-language models (VLMs) with extended reasoning capabilities have made remarkable progress, producing chains of thought that rival much larger models on mathematical and scientific reasoning benchmarks~\citep{r1, o1, s1}.
+These reasoning models invest test-time compute into internal search and reflection to arrive at accurate answers.
+However, many real-world problems lie beyond what internal reasoning alone can resolve: retrieving up-to-date knowledge, performing complex numerical computation, and understanding fine-grained visual details all require access to external resources~\citep{Search-R1, Search-o1, PoT, mini-o3, vstar}.
+Tools such as web search, code interpreters, and image manipulation utilities can fill this gap, enabling what we call \textbf{\emph{Multimodal Agentic Reasoning}}: the model autonomously decides when to think further and when to act through tools, much as it learns to allocate thinking budget, but now extended to interaction with environments~\citep{AgenticReasoning, tora, TIR, pyvision, toolorchestra, visualsketchpad}.
+
+\input{figures/concept}
+
+Agentic reasoning carries a deeper asymmetry between its two constituent behaviors: \emph{Thinking} and \emph{Tool use (Acting)}.
+\emph{Thinking} is the default mode, self-contained within the model's token space: every token is under its control and errors can be corrected by exploring a different chain of thought~\citep{R1-thoughtology,ahamoment,understandingreasoning}.
+\emph{Tool use}, by contrast, is an auxiliary behavior that is simultaneously powerful but fragile: a short token sequence triggers an external response the model cannot predict or control, and small changes in the call can produce drastically different outcomes (e.g., invalid python code with wrong indent)~\citep{pyvision-rl}.
+Reasoning models are heavily post-trained for thinking, but far less for acting.
+We refer to this asymmetry between a safe default and a high-variance auxiliary as the \textbf{\emph{\gap}}. 
+
+Due to this gap, eliciting agentic reasoning remains a challenge despite the  capabilities of recent reasoning VLMs~\citep{Qwen3VL}. Relying solely on prompting is often insufficient to ensure an appropriate tool call when needed. This necessitates post-training pipelines, such as Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL), as evidenced in~\autoref{fig:main}.
+SFT reliably teaches the \emph{mechanics} of tool use but struggles to teach the model to utilize tools better for situations the teacher's demonstrations did not cover. The resulting agent inherits the teacher's failure modes and often plateaus near its performance~\citep{AgentDistill, dagger}.
+Therefore, the model requires a training signal that goes beyond imitation, which motivates utilizing RL with verifiable outcome rewards after SFT~\citep{pyvision-rl, AgenticReasoningRL, deepeyesv2}.
+
+However, RL methods such as GRPO~\citep{GRPO,DAPO,prorl} are suboptimal to make models proficient at acting, because two patterns suppress the tool-call learning signal.
+First, tool use remains a minority of rollouts compared with thinking-only (\autoref{fig:analysis-a}).
+Second, when tool use is attempted, the entire group of rollouts is far more likely to fail together (\autoref{fig:analysis-b}).
+Under GRPO, this asymmetry weakens the tool-call learning signal in both regimes: tool-using rollouts trail thinking-only successes in mixed groups (negative advantage) and zero out in all-wrong groups~\citep{pope, sage}.
+These observations motivate targeted exploration for tool use during RL. This raises a critical question: \emph{how can we effectively induce such exploration?}
+The \gap suggests the answer.
+Thinking is the native mode of the model and the tool call is the separate mode that turns an intent into a concrete action where the same intent admits diverse implementations (\autoref{fig:analysis-c}).
+
+Building on this observation, our key insight is that resampling at the tool call lets the model explore diverse agentic reasoning: we anchor the thinking prefix and resample the tool call and its continuation (\autoref{fig:concept}).
+We call this \emph{\toolresample}.
+The operation has no analog in pure reasoning, where there is no comparable boundary between a committed intent and a high-variance action.
+When a tool-using trajectory fails, the thinking prefix may be entirely sound. Re-deriving the full trajectory from scratch wastes budget on prefixes that were not the bottleneck, whereas \toolresample concentrates exploration precisely where the \gap manifests. We propose \textbf{AXPO} (\textbf{A}gent e\textbf{X}plorative \textbf{P}olicy \textbf{O}ptimization) based on this principle to narrow the gap during RL.
+
+Concretely, AXPO instantiates three design choices on top of a small extra rollout budget: (1) \emph{where to resample}, only on all-wrong tool-using subgroups where a single recovery flips the GRPO advantage;
+(2) \emph{which prefix}, the highest-uncertainty ones; and (3) \emph{how resamples enter the gradient}, a per-prefix GRPO advantage on continuations and a binary recovery indicator on the source prefix.
+Unlike prior reward-shaping methods~\citep{pyvision-rl, deepeyesv2, otc} or rollout scaling methods~\citep{brorl, arpo}, AXPO restructures the rollout distribution itself at the locus of the \gap.
+
+Across nine multimodal benchmarks at Qwen3-VL-Thinking 2B/4B/8B~\citep{Qwen3VL}, SFT\,+\,AXPO outperforms SFT\,+\,GRPO at average with Pass@4 gains of \dPassFourTwoB/\dPassFourFourB/\dPassFourEightB\,pp.
+\textbf{At 8B, SFT\,+\,AXPO surpasses the 32B Base} on Pass@4 and reaches \eightBPassOneReachPct{} of its Pass@1, despite using $4\times$ fewer parameters (\autoref{fig:main}). The improvement concentrates on tool-intensive benchmarks, while preserving the performance improvement in reasoning benchmarks compared to SFT\,+\,GRPO baseline. Notably, $+25\%$ extra resampling budget with AXPO delivers $+1.1$\,pp over $+100\%$ extra rollout budget with GRPO, confirming that the gain comes from where compute is spent.
+
+Our contributions are as follows:
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item We identify the \textbf{\gap}, an asymmetry between thinking and tool use that manifests in group-based agentic RL as two symptoms: tool use is attempted on 30\% of rollouts and tool-using subgroups (the tool-using rollouts within a group) are all-wrong on 40\% of questions, yielding non-positive advantage on tool-call tokens.
+    \item We propose \textbf{AXPO}, an RL algorithm that closes the gap via \emph{\toolresample}: for all-wrong tool-using subgroups, AXPO fixes the thinking prefix at uncertain tool calls and resamples from them, provably dominating from-scratch sampling on tool-use coverage at fixed budget.
+    \item We validate AXPO on nine multimodal benchmarks across three scales of Qwen3-VL-Thinking, with gains for all sizes compared to GRPO baseline, and the \textbf{resulting 2B model matches the 8B Base and the 8B model surpasses the 32B Base on Pass@4}.
+\end{itemize}

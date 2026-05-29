@@ -1,0 +1,48 @@
+% \vspace{-3mm}
+\section{Introduction}
+\label{sec:introduction}
+% \vspace{-2mm}
+% \begin{center}
+%     \emph{``\textbf{Gamma-World} extends generative world modeling from \textbf{It Takes Two} to \textbf{It Takes Many}.''}
+% \end{center}
+
+The worlds we wish to simulate are populated, not solitary.
+Players cooperate and compete in the same game, robot arms coordinate around shared objects, and embodied agents act under mutual physical and visual constraints.
+Controllable multi-agent world modeling is therefore a necessary step toward multiplayer game generation~\cite{bruce2024genie,savva2026solaris}, interactive simulation~\cite{ren2025cosmos-drive-dreams,ali2025world-simulation}, and embodied AI~\cite{fung2025embodied-ai-agents,feng2026multi-agent-embodied-ai}.
+
+Despite this need, most video world models~\cite{alonso2024diffusion,valevski2024diffusion,he2025matrix,xiao2025worldmem,hyworld2025,worldplay2025,yu2025cam} remain single-agent simulators: they roll out future observations conditioned on one action stream, one user input, or one controllable viewpoint.
+Moving from single-agent to multi-agent simulation raises a new consistency requirement on top of standard video generation: generated observations must be consistent not only across time, but also across agent perspectives, since all agents share and act upon the same evolving world.
+
+A concurrent effort in this direction is Solaris~\cite{savva2026solaris}, which builds a multiplayer Minecraft world model by combining a dense joint attention block over all agent tokens with a learned per-player ID embedding.
+While effective in the two-player setting, this design has two structural limitations.
+First, dense joint attention couples every agent token to every other agent token, so its cost grows quadratically with the number of agents, and becomes increasingly restrictive for real-time rollouts beyond two players.
+Second, agents in a shared world are intrinsically exchangeable: two agents with identical capabilities should not be treated differently simply because they occupy different slots.
+A learned per-slot ID embedding violates this symmetry and ties the model to a fixed player roster that cannot be extended without retraining.
+This leaves open the question of whether a video world model can represent multiple agents in a way that is individually controllable, permutation-symmetric, and scalable beyond two players.
+
+We address this question with \ours, a generative multi-agent world model for interactive simulation that scales beyond two players.
+\ours extends standard 3D RoPE with an explicit agent axis through \emph{Simplex Rotary Agent Encoding}.
+Rather than assigning agents scalar indices or learned identity vectors, we place them at the vertices of a regular simplex in rotary angle space.
+Geometrically, this puts all agents at equal pairwise distances, so every pair is permutation-equivalent while each agent retains a distinct rotary phase.
+The encoding is parameter-free, does not rely on a fixed learned slot identity, and can be instantiated for different numbers of agents without changing the video transformer architecture.
+
+
+To complement this symmetric agent representation with efficient cross-agent interaction, we introduce \emph{Sparse Hub Attention}.
+Within each causal block, agent tokens attend to their own stream and to a small set of learnable hub tokens.
+The hub tokens aggregate information across agents and broadcast it back, providing a shared communication pathway without dense pairwise attention.
+This hub-mediated topology preserves a shared communication pathway among agents without dense pairwise interaction, reducing the dominant cross-agent cost from quadratic to linear in the number of agents and substantially relieving the scaling pressure of going beyond two players.
+To make the model deployable as a real-time interactive simulator, we further distill a bidirectional multi-agent teacher into a block-causal student with KV caching, enabling 24-FPS streaming autoregressive rollouts that respond to newly issued actions.
+
+We evaluate \ours on multiplayer virtual environments with two and four players spanning movement, mining, combat, and building scenarios.
+Across these settings, \ours improves video fidelity, action controllability, and inter-agent consistency over slot-based and dense-attention baselines. 
+Ablations validate the contributions of simplex rotary encoding and sparse hub communication. Scaling studies further show that, benefiting from the permutation-symmetric simplex agent encoding, the model generalizes from two to four players without additional training. 
+
+In summary, our main contributions are:
+\begin{itemize}
+    \setlength{\itemsep}{0pt}
+    \setlength{\parsep}{0pt}
+    \setlength{\topsep}{0pt}
+    \item We identify permutation symmetry as a fundamental property of multi-agent world models and propose \emph{Simplex Rotary Agent Encoding}, a parameter-free rotary identity encoding that preserves permutation symmetry while maintaining distinct agent identities.
+    \item We propose \emph{Sparse Hub Attention}, a cross-agent communication mechanism that reduces cross-agent attention cost from quadratic to linear in the number of agents.
+    \item We demonstrate effective multi-agent simulation in multiplayer environments with two and four players, with ablations validating the proposed agent encoding and efficiency design.
+\end{itemize}

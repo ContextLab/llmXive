@@ -1,0 +1,297 @@
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Experimental Setup}
+
+\textbf{Datasets.} We conduct experiments on MovieLens-1M~\cite{harper2015movielens}, Steam~\cite{kang2018self}, and Amazon-Book~\cite{ni2019justifying}. We construct training data via splitting the raw data by user into training/validation/test sets (8:1:1). Details are in Appendix~\ref{app:data_process}.
+
+\textbf{Baselines.} We compare with four categories of methods, including sequential recommendation method GRU4Rec~\cite{hidasi2015session}, BERT4Rec~\cite{sun2019bert4rec}, LightSANs~\cite{fan2021lighter}, and FEARec~\cite{du2023frequency}; the supervised proactive method IRN~\cite{zhu2023influential}; heuristic proactive methods IPG~\cite{bi2024proactive} and ITMPRec~\cite{lian2025itmprec}; LLM-based proactive methods LLM-IPP~\cite{wang2025leveraging} and T-PRA~\cite{wang2025tunable}. See Appendix~\ref{app:baselines} for details.
+
+\textbf{Metrics.} Following prior work~\cite{bi2024proactive,wang2025leveraging,wang2025tunable}, we adopt Increment of Interest (IoI) and Increment of Rank (IoR) to measure the guidance effectiveness, and CTR~(i.e., HitRate) to measure the path feasibility. Coherence measures the semantic consistency between consecutive items in the path. Details are provided in Appendix~\ref{app:evaluation}.
+
+\textbf{Implementation.} The detailed implementation process and hyperparameters are introduced in Appendix~\ref{app:implementation}.
+
+\subsection{Overall Performance}
+
+\begin{table*}[t]
+\centering
+  \caption{Proactive Recommendation performance of all models on different datasets (SASRec as evaluator) in terms of CTR~(i.e., HitRate), Coherence, IoI, and IoR. The best performances are highlighted in bold, and the second-best are underlined. The superscript * indicates the Improvement is statistically significant, where the p-value is less than 0.05.}\label{tab:overall comparison}
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{c c cccc cccc cccc}
+      \toprule[1.5pt]
+            \multicolumn{2}{c}{\textbf{Dataset}} & \multicolumn{4}{c}{\textbf{MovieLens-1M}} & \multicolumn{4}{c}{\textbf{Steam}} & \multicolumn{4}{c}{\textbf{Amazon-Book}} \\
+            \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
+            \multicolumn{2}{c}{\textbf{Model}} & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR\\
+        \midrule
+            \multicolumn{2}{c}{GRU4Rec}
+            & 0.5143 & 0.3717 & 1.6345 & 77.08 & 0.4312 & 0.7026
+            & -0.0239 & 15.40 & 0.5544 & 0.5838 & 0.0926 & 83.76 \\
+            \multicolumn{2}{c}{Bert4Rec}
+            & 0.5522 & 0.3889  & 1.3402  & 56.03  & \underline{0.4617}  & 0.7390 
+            & -0.0055  & 22.00  & 0.5653  & 0.5591  & 0.1042  & 79.34  \\
+            \multicolumn{2}{c}{LightSANs}
+            & 0.5211  & 0.3957  & 1.6092  & 85.70  & 0.4215  & 0.7150 
+            & -0.0204  & 21.64  & 0.5626  & 0.5934  & 0.2105  & 148.92  \\
+            \multicolumn{2}{c}{FEARec}
+            & 0.5159  & 0.3964 & 1.8770 & 139.85 & 0.4333  & 0.7177 
+            & -0.0216  & 22.93 & 0.5536 & \underline{0.6020} & 0.3671 & 211.36 \\
+        \hline
+        \midrule
+            \multicolumn{2}{c}{IRN}
+            & \underline{0.8398} & 0.4706 & 1.7277 & 443.29 & 0.3524 & 0.6698 
+            & -0.0481 & 29.66 & 0.4994 & 0.5477 & 0.3111 & 170.73 \\    
+            \multicolumn{2}{c}{IPG}
+            & 0.4463 & 0.3725 & 2.2537 & 169.28 & 0.2371 & 0.6740 
+            & 0.1758 & 36.26 & 0.5015 & 0.5531 & 1.1067 & 469.68 \\
+            \multicolumn{2}{c}{ITMPRec}
+            & 0.4452 & 0.3714 & 2.2719 & 163.80 & 0.2381 & 0.6725 
+            & 0.1804 & 34.50 & 0.5018 & 0.5540 & 1.0980 & 472.50 \\
+            \multicolumn{2}{c}{LLM-IPP}
+            & 0.6141 & \underline{0.6288} & 2.4680 & \underline{662.52} & 0.3108 & \underline{0.8022}
+            & 0.0682 & 11.06 & \underline{0.5714} & 0.5132 & 1.6651 & 429.32 \\
+            \multicolumn{2}{c}{T-PRA}
+            & 0.4889 & 0.3415 & \underline{2.4867} & 355.16 & 0.2713 & 0.7399
+            & \underline{0.3339} & \underline{62.04} & 0.5521 & 0.4418 & \underline{1.7261} & \underline{476.93} \\
+        \hline
+        \midrule   
+            \rowcolor{tableours}
+            \multicolumn{2}{c}{\textbf{ProRL (Ours)}}
+            & $\mathbf{0.8543}^{*}$ & $\mathbf{0.8422}^{*}$ & $\mathbf{2.8504}^{*}$ & $\mathbf{728.18}^{*}$ & $\mathbf{0.5625}^{*}$ & $\mathbf{0.8707}^{*}$  & 
+            $\mathbf{1.1188}^{*}$ & $\mathbf{340.18}^{*}$ & $\mathbf{0.8568}^{*}$ & $\mathbf{0.6775}^{*}$ & $\mathbf{2.9812}^{*}$ & $\mathbf{1383.41}^{*}$ \\
+        
+      \bottomrule[1.5pt]
+      \end{tabular}
+      }
+\end{table*}%
+
+\begin{table*}[t]
+\centering
+  \caption{Cross-evaluator analysis evaluated by the unseen Evaluator GRU4Rec. The best performances are highlighted in bold, and the second-best are underlined. The superscript * indicates the Improvement is statistically significant, where the p-value is less than 0.05.}\label{tab:gru4rec evaluator}
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{c c cccc cccc cccc}
+      \toprule[1.5pt]
+            \multicolumn{2}{c}{\textbf{Dataset}} & \multicolumn{4}{c}{\textbf{MovieLens-1M}} & \multicolumn{4}{c}{\textbf{Steam}} & \multicolumn{4}{c}{\textbf{Amazon-Book}} \\
+            \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
+            \multicolumn{2}{c}{\textbf{Model}} & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR\\
+        \midrule
+            \multicolumn{2}{c}{Bert4Rec}
+            & 0.6112 & 0.3889 & 2.1632 & 50.18 & \underline{0.5847} & 0.7390
+            & -0.2425 & 13.46 & 0.5921 & 0.5591 & 0.5643 & 82.85 \\
+            \multicolumn{2}{c}{LightSANs}
+            & 0.5771 & 0.3957 & 2.1908 & 67.18 & 0.5616 & 0.7150
+            & -0.2705 & 12.17 & 0.5817 & 0.5934 & 0.5815 & 124.93 \\
+            \multicolumn{2}{c}{FEARec}
+            & 0.5585 & 0.3964 & 2.2509 & 83.90 & 0.5596 & 0.7177
+            & -0.3271 & 10.89 & 0.5659 & \underline{0.6020} & 0.6102 & 140.87 \\
+        \hline
+        \midrule
+            \multicolumn{2}{c}{IRN}
+            & 0.7612 & 0.4706 & 2.2012 & 76.12 & 0.4890 & 0.6698
+            & -0.2773 & 8.59 & 0.5529 & 0.5477 & 0.6637 & 82.36 \\
+            \multicolumn{2}{c}{IPG}
+            & 0.4276 & 0.3725 & 2.2409 & 96.24 & 0.3240 & 0.6740
+            & -0.1084 & 31.44 & 0.5570 & 0.5531 & 0.6524 & 158.01 \\
+            \multicolumn{2}{c}{ITMPRec}
+            & 0.4425 & 0.3714 & 2.3068 & 104.35 & 0.3242 & 0.6725
+            & -0.1044 & 33.93 & 0.5648 & 0.5540 & 0.6733 & 165.25 \\
+            \multicolumn{2}{c}{LLM-IPP}
+            & \underline{0.8331} & \underline{0.6288} & \underline{2.3693} & \underline{553.01} & 0.4543 & \underline{0.8022}
+            & -0.0675 & 41.05 & 0.6012 & 0.5132 & 0.7921 & \underline{239.78} \\
+            \multicolumn{2}{c}{T-PRA}
+            & 0.4762 & 0.3415 & 2.3167 & 210.24 & 0.4217 & 0.7399
+            & \underline{0.0523} & \underline{65.98} & \underline{0.6172} & 0.4418 & \underline{1.0762} & 207.89 \\
+        \hline
+        \midrule
+            \rowcolor{tableours}
+            \multicolumn{2}{c}{\textbf{ProRL (Ours)}}
+            & $\mathbf{0.8460}^{*}$ & $\mathbf{0.8422}^{*}$ & $\mathbf{2.4560}^{*}$ & $\mathbf{649.26}^{*}$ & $\mathbf{0.6328}^{*}$ & $\mathbf{0.8707}^{*}$ &
+            $\mathbf{0.2013}^{*}$ & $\mathbf{83.70}^{*}$ & $\mathbf{0.8832}^{*}$ & $\mathbf{0.6775}^{*}$ & $\mathbf{1.7650}^{*}$ & $\mathbf{1001.27}^{*}$ \\
+
+      \bottomrule[1.5pt]
+      \end{tabular}
+      }
+\end{table*}
+
+Table~\ref{tab:overall comparison} shows that ProRL consistently achieves superior performance across all datasets, outperforming both traditional and state-of-the-art proactive recommendation methods. ProRL achieves the highest guidance effectiveness (IoI and IoR) and path feasibility (CTR and Coherence). Unlike heuristic or LLM-based methods that greedily optimize local objectives and often get trapped in local optima, ProRL directly optimizes the cumulative multi-objective reward over the entire path via rectified policy gradients, achieving both local feasibility and global effectiveness.
+
+Notably, Coherence is not part of the reward function, yet ProRL substantially outperforms all baselines on this unrewarded metric, providing additional evidence that ProRL learns genuinely high-quality paths rather than overfitting to the training reward signal.
+
+
+A common risk in RL is that the agent exploits specific patterns in the training environment, failing to generalize elsewhere. To verify that ProRL learns a generalized strategy rather than overfitting to the specific reward model (SASRec), we conduct a cross-evaluator analysis. To test this, we use three different recommendation models (GRU4Rec, LightSANs, and BERT4Rec) as unseen evaluators.
+
+As shown in Table~\ref{tab:gru4rec evaluator}, the RL policy significantly improves both IoI and IoR. This gain is consistent not only on the original SASRec evaluator, but also on the unseen GRU4Rec evaluator. The consistent gains confirm that the performance boost is not due to overfitting or reward hacking, but rather that ProRL has learned generalizable principles of guidance that transfer across different user behavior models. Full results for additional evaluators are shown in Appendix~\ref{app:unseen evaluator}.
+
+
+\subsection{Ablation Study}
+\subsubsection{Ablation on Rectification Modules}
+\label{sec:ablation_component}
+ProRL introduces Stepwise Reward Centering (SRC) and Position-Specific Advantage Estimation (PSAE) to rectify policy gradient estimation. Table~\ref{tab:ablation_RL} presents the ablation results. A notable pattern emerges when SRC is removed (w/o SRC). The CTR on MovieLens-1M and Steam appears unusually high, even exceeding the full ProRL model, but at the cost of severe drops in guidance metrics (IoI, IoR). This anomaly arises because the CTR-based reward has a positive mean. Consequently, without centering, the optimization process is dominated by dense positive click feedback. As a result, the model over-optimizes short-term click probability while failing to capture the sparse, higher-order signals needed for effective guidance. SRC alleviates this bias by enforcing zero expected gain from path extension, thereby balancing optimization across objectives.
+
+\begin{table}[t]
+  \centering
+  \caption{Ablation Studies on ProRL}
+  \label{tab:ablation_RL}
+  \resizebox{\linewidth}{!}{
+    \begin{tabular}{llccc}
+      \toprule[1.5pt]
+      
+      \textbf{Dataset} & \textbf{Model} & \textbf{CTR} & \textbf{IoI} & \textbf{IoR} \\
+      \midrule
+      \multirow[c]{3}{*}{MovieLens-1M}
+        & w/o SRC      & \textbf{0.9731}  & 1.2373 & 649.96 \\
+        & w/o PSAE      & 0.7456  & 2.5556 & 695.86 \\
+        & ProRL & 0.8543  &\textbf{2.8504} & \textbf{728.18} \\
+      \midrule
+      \multirow[c]{3}{*}{Steam}
+        & w/o SRC      & \textbf{0.9432}  & 0.3217 & 198.30 \\
+        & w/o PSAE      & 0.6311  & 0.7280 & 244.78 \\
+        & ProRL & 0.5625  & \textbf{1.1188} & \textbf{340.18} \\
+      \midrule
+      \multirow[c]{3}{*}{Amazon-Book}
+        & w/o SRC      & 0.8361  & 1.8825 & 1002.46 \\
+        & w/o PSAE      & 0.8404  & 2.5036 & 1223.78 \\
+        & ProRL & \textbf{0.8568}  & \textbf{2.9812} & \textbf{1383.41} \\
+      \bottomrule[1.5pt]
+    \end{tabular}%
+  }
+\end{table}
+
+
+\subsubsection{Ablation on Multi-Reward Design}
+\label{sec:ablation_multi_rewards}
+To investigate the contribution of each reward component, we conduct an ablation study across three datasets. As shown in Table~\ref{tab:ablation_multi_rewards}, the full ProRL model consistently achieves the best performance, validating the necessity of the multi-objective design.
+
+While removing a specific term causes a primary drop in its corresponding metric, we observe degradation across all metrics in certain cases (e.g., w/o IoR on Amazon-Book). This suggests that our reward components are mutually reinforcing and collectively critical for effective policy learning.
+
+\begin{table}[t!]
+  \centering
+  \caption{Ablation study on the multi-reward design}
+  \label{tab:ablation_multi_rewards}
+  \resizebox{\linewidth}{!}{
+    \begin{tabular}{llccc}
+      \toprule[1.5pt]
+      
+      \textbf{Dataset} & \textbf{Reward} & \textbf{CTR}  & \textbf{IoI} & \textbf{IoR} \\
+      \midrule
+      \multirow[c]{4}{*}{MovieLens-1M}
+        & w/o Ctr & 0.7722  & 2.1287 & 640.12 \\
+        & w/o IoI      & 0.7875  & 2.2272 & 663.21 \\
+        & w/o IoR      & 0.8377  & 2.6794 & 665.22 \\
+        & ProRL      & \textbf{0.8543}  & \textbf{2.8504} & \textbf{728.18} \\ 
+      \midrule
+      \multirow[c]{4}{*}{Steam}
+        & w/o Ctr & 0.5113  & 1.0126 & 338.28 \\
+        & w/o IoI      & 0.5325 & 0.2856 & 144.49 \\
+        & w/o IoR      & 0.5223 & 0.4540 & 117.46 \\
+        & ProRL      & \textbf{0.5625} & \textbf{1.1188} & \textbf{340.18} \\
+      \midrule
+      \multirow[c]{4}{*}{Amazon-Book}
+        & w/o Ctr & 0.8097 & 2.8217 & 1363.77 \\
+        & w/o IoI      & 0.8359 & 2.3117 & 1261.61 \\
+        & w/o IoR      & 0.7592 & 1.1488 & 125.94 \\
+        & ProRL       & \textbf{0.8568} & \textbf{2.9812} & \textbf{1383.41} \\
+      \bottomrule[1.5pt]
+    \end{tabular}%
+  }
+\end{table}
+
+\begin{table}[t!]
+\centering
+  \caption{{Analysis of gradient estimators on ML-1M. We report final performance, average path length at training Epochs 1, 5, 10, and advantage variance (normalized to Epoch~1 of RF).}}
+  \label{tab:stability}
+  \resizebox{\linewidth}{!}{
+    \begin{tabular}{l |ccc| ccc| ccc}
+      \toprule[1.5pt]
+      & \multicolumn{3}{c}{\textbf{Performance}} & \multicolumn{3}{c}{\textbf{Avg. Path Length}} & \multicolumn{3}{c}{\textbf{Advantage Variance}} \\
+      \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+      \textbf{Method} & \textbf{CTR} & \textbf{IoI} & \textbf{IoR} & \textbf{E1} & \textbf{E5} & \textbf{E10} & \textbf{E1} & \textbf{E2} & \textbf{E3} \\
+      \midrule
+      RF    & 0.581 & 1.626 & 329.8 & 5.2 & 2.9 & 1.5 & 1.00$\times$ & 1.18$\times$ & 0.94$\times$ \\
+      GRPO  & 0.633 & 1.483 & 284.9 & 10.0 & 10.0 & 10.0 & 0.22$\times$ & 0.21$\times$ & 0.19$\times$ \\
+      A2C   & 0.857 & 1.695 & 527.5 & 1.8 & 4.7 & 5.3 & 0.09$\times$ & 0.12$\times$ & 0.17$\times$ \\
+      RTG   & 0.694 & 2.383 & 675.7 & 1.5 & 3.4 & 4.1 & 0.12$\times$ & 0.11$\times$ & 0.10$\times$ \\
+      \midrule
+      \textbf{ProRL} & \textbf{0.854} & \textbf{2.850} & \textbf{728.2} & \textbf{1.6} & \textbf{3.1} & \textbf{3.8} & $\mathbf{0.06\times}$ & $\mathbf{0.05\times}$ & $\mathbf{0.05\times}$ \\
+      \bottomrule[1.5pt]
+    \end{tabular}
+  }
+\end{table}
+
+
+
+
+
+\subsubsection{Ablation on Gradient Estimators}
+\label{sec:ablation_gradient}
+
+To validate the effectiveness of position-specific advantage estimation (Section~\ref{sec:advantage}), we compare five gradient estimators under identical reward normalization (Eq.~\eqref{eq:reward-normalize}), isolating the effect of the advantage method. The estimators are REINFORCE (RF, Eq.~\eqref{eq:g-std}), reward-to-go (RTG, Eq.~\eqref{eq:g-rtg}), GRPO (path-level baseline), A2C (\citet{pmlr-v48-mniha16}, see Appendix~\ref{app:a2c} for details), and ProRL (Eq.~\eqref{eq:g-rect}).
+
+Figure~\ref{fig:gradient-ablation} shows training dynamics, where all curves report test metrics. ProRL achieves the best overall performance with steady improvement across all metrics. Table~\ref{tab:stability} further jointly analyzes final performance, path length stability during training, and gradient variance on ML-1M. {ProRL achieves the highest guidance metrics, substantially surpassing both GRPO and A2C in guidance effectiveness. The path length and variance columns in Table~\ref{tab:stability} reveal the mechanism behind these performance differences. We track average path lengths at training Epochs 1, 5, and 10. RF and GRPO exhibit opposite failure modes, with RF collapsing to length 1.5 while GRPO saturates at $L_{\max}=10$ throughout training. A2C shows moderate but unstable growth. In contrast, ProRL and RTG consistently converge to stable, moderate lengths around 3 to 4 steps. This stability is directly tied to gradient variance. ProRL achieves the lowest variance ($\sim$5\% of RF at Epoch~1), and RTG also maintains low variance, corroborating both methods' length stability. A key finding is that A2C's variance \emph{increases} over training ($0.09\times \to 0.17\times$), as its learned critic fails to track the evolving policy and produces progressively noisier baselines. ProRL's analytic baseline (Eq.~\eqref{eq:step-advantage}), computed directly from rollout statistics, adapts naturally without this drift.}
+
+
+
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figure/all_curves_final.pdf}
+  \caption{Training dynamics of gradient estimators on MovieLens-1M, Steam, and Amazon-Book. All methods use identical multi-objective rewards with the same weights; only the gradient estimator differs. RF: REINFORCE (Eq.~\eqref{eq:g-std}); RTG: reward-to-go (Eq.~\eqref{eq:g-rtg}); GRPO: REINFORCE with path-level baseline; ProRL: position-specific advantage (Eq.~\eqref{eq:g-rect}). ProRL achieves the best balance between path feasibility (CTR) and guidance effectiveness (IoI, IoR), while RTG sacrifices guidance metrics for higher CTR.}
+  \label{fig:gradient-ablation}
+\end{figure*}
+
+
+\begin{table}[t!]
+  \centering
+  \caption{Experimental Results with Different Training Stages}
+  \label{tab:ablation_stages}
+  \resizebox{\linewidth}{!}{
+    \begin{tabular}{llccc}
+      \toprule[1.5pt]
+      \textbf{Dataset} & \textbf{Model} & \textbf{CTR} & \textbf{IoI} & \textbf{IoR} \\
+      \midrule
+      \multirow[c]{2}{*}{MovieLens-1M}
+        & Pretrain & \textbf{0.8671}  & 0.8600 & 254.43 \\
+        & RL       & 0.8543  & \textbf{2.8504} & \textbf{728.18} \\
+      \midrule
+      \multirow[c]{2}{*}{Steam}
+        & Pretrain & \textbf{0.7453} & 0.4230 & 101.16 \\
+        & RL       & 0.5625  & \textbf{1.1188} & \textbf{340.18} \\
+      \midrule
+      \multirow[c]{2}{*}{Amazon-Book}
+        & Pretrain & 0.6410  & 0.1650 & 72.92 \\
+        & RL        & \textbf{0.8568}  & \textbf{2.9812} & \textbf{1383.41} \\
+      \bottomrule[1.5pt]
+    \end{tabular}%
+  }
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Capacity analysis of pretrained model via Rollout@K.}
+\label{tab:rollout_compact}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l ccc ccc}
+\toprule[1.5pt]
+\multirow{2}{*}{\textbf{Dataset}} & \multicolumn{3}{c}{\textbf{Max-IoI}} & \multicolumn{3}{c}{\textbf{Max-IoR}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+ & \textbf{@1} & \textbf{@5} & \textbf{@10} & \textbf{@1} & \textbf{@5} & \textbf{@10} \\
+\midrule
+MovieLens-1M & 1.1347 & 2.7779 & 3.3585 & 294.53 & 717.69 & 851.03 \\
+Steam & 0.2395 & 1.8728 & 2.4803 & 57.89 & 818.11 & 1074.35 \\
+Books & 0.1523 & 2.2524 & 3.0780 & 52.47 & 1132.01 & 1509.70 \\
+\bottomrule[1.5pt]
+\end{tabular}
+}
+\end{table}
+
+
+\subsection{Quantitative Analysis of Training Stages}
+\label{sec:multi-stages}
+To understand the evolution from pretraining to RL, we conduct a two-stage analysis. We first evaluate performance at each stage, then investigate the mechanism behind improvement by probing the pretrained model's latent capacity.
+
+\textbf{The Leap from Feasibility to Effectiveness.} 
+As shown in Table~\ref{tab:ablation_stages}, the pretrained model achieves high CTR, establishing a foundation for path feasibility. However, its guidance effectiveness remains limited. The RL stage breaks this bottleneck. By shifting the objective from likelihood maximization to cumulative reward maximization, RL improves guidance effectiveness while maintaining path feasibility. This confirms that rectified policy gradients (SRC + PSAE) enable effective RL optimization that discovers high-quality paths beyond the pretraining distribution.
+
+\textbf{Mechanisms for Eliciting Pre-existing Capabilities.} 
+The dramatic gain in effectiveness raises a question: \textit{Does RL impart new capabilities, or unlock potential already existing in the pretrained model?}
+
+To answer this, we probe the latent capacity of the fixed pretrained model using \textbf{Rollout@K} analysis. We sample $K$ paths for each input from the pretrained model and record the maximum IoI/IoR achieved. As shown in Table~\ref{tab:rollout_compact}, while greedy generation (@1) is weak, the latent potential (@10) is remarkably high, often matching RL's final performance. This reveals that our RL stage actually functions as a \textbf{probabilistic rectifier}, identifying high-quality guidance paths in the low-probability tail of the pretrained distribution and redistributing probability mass towards them.

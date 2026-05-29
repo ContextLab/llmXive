@@ -1,0 +1,16 @@
+% \vspace{-3mm}
+\section{Discussion}
+% \vspace{-3mm}
+We presented \ours, a generative multi-agent world model for interactive simulation beyond two players.
+\ours combines Simplex Rotary Agent Encoding for distinct yet permutation-symmetric agent identities with Sparse Hub Attention for efficient hub-mediated cross-agent communication.
+Together with conditional teacher--student distillation and KV-cached streaming inference, these components enable real-time action-responsive rollouts that remain consistent across time and agent perspectives.
+Experiments in multiplayer virtual environments show that \ours improves fidelity, controllability, and inter-agent consistency over baselines.
+Ablations validate the design choices, while scaling experiments show that the model generalizes from two-player training to four-player simulation without additional training and achieves lower inference cost as the number of agents increases.
+We further demonstrate the same formulation on real-world robotic coordination by treating the left and right robot arms as interacting agents.
+
+\noindent\textbf{Limitations.}
+Our current evaluation focuses primarily on gaming environments and robotics examples; broader validation in more complex, heterogeneous, and long-horizon settings remains future work.
+The simplex pool supports agent-count scaling within a fixed rotary agent band, but very large populations may require larger bands or hierarchical agent grouping. Finally, because \ours does not explicitly enforce 3D geometry or physical constraints, long rollouts may still accumulate inconsistencies.
+
+\section*{Acknowledgements}
+The authors would like to thank Product Managers Aditya Mahajan and Matt Cragun for their valuable support and guidance, Jingnan Gao for proof discussion, and Yixin Hong for demo creation.

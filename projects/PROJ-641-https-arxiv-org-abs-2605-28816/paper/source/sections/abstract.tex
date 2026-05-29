@@ -1,0 +1,9 @@
+World models for interactive video generation have largely focused on single-agent settings, where future observations are generated from a single control signal. 
+However, many generated environments require multi-agent interaction: multiple players, robots, or embodied agents act simultaneously within a shared space. 
+Scaling world models to such settings requires a principled multi-agent design: agents should remain independently controllable, permutation-symmetric, and support efficient inference while maintaining consistency across time and perspectives.
+In this paper, we present \ours, a generative multi-agent world model for interactive simulation. 
+\ours introduces \emph{Simplex Rotary Agent Encoding}, a parameter-free extension of 3D RoPE that represents agents as vertices of a regular simplex in rotary angle space. This gives each agent a distinct phase while making all agents permutation-equivalent, enabling scalable agent identity without learned per-slot identities or a fixed agent ordering. 
+To avoid dense all-to-all attention across agents, we further propose \emph{Sparse Hub Attention}, where learnable hub tokens mediate token-interaction across agents, reducing cross-agent attention cost from quadratic to linear in the number of agents. 
+For real-time rollout, we distill a full-context diffusion teacher into a causal student that generates temporal blocks sequentially with KV caching, enabling action-responsive generation at 24 FPS.
+% Finally, we use a bidirectional multi-agent teacher to guide a block-causal student with distillation, after which the final causal model can use KV caching for streaming, achieving real-time action-responsive rollouts at 24 FPS.
+Experiments in multiplayer virtual environments show that \ours improves video fidelity, action controllability, and inter-agent consistency over slot-based and dense-attention baselines, while generalizing from two to four players without additional training. 

@@ -1,0 +1,32 @@
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/fig3_analysis_a.pdf}
+        \vspace{-0.25in}
+        \caption{Proportion of questions by tool-using rollout count (8 rollouts/question) across RL steps under GRPO.}
+        \label{fig:analysis-a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/fig3_analysis_b.pdf}
+        \vspace{-0.25in}
+        \caption{All-wrong rate by subgroup type under GRPO: the tool-using fails together far more than the no-tool.}
+        \label{fig:analysis-b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \centering
+        \includegraphics[width=\linewidth]{figures/fig3_analysis_c.pdf}
+        \vspace{-0.25in}
+        \caption{Semantic cluster count of 16 resampled tool calls from a fixed failed-rollout prefix, per tool type.}
+        \label{fig:analysis-c}
+    \end{subfigure}
+    \vspace{-0.07in}
+    \caption{\textbf{Empirical analysis of diagnosing the \gap} (\autoref{sec:gap}). 
+    \textbf{(a)} Tool use is under-attempted. \textbf{(b)} The tool-using subgroup (the tool-using rollouts within a GRPO group) fails all-together far more often than the no-tool subgroup. \textbf{(c)} Resampling at a fixed prefix preserves substantive diversity in the tool call, confirming it as a real divergence point.}
+    \vspace{-0.1in}
+    \label{fig:analysis}
+\end{figure}

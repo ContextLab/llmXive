@@ -1,0 +1,33 @@
+{
+  "arxiv_id": "2605.28820",
+  "arxiv_url": "https://arxiv.org/abs/2605.28820",
+  "title": "https://arxiv.org/abs/2605.28820",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #248",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/EvolvingLMMs-Lab/NEO"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "review.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_natbib.bst",
+    "acl.sty",
+    "custom.bib",
+    "figures",
+    "figures/Gallery_Icon.png",
+    "figures/compare_encoder.pdf",
+    "figures/compare_si.pdf",
+    "figures/frameworks.pdf",
+    "figures/primitive.pdf",
+    "figures/stage_results.pdf",
+    "figures/trainning_recipe.pdf",
+    "review.tex"
+  ]
+}

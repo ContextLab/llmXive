@@ -1,0 +1,42 @@
+\begin{table}[t]
+    \caption{Comparison with prior agentic VLM systems on five benchmarks where numbers are publicly available. All numbers are Pass@1 (\%, $\uparrow$). ``--'' indicates the method does not report on that benchmark. Average is computed only over methods with all five entries. Best per column is \textbf{bolded}; second-best is \underline{underlined}. Prior agentic systems use different base models (mostly Qwen2.5-VL-7B), so absolute values are not strictly comparable; the \textit{$\Delta$ vs.\ base} rows report each group's best improvement over its own base, isolating the post-training gain from the base-model gap. AXPO delivers a larger average lift over its base ($+8.7$\,pp) than the strongest prior agentic recipe over Qwen2.5-VL-7B ($+6.9$\,pp).}
+    \label{tab:model-comp}
+    \centering
+    \small
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l ccccc >{\columncolor{mygray}}c}
+        \toprule
+        \textbf{Method} & MathVision & DynaMath & V$^{\star}$ & HR-Bench-4K & HR-Bench-8K & \multicolumn{1}{c}{\textbf{Avg.}} \\
+        \midrule
+        \multicolumn{7}{l}{\textit{Qwen2.5-VL-7B base + prior agentic methods}} \\
+        Qwen2.5-VL-7B-Instruct~\citep{qwen2.5-vl}
+            & 25.6 & 53.3 & 78.5 & 71.6 & 67.9 & 59.4 \\
+        PixelReasoner~\citep{pixelreasoner}
+            & -- & -- & 84.3 & 74.0 & 66.9 & -- \\
+        Mini-o3~\citep{mini-o3}
+            & -- & -- & \underline{88.2} & 77.5 & 73.3 & -- \\
+        DeepEyes~\citep{deepeyes}
+            & 26.6 & 55.0 & 85.6 & 75.1 & 72.6 & 63.0 \\
+        Thyme~\citep{thyme}
+            & 27.6 & -- & 82.2 & 77.0 & 72.0 & -- \\
+        DeepEyes-v2~\citep{deepeyesv2}
+            & 28.9 & 57.2 & 81.8 & \underline{77.9} & \underline{73.8} & -- \\
+        PyVision-RL~\citep{pyvision-rl}
+            & 28.7 & 61.6 & \textbf{88.7} & 78.1 & 74.3 & 66.3 \\
+        \rowcolor{mygray!50}
+        \textit{\;\;$\Delta$ vs.\ base (best prior)}
+            & \textit{+3.3} & \textbf{\textit{+8.3}} & \textbf{\textit{+10.2}} & \textit{+6.5} & \textit{+6.4} & \textit{+6.9} \\
+        \midrule
+        \multicolumn{7}{l}{\textit{Qwen3-VL-8B-Thinking base + ours}} \\
+        Qwen3-VL-8B-Thinking (Agent)~\citep{Qwen3VL}
+            & \underline{47.1} & \underline{75.9} & 77.7 & 72.8 & 66.1 & \underline{67.9} \\
+        \rowcolor{myblue}
+        \textbf{SFT\,+\,AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+            & \textbf{56.1} & \textbf{79.0} & 87.8 & \textbf{83.3} & \textbf{77.0} & \textbf{76.6} \\
+        \rowcolor{myblue!50}
+        \textit{\;\;$\Delta$ vs.\ base (ours)}
+            & \textbf{\textit{+9.0}} & \textit{+3.1} & \textit{+10.1} & \textbf{\textit{+10.5}} & \textbf{\textit{+10.9}} & \textbf{\textit{+8.7}} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

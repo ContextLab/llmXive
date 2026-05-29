@@ -1,0 +1,19 @@
+\begin{table}[t]
+    \caption{\textbf{Generalization to an unseen tool.} MMSearch Pass@1 / Pass@4 (\%, $\uparrow$), with and without an image-search tool added at inference time. Image search is not in the training tool set (Python, Tavily web search, image zoom-in). AXPO converts the new tool into Pass@1 gains more effectively than GRPO ($+4.6$\,pp vs.\ $+2.8$\,pp), while Pass@4 gains are similar across the two methods.}
+    \label{tab:image-search-gen}
+    \centering
+    \small
+    \begin{tabular}{l l c c}
+        \toprule
+        & & SFT\,+\,GRPO & SFT\,+\,AXPO \\
+        \midrule
+        \multirow{2}{*}{w/o image search}
+            & Pass@1 & 44.0 & \bf 45.0 \\
+            & Pass@4 & 59.3 & \bf 61.0 \\
+        \midrule
+        \multirow{2}{*}{w/\phantom{o} image search}
+            & Pass@1 & 46.8 & \textbf{49.6} \\
+            & Pass@4 & 65.3 & \textbf{66.7} \\
+        \bottomrule
+    \end{tabular}
+\end{table}

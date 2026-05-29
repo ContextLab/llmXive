@@ -1,0 +1,1150 @@
+\clearpage
+\section{Pseudo Code}
+\label{app:algo}
+
+We provide the full pseudocode for \ours\ below. Algorithm~\ref{alg:bes} describes the main loop, which alternates between forward search steps (Algorithm~\ref{alg:forward}) and backward scoring (Algorithm~\ref{alg:backward}). Every $K_{\mathrm{dec}}$ steps, the backward goal tree is refined by decomposing an unsolved leaf into finer sub-goals (Algorithm~\ref{alg:decompose}), after which all pool scores are recomputed under the updated tree.
+
+\begin{algorithm}[h]
+\caption{\ours: Bidirectional Evolutionary Search}
+\label{alg:bes}
+\begin{algorithmic}[1]
+\Require problem $x$, policy $\pi_\theta$, verifier $V$, budget $B$, decomposition interval $K_{\mathrm{dec}}$
+\State Initialize $\mathcal{G}$ with root goal $g_0$; prompt $\pi_\theta$ to decompose $g_0$ into initial sub-goals
+\State $\mathcal{P} \leftarrow \{n_0\}$ with $n_0 = ()$ \Comment{Empty root node}
+\For{$t = 0, 1, \ldots$ \textbf{while} $\mathrm{calls}(t) < B$}
+    \State $n' \leftarrow \textsc{ForwardStep}(\mathcal{P}, \mathcal{C}_t, \mathcal{G}, \tau_t)$ \Comment{Algorithm~\ref{alg:forward}}
+    \State $s(n') \leftarrow \textsc{BackwardScore}(n', g_0, \mathcal{G})$ \Comment{Algorithm~\ref{alg:backward}}
+    \State $\mathcal{P} \leftarrow \mathcal{P} \cup \{n'\}$
+    \If{$(t+1) \bmod K_{\mathrm{dec}} = 0$}
+        \State $\mathcal{G} \leftarrow \textsc{BackwardDecompose}(x, \mathcal{G}, \mathcal{P})$ \Comment{Algorithm~\ref{alg:decompose}}
+        \For{$n \in \mathcal{P}$} \Comment{Recompute all scores under refined tree}
+            \State $s(n) \leftarrow \textsc{BackwardScore}(n, g_0, \mathcal{G})$
+        \EndFor
+    \EndIf
+    \If{$n'$ is terminal $\wedge$ $V(x, n') = 1$}
+        \State \Return $n'$
+    \EndIf
+\EndFor
+\State \Return $\arg\max_{n \in \mathcal{P}:\, \mathrm{terminal}(n)} V(x, n)$
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:forward} details a single forward search step. An operator is sampled from the fixed distribution over the five operators. Single-parent operators (expansion and deletion) select a parent via Boltzmann selection based on backward scores; two-parent operators (combination, translocation, crossover) select a pair that maximizes joint sub-goal coverage.
+
+\begin{algorithm}[h]
+\caption{\textsc{ForwardStep}: Forward Search Step}
+\label{alg:forward}
+\begin{algorithmic}[1]
+\Require pool $\mathcal{P}$, eligible set $\mathcal{C}_t$, goal tree $\mathcal{G}$, temperature $\tau_t$
+\State Sample operator $o \in \{\textit{expand}, \textit{combine}, \textit{delete}, \textit{translocate}, \textit{crossover}\}$ with fixed probabilities
+\If{$o \in \{\textit{expand}, \textit{delete}\}$} \Comment{Single-parent operators}
+    \State Sample parent $n$ from $\mathcal{C}_t$ via Boltzmann selection (Eq.~\ref{eq:boltz})
+    \If{$o = \textit{expand}$}
+        \State Sample $K \sim \mathrm{Uniform}\{1, \ldots, K_{\max}\}$
+        \State $n' \leftarrow (y_1, \ldots, y_t, y_{t+1}, \ldots, y_{t+K})$ where $y_{t+k} \sim \pi_\theta(\cdot \mid x \oplus y_{1:t+k-1})$
+    \Else
+        \State Sample $\ell \sim \mathrm{Uniform}\{2, \ldots, t-1\}$; \, $n' \leftarrow (y_1, \ldots, y_{\ell-1}, y_{\ell+1}, \ldots, y_t)$
+    \EndIf
+\Else \Comment{Two-parent operators}
+    \State Sample pair $(n_a, n_b)$ from $\mathcal{C}_t$ via pair Boltzmann selection (Eq.~\ref{eq:bi_boltz})
+    \State Compute shared prefix length $s$ and suffixes $\sigma_a, \sigma_b$
+    \If{$o = \textit{combine}$}
+        \State $n' \leftarrow y_{a,1:s} \oplus \sigma_a \oplus \sigma_b$
+    \ElsIf{$o = \textit{translocate}$}
+        \State Sample $r, q$; \, $n' \leftarrow y_{a,1:s} \oplus \sigma_a[1:r\!-\!1] \oplus (\sigma_b)_q \oplus \sigma_a[r\!+\!1:m_a]$
+    \ElsIf{$o = \textit{crossover}$}
+        \State Sample $i, j$; \, $n' \leftarrow y_{a,1:s} \oplus \sigma_a[1:i] \oplus \sigma_b[j\!+\!1:m_b]$
+    \EndIf
+\EndIf
+\State \Return $n'$
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:backward} computes the backward score for a candidate node by recursively traversing the sub-goal tree. If a sub-goal is fully satisfied, the score is 1; otherwise, the score blends the local verifier output with the average score over its children.
+
+\begin{algorithm}[h]
+\caption{\textsc{BackwardScore}: Backward Search Scoring}
+\label{alg:backward}
+\begin{algorithmic}[1]
+\Require candidate node $n$, sub-goal $g$, goal tree $\mathcal{G}$
+\If{$V_g(x, n) = 1$}
+    \State \Return $1$
+\ElsIf{$\mathrm{ch}(g) \neq \emptyset$}
+    \State \Return $\alpha \cdot V_g(x, n) + (1 - \alpha) \cdot \frac{1}{|\mathrm{ch}(g)|} \sum_{g' \in \mathrm{ch}(g)} \textsc{BackwardScore}(n, g', \mathcal{G})$
+\Else
+    \State \Return $V_g(x, n)$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:decompose} refines the goal tree by selecting a random unsolved leaf sub-goal and prompting the policy to decompose it into finer children, each equipped with its own local verifier.
+
+\begin{algorithm}[h]
+\caption{\textsc{BackwardDecompose}: Goal Tree Decomposition}
+\label{alg:decompose}
+\begin{algorithmic}[1]
+\Require problem $x$, current goal tree $\mathcal{G}$, pool $\mathcal{P}$
+\State $\mathcal{L} \leftarrow \{g \in \mathcal{G} : \mathrm{ch}(g) = \emptyset \wedge \max_{n \in \mathcal{P}} V_g(x, n) < 1\}$ \Comment{Unsolved leaves}
+\State Sample $g^*$ uniformly from $\mathcal{L}$
+\State Prompt $\pi_\theta$ to decompose $g^*$ into children $\{g'_1, \ldots, g'_c\}$ with local verifiers $\{V_{g'_1}, \ldots, V_{g'_c}\}$
+\State $\mathrm{ch}(g^*) \leftarrow \{g'_1, \ldots, g'_c\}$; \, add to $\mathcal{G}$
+\State \Return $\mathcal{G}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Formal Definitions of Evolution Operators}
+\label{app:operators}
+
+For two parents $n_a, n_b$, let $s=\max\{\ell:y_{a,1:\ell}=y_{b,1:\ell}\}$ denote their common-prefix length, and let $\sigma_a=(y_{a,s+1},\dots,y_{a,t_a})$ and $\sigma_b=(y_{b,s+1},\dots,y_{b,t_b})$ be their respective suffixes.
+
+\textit{(i) Combination.} $n' = y_{a,1:s}\,\oplus\,\sigma_a\,\oplus\,\sigma_b$.
+
+\textit{(ii) Deletion.} $n' = (y_{1},\dots,y_{\ell-1},\,y_{\ell+1},\dots,y_{t})$, where $\ell\sim\mathrm{Uniform}\{2,\dots,t-1\}$.
+
+\textit{(iii) Translocation.} $n' = y_{a,1:s}\,\oplus\,\sigma_a[1:r-1]\,\oplus\,(\sigma_b)_q\,\oplus\,\sigma_a[r+1:m_a]$, where $r\sim\mathrm{Uniform}\{1,\dots,m_a\}$ and $q\sim\mathrm{Uniform}\{1,\dots,m_b\}$.
+
+\textit{(iv) Crossover.} $n' = y_{a,1:s}\,\oplus\,\sigma_a[1:i]\,\oplus\,\sigma_b[j+1:m_b]$, where $i\in\{0,\dots,m_a\}$ and $j\in\{0,\dots,m_b-1\}$ are sampled uniformly.
+
+\section{Theoretical Motivations}
+\label{app:theory}
+
+
+\subsection{Theoretical Motivation for Evolution Operators}
+\label{app:theory-mutation}
+
+In this section, we give a theoretical justification for the evolution operators. Expansion-only search builds candidates one lineage at a time. Evolution, by contrast, recombines blocks from different trajectories, so the number of reachable candidates grows as a Cartesian product of the per-block libraries.
+
+Fix a task $x$ and a step horizon $T$. A trajectory is $Y=(y_1,\ldots,y_T)$, where each $y_t$ is a step:
+\begin{equation}
+  P(Y) := \pi_\theta(Y\mid x)
+  =\prod_{t=1}^{T}P(y_t\mid y_{<t}).
+\end{equation}
+
+To quantify the uncertainty at each step, we introduce the \emph{surprisal} (pointwise information content) of the $t$-th step and its expected value, the \emph{conditional entropy}:
+\begin{equation}
+  Z_t := -\log P(Y_t \mid Y_{<t}),
+  \qquad
+  h_t(y_{<t}) := H_P(Y_t \mid Y_{<t} = y_{<t}).
+\end{equation}
+Intuitively, $Z_t$ measures how surprising the generated step is, while $h_t$ measures how uncertain the policy is about the next step on average, given the history so far.
+
+Summing the per-step surprisals yields the total information content of the trajectory:
+\begin{equation}
+  S_T := -\log P(Y) = \sum_{t=1}^{T} Z_t.
+\end{equation}
+Taking its expectation recovers the trajectory-level entropy, which decomposes by the chain rule as
+\begin{equation}
+  H_T := H_P(Y) = \mathbb{E}_P[S_T]
+  = \sum_{t=1}^{T} \mathbb{E}_P\bigl[h_t(Y_{<t})\bigr].
+\end{equation}
+
+Finally, let $\mathcal{F}_t = \sigma(Y_1,\dots,Y_t)$ denote the natural filtration, i.e.\ the information available after observing the first $t$ steps. This filtration will serve as the basis for the martingale analysis that follows.
+
+% We make three assumptions on the policy.
+
+% \begin{assumption}[Bounded per-step surprise]
+% \label{assump:bounded}
+% There exists $L<\infty$ such that for every reachable prefix and every step with positive probability, $-\log P(v\mid y_{<t})\le L$.
+% \end{assumption}
+
+% \begin{assumption}[Decaying step dependence]
+% \label{assump:decay}
+% There exists a summable nonnegative sequence $(\beta_\ell)_{\ell\ge1}$ with $C_\beta:=\sum_{\ell\ge1}\beta_\ell<\infty$ such that for every $s<t$, every prefix $y_{<s}$, and every two possible step values $v,v'$ at position $s$,
+% \begin{equation}
+% \left|
+% \mathbb{E}\!\big[h_t(Y_{<t})\mid Y_{<s}=y_{<s},Y_s=v\big]
+% -
+% \mathbb{E}\!\big[h_t(Y_{<t})\mid Y_{<s}=y_{<s},Y_s=v'\big]
+% \right|
+% \le \beta_{t-s}.
+% \end{equation}
+% \end{assumption}
+
+% \begin{assumption}[Linear block total correlation]
+% \label{assump:tc}
+% Partition the trajectory into $k \geq 2$ contiguous blocks $U_1, \ldots, U_k$ at fixed boundaries $0 = s_0 < s_1 < \cdots < s_k = T$. The block total correlation grows linearly in the horizon:
+% \begin{equation}
+%   \mathrm{TC}_P(U_1, \ldots, U_k) := \sum_{j=1}^k H_P(U_j) - H_P(U_1, \ldots, U_k) \;\geq\; \gamma T
+% \end{equation}
+% for some constant $\gamma > 0$.
+% \end{assumption}
+
+We assume that evolution operators and verification are computationally cheap relative to policy calls. This is typical in practice: evolution operators act by directly editing step sequences (Section~\ref{sec:forward}), and verification is fast for most tasks of interest, e.g.\ test-case execution for coding. The computational bottleneck is therefore mainly the number of policy calls. Other assumptions have been stated in Section~\ref{sec:theory-mutation}.
+
+\subsubsection{Discussion of Assumptions}
+\label{app:assumptions}
+
+To begin with, we first briefly discuss why Assumptions~\ref{assump:bounded}--\ref{assump:tc} are mild and naturally satisfied in practice.
+
+\paragraph{Assumption~\ref{assump:bounded} (bounded per-step surprise).} This requires that no single step carries unbounded information. It holds for any policy with a finite action space, which includes all LLMs with a fixed vocabulary and all agents with a discrete action set. For an LLM with vocabulary size $|\mathcal{V}|$, we have $L = \log |\mathcal{V}|$.
+
+\paragraph{Assumption~\ref{assump:decay} (decaying step dependence).} This requires that changing a single step has diminishing influence on the conditional entropy of distant future steps. In practice, this is satisfied when the policy's effective context dependence decays with distance, a property that holds for finite-context models and, empirically, for transformer-based LLMs whose attention weights concentrate on recent tokens for most layers. For a policy with finite memory (e.g., a Markov chain of order $d$), $\beta_\ell = 0$ for all $\ell > d$, trivially satisfying the assumption.
+
+\paragraph{Assumption~\ref{assump:tc} (linear block total correlation).} By the chain rule, the total correlation decomposes as $\mathrm{TC}_P = \sum_{j=1}^k I_P(U_j; U_{<j})$, where $I_P(U_j; U_{<j})$ is the mutual information between block $j$ and all preceding blocks. This term is strictly positive whenever block $j$ depends on its context, which is the generic case for coherent sequential reasoning: the content of later reasoning steps is informed by earlier ones. As long as each block's dependence on the past contributes at least a constant amount of mutual information, the total correlation grows linearly in the number of blocks, and hence linearly in $T$ when blocks have bounded size. Empirically, this is a weak requirement: even simple autoregressive models on natural language exhibit strong inter-block dependence, and reasoning traces exhibit even stronger dependence since later steps logically build on earlier conclusions.
+
+\subsubsection{Shell Confinement of Expansion}
+
+The deviation $S_T - H_T$ between a trajectory's actual information content and the expected entropy governs how tightly ordinary rollouts cluster around the typical set. We aim to show that this deviation is small with high probability. To this end, we decompose it into two terms and bound each separately.
+
+\begin{lemma}[Martingale decomposition]
+\label{lem:decomp}
+Define
+\begin{equation}
+  D_t:=Z_t-h_t(Y_{<t}),
+  \qquad
+  M_T:=\sum_{t=1}^{T}D_t,
+  \qquad
+  R_T:=\sum_{t=1}^{T}\big(h_t(Y_{<t})-\mathbb{E}h_t(Y_{<t})\big).
+\end{equation}
+Then $(D_t,\mathcal{F}_t)$ is a martingale difference sequence, $|D_t|\le L$, and
+\begin{equation}
+  S_T-H_T=M_T+R_T.
+  \label{eq:martingale-decomp}
+\end{equation}
+Here $M_T$ captures the per-step noise, while $R_T$ captures how the realized trajectory shifts the conditional entropy away from its unconditional mean.
+\end{lemma}
+
+\begin{proof}
+By definition,
+$\mathbb{E}[Z_t\mid \mathcal{F}_{t-1}] = H_P(Y_t\mid Y_{<t}) = h_t(Y_{<t})$,
+so $\mathbb{E}[D_t\mid\mathcal{F}_{t-1}]=0$. Assumption~\ref{assump:bounded} gives $0\le Z_t\le L$. Since $h_t(Y_{<t})$ is the conditional expectation of $Z_t$, we also have $0\le h_t(Y_{<t})\le L$, hence $|D_t|\le L$. Finally, $S_T=\sum_t D_t + \sum_t h_t(Y_{<t})$ and $H_T=\sum_t\mathbb{E}h_t(Y_{<t})$, which proves Eq.~\eqref{eq:martingale-decomp}.
+\end{proof}
+
+\begin{lemma}[Concentration of $R_T$]
+\label{lem:rt}
+Under Assumption~\ref{assump:decay}, for every $u>0$,
+\begin{equation}
+  \Pr(|R_T|\ge u)
+  \le 2\exp\!\left(-\frac{u^2}{2TC_\beta^2}\right).
+  \label{eq:rt-bound}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $G(Y)=\sum_{t=1}^{T}h_t(Y_{<t})$, so $R_T=G(Y)-\mathbb{E}G(Y)$. We construct a Doob martingale by progressively revealing the trajectory one step at a time. Define
+\begin{equation}
+  A_s=\mathbb{E}[G(Y)\mid Y_1,\dots,Y_s]
+  = \sum_{t=1}^{s} h_t(Y_{<t}) + \sum_{t=s+1}^{T} \mathbb{E}[h_t(Y_{<t})\mid Y_1,\dots,Y_s],
+\end{equation}
+where the first sum is already determined by the observed steps, and the second sum averages over the unobserved future. Note that $A_0 = \mathbb{E}[G(Y)]$ and $A_T = G(Y)$, so $R_T = A_T - A_0 = \sum_{s=1}^{T}\delta_s$ where $\delta_s = A_s - A_{s-1}$.
+
+Expanding the increment gives
+\begin{equation}
+  \delta_s = \sum_{t=s+1}^{T}\Big(\mathbb{E}[h_t(Y_{<t})\mid Y_1,\dots,Y_s] - \mathbb{E}[h_t(Y_{<t})\mid Y_1,\dots,Y_{s-1}]\Big).
+\end{equation}
+Each term measures how much the prediction of $h_t$ changes upon revealing $Y_s$. By Assumption~\ref{assump:decay}, this change is bounded by $\beta_{t-s}$ for each $t>s$. Therefore
+\begin{equation}
+  |\delta_s|\le \sum_{t=s+1}^{T}\beta_{t-s}\le \sum_{\ell=1}^{\infty}\beta_\ell = C_\beta.
+\end{equation}
+Since $(A_s)$ is a martingale, $\mathbb{E}[\delta_s\mid Y_1,\dots,Y_{s-1}]=0$. Applying the Azuma-Hoeffding inequality to $R_T=\sum_{s=1}^{T}\delta_s$ with bounded increments $|\delta_s|\le C_\beta$ gives Eq.~\eqref{eq:rt-bound}.
+\end{proof}
+
+\begin{lemma}[Concentration of $M_T$]
+\label{lem:mt}
+The first term $M_T$ is itself a martingale with bounded increments $|D_t| \le L$. Let
+\begin{equation}
+  V_T:=\sum_{t=1}^{T}\mathbb{E}[D_t^2\mid\mathcal{F}_{t-1}].
+\end{equation}
+If $V_T\le v_T$ almost surely for a deterministic $v_T$, then for every $u>0$,
+\begin{equation}
+  \Pr(|M_T|\ge u)
+  \le 2\exp\!\left(-\frac{u^2}{2(v_T+Lu/3)}\right).
+  \label{eq:mt-freedman}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+This is Freedman's inequality for martingales with increments bounded by $L$, applied to $M_T$ and $-M_T$. If no sharper variance proxy is available, the worst-case bound $v_T=TL^2$ is valid.
+\end{proof}
+
+
+Combining the two concentration results yields a finite-sample analogue of the asymptotic equipartition property (AEP): with high probability, the information content of a trajectory is close to the expected entropy.
+
+\begin{theorem}[Finite-sample AEP for policy rollouts]
+\label{thm:aep}
+Under Assumptions~\ref{assump:bounded}--\ref{assump:decay} and the variance condition in Lemma~\ref{lem:mt},
+\begin{equation}
+  \Pr(|S_T-H_T|\ge u)
+  \le
+  2\exp\!\left(-\frac{u^2}{8(v_T+Lu/6)}\right)
+  +2\exp\!\left(-\frac{u^2}{8TC_\beta^2}\right).
+  \label{eq:aep}
+\end{equation}
+In particular, if $v_T=O(T)$, then for every fixed $\epsilon>0$,
+\begin{equation}
+  \Pr\!\left(\left|\frac{S_T}{T}-\frac{H_T}{T}\right|\ge\epsilon\right)
+  \le \exp(-\Omega(T)).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:decomp}, $S_T-H_T=M_T+R_T$. A union bound gives
+$\Pr(|S_T-H_T|\ge u) \le \Pr(|M_T|\ge u/2)+\Pr(|R_T|\ge u/2)$.
+Applying Lemma~\ref{lem:mt} and Lemma~\ref{lem:rt} with threshold $u/2$ proves Eq.~\eqref{eq:aep}. Taking $u=\epsilon T$ and $v_T=O(T)$ gives the exponential concentration rate.
+\end{proof}
+
+
+\begin{corollary}[Shell confinement]
+\label{cor:shell}
+For $\epsilon>0$, define the typical set
+\begin{equation}
+  A_\epsilon^{(T)}:=\{y:|-\log P(y)-H_T|\le\epsilon T\}.
+\end{equation}
+Then $P(A_\epsilon^{(T)})\ge1-\exp(-\Omega(T))$ under Theorem~\ref{thm:aep}. Moreover,
+\begin{equation}
+  |A_\epsilon^{(T)}|\le\exp(H_T+\epsilon T).
+  \label{eq:typical-upper}
+\end{equation}
+In other words, almost all rollouts land in a set of size $\approx \exp(H_T)$. Expansion-only search, regardless of how it selects prefixes, can only explore within this shell.
+\end{corollary}
+
+\begin{proof}
+The probability statement follows from Theorem~\ref{thm:aep}. Every $y\in A_\epsilon^{(T)}$ satisfies $P(y)\ge\exp(-(H_T+\epsilon T))$, so summing probabilities gives $1\ge |A_\epsilon^{(T)}|\exp(-(H_T+\epsilon T))$, which proves Eq.~\eqref{eq:typical-upper}.
+\end{proof}
+
+\subsubsection{Shell Escape via Evolution}
+
+We now show that evolution operators construct candidates whose expected log-probability falls strictly outside the entropy shell. We prove the results using crossover; the analysis for other evolution operators (combination, translocation) follows analogously.
+
+\begin{lemma}[Splice-point KL identity]
+\label{lem:splice}
+Split a trajectory at position $s$ and write $V=Y_{1:s}$ and $U=Y_{s+1:T}$. Let $(V,U)$ and $(V',U')$ be two independent policy rollouts, and form the crossover trajectory $\widetilde{Y}=(V,U')$. The expected increase in native surprise is
+\begin{equation}
+  \mathbb{E}[-\log P(V,U')]-H_T
+  =\mathbb{E}_{V,V'}
+  \left[D_{\mathrm{KL}}(P_{U\mid V'}\|P_{U\mid V})\right].
+  \label{eq:splice-kl}
+\end{equation}
+Equivalently,
+\begin{equation}
+  \mathbb{E}[-\log P(V,U')]-H_T
+  =I_P(V;U)+D_{\mathrm{KL}}(P_V\otimes P_U\|P_{V,U})
+  \ge I_P(V;U).
+  \label{eq:splice-mi}
+\end{equation}
+The gap is strictly positive whenever the suffix distribution $P_{U\mid V}$ depends on the prefix.
+\end{lemma}
+
+\begin{proof}
+Using $P(V,U)=P_V(V)P_{U\mid V}(U)$,
+\begin{align}
+  \mathbb{E}[-\log P(V,U')]
+  &=H(V)+\mathbb{E}_{V,V'}\mathbb{E}_{U\sim P_{U\mid V'}}[-\log P_{U\mid V}(U)],\\
+  H_T
+  &=H(V)+\mathbb{E}_{V'}H(P_{U\mid V'}).
+\end{align}
+Subtracting gives Eq.~\eqref{eq:splice-kl}. The marginal law of $(V,U')$ is $P_V\otimes P_U$, so the same difference equals the cross-entropy gap $H(P_V\otimes P_U,P_{V,U})-H(P_{V,U})$, which is
+$H(P_V\otimes P_U)+D_{\mathrm{KL}}(P_V\otimes P_U\|P_{V,U})-H(P_{V,U})$.
+Since $H(P_V\otimes P_U)-H(P_{V,U})=I_P(V;U)$, Eq.~\eqref{eq:splice-mi} follows.
+\end{proof}
+
+Lemma~\ref{lem:splice} analyzes crossover at a single splice point. We now generalize to $k$-way block evolution, where a trajectory is partitioned into multiple blocks and each block is drawn from a different seed trajectory.
+
+Fix a partition $0=s_0<s_1<\cdots<s_k=T$ and define blocks $U_j=Y_{s_{j-1}+1:s_j}$. Let $P$ denote the joint law of $(U_1,\ldots,U_k)$ under the policy, and let $P_j$ be the marginal law of $U_j$. A $k$-way blockwise evolution draws $k$ independent seed trajectories and takes block $j$ from seed $j$. The resulting distribution is
+\begin{equation}
+  Q=\bigotimes_{j=1}^{k}P_j.
+  \label{eq:product-law}
+\end{equation}
+
+\begin{lemma}[Block evolution cross-entropy gap]
+\label{lem:tc}
+For $\widetilde{Y}\sim Q$,
+\begin{equation}
+  \mathbb{E}_{Q}[-\log P(\widetilde{Y})]-H(P)
+  =\mathrm{TC}_P(U_1,\ldots,U_k)+D_{\mathrm{KL}}(Q\|P)
+  \ge\mathrm{TC}_P(U_1,\ldots,U_k),
+  \label{eq:tc-gap}
+\end{equation}
+where $\mathrm{TC}_P(U_1,\ldots,U_k) := \sum_{j=1}^{k}H_P(U_j)-H_P(U_1,\ldots,U_k)$ is the block total correlation.
+\end{lemma}
+
+\begin{proof}
+The expected surprise of an evolution sample under the policy is the cross entropy $H(Q,P)=H(Q)+D_{\mathrm{KL}}(Q\|P)$. Since $Q$ is the product of the policy's block marginals, $H(Q)=\sum_j H_P(U_j)$. Subtracting $H(P)=H_P(U_1,\ldots,U_k)$ gives Eq.~\eqref{eq:tc-gap}.
+\end{proof}
+
+
+We can now state the main theorem.
+
+
+\noindent\textbf{Theorem~\ref{thm:shell}} (Shell confinement and escape)\textbf{.}
+\textit{Restated from Section~\ref{sec:theory-mutation}.}
+\medskip
+
+\noindent Under Assumptions~\ref{assump:bounded}--\ref{assump:tc}, define the typical set $A_\epsilon^{(T)}:=\{y:|-\log P(y)-H_T|\le\epsilon T\}$.
+
+\textit{(a) Shell confinement.} Every trajectory $Y \sim P$ produced by expansion satisfies $\Pr[Y \notin A_\epsilon^{(T)}] \leq \exp(-\Omega(T))$. That is, expansion-only search is confined to a typical set of size at most $\exp(H_T + \epsilon T)$.
+
+\textit{(b) Shell escape.} Let $Q = \bigotimes_{j=1}^k P_j$ be the $k$-way evolution distribution. For any $\epsilon < \gamma$,
+\begin{equation*}
+  \mathbb{E}_Q[-\log P(\widetilde{Y})] \;\geq\; H_T + \gamma T \;>\; H_T + \epsilon T,
+\end{equation*}
+so evolution candidates have expected log-probability strictly beyond the shell boundary. Moreover,
+\begin{equation*}
+  \Pr_Q\!\left[\widetilde{Y} \in A_\epsilon^{(T)}\right] \;\leq\; 1 - \frac{(\gamma - \epsilon)T}{LT - H_T - \epsilon T} \;<\; 1,
+\end{equation*}
+confirming that a positive fraction of evolution candidates escape the shell.
+
+
+\begin{proof}
+Part~(a) is Corollary~\ref{cor:shell}.
+
+For part~(b), Lemma~\ref{lem:tc} gives $\mathbb{E}_Q[-\log P(\widetilde{Y})] = H_T + \mathrm{TC}_P + D_{\mathrm{KL}}(Q \| P) \geq H_T + \gamma T$ by Assumption~\ref{assump:tc}, proving Eq.~\eqref{eq:escape-expectation}.
+
+For Eq.~\eqref{eq:escape-prob}, let $p = \Pr_Q[\widetilde{Y} \in A_\epsilon^{(T)}]$. By Assumption~\ref{assump:bounded}, $-\log P(\widetilde{Y}) \in [0, LT]$ always. If $\widetilde{Y} \in A_\epsilon^{(T)}$ then $-\log P(\widetilde{Y}) \leq H_T + \epsilon T$. Therefore
+\begin{equation}
+  H_T + \gamma T \;\leq\; \mathbb{E}_Q[-\log P(\widetilde{Y})] \;\leq\; (H_T + \epsilon T)\,p + LT\,(1 - p).
+\end{equation}
+Rearranging: $p \leq \frac{LT - H_T - \gamma T}{LT - H_T - \epsilon T} = 1 - \frac{(\gamma - \epsilon)T}{LT - H_T - \epsilon T}$, which is strictly less than $1$ whenever $\gamma > \epsilon$.
+\end{proof}
+
+\subsection{Theoretical Motivation for Bidirectional Search}
+\label{app:theory-bidirectional}
+
+\noindent\textbf{Theorem~\ref{thm:bidir}} (Exponential advantage from backward sub-goal signals)\textbf{.}
+\textit{Restated from Section~\ref{sec:theory-bidirectional}.}
+\medskip
+
+\noindent Let $N$ candidates be sampled independently. Terminal-only search requires
+$N_{\mathrm{term}} = \Omega\!\left(1 / \prod_{i=1}^m p_i\right)$
+candidates to obtain constant success probability. By contrast, backward-guided bidirectional search requires only
+$N_{\mathrm{bidir}} = O\!\left(p_{\min}^{-1}\log(m/\delta)\right)$,
+where $p_{\min}=\min_i p_i$,
+to collect evidence for all sub-goals with probability at least $1-\delta$. In the symmetric case $p_i=p$, the ratio is
+$N_{\mathrm{term}} / N_{\mathrm{bidir}} = \Omega\!\left(p^{-(m-1)} / \log(m/\delta)\right)$,
+which is exponential in the number of sub-goals $m$.
+
+\begin{proof}
+For a single candidate, terminal success requires all sub-goals:
+\[
+  \Pr[V(x,n)=1]
+  \le
+  \Pr\!\left[\bigcap_{i=1}^m \{C_i(n)=1\}\right]
+  =
+  \prod_{i=1}^m p_i.
+\]
+Therefore, after \(N\) independent candidates, the probability that a
+terminal-only method observes a complete solution is at most
+\[
+  1-\left(1-\prod_{i=1}^m p_i\right)^N.
+\]
+To make this probability constant, one needs
+\[
+  N=\Omega\!\left(\frac{1}{\prod_{i=1}^m p_i}\right).
+\]
+
+Now consider backward verification. The pool contains evidence for all
+sub-goals if, for every \(i\), at least one sampled candidate satisfies
+\(C_i(n)=1\). This event has probability
+\[
+  \prod_{i=1}^m \left(1-(1-p_i)^N\right).
+\]
+Using \((1-p_i)^N\le e^{-Np_i}\), we obtain
+\[
+  \Pr[\text{some sub-goal is missing}]
+  \le
+  \sum_{i=1}^m e^{-Np_i}
+  \le
+  m e^{-N p_{\min}}.
+\]
+Thus
+\[
+  N\ge \frac{1}{p_{\min}}\log\frac{m}{\delta}
+\]
+ensures that the pool contains evidence for every sub-goal with probability at
+least \(1-\delta\). Once such evidence exists, backward search identifies it
+and evolution can recombine the corresponding partial trajectories. Hence
+bidirectional search replaces the one-shot probability
+\(\prod_i p_i\) by the much larger local probabilities \(p_i\), turning a
+multiplicative hitting problem into a sub-goal collection problem. In the
+symmetric case \(p_i=p\), terminal-only search needs
+\(\Omega(p^{-m})\) candidates, whereas bidirectional search needs
+\(O(p^{-1}\log(m/\delta))\), giving the stated exponential advantage.
+\end{proof}
+
+\section{Detailed Experimental Setup}
+\label{app:setup}
+
+\subsection{Logical Reasoning}
+\label{app:logical_setup}
+
+\paragraph{Resources.}
+The trainer uses 2 H200 GPUs. A separate auxiliary GPU hosts a vLLM
+server for the backward decomposer (a copy of Gemma-3-1B-it serving the
+\textsc{Decompose} calls of the goal tree); the
+trainer reaches it over HTTP.
+
+\paragraph{Data.}
+We generate the K\&K corpus with the official sampling pipeline. The SFT
+cold-start corpus contains $1{,}000$ problems with $n_\mathrm{people}\in\{2,3,4\}$.
+The post-training corpus contains $5{,}000$ problems with
+$n_\mathrm{people}\in\{4,5,6\}$.
+Validation contains $143$ problems per difficulty level
+$n_\mathrm{people}\in\{2,\dots,10\}$ for a total of $1{,}287$ problems.
+
+\paragraph{Training schedule.}
+Stage~1 is a 3-epoch supervised fine-tuning on the SFT corpus to teach the
+output format. Stage~2 is post-training. For \ours, each training step runs the forward-backward
+search on every problem in the training batch, returning either eight
+unique terminal trajectories (when the search hits the budget or finds
+enough successes) or fewer, in which case the remaining slots are padded
+with single-rollout samples to keep the GRPO group size fixed at $8$;
+the trainer then conducts post-training on these samples. We compare against two baselines (GRPO and MaxRL),
+both of which sample $8$ i.i.d.\ trajectories per problem.
+
+
+\paragraph{Forward search.}
+The forward search maintains a pool of partial reasoning trajectories
+partitioned at paragraph granularity (\verb|\n\n|-separated reasoning
+steps). At every search step we sample one of five actions:
+\emph{combine} with probability $0.10$; \emph{deletion} with probability $0.05$; \emph{translocation} with probability $0.075$; \emph{crossover}
+with probability $0.075$; and \emph{expansion}
+with probability $0.70$.
+The Boltzmann temperature $\tau$ is annealed linearly from
+$\tau_0=2.0$ at step $0$ to $\tau_\mathrm{end}=1.0$ at step $B{-}2$.
+A trajectory becomes \emph{terminal} when it contains a
+``\verb|### Final Answer|'' marker followed by a parseable JSON map
+\verb|{name: 0/1}|; the rule-based KK scorer then assigns reward
+$r\in\{0,1\}$ from exact match against the ground-truth assignment. The
+search runs until $B=200$ policy calls have been used or eight unique
+terminal trajectories have been found.
+
+
+\paragraph{Backward search.}
+At the start of every \ours\ search on a puzzle we instantiate a goal
+tree whose root goal is to identify every person's role correctly,
+verified by the rule-based K\&K scorer applied to the trajectory's
+final answer. The root expands into one sub-goal per person (determining whether that person is a knight or a knave) and each
+per-person sub-goal further expands into elementary verification
+strategies that human solvers commonly apply to K\&K puzzles, e.g.\
+assume the opposite role and seek a contradiction, assume the correct
+role and confirm consistency, or jointly fix two people's roles and
+check pair-wise consistency. Leaf sub-goals are verified via
+lightweight syntactic checks on the trajectory against the reasoning
+markers each strategy is expected to produce.
+
+Because Gemma-3-1B-it is too small to reliably perform open-ended goal
+decomposition, we restrict the backward LLM's
+role to scheduling traversal of this template tree rather than
+constructing it. At the start of the search the decomposer is asked to
+choose the order in which the per-person sub-goals should be verified;
+every $D=10$ search steps thereafter it is asked to pick which
+verification strategies should be activated under the next-in-line
+per-person sub-goal. 
+The recursive node score $s(n)$ is recomputed on every search step using $\alpha=0.3$.
+
+\paragraph{Hyperparameters.}
+Hyperparameters are listed in Table \ref{tab:hyperparams_logical}.
+
+\begin{table*}[h]
+\centering
+\caption{Hyperparameters for the logical reasoning experiment (Knights-and-Knaves).}
+\label{tab:hyperparams_logical}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Category} & \textbf{Hyperparameter $=$ Value} \\
+\midrule
+\textbf{Model} &
+backbone $=$ Gemma-3-1B-it; cold-start $=$ 3 epochs SFT on $1\,$K problems; \\
+& post-training $=$ 4 epochs on $5\,$K problems. \\
+\midrule
+\textbf{Optimization} &
+optimizer $=$ AdamW; learning\_rate $=$ $1\!\times\!10^{-6}$; \\
+& train\_batch\_size $=$ 32; ppo\_mini\_batch\_size $=$ 32; \\
+& ppo\_micro\_batch\_size\_per\_gpu $=$ 16; ppo\_epochs $=$ 1; \\
+& clip\_ratio $=$ 0.2; grad\_clip $=$ 0.3; kl\_coef $=$ 0.0. \\
+\midrule
+\textbf{Generation} &
+max\_prompt\_length $=$ 1024; max\_response\_length $=$ 4096; \\
+& max\_model\_len $=$ 6144; train\_temperature $=$ 1.0; \\
+& val\_temperature $=$ 0.6; val\_top\_p $=$ 0.95. \\
+\midrule
+\textbf{BES search} &
+adv\_estimator $=$ \texttt{maxrl}; group\_size $=$ 8 trajectories/problem; \\
+& search\_budget $=$ 200 policy calls/problem; \\
+& decompose\_interval $=$ 10 search steps;  \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+
+\subsection{Multi-Hop Reasoning}
+\label{app:qa_setup}
+
+\paragraph{Resources.}
+The trainer uses 2 H200 GPUs. Two auxiliary
+servers run independently and communicate with the trainer over HTTP:
+(i) a retriever (E5 encoder + FAISS over the 2018 Wikipedia dump) on
+1 H200 GPU, and (ii) a backward decomposition server hosting
+Llama-3.1-8B-Instruct on 1 H200 GPU.
+
+\paragraph{Data.}
+We use the answerable subset of MuSiQue. The training set is the
+3-to-4-hop solvable split of the MuSiQue training data and is held
+fixed across methods; the validation set is the full official MuSiQue
+validation set. 
+
+\paragraph{Training schedule.}
+Two epochs of post-training. At each
+rollout the \ours\ search returns $8$ trajectories per problem; the same per-problem budget is used by the GRPO
+and Tree-GRPO baselines for fair comparison. Two epochs are sufficient;
+extra epochs lead to overfitting and training collapse.
+
+\paragraph{Action format and reward.}
+The agent emits actions as
+\verb|<think>...</think>| followed by either \verb|<search>q</search>|
+or \verb|<answer>...</answer>|. Each \verb|<search>| call goes to the offline
+retriever which returns the top $3$ passages back to the agent inside
+\verb|<information>...</information>| tokens. 
+
+
+\paragraph{Forward search.}
+The forward search maintains a candidate pool of trajectories per
+question, where every trajectory is a sequence of
+$(\langle\texttt{think}\rangle,\langle\texttt{search}\rangle,
+\langle\texttt{information}\rangle)$ triples optionally followed by a
+terminal $(\langle\texttt{think}\rangle,\langle\texttt{answer}\rangle)$
+pair. Strict format validation is enforced on every expansion.
+
+At every search step we sample one of five actions with the same
+mixture used in the logical-reasoning experiment:
+\emph{combination} $0.10$, \emph{deletion} $0.05$, \emph{translocation}
+$0.075$, \emph{crossover} $0.075$, \emph{expansion} $0.70$. The evolution operators here operate at the triple boundary. The Boltzmann temperature $\tau$ is annealed linearly from
+$\tau_0=1.5$ at step $0$ to $\tau_\mathrm{end}=0.3$ at the budget. We pick $\alpha=0.7$.
+
+
+\paragraph{Backward search.}
+Backward search decomposes each question into an ordered chain of atomic sub-questions. The
+original question together with these sub-questions defines the
+per-question goal tree.
+The local verifier $V_{g_i}$ is queried by the forward search for
+every candidate trajectory at every step, so a per-call LLM verifier would be impractical. We therefore
+instantiate $V_{g_i}$ as a fast embedding model: every
+$\langle\texttt{search}\rangle$ query that a trajectory $n$ has emitted
+is embedded into the $\texttt{all-MiniLM-L6-v2}$ sentence-embedding
+space, and the same is done for each sub-question. A sub-question
+$g_i$ is declared \emph{covered} by trajectory $n$ when
+\begin{equation}
+\max_{q \in \mathrm{searches}(n)}\,
+  \cos\bigl(\mathrm{emb}(q),\mathrm{emb}(g_i)\bigr) \;\ge\; \sigma_\mathrm{cov} = 0.6,
+\end{equation}
+i.e.\ when at least one of the trajectory's search queries
+semantically aligns with the sub-question. 
+
+Since a later sub-question's answer typically depends on those of the earlier ones, we evaluate sub-goals sequentially: a sub-goal is only checked if all preceding sub-goals have been satisfied.
+
+\paragraph{Hyperparameters.}
+Hyperparameters are listed in Table \ref{tab:hyperparams_multihop}.
+
+
+\begin{table*}[h]
+\centering
+\caption{Hyperparameters for the multi-hop reasoning experiment (MuSiQue).}
+\label{tab:hyperparams_multihop}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Category} & \textbf{Hyperparameter $=$ Value} \\
+\midrule
+\textbf{Model} &
+backbones $=$ \{Llama-3.2-3B-Instruct, Llama-3.1-8B-Instruct\}; \\
+& post-training $=$ 2 epochs on the 3--4-hop solvable MuSiQue split. \\
+\midrule
+\textbf{Optimization} &
+optimizer $=$ AdamW; learning\_rate $=$ $1\!\times\!10^{-6}$; \\
+& lr\_warmup\_ratio $=$ 0.285; \\
+& train\_batch\_size $=$ 128; val\_batch\_size $=$ 32; \\
+& ppo\_mini\_batch\_size $=$ 16; ppo\_micro\_batch\_size $=$ 8; \\
+& kl\_loss\_coef $=$ $1\!\times\!10^{-3}$; kl\_loss\_type $=$ low\_var\_kl. \\
+\midrule
+\textbf{Generation} &
+max\_prompt\_length $=$ 4096; max\_response\_length $=$ 2048; \\
+& max\_obs\_length $=$ 500; temperature $=$ 1.0; \\
+&max\_turns $=$ 3. \\
+\midrule
+\textbf{BES search} &
+adv\_estimator $=$ \texttt{grpo}; group\_size $=$ 8 trajectories/problem; \\
+& search\_budget $=$ 50 policy calls/problem; $K$-parallel $=$ 4; \\
+& embedder $=$ all-MiniLM-L6-v2; sim\_threshold\_$\sigma_\mathrm{cov}$ $=$ 0.6; \\
+\midrule
+\textbf{Retriever} &
+encoder $=$ intfloat/e5-base-v2; index $=$ wiki-18 FAISS; topk $=$ 3. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+
+\subsection{Open Problem Solving}
+\label{app:inference_setup}
+
+\paragraph{Resources.}
+All compute is on a single CPU node; LLM access is through the OpenAI
+API. We use \texttt{gpt-5} with \texttt{reasoning\_effort = high} for
+forward proposals, meta-reasoning, and backward decomposition. Each run
+is capped at \$50 of API spend; baseline frameworks (OpenEvolve, GEPA,
+ShinkaEvolve) are run under the same setting and we directly use the results from Skydiscover~\citep{skydiscover}.
+
+\paragraph{Benchmarks.}
+Three open optimization tasks: (i) \emph{Circle Packing (Square)}:
+pack $n=26$ non-overlapping circles in the unit square to maximize the
+sum of radii; (ii) \emph{Circle Packing (Rect)}: the same in a
+fixed-aspect rectangle; (iii) \emph{Heilbronn (Convex, $n=13$)}: place
+$13$ points in the unit square to maximize the minimum area of any
+convex polygon formed by a subset of the points. We report mean and
+best objective value across $3$ runs per benchmark.
+
+\paragraph{Algorithm.}
+We adopt ShinkaEvolve as the base program-evolution framework. A
+population of executable Python programs is maintained in an islanded
+SQLite archive; at each generation, parents are sampled from the
+archive, mutated by an LLM-driven proposer, and the resulting offspring
+are evaluated against the benchmark scorer. BES adds two components on
+top: (a) the four evolution operators (combination, deletion, translocation,
+crossover), realized as LLM-driven \emph{joint rewrites} of two parent
+programs (since direct concatenation is not meaningful for executable
+programs), and (b) a backward goal tree that supplies dense
+intermediate scores.
+
+
+\paragraph{Forward search.}
+
+The four evolution operators of the main paper --- combination,
+translocation, crossover, deletion --- are realized at the
+program level. Direct token-level concatenation is not
+meaningful for executable programs, so we pass both parents to the proposer with an operator-specific instruction (e.g.\ ``combine the
+structural decisions of program A with the parameter choices of
+program B'') and ask it to return a single new program implementing the requested edit. Detailed prompts are listed in Appendix \ref{app:prompts:forward}.
+
+\paragraph{Backward search.}
+In the backward goal tree, each leaf carries a Python verifier
+expression that returns a continuous partial-progress score in
+$[0,1]$, evaluated against a benchmark-supplied namespace describing the program's outputs. Detailed prompts are listed in Appendix \ref{app:prompts:backward}.
+
+Tree growth is performed adaptively during the run. A decomposition pass is triggered whenever
+the population has failed to improve on the raw objective for $S=5$
+consecutive generations (improvement margin $\Delta=10^{-2}$): we
+pick a leaf that no program in the archive has yet fully satisfied,
+and ask the decomposer LLM  to
+propose 2--4 child sub-goals that together cover the leaf, each with
+its own natural-language description and Python verifier. This
+adaptive schedule lets the tree grow into the kinds of bottlenecks the population actually encounters.
+
+When calculating the score, in order not to hurt ground truth signals, we rank programs by a
+\emph{bucket-interpolation} effective score: programs are first
+bucketed by the raw objective at precision $10^{-2}$ and ranked by
+bucket; within a bucket, the recursive backward score acts as an
+intra-bucket sub-rank, scaled so that it can never push a program
+past the next bucket boundary. This guarantees that any improvement
+in the raw objective dominates any change in the backward signal, so
+the backward score mainly acts as a tie-breaker among programs of similar raw scores.
+
+
+\paragraph{Hyperparameters.}
+Hyperparameters are listed in Table \ref{tab:hyperparams_inference}.
+
+\begin{table*}[h]
+\centering
+\caption{Hyperparameters for the open problem solving experiment.}
+\label{tab:hyperparams_inference}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Category} & \textbf{Hyperparameter $=$ Value} \\
+\midrule
+\textbf{LLM} &
+backbone $=$ gpt-5; reasoning\_effort $=$ high. \\
+\midrule
+\textbf{Evolution} &
+num\_generations $=$ 100; max\_evaluation\_jobs $=$ 2; \\
+& max\_proposal\_jobs $=$ 2; max\_db\_workers $=$ 2; \\
+& max\_patch\_resamples $=$ 3; max\_patch\_attempts $=$ 2. \\
+\midrule
+\textbf{Operators} &
+patch\_types $=$ \{diff, full, cross\} with probs $\{0.6, 0.3, 0.1\}$; \\
+& BES operators $=$ \{combine, deletion, translocation, crossover\}. \\
+\midrule
+\textbf{Database} &
+num\_islands $=$ 1; archive\_size $=$ 40; \\
+& parent\_selection\_strategy $=$ weighted; parent\_selection\_lambda $=$ 10; \\
+& effective\_score $=$ bucket-interpolation (precision $10^{-2}$). \\
+\midrule
+\textbf{BES backward} &
+trigger $=$ stagnation; $S=5$ generations; margin $\Delta=10^{-2}$; \\
+& children\_per\_decompose $=$ 2--4; max\_tree\_depth $=$ 2; \\
+& recursive\_blend\_$\alpha$ $=$ 0.3; monotonic\_expansion $=$ True. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\section{Case Study}
+\label{app:case}
+
+We illustrate the \ours\ search process on a multi-hop question answering example from the MuSiQue dataset. The question is: \textit{``What is the record label of the artist who originally recorded Back to Bedlam?''} The correct answer is Custard Records. Figure~\ref{fig:case} shows the full search trace.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{images/demo.pdf}
+\caption{Case study of \ours\ on a multi-hop reasoning problem. The forward search (top) explores two branches via expansion, both of which lead to wrong answers. A translocation operator then combines a reasoning step from the right branch into the left branch, producing a correct answer. The backward search (bottom) decomposes the original question into two sub-goals and provides dense verification feedback (green/red arrows) to guide parent selection.}
+\label{fig:case}
+\end{figure}
+
+\paragraph{Backward search.} The backward search decomposes the original question into two sub-goals: (1) \textit{``Which artist originally recorded Back to Bedlam?''} and (2) \textit{``What is the record label of \#1?''}. Each sub-goal is equipped with a local verifier based on embedding similarity (Section~\ref{app:qa_setup}). This decomposition allows the search to track partial progress: a candidate that correctly identifies the artist (James Blunt) but retrieves the wrong label still receives a non-zero score, providing a useful signal for parent selection.
+
+\paragraph{Forward search: expansion.} The search begins with two expansion branches from the root. The left branch searches for the record label of ``Back to Bedlam'' directly and concludes that the album was released through Atlantic Records, which is incorrect. The right branch takes a broader approach, searching for James Blunt's career and music releases, and discovers that both Custard Records and Atlantic Records were involved. However, it also fails to produce the correct final answer, arriving at a wrong conclusion.
+
+\paragraph{Forward search: translocation.} At this point, the backward search scores both branches. The right branch receives a score of 0.3, indicating partial progress: it has identified relevant information about Custard Records but has not resolved the question correctly. The key moment occurs when the translocation operator replaces the reasoning step in the left branch (which concluded Atlantic Records) with the more nuanced reasoning step from the right branch (which noted both Custard Records and Atlantic Records). The resulting candidate inherits the left branch's identification of James Blunt as the artist and the right branch's awareness of the Custard Records connection. This recombined trajectory correctly concludes that the original record label is Custard Records, achieving a score of 1.0.
+
+This example highlights two core advantages of \ours. First, the backward search provides dense intermediate feedback: even though both initial branches produce wrong final answers, the sub-goal scores distinguish the branch that has made more relevant progress (score 0.3), enabling informed parent selection. Second, the translocation operator constructs a correct trajectory by transplanting a single useful reasoning step from one branch into another. Neither branch alone would have reached the correct answer through further expansion, but their combination via translocation succeeds. This illustrates how evolution operators can discover solutions beyond what any single policy rollout can produce.
+
+\section{Prompts for Open Problem Solving Tasks}
+\label{app:prompts}
+
+This appendix lists the prompts used by \ours{} on the open-problem
+benchmarks. The backward-search decomposition prompt (one per benchmark)
+elicits a JSON array of verifiable sub-goals from a goal-tree leaf, while the
+four evolution-operation prompts (\textsc{diff}, \textsc{diff\_ablate},
+\textsc{full}, \textsc{cross}) drive forward-search mutations. All prompts
+use Python \texttt{str.format}-style placeholders such as
+\texttt{\{code\_content\}}, \texttt{\{performance\_metrics\}},
+\texttt{\{previous\_attempts\}}.
+
+\subsection{Backward Search: Goal Tree Decomposition}
+\label{app:prompts:backward}
+
+The decomposition prompt is benchmark-specific. We list here the
+prompts used for Circle Packing (Square); the prompts for Circle Packing (Rectangle) and Heilbronn (Convex) follow the same structure.
+
+\begin{ttcolorbox}[Goal Tree Decomposition Prompt]
+\begin{lstlisting}[style=prompt]
+Decompose a circle-packing goal into smaller verifiable subgoals.
+
+## Problem
+Pack n=26 non-overlapping circles in [0,1]^2 to achieve sum_of_radii > 2.636 (STRICTLY EXCEED best-known).
+Every candidate already satisfies validity (in-square, non-overlap, r>=0). Do NOT use those as subgoals.
+
+## Elite reference layouts (top {n_elites} from current archive --- these define the search frontier)
+Look ACROSS all of them to identify:
+(a) structural properties EVERY elite has -> strong reference-kind subgoals
+(b) properties where elites still VARY -> indicates room for improvement, target with aspirational subgoals
+(c) properties NO elite has yet but a hypothetical sum_r > best solution would have -> aspirational
+
+{elite_blocks}
+
+## Parent goal to decompose
+{goal_desc}
+
+## Two kinds of subgoals (BOTH required)
+Produce 3-4 subgoals, MIXING the two kinds below:
+
+A. kind="reference" (1-2 subgoals): structural properties that EVERY elite above already
+   has and that naive layouts demonstrably LACK (naive grid ~ 2.4 or concentric ring ~ 2.2).
+   MUST be True on every elite AND False on a uniform-radii ring/grid. Generic properties
+   that any symmetric layout has (e.g. "geometric center near (0.5,0.5)", "mirror symmetry")
+   are BAD --- naive rings satisfy them too. Good shapes: "max radius >= some_value", "at
+   least K circles with r >= some_value", "at least one pair of tangent circles with
+   combined radius > some_value". Pick the threshold so EVERY elite passes.
+
+B. kind="aspirational" (2-3 subgoals): concrete structural ideas for HOW to push sum_r
+   further. These typically evaluate FALSE on most or all elites --- that is the point: they
+   describe what an exceed-target solution would have but the current elites still lack.
+   Each must ALSO be False on naive layouts (uniform grid ~ 2.4 or ring of 26 equal circles
+   ~ 2.2); otherwise a naive layout trivially passes despite a poor sum_r. Good shapes:
+   - the largest circle is strictly larger than the max max_radius across elites
+     (naive baselines: grid r~0.083, ring r~0.12);
+   - more circles above some "large" radius cutoff than any elite achieves;
+   - tighter local packing: many pairs with center-distance < r_i + r_j + epsilon (tangent clusters);
+   - a structural motif (hexagonal core, nested ring, dense corner clusters) requiring large radii.
+   AVOID pure symmetry/centroid predicates --- naive baselines satisfy them trivially.
+   Set thresholds slightly beyond what the best elite exhibits --- a layout that matches the
+   elites still FAILS, but a layout that exceeds them can pass.
+
+## Rules (both kinds)
+- A strict sub-property of the parent --- never a rephrasing of the parent itself.
+- Pick subgoals from DIFFERENT categories: radius distribution, boundary usage, spatial
+  coverage, symmetry, local geometry. Don't write variants of one idea.
+
+## verify_code: return a DENSE score in [0,1], not just bool
+verify_code should evaluate to a float in [0,1] representing partial credit --- NOT a bool.
+Use the form min(1.0, <actual> / <target>) so that progress toward the goal earns credit.
+A bool is accepted (True->1.0, False->0.0) but wastes gradient; prefer dense.
+
+CRITICAL FORMAT REQUIREMENT --- single Python expression only:
+  verify_code is evaluated via Python's eval(). It MUST be a single expression
+  (no semicolons, no multi-line x=...; y=...; result chains, no def/for/if
+  statements, no newline-separated assignments). If you need intermediate values,
+  inline them or use a one-shot generator/comprehension.
+
+## Output
+Each subgoal:
+- kind: "reference" or "aspirational".
+- description: short sentence; for aspirational, briefly say WHY it pushes.
+- verify_code: Python expression returning float in [0,1] (or bool). Uses centers ((26,2)),
+  radii ((26,)), n=26, sum_r=float(radii.sum()), np. Must run without error.
+- expected_result: typical value across the elite reference layouts (1.0 if every elite
+  meets it; a fraction < 1.0 if elites only partially meet it).
+
+Output ONLY a JSON array:
+
+```json
+[
+  {"kind": "reference",    "description": "...", "verify_code": "...", "expected_result": "..."},
+  {"kind": "aspirational", "description": "...", "verify_code": "...", "expected_result": "..."}
+]
+```
+\end{lstlisting}
+\end{ttcolorbox}
+
+\subsection{Forward Evolution Operations}
+\label{app:prompts:forward}
+
+
+
+\subsubsection{Combination}
+\label{app:prompts:combination}
+
+
+\begin{ttcolorbox}[Combination Iteration Prompt]
+\begin{lstlisting}[style=prompt]
+# Current program
+
+Here is the current program we are trying to improve:
+
+```{language}
+{code_content}
+```
+
+Here are the performance metrics of the program:
+
+{performance_metrics}{text_feedback_section}
+
+# Task: trick combination
+
+Below you will see SEVERAL inspiration programs. For EACH inspiration:
+1. Identify the single most distinctive trick / mechanism it uses (a particular
+   initialization, a refinement step, a numerical formulation, a heuristic, ...).
+2. Decide whether that trick is compatible with the current program and is likely
+   additive (i.e. attacks a different failure mode than what the current program
+   already handles).
+
+Then produce a NEW full program that is the current program PLUS the compatible
+tricks from the inspirations stitched in. Be explicit in the <DESCRIPTION> about
+which trick came from which inspiration and why you expect them to compose
+without redundancy. Drop tricks that conflict.
+
+IMPORTANT: This is a combination, not a free rewrite. The skeleton should follow
+the current program; the inspirations only contribute identifiable plug-in tricks.
+
+Key directions to explore:
+1. The optimal arrangement may involve heterogeneous or variable-sized elements
+2. Strong solutions often use hybrid global-local patterns
+3. The optimization routine is critical - use models with carefully tuned parameters
+4. Use scipy optimize, LP, or SLSQP to optimize variables given candidate structures
+\end{lstlisting}
+\end{ttcolorbox}
+
+
+\subsubsection{Deletion}
+\label{app:prompts:del}
+
+\begin{ttcolorbox}[Deletion Iteration Prompt]
+\begin{lstlisting}[style=prompt]
+# Current program
+
+Here is the current program. The evolution loop has been stuck on iterations of approaches similar to this one --- incremental tweaks have not been moving the score:
+
+```{language}
+{code_content}
+```
+
+Performance metrics of the current program:
+
+{performance_metrics}{text_feedback_section}
+
+{previous_attempts}
+
+# Task
+
+The current implementation has plateaued. Iterating on it further is unlikely to help. Instead:
+
+1. Identify components of the current code that look unreasonable or that may be holding the search inside a local optimum (heuristics that don't pay off, design choices the search keeps committing to, dead branches, parameter sweeps that add little).
+2. DELETE those components.
+3. Rewrite the program from a fundamentally new perspective: pick an algorithm class, data structure, or strategy that the current program does NOT use, and commit fully to it.
+
+Do not iterate on the current implementation. Do not stitch new code onto the old skeleton. Commit fully to a different approach.
+
+A fundamental change replaces the solution representation (e.g., closed-form <-> free coordinates <-> discrete) or the search paradigm (e.g., gradient <-> sampling <-> enumeration). Swapping the optimizer, picking a sibling parametric family, or adding numerical guards are NOT fundamental changes --- they leave the search trapped.
+
+For example, the following are structurally orthogonal algorithm classes --- two attempts in the same class are minor variants of each other no matter how the surface code differs:
+- Closed-form analytical construction (orbit of a finite symmetry group, vertices of a known polytope, regular polygon, root-system points)
+- Low-discrepancy / quasi-random sampling on a fixed domain (Halton, Sobol, Hammersley, sunflower spiral, Fibonacci lattice)
+- Lattice / grid enumeration (G x G square grid, hexagonal lattice, crystallographic packing --- search over subsets/labels)
+- Continuous local optimization on free decision variables (gradient on a smoothed objective, SLSQP / Nelder-Mead / coordinate ascent on the raw objective)
+- Population-based global search (CMA-ES, Differential Evolution, Genetic Algorithm --- many parallel candidates with selection)
+- Discrete combinatorial search over a finite candidate set (simulated annealing on subset selection, branch-and-bound, ILP, beam search over partial states)
+- Constructive online insertion (farthest-first / k-center, max-min greedy adding one element at a time, beam search building a configuration step by step)
+- Physics / relaxation methods (Lloyd / centroidal Voronoi tessellation, repulsive force fields, gradient flow with hard-margin barriers, simulated cooling on continuous coordinates)
+- Algebraic / number-theoretic structure (lattice orbits of a Coxeter group, points related by a Mobius / projective map, modular-arithmetic constructions)
+
+The list is illustrative, not exhaustive --- feel free to commit to any class outside the previous attempts, including ones not above.
+
+In the <DESCRIPTION>: name the OLD strategy in one sentence, the NEW strategy you committed to in one sentence, what you removed, and why a clean swap (not incremental tweaks) is the right move now --- what local optimum the old strategy is stuck in and how the new one structurally avoids it.
+
+Key directions to explore:
+1. The optimal arrangement may involve heterogeneous or variable-sized elements
+2. Strong solutions often use hybrid global-local patterns
+3. The optimization routine is critical - use models with carefully tuned parameters
+4. Use scipy optimize, LP, or SLSQP to optimize variables given candidate structures
+\end{lstlisting}
+\end{ttcolorbox}
+
+% The \texttt{\{previous\_attempts\}} placeholder is rendered at runtime as
+% a Markdown bullet list of the top-$K$ distinct \texttt{patch\_name}s by
+% best \texttt{combined\_score} drawn from the run database, prefaced by
+% \textit{``Previously attempted approaches (already explored --- propose
+% something STRUCTURALLY different from ALL of these, not a minor
+% variant)''}.
+
+\subsubsection{Crossover}
+\label{app:prompts:crossover}
+
+
+\begin{ttcolorbox}[Crossover Iteration Prompt]
+\begin{lstlisting}[style=prompt]
+# Current program
+
+Here is the current program we are trying to improve (you will need to propose a new program with the same inputs and outputs as the original program, but with improved internal implementation):
+
+```{language}
+{code_content}
+```
+
+Here are the performance metrics of the program:
+
+{performance_metrics}{text_feedback_section}
+
+# Task
+
+Perform a cross-over between the code script above and the one below. Aim to combine the best parts of both code implementations that improves the score.
+Provide the complete new program code.
+
+IMPORTANT: Make sure your rewritten program maintains the same inputs and outputs as the original program, but with improved internal implementation.
+
+Key directions to explore:
+1. The optimal arrangement may involve heterogeneous or variable-sized elements
+2. Strong solutions often use hybrid global-local patterns
+3. The optimization routine is critical - use models with carefully tuned parameters
+4. Use scipy optimize, LP, or SLSQP to optimize variables given candidate structures
+\end{lstlisting}
+\end{ttcolorbox}
+
+
+\subsubsection{Translocation}
+\label{app:prompts:translocation}
+
+\begin{ttcolorbox}[Translocation Iteration Prompt]
+\begin{lstlisting}[style=prompt]
+# Current program (the "near" parent --- keep its skeleton)
+
+```{language}
+{code_content}
+```
+
+Performance metrics: {performance_metrics}{text_feedback_section}
+
+# Task: trick translocation from a distant relative
+
+Below you will see ONE inspiration program drawn from the archive (a "distant
+relative" --- likely structurally different from the current program). Your job:
+
+1. Read it and pick the ONE trick that is most likely to help the current
+   program --- a specific initialization, refinement step, constraint formulation,
+   numerical detail, or heuristic. Be concrete; name it.
+2. Transplant ONLY that trick into the current program. Keep the rest of the
+   current program intact. Do NOT also fold in other ideas from the donor and
+   do NOT broadly rewrite the recipient.
+3. Adapt naming / signatures so the transplant compiles, but do not refactor
+   surrounding code beyond what the transplant strictly requires.
+
+Argue in the <DESCRIPTION>: which trick, why this one, and why grafting it onto
+the current skeleton is more promising than full crossover.
+
+Key directions to explore:
+1. The optimal arrangement may involve heterogeneous or variable-sized elements
+2. Strong solutions often use hybrid global-local patterns
+3. The optimization routine is critical - use models with carefully tuned parameters
+4. Use scipy optimize, LP, or SLSQP to optimize variables given candidate structures
+\end{lstlisting}
+\end{ttcolorbox}
+
+
+
+
+\section{Identified Programs for Open Problem Solving Tasks}
+\label{app:program}
+
+This appendix summarizes, for each open-problem benchmark, the structure of
+the best program discovered by \ours{}.
+
+\subsection{Circle Packing (Square)}
+\label{app:program:cp}
+
+The best program for the $n{=}26$ unit-square instance is a hybrid global
+optimiser. It maintains both circle centres and radii as decision variables
+and alternates among four ingredients: (i) a $K$-nearest-neighbour radii
+projection that produces a feasible packing in closed form; (ii) an
+active-set LP cutting-plane routine that solves for the maximum feasible
+radii under the current contact graph, with stateful slack counters and an
+annealed tightness $\tau$; (iii) a two-tier simulated-annealing search over
+centre perturbations with adaptive LP lock-ins and an annealed move mix;
+and (iv) periodic SLSQP micro-bursts on a focused subset of circles for
+local contact tightening. Search is launched from a portfolio of
+deterministic seeds, including hexagonal rows, edge rings, corner-weighted
+arrangements, and spokes-plus-concentric-pentagon interiors, each with
+controlled anisotropic jitter and short feasibility probing.
+
+\subsection{Circle Packing (Rectangle)}
+\label{app:program:cprr}
+
+The best program for the $n{=}21$ rectangle-of-perimeter-$4$ instance is a
+deterministic multi-start constructor with a two-stage refinement. It first
+enumerates a dense grid of aspect ratios and a small set of jitter scales,
+generating candidate layouts from several heterogeneous hex-like row
+patterns. Each candidate is feasibility-clamped, and only the top-$K$ seeds
+(ranked by sum of radii, tie-broken by the minimal pairwise slack) advance
+to optimisation. Each surviving seed is then refined by a two-stage SLSQP:
+stage~1 fixes the aspect ratio with tighter bounds, and stage~2 releases the
+aspect ratio so all variables (centres, radii, and aspect) are co-optimised
+under a shrink-only feasibility projection.
+
+\subsection{Heilbronn (Convex)}
+\label{app:program:h13}
+
+The best program for the $n{=}13$ convex-hull instance commits to a
+$C_3$-symmetric parameterisation: one centre point and four concentric
+$3$-orbits (each an equilateral triangle of $3$ points at $120^{\circ}$
+spacing), giving $1{+}4{\times}3=13$ points and only $8$ free parameters
+(four radii via a softplus-ordered map, four phases reduced modulo
+$2\pi/3$). Optimisation is a Coordinate Pattern Search with three custom
+ingredients: (i) $K$-guided weighted co-participation, where the top-$K$
+smallest triangles vote on which ring to perturb next; (ii) a symmetric
+finite-difference $\delta v / \delta r$ sensitivity per ring with adaptive
+$\epsilon$ and a per-sweep cache; and (iii) per-ring adaptive step sizes
+with mild growth on acceptance and targeted shrink after repeated failures.
+The objective is the exact minimum over all $\binom{13}{3}=286$ triangles,
+with hull area normalised by Andrew's monotone chain plus the shoelace
+formula. Search is launched from a deterministic multi-seed pool with a
+short pre-refinement sweep before CPS.
+
+
+\section{Potential Limitations and Broader Impacts}
+
+\label{app:lim}
+
+\textbf{Potential Limitations.} We acknowledge the following limitations of the paper:
+
+(1) \ours\ requires an objective reward signal to guide the search. It has not been tested on subjective evaluation tasks where such signals are difficult to obtain, such as academic writing.
+
+(2) The backward search relies on the policy's ability to decompose problems into meaningful sub-goals. For very weak models, this decomposition capability is limited. 
+
+(3) Due to resource constraints, our post-training experiments use relatively small models up to 8B parameters.
+
+ 
+
+\textbf{Broader Impacts.} Our work proposes a general-purpose search framework for improving the quality of LLM and agent outputs. On the positive side, \ours\ can help models achieve stronger reasoning performance, potentially reducing the need for larger models and their associated computational and environmental costs. The backward search component also improves interpretability by explicitly decomposing problems into verifiable sub-goals, making the search process more transparent. However, more effective search methods could also  enable stronger performance on tasks that could be misused. 

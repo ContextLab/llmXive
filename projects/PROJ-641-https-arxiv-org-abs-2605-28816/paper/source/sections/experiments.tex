@@ -1,0 +1,113 @@
+% \vspace{-3mm}
+\section{Experiments}
+\label{sec:experiments}
+% \vspace{-2mm}
+
+\input{tables/table_1}
+\input{tables/table_2}
+\begin{figure}[t]
+  \centering
+  % \vspace{-12mm}
+  \includegraphics[width=\linewidth,trim={3pt 8pt 3pt 7pt},clip]{figures/sparse_hub_timing_comparison.pdf}
+  % \vspace{-3mm}
+  \caption{Efficiency comparison between dense cross-agent attention and Sparse Hub Attention across 2, 4, and 8 agents. Sparse Hub Attention achieves significantly lower latency and FLOPs as the number of agents increases.}
+  % \vspace{-2mm}
+  \label{fig:sparse-hub-efficiency}
+\end{figure}
+
+
+\begin{figure*}[t]
+  \centering
+  % \vspace{-2mm}
+  \includegraphics[width=\linewidth]{figures/combined_2agent_v7.pdf}
+  % \vspace{-3mm}
+  \caption{Qualitative examples of two-agent interaction. Each row shows a different task. }
+  \label{fig:qualitative-two-agent}
+  % \vspace{-5mm}
+\end{figure*}
+
+
+
+\textbf{Experimental setup.} Implementation details are provided in Appendix~\ref{app:additional_implementation_details}.
+For virtual-game environments, we construct synchronized multi-agent Minecraft trajectories with a data-generation pipeline inspired by SolarisEngine~\cite{savva2026solaris}, using controllable episode scripts, coordinated bots, and aligned visual-action recording.
+The game dataset includes two-agent episodes as the main setting and extends the same collection pipeline to more agents, such as four-agent scenes, enabling evaluation of both pairwise interaction and scalable multi-agent generation.
+We evaluate generation quality with FVD and FID, and measure perceptual and pixel-level quality with LPIPS, PSNR, and SSIM.
+To evaluate scalability, we measure DiT latency, self-attention latency, and self-attention FLOPs as the number of agents changes.
+
+% \vspace{-2mm}
+\subsection{Quantitative Results}
+% \vspace{-2mm}
+\noindent\textbf{Comparison with multi-agent baselines.}
+We compare \ours against two representative baselines for multi-agent world modeling.
+The first is a frame-concatenation baseline, following the Multiverse-style design~\cite{enigma2025introducing_multiverse}, which merges multiple agent views into a single visual stream.
+The second is Solaris~\cite{savva2026solaris}, a multiplayer Minecraft world model that explicitly trains on synchronized player trajectories.
+As shown in Table~\ref{tab:method-comparison}, our method achieves the best overall performance across the evaluation categories, demonstrating the effectiveness of our framework, including order-free agent identity encoding and sparse hub-based interaction.
+Compared with frame concatenation, our model avoids compressing multiple agents into a single undifferentiated visual stream, which leads to more coherent interaction modeling and better preservation of each agent's viewpoint.
+Compared with Solaris, our design further strengthens agent-level correspondence and information exchange, yielding more reliable results in scenarios that require memory, grounding, building, and cross-view consistency.
+These results indicate that multi-agent world modeling benefits from treating agents as distinct but coupled entities rather than simply aggregating their visual observations.
+
+
+\noindent\textbf{Architecture ablations.}
+In Table~\ref{tab:architecture-ablation}, we ablate the main architectural choices in \ours: input organization, agent identity encoding, and cross-agent interaction.
+For input organization, \emph{Spatial Concat} merges agent views into a larger canvas, while \emph{Sequence Concat} preserves each agent as a separate stream.
+Although these designs can behave similarly in the two-agent setting, spatial concatenation becomes increasingly expensive as the number of agents grows because it increases the effective spatial resolution.
+Sequence concatenation keeps the per-agent spatial resolution fixed and is therefore more compatible with variable agent counts.
+Given sequence concatenation, we compare learned \emph{View Embedding} against our \emph{Simplex Rotary Agent Encoding}.
+Simplex Rotary Agent Encoding improves over learned view embeddings by assigning distinct agent identities without imposing a privileged slot order, matching the exchangeability of agents in a shared world.
+Finally, we replace dense cross-agent attention with \emph{Sparse Hub Attention} to test whether agents can communicate through a compact shared state.
+As shown in Table~\ref{tab:architecture-ablation}, the full design, combining sequence-based multi-agent tokenization, Simplex Rotary Agent Encoding, and Sparse Hub Attention, achieves strong visual quality and consistency across FVD, FID, LPIPS, PSNR, and SSIM.
+These ablations support our core design principle: agents should be represented as distinct but exchangeable entities and coupled through an efficient shared interaction pathway.
+
+
+
+\noindent\textbf{Efficiency of Sparse Hub Attention.}
+We further evaluate the efficiency of \emph{Sparse Hub Attention} by comparing it with full cross-agent attention as the number of agents increases.
+This comparison directly tests the motivation in Sec.~\ref{sec:sparse-hub-attention}: dense all-to-all interaction grows quadratically with the number of agents, whereas \emph{Sparse Hub Attention} routes cross-agent information through a compact shared state.
+We report DiT latency, self-attention latency, and self-attention FLOPs in Figure~\ref{fig:sparse-hub-efficiency}. Latency is averaged over 3 full rollouts to 24 latent frames with full KV cache, and FLOPs is computed analytically from the average token sequence length over the 24-latent rollout.
+\emph{Sparse Hub Attention} substantially reduces computation time and FLOPs as the number of agents grows, while dense attention quickly becomes expensive at larger agent counts.
+These results show that \emph{Sparse Hub Attention} provides a practical scaling path for multi-agent world models beyond two players.
+
+
+
+% \vspace{-2mm}
+\subsection{Qualitative Results}
+% \vspace{-2mm}
+We complement the quantitative evaluation with qualitative examples that visualize how the model preserves shared-world consistency across multiple agent viewpoints.
+
+\noindent\textbf{Two-agent interaction.}
+Figure~\ref{fig:qualitative-two-agent} shows two-agent rollouts generated by \ours.
+The paired streams remain synchronized: actions taken by one agent are reflected in the other agent's observation when the agents interact in the shared environment.
+The model also maintains object and agent grounding when agents temporarily move out of each other's field of view, suggesting that it tracks a shared latent world state rather than generating independent single-agent videos.
+
+
+
+\noindent\textbf{Scaling beyond two players.}
+Figure~\ref{fig:qualitative-scaling} shows zero-shot four-agent rollouts from a model trained only on two-agent data.
+The same model generates synchronized visual streams for multiple players without changing the architecture.
+This scaling behavior is enabled by Simplex Rotary Agent Encoding, which avoids fixed learned slot identities, and Sparse Hub Attention, which provides a shared communication pathway without dense pairwise attention.
+The examples indicate that \ours learns coupled multi-agent dynamics rather than independently rolling out each view.
+
+\begin{figure*}[t]
+  \centering
+  % \vspace{-12mm}
+  \includegraphics[width=\linewidth]{figures/4agent_visualization.pdf}
+  % \vspace{-2mm}
+  \caption{Qualitative example of scaling beyond two players. The first frame in each row shows the initial state for one agent, followed by synchronized rollouts across four agents.}
+  \label{fig:qualitative-scaling}
+  % \vspace{-2mm}
+\end{figure*}
+
+\noindent\textbf{Real-world robotics applications.}
+Beyond virtual game environments, we also evaluate \ours on real-world robotics coordination tasks.
+We use the RealOmin-Open Dataset~\cite{genrobot2025opendata}, treating the left and right robot arms as two interacting agents---this lets the same multi-agent world-modeling framework that handles virtual players in Minecraft also capture coordinated bimanual manipulation in physical scenes.
+As shown in Figure~\ref{fig:real-world-robotics}, the model generates future frames that preserve the coordinated motion of multiple robotic agents and the spatial layout of the scene.
+These examples indicate that the same generative multi-agent formulation can extend from virtual games to real-world environments.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/visualization_robo_v2.pdf}
+  % \vspace{-2mm}
+  \caption{Qualitative examples of real-world robotic coordination.}
+  % \vspace{-2mm}
+  \label{fig:real-world-robotics}
+\end{figure*}

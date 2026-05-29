@@ -1,0 +1,50 @@
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\belowcaptionskip}{10pt}%
+  % \vspace{-5mm}
+  \caption{Architecture design. All metrics are averaged over the test scenarios in the game environment.}%
+  \label{tab:architecture-ablation}%
+  % \vspace{-3mm}%
+  \setlength{\tabcolsep}{3.2pt}%
+  \renewcommand{\arraystretch}{1.12}%
+  \resizebox{\linewidth}{!}{%
+    \begin{tabular}{@{}
+        >{\raggedright\arraybackslash}p{2.7cm}
+        >{\centering\arraybackslash}p{2.2cm}
+        >{\centering\arraybackslash}p{2.0cm}
+        >{\centering\arraybackslash}p{1.7cm}
+        *{5}{c}
+        @{}
+      }
+      \toprule
+      \textbf{Setting}
+        & \textbf{Composition}
+        & \textbf{Agent Encoding}
+        & \textbf{Interaction}
+        & FVD $\downarrow$
+        & FID $\downarrow$
+        & LPIPS $\downarrow$
+        & PSNR $\uparrow$
+        & SSIM $\uparrow$ \\
+      \midrule
+      Spatial Concat
+        & Spatial concat & None & Full
+        & $312.4$ & $38.7$ & $0.326$ & $24.8$ & $0.782$ \\
+      Sequence Concat
+        & Sequence concat & None & Full
+        & $285.6$ & $35.2$ & $0.298$ & $25.6$ & $0.798$ \\
+      View Embedding
+        & Sequence concat & View emb. & Full
+        & $256.3$ & $32.4$ & $0.281$ & $26.4$ & $0.815$ \\
+      Simplex Encoding
+        & Sequence concat & Simplex & Full
+        & $228.5$ & \textbf{29.6} & \textbf{0.265} & $27.5$ & $0.830$ \\
+      \textbf{$\gamma$-World (Full)}
+        & Sequence concat & Simplex & Sparse Hub
+        & \textbf{223.4} & $30.2$ & $0.269$ & \textbf{27.7} & \textbf{0.836} \\
+      \bottomrule
+    \end{tabular}%
+  }%
+  % \vspace{-5mm}
+\end{table*}

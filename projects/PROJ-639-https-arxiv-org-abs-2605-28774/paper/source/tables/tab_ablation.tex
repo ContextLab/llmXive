@@ -1,0 +1,38 @@
+\begin{table*}[t]
+    \caption{\textbf{AXPO ablations} on \textbf{Qwen3-VL-8B-Thinking}. Each row removes (or alters) one AXPO design choice from the full method. All rows share the SFT initialization. Best per column is \textbf{bolded}; second-best \underline{underlined}.}
+    \vspace{-0.1in}
+    \label{tab:ablation}
+    \centering
+    \small
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l cc cc cc cc >{\columncolor{mygray}}c>{\columncolor{mygray}}c}
+        \toprule
+        \textbf{Method} &
+        \multicolumn{2}{c}{MathVision} &
+        \multicolumn{2}{c}{V$^{\star}$} &
+        \multicolumn{2}{c}{VisualProbe} &
+        \multicolumn{2}{c}{HR-MMSearch} &
+        \multicolumn{2}{c}{\textbf{Average}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+        SFT + & P@1 & P@4 & P@1 & P@4 & P@1 & P@4 & P@1 & P@4 & \multicolumn{1}{c}{P@1} & \multicolumn{1}{c}{P@4} \\
+        \midrule
+
+        AXPO\,w/o prefix fix (rollout from scratch)
+            & 56.0 & 75.0 & 86.9 & \textbf{96.9} & 43.6 & \textbf{68.9} & \underline{21.9} & 35.7 & \underline{52.1} & \underline{69.1} \\
+        \phantom{AXPO\,}w/\phantom{o} no-tool rollout resampling
+            & 54.9 & 71.4 & \textbf{89.1} & \underline{96.3} & 41.5 & 62.3 & 21.1 & 33.4 & 51.7 & 65.9 \\
+        \phantom{AXPO\,}w/o uncertainty rank
+            & 53.0 & 72.4 & 85.7 & 93.2 & \underline{43.9} & 63.2 & 21.4 & 34.4 & 51.0 & 65.8 \\
+        \phantom{AXPO\,}w/o prefix credit
+            & \underline{57.2} & \textbf{76.6} & 86.3 & 95.3 & 40.6 & 62.3 & 21.6 & \underline{36.7} & 51.4 & 67.7 \\
+        \phantom{AXPO\,}w/o separated advantage group
+            & \textbf{57.7} & \textbf{76.6} & 87.2 & 95.8 & 40.1 & 61.3 & 19.8 & 34.4 & 51.2 & 67.0 \\
+        \midrule
+        \rowcolor{myblue}
+        \textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+            & 56.1 & \underline{75.7} & \underline{87.8} & 95.3 & \textbf{45.8} & \underline{67.9} & \textbf{25.9} & \textbf{42.0} & \textbf{53.9} & \textbf{70.2} \\
+
+        \bottomrule
+    \end{tabular}
+    }
+\end{table*}
