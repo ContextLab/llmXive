@@ -8022,7 +8022,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-29T07:23:42.240127+00:00",
+  "generated_at": "2026-05-29T07:53:14.836116+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -73578,6 +73578,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Linus Pauling (simulated)",
+      "duration_s": 43.495259,
+      "ended_at": "2026-05-29T07:53:11.566678+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "linus-pauling",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-29T07:52:28.071419+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "John von Neumann (simulated)",
@@ -80043,22 +80056,6 @@
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T12:47:06.282385Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 145.6388,
-      "ended_at": "2026-05-17T12:21:01.112518+00:00",
-      "excerpt": "This proposal correctly identifies that 2D connectivity is insufficient for predicting molecular dipole moments. However, the model must explicitly enforce the planarity of the peptide group. The C-N bond length is approximately 1.32 angst\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T12:18:35.473718+00:00"
     }
   ],
   "schema_version": "2.0.0"
