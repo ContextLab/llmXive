@@ -572,17 +572,32 @@ class LLMReviewer:
                 status="fail" if still_open else "pass",
             ))
         # Any new concerns the reviewer surfaced with NO matching prior
-        # id are attached to the first verdict's `new_concerns`. If
-        # there's no prior verdict (corner case), they're dropped — the
-        # engine's contract is "rereview judges only OWN prior concerns".
+        # id are surfaced via a Verdict's `new_concerns` field so the
+        # engine sees them.
         truly_new = [c for c in new_concerns if c.id not in {p.id for p in own_concerns}]
-        if truly_new and verdicts:
-            verdicts[0] = Verdict(
-                concern_id=verdicts[0].concern_id,
-                reviewer=verdicts[0].reviewer,
-                status=verdicts[0].status,
-                new_concerns=truly_new,
-            )
+        if truly_new:
+            if verdicts:
+                verdicts[0] = Verdict(
+                    concern_id=verdicts[0].concern_id,
+                    reviewer=verdicts[0].reviewer,
+                    status=verdicts[0].status,
+                    new_concerns=truly_new,
+                )
+            else:
+                # FR-012 accepter re-review: this lens raised NO prior
+                # concerns (R1-accepter) but the R2 revision broke its
+                # lens, so it surfaces NEW breakage here. There is no
+                # prior verdict to attach them to — emit a synthetic
+                # FAIL verdict carrying the new concerns so the engine
+                # does NOT converge over silent breakage. (Dropping
+                # these was the bug: the engine could report `converged`
+                # while an accepter's lens was freshly violated.)
+                verdicts.append(Verdict(
+                    concern_id=truly_new[0].id,
+                    reviewer=self._lens,
+                    status="fail",
+                    new_concerns=truly_new,
+                ))
         return verdicts
 
     # --- internal helpers ----------------------------------------------

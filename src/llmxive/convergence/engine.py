@@ -107,19 +107,38 @@ def run_convergence(
         # --- R2: revise (the reviser addresses EVERY open concern) ---
         if spec.reviser is None:
             break  # nothing can resolve the concerns -> kickback
+        prev_artifacts = artifacts
         new_arts, responses = spec.reviser.revise(artifacts, list(open_concerns))
         artifacts = {**artifacts, **new_arts}
         response_history.extend(responses)
         seen = _present(artifacts)
 
-        # --- R3: re-review (each reviewer judges only its OWN concerns) ---
-        # An R1-accepter (no own concerns) does not re-review; dissenters always do.
+        # Which artifact keys did R2 actually change? (FR-012: an
+        # R1-accepter re-reviews ONLY if R2 changed an artifact relevant
+        # to its lens.) Every panel lens reviews the whole artifact set
+        # (there is no per-lens artifact restriction), so "relevant to
+        # its lens" == "any artifact content changed". When R2 is a
+        # no-op (nothing changed), accepters are skipped — no wasted
+        # re-reviews, satisfying the design's optimization.
+        r2_changed_artifacts = any(
+            prev_artifacts.get(k) != v for k, v in new_arts.items()
+        )
+
+        # --- R3: re-review ---
+        # Dissenters (panelists with open concerns) ALWAYS re-review,
+        # judging their OWN concerns against the R2 change-log. An
+        # R1-accepter (no open concerns this round) re-reviews ONLY when
+        # R2 changed an artifact — to catch NEW breakage the revision
+        # introduced in its lens (FR-012 "no new breakage"). Without
+        # this, a revision made to satisfy a dissenter could silently
+        # violate an accepter's lens and the engine would still report
+        # `converged`.
         round_verdicts: list[Verdict] = []
         next_open: list[Concern] = []
         for r in panel:
             own = [c for c in open_concerns if c.reviewer == r.name]
-            if not own:
-                continue
+            if not own and not r2_changed_artifacts:
+                continue  # accepter + nothing changed -> no wasted re-review
             own_responses = [resp for resp in responses
                              if any(resp.concern_id == c.id for c in own)]
             verdicts = r.rereview(seen, own, own_responses,

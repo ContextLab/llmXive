@@ -146,6 +146,55 @@ def test_new_concern_in_r3_is_tracked_and_resolved():
     assert any(c.id == "c2" for c in res.concern_history)
 
 
+class _NoOpReviser:
+    """Reviser that returns artifacts UNCHANGED (R2 made no edits).
+    Proves accepters are NOT re-reviewed when nothing changed (FR-012
+    'no wasted re-reviews')."""
+
+    def __init__(self):
+        self.calls = 0
+
+    def revise(self, artifacts, concerns):
+        self.calls += 1
+        return dict(artifacts), [
+            ConcernResponse(concern_id=c.id, response="no edit", what_changed="none")
+            for c in concerns
+        ]
+
+
+def test_accepter_rereviews_when_r2_changed_artifact_catches_silent_breakage():
+    """FR-012: an R1-accepter MUST re-review when R2 changed an artifact,
+    to catch NEW breakage the revision introduced in its lens. Lens A
+    (dissenter) raises c1 which the reviser resolves in round 1; lens B
+    accepted in R1 but the R2 edit broke B's lens, so B surfaces a new
+    concern on re-review. The engine must NOT silently converge round 1.
+
+    Regression: before the fix the engine did `if not own: continue`,
+    skipping ALL accepters, so B never re-reviewed and the engine
+    reported `converged` over the silent breakage."""
+    dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A")])  # passes round 1
+    breakage = _c("b1", reviewer="B", sev=Severity.METHODOLOGY)
+    accepter = FakeReviewer(name="B", r1=[], add_in_round={1: [breakage]})
+    res = run_convergence(
+        _spec([dissenter, accepter], FakeReviser(), max_rounds=3), {"a.md": "x"})
+    assert accepter.rereview_calls >= 1   # re-reviewed (would be 0 without the fix)
+    assert any(c.id == "b1" for c in res.concern_history)  # breakage caught
+    assert res.rounds_used >= 2           # not silently converged in round 1
+
+
+def test_accepter_not_rereviewed_when_r2_is_noop():
+    """FR-012 optimization: when R2 changes NOTHING, an R1-accepter is
+    NOT re-reviewed (no wasted re-reviews). A no-op reviser can't resolve
+    the dissenter's concern, so the engine kicks back at the cap WITHOUT
+    ever re-reviewing the accepter."""
+    dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A")], pass_at={"c1": 99})
+    accepter = FakeReviewer(name="B", r1=[])
+    res = run_convergence(
+        _spec([dissenter, accepter], _NoOpReviser(), max_rounds=3), {"a.md": "x"})
+    assert accepter.rereview_calls == 0   # never re-reviewed (nothing changed)
+    assert res.converged is False
+
+
 def test_exempt_stage_raises():
     with pytest.raises(ValueError):
         run_convergence(_spec([FakeReviewer(r1=[])], FakeReviser(), exempt=True), {"a.md": "x"})
