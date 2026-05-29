@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-05-29T13:38:09.000543+00:00'
-last_outcome: librarian_held
+last_used: rosalind-franklin
+last_used_at: '2026-05-29T15:05:34.983041+00:00'
+last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-20T19:00:21.689449+00:00'
-  ended_at: '2026-05-20T20:44:00.667366+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/_held/freeman-dyson-simulated__2026-05-20__research.md
 - slug: freeman-dyson
   started_at: '2026-05-20T20:44:00.667366+00:00'
   ended_at: '2026-05-20T21:35:13.397998+00:00'
@@ -1189,3 +1182,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/_held/rosalind-franklin-simulated__2026-05-29__paper.md
+- slug: rosalind-franklin
+  started_at: '2026-05-29T13:38:09.000543+00:00'
+  ended_at: '2026-05-29T15:05:34.983041+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-05-29__paper.md
