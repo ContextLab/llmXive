@@ -7,11 +7,11 @@ those declarations.
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from llmxive.backends.base import (
-    BaseBackend,
     BackendError,
+    BaseBackend,
     ChatMessage,
     ChatResponse,
     PermanentBackendError,
@@ -20,7 +20,6 @@ from llmxive.backends.base import (
 from llmxive.backends.dartmouth import DartmouthBackend
 from llmxive.backends.huggingface import HuggingFaceBackend
 from llmxive.backends.local import LocalBackend
-
 
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
@@ -63,9 +62,11 @@ def chat_with_fallback(
 ) -> ChatResponse:
     """Try default backend; on TransientBackendError, walk the fallback chain.
 
-    If `max_tokens` is None we default to 8192 — Spec Kit agents (Tasker,
-    Specifier, Planner, paper-writers) frequently exceed the per-model
-    silent default (often 1024) and produce truncated output otherwise.
+    If `max_tokens` is None we default to 131072 (128K) — Spec Kit agents
+    (Tasker, Specifier, Planner, paper-writers) frequently exceed the
+    per-model silent default (often 1024) and produce truncated output
+    otherwise. qwen3.5-122b's real context is 256K (verified 2026-05-29
+    via the Dartmouth model registry), so 128K leaves ample input room.
 
     Per backend, retries the requested `model` 3x. On persistent
     transient errors, tries each model in MODEL_FALLBACKS[model] (1
