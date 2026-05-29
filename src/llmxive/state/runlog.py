@@ -14,6 +14,7 @@ from pathlib import Path
 
 from jsonschema import ValidationError
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
 from llmxive.types import RunLogEntry
 
@@ -23,7 +24,7 @@ def _state_root() -> Path:
 
     Resolved relative to this file (src/llmxive/state/runlog.py → repo/state).
     """
-    return Path(__file__).resolve().parent.parent.parent.parent / "state"
+    return _repo_root() / "state"
 
 
 class CostInvariantError(RuntimeError):

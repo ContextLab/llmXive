@@ -22,6 +22,7 @@ import yaml
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
     AgentRegistryEntry,
@@ -65,7 +66,7 @@ class ResearchReviewerAgent(Agent):
         super().__init__(registry_entry)
 
     def _project_dir(self, ctx: AgentContext) -> Path:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         return repo / "projects" / ctx.project_id
 
     def _feature_dir(self, project_dir: Path) -> Path | None:
@@ -84,7 +85,7 @@ class ResearchReviewerAgent(Agent):
         return candidates[0]
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = self._project_dir(ctx)
         feature_dir = self._feature_dir(project_dir)
         if feature_dir is None:
@@ -134,7 +135,7 @@ class ResearchReviewerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         text = response.text.strip()
         match = _FRONTMATTER_RE.match(text)
         if not match:

@@ -22,6 +22,8 @@ from pathlib import Path
 
 import yaml
 
+from llmxive.config import repo_root as _config_repo_root
+
 SCHEMA_VERSION = 1
 
 
@@ -39,7 +41,7 @@ def is_arxiv_intake(project_dir: Path) -> bool:
 def _repo_root(repo_root: Path | None) -> Path:
     if repo_root is not None:
         return Path(repo_root)
-    return Path(__file__).resolve().parents[3]
+    return _config_repo_root()
 
 
 def _arxiv_id_for(project_id: str, *, repo_root: Path) -> str:

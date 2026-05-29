@@ -24,6 +24,7 @@ from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import chat_with_fallback
+from llmxive.config import repo_root as _repo_root
 from llmxive.state import citations as citations_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
@@ -397,7 +398,7 @@ class PaperReviewerAgent(Agent):
         super().__init__(registry_entry)
 
     def _project_dir(self, ctx: AgentContext) -> Path:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         return repo / "projects" / ctx.project_id
 
     def _paper_feature_dir(self, project_dir: Path) -> Path | None:
@@ -414,7 +415,7 @@ class PaperReviewerAgent(Agent):
         return candidates[0]
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = self._project_dir(ctx)
         paper_dir = project_dir / "paper"
         feature_dir = self._paper_feature_dir(project_dir)
@@ -580,7 +581,7 @@ class PaperReviewerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         text = response.text.strip()
         match = _FRONTMATTER_RE.match(text)
         if not match:

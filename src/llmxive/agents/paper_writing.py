@@ -17,6 +17,7 @@ import yaml
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
@@ -28,7 +29,7 @@ class PaperWritingAgent(Agent):
     """Handles [kind:prose] tasks routed by the Paper-Implementer dispatcher."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = repo / "projects" / ctx.project_id
         paper_dir = project_dir / "paper"
 
@@ -71,7 +72,7 @@ class PaperWritingAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = parse_yaml_lenient(response.text)
         except yaml.YAMLError as exc:

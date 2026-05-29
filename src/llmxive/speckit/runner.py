@@ -22,9 +22,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parent.parent.parent.parent
+from llmxive.config import repo_root as _repo_root
 
 
 def _meta_scripts_dir() -> Path:

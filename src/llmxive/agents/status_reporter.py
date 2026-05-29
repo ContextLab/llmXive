@@ -25,6 +25,7 @@ from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import STAGE_ADVANCEMENT_RATE_WINDOW_DAYS
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
 from llmxive.state import project as project_store
 
@@ -180,7 +181,7 @@ def regenerate_web_data(*, repo_root: Path | None = None) -> Path:
     """
     from llmxive import web_data
 
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     # Fire the living-document recompile auto-trigger BEFORE rebuilding the
     # web payload, so any Discussion-source updates are reflected. Wrapped
     # so a recompile fault can never block web-data regeneration.
@@ -195,7 +196,7 @@ class StatusReporterAgent(Agent):
     """End-of-run summary writer + web/data regenerator."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         metrics = _collect_run_metrics(repo)
         # Cache metrics on ctx for handle_response to reuse.
         ctx.metadata["_metrics_json"] = json.dumps(metrics, sort_keys=True)
@@ -216,7 +217,7 @@ class StatusReporterAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
 
         # Regenerate web/data/projects.json regardless of LLM output.
         web_data_path = regenerate_web_data(repo_root=repo)

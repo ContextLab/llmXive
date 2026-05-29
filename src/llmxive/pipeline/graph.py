@@ -37,6 +37,7 @@ from llmxive.agents.project_initializer import (
 )
 from llmxive.agents.research_reviewer import ResearchReviewerAgent
 from llmxive.agents.runner import run_agent
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.implement_cmd import ImplementerAgent
 from llmxive.speckit.paper_clarify_cmd import PaperClarifierAgent
@@ -237,7 +238,7 @@ def run_one_step(
     Returns the updated project. Raises if no agent is wired for the
     project's current stage.
     """
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     run_id = run_id or str(uuid4())
 
     agent_name = STAGE_TO_AGENT.get(project.current_stage)

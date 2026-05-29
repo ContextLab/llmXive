@@ -19,6 +19,7 @@ import yaml
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 
 
 def _read_optional(path: Path) -> str:
@@ -59,7 +60,7 @@ class LatexBuildAgent(Agent):
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         # Mode B prompt — invoked only when the build fails.
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         error_log = ctx.metadata.get("error_log", "")
         system = render_prompt(
             "agents/prompts/latex_build.md",
@@ -77,7 +78,7 @@ class LatexBuildAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = yaml.safe_load(response.text)
         except yaml.YAMLError as exc:
@@ -103,7 +104,7 @@ def build_paper(
     repo_root: Path | None = None,
 ) -> dict[str, object]:
     """Mechanical build entry point. Returns a result dict with stdout/stderr."""
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     paper_dir = repo / "projects" / project_id / "paper"
     source_dir = paper_dir / "source"
     pdf_dir = paper_dir / "pdf"
@@ -133,7 +134,7 @@ class LatexFixAgent(Agent):
     """Repairs LaTeX compile failures by editing .tex sources."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = repo / "projects" / ctx.project_id
         paper_dir = project_dir / "paper"
         summary_path = paper_dir / ".specify" / "memory" / "latex_build_failure.yaml"
@@ -166,7 +167,7 @@ class LatexFixAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = yaml.safe_load(response.text)
         except yaml.YAMLError as exc:

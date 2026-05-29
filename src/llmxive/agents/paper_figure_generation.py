@@ -15,6 +15,7 @@ import yaml
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 
 
 def _read_optional(path: Path) -> str:
@@ -36,7 +37,7 @@ class PaperFigureGenerationAgent(Agent):
     """Handles [kind:figure] tasks routed by the Paper-Implementer dispatcher."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = repo / "projects" / ctx.project_id
         paper_dir = project_dir / "paper"
 
@@ -79,7 +80,7 @@ class PaperFigureGenerationAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = yaml.safe_load(response.text)
         except yaml.YAMLError as exc:

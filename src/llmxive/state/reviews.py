@@ -20,6 +20,7 @@ from pathlib import Path
 
 import yaml
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
 from llmxive.types import ReviewRecord
 
@@ -42,7 +43,7 @@ def _path_for(
     review_type: str,
     repo_root: Path | None = None,
 ) -> Path:
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     base = repo / "projects" / project_id
     sub = "reviews/research" if stage == "research" else "paper/reviews"
     return base / sub / f"{reviewer_name}__{date_iso}__{review_type}.md"
@@ -100,7 +101,7 @@ def list_for(
     stage: str,
     repo_root: Path | None = None,
 ) -> list[ReviewRecord]:
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     base = repo / "projects" / project_id
     sub = "reviews/research" if stage == "research" else "paper/reviews"
     review_dir = base / sub

@@ -57,6 +57,7 @@ from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
 from llmxive.agents.lifecycle import is_valid_transition
+from llmxive.config import repo_root as _repo_root
 
 # Spec 015 T041 / FR-019: the RESEARCH_ACCEPT_THRESHOLD / PAPER_ACCEPT_THRESHOLD
 # point gates were removed; advancement no longer reads any point threshold from
@@ -463,10 +464,10 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
             spec_dir = kickback_to_revision_spec(
                 kb,
                 project_id=project.id,
-                repo_root=repo_root or Path(__file__).resolve().parents[3],
+                repo_root=repo_root or _repo_root(),
             )
             rel = spec_dir.relative_to(
-                repo_root or Path(__file__).resolve().parents[3]
+                repo_root or _repo_root()
             )
             return project.model_copy(update={
                 "current_stage": Stage.RESEARCH_REVIEW,
@@ -559,7 +560,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 from_legacy_severity,
                 worst_severity,
             )
-            project_dir = (repo_root or Path(__file__).resolve().parents[3]) / "projects" / project.id
+            project_dir = (repo_root or _repo_root()) / "projects" / project.id
             if is_arxiv_intake(project_dir):
                 # Preserve the upstream_feedback annotation for diagnostics
                 # but DON'T short-circuit to PAPER_ACCEPTED. Fall through
@@ -612,7 +613,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     "routing via engine adapter."
                 ),
             )
-            repo = repo_root or Path(__file__).resolve().parents[3]
+            repo = repo_root or _repo_root()
             spec_dir = kickback_to_revision_spec(
                 kb,
                 project_id=project.id,

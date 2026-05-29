@@ -14,6 +14,7 @@ import yaml
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
@@ -36,7 +37,7 @@ class ProofreaderAgent(Agent):
     """Handles [kind:proofread] tasks. Also runs as a precondition gate."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = repo / "projects" / ctx.project_id
         paper_dir = project_dir / "paper"
         source_dir = paper_dir / "source"
@@ -61,7 +62,7 @@ class ProofreaderAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = parse_yaml_lenient(response.text)
         except yaml.YAMLError as exc:
@@ -87,7 +88,7 @@ class ProofreaderAgent(Agent):
 
 def proofreader_clean(project_id: str, *, repo_root: Path | None = None) -> bool:
     """Return True iff the most recent proofreader run had an empty flag list."""
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     flags_path = (
         repo
         / "projects"

@@ -20,6 +20,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from llmxive.config import repo_root as _repo_root
+
 from . import normalize_authors, normalize_figures, normalize_references
 
 DOCUMENTCLASS_RE = re.compile(r"\\documentclass(?:\[[^\]]*\])?\{[^}]+\}")
@@ -34,7 +36,7 @@ USEPKG_RE = re.compile(
 # the legacy module can't be imported (e.g. invoked from a tarball).
 try:
     import importlib.util as _iu
-    _legacy_path = Path(__file__).resolve().parents[4] / "scripts" / "restyle_arxiv_paper.py"
+    _legacy_path = _repo_root() / "scripts" / "restyle_arxiv_paper.py"
     _spec = _iu.spec_from_file_location("_legacy_restyle", _legacy_path)
     _legacy = _iu.module_from_spec(_spec)
     _spec.loader.exec_module(_legacy)  # type: ignore

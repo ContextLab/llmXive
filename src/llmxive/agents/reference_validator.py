@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.state import citations as citations_store
 from llmxive.types import (
     Citation,
@@ -152,7 +153,7 @@ def validate_artifact(
     # Lazy import — citation_fetcher pulls httpx and (optionally) arxiv.
     import sys
 
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     if str(repo) not in sys.path:  # pragma: no cover — defensive
         sys.path.insert(0, str(repo))
     from agents.tools.citation_fetcher import fetch_citation

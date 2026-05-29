@@ -12,6 +12,7 @@ from pathlib import Path
 
 import yaml
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.types import Lock
 
 
@@ -20,7 +21,7 @@ class LockError(RuntimeError):
 
 
 def _state_root() -> Path:
-    return Path(__file__).resolve().parent.parent.parent.parent / "state"
+    return _repo_root() / "state"
 
 
 def _lock_path(project_id: str, *, repo_root: Path | None = None) -> Path:

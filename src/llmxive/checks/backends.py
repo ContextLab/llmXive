@@ -13,15 +13,15 @@ from __future__ import annotations
 
 import os
 import sys
-from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
 from llmxive.backends import router as backend_router
 from llmxive.backends.base import BackendError
+from llmxive.config import repo_root as _repo_root
 
 
 def main() -> int:
-    repo = Path(__file__).resolve().parent.parent.parent.parent
+    repo = _repo_root()
     try:
         reg = registry_loader.load(repo_root=repo)
     except Exception as exc:

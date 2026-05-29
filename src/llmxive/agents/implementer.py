@@ -39,6 +39,7 @@ from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import load_prompt, render_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
+from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline import authors as authors_module
 from llmxive.state import project as project_state
 from llmxive.state import revision_history as rh_state
@@ -321,7 +322,7 @@ class LLMXiveImplementer(Agent):
         outputs: list[str] = []
         backend_used = self.entry.default_backend
         model_used = self.entry.default_model
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
 
         try:
             project = project_state.load(ctx.project_id, repo_root=repo)

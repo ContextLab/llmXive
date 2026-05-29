@@ -21,6 +21,7 @@ import yaml
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.backends.base import ChatMessage
+from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline import post_paper_appendix
 from llmxive.pipeline import zenodo as zenodo_module
 from llmxive.pipeline.authors import list_authors
@@ -202,7 +203,7 @@ class PaperPublisher(Agent):
         outputs: list[str] = []
         backend_used = BackendName.DARTMOUTH
         model_used = "deterministic-no-llm"
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         ended = started  # default; reassigned on success
 
         try:

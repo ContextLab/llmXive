@@ -19,6 +19,7 @@ import yaml
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
@@ -41,7 +42,7 @@ def _gather_atomization_tree(project_id: str, parent_task_id: str, *, repo_root:
 
 class TaskJoinerAgent(Agent):
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         parent_task_id = ctx.metadata.get("parent_task_id", ctx.task_id)
         tree = _gather_atomization_tree(
             ctx.project_id, parent_task_id, repo_root=repo
@@ -80,7 +81,7 @@ class TaskJoinerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = parse_yaml_lenient(response.text)
         except yaml.YAMLError as exc:

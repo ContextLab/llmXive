@@ -18,8 +18,10 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator, ValidationError
 
+from llmxive.config import repo_root as _repo_root
+
 CONTRACTS_DIR: Path = (
-    Path(__file__).resolve().parent.parent.parent
+    _repo_root()
     / "specs"
     / "001-agentic-pipeline-refactor"
     / "contracts"

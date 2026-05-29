@@ -21,9 +21,8 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 import yaml
@@ -121,8 +120,8 @@ class TestRedaction:
 class TestAtomicWrite:
     def test_capture_writes_then_reads_back_equal(self, tmp_path: Path) -> None:
         from llmxive.speckit._inspection import capture
-        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=timezone.utc)
-        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=timezone.utc)
+        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=UTC)
+        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=UTC)
         out = capture(
             project_id="PROJ-TEST-foo", agent_name="specifier",
             agent_version="1.0.0", model="m", backend="dartmouth",
@@ -141,8 +140,8 @@ class TestAtomicWrite:
 
     def test_capture_overwrites_cleanly_on_rerun(self, tmp_path: Path) -> None:
         from llmxive.speckit._inspection import capture
-        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=timezone.utc)
-        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=timezone.utc)
+        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=UTC)
+        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=UTC)
         base_kwargs = dict(
             project_id="PROJ-TEST-foo", agent_name="specifier",
             agent_version="1.0.0", model="m", backend="dartmouth",
@@ -163,8 +162,8 @@ class TestAtomicWrite:
             capture(
                 project_id="x", agent_name="specifier", agent_version="1.0.0",
                 model="m", backend="dartmouth",
-                started_at=datetime(2026, 5, 17, tzinfo=timezone.utc),
-                ended_at=datetime(2026, 5, 17, tzinfo=timezone.utc),
+                started_at=datetime(2026, 5, 17, tzinfo=UTC),
+                ended_at=datetime(2026, 5, 17, tzinfo=UTC),
                 outcome="banana", prompts={"system": "", "user": ""},
                 raw_response="", parsed_output={}, file_diffs=[],
                 reset_artifacts=[], error=None, spec_root=tmp_path,
@@ -176,8 +175,8 @@ class TestAtomicWrite:
             capture(
                 project_id="x", agent_name="specifier", agent_version="1.0.0",
                 model="m", backend="dartmouth",
-                started_at=datetime(2026, 5, 17, tzinfo=timezone.utc),
-                ended_at=datetime(2026, 5, 17, tzinfo=timezone.utc),
+                started_at=datetime(2026, 5, 17, tzinfo=UTC),
+                ended_at=datetime(2026, 5, 17, tzinfo=UTC),
                 outcome="failed", prompts={"system": "", "user": ""},
                 raw_response="", parsed_output={}, file_diffs=[],
                 reset_artifacts=[], error=None, spec_root=tmp_path,
@@ -206,8 +205,8 @@ class TestInspectionHook:
         )
 
     def test_hook_writes_when_env_set(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-        from llmxive.speckit.slash_command import _maybe_write_inspection
         from llmxive.backends.base import ChatMessage
+        from llmxive.speckit.slash_command import _maybe_write_inspection
         from llmxive.types import BackendName, Outcome
 
         insp_dir = tmp_path / "inspections" / "PROJ-TEST-hook"
@@ -215,8 +214,8 @@ class TestInspectionHook:
         monkeypatch.setenv("LLMXIVE_INSPECTION_DIR", str(insp_dir))
 
         ctx = self._ctx(tmp_path)
-        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=timezone.utc)
-        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=timezone.utc)
+        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=UTC)
+        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=UTC)
         _maybe_write_inspection(
             ctx=ctx, started=started, ended=ended,
             outcome=Outcome.SUCCESS, failure_reason=None,
@@ -235,14 +234,14 @@ class TestInspectionHook:
         assert rec["raw_response"] == "resp"
 
     def test_hook_no_op_when_env_unset(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-        from llmxive.speckit.slash_command import _maybe_write_inspection
         from llmxive.backends.base import ChatMessage
+        from llmxive.speckit.slash_command import _maybe_write_inspection
         from llmxive.types import BackendName, Outcome
 
         monkeypatch.delenv("LLMXIVE_INSPECTION_DIR", raising=False)
         ctx = self._ctx(tmp_path)
-        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=timezone.utc)
-        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=timezone.utc)
+        started = datetime(2026, 5, 17, 12, 0, 0, tzinfo=UTC)
+        ended = datetime(2026, 5, 17, 12, 0, 5, tzinfo=UTC)
         _maybe_write_inspection(
             ctx=ctx, started=started, ended=ended,
             outcome=Outcome.SUCCESS, failure_reason=None,
@@ -288,7 +287,7 @@ class TestDiffLeakGuard:
 
 class TestTemplateOnlyGuard:
     def test_template_guard_rejects_template_only_spec(self, tmp_path: Path) -> None:
-        from llmxive.speckit._real_only_guard import assert_real_or_raise, TemplateRefused
+        from llmxive.speckit._real_only_guard import TemplateRefused, assert_real_or_raise
         template_path = REPO_ROOT / ".specify" / "templates" / "spec-template.md"
         if not template_path.is_file():
             pytest.skip(f"template not at {template_path}")
@@ -311,8 +310,8 @@ class TestClarifierEchoRejection:
         # existing spec.md with one [NEEDS CLARIFICATION: ...] marker.
         # Then invoke ClarifierAgent.write_artifacts with a synthetic
         # response that "resolves" by echoing the question verbatim.
-        from llmxive.speckit.clarify_cmd import ClarifierAgent, CLARIFY_MARKER_RE
         from llmxive.backends.base import ChatResponse
+        from llmxive.speckit.clarify_cmd import CLARIFY_MARKER_RE, ClarifierAgent
         from llmxive.speckit.slash_command import SlashCommandContext
         from llmxive.types import BackendName
 
@@ -435,67 +434,145 @@ def _has_dartmouth_key() -> bool:
         return False
 
 
+# Source project we clone to seed the synthetic repo (its idea/ note + the
+# per-project .specify/ Spec Kit scaffold are real Phase-2 outputs). We do
+# NOT mutate it — everything happens under a tmp_path copy.
+_SEED_SOURCE_PID = "PROJ-261-evaluating-the-impact-of-code-duplicatio"
+
+
+def _seed_synthetic_repo(tmp_path: Path) -> tuple[Path, str]:
+    """Build a committed, hermetic synthetic llmXive repo under ``tmp_path``.
+
+    Copies the repo-root DATA the Phase-3 pipeline reads (contract schemas,
+    the agent registry + prompts + templates, the top-level Spec Kit
+    scaffold) plus one fresh project seeded at ``project_initialized`` —
+    modeled on a real project's structure — then git-inits + commits so
+    validate_phase3's no-uncommitted-changes preflight passes.
+
+    Returns ``(repo_root, synthetic_pid)``. Nothing is written to the real
+    repo; ``tmp_path`` is auto-cleaned by pytest.
+    """
+    import shutil
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    # 1) Repo-root data the pipeline + config need.
+    shutil.copytree(REPO_ROOT / "agents", repo / "agents")
+    shutil.copytree(
+        REPO_ROOT / "specs" / "001-agentic-pipeline-refactor" / "contracts",
+        repo / "specs" / "001-agentic-pipeline-refactor" / "contracts",
+    )
+    shutil.copytree(REPO_ROOT / ".specify", repo / ".specify")
+    # web/about.html is optional (config falls back to documented defaults),
+    # but copy it when present so threshold parsing matches production.
+    about = REPO_ROOT / "web" / "about.html"
+    if about.is_file():
+        (repo / "web").mkdir(parents=True, exist_ok=True)
+        shutil.copy2(about, repo / "web" / "about.html")
+
+    # 2) Seed one fresh project from a real one (its idea/ + .specify/
+    #    scaffold are genuine Phase-2 artifacts). Use a non-colliding PID.
+    # Must satisfy the project-state schema id pattern ^PROJ-\d{3,}-[a-z0-9-]+$.
+    # Lives only inside the throwaway tmp repo, so the number need not be
+    # globally unique in the real repo.
+    synthetic_pid = "PROJ-999-phase3-specify-clarify-hermetic-e2e"
+    src_proj = REPO_ROOT / "projects" / _SEED_SOURCE_PID
+    dst_proj = repo / "projects" / synthetic_pid
+    shutil.copytree(src_proj, dst_proj)
+    # Start clean at the Phase-3 entry stage: drop any generated specs/ and
+    # reviews/, and the per-project memory state files that record later
+    # stages (the create-new-feature.sh scaffold + idea/ stay).
+    for sub in ("specs", "reviews"):
+        if (dst_proj / sub).is_dir():
+            shutil.rmtree(dst_proj / sub)
+    for stale in (
+        "research_question_validated.yaml",
+        "tasker_rounds.yaml",
+    ):
+        leftover = dst_proj / ".specify" / "memory" / stale
+        if leftover.is_file():
+            leftover.unlink()
+    if (dst_proj / "activity.jsonl").is_file():
+        (dst_proj / "activity.jsonl").unlink()
+
+    # 3) Fresh state YAML at project_initialized (modeled on the real schema).
+    now = datetime.now(UTC).isoformat()
+    state = {
+        "id": synthetic_pid,
+        "title": "Evaluating the Impact of Code Duplication on LLM Code Understanding",
+        "field": "computer science",
+        "current_stage": "project_initialized",
+        "points_research": {},
+        "points_paper": {},
+        "artifact_hashes": {},
+        "assigned_agent": None,
+        "created_at": now,
+        "updated_at": now,
+        "failed_stage": None,
+        "human_escalation_reason": None,
+        "last_run_id": None,
+        "last_run_status": None,
+        "revision_round": 0,
+        "revision_spec_path": None,
+        "speckit_paper_dir": None,
+        "speckit_research_dir": None,
+    }
+    state_path = repo / "state" / "projects" / f"{synthetic_pid}.yaml"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(yaml.safe_dump(state, sort_keys=True), encoding="utf-8")
+
+    # 4) git init + commit so the no-uncommitted-changes preflight passes.
+    git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+    subprocess.run(["git", "init", "-q"], cwd=str(repo), check=True)
+    subprocess.run([*git, "add", "-A"], cwd=str(repo), check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "seed"], cwd=str(repo), check=True)
+
+    return repo, synthetic_pid
+
+
 @pytest.mark.skipif(
-    not _has_dartmouth_key(),
-    reason="real-call test — requires Dartmouth key in env or ~/.config/llmxive/credentials.toml",
+    os.environ.get("LLMXIVE_REAL_TESTS") != "1" or not _has_dartmouth_key(),
+    reason="real-call test — set LLMXIVE_REAL_TESTS=1 and provide a Dartmouth key "
+    "(env or ~/.config/llmxive/credentials.toml)",
 )
 class TestPhase3EndToEnd:
-    def test_phase3_end_to_end_on_proj_261(self, tmp_path: Path) -> None:
-        """Drive PROJ-261 through Specifier + Clarifier and assert clarified.
+    def test_phase3_end_to_end_hermetic(self, tmp_path: Path) -> None:
+        """Drive a fresh synthetic project through Specifier + Clarifier.
 
-        Rolls PROJ-261 back to project_initialized + removes generated
-        specs/ dir in `finally` so the test is idempotent.
+        Fully decoupled from any live project: a throwaway committed repo is
+        built under ``tmp_path`` (via LLMXIVE_REPO_ROOT override) and driven
+        through real Dartmouth agent calls. No real-repo state is touched.
         """
         from llmxive.state import project as project_store
-        from llmxive.types import Stage
-        import shutil
 
-        pid = "PROJ-261-evaluating-the-impact-of-code-duplicatio"
-        proj_state_pre = project_store.load(pid, repo_root=REPO_ROOT)
-        # This Phase-3 e2e test is DESTRUCTIVE: validate_phase3 only accepts a
-        # project at 'project_initialized', and the `finally` rolls the project
-        # back to that stage (deleting the generated spec.md). Once PROJ-261 has
-        # been carried forward past Phase 3 (e.g. to 'clarified' for Phase 4),
-        # running this would clobber the downstream phase's input. Skip unless
-        # the project is still parked at its Phase-3 entry stage.
-        pre_stage = (
-            proj_state_pre.current_stage.value
-            if hasattr(proj_state_pre.current_stage, "value")
-            else str(proj_state_pre.current_stage)
+        repo, pid = _seed_synthetic_repo(tmp_path)
+
+        env = {**os.environ, "LLMXIVE_REPO_ROOT": str(repo)}
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "validate_phase3.py"),
+                "--repo-root", str(repo),
+                "--project", pid,
+            ],
+            capture_output=True, text=True, cwd=str(repo), env=env, timeout=1500,
         )
-        if pre_stage != "project_initialized":
-            pytest.skip(
-                f"PROJ-261 is at {pre_stage!r}, not 'project_initialized' — it has "
-                "been carried forward past Phase 3; running this destructive e2e "
-                "would clobber the downstream phase input."
-            )
-        try:
-            proc = subprocess.run(
-                [sys.executable, "scripts/validate_phase3.py", "--project", pid],
-                capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=1500,
-            )
-            assert proc.returncode == 0, (
-                f"validate_phase3 exit {proc.returncode}\nstderr:\n{proc.stderr[-2000:]}"
-            )
-            project = project_store.load(pid, repo_root=REPO_ROOT)
-            stage = project.current_stage.value if hasattr(project.current_stage, "value") else str(project.current_stage)
-            assert stage == "clarified", f"final stage is {stage!r}, expected 'clarified'"
-            spec_path = SPEC_DIR / "inspections" / pid / "specifier.json"
-            clar_path = SPEC_DIR / "inspections" / pid / "clarifier.json"
-            assert spec_path.is_file(), f"missing specifier inspection at {spec_path}"
-            assert clar_path.is_file(), f"missing clarifier inspection at {clar_path}"
-        finally:
-            # Roll back state so subsequent runs are deterministic.
-            project = project_store.load(pid, repo_root=REPO_ROOT)
-            project = project.model_copy(update={
-                "current_stage": Stage.PROJECT_INITIALIZED,
-                "speckit_research_dir": None,
-                "updated_at": datetime.now(timezone.utc),
-            })
-            project_store.save(project, repo_root=REPO_ROOT)
-            # Remove generated specs dir
-            specs_dir = REPO_ROOT / "projects" / pid / "specs"
-            if specs_dir.is_dir():
-                for sub in specs_dir.iterdir():
-                    if sub.is_dir():
-                        shutil.rmtree(sub)
+        assert proc.returncode == 0, (
+            f"validate_phase3 exit {proc.returncode}\n"
+            f"stdout:\n{proc.stdout[-2000:]}\nstderr:\n{proc.stderr[-3000:]}"
+        )
+
+        project = project_store.load(pid, repo_root=repo)
+        stage = (
+            project.current_stage.value
+            if hasattr(project.current_stage, "value")
+            else str(project.current_stage)
+        )
+        assert stage == "clarified", f"final stage is {stage!r}, expected 'clarified'"
+
+        insp = repo / "specs" / "011-phase3-specify-clarify-testing" / "inspections" / pid
+        spec_path = insp / "specifier.json"
+        clar_path = insp / "clarifier.json"
+        assert spec_path.is_file(), f"missing specifier inspection at {spec_path}"
+        assert clar_path.is_file(), f"missing clarifier inspection at {clar_path}"

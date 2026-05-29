@@ -14,6 +14,7 @@ from pathlib import Path
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
+from llmxive.config import repo_root as _repo_root
 from llmxive.types import BackendName
 
 # Spec 015 T031 (discrepancy #4) + FR-030: the analyze prompts are now real prompt
@@ -47,7 +48,7 @@ def run_analyze(
     ``constitution_text``, when provided, is included as a panel input so the
     analyzer can flag constitution violations (FR-030).
     """
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     if kind not in ANALYZE_SYSTEM_PROMPT_PATHS:
         raise ValueError(
             f"run_analyze: unknown kind {kind!r}; "

@@ -9,9 +9,30 @@ authoritative thresholds on the about page.
 
 from __future__ import annotations
 
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
+
+
+def repo_root() -> Path:
+    """Resolve the llmXive repository root.
+
+    Honors the ``LLMXIVE_REPO_ROOT`` environment variable when set and
+    non-empty (returning ``Path(env).resolve()``); otherwise falls back to
+    the installed repo root computed from this module's own fixed location
+    (``src/llmxive/config.py`` → ``parent.parent.parent``).
+
+    The env override lets hermetic tests / alternate checkouts redirect all
+    DATA lookups (schemas, prompts, registry, projects, state, constitution,
+    inspections, run-log) to a synthetic root, while the CODE still runs from
+    the installed package. Because this is computed from a fixed location it
+    is depth-independent — callers never need to count ``.parent`` climbs.
+    """
+    env = os.environ.get("LLMXIVE_REPO_ROOT")
+    if env:
+        return Path(env).resolve()
+    return Path(__file__).resolve().parent.parent.parent
 
 # Defaults documented in spec.md / plan.md / research.md.
 DEFAULTS: dict[str, float | int] = {
@@ -42,7 +63,7 @@ _THRESHOLD_RE: re.Pattern[str] = re.compile(
 
 
 def _about_path() -> Path:
-    return Path(__file__).resolve().parent.parent.parent / "web" / "about.html"
+    return repo_root() / "web" / "about.html"
 
 
 @lru_cache(maxsize=1)
@@ -104,4 +125,5 @@ __all__ = [
     "about_page_published",
     "all_keys",
     "get",
+    "repo_root",
 ]
