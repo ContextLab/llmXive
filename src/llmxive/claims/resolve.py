@@ -1,4 +1,4 @@
-"""T014 — Claim resolver dispatch (spec 016, US1).
+"""T014/T032 — Claim resolver dispatch (spec 016, US1/US3).
 
 select_resolver(kind) -> Callable
 resolve(claim, *, backend, model, repo_root) -> Verdict
@@ -7,8 +7,11 @@ NUMERIC / CITATION: real resolution via librarian.verify.resolve_reference
 (existence) + grounding.service.ground_cited_claim (content gate).
 Absence of evidence → NOT_ENOUGH_INFO; source contradicts → REFUTED.
 
-MAGNITUDE / RELATIONAL / CAUSAL / ENTITY_FACT / RESULT: thin honest
-NOT_ENOUGH_INFO stubs; full implementation in US2/US3 (T027/T031/T032).
+MAGNITUDE / RELATIONAL: real resolution via claims.triple (T031/T032).
+CAUSAL: requires a citable supporting source (retrieve+assess); never infers
+  VERIFIED from model text alone; else NOT_ENOUGH_INFO.
+ENTITY_FACT: authoritative-reference entailment (retrieve+assess).
+RESULT: signed receipt verification (T027/US2).
 """
 
 from __future__ import annotations
@@ -156,49 +159,173 @@ def _map_cached_status(cached: dict) -> ClaimStatus:
 
 
 # ---------------------------------------------------------------------------
-# US2/US3 stubs — honest NOT_ENOUGH_INFO (full impl in later tasks)
+# US3 — non-numeric resolvers (T031/T032)
 # ---------------------------------------------------------------------------
 
 def resolve_magnitude(claim: Claim, *, backend: Any, model: str | None,
                       repo_root: Path) -> Verdict:
-    """MAGNITUDE resolver — full implementation deferred to US3 (T031/T032)."""
-    return Verdict(
-        status=ClaimStatus.NOT_ENOUGH_INFO,
-        value=None,
-        evidence={"note": "resolver not yet wired (US2/US3)"},
-        resolver="resolve_magnitude",
-    )
+    """MAGNITUDE (superlative/comparative) resolver — retrieve candidate set → ordering.
+
+    Delegates to ``claims.triple.resolve_superlative``.  Returns VERIFIED if
+    the claimed extremum is supported by a retrieved candidate set, REFUTED if
+    the ordering contradicts it, NOT_ENOUGH_INFO if no source can be retrieved.
+    """
+    from llmxive.claims.triple import resolve_superlative
+    return resolve_superlative(claim, backend=backend, model=model, repo_root=repo_root)
 
 
 def resolve_relational(claim: Claim, *, backend: Any, model: str | None,
                        repo_root: Path) -> Verdict:
-    """RELATIONAL resolver — full implementation deferred to US3 (T031/T032)."""
-    return Verdict(
-        status=ClaimStatus.NOT_ENOUGH_INFO,
-        value=None,
-        evidence={"note": "resolver not yet wired (US2/US3)"},
-        resolver="resolve_relational",
-    )
+    """RELATIONAL (SPO) resolver — decompose → retrieve citable source → entailment.
+
+    Delegates to ``claims.triple.resolve_relational``.  Returns VERIFIED only
+    when a citable source supports the claim; REFUTED if contradicted; else
+    NOT_ENOUGH_INFO.  Never infers VERIFIED from model text alone.
+    """
+    from llmxive.claims.triple import resolve_relational as _triple_resolve_relational
+    return _triple_resolve_relational(claim, backend=backend, model=model,
+                                      repo_root=repo_root)
 
 
 def resolve_causal(claim: Claim, *, backend: Any, model: str | None,
                    repo_root: Path) -> Verdict:
-    """CAUSAL resolver — full implementation deferred to US3 (T032)."""
+    """CAUSAL resolver — requires a citable supporting source; else NOT_ENOUGH_INFO.
+
+    Steps:
+    1. Retrieve a source via librarian (Semantic Scholar / full_text cascade).
+    2. Run entailment: grounded → VERIFIED, contradicted → REFUTED.
+    3. If no source is found OR entailment returns not_found → NOT_ENOUGH_INFO.
+    NEVER returns VERIFIED from model inference alone.
+    """
+    from llmxive.claims.triple import _search_for_source
+    from llmxive.grounding.entailment import assess
+
+    canonical = (claim.canonical or claim.raw_text or "").strip()
+    if not canonical:
+        return Verdict(
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            value=None,
+            evidence={"reason": "empty canonical text"},
+            resolver="resolve_causal",
+        )
+
+    doc = _search_for_source(canonical, backend=backend, model=model,
+                              repo_root=repo_root)
+
+    if doc is None or not doc.readable:
+        return Verdict(
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            value=None,
+            evidence={"reason": "no citable source found for causal claim"},
+            resolver="resolve_causal",
+        )
+
+    verdict = assess(canonical, doc, backend=backend, model=model,
+                     repo_root=repo_root)
+
+    if verdict.status == "grounded":
+        return Verdict(
+            status=ClaimStatus.VERIFIED,
+            value=canonical,
+            evidence={
+                "source_url": doc.final_url,
+                "entailment_status": verdict.status,
+                "entailment_evidence": verdict.evidence,
+            },
+            resolver="resolve_causal",
+        )
+    if verdict.status == "contradicted":
+        return Verdict(
+            status=ClaimStatus.REFUTED,
+            value=None,
+            evidence={
+                "source_url": doc.final_url,
+                "entailment_status": verdict.status,
+                "entailment_evidence": verdict.evidence,
+            },
+            resolver="resolve_causal",
+        )
+
+    # not_found: source retrieved but doesn't address the causal claim
     return Verdict(
         status=ClaimStatus.NOT_ENOUGH_INFO,
         value=None,
-        evidence={"note": "resolver not yet wired (US2/US3)"},
+        evidence={
+            "reason": "source found but does not address causal claim",
+            "source_url": doc.final_url,
+            "entailment_status": verdict.status,
+        },
         resolver="resolve_causal",
     )
 
 
 def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
                         repo_root: Path) -> Verdict:
-    """ENTITY_FACT resolver — full implementation deferred to US3 (T032)."""
+    """ENTITY_FACT resolver — authoritative reference entailment.
+
+    Steps:
+    1. Retrieve a definitional/authoritative source (Wikipedia, S2, arXiv).
+    2. Run entailment: grounded → VERIFIED, contradicted → REFUTED,
+       not_found → NOT_ENOUGH_INFO.
+    NEVER returns VERIFIED from model inference alone.
+    """
+    from llmxive.claims.triple import _search_for_source
+    from llmxive.grounding.entailment import assess
+
+    canonical = (claim.canonical or claim.raw_text or "").strip()
+    if not canonical:
+        return Verdict(
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            value=None,
+            evidence={"reason": "empty canonical text"},
+            resolver="resolve_entity_fact",
+        )
+
+    doc = _search_for_source(canonical, backend=backend, model=model,
+                              repo_root=repo_root)
+
+    if doc is None or not doc.readable:
+        return Verdict(
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            value=None,
+            evidence={"reason": "no authoritative source found for entity claim"},
+            resolver="resolve_entity_fact",
+        )
+
+    verdict = assess(canonical, doc, backend=backend, model=model,
+                     repo_root=repo_root)
+
+    if verdict.status == "grounded":
+        return Verdict(
+            status=ClaimStatus.VERIFIED,
+            value=canonical,
+            evidence={
+                "source_url": doc.final_url,
+                "entailment_status": verdict.status,
+                "entailment_evidence": verdict.evidence,
+            },
+            resolver="resolve_entity_fact",
+        )
+    if verdict.status == "contradicted":
+        return Verdict(
+            status=ClaimStatus.REFUTED,
+            value=None,
+            evidence={
+                "source_url": doc.final_url,
+                "entailment_status": verdict.status,
+                "entailment_evidence": verdict.evidence,
+            },
+            resolver="resolve_entity_fact",
+        )
+
     return Verdict(
         status=ClaimStatus.NOT_ENOUGH_INFO,
         value=None,
-        evidence={"note": "resolver not yet wired (US2/US3)"},
+        evidence={
+            "reason": "source found but does not address entity claim",
+            "source_url": doc.final_url,
+            "entailment_status": verdict.status,
+        },
         resolver="resolve_entity_fact",
     )
 
