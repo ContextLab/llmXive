@@ -96,20 +96,92 @@ def extract_value(
 def _offline_numeric_lookup(source: FetchedSource, claim: Claim) -> str | None:
     """Attempt a direct numeric lookup without an LLM (best-effort, offline).
 
-    For OEIS b-file–style text ("n value\\n…"), searches for a row matching the
-    claim's resolved_value or canonical context.  Returns the value string if
-    found, else ``None``.
+    For OEIS b-file–style text ("n value\\n…"), searches for a row whose
+    *value* column is substantiated in the source AND is NOT the claim's
+    asserted (wrong) value.  Returns the first such value, else ``None``.
+
+    When the source is an OEIS b-file AND the claim text contains an explicit
+    small integer index (e.g. "at 13 crossings"), that index is used to look up
+    the exact row first.
     """
+    import re as _re
+
     if claim.kind != ClaimKind.NUMERIC:
         return None
-    # Parse b-file style rows: "<index> <value>"
-    for line in source.text.splitlines():
+
+    lines = source.text.splitlines()
+
+    # Try to find the target index from the claim text (for OEIS b-files)
+    if source.channel == "oeis":
+        m = _re.search(
+            r"\b(\d{1,3})\s*(?:crossings?|crossing number|strands?|-crossing)\b"
+            r"|(?:crossing(?:s)? number|at crossing)\s*(\d{1,3})\b",
+            claim.raw_text or "", _re.IGNORECASE,
+        )
+        target_idx: int | None = None
+        if m:
+            raw_idx = m.group(1) or m.group(2)
+            try:
+                target_idx = int(raw_idx)
+            except (TypeError, ValueError):
+                pass
+
+        if target_idx is not None:
+            for line in lines:
+                parts = line.split()
+                if len(parts) == 2:
+                    try:
+                        idx, val = int(parts[0]), parts[1]
+                    except ValueError:
+                        continue
+                    if idx == target_idx:
+                        if number_substantiated(val, source.text):
+                            return val
+
+    # Fallback: first b-file row whose value is an integer, is present in text,
+    # and is NOT the claim's asserted (wrong) value.
+    # We only accept integer values here — non-numeric tokens from non-b-file
+    # sources (e.g. Wikipedia) are silently skipped.
+    asserted = _re.sub(r"[\s,]", "", claim.resolved_value or "") if claim.resolved_value else None
+    for line in lines:
         parts = line.split()
         if len(parts) == 2:
-            _, val = parts
-            if number_substantiated(val, source.text):
-                return val
+            idx_str, val_str = parts
+            # Both parts must be integers (b-file format: "<index> <value>")
+            try:
+                int(idx_str)
+                int(val_str)
+            except ValueError:
+                continue
+            bare_val = _re.sub(r"[\s,]", "", val_str)
+            if asserted and bare_val == asserted:
+                continue  # skip the wrong value
+            if number_substantiated(val_str, source.text):
+                return val_str
     return None
+
+
+# Reasoning-safe response budget — qwen.qwen3.5-122b (the default panel/reviser
+# model) is a reasoning model whose hidden chain-of-thought counts against the
+# response budget; mirror grounding/entailment so the locator call is not
+# truncated to empty content.
+_REASONING_MAX_TOKENS = 131_072
+
+
+def _chat_reasoning_safe(backend: Any, messages: list, model: str | None):
+    """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
+    gracefully for backends / test fakes whose signature omits the kwargs."""
+    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
+    if model is not None:
+        kwargs["model"] = model
+    try:
+        return backend.chat(messages, **kwargs)
+    except TypeError:
+        kwargs.pop("max_tokens", None)
+        try:
+            return backend.chat(messages, **kwargs)
+        except TypeError:
+            return backend.chat(messages)
 
 
 def _call_llm_locator(
@@ -125,7 +197,13 @@ def _call_llm_locator(
     Returns the proposed candidate string, or ``None`` if the LLM cannot
     locate a value.  The caller MUST gate the result through
     :func:`present_in_source` before using it.
+
+    Uses ``backend.chat()`` (the standard llmxive backend API) with a
+    single-turn user message.  ``backend.complete()`` is NOT used because
+    it does not exist on real backends (DartmouthBackend, etc.).
     """
+    from llmxive.backends.base import ChatMessage
+
     prompt = (
         f"Source text:\n{source.text}\n\n"
         f"Claim: {claim.raw_text}\n\n"
@@ -134,12 +212,18 @@ def _call_llm_locator(
         "If the value is not present in the source text, respond with 'NOT_FOUND'."
     )
     try:
-        response = backend.complete(prompt, model=model)
+        messages = [ChatMessage(role="user", content=prompt)]
+        # Reasoning models (e.g. qwen.qwen3.5-122b) spend hidden chain-of-thought
+        # against the response budget; a small max_tokens yields empty content
+        # (finish_reason=length). Mirror grounding/entailment's reasoning-safe
+        # budget, degrading gracefully for backends/fakes that omit the kwarg.
+        response = _chat_reasoning_safe(backend, messages, model)
+        text = getattr(response, "text", None) or ""
     except Exception:
         return None
 
-    candidate = (response or "").strip()
-    if not candidate or candidate == "NOT_FOUND":
+    candidate = text.strip()
+    if not candidate or candidate.upper() == "NOT_FOUND":
         return None
     return candidate
 

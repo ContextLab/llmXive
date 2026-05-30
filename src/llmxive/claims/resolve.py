@@ -12,11 +12,16 @@ CAUSAL: requires a citable supporting source (retrieve+assess); never infers
   VERIFIED from model text alone; else NOT_ENOUGH_INFO.
 ENTITY_FACT: authoritative-reference entailment (retrieve+assess).
 RESULT: signed receipt verification (T027/US2).
+
+T019 (spec 017): when LLMXIVE_CLAIM_FILL=1 and the resolver would return
+NOT_ENOUGH_INFO or REFUTED, fill_claim() is called first; a filled result
+upgrades the outcome to VERIFIED.  RESULT claims are never filled.
 """
 
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import Any, Callable
 
@@ -59,12 +64,13 @@ def resolve_numeric_or_citation(claim: Claim, *, backend: Any, model: str | None
 
     # No resolvable source → cannot verify, not refuted, just insufficient info.
     if kind_str is None or source_value is None:
-        return Verdict(
+        nei = Verdict(
             status=ClaimStatus.NOT_ENOUGH_INFO,
             value=None,
             evidence={"reason": "no resolvable source identifier (DOI/arXiv/URL) found in claim"},
             resolver="resolve_numeric_or_citation",
         )
+        return _maybe_fill(claim, nei, backend=backend, model=model, repo_root=repo_root)
 
     source_id = f"{kind_str.value}:{source_value}"
 
@@ -88,7 +94,7 @@ def resolve_numeric_or_citation(claim: Claim, *, backend: Any, model: str | None
     outcome = resolve_reference(kind_str.value, source_value)
     if not outcome.present:
         # Source does not exist → not enough info (absence of evidence ≠ refuted).
-        result = Verdict(
+        _nei = Verdict(
             status=ClaimStatus.NOT_ENOUGH_INFO,
             value=None,
             evidence={"reason": f"source unreachable: {outcome.reason}", "url": outcome.resolved_url},
@@ -100,9 +106,9 @@ def resolve_numeric_or_citation(claim: Claim, *, backend: Any, model: str | None
             claim=canonical,
             number=_extract_number(canonical),
             verdict={"status": "not_enough_info", "ok": False,
-                     "reason": result.evidence["reason"] if result.evidence else ""},
+                     "reason": _nei.evidence["reason"] if _nei.evidence else ""},
         )
-        return result
+        return _maybe_fill(claim, _nei, backend=backend, model=model, repo_root=repo_root)
 
     # Step 2: content gate via grounding service.
     number = _extract_number(canonical)
@@ -128,11 +134,58 @@ def resolve_numeric_or_citation(claim: Claim, *, backend: Any, model: str | None
             # This is DISTINCT from REFUTED (source contradicts).
             status = ClaimStatus.NOT_ENOUGH_INFO
 
-    return Verdict(
+    final = Verdict(
         status=status,
         value=None,
         evidence={"ok": grounding.ok, "reason": grounding.reason},
         resolver="resolve_numeric_or_citation",
+    )
+    if status in (ClaimStatus.NOT_ENOUGH_INFO, ClaimStatus.REFUTED):
+        return _maybe_fill(claim, final, backend=backend, model=model, repo_root=repo_root)
+    return final
+
+
+def _maybe_fill(
+    claim: Claim,
+    original_verdict: Verdict,
+    *,
+    backend: Any,
+    model: str | None,
+    repo_root: Path,
+) -> Verdict:
+    """Attempt authoritative fill when LLMXIVE_CLAIM_FILL=1.
+
+    If fill succeeds, returns a VERIFIED Verdict with fill provenance.
+    Otherwise returns *original_verdict* unchanged.
+
+    Never called for RESULT claims (spec 017 T019 constraint).
+    """
+    if os.environ.get("LLMXIVE_CLAIM_FILL") != "1":
+        return original_verdict
+    if claim.kind == ClaimKind.RESULT:
+        return original_verdict
+
+    try:
+        from llmxive.fill.service import fill_claim
+        fill_result = fill_claim(claim, backend=backend, model=model, repo_root=repo_root)
+    except Exception as exc:
+        logger.warning("claims.resolve._maybe_fill: fill_claim raised %s: %s",
+                       type(exc).__name__, exc)
+        return original_verdict
+
+    if fill_result.status != "filled":
+        return original_verdict
+
+    prov = fill_result.provenance
+    assert prov is not None
+    return Verdict(
+        status=ClaimStatus.VERIFIED,
+        value=fill_result.value,
+        evidence={
+            "filled": True,
+            "fill": prov.to_dict(),
+        },
+        resolver=f"fill:{prov.channel}",
     )
 
 

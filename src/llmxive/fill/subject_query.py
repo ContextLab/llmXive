@@ -119,14 +119,81 @@ def subject_query(
     When *backend* is provided, an LLM call is made (Phase 3+); the pure
     fallback is still used if the LLM call fails or returns an empty string.
     """
-    # Pure fallback path (always taken in this Phase-2 implementation)
     raw = claim.raw_text or claim.canonical or ""
+    # Deterministic baseline (also the offline fallback): strip the asserted
+    # value + parenthetical citations. The value to strip is the one the CLAIM
+    # ASSERTS (the to-be-corrected number), NOT ``resolved_value`` — at fill
+    # time the claim is unresolved (NEI/REFUTED) so ``resolved_value`` is None.
     value = claim.resolved_value
-    stripped = strip_asserted_value(raw, value)
-    if stripped.strip():
-        return stripped.strip()
-    # If stripping left nothing meaningful, return the raw text as-is
-    return raw
+    if not value:
+        from llmxive.claims.resolve import _extract_number
+
+        value = _extract_number(raw)
+    baseline = _strip_parentheticals(strip_asserted_value(raw, value)).strip() or raw
+
+    # With a backend, ask the LLM for a concise KEYWORD query. A
+    # destuffed-sentence query poisons keyword search engines (e.g. Wikipedia
+    # full-text ranks "the exact count is … at 13 crossings" against MH370 /
+    # RMS Queen Mary); the salient noun phrase ("prime knots crossing number")
+    # retrieves the right sources. This only affects search RECALL — the filled
+    # value is still gated by present-in-source, so an LLM-chosen query can
+    # never introduce an unsourced value.
+    if backend is not None:
+        kw = _llm_keyword_query(raw, value, backend=backend, model=model)
+        if kw:
+            return kw
+    return baseline
+
+
+def _llm_keyword_query(raw: str, value: str | None, *, backend: Any,
+                       model: str | None) -> str | None:
+    """Ask the LLM for a short keyword search query for the claim's subject,
+    excluding the asserted value. Returns None on any failure (caller falls
+    back to the deterministic baseline)."""
+    from llmxive.backends.base import ChatMessage
+
+    avoid = f' Do NOT include the number "{value}".' if value else ""
+    prompt = (
+        "Generate a concise web-search query (3 to 6 keywords) to look up the "
+        "correct value for the SUBJECT of this factual claim. Output ONLY the "
+        "keywords, no punctuation, no explanation." + avoid + f"\n\nClaim: {raw}"
+    )
+    try:
+        resp = _chat_reasoning_safe(backend, [ChatMessage(role="user", content=prompt)], model)
+        text = (getattr(resp, "text", None) or "").strip()
+    except Exception:
+        return None
+    # Keep the first non-empty line; drop stray quotes/labels.
+    line = next((ln.strip() for ln in text.splitlines() if ln.strip()), "")
+    line = line.strip().strip('"').strip("'")
+    line = re.sub(r"(?i)^(query|search)\s*[:=]\s*", "", line).strip()
+    return line or None
+
+
+_REASONING_MAX_TOKENS = 131_072
+
+
+def _chat_reasoning_safe(backend: Any, messages: list, model: str | None):
+    """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
+    gracefully for backends / fakes whose signature omits the kwargs."""
+    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
+    if model is not None:
+        kwargs["model"] = model
+    try:
+        return backend.chat(messages, **kwargs)
+    except TypeError:
+        kwargs.pop("max_tokens", None)
+        try:
+            return backend.chat(messages, **kwargs)
+        except TypeError:
+            return backend.chat(messages)
+
+
+def _strip_parentheticals(text: str) -> str:
+    """Remove parenthetical/bracketed asides (citations) from a search query."""
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"\[[^\]]*\]", " ", text)
+    return _tidy(text)
 
 
 __all__ = ["strip_asserted_value", "subject_query"]
