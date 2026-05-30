@@ -51,6 +51,11 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # a real run always verifies claims.
     os.environ.setdefault("LLMXIVE_CLAIM_LAYER", "1")
 
+    # Spec 017: enable the authoritative-fill layer (auto-correct unresolvable
+    # numeric/entity claims from OEIS/Wikipedia/Wikidata) on real pipeline runs.
+    # OFF by default so offline tests stay network-free.
+    os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")
+
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
     if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
         return _cmd_run_stage_independent(args)

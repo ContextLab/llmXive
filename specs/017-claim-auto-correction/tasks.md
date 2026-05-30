@@ -97,8 +97,8 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 
 **Independent Test**: fill once; reference again → identical cached value, no new search; change the source → invalidated + re-derived.
 
-- [ ] T032 [P] [US4] Write failing integration test `tests/integration/test_fill_reuse.py`: a claim filled once and persisted VERIFIED (with `source_hash` from the fill source) is reused on a second pass with NO new channel search (assert via the real grounding cache being hit / a counter wrapping the REAL `fill_claim` staying flat — not a mock); changing the recorded `source_hash` forces a re-fill.
-- [ ] T033 [US4] Implement fill-result caching + source_hash in `fill/service.fill_claim` and ensure `claims/service.resolve_registered_claims` reuse/invalidation (spec-016) applies to filled claims (set `Claim.source_hash` from the fill source). Make T032 pass.
+- [X] T032 [P] [US4] Write failing integration test `tests/integration/test_fill_reuse.py`: a claim filled once and persisted VERIFIED (with `source_hash` from the fill source) is reused on a second pass with NO new channel search (assert via the real grounding cache being hit / a counter wrapping the REAL `fill_claim` staying flat — not a mock); changing the recorded `source_hash` forces a re-fill.
+- [X] T033 [US4] Implement fill-result caching + source_hash in `fill/service.fill_claim` and ensure `claims/service.resolve_registered_claims` reuse/invalidation (spec-016) applies to filled claims (set `Claim.source_hash` from the fill source). Make T032 pass.
 
 **Checkpoint**: US4 independently testable — filled values reused and invalidated correctly.
 
@@ -106,12 +106,12 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T034 [P] Write failing integration test `tests/integration/test_fill_render_repairs_citation.py`: after `claims/service.process_document` renders a filled claim, the rendered text cites the corrected value to its fill source (FR-007/SC-008) — drive with a pre-built registry containing a filled claim (offline; real `repair_citation`).
-- [ ] T035 Wire citation repair into `src/llmxive/claims/service.py::process_document`: after `render`, for each claim with `evidence.filled` true, call `fill.citation_repair.repair_citation` on the rendered text. Make T034 pass.
-- [ ] T036 Enable the fill on real runs: `src/llmxive/cli.py::run` adds `os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")` (mirrors LLMXIVE_CLAIM_LAYER); confirm offline reviser/cli tests stay network-free (the flag is unset for them).
-- [ ] T037 [P] Write failing contract test `tests/contract/test_fill_channel_contract.py`: each channel's `search_and_fetch` returns `FetchedSource`s with non-empty `text` + resolvable `url` (run real-call gated for the network part; offline asserts the parse contract on fixtures).
-- [ ] T038 Run the full offline gate (`pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs`) and the gated real-call suite (`LLMXIVE_REAL_TESTS=1 pytest tests/real_call/test_fill_*_real.py -q`); fix code (never tests) until green vs the T002 baseline.
-- [ ] T039 Update `quickstart.md` only if a public signature drifted during implementation; confirm SC-001…SC-008 each map to a passing test.
+- [X] T034 [P] Write failing integration test `tests/integration/test_fill_render_repairs_citation.py`: after `claims/service.process_document` renders a filled claim, the rendered text cites the corrected value to its fill source (FR-007/SC-008) — drive with a pre-built registry containing a filled claim (offline; real `repair_citation`).
+- [X] T035 Wire citation repair into `src/llmxive/claims/service.py::process_document`: after `render`, for each claim with `evidence.filled` true, call `fill.citation_repair.repair_citation` on the rendered text. Make T034 pass.
+- [X] T036 Enable the fill on real runs: `src/llmxive/cli.py::run` adds `os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")` (mirrors LLMXIVE_CLAIM_LAYER); confirm offline reviser/cli tests stay network-free (the flag is unset for them).
+- [X] T037 [P] Write failing contract test `tests/contract/test_fill_channel_contract.py`: each channel's `search_and_fetch` returns `FetchedSource`s with non-empty `text` + resolvable `url` (run real-call gated for the network part; offline asserts the parse contract on fixtures).
+- [X] T038 Run the full offline gate (`pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs`) and the gated real-call suite (`LLMXIVE_REAL_TESTS=1 pytest tests/real_call/test_fill_*_real.py -q`); fix code (never tests) until green vs the T002 baseline.
+- [X] T039 Update `quickstart.md` only if a public signature drifted during implementation; confirm SC-001…SC-008 each map to a passing test.
 
 ---
 

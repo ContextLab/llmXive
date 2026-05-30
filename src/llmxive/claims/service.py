@@ -189,6 +189,40 @@ def process_document(
     claims_by_id = {c.claim_id: c for c in resolved_claims}
     rendered_text, gate_report = render(text_with_pointers, claims_by_id)
 
+    # Step 6 (T035): repair citations for filled claims so the rendered text
+    # cites the authoritative fill source rather than a stale paper citation.
+    # Import lazily to avoid circular imports (fill → claims → fill).
+    try:
+        from llmxive.fill.citation_repair import repair_citation  # noqa: PLC0415
+        from llmxive.fill.models import FillProvenance  # noqa: PLC0415
+
+        for claim in resolved_claims:
+            ev = claim.evidence or {}
+            if not ev.get("filled") and not ev.get("fill"):
+                continue
+            fill_d = ev.get("fill") or {}
+            if not fill_d:
+                continue
+            try:
+                provenance = FillProvenance(
+                    value=fill_d.get("value", ""),
+                    source_id=fill_d.get("source_id", ""),
+                    url=fill_d.get("url", ""),
+                    quote=fill_d.get("quote", ""),
+                    channel=fill_d.get("channel", ""),
+                    conflicts=fill_d.get("conflicts", []),
+                )
+                rendered_text = repair_citation(
+                    rendered_text, claim=claim, provenance=provenance
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.debug(
+                    "claims.service: citation repair skipped for %s: %s",
+                    claim.claim_id, exc,
+                )
+    except ImportError:
+        pass  # fill package not available; skip silently
+
     return rendered_text, resolved_claims, gate_report
 
 
