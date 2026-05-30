@@ -41,6 +41,7 @@ from llmxive.agents.research_reviewer import ResearchReviewerAgent
 from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
+    CLAIM_RETRY_BUDGET,
     CONVERGENCE_KICKBACK_CAP,
     consume_convergence_kickback,
     reset_kickback_count,
@@ -550,9 +551,9 @@ def _decide_next_stage(
             )
             return Stage.HUMAN_INPUT_NEEDED
         logger.info(
-            "adaptive convergence kickback: %s -> %s (count=%d/%d, stage=%s)",
+            "adaptive convergence kickback: %s -> %s (count=%d, stage=%s)",
             project.id, target_stage.value, decision.count,
-            CONVERGENCE_KICKBACK_CAP, decision.stage_label,
+            decision.stage_label,
         )
         return target_stage
 

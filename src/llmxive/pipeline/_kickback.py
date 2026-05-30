@@ -36,6 +36,14 @@ logger = logging.getLogger(__name__)
 #: the count strictly ABOVE this cap escalates.
 CONVERGENCE_KICKBACK_CAP = 3
 
+#: Automated retry budget for unresolved-claim kickbacks (FR-013/014 / T021).
+#: When ``convergence_kickback.yaml`` carries ``unresolved_claim=True``, the
+#: graph routes the project back to the resolver stage (escalate=False) for up
+#: to this many additional automated retries *before* falling back to the
+#: ``CONVERGENCE_KICKBACK_CAP`` human-escalation path.  Kept near
+#: ``CONVERGENCE_KICKBACK_CAP`` as the SSoT for both caps.
+CLAIM_RETRY_BUDGET = 2
+
 _KICKBACK_COUNT_FILENAME = "kickback_count.yaml"
 _CONVERGENCE_KICKBACK_FILENAME = "convergence_kickback.yaml"
 
@@ -118,6 +126,10 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
     to_stage = payload.get("to_stage")
     stage_label = str(payload.get("stage") or "convergence")
     reason = str(payload.get("reason") or "convergence panel did not converge")
+    # FR-013/014 / T021: unresolved-claim kickbacks get an extra automated retry
+    # budget (CLAIM_RETRY_BUDGET) before the normal CONVERGENCE_KICKBACK_CAP
+    # human-escalation path kicks in.  The sentinel writer sets this flag.
+    is_claim_kickback: bool = bool(payload.get("unresolved_claim", False))
 
     counts = _read_counts(memory_dir)
     new_count = counts.get(stage_label, 0) + 1
@@ -130,7 +142,17 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
     except OSError as exc:  # pragma: no cover — telemetry only
         logger.warning("could not delete %s: %s", sentinel, exc)
 
-    if new_count > CONVERGENCE_KICKBACK_CAP or not isinstance(to_stage, str) or not to_stage:
+    # Determine the effective cap for this kickback type.
+    # Claim kickbacks: automated retries first (up to CLAIM_RETRY_BUDGET),
+    # then the standard CONVERGENCE_KICKBACK_CAP continues normally so the
+    # claim-retry window is *additional*, not a replacement.
+    effective_cap = (
+        CONVERGENCE_KICKBACK_CAP + CLAIM_RETRY_BUDGET
+        if is_claim_kickback
+        else CONVERGENCE_KICKBACK_CAP
+    )
+
+    if new_count > effective_cap or not isinstance(to_stage, str) or not to_stage:
         # Cap exceeded OR malformed target → human escalation; reset the
         # counter so a future re-entry starts clean.
         del counts[stage_label]
@@ -160,6 +182,7 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
 
 
 __all__ = [
+    "CLAIM_RETRY_BUDGET",
     "CONVERGENCE_KICKBACK_CAP",
     "KickbackDecision",
     "consume_convergence_kickback",

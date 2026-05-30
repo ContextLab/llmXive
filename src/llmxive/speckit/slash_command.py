@@ -270,6 +270,45 @@ def _validate_artifact_citations(
             # Non-fatal: validation is best-effort during artifact writes.
             # The blocking gates upstream (Advancement-Evaluator) re-check
             # the persisted citations YAML on every transition decision.
+            pass
+
+        # T019 / FR-016: run the claim layer AFTER the F-18 citation pass.
+        # Requires a backend (LLM extraction) — skip gracefully on maintenance
+        # paths where ctx has no backend (e.g. dispatch-only callers).
+        _backend = getattr(ctx, "default_backend", None)
+        if _backend is None:
+            continue
+        try:
+            from llmxive.backends.router import make_backend
+            from llmxive.claims.gate import has_unresolved_claims
+            from llmxive.claims.service import process_document
+
+            backend_obj = make_backend(_backend.value if hasattr(_backend, "value") else str(_backend))
+            rendered, _claims, gate_report = process_document(
+                text,
+                artifact_path=relpath,
+                project_id=ctx.project_id,
+                backend=backend_obj,
+                model=ctx.default_model,
+                repo_root=repo,
+            )
+            # Rewrite in place if the rendered output differs.
+            if rendered != text:
+                path.write_text(rendered, encoding="utf-8")
+                text = rendered
+            # Surface claim block the same way F-18 surfaces an [UNVERIFIED]
+            # block: record via validate_artifact so the Advancement-Evaluator
+            # gate picks it up.  The GateReport.blocked flag is the signal.
+            if gate_report.blocked:
+                validate_artifact(
+                    project_id=ctx.project_id,
+                    artifact_path=relpath,
+                    artifact_text=text,
+                    artifact_hash=hash_file(path),
+                    repo_root=repo,
+                )
+        except Exception:
+            # Non-fatal: claim processing must never block an artifact write.
             continue
 
 
