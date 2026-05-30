@@ -338,12 +338,13 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
                               repo_root=repo_root)
 
     if doc is None or not doc.readable:
-        return Verdict(
+        _nei_no_src = Verdict(
             status=ClaimStatus.NOT_ENOUGH_INFO,
             value=None,
             evidence={"reason": "no authoritative source found for entity claim"},
             resolver="resolve_entity_fact",
         )
+        return _maybe_fill(claim, _nei_no_src, backend=backend, model=model, repo_root=repo_root)
 
     verdict = assess(canonical, doc, backend=backend, model=model,
                      repo_root=repo_root)
@@ -360,7 +361,7 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
             resolver="resolve_entity_fact",
         )
     if verdict.status == "contradicted":
-        return Verdict(
+        _refuted = Verdict(
             status=ClaimStatus.REFUTED,
             value=None,
             evidence={
@@ -370,8 +371,9 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
             },
             resolver="resolve_entity_fact",
         )
+        return _maybe_fill(claim, _refuted, backend=backend, model=model, repo_root=repo_root)
 
-    return Verdict(
+    _nei = Verdict(
         status=ClaimStatus.NOT_ENOUGH_INFO,
         value=None,
         evidence={
@@ -381,6 +383,7 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
         },
         resolver="resolve_entity_fact",
     )
+    return _maybe_fill(claim, _nei, backend=backend, model=model, repo_root=repo_root)
 
 
 def _extract_project_id(artifact_path: str) -> str | None:

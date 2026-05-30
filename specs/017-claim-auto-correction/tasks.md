@@ -67,10 +67,10 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 
 **Independent Test**: force a source whose text lacks the candidate value → no fill, stays blocked; inspect a successful fill → provenance present + value located in source.
 
-- [ ] T024 [P] [US2] Write failing unit test `tests/unit/test_fill_rejects_absent_value.py`: `extract_value` returns None when the LLM-proposed value is NOT in `source.text` (construct a real `FetchedSource` whose text lacks the value; assert the gate rejects it) — the safety property, offline + deterministic.
-- [ ] T025 [US2] Harden `fill/service.fill_claim` so a candidate that fails `present_in_source` for ALL fetched sources yields `FillResult(blocked, reason="value not present in any fetched source")` and records `channels_tried`; ensure provenance is only ever built from a source whose text contains the value. Make T024 pass.
-- [ ] T026 [P] [US2] Write failing real-call test `tests/real_call/test_fill_no_source_blocks_real.py` (gated): a claim with a genuinely-unsourceable value (e.g. a fabricated count for a nonexistent subject) → `fill_claim` returns blocked (no fabricated fill); the claim stays NEI.
-- [ ] T027 [US2] Add a provenance-inspection assertion to `tests/real_call/test_fill_oeis_real.py` (or a sibling): every successful fill carries `provenance.url` (resolvable) + `provenance.quote` and the value is literally in the fetched source text (SC-002).
+- [X] T024 [P] [US2] Write failing unit test `tests/unit/test_fill_rejects_absent_value.py`: `extract_value` returns None when the LLM-proposed value is NOT in `source.text` (construct a real `FetchedSource` whose text lacks the value; assert the gate rejects it) — the safety property, offline + deterministic.
+- [X] T025 [US2] Harden `fill/service.fill_claim` so a candidate that fails `present_in_source` for ALL fetched sources yields `FillResult(blocked, reason="value not present in any fetched source")` and records `channels_tried`; ensure provenance is only ever built from a source whose text contains the value. Make T024 pass.
+- [X] T026 [P] [US2] Write failing real-call test `tests/real_call/test_fill_no_source_blocks_real.py` (gated): a claim with a genuinely-unsourceable value (e.g. a fabricated count for a nonexistent subject) → `fill_claim` returns blocked (no fabricated fill); the claim stays NEI.
+- [X] T027 [US2] Add a provenance-inspection assertion to `tests/real_call/test_fill_oeis_real.py` (or a sibling): every successful fill carries `provenance.url` (resolvable) + `provenance.quote` and the value is literally in the fetched source text (SC-002).
 
 **Checkpoint**: US2 independently testable — zero fills from model memory; unsourceable values stay blocked.
 
@@ -82,10 +82,10 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 
 **Independent Test**: a wrong entity/definitional claim with a discoverable source is corrected with provenance; a deferred-type (relational/superlative) claim is confirmed to stay blocked (not falsely filled).
 
-- [ ] T028 [P] [US3] Write failing unit test `tests/unit/test_fill_wikidata_parse.py` for `fill/channels/wikidata.py`: the `wbsearchentities` + entity-fetch JSON parsers turn captured fixtures into `FetchedSource`s (entity label/description/statement text) (pure parse, no network).
-- [ ] T029 [US3] Implement `src/llmxive/fill/channels/wikidata.py`: `search_and_fetch(query, claim)` — real Wikidata `wbsearchentities` then entity fetch (via `_retry_request` + UA), returning `FetchedSource`s with entity statement/description text + URL; `[]` on failure. Make T028 pass.
-- [ ] T030 [US3] Wire fill into `src/llmxive/claims/resolve.py::resolve_entity_fact` (same pattern as T019, at its NEI branches lines 287/321); confirm `channels_for` routes entity → [wikidata, wikipedia, paper] and that magnitude/relational kinds are NOT routed (return blocked, stay blocked).
-- [ ] T031 [P] [US3] Write failing real-call test `tests/real_call/test_fill_wikidata_real.py` (gated): a wrong entity/definitional claim (e.g. a wrong capital-of-country or a wrong definitional value) is corrected to the sourced answer with Wikidata/Wikipedia provenance; and a relational/superlative claim is confirmed to stay blocked in v1 (no fill).
+- [X] T028 [P] [US3] Write failing unit test `tests/unit/test_fill_wikidata_parse.py` for `fill/channels/wikidata.py`: the `wbsearchentities` + entity-fetch JSON parsers turn captured fixtures into `FetchedSource`s (entity label/description/statement text) (pure parse, no network).
+- [X] T029 [US3] Implement `src/llmxive/fill/channels/wikidata.py`: `search_and_fetch(query, claim)` — real Wikidata `wbsearchentities` then entity fetch (via `_retry_request` + UA), returning `FetchedSource`s with entity statement/description text + URL; `[]` on failure. Make T028 pass.
+- [X] T030 [US3] Wire fill into `src/llmxive/claims/resolve.py::resolve_entity_fact` (same pattern as T019, at its NEI branches lines 287/321); confirm `channels_for` routes entity → [wikidata, wikipedia, paper] and that magnitude/relational kinds are NOT routed (return blocked, stay blocked).
+- [X] T031 [P] [US3] Write failing real-call test `tests/real_call/test_fill_wikidata_real.py` (gated): a wrong entity/definitional claim (e.g. a wrong capital-of-country or a wrong definitional value) is corrected to the sourced answer with Wikidata/Wikipedia provenance; and a relational/superlative claim is confirmed to stay blocked in v1 (no fill).
 
 **Checkpoint**: US3 independently testable — entity claims corrected; deferred types remain blocked, never falsely filled.
 
