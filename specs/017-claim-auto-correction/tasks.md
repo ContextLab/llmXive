@@ -16,7 +16,7 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 ## Phase 1: Setup (Shared Infrastructure)
 
 - [X] T001 Create the fill package skeleton: `src/llmxive/fill/__init__.py` (re-exports `service.fill_claim`) and `src/llmxive/fill/channels/__init__.py`.
-- [ ] T002 Capture the baseline offline gate: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record the pass count (regression baseline; currently ~1511).
+- [X] T002 Capture the baseline offline gate: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record the pass count (regression baseline; currently ~1511).
 
 ---
 
