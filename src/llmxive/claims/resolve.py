@@ -222,9 +222,16 @@ def resolve_magnitude(claim: Claim, *, backend: Any, model: str | None,
     Delegates to ``claims.triple.resolve_superlative``.  Returns VERIFIED if
     the claimed extremum is supported by a retrieved candidate set, REFUTED if
     the ordering contradicts it, NOT_ENOUGH_INFO if no source can be retrieved.
+
+    When LLMXIVE_CLAIM_FILL=1, a NEI or REFUTED result is passed to
+    ``_maybe_fill`` so a wrong superlative may be corrected from a fetched
+    candidate set (spec 018, T020/US3).
     """
     from llmxive.claims.triple import resolve_superlative
-    return resolve_superlative(claim, backend=backend, model=model, repo_root=repo_root)
+    verdict = resolve_superlative(claim, backend=backend, model=model, repo_root=repo_root)
+    if verdict.status in (ClaimStatus.NOT_ENOUGH_INFO, ClaimStatus.REFUTED):
+        return _maybe_fill(claim, verdict, backend=backend, model=model, repo_root=repo_root)
+    return verdict
 
 
 def resolve_relational(claim: Claim, *, backend: Any, model: str | None,
@@ -234,10 +241,19 @@ def resolve_relational(claim: Claim, *, backend: Any, model: str | None,
     Delegates to ``claims.triple.resolve_relational``.  Returns VERIFIED only
     when a citable source supports the claim; REFUTED if contradicted; else
     NOT_ENOUGH_INFO.  Never infers VERIFIED from model text alone.
+
+    When LLMXIVE_CLAIM_FILL=1, a NEI or REFUTED result is passed to
+    ``_maybe_fill`` so the correct object may be filled from a fetched source
+    (spec 018, T023/US4).  FR-009: if the fill service returns the claimed
+    object (because it is one of several valid objects), VERIFIED is returned
+    without over-correcting.
     """
     from llmxive.claims.triple import resolve_relational as _triple_resolve_relational
-    return _triple_resolve_relational(claim, backend=backend, model=model,
-                                      repo_root=repo_root)
+    verdict = _triple_resolve_relational(claim, backend=backend, model=model,
+                                         repo_root=repo_root)
+    if verdict.status in (ClaimStatus.NOT_ENOUGH_INFO, ClaimStatus.REFUTED):
+        return _maybe_fill(claim, verdict, backend=backend, model=model, repo_root=repo_root)
+    return verdict
 
 
 def resolve_causal(claim: Claim, *, backend: Any, model: str | None,

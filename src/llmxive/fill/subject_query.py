@@ -119,7 +119,58 @@ def subject_query(
     When *backend* is provided, an LLM call is made (Phase 3+); the pure
     fallback is still used if the LLM call fails or returns an empty string.
     """
+    from llmxive.claims.models import ClaimKind
+
     raw = claim.raw_text or claim.canonical or ""
+
+    # For RELATIONAL claims, the best search query is the object of the triple
+    # (the entity whose property we want to look up, e.g. "Australia" for
+    # "capital of Australia is Sydney").  Searching by the object gives Wikidata
+    # a well-known entity name that it can resolve to a Q-id + property list.
+    #
+    # For MAGNITUDE claims, search by the subject category stripped of the
+    # asserted extremum (e.g. "largest planet" → search "planet" or the full
+    # superlative subject).
+    if claim.kind == ClaimKind.RELATIONAL:
+        try:
+            from llmxive.claims.triple import decompose_triple
+            subj, rel, obj = decompose_triple(raw)
+            # The object of the decomposed triple often contains both the
+            # entity (e.g. "Australia") and the asserted value (e.g. "Sydney")
+            # joined by "is".  Strip the asserted value to get the entity.
+            # Pattern: "EntityName is AssertedValue" → "EntityName"
+            obj_clean = re.split(r"\s+is\s+", obj, maxsplit=1)[0].strip()
+            # If obj_clean is very short or same as the whole raw, use subj.
+            candidate = obj_clean if obj_clean and len(obj_clean) > 1 else subj
+            if candidate and candidate != raw:
+                if backend is not None:
+                    kw = _llm_keyword_query(raw, None, backend=backend, model=model)
+                    if kw:
+                        return kw
+                return candidate.strip()
+        except Exception:
+            pass
+
+    elif claim.kind == ClaimKind.MAGNITUDE:
+        try:
+            from llmxive.claims.triple import decompose_triple
+            subj, rel, obj = decompose_triple(raw)
+            # The object is the asserted extremum (e.g. "Saturn"); the subject
+            # carries the category (e.g. "the largest planet").
+            # Strip the asserted object from the subject to get the category.
+            category = re.sub(re.escape(obj), "", subj, flags=re.IGNORECASE).strip()
+            category = _tidy(category)
+            if category and len(category) > 2:
+                # For MAGNITUDE, use the deterministic category directly.
+                # LLM keyword queries tend to echo the full claim (e.g. "the
+                # largest planet") which gives poor Wikipedia search recall;
+                # the stripped category (e.g. "largest planet") is more
+                # targeted.  We skip the LLM path here and rely on channel
+                # fallback order (wikidata → wikipedia → paper) for recall.
+                return category
+        except Exception:
+            pass
+
     # Deterministic baseline (also the offline fallback): strip the asserted
     # value + parenthetical citations. The value to strip is the one the CLAIM
     # ASSERTS (the to-be-corrected number), NOT ``resolved_value`` — at fill

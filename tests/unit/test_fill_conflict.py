@@ -144,11 +144,19 @@ class TestChannelsFor:
         assert "paper" in ch
         assert "oeis" not in ch
 
-    def test_magnitude_returns_empty(self):
-        assert channels_for(ClaimKind.MAGNITUDE, math=False) == []
+    def test_magnitude_returns_wikidata_wikipedia_paper(self):
+        # spec 018 T020: MAGNITUDE is now fillable via wikidata/wikipedia/paper
+        ch = channels_for(ClaimKind.MAGNITUDE, math=False)
+        assert "wikidata" in ch
+        assert "wikipedia" in ch
+        assert "paper" in ch
 
-    def test_relational_returns_empty(self):
-        assert channels_for(ClaimKind.RELATIONAL, math=False) == []
+    def test_relational_returns_wikidata_wikipedia_paper(self):
+        # spec 018 T023: RELATIONAL is now fillable via wikidata/wikipedia/paper
+        ch = channels_for(ClaimKind.RELATIONAL, math=False)
+        assert "wikidata" in ch
+        assert "wikipedia" in ch
+        assert "paper" in ch
 
     def test_causal_returns_empty(self):
         assert channels_for(ClaimKind.CAUSAL, math=False) == []

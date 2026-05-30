@@ -52,6 +52,12 @@ def present_in_source(value: str, source: FetchedSource, kind: ClaimKind) -> boo
     if kind == ClaimKind.ENTITY_FACT:
         return _entity_present(value, source.text)
 
+    if kind in (ClaimKind.MAGNITUDE, ClaimKind.RELATIONAL):
+        # These claim types have entity-name values (e.g. "Jupiter", "Canberra"),
+        # not bare numbers — use the same entity-presence check as ENTITY_FACT
+        # (spec 018, T020/T023).
+        return _entity_present(value, source.text)
+
     # For any other kind, fall back to the numeric gate (conservative).
     return number_substantiated(value, source.text)
 
@@ -209,12 +215,16 @@ def _offline_numeric_lookup(source: FetchedSource, claim: Claim) -> str | None:
 _REASONING_MAX_TOKENS = 131_072
 
 
+_DEFAULT_MODEL = "qwen.qwen3.5-122b"
+
+
 def _chat_reasoning_safe(backend: Any, messages: list, model: str | None):
     """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
     gracefully for backends / test fakes whose signature omits the kwargs."""
     kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
-    if model is not None:
-        kwargs["model"] = model
+    # Always include model — DartmouthBackend requires it as a keyword-only arg.
+    # Fall back to the default panel model when the caller passes None.
+    kwargs["model"] = model or _DEFAULT_MODEL
     try:
         return backend.chat(messages, **kwargs)
     except TypeError:

@@ -41,13 +41,19 @@ def _parse_search(data: dict) -> list[tuple[str, str, str]]:
     return results
 
 
-def _parse_entity(data: dict, qid: str) -> tuple[str, str] | None:
+def _parse_entity(
+    data: dict,
+    qid: str,
+    ref_labels: dict[str, str] | None = None,
+) -> tuple[str, str] | None:
     """Parse wbgetentities response for *qid* → (label, text_blob) or None.
 
     The text blob is built from:
     - English label
     - English description
     - String values of P-claims (up to 20) for keyword density
+    - For wikibase-entityid values: the English label from *ref_labels* when
+      available (so "P36: Q3114" becomes "capital: Canberra").
     """
     entities = data.get("entities", {})
     entity = entities.get(qid)
@@ -70,8 +76,9 @@ def _parse_entity(data: dict, qid: str) -> tuple[str, str] | None:
 
     # Extract string values from claims (snak mainvalue strings only)
     claim_snippets: list[str] = []
+    ref_labels = ref_labels or {}
     claims_data = entity.get("claims", {})
-    for pid, snak_list in list(claims_data.items())[:20]:
+    for pid, snak_list in list(claims_data.items())[:60]:
         for snak in snak_list[:3]:
             ms = snak.get("mainsnak", {})
             dv = ms.get("datavalue", {})
@@ -84,7 +91,9 @@ def _parse_entity(data: dict, qid: str) -> tuple[str, str] | None:
                 inner = dv.get("value", {})
                 inner_id = inner.get("id", "")
                 if inner_id:
-                    claim_snippets.append(f"{pid}: {inner_id}")
+                    # Prefer the human-readable label if available
+                    inner_label = ref_labels.get(inner_id, inner_id)
+                    claim_snippets.append(f"{pid}: {inner_label}")
             elif dv_type == "monolingualtext":
                 val = dv.get("value", {}).get("text", "")
                 if val:
@@ -95,6 +104,30 @@ def _parse_entity(data: dict, qid: str) -> tuple[str, str] | None:
     if not text_blob:
         return None
     return label, text_blob
+
+
+def _collect_ref_qids(entity_data: dict, qids: list[str]) -> list[str]:
+    """Collect all wikibase-entityid Q-ids referenced in the claims of *qids*.
+
+    These are used for a secondary label-resolution call so that entity
+    values appear as human-readable names in the text blob (e.g. "Canberra"
+    instead of "Q3114").
+    """
+    ref_qids: list[str] = []
+    seen: set[str] = set(qids)
+    entities = entity_data.get("entities", {})
+    for qid in qids:
+        entity = entities.get(qid, {})
+        for pid, snak_list in list(entity.get("claims", {}).items())[:60]:
+            for snak in snak_list[:3]:
+                ms = snak.get("mainsnak", {})
+                dv = ms.get("datavalue", {})
+                if dv.get("type") == "wikibase-entityid":
+                    inner_id = dv.get("value", {}).get("id", "")
+                    if inner_id and inner_id not in seen:
+                        ref_qids.append(inner_id)
+                        seen.add(inner_id)
+    return ref_qids[:30]  # cap to avoid very large secondary fetches
 
 
 # ---------------------------------------------------------------------------
@@ -167,9 +200,38 @@ def search_and_fetch(
         logger.debug("wikidata: entity fetch failed: %s", exc)
         return []
 
+    # Step 3: resolve referenced Q-ids to human-readable labels so the text
+    # blob contains names like "Canberra" instead of "Q3114" — essential for
+    # the present-in-source gate to find the filled value.
+    ref_qids = _collect_ref_qids(entity_data, qids)
+    ref_labels: dict[str, str] = {}
+    if ref_qids:
+        try:
+            r3 = _retry_request(
+                "GET",
+                _SEARCH_URL,
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                params={
+                    "action": "wbgetentities",
+                    "ids": "|".join(ref_qids),
+                    "format": "json",
+                    "props": "labels",
+                },
+                timeout=timeout,
+            )
+            if r3.status_code == 200:
+                ref_data = r3.json()
+                for rqid, rent in ref_data.get("entities", {}).items():
+                    rlabels = rent.get("labels", {})
+                    en_label = rlabels.get("en", {}).get("value", "")
+                    if en_label:
+                        ref_labels[rqid] = en_label
+        except Exception as exc:
+            logger.debug("wikidata: ref label fetch failed: %s", exc)
+
     sources: list[FetchedSource] = []
     for qid, label, description in candidates:
-        parsed = _parse_entity(entity_data, qid)
+        parsed = _parse_entity(entity_data, qid, ref_labels=ref_labels)
         if parsed is None:
             continue
         ent_label, text_blob = parsed

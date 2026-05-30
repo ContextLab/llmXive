@@ -30,6 +30,10 @@ def channels_for(kind: ClaimKind, *, math: bool) -> list[str]:
         return channels
     if kind == ClaimKind.ENTITY_FACT:
         return ["wikidata", "wikipedia", "paper"]
+    if kind == ClaimKind.MAGNITUDE:
+        return ["wikidata", "wikipedia", "paper"]
+    if kind == ClaimKind.RELATIONAL:
+        return ["wikidata", "wikipedia", "paper"]
     return []
 
 

@@ -85,9 +85,9 @@ Single project. `src/llmxive/verify/{mode,approximate,compute,constants}.py`, `f
 
 **Independent Test**: "the largest planet is Saturn" → Jupiter; no candidate set → blocked.
 
-- [ ] T020 [US3] Enable MAGNITUDE fill: `fill/service.py::_FILLABLE_KINDS += {MAGNITUDE}`; `fill/channels/__init__.py::channels_for(MAGNITUDE)` → `[wikidata, wikipedia, paper]`; wire `_maybe_fill` into `claims/resolve.py` at `resolve_magnitude`'s NEI/REFUTED return sites (reuse the existing helper).
-- [ ] T021 [P] [US3] Write failing integration test `tests/integration/test_fill_magnitude_wireup.py`: with the flag on and a real `FillResult.filled` injected at the seam (real object, not a mock backend), a MAGNITUDE claim that would be NEI returns VERIFIED with the corrected extremum + evidence.filled; flag off → unchanged.
-- [ ] T022 [P] [US3] Write failing real-call test `tests/real_call/test_fill_superlative_real.py` (gated): "the largest planet is Saturn" → corrected to "Jupiter" from a fetched candidate set with provenance; a superlative with no retrievable set → blocked.
+- [X] T020 [US3] Enable MAGNITUDE fill: `fill/service.py::_FILLABLE_KINDS += {MAGNITUDE}`; `fill/channels/__init__.py::channels_for(MAGNITUDE)` → `[wikidata, wikipedia, paper]`; wire `_maybe_fill` into `claims/resolve.py` at `resolve_magnitude`'s NEI/REFUTED return sites (reuse the existing helper).
+- [X] T021 [P] [US3] Write failing integration test `tests/integration/test_fill_magnitude_wireup.py`: with the flag on and a real `FillResult.filled` injected at the seam (real object, not a mock backend), a MAGNITUDE claim that would be NEI returns VERIFIED with the corrected extremum + evidence.filled; flag off → unchanged.
+- [X] T022 [P] [US3] Write failing real-call test `tests/real_call/test_fill_superlative_real.py` (gated): "the largest planet is Saturn" → corrected to "Jupiter" from a fetched candidate set with provenance; a superlative with no retrievable set → blocked.
 
 **Checkpoint**: US3 independently testable — superlatives corrected or blocked.
 
@@ -99,9 +99,9 @@ Single project. `src/llmxive/verify/{mode,approximate,compute,constants}.py`, `f
 
 **Independent Test**: "the capital of Australia is Sydney" → Canberra; multi-valued relation with a valid claimed object → VERIFIED; unsourceable → blocked.
 
-- [ ] T023 [US4] Enable RELATIONAL fill: `_FILLABLE_KINDS += {RELATIONAL}`; `channels_for(RELATIONAL)` → `[wikidata, wikipedia, paper]`; wire `_maybe_fill` into `claims/resolve.py` at `resolve_relational`'s NEI/REFUTED sites; ensure a claimed object that is one of several sourced-valid objects is VERIFIED (not over-corrected) — FR-009.
-- [ ] T024 [P] [US4] Write failing integration test `tests/integration/test_fill_relational_wireup.py`: a RELATIONAL claim filled (real FillResult at the seam) → VERIFIED with corrected object; the multi-valued-relation case (claimed object ∈ sourced set) → VERIFIED, not corrected.
-- [ ] T025 [P] [US4] Write failing real-call test `tests/real_call/test_fill_relational_real.py` (gated): "the capital of Australia is Sydney" → corrected to "Canberra" (triple form) with Wikidata/Wikipedia provenance; an unsourceable relation → blocked.
+- [X] T023 [US4] Enable RELATIONAL fill: `_FILLABLE_KINDS += {RELATIONAL}`; `channels_for(RELATIONAL)` → `[wikidata, wikipedia, paper]`; wire `_maybe_fill` into `claims/resolve.py` at `resolve_relational`'s NEI/REFUTED sites; ensure a claimed object that is one of several sourced-valid objects is VERIFIED (not over-corrected) — FR-009.
+- [X] T024 [P] [US4] Write failing integration test `tests/integration/test_fill_relational_wireup.py`: a RELATIONAL claim filled (real FillResult at the seam) → VERIFIED with corrected object; the multi-valued-relation case (claimed object ∈ sourced set) → VERIFIED, not corrected.
+- [X] T025 [P] [US4] Write failing real-call test `tests/real_call/test_fill_relational_real.py` (gated): "the capital of Australia is Sydney" → corrected to "Canberra" (triple form) with Wikidata/Wikipedia provenance; an unsourceable relation → blocked.
 
 **Checkpoint**: US4 independently testable — relations corrected/verified/blocked correctly.
 

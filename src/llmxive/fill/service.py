@@ -264,7 +264,7 @@ def _oeis_enrich(
 # Public API
 # ---------------------------------------------------------------------------
 
-_FILLABLE_KINDS = {ClaimKind.NUMERIC, ClaimKind.ENTITY_FACT}
+_FILLABLE_KINDS = {ClaimKind.NUMERIC, ClaimKind.ENTITY_FACT, ClaimKind.MAGNITUDE, ClaimKind.RELATIONAL}
 
 
 def fill_claim(
