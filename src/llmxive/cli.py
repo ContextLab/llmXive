@@ -54,6 +54,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # Spec 017: enable the authoritative-fill layer (auto-correct unresolvable
     # numeric/entity claims from OEIS/Wikipedia/Wikidata) on real pipeline runs.
     # OFF by default so offline tests stay network-free.
+    # Spec 018: the approximate-constant and computational verification modes
+    # (verify.mode.select_mode → approximate/computational branch in
+    # claims/resolve.py) also ride on this flag — no separate flag needed.
     os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")
 
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
