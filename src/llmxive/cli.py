@@ -45,6 +45,12 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # counts and run network-free) are unaffected; a real run always grounds.
     os.environ.setdefault("LLMXIVE_GROUNDING_GUARD", "1")
 
+    # Spec 016: enable the claim-verification layer (extract -> register ->
+    # substitute -> resolve -> render) on the reviser chokepoint for real
+    # pipeline runs. OFF by default for the same network-free-unit-test reason;
+    # a real run always verifies claims.
+    os.environ.setdefault("LLMXIVE_CLAIM_LAYER", "1")
+
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
     if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
         return _cmd_run_stage_independent(args)
