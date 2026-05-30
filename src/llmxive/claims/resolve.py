@@ -472,13 +472,182 @@ def select_resolver(kind: ClaimKind) -> Callable:
     return _DISPATCH[kind]
 
 
+def _extract_constant_from_text(text: str):
+    """Extract the constant name from claim text and return the CuratedConstant, or None."""
+    from llmxive.verify import constants as _const
+    from llmxive.verify.mode import _CONSTANT_NAMES, _SINGLE_LETTER_CONSTANTS
+    import re
+
+    lower = text.lower()
+    # Try multi-word constant names first (longest match wins), then single-letter
+    for name in sorted(_CONSTANT_NAMES, key=len, reverse=True):
+        if name in _SINGLE_LETTER_CONSTANTS:
+            if re.search(r"\b" + re.escape(name) + r"\b", lower):
+                entry = _const.lookup(name)
+                if entry is not None:
+                    return entry
+        else:
+            if name in lower:
+                entry = _const.lookup(name)
+                if entry is not None:
+                    return entry
+    return None
+
+
+def _resolve_approximate(claim: Claim, *, backend: Any, model: str | None,
+                          repo_root: Path) -> Verdict | None:
+    """Handle approximate mode claims (T010).
+
+    Returns a Verdict if the constants table has a true value, else None
+    (caller falls through to the normal kind dispatch).
+    """
+    from llmxive.verify import approximate as _approx
+    from llmxive.verify import constants as _const
+
+    text = claim.raw_text or claim.canonical or ""
+
+    # Extract a recognized constant from the claim text
+    const_entry = _extract_constant_from_text(text)
+    if const_entry is None and claim.canonical and claim.canonical != text:
+        const_entry = _extract_constant_from_text(claim.canonical)
+
+    if const_entry is None:
+        # No recognized constant → fall through to normal dispatch
+        return None
+
+    tv = const_entry.value
+
+    # Parse the claimed value from the text
+    try:
+        spec = _approx.parse_precision(text)
+    except ValueError:
+        # Cannot parse a number → fall through
+        return None
+
+    hedge = _approx.has_hedge(text)
+
+    if _approx.is_valid_rounding(spec.claimed, tv, decimals=spec.decimals, hedge=hedge):
+        # Valid rounding — keep value as written (FR-007)
+        # Format: integer-looking decimals (0) → no ".0"; otherwise fixed-point
+        if spec.decimals == 0:
+            _val_str = str(int(round(spec.claimed)))
+        else:
+            _val_str = f"{spec.claimed:.{spec.decimals}f}"
+        return Verdict(
+            status=ClaimStatus.VERIFIED,
+            value=_val_str,
+            evidence={
+                "mode": "approximate",
+                "constant": const_entry.key if const_entry else None,
+                "authority": const_entry.authority if const_entry else None,
+                "url": const_entry.url if const_entry else None,
+                "true_value": tv,
+            },
+            resolver="approximate",
+        )
+    else:
+        # Invalid rounding → correct to properly rounded value
+        corrected = _approx.correction(tv, decimals=spec.decimals)
+        return Verdict(
+            status=ClaimStatus.VERIFIED,
+            value=corrected,
+            evidence={
+                "mode": "approximate",
+                "corrected": True,
+                "constant": const_entry.key if const_entry else None,
+                "authority": const_entry.authority if const_entry else None,
+                "url": const_entry.url if const_entry else None,
+                "true_value": tv,
+                "asserted": str(spec.claimed),
+            },
+            resolver="approximate",
+        )
+
+
+def _resolve_computational(claim: Claim, *, backend: Any, model: str | None,
+                             repo_root: Path) -> Verdict | None:
+    """Handle computational mode claims (T018).
+
+    Returns a Verdict for verified/corrected claims, or None if not evaluable
+    (caller falls through to normal kind dispatch).
+    """
+    from llmxive.verify import compute as _compute
+
+    cv = _compute.verify_computational(claim, backend=backend, model=model,
+                                        repo_root=repo_root)
+
+    if cv.status == _compute.ComputeStatus.NOT_EVALUABLE:
+        return None
+
+    if cv.status == _compute.ComputeStatus.VERIFIED:
+        return Verdict(
+            status=ClaimStatus.VERIFIED,
+            value=cv.asserted,
+            evidence={
+                "mode": "computational",
+                "compute": {
+                    "expression": cv.expression,
+                    "computed": cv.computed,
+                },
+            },
+            resolver="compute",
+        )
+
+    # REFUTED — the computed value IS the authority
+    return Verdict(
+        status=ClaimStatus.VERIFIED,
+        value=cv.computed,
+        evidence={
+            "mode": "computational",
+            "corrected": True,
+            "compute": {
+                "expression": cv.expression,
+                "computed": cv.computed,
+            },
+            "asserted": cv.asserted,
+        },
+        resolver="compute",
+    )
+
+
 def resolve(claim: Claim, *, backend: Any, model: str | None,
             repo_root: Path) -> Verdict:
     """Dispatch to the correct resolver for ``claim.kind``.
 
+    When LLMXIVE_CLAIM_FILL=1, first applies mode-based routing:
+    - computational → verify_computational (sympy); not_evaluable falls through
+    - approximate   → constants-table lookup + precision compare; no match falls through
+    - else          → normal kind dispatch
+
+    RESULT-kind claims never route to computational (they assert empirical results).
+
     Returns a :class:`Verdict` — never raises. On any unexpected error
     returns NOT_ENOUGH_INFO (fail-safe: absence of evidence ≠ verified).
     """
+    if os.environ.get("LLMXIVE_CLAIM_FILL") == "1" and claim.kind != ClaimKind.RESULT:
+        try:
+            from llmxive.verify import mode as _mode
+            m = _mode.select_mode(claim, backend=backend, model=model, repo_root=repo_root)
+
+            if m == "computational":
+                v = _resolve_computational(claim, backend=backend, model=model,
+                                            repo_root=repo_root)
+                if v is not None:
+                    return v
+                # not_evaluable → fall through to normal dispatch
+
+            elif m == "approximate":
+                v = _resolve_approximate(claim, backend=backend, model=model,
+                                          repo_root=repo_root)
+                if v is not None:
+                    return v
+                # no constant found → fall through to normal dispatch
+
+        except Exception as exc:
+            logger.warning("claims.resolve: mode routing failed for %s (%s: %s)",
+                           claim.claim_id, type(exc).__name__, exc)
+            # Fall through to normal dispatch
+
     resolver_fn = select_resolver(claim.kind)
     try:
         return resolver_fn(claim, backend=backend, model=model, repo_root=repo_root)

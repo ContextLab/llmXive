@@ -22,6 +22,11 @@ def present_in_source(value: str, source: FetchedSource, kind: ClaimKind) -> boo
     NUMERIC      → delegates to ``grounding.service.number_substantiated`` which
                    handles comma/space thousand-separator variants and other
                    obviously-equivalent numeric representations.
+                   Exception (approximate mode): when the source comes from the
+                   constants channel, also accept a valid rounding of the constant
+                   value (FR-002).  This is conservative: ONLY applied when
+                   source.channel=="constants" (a recognized-constant source with
+                   a decimal value), never for bare integer counts (FR-003).
     ENTITY_FACT  → normalized located-in-text check (case/whitespace-insensitive
                    substring search).
     All others   → delegates to ``number_substantiated`` (conservative: treats
@@ -32,13 +37,49 @@ def present_in_source(value: str, source: FetchedSource, kind: ClaimKind) -> boo
     the LLM locator returned.
     """
     if kind == ClaimKind.NUMERIC:
-        return number_substantiated(value, source.text)
+        # Fast path: exact match
+        if number_substantiated(value, source.text):
+            return True
+
+        # Approximate path: only for the constants channel (zero-network, high
+        # authority) and ONLY when the value contains a decimal point (FR-003:
+        # never loosen bare integer counts).
+        if source.channel == "constants" and "." in value:
+            return _approximate_in_constants_source(value, source.text)
+
+        return False
 
     if kind == ClaimKind.ENTITY_FACT:
         return _entity_present(value, source.text)
 
     # For any other kind, fall back to the numeric gate (conservative).
     return number_substantiated(value, source.text)
+
+
+def _approximate_in_constants_source(value: str, source_text: str) -> bool:
+    """Return True if *value* is a valid rounding of the constant in *source_text*.
+
+    The constants channel stores text like "3.141592653589793 (math.pi ...)".
+    We parse the true value from source_text and use is_valid_rounding.
+    Conservative: requires a decimal point in *value* (no bare integers).
+    """
+    import re as _re
+    # Extract the leading float from source text (the actual constant value)
+    m = _re.search(r"-?\d+\.\d+(?:[eE][+-]?\d+)?", source_text)
+    if not m:
+        return False
+    try:
+        true_val = float(m.group(0))
+    except ValueError:
+        return False
+
+    try:
+        from llmxive.verify.approximate import has_hedge, is_valid_rounding, parse_precision
+        spec = parse_precision(value)
+        # For the gate check, use hedge=False (conservative — no surrounding context here)
+        return is_valid_rounding(spec.claimed, true_val, decimals=spec.decimals, hedge=False)
+    except Exception:
+        return False
 
 
 def _entity_present(value: str, text: str) -> bool:
