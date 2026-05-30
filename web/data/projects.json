@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T18:52:28.325632+00:00",
+  "generated_at": "2026-05-30T19:34:13.271050+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66033,6 +66033,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 189.183161,
+          "ended_at": "2026-05-30T19:34:09.863554+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "target_missing",
+          "started_at": "2026-05-30T19:31:00.680393+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 27.601905,
           "ended_at": "2026-05-30T12:24:11.592120+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -66102,14 +66110,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-28T08:20:00.509377+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 81.420509,
-          "ended_at": "2026-05-27T23:01:31.015882+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-27T23:00:09.595373+00:00"
         }
       ],
       "phase_group": "idea",
@@ -77385,6 +77385,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Linus Pauling (simulated)",
+      "duration_s": 189.183161,
+      "ended_at": "2026-05-30T19:34:09.863554+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "target_missing",
+      "personality_slug": "linus-pauling",
+      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-05-30T19:31:00.680393+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "John von Neumann (simulated)",
       "duration_s": 27.090926,
       "ended_at": "2026-05-30T18:52:24.348498+00:00",
@@ -84056,16 +84070,6 @@
       "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T14:38:32.973013Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 108.575291,
-      "ended_at": "2026-05-17T14:40:11.627430Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T14:38:23.052139Z"
     }
   ],
   "schema_version": "2.0.0"
