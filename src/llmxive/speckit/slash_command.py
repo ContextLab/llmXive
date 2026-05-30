@@ -220,6 +220,7 @@ def _validate_artifact_citations(
     """
     # Lazy import to avoid a cycle: speckit -> agents.reference_validator
     # would form a cycle on package import.
+    from llmxive.agents.citation_guard import verify_and_clean
     from llmxive.agents.reference_validator import validate_artifact
     from llmxive.state.project import hash_file
 
@@ -234,6 +235,29 @@ def _validate_artifact_citations(
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
+        # F-18 strip/flag pass: verify every external reference against its
+        # primary source (real HTTP via the canonical fetch_citation) and
+        # rewrite the doc IN PLACE, marking each unresolvable reference
+        # ``[UNVERIFIED: <ref> — <reason>]`` (Constitution Principle II — never
+        # silently publish a fabricated / unreachable citation). The cleaned
+        # text is written back BEFORE persistence so the citations store and
+        # the on-disk doc agree, and so the convergence panel never sees a
+        # fake reference to ask the reviser to "fix".
+        try:
+            cleaned, report = verify_and_clean(
+                text,
+                repo_root=repo,
+                project_id=ctx.project_id,
+                artifact_path=relpath,
+            )
+            if report.flagged_count and cleaned != text:
+                path.write_text(cleaned, encoding="utf-8")
+                text = cleaned
+        except Exception:
+            # Non-fatal: the guard must never block an artifact write. The
+            # reviser-path structural guard + the persisted-citations gate
+            # remain as backstops.
+            pass
         try:
             validate_artifact(
                 project_id=ctx.project_id,

@@ -284,7 +284,7 @@ def run_with_self_consistency(
         repo_root=repo_root,
     )
     if result.ok or not result.problems:
-        return updated, responses
+        return _strip_unresolvable_citations(updated), responses
 
     logger.info(
         "self-consistency flagged %d problem(s); running ONE corrective re-pass",
@@ -293,7 +293,52 @@ def run_with_self_consistency(
     # ONE corrective re-pass. If the re-pass itself raises, that is a genuine
     # reviser failure (not a self-consistency-check failure) and must surface
     # — the engine maps it to non-convergence.
-    return redo(corrective_instructions(result.problems))
+    corrected, corrected_responses = redo(corrective_instructions(result.problems))
+    return _strip_unresolvable_citations(corrected), corrected_responses
+
+
+def _strip_unresolvable_citations(artifacts: dict[str, str]) -> dict[str, str]:
+    """F-18 citation guard for the reviser path (network-free).
+
+    Every reviser routes its final output through here (via
+    :func:`run_with_self_consistency`), so a reviser-introduced fabricated /
+    malformed reference (e.g. ``arXiv:2402.13``) is marked ``[UNVERIFIED]``
+    BEFORE the next convergence panel round sees it — breaking the
+    fabrication cascade at its source (Constitution Principle II, #239).
+
+    Only STRUCTURALLY unresolvable references are flagged here (no HTTP): a
+    malformed arXiv id can be judged fabricated with zero network I/O, which
+    keeps the loop fast and offline reviser tests network-free. Full HTTP
+    verification runs at the stage-production point
+    (``slash_command._validate_artifact_citations`` → ``verify_and_clean``).
+
+    Sentinel/context keys (``__comments_block__`` etc.) and non-text artifacts
+    are skipped. Any failure here is swallowed — the guard must never crash a
+    revision.
+    """
+    from llmxive.agents.citation_guard import strip_unresolvable_offline
+
+    cleaned: dict[str, str] = dict(artifacts)
+    for path, body in artifacts.items():
+        if path.startswith("__") and path.endswith("__"):
+            continue
+        if not isinstance(body, str) or not body:
+            continue
+        try:
+            new_body, report = strip_unresolvable_offline(body)
+        except Exception as exc:  # never block a revision on the guard
+            logger.warning(
+                "citation guard failed on %s (%s: %s); leaving body untouched",
+                path, type(exc).__name__, exc,
+            )
+            continue
+        if report.flagged_count:
+            logger.info(
+                "citation guard flagged %d unresolvable reference(s) in %s: %s",
+                report.flagged_count, path, report.flagged_values,
+            )
+            cleaned[path] = new_body
+    return cleaned
 
 
 __all__ = [

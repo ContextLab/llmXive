@@ -27,7 +27,6 @@ from llmxive.convergence.revisers._reviser_response import (
 )
 from llmxive.convergence.types import Concern, Severity
 
-
 # A body that is hostile to JSON-string embedding: unescaped double quotes,
 # a literal backslash, a ``$`` (LaTeX-ish), and multiple newlines.
 _HOSTILE_BODY = (

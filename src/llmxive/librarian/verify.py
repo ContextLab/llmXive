@@ -347,6 +347,117 @@ def _head_with_get_fallback(url: str, *, timeout: float = 30.0) -> _HeadResult:
         return _HeadResult("unreachable", None, url, [], f"{type(exc).__name__}: {exc}")
 
 
+def _pointer_to_url(kind: str, value: str) -> str:
+    """Best-effort URL form of a reference pointer, registrar-agnostic.
+
+    ``kind`` ∈ {``url``, ``arxiv``, ``doi``}:
+
+    * ``url``   → returned as-is (already an absolute http(s) URL).
+    * ``doi``   → ``https://doi.org/<doi>`` — the registrar-AGNOSTIC resolver.
+      doi.org's HTTP redirect works for EVERY registrar (Crossref, DataCite,
+      mEDRA, …), so a Zenodo/PsyArXiv/OSF DataCite-or-Crossref DOI resolves
+      identically to a Crossref-only journal DOI. (A Crossref-only lookup would
+      404 on Zenodo/PsyArXiv DOIs and false-flag real references as fabricated.)
+    * ``arxiv`` → ``https://arxiv.org/abs/<id>``.
+
+    Falls back to the raw value when the shape is unrecognized (the existence
+    check will then report ``unreachable``, which is the correct outcome for a
+    malformed token such as ``arXiv:2402.13``).
+    """
+    v = value.strip()
+    if kind == "url":
+        return v
+    if kind == "doi":
+        # Tolerate a ``doi:`` prefix and a full doi.org URL.
+        v = re.sub(r"^(?:doi:)?\s*", "", v, flags=re.IGNORECASE)
+        if v.startswith(("http://", "https://")):
+            return v
+        return f"https://doi.org/{v}"
+    if kind == "arxiv":
+        if v.startswith(("http://", "https://")):
+            return v
+        # A well-formed modern or old-style arXiv id → arxiv.org/abs/<id>.
+        # Anything else (e.g. malformed ``2402.13``) still routes there so the
+        # arXiv abstract page 404s → ``unreachable`` → flagged.
+        return f"https://arxiv.org/abs/{v}"
+    return v  # unknown kind — best effort
+
+
+@dataclasses.dataclass(frozen=True)
+class ResolutionOutcome:
+    """Existence verdict for a single reference (anti-fabrication check).
+
+    ``state`` is one of:
+
+    * ``resolved``           — the reference EXISTS (final HTTP 2xx/3xx). Do NOT
+      flag.
+    * ``present_ambiguous``  — a real host answered with a paywall/rate-limit
+      (401/403/429) AFTER at least one redirect. The DOI/URL resolved to a real
+      landing page that simply gated the body; the reference EXISTS. Do NOT flag
+      (paywalled real papers must never be marked fabricated).
+    * ``unreachable``        — the reference does NOT exist: 404, DNS failure,
+      connection error, or a malformed token that resolves to nothing. FLAG it.
+
+    This is purely an existence / anti-fabrication check — it deliberately does
+    NOT compare titles, so a real but paywalled or title-unscrapable source is
+    never false-flagged.
+    """
+
+    state: Literal["resolved", "present_ambiguous", "unreachable"]
+    resolved_url: str
+    http_status: int | None
+    reason: str
+
+    @property
+    def present(self) -> bool:
+        """True when the reference exists (resolved OR present-but-gated)."""
+        return self.state in ("resolved", "present_ambiguous")
+
+
+def resolve_reference(
+    kind: str, value: str, *, timeout: float = 30.0
+) -> ResolutionOutcome:
+    """Registrar-agnostic existence check for one reference (real HTTP).
+
+    ``kind`` ∈ {``url``, ``arxiv``, ``doi``}; ``value`` is the raw reference
+    token (a bare URL, an arXiv id, or a DOI — with or without a ``doi:``
+    prefix). The reference is resolved through ``doi.org`` / ``arxiv.org`` /
+    the URL itself via a HEAD-with-GET-fallback that follows redirects (reusing
+    :func:`_head_with_get_fallback`), so EVERY DOI registrar (Crossref,
+    DataCite-minted Zenodo/PsyArXiv/OSF, mEDRA, …) is handled uniformly.
+
+    Outcome mapping (see :class:`ResolutionOutcome`):
+
+    * final 2xx/3xx                              → ``resolved``
+    * 401/403/429 AFTER ≥1 redirect (paywall)    → ``present_ambiguous``
+    * 404 / other 4xx-5xx / DNS / conn / malformed → ``unreachable``
+
+    No title-overlap requirement — this is an anti-fabrication existence check
+    only. Real HTTP, no mocks (Constitution Principle III).
+    """
+    url = _pointer_to_url(kind, value)
+    head = _head_with_get_fallback(url, timeout=min(30.0, timeout))
+    status = head.http_status
+    if status is not None and 200 <= status < 400:
+        return ResolutionOutcome("resolved", head.final_url, status, "")
+    if status in (401, 403, 429) and head.redirect_chain:
+        # A real host answered behind a paywall/rate-limit on a real landing
+        # page — the reference exists.
+        return ResolutionOutcome(
+            "present_ambiguous",
+            head.final_url,
+            status,
+            f"present but access-gated (HTTP {status} after redirect)",
+        )
+    if status is not None:
+        return ResolutionOutcome(
+            "unreachable", head.final_url, status, f"HTTP {status}"
+        )
+    return ResolutionOutcome(
+        "unreachable", head.final_url, None, head.error or "unreachable"
+    )
+
+
 def _candidate_url(candidate: Candidate) -> str:
     """Best-effort URL form of the candidate's primary_pointer.
 
@@ -446,11 +557,13 @@ __all__ = [
     "CITATION_TITLE_OVERLAP_THRESHOLD",
     "QUERY_RELEVANCE_THRESHOLD",
     "SUMMARY_GROUNDING_THRESHOLD",
+    "ResolutionOutcome",
     "VerificationFailure",
     "VerificationLog",
     "VerifiedCitation",
     "VerifyResult",
     "jaccard_tokens",
     "query_relevance_score",
+    "resolve_reference",
     "verify_citation",
 ]
