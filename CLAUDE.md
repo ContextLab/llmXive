@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/016-claim-verification/plan.md](specs/016-claim-verification/plan.md).
+[specs/017-claim-auto-correction/plan.md](specs/017-claim-auto-correction/plan.md).
 <!-- SPECKIT END -->
