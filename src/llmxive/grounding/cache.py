@@ -48,12 +48,14 @@ def _write(path: Path, data: dict[str, Any]) -> None:
     payload = json.dumps({"_ts": _now(), "data": data})
     fd, tmp = tempfile.mkstemp(dir=path.parent, suffix=path.suffix + ".tmp")
     try:
-        os.write(fd, payload.encode("utf-8"))
-        os.close(fd)
-        os.replace(tmp, path)
+        with os.fdopen(fd, "w") as f:   # closes fd exactly once
+            f.write(payload)
+        os.replace(tmp, path)            # atomic
     except Exception:
-        os.close(fd)
-        os.unlink(tmp)
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
         raise
 
 
