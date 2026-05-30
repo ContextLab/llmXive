@@ -15,7 +15,7 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Create the fill package skeleton: `src/llmxive/fill/__init__.py` (re-exports `service.fill_claim`) and `src/llmxive/fill/channels/__init__.py`.
+- [X] T001 Create the fill package skeleton: `src/llmxive/fill/__init__.py` (re-exports `service.fill_claim`) and `src/llmxive/fill/channels/__init__.py`.
 - [ ] T002 Capture the baseline offline gate: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record the pass count (regression baseline; currently ~1511).
 
 ---
@@ -24,16 +24,16 @@ Single project. New package `src/llmxive/fill/` (+ `channels/`); tests under `te
 
 **Purpose**: entities + pure logic every story depends on. No story proceeds until these are green.
 
-- [ ] T003 [P] Write failing unit test `tests/unit/test_fill_models.py` for `fill/models.py`: `FetchedSource`, `FillProvenance`, `FillResult` construct/validate; `FillResult.status in {"filled","blocked"}`; a `filled` result requires non-null value+provenance.
-- [ ] T004 Implement `src/llmxive/fill/models.py` (frozen dataclasses per data-model.md). Make T003 pass.
-- [ ] T005 [P] Write failing unit test `tests/unit/test_fill_subject_query.py` for `fill/subject_query.py::strip_asserted_value`: "27,635 prime knots at 13 crossings" with value "27635"/"27,635" → query keeps "prime knots"/"13 crossings", drops the number (pure, deterministic, no backend).
-- [ ] T006 Implement `src/llmxive/fill/subject_query.py`: pure `strip_asserted_value(raw_text, value)` + `subject_query(claim, *, backend=None, model=None, repo_root=None)` (falls back to the pure strip when no backend). Make T005 pass.
-- [ ] T007 [P] Write failing unit test `tests/unit/test_fill_extract_gate.py` for `fill/extract.py::present_in_source`: numeric delegates to `grounding.service.number_substantiated` (True when the value is in `source.text`, False when absent); entity uses a normalized located-in-text check (real strings, NO mock backend — this is the safety gate).
-- [ ] T008 Implement `src/llmxive/fill/extract.py`: `present_in_source(value, source, kind)` (deterministic, reuses `number_substantiated`) and `extract_value(source, claim, *, backend, model, repo_root)` (LLM locator that returns a candidate ONLY if `present_in_source` passes — returns None otherwise). Make T007 pass; the LLM path is exercised real in US1/US2.
-- [ ] T009 [P] Write failing unit test `tests/unit/test_fill_conflict.py` for `fill/conflict.py::choose`: given (source, value) pairs from channels of differing `authority`, returns the highest-authority value + the `conflicts` list of lower-authority disagreements; never drops a conflict (pure).
-- [ ] T010 Implement `src/llmxive/fill/conflict.py` + the `AUTHORITY` map and `channels_for(kind, *, math)` routing in `src/llmxive/fill/channels/__init__.py` (oeis<wikidata<wikipedia<theorem<paper; v1 routes numeric→[oeis,wikipedia,paper(,theorem if math)], entity→[wikidata,wikipedia,paper], others→[]). Make T009 pass.
-- [ ] T011 [P] Write failing unit test `tests/unit/test_fill_citation_repair.py` for `fill/citation_repair.py::repair_citation`: given doc text with a claim value + a stale/free-text citation and a `FillProvenance`, the citation adjacent to the value is rewritten/annotated to the authoritative source (e.g. `(OEIS A002863, oeis.org/A002863)`); idempotent; unrelated prose untouched (pure; reuse `agents/citation_guard` occurrence regexes).
-- [ ] T012 Implement `src/llmxive/fill/citation_repair.py`. Make T011 pass.
+- [X] T003 [P] Write failing unit test `tests/unit/test_fill_models.py` for `fill/models.py`: `FetchedSource`, `FillProvenance`, `FillResult` construct/validate; `FillResult.status in {"filled","blocked"}`; a `filled` result requires non-null value+provenance.
+- [X] T004 Implement `src/llmxive/fill/models.py` (frozen dataclasses per data-model.md). Make T003 pass.
+- [X] T005 [P] Write failing unit test `tests/unit/test_fill_subject_query.py` for `fill/subject_query.py::strip_asserted_value`: "27,635 prime knots at 13 crossings" with value "27635"/"27,635" → query keeps "prime knots"/"13 crossings", drops the number (pure, deterministic, no backend).
+- [X] T006 Implement `src/llmxive/fill/subject_query.py`: pure `strip_asserted_value(raw_text, value)` + `subject_query(claim, *, backend=None, model=None, repo_root=None)` (falls back to the pure strip when no backend). Make T005 pass.
+- [X] T007 [P] Write failing unit test `tests/unit/test_fill_extract_gate.py` for `fill/extract.py::present_in_source`: numeric delegates to `grounding.service.number_substantiated` (True when the value is in `source.text`, False when absent); entity uses a normalized located-in-text check (real strings, NO mock backend — this is the safety gate).
+- [X] T008 Implement `src/llmxive/fill/extract.py`: `present_in_source(value, source, kind)` (deterministic, reuses `number_substantiated`) and `extract_value(source, claim, *, backend, model, repo_root)` (LLM locator that returns a candidate ONLY if `present_in_source` passes — returns None otherwise). Make T007 pass; the LLM path is exercised real in US1/US2.
+- [X] T009 [P] Write failing unit test `tests/unit/test_fill_conflict.py` for `fill/conflict.py::choose`: given (source, value) pairs from channels of differing `authority`, returns the highest-authority value + the `conflicts` list of lower-authority disagreements; never drops a conflict (pure).
+- [X] T010 Implement `src/llmxive/fill/conflict.py` + the `AUTHORITY` map and `channels_for(kind, *, math)` routing in `src/llmxive/fill/channels/__init__.py` (oeis<wikidata<wikipedia<theorem<paper; v1 routes numeric→[oeis,wikipedia,paper(,theorem if math)], entity→[wikidata,wikipedia,paper], others→[]). Make T009 pass.
+- [X] T011 [P] Write failing unit test `tests/unit/test_fill_citation_repair.py` for `fill/citation_repair.py::repair_citation`: given doc text with a claim value + a stale/free-text citation and a `FillProvenance`, the citation adjacent to the value is rewritten/annotated to the authoritative source (e.g. `(OEIS A002863, oeis.org/A002863)`); idempotent; unrelated prose untouched (pure; reuse `agents/citation_guard` occurrence regexes).
+- [X] T012 Implement `src/llmxive/fill/citation_repair.py`. Make T011 pass.
 
 **Checkpoint**: models, pure subject-query, the present-in-source gate, conflict ordering, channel routing, and citation repair all green offline.
 
