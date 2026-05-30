@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Optional
 
 # ---------------------------------------------------------------------------
 # Data model
@@ -196,8 +195,8 @@ def correction(true_value: float, *, decimals: int) -> str:
 
 __all__ = [
     "PrecisionSpec",
-    "has_hedge",
-    "parse_precision",
-    "is_valid_rounding",
     "correction",
+    "has_hedge",
+    "is_valid_rounding",
+    "parse_precision",
 ]

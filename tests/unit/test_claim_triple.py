@@ -7,8 +7,6 @@ Tests:
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.triple import check_ordering, decompose_triple
 
 

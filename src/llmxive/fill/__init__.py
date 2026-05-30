@@ -14,9 +14,9 @@ without pulling in all channel/HTTP dependencies at import time.
 from __future__ import annotations
 
 
-def __getattr__(name: str):  # noqa: ANN001
+def __getattr__(name: str):
     if name == "fill_claim":
-        from llmxive.fill import service  # noqa: PLC0415
+        from llmxive.fill import service
 
         return service.fill_claim
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

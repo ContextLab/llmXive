@@ -9,12 +9,8 @@ no mock channels — the injected value is a real FillResult object) and asserts
 
 from __future__ import annotations
 
-import importlib
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, Verdict, compute_claim_id
 from llmxive.fill.models import FillProvenance, FillResult
-
 
 # ---------------------------------------------------------------------------
 # Helper: a real FillResult.filled for A002863 / 9988
@@ -65,8 +61,8 @@ class TestFillWireup:
         import.  We patch the function at its definition site inside the module
         namespace so the local import sees the patched version.
         """
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
 
@@ -134,8 +130,8 @@ class TestFillWireup:
 
     def test_result_kind_never_filled(self, monkeypatch, tmp_path):
         """RESULT claims must not be upgraded even when LLMXIVE_CLAIM_FILL=1."""
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
         original = fill_service_mod.fill_claim
@@ -171,8 +167,8 @@ class TestFillWireup:
 
     def test_fill_blocked_returns_original(self, monkeypatch, tmp_path):
         """If fill returns blocked, the original verdict is returned unchanged."""
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         blocked = FillResult.blocked("no source found", ["oeis", "wikipedia"])
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")

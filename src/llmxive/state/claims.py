@@ -92,4 +92,4 @@ def get(project_id: str, claim_id: str, *, repo_root: Path | None = None) -> Cla
     return None
 
 
-__all__ = ["load", "save", "upsert", "get"]
+__all__ = ["get", "load", "save", "upsert"]

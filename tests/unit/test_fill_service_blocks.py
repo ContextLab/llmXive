@@ -13,8 +13,6 @@ Tests the deterministic blocked path:
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 from llmxive.fill.models import FillResult
 from llmxive.fill.service import fill_claim
@@ -44,7 +42,7 @@ class TestFillClaimBlockedPath:
 
     def test_numeric_all_channels_empty_blocked(self, monkeypatch):
         """NUMERIC: all channels return [] → blocked with correct reason."""
-        from llmxive.fill.channels import oeis, wikipedia, papers
+        from llmxive.fill.channels import oeis, papers, wikipedia
 
         monkeypatch.setattr(oeis, "search_and_fetch", lambda q, c, **kw: [])
         monkeypatch.setattr(oeis, "fetch_bfile", lambda a, **kw: {})
@@ -66,7 +64,7 @@ class TestFillClaimBlockedPath:
 
     def test_numeric_blocked_channels_tried_recorded(self, monkeypatch):
         """When channels are tried but return no sources, channels_tried is populated."""
-        from llmxive.fill.channels import oeis, wikipedia, papers
+        from llmxive.fill.channels import oeis, papers, wikipedia
 
         monkeypatch.setattr(oeis, "search_and_fetch", lambda q, c, **kw: [])
         monkeypatch.setattr(oeis, "fetch_bfile", lambda a, **kw: {})
@@ -85,7 +83,7 @@ class TestFillClaimBlockedPath:
 
     def test_entity_all_channels_empty_blocked(self, monkeypatch):
         """ENTITY_FACT: all channels return [] → blocked."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
 
         try:
             from llmxive.fill.channels import wikidata
@@ -110,7 +108,7 @@ class TestFillClaimBlockedPath:
         """MAGNITUDE is now fillable (spec 018, T020); with all channels returning []
         offline it is blocked at 'not present in any fetched source', not the kind
         guard ('not fillable' must NOT appear in the reason)."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
         try:
             from llmxive.fill.channels import wikidata
             monkeypatch.setattr(wikidata, "search_and_fetch", lambda q, c, **kw: [])
@@ -126,7 +124,7 @@ class TestFillClaimBlockedPath:
 
     def test_relational_blocked_no_sources(self, monkeypatch):
         """RELATIONAL is now fillable (spec 018, T023); blocked only when channels empty."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
         try:
             from llmxive.fill.channels import wikidata
             monkeypatch.setattr(wikidata, "search_and_fetch", lambda q, c, **kw: [])
@@ -143,7 +141,7 @@ class TestFillClaimBlockedPath:
     def test_blocked_result_has_no_provenance(self, monkeypatch):
         """A blocked result MUST NOT carry provenance (trust boundary: provenance
         only built from a source whose text contains the value)."""
-        from llmxive.fill.channels import oeis, wikipedia, papers
+        from llmxive.fill.channels import oeis, papers, wikipedia
 
         monkeypatch.setattr(oeis, "search_and_fetch", lambda q, c, **kw: [])
         monkeypatch.setattr(oeis, "fetch_bfile", lambda a, **kw: {})

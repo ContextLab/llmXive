@@ -16,6 +16,7 @@ Assertions:
 from __future__ import annotations
 
 import os
+
 import pytest
 
 pytestmark = pytest.mark.skipif(
@@ -73,9 +74,8 @@ class TestWikipediaChannelReal:
 
     def test_a_numbers_surfaced_from_wikipedia_text(self):
         """Wikipedia article about prime knots should surface OEIS A-number A002863."""
-        from llmxive.fill.channels.wikipedia import search_and_fetch
         from llmxive.fill.channels.oeis import a_numbers_in
-        from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
+        from llmxive.fill.channels.wikipedia import search_and_fetch
 
         claim = _make_claim("prime knots by crossing number", "9988")
         sources = search_and_fetch("number of prime knots by crossing number", claim)

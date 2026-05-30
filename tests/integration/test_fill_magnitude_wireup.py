@@ -9,11 +9,8 @@ Injects a real FillResult.filled("Jupiter", ...) at the fill_claim seam
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, Verdict, compute_claim_id
 from llmxive.fill.models import FillProvenance, FillResult
-
 
 # ---------------------------------------------------------------------------
 # Real FillResult for Jupiter (largest planet)
@@ -65,8 +62,8 @@ class TestFillMagnitudeWireup:
         The seam is fill_claim in fill.service — patched so the local import
         inside _maybe_fill sees the real FillResult.
         """
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
 
@@ -116,8 +113,8 @@ class TestFillMagnitudeWireup:
 
     def test_fill_blocked_returns_original_verdict(self, monkeypatch, tmp_path):
         """If fill is blocked, the original NEI verdict is returned."""
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         blocked = FillResult.blocked("no candidate set found", ["wikidata", "wikipedia"])
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
@@ -140,14 +137,14 @@ class TestFillMagnitudeWireup:
 
     def test_magnitude_kind_is_fillable(self):
         """MAGNITUDE must now be in _FILLABLE_KINDS (T020)."""
-        from llmxive.fill.service import _FILLABLE_KINDS
         from llmxive.claims.models import ClaimKind
+        from llmxive.fill.service import _FILLABLE_KINDS
         assert ClaimKind.MAGNITUDE in _FILLABLE_KINDS
 
     def test_magnitude_channels_routed(self):
         """channels_for(MAGNITUDE) must return non-empty list (T020)."""
-        from llmxive.fill.channels import channels_for
         from llmxive.claims.models import ClaimKind
+        from llmxive.fill.channels import channels_for
         ch = channels_for(ClaimKind.MAGNITUDE, math=False)
         assert len(ch) > 0
         assert "wikidata" in ch or "wikipedia" in ch

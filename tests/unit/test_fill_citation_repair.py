@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 from llmxive.fill.citation_repair import repair_citation
 from llmxive.fill.models import FillProvenance

@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.verify.mode import looks_self_contained, looks_approximate, select_mode
+from llmxive.verify.mode import looks_approximate, looks_self_contained, select_mode
 
 
 def _make_claim(

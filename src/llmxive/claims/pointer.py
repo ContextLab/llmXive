@@ -10,16 +10,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from llmxive.claims.gate import CLAIM_MARKER_PREFIX
 from llmxive.claims.models import Claim, ClaimStatus
 
 # Own regex for claim pointers — colon in name requires separate RE.
 _CLAIM_POINTER_RE = re.compile(
     r"\{\{\s*claim:(?P<id>c_[0-9a-f]{8})\s*\}\}"
 )
-
-# Import the marker prefix lazily to avoid a circular import at module load.
-# gate.py imports nothing from pointer.py, so a direct import is safe.
-from llmxive.claims.gate import CLAIM_MARKER_PREFIX
 
 
 @dataclass

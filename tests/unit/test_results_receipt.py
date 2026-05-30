@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-from pathlib import Path
 
 import pytest
 
@@ -21,7 +19,6 @@ from llmxive.results.receipt import (
     sign_receipt,
     verify_receipt,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -22,11 +22,8 @@ import yaml
 from llmxive.pipeline._kickback import (
     CLAIM_RETRY_BUDGET,
     CONVERGENCE_KICKBACK_CAP,
-    KickbackDecision,
     consume_convergence_kickback,
-    reset_kickback_count,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

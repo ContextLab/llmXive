@@ -11,11 +11,8 @@ Injects a real FillResult.filled("Canberra", ...) at the fill_claim seam
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, Verdict, compute_claim_id
 from llmxive.fill.models import FillProvenance, FillResult
-
 
 # ---------------------------------------------------------------------------
 # Real FillResult objects
@@ -74,8 +71,8 @@ class TestFillRelationalWireup:
 
     def test_fill_flag_on_upgrades_nei_to_verified(self, monkeypatch, tmp_path):
         """With LLMXIVE_CLAIM_FILL=1, a RELATIONAL NEI → VERIFIED with Canberra."""
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
 
@@ -130,8 +127,8 @@ class TestFillRelationalWireup:
         claim; the result should be VERIFIED, not over-corrected to a different
         language.
         """
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
 
@@ -161,8 +158,8 @@ class TestFillRelationalWireup:
 
     def test_fill_blocked_returns_original_verdict(self, monkeypatch, tmp_path):
         """If fill is blocked, the original NEI verdict is returned."""
-        import llmxive.fill.service as fill_service_mod
         import llmxive.claims.resolve as resolve_mod
+        import llmxive.fill.service as fill_service_mod
 
         blocked = FillResult.blocked("no authoritative source", ["wikidata", "wikipedia"])
         monkeypatch.setenv("LLMXIVE_CLAIM_FILL", "1")
@@ -185,14 +182,14 @@ class TestFillRelationalWireup:
 
     def test_relational_kind_is_fillable(self):
         """RELATIONAL must now be in _FILLABLE_KINDS (T023)."""
-        from llmxive.fill.service import _FILLABLE_KINDS
         from llmxive.claims.models import ClaimKind
+        from llmxive.fill.service import _FILLABLE_KINDS
         assert ClaimKind.RELATIONAL in _FILLABLE_KINDS
 
     def test_relational_channels_routed(self):
         """channels_for(RELATIONAL) must return non-empty list (T023)."""
-        from llmxive.fill.channels import channels_for
         from llmxive.claims.models import ClaimKind
+        from llmxive.fill.channels import channels_for
         ch = channels_for(ClaimKind.RELATIONAL, math=False)
         assert len(ch) > 0
         assert "wikidata" in ch or "wikipedia" in ch

@@ -38,7 +38,7 @@ class TestChoose:
         """OEIS (authority=0) beats Wikipedia (authority=2) even if listed second."""
         oeis = _src("oeis", "A002863", "9988")
         wiki = _src("wikipedia", "Prime_knot", "9988")
-        winner_src, winner_val, conflicts = choose([(wiki, "9988"), (oeis, "9988")])
+        winner_src, winner_val, _conflicts = choose([(wiki, "9988"), (oeis, "9988")])
         assert winner_src is oeis
         assert winner_val == "9988"
 
@@ -46,7 +46,7 @@ class TestChoose:
         """Lower-authority source with DIFFERENT value → recorded in conflicts."""
         oeis = _src("oeis", "A002863", "9988")
         wiki = _src("wikipedia", "Prime_knot", "27635")
-        winner_src, winner_val, conflicts = choose([(oeis, "9988"), (wiki, "27635")])
+        _winner_src, winner_val, conflicts = choose([(oeis, "9988"), (wiki, "27635")])
         assert winner_val == "9988"
         assert len(conflicts) == 1
         c = conflicts[0]

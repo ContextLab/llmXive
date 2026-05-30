@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
-from llmxive.claims.pointer import GateReport, render, substitute_pointers, to_pointer
+from llmxive.claims.pointer import render, substitute_pointers, to_pointer
 
 
 def _verified_claim(canonical: str = "x=42", context: str = "ctx") -> Claim:
@@ -85,7 +83,7 @@ class TestRender:
         c = _verified_claim()
         ptr = to_pointer(c.claim_id)
         text = f"The count is {ptr}."
-        rendered, report = render(text, {c.claim_id: c})
+        rendered, _report = render(text, {c.claim_id: c})
         assert "42" in rendered
         assert ptr not in rendered
 
@@ -96,7 +94,7 @@ class TestRender:
         c.resolved_value = "9988"
         ptr = to_pointer(c.claim_id)
         text = f"There are {ptr} prime knots."
-        rendered, report = render(text, {c.claim_id: c})
+        rendered, _report = render(text, {c.claim_id: c})
         assert "9988" in rendered
         assert "27635" not in rendered
 
@@ -104,14 +102,14 @@ class TestRender:
         c = _pending_claim()
         ptr = to_pointer(c.claim_id)
         text = f"Value is {ptr} here."
-        rendered, report = render(text, {c.claim_id: c})
+        rendered, _report = render(text, {c.claim_id: c})
         assert "[UNRESOLVED-CLAIM:" in rendered
         assert ptr not in rendered
 
     def test_missing_claim_renders_marker(self):
         ptr = to_pointer("c_00000000")
         text = f"Value is {ptr} here."
-        rendered, report = render(text, {})
+        rendered, _report = render(text, {})
         assert "[UNRESOLVED-CLAIM:" in rendered
 
     def test_gate_report_blocked_when_unresolved(self):
@@ -143,7 +141,7 @@ class TestRender:
         # pointer with extra whitespace inside braces
         text = f"Value is {{{{ claim: {c.claim_id} }}}}."
         # The regex allows optional whitespace: \{\{\s*claim:...\s*\}\}
-        rendered, report = render(text, {c.claim_id: c})
+        rendered, _report = render(text, {c.claim_id: c})
         # Either matched and substituted, or left and blocked — either is valid
         # but this tests the regex handles it gracefully (no crash)
         assert isinstance(rendered, str)

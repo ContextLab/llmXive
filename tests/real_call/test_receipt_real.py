@@ -11,11 +11,9 @@ False and resolution blocked.
 from __future__ import annotations
 
 import hashlib
-import os
 import subprocess
 import sys
 import textwrap
-from pathlib import Path
 
 import pytest
 
@@ -24,12 +22,9 @@ from llmxive.claims.resolve import resolve_result
 from llmxive.results.harness import mint_receipt, result_backed
 from llmxive.results.receipt import (
     RECEIPT_KEY_ENV,
-    Receipt,
     load_signing_key,
-    sign_receipt,
     verify_receipt,
 )
-from llmxive.state import results as _result_store
 
 # All receipt tests are offline-deterministic; set the key for the session.
 pytestmark = pytest.mark.usefixtures("_signing_key")
@@ -178,7 +173,7 @@ class TestUnbackedResultBlocked:
 class TestForgeryBlocked:
     def test_wrong_key_fails_verify(self, repo_root):
         """Signing with one key and verifying with another → False (SC-004)."""
-        key = load_signing_key()
+        _key = load_signing_key()
         receipt = mint_receipt(
             value="100",
             kind="scalar",

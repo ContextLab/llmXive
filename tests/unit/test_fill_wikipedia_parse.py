@@ -9,8 +9,7 @@ import os
 
 import pytest
 
-from llmxive.fill.channels.wikipedia import _parse_search, _parse_extract
-
+from llmxive.fill.channels.wikipedia import _parse_extract, _parse_search
 
 # ---------------------------------------------------------------------------
 # _parse_search — pure parser for action=query&list=search JSON

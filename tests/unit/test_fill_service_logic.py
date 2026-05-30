@@ -6,16 +6,14 @@ Tests only the deterministic guard paths that do NOT touch network/LLM:
     (exercised by passing a NUMERIC claim with no A-numbers and no network)
 
 These tests must pass fully offline.  The full search path is real-call
-tested in T021–T023.
+tested in T021-T023.
 """
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
-from llmxive.fill.service import fill_claim
 from llmxive.fill.models import FillResult
+from llmxive.fill.service import fill_claim
 
 
 def _make_claim(kind: ClaimKind, raw: str, canonical: str | None = None,
@@ -47,7 +45,7 @@ class TestKindGuard:
         """MAGNITUDE is now fillable (spec 018); with all channels returning []
         offline it is blocked at 'not present in any fetched source', not at the
         kind guard."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
         try:
             from llmxive.fill.channels import wikidata
             monkeypatch.setattr(wikidata, "search_and_fetch", lambda q, c, **kw: [])
@@ -65,7 +63,7 @@ class TestKindGuard:
 
     def test_relational_blocked_no_sources(self, monkeypatch):
         """RELATIONAL is now fillable (spec 018); blocked only when channels empty."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
         try:
             from llmxive.fill.channels import wikidata
             monkeypatch.setattr(wikidata, "search_and_fetch", lambda q, c, **kw: [])
@@ -106,8 +104,7 @@ class TestNoSourcesBlocked:
     def test_numeric_no_a_numbers_no_network(self, monkeypatch):
         """NUMERIC claim with no A-numbers: OEIS channel returns [], other channels
         are patched to return [] to avoid real HTTP calls in unit tests."""
-        from llmxive.fill.channels import wikipedia, papers
-        from llmxive.fill.channels import oeis
+        from llmxive.fill.channels import oeis, papers, wikipedia
 
         monkeypatch.setattr(wikipedia, "search_and_fetch", lambda q, c, **kw: [])
         monkeypatch.setattr(papers, "search_and_fetch", lambda q, c, **kw: [])
@@ -126,7 +123,7 @@ class TestNoSourcesBlocked:
 
     def test_entity_fact_no_sources(self, monkeypatch):
         """ENTITY_FACT with all channels patched to [] → blocked."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
         try:
             from llmxive.fill.channels import wikidata
             monkeypatch.setattr(wikidata, "search_and_fetch", lambda q, c, **kw: [])
@@ -157,7 +154,7 @@ class TestFillResultContract:
         channels that were attempted (not [] as when kind-blocked).  With all
         channels patched to [] the result is still blocked but channels_tried is
         non-empty, proving the kind guard no longer fires."""
-        from llmxive.fill.channels import wikipedia, papers
+        from llmxive.fill.channels import papers, wikipedia
         try:
             from llmxive.fill.channels import wikidata
             monkeypatch.setattr(wikidata, "search_and_fetch", lambda q, c, **kw: [])

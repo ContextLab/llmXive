@@ -18,6 +18,7 @@ failing.
 from __future__ import annotations
 
 import os
+
 import pytest
 
 pytestmark = pytest.mark.skipif(
@@ -30,8 +31,8 @@ _OEIS_SOURCE_ID = "url"
 
 
 def _get_backend_and_model():
-    from llmxive.credentials import load_dartmouth_key
     from llmxive.backends.dartmouth import DartmouthBackend
+    from llmxive.credentials import load_dartmouth_key
 
     key = load_dartmouth_key()
     if not key:
@@ -50,7 +51,7 @@ class TestClaimResolveReal:
 
     def test_fabricated_27635_not_verified(self, tmp_path):
         """27,635 prime knots → REFUTED or NOT_ENOUGH_INFO, never VERIFIED."""
-        from llmxive.claims.models import ClaimKind, ClaimStatus, Claim, compute_claim_id
+        from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
         from llmxive.claims.resolve import resolve
 
         backend, model = _get_backend_and_model()
@@ -91,10 +92,8 @@ class TestClaimResolveReal:
         If unreachable: assert NOT_ENOUGH_INFO (marker path — absence of source
         does not produce VERIFIED).
         """
-        from llmxive.claims.models import ClaimKind, ClaimStatus, Claim, compute_claim_id
+        from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
         from llmxive.claims.resolve import resolve
-        from llmxive.claims.pointer import render, to_pointer
-        from llmxive.claims.gate import CLAIM_MARKER_PREFIX
 
         backend, model = _get_backend_and_model()
 
@@ -135,8 +134,8 @@ class TestClaimResolveReal:
 
     def test_rendered_text_never_contains_27635(self, tmp_path):
         """process_document on a doc with the fabricated count must not emit 27,635."""
-        from llmxive.claims.service import process_document
         from llmxive.claims.gate import CLAIM_MARKER_PREFIX
+        from llmxive.claims.service import process_document
 
         backend, model = _get_backend_and_model()
 
@@ -146,7 +145,7 @@ class TestClaimResolveReal:
             "The study of knots began with Gauss."
         )
 
-        rendered, claims, gate_report = process_document(
+        rendered, _claims, _gate_report = process_document(
             doc,
             artifact_path="test/knots.md",
             project_id="PROJ-TEST-REAL",

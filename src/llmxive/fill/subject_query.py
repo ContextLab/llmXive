@@ -134,7 +134,7 @@ def subject_query(
     if claim.kind == ClaimKind.RELATIONAL:
         try:
             from llmxive.claims.triple import decompose_triple
-            subj, rel, obj = decompose_triple(raw)
+            subj, _rel, obj = decompose_triple(raw)
             # The object of the decomposed triple often contains both the
             # entity (e.g. "Australia") and the asserted value (e.g. "Sydney")
             # joined by "is".  Strip the asserted value to get the entity.
@@ -154,7 +154,7 @@ def subject_query(
     elif claim.kind == ClaimKind.MAGNITUDE:
         try:
             from llmxive.claims.triple import decompose_triple
-            subj, rel, obj = decompose_triple(raw)
+            subj, _rel, obj = decompose_triple(raw)
             # The object is the asserted extremum (e.g. "Saturn"); the subject
             # carries the category (e.g. "the largest planet").
             # Strip the asserted object from the subject to get the category.

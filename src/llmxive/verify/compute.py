@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from llmxive.claims.models import Claim
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 # Data model
 # ---------------------------------------------------------------------------
 
-class ComputeStatus(str, Enum):
+class ComputeStatus(str, Enum):  # noqa: UP042 - str+Enum mixin kept; StrEnum changes str() repr
     VERIFIED = "verified"
     REFUTED = "refuted"
     NOT_EVALUABLE = "not_evaluable"
@@ -117,7 +117,7 @@ _UNIT_CONV_RE = re.compile(
 _CMP_EXPR_RE = re.compile(r"[<>]=?|!=|==")
 
 
-def evaluate(expression: str) -> Optional[str]:
+def evaluate(expression: str) -> str | None:
     """Evaluate *expression* using sympy. Returns a string result or None.
 
     Safety: uses sympy.parsing.sympy_parser.parse_expr with restricted locals.
@@ -134,11 +134,10 @@ def evaluate(expression: str) -> Optional[str]:
     """
     try:
         import sympy
-        import sympy.physics.units as _units
         from sympy.parsing.sympy_parser import (
+            implicit_multiplication_application,
             parse_expr,
             standard_transformations,
-            implicit_multiplication_application,
         )
         from sympy.physics.units.util import convert_to
 
@@ -171,7 +170,7 @@ def evaluate(expression: str) -> Optional[str]:
             return str(simplified)
 
         # --- Sympy parse_expr for everything else ---
-        transformations = standard_transformations + (implicit_multiplication_application,)
+        transformations = (*standard_transformations, implicit_multiplication_application)
         locs = _get_locals()
 
         parsed = parse_expr(expr, local_dict=locs, transformations=transformations,
@@ -274,12 +273,12 @@ def _strip_commas(s: str) -> str:
 
 
 def extract_expression(
-    claim: "Claim",
+    claim: Claim,
     *,
     backend,
-    model: Optional[str],
-    repo_root: Optional[str],
-) -> Optional[tuple[str, str]]:
+    model: str | None,
+    repo_root: str | None,
+) -> tuple[str, str] | None:
     """Locate (expression, asserted_result) from claim text.
 
     With backend=None: deterministic regex parser for common forms:
@@ -349,9 +348,9 @@ def _llm_extract(
     text: str,
     *,
     backend,
-    model: Optional[str],
-    repo_root: Optional[str],
-) -> Optional[tuple[str, str]]:
+    model: str | None,
+    repo_root: str | None,
+) -> tuple[str, str] | None:
     """Ask an LLM to locate (expression, asserted_result) from claim text.
 
     The LLM ONLY identifies the expression and the claimed result — it NEVER
@@ -391,11 +390,11 @@ def _llm_extract(
 # ---------------------------------------------------------------------------
 
 def verify_computational(
-    claim: "Claim",
+    claim: Claim,
     *,
     backend=None,
-    model: Optional[str] = None,
-    repo_root: Optional[str] = None,
+    model: str | None = None,
+    repo_root: str | None = None,
 ) -> ComputeVerdict:
     """Verify a self-contained claim by sympy evaluation.
 
@@ -470,7 +469,7 @@ def _compare(asserted: str, computed: str) -> bool:
         if abs(a_f - c_f) < 1e-9 * max(1.0, abs(c_f)):
             return True
         # 3. Approximate rounding
-        from llmxive.verify.approximate import parse_precision, is_valid_rounding
+        from llmxive.verify.approximate import is_valid_rounding, parse_precision
         try:
             spec = parse_precision(a_norm)
             if is_valid_rounding(spec.claimed, c_f, decimals=spec.decimals, hedge=False):
@@ -485,11 +484,11 @@ def _compare(asserted: str, computed: str) -> bool:
     try:
         import sympy
         from sympy.parsing.sympy_parser import (
+            implicit_multiplication_application,
             parse_expr,
             standard_transformations,
-            implicit_multiplication_application,
         )
-        transformations = standard_transformations + (implicit_multiplication_application,)
+        transformations = (*standard_transformations, implicit_multiplication_application)
         locs = _get_locals()
         a_sym = parse_expr(a_norm, local_dict=locs, transformations=transformations)
         c_sym = parse_expr(c_norm, local_dict=locs, transformations=transformations)

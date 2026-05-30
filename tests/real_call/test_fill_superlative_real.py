@@ -16,10 +16,10 @@ WebFetch-verified fact: Jupiter is the largest planet in the Solar System
 from __future__ import annotations
 
 import os
+
 import pytest
 
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
-
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("LLMXIVE_REAL_TESTS") != "1",

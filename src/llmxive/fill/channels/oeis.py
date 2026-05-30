@@ -104,7 +104,7 @@ def _render_bfile(data: dict[int, int]) -> str:
 
 def search_and_fetch(
     query: str,
-    claim: "Claim",
+    claim: Claim,
     *,
     timeout: float = 30.0,
 ) -> list[FetchedSource]:
@@ -148,4 +148,4 @@ def search_and_fetch(
     return results
 
 
-__all__ = ["a_numbers_in", "_parse_bfile", "fetch_bfile", "search_and_fetch"]
+__all__ = ["_parse_bfile", "a_numbers_in", "fetch_bfile", "search_and_fetch"]

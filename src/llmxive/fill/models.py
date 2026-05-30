@@ -7,7 +7,7 @@ FillResult     — the terminal outcome of one fill attempt.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -107,7 +107,7 @@ class FillResult:
         value: str,
         provenance: FillProvenance,
         channels_tried: list[str],
-    ) -> "FillResult":
+    ) -> FillResult:
         """Convenience constructor for a successful fill."""
         return cls(
             status="filled",
@@ -122,7 +122,7 @@ class FillResult:
         cls,
         reason: str,
         channels_tried: list[str],
-    ) -> "FillResult":
+    ) -> FillResult:
         """Convenience constructor for a blocked (unfillable) claim."""
         return cls(
             status="blocked",

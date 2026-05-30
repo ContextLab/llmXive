@@ -7,8 +7,6 @@ Tests:
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import ClaimKind
 from llmxive.claims.resolve import select_resolver
 from llmxive.grounding.service import number_substantiated

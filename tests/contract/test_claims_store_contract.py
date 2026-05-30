@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 from llmxive.state import claims as claims_store
 

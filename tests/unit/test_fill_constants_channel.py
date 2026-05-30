@@ -7,8 +7,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.channels.constants import search_and_fetch

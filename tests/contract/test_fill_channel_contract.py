@@ -142,7 +142,6 @@ class TestChannelLiveContract:
     def test_oeis_search_and_fetch_returns_fetched_sources(self):
         from llmxive.fill.channels import oeis
 
-        claim = _make_claim()
         # Force an A-number into the claim text so oeis.search_and_fetch finds it.
         kind = ClaimKind.NUMERIC
         cid = compute_claim_id(kind, "A002863 prime knots at 13 crossings", "contract-live")

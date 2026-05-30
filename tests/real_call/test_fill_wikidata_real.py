@@ -15,6 +15,7 @@ Assertions:
 from __future__ import annotations
 
 import os
+
 import pytest
 
 REAL_TESTS = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
@@ -61,7 +62,6 @@ class TestWikidataEntityFillReal:
         Sydney is the largest city but NOT the capital.
         """
         from llmxive.claims.models import ClaimKind
-        from llmxive.fill.extract import present_in_source
         from llmxive.fill.service import fill_claim
 
         backend = _dartmouth_backend()

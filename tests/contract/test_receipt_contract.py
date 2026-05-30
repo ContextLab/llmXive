@@ -20,7 +20,6 @@ from llmxive.results.receipt import (
 )
 from llmxive.state import results as _result_store
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

@@ -9,12 +9,9 @@ Fully offline — no network, no mock backend.
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 from llmxive.fill.citation_repair import repair_citation
 from llmxive.fill.models import FillProvenance
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -146,7 +143,7 @@ class TestFillRenderRepairsCitation:
         monkeypatch.setattr(resolve_mod, "resolve", _fake_resolve)
 
         doc = f"There are {canonical} (Smith et al. 2023)."
-        rendered, claims_out, _gate = svc.process_document(
+        rendered, _claims_out, _gate = svc.process_document(
             doc,
             artifact_path="projects/PROJ-552/idea/foo.md",
             project_id=project_id,

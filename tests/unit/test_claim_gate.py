@@ -8,7 +8,7 @@ from llmxive.claims.gate import (
     has_unresolved_claims,
     mark_unresolved,
 )
-from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
+from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 
 
 def _make_claim(cid: str = "c_deadbeef") -> Claim:

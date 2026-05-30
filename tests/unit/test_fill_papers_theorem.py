@@ -10,13 +10,13 @@ import os
 
 import pytest
 
+from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
+from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.channels.papers import _candidate_to_source
 from llmxive.fill.channels.theorem import _candidate_to_source as theorem_candidate_to_source
-from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.models import FetchedSource
-from llmxive.librarian.search import Candidate
 from llmxive.grounding.full_text import RetrievedDoc
-from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
+from llmxive.librarian.search import Candidate
 
 
 def _make_claim() -> Claim:

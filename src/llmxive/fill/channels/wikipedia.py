@@ -106,7 +106,7 @@ def _fetch_extract(title: str, *, timeout: float) -> tuple[str, str] | None:
 
 def search_and_fetch(
     query: str,
-    claim: "Claim",
+    claim: Claim,
     *,
     timeout: float = 30.0,
 ) -> list[FetchedSource]:
@@ -146,4 +146,4 @@ def search_and_fetch(
         return []
 
 
-__all__ = ["_parse_search", "_parse_extract", "search_and_fetch"]
+__all__ = ["_parse_extract", "_parse_search", "search_and_fetch"]

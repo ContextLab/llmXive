@@ -7,7 +7,6 @@ import math
 import pytest
 
 from llmxive.verify.approximate import (
-    PrecisionSpec,
     correction,
     has_hedge,
     is_valid_rounding,

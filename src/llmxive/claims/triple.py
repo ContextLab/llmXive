@@ -215,17 +215,13 @@ def resolve_relational(
     6. Map grounded→VERIFIED, contradicted→REFUTED, not_found→NOT_ENOUGH_INFO.
     NEVER infers VERIFIED from model text alone — requires a citable source.
     """
-    from llmxive.grounding import cache as _cache
     from llmxive.grounding.entailment import assess
-    from llmxive.grounding.full_text import retrieve
 
     # Normalise: accept Claim objects or raw strings
     if hasattr(claim, "canonical"):
         canonical = claim.canonical or claim.raw_text or ""
-        claim_id = getattr(claim, "claim_id", None)
     else:
         canonical = str(claim)
-        claim_id = None
 
     canonical = canonical.strip()
     if not canonical:
@@ -312,7 +308,6 @@ def resolve_superlative(
     NEVER infers VERIFIED from model text alone.
     """
     from llmxive.grounding.entailment import assess
-    from llmxive.grounding.full_text import retrieve
 
     if hasattr(claim, "canonical"):
         canonical = claim.canonical or claim.raw_text or ""
@@ -513,8 +508,8 @@ def _extract_numeric_candidates(text: str, *, claim: str) -> list[tuple[str, flo
 
 
 __all__ = [
-    "decompose_triple",
     "check_ordering",
+    "decompose_triple",
     "resolve_relational",
     "resolve_superlative",
 ]

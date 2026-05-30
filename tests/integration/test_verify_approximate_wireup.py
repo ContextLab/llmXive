@@ -6,9 +6,6 @@ LLMXIVE_CLAIM_FILL=1 is set within each test.
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
 import pytest
 
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
@@ -84,8 +81,8 @@ def test_pi_is_3_15_corrected(tmp_path):
 
 def test_knot_count_exact_route(tmp_path):
     """Exact integer count MUST NOT route to approximate or computational (FR-003)."""
-    from llmxive.verify.mode import select_mode
     from llmxive.claims.resolve import resolve
+    from llmxive.verify.mode import select_mode
 
     claim = _claim("9,988 prime knots at 13 crossings")
     mode = select_mode(claim, backend=None)

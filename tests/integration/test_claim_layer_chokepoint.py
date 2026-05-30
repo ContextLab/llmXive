@@ -25,8 +25,7 @@ import pytest
 
 from llmxive.claims.gate import CLAIM_MARKER_PREFIX, has_unresolved_claims
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.claims.pointer import GateReport, render, to_pointer
-
+from llmxive.claims.pointer import render, to_pointer
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -98,7 +97,7 @@ class TestOfflineGateLogic:
         cid = "c_00000002"
         claim = _make_claim(cid, ClaimStatus.REFUTED)
         text = f"Y is {to_pointer(cid)} items."
-        rendered, report = render(text, {cid: claim})
+        _rendered, report = render(text, {cid: claim})
         assert report.blocked is True
 
     def test_unknown_claim_id_blocks(self) -> None:
@@ -132,7 +131,6 @@ class TestChokepoint:
 
     def _make_ctx(self, project_dir: Path, project_id: str):
         """Build a minimal SlashCommandContext with a real backend."""
-        from datetime import UTC, datetime
 
         from llmxive.speckit.slash_command import SlashCommandContext
         from llmxive.types import BackendName

@@ -16,7 +16,6 @@ import json
 import os
 import tomllib
 from dataclasses import dataclass
-from pathlib import Path
 
 from llmxive.credentials import (
     MissingCredentialError,
@@ -162,8 +161,8 @@ def load_signing_key() -> bytes:
 
 
 __all__ = [
-    "Receipt",
     "RECEIPT_KEY_ENV",
+    "Receipt",
     "load_signing_key",
     "sign_receipt",
     "verify_receipt",

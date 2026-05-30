@@ -12,7 +12,6 @@ Returns FetchedSource per entity; [] on any HTTP failure.
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from llmxive.claims.models import Claim
 from llmxive.fill.channels import AUTHORITY
@@ -99,7 +98,7 @@ def _parse_entity(
                 if val:
                     claim_snippets.append(f"{pid}: {val}")
 
-    parts = [label, description] + claim_snippets
+    parts = [label, description, *claim_snippets]
     text_blob = "\n".join(p for p in parts if p)
     if not text_blob:
         return None
@@ -118,7 +117,7 @@ def _collect_ref_qids(entity_data: dict, qids: list[str]) -> list[str]:
     entities = entity_data.get("entities", {})
     for qid in qids:
         entity = entities.get(qid, {})
-        for pid, snak_list in list(entity.get("claims", {}).items())[:60]:
+        for _pid, snak_list in list(entity.get("claims", {}).items())[:60]:
             for snak in snak_list[:3]:
                 ms = snak.get("mainsnak", {})
                 dv = ms.get("datavalue", {})
@@ -230,7 +229,7 @@ def search_and_fetch(
             logger.debug("wikidata: ref label fetch failed: %s", exc)
 
     sources: list[FetchedSource] = []
-    for qid, label, description in candidates:
+    for qid, label, _description in candidates:
         parsed = _parse_entity(entity_data, qid, ref_labels=ref_labels)
         if parsed is None:
             continue
@@ -252,4 +251,4 @@ def search_and_fetch(
     return sources
 
 
-__all__ = ["search_and_fetch", "_parse_search", "_parse_entity"]
+__all__ = ["_parse_entity", "_parse_search", "search_and_fetch"]

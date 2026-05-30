@@ -109,4 +109,4 @@ def get(project_id: str, result_id: str,
     return load(project_id, result_id, repo_root=repo_root)
 
 
-__all__ = ["save", "load", "load_all", "get"]
+__all__ = ["get", "load", "load_all", "save"]

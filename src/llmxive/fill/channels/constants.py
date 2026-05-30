@@ -6,7 +6,7 @@ high-authority FetchedSource for recognized mathematical and physical constants.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.models import FetchedSource
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 def search_and_fetch(
     query: str,
-    claim: "Claim",
+    claim: Claim,
     *,
     timeout: float = 30.0,
 ) -> list[FetchedSource]:
@@ -38,7 +38,7 @@ def search_and_fetch(
         query,
     ]
 
-    const: Optional[_const_mod.CuratedConstant] = None
+    const: _const_mod.CuratedConstant | None = None
     for text in candidates:
         if text:
             const = _const_mod.lookup(text)

@@ -22,8 +22,9 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, Verdict
 from llmxive.grounding import cache as _cache
@@ -51,9 +52,8 @@ def resolve_numeric_or_citation(claim: Claim, *, backend: Any, model: str | None
     Absence of evidence NEVER maps to VERIFIED.
     """
     from llmxive.agents.grounding_guard import CitedClaim, classify_source
-    from llmxive.grounding.service import ground_cited_claim, number_substantiated
+    from llmxive.grounding.service import ground_cited_claim
     from llmxive.librarian.verify import resolve_reference
-    from llmxive.types import CitationKind
 
     canonical = claim.canonical or claim.raw_text
     kind_str, source_value = classify_source(canonical)
@@ -490,9 +490,10 @@ def select_resolver(kind: ClaimKind) -> Callable:
 
 def _extract_constant_from_text(text: str):
     """Extract the constant name from claim text and return the CuratedConstant, or None."""
+    import re
+
     from llmxive.verify import constants as _const
     from llmxive.verify.mode import _CONSTANT_NAMES, _SINGLE_LETTER_CONSTANTS
-    import re
 
     lower = text.lower()
     # Try multi-word constant names first (longest match wins), then single-letter
@@ -518,7 +519,6 @@ def _resolve_approximate(claim: Claim, *, backend: Any, model: str | None,
     (caller falls through to the normal kind dispatch).
     """
     from llmxive.verify import approximate as _approx
-    from llmxive.verify import constants as _const
 
     text = claim.raw_text or claim.canonical or ""
 
@@ -546,7 +546,7 @@ def _resolve_approximate(claim: Claim, *, backend: Any, model: str | None,
         # Valid rounding — keep value as written (FR-007)
         # Format: integer-looking decimals (0) → no ".0"; otherwise fixed-point
         if spec.decimals == 0:
-            _val_str = str(int(round(spec.claimed)))
+            _val_str = str(round(spec.claimed))
         else:
             _val_str = f"{spec.claimed:.{spec.decimals}f}"
         return Verdict(

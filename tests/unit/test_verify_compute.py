@@ -134,9 +134,10 @@ class TestEvaluate:
         Uses tokenize to scan only real NAME tokens (not comments or strings).
         'evaluate' as an identifier and 'evaluate=True' keyword args are fine.
         """
+        import inspect
         import io
         import tokenize
-        import inspect
+
         from llmxive.verify import compute
         src = inspect.getsource(compute)
 
@@ -202,7 +203,7 @@ class TestExtractExpression:
         claim = _make_claim("5 km is 5000 m")
         result = extract_expression(claim, backend=None, model=None, repo_root=None)
         assert result is not None
-        expr, asserted = result
+        _expr, asserted = result
         assert "5000" in asserted or asserted == "5000"
 
     def test_unknown_form_returns_none(self):

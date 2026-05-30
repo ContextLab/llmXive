@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 
-class ClaimKind(str, Enum):
+class ClaimKind(str, Enum):  # noqa: UP042 - str+Enum mixin kept; StrEnum changes str() repr
     NUMERIC = "numeric"
     MAGNITUDE = "magnitude"
     RELATIONAL = "relational"
@@ -17,7 +17,7 @@ class ClaimKind(str, Enum):
     RESULT = "result"
 
 
-class ClaimStatus(str, Enum):
+class ClaimStatus(str, Enum):  # noqa: UP042 - str+Enum mixin kept; StrEnum changes str() repr
     PENDING = "pending"
     VERIFIED = "verified"
     REFUTED = "refuted"

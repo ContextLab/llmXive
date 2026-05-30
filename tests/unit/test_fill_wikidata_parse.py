@@ -6,11 +6,8 @@ No network calls. Verifies that search_and_fetch exists and has the right signat
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.channels.wikidata import _parse_entity, _parse_search, search_and_fetch
-
 
 # ---------------------------------------------------------------------------
 # Fixtures: real-shaped Wikidata API responses (captured structure)
@@ -168,7 +165,7 @@ class TestParseEntity:
     def test_returns_tuple_for_valid_entity(self):
         result = _parse_entity(ENTITY_RESPONSE_Q408, "Q408")
         assert result is not None
-        label, text = result
+        label, _text = result
         assert label == "Australia"
 
     def test_description_in_text(self):

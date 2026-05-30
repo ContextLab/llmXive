@@ -10,11 +10,6 @@ from __future__ import annotations
 import re
 from urllib.parse import urlparse
 
-from llmxive.agents.citation_guard import (
-    _bare_url_occurrence_re,
-    _doi_occurrence_re,
-    _md_link_occurrence_re,
-)
 from llmxive.claims.models import Claim
 from llmxive.fill.models import FillProvenance
 
@@ -120,7 +115,6 @@ def _strip_stale_citations_in_window(
 ) -> str:
     """Remove stale citation tokens from the adjacency window only."""
     window = text[win_start:win_end]
-    original_window = window
 
     def _sub_in_window(pattern: re.Pattern, replacement: str, s: str) -> str:
         return pattern.sub(replacement, s)

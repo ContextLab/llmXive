@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import scipy.constants
 
@@ -110,7 +109,7 @@ for _key, _entry in CONSTANTS.items():
         _ALIAS_INDEX[_alias.lower()] = _key
 
 
-def lookup(subject: str) -> Optional[CuratedConstant]:
+def lookup(subject: str) -> CuratedConstant | None:
     """Return the CuratedConstant whose aliases include *subject* (case-insensitive).
 
     Falls back to a substring scan when no exact alias matches, so
@@ -138,10 +137,10 @@ def lookup(subject: str) -> Optional[CuratedConstant]:
     return None
 
 
-def true_value(subject: str) -> Optional[float]:
+def true_value(subject: str) -> float | None:
     """Return the library-backed float value for *subject*, or ``None``."""
     c = lookup(subject)
     return c.value if c is not None else None
 
 
-__all__ = ["CuratedConstant", "CONSTANTS", "lookup", "true_value"]
+__all__ = ["CONSTANTS", "CuratedConstant", "lookup", "true_value"]

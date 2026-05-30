@@ -8,7 +8,6 @@ choose(candidates) — given (FetchedSource, value) pairs from multiple channels
 
 from __future__ import annotations
 
-from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.models import FetchedSource
 
 

@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-
-from llmxive.fill.subject_query import strip_asserted_value, subject_query
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-
+from llmxive.fill.subject_query import strip_asserted_value, subject_query
 
 # ---------------------------------------------------------------------------
 # strip_asserted_value — pure, deterministic

@@ -9,8 +9,6 @@ All tests are deterministic and offline (no backend, no network).
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 from llmxive.fill.extract import extract_value, present_in_source
 from llmxive.fill.models import FetchedSource

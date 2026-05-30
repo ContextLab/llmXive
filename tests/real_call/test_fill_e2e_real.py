@@ -22,7 +22,6 @@ Skips cleanly when Dartmouth key / network is unavailable.
 from __future__ import annotations
 
 import os
-import shutil
 from pathlib import Path
 
 import pytest
@@ -177,7 +176,7 @@ class TestFillE2eReal:
 
         _validate_artifact_citations(ctx, [relpath])
 
-        rewritten = artifact.read_text(encoding="utf-8")
+        _rewritten = artifact.read_text(encoding="utf-8")
 
         # Without fill, "9988" should NOT have been inserted by the fill layer
         # (it may still appear if Wikipedia extraction runs — but the fill service

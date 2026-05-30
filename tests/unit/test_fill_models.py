@@ -6,7 +6,6 @@ import pytest
 
 from llmxive.fill.models import FetchedSource, FillProvenance, FillResult
 
-
 # ---------------------------------------------------------------------------
 # FetchedSource
 # ---------------------------------------------------------------------------

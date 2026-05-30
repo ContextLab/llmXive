@@ -18,7 +18,7 @@ from typing import Any
 
 from llmxive.claims.extract import extract_claims
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.claims.pointer import GateReport, render, substitute_pointers, to_pointer
+from llmxive.claims.pointer import GateReport, render, substitute_pointers
 from llmxive.claims.resolve import resolve
 from llmxive.state import claims as _claim_store
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def _now_iso() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _source_hash_from_evidence(evidence: dict | None, value: str | None) -> str | None:
@@ -193,8 +193,8 @@ def process_document(
     # cites the authoritative fill source rather than a stale paper citation.
     # Import lazily to avoid circular imports (fill → claims → fill).
     try:
-        from llmxive.fill.citation_repair import repair_citation  # noqa: PLC0415
-        from llmxive.fill.models import FillProvenance  # noqa: PLC0415
+        from llmxive.fill.citation_repair import repair_citation
+        from llmxive.fill.models import FillProvenance
 
         for claim in resolved_claims:
             ev = claim.evidence or {}
@@ -215,7 +215,7 @@ def process_document(
                 rendered_text = repair_citation(
                     rendered_text, claim=claim, provenance=provenance
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.debug(
                     "claims.service: citation repair skipped for %s: %s",
                     claim.claim_id, exc,

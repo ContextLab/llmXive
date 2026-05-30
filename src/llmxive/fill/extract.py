@@ -80,7 +80,7 @@ def _approximate_in_constants_source(value: str, source_text: str) -> bool:
         return False
 
     try:
-        from llmxive.verify.approximate import has_hedge, is_valid_rounding, parse_precision
+        from llmxive.verify.approximate import is_valid_rounding, parse_precision
         spec = parse_precision(value)
         # For the gate check, use hedge=False (conservative — no surrounding context here)
         return is_valid_rounding(spec.claimed, true_val, decimals=spec.decimals, hedge=False)
@@ -143,7 +143,7 @@ def extract_value(
 def _offline_numeric_lookup(source: FetchedSource, claim: Claim) -> str | None:
     """Attempt a direct numeric lookup without an LLM (best-effort, offline).
 
-    For OEIS b-file–style text ("n value\\n…"), searches for a row whose
+    For OEIS b-file-style text ("n value\\n…"), searches for a row whose
     *value* column is substantiated in the source AND is NOT the claim's
     asserted (wrong) value.  Returns the first such value, else ``None``.
 
@@ -279,4 +279,4 @@ def _call_llm_locator(
     return candidate
 
 
-__all__ = ["present_in_source", "extract_value"]
+__all__ = ["extract_value", "present_in_source"]

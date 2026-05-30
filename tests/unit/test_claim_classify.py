@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from llmxive.claims.classify import classify
 from llmxive.claims.models import ClaimKind
 

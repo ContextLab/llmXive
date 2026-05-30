@@ -60,7 +60,7 @@ def _retrieve_for_candidate(candidate: Candidate, *, timeout: float) -> Retrieve
 
 def search_and_fetch(
     query: str,
-    claim: "Claim",
+    claim: Claim,
     *,
     timeout: float = 30.0,
 ) -> list[FetchedSource]:

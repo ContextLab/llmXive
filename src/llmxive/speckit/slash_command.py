@@ -280,7 +280,6 @@ def _validate_artifact_citations(
             continue
         try:
             from llmxive.backends.router import make_backend
-            from llmxive.claims.gate import has_unresolved_claims
             from llmxive.claims.service import process_document
 
             backend_obj = make_backend(_backend.value if hasattr(_backend, "value") else str(_backend))

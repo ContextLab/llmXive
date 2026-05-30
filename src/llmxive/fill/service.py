@@ -420,7 +420,7 @@ def _trim_oeis_source(source: FetchedSource, claim: Claim) -> FetchedSource:
     # Find the line with that index in the b-file text
     lines = source.text.splitlines()
     window: list[str] = []
-    for i, line in enumerate(lines):
+    for line in lines:
         parts = line.split()
         if len(parts) >= 1:
             try:

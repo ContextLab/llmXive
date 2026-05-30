@@ -9,8 +9,7 @@ import os
 
 import pytest
 
-from llmxive.fill.channels.oeis import a_numbers_in, _parse_bfile
-
+from llmxive.fill.channels.oeis import _parse_bfile, a_numbers_in
 
 # ---------------------------------------------------------------------------
 # a_numbers_in — pure regex extractor

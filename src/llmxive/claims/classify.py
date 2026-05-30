@@ -35,7 +35,7 @@ _MAGNITUDE_RE = re.compile(
     re.IGNORECASE,
 )
 
-# RELATIONAL: subject–relation–object patterns
+# RELATIONAL: subject-relation-object patterns
 _RELATIONAL_RE = re.compile(
     r"\b(is\s+the\s+capital\s+of|capital\s+of|wrote\b|author\s+of|"
     r"invented\s+by|founded\s+by|located\s+in|part\s+of|member\s+of|"

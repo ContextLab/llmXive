@@ -41,7 +41,6 @@ from llmxive.agents.research_reviewer import ResearchReviewerAgent
 from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
-    CLAIM_RETRY_BUDGET,
     CONVERGENCE_KICKBACK_CAP,
     consume_convergence_kickback,
     reset_kickback_count,

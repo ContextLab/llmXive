@@ -16,8 +16,6 @@ from __future__ import annotations
 
 import os
 
-import pytest
-
 os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")
 
 

@@ -7,18 +7,16 @@ makes ZERO HTTP calls — that invariant is asserted here.
 
 from __future__ import annotations
 
-import math
 import os
-from pathlib import Path
 
 import pytest
+
+from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("LLMXIVE_REAL_TESTS") != "1",
     reason="set LLMXIVE_REAL_TESTS=1 to run real-call tests",
 )
-
-from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 
 
 def _claim(text: str, kind: ClaimKind = ClaimKind.NUMERIC) -> Claim:

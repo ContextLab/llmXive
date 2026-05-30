@@ -11,7 +11,7 @@ Modes: ``"exact"`` | ``"approximate"`` | ``"computational"`` | ``"source"``
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from llmxive.claims.models import Claim
@@ -212,11 +212,11 @@ from llmxive.claims.models import ClaimKind  # noqa: E402 — after TYPE_CHECKIN
 
 
 def select_mode(
-    claim: "Claim",
+    claim: Claim,
     *,
     backend=None,
-    model: Optional[str] = None,
-    repo_root: Optional[str] = None,
+    model: str | None = None,
+    repo_root: str | None = None,
 ) -> str:
     """Return the verification mode for *claim*.
 
