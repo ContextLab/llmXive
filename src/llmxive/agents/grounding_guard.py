@@ -475,88 +475,42 @@ def extract_cited_claims(
 # --- network grounding of one claim -----------------------------------------
 
 
-def ground_claim(claim: CitedClaim, *, timeout: float = 30.0) -> GroundingVerdict:
-    """Verify (real HTTP) that the cited source substantiates ``claim``.
+def _service_ground(
+    claim: CitedClaim, *, backend: Any, model: str | None, repo_root: Path
+) -> GroundingVerdict:
+    """Lazy seam onto the full-text grounding service (F-19 v2).
 
-    Logic (no silent pass — a hard error FLAGS):
-
-    * free-text-only source (no resolvable id) → FLAG (cannot be substantiated);
-    * resolvable id unreachable → FLAG;
-    * resolvable + reachable → fetch the source's title/abstract and check
-      grounding: if the claim has a NUMBER, require it to appear in the fetched
-      text; else require summary token-overlap (Jaccard ≥ threshold) between the
-      claim text and the fetched abstract. If neither grounds → FLAG.
+    Imported function-locally to avoid an import cycle: ``grounding.service``
+    (and ``grounding.entailment``) import names FROM this module at their module
+    top, so this module must not import the service at import time.
     """
-    from llmxive.librarian.verify import (
-        SUMMARY_GROUNDING_THRESHOLD,
-        jaccard_tokens,
-        resolve_reference,
-    )
+    from llmxive.grounding.service import ground_cited_claim
 
-    kind, value = claim.source_kind, claim.source_value
-    if kind is None or value is None:
+    return ground_cited_claim(claim, backend=backend, model=model, repo_root=repo_root)
+
+
+def ground_claim(
+    claim: CitedClaim,
+    *,
+    backend: Any,
+    model: str | None,
+    repo_root: Path,
+    timeout: float = 30.0,
+) -> GroundingVerdict:
+    """Verify the cited source SUBSTANTIATES the claim via the full-text service.
+
+    Free-text-only sources (no resolvable DOI/arXiv/URL) short-circuit to a FLAG
+    here — there is nothing to fetch, so the service is never consulted (this
+    alone catches the PROJ-552 trail's free-text fabrication). Resolvable sources
+    delegate the network retrieval + entailment grounding to
+    :func:`llmxive.grounding.service.ground_cited_claim`.
+    """
+    if claim.source_kind is None or claim.source_value is None:
         return GroundingVerdict(
             claim=claim, ok=False,
             reason="cited source is free-text only (no resolvable DOI/arXiv/URL); cannot substantiate this claim/number",
         )
-
-    try:
-        outcome = resolve_reference(kind.value, value, timeout=timeout)
-    except Exception as exc:
-        return GroundingVerdict(
-            claim=claim, ok=False,
-            reason=f"could not resolve cited source ({type(exc).__name__}: {exc})",
-        )
-    if not outcome.present:
-        return GroundingVerdict(
-            claim=claim, ok=False,
-            reason=f"cited source unreachable ({outcome.reason or 'not found'}); cannot substantiate this claim/number",
-        )
-
-    # Source exists — fetch its text to check the claim is substantiated.
-    fetched_title, fetched_abstract = _fetch_source_text(kind, value)
-    fetched_blob = " ".join(filter(None, [fetched_title, fetched_abstract]))
-
-    # A paywalled/abstract-less source we could resolve but not read: we cannot
-    # affirmatively ground the claim, but the SOURCE EXISTS, so do not fabricate
-    # a failure — flag as ungrounded (cannot verify) rather than silently pass.
-    if not fetched_blob.strip():
-        return GroundingVerdict(
-            claim=claim, ok=False,
-            reason="cited source resolved but its text could not be fetched to substantiate the claim/number",
-        )
-
-    if claim.number:
-        if number_appears_in(claim.number, fetched_blob):
-            return GroundingVerdict(claim=claim, ok=True, reason="")
-        return GroundingVerdict(
-            claim=claim, ok=False,
-            reason=f"cited source does not substantiate the number {claim.number} in this claim",
-        )
-
-    score = jaccard_tokens(claim.claim_text, fetched_blob)
-    if score >= SUMMARY_GROUNDING_THRESHOLD:
-        return GroundingVerdict(claim=claim, ok=True, reason="")
-    return GroundingVerdict(
-        claim=claim, ok=False,
-        reason="cited source does not substantiate this claim (low overlap with source abstract)",
-    )
-
-
-def _fetch_source_text(kind: CitationKind, value: str) -> tuple[str, str | None]:
-    """Best-effort (title, abstract) for a resolvable source.
-
-    arXiv ids re-fetch ground-truth metadata via the arXiv API (reusing
-    :mod:`librarian.verify`). DOI/URL sources cannot be reliably scraped for an
-    abstract across arbitrary publishers, so ``("", None)`` is returned — the
-    caller treats an un-fetchable source as ungrounded (cannot verify), never a
-    silent pass.
-    """
-    from llmxive.librarian.verify import _fetch_from_arxiv
-
-    if kind == CitationKind.ARXIV:
-        return _fetch_from_arxiv(value)
-    return ("", None)
+    return _service_ground(claim, backend=backend, model=model, repo_root=repo_root)
 
 
 # --- orchestrator -----------------------------------------------------------
@@ -575,7 +529,10 @@ def verify_grounding_and_clean(
     claims = extract_cited_claims(text, backend=backend, model=model, repo_root=repo_root)
     if not claims:
         return text, GuardReport()
-    verdicts = [ground_claim(c) for c in claims]
+    verdicts = [
+        ground_claim(c, backend=backend, model=model, repo_root=repo_root)
+        for c in claims
+    ]
     return apply_grounding_verdicts(text, verdicts)
 
 

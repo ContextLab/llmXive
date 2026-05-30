@@ -44,21 +44,39 @@ def _real_abstract_numbers() -> tuple[str, str]:
     return "28.4", "9988"
 
 
+def _backend() -> object:
+    from llmxive.backends.dartmouth import DartmouthBackend
+
+    return DartmouthBackend()
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
 def test_freetext_only_citation_is_flagged() -> None:
-    """The trail's exact case: a number on a free-text author-year citation."""
+    """The trail's exact case: a number on a free-text author-year citation.
+
+    Short-circuits in ``ground_claim`` before the service is ever consulted (no
+    resolvable id to fetch), so this needs no backend.
+    """
     claim = CitedClaim(
         claim_text="There are 1,296 prime knots with 13 crossings "
         "(Kauffman & Lambropoulou 2004).",
         number="1296",
         source_str="Kauffman & Lambropoulou 2004",  # no resolvable id
     )
-    verdict = ground_claim(claim)
+    verdict = ground_claim(claim, backend=object(), model=None, repo_root=_REPO_ROOT)
     assert verdict.ok is False
     assert "free-text" in verdict.reason
 
 
 def test_number_not_in_cited_source_is_flagged() -> None:
-    """A number cited to a REAL arXiv paper whose abstract lacks it → flagged."""
+    """A claim cited to a REAL arXiv paper that does not substantiate it → flagged.
+
+    Now routes through the full-text grounding service (retrieve → LLM
+    entailment). The service decides ``not_found``/``contradicted`` for a claim
+    the source does not support.
+    """
     _, absent = _real_abstract_numbers()
     claim = CitedClaim(
         claim_text=f"There are {absent} prime knots with 13 crossings (arXiv:{_REAL_ARXIV}).",
@@ -67,13 +85,12 @@ def test_number_not_in_cited_source_is_flagged() -> None:
         source_kind=CitationKind.ARXIV,
         source_value=_REAL_ARXIV,
     )
-    verdict = ground_claim(claim)
-    assert verdict.ok is False
-    assert "does not substantiate" in verdict.reason
+    verdict = ground_claim(claim, backend=_backend(), model=None, repo_root=_REPO_ROOT)
+    assert verdict.ok is False, verdict.reason
 
 
 def test_grounded_number_is_not_flagged() -> None:
-    """A number that DOES appear in the cited source's abstract → NOT flagged."""
+    """A claim the cited source's text DOES support → NOT flagged."""
     present, _ = _real_abstract_numbers()
     claim = CitedClaim(
         claim_text=f"The model achieves {present} BLEU (arXiv:{_REAL_ARXIV}).",
@@ -82,12 +99,12 @@ def test_grounded_number_is_not_flagged() -> None:
         source_kind=CitationKind.ARXIV,
         source_value=_REAL_ARXIV,
     )
-    verdict = ground_claim(claim)
+    verdict = ground_claim(claim, backend=_backend(), model=None, repo_root=_REPO_ROOT)
     assert verdict.ok is True, verdict.reason
 
 
 def test_fabricated_arxiv_source_unreachable_is_flagged() -> None:
-    """A malformed/unreachable arXiv id used as a source → flagged (unreachable)."""
+    """A malformed/unreachable arXiv id used as a source → flagged (unreadable)."""
     claim = CitedClaim(
         claim_text="There are 9,988 prime knots (Lee et al. 2024, arXiv:2402.13).",
         number="9988",
@@ -95,9 +112,9 @@ def test_fabricated_arxiv_source_unreachable_is_flagged() -> None:
         source_kind=CitationKind.ARXIV,
         source_value="2402.13",
     )
-    verdict = ground_claim(claim)
+    verdict = ground_claim(claim, backend=_backend(), model=None, repo_root=_REPO_ROOT)
     assert verdict.ok is False
-    assert "unreachable" in verdict.reason
+    assert "unreadable" in verdict.reason
 
 
 def test_orchestrator_extracts_and_flags_freetext_claim() -> None:

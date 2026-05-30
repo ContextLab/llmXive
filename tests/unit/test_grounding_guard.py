@@ -227,3 +227,32 @@ def test_parse_extraction_reply_extracts_cited_claim() -> None:
     assert claims[0].number == "1296"
     assert claims[0].source_kind is None  # free-text only → ungroundable
     assert claims[0].source_value is None
+
+
+# --- ground_claim delegates to the full-text grounding service --------------
+
+
+def test_ground_claim_delegates_to_service(monkeypatch):
+    import llmxive.agents.grounding_guard as gg
+    from llmxive.agents.grounding_guard import CitedClaim, GroundingVerdict
+    from llmxive.types import CitationKind
+
+    captured = {}
+
+    def fake_service(claim, *, backend, model, repo_root):
+        captured["called"] = True
+        return GroundingVerdict(claim=claim, ok=False, reason="from-service")
+
+    monkeypatch.setattr(gg, "_service_ground", fake_service)
+    c = CitedClaim(claim_text="x", number="1", source_str="arXiv:1706.03762",
+                   source_kind=CitationKind.ARXIV, source_value="1706.03762")
+    v = gg.ground_claim(c, backend=object(), model=None, repo_root=__import__("pathlib").Path("."))
+    assert captured.get("called") and v.reason == "from-service"
+
+
+def test_ground_claim_free_text_still_flags_without_service():
+    from llmxive.agents.grounding_guard import CitedClaim, ground_claim
+    c = CitedClaim(claim_text="x", number="1", source_str="Kauffman 2004",
+                   source_kind=None, source_value=None)
+    v = ground_claim(c, backend=object(), model=None, repo_root=__import__("pathlib").Path("."))
+    assert v.ok is False and "free-text" in v.reason
