@@ -18,7 +18,7 @@ Single project. New code under `src/llmxive/claims/`, `src/llmxive/results/`, `s
 **Purpose**: Create the new packages and confirm the offline gate is green before changes.
 
 - [X] T001 Create the claims package skeleton: `src/llmxive/claims/__init__.py` (re-exports `service.process_document`, `gate.CLAIM_MARKER_PREFIX`) and `src/llmxive/results/__init__.py` (re-exports `harness.mint_receipt`, `receipt.verify_receipt`).
-- [ ] T002 Capture the baseline offline gate result: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record pass/fail count so regressions are detectable.
+- [X] T002 Capture the baseline offline gate result: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record pass/fail count so regressions are detectable.
 
 ---
 
@@ -119,9 +119,9 @@ Single project. New code under `src/llmxive/claims/`, `src/llmxive/results/`, `s
 - [X] T040 Implement `src/llmxive/claims/migrate.py` + `python -m llmxive.claims.migrate` entrypoint (replaces F-18 marker, FR-019). Make T039 pass.
 - [X] T041 Implement the agent registry (FR-001): a maintained list in `claims/__init__.py` (or `claims/agents.py`) enumerating every claim-producing stage (spec, clarify, plan, tasks, implement, paper-spec, paper-clarify, flesh-out, results/summary producers); add `tests/unit/test_claim_agent_registry.py` asserting the chokepoint covers each.
 - [X] T042 Deprecate/replace the F-18 `[UNVERIFIED]` path in `src/llmxive/agents/citation_guard.py` so F-18/F-19 operate as resolvers within the layer and the unified marker is the single block signal (FR-019); update existing `tests/unit/test_citation_guard.py` expectations to the unified marker.
-- [ ] T043 Run the one-time migration `python -m llmxive.claims.migrate` across the repo; commit the migrated artifacts.
-- [ ] T044 Run the full offline gate (`pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs`) and the gated real-call suite (`LLMXIVE_REAL_TESTS=1 pytest tests/real_call -q`); fix code (never tests) until green.
-- [ ] T045 Update `quickstart.md` only if any public signature drifted during implementation; confirm the SC-001…SC-008 success signals each map to a passing test.
+- [X] T043 Run the one-time migration `python -m llmxive.claims.migrate` across the repo; commit the migrated artifacts.
+- [X] T044 Run the full offline gate (`pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs`) and the gated real-call suite (`LLMXIVE_REAL_TESTS=1 pytest tests/real_call -q`); fix code (never tests) until green.
+- [X] T045 Update `quickstart.md` only if any public signature drifted during implementation; confirm the SC-001…SC-008 success signals each map to a passing test.
 
 ---
 
