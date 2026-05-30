@@ -313,7 +313,69 @@ def _clean_citations(
     gates hard-block flagged artifacts before the next panel round.
     """
     cleaned = _strip_unresolvable_citations(artifacts)
-    return _ground_factual_claims(cleaned, backend=backend, model=model, repo_root=repo_root)
+    grounded = _ground_factual_claims(cleaned, backend=backend, model=model, repo_root=repo_root)
+    return _verify_claims(grounded, backend=backend, model=model, repo_root=repo_root)
+
+
+def _verify_claims(
+    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path
+) -> dict[str, str]:
+    """Spec 016 (T038/FR-002): run the claim-verification layer on the reviser's
+    final artifacts each round — the EARLIEST interception, before the panel
+    re-reviews. Each produced-doc artifact is processed by
+    :func:`claims.service.process_document`, which extracts every check-worthy
+    claim, resolves it (external source or signed execution receipt), and
+    re-renders the doc with the verified value (or the unified
+    ``[UNRESOLVED-CLAIM: ...]`` marker the engine then hard-blocks on).
+
+    Mirrors :func:`_ground_factual_claims`: gated ON by ``LLMXIVE_CLAIM_LAYER=1``
+    (set by the pipeline entrypoint) and OFF by default so the offline
+    single-response reviser unit tests stay network-free. Sentinel/context keys
+    and non-text artifacts are skipped; any failure is swallowed (logged) so the
+    guard never crashes a revision. The verified-value cache keeps the repeated
+    per-round passes cheap (FR-015)."""
+    import os
+
+    if backend is None:
+        logger.info("claim layer: no backend available; skipping claim-verification pass")
+        return artifacts
+    if os.environ.get("LLMXIVE_CLAIM_LAYER", "0") != "1":
+        logger.debug("claim layer: LLMXIVE_CLAIM_LAYER!=1; skipping claim-verification pass")
+        return artifacts
+
+    from llmxive.claims.resolve import _extract_project_id
+    from llmxive.claims.service import process_document
+
+    cleaned: dict[str, str] = dict(artifacts)
+    for path, body in artifacts.items():
+        if path.startswith("__") and path.endswith("__"):
+            continue
+        if not isinstance(body, str) or not body:
+            continue
+        project_id = _extract_project_id(path)
+        if not project_id:
+            continue
+        try:
+            rendered, _claims, gate = process_document(
+                body,
+                artifact_path=path,
+                project_id=project_id,
+                backend=backend,
+                model=model,
+                repo_root=repo_root,
+            )
+        except Exception as exc:  # never block a revision on the claim layer
+            logger.warning(
+                "claim layer failed on %s (%s: %s); leaving body untouched",
+                path, type(exc).__name__, exc,
+            )
+            continue
+        if rendered != body:
+            logger.info(
+                "claim layer rewrote %s (blocked=%s)", path, getattr(gate, "blocked", "?")
+            )
+            cleaned[path] = rendered
+    return cleaned
 
 
 def _ground_factual_claims(

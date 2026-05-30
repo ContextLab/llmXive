@@ -113,6 +113,56 @@ def _unverified_marker_concerns(
     return concerns
 
 
+def _unresolved_claim_concerns(
+    artifacts: dict[str, str], *, stage: str, reviewer: str
+) -> list[Concern]:
+    """Synthesize a blocking :class:`Concern` per produced-doc artifact that
+    still carries an ``[UNRESOLVED-CLAIM: ...]`` marker (spec 016, FR-017).
+
+    The claim-verification layer renders this unified marker in place of any
+    factual claim it could not resolve to a verified value (external source or
+    signed execution receipt). Like an unresolved citation, an unresolved claim
+    is a blocking factual defect, so each concern is :attr:`Severity.SCIENCE`
+    and the panel MUST NOT converge while one remains."""
+    from llmxive.claims.gate import (
+        CLAIM_MARKER_PREFIX,
+        find_unresolved_claims,
+        has_unresolved_claims,
+    )
+
+    concerns: list[Concern] = []
+    for idx, path in enumerate(sorted(artifacts)):
+        if not _is_doc_artifact_key(path):
+            continue
+        content = artifacts[path]
+        if not has_unresolved_claims(content):
+            continue
+        bodies = find_unresolved_claims(content)
+        joined = (
+            " ".join(f"{CLAIM_MARKER_PREFIX}{b}]" for b in bodies)
+            if bodies
+            else "(unparsable marker)"
+        )
+        concerns.append(
+            Concern(
+                id=f"unresclm{idx:04d}"[:12].ljust(12, "0"),
+                reviewer=reviewer,
+                severity=Severity.SCIENCE,
+                artifact=path,
+                location="",
+                text=(
+                    f"Unresolved factual claim(s) remain in '{path}': {joined}. "
+                    f"The claim-verification layer could not resolve these against "
+                    f"an authoritative source or a signed execution receipt; the "
+                    f"document must not advance until every reported claim is "
+                    f"verified or removed (Constitution Principle II)."
+                ),
+                round=1,
+            )
+        )
+    return concerns
+
+
 def run_convergence(
     spec: ReviewSpec,
     artifacts: dict[str, str],
@@ -248,6 +298,12 @@ def run_convergence(
     # cap, the (correct) kickback routes the defect to an earlier content stage.
     marker_concerns = _unverified_marker_concerns(
         artifacts, stage=spec.stage, reviewer=(panel[0].name if panel else "citation_guard")
+    )
+    # Spec 016 FR-017: the same hard-block applies to unresolved CLAIMS (the
+    # unified ``[UNRESOLVED-CLAIM: ...]`` marker the claim-verification layer
+    # renders for any fact it could not resolve to a verified value/receipt).
+    marker_concerns += _unresolved_claim_concerns(
+        artifacts, stage=spec.stage, reviewer=(panel[0].name if panel else "claim_guard")
     )
     if marker_concerns:
         existing_ids = {c.id for c in open_concerns}

@@ -52,6 +52,9 @@ class Claim:
     resolver: str | None
     attempts: int
     updated_at: str  # ISO timestamp; stamped by caller
+    # US4 (T035): hash of the underlying source or receipt artifact at the time
+    # of resolution; a change forces re-resolution (FR-015 invalidation).
+    source_hash: str | None = None
 
 
 def compute_claim_id(kind: ClaimKind, canonical: str, context: str) -> str:

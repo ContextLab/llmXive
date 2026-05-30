@@ -283,3 +283,41 @@ def test_marker_gate_skips_sentinel_keys():
     res = run_convergence(spec, arts)
     assert res.converged is True
     assert res.kickback is None
+
+
+# --- spec 016 (T036/T037): the same hard-block applies to unresolved CLAIMS ---
+# These reuse the marker-gate harness above (Constitution I / SSoT) but inject
+# the unified ``[UNRESOLVED-CLAIM: ...]`` marker the claim-verification layer
+# renders for any fact it could not resolve (FR-017).
+
+
+def test_unresolved_claim_marker_blocks_convergence_even_when_panel_passes():
+    """All panel concerns resolve, but the final artifact still carries an
+    [UNRESOLVED-CLAIM: ...] marker → engine MUST NOT converge and must kick
+    back with a reason naming the unresolved claim (FR-017)."""
+    marker = "[UNRESOLVED-CLAIM: 27,635 prime knots at 13 crossings — no resolvable source]"
+    rev = FakeReviewer(r1=[_c("c1")])  # passes on first re-review
+    reviser = _MarkerInjectingReviser(marker)
+    res = run_convergence(_marker_spec([rev], reviser), {"a.md": "x"})
+    assert res.converged is False              # honest reporting (FR-016)
+    assert res.next_stage is None
+    assert res.kickback is not None
+    assert res.kickback.worst_severity == Severity.SCIENCE
+    assert res.kickback.to_stage == "clarified"
+    assert "27,635" in res.kickback.reason
+    assert any("UNRESOLVED-CLAIM" in c.text or "27,635" in c.text
+               for c in res.concern_history)
+
+
+def test_unresolved_claim_marker_in_sentinel_key_does_not_block():
+    """An [UNRESOLVED-CLAIM: ...] marker echoed inside a sentinel/control key
+    must NOT block — only produced doc artifacts are gated."""
+    rev = FakeReviewer(r1=[])  # converges immediately, no revision
+    spec = _marker_spec([rev], FakeReviser())
+    arts = {
+        "a.md": "clean doc, no markers",
+        "__idea_md__": "context [UNRESOLVED-CLAIM: fabricated count — no source]",
+    }
+    res = run_convergence(spec, arts)
+    assert res.converged is True
+    assert res.kickback is None

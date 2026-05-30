@@ -69,6 +69,20 @@ def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecor
             + "; ".join(marker_bodies)
             + "."
         )
+    # Spec 016 (FR-017): surface unresolved-CLAIM marker bodies the same way, so
+    # the next worker sees exactly which facts the claim-verification layer could
+    # not resolve to a verified value/receipt.
+    from llmxive.claims.gate import find_unresolved_claims
+
+    claim_bodies: list[str] = []
+    for c in unresolved:
+        claim_bodies.extend(find_unresolved_claims(c.text))
+    if claim_bodies:
+        reason += (
+            " Unresolved factual claim(s) blocking advancement: "
+            + "; ".join(claim_bodies)
+            + "."
+        )
     return KickbackRecord(
         from_stage=spec.stage,
         to_stage=to_stage,

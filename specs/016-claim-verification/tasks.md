@@ -101,8 +101,8 @@ Single project. New code under `src/llmxive/claims/`, `src/llmxive/results/`, `s
 
 **Independent Test**: Verify a claim once; a later document referencing it renders the identical cached value with no new resolution call and no chance for the model to change it.
 
-- [ ] T034 [P] [US4] Write failing integration test `tests/integration/test_claim_reuse.py`: a verified claim referenced in two artifacts renders an identical value from the registry; the second render performs no new resolution (assert the resolver short-circuits on the existing `VERIFIED` registry entry — e.g. the real `grounding/cache.py` verdict cache is hit, or a counter wrapping the REAL resolver stays flat; not a fake resolver); changing the underlying source/receipt hash invalidates the cached resolution and forces re-resolution (FR-015).
-- [ ] T035 [US4] Implement cross-document reuse + invalidation in `claims/service.py`/`claims/resolve.py`: short-circuit resolution when a `VERIFIED` registry entry exists and its source/receipt hash is unchanged; invalidate (`VERIFIED → PENDING`) on hash change. Make T034 pass.
+- [X] T034 [P] [US4] Write failing integration test `tests/integration/test_claim_reuse.py`: a verified claim referenced in two artifacts renders an identical value from the registry; the second render performs no new resolution (assert the resolver short-circuits on the existing `VERIFIED` registry entry — e.g. the real `grounding/cache.py` verdict cache is hit, or a counter wrapping the REAL resolver stays flat; not a fake resolver); changing the underlying source/receipt hash invalidates the cached resolution and forces re-resolution (FR-015).
+- [X] T035 [US4] Implement cross-document reuse + invalidation in `claims/service.py`/`claims/resolve.py`: short-circuit resolution when a `VERIFIED` registry entry exists and its source/receipt hash is unchanged; invalidate (`VERIFIED → PENDING`) on hash change. Make T034 pass.
 
 **Checkpoint**: US4 independently testable — verified facts are consistent and reused with no drift.
 
@@ -112,9 +112,9 @@ Single project. New code under `src/llmxive/claims/`, `src/llmxive/results/`, `s
 
 **Purpose**: Panel gate, marker migration, prompt-agent registry, and full-run verification.
 
-- [ ] T036 [P] Write failing integration test `tests/integration/test_claim_panel_gate.py`: the convergence panel emits a blocking SCIENCE-severity concern when a reviewed document has unresolved claims (`has_unresolved_claims` true), and converges only when all reported claims are resolved (FR-017).
-- [ ] T037 Modify `src/llmxive/convergence/engine.py` to synthesize the blocking "all claims resolved" concern (sibling to `_unverified_marker_concerns`) using `claims.gate.has_unresolved_claims`. Make T036 pass.
-- [ ] T038 Wire the claim layer into the reviser loop: modify `src/llmxive/convergence/revisers/_self_consistency.py::run_with_self_consistency` to run `claims.service.process_document` on revised artifacts each round (earliest interception, FR-002).
+- [X] T036 [P] Write failing integration test `tests/integration/test_claim_panel_gate.py`: the convergence panel emits a blocking SCIENCE-severity concern when a reviewed document has unresolved claims (`has_unresolved_claims` true), and converges only when all reported claims are resolved (FR-017).
+- [X] T037 Modify `src/llmxive/convergence/engine.py` to synthesize the blocking "all claims resolved" concern (sibling to `_unverified_marker_concerns`) using `claims.gate.has_unresolved_claims`. Make T036 pass.
+- [X] T038 Wire the claim layer into the reviser loop: modify `src/llmxive/convergence/revisers/_self_consistency.py::run_with_self_consistency` to run `claims.service.process_document` on revised artifacts each round (earliest interception, FR-002).
 - [ ] T039 [P] Write failing unit test `tests/unit/test_claim_migrate.py`: `claims/migrate.py::migrate_unverified_markers` rewrites `[UNVERIFIED: …]` → `[UNRESOLVED-CLAIM: …]`, seeds registry entries as `NOT_ENOUGH_INFO`, returns changed files; `--dry-run` changes nothing.
 - [ ] T040 Implement `src/llmxive/claims/migrate.py` + `python -m llmxive.claims.migrate` entrypoint (replaces F-18 marker, FR-019). Make T039 pass.
 - [ ] T041 Implement the agent registry (FR-001): a maintained list in `claims/__init__.py` (or `claims/agents.py`) enumerating every claim-producing stage (spec, clarify, plan, tasks, implement, paper-spec, paper-clarify, flesh-out, results/summary producers); add `tests/unit/test_claim_agent_registry.py` asserting the chokepoint covers each.
