@@ -1,0 +1,96 @@
+\section{Method}
+\label{sec: method}
+In this section, we present how to convert a text-to-video (T2V) or text-and-image-to-video (TI2V) multi-step bidirectional diffusion model into a camera-controllable few-step autoregressive (AR) video generator.The pipeline consists of two major phases: first, \emph{Camera Control Training for Bidirectional Diffusion Models} (Sec.~\ref{sec: method-bidirectional}), which equips the multi-step bidirectional diffusion model with camera controllability; and second, \emph{AR Diffusion Distillation for Real-Time Interactive Models} (Sec.~\ref{sec: method-ar}) via Causal Forcing~\cite{zhu2026causal} or Causal Forcing++~\cite{zhao2026causal}, which transforms the model into a real-time interactive AR model.
+
+\subsection{Camera-Controllable Training for Bidirectional Diffusion Models}
+\label{sec: method-bidirectional}
+
+In this section, we fine-tune the T2V or TI2V bidirectional diffusion model into a camera-controllable bidirectional diffusion model. We adopt PRoPE~\cite{li2026cameras} as the injection method for camera parameters.
+
+Specifically, given a video clip with camera parameters 
+$\{(K_i,T_i^{cw})\}_{i=1}^{N}$, where $K_i$ denotes the intrinsic matrix and 
+$T_i^{cw}\in SE(3)$ denotes the world-to-camera extrinsic transformation of frame $i$, PRoPE represents each camera by its lifted projective matrix
+\[
+\widetilde P_i=
+\begin{bmatrix}
+[K_i\;0]T_i^{cw}\\
+e_4^\top
+\end{bmatrix}\in\mathbb{R}^{4\times 4},
+\qquad
+e_4=(0,0,0,1)^\top .
+\]
+For a token $t$ belonging to frame $i(t)$ with spatial coordinate $(x_t,y_t)$, PRoPE constructs a block-diagonal transformation
+\[
+D_t^{\mathrm{PRoPE}}
+=
+\begin{bmatrix}
+I_{d/8}\otimes \widetilde P_{i(t)} & 0\\
+0 &
+\begin{bmatrix}
+\mathrm{RoPE}_{d/4}(x_t)&0\\
+0&\mathrm{RoPE}_{d/4}(y_t)
+\end{bmatrix}
+\end{bmatrix}.
+\]
+This transformation is injected into self-attention in the GTA form:
+\[
+\mathrm{Attn}_{\mathrm{PRoPE}}(Q,K,V)
+=
+D^{\mathrm{PRoPE}}\odot
+\mathrm{Attn}\!\left(
+(D^{\mathrm{PRoPE}})^\top\odot Q,\,
+(D^{\mathrm{PRoPE}})^{-1}\odot K,\,
+(D^{\mathrm{PRoPE}})^{-1}\odot V
+\right).
+\]
+Consequently, the attention interaction between tokens $t_1$ and $t_2$ explicitly depends on the relative projective transformation
+\[
+\widetilde P_{i(t_1)}\widetilde P_{i(t_2)}^{-1}
+=
+\begin{bmatrix}
+K_{i(t_1)}&0\\
+0&1
+\end{bmatrix}
+T_{i(t_1)}^{cw}
+\bigl(T_{i(t_2)}^{cw}\bigr)^{-1}
+\begin{bmatrix}
+K_{i(t_2)}^{-1}&0\\
+0&1
+\end{bmatrix},
+\]
+thereby jointly encoding relative camera intrinsics and camera poses. This allows the bidirectional diffusion backbone to condition on camera trajectories while preserving the original self-attention generative structure.
+
+
+\subsection{AR Diffusion Distillation for Real-Time Interactive Video World Models}
+\label{sec: method-ar}
+
+In this section, we can either adopt Causal Forcing~\cite{zhu2026causal} or Causal Forcing++~\cite{zhao2026causal} to transform the camera-controllable multi-step bidirectional diffusion model obtained in Sec.~\ref{sec: method-bidirectional} into a camera-controllable few-step AR model. This distillation pipeline consists of three stages: \emph{\textbf{(1) Stage 1: AR diffusion training; (2) Stage 2: causal ODE initialization or causal CD initialization; and (3) Stage 3: asymmetric DMD.}} 
+
+\paragraph{Stage 1: AR diffusion training.} Starting from a multi-step bidirectional diffusion model, Causal Forcing~\cite{zhu2026causal} first fine-tunes it into an AR diffusion model via teacher forcing~\cite{teng2025magi}. This is achieved by concatenating the clean video with its noisy counterpart and training the model under a causal attention mask. The resulting model already possesses autoregressive generation capability, but still suffers from two limitations: (1) it requires multi-step generation, leading to high latency; and (2) due to exposure bias induced by autoregression~\cite{yin2025slow}, its quality remains inferior to that of bidirectional diffusion models. These limitations motivate the subsequent distillation strategy.
+
+
+
+\paragraph{Stage 2 (option a): causal ODE initialization.} Causal Forcing~\cite{zhu2026causal} points out that using an AR diffusion model to supervise an AR few-step model, as the subsequent DMD initialization, helps improve generation quality. This AR diffusion model generates a large number of intermediate denoising trajectories, namely PF-ODE trajectories~\cite{song2020score}. Then, over a predefined few-step timestep set $\gS$, a timestep $t$ is randomly sampled, and the few-step model $G_\theta$ is trained by regressing from the noisy intermediate frame $\vx_t^i$ to the clean frame $\vx_0^i$:
+\begin{align}
+    \theta^*=\arg\min_\theta \mathbb{E}_{\vx_{\mathrm{gt}}^{<i},\, t,\, i,\, \vx_t^i}\left[\,\|G_\theta(\vx_t^i,\vx_{\mathrm{gt}}^{<i}, t)-\vx_0^i\|^2\,\right],
+\end{align}
+where $\vx_{\mathrm{gt}}^{<i}$ denotes the historical prefix formed by real data. The model trained in this way can already perform few-step autoregressive generation, but its quality is constrained by the AR diffusion model and remains inferior to that of the bidirectional model, thus motivating the need for asymmetric DMD (i.e., Stage 3).
+
+
+\paragraph{Stage 2 (option b): causal CD initialization.} ODE distillation requires generating offline ODE data, which is both time-consuming and storage-intensive. To eliminate this data curation time and the storage overhead of ODE trajectories, Causal Forcing++~\cite{zhao2026causal} further replaces this stage with the theoretically equivalent causal consistency distillation~\cite{song2023consistency}, namely causal CD:
+\begin{align}
+\label{eq:causal-cd}
+\theta^*=\arg\min_\theta \mathbb{E}_{\vx_\text{gt},\,\vepsilon,\,t,\,i}\Big[w(t)\,d\big(G_\theta(\vx_t^i,\vx_\text{gt}^{<i}, t),\; G_{\theta^-}(\hat{\vx}^i_{t-\Delta t},\vx_\text{gt}^{<i}, t-\Delta t)\big)\Big],
+\end{align}
+where $\hat{\vx}^i_{t-\Delta t}$ is obtained by a single ODE step from $\vx_t^i$ using the AR teacher conditioned on $\vx_\text{gt}^{<i}$, $\theta^-$ is the EMA of $\theta$ with stop-gradient, $w(\cdot)$ is a timestep-dependent weight, and $d(\cdot,\cdot)$ is a distance under a pre-defined norm. A model trained in this way is equivalent to one obtained via causal ODE distillation~\cite{zhu2026causal}.
+
+\paragraph{Stage 3: asymmetric DMD.} The resulting few-step AR model is already capable of real-time generation, but since the AR teacher has limited generation quality, it inherits this limitation. Therefore, a final asymmetric DMD stage is applied using the bidirectional diffusion model, aligning the few-step AR model with the high-quality distribution of the bidirectional teacher~\cite{yin2025slow,huang2025self}: the student model is initialized from the above few-step AR model, self-rolls out to generate a full video sequence $\tilde{\vx}$, and is then optimized with the standard DMD gradient as follows~\cite{wang2023prolificdreamer,yin2024one}:
+\begin{align}
+\label{eq:dmd}
+\nabla_\theta\E_t[\KL(p_{\theta,t}(\tilde{\vx}_t)||p_{\text{data},t}(\tilde{\vx}_t))]
+   = -\E_{\tilde{\vx}, t, \tilde{\vx}_t}[(s_\text{real}(\tilde{\vx}_t,t)-s_\text{fake}(\tilde{\vx}_t,t))\frac{\partial \tilde{\vx}}{\partial \theta}].
+\end{align}
+Here, $\tilde{\vx}$ is perturbed into $\tilde{\vx}_t\sim  p_\theta(\tilde{\vx})$ through the forward diffusion process, thereby inducing the marginal distribution $p_{\theta,t}(\tilde{\vx}_t)$. The score of $\tilde{\vx}_t$ in the data distribution is estimated by a frozen diffusion model $s_{\text{real}}$, whereas the score of $\tilde{\vx}_t$ in $p_\theta(\tilde{\vx})$ is estimated by an online-trained diffusion model $s_{\text{fake}}$.
+
+
+\paragraph{Camera-controllable distillation.} For camera-controllable video world models, we only need to instantiate the Causal Forcing series from the camera-controllable multi-step bidirectional diffusion model. Specifically, in Stage 1, the AR diffusion model is initialized from the camera-controllable multi-step bidirectional diffusion model obtained in Sec.~\ref{sec: method-bidirectional} and is still trained on camera-controllable data. In Stage 2, when collecting causal ODE data, the AR diffusion model also takes the camera condition as input to solve the PF-ODE; similarly, causal CD is trained on camera-controllable data. In Stage 3, the student model takes not only the text condition but also the camera condition for self-rollout, and the same camera condition is also fed into $s_\text{real}$ and $s_\text{fake}$, which are initialized from the camera-controllable multi-step bidirectional diffusion model obtained in Sec.~\ref{sec: method-bidirectional}. In summary, all involved models are camera-controllable.

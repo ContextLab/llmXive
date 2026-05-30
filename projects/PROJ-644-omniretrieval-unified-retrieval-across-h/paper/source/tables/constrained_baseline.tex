@@ -1,0 +1,32 @@
+\providecolor{mygray}{HTML}{F2F2F2}
+\providecolor{citeblue}{HTML}{1668b0}
+
+\begin{wraptable}{r}{0.45\textwidth}
+    \vspace{-0.20in}
+    \centering
+    \caption{
+    Results for the unified-representation methods~\citep{UniK, UDT} with the constrained setup on GPT-5.4, marked $^\dagger$ as non-comparable.
+    }
+    \label{tab:constrained_baseline}
+    \vspace{-0.075in}
+    \small
+    \resizebox{\linewidth}{!}{
+    \setlength{\tabcolsep}{3pt}
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Method} & \textbf{Source Sel.} & \textbf{Retrieval} & \textbf{Judge} \\
+
+        \midrule
+
+        Document Search                              & 21.49 & 13.42 & 39.93 \\
+        Unified Representation$^\dagger$             & 31.00 & 23.00 & 45.00 \\
+        KB Routing                                   & \underline{64.88} & \underline{42.07} & \underline{60.26} \\
+        \rowcolor{citeblue!10}
+        \textbf{OmniRetrieval (Ours)}                & \textbf{68.58} & \textbf{46.62} & \textbf{69.72} \\
+
+        \bottomrule
+    \end{tabular}
+    }
+    \vspace{-0.1in}
+\end{wraptable}

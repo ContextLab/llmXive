@@ -1,0 +1,26 @@
+\begin{figure*}
+\centering
+\begin{promptbox}
+\textbf{[System for Text-to-SQL]}\\[2pt]
+You are a text-to-SQL translator. Output only the SQL query.
+
+\textbf{[System for Text-to-SPARQL]}\\[2pt]
+You are a text-to-SPARQL translator. Output only the SPARQL query.
+
+\textbf{[System for Text-to-Cypher]}\\[2pt]
+You are a text-to-Cypher translator. Output only the Cypher query.
+
+\tcbline
+
+\textbf{[User, shared across backends]}\\[2pt]
+\begin{verbatim}
+<c_b>
+
+Question: <question>
+
+Generate the <SQL|SPARQL|CYPHER> query.
+\end{verbatim}
+\end{promptbox}
+\caption{Query formulation prompts for the structured backends.}
+\label{fig:query_formulation_prompt}
+\end{figure*}

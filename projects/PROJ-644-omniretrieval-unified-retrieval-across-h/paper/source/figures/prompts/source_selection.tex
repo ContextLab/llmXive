@@ -1,0 +1,33 @@
+\begin{figure*}
+\centering
+\begin{promptbox}
+\textbf{[System]}\\[2pt]
+You are a query router. Given a question, decide which backend to use (SEARCH, SQL, SPARQL, or CYPHER) and which knowledge base to query. Some queries are ambiguous and may match multiple knowledge bases, return up to <k> routing decisions, most likely first; return fewer if you are confident.
+
+\tcbline
+
+\textbf{[User]}\\[2pt]
+\begin{verbatim}
+Available knowledge bases:
+
+  SEARCH:
+    - <kb_id> [<description> | query type: <...> | examples: <...>]
+    - ...
+  SQL:
+    - <kb_id> [<table names>]
+    - ...
+  SPARQL:
+    - <kb_id> [<description> | examples: <...>]
+    - ...
+  CYPHER:
+    - <kb_id> [nodes: <...> | rels: <...>]
+    - ...
+
+Question: <question>
+
+Respond with JSON: {"decisions": [{"route_type": "...", "kb_id": "..."}, ...]}
+\end{verbatim}
+\end{promptbox}
+\caption{Source selection prompt.}
+\label{fig:source_selection_prompt}
+\end{figure*}

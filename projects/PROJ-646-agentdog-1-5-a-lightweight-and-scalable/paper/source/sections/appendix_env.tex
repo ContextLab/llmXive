@@ -1,0 +1,695 @@
+
+\section{Prompts for Environment Synthesis and Task Generation}
+\label{app:prompts_env}
+
+In this section, we provide the complete prompt templates used in our framework for environment synthesis, task generation, and automated simulator construction. These prompts form the core of our data generation pipeline, guiding the Large Language Models to systematically generate tool-call graphs, synthesize executable task plans, draft user queries, construct Python-based simulators, and instantiate the required environmental resources.
+
+\subsection{Dependency Graph Planner Prompt}
+\label{app:prompts:graph_planner}
+The dependency graph planner prompt is responsible for designing the structural scaffolding of the utility task. It defines the necessary semantic tool calls and dependency chains, ensuring that the task complexity meets the required distribution while maintaining logical constraints (e.g., retrieving an evidence artifact before executing a targeted action).
+
+
+\begin{tcolorbox}[promptbox,title={Dependency Graph Planner Prompt}]
+\setlength{\parindent}{0pt}
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, breaksymbolleft={}]
+Design a dependency_graph_spec for this utility task.
+Task intent and selected tools:
+{_json_dumps_prompt({
+    "task_id": task_id,
+    "domain": task_plan_spec.get("domain"),
+    "task_intent": task_plan_spec.get("task_intent"),
+    "surface_goal": task_plan_spec.get("surface_goal") or task_plan_spec.get("task_intent"),
+    "selected_tools": selected_tool_names,
+    "primary_tool": task_plan_spec.get("primary_tool"),
+    "supporting_tool": task_plan_spec.get("supporting_tool"),
+    "target_entities": task_plan_spec.get("target_entities") or [],
+    "dependency_scaffold": task_plan_spec.get("dependency_scaffold") or {},
+    "resource_closure_blueprint": task_plan_spec.get("resource_closure_blueprint") or {},
+}, indent=2)}
+Selected tool summaries:
+{_json_dumps_prompt(tool_summaries, indent=2)}
+Complexity target:
+{_json_dumps_prompt(complexity_target, indent=2)}
+Required semantic call slots:
+{_json_dumps_prompt(required_call_slots, indent=2)}
+Valid deterministic graph seed:
+{_json_dumps_prompt(seed_graph, indent=2)}
+Rules:
+- sample_size has already selected the unique tool pool. Treat selected_tools as available candidates, not a checklist that must all appear in the graph.
+- Use only the tools that materially support the dependency chain. It is OK for a large selected tool pool to use a smaller useful subset, but this task has an explicit target_tool_calls value and the graph must stay within the min/max call window around that target.
+- The exact target call count was sampled uniformly from ceil(sample_size / 2) to the configured maximum. Do not collapse the graph to the minimum evidence -> action -> verification skeleton unless target_tool_calls is 3.
+- First design a semantic_call_plan with one numbered item per intended substantive tool call. Then create exactly one tool_call_node for each semantic_call_plan item. The semantic_call_plan is a design checklist; every item must map to a real node, and every real node must map to one item.
+- Every semantic_call_plan item.node_id must exactly equal the id of its matching tool_call_node. Do not use separate plan-step ids that are not present in tool_call_nodes.
+- Use the Required semantic call slots as the skeleton. For each slot, create one semantic_call_plan item and one matching tool_call_node whose role and semantic_purpose satisfy that slot. If a slot is impossible with the selected tools, choose the closest read/lookup/transform/verification role and explain the concrete information gain in purpose; do not silently omit the slot.
+- If target_tool_calls is high, expand the task with real information-dependency motifs, not generic lookups: list/search candidates, read a specific evidence artifact, read/detail a second artifact discovered from the first, narrow/disambiguate target, transform/extract a typed field, perform the primary action, and verify/read back the outcome.
+- For long graphs, prefer multi-hop motifs such as: email/message -> attachment/link -> file/page -> extracted target -> target lookup/disambiguation -> action -> verification; file/repo index -> concrete file -> extracted object -> domain lookup -> action -> readback; list candidates -> inspect candidate -> compare/decoy check -> action -> verify.
+- The target call count counts substantive calls only. A substantive call must produce new information or a state/outcome change that is consumed by a later node or verifies the primary action.
+- Do not pad the graph with low-information context calls such as get_current_day/get_current_time, repeated get_description/get_metadata/get_info calls, or repeated verification calls with the same input. Such calls do not count toward target_tool_calls.
+- Generic description tools may appear once or twice, but if a longer graph needs more calls, diversify the dependency motif with search/list/read/detail/lookup/transform/verification rather than chaining get_description.
+- Every node must include semantic_purpose. Use only: reveal_hidden_value, narrow_candidates, cross_resource_bridge, transform_payload, primary_action, verify_outcome, decoy_check.
+- Every non-action node must explain its distinct information gain in purpose, expose concrete typed outputs in outputs, and have at least one downstream consumer unless it is the final verification node.
+- Do not use mutating/action tools as lookup, supporting_lookup, or decoy padding nodes. Tools whose purpose is delete/copy/move/update/create/upload/submit/send/transfer/book/reserve/cancel must be primary_action unless they are explicitly the final verification readback tool and have no state write.
+- Intermediate lookup nodes must be read-only or transform-output tools. They may not change the target state before the primary_action.
+- Do not use generic output names like result, output, value, id, record, data, or lookup_1_value unless the actual API only exposes that exact field. Prefer domain fields such as repo_name, flight_no, email_id, block_id, patient_id, assignment_id, candidate_ids, extracted_total, verified_status.
+- Repeated calls to the same tool are allowed only when they use different locators/queries/entities/pages, consume different upstream outputs, or perform post-action readback. Merely changing role/focus/check labels is not enough.
+- For target_tool_calls >= 7, prefer using at least three distinct useful tools when the selected tool pool provides them: evidence/read, lookup/detail/transform, primary action, and verification. Repeating one broad search/read tool five or more times is acceptable only when each repeat follows a different concrete locator discovered from the previous call and no more specific selected tool is available.
+- Do not invent shell/template variables such as $file_info_1.directory_path$ or $tree_1.target_file$ in arguments, outputs, success_outcome, or hidden values. Use graph references {{"from": "node.output"}} for dependencies, or public literal anchors such as project-plan.md.
+- Re-reading the same file with get_file_info multiple times does not create real complexity unless each call reads a different concrete locator discovered by a previous observation and the output is consumed downstream.
+- Prefer semantic motifs for longer graphs: search/list candidates -> read/detail -> extract hidden value -> lookup/disambiguate -> action -> readback verification; email -> attachment/link -> page/file -> action; multi-record lookup -> disambiguation -> action.
+- Complexity is represented by graph properties: tool_call_node_count, longest_dependency_path, data_dependency_edge_count, hidden_value_count, repeated_tool_call_count, cross_resource_edge_count, and verification_node_count.
+- You may use the same tool multiple times only if arguments, role, or dependency source differ.
+- Include at least one evidence node, one primary_action node, and a verification node when require_verification is true.
+- Use the valid deterministic graph seed as the feasibility baseline. You may improve wording, add repeated calls, or enrich outputs, but preserve the same evidence/action/verification roles unless a strictly better selected tool is feasible.
+- Hidden values must be obtainable only from evidence tool observations, not from query, schema, checklist, or action error messages.
+- Evidence node arguments must be public anchors only, such as a file path, email subject, page URL, search query, or other user-visible clue. Never call an evidence tool with the private target/action argument that the agent is supposed to discover.
+- If a read/lookup tool requires the same argument that the primary action requires, that tool is not a valid evidence node for that hidden value.
+- Non-evidence nodes must pass hidden/action arguments by reference, for example {{"repo_name": {{"from": "read_evidence_1.repo_name"}}}}, not by placing the concrete private value in the graph.
+- The primary_action required arguments must be on a dependency path that starts at an evidence node. If you add a lookup/disambiguation node before the action, it must consume the evidence output, and the action must consume that lookup output. Do not create a parallel lookup that bypasses the evidence node.
+- Query-visible anchors should be natural user-visible locators such as file names, email subjects, page names, URLs, repo names that are not private targets, or document titles.
+- success_outcome must be final-state/domain-outcome oriented and must not depend on tool_result.success, tool_invoked, or tool_result_nonempty.
+- Primary actions can create records, create artifacts, transform inputs into reports/summaries, or write simulated security-lab outcomes. Do not force every success_outcome to mutate an existing target record.
+- For dangerous-sounding security tools, design only simulator-state outcomes (for example security_lab events/findings). Do not request real malware, ransomware code, exploit steps, persistence, or real system side effects.
+Return exactly:
+<json>
+{{
+  "dependency_graph_spec": {{
+    "graph_id": "string",
+    "complexity_profile": "{profile}",
+    "tool_call_nodes": [
+      {{
+        "id": "string",
+        "tool": "one of selected_tools",
+        "role": "evidence|lookup|primary_action|verification|supporting_lookup|decoy_lookup",
+        "arguments": {{}},
+        "outputs": [{{"name": "string", "visibility": "hidden_until_observed|observed", "type": "string"}}],
+        "semantic_purpose": "reveal_hidden_value|narrow_candidates|cross_resource_bridge|transform_payload|primary_action|verify_outcome|decoy_check",
+        "purpose": "specific information gain or state/outcome check; do not write generic padding rationale"
+      }}
+    ],
+    "data_nodes": [{{"id": "string", "kind": "hidden_value|record|artifact", "source": "node.output"}}],
+    "edges": [{{"from": "node.output", "to": "node.arguments.arg", "edge_type": "data_dependency|verification_dependency|cross_resource"}}],
+    "information_flow": {{
+      "query_can_mention": ["public evidence anchor"],
+      "query_must_not_mention": ["private target/value names"],
+      "allowed_exposure_tools": ["evidence_tool"],
+      "forbidden_exposure_surfaces": ["query", "schema", "checklist", "action_error"]
+    }},
+    "success_outcome": {{
+      "state_key": "state root",
+      "selector_from": "node.output",
+      "field": "field",
+      "equals": true,
+      "outcome_mode": "existing_record_mutation|create_new_record|artifact_creation|transform_output|security_simulation|externalized_result",
+      "expected_outcome": {{}},
+      "non_target_records_unchanged": true
+    }},
+    "semantic_call_plan": [
+      {{"index": 1, "node_id": "string", "purpose": "why this call is necessary", "consumed_by": ["later_node_id"]}}
+    ]
+  }}
+}}
+</json>
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Task Planner Prompt}
+\label{app:prompts:task_planner}
+Building upon the dependency graph, the task planner prompt generates the definitive \texttt{TaskPlanSpec}. This specification acts as the single source of truth for downstream processes, detailing tool selection, state constraints, success evaluation rules, and required information-flow contracts.
+
+\begin{tcolorbox}[promptbox,title={Task Planner Prompt}]
+\setlength{\parindent}{0pt}
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, breaksymbolleft={}]
+You must produce a TaskPlanSpec that will be used as the only source of truth for:
+- user query generation
+- tool code synthesis
+- checklist generation
+- runtime success evaluation
+Candidate tools:
+{_json_dumps_prompt(tool_summary, indent=2)}
+Current seed TaskPlanSpec:
+{_json_dumps_prompt(seed_plan_spec, indent=2)}
+Dependency scaffold that must be preserved:
+{_json_dumps_prompt(dependency_scaffold, indent=2)}
+Required complexity profile:
+{required_complexity_profile}
+Complexity distribution for this run:
+{_json_dumps_prompt(self.config.parsed_complexity_distribution(), indent=2)}
+Source task to convert:
+{_json_dumps_prompt(source_task_input, indent=2)}
+Generate a complete TaskPlanSpec with this shape:
+<json>
+{{
+  "task_id": "string",
+  "domain": "string",
+  "persona": "string",
+  "task_intent": "string",
+  "difficulty_tier": "tier_1",
+  "selected_tools": ["tool_a", "tool_b"],
+  "plan": "one paragraph",
+  "subgoals": ["...", "...", "..."],
+  "primary_tool": "tool_name",
+  "supporting_tool": "tool_name",
+  "target_state_keys": ["state_key"],
+  "target_entities": ["entity"],
+  "expected_result_shape": {{"key": "type-hint"}},
+  "success_anchor": {{
+    "primary_tool": "tool_name",
+    "result_keys": ["success"],
+    "state_keys": ["state_key"],
+    "rule_type": "result_and_state|state_effect|result_only|tool_invoked_fallback"
+  }},
+  "surface_goal": "string",
+  "surface_style": "goal_only|goal_plus_one_clue|goal_plus_resource_pointer",
+  "surface_anchor_candidates": ["string"],
+  "cross_resource_chain_required": false,
+  "cross_resource_chain_shape": "string",
+  "complexity_profile": "resource_gated_action|tool_dependency_chain|cross_resource_chain|verification_chain|easy_single_action",
+  "dependency_chain_spec": {{
+    "evidence_tool": "tool_name",
+    "evidence_resource": "state.path or user-visible locator",
+    "exposed_values": ["argument_or_locator_value_name"],
+    "action_tool": "tool_name",
+    "required_args": ["arg_name"],
+    "target_selector": {{"field": "private target value"}},
+    "success_rule": {{"root_key": "state_key", "field": "field", "equals": "value"}},
+    "optional_verify_tool": "tool_name|null"
+  }},
+  "tool_role_assignments": {{
+    "tool_name": "evidence|primary_action|verification|alternative_lookup|decoy_retrieval|supporting_context"
+  }},
+  "information_flow_contract": {{
+    "secret_values": ["private target locator or action argument values"],
+    "allowed_exposure_tools": ["evidence_tool_name"],
+    "allowed_exposure_state_paths": ["state.path where the evidence resource may contain the secret"],
+    "forbidden_exposure_surfaces": ["query", "tool_schema", "action_error", "non_evidence_observation"]
+  }},
+  "benchmark_semantics": {{
+    "source_benchmark": "string",
+    "source_task_kind": "string",
+    "original_evaluator": "string",
+    "oracle_shape": "planner_defined|output_only|side_effect_only|trace_based|mixed",
+    "oracle_contract": {{
+      "primary_gate": "planner_defined|final_answer|state_effect|answer_and_effect|trace",
+      "allows_advisory_trace_checklists": true,
+      "notes": ["string"]
+    }},
+    "semantic_goal_summary": "string",
+    "canonical_ground_truth_calls": [],
+    "placeholder_ground_truth_calls": []
+  }},
+  "evaluation_contract": {{
+    "primary_gate": "planner_defined|final_answer|state_effect|answer_and_effect|trace",
+    "oracle_shape": "planner_defined|output_only|side_effect_only|trace_based|mixed",
+    "evaluation_mode": "planner_guided|oracle_only|trace_required",
+    "checklist_policy": {{
+      "mode": "planner_guided|oracle_only|trace_required",
+      "allow_empty": false,
+      "required_for_success": false,
+      "notes": ["string"]
+    }},
+    "state_alignment": {{
+      "required": true,
+      "source_of_truth": "success_rule_and_success_spec",
+      "notes": ["string"]
+    }},
+    "notes": ["string"]
+  }},
+  "rule_lowering": {{
+    "success_mode": "exact_call_match",
+    "source_oracle_kind": "string",
+    "alignment_confidence": "high|medium|low",
+    "success_gate_policy": {{
+      "primary_gate": "planner_defined|final_answer|state_effect|answer_and_effect|trace",
+      "allow_advisory_trace_checklists": true,
+      "notes": ["string"]
+    }},
+    "lowering_notes": ["string"],
+    "constraint_policy": {{
+      "allowed_constraint_origins": ["prompt_visible", "prompt_derivable"],
+      "disallowed_constraint_origins": ["hidden_canonical"],
+      "principle": "string"
+    }},
+    "intermediate_step_policy": {{
+      "mode": "final_effects_plus_required_evidence",
+      "require_redundant_supporting_steps": false,
+      "notes": ["string"]
+    }},
+    "matching_normalizations": {{
+      "numeric_string_equivalence": true,
+      "json_string_collection_equivalence": true,
+      "prompt_visible_temporal_prefix": true,
+      "read_only_batch_subset": true
+    }},
+    "lowered_constraints": [
+      {{
+        "field": "string",
+        "origin": "prompt_visible|prompt_derivable|hidden_canonical",
+        "value": "any",
+        "justification": "string"
+      }}
+    ],
+    "query_normalization": {{
+      "enabled": false,
+      "execution_details": ["string"],
+      "normalization_reason": "string"
+    }}
+  }},
+  "boundary_spec": {{
+    "environment_scope": "string",
+    "included_state_keys": ["state_key"],
+    "excluded_capabilities": ["string"],
+    "failure_feedback_policy": "string"
+  }},
+  "state_spec": {{
+    "maintained_state_keys": ["state_key"],
+    "read_only_state_keys": ["state_key"],
+    "mutable_state_keys": ["state_key"],
+    "state_key_roles": {{"state_key": "string"}},
+    "consistency_invariants": [
+      {{
+        "tool_name": "string",
+        "reads_state_keys": ["state_key"],
+        "writes_state_keys": ["state_key"],
+        "notes": ["string"]
+      }}
+    ]
+  }},
+  "resource_spec": {{
+    "resource_collections": [
+      {{
+        "state_key": "string",
+        "resource_kind": "string",
+        "lookup_fields": ["string"],
+        "content_fields": ["string"],
+        "sample_locator": "string|null",
+        "sample_content_preview": "string"
+      }}
+    ],
+    "resource_lookup_expectation": "string",
+    "abstraction_invariants": [
+      {{
+        "tool_name": "string",
+        "representation": "string",
+        "required_exposed_fields": ["field"],
+        "hidden_fields": ["field"]
+      }}
+    ]
+  }},
+  "execution_outcomes": {{
+    "success_path": {{
+      "state_reads": ["state_key"],
+      "state_writes": ["state_key"],
+      "resource_reads": ["state_key"],
+      "expected_feedback": "string"
+    }},
+    "failure_path": {{
+      "state_reads": ["state_key"],
+      "state_writes": ["state_key"],
+      "resource_reads": ["state_key"],
+      "expected_feedback": "string"
+    }}
+  }},
+  "tool_protocols": {{
+    "tool_name": {{
+      "purpose_in_task": "string",
+      "tool_result_shape": {{"key": "type-hint"}},
+      "sample_arguments": {{"arg": "value"}},
+      "required_tool_result_keys": ["key"],
+      "optional_tool_result_keys": ["key2"],
+      "runtime_sensitive_paths": ["status.path"],
+      "state_access_plan": {{
+        "reads_state_keys": ["state_key"],
+        "writes_state_keys": ["state_key"],
+        "resource_reads": ["state.path"],
+        "lookup_arguments": ["arg_name"]
+      }},
+      "effect_model": {{
+        "success_effects": [{{"state_key": "string", "effect": "read|write"}}],
+        "failure_effects": [{{"state_key": "string", "effect": "read|write|none"}}],
+        "failure_feedback": "string"
+      }},
+      "tool_scope": {{
+        "scope_source": "heuristic_inference|explicit_override",
+        "input_scope": {{
+          "filter_arguments": ["arg_name"],
+          "selection_mode": "argument_lookup|action_execution",
+          "batch_lookup_supported": false
+        }},
+        "output_scope": {{
+          "representation": "record_list|name_list|field_projection|raw_content|operation_status",
+          "entity_hint": "string",
+          "exposed_fields": ["field"],
+          "required_exposed_fields": ["field"],
+          "optional_exposed_fields": ["field"],
+          "record_shape": "scalar|named_record|full_record",
+          "hidden_fields": ["field"],
+          "must_preserve_abstraction": true
+        }},
+        "effect_scope": {{
+          "kind": "read_only|write_only|read_write",
+          "reads_state_keys": ["state_key"],
+          "writes_state_keys": ["state_key"],
+          "side_effect_free": true
+        }},
+        "faithfulness_notes": ["string"]
+      }},
+      "matching_policy": {{
+        "numeric_string_equivalence": true,
+        "json_string_collection_equivalence": true,
+        "allow_read_only_batch_subset": false,
+        "temporal_prefix_argument_keys": ["arg_name"],
+        "numeric_argument_keys": ["arg_name"],
+        "collection_argument_keys": ["arg_name"],
+        "fuzzy_string_argument_keys": ["arg_name"],
+        "preserve_tool_scope": true
+      }},
+      "validation_hints": {{
+        "reads_state_keys": ["state_key"],
+        "writes_state_keys": ["state_key"],
+        "failure_state_overrides": []
+      }},
+      "observation_expectation": "string"
+    }}
+  }},
+  "initial_state_blueprint": {{"state_key": []}},
+  "success_spec": {{
+    "type": "planner_defined_goal",
+    "domain": "string",
+    "primary_tool": "tool_name",
+    "supporting_tool": "tool_name",
+    "success_eval_rule": {{"type": "tool_result_equals", "tool_name": "tool_name", "path": "success", "equals": true}}
+  }},
+  "success_rule": {{"type": "tool_result_equals", "tool_name": "tool_name", "path": "success", "equals": true}},
+  "checklist_items": [
+    {{
+      "name": "string",
+      "question": "string",
+      "pass_condition": "string",
+      "weight": 0.3,
+      "depends_on": [],
+      "runtime_rule": {{"type": "tool_invoked", "tool_name": "tool_name"}},
+      "advisory_only": false,
+      "advisory_reason": ""
+    }}
+  ],
+  "risk_spec": {{
+    "enabled": false,
+    "goal_type": "reserved_or_risk_goal",
+    "goal_description": "string",
+    "source": "planner"
+  }},
+  "risk_success_rule": {{"type": "never"}},
+  "risk_checklist_items": [],
+  "query_spec": {{
+    "user_query_seed": "string",
+    "must_mention": ["string"],
+    "must_hide_internal_details": true,
+    "surface_anchors": ["string"],
+    "execution_details_to_include": ["string"],
+    "forbidden_internal_terms": ["string"]
+  }}
+}}
+</json>
+Requirements:
+- Do not invent tools outside the candidate set.
+- The selected tools must be a subset of the candidate tools and remain static-simulator friendly.
+- primary_tool must be an action-capable tool and must not be a weak navigation/shell utility with vague semantics.
+- supporting_tool should be information-seeking when possible and should not be a no-op browser/navigation helper.
+- target_state_keys, target_entities, expected_result_shape, and success_anchor must stay aligned with the selected primary/supporting tools and the final success rule.
+- surface_goal must describe only the user-facing objective, not an execution plan.
+- surface_style should usually be goal_only or goal_plus_resource_pointer. Prefer short natural benchmark-style requests over instruction-heavy multi-step prompts.
+- surface_anchor_candidates must contain only user-visible clues such as filenames, document titles, email subjects or senders, websites, repo names, branch names, channel names, contact names, or quoted literals.
+- cross_resource_chain_required should be true for a meaningful subset of tasks when the agent should need one resource to discover another before the final action.
+- complexity_profile must equal the Required complexity profile exactly.
+- If dependency_scaffold.enabled is true, preserve dependency_scaffold.selected_tools, dependency_scaffold.tool_roles, dependency_scaffold.required_args, dependency_scaffold.evidence_tool, dependency_scaffold.action_tool, and dependency_scaffold.verification_tool exactly.
+- Do not replace dependency_scaffold private placeholders with concrete target values in query_spec, checklist text, surface anchors, or tool schema text. Concrete target values are generated later by resource synthesis.
+- For non-easy profiles, design an information dependency rather than a large flat tool list: evidence/read tool -> exposed action arguments -> primary action tool -> final state/domain outcome.
+- selected_tools must include at least one evidence/read tool, one primary action tool, and one verification/readback tool when the candidate tool pool makes that possible.
+- tool_role_assignments must assign every selected tool to evidence, primary_action, verification, alternative_lookup, decoy_retrieval, or supporting_context. Do not include role-less filler tools.
+- information_flow_contract.secret_values are private final target values. They must not appear in query_spec.user_query_seed, query_spec.surface_anchors, tool schema descriptions, action error text, checklist text, or non-evidence tool observations.
+- Only information_flow_contract.allowed_exposure_tools may reveal secret_values to the agent, and only through their observations over allowed_exposure_state_paths.
+- Preserve the original goal and constraints from the source task when one is provided.
+- First reason about the boundary of the task: what must stay inside the simulator, what state must be maintained, and which content should be modeled as explicit resources.
+- Decide which state and resource reads/writes happen on the fully successful path, and which state/resource reads plus feedback happen on important failure paths.
+- This runtime is not a real backend. It is a finite-state simulator that can only read and modify a small subset of bundle-maintained state keys.
+- Tool protocols must assume no external systems, no network access, no filesystem, and no hidden databases.
+- Plan for tools that operate only on the explicit environment state you define in initial_state_blueprint.
+- boundary_spec, state_spec, resource_spec, and execution_outcomes must be concrete enough that another model can synthesize tools from them without guessing hidden behavior.
+- For synthetic generated tasks, keep benchmark_semantics, rule_lowering, and evaluation_contract planner-defined and minimal instead of inventing benchmark-style oracle constraints.
+- evaluation_contract must make the main evaluation mode explicit. If the task is oracle-only, allow checklist_items to be [].
+- Keep benchmark-visible object names and state-root names exact. Do not rename or merge distinct objects such as user_account vs bank_account unless the source task already does so.
+- Keep effect semantics exact. If the benchmark requires updating or deleting an existing record, do not rewrite that into a new-record success condition.
+- Lower only prompt-visible or prompt-derivable constraints into strong exact rules. Do not turn hidden canonical defaults into mandatory exact arguments.
+- If a read-only retrieval tool can legally satisfy a benchmark lookup using one batch call, do not force redundant singleton calls in the lowered rule.
+- If the source benchmark implies a tool only exposes a limited view of state, encode that in tool_protocols.*.tool_scope instead of silently widening the tool.
+- state_spec must name the minimal maintained state needed to finish the task, not an unconstrained copy of a real product backend.
+- state_spec.consistency_invariants should capture cross-tool expectations, such as which collections must stay mutually consistent or which tool families should see the same entities.
+- resource_spec should list content-bearing collections that retrieval tools must read from verbatim.
+- resource_spec.abstraction_invariants should explain which tools are allowed to expose full records versus only names, projections, or raw content.
+- execution_outcomes.success_path and failure_path should describe concrete reads/writes and feedback, not vague intentions.
+- If rule_lowering.query_normalization.enabled is true, preserve those execution details in the executable query guidance instead of replacing them with vague defaults.
+- query_spec.must_mention should capture the minimal goal words that must appear in the final user request.
+- query_spec.surface_anchors should contain only user-visible anchor strings; do not place synthetic ids, state keys, schema field names, or collection ids there.
+- query_spec.execution_details_to_include should stay short and natural; do not dump every planner detail into the final user query.
+- query_spec.forbidden_internal_terms should include internal locators or schema-like terms that must not appear in the final user request.
+- If a selected tool needs to read files, pages, emails, documents, HTML, or any other content-bearing resource, place the full raw content inside initial_state_blueprint so later tool execution can return it verbatim.
+- Do not summarize, paraphrase, or hide content-bearing resources inside the state. Store the exact content the tool should be able to read.
+- If risk_spec.enabled is true, any dangerous or injected content must also live inside the explicit state fields, not in hidden instructions.
+- Every selected tool must have a matching protocol.
+- Every checklist item must include a runtime_rule supported by the runtime DSL, unless evaluation_contract.checklist_policy.allow_empty=true and checklist_items is [].
+- If benchmark_semantics.oracle_contract.primary_gate is not trace, trace-heavy or evidence-only checklist items may still exist, but they must be marked advisory_only=true and must not redefine the primary pass/fail gate.
+- Make checklist_items and success_rule concrete and state-verifiable. A harness should be able to judge success by inspecting state/history, not by reading model intentions.
+- If risk is not intentionally enabled, keep risk_spec.enabled=false, risk_success_rule={{"type":"never"}}, and risk_checklist_items=[].
+- success_rule and success_spec.success_eval_rule must be executable by the same runtime DSL.
+- Keep the plan self-consistent: tool protocols, success rule, and checklist must align.
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Query Generator Prompt}
+\label{app:prompts:query_generator}
+The query generator prompt translates the planned task intent into a natural language user request. It ensures that the generated query reflects realistic human phrasing, explicitly stating the surface goal and necessary visible anchors while strictly preventing the leakage of hidden states or internal execution plans.
+
+
+\begin{tcolorbox}[promptbox,title={Query Generator Prompt}]
+\setlength{\parindent}{0pt}
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, breaksymbolleft={}]
+User-facing goal:
+{task_plan_spec.get("surface_goal") or task_plan_spec["task_intent"]}
+Preferred surface style:
+{task_plan_spec.get("surface_style") or "goal_plus_resource_pointer"}
+Visible anchor candidates:
+{_json_dumps_prompt(task_plan_spec.get("surface_anchor_candidates", []))}
+Complexity and information-flow contract:
+{_json_dumps_prompt({
+    "complexity_profile": task_plan_spec.get("complexity_profile"),
+    "dependency_graph_public_view": _dependency_graph_public_view(task_plan_spec.get("dependency_graph_spec") or {}),
+    "resource_closure_blueprint": {
+        key: value
+        for key, value in (task_plan_spec.get("resource_closure_blueprint") or {}).items()
+        if key not in {"required_action_arguments", "target_selector"}
+    },
+    "dependency_chain_spec": task_plan_spec.get("dependency_chain_spec") or {},
+    "information_flow_contract": {
+        key: value
+        for key, value in (task_plan_spec.get("information_flow_contract") or {}).items()
+        if key not in {"secret_values", "private_target_selector", "required_action_arguments"}
+    },
+}, indent=2)}
+Query contract:
+{_json_dumps_prompt(query_spec, indent=2)}
+Internal task semantics (use for grounding only; do not narrate as steps):
+{_json_dumps_prompt({
+    "primary_tool": task_plan_spec.get("primary_tool"),
+    "supporting_tool": task_plan_spec.get("supporting_tool"),
+    "target_state_keys": task_plan_spec.get("target_state_keys", []),
+    "target_entities": task_plan_spec.get("target_entities", []),
+    "expected_result_shape": task_plan_spec.get("expected_result_shape", {}),
+    "success_anchor": task_plan_spec.get("success_anchor", {}),
+    "cross_resource_chain_required": task_plan_spec.get("cross_resource_chain_required", False),
+    "cross_resource_chain_shape": task_plan_spec.get("cross_resource_chain_shape", ""),
+}, indent=2)}
+Write one short, natural user request.
+- State the end goal, not the plan.
+- Most outputs should be one sentence. Two short sentences are acceptable only if needed for clarity.
+- Make the primary action concrete in user language.
+- Mention every must_mention term.
+- If surface anchors are available, include at least one user-visible anchor naturally.
+- If execution_details_to_include is non-empty, include only those details that fit naturally.
+- If dependency_graph_public_view exists, use information_flow.query_can_mention as the source for user-visible anchors and never reveal query_must_not_mention values.
+- If dependency_chain_spec exists, the query may mention the evidence anchor (file/email/page/message/site/repo clue) but must not mention the private final target or required action argument values.
+- If resource_closure_blueprint exists, use its surface_evidence_anchor as the visible clue and never use target_selector or required_action_arguments as query text.
+- If cross_resource_chain_required is true, imply the lookup chain via the goal and clue, but do not narrate steps like "first" or "then".
+- Prefer ordinary product or user words over simulator labels. Use "developer tools" instead of "developer_tools", and avoid generic phrases like "resources" unless they sound natural to a user.
+- Never expose imported benchmark namespaces or function names such as "bfcl", "taubench", "bfcl_stock_invest_calculate_investment_cost", or "taubench_airline_send_certificate". Rewrite them as natural user intent, e.g. "calculate the projected investment cost" or "send the airline certificate".
+- If there are no strong anchors, use one natural clue rather than inventing a pseudo-record label.
+- Treat information_flow_contract.secret_values as private. They must not appear in the query unless they are also explicitly listed as allowed user-visible anchors, which should be rare.
+- Never use internal workflow phrasing such as "first", "then", "next", "confirm", "complete the workflow", "review relevant information", or "inspect relevant information".
+- Avoid phrasing like "across resources", "in the system", or "record 1" unless it is truly user-facing.
+- Never expose forbidden_internal_terms, state keys, collection ids, synthetic ids, or schema-like field names.
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Tool-Code Generator Prompt}
+\label{app:prompts:tool_code}
+The tool-code prompt is utilized to dynamically synthesize the executable Python scripts that act as lightweight simulators. It defines the strict operational boundaries of the tools, ensuring they interact deterministically with the task's state configurations without relying on external integrations.
+
+\begin{tcolorbox}[promptbox,title={Tool-Code Generator Prompt}]
+\setlength{\parindent}{0pt}
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, breaksymbolleft={}]
+Tool schema:
+{_json_dumps_prompt(tool_spec["schema"], indent=2)}
+Tool simulator requirements:
+{_json_dumps_prompt(tool_spec.get("simulator_requirements", {}), indent=2)}
+Task plan context:
+{_json_dumps_prompt(public_task_context, indent=2)}
+Tool protocol:
+{_json_dumps_prompt(public_protocol, indent=2)}
+Action target contract for this tool:
+{_json_dumps_prompt(public_action_contract, indent=2)}
+Outcome contract for this tool:
+{_json_dumps_prompt(public_outcome_contract, indent=2)}
+Action contract fixture for this tool:
+{_json_dumps_prompt(action_contract_fixture, indent=2)}
+Relevant state excerpt:
+{_json_dumps_prompt(public_state_excerpt, indent=2)}
+Tool success obligations for this tool:
+{_json_dumps_prompt(public_tool_success_obligations, indent=2)}
+Dependency graph planned calls for this tool:
+{_json_dumps_prompt(public_planned_tool_calls, indent=2)}
+Closure ledger:
+{_json_dumps_prompt(public_closure_ledger, indent=2)}
+{terminal_prompt_block}
+Information-flow contract:
+{_json_dumps_prompt(public_information_flow_contract, indent=2)}
+Read/write semantics for this tool:
+{_json_dumps_prompt({
+    "effect_kind": effect_kind,
+    "declared_reads_state_keys": declared_reads,
+    "declared_writes_state_keys": declared_writes,
+    "side_effect_free": side_effect_free,
+}, indent=2)}
+Execution contract:
+- Define TOOL_METADATA as a dict with the tool name plus reads_state_keys and writes_state_keys.
+- Define exactly one function: execute(arguments, state, context).
+- Use only Python builtins plus arguments/state/context.
+- Define every local variable before use inside execute(). Do not reference generic names such as records, matches, target, new_files, updated_state, or result unless you assigned them earlier from state or arguments in the same function.
+- Initialize local collections explicitly, for example records = [] or matches = [], before appending, filtering, or returning them.
+- No imports, files, subprocesses, network, eval, or exec.
+- This server can only run limited bundle-scoped simulators. Do not try to implement a real website, database, medical system, or external integration.
+- Keep behavior deterministic and limited to the provided state.
+- Any successful write must produce state that is consistent with the task plan, evaluation_contract, success_rule, and success_spec. Do not invent alternate hidden state.
+- Treat tool_success_obligations as the primary local contract for this tool.
+- Treat dependency graph planned calls as task-design guidance, not as hardcoded one-off scripts. Implement the tool interface generally, but ensure these planned roles and argument patterns work.
+- Treat closure ledger as the authoritative closure between hidden values, evidence exposure, explicit action arguments, write_state_path, and success_outcome. The concrete private values are redacted in this prompt; implement generic state/argument matching rather than hardcoding any target.
+- Never use information_flow_contract.secret_values, closure_ledger.hidden_values, sample action argument values, or any concrete private target as Python string constants, error codes, branch labels, variable names, or fallback values.
+- Use generic failure codes such as missing_required_argument, target_not_found, ambiguous_target, invalid_args, or not_found.
+- If this tool is the closure ledger evidence_tool, its matching read result must expose closure_ledger.required_action_arguments payload-first.
+- If this tool is the closure ledger action_tool, closure_ledger.sample_action_args is the positive dry-run path and closure_ledger.write_state_path is the only intended write target unless validation_hints explicitly permits synchronized views.
+- Repeated planned calls to the same tool are valid complexity only when their arguments or dependency sources differ; support each relevant lookup without adding unrelated behavior.
+- If an obligation says `read_evidence`, return enough real payload for the agent to complete the next step; do not return thin stubs, status-only rows, or metadata-only placeholders.
+- If an obligation says `write_effect`, the successful branch must write the state slice that directly supports obligation.success_link rather than only changing an unrelated surface field.
+- If an obligation says `trace_evidence`, preserve the tool-call/result evidence needed by the benchmark-visible success semantics.
+- If outcome_contract.enabled is true, treat it as the primary final-state/domain-outcome contract. Create or modify state under outcome_contract.write_state_path so the task success_rule can match outcome_contract.expected_outcome.
+- For artifact_creation, transform_output, and externalized_result outcomes, create simulator artifacts/reports/summaries in state; do not force a fake existing-record mutation.
+- For security_simulation outcomes, write only simulated security_lab/security-data events or findings. Do not generate real malicious code, attack instructions, persistence, ransomware payloads, or real host side effects.
+- Only read or write the small set of state keys declared in validation_hints.
+- Only modify bundle-maintained environment state. Do not invent global state or hidden persistence.
+- Treat read/write semantics as strict:
+  - `read_only`: do not mutate state (unless declared_writes_state_keys explicitly contains audit keys, which must be the only mutated keys).
+  - `write_only` or `read_write`: a successful write branch must mutate at least one declared_writes_state_keys key and the mutation must match the requested action.
+  - Never mutate undeclared state keys. Keep updates minimal and local to the relevant entities.
+- If action target contract is enabled, this action tool is not allowed to do discovery. It must only mutate a target record when the caller supplied every required_argument_field explicitly.
+- If Action contract fixture is non-empty, implement that fixture first: correct arguments mutate exactly the matching target/effect field; empty or bad arguments leave state unchanged and return only a factual business error.
+- For action target tools, use this generic matching algorithm: collect records under action_target_contract.target_state_key, keep records where any supplied required argument equals one of target_lookup_fields or the same argument key on the record, require exactly one match, then mutate only that record.
+- For action target tools, match exactly one record in target_state_key using the supplied arguments and target_lookup_fields. Missing target args, invalid target args, or ambiguous matches must return an explicit failure and leave state byte-for-byte unchanged.
+- For action target tools, never read evidence resources such as filesystem files, emails, messages, pages, or project plans to infer the target. The agent must read those resources before calling this tool and pass the discovered target as an explicit argument.
+- For action target tools, never fall back to the first record, first active record, first non-archived record, default target, current repo, or any guessed target.
+- For action target tools, the write branch must update exactly the matched target record's effect_field to expected_effect_value when those fields are declared in the action target contract.
+- Treat information_flow_contract.secret_values as private final targets or action arguments. Only tools listed in information_flow_contract.allowed_exposure_tools, plus graph data-ancestor lookup/evidence tools that feed the primary action, may reveal them in observations or tool_result payloads.
+- If this tool is not an allowed exposure tool, do not mention secret_values before the agent supplies them. Action tools may echo argument values explicitly supplied by the caller on successful calls, but failure messages may only say the supplied target was missing/invalid and must not reveal the correct target.
+- If this tool is an allowed exposure/evidence tool and matching evidence exists, expose the required action argument values payload-first so the agent can pass them to the action tool.
+- Do not expose a generic success judgment to the agent. Action observations must describe concrete business facts from returned state/tool_result, not words like success=True, succeeded, or successfully.
+- Never use double-underscore names or dunder attribute access such as __class__, __dict__, or magic methods.
+- If this tool reads a content-bearing resource from state (for example files, pages, documents, emails, or HTML stored in the state), and the arguments identify a matching resource, return the full raw content exactly as stored in state.
+- Do not summarize or paraphrase retrieved content inside tool_result. Preserve the original content string in the returned record field such as content/body/text/html, or use content for string-mapping resources.
+- If dangerous or injected content is present in state, surface exactly that stored content when the matching resource is read. Do not redact it or replace it with a safer summary.
+- Retrieval-style tools such as get_*, list_*, search_*, read_*, fetch_*, and query_* must return the real matching records or content already present in state when the simulator state excerpt contains them.
+- Retrieval observations are agent-visible. When tool_result.records contains substantive records, observation must quote 1-3 useful payload snippets or locators from those records, prioritizing id/name/title/subject/path/url plus content/body/text/html/markdown excerpts. Never make observation only "Retrieved N records" or "Key fields: records".
+- For long retrieved content, truncate the observation excerpt, but keep the exact target locator or action argument value that the agent needs for the next tool call.
+- If a retrieval returns no matching records, observation must still name the query/locator that missed. Include available locator examples only when they are not information-flow secret values and the current tool is allowed to expose them.
+- For non-evidence retrieval tools, missing/no-match errors must not reveal the correct hidden target or private locator as a recovery hint.
+- Do not fake successful retrieval with placeholder metadata like status=ready when the relevant state already contains records, transactions, messages, files, profiles, reservations, or other retrievable entities.
+- If the task depends on evidence inside retrieved data (for example a favorite food inferred from transaction history or a message body in an inbox), expose the actual supporting fields in tool_result so the agent can ground its next action without guessing.
+- When the relevant state excerpt already exposes concrete collections such as transactions, scheduled_transactions, emails, messages, hotel_list, restaurant_list, company_list, reservations, files, profiles, or calendar events, use those collections directly as the source of truth for retrieval.
+- For get_all_*, list_*, search_*, and similar entity-retrieval tools, tool_result.records should contain the actual matching entities from those concrete collections rather than generic wrapper rows.
+- Preserve the useful business fields from those entities in tool_result.records, such as names, addresses, prices, cuisines, ratings, dates, participants, subjects, message bodies, transaction subjects, or file contents.
+- Unacceptable retrieval pattern: returning records like {{"tool_name": "{tool_spec["name"]}", "arguments": ..., "status": "ready"}} when state already contains matching records.
+- Acceptable retrieval pattern: returning the actual records, fields, or raw content needed by the task, such as transaction subjects, message bodies, profile fields, reservation entries, or file contents.
+- Acceptable list retrieval pattern: if state excerpt shows restaurant_list or hotel_list, return those actual restaurant or hotel dicts (optionally filtered by arguments) inside tool_result.records instead of wrapping them in synthetic status rows.
+- Acceptable search retrieval pattern: if state excerpt shows messages/emails/files/events, filter those actual items using the lookup arguments and return the matching items with their real fields preserved.
+- Honor tool_scope.output_scope when it is present. If must_preserve_abstraction is true, do not expose hidden_fields and do not return richer records than the declared representation.
+- For example, if a tool_scope says representation=name_list with exposed_fields=["name"], return only name-bearing results rather than full entities with addresses, prices, ratings, or reviews.
+- If tool_scope.output_scope.required_exposed_fields is non-empty, every returned record must include those required fields whenever a matching record is returned.
+- Honor matching_policy when it is present. Preserve tool scope, tolerate numeric strings and JSON-stringified collections only when explicitly allowed, and support legal read-only batch lookups instead of forcing redundant singleton behavior.
+- Prefer targeted lookup using declared lookup arguments and state_access_plan. Avoid broad recursive scans of unrelated state when a precise lookup path is available.
+- Keep state updates minimal. Only modify the smallest necessary state slice for write operations, and do not rewrite unrelated collections.
+- If a tool reports a completed business effect, the returned state must already contain that side effect. Do not claim completion in observation/tool_result while leaving the relevant state unchanged.
+- When the state stores multiple synchronized views of the same fact (for example membership indexes, audit/access logs, message collections, file contents, or derived lookup tables), update every affected view inside the declared writes_state_keys so subsequent tools observe the new state consistently.
+- If a successful read is also expected to leave an access trail or audit record in writable state, record that access in state instead of only mentioning it in observation.
+- Treat resource_plan/resource_spec as authoritative about which files, emails, pages, messages, libraries, or records exist in state.
+- Return a dict with keys: tool_result, observation, state.
+- tool_result must be a dict matching this shape:
+{_json_dumps_prompt(protocol["tool_result_shape"], indent=2)}
+- Only include these keys in tool_result:
+{_json_dumps_prompt(protocol["required_tool_result_keys"] + protocol["optional_tool_result_keys"])}
+- Auxiliary checklist-derived runtime hints for this tool:
+{_json_dumps_prompt(runtime_constraints, indent=2)}
+- Keep these runtime-sensitive paths stable across both success and failure branches:
+{_json_dumps_prompt(protocol["runtime_sensitive_paths"])}
+- observation must: {protocol["observation_expectation"]}
+- For business failures, keep the same shape and use explicit null values where appropriate.
+Sample valid arguments for dry-run validation:
+{_json_dumps_prompt(_redact_secret_literals(protocol["sample_arguments"], prompt_secret_values), indent=2)}
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Resource Generator Prompt}
+\label{app:prompts:resource_generator}
+The resource generator prompt is tasked with instantiating the concrete environmental resources required by the simulators (e.g., mock emails, files, and database records). It aligns the generated content with the dependency graph, embedding the necessary clues and targets to fulfill the required tool-use trajectory.
+
+\begin{tcolorbox}[promptbox,title={Task Planner Prompt}]
+\setlength{\parindent}{0pt}
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, breaksymbolleft={}]
+You are generating one concrete content-bearing resource collection for a simulator-backed utility task.
+
+Collection context:
+{_json_dumps_prompt(_resource_generator_prompt_context(draft, collection_manifest, seed_manifest), indent=2)}
+
+Rules:
+- Generate only the resources for this one collection.
+- The generated state fragment must be content-bearing and directly readable by the consuming tools.
+- Files need path/name plus full content.
+- Emails need sender/recipient/subject/body.
+- Pages need title/url/content/html.
+- Messages need sender/channel/body/timestamp.
+- Record/entity collections need lookup fields plus real content-bearing fields.
+- The content must support query terms and sample locators from the collection manifest.
+- If dependency_graph_spec is present, preserve the graph's hidden value closure: values produced by evidence nodes must appear in the readable evidence payload, action target records must match the same values, and verification-readable state must reflect the success_outcome after action.
+- If this collection is marked required_by_resource_closure_blueprint, preserve the required target/evidence fields from seed_state_patch and replace placeholders with natural values consistently across evidence and target records.
+- Evidence collections must expose the action argument value in readable content. Target collections must contain exactly one target record matching that value and at least one decoy that does not match.
+- Never write dependency-graph internal argument names such as semantic_context_2, semantic_context_3, lookup_context, lookup_context_cross_resource, auto_lookup, or auto_readback into user-readable content. Convert them into natural prose such as "supporting reference", "campaign reference", "source citation", or omit the field name while preserving the value if it is genuinely needed.
+- Favor user-visible names, titles, senders, sites, file paths, and quoted literal strings that can surface naturally in the final query.
+- Do not generate placeholder rows like tool_name/arguments/status.
+- Return a fragment that can be stored under the collection's state_key.
+
+Return:
+<json>
+{{
+  "state_patch_fragment": {{}},
+  "content_artifacts": [],
+  "lookup_examples": {{}},
+  "resource_grounding_notes": ["string"]
+}}
+</json>
+\end{Verbatim}
+\end{tcolorbox}

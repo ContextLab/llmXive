@@ -1,0 +1,38 @@
+% \begin{table*}[t]
+%     \centering
+%     \caption{Ablation study of the proposed components under the 50-in-1 concurrent setting. \checkmark indicates the application of the specific module. The best results for each metric are highlighted in \textbf{bold}.}
+%     \label{tab:ablation}
+%     \resizebox{\textwidth}{!}{ % Uncomment if the table is too wide
+%     \begin{tabular}{cccccccccc}
+%         \toprule
+%         \makecell{Dual-Stream \\ Routing} & \makecell{Asym. Prompt \\ Isolation} & \makecell{Target Prior \\ Simul.} & \makecell{FM Loss \\ Anchor} & CLIP $\uparrow$ & DreamSim $\downarrow$ & DINO $\uparrow$ & VSA $\uparrow$ & EditReward $\uparrow$ & BCR $\downarrow$ \\
+%         \midrule
+%         \checkmark & & & & 0.725 & 0.434 & 0.514 & 2.756 & 0.989 & 0.378 \\
+%         \checkmark & \checkmark & & & 0.732 & 0.427 & 0.525 & 3.720 & 1.008 & 0.207 \\
+%         \checkmark & \checkmark & \checkmark & & \textbf{0.736} & \textbf{0.420} & 0.541 & 4.018 & 0.979 & 0.199 \\
+%         & \checkmark & \checkmark & \checkmark & 0.727 & 0.426 & 0.590 & 4.248 & 0.976 & 0.108 \\
+%         \checkmark & \checkmark & \checkmark & \checkmark & 0.727 & 0.425 & \textbf{0.600} & \textbf{4.380} & \textbf{1.052} & \textbf{0.087} \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table*}
+
+\begin{table*}[t]
+    \centering
+    \caption{Ablation study of the proposed components under the 50-in-1 concurrent setting. \checkmark indicates the application of the specific module. The best results for each metric are highlighted in \textbf{bold}.}
+    \label{tab:ablation}
+    \resizebox{\textwidth}{!}{ % Uncomment if the table is too wide
+    \begin{tabular}{ccccccccccc}
+        \toprule
+        Exp. & \makecell{PDSR} & \makecell{AOP}& \makecell{TS} & \makecell{TA-FM} & CLIP $\uparrow$ & DreamSim $\downarrow$ & DINO $\uparrow$ & VSA $\uparrow$ & EditReward $\uparrow$ & BCR $\downarrow$ \\
+        \midrule
+        (1) & \checkmark & & & & 0.725 & 0.434 & 0.514 & 2.756 & 0.989 & 0.378 \\
+        (2) & \checkmark & \checkmark & & & 0.732 & 0.427 & 0.525 & 3.720 & 1.008 & 0.207 \\
+        (3) & \checkmark & \checkmark & \checkmark & & \textbf{0.736} & \textbf{0.420} & 0.541 & 4.018 & 0.979 & 0.199 \\
+        (4) & & \checkmark & \checkmark & \checkmark & 0.727 & 0.426 & 0.590 & 4.248 & 0.976 & 0.108 \\
+        (5) & \checkmark & \checkmark & \checkmark & \checkmark & 0.727 & 0.425 & \textbf{0.600} & \textbf{4.380} & \textbf{1.052} & \textbf{0.087} \\
+        \bottomrule
+    \end{tabular}
+    }
+% \vspace{-0.2cm}
+\end{table*}

@@ -1,0 +1,192 @@
+\section{Introduction}
+
+
+% centered caption
+\newcommand{\ccaption}[1]{\captionsetup{justification=centering}\caption{#1}}
+
+% shifted and rotated text for tabular
+\newcommand{\shiftrotate}[2]{\raisebox{#1}{\rotatebox[origin=c]{90}{#2}}}
+
+% colours
+\definecolor{medgray55}{gray}{0.55}
+\definecolor{medgray}{gray}{0.7}
+\definecolor{litegray}{gray}{0.9}
+\definecolor{gblue}{RGB}{210, 227, 252}
+\definecolor{gred}{RGB}{250, 210, 207}
+\definecolor{gyellow}{RGB}{254, 239, 195}
+\definecolor{ggreen}{RGB}{206, 234, 214}
+\definecolor{gorange}{RGB}{254, 223, 200}
+
+\definecolor{gblue9}{RGB}{23, 78, 166}
+\definecolor{gred9}{RGB}{165, 14, 14}
+\definecolor{gyellow9}{RGB}{227, 116, 0}
+\definecolor{ggreen9}{RGB}{13, 101, 45}
+\definecolor{gorange9}{RGB}{176, 96, 0}
+
+\definecolor{myblue}{rgb}{0,0,1}
+\definecolor{myred}{rgb}{1,0,0}
+\definecolor{mylightgray}{gray}{0.95}
+
+\definecolor{highlightblue}{HTML}{185ABC}
+
+\lstset{
+  basicstyle=\ttfamily,
+  moredelim=[is][\textcolor{highlightblue}]{@@}{@@},
+  moredelim=[is][\textcolor{myred}]{!!}{!!}
+}
+
+\newcommand{\gblue}{\cellcolor{gblue}}
+\newcommand{\gred}{\cellcolor{gred}}
+\newcommand{\gyellow}{\cellcolor{gyellow}}
+\newcommand{\ggreen}{\cellcolor{ggreen}}
+\newcommand{\gorange}{\cellcolor{gorange}}
+
+\definecolor{citrine}{rgb}{0.89, 0.82, 0.04}
+\newcommand{\easy}{{\color{BurntOrange}(\ding{55})}}
+\newcommand{\medium}{{\color{citrine}(\ding{51})}}
+
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+
+
+\DefineVerbatimEnvironment{prompt}{Verbatim}{%
+  breaklines,
+  formatcom=\color{darkgray}
+}
+\newcommand{\inlineprompt}[1]{\EscVerb[breaklines, formatcom=\color{darkgray}]{#1}}
+
+\newcommand{\rowspacing}[1]{\renewcommand{\arraystretch}{#1}}
+
+\newcommand{\rowsep}{\\ \arrayrulecolor{medgray55} \cline{2-3} \arrayrulecolor{black}}
+
+\newcommand{\nosep}{\vspace{-4mm}}
+
+
+\newcommand{\cmark}{{\color{OliveGreen}\ding{51}}}
+\newcommand{\xmark}{{\color{BrickRed}\ding{55}}}
+
+\newcommand{\yes}{{\color{OliveGreen}\ding{51}}}
+\newcommand{\no}{{\color{BrickRed}\ding{55}}}
+
+
+Large language models (LLMs)~\citep{openai_gpt54_2026, anthropic_claude_opus_46_2026, glm5team2026glm5, gemini3} have driven the rapid development of agentic AI systems, which are increasingly being deployed in practical settings such as research assistance \citep{zheng2025deepresearcher}, software engineering \citep{jimenez2023swe}, information retrieval~\citep{zhao2025tura}, and workflow automation~\citep{wang2024agentworkflowmemory}. OpenClaw~\citep{steinberger2026openclaw} and Hermes~\citep{nousresearch2026hermes} agents significantly improve the environmental interaction and execution capabilities of cross-application, rather than restrict themselves to a fixed or closed workspace \citep{verge_moltbot_2026, wired_moltbot_2026}. Therefore, the near-infinite breadth of their action space introduces substantial and under-explored risk surfaces \citep{kim2026attack, wang2025comprehensive}. Furthermore, the frontier AI models (\emph{e.g., }Claude Mythos Preview~\citep{Mythos_Preview}) substantially reduce the technical barriers to adversarial attacks on agentic systems. The combination of versatile sources of agentic risk and universally accessible adversarial techniques renders current agent safety and security frameworks fragile.
+
+
+ To address these emerging threats, lightweight and scalable alignment frameworks are urgently required for widespread and reliable agent usage. This alignment framework requires three key components: \textbf{(1)} A clear and standardized \textbf{agentic safety taxonomy} provides unified criteria for accurate agent safety evaluation and risk identification. \textbf{(2)} A lightweight and scalable \textbf{agentic safety training pipeline} is indispensable, which integrates a dedicated data engine, a lightweight and powerful safety verifier/evaluator, and an efficient training environment. \textbf{(3)} A \textbf{training-free system} of online agent safety is required, including a systematic architecture design and a lightweight guard model, to enable low-cost, low-latency online safety supervision during agent execution. 
+ 
+
+In this work, we propose a lightweight and scalable agent safety alignment framework, as shown in Figure~\ref{fig:intro} and Table \ref{tab:comparison_intro}. \textbf{First}, we update the three-dimensional risk taxonomy \citep{liu2026agentdogdiagnosticguardrailframework, li2026atbench} by incorporating new risk categories corresponding to the Codex~\citep{openai_codex_2025} and OpenClaw~\citep{steinberger2026openclaw} execution scenarios. \textbf{Second}, we introduce a taxonomy-guided data engine and use influence function-based data purification to identify informative training samples. In this way, we train \agentdog{} variants (0.8B, 2B, 4B, and 8B parameters) with around 1k samples to provide fine-grained and contextual evaluation across agents’ trajectories, which achieves performance comparable to GPT-5.4and Gemini-3.1-Pro. \textbf{Third}, we build a lightweight agentic safety SFT and RL training environment through finite-state simulation, which reduces memory overhead and startup latency to just 1/100 of those Docker-level environments (\emph{e.g.,} SWE-Bench \citep{jimenez2024swe} and AgentHazard~\citep{feng2026agenthazard}). Specifically, \toolAG{} enables both safety-oriented SFT data filtering and reward signal construction in RL training. \textbf{Finally}, we propose a training-free agent architecture, where lightweight \agentdog{} serves as an online guardrail to audit execution trajectories before OpenClaw agents' final response delivery.
+
+
+We comprehensively evaluate \agentdog{} across a diverse suite of benchmarks, including R-Judge~\citep{rjudge2024} and ATBench Family~\citep{li2026atbench} datasets. The results demonstrate that \agentdog{} outperforms existing state-of-the-art models in safety moderation across diverse scenarios. Beyond the performance, we further demonstrate the lightweight and scalable agent safety alignment framework through the following two applications. \textbf{Application 1} denotes agentic safety SFT and RL training, where  \agentdog{} serving as a reward model and improves policy agent safety while preserving its general capability. \textbf{Application 2} indicates a training-free agent system safety moderation, where lightweight \agentdog{} are integrated into an agent architecture to facilitate low-cost, low-latency online safety monitoring.
+
+
+
+The main contributions of this work are summarized as follows:
+\begin{itemize}
+        \item \textbf{Updated agent safety taxonomy and ATBench family}: We revise the original three-dimensional safety taxonomy and supplement new risk types for Codex and OpenClaw agents. In this way, we extend ATBench to the ATBench family by incorporating ATBench-Claw and ATBench-Codex.
+        \item \textbf{Lightweight \agentdog{}}: We propose a taxonomy-guided data engine to train \agentdog{} using only around 1k training samples and achieve comparable performance with frontier open source and closed-source models.
+        \item \textbf{Scalable lightweight agentic training pipeline}: We build a dedicated agentic safety SFT and RL training environment compatible with the proposed data engine. This pipeline enables low-cost and scalable safety-aware agent training, enabling a standard 8-core machine to support over 10,000 concurrent agentic environments.
+        \item \textbf{Online agent safety guardrail}: We implement a practical runtime guardrail system based on \agentdog{} for real-world OpenClaw agents deployment.
+    \end{itemize}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/intro-fig.pdf}
+\caption{A lightweight and scalable alignment framework for AI agent safety and security.}
+\label{fig:intro}
+\end{figure}
+
+
+
+
+
+
+\begin{table*}[t]
+\centering
+\caption{Comparison with state-of-the-art models for safety evaluation and alignment.}
+\label{tab:comparison_intro}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{c||cc||cccc||cc}
+\hline\hline
+\multirow{2}{*}{\textbf{Models}}
+&
+\multicolumn{2}{c||}{\textbf{Accessibility}}
+&
+\multicolumn{4}{c||}{\textbf{Capabilities}}
+&
+\multicolumn{2}{c}{\textbf{Applications}}
+\\
+\cline{2-9}
+\noalign{\vskip 3pt}
+&
+\textbf{\shortstack{Open\\Source}}
+&
+\textbf{\shortstack{Tiny\\Size}}
+&
+\textbf{\shortstack{Judgment\\Expertise}}
+&
+\textbf{\shortstack{Coarse\\Judgment}}
+&
+\textbf{\shortstack{Fine-Grained\\Judgment}}
+&
+\textbf{\shortstack{Judgment\\Rationale}}
+&
+\textbf{\shortstack{Safety-Aware\\Agentic Training}}
+&
+\textbf{\shortstack{Online Agentic\\Safety Monitoring}}
+\\[2pt]
+\hline\hline
+GPT-5.4
+& $\times$ & $\times$
+& $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$
+& $\checkmark$ & $\checkmark$
+\\
+Gemini-3.1-Pro
+& $\times$ & $\times$
+& $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$
+& $\checkmark$ & $\checkmark$
+\\
+Qwen3.5-397B-A17B
+& $\checkmark$ & $\times$
+& $\times$ & $\checkmark$ & $\checkmark$ & $\checkmark$
+& $\checkmark$ & $\checkmark$
+\\
+Qwen3.5-4B
+& $\checkmark$ & $\times$
+& $\times$ & $\checkmark$ & $\checkmark$ & $\checkmark$
+& $\times$ & $\times$
+\\
+LlamaGuard4-12B
+& $\checkmark$ & $\times$
+& $\checkmark$ & $\checkmark$ & $\times$ & $\times$
+& $\times$ & $\times$
+\\
+Qwen3-Guard
+& $\checkmark$ & $\times$
+& $\checkmark$ & $\checkmark$ & $\times$ & $\times$
+& $\times$ & $\times$
+\\
+\hline\hline
+\rowcolor{AgentDoGColor!15}
+AgentDoG 1.0
+& $\checkmark$ & $\times$
+& $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$
+& $\times$ & $\times$
+\\
+\rowcolor{AgentDoGColor!50}
+\textit{\agentdog{}}
+& $\checkmark$ & $\checkmark$
+& $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$
+& $\checkmark$ & $\checkmark$
+\\
+\hline\hline
+\end{tabular}%
+}
+\end{table*}

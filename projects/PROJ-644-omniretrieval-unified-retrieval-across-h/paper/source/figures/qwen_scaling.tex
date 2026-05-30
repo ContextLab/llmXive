@@ -1,0 +1,18 @@
+\begin{figure*}[t!]
+    \centering
+    \begin{minipage}[t]{0.70\linewidth}
+        \centering
+        \includegraphics[width=0.975\linewidth]{figures/qwen_scaling_fig.pdf}
+        \vspace{-0.1in}
+        \captionof{figure}{Effect of backbone scale (Qwen-3.5, 2B to 27B). \textbf{Oracle (Gold Source)} uses the gold source in place of LLM-based source selection, and is omitted from Source Selection (where it is trivially $100\%$ by construction).}
+        \label{fig:qwen_scaling}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.28\linewidth}
+        \centering
+        \includegraphics[width=0.975\linewidth]{figures/qwen_diversity_fig.pdf}
+        \vspace{-0.1in}
+        \captionof{figure}{Candidate diversity: distinct retrieval paradigms and knowledge sources per sample.}
+        \label{fig:qwen_diversity}
+    \end{minipage}
+\end{figure*}

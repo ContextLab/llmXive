@@ -1,0 +1,30 @@
+\begin{figure*}
+\centering
+\begin{promptbox}
+\textbf{[System]}\\[2pt]
+You are a result selector. Pick the candidate whose result best answers the question.
+
+\tcbline
+
+\textbf{[User]}\\[2pt]
+\begin{verbatim}
+Question: <question>
+
+Candidates (each prefixed with its integer index in brackets, e.g. [0], [1], [2]):
+
+[0] <route_type> | <kb_id>
+query: <query>
+<context and result>
+
+[1] <route_type> | <kb_id>
+query: <query>
+<context and result>
+
+...
+
+Respond with JSON: {"selected": <integer index>}
+\end{verbatim}
+\end{promptbox}
+\caption{Cross-source evidence selection prompt.}
+\label{fig:evidence_selection_prompt}
+\end{figure*}

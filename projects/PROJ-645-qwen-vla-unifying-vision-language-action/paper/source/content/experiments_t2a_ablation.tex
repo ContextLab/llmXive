@@ -1,0 +1,143 @@
+\subsubsection{Text-to-Action Pretraining Ablations}
+\label{sec:t2a_ablation}
+
+As established in \cref{sec:training-recipe}, T2A trains the decoder to
+reconstruct action distributions from language and embodiment prompts alone,
+building a structured action prior before visual grounding begins.
+We now ablate five design choices that shape this prior:
+data composition, sequence prediction mode, visual input,
+flow-matching timestep distribution, and training duration.
+All ablations share the same downstream training recipe; results are
+task-success rate (\%) after SFT from the T2A checkpoint on Simpler-WidowX.
+
+
+\paragraph{Data composition.}
+\label{sec:t2a_data_ratio}
+
+T2A acquires action priors from language alone, so its
+data composition directly shapes what the decoder learns.
+We consider two sources.
+\emph{Syn} (language-only synthetic trajectories from our simulation pipeline)
+is cheap to scale and broad in task coverage, but its trajectories are
+kinematically idealised.
+\emph{Real} (real-robot teleoperation data, vision dropped) captures authentic
+physical dynamics but is expensive to collect and narrower in task scope.
+
+
+  \begin{figure}[!t]
+      \centering
+      \includegraphics[width=\linewidth]{figures/t2a_combined.pdf}
+      \caption{T2A pretraining ablations.
+      \textbf{(a) Data composition and prediction mode.}
+      SFT success rate (\%) vs.\ synthetic data ratio in the T2A corpus.
+      Full-sequence prediction with $\sim$20\% synthetic + 80\% real data
+      achieves the best result (71.09\%).
+      Chunk prediction consistently underperforms full-sequence (e.g.\
+      $+$4.94 pp at 10\% synthetic), and including image tokens during T2A
+      further hurts chunk-mode performance ($-$2.87 pp), confirming
+      that images should be fully suppressed at T2A.
+      \textbf{(b) Flow-matching timestep distribution.}
+      The combination of Sigmoid-Normal $p(\tau)$ at T2A and Beta $p(\tau)$ at
+      SFT achieves the highest success rate (71.09\%); reversing the choice
+      at either stage degrades performance.
+      \textbf{(c) T2A training duration.}
+      Performance peaks at 2{,}000 steps (71.09\%) and plateaus through
+      10{,}000 steps; 40{,}000 steps causes a slight drop due to
+      overfitting to the T2A corpus.}
+      \label{fig:t2a_ablations}
+  \end{figure}
+
+As shown in Fig.~\ref{fig:t2a_ablations}(a), purely real T2A data yields
+51.04\%, while purely synthetic data reaches 64.06\%---better, but still
+suboptimal.
+Mixing $\sim$20\% synthetic with 80\% real achieves the best result
+(\textbf{71.09\%}): Syn broadens the coverage of language--action
+correspondences that the decoder can learn, while Real anchors the prior
+in physically plausible dynamics.
+
+\paragraph{Sequence prediction mode: full-length vs.\ chunk.}
+
+Full-sequence prediction supervises the entire trajectory in one forward pass,
+exposing the decoder to long-horizon temporal structure and natural
+start/termination patterns.
+Chunk prediction instead splits each trajectory into fixed-length windows and
+trains the decoder to produce only the next window from a task instruction,
+which truncates long-horizon dependencies and creates positional ambiguity at
+chunk boundaries.
+
+Fig.~\ref{fig:t2a_ablations}(a) shows that full-sequence prediction
+consistently outperforms chunk prediction across data mixes.
+At 10\% synthetic data, the gap is $+$4.94~pp (65.36\% vs.\ 60.42\%);
+at 0\% synthetic (real-only) the gap is $+$2.86~pp (51.04\% vs.\ 48.18\%).
+Full trajectories let the decoder learn how language maps to complete action
+sequences, including trajectory-level coherence and compositionality, whereas
+chunks provide only local fragments that leave this mapping incomplete.
+
+\paragraph{Visual input during T2A.}
+
+T2A is deliberately a \emph{vision-free} stage.
+Including image observations would raise per-step cost by roughly an order of
+magnitude and, more importantly, would let the decoder shortcut through
+visual cues instead of learning to ground actions in language.
+
+Fig.~\ref{fig:t2a_ablations}(a) confirms this: at 10\% synthetic
+data, chunk prediction with images scores 57.55\%, while the same setting
+without images reaches 60.42\%---a $-$2.87~pp penalty for including vision.
+When images are present, the decoder can rely on visual correlations
+rather than building a reliable language--action mapping, diluting exactly
+the prior that T2A is designed to establish.
+{Image tokens should be fully suppressed during T2A}; visual grounding
+is deferred to CPT, by which time the decoder already possesses a
+well-formed action prior.
+
+
+\paragraph{Flow-matching timestep distribution.}
+
+Flow-matching policies condition on a scalar timestep $\tau \in [0,1]$ that
+interpolates between the clean target ($\tau{=}0$) and pure noise ($\tau{=}1$).
+The sampling distribution $p(\tau)$ determines which noise levels receive the
+most gradient signal during training. The standard practice is to use a \emph{Beta}
+distribution, which concentrates density toward the clean end; we follow this
+convention at the CPT and SFT stages.
+However, since T2A operates without visual conditioning, the decoder has no
+backbone features to guide denoising, and we hypothesise that shifting
+gradient toward intermediate timesteps---where the signal-to-noise ratio is
+most informative for learning the language--action mapping---may be more
+effective.
+We therefore compare Beta against \emph{Sigmoid-Normal}, which peaks at
+intermediate noise levels (Fig.~\ref{fig:t2a_ablations}(b)).
+
+
+As shown in Fig.~\ref{fig:t2a_ablations}(b), Sigmoid-Normal $p(\tau)$ at T2A
+combined with Beta $p(\tau)$ at SFT achieves the highest success rate
+(\textbf{71.09\%}).
+Swapping to Beta at T2A drops performance to 65.36\% ($-$5.73~pp), while
+using Sigmoid-Normal at SFT instead of Beta yields 62.76\% ($-$8.33~pp).
+The worst combination---Beta at both stages---reaches only 59.38\%.
+Without visual conditioning to guide denoising, intermediate timesteps carry
+the most learning signal for the language--action prior;
+once the VLM backbone supplies rich conditioning at CPT/SFT, a Beta-shaped
+$p(\tau)$ that spreads gradient more uniformly becomes more sample-efficient.
+We therefore use {Sigmoid-Normal at T2A} and {Beta at CPT/SFT}
+throughout our final pipeline.
+
+\paragraph{T2A training duration.}
+
+Longer T2A training lets the decoder more fully explore the action
+distribution, but excessive training on a fixed T2A corpus risks overfitting
+to its idiosyncrasies and reducing the plasticity available to CPT.
+We sweep T2A duration over a wide range to locate the sweet spot.
+
+As shown in Fig.~\ref{fig:t2a_ablations}(c), performance peaks at
+2{,}000 steps (\textbf{71.09\%}) and remains comparable at 4{,}000 steps
+(67.45\%) and 10{,}000 steps (67.19\%).
+At 40{,}000 steps we observe a notable degradation to 60.42\%.
+The rapid convergence is expected: the language--action mapping that T2A
+learns is structurally lower-dimensional than the full
+vision--language--action space, so a modest number of steps suffices to
+capture it; prolonged training begins to memorise specific trajectory
+instances rather than refining the structural prior.
+We adopt \textbf{2{,}000 T2A steps} as the default in our final pipeline,
+offering a favourable cost--quality tradeoff.
+
+

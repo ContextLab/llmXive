@@ -1,0 +1,37 @@
+We train the entire model end-to-end with a weighted sum of two objectives that cover continuous action generation and vision-language understanding.
+
+\paragraph{Flow-matching action loss.}
+For all samples with continuous control targets (manipulation, VLN trajectory waypoints, and human egocentric data after action alignment), we supervise the action expert with a conditional flow-matching objective~\citep{lipman2023flow}.
+Given a clean target $\mathbf{Y}_0 \in \mathbb{R}^{H \times K}$ and noise $\mathbf{Y}_1 \sim \mathcal{N}(0, \mathbf{I})$, we form the linear interpolant $\mathbf{Y}_\tau = (1-\tau)\mathbf{Y}_0 + \tau \mathbf{Y}_1$ with $\tau \in [0,1]$, and train the expert $v_\theta$ to predict the conditional velocity field.
+
+To avoid the gradient being dominated by padding, we apply a \emph{per-channel, per-step} loss with two levels of averaging.
+For a sample whose control mode activates $c$ channels and $H_{\text{task}}$ time steps, let $\mathbf{M} \in \{0,1\}^{H \times K}$ be the validity mask defined in \cref{sec:unified_rep:channel_mask}.
+We first compute the mean squared error for each active channel $k < c$:
+\begin{equation}
+\ell_k = \frac{
+    \displaystyle\sum_{h=1}^{H} M_{h,k}
+    \left\| \bigl(v_\theta(\mathbf{Y}_\tau, \tau \mid o_{1:t}, x, e, z) - (\mathbf{Y}_1 - \mathbf{Y}_0)\bigr)_{h,k} \right\|_2^2
+}{
+    \displaystyle\sum_{h=1}^{H} M_{h,k}
+},
+\end{equation}
+and then average uniformly over the $c$ active channels:
+\begin{equation}
+\mathcal{L}_{\text{act}} = \mathbb{E}_{\tau,\mathbf{Y}_0,\mathbf{Y}_1} \left[ \frac{1}{c} \sum_{k=0}^{c-1} \ell_k \right].
+\end{equation}
+This two-level averaging ensures that each control dimension contributes equally to the gradient regardless of how many channels a given embodiment uses, and that padded positions are fully excluded.
+At inference, action chunks are produced by a few Euler integration steps from $\tau=1$ to $\tau=0$.
+
+\paragraph{Vision-language loss.}
+To preserve and strengthen the multimodal capabilities of the backbone, we keep a standard next-token prediction loss on auxiliary vision-language data, fine-grained embodied action captions, autonomous driving VQA, and general VL pretraining corpora:
+\begin{equation}
+\mathcal{L}_{\text{vl}} = - \sum_{i} \log p_\theta(w_i \mid w_{<i}, o_{1:t}),
+\end{equation}
+where $w_i$ are text tokens. This objective stabilizes language grounding under heavy embodied co-training and prevents catastrophic forgetting of perception and reasoning skills.
+
+\paragraph{Joint objective.}
+The overall training loss is a weighted combination
+\begin{equation}
+\mathcal{L} = \lambda_{\text{act}} \mathcal{L}_{\text{act}} + \lambda_{\text{vl}} \mathcal{L}_{\text{vl}},
+\end{equation}
+where the weights $\lambda_{\text{act}}, \lambda_{\text{vl}}$ are tuned to balance the gradient magnitudes of the two objectives. Within each mini-batch we mix samples from all task families according to a fixed sampling ratio, so that every optimization step jointly updates the backbone and the action expert with manipulation, VLN trajectory, and vision-language signals.

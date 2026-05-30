@@ -1,0 +1,161 @@
+\section{Experiment}
+\label{sec:exp}
+
+% \begin{figure*}[htb]
+%     \label{fig:metric}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/zip_dino_metric.pdf}
+%     \captionof{figure}{ PlaceHolder }
+% \end{figure*}
+\vspace{-0.1cm}
+\subsection{Experimental Setup}
+\label{subsec:experimental_setup}
+% Our dual-stream framework utilizes two distinct datasets. For the effect stream, we curate a dataset of 50 specific effects covering complex tasks like style transfer, scene replacement, and subject modification. Each effect includes approximately 20 image pairs, categorized into animal and portrait domains. For the general stream, we collect 20K source images and use an MLLM to generate diverse editing instructions (e.g., add, remove, adjust, style). This dataset is used solely for the general stream training, thus requiring no target images.
+\textbf{Datasets.} 
+Our framework utilizes two datasets for training: an effect dataset comprising 50 specific effects (each with ~20 animal/portrait image pairs), and a general dataset of 20K source images paired with MLLM-generated instructions, requiring no target images.
+For evaluation, we introduce EffectBench. Aligned with our training data, it comprises animal and portrait categories. We use Gemini-2.5 Pro and Qwen-Image \cite{qwenimage} to generate 100 diverse test images per category, ensuring high variance in subject types, actions, scenes, and camera distances. This yields an evaluation protocol of 5,000 instructions per model.
+
+\noindent
+\textbf{Baseline Methods.} We adopt Qwen-Image-Edit-2509 \cite{qwenimage} as the base model and compare our approach against two standard paradigms: (1) Base Model + Effect LoRA, and (2) Base Model + Effect LoRA + Acceleration LoRA. For acceleration, we utilize the popular Qwen-Image-Edit-Lightning LoRA released by lightx2v\cite{lightx2v}. To evaluate multi-concept injection capabilities, we also construct a strong baseline denoted as 50-in-1 (FM), which optimizes a unified LoRA on all aggregated training data using a standard flow matching objective.
+
+
+\begin{figure*}[!t]
+    \vspace{-0.4cm}
+    \centering
+    \includegraphics[width=\linewidth]{figures/zip_dino_metric.pdf}
+    \caption{\textbf{Evaluation of subject consistency metrics.} While DINO often assigns high scores to failed generations based on superficial similarity, VSA strictly penalizes semantic failures with a zero score, providing a robust measure of actual subject consistency in complex stylizations.}
+    \label{fig:metric}
+    \vspace{-0.4cm}
+\end{figure*}
+
+\noindent
+\textbf{Evaluation Metrics.} We assess generation quality using several metrics: CLIP \cite{clip} and DreamSim \cite{fu2023dreamsimlearningnewdimensions} for style alignment, DINO \cite{zhang2022dinodetrimproveddenoising} for subject consistency, and EditReward \cite{wu2026editrewardhumanalignedrewardmodel} for instruction-following and overall image quality. We also use an MLLM to calculate the Bad Case Rate (BCR), representing the proportion of effect failures across all test images.
+Because traditional metrics like DINO often fail to capture subject consistency in complex effect scenarios (Fig.~\ref{fig:metric}), we introduce the Valid Subject Alignment (VSA) metric. VSA uses the MLLM for a two-stage evaluation: it first verifies if the target effect was successfully applied. If it fails, the consistency score defaults to zero and if successful, the MLLM evaluates the underlying subject consistency. Further details are provided in the appendix.
+
+\noindent
+\textbf{Implementation Details.} All effect LoRA training is performed at a 1024x1024 resolution using the ai-toolkit \cite{aitookit} with a learning rate of 1e-4. Single-effect LoRAs are trained for 2,000 steps, while the 50-in-1 (FM) baseline is trained for 30,000 steps.
+In our method, both the generator and the fake score model are fine-tuned exclusively via LoRA with a learning rate of 1e-4. The update frequency ratio of the fake score model to the generator is 5:1, and the generator is trained for 5,000 steps. By default, the stream switching probability $p_{\text{switch}}$ is 0.5, with timestep bounds $\tau_{\text{max}} = 750$ and $\tau_{\text{min}} = 500$. All experiments are conducted on 8 NVIDIA H800 GPUs.
+
+
+\vspace{-0.3cm}
+\subsection{Quantitative Evaluation}
+\label{subsec:quantitative}
+
+\input{table/main_result}
+
+\input{table/deploy_cost}
+
+\textbf{Quantitative Comparison with Baselines.}
+Table \ref{tab:main_results} compares our joint distillation approach (50 Effects in 1, NFE=8) against independent single-effect models (NFE=80) and a naive multi-task baseline (FM + Lightning). Our method achieves state-of-the-art style alignment and overall quality (CLIP: 0.727, DreamSim: 0.425, EditReward: 1.052), remarkably outperforming the computationally expensive single-task teacher and mitigating the degradation typical of multi-concept fusion. Benefiting from our AOP and C2F-DO strategies, we effectively suppress parameter interference, yielding a Bad Case Rate (BCR) of just 0.087—substantially lower than both the baseline (0.217) and the teacher (0.141). Regarding subject consistency, although a marginal decrease is observed in the traditional DINO metric (0.600 vs. 0.611)—which often struggles with severe visual transformations as shown in Fig.~\ref{fig:metric}—our method achieves the highest Valid Subject Alignment (VSA) score (4.380). This demonstrates that our unified model robustly triggers effects, minimizes failure penalties, and better preserves foundational structures under extreme concept compression.
+
+\noindent
+\textbf{Deployment Cost Analysis.}
+To evaluate deployment overhead, we simulated 200 queries on a single GPU against a VLM-routed baseline. For 10-50 LoRAs, CollectionLoRA bypasses routing entirely, achieving 0s latency, 100\% accuracy, and a constant 2.2GB storage overhead, circumventing the baseline's linear storage growth and accuracy degradation. At 100-150 LoRAs, our approach reverts to VLM routing but still drastically reduces storage to 2\% of the baseline, decreases model switches (136 vs. 200), and maintains higher accuracy (82\% vs. 76\%). Consequently, its minimal memory footprint and switching burdens highlight significant cost-saving potential for large-scale multi-GPU deployments.
+
+
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/zip_main_compare.pdf}
+    \caption{\textbf{Qualitative comparison of CollectionLoRA against baseline methods.} The visual results indicate that CollectionLoRA effectively mitigates texture and detail loss, style interference, and generalization collapse commonly observed in the alternative pipelines.}
+    \vspace{-0.5cm}
+    \label{fig:main_compare}
+\end{figure*}
+
+
+\vspace{-0.2cm}
+\subsection{Qualitative Evaluation}
+\label{subsec:qualitative}
+
+\textbf{Qualitative Comparison.} Fig~\ref{fig:main_compare} compares qualitative results. In the \textbf{Texture \& Detail Loss panel}, the accelerated baseline (Base+Lightning) exhibits semantic drift (e.g., identity shifts, col. 1) and structural degradation (e.g., detail loss, col. 3). Furthermore, the joint distillation baseline (FM+Lightning) oversmooths due to regression losses, losing high-frequency textures (e.g., pet fur, cols. 1-2) and realism. In contrast, our constrained Target Simulation mechanism restores fine-grained textures and physical realism while preserving structural consistency.
+The \textbf{Style Interference panel} shows style degradation from module serialization and parameter crowding. For Base+Lightning, directly concatenating acceleration and effect LoRAs disrupts the feature manifold and degrades style purity. Second, without concept isolation, FM+Lightning outputs (cols. 5-6) show concept bleeding from the color palettes and brushstrokes of other effects. 
+CollectionLoRA resolves this by isolating latent effects, synthesizing pure, crosstalk-free styles even under 50-effect, 8-step inference.
+The \textbf{Generalization Collapse panel} illustrates the generalization limits of few-shot fine-tuning. Due to minimal training data, baseline models yield distorted structures and poses for out-of-distribution (OOD) inputs (e.g., the flying cat). By using a dual-stream routing mechanism to introduce general-domain data as structural regularization, our method preserves the base model's generalization and structural fidelity for rare subjects.
+
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/zip_AB_Test.pdf}
+    \caption{\textbf{Zero-shot effect composition capability of CollectionLoRA.} Given two independently learned effects, CollectionLoRA can simultaneously apply both to an input image via a compositional prompt (\emph{``Please apply \{Effect A\} to the input image, and then apply \{Effect B\}.''}), without any additional training.}
+    \vspace{-0.7cm}
+    \label{fig:AB_test}
+\end{figure*}
+
+\noindent
+\textbf{Zero-Shot Inference of Effects Combinations.} 
+Beyond reproducing individual effects, we discover an emergent compositional capability in CollectionLoRA that is never explicitly trained for. By simply chaining two effect descriptors in a single instruction, our model can simultaneously activate and blend two distinct effects in one forward pass \textbf{without any additional fine-tuning}.
+As shown in Fig.~\ref{fig:AB_test}, the composed outputs faithfully inherit the visual characteristics of both effects while preserving subject identity. We attribute this behavior to our AOP strategy, which encodes each effect into an orthogonal subspace of the prompt manifold, enabling disentangled representations that can be compositionally activated at inference time. This finding suggests that CollectionLoRA constructs a structured effect space where concepts are independently controllable and combinable, substantially expanding its expressive capacity beyond the explicitly trained effect vocabulary.
+
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+\input{table/ablation}
+% We analyze the contributions and synergistic effects of CollectionLoRA's components through quantitative metrics, qualitative comparisons, and training dynamics.
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/zip_ablation_compare.pdf}
+    \captionof{figure}{\textbf{Qualitative ablation study.} The progressive integration of our core components systematically resolves semantic collapse, restores high-frequency textures, and ensures strict structural consistency.}
+    \label{fig:ablation_comp}
+    \vspace{-0.4cm}
+\end{figure*}
+\textbf{Quantitative Performance Analysis.} Under a 50-in-1 concurrent distillation setting (Tab.~\ref{tab:ablation}), our ablation validates each component: \textbf{AOP} mitigates concept bleeding, reducing BCR from 0.378 to 0.207; \textbf{TS} overcomes oversmoothing bias, achieving top CLIP (0.736) and DreamSim (0.420) scores; \textbf{TA-FM} stabilizes optimization, boosting VSA to 4.380 and minimizing BCR to 0.087; and \textbf{PDSR} prevents catastrophic forgetting, restoring EditReward to 1.052.
+
+
+\noindent
+\textbf{Qualitative Assessment}
+Fig.~\ref{fig:ablation_comp} presents visual comparisons of our method. Exp.~(1) lacks AOP and suffers from semantic collapse. AOP decouples the effect and general streams and this separation ensures accurate task triggering shown in Exp.~(2). TS restores high-frequency textures in Exp.~(3). These details include skin and garment folds. Standard flow matching typically blurs such textures. TA-FM significantly improves structural consistency in Exp.~(5). It provides stable microscopic anchoring. Consequently, the model preserves the spatial layout and avoids pose distortions. Finally, PDSR resolves the background blending issues in Exp.~(4). This module achieves higher visual harmony between effects and complex environments.
+
+\input{table/lora_scale}
+\input{table/incremental}
+
+\noindent
+\textbf{Lora Scaling \& Upper Bound.}
+Tab.~\ref{tab:lora_scale} reports CLIP scores as the number of effects scales from 10 to 180. Our method consistently outperforms All-in-1 (FM) + Lightning across all settings, demonstrating that our hybrid distillation objective effectively mitigates the quality degradation caused by naive multi-concept fusion. At smaller scales (10--50 effects), our method even surpasses all baselines including the single-task Base model. As the number of effects increases to 100--180, a moderate performance drop is observed, which is expected given the increased optimization difficulty under extreme concept compression. Nevertheless, our method maintains competitive performance against Base+Lightning, confirming that CollectionLoRA scales gracefully to a large number of effects without catastrophic quality degradation.
+
+\noindent
+\textbf{Incremental Effect Extension.}
+Tab.~\ref{tab:lora_50_to_54} validates the incremental extension capability of CollectionLoRA. Starting from the 50-effect model, adding effects $51_{st}$-$54_{th}$ via lightweight fine-tuning (100 steps for generator) consistently outperforms Base+Lightning across all settings, with CLIP scores remaining stable in the range of 0.725-0.728. The absence of catastrophic forgetting confirms that CollectionLoRA supports effect extension without retraining from scratch.
+
+
+
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/zip_ablation_trainsteps.pdf}
+    \captionof{figure}{\textbf{Qualitative ablation of training dynamics.} Integrating TA-FM and TS significantly accelerates structural convergence and enhances generative fidelity compared to the baseline.}
+    \label{fig:ablation_trainsteps}
+    \vspace{-0.1cm}
+\end{figure*}
+\begin{figure}[htbp]
+    \centering
+    % \vspace{-0.3cm}
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/dreamsim_score_ablation_plot.pdf}
+        \caption{DreamSim Distance}
+        \label{fig:ablation_dreamsim}
+    \end{subfigure}
+    \hfill 
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/clip_score_ablation_plot.pdf}
+        \caption{CLIP Score}
+        \label{fig:ablation_clip}
+    \end{subfigure}
+    \caption{\textbf{Quantitative ablation of training dynamics.} The integration of TS and TA-FM significantly accelerates convergence and stabilizes the optimization trajectory compared to the fluctuating baseline.}
+    \label{fig:clip_dreamsim_step}
+    % \vspace{-0.5cm}
+\end{figure}
+
+\noindent
+\textbf{Training Dynamics and Stability.}
+As shown in Fig.~\ref{fig:clip_dreamsim_step},  the full configuration yields exceptional training stability. The baseline suffers from severe fluctuations under complex multi-task distributions. While TS accelerates early convergence, its trajectory remains volatile. Incorporating TA-FM effectively smooths these oscillations, producing the most stable convergence curve. Synergistically, TS enhances fitting efficiency while TA-FM acts as a crucial stabilizer, ensuring rapid and steady convergence.
+
+
+
+
+
+
+
+
+

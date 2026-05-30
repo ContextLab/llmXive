@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 649,
+    "active_projects": 654,
     "ai_contributors": 7,
-    "human_contributors": 918,
+    "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2769,
-    "total_contributors": 925
+    "total_contributions": 2889,
+    "total_contributors": 1028
   },
   "contributors": [
     {
@@ -1122,7 +1122,23 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Bokai Yan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Chong Luo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Chongxuan Li"
     },
     {
       "areas": [
@@ -1140,6 +1156,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Dongdong Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Dongrui Liu"
     },
     {
       "areas": [
@@ -1196,6 +1220,14 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Hongzhou Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Huchuan Lu"
     },
     {
@@ -1206,6 +1238,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Jiaru Zou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Jie Zhang"
     },
     {
       "areas": [
@@ -1230,7 +1270,23 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Jun Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Kaijie Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Kaiwen Zheng"
     },
     {
       "areas": [
@@ -1240,6 +1296,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Kan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Kun Wang"
     },
     {
       "areas": [
@@ -1267,6 +1331,22 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Mengting Ai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Min Zhao"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Minki Kang"
     },
     {
       "areas": [
@@ -1307,6 +1387,14 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Shuai Shao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Shunkai Zhang"
     },
     {
@@ -1336,6 +1424,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Sung Ju Hwang"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1345,11 +1441,36 @@
     },
     {
       "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Tong Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Tong Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xia Hu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xiao Yang"
     },
     {
       "areas": [
@@ -1367,6 +1488,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Xiaoye Qu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xingjun Ma"
     },
     {
       "areas": [
@@ -1471,6 +1600,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Zihan Zhou"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1565,6 +1702,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Anyi Rao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Anzhe Chen"
     },
     {
       "areas": [
@@ -1696,6 +1841,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Bo Zhang"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -1733,14 +1886,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Bojiang Zhou"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Bokai Yan"
     },
     {
       "areas": [
@@ -1876,6 +2021,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chao Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Chao Xu"
     },
     {
@@ -1885,6 +2038,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Chao Yan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chaochao Lu"
     },
     {
       "areas": [
@@ -1917,6 +2078,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Chen Ma"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chen Qian"
     },
     {
       "areas": [
@@ -2012,6 +2181,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Chenxu L\u00fc"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Chenxu Yang"
     },
     {
@@ -2037,14 +2214,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Chicheng Qin"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Chongxuan Li"
     },
     {
       "areas": [
@@ -2212,6 +2381,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Dayiheng Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Deheng Ye"
     },
     {
@@ -2221,6 +2398,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Dekun Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Delin Chen"
     },
     {
       "areas": [
@@ -2360,14 +2545,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Dongrui Liu"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -2436,6 +2613,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Fan Bao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Fangfang Lin"
     },
     {
@@ -2453,6 +2638,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Fangneng Zhan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Fangtai Wu"
     },
     {
       "areas": [
@@ -2644,6 +2837,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Gengze Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ginny Wong"
     },
     {
@@ -2653,6 +2854,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Gioia Blayer"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guande He"
     },
     {
       "areas": [
@@ -2669,6 +2878,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Guangzhong Sun"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Guanxu Chen"
     },
     {
       "areas": [
@@ -2796,6 +3013,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Hailong Guo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Haishan Liu"
     },
     {
@@ -2845,6 +3070,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Han Yu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hang Yin"
     },
     {
       "areas": [
@@ -2972,6 +3205,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Haoqi Yuan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Haoqin Tu"
     },
     {
@@ -3000,6 +3241,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haoyang Li"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -3013,6 +3262,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Haoyi Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Haoyu Luo"
     },
     {
       "areas": [
@@ -3053,6 +3310,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Harrison F. Stropkay"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Heejun Lee"
     },
     {
       "areas": [
@@ -3180,14 +3445,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Hongzhou Zhu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Huajun Chen"
     },
     {
@@ -3229,6 +3486,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Huaxiu Yao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Hui Xue"
     },
     {
       "areas": [
@@ -3404,6 +3669,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jialing Tao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiaming Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jiaming Zhang"
     },
     {
@@ -3413,6 +3694,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiamu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jian Guan"
     },
     {
       "areas": [
@@ -3540,6 +3829,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jiayi Song"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jiayi Zhang"
     },
     {
@@ -3549,6 +3846,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jiayu Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jiazhao Zhang"
     },
     {
       "areas": [
@@ -3581,14 +3886,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jie Yang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Jie Zhang"
     },
     {
       "areas": [
@@ -3664,6 +3961,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jing Shao"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -3692,7 +3997,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Jingren Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Jingxuan Wei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jingyang Fan"
     },
     {
       "areas": [
@@ -3712,11 +4033,27 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinheon Baek"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Jinhui Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jinhui Ye"
     },
     {
       "areas": [
@@ -3824,14 +4161,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Jun Zhu"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -3844,7 +4173,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Junhao Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Junhao Dong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Junhua Liu"
     },
     {
       "areas": [
@@ -3869,6 +4214,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Juntao Ma"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Junxiao Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Junyang Lin"
     },
     {
       "areas": [
@@ -3989,14 +4350,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kaiwen Luo"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Kaiwen Zheng"
     },
     {
       "areas": [
@@ -4132,14 +4485,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Kun Wang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Kun Yan"
     },
     {
@@ -4228,7 +4573,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Lei Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Leigang Qu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Leitao Yuan"
     },
     {
       "areas": [
@@ -4341,6 +4702,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Linfeng Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Linfeng Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ling Tang"
     },
     {
       "areas": [
@@ -4556,6 +4933,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Man Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Maneesh Agrawala"
     },
     {
@@ -4676,14 +5061,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Min Zhao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Mind Lab"
     },
     {
@@ -4701,6 +5078,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Mingliang Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mingsheng Li"
     },
     {
       "areas": [
@@ -4744,11 +5129,11 @@
     },
     {
       "areas": [
-        "linguistics"
+        "computer science"
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Minki Kang"
+      "name": "Minkyu Park"
     },
     {
       "areas": [
@@ -4756,7 +5141,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Minkyu Park"
+      "name": "Minlie Huang"
     },
     {
       "areas": [
@@ -4789,6 +5174,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Muhao Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Mushui Liu"
     },
     {
       "areas": [
@@ -4896,6 +5289,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Patara Trirat"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -4909,6 +5310,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Pavlo Molchanov"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pei Lin"
     },
     {
       "areas": [
@@ -4941,6 +5350,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Peng Qi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Peng Wang"
     },
     {
       "areas": [
@@ -5068,6 +5485,30 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Qiaosheng Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qihan Ren"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qihao Lin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Qihao Yang"
     },
     {
@@ -5096,6 +5537,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qinghua Mao"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -5117,6 +5566,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Qingyi Si"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qingyu Liu"
     },
     {
       "areas": [
@@ -5156,6 +5613,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Qiuyue Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Qixin Hu"
     },
     {
@@ -5184,6 +5649,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Quanshi Zhang"
+    },
+    {
+      "areas": [
         "biology"
       ],
       "contribution_count": 1,
@@ -5197,6 +5670,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Raghav Mehndiratta"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ranjie Duan"
     },
     {
       "areas": [
@@ -5280,6 +5761,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Rui Mei"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -5324,6 +5813,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ruihua Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ruijia Zhang"
     },
     {
@@ -5341,6 +5838,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ruiqi Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruiyang Qin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ruizhe Chen"
     },
     {
       "areas": [
@@ -5405,6 +5918,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Saiyong Yang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sangwoo Park"
     },
     {
       "areas": [
@@ -5556,6 +6077,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Shijie Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shijie Li"
     },
     {
@@ -5612,6 +6141,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Shuai Bai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Shuai Li"
     },
     {
@@ -5621,14 +6158,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shuai Peng"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Shuai Shao"
     },
     {
       "areas": [
@@ -5685,6 +6214,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shuzhe Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Sicheng Xie"
     },
     {
       "areas": [
@@ -5816,6 +6353,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Soyeong Jeong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5860,14 +6405,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Sung Ju Hwang"
-    },
-    {
-      "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Tao Jiang"
     },
     {
@@ -5877,6 +6414,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tao Lan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tao Yu"
     },
     {
       "areas": [
@@ -5924,6 +6469,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Tianhang Zheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Tianhe Wu"
     },
     {
@@ -5957,6 +6510,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tianxiang Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tianyi Zhou"
     },
     {
       "areas": [
@@ -6036,14 +6597,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Tong Zhang"
-    },
-    {
-      "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Tsz Ting Chung"
     },
     {
@@ -6069,6 +6622,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Vincent Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wanying Qu"
     },
     {
       "areas": [
@@ -6260,6 +6821,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Wen Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Wenchao Xu"
     },
     {
@@ -6292,6 +6861,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Wenjie Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Wenjun Pan"
     },
     {
@@ -6301,6 +6878,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wenlin Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenqiang Sun"
     },
     {
       "areas": [
@@ -6325,6 +6910,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wenxiang Jiao"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Woongyeong Yeo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wujian Peng"
     },
     {
       "areas": [
@@ -6356,7 +6957,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Xia Hu"
+      "name": "Xi Lin"
     },
     {
       "areas": [
@@ -6381,6 +6982,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiang Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xianglong Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xiangnan He"
     },
     {
       "areas": [
@@ -6424,6 +7041,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xianwei Zhuang"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -6453,14 +7078,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiao Xu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Xiao Yang"
     },
     {
       "areas": [
@@ -6548,6 +7165,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xiaoxiang Zuo"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xiaoxiao Xu"
     },
     {
@@ -6581,6 +7206,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xin Xu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xin Zhou"
     },
     {
       "areas": [
@@ -6632,14 +7265,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Xingjun Ma"
-    },
-    {
-      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -6669,6 +7294,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xinmiao Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xintong Hu"
     },
     {
       "areas": [
@@ -6725,6 +7358,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiongbin Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xionghui Chen"
     },
     {
       "areas": [
@@ -6812,6 +7453,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Xuejing Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Xuelu Feng"
     },
     {
@@ -6837,6 +7486,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xuezhi Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuhong Huang"
     },
     {
       "areas": [
@@ -6901,6 +7558,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yan Shu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yan Teng"
     },
     {
       "areas": [
@@ -6997,6 +7662,22 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yanran Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yanxu Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Ye Wang"
     },
     {
       "areas": [
@@ -7212,6 +7893,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yimin Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yimin Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yiming Du"
     },
     {
@@ -7244,6 +7941,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yingming Zheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yingshuo Wang"
     },
     {
@@ -7253,6 +7958,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yiran Peng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yitao Liu"
     },
     {
       "areas": [
@@ -7292,6 +8005,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yiyang Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yizhang Lin"
     },
     {
@@ -7317,6 +8038,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yoichi Sato"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yong Liu"
     },
     {
       "areas": [
@@ -7373,6 +8102,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yu Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Li"
     },
     {
       "areas": [
@@ -7484,6 +8221,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yubo Huang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yuchao Gu"
     },
     {
@@ -7512,6 +8257,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuchong Sun"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -7533,6 +8286,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yue Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuejin Xie"
     },
     {
       "areas": [
@@ -7709,6 +8470,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yunhe Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yunlong Yu"
     },
     {
       "areas": [
@@ -7924,6 +8693,22 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhao Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhaohai Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhaolong Shen"
     },
     {
@@ -8080,6 +8865,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhibo Yang"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -8124,7 +8917,23 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zhiheng Xi"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zhihui Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhijie Zheng"
     },
     {
       "areas": [
@@ -8141,6 +8950,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhiqi Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhixuan Liang"
     },
     {
       "areas": [
@@ -8189,6 +9006,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhongang Cai"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhonghao Yang"
     },
     {
       "areas": [
@@ -8269,14 +9094,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zihan Dong"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Zihan Zhou"
     },
     {
       "areas": [
@@ -8396,6 +9213,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Zixing Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Ziyang Gong"
     },
     {
@@ -8415,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T08:23:30.096051+00:00",
+  "generated_at": "2026-05-30T08:52:51.751998+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -8653,29 +9478,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-595-neural-narrative-networks-brain-inspired",
-          "project_id": "PROJ-595-neural-narrative-networks-brain-inspired",
-          "title": "Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning",
-          "project_id": "PROJ-596-memory-palaces-in-llms-spatial-reasoning",
-          "title": "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-582-socratic-transformers-dialogue-based-sel",
-          "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-          "title": "Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-550-exploring-the-convergence-of-iterated-fu",
-          "project_id": "PROJ-550-exploring-the-convergence-of-iterated-fu",
-          "title": "Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8697,29 +9522,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-595-neural-narrative-networks-brain-inspired",
-          "project_id": "PROJ-595-neural-narrative-networks-brain-inspired",
-          "title": "Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning",
-          "project_id": "PROJ-596-memory-palaces-in-llms-spatial-reasoning",
-          "title": "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-582-socratic-transformers-dialogue-based-sel",
-          "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-          "title": "Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-550-exploring-the-convergence-of-iterated-fu",
-          "project_id": "PROJ-550-exploring-the-convergence-of-iterated-fu",
-          "title": "Exploring the Convergence of Iterated Function Systems with Non-Contractive Maps"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8741,29 +9566,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8785,29 +9610,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8828,29 +9653,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8871,29 +9696,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8917,29 +9742,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -8969,29 +9794,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9013,29 +9838,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9056,29 +9881,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9100,29 +9925,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9143,29 +9968,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9194,29 +10019,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9240,29 +10065,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -9295,29 +10120,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-553-cognitive-load-optimization-adaptive-com",
-          "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-          "title": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-640-https-arxiv-org-abs-2605-28293",
-          "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-          "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
+          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816",
-          "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-          "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+          "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-639-https-arxiv-org-abs-2605-28774",
-          "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-          "title": "Agent Explorative Policy Optimization for Multimodal Agentic Reasoning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-643-collectionlora-collecting-50-effects-in",
+          "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+          "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820",
-          "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-          "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework",
+          "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+          "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models"
         }
       ],
       "inputs": [
@@ -75075,9 +75900,1344 @@
       "title": "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players",
       "updated_at": "2026-05-29T13:07:16.713153+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/idea/minwm-a-full-stack-open-source-framework.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Min Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongzhou Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bokai Yan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zihan Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yimin Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenqiang Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaiwen Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guande He",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiao Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chongxuan Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fan Bao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-30T08:50:34.643446+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
+        "repo_path": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Recent video diffusion foundation models have achieved remarkable progress in high-quality video generation, yet turning them into real-time interactive video world models remains challenging. Interactive world models require controllable, causal, and low-latency rollout, which in practice demands a full pipeline\u2026",
+      "field": "computer science",
+      "id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.318144,
+          "ended_at": "2026-05-30T08:50:36.280331+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-30T08:50:33.962187+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models",
+      "updated_at": "2026-05-30T08:50:34.961847+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-643-collectionlora-collecting-50-effects-in/idea/collectionlora-collecting-50-effects-in.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fangtai Wu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hailong Guo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shijie Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayi Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yubo Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mushui Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhao Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunlong Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiaming Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruihua Huang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-30T08:50:36.787454+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
+        "repo_path": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Customized image editing aims to equip pre-trained diffusion models with specific visual effects using limited paired data, typically via Low-Rank Adaptation (LoRA). As the number of desired effects grows, storing and dynamically loading numerous these effect LoRAs significantly increases deployment overhead.\u2026",
+      "field": "computer science",
+      "id": "PROJ-643-collectionlora-collecting-50-effects-in",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 7.465432,
+          "ended_at": "2026-05-30T08:50:43.746105+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-30T08:50:36.280673+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation",
+      "updated_at": "2026-05-30T08:50:42.486503+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinheon Baek",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Soyeong Jeong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sangwoo Park",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Woongyeong Yeo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Minki Kang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Patara Trirat",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Heejun Lee",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sung Ju Hwang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-30T08:50:49.595910+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
+        "repo_path": "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Real-world information needs require access to structurally diverse knowledge sources, from unstructured text and relational tables to knowledge graphs and property graphs. Existing retrievers, however, operate over one source at a time under a fixed query language, leaving the broader landscape of available knowledge\u2026",
+      "field": "linguistics",
+      "id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 7.203243,
+          "ended_at": "2026-05-30T08:50:50.949591+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-30T08:50:43.746348+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Sources",
+      "updated_at": "2026-05-30T08:50:49.719865+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiuyue Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mingsheng Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jian Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinhui Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sicheng Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yitao Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junhao Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhixuan Liang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jie Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xintong Hu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuhong Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pei Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junyang Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dayiheng Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuai Bai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jingren Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiazhao Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoqi Yuan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Gengze Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hang Yin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ye Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yiyang Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zixing Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wujian Peng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Delin Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yingming Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jingyang Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xianwei Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xin Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoyang Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anzhe Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tong Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuejing Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuchong Sun",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruizhe Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhaohai Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenxu L\u00fc",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhibo Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tao Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xionghui Chen",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-30T08:50:51.502217+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
+        "repo_path": "projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Embodied intelligence is often studied through specialized models for individual tasks such as manipulation or navigation, resulting in fragmented capabilities and limited generalization across tasks, environments, and robot embodiments. In this work, we study whether heterogeneous embodied decision-making problems\u2026",
+      "field": "computer science",
+      "id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 3.11422,
+          "ended_at": "2026-05-30T08:50:54.064062+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-30T08:50:50.949842+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments",
+      "updated_at": "2026-05-30T08:50:52.826458+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/idea/agentdog-1-5-a-lightweight-and-scalable.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dongrui Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhonghao Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peng Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Guanxu Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuejin Xie",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qinghua Mao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wanying Qu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yanxu Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianyi Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Leitao Yuan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhijie Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qihao Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yimin Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoyu Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shuai Shao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chen Qian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qingyu Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ling Tang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruiyang Qin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qihan Ren",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junxiao Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kun Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhiheng Xi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Linfeng Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ranjie Duan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Bo Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenjie Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wen Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiaosheng Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yan Teng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chaochao Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rui Mei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Man Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jialing Tao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xi Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tianhang Zheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yong Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Quanshi Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xingjun Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Junhua Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hui Xue",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiaoxiang Zuo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiangnan He",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chao Shen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xianglong Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Minlie Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jing Shao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xia Hu",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-05-30T08:50:54.634851+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
+        "repo_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Modern open-world agents such as OpenClaw exhibit powerful cross-environment execution capabilities yet introduce broad new safety risk sources. Meanwhile, advanced frontier AI models drastically lower attack barriers, rendering current agent alignment frameworks inadequate for real-world deployment. To tackle these\u2026",
+      "field": "computer science",
+      "id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.650923,
+          "ended_at": "2026-05-30T08:50:56.715230+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-05-30T08:50:54.064307+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security",
+      "updated_at": "2026-05-30T08:50:55.439123+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.650923,
+      "ended_at": "2026-05-30T08:50:56.715230+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-30T08:50:54.064307+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 3.11422,
+      "ended_at": "2026-05-30T08:50:54.064062+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-30T08:50:50.949842+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 7.203243,
+      "ended_at": "2026-05-30T08:50:50.949591+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-30T08:50:43.746348+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 7.465432,
+      "ended_at": "2026-05-30T08:50:43.746105+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-643-collectionlora-collecting-50-effects-in",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-30T08:50:36.280673+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.318144,
+      "ended_at": "2026-05-30T08:50:36.280331+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-30T08:50:33.962187+00:00"
+    },
     {
       "action": "abstain",
       "agent": "personality",
@@ -81630,56 +83790,6 @@
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T14:18:28.446080Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 71.352826,
-      "ended_at": "2026-05-17T14:18:28.421024Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T14:17:17.068198Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 58.235647,
-      "ended_at": "2026-05-17T14:17:17.040409Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T14:16:18.804762Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 51.024277,
-      "ended_at": "2026-05-17T14:16:18.759123Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T14:15:27.734846Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 59.046129,
-      "ended_at": "2026-05-17T14:15:27.704487Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T14:14:28.658358Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 31.243846,
-      "ended_at": "2026-05-17T14:14:28.629687Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T14:13:57.385841Z"
     }
   ],
   "schema_version": "2.0.0"

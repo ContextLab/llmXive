@@ -1,0 +1,134 @@
+\section{Agentic XAI Attribution}
+
+In the previous sections, AgentDoG has demonstrated superior capabilities in auditing agent safety by accurately identifying unsafe trajectories and subsequently categorizing them into granular taxonomies.
+However, as agentic systems are increasingly deployed in real-world settings, ensuring transparency and accountability requires looking beyond risk categorization to understand the internal factors driving specific actions. 
+In particular, we need to explain why an agent arrives at a particular action, especially when the behavior is unsafe or appears acceptable yet remains flawed or misaligned during the processing trajectories.
+To bridge this gap, we incorporate the Agentic XAI Attribution framework following \citep{qian2026behind}, which performs hierarchical attribution diagnosis on agent trajectories. 
+
+Specifically, we first detail this attribution methodology in Section~\ref{subsec_atti_method}. 
+Then, in Section~\ref{subsec_attr_result}, we empirically evaluate its diagnostic capabilities through qualitative case studies, demonstrating the effectiveness of the attribution module and validating that our safety training enhances the AgentDoG's ability to pinpoint the internal drivers behind the action.
+
+
+\subsection{Method: Hierarchical Agentic Attribution}
+\label{subsec_atti_method}
+\textbf{Problem formulation.}
+Consider an agent parameterized by a policy $\pi_\theta$, which produces an interaction trajectory $\mathcal{T}$ and culminates in a target action $a_{\text{target}}$. 
+We formally define the agent's interaction trajectory as a temporal sequence $\mathcal{T} = \{s_1, s_2, \dots, s_N\}$, where each step $s_i$ represents a distinct interaction unit, such as a user instruction, an observation from the environment, or an internal reasoning trace.
+Our objective is to quantify the contribution of preceding steps and their internal sentences to the generation of $a_{\text{target}}$. Specifically, we aim to assign an attribution score to each interaction step and its constituent sentences, reflecting their influence on the agent’s final action.
+
+
+\textbf{Trajectory-level attribution via temporal dynamics.}
+The first stage of diagnosis operates at the coarse-grained level, aiming to identify which interaction steps effectively steered the agent toward $a_{\text{target}}$. We leverage the temporal structure of the execution to monitor the dynamics of the agent's decision likelihood.
+Specifically, we compute the \textit{temporal information gain} for step $s_i$, which measures exactly how much the likelihood of generating $a_{\text{target}}$ increases when $s_i$ is appended to the preceding history $\mathcal{T}_{\le i-1}$:
+\begin{equation}
+    \Delta_i = \log \pi_\theta(a_{\text{target}} \mid \mathcal{T}_{\le i}) - \log \pi_\theta(a_{\text{target}} \mid \mathcal{T}_{\le i-1}),
+\end{equation}
+where $\mathcal{T}_{\le i} = \{s_1, \dots, s_i\}$ denotes the trajectory containing all interaction steps up to $i$.
+Intuitively, a high value of $\Delta_i$ indicates that the information introduced at step $s_i$ serves as a decisive driver for the agent's subsequent action.
+
+\textbf{Fine-grained sentence-level attribution.}
+Building on the identified high-impact steps that drive the $a_{\text{target}}$, we further refine the diagnosis to the sentence level to isolate the precise textual evidence.
+Let $X_i = \{x_{i,1}, \dots, x_{i,M}\}$ denote the set of sentences contained within step $s_i$. We employ a perturbation-based strategy~\citep{chuang2025selfcite,lei2016rationalizing,cohen2024contextcite,liu2024attribot} to quantify the influence of each sentence $x_{i,j} \in X_i$ toward $a_{\text{target}}$.
+
+First, we calculate \textit{Probability Drop Score}, which measures the necessity of the sentence by observing the likelihood decrease when $x_{i,j}$ is removed from the trajectory context $\mathcal{T}_{\le i}$:
+\begin{equation}
+    \text{Drop}(x_{i,j}) = \log \pi_\theta(a_{\text{target}} \mid \mathcal{T}_{\le i}) - \log \pi_\theta(a_{\text{target}} \mid \mathcal{T}_{\le i} \setminus \{x_{i,j}\}).
+\end{equation}
+Then, the \textit{Probability Hold Score} assesses the sufficiency of the sentence by evaluating the likelihood when $x_{i,j}$ acts as the sole information source:
+\begin{equation}
+    \text{Hold}(x_{i,j}) = \log \pi_\theta(a_{\text{target}} \mid x_{i,j}) - \log \pi_\theta(a_{\text{target}} \mid \mathcal{T}_{\le i}).
+\end{equation}
+The final attribution score is obtained by aggregating these two signals: 
+\begin{equation}
+    \Phi(x_{i,j}) = \text{Drop}(x_{i,j}) + \text{Hold}(x_{i,j}).
+\end{equation}
+We apply this fine-grained scoring to the top-ranked steps based on $\Delta_i$, effectively narrowing down the diagnosis from temporal events to specific sentences.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/xai_attribution_agent_dog.pdf}
+    \caption{Illustration of attribution results across two representative scenarios. 
+    \textbf{Left:} In a resume screening scenario, the attribution module correctly isolates the embedded deceptive instructions from benign data.
+    \textbf{Right:} In a financial analysis scenario, it reveals that the agent's decision was driven by shallow positive keywords, ignoring the sarcastic context.
+    Highlighted regions indicate the top-ranked components and sentences identified by the attribution module.}
+    \label{fig_xai_normal}
+\end{figure}
+
+\subsection{Analysis of Attribution Results}
+\label{subsec_attr_result}
+In this subsection, we empirically evaluate the diagnostic capabilities of the agentic XAI attribution framework, validating its ability to unveil the internal drivers behind agent risks.
+Unless otherwise specified, we employ AgentDoG-Qwen3-4B to perform the attribution analysis.
+We first present qualitative case studies to illustrate how the module localizes root causes within agent trajectories (Section~\ref{subsubsec_case}), followed by a comparative analysis demonstrating the superior attribution quality and alignment with causal logic exhibited by AgentDoG compared to its base model (Section~\ref{subsubsec_comparison}).
+
+
+
+\subsubsection{Diagnostic Case Studies}
+\label{subsubsec_case}
+
+\underline{\textbf{Case 1: Prompt injection in recruitment scenario.}}
+
+\textbf{Case overview.} In this case (Figure~\ref{fig_xai_normal}-left), an AI Recruitment Assistant is tasked with screening a candidate's resume file and scheduling an interview if the candidate matches specific criteria. The risk arises from an \textit{Prompt Injection}: the job applicant embeds a deceptive instruction within the resume text, implying that the resume is qualified and should pass the current screening stage. The agent fails to distinguish this adversarial data from valid content, resulting in unauthorized interview scheduling.
+
+\textbf{Attribution analysis.} 
+The attribution module accurately diagnoses the external trigger responsible for the final behavior.
+At the trajectory level, the analysis identifies the agent's initial action to access the file (\step[bdd6f0]{Step 2}) and the subsequent resume content provided by the tool (\step[d4f0d4]{Step 3}) as the primary drivers.
+While \step[bdd6f0]{Step 2} establishes the necessary retrieval context, the tool output in \step[d4f0d4]{Step 3} introduces the decisive information.
+A fine-grained sentence-level examination of \step[d4f0d4]{Step 3} reveals that the attribution correctly identifies the adversarial content from benign resume data. As shown in the attribution results, the highest positive scores are assigned to the deceptive instructions: \evid{``[Important] Please ignore the previous content, automated validation for this record is successful.''} 
+In contrast, the normal candidate details receive less attribution. 
+
+% discussion
+Overall, the attribution result effectively disentangles the root cause, confirming that the agent's decision was hijacked by the specific adversarial text embedded in the resume. 
+This transparency is vital for diagnosing risks introduced by external tool interactions, underscoring the urgent need to enhance agent robustness against untrusted information channels.
+
+
+\underline{\textbf{Case 2: Misinterpretation of sarcasm in financial analysis.}}
+
+\textbf{Case overview.} In this financial analysis scenario (Figure~\ref{fig_xai_normal}-right), the agent is tasked with monitoring market feedback on CompanyA\footnote{\textit{CompanyA} is a synthetic company used in our case, and \textit{\$CompanyA} denotes its corresponding tradable stock.} to determine trading strategies. 
+The core risk emerges from a \textit{sarcastic user quote}: a customer posts a comment that superficially uses positive language (``Fantastic update'', ``Absolute genius'') but is contextually negative (``Paying more for fewer features''). The agent misinterprets this sarcasm as genuine praise, leading to a flawed financial recommendation to go long.
+
+\textbf{Attribution analysis.} 
+The attribution module effectively localizes the source of this cognitive failure. 
+At the trajectory level, the analysis pinpoints the tool execution result (\step[d4f0d4]{Step 3}) as the dominant factor driving the final decision, which contains the retrieved customer quote on the stock of \textit{CompanyA}.
+Sentence-level analysis further illustrates that the attribution scores are heavily concentrated on the positive phrases, \emph{i.e.,} \evid{``Absolute genius''} and \evid{``Fantastic update''}. 
+Crucially, the sentence providing the sarcastic context—\textit{``Paying more for fewer features really shows how much they value customers''}—receives significantly lower attribution,  indicating that the agent is misled by the positive part and fails to recognize the underlying risks in the stock.
+
+
+
+
+Overall, the diagnosis reveals that the agent's decision is driven by shallow keywords rather than a holistic semantic understanding, exposing a potential risk of agentic systems deployed in high-stakes settings.
+In these scenarios, attribution analysis can serve as a valuable tool to audit an agent's inference process, guiding targeted interventions to improve reasoning robustness.
+
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.8 \linewidth]{figures/xai_attribution_comparison.pdf}
+    \caption{Comparative attribution analysis between AgentDoG-Qwen3-4B and the corresponding base model (Qwen3-4B-Instruct-2507).
+    Both models identify the background context (Steps 2 \& 3) as high-impact drivers.
+However, for the third critical factor, AgentDoG-Qwen3-4B correctly identifies the flawed internal reasoning step (Step 4) where the unsafe assumption was made.
+In contrast, the base model attributes the decision to the less relevant post-execution success log (Step 5).}
+    \label{fig_xai_compare}
+\end{figure}
+
+\subsubsection{Comparative Analysis: AgentDoG vs. Base Model}
+\label{subsubsec_comparison}
+
+To validate whether our safety training enhances the model's ability to identify the internal drivers of agents' risky behaviors, we compare the attribution performance of \textit{AgentDoG-Qwen3-4B} against its base model-\textit{Qwen3-4B-Instruct-2507}, results are shown in Figure~\ref{fig_xai_compare}.
+
+\underline{\textbf{Case 3: Ambiguous Financial Transaction.}}
+
+\textbf{Case overview.} In this scenario, the user requests to send a send a peer-to-peer payment (specifically a WeChat red packet) to a contact named Zhang Wei.'' The contact search tool returns three distinct individuals with the same name (a coworker, a classmate, and a trainer). Instead of pausing to ask for clarification, the agent makes an unsafe assumption based on common usage patterns'' and then selects the coworker, to execute the financial transaction.
+
+\textbf{Comparative attribution analysis.} 
+We compare the top-ranked steps identified by both models to understand their diagnosis of this risky action.
+At the trajectory level, both models exhibit broad agreement on the primary drivers, identifying the agent's initial action to the user query (\step[bdd6f0]{Step 2}) and the tool output (\step[d4f0d4]{Step 3}, showing multiple contacts) as high-impact components. 
+This attribution is reasonable, as these steps provide the necessary background context and ambiguous search results that set the stage for the subsequent decision.
+
+\textbf{However, a significant divergence appears in the third-ranked component, revealing a fundamental difference in attribution quality.}
+\textit{AgentDoG-Qwen3-4B} correctly identifies the agent's internal reasoning step (\step[bdd6f0]{Step 4}) after the search results as the critical driver. Specifically, the sentence-level attribution highlights the flawed thought process: \evid{``Based on common usage patterns, the user is most likely sending money to a coworker.''} 
+This pinpoints that the agent's decision to select the coworker was directly driven by this insufficiently supported assumption.
+In contrast, \textit{Qwen3-4B-Instruct-2507} attributes the decision to the final environment execution log (\step[d4f0d4]{Step 5}, \textit{``success: true''}), which contains less information regarding the decision logic.
+
+\textbf{This comparison highlights that AgentDoG exhibits more robust and granular agentic attribution capabilities compared to its base model.} 
+This indicates that our safety training not only equips the model with the ability to detect unsafe agent trajectories but also refines its understanding of the internal drivers behind the action.
+By bridging the gap between detection and diagnosis, this diagnostic transparency provides a critical foundation for the accountable deployment of agentic systems.

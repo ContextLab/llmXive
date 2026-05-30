@@ -1,0 +1,118 @@
+% Note: Several packages (booktabs, xcolor, colortbl, graphicx, caption,
+% enumitem, mdframed, microtype, amssymb, amsmath, amsfonts, pifont,
+% tabularx, tcolorbox, authblk, hyperref, url) are already loaded by shengshu.cls.
+% Do not reload them here.
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{charter}
+
+% Match lab.cls bold font sizing
+\newcommand{\bffont}{\fontsize{8.8}{10}\selectfont}
+\DeclareTextFontCommand{\textbf}{\bffont\bfseries\selectfont}
+
+\usepackage{wrapfig}
+\usepackage{xspace}
+\usepackage{textgreek}
+\usepackage{bm}
+\usepackage{cleveref}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{orcidlink}
+\usepackage{footmisc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{csquotes}
+\usepackage{marvosym}
+\usepackage{nicefrac}
+\usepackage{multicol}
+\usepackage{tabto}
+\usepackage{adjustbox}
+\usepackage{dblfloatfix}
+\usepackage{verbatim}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{bbm}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{pdflscape}
+\usepackage{arydshln}
+\usepackage{hhline}
+\usepackage{diagbox}
+\usepackage[square,sort,comma,numbers]{natbib}
+\usepackage{fp}
+
+\def\UrlBreaks{\do\/\do-}
+
+% Project colors
+\definecolor{linkc}{rgb}{0, 0.44, 0.74}
+\definecolor{eqc}{rgb}{1, 0, 0}
+\definecolor{newcitecolor}{rgb}{0,0.6,0}
+\definecolor{mygreen}{RGB}{34,139,34}
+\definecolor{mylightblue}{RGB}{0,162,230}
+\definecolor{deepyellow}{RGB}{255, 215, 0}
+\definecolor{catgray}{gray}{0.92}
+\definecolor{pearDark}{RGB}{171, 195, 87}
+\definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{keywordcolor}{RGB}{0, 0, 153}
+\definecolor{commentcolor}{RGB}{34, 139, 34}
+\definecolor{stringcolor}{RGB}{163, 21, 21}
+\definecolor{numbercolor}{RGB}{128, 128, 128}
+
+\newcommand{\xmarker}{\ding{55}}
+\newcommand{\cmarker}{\ding{51}}
+\newcommand{\sota}[1]{\cellcolor{pearDark!20}{#1}}
+\newcommand{\change}[1]{\textcolor{orange}{#1}}
+
+% Co-author comment macros
+\newcommand{\zm}[1]{{\color{red}{[[\textbf{zm: }#1]]}}}
+\newcommand{\hz}[1]{{\color{red}{[[\textbf{hz: }#1]]}}}
+
+% Method name shortcut
+\newcommand{\ours}{Causal Forcing++\xspace}
+
+% Common math shortcuts
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\bz}{\boldsymbol{z}}
+
+% \onedot (from CVPR style) for abbreviation periods
+\def\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot} \def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\iid{i.i.d\onedot} \def\wolog{w.l.o.g\onedot}
+\def\etal{\emph{et al}\onedot}
+\makeatletter
+\def\blfootnote#1{\xdef\@thefnmark{}\@footnotetext{\scriptsize #1}}
+\makeatother
+
+\hypersetup{
+    colorlinks=true,
+    urlcolor=shengshublue,
+}
+
+\let\cite\citep
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{codebg},
+    keywordstyle=\color{keywordcolor}\bfseries,
+    commentstyle=\color{commentcolor}\itshape,
+    stringstyle=\color{stringcolor},
+    numbers=none,
+    numberstyle=\color{numbercolor}\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    frame=none,
+    framesep=8pt,
+    framerule=0.5pt
+}

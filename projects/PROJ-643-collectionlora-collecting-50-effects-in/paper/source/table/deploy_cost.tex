@@ -1,0 +1,32 @@
+
+% \begin{table}[htbp]
+\begin{table}[!t]
+\centering
+\caption{Deployment costs across numbers of LoRAs.}
+\label{tab:deploy_cost}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{ccccccc}
+\toprule
+Metric & Method & 10 LoRAs & 20 LoRAs & 50 LoRAs & 100 LoRAs & 150 LoRAs \\ 
+\midrule
+\multirow{2}{*}{Routing Latency} 
+& baseline & 6.88s/q & 6.95 s/q & 7.09s/q & 7.22s/q & 9.18s/q \\ \cmidrule{2-7} 
+& \textbf{ours} & \textbf{0s/q} & \textbf{0s/q} & \textbf{0s/q} & \textbf{7.22s/q} & \textbf{9.18s/q} \\ 
+\midrule
+% 这里用 $\times$ 替代了星号，在学术论文中显得更正式
+\multirow{2}{*}{\makecell{LoRA Loading Latency \\ $\times$ Switch Count}} 
+& baseline & 1.2s*200 & 1.2s*200 & 1.2s*200 & 1.2s*200 & 1.2s*200 \\ \cmidrule{2-7} 
+& \textbf{ours} & \textbf{0s} & \textbf{0s} & \textbf{0s} & \textbf{1.2s*108} & \textbf{1.2s*136} \\ 
+\midrule
+\multirow{2}{*}{Routing Accuracy} 
+& baseline & 99\% & 94\% & 87\% & 85\% & 76\% \\ \cmidrule{2-7} 
+& \textbf{ours} & \textbf{100\%} & \textbf{100\%} & \textbf{100\%} & \textbf{90\%} & \textbf{82\%} \\ 
+\midrule
+\multirow{2}{*}{Storage Overhead} 
+& baseline & 2.2G * 10 & 2.2G * 20 & 2.2G * 50 & 2.2G * 100 & 2.2G * 150 \\ \cmidrule{2-7} 
+& \textbf{ours} & \textbf{2.2G} & \textbf{2.2G} & \textbf{2.2G} & \textbf{2.2G * 2} & \textbf{2.2G * 3} \\ 
+\bottomrule
+\end{tabular}%
+}
+\vspace{-0.3cm}
+\end{table}

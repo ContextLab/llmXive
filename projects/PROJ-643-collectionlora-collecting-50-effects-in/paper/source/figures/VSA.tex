@@ -1,0 +1,51 @@
+\begin{figure}[htbp]
+\centering
+\begin{tcolorbox}[
+    colback=gray!5!white,
+    colframe=gray!60!black,
+    title=\textbf{Prompt for VSA (Consistency) Quantitative Evaluation},
+    fonttitle=\sffamily\bfseries,
+    boxrule=0.8pt,
+    arc=3pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+\small
+
+You are an expert data evaluator specializing in assessing image special-effect editing. You will receive two sets of input information:
+
+\begin{enumerate}
+    \item \textbf{Editing Instruction}: Text describing the desired editing effect.
+    \item \textbf{Test Image Pair} (including the ``Test Source Image'' and ``Test Result Image''): The target subject for evaluation.
+\end{enumerate}
+
+Your task is to evaluate whether the core semantic identity of the subject in the source image is preserved after the special effect is applied. The specific evaluation criteria are as follows:
+
+\vspace{0.5em}
+\noindent\textit{Note: For heavy stylization or deformation tasks, please base your judgment on ``semantic recognizability'' rather than pixel-level alignment.}
+
+\begin{itemize}
+    \item \textbf{Score 1}: The subject is lost or unrecognizable.
+    \item \textbf{Score 2}: The subject is severely distorted, with key features lost.
+    \item \textbf{Score 3}: The subject is generally recognizable, but there is noticeable loss of non-essential features.
+    \item \textbf{Score 4}: Identity is well-preserved; changes are strictly limited to those required by the special effect.
+    \item \textbf{Score 5}: The subject's demeanor and core features are perfectly preserved.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Output Format Requirements:}\\
+Please output strictly in standard JSON format. Do not include Markdown code blocks (e.g., \texttt{```json ... ```}) or any other textual explanation. The JSON structure is as follows:
+
+\begin{verbatim}
+{
+    "brief_reasoning": "Briefly state the reasoning based on the 
+        criteria (under 20 words).",
+    "scores": <1-5>
+}
+\end{verbatim}
+
+\noindent Current Editing Instruction: \texttt{"\{\}"}
+
+\end{tcolorbox}
+\caption{The prompt template used for querying the MLLM to quantitatively evaluate the consistency score (1-5) of the generated image.}
+\label{fig:vsa_quantitative_prompt}
+\end{figure}

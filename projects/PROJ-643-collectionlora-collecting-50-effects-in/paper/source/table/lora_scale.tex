@@ -1,0 +1,22 @@
+
+% \begin{table}[htbp]
+\begin{table}[!t]
+\centering
+\caption{\textbf{CLIP Score} comparison across numbers of LoRAs}
+% \vspace{-0.3cm}
+\label{tab:lora_scale}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+ & \textbf{10 LoRAs} & \textbf{20 LoRAs} & \textbf{50 LoRAs} & \textbf{100 LoRAs} & \textbf{180 LoRAs} \\ 
+\midrule
+Base & 0.735 & 0.724 & 0.726 & \textbf{0.723} & \textbf{0.724} \\ 
+Base+Lightning & 0.716 & 0.712 & 0.717 & 0.717 & 0.722 \\ 
+All in 1 (FM) + Lightning & 0.725 & 0.722 & 0.703 & 0.694 & 0.689 \\ 
+All in 1 (Ours) & \textbf{0.741} & \textbf{0.723} & \textbf{0.727} & 0.716 & 0.709 \\ 
+\bottomrule
+\end{tabular}%
+% \vspace{-0.9cm}
+}
+
+\end{table}

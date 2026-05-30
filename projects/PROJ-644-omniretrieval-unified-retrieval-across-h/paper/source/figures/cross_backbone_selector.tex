@@ -1,0 +1,43 @@
+\begin{figure*}[t!]
+    \centering
+    \begin{minipage}[t]{0.36\linewidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=0.98\linewidth]{figures/cross_backbone_selector_fig.pdf}
+        \vspace{-0.11in}
+        \captionof{figure}{Source-selection behavior on 1 and 2+ candidate regimes. Solid segments mark success (gold present in the candidate list); hatched ones mark failure.}
+        \label{fig:cross_backbone_selector}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.315\linewidth}
+        \vspace{0pt}
+        \centering
+        \captionof{table}{Evidence-selection accuracy on multi-candidate questions containing the gold, where \textit{Random} is the per-backbone uniform-pick baseline.}
+        \label{tab:evidence_selection}
+        \vspace{-0.05in}
+        \resizebox{\linewidth}{!}{%
+        \setlength{\tabcolsep}{2.5pt}
+        \renewcommand{\arraystretch}{1.25}
+        \begin{tabular}{l c c c}
+            \toprule
+            \textbf{Backbone} & \textbf{Acc. (\%)} & \textbf{Rand. (\%)} & \textbf{$\Delta$ (pp)} \\
+            \midrule
+            GPT-5.4    & 72.81 & 38.31 & $+34.51$ \\
+            Gemini-3.1 & 75.29 & 43.99 & $+31.30$ \\
+            Sonnet-4.6 & 70.44 & 41.47 & $+28.98$ \\
+            Qwen-3.5   & 67.91 & 35.55 & $+32.36$ \\
+            Gemma-4    & 74.33 & 47.73 & $+26.60$ \\
+            \bottomrule
+        \end{tabular}%
+        }
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.30\linewidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=0.95\linewidth]{figures/paradigm_coverage_fig.pdf}
+        \vspace{-0.11in}
+        \captionof{figure}{LLM-Judge accuracy on GPT-5.4 (rows: method paradigm; columns: question paradigm).}
+        \label{fig:paradigm_coverage}
+    \end{minipage}
+\end{figure*}

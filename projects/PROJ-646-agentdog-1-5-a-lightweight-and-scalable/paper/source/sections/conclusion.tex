@@ -1,0 +1,16 @@
+\section{Conclusion and Discussion}
+
+\subsection{Conclusion}
+
+In this work, we propose a lightweight and scalable alignment framework for AI agent safety and security. First, we update the agent safety taxonomy and extend ATBench into a trajectory-level benchmark family, covering general tool-use agents as well as Codex and OpenClaw execution scenarios. Second, we build an efficient training pipeline for \agentdog{} models. The pipeline combines a taxonomy-guided data engine and influence function-based purification to select around 1k informative samples, and finally trains AgentDoG 1.5 with these informative samples. Third, we use \agentdog{} to filter high-quality safety data for agentic safety SFT, provide reward signals for agentic safety RL, and support online monitoring for OpenClaw-style agents.
+
+Extensive experimental results indicate that \agentdog{} outperforms existing guard models on trajectory-level safety evaluation. In agentic safety training, \agentdog{}-filtered SFT improves safety and robustness while better preserving function-calling ability, and \agentdog{}-guided RL further improves the safety--utility trade-off. In online deployment, \agentdog{} variants reduce unsafe final deliveries on OpenClaw agents, demonstrating their effectiveness as runtime guardrails. 
+
+\subsection{Limitations and Future Directions}
+
+Several limitations remain. First, \agentdog{} operates primarily on text-based trajectories. However, real-world agents increasingly interacted with multimodal environments such as GUIs, documents, audio, and video. Extending trajectory-level safety diagnosis to multimodal agent traces is an important direction for future work. Second, our guardrail framework provides a practical and broadly compatible intervention point, but it cannot fully prevent harms that have already occurred through earlier external side effects. A more complete safety architecture should combine trajectory-level monitoring with selective tool-time checks, permission-aware execution policies, and human approval for high-risk actions.
+
+
+
+
+

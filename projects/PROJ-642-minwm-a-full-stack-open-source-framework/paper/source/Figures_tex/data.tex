@@ -1,0 +1,29 @@
+\begin{figure}
+  \centering
+
+  \begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth]{Figures/data-a.pdf}
+    \caption{\textbf{Training with estimated camera poses.}
+In our experiments, models trained directly on SpatialVid~\cite{wang2025spatialvid} data did not achieve reliable camera-controllable generation under our current setup, even after additional data filtering. We hypothesize that this may be related to the use of perception-estimated camera poses, which motivates our exploration of datasets with effectively ground-truth trajectories.}
+  \end{subfigure}
+
+  \vspace{0.5em}
+
+  \begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth]{Figures/data-b.pdf}
+    \caption{\textbf{Training with reconstructed scenes and rendered trajectories.}
+    By reconstructing scenes from DL3DV~\cite{ling2024dl3dv} and rendering videos along prescribed camera trajectories, the model successfully learns camera-controllable generation, indicating the importance of accurate camera trajectories.}
+  \end{subfigure}
+
+  \vspace{0.5em}
+
+  \begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth]{Figures/data-c.pdf}
+    \caption{\textbf{Training with WorldPlay-generated trajectories.}
+    For the open-source setting, we construct videos from OpenVid~\cite{nan2024openvid} and other image sources using WorldPlay~\cite{sun2025worldplay} with specified camera trajectories, which likewise enables the model to learn camera controllability.}
+  \end{subfigure}
+
+  \caption{\textbf{Effect of training data on camera-controllable generation.}
+Under our current setup, directly training with SpatialVid did not yet yield reliable camera-controllable generation. We therefore construct datasets with effectively ground-truth camera trajectories, either through 3D reconstruction and re-rendering or WorldPlay-based generation, which enable the model to learn camera controllability.}
+\label{fig:ablation-data}
+\end{figure}

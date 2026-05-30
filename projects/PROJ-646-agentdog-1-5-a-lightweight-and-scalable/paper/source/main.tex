@@ -1,0 +1,296 @@
+\documentclass{article}
+\usepackage[preprint]{colm2025_conference}
+\usepackage{multicol}
+
+\usepackage{microtype}
+\usepackage{makecell}
+\usepackage{subcaption} 
+\usepackage{longtable}
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks 
+\usepackage{tablefootnote}
+\usepackage{threeparttable}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{compat=1.14}
+
+
+\definecolor{green}{RGB}{0,150,10}
+\definecolor{blue}{RGB}{0,148,181}
+\definecolor{orange}{RGB}{194,153,107}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=green,citecolor=blue,urlcolor=MidnightBlue,]{hyperref}
+\definecolor{HardBlue}{RGB}{0,45,120}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=HardBlue,
+}
+
+\newcommand{\scoreBest}[1]{\cellcolor{green!35}\textbf{#1}}
+\newcommand{\scoreHigh}[1]{\cellcolor{green!20}#1}
+\newcommand{\scoreGood}[1]{\cellcolor{green!8}#1}
+\newcommand{\scoreMid}[1]{\cellcolor{yellow!18}#1}
+\newcommand{\scoreLow}[1]{\cellcolor{orange!18}#1}
+\newcommand{\scoreWorst}[1]{\cellcolor{red!20}#1}
+
+\usepackage{url}            % simple URL typesetting
+% \usepackage{xeCJK}
+\usepackage{lmodern}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+% \usepackage{cleveref}
+\newcommand\ie{\textit{i.e.}}
+\newcommand\eg{\textit{e.g.}}
+% \usepackage{subfigure} %
+% \captionsetup[subfigure]{labelformat=simple}
+
+\usepackage{lineno}
+\usepackage{tabularx}
+
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{xcolor}         % colors
+\definecolor{background-grey}{RGB}{220,220,220}
+\definecolor{cell-green}{RGB}{221, 255, 225}  
+\definecolor{cell-red}{RGB}{255, 224, 224}  
+\definecolor{light-green}{HTML}{A2D9A2}
+\definecolor{llight-green}{HTML}{C7EFCF}
+\definecolor{light-red}{HTML}{FFD1D1}
+\definecolor{light-orange}{HTML}{FFC9A3}
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{marvosym}
+\usepackage{graphicx}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{changes}
+\usepackage{bookmark}
+\usepackage{listings}
+\lstdefinelanguage{Dialogue}{
+  morekeywords={Influencer,Voter,rating},
+  sensitive=false,
+  morecomment=[l]{//},
+}
+\usepackage{natbib}
+\usepackage{bibentry}
+\nobibliography*
+
+
+\usepackage{mdframed}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{datetime}
+\usepackage{adjustbox}
+\usepackage{amssymb}
+\usepackage{tcolorbox}
+\usepackage{makecell}
+\usepackage{multirow}      % ← for \multirow
+\usepackage{array}         % ← for m{} if you ever need fixed-width columns
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{wasysym}
+\usepackage{xspace}
+\usepackage{setspace}
+\tcbuselibrary{skins,breakable}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{hyperref}
+
+\definecolor{promptbrown}{RGB}{194,153,107}
+
+\tcbset{
+  promptbox/.style={
+    enhanced,
+    breakable,
+    colback=promptbrown!3,
+    colframe=promptbrown!75,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    fonttitle=\bfseries,
+    coltitle=black,
+    colbacktitle=promptbrown!18,
+    attach boxed title to top left={yshift=-1.5mm, xshift=2mm},
+    boxed title style={boxrule=0pt, arc=2pt}
+  }
+}
+
+\usepackage{soul} 
+
+\definecolor{AgentDoGColor}{RGB}{220,158,75}
+
+\definecolor{evidbgcolor}{HTML}{FFE6E6}
+\definecolor{stepbgcolor}{HTML}{F0F0F0}
+\definecolor{evidfgcolor}{HTML}{CC0000} 
+
+\newcommand{\step}[2][F0F0F0]{%
+  \definecolor{tempstepcolor}{HTML}{#1}%
+  \colorbox{tempstepcolor}{\textbf{#2}}%
+}
+
+\usepackage{ulem}     
+
+\definecolor{lightred}{RGB}{255,200,200}
+\newcommand{\evid}[1]{%
+  \begingroup
+  \setlength{\fboxsep}{2pt}
+  \colorbox{lightred}{\textcolor{red}{\textit{\textbf{#1}}}}%
+  \endgroup
+}
+
+\tcbuselibrary{listings,breakable}
+
+
+\setcounter{tocdepth}{2} % Specify level of contents table
+
+\usepackage{geometry}
+\geometry{margin=1in}  % change the margin 
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=flexible,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single,
+  backgroundcolor=\color{gray!10},
+  % postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+  captionpos=b
+}
+
+\lstdefinestyle{promptstyle}{
+    basicstyle=\ttfamily\scriptsize, % 字体大小，视版面情况可改 \tiny
+    breaklines=true,                 % 自动换行
+    backgroundcolor=\color{gray!8},  % 浅灰色背景
+    frame=single,                    % 单线边框
+    rulecolor=\color{gray!40},       % 边框颜色
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\newcommand{\ieno}{\textit{i.e.}}
+\newcommand{\egno}{\textit{e.g.}}
+\newcommand{\tct}{\textcolor{black}}
+
+\newcommand{\toolAG}{{\agentdog{}}\xspace}
+\newcommand{\toolBench}{{ATBench}\xspace}
+\newcommand{\toolBenchClaw}{{ATBench-Claw}\xspace}
+\newcommand{\toolBenchCodex}{{ATBench-Codex}\xspace}
+\newcommand{\prereply}{{Pre-Reply}\xspace}
+\newcommand{\agentdog}{AgentDoG~1.5\xspace}
+\newcommand{\qwenguard}{Qwen3Guard-Gen-4B\xspace}
+\newcommand{\llamaguard}{Llama-Guard-3-8B\xspace}
+
+\definecolor{Blue4Head}{RGB}{58,104,153}
+
+% --- STYLE FOR THE FIRST PAGE HEADER ---
+
+
+
+
+\title{%
+\begin{center}
+  \begin{minipage}[c]{0.15\textwidth}
+    \centering
+    \includegraphics[width=2cm]{figures/logo.pdf}
+  \end{minipage}
+  \begin{minipage}[c]{0.75\textwidth}
+    \raggedright
+    \Large\bfseries
+    \agentdog{}: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security
+  \end{minipage}
+\end{center}
+}
+
+
+\author{\qquad \qquad \qquad \qquad \qquad \qquad \qquad Shanghai Artificial Intelligence Laboratory\\[0.4em] \qquad \qquad \qquad \qquad \qquad \quad \includegraphics[height=1.5em]{figures/logo/GitHub_Invertocat_Black_Clearspace.pdf}\;\href{https://github.com/AI45Lab/AgentDoG}{\textsf{\bfseries{\textcolor{HardBlue}{https://github.com/AI45Lab/AgentDoG}}}}\\ \qquad \quad \qquad \qquad \qquad \qquad \includegraphics[height=1.5em]{figures/logo/hf-logo.png}\;\href{https://huggingface.co/collections/AI45Research/agentdog15}{\textsf{\bfseries{\textcolor{HardBlue}{https://huggingface.co/collections/AI45Research/agentdog1.5}}}}}
+
+
+
+
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\setcounter{footnote}{1}
+
+
+\begin{document}
+
+
+    
+\hypersetup{
+    % colorlinks=true,
+    linkcolor=black,
+    filecolor=black,      
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+% \begingroup
+\maketitle
+
+\begin{abstract}
+Modern open-world agents such as OpenClaw exhibit powerful cross-environment execution capabilities yet introduce broad new safety risk sources. Meanwhile, advanced frontier AI models drastically lower attack barriers, rendering current agent alignment frameworks inadequate for real-world deployment. To tackle these emerging threats, we propose a lightweight and scalable agent safety alignment framework. Specifically, we update the agent safety taxonomy to accommodate emergent risks from Codex and OpenClaw execution scenarios. We further build a taxonomy-guided data engine with influence-function purification to train lightweight AgentDoG 1.5 variants (0.8B, 2B, 4B, and 8B parameters) using only around 1k samples, achieving comparable performance with leading closed-source models (\emph{e.g.,} GPT-5.4). Based on AgentDoG 1.5, we construct a highly efficient agentic safety SFT and RL training environment, which reduces deployment overhead in Docker-level environments by two orders of magnitude. Finally, we deploy AgentDoG 1.5 as a training-free online guardrail for real-time safety moderation. Extensive experimental results indicate that AgentDoG 1.5 achieves state-of-the-art performance in diverse and complex interactive agentic scenarios. All models and datasets are openly released.
+\end{abstract}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/combined_coarse_fine_Acc_with_logo.pdf}
+    \caption{Accuracy(\%) of AgentDoG~1.5 and existing frontier and guardrail models. The first row reports binary safety classification results on four benchmark datasets, while the second row shows results on the fine-grained safety classification ATBench.}
+    \label{fig:three_images}
+\end{figure}
+\newpage
+
+% \tableofcontents
+{\small \tableofcontents} %% Smallize the size to make it contained in one page
+
+\newpage
+
+\hypersetup{
+    % colorlinks=true,
+    linkcolor=red,
+    filecolor=black,      
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+\setcounter{section}{0}
+\input{sections/introduction}
+\input{sections/safety_taxonomy}
+\input{sections/agentguard}
+
+\input{sections/application1}
+\input{sections/application2}
+\input{sections/related_work}
+\input{sections/conclusion}
+\input{sections/authorship}
+\newpage
+
+
+\bibliographystyle{colm2025_conference}
+
+\bibliography{main}
+\newpage
+\appendix
+
+\input{sections/appendix_taxonomy}
+% \input{sections/appendix_benchmark}
+% \input{sections/appendix_eval}
+\input{sections/appendix_dogtemplate}
+\input{sections/appendix_app1}
+
+% \input{sections/appendix_env}
+
+
+
+\end{document}
+

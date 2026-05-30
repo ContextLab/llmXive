@@ -1,0 +1,184 @@
+\documentclass[runningheads]{llncs}
+
+% ---------------------------------------------------------------
+% Include basic ECCV package
+ 
+% TODO REVIEW: Insert your submission number below by replacing '*****'
+% TODO FINAL: Comment out the following line for the camera-ready version
+% \usepackage[review,year=2026,ID=4751]{eccv}
+% TODO FINAL: Un-comment the following line for the camera-ready version
+% \usepackage{eccv}
+
+% OPTIONAL: Un-comment the following line for a version which is easier to read
+% on small portrait-orientation screens (e.g., mobile phones, or beside other windows)
+\usepackage[mobile]{eccv}
+
+
+% ---------------------------------------------------------------
+% Other packages
+
+% Commonly used abbreviations (\eg, \ie, \etc, \cf, \etal, etc.)
+\usepackage{eccvabbrv}
+
+% Include other packages here, before hyperref.
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+% The "axessiblity" package can be found at: https://ctan.org/pkg/axessibility?lang=en
+\usepackage[accsupp]{axessibility}  % Improves PDF readability for those with disabilities.
+
+\usepackage{longtable}
+
+\usepackage{array}     % 用于自定义列格式
+\usepackage{xltabular} % 用于支持自动列宽的跨页长表格
+
+
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+
+\usepackage{pdflscape} % 新增：用于横向排版
+% The "axessiblity" package can be found at: https://ctan.org/pkg/axessibility?lang=en
+\usepackage[accsupp]{axessibility}  % Improves PDF readability for those with disabilities.
+
+% ---------------------------------------------------------------
+% Hyperref package
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% Please disable hyperref *only* if you encounter grave issues.
+% hyperref with option pagebackref eases the reviewers' job, but should be disabled for the final version.
+%
+% If you comment hyperref and then uncomment it, you should delete
+% main.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you
+%  should be clear).
+
+% TODO FINAL: Comment out the following line for the camera-ready version
+%\usepackage[pagebackref,breaklinks,colorlinks,citecolor=eccvblue]{hyperref}
+% TODO FINAL: Un-comment the following line for the camera-ready version
+\usepackage{hyperref}
+
+% Support for ORCID icon
+\usepackage{orcidlink}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs} 
+\usepackage{multirow} 
+\usepackage{makecell} 
+\usepackage{amssymb} % For mathematical symbols
+
+\begin{document}
+
+% -------------------------------------------------LoRA--------------
+% TODO REVIEW: Replace with your title
+\title{CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation} 
+% TODO REVIEW: If the paper title is too long for the running head, you can set
+% an abbreviated paper title here. If not, comment out.
+\titlerunning{CollectionLoRA}
+% TODO FINAL: Replace with your author list. 
+% % Include the authors' OCRID for the camera-ready version, if at all possible.
+\author{Fangtai Wu\inst{1,2} \and
+Hailong Guo\inst{2} \and
+Shijie Huang\inst{2} \and
+Jiayi Song\inst{2,3} \and
+Yubo Huang\inst{2} \and
+Mushui Liu\inst{1} \and
+Zhao Wang\inst{1} \and
+Yunlong Yu\inst{1}$^*$ \and
+Jiaming Liu\inst{2}$^{*\dagger}$ \and
+Ruihua Huang\inst{2}}
+
+\authorrunning{F. Wu et al.}
+\vspace{-0.2cm}
+\institute{
+Zhejiang University \and
+Qwen Applications Business Group of Alibaba \and
+Xi'an Jiaotong University\\
+\email{wft@zju.edu.cn, liujiaming.ljl@alibaba-inc.com}\\
+$^*$ Corresponding authors. $^\dagger$ Project lead.
+}
+
+
+
+% Fangtai Wu：Zhejiang University and Alibaba Group
+% Hailong Guo：Alibaba Group and Beijing University of Posts and Telecommunications 
+% Shijie Huang：Alibaba Group
+% Jiayi Song：Alibaba Group and  Xi'an Jiaotong University
+% Yubo Huang：Alibaba Group
+% Mushui Liu:Alibaba Group and Zhejiang University
+% Zhao Wang: Zhejiang University
+% Yunlong Yu: Zhejiang University and Corresponding author
+% Jiaming Liu: Alibaba Group and Corresponding author
+% Ruihua Huang:  Alibaba Group
+
+% email: wft@zju.edu.cn and liujiaming.ljl@alibaba-inc.com
+
+% \author{First Author\inst{1}\orcidlink{0000-1111-2222-3333} \and
+% Second Author\inst{2,3}\orcidlink{1111-2222-3333-4444} \and
+% Third Author\inst{3}\orcidlink{2222--3333-4444-5555}}
+
+% % TODO FINAL: Replace with an abbreviated list of authors.
+
+% % First names are abbreviated in the running head.
+% % If there are more than two authors, 'et al.' is used.
+% % TODO FINAL: Replace with your institution list.
+% \institute{Princeton University, Princeton NJ 08544, USA \and
+% Springer Heidelberg, Tiergartenstr.~17, 69121 Heidelberg, Germany
+% \email{lncs@springer.com}\\
+% \email{\{abc,lncs\}@uni-heidelberg.de}}
+
+\maketitle
+
+\vspace{-0.7cm}
+
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/zip_teaser.pdf}
+    % \caption{PlaceHolder: Customized image editing aims to endow pre-trained diffusion models. }
+    \caption{We propose CollectionLoRA, a multi-teacher distillation framework capable of consolidating diverse effects and few-step inference capabilities into a single LoRA.}
+    \label{fig:eccv_cover}
+\end{figure*}
+
+\vspace{-1.0cm}
+
+\begin{abstract}
+
+Customized image editing aims to equip pre-trained diffusion models with specific visual effects using limited paired data, typically via Low-Rank Adaptation (LoRA). As the number of desired effects grows, storing and dynamically loading numerous these effect LoRAs significantly increases deployment overhead. Furthermore, current pipelines typically cascade these effect LoRAs with acceleration modules for fast generation, which triggers severe parameter interference and results in concept bleeding and style degradation.
+\textbf{We propose CollectionLoRA, a multi-teacher on-policy distillation framework} capable of distilling the concepts of up to 50 different effect LoRAs along with few-step generation capabilities into a single LoRA. This fundamentally resolves the feature interference issue and significantly reduces deployment costs.  Specifically, the method introduces (i) a Probabilistic Dual-Stream Routing mechanism that enables the model to randomly switch between data sources during training, effectively enhancing its generalization in unseen scenarios; (ii) an Asymmetric Orthogonal Prompting strategy to achieve concept isolation within the prompt space; (iii) a Coarse-to-Fine Distillation Objective to mitigate the distribution gap between the teacher and student models.
+Extensive evaluations show that CollectionLoRA distills all customized effects and few-step generation into a single LoRA, reducing deployment overhead while achieving concept fidelity comparable to or better than independently trained teacher models.
+\keywords{Multi-Teacher On-Policy Distillation \and Multi-Concept Personalization \and Few-Step Generation}
+\end{abstract}
+
+\vspace{-0.8cm}
+
+\input{sections/intro}
+\input{sections/related_work}
+\input{sections/preliminary}
+\input{sections/method}
+\input{sections/exp}
+\input{sections/conclusion}
+
+\clearpage
+
+
+% \clearpage\mbox{}Page \thepage\ of the manuscript.
+% \clearpage\mbox{}Page \thepage\ of the manuscript. This is the last page.
+% \par\vfill\par
+% Now we have reached the maximum length of an ECCV \ECCVyear{} submission (excluding references and acknowledgements).
+% References should start immediately after the main text, but can continue past p.\ 14 if needed. 
+% \clearpage  % TODO FINAL: This \clearpage needs to be removed from both review and camera-ready versions.
+
+
+% \clearpage
+% ---- Bibliography ----
+%
+% BibTeX users should specify bibliography style 'splncs04'.
+% References will then be sorted and formatted in the correct style.
+%
+\bibliographystyle{splncs04}
+\bibliography{main}
+
+\clearpage
+\input{sections/supp}
+
+
+
+\end{document}

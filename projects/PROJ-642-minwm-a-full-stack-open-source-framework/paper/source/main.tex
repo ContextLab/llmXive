@@ -1,0 +1,50 @@
+\documentclass[10pt, logo, onecolumn]{shengshu}
+
+\input{preamble}
+\input{math_commands}
+
+\title{minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video World Models}
+
+\author{%
+  \textbf{Min Zhao}$^{1,2~\P*}$, 
+    \textbf{Hongzhou Zhu}$^{1,2~*}$,
+    \textbf{Bokai Yan}$^{1,3·*}$, \textbf{Zihan Zhou}$^{1,3~*}$,
+    \textbf{Yimin Chen}$^{1~\ddagger*}$,\\
+    \textbf{Wenqiang Sun}$^{4}$, 
+    \textbf{Kaiwen Zheng}$^{1,2}$,
+    \textbf{Guande He}$^{5}$,
+    \textbf{Xiao Yang}$^{2}$, 
+  \textbf{Chongxuan Li}$^{3}$, \textbf{Fan Bao}$^{1~\dagger}$, \textbf{Jun Zhu}$^{1,2~\dagger}$\\
+  $^1$ShengShu\,
+  $^2$THU\,
+  $^3$RUC\,
+  $^4$HKUST\,
+  $^5$UT-Austin\\
+  {\small $^*$ Equal contribution. \quad $\P$ Project lead. \quad $\ddagger$ Infra lead. \quad $^\dagger$ Advisor.}\\
+\texttt{gracezhao1997@gmail.com;}
+\texttt{dcszj@tsinghua.edu.cn}
+}
+
+\begin{abstract}
+Recent video diffusion foundation models have achieved remarkable progress in high-quality video generation, yet turning them into real-time interactive video world models remains challenging. Interactive world models require controllable, causal, and low-latency rollout, which in practice demands a full pipeline spanning data construction, controllable fine-tuning, autoregressive training, few-step distillation, and streaming inference. In this work, we present \textbf{minWM}, a full-stack open-source framework for building real-time interactive video world models. minWM provides an end-to-end pipeline that converts existing bidirectional T2V/TI2V video foundation models into camera-controllable few-step autoregressive world models. Specifically, minWM first fine-tunes a bidirectional video diffusion model with camera control, and then applies the Causal Forcing / Causal Forcing++ pipeline, including AR diffusion training, causal ODE or causal consistency distillation, and asymmetric DMD, to distill it into a few-step autoregressive generator for low-latency rollout. The framework is modular and architecture-extensible: we instantiate it on representative open backbones, including Wan2.1-T2V-1.3B and HY1.5-TI2V-8B, covering both cross-attention-based condition injection and MMDiT-style architectures. minWM also supports adapting existing video world models, such as HY-WorldPlay, to new data distributions, training recipes, and latency targets. Beyond releasing runnable scripts, checkpoints, documentation, and inference code, we provide practical ablations on camera trajectory quality, controllability training steps, and minimal batch-size requirements. We hope minWM serves as a reproducible and extensible recipe for building and adapting real-time interactive video world models.
+Project Page: \textbf{\href{https://github.com/shengshu-ai/minWM}{\textcolor{shengshublue}{https://github.com/shengshu-ai/minWM}}}.
+\end{abstract}
+
+\begin{document}
+\maketitle
+
+\input{src/1-Introduction.tex}
+% \input{src/2-Background.tex}
+\input{src/3-Method.tex}
+\input{src/4-Experiment.tex}
+\input{src/5-Conclusion.tex}
+
+\clearpage
+
+{
+  \small
+  \bibliographystyle{unsrt}
+  \bibliography{main}
+}
+
+\end{document}
