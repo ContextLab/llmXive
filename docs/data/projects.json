@@ -8415,7 +8415,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T00:42:16.347354+00:00",
+  "generated_at": "2026-05-30T01:03:45.883323+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74970,6 +74970,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Geoffrey West (simulated)",
+      "duration_s": 173.341169,
+      "ended_at": "2026-05-30T01:03:42.524324+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "malformed_response",
+      "personality_slug": "geoffrey-west",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-30T01:00:49.183155+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Freeman Dyson (simulated)",
@@ -81526,16 +81539,6 @@
       "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
       "project_stage": "ready_for_implementation",
       "started_at": "2026-05-17T13:57:30.638306Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 12.682074,
-      "ended_at": "2026-05-17T13:57:30.610297Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "ready_for_implementation",
-      "started_at": "2026-05-17T13:57:17.928223Z"
     }
   ],
   "schema_version": "2.0.0"
