@@ -7,9 +7,14 @@ Real-LLM: gated behind LLMXIVE_REAL_TESTS.
 from __future__ import annotations
 
 import os
+
 import pytest
 
-from llmxive.claims.extract import _filter_check_worthy
+from llmxive.claims.extract import (
+    _filter_check_worthy,
+    _parse_extraction_reply,
+    _tolerant_parse_claims,
+)
 from llmxive.claims.models import ClaimStatus
 
 
@@ -77,6 +82,96 @@ class TestFilterCheckWorthy:
         assert result == []
 
 
+class TestParseExtractionReply:
+    """Offline tests for the YAML reply parser + tolerant recovery (no backend).
+
+    Regression: the extraction model routinely emits a verbatim ``claim_text``
+    containing an embedded double-quoted paper title (e.g. ``"A Census of
+    Knots."``). That breaks ``yaml.safe_load`` and previously dropped EVERY
+    claim — a silent fabrication passthrough that let PROJ-552's wrong 27,635
+    count survive un-flagged-and-un-filled.
+    """
+
+    def test_valid_yaml_fast_path(self):
+        reply = (
+            "claims:\n"
+            '  - claim_text: "There are 9988 prime knots at 13 crossings."\n'
+            '    canonical: "9988 prime knots at 13 crossings"\n'
+            '    context: "Knot enumeration."\n'
+            '    number: "9988"\n'
+            '    source: "https://oeis.org/A002863"\n'
+        )
+        claims = _parse_extraction_reply(reply, "doc.md")
+        assert len(claims) == 1
+        assert "9988 prime knots" in claims[0].raw_text
+        assert claims[0].status == ClaimStatus.PENDING
+
+    def test_embedded_double_quotes_recovered(self):
+        """The exact PROJ-552 failure mode: an embedded `"A Census of Knots."`
+        title breaks strict YAML, but the tolerant parser recovers the claim."""
+        reply = (
+            "claims:\n"
+            '  - claim_text: "For crossing number 13, the exact count is 27,635 '
+            'prime knots as established in Hoste, J., Thistlethwaite, M. B., & '
+            'Weeks, J. (1998). "A Census of Knots." Experimental Mathematics, '
+            '7(4), 281-299."\n'
+            '    canonical: "27635 prime knots at 13 crossings"\n'
+            '    context: "Prime knot enumeration reference."\n'
+            '    number: "27635"\n'
+            '    source: "Hoste, Thistlethwaite & Weeks (1998)"\n'
+        )
+        # Strict YAML must fail on this input (proves the regression precondition)…
+        import yaml
+        with pytest.raises(yaml.YAMLError):
+            yaml.safe_load(reply.strip())
+        # …but the parser recovers exactly one claim with the wrong number intact
+        # so the downstream resolver/fill can flag + correct it.
+        claims = _parse_extraction_reply(reply, "doc.md")
+        assert len(claims) == 1
+        assert "27,635" in claims[0].raw_text
+        assert "A Census of Knots." in claims[0].raw_text  # inner quote preserved
+        assert claims[0].canonical == "27635 prime knots at 13 crossings"
+
+    def test_code_fenced_embedded_quotes_recovered(self):
+        reply = (
+            "```yaml\n"
+            "claims:\n"
+            '  - claim_text: "The paper "Knots and Links" reports 12,965 entries."\n'
+            '    canonical: "12965 entries"\n'
+            "```\n"
+        )
+        claims = _parse_extraction_reply(reply, "doc.md")
+        assert len(claims) == 1
+        assert "12,965" in claims[0].raw_text
+
+    def test_multiple_claims_recovered(self):
+        reply = (
+            "claims:\n"
+            '  - claim_text: "Result one cites "Foo et al." with 100 cases."\n'
+            '    canonical: "100 cases"\n'
+            '  - claim_text: "Result two cites "Bar 2020." with 250 cases."\n'
+            '    canonical: "250 cases"\n'
+        )
+        claims = _parse_extraction_reply(reply, "doc.md")
+        assert len(claims) == 2
+        assert "100 cases" in claims[0].canonical
+        assert "250 cases" in claims[1].canonical
+
+    def test_tolerant_parser_strips_number_inline_comment(self):
+        raw = (
+            "claims:\n"
+            '  - claim_text: "Some claim with 42 items."\n'
+            '    number: "42"  # the salient numeric value\n'
+        )
+        claims = _tolerant_parse_claims(raw, "doc.md")
+        assert len(claims) == 1
+        assert "42 items" in claims[0].raw_text
+
+    def test_no_claims_returns_empty(self):
+        assert _parse_extraction_reply("claims: []", "doc.md") == []
+        assert _parse_extraction_reply("not yaml at all : : :", "doc.md") == []
+
+
 @pytest.mark.skipif(
     not os.environ.get("LLMXIVE_REAL_TESTS"),
     reason="Real LLM call — set LLMXIVE_REAL_TESTS=1 to run",
@@ -85,9 +180,9 @@ class TestExtractClaimsRealLLM:
     """Real-LLM extraction (requires LLMXIVE_REAL_TESTS=1 and Dartmouth key)."""
 
     def test_extract_returns_pending_claims(self, tmp_path):
+        from llmxive.backends.dartmouth import DartmouthBackend
         from llmxive.claims.extract import extract_claims
         from llmxive.credentials import load_dartmouth_key
-        from llmxive.backends.dartmouth import DartmouthBackend
 
         key = load_dartmouth_key()
         if not key:

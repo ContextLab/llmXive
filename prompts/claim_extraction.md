@@ -29,6 +29,15 @@ claims:
     source: "DOI / arXiv id / URL / author-year citation, if explicitly cited in the text; empty string if no attribution"
 ```
 
+**Quoting rules (IMPORTANT — keep the YAML valid):**
+- Put each field on a SINGLE line.
+- Do NOT place raw double-quote (`"`) characters inside a value. If the verbatim
+  text contains quotation marks (e.g. a cited paper title), replace those inner
+  marks with single quotes (`'`) — e.g. write `'A Census of Knots.'`, not
+  `"A Census of Knots."`. Embedded raw double-quotes break the YAML parse.
+- If a value itself contains a colon followed by a space, wrap the whole value in
+  single quotes.
+
 If no check-worthy claims exist, return:
 
 ```yaml
