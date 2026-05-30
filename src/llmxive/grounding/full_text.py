@@ -7,12 +7,13 @@ import re
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from typing import Any, cast
+from urllib.parse import urlsplit
 
 import requests  # type: ignore[import-untyped]  # no stub package available
 
 from llmxive.config import unpaywall_email
 from llmxive.credentials import load_semantic_scholar_key
-from llmxive.librarian.pdf_sample import _download_pdf
+from llmxive.librarian.pdf_sample import PDF_MAX_BYTES, _download_pdf
 from llmxive.librarian.search import USER_AGENT
 from llmxive.librarian.verify import _fetch_from_arxiv, resolve_reference
 
@@ -135,6 +136,59 @@ def _pdf_from_url(url: str, *, timeout: float) -> str:
     return extract_pdf_text(data) if data else ""
 
 
+def _fetch_url_text(value: str, *, timeout: float) -> tuple[str, str]:
+    """Tier-5 direct-URL fetch, hardened like ``_download_pdf``.
+
+    Returns ``(extracted_text, final_url)``. Only ``http``/``https`` schemes are
+    fetched (others — ``file://``, ``ftp://`` — are treated as unreadable: no
+    text). The response body is STREAMED and capped at :data:`PDF_MAX_BYTES`
+    (50MB), so a hostile/huge URL cannot exhaust memory. Bounded timeout +
+    redirects are kept. On any error returns ``("", "")``.
+
+    # NOTE: SSRF residual — no private-IP/localhost block; F-19 only fetches
+    # source URLs already extracted from produced docs, and the byte cap +
+    # scheme restriction bound the blast radius.
+    """
+    scheme = urlsplit(value).scheme.lower()
+    if scheme not in ("http", "https"):
+        return "", ""
+    try:
+        r = requests.get(
+            value, headers={"User-Agent": USER_AGENT},
+            timeout=timeout, allow_redirects=True, stream=True,
+        )
+    except (requests.RequestException, OSError) as exc:
+        logger.warning("grounding retrieve: URL fetch failed %s (%s)", value, exc)
+        return "", ""
+    try:
+        final_url = r.url
+        ctype = r.headers.get("content-type", "")
+        chunks: list[bytes] = []
+        total = 0
+        try:
+            for chunk in r.iter_content(chunk_size=65536):
+                if not chunk:
+                    continue
+                chunks.append(chunk)
+                total += len(chunk)
+                if total > PDF_MAX_BYTES:
+                    logger.warning(
+                        "grounding retrieve: URL body exceeded %d bytes; capping %s",
+                        PDF_MAX_BYTES, value,
+                    )
+                    break
+        except (requests.RequestException, OSError) as exc:
+            logger.warning("grounding retrieve: URL stream failed %s (%s)", value, exc)
+            return "", final_url
+        raw = b"".join(chunks)
+        if "pdf" in ctype.lower():
+            return extract_pdf_text(raw), final_url
+        text = raw.decode(r.encoding or "utf-8", errors="replace")
+        return html_to_text(text), final_url
+    finally:
+        r.close()
+
+
 def _get_json(
     url: str, *, timeout: float, headers: dict[str, str] | None = None
 ) -> dict[str, Any] | None:
@@ -208,21 +262,12 @@ def retrieve(kind: str, value: str, *, timeout: float = 60.0) -> RetrievedDoc:
         if body:
             return RetrievedDoc(kind, value, "preprint", body, abstract, title, url)
 
-    # Tier 5: direct URL fetch (kind == url)
+    # Tier 5: direct URL fetch (kind == url) — scheme-restricted + size-capped.
     if kind == "url":
-        try:
-            r = requests.get(value, headers={"User-Agent": USER_AGENT},
-                             timeout=timeout, allow_redirects=True)
-            final_url = r.url
-            ctype = r.headers.get("content-type", "")
-            if "pdf" in ctype.lower():
-                body = extract_pdf_text(r.content)
-            else:
-                body = html_to_text(r.text)
-            if body:
-                return RetrievedDoc(kind, value, "url", body, abstract, title, final_url)
-        except (requests.RequestException, OSError) as exc:
-            logger.warning("grounding retrieve: URL fetch failed %s (%s)", value, exc)
+        body, fetched_url = _fetch_url_text(value, timeout=timeout)
+        final_url = fetched_url or final_url
+        if body:
+            return RetrievedDoc(kind, value, "url", body, abstract, title, final_url)
 
     # Abstract-only fallback
     if abstract:

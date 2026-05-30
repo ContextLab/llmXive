@@ -97,6 +97,8 @@ Under `state/grounding-cache/` (transient, kept out of commits like `librarian-c
 - Refactoring the librarian's own citation verification onto this service (future; the seam is left clean).
 - Paywalled/publisher-HTML scraping.
 - Verifying *uncited* factual claims (the scope guard only grounds claims explicitly attributed to a source; bare design numbers are never touched).
+- **F-19 runs only at the reviser chokepoint, not at initial stage production.** A number fabricated in the *first* draft with zero revision rounds is not grounded by F-19 (the grounding pass only fires on a revise). F-18 still catches unresolvable references in that case; full first-draft grounding is future work.
+- **`_preprint_pdf_urls` only tries the `v1` preprint version** (e.g. `…v1.full.pdf`). Later revisions (`v2`+) of a bioRxiv/medRxiv/OSF preprint are not attempted; the other OA tiers (Unpaywall/S2) may still resolve them.
 
 ## 10. Status of prior work
 

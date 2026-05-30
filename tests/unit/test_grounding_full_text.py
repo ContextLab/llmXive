@@ -91,6 +91,33 @@ def test_s2_oa_pdf_url_from_payload():
     assert _s2_oa_pdf_url({"openAccessPdf": None}) is None
 
 
+def test_url_fetch_rejects_non_http_scheme():
+    # Fix 2: only http/https are fetched; file:// (and others) yield no text and
+    # never touch the network.
+    from llmxive.grounding.full_text import _fetch_url_text
+
+    text, final = _fetch_url_text("file:///etc/passwd", timeout=5.0)
+    assert text == "" and final == ""
+    text, final = _fetch_url_text("ftp://example.com/x", timeout=5.0)
+    assert text == "" and final == ""
+
+
+def test_retrieve_url_non_http_unreadable(monkeypatch):
+    # End-to-end: a non-http URL source yields no Tier-5 text. The existence
+    # probe is stubbed so this stays offline/deterministic.
+    from llmxive.grounding import full_text
+    from llmxive.grounding.full_text import retrieve
+    from llmxive.librarian.verify import ResolutionOutcome
+
+    monkeypatch.setattr(
+        full_text, "resolve_reference",
+        lambda *a, **k: ResolutionOutcome("unreachable", "", None, "stub"),
+    )
+    doc = retrieve("url", "file:///etc/hosts", timeout=5.0)
+    assert doc.readable is False
+    assert doc.tier is None
+
+
 def test_preprint_pdf_urls_biorxiv():
     from llmxive.grounding.full_text import _preprint_pdf_urls
     urls = _preprint_pdf_urls("doi", "10.1101/2020.09.09.290601")
