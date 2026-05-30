@@ -243,6 +243,7 @@ Temporary Items
 # transient in-progress sentinels and any local runtime caches.
 state/run-log/*/in-progress/
 state/run-log/*/.invalid/
+state/grounding-cache/
 .specify/cache/
 
 # Multi-secret env variants used by Dartmouth + HF
