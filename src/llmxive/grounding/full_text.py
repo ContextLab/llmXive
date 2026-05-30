@@ -36,10 +36,16 @@ def _normalize_extracted(text: str, *, max_chars: int) -> str:
 
 
 def extract_pdf_text(pdf_bytes: bytes, *, max_chars: int = 200_000) -> str:
-    """Extract all page text from PDF bytes via pypdf. Returns '' on failure."""
-    try:
-        import pypdf
+    """Extract all page text from PDF bytes via pypdf.
 
+    Returns '' on genuine PDF-parse failures. ImportError (missing pypdf
+    dependency) propagates so the missing dependency surfaces clearly.
+    The *max_chars* cap is applied after final normalisation; pre-loop
+    accumulation break is approximate and avoids reading the whole file.
+    """
+    import pypdf  # ImportError propagates intentionally
+
+    try:
         reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
         parts: list[str] = []
         for page in reader.pages:
