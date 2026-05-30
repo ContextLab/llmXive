@@ -16,7 +16,7 @@ Single project. `src/llmxive/verify/{mode,approximate,compute,constants}.py`, `f
 ## Phase 1: Setup
 
 - [X] T001 Create the verify package skeleton: `src/llmxive/verify/__init__.py` (re-exports `mode.select_mode`, `compute.verify_computational`, `constants.true_value`, `approximate.is_valid_rounding`).
-- [ ] T002 Capture the baseline offline gate: `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record the pass count (regression baseline; ~1680).
+- [X] T002 Capture the baseline offline gate: `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` and record the pass count (regression baseline; ~1680).
 
 ---
 
@@ -58,7 +58,7 @@ Single project. `src/llmxive/verify/{mode,approximate,compute,constants}.py`, `f
 
 - [X] T013 [P] [US2] Write failing unit test `tests/unit/test_fill_constants_channel.py` for `fill/channels/constants.py`: `search_and_fetch("pi", claim)` returns one `FetchedSource(channel="constants", …, text contains the value + authority)`; an unknown subject → `[]`; no network.
 - [X] T014 [US2] Implement `src/llmxive/fill/channels/constants.py::search_and_fetch` wrapping `verify.constants` → `FetchedSource`; register it in `fill/service.py::_get_channel("constants")` and add `AUTHORITY["constants"]` as the **top authority rank** (≤ `oeis`=0, e.g. 0 or -1) so a recognized constant's library value wins any conflict (FR-005: highest-authority source) + route it into NUMERIC/approximate `channels_for` in `fill/channels/__init__.py`. Make T013 pass.
-- [ ] T015 [P] [US2] Write failing integration test `tests/integration/test_constants_zero_network.py`: a fill for an approximate constant claim uses the constants channel and performs no HTTP (assert via a counter wrapping the real `_retry_request`/channel HTTP staying flat), with provenance naming the authority.
+- [X] T015 [P] [US2] Write failing integration test `tests/integration/test_constants_zero_network.py`: a fill for an approximate constant claim uses the constants channel and performs no HTTP (assert via a counter wrapping the real `_retry_request`/channel HTTP staying flat), with provenance naming the authority.
 
 **Checkpoint**: US2 independently testable — constants resolve deterministically, zero network.
 
