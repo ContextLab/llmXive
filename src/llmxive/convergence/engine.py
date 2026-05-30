@@ -8,9 +8,14 @@ inputs are routed through ``tools/summarize``. See contracts/convergence-engine.
 
 from __future__ import annotations
 
+import re
 import time
 from collections.abc import Callable
 
+from llmxive.agents.citation_guard import (
+    UNVERIFIED_MARKER_PREFIX,
+    has_unverified_markers,
+)
 from llmxive.tools.summarize import estimate_tokens, summarize
 
 from .kickback import route_kickback
@@ -19,6 +24,7 @@ from .types import (
     ConcernResponse,
     ConvergenceResult,
     ReviewSpec,
+    Severity,
     Verdict,
 )
 
@@ -44,6 +50,67 @@ def _maybe_reduce(artifacts: dict[str, str], *, goal: str, model: str,
         else:
             out[path] = content
     return out
+
+
+def _is_doc_artifact_key(key: str) -> bool:
+    """A scannable produced-doc key, vs a sentinel/control input.
+
+    The artifacts dict mixes two key kinds (see ``project_runner``): real
+    repo-relative doc PATHS (the produced documents) and ``__sentinel__``
+    control/context inputs wrapped in double underscores (``__constitution__``,
+    ``__idea_md__``, ...). Only the produced docs are gated for unverified
+    markers — a marker echoed inside a context input is not the doc this stage
+    is publishing."""
+    return not (key.startswith("__") and key.endswith("__"))
+
+
+def _unverified_marker_concerns(
+    artifacts: dict[str, str], *, stage: str, reviewer: str
+) -> list[Concern]:
+    """Synthesize a blocking :class:`Concern` per produced-doc artifact that
+    still carries an ``[UNVERIFIED: ...]`` citation-guard marker (F-18).
+
+    A fabricated / unverifiable reference is a factual (scientific) defect, so
+    each concern is :attr:`Severity.SCIENCE` — the strongest factual lens the
+    enum provides whose kickback routing points at an earlier *content* stage
+    (``clarified`` / ``brainstormed`` / ``flesh_out_in_progress`` depending on
+    the stage's ``kickback_routing`` table) rather than an in-loop re-edit.
+    Each concern names the offending artifact path and the marker bodies so the
+    kickback record (and the next worker) sees exactly which references were
+    unresolved."""
+    concerns: list[Concern] = []
+    for idx, path in enumerate(sorted(artifacts)):
+        if not _is_doc_artifact_key(path):
+            continue
+        content = artifacts[path]
+        if not has_unverified_markers(content):
+            continue
+        # Capture the FULL verbatim markers (prefix + body + ``]``) so the
+        # synthesized concern text carries them intact — the kickback reason
+        # re-extracts them via the same ``find_unverified_markers`` helper.
+        full_markers = re.findall(
+            re.escape(UNVERIFIED_MARKER_PREFIX) + r"[^\]]*\]", content
+        )
+        joined = " ".join(full_markers) if full_markers else "(unparsable marker)"
+        concerns.append(
+            Concern(
+                # 12-char deterministic id (Concern has no length cap, but the
+                # persisted records elsewhere expect short ids; keep parity).
+                id=f"unverif{idx:05d}"[:12].ljust(12, "0"),
+                reviewer=reviewer,
+                severity=Severity.SCIENCE,
+                artifact=path,
+                location="",
+                text=(
+                    f"Unverifiable/fabricated reference(s) remain in '{path}': "
+                    f"{joined}. The citation guard could not resolve these against a "
+                    f"primary source; the document must not advance until every "
+                    f"reference is verified or removed (Constitution Principle II)."
+                ),
+                round=1,
+            )
+        )
+    return concerns
 
 
 def run_convergence(
@@ -169,6 +236,27 @@ def run_convergence(
 
         if per_round_budget_s is not None and (time.monotonic() - t0) > per_round_budget_s:
             break  # per-round wall-clock budget exceeded -> stop, kickback
+
+    # F-18 universal citation hard-block: BEFORE declaring convergence, scan the
+    # FINAL produced-doc artifacts for unresolved ``[UNVERIFIED: ...]`` markers.
+    # If any remain, the stage MUST NOT converge — a fabricated/unverifiable
+    # reference is a blocking factual defect. We synthesize SCIENCE-severity
+    # concern(s) (one per offending artifact, naming the marker bodies), append
+    # them to ``open_concerns`` so the kickback record carries the reason, and
+    # fall through to the kickback path. This only ever flips converged->False:
+    # the reviser must remove the bad ref to clear it; if it can't within the
+    # cap, the (correct) kickback routes the defect to an earlier content stage.
+    marker_concerns = _unverified_marker_concerns(
+        artifacts, stage=spec.stage, reviewer=(panel[0].name if panel else "citation_guard")
+    )
+    if marker_concerns:
+        existing_ids = {c.id for c in open_concerns}
+        for c in marker_concerns:
+            if c.id not in existing_ids:
+                open_concerns.append(c)
+                existing_ids.add(c.id)
+            if c.id not in {h.id for h in concern_history}:
+                concern_history.append(c)
 
     converged = not open_concerns
     if converged:

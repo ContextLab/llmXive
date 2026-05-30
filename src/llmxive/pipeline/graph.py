@@ -14,6 +14,7 @@ without changing public APIs.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -56,6 +57,8 @@ from llmxive.types import (
     Project,
     Stage,
 )
+
+logger = logging.getLogger(__name__)
 
 # Map (current_stage, agent_name) — the agent invoked when a project is
 # at the keyed stage. The agent's run() drives the transition to the
@@ -209,6 +212,25 @@ def _paper_complete_preconditions_met(
     """
     if not _all_paper_tasks_done(project_dir):
         return False
+    # F-18 hard-block: a paper artifact that still carries an
+    # ``[UNVERIFIED: ...]`` citation-guard marker (a fabricated / unverifiable
+    # reference) must NOT advance to paper_complete. Checked BEFORE the
+    # expensive LaTeX build so an unverified-reference paper short-circuits
+    # cheaply. Complements the citation-store gate below: the store tracks
+    # verified Citation rows, whereas the guard rewrites unresolvable refs
+    # in-place — so EITHER signal blocks advancement.
+    from llmxive.agents.citation_guard import project_unverified_markers
+
+    marker_bodies = project_unverified_markers(
+        project_id, track="paper", repo_root=repo_root
+    )
+    if marker_bodies:
+        logger.warning(
+            "paper_complete gate: blocking %s — unresolved unverified-citation "
+            "marker(s) in paper artifacts: %s",
+            project_id, "; ".join(marker_bodies),
+        )
+        return False
     # LaTeX build is REQUIRED — a paper-stage project without a
     # compilable main.tex is by definition not paper_complete.
     paper_source = project_dir / "paper" / "source" / "main.tex"
@@ -344,7 +366,7 @@ def run_one_step(
                 try:
                     run_agent(agent, ctx, repo_root=repo)
                 except Exception as exc:
-                    print(f"[graph] reviewer {an!r} failed: {exc}")
+                    logger.warning("reviewer %r failed: %s", an, exc)
             else:
                 # Single-agent stages (brainstorm, flesh_out, etc.) —
                 # propagate failures so the run is marked failed.
@@ -413,7 +435,7 @@ def run_one_step(
             from llmxive.integrations import issues as issues_mod
             issues_mod.close_issue_for_project(repo, project)
         except Exception as exc:  # pragma: no cover — telemetry only
-            print(f"[graph] issue-close hook failed for {project.id}: {exc}")
+            logger.warning("issue-close hook failed for %s: %s", project.id, exc)
     return project
 
 

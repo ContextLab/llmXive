@@ -20,9 +20,12 @@ work; nothing here touches the network.
 from __future__ import annotations
 
 from llmxive.agents.citation_guard import (
+    UNVERIFIED_MARKER_PREFIX,
     CitationVerdict,
     GuardReport,
     apply_citation_verdicts,
+    find_unverified_markers,
+    has_unverified_markers,
 )
 from llmxive.agents.reference_validator import extract_citations
 from llmxive.types import CitationKind
@@ -126,3 +129,54 @@ def test_apply_verdicts_preserves_doi_claim_text() -> None:
     assert "[UNVERIFIED: 10.1234/fake.9999" in cleaned
     assert "the result holds" in cleaned
     assert report.flagged_count == 1
+
+
+# --- 3. marker-detection helpers (the hard-block gate predicates) -----------
+
+
+def test_has_unverified_markers_false_on_clean_doc() -> None:
+    """A doc with zero markers is not blocked."""
+    text = "The knot has 9,988 minimal diagrams (Lee et al. 2024, arXiv:2402.13456)."
+    assert has_unverified_markers(text) is False
+    assert find_unverified_markers(text) == []
+
+
+def test_has_unverified_markers_true_on_single_marker() -> None:
+    """One marked-up fabricated ref trips the gate; body is reported."""
+    # Build the marked text through the real rewriter (no hand-typed marker).
+    raw = "Count 9,988 (Lee et al. 2024, arXiv:2402.13)."
+    verdict = CitationVerdict(
+        value="2402.13", kind=CitationKind.ARXIV, ok=False,
+        reason="malformed arXiv id; unresolvable",
+    )
+    marked, _ = apply_citation_verdicts(raw, [verdict])
+    assert UNVERIFIED_MARKER_PREFIX in marked  # sanity: rewriter used the SSoT prefix
+    assert has_unverified_markers(marked) is True
+    bodies = find_unverified_markers(marked)
+    assert len(bodies) == 1
+    assert "arXiv:2402.13" in bodies[0]
+    assert "malformed arXiv id" in bodies[0]
+
+
+def test_find_unverified_markers_multiple_bodies_in_order() -> None:
+    """Several markers → every body returned in document order."""
+    raw = (
+        "First (arXiv:2402.13) and later (doi:10.1234/fake.9999) "
+        "and finally <https://example.invalid/nope>."
+    )
+    verdicts = [
+        CitationVerdict(value="2402.13", kind=CitationKind.ARXIV, ok=False,
+                        reason="malformed"),
+        CitationVerdict(value="10.1234/fake.9999", kind=CitationKind.DOI, ok=False,
+                        reason="DOI not found"),
+        CitationVerdict(value="https://example.invalid/nope", kind=CitationKind.URL,
+                        ok=False, reason="unreachable"),
+    ]
+    marked, report = apply_citation_verdicts(raw, verdicts)
+    assert report.flagged_count == 3
+    assert has_unverified_markers(marked) is True
+    bodies = find_unverified_markers(marked)
+    assert len(bodies) == 3
+    assert "arXiv:2402.13" in bodies[0]
+    assert "10.1234/fake.9999" in bodies[1]
+    assert "example.invalid/nope" in bodies[2]

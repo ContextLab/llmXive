@@ -52,6 +52,7 @@ Two distinct rejection semantics (post spec-015 T042 + maintainer review):
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from pathlib import Path
 
@@ -72,6 +73,8 @@ from llmxive.types import (
     Stage,
     VerificationStatus,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _required_specialists(prefix: str, *, repo_root: Path | None = None) -> set[str]:
@@ -397,7 +400,11 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         unanimous = all_accept and (
             bool(required) or (has_any_accept and not has_any_non_accept)
         )
-        if unanimous and not _has_blocking_citations(cits):
+        if (
+            unanimous
+            and not _has_blocking_citations(cits)
+            and not _has_unverified_markers(project, track="research", repo_root=repo_root)
+        ):
             return _transition(project, Stage.RESEARCH_ACCEPTED)
         # FATAL judgments still need to be representable. The engine path
         # below routes the rest; here we keep the (rare) full-reject and
@@ -493,6 +500,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         if (
             _all_specialists_accept_most_recent(records, required, live_hash=live_hash)
             and not _has_blocking_citations(cits)
+            and not _has_unverified_markers(project, track="paper", repo_root=repo_root)
         ):
             return _transition(project, Stage.PAPER_ACCEPTED)
 
@@ -638,6 +646,29 @@ def _has_blocking_citations(cits: list[Citation]) -> bool:
         c.verification_status in (VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH)
         for c in cits
     )
+
+
+def _has_unverified_markers(
+    project: Project, *, track: str, repo_root: Path | None
+) -> bool:
+    """F-18 hard-block: True iff the project's governing ``track`` artifacts
+    still carry an ``[UNVERIFIED: ...]`` citation-guard marker.
+
+    A fabricated / unverifiable reference left in a produced doc is a blocking
+    defect that the citations store may NOT reflect (the store tracks verified
+    Citation rows; the guard rewrites raw refs in-place). This complements
+    :func:`_has_blocking_citations` so an accept transition is blocked if EITHER
+    a stored citation failed OR a produced governing doc still has a marker."""
+    from llmxive.agents.citation_guard import project_unverified_markers
+
+    bodies = project_unverified_markers(project.id, track=track, repo_root=repo_root)
+    if bodies:
+        logger.warning(
+            "advancement: blocking %s accept for %s — unresolved unverified-citation "
+            "marker(s) in governing artifacts: %s",
+            track, project.id, "; ".join(bodies),
+        )
+    return bool(bodies)
 
 
 def _transition(project: Project, target: Stage) -> Project:

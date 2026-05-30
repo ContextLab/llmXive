@@ -104,11 +104,47 @@ def _display_ref(value: str, kind: CitationKind) -> str:
     return value
 
 
+# The greppable prefix every ``[UNVERIFIED: ...]`` marker starts with. This is
+# the SINGLE source of truth for the marker syntax — the gate scanners
+# (:func:`has_unverified_markers` / :func:`find_unverified_markers`) and the
+# rewriter (:func:`_marker`) both derive from it, so the hard-block gates and
+# the rewriter can never drift apart.
+UNVERIFIED_MARKER_PREFIX = "[UNVERIFIED:"
+
+# Locates a whole marker, capturing its body (everything between the prefix and
+# the closing ``]``) for reporting in kickback / gate reasons.
+_UNVERIFIED_MARKER_RE = re.compile(
+    re.escape(UNVERIFIED_MARKER_PREFIX) + r"\s*(?P<body>[^\]]*?)\s*\]"
+)
+
+
 def _marker(value: str, kind: CitationKind, reason: str) -> str:
     ref = _display_ref(value, kind)
     if reason:
-        return f"[UNVERIFIED: {ref} — {reason}]"
-    return f"[UNVERIFIED: {ref}]"
+        return f"{UNVERIFIED_MARKER_PREFIX} {ref} — {reason}]"
+    return f"{UNVERIFIED_MARKER_PREFIX} {ref}]"
+
+
+def has_unverified_markers(text: str) -> bool:
+    """True iff ``text`` contains at least one ``[UNVERIFIED: ...]`` marker.
+
+    This is the predicate every hard-block gate (convergence engine,
+    advancement evaluator, paper-complete) calls to decide whether a produced
+    doc still carries a fabricated / unverifiable reference and must therefore
+    be blocked from advancing.
+    """
+    return UNVERIFIED_MARKER_PREFIX in text
+
+
+def find_unverified_markers(text: str) -> list[str]:
+    """Return the BODY of every ``[UNVERIFIED: ...]`` marker in ``text``.
+
+    The body is the text between the prefix and the closing ``]`` (e.g.
+    ``arXiv:2402.13 — malformed arXiv id ...``), in document order, used to
+    populate kickback / gate reasons so the human or next worker sees exactly
+    which references were unresolved.
+    """
+    return [m.group("body").strip() for m in _UNVERIFIED_MARKER_RE.finditer(text)]
 
 
 # Patterns that locate a reference TOKEN in the doc so we can replace it in
@@ -328,10 +364,99 @@ def verify_and_clean(
     return apply_citation_verdicts(text, verdicts)
 
 
+# --- project-level governing-artifact scan (the advancement / graph gates) ---
+
+# Glob patterns (relative to ``projects/<id>/``) for the produced documents that
+# govern each accept transition. These are the artifacts whose published content
+# must be free of unverified-citation markers before the project may advance.
+_RESEARCH_ARTIFACT_GLOBS: tuple[str, ...] = (
+    "specs/*/spec.md",
+    "specs/*/plan.md",
+    "specs/*/research.md",
+    "specs/*/data-model.md",
+    "specs/*/quickstart.md",
+    "specs/*/tasks.md",
+    "specs/*/contracts/*.md",
+    "results.md",
+)
+_PAPER_ARTIFACT_GLOBS: tuple[str, ...] = (
+    "paper/source/*.tex",
+    "paper/source/**/*.tex",
+    "paper/specs/*/spec.md",
+    "paper/specs/*/plan.md",
+    "paper/specs/*/research.md",
+    "paper/specs/*/tasks.md",
+)
+
+
+def _project_dir(project_id: str, repo_root: Path | None) -> Path:
+    from llmxive.config import repo_root as _resolve_repo_root
+
+    root = repo_root if repo_root is not None else _resolve_repo_root()
+    return root / "projects" / project_id
+
+
+def _scan_globs_for_markers(base: Path, globs: tuple[str, ...]) -> list[str]:
+    """Return every unverified-marker body found across ``base``'s ``globs``.
+
+    Reads each matching file and accumulates its marker bodies (deduped,
+    in discovery order). Missing files / globs that match nothing are skipped —
+    this is an existence-aware gate, not a presence requirement."""
+    seen: set[str] = set()
+    bodies: list[str] = []
+    for pattern in globs:
+        for path in sorted(base.glob(pattern)):
+            if not path.is_file():
+                continue
+            try:
+                content = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+            for body in find_unverified_markers(content):
+                key = f"{path}::{body}"
+                if key not in seen:
+                    seen.add(key)
+                    bodies.append(f"{path.name}: {body}")
+    return bodies
+
+
+def project_unverified_markers(
+    project_id: str, *, track: str, repo_root: Path | None = None
+) -> list[str]:
+    """Marker bodies present in a project's governing ``track`` artifacts.
+
+    ``track`` is ``"research"`` or ``"paper"`` and selects which produced
+    documents are scanned (research specs/plan/tasks/results vs. paper
+    source/specs). An empty list means no produced doc carries an
+    ``[UNVERIFIED: ...]`` marker. The advancement evaluator and the
+    paper-complete graph gate call :func:`project_artifacts_have_markers`
+    (the boolean form) to HARD-BLOCK advancement when this is non-empty."""
+    if track == "research":
+        globs = _RESEARCH_ARTIFACT_GLOBS
+    elif track == "paper":
+        globs = _PAPER_ARTIFACT_GLOBS
+    else:
+        raise ValueError(f"unknown track {track!r}; expected 'research' or 'paper'")
+    return _scan_globs_for_markers(_project_dir(project_id, repo_root), globs)
+
+
+def project_artifacts_have_markers(
+    project_id: str, *, track: str, repo_root: Path | None = None
+) -> bool:
+    """True iff the project's governing ``track`` artifacts carry any
+    unverified-citation marker (the boolean hard-block predicate)."""
+    return bool(project_unverified_markers(project_id, track=track, repo_root=repo_root))
+
+
 __all__ = [
+    "UNVERIFIED_MARKER_PREFIX",
     "CitationVerdict",
     "GuardReport",
     "apply_citation_verdicts",
+    "find_unverified_markers",
+    "has_unverified_markers",
+    "project_artifacts_have_markers",
+    "project_unverified_markers",
     "strip_unresolvable_offline",
     "verify_and_clean",
 ]

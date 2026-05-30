@@ -173,3 +173,40 @@ def test_citation_blocks_accept(tmp_path: Path) -> None:
     assert out.current_stage != Stage.RESEARCH_ACCEPTED, (
         "fabricated citation must block research_accepted"
     )
+
+
+def test_unverified_marker_in_spec_blocks_research_accept(tmp_path: Path) -> None:
+    """F-18: even with unanimous accept AND no blocking citations in the
+    citations store, an [UNVERIFIED: ...] marker left in a governing spec
+    artifact HARD-BLOCKS research_accepted."""
+    project = _bootstrap(tmp_path)
+    for i in range(3):
+        _make_record(tmp_path, project, reviewer_name=f"reviewer_{i}", verdict="accept")
+    # Plant a marker in the produced spec.md (a real governing artifact).
+    spec_md = tmp_path / "projects" / PROJ_ID / "specs" / "001-review" / "spec.md"
+    spec_md.write_text(
+        "The knot count is 9,988 "
+        "[UNVERIFIED: arXiv:2402.13 — malformed arXiv id; unresolvable].\n",
+        encoding="utf-8",
+    )
+
+    out = advancement.evaluate(project, repo_root=tmp_path)
+    assert out.current_stage != Stage.RESEARCH_ACCEPTED, (
+        "an unverified-citation marker in a governing artifact must block research_accepted"
+    )
+
+
+def test_clean_spec_still_advances_to_research_accepted(tmp_path: Path) -> None:
+    """Parity: a governing spec with NO markers does not trip the F-18 gate —
+    unanimous accept still advances exactly as before."""
+    project = _bootstrap(tmp_path)
+    for i in range(3):
+        _make_record(tmp_path, project, reviewer_name=f"reviewer_{i}", verdict="accept")
+    spec_md = tmp_path / "projects" / PROJ_ID / "specs" / "001-review" / "spec.md"
+    spec_md.write_text(
+        "The knot count is 9,988 (Lee et al. 2024, arXiv:2402.13456).\n",
+        encoding="utf-8",
+    )
+
+    out = advancement.evaluate(project, repo_root=tmp_path)
+    assert out.current_stage == Stage.RESEARCH_ACCEPTED

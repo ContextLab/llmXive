@@ -54,6 +54,21 @@ def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecor
         f"'{worst.value}'. Routing to '{to_stage}' with full provenance so the next "
         f"worker can address the root cause."
     )
+    # F-18: if any unresolved concern is a citation hard-block (the produced doc
+    # still carries an ``[UNVERIFIED: ...]`` marker), surface the marker bodies in
+    # the human-facing reason so the next worker sees exactly which references the
+    # citation guard could not resolve — not just a severity count.
+    from llmxive.agents.citation_guard import find_unverified_markers
+
+    marker_bodies: list[str] = []
+    for c in unresolved:
+        marker_bodies.extend(find_unverified_markers(c.text))
+    if marker_bodies:
+        reason += (
+            " Unverified/fabricated reference(s) blocking advancement: "
+            + "; ".join(marker_bodies)
+            + "."
+        )
     return KickbackRecord(
         from_stage=spec.stage,
         to_stage=to_stage,

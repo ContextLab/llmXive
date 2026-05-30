@@ -207,3 +207,79 @@ def test_per_round_budget_short_circuits():
                           per_round_budget_s=0.001)
     assert res.rounds_used == 1           # budget cut it short before the 5-round cap
     assert res.converged is False
+
+
+# --- F-18: unverified-citation hard-block gate -----------------------------
+
+
+class _MarkerInjectingReviser:
+    """A reviser whose 'fix' leaves an [UNVERIFIED: ...] marker in the doc.
+
+    Models the real failure: the panel's concern is 'resolved' (the reviewer
+    passes) but the produced artifact still carries a fabricated/unverifiable
+    reference the citation guard marked. The engine MUST refuse to converge."""
+
+    def __init__(self, marker_text: str) -> None:
+        self.marker_text = marker_text
+        self.calls = 0
+
+    def revise(self, artifacts, concerns):
+        self.calls += 1
+        new = {"a.md": "Result holds " + self.marker_text + "."}
+        return new, [ConcernResponse(concern_id=c.id, response="addressed",
+                                     what_changed="edit") for c in concerns]
+
+
+def _marker_spec(reviewers, reviser, *, max_rounds=3):
+    return ReviewSpec(
+        stage="planned", artifacts=["a.md"], reviewers=reviewers, reviser=reviser,
+        kickback_routing={
+            Severity.WRITING: "planned", Severity.REQUIREMENT: "clarified",
+            Severity.METHODOLOGY: "clarified", Severity.SCIENCE: "clarified",
+            Severity.FATAL: "brainstormed",
+        },
+        overflow_goal="preserve ids", advance_stage="tasked", max_rounds=max_rounds,
+    )
+
+
+def test_unverified_marker_blocks_convergence_even_when_panel_passes():
+    """All panel concerns resolve, but the final artifact still carries an
+    [UNVERIFIED: ...] marker → engine must NOT converge and must kick back
+    with a reason naming the marker body."""
+    marker = "[UNVERIFIED: arXiv:2402.13 — malformed arXiv id; unresolvable]"
+    rev = FakeReviewer(r1=[_c("c1")])  # passes on first re-review
+    reviser = _MarkerInjectingReviser(marker)
+    res = run_convergence(_marker_spec([rev], reviser), {"a.md": "x"})
+    assert res.converged is False              # honest reporting (FR-016)
+    assert res.next_stage is None
+    assert res.kickback is not None
+    assert res.kickback.worst_severity == Severity.SCIENCE
+    assert res.kickback.to_stage == "clarified"
+    assert "arXiv:2402.13" in res.kickback.reason
+    # the synthesized concern is recorded honestly in history
+    assert any("UNVERIFIED" in c.text or "arXiv:2402.13" in c.text
+               for c in res.concern_history)
+
+
+def test_no_marker_still_converges_normally():
+    """A clean artifact (no markers) converges exactly as before — the gate
+    must not break the normal path."""
+    rev = FakeReviewer(r1=[_c("c1")])
+    res = run_convergence(_marker_spec([rev], FakeReviser()), {"a.md": "x"})
+    assert res.converged is True
+    assert res.next_stage == "tasked"
+    assert res.kickback is None
+
+
+def test_marker_gate_skips_sentinel_keys():
+    """A marker in a sentinel/control key (``__x__``) must NOT block — only
+    real produced doc artifacts are scanned."""
+    rev = FakeReviewer(r1=[])  # converges immediately, no revision
+    spec = _marker_spec([rev], FakeReviser())
+    arts = {
+        "a.md": "clean doc, no markers",
+        "__constitution__": "context [UNVERIFIED: arXiv:9999.99 — fake]",
+    }
+    res = run_convergence(spec, arts)
+    assert res.converged is True
+    assert res.kickback is None
