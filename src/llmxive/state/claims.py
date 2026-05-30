@@ -38,6 +38,7 @@ def _claim_to_dict(c: Claim) -> dict:
         "resolver": c.resolver,
         "attempts": c.attempts,
         "updated_at": c.updated_at,
+        "source_hash": c.source_hash,
     }
 
 
@@ -56,6 +57,7 @@ def _dict_to_claim(d: dict) -> Claim:
         resolver=d.get("resolver"),
         attempts=int(d.get("attempts", 0)),
         updated_at=d.get("updated_at", ""),
+        source_hash=d.get("source_hash"),
     )
 
 
