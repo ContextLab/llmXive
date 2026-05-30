@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +35,7 @@ logger = logging.getLogger(__name__)
 # Channel dispatch: name → search_and_fetch callable
 # ---------------------------------------------------------------------------
 
-def _get_channel(name: str):
+def _get_channel(name: str) -> Callable[..., list[FetchedSource]] | None:
     """Return the search_and_fetch function for the named channel."""
     if name == "constants":
         from llmxive.fill.channels import constants

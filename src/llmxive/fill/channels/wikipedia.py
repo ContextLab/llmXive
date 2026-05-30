@@ -10,7 +10,7 @@ Per librarian resilience pattern: any HTTP or parse failure returns [].
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.models import FetchedSource
@@ -25,7 +25,7 @@ _WIKI_API = "https://en.wikipedia.org/w/api.php"
 _MAX_TITLES = 3  # fetch extracts for at most this many search results
 
 
-def _parse_search(json_dict: dict) -> list[str]:
+def _parse_search(json_dict: dict[str, Any]) -> list[str]:
     """Extract article titles from a Wikipedia action=query&list=search response."""
     try:
         items = json_dict.get("query", {}).get("search", [])
@@ -34,7 +34,7 @@ def _parse_search(json_dict: dict) -> list[str]:
         return []
 
 
-def _parse_extract(json_dict: dict) -> tuple[str, str] | None:
+def _parse_extract(json_dict: dict[str, Any]) -> tuple[str, str] | None:
     """Extract (title, text) from a Wikipedia action=query&prop=extracts response.
 
     Returns None if the page is missing or the extract is empty.

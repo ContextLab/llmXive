@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 class ClaimKind(str, Enum):  # noqa: UP042 - str+Enum mixin kept; StrEnum changes str() repr
@@ -31,7 +32,7 @@ class Verdict:
 
     status: ClaimStatus
     value: str | None
-    evidence: dict | None
+    evidence: dict[str, Any] | None
     resolver: str | None
 
 
@@ -48,7 +49,7 @@ class Claim:
     source_type: str  # "external" | "result" | "pending"
     status: ClaimStatus
     resolved_value: str | None
-    evidence: dict | None
+    evidence: dict[str, Any] | None
     resolver: str | None
     attempts: int
     updated_at: str  # ISO timestamp; stamped by caller

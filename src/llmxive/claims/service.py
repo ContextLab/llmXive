@@ -29,7 +29,7 @@ def _now_iso() -> str:
     return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _source_hash_from_evidence(evidence: dict | None, value: str | None) -> str | None:
+def _source_hash_from_evidence(evidence: dict[str, Any] | None, value: str | None) -> str | None:
     """Fingerprint of the underlying artifact at resolution time (FR-015).
 
     For an internal-result claim, the receipt's ``output_sha256`` IS the

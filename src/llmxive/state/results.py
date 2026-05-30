@@ -9,6 +9,7 @@ Mirrors state/claims.py — load/save/get, repo_root-aware.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -34,7 +35,7 @@ def _receipt_path(project_id: str, result_id: str,
 # Serialise / deserialise
 # ---------------------------------------------------------------------------
 
-def _receipt_to_dict(r: Receipt) -> dict:
+def _receipt_to_dict(r: Receipt) -> dict[str, Any]:
     return {
         "result_id": r.result_id,
         "value": r.value,
@@ -49,7 +50,7 @@ def _receipt_to_dict(r: Receipt) -> dict:
     }
 
 
-def _dict_to_receipt(d: dict) -> Receipt:
+def _dict_to_receipt(d: dict[str, Any]) -> Receipt:
     return Receipt(
         result_id=d["result_id"],
         value=str(d["value"]),

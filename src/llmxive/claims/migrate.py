@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 from llmxive.claims.classify import classify
@@ -57,7 +58,7 @@ def _extract_project_id(path: Path, repo_root: Path) -> str | None:
     return m.group(1) if m else None
 
 
-def _iter_doc_files(repo_root: Path):
+def _iter_doc_files(repo_root: Path) -> Iterator[Path]:
     for d in _DOC_DIRS:
         base = repo_root / d
         if not base.is_dir():

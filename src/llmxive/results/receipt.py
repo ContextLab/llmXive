@@ -16,6 +16,7 @@ import json
 import os
 import tomllib
 from dataclasses import dataclass
+from typing import Any
 
 from llmxive.credentials import (
     MissingCredentialError,
@@ -53,10 +54,10 @@ class Receipt:
     result_id: str
     value: str
     kind: str  # "scalar" | "table" | "figure"
-    producer: dict
-    inputs: dict
+    producer: dict[str, Any]
+    inputs: dict[str, Any]
     env_sha: str
-    captured: dict
+    captured: dict[str, Any]
     output_sha256: str
     created_at: str
     hmac: str
@@ -66,7 +67,7 @@ class Receipt:
 # Canonical payload
 # ---------------------------------------------------------------------------
 
-def _canonical_payload(fields: dict) -> bytes:
+def _canonical_payload(fields: dict[str, Any]) -> bytes:
     """Deterministic JSON serialisation of all receipt fields except 'hmac'.
 
     Keys are sorted; no whitespace beyond what json.dumps adds.  This is the
@@ -77,7 +78,7 @@ def _canonical_payload(fields: dict) -> bytes:
                       ensure_ascii=True).encode("utf-8")
 
 
-def _receipt_to_fields(receipt: Receipt) -> dict:
+def _receipt_to_fields(receipt: Receipt) -> dict[str, Any]:
     """Convert a Receipt to a plain dict (all fields)."""
     return {
         "result_id": receipt.result_id,
@@ -97,7 +98,7 @@ def _receipt_to_fields(receipt: Receipt) -> dict:
 # sign / verify
 # ---------------------------------------------------------------------------
 
-def sign_receipt(payload: dict, *, key: bytes) -> str:
+def sign_receipt(payload: dict[str, Any], *, key: bytes) -> str:
     """Return the HMAC-SHA256 hexdigest over the canonical payload.
 
     ``payload`` is the dict of all receipt fields **excluding** 'hmac'.

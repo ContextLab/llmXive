@@ -13,7 +13,7 @@ from llmxive.fill.models import FetchedSource
 
 def choose(
     candidates: list[tuple[FetchedSource, str]],
-) -> tuple[FetchedSource, str, list[dict]]:
+) -> tuple[FetchedSource, str, list[dict[str, str]]]:
     """Select the highest-authority candidate and record conflicting lower-authority values.
 
     Parameters
@@ -48,7 +48,7 @@ def choose(
 
     winner_src, winner_val = ranked[0]
 
-    conflicts: list[dict] = []
+    conflicts: list[dict[str, str]] = []
     for src, val in ranked[1:]:
         if val != winner_val:
             conflicts.append({

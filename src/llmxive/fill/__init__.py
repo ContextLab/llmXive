@@ -13,8 +13,10 @@ without pulling in all channel/HTTP dependencies at import time.
 
 from __future__ import annotations
 
+from typing import Any
 
-def __getattr__(name: str):
+
+def __getattr__(name: str) -> Any:
     if name == "fill_claim":
         from llmxive.fill import service
 

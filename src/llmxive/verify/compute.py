@@ -10,7 +10,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from llmxive.claims.models import Claim
@@ -39,12 +40,12 @@ class ComputeVerdict:
 # Safe sympy evaluation — no Python built-in eval or exec builtins used
 # ---------------------------------------------------------------------------
 
-def _make_sympy_locals():
+def _make_sympy_locals() -> dict[str, Any]:
     """Build a safe symbol/function mapping for parse_expr."""
     import sympy
     import sympy.physics.units as _units
 
-    safe = {}
+    safe: dict[str, Any] = {}
     # Common math functions
     for name in ("sqrt", "log", "exp", "sin", "cos", "tan",
                  "asin", "acos", "atan", "atan2",
@@ -84,10 +85,10 @@ def _make_sympy_locals():
     return safe
 
 
-_SYMPY_LOCALS = None  # Populated lazily
+_SYMPY_LOCALS: dict[str, Any] | None = None  # Populated lazily
 
 
-def _get_locals():
+def _get_locals() -> dict[str, Any]:
     global _SYMPY_LOCALS
     if _SYMPY_LOCALS is None:
         _SYMPY_LOCALS = _make_sympy_locals()
@@ -275,9 +276,9 @@ def _strip_commas(s: str) -> str:
 def extract_expression(
     claim: Claim,
     *,
-    backend,
+    backend: Any,
     model: str | None,
-    repo_root: str | None,
+    repo_root: str | Path | None,
 ) -> tuple[str, str] | None:
     """Locate (expression, asserted_result) from claim text.
 
@@ -347,9 +348,9 @@ def extract_expression(
 def _llm_extract(
     text: str,
     *,
-    backend,
+    backend: Any,
     model: str | None,
-    repo_root: str | None,
+    repo_root: str | Path | None,
 ) -> tuple[str, str] | None:
     """Ask an LLM to locate (expression, asserted_result) from claim text.
 
@@ -392,9 +393,9 @@ def _llm_extract(
 def verify_computational(
     claim: Claim,
     *,
-    backend=None,
+    backend: Any = None,
     model: str | None = None,
-    repo_root: str | None = None,
+    repo_root: str | Path | None = None,
 ) -> ComputeVerdict:
     """Verify a self-contained claim by sympy evaluation.
 
@@ -493,7 +494,7 @@ def _compare(asserted: str, computed: str) -> bool:
         a_sym = parse_expr(a_norm, local_dict=locs, transformations=transformations)
         c_sym = parse_expr(c_norm, local_dict=locs, transformations=transformations)
         diff = sympy.simplify(a_sym - c_sym)
-        return diff == 0
+        return bool(diff == 0)
     except Exception:
         pass
 

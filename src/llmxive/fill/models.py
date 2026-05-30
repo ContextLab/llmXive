@@ -8,6 +8,7 @@ FillResult     — the terminal outcome of one fill attempt.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -57,9 +58,9 @@ class FillProvenance:
     url: str
     quote: str
     channel: str
-    conflicts: list  # list[dict]; frozen=True keeps the reference immutable
+    conflicts: list[dict[str, str]]  # frozen=True keeps the reference immutable
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Serialisable representation for storage in Claim.evidence."""
         return {
             "value": self.value,
@@ -85,7 +86,7 @@ class FillResult:
     status: str
     value: str | None
     provenance: FillProvenance | None
-    channels_tried: list  # list[str]
+    channels_tried: list[str]
     reason: str
 
     def __post_init__(self) -> None:

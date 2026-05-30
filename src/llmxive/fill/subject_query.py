@@ -224,7 +224,7 @@ def _llm_keyword_query(raw: str, value: str | None, *, backend: Any,
 _REASONING_MAX_TOKENS = 131_072
 
 
-def _chat_reasoning_safe(backend: Any, messages: list, model: str | None):
+def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
     """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
     gracefully for backends / fakes whose signature omits the kwargs."""
     kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}

@@ -7,6 +7,7 @@ Mirrors state/citations.py — load/save/upsert/get, repo_root-aware.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -23,7 +24,7 @@ def _claims_path(project_id: str, *, repo_root: Path | None = None) -> Path:
     return state_dir / "claims" / f"{project_id}.yaml"
 
 
-def _claim_to_dict(c: Claim) -> dict:
+def _claim_to_dict(c: Claim) -> dict[str, Any]:
     return {
         "claim_id": c.claim_id,
         "kind": c.kind.value if isinstance(c.kind, ClaimKind) else c.kind,
@@ -42,7 +43,7 @@ def _claim_to_dict(c: Claim) -> dict:
     }
 
 
-def _dict_to_claim(d: dict) -> Claim:
+def _dict_to_claim(d: dict[str, Any]) -> Claim:
     return Claim(
         claim_id=d["claim_id"],
         kind=ClaimKind(d["kind"]),

@@ -49,10 +49,10 @@ def mint_receipt(
     *,
     value: Any,
     kind: str,
-    producer: dict,
-    inputs: dict,
+    producer: dict[str, Any],
+    inputs: dict[str, Any],
     env_sha: str,
-    captured: dict,
+    captured: dict[str, Any],
     repo_root: Path,
     project_id: str,
     created_at: str | None = None,
@@ -88,7 +88,7 @@ def mint_receipt(
     ts = created_at or _now_iso()
 
     # Build the unsigned payload dict to sign over (hmac excluded from hash).
-    unsigned: dict = {
+    unsigned: dict[str, Any] = {
         "result_id": result_id,
         "value": str_value,
         "kind": kind,

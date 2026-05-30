@@ -116,7 +116,7 @@ def _strip_stale_citations_in_window(
     """Remove stale citation tokens from the adjacency window only."""
     window = text[win_start:win_end]
 
-    def _sub_in_window(pattern: re.Pattern, replacement: str, s: str) -> str:
+    def _sub_in_window(pattern: re.Pattern[str], replacement: str, s: str) -> str:
         return pattern.sub(replacement, s)
 
     # Remove arXiv tokens
@@ -126,7 +126,7 @@ def _strip_stale_citations_in_window(
     # Remove markdown links (stale)
     window = _sub_in_window(_MD_LINK_RE, "", window)
     # Remove parenthesised blocks that contain stale citations
-    def _strip_paren(m: re.Match) -> str:
+    def _strip_paren(m: re.Match[str]) -> str:
         inner = m.group(1)
         # Is this a stale citation block? Check for arXiv, DOI, "et al.", or URL
         if (
@@ -136,7 +136,7 @@ def _strip_stale_citations_in_window(
             or re.search(r"https?://", inner)
         ):
             return ""
-        return m.group(0)  # leave non-citation parens intact
+        return str(m.group(0))  # leave non-citation parens intact
 
     window = _PAREN_CITATION_RE.sub(_strip_paren, window)
 

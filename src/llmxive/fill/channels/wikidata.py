@@ -12,6 +12,7 @@ Returns FetchedSource per entity; [] on any HTTP failure.
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from llmxive.claims.models import Claim
 from llmxive.fill.channels import AUTHORITY
@@ -28,7 +29,7 @@ _MAX_ENTITIES = 3  # top-N entities to fetch per query
 # Pure parsers (testable offline with fixture dicts)
 # ---------------------------------------------------------------------------
 
-def _parse_search(data: dict) -> list[tuple[str, str, str]]:
+def _parse_search(data: dict[str, Any]) -> list[tuple[str, str, str]]:
     """Parse wbsearchentities response → list[(qid, label, description)]."""
     results = []
     for item in data.get("search", []):
@@ -41,7 +42,7 @@ def _parse_search(data: dict) -> list[tuple[str, str, str]]:
 
 
 def _parse_entity(
-    data: dict,
+    data: dict[str, Any],
     qid: str,
     ref_labels: dict[str, str] | None = None,
 ) -> tuple[str, str] | None:
@@ -105,7 +106,7 @@ def _parse_entity(
     return label, text_blob
 
 
-def _collect_ref_qids(entity_data: dict, qids: list[str]) -> list[str]:
+def _collect_ref_qids(entity_data: dict[str, Any], qids: list[str]) -> list[str]:
     """Collect all wikibase-entityid Q-ids referenced in the claims of *qids*.
 
     These are used for a secondary label-resolution call so that entity

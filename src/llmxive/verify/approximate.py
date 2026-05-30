@@ -142,7 +142,7 @@ def is_valid_rounding(
             return True
         # Secondary: absolute epsilon for float noise
         epsilon = 0.5 * (10 ** -d) * 1e-6
-        return abs(round(true_value, d) - a) < epsilon
+        return bool(abs(round(true_value, d) - a) < epsilon)
 
     if _close(claimed, true_value, decimals):
         return True

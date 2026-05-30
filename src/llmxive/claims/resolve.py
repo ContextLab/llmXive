@@ -24,10 +24,13 @@ import logging
 import os
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, Verdict
 from llmxive.grounding import cache as _cache
+
+if TYPE_CHECKING:
+    from llmxive.verify.constants import CuratedConstant
 
 logger = logging.getLogger(__name__)
 
@@ -199,7 +202,7 @@ def _extract_number(text: str) -> str | None:
     return _clean_number_token(m.group(0))
 
 
-def _map_cached_status(cached: dict) -> ClaimStatus:
+def _map_cached_status(cached: dict[str, Any]) -> ClaimStatus:
     raw = cached.get("status", "")
     mapping = {
         "verified": ClaimStatus.VERIFIED,
@@ -472,7 +475,7 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
 # Dispatch table + public API
 # ---------------------------------------------------------------------------
 
-_DISPATCH: dict[ClaimKind, Callable] = {
+_DISPATCH: dict[ClaimKind, Callable[..., Verdict]] = {
     ClaimKind.NUMERIC: resolve_numeric_or_citation,
     ClaimKind.CITATION: resolve_numeric_or_citation,
     ClaimKind.MAGNITUDE: resolve_magnitude,
@@ -483,12 +486,12 @@ _DISPATCH: dict[ClaimKind, Callable] = {
 }
 
 
-def select_resolver(kind: ClaimKind) -> Callable:
+def select_resolver(kind: ClaimKind) -> Callable[..., Verdict]:
     """Return the resolver callable for the given ClaimKind."""
     return _DISPATCH[kind]
 
 
-def _extract_constant_from_text(text: str):
+def _extract_constant_from_text(text: str) -> CuratedConstant | None:
     """Extract the constant name from claim text and return the CuratedConstant, or None."""
     import re
 
