@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T09:17:14.647647+00:00",
+  "generated_at": "2026-05-30T09:21:12.004705+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -75927,7 +75927,7 @@
         "data": null,
         "idea": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/idea/minwm-a-full-stack-open-source-framework.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
         "paper_spec": null,
@@ -76046,10 +76046,10 @@
       },
       "created_at": "2026-05-30T08:50:34.643446+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
-        "repo_path": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Recent video diffusion foundation models have achieved remarkable progress in high-quality video generation, yet turning them into real-time interactive video world models remains challenging. Interactive world models require controllable, causal, and low-latency rollout, which in practice demands a full pipeline\u2026",
@@ -76086,7 +76086,7 @@
         "data": null,
         "idea": "projects/PROJ-643-collectionlora-collecting-50-effects-in/idea/collectionlora-collecting-50-effects-in.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
         "paper_spec": null,
@@ -76189,10 +76189,10 @@
       },
       "created_at": "2026-05-30T08:50:36.787454+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
-        "repo_path": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Customized image editing aims to equip pre-trained diffusion models with specific visual effects using limited paired data, typically via Low-Rank Adaptation (LoRA). As the number of desired effects grows, storing and dynamically loading numerous these effect LoRAs significantly increases deployment overhead.\u2026",
@@ -76229,7 +76229,7 @@
         "data": null,
         "idea": "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/paper/pdf/2605.29250.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -76316,10 +76316,10 @@
       },
       "created_at": "2026-05-30T08:50:49.595910+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
-        "repo_path": "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/idea/omniretrieval-unified-retrieval-across-h.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h/paper/pdf/2605.29250.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-644-omniretrieval-unified-retrieval-across-h/paper/pdf/2605.29250.pdf",
+        "repo_path": "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/paper/pdf/2605.29250.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Real-world information needs require access to structurally diverse knowledge sources, from unstructured text and relational tables to knowledge graphs and property graphs. Existing retrievers, however, operate over one source at a time under a fixed query language, leaving the broader landscape of available knowledge\u2026",
@@ -76356,7 +76356,7 @@
         "data": null,
         "idea": "projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-645-qwen-vla-unifying-vision-language-action/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -76699,10 +76699,10 @@
       },
       "created_at": "2026-05-30T08:50:51.502217+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
-        "repo_path": "projects/PROJ-645-qwen-vla-unifying-vision-language-action/idea/qwen-vla-unifying-vision-language-action.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-645-qwen-vla-unifying-vision-language-action/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Embodied intelligence is often studied through specialized models for individual tasks such as manipulation or navigation, resulting in fragmented capabilities and limited generalization across tasks, environments, and robot embodiments. In this work, we study whether heterogeneous embodied decision-making problems\u2026",
@@ -76739,7 +76739,7 @@
         "data": null,
         "idea": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/idea/agentdog-1-5-a-lightweight-and-scalable.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/pdf/2605.29801.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
         "paper_spec": null,
@@ -77162,10 +77162,10 @@
       },
       "created_at": "2026-05-30T08:50:54.634851+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
-        "repo_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/pdf/2605.29801.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/pdf/2605.29801.pdf",
+        "repo_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/pdf/2605.29801.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Modern open-world agents such as OpenClaw exhibit powerful cross-environment execution capabilities yet introduce broad new safety risk sources. Meanwhile, advanced frontier AI models drastically lower attack barriers, rendering current agent alignment frameworks inadequate for real-world deployment. To tackle these\u2026",
