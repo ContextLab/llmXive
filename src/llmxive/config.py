@@ -103,6 +103,23 @@ CONVERGENCE_MAX_ROUNDS: int = int(get("CONVERGENCE_MAX_ROUNDS"))
 CONVERGENCE_PER_ROUND_BUDGET_SECONDS: int = int(get("CONVERGENCE_PER_ROUND_BUDGET_SECONDS"))
 
 
+def unpaywall_email() -> str | None:
+    """Contact email for the Unpaywall API (tier-2 OA discovery).
+
+    Defaults to the project mailbox. Returns None when explicitly set blank,
+    which disables the Unpaywall retrieval tier (Semantic Scholar OA still runs).
+    """
+    if "UNPAYWALL_EMAIL" in os.environ:
+        return os.environ["UNPAYWALL_EMAIL"] or None
+    return "llmxive@gmail.com"
+
+
+def grounding_cache_dir(root: Path | None = None) -> Path:
+    """Directory for the full-text + verdict caches (transient, uncommitted)."""
+    r = root if root is not None else repo_root()
+    return r / "state" / "grounding-cache"
+
+
 __all__ = [
     "CITATION_TITLE_OVERLAP_THRESHOLD",
     "CONVERGENCE_MAX_ROUNDS",
@@ -115,5 +132,7 @@ __all__ = [
     "about_page_published",
     "all_keys",
     "get",
+    "grounding_cache_dir",
     "repo_root",
+    "unpaywall_email",
 ]
