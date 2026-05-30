@@ -448,9 +448,17 @@ def extract_cited_claims(
     (not extraction) is where a hard verification failure flags.
     """
     from llmxive.backends.base import ChatMessage
+    from llmxive.config import repo_root as _real_repo_root
 
+    # The extraction prompt block is a repo-installed asset that lives under the
+    # real checkout, NOT the per-run cache ``repo_root`` (which may be a tmp dir
+    # for isolation). Resolve it under ``repo_root`` first, then fall back to the
+    # real repo root so prompt loading never depends on the cache location.
     try:
-        block = load_prompt(_EXTRACTION_BLOCK_PATH, repo_root=repo_root)
+        try:
+            block = load_prompt(_EXTRACTION_BLOCK_PATH, repo_root=repo_root)
+        except FileNotFoundError:
+            block = load_prompt(_EXTRACTION_BLOCK_PATH, repo_root=_real_repo_root())
     except Exception as exc:
         logger.warning("grounding-guard: extraction prompt missing (%s); skipping", exc)
         return []

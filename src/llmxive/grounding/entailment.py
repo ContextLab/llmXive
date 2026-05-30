@@ -121,7 +121,13 @@ def assess(claim: str, doc: Any, *, backend: Any, model: str | None,
     passages = locate_passages(source_text, claim=claim, number=number)
     if not passages:
         return Verdict("not_found", "", "no relevant passages")
-    block = load_prompt(_ENTAILMENT_BLOCK, repo_root=repo_root or _rr())
+    # The entailment prompt block is a repo-installed asset; resolve it under the
+    # passed (cache) ``repo_root`` first, then fall back to the real repo root so
+    # prompt loading never depends on a tmp/isolated cache location.
+    try:
+        block = load_prompt(_ENTAILMENT_BLOCK, repo_root=repo_root or _rr())
+    except FileNotFoundError:
+        block = load_prompt(_ENTAILMENT_BLOCK, repo_root=_rr())
     joined = "\n\n---\n\n".join(passages)
     messages = [
         ChatMessage(role="system", content=block),
