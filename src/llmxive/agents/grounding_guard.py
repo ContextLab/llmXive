@@ -495,7 +495,6 @@ def ground_claim(
     backend: Any,
     model: str | None,
     repo_root: Path,
-    timeout: float = 30.0,
 ) -> GroundingVerdict:
     """Verify the cited source SUBSTANTIATES the claim via the full-text service.
 

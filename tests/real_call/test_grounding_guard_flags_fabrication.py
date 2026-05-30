@@ -87,6 +87,11 @@ def test_number_not_in_cited_source_is_flagged() -> None:
     )
     verdict = ground_claim(claim, backend=_backend(), model=None, repo_root=_REPO_ROOT)
     assert verdict.ok is False, verdict.reason
+    # The service must explain WHY — reason text must name the failure mode.
+    reason_lower = verdict.reason.lower()
+    assert any(kw in reason_lower for kw in ("not found", "contradict", "unreadable")), (
+        f"Expected reason to contain 'not found', 'contradict', or 'unreadable'; got: {verdict.reason!r}"
+    )
 
 
 def test_grounded_number_is_not_flagged() -> None:
