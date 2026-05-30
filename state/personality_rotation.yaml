@@ -1,14 +1,7 @@
 last_used: freeman-dyson
-last_used_at: '2026-05-30T01:03:42.524324+00:00'
-last_outcome: malformed_response
+last_used_at: '2026-05-30T01:46:05.753215+00:00'
+last_outcome: target_missing
 history:
-- slug: alan-turing
-  started_at: '2026-05-21T07:48:21.632605+00:00'
-  ended_at: '2026-05-21T09:07:04.005634+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/alan-turing-simulated__2026-05-21__research.md
 - slug: albert-einstein
   started_at: '2026-05-21T09:07:04.005634+00:00'
   ended_at: '2026-05-21T10:45:24.727795+00:00'
@@ -1188,3 +1181,8 @@ history:
   started_at: '2026-05-30T00:00:46.984738+00:00'
   ended_at: '2026-05-30T01:03:42.524324+00:00'
   outcome: malformed_response
+- slug: geoffrey-west
+  started_at: '2026-05-30T01:03:42.524324+00:00'
+  ended_at: '2026-05-30T01:46:05.753215+00:00'
+  outcome: target_missing
+  action: contribute
