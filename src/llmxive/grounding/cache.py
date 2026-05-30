@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -43,7 +45,16 @@ def _read(path: Path, *, max_age_s: float) -> dict[str, Any] | None:
 
 
 def _write(path: Path, data: dict[str, Any]) -> None:
-    path.write_text(json.dumps({"_ts": _now(), "data": data}))
+    payload = json.dumps({"_ts": _now(), "data": data})
+    fd, tmp = tempfile.mkstemp(dir=path.parent, suffix=path.suffix + ".tmp")
+    try:
+        os.write(fd, payload.encode("utf-8"))
+        os.close(fd)
+        os.replace(tmp, path)
+    except Exception:
+        os.close(fd)
+        os.unlink(tmp)
+        raise
 
 
 def put_fulltext(repo_root: Path, kind: str, value: str, data: dict[str, Any]) -> None:
