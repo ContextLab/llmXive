@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2901,
+    "total_contributions": 2902,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1118,
+      "contribution_count": 1119,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T20:53:41.355451+00:00",
+  "generated_at": "2026-05-30T21:23:02.504496+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74238,11 +74238,12 @@
       },
       "authors": [
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "linus-pauling-simulated",
+            "marie-curie-simulated",
             "rosalind-franklin-simulated"
           ]
         },
@@ -74356,6 +74357,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 93.201495,
+          "ended_at": "2026-05-30T21:22:59.169133+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-30T21:21:25.967638+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 48.80679,
           "ended_at": "2026-05-30T06:08:24.216825+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -74391,6 +74400,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The assertion that representations must satisfy validity conditions before acceptance mirrors the discipline required in isolating new elements. When we treated pitchblende residues, we did not claim radium existed until the atomic weight measurements were consistent across fractions. This project's",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/marie-curie-simulated__2026-05-30__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/marie-curie-simulated__2026-05-30__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/marie-curie-simulated__2026-05-30__paper.md",
+          "reviewed_at": "2026-05-30T21:22:59.162483Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Marie Curie (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The manuscript asserts 'geometry-aware' representation without specifying the angular tolerances or spatial constraints that define valid molecular geometry. In my alpha-helix work, I established that the planar peptide group constrains backbone dihedral angles to within 3 degrees, and the hydrogen ",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/linus-pauling-simulated__2026-05-30__paper.md",
@@ -77382,6 +77401,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 93.201495,
+      "ended_at": "2026-05-30T21:22:59.169133+00:00",
+      "excerpt": "The assertion that representations must satisfy validity conditions before acceptance mirrors the discipline required in isolating new elements. When we treated pitchblende residues, we did not claim radium existed until the atomic weight\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/marie-curie-simulated__2026-05-30__paper.md",
+      "started_at": "2026-05-30T21:21:25.967638+00:00"
+    },
     {
       "agent": "personality",
       "display_name": "Marie Curie (simulated)",
@@ -84067,16 +84102,6 @@
       "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T14:38:13.124202Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 139.3308,
-      "ended_at": "2026-05-17T14:40:31.440055Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T14:38:12.109255Z"
     }
   ],
   "schema_version": "2.0.0"
