@@ -39,6 +39,12 @@ def _cmd_run(args: argparse.Namespace) -> int:
     from llmxive.pipeline import graph, scheduler
     from llmxive.state import project as project_store
 
+    # F-19: enable the factual-grounding guard (LLM extraction + real-HTTP
+    # grounding) on the reviser chokepoint for real pipeline runs. It is OFF by
+    # default so offline reviser unit tests (which assert exact backend call
+    # counts and run network-free) are unaffected; a real run always grounds.
+    os.environ.setdefault("LLMXIVE_GROUNDING_GUARD", "1")
+
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
     if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
         return _cmd_run_stage_independent(args)

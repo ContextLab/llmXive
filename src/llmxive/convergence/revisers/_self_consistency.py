@@ -284,7 +284,7 @@ def run_with_self_consistency(
         repo_root=repo_root,
     )
     if result.ok or not result.problems:
-        return _strip_unresolvable_citations(updated), responses
+        return _clean_citations(updated, backend=backend, model=model, repo_root=repo_root), responses
 
     logger.info(
         "self-consistency flagged %d problem(s); running ONE corrective re-pass",
@@ -294,7 +294,91 @@ def run_with_self_consistency(
     # reviser failure (not a self-consistency-check failure) and must surface
     # — the engine maps it to non-convergence.
     corrected, corrected_responses = redo(corrective_instructions(result.problems))
-    return _strip_unresolvable_citations(corrected), corrected_responses
+    return _clean_citations(corrected, backend=backend, model=model, repo_root=repo_root), corrected_responses
+
+
+def _clean_citations(
+    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path
+) -> dict[str, str]:
+    """Run BOTH citation guards on the reviser's final artifacts.
+
+    1. F-18 :func:`_strip_unresolvable_citations` — network-free structural pass
+       (flags malformed/unresolvable references).
+    2. F-19 :func:`_ground_factual_claims` — heavy factual-grounding pass (flags
+       a fabricated NUMBER attached to a citation, or a free-text-only citation
+       that cannot substantiate its claim) — the chokepoint where the PROJ-552
+       reviser fabrication originated.
+
+    Both reuse the shared ``[UNVERIFIED: ...]`` marker so the existing F-18c
+    gates hard-block flagged artifacts before the next panel round.
+    """
+    cleaned = _strip_unresolvable_citations(artifacts)
+    return _ground_factual_claims(cleaned, backend=backend, model=model, repo_root=repo_root)
+
+
+def _ground_factual_claims(
+    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path
+) -> dict[str, str]:
+    """F-19 factual-grounding guard for the reviser path (LLM + real HTTP).
+
+    Runs :func:`grounding_guard.verify_grounding_and_clean` on every produced
+    artifact body so a reviser-introduced fabricated number (e.g. the PROJ-552
+    ``1,296`` attached to a free-text "Kauffman & Lambropoulou 2004" citation) is
+    marked ``[UNVERIFIED]`` BEFORE the next convergence panel round — breaking the
+    fabrication cascade at its source.
+
+    The extraction call is exception-guarded inside the grounding module: with a
+    single-response fake backend (the offline reviser tests) the extra extraction
+    call exhausts the fake queue → caught → no claims → no-op (no HTTP), so the
+    offline reviser tests stay network-free. With a real backend, claims are
+    extracted and grounded against their cited sources via real HTTP.
+
+    Sentinel/context keys (``__x__``) and non-text artifacts are skipped. Any
+    failure is swallowed (logged) — the guard must never crash a revision. A
+    claim skipped for lack of a backend is logged, not silently dropped.
+    """
+    import os
+
+    from llmxive.agents.grounding_guard import verify_grounding_and_clean
+
+    if backend is None:
+        logger.info("grounding guard: no backend available; skipping factual-grounding pass")
+        return artifacts
+    # The grounding pass makes a REAL LLM extraction call + REAL HTTP grounding
+    # calls. It is gated ON in production by the pipeline entrypoint
+    # (``cli.run`` sets ``LLMXIVE_GROUNDING_GUARD=1``) and OFF by default so the
+    # ~50 offline single-response reviser unit tests — which assert EXACT
+    # ``backend.chat`` call counts and run network-free — are unaffected. The
+    # real-call F-19 test sets the flag explicitly.
+    if os.environ.get("LLMXIVE_GROUNDING_GUARD", "0") != "1":
+        logger.debug(
+            "grounding guard: LLMXIVE_GROUNDING_GUARD!=1; skipping factual-grounding pass"
+        )
+        return artifacts
+
+    cleaned: dict[str, str] = dict(artifacts)
+    for path, body in artifacts.items():
+        if path.startswith("__") and path.endswith("__"):
+            continue
+        if not isinstance(body, str) or not body:
+            continue
+        try:
+            new_body, report = verify_grounding_and_clean(
+                body, backend=backend, model=model, repo_root=repo_root
+            )
+        except Exception as exc:  # never block a revision on the guard
+            logger.warning(
+                "grounding guard failed on %s (%s: %s); leaving body untouched",
+                path, type(exc).__name__, exc,
+            )
+            continue
+        if report.flagged_count:
+            logger.info(
+                "grounding guard flagged %d ungrounded claim(s) in %s: %s",
+                report.flagged_count, path, report.flagged_values,
+            )
+            cleaned[path] = new_body
+    return cleaned
 
 
 def _strip_unresolvable_citations(artifacts: dict[str, str]) -> dict[str, str]:
