@@ -203,13 +203,68 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
     )
 
 
+def _extract_project_id(artifact_path: str) -> str | None:
+    """Extract the project identifier from a repo-relative artifact path.
+
+    Handles paths like:
+        ``projects/PROJ-552-some-name/specs/foo.md``  → ``PROJ-552-some-name``
+        ``PROJ-001/bar.md``                           → ``PROJ-001``
+        ``PROJ-001``                                  → ``PROJ-001``
+
+    Returns None when no PROJ-NNN pattern is found.
+    """
+    import re
+    m = re.search(r"(PROJ-[A-Za-z0-9_-]+)", artifact_path or "")
+    return m.group(1) if m else None
+
+
 def resolve_result(claim: Claim, *, backend: Any, model: str | None,
                    repo_root: Path) -> Verdict:
-    """RESULT resolver — full implementation deferred to US2 (T027)."""
+    """RESULT resolver (T027 — US2).
+
+    Resolution policy:
+    - A signed receipt exists whose output_sha256 matches the claim's
+      canonical value AND verify_receipt passes  → VERIFIED.
+      The verdict carries ``result_id`` in ``evidence`` so a downstream
+      citation pointer ``result:<result_id>`` (FR-010) can be formed.
+    - No matching receipt, or HMAC verification fails (SC-004)  →
+      NOT_ENOUGH_INFO (block; absence of receipt ≠ REFUTED).
+    """
+    from llmxive.results.harness import result_backed
+
+    # The canonical field holds the value the model wrote; extract it.
+    candidate_value = claim.canonical or claim.raw_text
+
+    # Derive project_id from the artifact_path (repo-relative, e.g.
+    # "projects/PROJ-552-knots/implementation_plan.md").
+    project_id = _extract_project_id(claim.artifact_path or "")
+
+    receipt = None
+    if project_id:
+        receipt = result_backed(candidate_value, project_id,
+                                repo_root=repo_root)
+
+    if receipt is None:
+        return Verdict(
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            value=None,
+            evidence={
+                "note": "no signed receipt backing this result value (SC-004)",
+                "candidate_value": candidate_value,
+                "project_id": project_id,
+            },
+            resolver="resolve_result",
+        )
+
     return Verdict(
-        status=ClaimStatus.NOT_ENOUGH_INFO,
-        value=None,
-        evidence={"note": "resolver not yet wired (US2/US3)"},
+        status=ClaimStatus.VERIFIED,
+        value=receipt.value,
+        evidence={
+            "result_id": receipt.result_id,
+            "output_sha256": receipt.output_sha256,
+            "created_at": receipt.created_at,
+            "source": f"result:{receipt.result_id}",
+        },
         resolver="resolve_result",
     )
 

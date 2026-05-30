@@ -5,8 +5,19 @@ Re-exports land here as the sub-modules are implemented.
 
 from __future__ import annotations
 
-# Re-exports added incrementally as modules land:
-# from llmxive.results.harness import mint_receipt      # T026
-# from llmxive.results.receipt import verify_receipt    # T024
+from llmxive.results.harness import mint_receipt, result_backed  # T026
+from llmxive.results.receipt import (  # T024
+    Receipt,
+    load_signing_key,
+    sign_receipt,
+    verify_receipt,
+)
 
-__all__: list[str] = []
+__all__ = [
+    "Receipt",
+    "load_signing_key",
+    "mint_receipt",
+    "result_backed",
+    "sign_receipt",
+    "verify_receipt",
+]
