@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/015-pipeline-convergence-protocol/plan.md](specs/015-pipeline-convergence-protocol/plan.md).
+[specs/016-claim-verification/plan.md](specs/016-claim-verification/plan.md).
 <!-- SPECKIT END -->
