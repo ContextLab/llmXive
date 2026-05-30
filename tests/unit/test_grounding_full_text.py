@@ -75,3 +75,25 @@ def test_extract_pdf_text_real_pypdf():
     result = extract_pdf_text(pdf_bytes)
     assert "Grounding" in result, f"Expected 'Grounding' in extracted text, got: {result!r}"
     assert "12345" in result, f"Expected '12345' in extracted text, got: {result!r}"
+
+
+def test_unpaywall_pdf_url_from_payload():
+    from llmxive.grounding.full_text import _unpaywall_pdf_url
+    payload = {"is_oa": True, "best_oa_location": {
+        "url_for_pdf": "https://x/y.pdf", "url": "https://x/landing"}}
+    assert _unpaywall_pdf_url(payload) == "https://x/y.pdf"
+    assert _unpaywall_pdf_url({"is_oa": False, "best_oa_location": None}) is None
+
+
+def test_s2_oa_pdf_url_from_payload():
+    from llmxive.grounding.full_text import _s2_oa_pdf_url
+    assert _s2_oa_pdf_url({"openAccessPdf": {"url": "https://x/z.pdf"}}) == "https://x/z.pdf"
+    assert _s2_oa_pdf_url({"openAccessPdf": None}) is None
+
+
+def test_preprint_pdf_urls_biorxiv():
+    from llmxive.grounding.full_text import _preprint_pdf_urls
+    urls = _preprint_pdf_urls("doi", "10.1101/2020.09.09.290601")
+    assert any("biorxiv.org/content/10.1101/2020.09.09.290601" in u and u.endswith(".full.pdf")
+               for u in urls)
+    assert any("medrxiv.org/content/" in u for u in urls)
