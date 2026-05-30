@@ -40,6 +40,11 @@ from llmxive.agents.publisher import PaperPublisher
 from llmxive.agents.research_reviewer import ResearchReviewerAgent
 from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
+from llmxive.pipeline._kickback import (
+    CONVERGENCE_KICKBACK_CAP,
+    consume_convergence_kickback,
+    reset_kickback_count,
+)
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.implement_cmd import ImplementerAgent
 from llmxive.speckit.paper_clarify_cmd import PaperClarifierAgent
@@ -106,6 +111,20 @@ STAGE_TO_AGENT: dict[Stage, str] = {
     # (PAPER_ACCEPTED → AWAITING_PUBLICATION_SIGNOFF is the pass-through flip
     # in _decide_next_stage; the publisher is the SOLE driver of → POSTED.)
     Stage.AWAITING_PUBLICATION_SIGNOFF: "paper_publisher",
+}
+
+
+# Maps the stage at which each doc-stage convergence panel RUNS to the
+# ``stage_label`` that panel passes to ``run_stage_panel`` (and thus the key
+# used in the kickback-count file). Used to reset the kickback counter once a
+# panel converges and the project advances forward (F-20 Part B). The tasks /
+# paper_tasks panels run via ``_tasker_engine_bridge`` (no run_stage_panel
+# sentinel), so their stages are intentionally absent.
+_STAGE_PANEL_LABEL: dict[Stage, str] = {
+    Stage.SPECIFIED: "spec",
+    Stage.CLARIFIED: "plan",
+    Stage.PAPER_SPECIFIED: "paper_spec",
+    Stage.PAPER_CLARIFIED: "paper_plan",
 }
 
 
@@ -199,6 +218,43 @@ def _human_input_marker(project_dir: Path) -> bool:
         (project_dir / ".specify" / "memory" / "human_input_needed.yaml").exists()
         or (project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml").exists()
     )
+
+
+def _write_human_escalation_marker(
+    memory_dir: Path, reason: str, stage_label: str
+) -> None:
+    """Drop a ``human_input_needed.yaml`` recording why the project escalated
+    (convergence-kickback cap exceeded or unroutable target). The reason is
+    also surfaced onto the Project's ``human_escalation_reason`` field by
+    ``run_one_step`` (read back from this marker)."""
+    import yaml
+
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    (memory_dir / "human_input_needed.yaml").write_text(
+        yaml.safe_dump({"reason": reason, "stage": stage_label}), encoding="utf-8"
+    )
+
+
+def _human_escalation_reason_from_markers(project_dir: Path) -> str | None:
+    """Read the ``reason`` from whichever ``human_input_needed.yaml`` marker
+    exists (research- or paper-side), for surfacing onto the Project."""
+    import yaml
+
+    for marker in (
+        project_dir / ".specify" / "memory" / "human_input_needed.yaml",
+        project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml",
+    ):
+        if not marker.exists():
+            continue
+        try:
+            data = yaml.safe_load(marker.read_text(encoding="utf-8")) or {}
+        except (OSError, yaml.YAMLError):
+            continue
+        if isinstance(data, dict):
+            reason = data.get("reason")
+            if isinstance(reason, str) and reason.strip():
+                return reason
+    return None
 
 
 def _paper_complete_preconditions_met(
@@ -416,12 +472,17 @@ def run_one_step(
         }
         # The Project schema requires human_escalation_reason when stage
         # is human_input_needed; supply one when the transition target
-        # is the human-input stage (typically from flesh-out scope-reject).
+        # is the human-input stage. Prefer the reason recorded in the
+        # human_input_needed.yaml marker (e.g. the convergence-kickback cap
+        # escalation); fall back to the flesh-out scope-reject default.
         if next_stage == Stage.HUMAN_INPUT_NEEDED and not project.human_escalation_reason:
             update_fields["human_escalation_reason"] = (
-                "flesh-out judged idea out of GitHub-Actions-feasible scope; "
-                "idea archived under projects/<id>/idea/.archive/. Replace with "
-                "a tighter brainstorm or terminate."
+                _human_escalation_reason_from_markers(project_dir)
+                or (
+                    "flesh-out judged idea out of GitHub-Actions-feasible scope; "
+                    "idea archived under projects/<id>/idea/.archive/. Replace with "
+                    "a tighter brainstorm or terminate."
+                )
             )
         project = project.model_copy(update=update_fields)
     project_store.save(project, repo_root=repo)
@@ -439,10 +500,72 @@ def run_one_step(
     return project
 
 
+def _convergence_kickback_memory_dirs(project_dir: Path) -> list[Path]:
+    """The two memory dirs a doc-stage panel may drop its sentinel into:
+    the research-side and the paper-side ``.specify/memory/`` (mirrors
+    ``_human_input_marker``)."""
+    return [
+        project_dir / ".specify" / "memory",
+        project_dir / "paper" / ".specify" / "memory",
+    ]
+
+
 def _decide_next_stage(
     project: Project, project_dir: Path, *, repo_root: Path | None = None
 ) -> Stage:
     """Pick the appropriate post-agent stage for the project."""
+    # ADAPTIVE convergence kickback (F-14 / F-20 Part B): a doc-stage panel
+    # that did NOT converge drops a generic ``convergence_kickback.yaml`` record
+    # carrying the content stage to roll back to. Consume it BEFORE the
+    # ``human_input_needed.yaml`` check so the project auto-retries at the
+    # content stage instead of stalling for a human — bounded by a per-stage
+    # kickback cap that escalates to human_input_needed after repeated failures.
+    for mem_dir in _convergence_kickback_memory_dirs(project_dir):
+        decision = consume_convergence_kickback(mem_dir)
+        if decision is None:
+            continue
+        if decision.escalate:
+            reason = (
+                f"Convergence kickback cap exceeded: the {decision.stage_label!r} "
+                f"convergence panel kicked the project back "
+                f"{decision.count} time(s) (cap={CONVERGENCE_KICKBACK_CAP}) without "
+                f"reaching unanimous acceptance. A human must intervene. "
+                f"Last reason: {decision.reason}"
+            )
+            _write_human_escalation_marker(mem_dir, reason, decision.stage_label)
+            return Stage.HUMAN_INPUT_NEEDED
+        try:
+            target_stage = Stage(decision.to_stage or "")
+        except ValueError:
+            logger.warning(
+                "convergence_kickback to_stage %r is not a valid Stage; "
+                "escalating %s to human_input_needed",
+                decision.to_stage, project.id,
+            )
+            _write_human_escalation_marker(
+                mem_dir,
+                f"convergence kickback named unknown stage "
+                f"{decision.to_stage!r}; cannot auto-route. {decision.reason}",
+                decision.stage_label,
+            )
+            return Stage.HUMAN_INPUT_NEEDED
+        logger.info(
+            "adaptive convergence kickback: %s -> %s (count=%d/%d, stage=%s)",
+            project.id, target_stage.value, decision.count,
+            CONVERGENCE_KICKBACK_CAP, decision.stage_label,
+        )
+        return target_stage
+
+    # No pending convergence kickback at this stage → the panel converged this
+    # tick (the project advances forward). Reset the kickback counter for the
+    # panel that runs at the project's CURRENT stage so a later, legitimate
+    # kickback starts from a clean count (F-20 Part B: "reset when the project
+    # successfully advances PAST the kicked-back stage").
+    panel_label = _STAGE_PANEL_LABEL.get(project.current_stage)
+    if panel_label is not None:
+        for mem_dir in _convergence_kickback_memory_dirs(project_dir):
+            reset_kickback_count(mem_dir, panel_label)
+
     if _human_input_marker(project_dir):
         return Stage.HUMAN_INPUT_NEEDED
 

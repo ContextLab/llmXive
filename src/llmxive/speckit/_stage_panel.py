@@ -19,11 +19,22 @@ the in-cmd engine path that ``paper_implement_cmd.py`` already implements:
 4. Run the engine through the project-runner bridge (loads artifacts, writes
    back any revised artifact, returns a :class:`ProjectRunResult`).
 5. converged → return normally (stage advances as today).
-   NOT converged (kickback) → write ``human_input_needed.yaml`` in the stage's
-   memory dir and signal non-advancement by raising
-   :class:`StagePanelKickback`.
-   Engine exception → escalate via ``human_input_needed.yaml`` and re-raise as
+   NOT converged (panel kickback) → write a generic ``convergence_kickback.yaml``
+   record (``{to_stage, worst_severity, reason, unresolved_concerns, stage}``) in
+   the stage's memory dir and signal non-advancement by raising
+   :class:`StagePanelKickback`. The graph's ``_decide_next_stage`` consumes that
+   sentinel and performs the ADAPTIVE auto-kickback to ``to_stage`` (F-14/F-20
+   Part B) — bounded by a per-project kickback cap that escalates to
+   ``human_input_needed`` after repeated kickbacks at the same stage.
+   Engine exception (a genuine failure, NOT a panel non-convergence) → escalate
+   via ``human_input_needed.yaml`` (real human is required) and re-raise as
    :class:`StagePanelEscalation`.
+
+Per-round inspection trail (F-14a / FR-015): ``run_stage_panel`` supplies the
+engine an ``on_round`` hook that appends every round's ``(concerns, responses,
+verdicts)`` to a persistent JSONL trail under
+``<memory_dir>/convergence_trail/<stage>-<counter>.jsonl`` so a kickback has
+full provenance. Trail-write failures never crash the panel (log + continue).
 
 The on-disk artifact write-back is owned by ``run_engine_for_project``; this
 module supplies the ``artifact_paths`` map keyed by the SAME repo-relative key
@@ -33,13 +44,21 @@ Kit path.
 
 from __future__ import annotations
 
+import json
+import logging
 from pathlib import Path
 
 import yaml
 
 from llmxive.convergence.project_runner import run_engine_for_project
-from llmxive.convergence.types import ReviewSpec
+from llmxive.convergence.types import Concern, ConcernResponse, ReviewSpec, Verdict
 from llmxive.speckit._comments_context import render_recent_comments_block
+
+logger = logging.getLogger(__name__)
+
+#: Filename of the generic adaptive-kickback sentinel written on panel
+#: non-convergence. Consumed by ``graph._decide_next_stage`` (F-14/F-20 B).
+CONVERGENCE_KICKBACK_FILENAME = "convergence_kickback.yaml"
 
 
 class StagePanelKickback(RuntimeError):
@@ -105,6 +124,67 @@ def _write_human_input_needed(
     return out
 
 
+def _write_convergence_kickback(
+    memory_dir: Path, payload: dict[str, object]
+) -> Path:
+    """Persist the ADAPTIVE-kickback record (F-14/F-20 Part B).
+
+    Distinct from ``human_input_needed.yaml`` (reserved for genuine human
+    escalation): this sentinel triggers the graph's auto-kickback to the
+    content stage named by ``payload['to_stage']``.
+    """
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    out = memory_dir / CONVERGENCE_KICKBACK_FILENAME
+    out.write_text(yaml.safe_dump(payload), encoding="utf-8")
+    return out
+
+
+def _next_trail_path(memory_dir: Path, stage_label: str) -> Path:
+    """Resolve a fresh per-run JSONL trail path under ``convergence_trail/``.
+
+    Uses a monotonically increasing counter per stage so successive panel
+    runs (e.g. across kickback cycles) each get their own trail file rather
+    than clobbering the prior provenance.
+    """
+    trail_dir = memory_dir / "convergence_trail"
+    trail_dir.mkdir(parents=True, exist_ok=True)
+    safe = stage_label.replace("/", "_")
+    existing = list(trail_dir.glob(f"{safe}-*.jsonl"))
+    idx = len(existing) + 1
+    return trail_dir / f"{safe}-{idx:03d}.jsonl"
+
+
+def _make_round_hook(trail_path: Path):  # type: ignore[no-untyped-def]
+    """Build an engine ``on_round`` hook that appends each round's records to
+    ``trail_path`` as one JSON line (F-14a / FR-015).
+
+    Robust by contract: a trail-write failure is logged and swallowed so it can
+    NEVER crash the panel — provenance is best-effort, advancement is not.
+    """
+
+    def _hook(
+        round_index: int,
+        concerns: list[Concern],
+        responses: list[ConcernResponse],
+        verdicts: list[Verdict],
+    ) -> None:
+        try:
+            record = {
+                "round": round_index,
+                "concerns": [c.model_dump(mode="json") for c in concerns],
+                "responses": [r.model_dump(mode="json") for r in responses],
+                "verdicts": [v.model_dump(mode="json") for v in verdicts],
+            }
+            with trail_path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(record) + "\n")
+        except Exception as exc:  # provenance is best-effort — never crash.
+            logger.warning(
+                "convergence trail-write failed for %s: %s", trail_path, exc
+            )
+
+    return _hook
+
+
 def run_stage_panel(
     *,
     stage_label: str,
@@ -124,7 +204,9 @@ def run_stage_panel(
         artifact_paths: map from the reviser's artifact key → absolute Path.
         extra_inputs: the stage's required sentinel ``__X__`` inputs.
         repo_root: repo root (used by the reviser for prompt resolution).
-        memory_dir: where ``human_input_needed.yaml`` is written on kickback.
+        memory_dir: where the ``convergence_kickback.yaml`` record (panel
+            non-convergence) or ``human_input_needed.yaml`` (engine failure) is
+            written, and the root of the ``convergence_trail/`` provenance dir.
         producer: producing-agent name for self-review prevention (FR-018).
         constitution: explicit constitution text forwarded to the engine.
 
@@ -135,6 +217,7 @@ def run_stage_panel(
         StagePanelKickback: panel did not converge (marker written first).
         StagePanelEscalation: engine path failed (marker written first).
     """
+    on_round = _make_round_hook(_next_trail_path(memory_dir, stage_label))
     try:
         run_result = run_engine_for_project(
             spec=spec,
@@ -142,6 +225,7 @@ def run_stage_panel(
             extra_inputs=extra_inputs,
             repo_root=repo_root,
             constitution=constitution,
+            on_round=on_round,
         )
     except Exception as exc:  # engine failure — escalate, do not swallow.
         _write_human_input_needed(
@@ -160,24 +244,35 @@ def run_stage_panel(
 
     result = run_result.convergence
     if not result.converged and result.kickback is not None:
-        _write_human_input_needed(
+        kb = result.kickback
+        # ADAPTIVE auto-kickback (F-14/F-20 Part B): write the generic
+        # convergence_kickback.yaml record (NOT human_input_needed.yaml) so the
+        # graph routes the project back to the content stage and auto-retries,
+        # bounded by the per-project kickback cap. The record carries the full
+        # provenance the next worker needs.
+        _write_convergence_kickback(
             memory_dir,
             {
-                "reason": result.kickback.reason,
-                "kickback_to_stage": result.kickback.to_stage,
-                "worst_severity": result.kickback.worst_severity.value,
+                "reason": kb.reason,
+                "to_stage": kb.to_stage,
+                "worst_severity": kb.worst_severity.value,
                 "stage": stage_label,
+                "unresolved_concerns": [
+                    c.model_dump(mode="json") for c in kb.unresolved_concerns
+                ],
+                "artifact_links": list(kb.artifact_links),
             },
         )
         raise StagePanelKickback(
-            f"{stage_label} panel did not converge: {result.kickback.reason} "
-            f"(kickback → {result.kickback.to_stage})"
+            f"{stage_label} panel did not converge: {kb.reason} "
+            f"(kickback → {kb.to_stage})"
         )
 
     return list(run_result.files_written)
 
 
 __all__ = [
+    "CONVERGENCE_KICKBACK_FILENAME",
     "StagePanelEscalation",
     "StagePanelKickback",
     "_constitution",

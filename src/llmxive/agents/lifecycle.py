@@ -44,9 +44,18 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # optional checkpoints used by long-running operations; the
     # Clarifier and Tasker may transition directly to the next stable
     # stage when they complete in one tick.
-    Stage.SPECIFIED: {Stage.CLARIFY_IN_PROGRESS, Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
+    # Spec 015 F-20 Part B: the spec convergence panel (run by the clarifier
+    # at SPECIFIED) emits an adaptive kickback whose target is an earlier
+    # content stage — project_initialized (re-specify) or flesh_out_in_progress
+    # (idea-root cause). Both are valid backward transitions.
+    Stage.SPECIFIED: {
+        Stage.CLARIFY_IN_PROGRESS, Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
+        Stage.PROJECT_INITIALIZED, Stage.FLESH_OUT_IN_PROGRESS,
+    },
     Stage.CLARIFY_IN_PROGRESS: {Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
-    Stage.CLARIFIED: {Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED},
+    # CLARIFIED -> CLARIFIED self-loop: the plan convergence panel (run by the
+    # planner at CLARIFIED) kicks back to ``clarified`` for spec-gap concerns.
+    Stage.CLARIFIED: {Stage.PLANNED, Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
     Stage.PLANNED: {Stage.TASKED, Stage.HUMAN_INPUT_NEEDED},
     Stage.TASKED: {Stage.ANALYZE_IN_PROGRESS, Stage.ANALYZED},
     Stage.ANALYZE_IN_PROGRESS: {Stage.ANALYZED, Stage.HUMAN_INPUT_NEEDED},
@@ -91,8 +100,19 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.RESEARCH_REJECTED: {Stage.BRAINSTORMED},
     # Paper Spec Kit pipeline (US4):
     Stage.PAPER_DRAFTING_INIT: {Stage.PAPER_SPECIFIED},
-    Stage.PAPER_SPECIFIED: {Stage.PAPER_CLARIFIED},
-    Stage.PAPER_CLARIFIED: {Stage.PAPER_PLANNED},
+    # Spec 015 F-20 Part B: the paper_spec convergence panel (run by the
+    # paper_clarifier at PAPER_SPECIFIED) kicks back to paper_drafting_init
+    # (re-spec) or clarified (science-root → research side).
+    Stage.PAPER_SPECIFIED: {
+        Stage.PAPER_CLARIFIED, Stage.PAPER_DRAFTING_INIT, Stage.CLARIFIED,
+        Stage.HUMAN_INPUT_NEEDED,
+    },
+    # PAPER_CLARIFIED -> PAPER_CLARIFIED self-loop: the paper_plan convergence
+    # panel (run by the paper_planner at PAPER_CLARIFIED) kicks back here for
+    # paper_clarified-targeted concerns.
+    Stage.PAPER_CLARIFIED: {
+        Stage.PAPER_PLANNED, Stage.PAPER_CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
+    },
     Stage.PAPER_PLANNED: {Stage.PAPER_TASKED},
     Stage.PAPER_TASKED: {Stage.PAPER_ANALYZED},
     Stage.PAPER_ANALYZED: {Stage.PAPER_IN_PROGRESS},

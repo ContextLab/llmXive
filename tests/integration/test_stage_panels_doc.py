@@ -257,12 +257,17 @@ def test_spec_panel_invoked_and_advances_on_accept(monkeypatch, tmp_path):
 def test_spec_panel_kickback_blocks_advance(monkeypatch, tmp_path):
     with pytest.raises(StagePanelKickback):
         _run_spec_panel_directly(monkeypatch, tmp_path, accept=False)
-    marker = (tmp_path / "repo" / "projects" / "PROJ-999-spec"
-              / ".specify" / "memory" / "human_input_needed.yaml")
+    memory = (tmp_path / "repo" / "projects" / "PROJ-999-spec"
+              / ".specify" / "memory")
+    # F-20 Part B: panel non-convergence writes the ADAPTIVE-kickback sentinel,
+    # NOT human_input_needed.yaml (that's reserved for genuine human escalation).
+    marker = memory / "convergence_kickback.yaml"
     assert marker.exists()
+    assert not (memory / "human_input_needed.yaml").exists()
     payload = yaml.safe_load(marker.read_text())
     assert payload["stage"] == "spec"
-    assert "kickback_to_stage" in payload
+    assert "to_stage" in payload
+    assert payload["unresolved_concerns"]  # provenance carried
 
 
 # --- plan stage (plan_cmd) -----------------------------------------------
@@ -329,8 +334,10 @@ def test_plan_panel_kickback_blocks_advance(monkeypatch, tmp_path):
         PlannerAgent()._run_plan_panel(
             _ctx("PROJ-999-plan2", project_dir, "planner"), feature_dir, repo
         )
-    marker = project_dir / ".specify" / "memory" / "human_input_needed.yaml"
+    memory = project_dir / ".specify" / "memory"
+    marker = memory / "convergence_kickback.yaml"
     assert marker.exists()
+    assert not (memory / "human_input_needed.yaml").exists()
     assert yaml.safe_load(marker.read_text())["stage"] == "plan"
 
 
@@ -402,9 +409,10 @@ def test_paper_spec_panel_kickback_blocks_advance(monkeypatch, tmp_path):
             _ctx("PROJ-999-ps2", project_dir, "paper_clarifier"),
             spec_md, memory_dir, repo,
         )
-    assert (memory_dir / "human_input_needed.yaml").exists()
+    assert (memory_dir / "convergence_kickback.yaml").exists()
+    assert not (memory_dir / "human_input_needed.yaml").exists()
     assert yaml.safe_load(
-        (memory_dir / "human_input_needed.yaml").read_text()
+        (memory_dir / "convergence_kickback.yaml").read_text()
     )["stage"] == "paper_spec"
 
 
@@ -473,9 +481,10 @@ def test_paper_plan_panel_kickback_blocks_advance(monkeypatch, tmp_path):
             _ctx("PROJ-999-pp2", project_dir, "paper_planner"), feature_dir, repo
         )
     memory_dir = project_dir / "paper" / ".specify" / "memory"
-    assert (memory_dir / "human_input_needed.yaml").exists()
+    assert (memory_dir / "convergence_kickback.yaml").exists()
+    assert not (memory_dir / "human_input_needed.yaml").exists()
     assert yaml.safe_load(
-        (memory_dir / "human_input_needed.yaml").read_text()
+        (memory_dir / "convergence_kickback.yaml").read_text()
     )["stage"] == "paper_plan"
 
 
@@ -562,9 +571,10 @@ def test_paper_tasks_panel_kickback_blocks_advance(monkeypatch, tmp_path):
             spec_md, plan_md, tasks_md, repo, analyze_report_text="report",
         )
     memory_dir = project_dir / "paper" / ".specify" / "memory"
-    assert (memory_dir / "human_input_needed.yaml").exists()
+    assert (memory_dir / "convergence_kickback.yaml").exists()
+    assert not (memory_dir / "human_input_needed.yaml").exists()
     assert yaml.safe_load(
-        (memory_dir / "human_input_needed.yaml").read_text()
+        (memory_dir / "convergence_kickback.yaml").read_text()
     )["stage"] == "paper_tasks"
 
 

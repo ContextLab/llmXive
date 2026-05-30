@@ -47,7 +47,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .engine import run_convergence
+from .engine import RoundHook, run_convergence
 from .types import (
     Concern,
     ConcernResponse,
@@ -147,6 +147,7 @@ def run_engine_for_project(
     write_back: bool = True,
     require_full_extra_inputs: bool = True,
     constitution: str | None = None,
+    on_round: RoundHook | None = None,
 ) -> ProjectRunResult:
     """Drive the engine for one reviewable step against a REAL project tree.
 
@@ -175,6 +176,10 @@ def run_engine_for_project(
             given AND ``extra_inputs`` does NOT already contain
             ``__constitution__``, this value is ALSO injected as
             ``__constitution__`` so the reviser's prompt consumes it.
+        on_round: optional per-round inspection hook forwarded to
+            :func:`run_convergence` (FR-015). Called once per round with
+            ``(round_index, concerns, responses, verdicts)`` so callers can
+            persist a complete provenance trail.
 
     Returns a :class:`ProjectRunResult` with the ConvergenceResult plus
     the lists of files that were rewritten / left unchanged.
@@ -224,7 +229,9 @@ def run_engine_for_project(
     capturing = _CapturingReviser(original_reviser) if original_reviser is not None else None
     spec.reviser = capturing
     try:
-        result = run_convergence(spec, artifacts, constitution=constitution)
+        result = run_convergence(
+            spec, artifacts, constitution=constitution, on_round=on_round
+        )
     finally:
         spec.reviser = original_reviser  # restore
 
