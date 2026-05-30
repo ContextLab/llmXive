@@ -78,7 +78,7 @@ def test_verify_and_clean_keeps_real_services_flags_fakes(tmp_path: Path) -> Non
     """End-to-end: a doc mixing one real ref from every service plus the fakes.
 
     Every real-service reference must survive untouched; every fabricated/malformed
-    reference must be wrapped ``[UNVERIFIED: ...]`` with its claim text preserved.
+    reference must be wrapped ``[UNRESOLVED-CLAIM: ...]`` with its claim text preserved.
     """
     doc = (
         "# Mixed-registrar references\n\n"
@@ -117,8 +117,8 @@ def test_verify_and_clean_keeps_real_services_flags_fakes(tmp_path: Path) -> Non
     assert "1706.03762" not in report.flagged_values
 
     # Every fabricated / malformed reference is flagged.
-    assert "[UNVERIFIED: 10.5281/zenodo.999999999999" in cleaned, cleaned
-    assert "[UNVERIFIED: arXiv:2402.13" in cleaned, cleaned
+    assert "[UNRESOLVED-CLAIM: 10.5281/zenodo.999999999999" in cleaned, cleaned
+    assert "[UNRESOLVED-CLAIM: arXiv:2402.13" in cleaned, cleaned
     assert "(https://nope.example.invalid/does-not-exist)" not in cleaned
     assert "2402.13" in report.flagged_values
     assert "10.5281/zenodo.999999999999" in report.flagged_values

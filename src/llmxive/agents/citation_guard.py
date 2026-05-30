@@ -104,17 +104,20 @@ def _display_ref(value: str, kind: CitationKind) -> str:
     return value
 
 
-# The greppable prefix every ``[UNVERIFIED: ...]`` marker starts with. This is
-# the SINGLE source of truth for the marker syntax — the gate scanners
-# (:func:`has_unverified_markers` / :func:`find_unverified_markers`) and the
-# rewriter (:func:`_marker`) both derive from it, so the hard-block gates and
-# the rewriter can never drift apart.
-UNVERIFIED_MARKER_PREFIX = "[UNVERIFIED:"
-
-# Locates a whole marker, capturing its body (everything between the prefix and
-# the closing ``]``) for reporting in kickback / gate reasons.
-_UNVERIFIED_MARKER_RE = re.compile(
-    re.escape(UNVERIFIED_MARKER_PREFIX) + r"\s*(?P<body>[^\]]*?)\s*\]"
+# Spec 016 / FR-019: the unified claim-marker REPLACES F-18's legacy
+# ``[UNVERIFIED:`` marker. ``claims.gate`` is now the SINGLE source of truth for
+# the marker syntax and the block scanners; F-18 emits that same unified marker
+# (so it operates as a resolver within the claim-verification layer). The
+# ``UNVERIFIED_*`` names are retained as the F-18 resolver's view of the unified
+# marker so existing importers keep working without a parallel implementation.
+from llmxive.claims.gate import (  # noqa: E402
+    CLAIM_MARKER_PREFIX as UNVERIFIED_MARKER_PREFIX,
+)
+from llmxive.claims.gate import (  # noqa: E402
+    find_unresolved_claims as find_unverified_markers,
+)
+from llmxive.claims.gate import (  # noqa: E402
+    has_unresolved_claims as has_unverified_markers,
 )
 
 
@@ -123,28 +126,6 @@ def _marker(value: str, kind: CitationKind, reason: str) -> str:
     if reason:
         return f"{UNVERIFIED_MARKER_PREFIX} {ref} — {reason}]"
     return f"{UNVERIFIED_MARKER_PREFIX} {ref}]"
-
-
-def has_unverified_markers(text: str) -> bool:
-    """True iff ``text`` contains at least one ``[UNVERIFIED: ...]`` marker.
-
-    This is the predicate every hard-block gate (convergence engine,
-    advancement evaluator, paper-complete) calls to decide whether a produced
-    doc still carries a fabricated / unverifiable reference and must therefore
-    be blocked from advancing.
-    """
-    return UNVERIFIED_MARKER_PREFIX in text
-
-
-def find_unverified_markers(text: str) -> list[str]:
-    """Return the BODY of every ``[UNVERIFIED: ...]`` marker in ``text``.
-
-    The body is the text between the prefix and the closing ``]`` (e.g.
-    ``arXiv:2402.13 — malformed arXiv id ...``), in document order, used to
-    populate kickback / gate reasons so the human or next worker sees exactly
-    which references were unresolved.
-    """
-    return [m.group("body").strip() for m in _UNVERIFIED_MARKER_RE.finditer(text)]
 
 
 # Patterns that locate a reference TOKEN in the doc so we can replace it in
@@ -212,7 +193,7 @@ def apply_citation_verdicts(
 # Already inside an ``[UNVERIFIED: ...]`` marker, immediately before the match
 # start? Then it has already been flagged — skip it (idempotency).
 def _inside_marker(text: str, start: int) -> bool:
-    head = text.rfind("[UNVERIFIED:", 0, start)
+    head = text.rfind(UNVERIFIED_MARKER_PREFIX, 0, start)
     if head == -1:
         return False
     close = text.find("]", head)

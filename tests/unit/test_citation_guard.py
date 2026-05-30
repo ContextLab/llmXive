@@ -9,7 +9,7 @@ references (Constitution Principle II). These tests exercise:
    regex silently dropped it, which let the fabricated PROJ-552 reference slip
    past the panel.
 2. The PURE ``apply_citation_verdicts`` rewriter: given REAL doc text plus a
-   set of verdicts, it marks exactly the FAILED references ``[UNVERIFIED: ...]``
+   set of verdicts, it marks exactly the FAILED references ``[UNRESOLVED-CLAIM: ...]``
    in-place (keeping the human-readable claim/title), leaves VERIFIED refs
    byte-for-byte untouched, and preserves the surrounding prose.
 
@@ -79,15 +79,15 @@ def test_apply_verdicts_marks_failed_leaves_verified() -> None:
     cleaned, report = apply_citation_verdicts(text, verdicts)
 
     # Failed bare-arxiv ref → marked, original ref preserved inside the marker.
-    assert "[UNVERIFIED: arXiv:2402.13" in cleaned
+    assert "[UNRESOLVED-CLAIM: arXiv:2402.13" in cleaned
     assert "malformed arXiv id" in cleaned
     # Failed markdown link → title kept, marker appended, raw 404 target gone.
     assert "Dataset" in cleaned
-    assert "[UNVERIFIED:" in cleaned
+    assert "[UNRESOLVED-CLAIM:" in cleaned
     assert "(https://nope.example/404)" not in cleaned
     # Verified ref → byte-for-byte untouched.
     assert "arXiv:1706.03762" in cleaned
-    assert cleaned.count("[UNVERIFIED:") == 2
+    assert cleaned.count("[UNRESOLVED-CLAIM:") == 2
     # Surrounding prose preserved.
     assert "The count is 9,988" in cleaned
     assert isinstance(report, GuardReport)
@@ -117,7 +117,7 @@ def test_apply_verdicts_idempotent_on_already_marked() -> None:
     once, _ = apply_citation_verdicts(text, [verdict])
     twice, report2 = apply_citation_verdicts(once, [verdict])
     assert once == twice
-    assert once.count("[UNVERIFIED:") == 1
+    assert once.count("[UNRESOLVED-CLAIM:") == 1
     assert report2.flagged_count == 0  # nothing left to flag the second time
 
 
@@ -126,7 +126,7 @@ def test_apply_verdicts_preserves_doi_claim_text() -> None:
     verdict = CitationVerdict(value="10.1234/fake.9999", kind=CitationKind.DOI,
                               ok=False, reason="DOI not found")
     cleaned, report = apply_citation_verdicts(text, [verdict])
-    assert "[UNVERIFIED: 10.1234/fake.9999" in cleaned
+    assert "[UNRESOLVED-CLAIM: 10.1234/fake.9999" in cleaned
     assert "the result holds" in cleaned
     assert report.flagged_count == 1
 

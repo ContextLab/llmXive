@@ -143,7 +143,7 @@ def test_orchestrator_extracts_and_flags_freetext_claim() -> None:
         doc, backend=backend, model=None, repo_root=Path(__file__).resolve().parents[2]
     )
     # The fabricated free-text-cited claim is flagged.
-    assert "[UNVERIFIED:" in cleaned, cleaned
+    assert "[UNRESOLVED-CLAIM:" in cleaned, cleaned
     assert report.flagged_count >= 1
     # The uncited design threshold is NEVER touched (precision guard).
     assert "R-squared >= 0.05" in cleaned

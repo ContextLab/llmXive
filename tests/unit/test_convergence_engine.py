@@ -213,7 +213,7 @@ def test_per_round_budget_short_circuits():
 
 
 class _MarkerInjectingReviser:
-    """A reviser whose 'fix' leaves an [UNVERIFIED: ...] marker in the doc.
+    """A reviser whose 'fix' leaves an [UNRESOLVED-CLAIM: ...] marker in the doc.
 
     Models the real failure: the panel's concern is 'resolved' (the reviewer
     passes) but the produced artifact still carries a fabricated/unverifiable
@@ -244,9 +244,9 @@ def _marker_spec(reviewers, reviser, *, max_rounds=3):
 
 def test_unverified_marker_blocks_convergence_even_when_panel_passes():
     """All panel concerns resolve, but the final artifact still carries an
-    [UNVERIFIED: ...] marker → engine must NOT converge and must kick back
+    [UNRESOLVED-CLAIM: ...] marker → engine must NOT converge and must kick back
     with a reason naming the marker body."""
-    marker = "[UNVERIFIED: arXiv:2402.13 — malformed arXiv id; unresolvable]"
+    marker = "[UNRESOLVED-CLAIM: arXiv:2402.13 — malformed arXiv id; unresolvable]"
     rev = FakeReviewer(r1=[_c("c1")])  # passes on first re-review
     reviser = _MarkerInjectingReviser(marker)
     res = run_convergence(_marker_spec([rev], reviser), {"a.md": "x"})
@@ -278,7 +278,7 @@ def test_marker_gate_skips_sentinel_keys():
     spec = _marker_spec([rev], FakeReviser())
     arts = {
         "a.md": "clean doc, no markers",
-        "__constitution__": "context [UNVERIFIED: arXiv:9999.99 — fake]",
+        "__constitution__": "context [UNRESOLVED-CLAIM: arXiv:9999.99 — fake]",
     }
     res = run_convergence(spec, arts)
     assert res.converged is True

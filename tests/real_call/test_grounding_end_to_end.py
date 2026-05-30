@@ -20,7 +20,7 @@ def test_fabricated_number_on_real_paper_is_flagged(tmp_path):
     cleaned, report = verify_grounding_and_clean(
         doc, backend=DartmouthBackend(), model="qwen.qwen3.5-122b", repo_root=tmp_path
     )
-    assert "[UNVERIFIED:" in cleaned and report.flagged_count >= 1
+    assert "[UNRESOLVED-CLAIM:" in cleaned and report.flagged_count >= 1
 
 
 def test_real_number_on_real_paper_passes(tmp_path):
@@ -34,4 +34,4 @@ def test_real_number_on_real_paper_passes(tmp_path):
     cleaned, _report = verify_grounding_and_clean(
         doc, backend=DartmouthBackend(), model="qwen.qwen3.5-122b", repo_root=tmp_path
     )
-    assert "[UNVERIFIED:" not in cleaned
+    assert "[UNRESOLVED-CLAIM:" not in cleaned

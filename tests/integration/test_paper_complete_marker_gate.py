@@ -31,7 +31,7 @@ def test_marker_in_paper_artifact_blocks_paper_complete(tmp_path: Path) -> None:
     # Plant a marker in a produced paper spec (a real governing artifact).
     spec_md = project_dir / "paper" / "specs" / "001-paper" / "spec.md"
     spec_md.write_text(
-        "We rely on [UNVERIFIED: arXiv:2402.13 — malformed arXiv id; unresolvable].\n",
+        "We rely on [UNRESOLVED-CLAIM: arXiv:2402.13 — malformed arXiv id; unresolvable].\n",
         encoding="utf-8",
     )
 

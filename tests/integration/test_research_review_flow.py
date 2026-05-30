@@ -186,7 +186,7 @@ def test_unverified_marker_in_spec_blocks_research_accept(tmp_path: Path) -> Non
     spec_md = tmp_path / "projects" / PROJ_ID / "specs" / "001-review" / "spec.md"
     spec_md.write_text(
         "The knot count is 9,988 "
-        "[UNVERIFIED: arXiv:2402.13 — malformed arXiv id; unresolvable].\n",
+        "[UNRESOLVED-CLAIM: arXiv:2402.13 — malformed arXiv id; unresolvable].\n",
         encoding="utf-8",
     )
 

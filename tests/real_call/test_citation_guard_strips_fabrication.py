@@ -33,7 +33,7 @@ def test_verify_and_clean_flags_fake_keeps_real(tmp_path: Path) -> None:
     )
 
     # The fabricated malformed ref is flagged.
-    assert "[UNVERIFIED: arXiv:2402.13" in cleaned, cleaned
+    assert "[UNRESOLVED-CLAIM: arXiv:2402.13" in cleaned, cleaned
     assert "2402.13" in report.flagged_values
     # The real arXiv id survives, untouched (it resolves to a real paper).
     assert "arXiv:1706.03762" in cleaned

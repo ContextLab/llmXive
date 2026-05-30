@@ -35,14 +35,17 @@ from llmxive.state import claims as _claim_store
 # F-18 marker constant is retired.
 _F18_MARKER_RE = re.compile(r"\[UNVERIFIED:\s*(?P<body>[^\]]*?)\s*\]")
 
-# Document trees that may carry persisted markers.
+# Pipeline-PRODUCED document trees that may carry persisted markers. Note:
+# the top-level ``specs/`` speckit-authoring dir is intentionally EXCLUDED —
+# those design docs *describe* the marker in prose (e.g. "replaces the F-18
+# [UNVERIFIED:] marker") and must not be rewritten. Pipeline-produced project
+# specs live under ``projects/<PROJ>/specs/`` and are covered via ``projects``.
 _DOC_DIRS = (
     "projects",
     "papers",
     "technical_design_documents",
     "implementation_plans",
     "reviews",
-    "specs",
 )
 _DOC_SUFFIXES = (".md", ".tex")
 

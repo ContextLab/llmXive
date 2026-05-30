@@ -54,10 +54,11 @@ def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecor
         f"'{worst.value}'. Routing to '{to_stage}' with full provenance so the next "
         f"worker can address the root cause."
     )
-    # F-18: if any unresolved concern is a citation hard-block (the produced doc
-    # still carries an ``[UNVERIFIED: ...]`` marker), surface the marker bodies in
-    # the human-facing reason so the next worker sees exactly which references the
-    # citation guard could not resolve — not just a severity count.
+    # If any unresolved concern is a factual hard-block (the produced doc still
+    # carries the unified ``[UNRESOLVED-CLAIM: ...]`` marker — F-18/F-19 emit it
+    # as resolvers within the claim-verification layer), surface the marker
+    # bodies in the human-facing reason so the next worker sees exactly which
+    # references/claims could not be resolved — not just a severity count.
     from llmxive.agents.citation_guard import find_unverified_markers
 
     marker_bodies: list[str] = []
@@ -65,22 +66,8 @@ def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecor
         marker_bodies.extend(find_unverified_markers(c.text))
     if marker_bodies:
         reason += (
-            " Unverified/fabricated reference(s) blocking advancement: "
+            " Unverified/fabricated reference(s) or claim(s) blocking advancement: "
             + "; ".join(marker_bodies)
-            + "."
-        )
-    # Spec 016 (FR-017): surface unresolved-CLAIM marker bodies the same way, so
-    # the next worker sees exactly which facts the claim-verification layer could
-    # not resolve to a verified value/receipt.
-    from llmxive.claims.gate import find_unresolved_claims
-
-    claim_bodies: list[str] = []
-    for c in unresolved:
-        claim_bodies.extend(find_unresolved_claims(c.text))
-    if claim_bodies:
-        reason += (
-            " Unresolved factual claim(s) blocking advancement: "
-            + "; ".join(claim_bodies)
             + "."
         )
     return KickbackRecord(
