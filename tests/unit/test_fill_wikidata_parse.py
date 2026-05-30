@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import pytest
 
+from llmxive.fill.channels import AUTHORITY
 from llmxive.fill.channels.wikidata import _parse_entity, _parse_search, search_and_fetch
 
 
@@ -293,4 +294,4 @@ class TestSearchAndFetchSignature:
         assert src.source_id == "Q408"
         assert src.url == "https://www.wikidata.org/wiki/Q408"
         assert "Australia" in src.text
-        assert src.authority == 1  # AUTHORITY["wikidata"]
+        assert src.authority == AUTHORITY["wikidata"]

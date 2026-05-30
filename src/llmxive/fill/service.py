@@ -36,6 +36,9 @@ logger = logging.getLogger(__name__)
 
 def _get_channel(name: str):
     """Return the search_and_fetch function for the named channel."""
+    if name == "constants":
+        from llmxive.fill.channels import constants
+        return constants.search_and_fetch
     if name == "oeis":
         from llmxive.fill.channels import oeis
         return oeis.search_and_fetch
