@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T19:37:48.795606+00:00",
+  "generated_at": "2026-05-30T20:02:06.242331+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77383,6 +77383,20 @@
   ],
   "recent_activity": [
     {
+      "action": "abstain",
+      "agent": "personality",
+      "display_name": "Linus Pauling (simulated)",
+      "duration_s": 200.688311,
+      "ended_at": "2026-05-30T20:02:02.327551+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "linus-pauling",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-30T19:58:41.639240+00:00"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Linus Pauling (simulated)",
@@ -84060,16 +84074,6 @@
       "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T14:38:14.756187Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 100.491257,
-      "ended_at": "2026-05-17T14:40:13.464270Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T14:38:32.973013Z"
     }
   ],
   "schema_version": "2.0.0"
