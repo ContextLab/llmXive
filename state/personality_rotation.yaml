@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-05-30T12:24:11.592120+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-05-30T13:34:07.482628+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-21T21:11:56.888747+00:00'
-  ended_at: '2026-05-21T22:01:46.843509+00:00'
-  outcome: target_missing
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-05-21T22:01:46.843509+00:00'
   ended_at: '2026-05-21T22:40:22.994789+00:00'
@@ -1194,3 +1189,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-30__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-30T12:24:11.592120+00:00'
+  ended_at: '2026-05-30T13:34:07.482628+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/dan-rockmore-simulated__2026-05-30__paper.md
