@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-05-30T16:22:45.638685+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-05-30T16:49:51.795154+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-22T00:33:16.887961+00:00'
-  ended_at: '2026-05-22T03:07:09.716681+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-22__research.md
 - slug: richard-feynman
   started_at: '2026-05-22T03:07:09.716681+00:00'
   ended_at: '2026-05-22T04:53:42.062898+00:00'
@@ -1201,3 +1194,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/freeman-dyson-simulated__2026-05-30__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-30T16:22:45.638685+00:00'
+  ended_at: '2026-05-30T16:49:51.795154+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/reviews/research/geoffrey-west-simulated__2026-05-30__research.md
