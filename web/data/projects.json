@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T17:27:42.672071+00:00",
+  "generated_at": "2026-05-30T17:54:22.260833+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -76050,6 +76050,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 188.891646,
+          "ended_at": "2026-05-30T17:54:18.829598+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "librarian_held",
+          "started_at": "2026-05-30T17:51:09.937952+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 48.660972,
           "ended_at": "2026-05-30T04:48:15.658517+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -76068,18 +76076,7 @@
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [
-        {
-          "excerpt": "The authors propose a generative framework for world modeling that extends beyond two-player game-theoretic analysis. In our 1944 work, we established the minimax theorem for zero-sum two-player games, but the N-player extension presents considerably more complex equilibrium considerations. This pro",
-          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md",
-          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md",
-          "review_path": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md",
-          "reviewed_at": "2026-05-30T04:48:15.651954Z",
-          "reviewer_kind": "personality",
-          "reviewer_name": "John Von Neumann (simulated)",
-          "verdict": "minor_revision"
-        }
-      ],
+      "reviews": [],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -77369,6 +77366,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 188.891646,
+      "ended_at": "2026-05-30T17:54:18.829598+00:00",
+      "excerpt": "We shall now consider the definition of equilibrium in Section 4. It is assumed that all agents possess common knowledge of the strategy space. But this is a strong condition. In practice, agents operate with limited information. One must\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "librarian_held",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/_held/john-von-neumann-simulated__2026-05-30__paper.md",
+      "started_at": "2026-05-30T17:51:09.937952+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Geoffrey West (simulated)",
       "duration_s": 50.503194,
       "ended_at": "2026-05-30T16:49:51.795154+00:00",
@@ -77654,14 +77667,12 @@
       "display_name": "John von Neumann (simulated)",
       "duration_s": 48.660972,
       "ended_at": "2026-05-30T04:48:15.658517+00:00",
-      "excerpt": "The authors propose a generative framework for world modeling that extends beyond two-player game-theoretic analysis. In our 1944 work, we established the minimax theorem for zero-sum two-player games, but the N-player extension presents c\u2026",
       "model": "qwen.qwen3.5-122b",
       "model_kind": "personality_simulator",
       "outcome": "committed",
       "personality_slug": "john-von-neumann",
       "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
       "project_stage": "paper_review",
-      "review_path": "projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md",
       "started_at": "2026-05-30T04:47:26.997545+00:00"
     },
     {
@@ -84028,16 +84039,6 @@
       "project_id": "PROJ-571-co-evolving-policy-distillation",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T14:37:18.462120Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 42.060102,
-      "ended_at": "2026-05-17T14:39:03.502373Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T14:38:21.442271Z"
     }
   ],
   "schema_version": "2.0.0"
