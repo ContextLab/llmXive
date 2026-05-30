@@ -34,6 +34,9 @@ dependencies = [
   "numpy",
   "scipy",
   "pandas",
+  # Spec 018 (computational claim verification): safe symbolic evaluation of
+  # arithmetic / comparisons / unit conversions / algebraic identities / logic.
+  "sympy",
   # scripts/extract_paper_content.py uses it indirectly via regex but
   # pylatexenc is the canonical pure-python LaTeX parser used as a
   # fallback for future structured walks (e.g. AST-aware citation
