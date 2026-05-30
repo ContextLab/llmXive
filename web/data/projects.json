@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-30T20:42:02.108265+00:00",
+  "generated_at": "2026-05-30T20:53:41.355451+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77383,6 +77383,19 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 155.209212,
+      "ended_at": "2026-05-30T20:53:37.289540+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "malformed_response",
+      "personality_slug": "marie-curie",
+      "project_id": null,
+      "project_stage": "",
+      "started_at": "2026-05-30T20:51:02.080328+00:00"
+    },
+    {
       "action": "abstain",
       "agent": "personality",
       "display_name": "Linus Pauling (simulated)",
@@ -84064,16 +84077,6 @@
       "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
       "project_stage": "paper_minor_revision",
       "started_at": "2026-05-17T14:38:12.109255Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 131.256147,
-      "ended_at": "2026-05-17T14:40:26.012334Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_minor_revision",
-      "started_at": "2026-05-17T14:38:14.756187Z"
     }
   ],
   "schema_version": "2.0.0"

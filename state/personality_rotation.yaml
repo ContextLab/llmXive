@@ -1,11 +1,7 @@
 last_used: linus-pauling
-last_used_at: '2026-05-30T20:02:02.327551+00:00'
-last_outcome: abstained
+last_used_at: '2026-05-30T20:53:37.289540+00:00'
+last_outcome: malformed_response
 history:
-- slug: alan-turing
-  started_at: '2026-05-22T09:06:35.895310+00:00'
-  ended_at: '2026-05-22T10:34:34.641719+00:00'
-  outcome: malformed_response
 - slug: alan-turing
   started_at: '2026-05-22T10:34:34.641719+00:00'
   ended_at: '2026-05-22T11:56:20.220656+00:00'
@@ -1197,3 +1193,7 @@ history:
   ended_at: '2026-05-30T20:02:02.327551+00:00'
   outcome: abstained
   action: abstain
+- slug: marie-curie
+  started_at: '2026-05-30T20:02:02.327551+00:00'
+  ended_at: '2026-05-30T20:53:37.289540+00:00'
+  outcome: malformed_response
