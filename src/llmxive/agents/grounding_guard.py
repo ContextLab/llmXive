@@ -384,13 +384,66 @@ def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -
             return backend.chat(messages)
 
 
+def _cited_claim_from_fields(entry: dict[str, str]) -> CitedClaim | None:
+    """Map one recovered ``{claim_text, source, number}`` dict to a CitedClaim.
+
+    Returns ``None`` when the entry lacks the required ``claim_text``+``source``
+    (an unattributed claim is out of F-19 scope).
+    """
+    claim_text = (entry.get("claim_text") or "").strip()
+    source_str = (entry.get("source") or "").strip()
+    if not claim_text or not source_str:
+        return None
+    num_raw = entry.get("number")
+    number = (
+        _clean_number_token(str(num_raw))
+        if num_raw not in (None, "", "null")
+        else None
+    )
+    kind, value = classify_source(source_str)
+    return CitedClaim(
+        claim_text=claim_text,
+        number=number or None,
+        source_str=source_str,
+        source_kind=kind,
+        source_value=value,
+    )
+
+
+def _recover_cited_claims(raw: str) -> list[CitedClaim]:
+    """Tolerant recovery when strict YAML fails / yields no usable claims.
+
+    Reuses the SHARED line-oriented field parser
+    (:func:`claims.extract.tolerant_field_entries`) — the SAME recovery the claim
+    extractor uses — so an embedded-quote reply (a cited title like
+    ``"A Census of Knots."`` that breaks YAML's quoted-scalar grammar) recovers
+    the cited claim here too instead of silently dropping every claim.
+    """
+    from llmxive.claims.extract import tolerant_field_entries
+
+    out: list[CitedClaim] = []
+    for entry in tolerant_field_entries(raw):
+        claim = _cited_claim_from_fields(entry)
+        if claim is not None:
+            out.append(claim)
+    if out:
+        logger.info("grounding-guard: tolerant recovery parsed %d claim(s)", len(out))
+    return out
+
+
 def _parse_extraction_reply(reply_text: str) -> list[CitedClaim]:
     """Parse the model's YAML extraction reply into :class:`CitedClaim`s.
 
     Strips a ```yaml fence, requires a ``claims`` list mapping. Each entry must
     carry ``claim_text`` + ``source``; ``number`` is optional. Resolvable ids in
-    ``source`` are parsed here via :func:`classify_source`. Raises on a reply
-    that is not a well-formed extraction document (caller decides the policy).
+    ``source`` are parsed here via :func:`classify_source`.
+
+    Tolerant: on a YAML parse failure OR a structurally-unusable result (no
+    ``claims`` list, or every entry mangled by an embedded quote), falls back to
+    the SHARED :func:`tolerant_field_entries` recovery instead of dropping every
+    claim — the same embedded-quote robustness the claim extractor has. Returns
+    an EMPTY list (the strict-path "no claims" outcome, e.g. ``claims: []``) only
+    when both the strict and tolerant paths genuinely find nothing.
     """
     import yaml
 
@@ -403,35 +456,38 @@ def _parse_extraction_reply(reply_text: str) -> list[CitedClaim]:
             lines = lines[:-1]
         raw = "\n".join(lines).strip()
 
-    obj = yaml.safe_load(raw)
-    if not isinstance(obj, dict) or "claims" not in obj:
-        raise ValueError(
-            f"grounding-extraction reply has no 'claims' key (keys={sorted(obj) if isinstance(obj, dict) else type(obj).__name__})"
+    try:
+        obj = yaml.safe_load(raw)
+    except Exception as exc:
+        logger.warning(
+            "grounding-guard: YAML parse failed (%s); attempting tolerant recovery",
+            exc,
         )
-    claims_raw = obj.get("claims") or []
+        return _recover_cited_claims(raw)
+
+    if not isinstance(obj, dict) or "claims" not in obj:
+        return _recover_cited_claims(raw)
+    claims_raw = obj.get("claims")
+    # An explicit empty list is a valid "no claims" outcome — do NOT recover.
+    if claims_raw == []:
+        return []
     if not isinstance(claims_raw, list):
-        raise ValueError("grounding-extraction 'claims' is not a list")
+        return _recover_cited_claims(raw)
 
     out: list[CitedClaim] = []
     for entry in claims_raw:
         if not isinstance(entry, dict):
             continue
-        claim_text = str(entry.get("claim_text") or "").strip()
-        source_str = str(entry.get("source") or "").strip()
-        if not claim_text or not source_str:
-            continue
-        num_raw = entry.get("number")
-        number = _clean_number_token(str(num_raw)) if num_raw not in (None, "", "null") else None
-        kind, value = classify_source(source_str)
-        out.append(
-            CitedClaim(
-                claim_text=claim_text,
-                number=number or None,
-                source_str=source_str,
-                source_kind=kind,
-                source_value=value,
-            )
+        claim = _cited_claim_from_fields(
+            {str(k): ("" if v is None else str(v)) for k, v in entry.items()}
         )
+        if claim is not None:
+            out.append(claim)
+    # If strict YAML parsed but produced no usable claims (e.g. every entry's
+    # text was truncated by an embedded quote), try the tolerant path as a
+    # backstop rather than dropping everything.
+    if not out:
+        return _recover_cited_claims(raw)
     return out
 
 

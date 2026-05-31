@@ -229,6 +229,29 @@ def test_parse_extraction_reply_extracts_cited_claim() -> None:
     assert claims[0].source_value is None
 
 
+def test_parse_extraction_reply_recovers_embedded_quote() -> None:
+    """Fix E — a reply whose claim_text carries an embedded double-quoted title
+    (``"A Census of Knots."``) breaks YAML's quoted-scalar grammar. The shared
+    tolerant recovery must recover the cited claim instead of dropping every
+    claim (the twin-parser fragility that recurred in PROJ-552)."""
+    from llmxive.agents.grounding_guard import _parse_extraction_reply
+    from llmxive.types import CitationKind
+
+    reply = (
+        "claims:\n"
+        '  - claim_text: "The 1998 census, see "A Census of Knots.", lists '
+        '9988 prime knots (doi:10.1090/S0273-0979-1998-00763-9)."\n'
+        "    number: '9988'\n"
+        "    source: 'doi:10.1090/S0273-0979-1998-00763-9'\n"
+    )
+    claims = _parse_extraction_reply(reply)
+    assert len(claims) == 1
+    assert claims[0].number == "9988"
+    assert "A Census of Knots." in claims[0].claim_text
+    assert claims[0].source_kind == CitationKind.DOI
+    assert claims[0].source_value == "10.1090/S0273-0979-1998-00763-9"
+
+
 # --- ground_claim delegates to the full-text grounding service --------------
 
 

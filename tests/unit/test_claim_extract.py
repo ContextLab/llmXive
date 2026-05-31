@@ -81,6 +81,26 @@ class TestFilterCheckWorthy:
         result = _filter_check_worthy(["yes", "no"])
         assert result == []
 
+    def test_promotional_standing_statement_dropped(self):
+        """Fix D — a purely promotional 'standing' statement with no crisp
+        checkable core is dropped (PROJ-552 root cause 5: it cannot be
+        substantiated and would leave a residual [UNRESOLVED-CLAIM:] marker)."""
+        candidates = [
+            "The census is a well-established, peer-reviewed reference.",
+            "This dataset is community-standard and widely used.",
+            "Method X is the gold standard for this task.",
+        ]
+        assert _filter_check_worthy(candidates) == []
+
+    def test_checkworthy_number_with_citation_survives_standing_language(self):
+        """Fix D — the existing rule still holds: a statement with a salient
+        NUMBER and an explicit citation passes even alongside standing language."""
+        candidates = [
+            "There are 9988 prime knots (OEIS A002863), a well-known catalog.",
+        ]
+        result = _filter_check_worthy(candidates)
+        assert result == ["There are 9988 prime knots (OEIS A002863), a well-known catalog."]
+
 
 class TestParseExtractionReply:
     """Offline tests for the YAML reply parser + tolerant recovery (no backend).

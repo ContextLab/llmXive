@@ -300,21 +300,22 @@ def run_with_self_consistency(
 def _clean_citations(
     artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path
 ) -> dict[str, str]:
-    """Run BOTH citation guards on the reviser's final artifacts.
+    """Run the citation + claim-verification guards on the reviser's final artifacts.
 
     1. F-18 :func:`_strip_unresolvable_citations` — network-free structural pass
        (flags malformed/unresolvable references).
-    2. F-19 :func:`_ground_factual_claims` — heavy factual-grounding pass (flags
-       a fabricated NUMBER attached to a citation, or a free-text-only citation
-       that cannot substantiate its claim) — the chokepoint where the PROJ-552
-       reviser fabrication originated.
-
-    Both reuse the shared ``[UNVERIFIED: ...]`` marker so the existing F-18c
-    gates hard-block flagged artifacts before the next panel round.
+    2. Spec 016 :func:`_verify_claims` — the claim-verification layer (extract →
+       resolve → re-render with the verified value or a unified
+       ``[UNRESOLVED-CLAIM: ...]`` marker). This SUPERSEDES F-19
+       ``_ground_factual_claims``: the two layers use conflicting text-mutation
+       models (F-19 appends ``[UNVERIFIED]`` markers in place; 016 then
+       re-extracts those marker reasons as new "claims" and garbles the prose —
+       PROJ-552 root cause 2). 016 is the single source of truth now, so only it
+       runs here. ``_ground_factual_claims`` remains defined for any other
+       importer but is no longer invoked in the reviser chokepoint.
     """
     cleaned = _strip_unresolvable_citations(artifacts)
-    grounded = _ground_factual_claims(cleaned, backend=backend, model=model, repo_root=repo_root)
-    return _verify_claims(grounded, backend=backend, model=model, repo_root=repo_root)
+    return _verify_claims(cleaned, backend=backend, model=model, repo_root=repo_root)
 
 
 def _verify_claims(

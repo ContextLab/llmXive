@@ -414,3 +414,41 @@ def test_parse_problems_win_over_ok_true():
     )
     assert result.ok is False
     assert result.problems == ["contradiction in FR-003"]
+
+
+# --- Fix C: the reviser chokepoint runs 016 only, NOT F-19 ----------------
+
+
+def test_clean_citations_runs_claim_layer_not_f19(monkeypatch):
+    """Fix C — ``_clean_citations`` invokes the spec-016 claim layer
+    (:func:`_verify_claims`) and NO LONGER invokes F-19
+    (:func:`_ground_factual_claims`); the two conflicted (PROJ-552 root cause 2),
+    and 016 is the single source of truth. We wrap the REAL functions with
+    counters (no mocks) and assert the call pattern."""
+    import llmxive.convergence.revisers._self_consistency as sc
+
+    f19_calls: list[int] = []
+    v016_calls: list[int] = []
+    real_f19 = sc._ground_factual_claims
+    real_v016 = sc._verify_claims
+
+    def counting_f19(*a, **k):
+        f19_calls.append(1)
+        return real_f19(*a, **k)
+
+    def counting_v016(*a, **k):
+        v016_calls.append(1)
+        return real_v016(*a, **k)
+
+    monkeypatch.setattr(sc, "_ground_factual_claims", counting_f19)
+    monkeypatch.setattr(sc, "_verify_claims", counting_v016)
+
+    artifacts = {"projects/PROJ-000-x/specs/spec.md": "There are 9988 prime knots."}
+    out = sc._clean_citations(
+        artifacts, backend=_QueueBackend(replies=[]), model=None, repo_root=_REPO_ROOT
+    )
+
+    assert v016_calls == [1]  # the claim layer ran exactly once
+    assert f19_calls == []  # F-19 grounding never ran in the reviser path
+    # Both guards are gated OFF by default → artifacts pass through unchanged.
+    assert out == artifacts

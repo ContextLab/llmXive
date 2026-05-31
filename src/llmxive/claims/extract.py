@@ -49,10 +49,19 @@ _DESIGN_CHOICE_PATTERNS = [
 ]
 
 # Subjective / hedged language that disqualifies a claim as check-worthy.
+# Includes promotional "standing" language ("well-established", "peer-reviewed",
+# "gold standard", …): a statement whose ONLY content is that a source is
+# reputable has no crisp checkable core and cannot be substantiated, so it would
+# leave a residual [UNRESOLVED-CLAIM:] marker and block convergence (PROJ-552
+# root cause 5). A statement with a salient NUMBER or explicit citation still
+# passes (see _filter_check_worthy) so "9988 prime knots (OEIS A002863)" survives.
 _SUBJECTIVE_PATTERNS = [
     re.compile(r"\b(elegant|well.?suited|promising|novel|interesting|simple|"
                r"straightforward|intuitive|natural|effective|efficient|powerful|"
                r"robust|flexible|scalable)\b", re.IGNORECASE),
+    re.compile(r"\b(well.?established|peer.?reviewed|community.?standard|"
+               r"widely.?used|well.?known|established\s+reference|"
+               r"gold\s+standard)\b", re.IGNORECASE),
 ]
 
 # Minimum length for a candidate to be considered a real claim.
@@ -136,18 +145,24 @@ _FIELD_RE = re.compile(
 )
 
 
-def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
-    """Line-oriented recovery parser for when ``yaml.safe_load`` fails.
+def tolerant_field_entries(raw: str) -> list[dict[str, str]]:
+    """Line-oriented field recovery for a quote-fragile YAML claims reply.
 
     The extraction model frequently emits a verbatim ``claim_text`` containing
     embedded double-quotes (e.g. a cited paper title — ``"A Census of Knots."``),
     which breaks YAML's quoted-scalar grammar and would otherwise drop EVERY
     claim in the document (a silent fabrication-passthrough). This recovers each
-    claim entry by scanning for the known field keys and taking the remainder of
-    the line as the value (one outer quote pair stripped), without relying on
-    quote-balanced YAML. A new entry begins at each ``claim_text`` key.
+    entry as a plain ``dict[str, str]`` by scanning for the known field keys
+    (``claim_text`` / ``canonical`` / ``context`` / ``number`` / ``source``) and
+    taking the remainder of the line as the value (one outer quote pair
+    stripped), without relying on quote-balanced YAML. A new entry begins at each
+    ``claim_text`` key.
+
+    SHARED by :func:`_tolerant_parse_claims` (claims/extract) and the grounding
+    guard's ``_parse_extraction_reply`` recovery path — a single tolerant parser
+    so the embedded-quote fix cannot silently regress in one of two twins.
+    PURE — no IO.
     """
-    now = _now_iso()
     entries: list[dict[str, str]] = []
     current: dict[str, str] | None = None
     for line in raw.splitlines():
@@ -168,6 +183,17 @@ def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
             current[key] = val
     if current is not None:
         entries.append(current)
+    return entries
+
+
+def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
+    """Recover :class:`Claim` objects when ``yaml.safe_load`` fails.
+
+    Thin wrapper over :func:`tolerant_field_entries` (the shared line-oriented
+    field recovery) that maps each recovered entry into a PENDING ``Claim``.
+    """
+    now = _now_iso()
+    entries = tolerant_field_entries(raw)
 
     out: list[Claim] = []
     for entry in entries:
@@ -338,4 +364,4 @@ def extract_claims(
     return [c for c in raw_claims if c.raw_text in filtered_set]
 
 
-__all__ = ["_filter_check_worthy", "extract_claims"]
+__all__ = ["_filter_check_worthy", "extract_claims", "tolerant_field_entries"]
