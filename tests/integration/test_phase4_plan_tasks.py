@@ -214,13 +214,23 @@ class TestArtifactSetComplete:
 
 
 class TestTemplateRejection:
-    def test_template_plan_md_triggers_guard_emit_and_unlinks(self, tmp_path: Path) -> None:
+    def test_template_plan_md_triggers_guard_emit_and_unlinks(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """FR-008: a template-equal plan.md → TemplateRefused; write_artifacts
-        unlinks all artifacts written this invocation."""
+        unlinks all artifacts written this invocation.
+
+        Updated for the bounded planner revision loop (#015 / PROJ-552): the
+        guard now fails closed (raise + unlink) only when no usable corrective
+        backend is available. Force the offline path (make_backend → None) so
+        this asserts the original hard-fail-closed contract without a live LLM
+        re-call — exactly the behavior a real offline run takes."""
+        import llmxive.backends.router as router
         from llmxive.backends.base import ChatResponse
         from llmxive.speckit._real_only_guard import TemplateRefused
         from llmxive.speckit.plan_cmd import PlannerAgent
 
+        monkeypatch.setattr(router, "make_backend", lambda name: None)
         ctx, mech, feature_dir = _make_planner_ctx(tmp_path)
         template_path = REPO_ROOT / ".specify" / "templates" / "plan-template.md"
         if not template_path.is_file():
@@ -343,13 +353,22 @@ class TestUrlReachability:
         from llmxive.speckit._research_guard import assert_urls_reachable
         assert_urls_reachable("This research.md cites no external references.")
 
-    def test_planner_write_artifacts_unlinks_on_bad_url(self, tmp_path: Path) -> None:
+    def test_planner_write_artifacts_unlinks_on_bad_url(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """FR-006 end-to-end: a bad URL in research.md makes the Planner
-        unlink every artifact and raise UnreachableReference."""
+        unlink every artifact and raise UnreachableReference.
+
+        Updated for the bounded planner revision loop (#015 / PROJ-552): force
+        the offline path (make_backend → None) so the guard fails closed without
+        a live corrective re-call — the same hard-fail-closed contract this test
+        has always asserted, now via the loop's no-backend branch."""
+        import llmxive.backends.router as router
         from llmxive.backends.base import ChatResponse
         from llmxive.speckit._research_guard import UnreachableReference
         from llmxive.speckit.plan_cmd import PlannerAgent
 
+        monkeypatch.setattr(router, "make_backend", lambda name: None)
         ctx, mech, feature_dir = _make_planner_ctx(tmp_path)
         block = _valid_five_file_block(
             research_urls=f"- Dataset: {_dead_url()}"
