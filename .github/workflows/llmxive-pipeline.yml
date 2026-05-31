@@ -85,14 +85,27 @@ jobs:
         # endpoint failure leaves the project parked at its stage (no partial
         # artifacts — the stage guards unlink those) and we still keep the
         # run-log. [skip ci] on the message avoids retriggering the pipeline.
+        #
+        # main is a HIGH-TRAFFIC branch (personality every 30m, pages deploy,
+        # submission-intake all push concurrently), so a plain push loses the
+        # race during this multi-minute run. Mirror the proven
+        # pipeline-personality pattern: pull --rebase + push in a 5x retry loop.
         if: always()
         run: |
-          git config user.name "llmxive-pipeline-bot"
-          git config user.email "noreply@anthropic.com"
-          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state projects .llmxive || true
           if git diff --cached --quiet; then
             echo "no pipeline changes to commit"
           else
             git commit -m "chore(pipeline): persist run progress [skip ci]"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            pushed=false
+            for i in 1 2 3 4 5; do
+              if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                pushed=true; break
+              fi
+              echo "push attempt $i failed (branch moved); retrying..." >&2
+              sleep $((5 * i))
+            done
+            [ "$pushed" = true ] || { echo "could not persist after 5 attempts" >&2; exit 1; }
           fi
