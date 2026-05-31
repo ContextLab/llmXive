@@ -15,7 +15,7 @@ from llmxive.backends.base import (
     PermanentBackendError,
     TransientBackendError,
 )
-from llmxive.backends.dartmouth import _retry_with_backoff
+from llmxive.backends.dartmouth import _is_transient_error_text, _retry_with_backoff
 
 
 def test_retry_returns_value_on_first_success():
@@ -152,3 +152,35 @@ def test_retry_backoff_multiplier_is_exponential(monkeypatch):
     # Sleeps after attempts 0, 1, 2, 3 (the 5th attempt is the final
     # one — no sleep after it). Backoff: 1, 2, 4, 8.
     assert sleeps == pytest.approx([1.0, 2.0, 4.0, 8.0])
+
+
+def test_connection_dropped_midstream_is_transient():
+    """Regression (Part-7): a connection broken mid-read while streaming a
+    large planner/reviewer reply (requests ChunkedEncodingError wrapping
+    http.client IncompleteRead) MUST be classified transient so it retries —
+    before the fix it surfaced raw and crashed the plan stage at `clarified`."""
+    # The exact run #12 failure text:
+    assert _is_transient_error_text(
+        "('Connection broken: IncompleteRead(77671 bytes read)', "
+        "IncompleteRead(77671 bytes read))"
+    )
+    for txt in (
+        "ChunkedEncodingError: Connection broken: IncompleteRead",
+        "('Connection aborted.', RemoteDisconnected('Remote end closed "
+        "connection without response'))",
+        "EOF occurred in violation of protocol",
+        "BrokenPipeError: [Errno 32] Broken pipe",
+    ):
+        assert _is_transient_error_text(txt), txt
+
+
+def test_permanent_errors_stay_permanent():
+    """The classifier must NOT over-match: genuine permanent failures (auth,
+    a malformed model reply) are not retried."""
+    for txt in (
+        "invalid api key",
+        "authentication failed: 401 unauthorized",
+        "the model produced a malformed schema",
+        "valueerror: bad request body",
+    ):
+        assert not _is_transient_error_text(txt), txt

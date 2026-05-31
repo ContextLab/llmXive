@@ -48,6 +48,42 @@ _log = logging.getLogger(__name__)
 _T = TypeVar("_T")
 
 
+# Substrings (matched case-insensitively against the exception text) that mark a
+# Dartmouth/vLLM failure as TRANSIENT — retried by _retry_with_backoff and, on
+# exhaustion, surfaced so the router can fall through to another model. Anything
+# not matched here is treated as a PermanentBackendError (no retry).
+_TRANSIENT_ERROR_MARKERS: tuple[str, ...] = (
+    "rate limit", "quota", "429", "timeout", "5xx",
+    # Dartmouth's vLLM backend transients:
+    "500", "502", "503", "504", "internal server error",
+    "cannot connect to host", "connection reset", "connection refused",
+    "service unavailable", "bad gateway", "gateway timeout",
+    "internalservererror", "operation not permitted",
+    "litellm.internalservererror",
+    # A listed model can be transiently unloaded on the vLLM cluster.
+    "not found", "no such model", "does not exist", "model_not_found",
+    # Network-level transients:
+    "temporary failure", "name resolution", "connection error",
+    # Connection dropped mid-stream while reading a large response (common when a
+    # flaky endpoint streams a big planner/reviewer reply): requests
+    # ChunkedEncodingError wrapping urllib3/http.client IncompleteRead, SSL EOF,
+    # RemoteDisconnected, broken pipe, connection aborted.
+    "connection broken", "incompleteread", "incomplete read",
+    "chunkedencodingerror", "chunked encoding",
+    "connection aborted", "broken pipe", "remotedisconnected",
+    "remote end closed", "eof occurred",
+    # Dartmouth maintenance redirect: 302 to outage.dartmouth.edu.
+    "outage.dartmouth.edu", "moved temporarily", "302 moved", "<!doctype html",
+)
+
+
+def _is_transient_error_text(text: str) -> bool:
+    """True if *text* (an exception's lowercased str) names a retryable
+    Dartmouth/vLLM transient — see :data:`_TRANSIENT_ERROR_MARKERS`."""
+    low = text.lower()
+    return any(marker in low for marker in _TRANSIENT_ERROR_MARKERS)
+
+
 def _retry_with_backoff(
     fn: Callable[[], _T],
     *,
@@ -399,28 +435,7 @@ class DartmouthBackend(BaseBackend):
                     else:
                         exc = None  # type: ignore[assignment]
                 if exc is not None:
-                    transient_markers = (
-                        "rate limit", "quota", "429", "timeout", "5xx",
-                        # Dartmouth's vLLM backend transients:
-                        "500", "502", "503", "504", "internal server error",
-                        "cannot connect to host", "connection reset",
-                        "connection refused",
-                        "service unavailable", "bad gateway", "gateway timeout",
-                        "internalservererror", "operation not permitted",
-                        "litellm.internalservererror",
-                        # A listed model can be transiently unloaded on the
-                        # vLLM cluster ("Model X not found").
-                        "not found", "no such model", "does not exist",
-                        "model_not_found",
-                        # Network-level transients:
-                        "temporary failure", "name resolution", "connection error",
-                        # Dartmouth maintenance redirect: 302 to
-                        # outage.dartmouth.edu. _retry_with_backoff
-                        # absorbs brief flickers.
-                        "outage.dartmouth.edu", "moved temporarily",
-                        "302 moved", "<!doctype html",
-                    )
-                    if any(s in text for s in transient_markers):
+                    if _is_transient_error_text(text):
                         raise TransientBackendError(str(exc)) from exc
                     raise PermanentBackendError(str(exc)) from exc
 
