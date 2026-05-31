@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-31T18:30:59.030316+00:00",
+  "generated_at": "2026-05-31T18:53:50.039570+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -56851,6 +56851,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 24.679888,
+          "ended_at": "2026-05-31T18:53:45.034469+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-05-31T18:53:20.354581+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 1374.85865,
           "ended_at": "2026-05-31T11:26:46.835250Z",
@@ -56921,14 +56929,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-31T06:47:56.925605Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 15.566091,
-          "ended_at": "2026-05-31T06:47:56.862006Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-31T06:47:41.295915Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -77914,6 +77914,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 24.679888,
+      "ended_at": "2026-05-31T18:53:45.034469+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+      "project_stage": "clarified",
+      "started_at": "2026-05-31T18:53:20.354581+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Albert Einstein (simulated)",
       "duration_s": 238.6946,
       "ended_at": "2026-05-31T18:27:41.966259+00:00",
@@ -84723,16 +84737,6 @@
       "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
       "project_stage": "paper_review",
       "started_at": "2026-05-17T14:59:31.956587Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 437.466813,
-      "ended_at": "2026-05-17T14:59:31.913468Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:52:14.446655Z"
     }
   ],
   "schema_version": "2.0.0"
