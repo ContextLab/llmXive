@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-31T13:19:17.953596+00:00",
+  "generated_at": "2026-05-31T13:35:06.563623+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -75356,6 +75356,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 119.568915,
+          "ended_at": "2026-05-31T13:35:01.674001+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-05-31T13:33:02.105086+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 106.465252,
           "ended_at": "2026-05-31T05:03:45.455677+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -77822,6 +77830,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 119.568915,
+      "ended_at": "2026-05-31T13:35:01.674001+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:33:02.105086+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 79.089642,
@@ -84604,16 +84626,6 @@
       "project_stage": "analyzed",
       "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-17__research.md",
       "started_at": "2026-05-17T14:53:27.565602+00:00"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 38.902931,
-      "ended_at": "2026-05-17T14:56:06.770911Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:55:27.867980Z"
     }
   ],
   "schema_version": "2.0.0"
