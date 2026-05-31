@@ -2,4 +2,7 @@ ready:
 - project_id: PROJ-578-https-arxiv-org-abs-2605-14906
   revision_spec_path: specs/auto-revisions/PROJ-578-https-arxiv-org-abs-2605-14906/round-1
   queued_at: '2026-05-18T15:49:37.630053+00:00'
+- project_id: PROJ-632-https-arxiv-org-abs-2605-26230
+  revision_spec_path: specs/auto-revisions/PROJ-632-https-arxiv-org-abs-2605-26230/round-1
+  queued_at: '2026-05-31T13:19:13.814539+00:00'
 blocked: []
