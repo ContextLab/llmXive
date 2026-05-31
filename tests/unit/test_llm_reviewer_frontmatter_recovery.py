@@ -90,3 +90,63 @@ class TestParseResponseRecovery:
             _parse_response(
                 resp, lens="x", stage="clarified", default_artifact="x.md",
             )
+
+    def test_fenced_yaml_in_prose_does_not_hijack(self):
+        """The actual PROJ-552 crash: opening `---`, NO closing `---`, and a
+        ```yaml fenced example in the prose body. Stripping the fence first
+        would hijack the parse to the example; frontmatter must win."""
+        resp = (
+            "\n\n---\n"
+            "reviewer_name: scope_fidelity\n"
+            "reviewer_kind: llm\n"
+            "stage: clarified\n"
+            "artifact_path: x.md\n"
+            "verdict: minor_revision\n"
+            "concerns:\n"
+            "  - severity: writing\n"
+            "    location: s2\n"
+            "    text: scope omits the braid-index bound\n"
+            "\n"
+            "Here is the offending block:\n"
+            "```yaml\n"
+            "foo: bar\n"
+            "```\n"
+            "more prose\n"
+        )
+        verdict, concerns = _parse_response(
+            resp, lens="scope", stage="clarified", default_artifact="x.md",
+        )
+        assert verdict == "minor_revision"
+        assert len(concerns) == 1
+        assert "braid-index bound" in concerns[0].text
+
+    def test_whole_response_wrapped_in_yaml_fence(self):
+        """Some models wrap the entire YAML doc in a ```yaml fence — unwrap and
+        parse the frontmatter inside."""
+        resp = "```yaml\n---\nverdict: accept\nconcerns: []\n---\n```"
+        verdict, concerns = _parse_response(
+            resp, lens="x", stage="clarified", default_artifact="x.md",
+        )
+        assert verdict == "accept"
+        assert concerns == []
+
+    def test_proper_delims_with_fenced_prose_example_no_hijack(self):
+        resp = (
+            "---\n"
+            "verdict: reject\n"
+            "concerns:\n"
+            "  - severity: science\n"
+            "    location: s1\n"
+            "    text: the 27635 count is wrong\n"
+            "---\n"
+            "Example of the right shape:\n"
+            "```yaml\n"
+            "example: 1\n"
+            "```\n"
+        )
+        verdict, concerns = _parse_response(
+            resp, lens="x", stage="clarified", default_artifact="x.md",
+        )
+        assert verdict == "reject"
+        assert len(concerns) == 1
+        assert "27635" in concerns[0].text

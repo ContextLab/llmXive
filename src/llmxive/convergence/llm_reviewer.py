@@ -431,13 +431,21 @@ def _parse_response(
     Raises ``RuntimeError`` on missing frontmatter / invalid YAML /
     missing required fields — engine treats as non-convergence.
     """
-    # Strip a leading code fence if present — many LLMs wrap the YAML
-    # in ```yaml ... ``` blocks even though the prompt asks for raw YAML.
     candidate = response_text.strip()
-    fence_m = _CODE_FENCE_RE.search(candidate)
-    if fence_m is not None:
-        candidate = fence_m.group(1).strip()
+    # Frontmatter extraction takes PRIORITY over fence-stripping. A reviewer's
+    # prose body frequently contains a ```yaml ... ``` example (or quotes a
+    # fenced block from the artifact); stripping that fence FIRST would hijack
+    # `candidate` to the example's contents and drop the real frontmatter — the
+    # Part-7 PROJ-552 crash (`scope_fidelity` review: opening `---`, no closing
+    # `---`, and a fenced block in the prose). Only when the raw response has no
+    # recoverable frontmatter do we treat it as a wholly fence-wrapped document
+    # (many LLMs wrap the whole YAML in ```yaml ... ``` despite the prompt) and
+    # retry on the unwrapped fence contents.
     frontmatter = _extract_frontmatter(candidate)
+    if frontmatter is None:
+        fence_m = _CODE_FENCE_RE.search(candidate)
+        if fence_m is not None:
+            frontmatter = _extract_frontmatter(fence_m.group(1).strip())
     if frontmatter is None:
         raise RuntimeError(
             f"LLMReviewer[{lens}]: response has no YAML frontmatter "
