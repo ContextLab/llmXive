@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-05-31T09:33:53.545693+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-05-31T10:22:50.449693+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-05-22T22:49:57.244268+00:00'
-  ended_at: '2026-05-22T23:25:37.570460+00:00'
-  outcome: abstained
-  action: abstain
 - slug: marie-curie
   started_at: '2026-05-22T23:25:37.570460+00:00'
   ended_at: '2026-05-22T23:53:56.509373+00:00'
@@ -1210,3 +1205,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-31__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-31T09:33:53.545693+00:00'
+  ended_at: '2026-05-31T10:22:50.449693+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-638-https-arxiv-org-abs-2605-28820/reviews/research/geoffrey-west-simulated__2026-05-31__research.md
