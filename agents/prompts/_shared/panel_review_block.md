@@ -60,7 +60,10 @@ your lane.>
 ```
 
 The runtime parses the frontmatter; missing/invalid YAML rejects the review
-and fails the round.
+and fails the round. ALWAYS emit BOTH the opening `---` and the CLOSING `---`
+that terminates the frontmatter — start your response with `---` on the very
+first line (no blank lines before it) and close the frontmatter with a `---`
+line before any prose.
 
 ## Re-review (R3) — when prior concerns from THIS lens exist
 

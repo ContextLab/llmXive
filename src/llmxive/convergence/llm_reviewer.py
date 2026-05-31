@@ -354,6 +354,57 @@ def _safe_yaml_load(yaml_text: str) -> object:
         raise orig_err from None
 
 
+# Matches just the OPENING frontmatter delimiter (a leading ``---`` line).
+_OPEN_DELIM_RE = re.compile(r"^---[ \t]*\r?\n")
+# A YAML document-boundary line (``---`` or ``...``) on its own line.
+_DOC_BOUNDARY_LINE_RE = re.compile(r"(?m)^(?:---|\.\.\.)[ \t]*$")
+
+
+def _extract_frontmatter(candidate: str) -> str | None:
+    """Return the YAML-frontmatter text from a stripped reviewer response.
+
+    Reviewers are contracted to emit ``---\\n<yaml>\\n---\\n<prose>``. Real
+    reasoning-model output sometimes drops (or is truncated before) the CLOSING
+    ``---`` — the model ends right after ``concerns:``, or the endpoint hangs
+    mid-response. The strict both-delimiters regex then matches nothing and a
+    single such reviewer crashes the ENTIRE panel/run. This recovers the
+    frontmatter in three shapes, most-specific first:
+
+    1. Proper ``---\\n<yaml>\\n---`` — strict regex (fast path).
+    2. Opening ``---`` + a later doc-boundary line (``---``/``...``) — cut there.
+    3. Opening ``---`` with NO closing delimiter — take the longest leading
+       line-block that still parses to a non-empty YAML mapping (so the
+       structured verdict/concerns survive; any trailing prose is dropped).
+
+    Returns ``None`` only when there is no opening ``---`` at all.
+    """
+    m = _YAML_FRONTMATTER_RE.search(candidate)
+    if m is not None:
+        return m.group(1)
+    open_m = _OPEN_DELIM_RE.match(candidate)
+    if open_m is None:
+        return None
+    body = candidate[open_m.end():]
+    # Shape 2: a closing doc-boundary somewhere later.
+    boundary = _DOC_BOUNDARY_LINE_RE.search(body)
+    if boundary is not None:
+        return body[: boundary.start()]
+    # Shape 3: no closing delimiter — maximal leading block that yaml-loads to a
+    # non-empty mapping. Trims any unfenced prose the model appended.
+    lines = body.splitlines()
+    for end in range(len(lines), 0, -1):
+        chunk = "\n".join(lines[:end]).rstrip()
+        if not chunk:
+            continue
+        try:
+            loaded = _safe_yaml_load(chunk)
+        except Exception:
+            continue
+        if isinstance(loaded, dict) and loaded:
+            return chunk
+    return body  # nothing parsed cleanly — let downstream raise a precise error
+
+
 def _parse_response(
     response_text: str, *, lens: str, stage: str, default_artifact: str,
 ) -> tuple[str, list[Concern]]:
@@ -386,15 +437,15 @@ def _parse_response(
     fence_m = _CODE_FENCE_RE.search(candidate)
     if fence_m is not None:
         candidate = fence_m.group(1).strip()
-    m = _YAML_FRONTMATTER_RE.search(candidate)
-    if m is None:
+    frontmatter = _extract_frontmatter(candidate)
+    if frontmatter is None:
         raise RuntimeError(
             f"LLMReviewer[{lens}]: response has no YAML frontmatter "
             f"(missing `---` delimiters). First 200 chars: "
             f"{response_text[:200]!r}"
         )
     try:
-        meta = _safe_yaml_load(m.group(1)) or {}
+        meta = _safe_yaml_load(frontmatter) or {}
     except yaml.YAMLError as exc:
         raise RuntimeError(
             f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"
