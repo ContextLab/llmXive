@@ -1,29 +1,26 @@
-resolved_at: '2026-05-31T11:44:36.585191+00:00'
+resolved_at: '2026-05-31T12:06:55.593268+00:00'
 datasets:
 - intent: FR-002
   status: unresolved
   candidates: []
   candidates_tried:
+  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Multi-Vendor_Implementation_and_Comparison_of_Concentric_Ring_Trajectory_Magnetic_Resonance_Spectroscopic_Imaging/32521656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/RNA-seq/32521647
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/software/CART-BCTX_Project/32521632
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Drawing_to_decision_data_for_gender/32521617
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/The_data_set_of_the_paper_titled_Mapping_AI_and_immersive_technologies_Automation_to_human_centric_service_marketing_/31540336
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -47,19 +44,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20469943
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20453648
     source: datacite
     status: wrong_format
@@ -105,29 +102,26 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Multi-Vendor_Implementation_and_Comparison_of_Concentric_Ring_Trajectory_Magnetic_Resonance_Spectroscopic_Imaging/32521656
+  - url: https://acs.figshare.com/articles/journal_contribution/In-Situ_Metabolic_Profiling_of_Single_Living_Cells_by_Liquid_Secondary_Ion_Mass_Spectrometry/32521670
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/RNA-seq/32521647
+  - url: https://figshare.com/articles/dataset/_b_Link_to_Data_associated_with_the_submitted_manuscript_Uncovering_hidden_functional_states_in_Cryo-EM_datasets_with_EMPROVE_b_b_b_/28870373
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CART-BCTX_Project/32521632
+  - url: https://figshare.com/articles/figure/_b_Auxiliary_figure_and_discussion_for_Sancarlo_Paul_2026_The_taxonomics_of_the_lithe_basal_eutyrannosaur_genera_and_species_of_late_Maastrichtian_western_North_America_b_b_b_i_ZooNova_i_/32519379
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Drawing_to_decision_data_for_gender/32521617
+  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
+  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5746416
     source: zenodo
     status: wrong_format
@@ -136,11 +130,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -148,26 +142,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/1197621
+  - url: https://works.hcommons.org/records/1cxra-8pd46
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/216688
+  - url: https://works.hcommons.org/records/1cxra-8pd46
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/147852
+  - url: https://zenodo.org/records/20474651
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/152912
+  - url: https://zenodo.org/records/20474651
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/150222
+  - url: https://diamond-oa.lib.cam.ac.uk/handle/1812/579
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: ('Connection aborted.', RemoteDisconnected('Remote end closed connection
+      without response'))
 - intent: III
   status: verified
   candidates:
@@ -209,29 +204,26 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Multi-Vendor_Implementation_and_Comparison_of_Concentric_Ring_Trajectory_Magnetic_Resonance_Spectroscopic_Imaging/32521656
+  - url: https://acs.figshare.com/articles/journal_contribution/In-Situ_Metabolic_Profiling_of_Single_Living_Cells_by_Liquid_Secondary_Ion_Mass_Spectrometry/32521670
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/RNA-seq/32521647
+  - url: https://figshare.com/articles/dataset/_b_Link_to_Data_associated_with_the_submitted_manuscript_Uncovering_hidden_functional_states_in_Cryo-EM_datasets_with_EMPROVE_b_b_b_/28870373
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CART-BCTX_Project/32521632
+  - url: https://figshare.com/articles/figure/_b_Auxiliary_figure_and_discussion_for_Sancarlo_Paul_2026_The_taxonomics_of_the_lithe_basal_eutyrannosaur_genera_and_species_of_late_Maastrichtian_western_North_America_b_b_b_i_ZooNova_i_/32519379
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Drawing_to_decision_data_for_gender/32521617
+  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
+  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3341783
     source: zenodo
     status: wrong_format
@@ -252,23 +244,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.25431/11380_1197709
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://iris.unimore.it/handle/11380/1197421
+  - url: https://zenodo.org/records/20474736
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/150083
+  - url: https://zenodo.org/records/20474736
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/87779
+  - url: https://zenodo.org/records/18327480
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/216118
+  - url: https://zenodo.org/records/18327480
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20474590
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -276,29 +268,26 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/media/Multi-Vendor_Implementation_and_Comparison_of_Concentric_Ring_Trajectory_Magnetic_Resonance_Spectroscopic_Imaging/32521656
+  - url: https://acs.figshare.com/articles/journal_contribution/In-Situ_Metabolic_Profiling_of_Single_Living_Cells_by_Liquid_Secondary_Ion_Mass_Spectrometry/32521670
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/RNA-seq/32521647
+  - url: https://figshare.com/articles/dataset/_b_Link_to_Data_associated_with_the_submitted_manuscript_Uncovering_hidden_functional_states_in_Cryo-EM_datasets_with_EMPROVE_b_b_b_/28870373
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CART-BCTX_Project/32521632
+  - url: https://figshare.com/articles/figure/_b_Auxiliary_figure_and_discussion_for_Sancarlo_Paul_2026_The_taxonomics_of_the_lithe_basal_eutyrannosaur_genera_and_species_of_late_Maastrichtian_western_North_America_b_b_b_i_ZooNova_i_/32519379
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Drawing_to_decision_data_for_gender/32521617
+  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
+  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Cybersecurity_Threat_Detection_and_Response_-_Building_a_Capability_Framework_for_a_Pacific_Islands_CERT/32521611
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3841160
     source: zenodo
     status: wrong_format
@@ -311,29 +300,25 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10384626
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/13213336
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
   - url: https://doi.org/10.5281/zenodo.19526737
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

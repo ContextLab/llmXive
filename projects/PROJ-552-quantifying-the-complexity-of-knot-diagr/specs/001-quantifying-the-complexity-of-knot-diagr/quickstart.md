@@ -1,107 +1,165 @@
 # Quickstart: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
+**Feature Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-29
+
 ## Prerequisites
 
 - Python 3.11 or higher
-- Stable internet connection (for data download)
-- ≥2GB available disk space
-- Git for version control
+- pip package manager
+- Stable internet connection (for Knot Atlas download)
+- ~500MB disk space for dataset and outputs
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+1. **Clone the repository** (or navigate to project root):
+   ```bash
+   cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+   ```
 
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+2. **Create virtual environment**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-# Install dependencies
-pip install -r code/requirements.txt
-```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+
+4. **Verify installation**:
+   ```bash
+   python -c "import pandas, numpy, scipy, matplotlib; print('All dependencies installed')"
+   ```
 
 ## Running the Analysis
 
 ### Step 1: Download Knot Data
 
 ```bash
-python code/download/knot_atlas_downloader.py --output data/raw/knot_atlas_raw.json
+python code/data_download.py
 ```
 
 This will:
-- Attempt to download from Knot Atlas with retry logic (exponential backoff: 1s → 2s → 4s →... → 60s max)
+- Attempt to download from Knot Atlas with exponential backoff retry logic
 - Cache partial results after 3 consecutive failures
-- Log all operations to docs/reproducibility/logs/download.log
+- Save raw data to `data/raw/knot_atlas_raw.jsonl`
+- Record checksum in `docs/reproducibility/checksums.json`
 
-### Step 2: Compute Invariants
+**Expected Output**: Raw dataset with all prime knots crossing number ≤13
+
+### Step 2: Parse and Clean Data
 
 ```bash
-python code/compute/invariant_computer.py \
-    --input data/raw/knot_atlas_raw.json \
-    --output data/processed/invariants_computed.csv \
-    --seed 42
+python code/invariant_computation.py --stage parse
 ```
 
 This will:
-- Compute arc index, Seifert circle count, and bridge number where diagram representations are available
-- Flag records with missing_invariant_flags rather than silent exclusion
-- Apply tie-breaking rules (braid word preferred over DT code; lexicographically first DT code)
-- Record checksums in data/checksums.json
+- Extract crossing number, braid index, alternating classification
+- Save processed data to `data/processed/knots_crossing_1_to_10.parquet`
+- Flag records with missing invariant data
 
-### Step 3: Run Exploratory Analysis
+**Expected Output**: Cleaned dataset ready for invariant computation
 
-```bash
-python code/analysis/exploratory.py \
-    --input data/processed/invariants_computed.csv \
-    --output data/plots/
-```
-
-This will generate:
-- `crossing_vs_braid_alternating.png` (1200x900+ pixels)
-- `crossing_vs_braid_non_alternating.png` (1200x900+ pixels)
-
-### Step 4: Fit Regression Models
+### Step 3: Compute Additional Invariants
 
 ```bash
-python code/analysis/regression.py \
-    --input data/processed/invariants_computed.csv \
-    --output data/processed/regression_models.pkl \
-    --seed 42
+python code/invariant_computation.py --stage compute
 ```
 
-### Step 5: Validate Composite Score
+This will:
+- Compute arc index (Birman-Menasco method)
+- Compute Seifert circle count (Seifert's algorithm)
+- Compute bridge number (Schubert's decomposition)
+- Flag uncomputable records with `missing_invariant_flags`
+
+**Expected Output**: `data/processed/invariants_computed.parquet` with all invariants
+
+### Step 4: Exploratory Analysis
 
 ```bash
-python code/analysis/validation.py \
-    --input data/processed/invariants_computed.csv \
-    --models data/processed/regression_models.pkl \
-    --output data/validation_results.json \
-    --seed 42
+python code/exploratory_analysis.py
 ```
 
-### Step 6: Generate Reproducibility Documentation
+This will:
+- Generate scatter plots of crossing number vs. braid index
+- Stratify by alternating/non-alternating classification
+- Save PNG files to `data/plots/` (minimum 1200x900 pixels)
+
+**Expected Output**: 
+- `data/plots/crossing_vs_braid_alternating.png`
+- `data/plots/crossing_vs_braid_non_alternating.png`
+
+### Step 5: Regression Modeling
 
 ```bash
-python code/reproducibility/checksums.py \
-    --data-dir data/ \
-    --output docs/reproducibility/checksums.json
-
-python code/reproducibility/validation_scripts.py \
-    --input data/processed/invariants_computed.csv \
-    --output docs/reproducibility/validation_status.md
+python code/regression_models.py
 ```
 
-## Verifying Results
+This will:
+- Fit linear regression model
+- Fit polynomial/non-linear regression model
+- Compare goodness-of-fit metrics (R², AIC/BIC)
+- Save model objects to `data/processed/regression_models/`
+
+**Expected Output**: Regression model objects with documented metrics
+
+### Step 6: Composite Score Construction
+
+```bash
+python code/composite_score.py
+```
+
+This will:
+- Construct composite complexity score with default equal weights (1:1)
+- Split dataset 20% held-out test set (stratified by crossing number)
+- Compute correlations with arc index and Seifert circle count
+- Report Pearson AND Spearman coefficients
+
+**Expected Output**: `data/processed/composite_score_validation.parquet` with validation metrics
+
+### Step 7: Reproducibility Documentation
+
+```bash
+python code/reproducibility/generate_docs.py
+```
+
+This will:
+- Generate SHA-256 checksums for all data files
+- Create derivation notes for all transformations
+- Record timestamped logs
+- Generate validation status report
+
+**Expected Output**: 
+- `docs/reproducibility/checksums.json`
+- `docs/reproducibility/reproducibility_logs.jsonl`
+- `docs/reproducibility/validation_status.md`
+
+## Configuration
+
+### Customizing Weights
+
+Edit `config/complexity_weights.yaml`:
+
+```yaml
+crossing_weight: 1.0
+braid_weight: 1.0
+```
+
+### Random Seed
+
+Edit `config/random_seed.yaml`:
+
+```yaml
+random_seed: 42
+```
+
+## Validation
 
 ### Dataset Completeness Check
 
 ```bash
-python code/reproducibility/validation_scripts.py \
-    --check completeness \
-    --expected-crossing-max 10 \
-    --min-completeness 0.95
+python tests/unit/test_dataset_completeness.py
 ```
 
 Expected: ≥95% completeness for crossing numbers ≤10
@@ -109,51 +167,50 @@ Expected: ≥95% completeness for crossing numbers ≤10
 ### Algorithm Validation Check
 
 ```bash
-python code/reproducibility/validation_scripts.py \
-    --check algorithm_validation \
-    --min-match-threshold 0.95
+python tests/unit/test_algorithm_validation.py
 ```
 
-Expected: ≥95% match with KnotInfo reference values where coverage ≥10%
+Expected: ≥95% match with reference values where coverage ≥10%
 
 ### Tie-Breaking Consistency Check
 
 ```bash
-python code/reproducibility/validation_scripts.py \
-    --check tie_breaking \
-    --require-consistency true
+python docs/reproducibility/validate_tie_breaking.py
 ```
 
-Expected: 100% consistency across all records with multiple diagram representations
+Expected: 100% consistency across all records
 
-## Configuration
+### Contract Tests
 
-Edit `config/complexity_weights.yaml` to customize composite score weights:
-
-```yaml
-crossing_weight: 0.5
-braid_weight: 0.5
+```bash
+pytest tests/contract/
 ```
+
+Expected: All schema validations pass
 
 ## Troubleshooting
 
 ### Knot Atlas Unavailable
 
-If Knot Atlas returns HTTP 404 or rate-limits requests:
-- The downloader will automatically retry with exponential backoff
-- After 3 consecutive failures, partial results are cached to disk
-- Check `docs/reproducibility/logs/download.log` for error details
-- The system will continue with partial data rather than failing completely
+If download fails after 3 retries:
+1. Check `docs/reproducibility/reproducibility_logs.jsonl` for error details
+2. Manual data extraction may be required
+3. Document "NO verified source found" in `docs/reproducibility/validation_scope.md`
 
 ### Missing Invariant Data
 
-If invariants cannot be computed:
-- Records are flagged with `missing_invariant_flags` rather than excluded
-- See `docs/reproducibility/uncomputable_invariants.md` for details
-- Coverage should be ≥99% (SC-006)
+Check `docs/reproducibility/uncomputable_invariants.md` for summary of records with missing data.
 
-### Ambiguous Classification
+### Validation Failures
 
-If alternating/non-alternating classification is ambiguous:
-- Records are either excluded from stratified analysis (with count logged) or marked as "unclassifiable"
-- See `docs/reproducibility/validation_status.md` for exclusion counts
+If any validation script fails:
+1. Review error message in log output
+2. Check `docs/reproducibility/validation_status.md` for detailed failure report
+3. Re-run the affected stage before proceeding
+
+## Next Steps
+
+After completing Phase 1:
+1. Review results in `docs/reproducibility/validation_status.md`
+2. Evaluate whether to proceed to Phase 2 (multi-class exploration)
+3. Update project documentation with findings
