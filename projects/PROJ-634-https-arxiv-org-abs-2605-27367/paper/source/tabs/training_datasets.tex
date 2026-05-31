@@ -1,0 +1,43 @@
+\begin{table*}[t]
+\caption{\textbf{Training Datasets Statistics.} Each training epoch is composed of 18 datasets, and their dataset mixture ratios are reported as the training prob.}
+\label{dataset-table}
+\small
+\renewcommand{\arraystretch}{0.98}
+\centering
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{0.96\textwidth}{@{}
+  >{\centering\arraybackslash}p{0.78cm}
+  >{\centering\arraybackslash}p{0.52cm}
+  >{\raggedright\arraybackslash}X
+  >{\centering\arraybackslash}p{1.18cm}
+  >{\centering\arraybackslash}p{1.28cm}
+  >{\centering\arraybackslash}p{1.08cm}
+  >{\raggedleft\arraybackslash}p{0.86cm}
+  >{\centering\arraybackslash}p{0.78cm}
+  >{\centering\arraybackslash}p{0.98cm}
+@{}}
+\toprule
+\textbf{Cat.} & \textbf{Id.} & \textbf{Dataset} & \textbf{Scene} & \textbf{R/S} & \textbf{Dyn.} & \textbf{\# Fr.} & \textbf{Met.} & \textbf{Prob.} \\ \midrule
+\multirow{11}{*}{\rotatebox{90}{\textbf{General 3D Datasets}}}
+& 1  & \textbf{HyperSim}~\citep{roberts2021hypersim}         & Indoor  & Syn. & Stat. & 70K  & \cmark & 2.8 \\
+& 2  & \textbf{Infinigen}~\citep{raistrick2024infinigen}    & Indoor  & Syn. & Stat. & 142K & \cmark & 2.5 \\
+& 3  & \textbf{MapFree}~\citep{arnold2022mapfree}           & Outdoor & Real & Stat. & 2.6M & \cmark & 6.5 \\
+& 4  & \textbf{Matterport 3D}~\citep{ramakrishnan2021hm3d}  & Indoor  & Real & Stat. & 1.9M & \cmark & 7.3 \\
+& 5  & \textbf{MVS-Synth}~\citep{huang2018mvs}              & Outdoor & Syn. & Stat. & 12K  & \cmark & 0.4 \\
+& 6  & \textbf{ScanNet++}~\citep{yeshwanth2023scannet++}    & Indoor  & Real & Stat. & 7.8M & \cmark & 4.1 \\
+& 7  & \textbf{Spring}~\citep{mehl2023spring}               & Outdoor & Syn. & Dyn.  & 5K   & \cmark & 2.3 \\
+& 8  & \textbf{Tartanair}~\citep{wang2020tartanair}         & Mixed   & Syn. & Stat. & 3M   & \cmark & 6.8 \\
+& 9  & \textbf{Unreal 4K}~\citep{tosi2021unreal}           & Outdoor & Syn. & Stat. & 16K  & \cmark & 0.4 \\
+& 10 & \textbf{Vkitti}~\citep{cabon2020vkitti}             & Outdoor & Syn. & Dyn.  & 42K  & \cmark & 1.5 \\
+& 11 & \textbf{Waymo}~\citep{sun2020waymo}                 & Outdoor & Real & Dyn.  & 7.9M & \cmark & 5.1 \\ \midrule
+\multirow{6}{*}{\rotatebox{90}{\textbf{\dataset}}}
+& 12 & \textbf{Aria Digital Twin}~\citep{pan2023aria}      & Indoor  & Syn. & Dyn. & 87K  & \cmark & 8.0 \\
+& 13 & \textbf{Colosseum}~\citep{pumacay2024colosseum}     & Indoor  & Syn. & Dyn. & 334K & \cmark & 5.5  \\
+& 14 & \textbf{HOI4D}~\citep{liu2022hoi4d}                 & Indoor  & Real & Dyn. & 739K & \cmark & 11.1 \\
+& 15 & \textbf{RLBench}~\citep{james2020rlbench}           & Indoor  & Syn. & Dyn. & 1.2M & \cmark & 5.5  \\
+& 16 & \textbf{Robolab}~\citep{yang2026robolab}            & Indoor  & Syn. & Dyn. & 158K & \cmark & 11.1 \\
+& 17 & \textbf{RoboTwin}~\citep{chen2025robotwin}          & Indoor  & Syn. & Dyn. & 1.8M & \cmark & 11.1 \\
+& 18 & \textbf{Xperience}~\citep{xperience_10m}          & Mixed  & Real & Dyn. & 400K & \cmark & 8.0 \\
+\bottomrule
+\end{tabularx}
+\end{table*}

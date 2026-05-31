@@ -1,0 +1,241 @@
+\documentclass[11pt, logo, copyright, colorlinks=true, allcolors=blue]{nvidiatechreport}
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+\bibliographystyle{unsrtnat}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{colortbl}       % row/column coloring in tables
+\usepackage{multirow}       % multirow cells
+\usepackage[numbers]{natbib}  % for \citep / \citet (numerical citation style)
+
+\usepackage{bbm}
+\usepackage{pifont}
+\usepackage{subcaption}
+\captionsetup{font=small}
+\captionsetup[sub]{font=small}
+\usepackage{graphicx}
+% ─── Packages ───
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{mathtools}
+\usepackage{xspace}
+\usepackage{dsfont}
+\usepackage{fvextra}
+\usepackage{hyperref}
+\newcommand{\customfootnotetext}[2]{{\renewcommand{\thefootnote}{#1}\footnotetext[0]{#2}}}
+
+% ─── Theorem Environments ───
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{claim}{Claim}[section]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{theorem}{\textbf{Theorem}}
+\newtheorem{corollary}[theorem]{\textbf{Corollary}}
+
+% ─── Custom Colors ───
+\definecolor{remarkgreen}{HTML}{2d6a4f}
+\definecolor{claimred}{HTML}{c25e3f}
+\definecolor{takeawayblue}{HTML}{1f4e8a}
+\definecolor{Red}{rgb}{0.768, 0.054, 0.054}
+\definecolor{Blue}{rgb}{0.152, 0.294, 0.925}
+\definecolor{Green}{rgb}{0,0.4,0.7}
+\definecolor{darkgray}{gray}{0.3}
+\definecolor{chocolate}{HTML}{D2691E}
+\definecolor{maroon}{HTML}{A00000}
+\definecolor{indigo}{HTML}{4B0082}
+\definecolor{green}{HTML}{008000}
+\definecolor{newred}{HTML}{a91e1e}
+\definecolor{cadmiumgreen}{rgb}{0.0, 0.42, 0.24}
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+\definecolor{deltateal}{HTML}{0F766E}
+% Table accent colors
+\definecolor{mygray}{gray}{0.92}
+\definecolor{myblue}{HTML}{E8F0FB}
+\definecolor{linkcolor}{RGB}{190,105,30}
+
+% ─── tcolorbox for Remarks ───
+\newtcolorbox{remarkbox}{
+  colback=remarkgreen!5, colframe=remarkgreen!40,
+  fonttitle=\bfseries, left=4pt, right=4pt, top=4pt, bottom=4pt,
+  boxrule=0pt, leftrule=2pt, sharp corners
+}
+\newtcolorbox{claimbox}{
+  colback=claimred!5, colframe=claimred!30,
+  fonttitle=\bfseries, left=4pt, right=4pt, top=4pt, bottom=4pt,
+  boxrule=0.5pt, sharp corners
+}
+\tcbset{
+  takeawaybox/.style={
+    width=\linewidth,
+    boxrule=0.8pt,
+    top=6pt, bottom=2pt, left=3pt, right=3pt,
+    before skip=12pt, after skip=8pt,
+    colback=takeawayblue!3!white,
+    colframe=takeawayblue,
+    colbacktitle=takeawayblue,
+    enhanced, breakable,
+    attach boxed title to top left={yshift=-0.1in, xshift=0.15in},
+    boxed title style={boxrule=0pt, colframe=white},
+  }
+}
+\newtcolorbox{takeawaybox}[2][]{takeawaybox, title=#2, #1}
+
+% ─── tcolorbox styles for qualitative trajectory examples ───
+\definecolor{axpoboxframe}{HTML}{2c5fa8}
+\definecolor{grpoboxframe}{HTML}{a91e1e}
+\definecolor{qboxframe}{HTML}{4a4a4a}
+\tcbset{
+  questionbox/.style={
+    enhanced, breakable, sharp corners,
+    width=\linewidth,
+    boxrule=0.5pt, leftrule=2.5pt,
+    top=4pt, bottom=4pt, left=6pt, right=6pt,
+    before skip=4pt, after skip=4pt,
+    colback=qboxframe!4!white,
+    colframe=qboxframe!60,
+    colbacktitle=qboxframe,
+    coltitle=white,
+    fonttitle=\bfseries\small,
+    attach boxed title to top left={yshift=-2pt, xshift=4pt},
+    boxed title style={boxrule=0pt, sharp corners, top=2pt, bottom=2pt, left=4pt, right=4pt},
+  },
+  axpobox/.style={
+    enhanced, breakable, sharp corners,
+    width=\linewidth,
+    boxrule=0.5pt, leftrule=2.5pt,
+    top=4pt, bottom=4pt, left=6pt, right=6pt,
+    before skip=4pt, after skip=4pt,
+    colback=axpoboxframe!4!white,
+    colframe=axpoboxframe!60,
+    colbacktitle=axpoboxframe,
+    coltitle=white,
+    fonttitle=\bfseries\small,
+    attach boxed title to top left={yshift=-2pt, xshift=4pt},
+    boxed title style={boxrule=0pt, sharp corners, top=2pt, bottom=2pt, left=4pt, right=4pt},
+  },
+  grpobox/.style={
+    enhanced, breakable, sharp corners,
+    width=\linewidth,
+    boxrule=0.5pt, leftrule=2.5pt,
+    top=4pt, bottom=4pt, left=6pt, right=6pt,
+    before skip=4pt, after skip=4pt,
+    colback=grpoboxframe!4!white,
+    colframe=grpoboxframe!60,
+    colbacktitle=grpoboxframe,
+    coltitle=white,
+    fonttitle=\bfseries\small,
+    attach boxed title to top left={yshift=-2pt, xshift=4pt},
+    boxed title style={boxrule=0pt, sharp corners, top=2pt, bottom=2pt, left=4pt, right=4pt},
+  },
+}
+\newtcolorbox{questionbox}[1][]{questionbox, title=Question, #1}
+\newtcolorbox{axpobox}[1][]{axpobox, title=AXPO\ \(\checkmark\), #1}
+\newtcolorbox{grpobox}[1][]{grpobox, title=GRPO\ \(\times\), #1}
+
+% ─── tcolorbox style for verbatim system prompt ───
+\tcbset{
+  promptbox/.style={
+    enhanced, breakable, sharp corners,
+    width=\linewidth,
+    boxrule=0.5pt, leftrule=2.5pt,
+    top=4pt, bottom=4pt, left=6pt, right=6pt,
+    before skip=4pt, after skip=4pt,
+    colback=qboxframe!4!white,
+    colframe=qboxframe!60,
+    colbacktitle=qboxframe,
+    coltitle=white,
+    fonttitle=\bfseries\small,
+    attach boxed title to top left={yshift=-2pt, xshift=4pt},
+    boxed title style={boxrule=0pt, sharp corners, top=2pt, bottom=2pt, left=4pt, right=4pt},
+  },
+}
+\newtcolorbox{promptbox}[1][]{promptbox, title=System Prompt, #1}
+\definecolor{nvidiagreen}{HTML}{76B900}
+\hypersetup{
+    colorlinks=true,
+    citecolor=teal,
+    linkcolor=nvidiagreen,  % NVIDIA brand green for autoref/cross-references
+    urlcolor=Green,
+}
+
+\AtBeginDocument{%
+  \renewcommand{\sectionautorefname}{Section}%
+  \renewcommand{\subsectionautorefname}{Section}%
+  \renewcommand{\subsubsectionautorefname}{Section}%
+}
+\newcommand{\propositionautorefname}{Proposition}
+\newcommand{\appref}[1]{\hyperref[#1]{Appendix~\ref*{#1}}}
+\newcommand{\dpos}[1]{\textit{\textcolor{deltateal}{$+#1$}}}
+\newcommand{\dneg}[1]{\textit{\textcolor{newred}{$-#1$}}}
+\newcommand{\dposavg}[1]{\textit{\textbf{\textcolor{deltateal}{$+#1$}}}}
+\newcommand{\dnegavg}[1]{\textit{\textbf{\textcolor{newred}{$-#1$}}}}
+
+\newcommand{\think}{\texttt{<think>}\xspace}
+\newcommand{\thinkr}{\texttt{</think>}\xspace}
+\newcommand{\toolcall}{\texttt{<tool\_call>}\xspace}
+\newcommand{\toolcallr}{\texttt{</tool\_call>}\xspace}
+\newcommand{\tool}{\texttt{<tool>}\xspace}
+\newcommand{\toolr}{\texttt{</tool>}\xspace}
+\newcommand{\answer}{\texttt{<answer>}\xspace}
+\newcommand{\answerr}{\texttt{</answer>}\xspace}
+
+\newcommand{\gap}{Thinking-Acting Gap\xspace}
+
+\newcommand{\toolresample}{tool-call resampling\xspace}
+\newcommand{\Toolresample}{Tool-call resampling\xspace}
+
+\input{math_commands}
+\input{macros}
+
+\title{Agent Explorative Policy Optimization for Multimodal Agentic Reasoning}
+
+\fancyhead[C]{\footerfont Agent Explorative Policy Optimization}
+
+\author{%
+  Minki Kang$^{1,2*}$,
+  Shizhe Diao$^{1}$,
+  Ryo Hachiuma$^{1}$,
+  Sung Ju Hwang$^{2}$,
+  Pavlo Molchanov$^{1}$,
+  Yu-Chiang Frank Wang$^{1}$,
+  Byung-Kwan Lee$^{1\dagger}$\\
+  $^1$NVIDIA \quad $^2$KAIST
+}
+\correspondingauthor{$^*$Work done during internship. $^\dagger$Project Lead.\\
+Correspondence to <\texttt{minkikang@kaist.ac.kr}, \texttt{byungkwanl@nvidia.com}>}
+
+\input{text/0_abstract}
+
+\begin{document}
+
+\maketitle
+
+\input{figures/fig1}
+
+\input{text/1_introduction}
+\input{text/2_method}
+\input{text/3_experiments}
+\input{text/4_related_works}
+\input{text/5_conclusion}
+
+\clearpage
+\bibliography{reference}
+
+\appendix
+\input{text/9_appendix}
+
+\end{document}

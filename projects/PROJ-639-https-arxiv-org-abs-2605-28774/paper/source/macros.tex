@@ -1,0 +1,73 @@
+% ─── Math-VR / MMMU-Pro variant toggle ───
+% The 9-bench Reasoning slot can be filled by either MMMU-Pro (original) or
+% Math-VR (current). Tables are swapped via \input toggles in 3_experiments.tex
+% and 9_appendix.tex; this file mirrors that swap for inline numerical
+% references in the prose. To revert to MMMU-Pro:
+%   1. \mathvrtrue → \mathvrfalse below.
+%   2. Flip the corresponding \input lines in 3_experiments.tex / 9_appendix.tex
+%      (and the \input{tables/tab_tool_util*} lines if added).
+\newif\ifmathvr
+\mathvrtrue
+% \mathvrfalse
+
+\ifmathvr
+  % --- Math-VR composition (current) ---
+  % Pass@4 Avg Δ vs SFT+GRPO from tab:main-p4 (math-vr variant).
+  \newcommand{\dPassFourTwoB}{$+2.8$}
+  \newcommand{\dPassFourFourB}{$+2.3$}
+  \newcommand{\dPassFourEightB}{$+1.8$}
+  % Pass@1 Avg Δ vs SFT+GRPO from tab:main-p1 (math-vr variant).
+  \newcommand{\dPassOneTwoB}{$+1.1$}
+  \newcommand{\dPassOneFourB}{$+1.4$}
+  \newcommand{\dPassOneEightB}{$+1.8$}
+  % 8B AXPO Pass@4 vs 32B Agent Pass@4 (Avg column).
+  \newcommand{\eightBvsAgentPassFour}{$75.8$ vs.\ $75.1$}
+  % 8B AXPO Pass@1 as percentage of 32B Agent Pass@1.
+  \newcommand{\eightBPassOneReachPct}{$99\%$}
+  % Per-category Pass@1 Δ at 8B (vs SFT+GRPO).
+  \newcommand{\dReasoningEightB}{$+0.6$}
+  \newcommand{\dPerceptionEightB}{$+2.9$}
+  \newcommand{\dSearchEightB}{$+1.3$}
+  % Appendix app:decomp-recipe — per-stage Avg deltas.
+  % Non-agent → Agent: Pass@1 / Pass@4 pair per size.
+  \newcommand{\dAgentTwoB}{$-1.3$ / $+1.1$}
+  \newcommand{\dAgentFourB}{$+5.2$ / $+9.2$}
+  \newcommand{\dAgentEightB}{$+4.7$ / $+9.8$}
+  \newcommand{\dAgentThirtyTwoB}{$+6.7$ / $+10.1$}
+  % GRPO → SFT+GRPO: 2B/4B/8B triples.
+  \newcommand{\dSFTinitPassOne}{$+5.3$ at 2B, $+5.2$ at 4B, $+1.3$ at 8B}
+  \newcommand{\dSFTinitPassFour}{$+6.8$, $+4.9$, $+2.4$}
+  % SFT → SFT+GRPO: 2B/4B/8B triples.
+  \newcommand{\dRLAfterSFTPassOne}{$+4.5$ at 2B, $+1.2$ at 4B, $+2.0$ at 8B}
+  \newcommand{\dRLAfterSFTPassFour}{$+2.3$, $+0.0$, $+1.8$}
+  % Tool utilization (app:tool-util) — SFT+AXPO Avg across 2B/4B/8B.
+  \newcommand{\toolUtilAxpoAvg}{$81.9$ / $86.9$ / $82.9$}
+  % Three hardest Reasoning benches at 8B (where tool-util gap to SFT+GRPO is largest).
+  \newcommand{\toolUtilHardReasoning}{MathVision, DynaMath, Math-VR}
+  % SFT+AXPO − SFT+GRPO tool-util gap on the three benches above at 8B.
+  \newcommand{\toolUtilHardReasoningGap}{$+30/+33/+22$}
+\else
+  % --- MMMU-Pro composition (original) ---
+  \newcommand{\dPassFourTwoB}{$+2.5$}
+  \newcommand{\dPassFourFourB}{$+2.6$}
+  \newcommand{\dPassFourEightB}{$+1.8$}
+  \newcommand{\dPassOneTwoB}{$+0.7$}
+  \newcommand{\dPassOneFourB}{$+1.4$}
+  \newcommand{\dPassOneEightB}{$+1.9$}
+  \newcommand{\eightBvsAgentPassFour}{$75.9$ vs.\ $75.4$}
+  \newcommand{\eightBPassOneReachPct}{$98\%$}
+  \newcommand{\dReasoningEightB}{$+1.0$}
+  \newcommand{\dPerceptionEightB}{$+2.9$}
+  \newcommand{\dSearchEightB}{$+1.3$}
+  \newcommand{\dAgentTwoB}{$-1.4$ / $+1.5$}
+  \newcommand{\dAgentFourB}{$+4.7$ / $+8.9$}
+  \newcommand{\dAgentEightB}{$+3.4$ / $+8.8$}
+  \newcommand{\dAgentThirtyTwoB}{$+6.6$ / $+10.1$}
+  \newcommand{\dSFTinitPassOne}{$+5.0$ at 2B, $+5.2$ at 4B, $+0.9$ at 8B}
+  \newcommand{\dSFTinitPassFour}{$+6.5$, $+5.0$, $+2.0$}
+  \newcommand{\dRLAfterSFTPassOne}{$+4.4$ at 2B, $+1.2$ at 4B, $+1.8$ at 8B}
+  \newcommand{\dRLAfterSFTPassFour}{$+2.0$, $-0.1$, $+1.6$}
+  \newcommand{\toolUtilAxpoAvg}{$84.8$ / $95.7$ / $88.4$}
+  \newcommand{\toolUtilHardReasoning}{MMMU-Pro, MathVision, DynaMath}
+  \newcommand{\toolUtilHardReasoningGap}{$+30/+30/+33$}
+\fi

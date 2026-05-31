@@ -1,0 +1,132 @@
+\subsubsection{Robotics Manipulation Trajectories}
+
+Real and simulated robot manipulation trajectories form the core of our
+pretraining corpus, accounting for approximately 74.2\% of the total
+pretraining mixture. The data spans tabletop manipulation, mobile manipulation,
+bimanual tasks, and dexterous hand control across a diverse set of robot
+embodiments.
+
+\paragraph{Public datasets.}
+
+To improve data scale, diversity, and cross-embodiment generalization, we train
+on a broad mixture of publicly available real-robot datasets, including
+RobotSet~\citep{RoboSet}, Galaxea~\citep{galaxea_g0},
+AgiBot World~\citep{agibot_world_colosseo}, RoboCOIN~\citep{robocoin},
+RoboMIND V1/V2~\citep{robomind_v1,robomind_v2}, RDT-1B~\citep{RDT-1B},
+DROID~\citep{droid}, BridgeData V2~\citep{bridgev2},
+RH20T~\citep{RH20T}, RT-1~\citep{rt1}, and BC-Z~\citep{bc_z}.
+These datasets cover diverse robotic settings, including tabletop
+manipulation, mobile manipulation, bimanual manipulation, dexterous hand
+control, and in-the-wild task execution, amounting to over 10{,}000 hours of
+interaction data across heterogeneous embodiments and task scenarios. This
+large-scale mixture provides complementary supervision over robot morphologies,
+camera viewpoints, object categories, backgrounds, language instructions, and
+action distributions, thereby reducing overfitting to any single embodiment or
+environment and improving robustness under distribution shifts.
+
+In addition to real-robot data, we include simulation-based manipulation
+trajectories from InternData-A1~\citep{interndata-a1} and
+GR00T-X-Embodiment-Sim~\citep{nvidia2025gr00t}, which are generated through motion
+planning in diverse virtual environments. These simulated trajectories augment
+scene and object diversity, especially for long-tail object configurations and
+task layouts. Before training, all real and simulated datasets are curated and
+converted into a unified observation-action format while preserving their
+original task semantics, enabling scalable training over heterogeneous robot
+experience.
+\paragraph{Proprietary datasets.}
+We supplement with over 1{,}000 hours of in-house collected real-robot trajectories
+covering a variety of manipulation tasks and robot platforms, together
+contributing approximately 20\% of the total pretraining mixture.
+In addition, we generate over 8M synthetic simulation trajectories using our
+scalable simulation pipeline illustrated in \cref{subsubsection:SyntheticSimulationData}, contributing a further 3.7\%
+of the mixture and substantially expanding the diversity of scenes, objects,
+and task configurations beyond what real-robot teleoperation alone can cover.
+
+\paragraph{Embodiment-aware prompt conditioning.}
+As described in \cref{sec:embodiment}, each training example is prepended with
+a robot-specific prompt specifying the current platform, arm configuration, and
+control convention.
+Table~\ref{tab:robots} lists the representative embodiments in our pretraining
+corpus with their arm configurations and action types.
+
+\begin{table}[h]
+\centering
+\caption{Representative robot embodiments in the pretraining corpus.
+``EEF'' = end-effector pose; ``Joint'' = joint angles;
+``$\Delta$'' = delta (relative) commands; ``Abs'' = absolute commands;
+``G'' = gripper; ``DH'' = dexterous hand.}
+\label{tab:robots}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llll}
+\toprule
+\textbf{Robot} & \textbf{Arms} & \textbf{Action type} \\
+\midrule
+WidowX            & Single & $\Delta$EEF + G \\
+Google Robot      & Single & $\Delta$EEF + G \\
+Franka Panda      & Single / Dual & $\Delta$EEF + G;\; Abs Joint + G \\
+ARX5              & Dual   & $\Delta$EEF + G \\
+Fourier GR-1      & Dual   & $\Delta$EEF + G \\
+Mobile ALOHA      & Dual   & $\Delta$EEF + G;\; Abs Joint + G \\
+AgiBot A2-D       & Dual   & Abs Joint + G;\; Abs Joint + DH \\
+Galaxea R1        & Dual   & Abs Joint + G \\
+AIRBOT MMK2       & Dual   & Abs Joint + DH \\
+TienKung          & Dual   & Abs Joint + G;\; Abs Joint + DH \\
+Real Human        & Dual   & $\Delta$EEF (from MANO) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Action representation.}
+Different datasets adopt different action conventions: some provide absolute
+end-effector poses in Cartesian space~\citep{xie2026unifyrobotactionscamera}, others provide delta end-effector
+commands, and others use absolute or relative joint-space control signals.
+We preserve each dataset's original action format rather than converting to a
+shared representation, relying on embodiment-aware prompt conditioning
+to inform the model of the current control convention.
+
+All action dimensions are normalized per dataset using quantile statistics.
+For each action dimension $d$ in dataset $k$, we compute the 1st and 99th
+percentiles $q^k_{01}$ and $q^k_{99}$ over all trajectories and apply a
+linear mapping:
+\begin{equation}
+    \tilde{a}_d = 2 \cdot \frac{a_d - q^k_{01}}{q^k_{99} - q^k_{01}} - 1,
+\end{equation}
+clipping the result to $[-1, 1]$. This per-dataset quantile normalization
+removes scale differences across embodiments and action spaces while preserving
+relative motion structure within each source.
+
+\paragraph{Language instructions.}
+Language instructions are sourced from a combination of original dataset
+annotations and model-generated captions provided alongside the data.
+All instructions undergo a quality filtering and consistency checking pipeline:
+trajectories whose language annotations are inconsistent with the observed
+motion are discarded, ensuring reliable language--action alignment across
+diverse sources.
+Beyond action-labelled data, we incorporate fine-grained embodied video--caption
+pairs (described in \cref{sec:vl-data}) as auxiliary vision-language supervision.
+This dense language signal bridges the gap between coarse task labels and rich
+semantic descriptions of robot behaviour, enabling the model to generalise to a
+broader range of natural-language instructions at inference time.
+
+\paragraph{Camera view representation.}
+Many robot datasets provide observations from multiple camera viewpoints
+simultaneously, \eg a head-mounted ego-centric camera alongside one or two
+wrist-mounted cameras.
+To make the view provenance explicit to the model, we wrap each image in the
+token stream with a pair of view-specific boundary tokens:
+\begin{center}
+\texttt{<|}\textit{tag}\texttt{\_start|>}\ \textlangle image\textrangle\ \texttt{<|}\textit{tag}\texttt{\_end|>}
+\end{center}
+where \textit{tag} identifies the camera source, \eg \texttt{ego},
+\texttt{cam\_left\_wrist}, or \texttt{cam\_right\_wrist}.
+The explicit view labels allow the VLM backbone to form view-aware
+representations and let the action expert attend selectively to each
+viewpoint when producing actions, without requiring any architectural
+changes or additional input channels.
+
+\paragraph{Data cleaning.}
+We apply a multi-stage filtering pipeline to remove trajectories with corrupted
+or missing frames, near-zero-variance action sequences indicative of static
+recordings, and episodes with anomalous lengths. For datasets without explicit
+action labels, pseudo-actions are recovered via finite differences on
+proprioceptive state sequences.

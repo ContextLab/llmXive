@@ -1,0 +1,112 @@
+\section{Analysis of RL in Agentic Reasoning}
+\subsection{Preliminaries}
+
+\paragraph{Agentic Reasoning.}
+We study the agentic reasoning of Vision-Language Models (VLMs) $\pi_\theta$ given an input $\vx$ (text question with visual image) and instruction prompt (\ref{app:tools}), interleaving thinking and tool use. At turn $t$, the model emits a thinking segment $\vt_t$ (in \think$\,\ldots\,$\thinkr) and an action $\va_t$ (a tool call formatted as JSON with tool type and arguments, in \toolcall$\,\ldots\,$\toolcallr), then receives an observation $\vo_t = \texttt{exec}(\va_t)$ (in \tool$\,\ldots\,$\toolr). 
+We write $\vy_t = \vt_t \va_t \vo_t$ with $\vt_t \va_t \sim \pi_\theta(\cdot \mid \vx, \vy_{<t})$. This continues until the final answer (in \answer$\,\ldots\,$\answerr) is emitted or the turn limit is reached, yielding $\tau = (\vx, \vy_1, \ldots, \vy_T, \vy_{\text{ans}})$. Our tool set covers three standard~\citep{mini-o3, pyvision-rl, deepeyesv2}: a Python interpreter, a web search, and an image zoom-in tool.
+
+\paragraph{RL training with GRPO.}
+\label{sec:prelim-rl}
+
+Our starting point is the standard agentic post-training pipeline~\citep{pyvision-rl, deepeyesv2}: supervised fine-tuning (SFT) on expert trajectories followed by reinforcement learning (RL) with verifiable rewards. Given an input $\vx$, the policy $\pi_\theta$ generates a group of $N$ rollouts $\{\tau_i\}_{i=1}^N$, each receiving a binary outcome reward $r_i \in \{0, 1\}$ based on answer correctness. Group Relative Policy Optimization (GRPO)~\citep{GRPO} computes a group-normalized advantage $A_i = (r_i - \mathrm{mean}(\{r_j\}_{j=1}^N)) / \mathrm{std}(\{r_j\}_{j=1}^N),$
+which is assigned uniformly to every token in $\tau_i$ and used to update the policy via the PPO-clip surrogate $\mathcal{L}_{\text{clip}}$~\citep{PPO}. We defer the explicit form of $\mathcal{L}_{\text{clip}}$ in \appref{app:training-setup}.
+
+\subsection{Diagnosing the \gap}
+\label{sec:gap}
+\input{figures/fig3}
+
+We now ground the \gap in three diagnostic measurements collected during RL training (\autoref{fig:analysis}). Our starting point is the SFT checkpoint, trained with GRPO~\citep{GRPO} on outcome rewards.
+
+\paragraph{Tool use is under-attempted.}
+A defining property of agentic reasoning, unlike conventional agentic RL~\citep{arpo, ragen2}, is that tool use is \emph{optional}: the model can either produce a \toolcall tag or skip straight to \answer. This optionality makes action fragile under RL.
+We track the fraction of rollouts that contain at least one tool call over the course of RL. As shown in~\autoref{fig:analysis-a}, which bins each question by its tool-using rollout count among $N=8$, the corresponding rollout-level tool-use rate is roughly 27\% at step~1 and stays in the 20--35\% range over RL training, well below the thinking-only majority.
+GRPO exerts no pressure to grow the tool-using minority, and the behavior that distinguishes agentic from non-agentic reasoning remains under-represented in each group.
+
+\paragraph{When attempted, the tool-using subgroup is prone to being all-wrong.}
+Within a GRPO group of $N$ rollouts for one question, we call the rollouts that emit a tool call the \emph{tool-using subgroup} and the rest the \emph{no-tool subgroup}, and the tool-using subgroup is \emph{all-wrong} when none of its rollouts is correct, even if some no-tool rollouts in the same group succeed. Conditional on a question where tool use is attempted, how often does the tool-using subgroup fail together? \autoref{fig:analysis-b} shows this all-wrong rate is $\sim$40\% for tool-using subgroups compared to $\sim$25\% for no-tool subgroups. Under group-normalized advantage, this asymmetry yields non-positive advantage on tool-call tokens in both regimes: in mixed groups they trail the no-tool success signal, and in fully all-wrong groups the numerator $r_i - \operatorname{mean}(\{r_j\})$ collapses to zero. Either way, effective learning signal on tool calls is suppressed on the questions where tool use would matter most.
+
+\paragraph{Tool calls admit substantive resampling at a fixed thinking.}
+Resampling at the tool call is only worthwhile if it is a real divergence point under the policy.
+If the thinking prefix already commits to the concrete action, resampling at the tool-call boundary changes nothing.
+We probe this by decomposing a trajectory at the first tool-call boundary: we fix its thinking prefix $\vt_1$, draw 16 continuations from $\pi_\theta(\cdot \mid \vx, \vt_1)$, and cluster the resulting tool calls into semantic classes by an LLM judge that groups calls by their semantic intent. \autoref{fig:analysis-c} shows that the resampled tool calls do not collapse to a single class. Across all tools, the 16 samples occupy 2.9--3.4 distinct semantic clusters on average. The thinking prefix therefore does not determine the exact tool call and the tool call is an under-explored divergence point whose exploration must be supplied externally.
+
+\begin{takeawaybox}{Takeaways: GRPO under-trains the tool call}
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    \item Tool use remains a minority behavior under GRPO: $\sim$20--35\% of rollouts across RL steps, well below the thinking-only majority (\autoref{fig:analysis-a}).
+    \item When attempted, the tool-using subgroup is all-wrong on $\sim$40\% of questions (vs.\ 25\% for the no-tool subgroup), so tool-call tokens get negative advantage in mixed groups and zero in fully all-wrong groups (\autoref{fig:analysis-b}).
+    \item Resampling from a fixed prefix preserves substantive diversity in the tool call (2.9--3.4 semantic clusters per 16 samples in~\autoref{fig:analysis-c}): the tool call is a real divergence point.
+\end{itemize}
+\end{takeawaybox}
+
+
+\section{Agent eXplorative Policy Optimization (AXPO)}
+\label{sec:method}
+
+\subsection{\Toolresample}
+\label{sec:branching}
+
+In agentic reasoning, the policy must learn both thinking and tool use where the latter is the under-trained behavior under GRPO (\autoref{sec:gap}). Rather than scaling rollouts $N$ to generate tool-using successes uniformly, we commit to a thinking prefix that promises a tool call and concentrate stochasticity on the continuation.
+
+Concretely, let $\tau^{\text{src}}$ denote a \textbf{tool-using} rollout from the standard GRPO group of $\vx$, which we call the \emph{source rollout}, and let $\vt_1^{\text{src}}$ be its prefix that includes the opening \toolcall tag, so that decoding from $\vt_1^{\text{src}}$ is constrained to produce a valid tool call.
+\emph{\Toolresample} draws $K$ continuations $\{\vy_k^{\text{res}}\}_{k=1}^{K} \sim \pi_\theta(\cdot \mid \vx, \vt_1^{\text{src}})$, executes the tool calls inside each, and rolls every resampled trajectory forward until an \answer tag or the turn limit. Each resampled trajectory $\tau_k^{\text{res}} = (\vt_1^{\text{src}}, \vy_k^{\text{res}})$ therefore shares the fixed thinking prefix with $\tau^{\text{src}}$ and diverges at the tool call, concentrating stochasticity on the action that the thinking was preparing for. Each resampled trajectory receives the same binary outcome reward $r_k^{\text{res}} \in \{0,1\}$ as a standard rollout.
+
+\paragraph{Theoretical motivation.}
+\textit{Why grow tool-using rollout coverage?} Recent analysis~\citep{brorl} shows that scaling per-prompt rollouts $N$ yields a policy-improvement guarantee that grows with the correct-token mass the group covers. 
+However, our learning target is correct \emph{tool-using} rollouts carry positive gradient signal for tool-call tokens, so coverage at the tool call is bounded by the tool-use rate $q = \Pr_{\pi_\theta}[\texttt{tool use} \mid \vx]$ rather than $N$, and a fraction $1-q$ of any raw sampling budget is wasted on non-tool rollouts that cannot teach the tool call. \Toolresample sidesteps this waste by committing to a prefix $\vt_1^{\text{src}}$ that has already crossed the \toolcall boundary: every resampled continuation from $\vt_1^{\text{src}}$ is tool-using by construction, so the full resampling budget lands on the signal we actually want.
+
+Let $p(\vt_1^{\text{src}}) = \Pr_{\pi_\theta}[R=1 \mid \vx, \vt_1^{\text{src}}]$ be the success probability of a continuation from prefix $\vt_1^{\text{src}}$, and $p^{\text{tool}} = \Pr_{\pi_\theta}[R=1 \mid \vx,\, \texttt{tool use}]$ the per-tool-using-rollout success rate of standard rollout. The following proposition makes the gain precise.
+
+\begin{proposition}[Tool-call resampling dominates raw sampling at recovering tool-using successes]
+\label{prop:branching}
+Let $\vt_1^{\text{src}}$ be a prefix that has crossed the tool call boundary with $p(\vt_1^{\text{src}}) \geq q\, p^{\text{tool}}$. Then for any $N \geq 1$,
+\vspace{-0.05in}
+\begin{equation}
+    \underbrace{1 - \bigl(1 - p(\vt_1^{\text{src}})\bigr)^N}_{\text{resampling: $N$ tool-using continuations}}
+    \;\geq\;
+    \underbrace{1 - (1 - q\, p^{\text{tool}})^N}_{\text{raw: $N$ rollouts, $q$-fraction tool-using}},
+\end{equation}
+with strict inequality whenever $p(\vt_1^{\text{src}}) > q\, p^{\text{tool}}$ and $q\, p^{\text{tool}} \in (0,1)$. Both sides measure the probability that the group contains at least one correct tool-using rollout.
+\end{proposition}
+
+The key mechanism is $q \to 1$ by construction: every resampled continuation from $\vt_1^{\text{src}}$ is tool-using, so $(1-q)$ waste factor vanishes and the threshold $q\, p^{\text{tool}}$ sits strictly below the average per-tool-using-rollout success $p^{\text{tool}}$, admitting prefixes at or below the conditional mean. Under GRPO, the left-hand side equals the probability that the tool-using subgroup produces a positive gradient, so resampling strictly raises the probability of recovering an all-wrong tool-using subgroup identified in \autoref{sec:gap} relative to raw sampling at any fixed $N$. Detailed analysis is in \appref{app:coverage}.
+
+\subsection{Resample candidate selection}
+\label{sec:selection}
+
+\paragraph{Trigger and budget allocation.}
+AXPO resamples only on groups in which the tool-using subgroup is non-empty and entirely wrong (an \emph{all-wrong tool-using subgroup}; no-tool rollouts in the same group may succeed). These are exactly the groups where tool-call tokens receive non-positive advantage under GRPO (\autoref{sec:gap}): zero when the entire group is all-wrong, negative when only no-tool rollouts succeed. A recovered continuation therefore delivers the largest gradient lift per resampled continuation. \autoref{prop:branching} would in principle admit groups with at least one correct tool-using rollout as well, but those already produce positive advantage on tool-call tokens and gain comparatively little from a marginal recovery. Resampling every triggered prefix would add up to $BNK$ continuations on top of $BN$ standard rollouts (batch size $B$), so AXPO caps the extra cost up to $r \cdot BN$ per step with $r < 1$ and allocates breadth-first: every triggered question receives its top-ranked prefix before any receives a second.
+
+\paragraph{Uncertainty-based prefix ranking.}
+Not every admitted prefix is worth resampling. \autoref{fig:analysis-c} shows $\sim$30\% of prefixes collapse to a single cluster across 16 resamples. AXPO therefore ranks candidates by the mean policy probability over the tool-call tokens in $\tau^{\text{src}}$ (a tractable uncertainty proxy~\citep{deepconf}) and resamples the lowest-confidence prefixes first (see \appref{app:conf-vs-entropy} for the choice of confidence over predictive entropy).
+
+\subsection{Advantage calculation}
+\label{sec:credit}
+
+Given the resampled trajectories from \autoref{sec:selection}, we now specify how their advantages enter the gradient. Because each $\tau_k^{\text{res}}$ shares its prefix with the source rollout $\tau^{\text{src}}$, training both as independent rollouts would assign contradictory advantages to the prefix tokens: the failed source penalizes the prefix while a successful resample rewards it. AXPO decomposes the advantage streams so that every token is updated from exactly one source.
+
+For each selected prefix $\vt_1^{\text{src}}$, the $K$ resampled continuations form an independent advantage group. We compute a per-prefix GRPO advantage
+\begin{equation}
+\label{eq:axpo-adv}
+\hat{A}_k^{\text{res}}(\vt_1^{\text{src}}) \;=\; \frac{r_k^{\text{res}} - \mathrm{mean}\bigl(\{r_j^{\text{res}}\}_{j=1}^K\bigr)}{\mathrm{std}\bigl(\{r_j^{\text{res}}\}_{j=1}^K\bigr)}, \qquad k = 1, \ldots, K,
+\end{equation}
+which is applied only to the continuation tokens $\vy_k^{\text{res}}$ where the prefix thinking tokens are masked. The source trajectory's prefix tokens are updated through $\tau^{\text{src}}$ with a binary recovery reward that fires whenever resampling recovers at least one correct continuation:
+\begin{equation}
+\label{eq:axpo-recovery}
+r^{\text{prefix}}(\vt_1^{\text{src}}) \;=\; \mathds{1}\!\left[\exists\, k \in \{1,\ldots,K\}:\; r_k^{\text{res}} = 1\right].
+\end{equation}
+This recovery reward replaces the original (zero) source-rollout reward in the source group's GRPO normalization, yielding a per-prefix advantage that we apply to the source's prefix tokens as follows:
+\begin{equation}
+\label{eq:axpo-prefix-adv}
+\hat{A}^{\text{prefix}}(\vt_1^{\text{src}}) \;=\; \frac{r^{\text{prefix}}(\vt_1^{\text{src}}) - \mathrm{mean}\bigl(\{\tilde r_j\}_{j=1}^N\bigr)}{\mathrm{std}\bigl(\{\tilde r_j\}_{j=1}^N\bigr)},
+\qquad
+\tilde r_j \;=\; \begin{cases} r^{\text{prefix}}(\vt_1^{\text{src}}), & j = \text{source index}, \\ r_j, & \text{otherwise}, \end{cases}
+\end{equation}
+and the source continuation is masked. Combining both streams with the standard clipped surrogate from PPO~\citep{PPO} yields the resampling contribution for a selected prefix $\vt_1^{\text{src}}$ to maximize:
+\begin{equation}
+\label{eq:axpo-loss}
+\mathcal{L}_{\text{AXPO}}(\vt_1^{\text{src}}) \;=\; \underbrace{\mathcal{L}_{\text{clip}}\bigl(\vt_1^{\text{src}};\, \hat{A}^{\text{prefix}}(\vt_1^{\text{src}})\bigr)}_{\text{prefix, source only}} \;+\; \sum_{k=1}^{K}\underbrace{\mathcal{L}_{\text{clip}}\bigl(\vy_k^{\text{res}};\, \hat{A}_k^{\text{res}}(\vt_1^{\text{src}})\bigr)}_{\text{resampled continuation}}.
+\end{equation}
+Non-triggered groups and rollouts not selected for resampling retain the standard GRPO loss from \autoref{sec:prelim-rl}.
+\autoref{eq:axpo-loss} is added once per prefix selected in \autoref{sec:selection}.
+The recovery-indicator $r^{\text{prefix}}$ avoids the gradient conflict of propagating mixed-sign continuation advantages back to the shared prefix: $\hat{A}^{\text{prefix}}$ is monotone in $r^{\text{prefix}}$, so the prefix is credited positively whenever at least one continuation succeeds, converting the coverage gain into gradient signal on the prefix tokens.
+

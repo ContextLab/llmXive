@@ -1,0 +1,44 @@
+% =========================================================================
+% Metric-depth comparison for all metric-depth-capable methods.
+% Numbers are computed WITHOUT median/scale alignment, so they reflect each
+% model's native metric-scale prediction quality.
+% Per-column top-3 use the same blue palette as maintable.tex
+% (bestred / secondorange / thirdyellow).
+% =========================================================================
+\begin{table}[!ht]
+\centering
+\setlength{\fboxsep}{0pt}
+\caption{\textbf{Metric-Depth Comparison on \benchmark.}
+We compare the native metric-depth predictions (no median/scale alignment) of
+all 6 methods on \benchmark{} that emit metric-scale depth, across the
+\textit{Single Frame}, \textit{Sparse}, and \textit{Medium} settings,
+together with the \textit{Average} across all three settings.
+The best, second-best, and third-best results in each column are highlighted in
+\colorbox{bestred}{deep blue}, \colorbox{secondorange}{medium blue}, and
+\colorbox{thirdyellow}{light blue}, respectively.}
+\label{tab:metric_depth}
+\resizebox{\textwidth}{!}{%
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c}
+\toprule
+\multirow{2.5}{*}{\textbf{Method}}
+ & \multirow{2.5}{*}{\makecell{\textbf{\#Params}\\\textbf{(M)}}}
+ & \multicolumn{4}{c}{\textbf{Single Frame}}
+ & \multicolumn{4}{c}{\textbf{Sparse}}
+ & \multicolumn{4}{c}{\textbf{Medium}}
+ & \multicolumn{4}{c}{\textbf{Average}} \\
+\cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14} \cmidrule(lr){15-18}
+ &  & AbsRel$\downarrow$ & SqRel$\downarrow$ & RMSE$\downarrow$ & $\delta_{1.25}\uparrow$ & AbsRel$\downarrow$ & SqRel$\downarrow$ & RMSE$\downarrow$ & $\delta_{1.25}\uparrow$ & AbsRel$\downarrow$ & SqRel$\downarrow$ & RMSE$\downarrow$ & $\delta_{1.25}\uparrow$ & AbsRel$\downarrow$ & SqRel$\downarrow$ & RMSE$\downarrow$ & $\delta_{1.25}\uparrow$ \\
+\midrule
+DA3-Nested & 1689.85 & \cellcolor{secondorange}1.599 & 16.57 & \cellcolor{secondorange}1.477 & \cellcolor{bestred}\textbf{0.507} & \cellcolor{secondorange}0.870 & 5.295 & \cellcolor{secondorange}1.569 & \cellcolor{bestred}\textbf{0.617} & \cellcolor{secondorange}1.188 & 19.64 & \cellcolor{thirdyellow}2.000 & \cellcolor{bestred}\textbf{0.552} & \cellcolor{secondorange}1.219 & 13.83 & \cellcolor{secondorange}1.682 & \cellcolor{bestred}\textbf{0.559} \\
+MapAnything & 1228.49 & 2.476 & 31.96 & 2.440 & 0.365 & 2.368 & 23.54 & 2.592 & 0.437 & 3.103 & 27.87 & 2.374 & 0.407 & 2.649 & 27.79 & 2.469 & 0.403 \\
+AMB3R & 1563.12 & \cellcolor{thirdyellow}2.235 & 48.59 & \cellcolor{bestred}\textbf{1.473} & \cellcolor{thirdyellow}0.388 & \cellcolor{thirdyellow}1.133 & \cellcolor{thirdyellow}4.934 & \cellcolor{bestred}\textbf{1.360} & \cellcolor{secondorange}0.519 & \cellcolor{thirdyellow}1.407 & \cellcolor{secondorange}3.990 & \cellcolor{bestred}\textbf{1.242} & \cellcolor{secondorange}0.521 & \cellcolor{thirdyellow}1.592 & 19.17 & \cellcolor{bestred}\textbf{1.358} & \cellcolor{secondorange}0.476 \\
+$\pi^{3}$-X & 1360.03 & 3.187 & \cellcolor{thirdyellow}13.87 & \cellcolor{thirdyellow}1.842 & \cellcolor{secondorange}0.400 & 1.771 & 9.361 & \cellcolor{thirdyellow}1.779 & \cellcolor{thirdyellow}0.461 & 1.957 & 6.269 & \cellcolor{secondorange}1.705 & \cellcolor{thirdyellow}0.449 & 2.305 & \cellcolor{thirdyellow}9.832 & \cellcolor{thirdyellow}1.775 & \cellcolor{thirdyellow}0.436 \\
+DANext & 1303.76 & \cellcolor{bestred}\textbf{1.484} & \cellcolor{bestred}\textbf{3.369} & 3.595 & 0.070 & \cellcolor{bestred}\textbf{0.713} & \cellcolor{bestred}\textbf{3.280} & 4.235 & 0.117 & \cellcolor{bestred}\textbf{0.713} & \cellcolor{bestred}\textbf{3.350} & 4.261 & 0.116 & \cellcolor{bestred}\textbf{0.970} & \cellcolor{bestred}\textbf{3.333} & 4.030 & 0.101 \\
+MASt3R-SLAM & 688.64 & 2.672 & \cellcolor{secondorange}5.479 & 2.962 & 0.231 & 1.570 & \cellcolor{secondorange}4.043 & 3.468 & 0.191 & 2.264 & \cellcolor{thirdyellow}4.992 & 3.555 & 0.209 & 2.169 & \cellcolor{secondorange}4.838 & 3.329 & 0.210 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-10pt}
+\end{table}

@@ -1,0 +1,51 @@
+\begin{table*}[t]
+\centering
+\vspace{+3mm}
+\caption{\small Ablation Studies on the COCO dataset. We decouple the analysis into three aspects: (a) coordinate representation, (b) block-based MTP Formulation, and (c) effectiveness of our on-demand decoding modes and loss design. Throughput is measured in boxes per second. For brevity, we report the Average metric across IoU thresholds for Recall (R), Precision (P), and F1 Score. ``B'' indicates block size in MTP.}
+\label{tab:combined_ablation}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}[c]{l cccc}
+\multicolumn{5}{c}{\textbf{(a) Coordinate Representations}} \\
+\toprule
+Method & Throughput & R & P & F1 \\
+\midrule
+Textual & 1.3 & 45.7 & 52.3 & 49.1 \\
+Quantized & 3.9 & 48.2 & 52.2 & 50.1 \\
+\midrule
+PBD (Slow) & 3.9 & \textbf{49.4} & \textbf{55.2} & \textbf{52.1} \\
+PBD (Fast) & \textbf{16.9} & 45.6 & 54.6 & 49.6 \\
+PBD (Hybrid) & \underline{13.2} & \underline{48.7} & \underline{54.8} & \underline{51.6} \\
+\bottomrule
+\end{tabular}%
+\hspace{4mm}%
+\begin{tabular}[c]{l cccc}
+\multicolumn{5}{c}{\textbf{(b) MTP Formulations}} \\
+\toprule
+Method & Throughput & R & P & F1 \\
+\midrule
+SDLM-B4~\citep{liu2025sequential} & 5.2 & \textbf{45.4} & \underline{48.1} & \underline{46.5} \\
+SDLM-B6~\citep{liu2025sequential} & 5.5 & 45.1 & 47.5 & 46.1 \\
+SDLM-B8~\citep{liu2025sequential} & \underline{6.7} & 44.7 & 47.2 & 45.8 \\
+\midrule
+Block Diff-B6~\citep{arriola2025block} & 4.7 & 45.1 & 44.3 & 44.8 \\
+\midrule
+PBD (Fast) & \textbf{16.9} & \underline{45.2} & \textbf{54.6} & \textbf{49.6} \\
+\bottomrule
+\end{tabular}%
+\hspace{4mm}%
+\begin{tabular}[c]{cc l cccc}
+\multicolumn{7}{c}{\textbf{(c) Decoding Modes \& Losses}} \\
+\toprule
+$\mathcal{L}_{\mathrm{ntp}}$ & $\mathcal{L}_{\mathrm{blk}}$ & Mode & Throughput & R & P & F1 \\
+\midrule
+\checkmark & & Slow & 3.9 & 48.2 & 52.2 & 50.1 \\
+& \checkmark & Fast & \underline{16.7} & 45.6 & 49.0 & 47.2 \\
+\midrule
+    \checkmark & \checkmark & Slow & 3.9 & \textbf{49.4} & \textbf{55.2} & \textbf{52.1} \\
+\checkmark & \checkmark & Fast & \textbf{16.9} & 45.6 & 54.6 & 49.6 \\
+\checkmark & \checkmark & Hybrid & 13.2 & \underline{48.7} & \underline{54.8} & \underline{51.6} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

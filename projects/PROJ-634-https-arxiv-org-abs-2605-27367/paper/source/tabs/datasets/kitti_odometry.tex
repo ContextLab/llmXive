@@ -1,0 +1,92 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Per-Dataset Results on KITTI-Odometry}.
+Only metrics available for the \textit{Dense} regime are reported.
+The best, second-best, and third-best results in each column are highlighted in
+\colorbox{bestred}{deep blue}, \colorbox{secondorange}{medium blue}, and \colorbox{thirdyellow}{light blue}, respectively.
+Out-of-memory (OOM) and Timeout (T.O) cells are shaded \colorbox{oomred}{light red}; methods without dense-regime results use ``--''.
+Within each sub-category, the \textbf{bold} value marks the in-group best.
+Note that \ours (Ours) is excluded from the per-column rankings.
+}
+\label{tab:dataset_kittiodometry}
+\resizebox{0.45\textwidth}{!}{%
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c}
+\toprule
+\multirow{2.5}{*}{\textbf{Method}}
+& \multirow{2.5}{*}{\makecell{\textbf{\#Params}\\\textbf{(M)}}}
+& \multicolumn{1}{c}{\textbf{Camera}}
+& \multicolumn{3}{c}{\textbf{Trajectory}} \\
+\cmidrule(lr){3-3} \cmidrule(lr){4-6}
+ & & AUC@30$\uparrow$ & ATE$\downarrow$ & RPE$_t\downarrow$ & RPE$_r\downarrow$ \\
+\midrule
+% =========================================================
+\multicolumn{6}{c}{\cellcolor{catgray}\textbf{Optimization-based}} \\
+\midrule
+ DUSt3R & 571.2 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ MASt3R & 688.6 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+\midrule
+% =========================================================
+\multicolumn{6}{c}{\cellcolor{catgray}\textbf{End-to-End Feed-Forward}} \\
+\midrule
+ VGGT & 1257 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ Fast3R & 647.5 & 0.000 & \textbf{134.5} & 29.12 & 27.34 \\
+ FastVGGT & 1158 & 0.307 & 181.9 & \textbf{9.827} & 3.338 \\
+ MUSt3R & 423.4 & \cellcolor{oomred}T.O & \cellcolor{oomred}T.O & \cellcolor{oomred}T.O & \cellcolor{oomred}T.O \\
+ MapAnything & 1228 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ OmniVGGT & 1217 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ $\pi^{3}$ & 958.7 & \textbf{0.412} & 153 & 10.07 & \textbf{1.369} \\
+ $\pi^{3}$-X & 1360 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ AMB3R & 1563 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ DA3-Small & 34.3 & 0.089 & 220.3 & 29 & 17.12 \\
+ DA3-Base & 135.4 & 0.067 & 211.7 & 30.08 & 40.69 \\
+ DA3-Large & 410.9 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ DA3-Giant & 1356 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ DA3-Nested & 1690 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ WorldMirror & 1263 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ VGGT-Omega & 1144 & -- & -- & -- & -- \\
+ \ours (Ours) & 1304 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+\midrule
+% =========================================================
+\multicolumn{6}{c}{\cellcolor{catgray}\textbf{Online}} \\
+\midrule
+ Spann3r$^{224}$ & 658.7 & 0.036 & 214.9 & 23.33 & 18.99 \\
+ CUT3R & 793.3 & 0.065 & 206.6 & 2.763 & 1.830 \\
+ MonST3R & 571.2 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ Point3R & 828 & 0.051 & 206.5 & 7.671 & 4.421 \\
+ Stream3R-S & 1191 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ Stream3R-W & 1191 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ StreamVGGT & 1257 & 0.168 & 206.2 & 14 & 4.174 \\
+ Page4D & 1257 & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM & \cellcolor{oomred}OOM \\
+ InfiniteVGGT & 1257 & 0.169 & 206.7 & 13.87 & 4.164 \\
+ Wint3R & 749.5 & 0.074 & 211.3 & 5.458 & 1.624 \\
+ LongStream-B & 1191 & 0.317 & 47.33 & \cellcolor{secondorange}\textbf{0.348} & 0.331 \\
+ LongStream-S & 1191 & 0.211 & 88.6 & 0.885 & 0.620 \\
+ LingbotMap$^{*}$-W & 1158 & 0.615 & 41.16 & 0.368 & \textbf{0.286} \\
+ LingbotMap$^{*}$-S & 1158 & \cellcolor{bestred}\textbf{0.729} & \cellcolor{secondorange}\textbf{29.31} & 2.440 & 0.663 \\
+\midrule
+% =========================================================
+\multicolumn{6}{c}{\cellcolor{catgray}\textbf{Chunk-wise}} \\
+\midrule
+ VGGT-Long & 1257 & 0.465 & 76.14 & 0.798 & 0.468 \\
+ $\pi^{3}$-Long & 958.7 & \cellcolor{secondorange}\textbf{0.702} & \cellcolor{thirdyellow}\textbf{31.91} & \cellcolor{thirdyellow}\textbf{0.362} & \cellcolor{bestred}\textbf{0.181} \\
+ DA3-Streaming & 1356 & 0.221 & 79.26 & 0.633 & 0.689 \\
+\midrule
+% =========================================================
+\multicolumn{6}{c}{\cellcolor{catgray}\textbf{SLAM-based}} \\
+\midrule
+ MASt3R-SLAM & 688.6 & 0.158 & 196.5 & 1.737 & 0.561 \\
+ VGGT-SLAM & 1257 & \textbf{0.436} & \textbf{80.06} & \textbf{0.607} & \cellcolor{thirdyellow}\textbf{0.226} \\
+\midrule
+% =========================================================
+\multicolumn{6}{c}{\cellcolor{catgray}\textbf{Test-Time Training}} \\
+\midrule
+ TTT3R & 793.3 & 0.086 & 182.1 & 3.824 & 2.146 \\
+ Scal3R & 1266 & \cellcolor{thirdyellow}\textbf{0.655} & \cellcolor{bestred}\textbf{18.17} & 0.457 & 0.649 \\
+ LoGeR & 1255 & 0.457 & 45.03 & 0.382 & 0.238 \\
+ LoGeR$^*$ & 1255 & 0.456 & 39.62 & \cellcolor{bestred}\textbf{0.286} & \cellcolor{secondorange}\textbf{0.220} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

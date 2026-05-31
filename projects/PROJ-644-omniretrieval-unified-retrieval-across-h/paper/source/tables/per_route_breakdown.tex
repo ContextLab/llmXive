@@ -1,0 +1,81 @@
+\providecolor{mygray}{HTML}{F2F2F2}
+\providecolor{citeblue}{HTML}{1668b0}
+
+\begin{table*}[t]
+    \centering
+    \caption{
+    Per-paradigm decomposition of Table~\ref{tab:main}, broken down by the four native retrieval paradigms. Each cell is reported as ``$R$ / $E$ / $J$'', where $R$ is Source Selection Accuracy (both the backend and knowledge base correct), $E$ is Retrieval Accuracy (NDCG@10 for Search, Execution Match for the structured backends), and $J$ is LLM-as-a-Judge accuracy.
+    }
+    \label{tab:per_route_breakdown}
+    \vspace{-0.05in}
+    \scriptsize
+    \resizebox{\textwidth}{!}{
+    \setlength{\tabcolsep}{3pt}
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{l l c c c c}
+        \toprule
+        \textbf{Backbone} & \textbf{Method} & \textbf{Search} ($R$ / $E$ / $J$) & \textbf{SQL} ($R$ / $E$ / $J$) & \textbf{SPARQL} ($R$ / $E$ / $J$) & \textbf{Cypher} ($R$ / $E$ / $J$) \\
+        \midrule
+
+        \multirow{7}{*}{GPT-5.4}
+          & Document Search           & 85.95 / 48.62 / 75.00 &  0.00 /  2.17 / 15.17 &  0.00 /  0.22 / 51.22 &  0.00 /  2.67 / 18.33 \\
+          & Text-to-SQL               &  0.00 /  0.00 / 10.10 & 59.00 / 42.50 / 54.00 &  0.00 /  5.89 / 18.67 &  0.00 /  5.67 / 19.67 \\
+          & Text-to-SPARQL            &  0.00 /  0.00 / 14.19 &  0.00 /  7.83 / 17.50 & 99.67 / 60.56 / 69.89 &  0.00 /  4.67 / 14.00 \\
+          & Text-to-Cypher            &  0.00 /  0.00 / 18.48 &  0.00 /  8.67 / 18.33 &  0.00 /  6.89 / 29.56 & 79.67 / 56.67 / 66.00 \\
+          & KB Routing                & 78.29 / 44.02 / 70.81 & 57.00 / 40.17 / 51.67 & 55.22 / 36.11 / 56.89 & 69.00 / 48.00 / 61.67 \\
+          & \cellcolor{citeblue!10}\textbf{OmniRetrieval (Ours)} & \cellcolor{citeblue!10}\textbf{75.33 / 44.09 / 78.14} & \cellcolor{citeblue!10}\textbf{61.00 / 41.50 / 56.17} & \cellcolor{citeblue!10}\textbf{66.67 / 51.22 / 77.22} & \cellcolor{citeblue!10}\textbf{71.33 / 49.67 / 67.33} \\
+          \cdashline{2-6}\addlinespace[0.4ex]
+          & \textit{Oracle} & \textit{100.00 / 54.51 / 79.19} & \textit{100.00 / 63.83 / 72.50} & \textit{100.00 / 60.89 / 69.78} & \textit{100.00 / 70.67 / 79.33} \\
+
+        \midrule
+
+        \multirow{7}{*}{Gemini-3.1 (Pro)}
+          & Document Search           & 90.43 / 52.15 / 78.33 &  0.00 /  2.83 / 13.67 &  0.00 /  0.78 / 52.00 &  0.00 /  4.00 / 19.67 \\
+          & Text-to-SQL               &  0.00 /  0.00 /  9.62 & 66.83 / 52.67 / 59.50 &  0.00 /  6.67 / 17.67 &  0.00 /  7.67 / 16.67 \\
+          & Text-to-SPARQL            &  0.00 /  0.00 / 15.38 &  0.00 /  7.50 / 12.67 & 100.00 / 71.67 / 79.11 &  0.00 /  3.67 / 14.00 \\
+          & Text-to-Cypher            &  0.00 /  0.00 / 10.67 &  0.00 /  8.67 /  9.33 &  0.00 /  7.00 / 16.11 & 81.67 / 53.00 / 61.33 \\
+          & KB Routing                & 87.33 / 50.94 / 78.14 & 64.50 / 50.17 / 60.00 & 56.67 / 40.56 / 63.56 & 64.33 / 45.67 / 53.00 \\
+          & \cellcolor{citeblue!10}\textbf{OmniRetrieval (Ours)} & \cellcolor{citeblue!10}\textbf{81.19 / 48.65 / 81.52} & \cellcolor{citeblue!10}\textbf{68.67 / 52.33 / 63.67} & \cellcolor{citeblue!10}\textbf{78.67 / 62.11 / 79.89} & \cellcolor{citeblue!10}\textbf{64.67 / 47.67 / 59.33} \\
+          \cdashline{2-6}\addlinespace[0.4ex]
+          & \textit{Oracle} & \textit{100.00 / 56.13 / 80.24} & \textit{100.00 / 70.00 / 73.67} & \textit{100.00 / 71.44 / 79.78} & \textit{100.00 / 64.67 / 72.33} \\
+
+        \midrule
+
+        \multirow{7}{*}{Sonnet-4.6}
+          & Document Search           & 87.62 / 48.33 / 77.43 &  0.00 /  2.33 / 15.17 &  0.00 /  0.11 / 51.33 &  0.00 /  4.00 / 19.33 \\
+          & Text-to-SQL               &  0.00 /  0.00 / 17.95 & 64.00 / 47.83 / 58.67 &  0.00 /  6.33 / 22.22 &  0.00 /  7.67 / 19.67 \\
+          & Text-to-SPARQL            &  0.00 /  0.00 / 20.52 &  0.00 /  8.50 / 18.17 & 99.22 / 48.89 / 68.56 &  0.00 /  5.00 / 17.00 \\
+          & Text-to-Cypher            &  0.00 /  0.00 / 22.90 &  0.00 /  9.17 / 18.17 &  0.00 /  6.89 / 29.00 & 83.33 / 58.67 / 69.33 \\
+          & KB Routing                & 77.81 / 42.62 / 72.95 & 60.33 / 44.50 / 56.33 & 40.44 / 19.89 / 58.78 & 63.00 / 47.33 / 59.67 \\
+          & \cellcolor{citeblue!10}\textbf{OmniRetrieval (Ours)} & \cellcolor{citeblue!10}\textbf{76.10 / 42.35 / 77.38} & \cellcolor{citeblue!10}\textbf{63.33 / 46.17 / 60.00} & \cellcolor{citeblue!10}\textbf{62.44 / 37.11 / 73.44} & \cellcolor{citeblue!10}\textbf{64.00 / 46.67 / 63.67} \\
+          \cdashline{2-6}\addlinespace[0.4ex]
+          & \textit{Oracle} & \textit{100.00 / 53.65 / 79.43} & \textit{100.00 / 66.33 / 75.17} & \textit{100.00 / 49.44 / 68.89} & \textit{100.00 / 71.67 / 81.67} \\
+
+        \midrule
+
+        \multirow{7}{*}{Qwen-3.5 (27B)}
+          & Document Search           & 85.95 / 44.41 / 71.62 &  0.00 /  3.17 / 12.50 &  0.00 /  1.00 / 45.44 &  0.00 /  4.33 / 15.67 \\
+          & Text-to-SQL               &  0.00 /  0.00 /  9.43 & 50.50 / 38.00 / 46.67 &  0.00 /  5.78 / 15.56 &  0.00 /  7.33 / 16.33 \\
+          & Text-to-SPARQL            &  0.00 /  0.00 /  8.29 &  0.00 /  8.83 / 10.00 & 99.78 / 52.78 / 62.67 &  0.00 /  5.00 / 15.00 \\
+          & Text-to-Cypher            &  0.00 /  0.00 /  8.62 &  0.00 /  8.33 /  8.50 &  0.00 /  6.67 / 13.22 & 81.67 / 59.33 / 67.33 \\
+          & KB Routing                & 66.38 / 34.45 / 58.24 & 45.17 / 34.33 / 42.67 & 57.78 / 33.00 / 53.56 & 50.00 / 35.33 / 47.00 \\
+          & \cellcolor{citeblue!10}\textbf{OmniRetrieval (Ours)} & \cellcolor{citeblue!10}\textbf{56.14 / 31.12 / 67.86} & \cellcolor{citeblue!10}\textbf{56.00 / 39.67 / 50.33} & \cellcolor{citeblue!10}\textbf{64.78 / 42.22 / 68.44} & \cellcolor{citeblue!10}\textbf{54.33 / 40.33 / 56.67} \\
+          \cdashline{2-6}\addlinespace[0.4ex]
+          & \textit{Oracle} & \textit{100.00 / 50.72 / 77.00} & \textit{100.00 / 64.17 / 69.50} & \textit{100.00 / 52.89 / 62.56} & \textit{100.00 / 72.67 / 78.67} \\
+
+        \midrule
+
+        \multirow{7}{*}{Gemma-4 (31B)}
+          & Document Search           & 85.67 / 44.30 / 72.62 &  0.00 /  3.33 / 17.17 &  0.00 /  0.67 / 47.44 &  0.00 /  4.33 / 20.67 \\
+          & Text-to-SQL               &  0.00 /  0.00 / 12.90 & 54.33 / 42.67 / 49.83 &  0.00 /  6.33 / 24.56 &  0.00 /  6.67 / 13.33 \\
+          & Text-to-SPARQL            &  0.00 /  0.00 / 10.90 &  0.00 /  9.50 / 10.33 & 98.22 / 57.89 / 65.56 &  0.00 /  4.33 / 16.00 \\
+          & Text-to-Cypher            &  0.00 /  0.00 / 13.52 &  0.00 /  9.33 / 10.00 &  0.00 /  6.89 / 16.56 & 76.33 / 52.33 / 60.67 \\
+          & KB Routing                & 67.95 / 34.90 / 63.62 & 47.67 / 38.50 / 46.67 & 69.78 / 43.11 / 59.56 & 54.33 / 36.00 / 45.00 \\
+          & \cellcolor{citeblue!10}\textbf{OmniRetrieval (Ours)} & \cellcolor{citeblue!10}\textbf{75.00 / 39.38 / 71.48} & \cellcolor{citeblue!10}\textbf{50.50 / 40.83 / 49.83} & \cellcolor{citeblue!10}\textbf{66.44 / 45.00 / 64.56} & \cellcolor{citeblue!10}\textbf{57.67 / 38.67 / 50.67} \\
+          \cdashline{2-6}\addlinespace[0.4ex]
+          & \textit{Oracle} & \textit{100.00 / 50.19 / 77.48} & \textit{100.00 / 67.33 / 72.00} & \textit{100.00 / 57.89 / 65.78} & \textit{100.00 / 68.00 / 76.00} \\
+
+        \bottomrule
+    \end{tabular}
+    }
+\end{table*}

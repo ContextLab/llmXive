@@ -1,0 +1,50 @@
+\section{Method}
+
+\subsection{Problem Formulation}
+
+Let $q$ be a question from a user and $\mathcal{B} = \{b_1, \ldots, b_N\}$ be a pool of independently maintained knowledge sources. Each of these sources $b \in \mathcal{B}$ has its own native query language (such as SQL for a relational database, SPARQL for an RDF graph, Cypher for a labeled property graph, or free-form text for an unstructured corpus), its own execution engine $\texttt{Exec}(b, \hat{q})$ that accepts a native query $\hat{q}$ (written in that language) and returns a set of results, and an exposed structural context $c_b$ (such as a relational schema, an ontology, or a corpus descriptor) that any external caller can read in order to formulate an executable query against $b$. However, knowledge sources may differ arbitrarily in what they store and how they store it, where one may hold unstructured text, another normalized tables, and a third a labeled graph, and they return their results in correspondingly different forms.
+
+The retrieval task is then to find and provide, for the question $q$, a set of evidence drawn from one or more sources in $\mathcal{B}$ that is relevant to $q$. Notably, a retrieval framework addressing this task should operationalize the selection of a subset $\mathcal{S} \subseteq \mathcal{B}$ of sources to engage, the formulation of an executable query $\hat{q}_b$ in the native language of each $b \in \mathcal{S}$, and the consolidation of the executor outputs $\{\texttt{Exec}(b, \hat{q}_b)\}_{b \in \mathcal{S}}$ into a single evidence set relevant to $q$. This formulation has clear strengths. In particular, since each source is engaged through its own native language, the structural operators it exposes (such as joins, traversals, property paths) are preserved rather than approximated by similarity in a shared space. Also, keeping each source on its own terms makes adding a new source a matter of registration rather than infrastructure rebuilding, and lets the framework draw on any of its registered sources for a single question (whether the answer comes back as a passage, a tuple, a triple, or a path) without committing to one backend up front.
+
+\subsection{Source Selection}
+
+We now turn to the first operation in OmniRetrieval, identifying a subset of sources to engage for a question.
+
+\paragraph{Challenges in Source Selection}
+The set of registered sources $\mathcal{B}$ can be large and is open-ended, since new sources are added by registration alone, and the structural contexts $\{c_b\}_{b \in \mathcal{B}}$ that distinguish one source from another are heterogeneous in form (a schema lists tables and columns, an ontology declares classes and predicates, and a corpus descriptor characterizes the topics and style of its documents). One straightforward approach to operationalize selection is to embed each $c_b$ and the query $q$ into a shared vector space and rank sources by similarity, following standard single-corpus retrieval practice. However, this approach is restrictive, since the descriptors are not uniform in form so a single encoder cannot represent them without lossy projection, and the decision of whether $b$ can answer $q$ often hinges on the actual contents of $c_b$ (such as a table name in a relational schema, or a relationship type in a property graph), which a similarity score alone cannot capture.
+
+\paragraph{Long-Context Source Selection}
+To sidestep this issue, inspired by recent works showing that long-context LLMs can retrieve and reason directly over textual inputs at the scale of entire corpora~\citep{LOFT, ToTAL}, we propose to read the full catalog of source descriptors jointly with $q$ and identify the sources to engage. Yet, in contrast to such prior works that leverage this in-context capability to homogeneous corpora, our approach involves heterogeneous knowledge sources whose descriptors each take a different form. Formally, a long-context LLM takes the query $q$ and the structural descriptors $\{c_b\}_{b \in \mathcal{B}}$ of all registered sources (schemas, ontologies, and corpus summaries; see Appendix~\ref{sec:appendix_context} for examples) as input, and returns a ranked subset of $\mathcal{B}$:
+\begin{equation}
+\mathcal{S} = \texttt{LLM}_{\texttt{select}}(q,\, \{c_b\}_{b \in \mathcal{B}};\, k) \subseteq \mathcal{B},
+\end{equation}
+where the LLM returns at most $k$ sources ordered by relevance to $q$. Since $c_b$ here is the same structural context each source already publishes under the formulation, it could be used as-is and grows by simply appending a new descriptor. More interestingly, the operator returns a short list of candidates, which enables accommodating the queries that require multiple sources as well as the queries whose target source is ambiguous, with the final decision then deferred to the evidence selection stage, where it can rest on the retrieved evidence.
+
+\subsection{Query Formulation}
+
+Given $\mathcal{S}$, we now formulate an executable query $\hat{q}_b$ in the native language of each source $b \in \mathcal{S}$.
+
+\paragraph{Challenges in Query Formulation}
+The knowledge sources in $\mathcal{S}$ each speak their own native query language, each shaped by the structure of the data it queries: SQL expresses joins and set operations over normalized relational tables, SPARQL matches triple patterns over an RDF graph, Cypher traverses paths over the labeled nodes and relationships of a property graph, and free-form text drives similarity-based retrieval over a corpus. Beyond the difference in languages, an executable query for $b$ should also refer to the elements that $b$ actually exposes, such as its specific tables and columns in a relational schema, the predicates declared in an RDF ontology, the relationship types of a property graph, or the topical scope and style of the corpus. The proposed framework should therefore produce, for every source $b \in \mathcal{S}$, a query that is both valid in its native query language and grounded in its structural context $c_b$, across distinct backend types.
+
+\paragraph{Per-Source Native Query Generation}
+To address this, for each $b \in \mathcal{S}$ the framework translates the question $q$ into a native query $\hat{q}_b$ in the language of $b$, conditioned on the structural context $c_b$:
+\begin{equation}
+\hat{q}_b = \texttt{Generate}_b(q,\, c_b) \quad \text{for each } b \in \mathcal{S}.
+\end{equation}
+Here, we instantiate $\texttt{Generate}_b$ as $\texttt{LLM}(\mathcal{T}_b(q,\, c_b))$, with $\texttt{LLM}$ as a single LLM shared across all sources and $\mathcal{T}_b$ a per-source prompt template that incorporates $q$, $c_b$, and an instruction identifying the native query language of $b$. In particular, for SQL, SPARQL, and Cypher, the LLM emits the executable native query directly; for an unstructured corpus, the retriever accepts free-form text, so $q$ itself can serve as the retriever query, and the LLM could optionally be used to optimize $q$ to improve retrieval. Additionally, the LLM-based realization above is one of several possible instantiations of $\texttt{Generate}_b$, and any method that maps $q$ and $c_b$ to a valid native query for $b$ would fit the framework.
+
+\subsection{Cross-Source Evidence Selection}
+
+From a collection of executor outputs through $\texttt{Exec}(b, \cdot)$, we now select the final evidence set $\mathcal{E}$ relevant to $q$.
+
+\paragraph{Role of Selection}
+Our task is retrieval, whose objective is to return what is relevant to the question and filter out what is not; however, the executor outputs do not yet meet that goal: running each $\hat{q}_b$ through $\texttt{Exec}(b, \cdot)$ produces an individual retrieval result for each source $b \in \mathcal{S}$, with $\mathcal{S}$ itself possibly spanning multiple sources because the question requires them or because the source-selection step deferred an ambiguous routing decision here. In addition, these per-source results are heterogeneous in both form (rows from SQL, triples from RDF, paths from property graphs, passages from an unstructured corpus) and size, since each $\texttt{Exec}(b, \hat{q}_b)$ returns results at the granularity of the native query, ranging from many items down to a single value such as an entity or an aggregate, only some of which are typically relevant to $q$. The role of this step is therefore to pick, from $\{\texttt{Exec}(b, \hat{q}_b)\}_{b \in \mathcal{S}}$, the subset relevant to $q$, completing the retrieval task by filtering out what is not.
+
+\paragraph{Cross-Source Evidence Selection}
+Formally, the OmniRetrieval framework implements this as an operator $\texttt{Select}$ that takes $q$ and the executor outputs, and then returns the relevant subset $\mathcal{E}$:
+\begin{equation}
+\mathcal{E} = \texttt{Select}(q,\, \{\texttt{Exec}(b, \hat{q}_b)\}_{b \in \mathcal{S}}).
+\end{equation}
+Here, we instantiate $\texttt{Select}$ as $\texttt{LLM}(\mathcal{T}_{\text{sel}}(\cdot))$, with $\mathcal{T}_{\text{sel}}$ a prompt template that verbalizes each executor output in its native form (rows for SQL, triples for RDF, paths for property graphs, and passages for an unstructured corpus), and asks the model to identify the outputs relevant to $q$. It is worth noting that, although native query languages are essential at the query stage to express structural operators (joins, traversals, paths), verbalizing the executor outputs here does not undercut that choice: by this point $\texttt{Exec}$ has already done the structural work via those operators, providing results that can be read as text.
+

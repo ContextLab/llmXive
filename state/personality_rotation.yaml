@@ -1,507 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-05-27T23:37:53.753029+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-05-31T12:02:13.501196+00:00'
 last_outcome: librarian_held
 history:
-- slug: linus-pauling
-  started_at: '2026-05-19T07:46:55.261775+00:00'
-  ended_at: '2026-05-19T09:07:24.282965+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-19__research.md
-- slug: marie-curie
-  started_at: '2026-05-19T09:07:24.282965+00:00'
-  ended_at: '2026-05-19T10:43:15.955188+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-19__research.md
-- slug: richard-feynman
-  started_at: '2026-05-19T10:43:15.955188+00:00'
-  ended_at: '2026-05-19T12:04:09.327481+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/richard-feynman-simulated__2026-05-19__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-19T12:04:09.327481+00:00'
-  ended_at: '2026-05-19T13:38:04.829768+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-19__research.md
-- slug: stephen-wolfram
-  started_at: '2026-05-19T13:38:04.829768+00:00'
-  ended_at: '2026-05-19T15:06:06.903007+00:00'
-  outcome: librarian_held
-  action: propose_arxiv
-  committed_paths:
-  - state/personality-submissions/_held/20260519T150606Z__stephen-wolfram.yaml
-- slug: stephen-wolfram
-  started_at: '2026-05-19T15:06:06.903007+00:00'
-  ended_at: '2026-05-19T16:36:29.750930+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/stephen-wolfram-simulated__2026-05-19__research.md
-- slug: ada-lovelace
-  started_at: '2026-05-19T16:36:29.750930+00:00'
-  ended_at: '2026-05-19T17:47:34.416961+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-19__research.md
-- slug: alan-turing
-  started_at: '2026-05-19T17:47:34.416961+00:00'
-  ended_at: '2026-05-19T18:37:24.945794+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/alan-turing-simulated__2026-05-19__research.md
-- slug: albert-einstein
-  started_at: '2026-05-19T18:37:24.945794+00:00'
-  ended_at: '2026-05-19T20:34:35.778153+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-19__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-19T20:34:35.778153+00:00'
-  ended_at: '2026-05-19T21:31:58.461347+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/dan-rockmore-simulated__2026-05-19__research.md
-- slug: daniel-kahneman
-  started_at: '2026-05-19T21:31:58.461347+00:00'
-  ended_at: '2026-05-19T22:03:27.219967+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/daniel-kahneman-simulated__2026-05-19__research.md
-- slug: david-krakauer
-  started_at: '2026-05-19T22:03:27.219967+00:00'
-  ended_at: '2026-05-19T22:39:12.214659+00:00'
-  outcome: abstained
-  action: abstain
-- slug: eric-kandel
-  started_at: '2026-05-19T22:39:12.214659+00:00'
-  ended_at: '2026-05-19T23:26:35.285825+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/eric-kandel-simulated__2026-05-19__research.md
-- slug: freeman-dyson
-  started_at: '2026-05-19T23:26:35.285825+00:00'
-  ended_at: '2026-05-19T23:51:17.163064+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-19__research.md
-- slug: geoffrey-west
-  started_at: '2026-05-19T23:51:17.163064+00:00'
-  ended_at: '2026-05-20T00:35:11.713758+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/geoffrey-west-simulated__2026-05-20__paper.md
-- slug: john-von-neumann
-  started_at: '2026-05-20T00:35:11.713758+00:00'
-  ended_at: '2026-05-20T01:42:02.540183+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-20__research.md
-- slug: linus-pauling
-  started_at: '2026-05-20T01:42:02.540183+00:00'
-  ended_at: '2026-05-20T03:06:07.651922+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-20__research.md
-- slug: marie-curie
-  started_at: '2026-05-20T03:06:07.651922+00:00'
-  ended_at: '2026-05-20T04:55:17.940391+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-20__research.md
-- slug: richard-feynman
-  started_at: '2026-05-20T04:55:17.940391+00:00'
-  ended_at: '2026-05-20T06:24:41.973037+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-20__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-20T06:24:41.973037+00:00'
-  ended_at: '2026-05-20T07:46:39.337613+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-20__research.md
-- slug: stephen-wolfram
-  started_at: '2026-05-20T07:46:39.337613+00:00'
-  ended_at: '2026-05-20T09:07:16.073089+00:00'
-  outcome: committed
-  action: propose_arxiv
-  committed_paths:
-  - state/personality-submissions/20260520T090716Z__stephen-wolfram.yaml
-- slug: ada-lovelace
-  started_at: '2026-05-20T09:07:16.073089+00:00'
-  ended_at: '2026-05-20T10:33:19.705114+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/ada-lovelace-simulated__2026-05-20__research.md
-- slug: alan-turing
-  started_at: '2026-05-20T10:33:19.705114+00:00'
-  ended_at: '2026-05-20T12:01:48.365351+00:00'
-  outcome: abstained
-  action: abstain
-- slug: albert-einstein
-  started_at: '2026-05-20T12:01:48.365351+00:00'
-  ended_at: '2026-05-20T13:01:12.804469+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-20__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-20T13:01:12.804469+00:00'
-  ended_at: '2026-05-20T14:00:31.203065+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/dan-rockmore-simulated__2026-05-20__research.md
-- slug: daniel-kahneman
-  started_at: '2026-05-20T14:00:31.203065+00:00'
-  ended_at: '2026-05-20T15:16:03.225646+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/daniel-kahneman-simulated__2026-05-20__research.md
-- slug: david-krakauer
-  started_at: '2026-05-20T15:16:03.225646+00:00'
-  ended_at: '2026-05-20T16:35:45.395376+00:00'
-  outcome: target_missing
-  action: comment
-- slug: david-krakauer
-  started_at: '2026-05-20T16:35:45.395376+00:00'
-  ended_at: '2026-05-20T18:01:50.582783+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/david-krakauer-simulated__2026-05-20__research.md
-- slug: eric-kandel
-  started_at: '2026-05-20T18:01:50.582783+00:00'
-  ended_at: '2026-05-20T19:00:21.689449+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-20__paper.md
-- slug: freeman-dyson
-  started_at: '2026-05-20T19:00:21.689449+00:00'
-  ended_at: '2026-05-20T20:44:00.667366+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/_held/freeman-dyson-simulated__2026-05-20__research.md
-- slug: freeman-dyson
-  started_at: '2026-05-20T20:44:00.667366+00:00'
-  ended_at: '2026-05-20T21:35:13.397998+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-20__research.md
-- slug: geoffrey-west
-  started_at: '2026-05-20T21:35:13.397998+00:00'
-  ended_at: '2026-05-20T22:31:26.051927+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-578-https-arxiv-org-abs-2605-14906/reviews/research/geoffrey-west-simulated__2026-05-20__research.md
-- slug: john-von-neumann
-  started_at: '2026-05-20T22:31:26.051927+00:00'
-  ended_at: '2026-05-20T23:02:25.388332+00:00'
-  outcome: target_missing
-  action: comment
-- slug: john-von-neumann
-  started_at: '2026-05-20T23:02:25.388332+00:00'
-  ended_at: '2026-05-20T23:38:27.709574+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-20__research.md
-- slug: linus-pauling
-  started_at: '2026-05-20T23:38:27.709574+00:00'
-  ended_at: '2026-05-21T00:35:40.367340+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-21__research.md
-- slug: marie-curie
-  started_at: '2026-05-21T00:35:40.367340+00:00'
-  ended_at: '2026-05-21T01:40:19.506332+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-21__research.md
-- slug: richard-feynman
-  started_at: '2026-05-21T01:40:19.506332+00:00'
-  ended_at: '2026-05-21T03:05:56.717967+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-21__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-21T03:05:56.717967+00:00'
-  ended_at: '2026-05-21T05:00:02.427993+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-21__research.md
-- slug: stephen-wolfram
-  started_at: '2026-05-21T05:00:02.427993+00:00'
-  ended_at: '2026-05-21T06:27:17.634424+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/stephen-wolfram-simulated__2026-05-21__research.md
-- slug: ada-lovelace
-  started_at: '2026-05-21T06:27:17.634424+00:00'
-  ended_at: '2026-05-21T07:48:21.632605+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/ada-lovelace-simulated__2026-05-21__research.md
-- slug: alan-turing
-  started_at: '2026-05-21T07:48:21.632605+00:00'
-  ended_at: '2026-05-21T09:07:04.005634+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/alan-turing-simulated__2026-05-21__research.md
-- slug: albert-einstein
-  started_at: '2026-05-21T09:07:04.005634+00:00'
-  ended_at: '2026-05-21T10:45:24.727795+00:00'
-  outcome: model_error
-- slug: albert-einstein
-  started_at: '2026-05-21T10:45:24.727795+00:00'
-  ended_at: '2026-05-21T12:05:18.233418+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-21__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-21T12:05:18.233418+00:00'
-  ended_at: '2026-05-21T13:36:53.317433+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/dan-rockmore-simulated__2026-05-21__research.md
-- slug: daniel-kahneman
-  started_at: '2026-05-21T13:36:53.317433+00:00'
-  ended_at: '2026-05-21T15:05:45.243384+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-601-https-arxiv-org-abs-2605-12882/reviews/research/daniel-kahneman-simulated__2026-05-21__research.md
-- slug: david-krakauer
-  started_at: '2026-05-21T15:05:45.243384+00:00'
-  ended_at: '2026-05-21T16:28:24.099709+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/david-krakauer-simulated__2026-05-21__research.md
-- slug: eric-kandel
-  started_at: '2026-05-21T16:28:24.099709+00:00'
-  ended_at: '2026-05-21T17:24:51.119454+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-05-21__research.md
-- slug: freeman-dyson
-  started_at: '2026-05-21T17:24:51.119454+00:00'
-  ended_at: '2026-05-21T18:12:20.870091+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-21__research.md
-- slug: geoffrey-west
-  started_at: '2026-05-21T18:12:20.870091+00:00'
-  ended_at: '2026-05-21T19:12:23.129761+00:00'
-  outcome: model_error
-- slug: geoffrey-west
-  started_at: '2026-05-21T19:12:23.129761+00:00'
-  ended_at: '2026-05-21T20:16:41.035596+00:00'
-  outcome: target_missing
-  action: comment
-- slug: geoffrey-west
-  started_at: '2026-05-21T20:16:41.035596+00:00'
-  ended_at: '2026-05-21T21:11:56.888747+00:00'
-  outcome: target_missing
-  action: comment
-- slug: geoffrey-west
-  started_at: '2026-05-21T21:11:56.888747+00:00'
-  ended_at: '2026-05-21T22:01:46.843509+00:00'
-  outcome: target_missing
-  action: comment
-- slug: geoffrey-west
-  started_at: '2026-05-21T22:01:46.843509+00:00'
-  ended_at: '2026-05-21T22:40:22.994789+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/paper/reviews/geoffrey-west-simulated__2026-05-21__paper.md
-- slug: john-von-neumann
-  started_at: '2026-05-21T22:40:22.994789+00:00'
-  ended_at: '2026-05-21T23:24:21.273003+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-600-https-arxiv-org-abs-2605-15298/paper/reviews/john-von-neumann-simulated__2026-05-21__paper.md
-- slug: linus-pauling
-  started_at: '2026-05-21T23:24:21.273003+00:00'
-  ended_at: '2026-05-21T23:48:45.170652+00:00'
-  outcome: model_error
-- slug: linus-pauling
-  started_at: '2026-05-21T23:48:45.170652+00:00'
-  ended_at: '2026-05-22T00:33:16.887961+00:00'
-  outcome: abstained
-  action: abstain
-- slug: marie-curie
-  started_at: '2026-05-22T00:33:16.887961+00:00'
-  ended_at: '2026-05-22T03:07:09.716681+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-22__research.md
-- slug: richard-feynman
-  started_at: '2026-05-22T03:07:09.716681+00:00'
-  ended_at: '2026-05-22T04:53:42.062898+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-22__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-22T04:53:42.062898+00:00'
-  ended_at: '2026-05-22T06:25:17.405939+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/rosalind-franklin-simulated__2026-05-22__paper.md
-- slug: stephen-wolfram
-  started_at: '2026-05-22T06:25:17.405939+00:00'
-  ended_at: '2026-05-22T07:46:57.384852+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/stephen-wolfram-simulated__2026-05-22__paper.md
-- slug: ada-lovelace
-  started_at: '2026-05-22T07:46:57.384852+00:00'
-  ended_at: '2026-05-22T09:06:35.895310+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-607-https-arxiv-org-abs-2605-19769/reviews/research/ada-lovelace-simulated__2026-05-22__research.md
-- slug: alan-turing
-  started_at: '2026-05-22T09:06:35.895310+00:00'
-  ended_at: '2026-05-22T10:34:34.641719+00:00'
-  outcome: malformed_response
-- slug: alan-turing
-  started_at: '2026-05-22T10:34:34.641719+00:00'
-  ended_at: '2026-05-22T11:56:20.220656+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/paper/reviews/alan-turing-simulated__2026-05-22__paper.md
-- slug: albert-einstein
-  started_at: '2026-05-22T11:56:20.220656+00:00'
-  ended_at: '2026-05-22T12:46:56.955498+00:00'
-  outcome: abstained
-  action: abstain
-- slug: dan-rockmore
-  started_at: '2026-05-22T12:46:56.955498+00:00'
-  ended_at: '2026-05-22T13:48:35.939017+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/reviews/research/dan-rockmore-simulated__2026-05-22__research.md
-- slug: daniel-kahneman
-  started_at: '2026-05-22T13:48:35.939017+00:00'
-  ended_at: '2026-05-22T16:19:49.896898+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-612-a-survey-of-large-audio-language-models/paper/reviews/daniel-kahneman-simulated__2026-05-22__paper.md
-- slug: david-krakauer
-  started_at: '2026-05-22T16:19:49.896898+00:00'
-  ended_at: '2026-05-22T17:17:02.772061+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-571-co-evolving-policy-distillation/paper/reviews/david-krakauer-simulated__2026-05-22__paper.md
-- slug: eric-kandel
-  started_at: '2026-05-22T17:17:02.772061+00:00'
-  ended_at: '2026-05-22T18:09:23.182629+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/eric-kandel-simulated__2026-05-22__paper.md
-- slug: freeman-dyson
-  started_at: '2026-05-22T18:09:23.182629+00:00'
-  ended_at: '2026-05-22T19:08:48.590349+00:00'
-  outcome: abstained
-  action: abstain
-- slug: geoffrey-west
-  started_at: '2026-05-22T19:08:48.590349+00:00'
-  ended_at: '2026-05-22T20:10:18.955335+00:00'
-  outcome: model_error
-- slug: geoffrey-west
-  started_at: '2026-05-22T20:10:18.955335+00:00'
-  ended_at: '2026-05-22T20:57:25.731685+00:00'
-  outcome: model_error
-- slug: geoffrey-west
-  started_at: '2026-05-22T20:57:25.731685+00:00'
-  ended_at: '2026-05-22T21:28:16.896509+00:00'
-  outcome: model_error
-- slug: geoffrey-west
-  started_at: '2026-05-22T21:28:16.896509+00:00'
-  ended_at: '2026-05-22T21:54:29.532766+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/reviews/research/geoffrey-west-simulated__2026-05-22__research.md
-- slug: john-von-neumann
-  started_at: '2026-05-22T21:54:29.532766+00:00'
-  ended_at: '2026-05-22T22:23:53.221757+00:00'
-  outcome: malformed_response
-- slug: john-von-neumann
-  started_at: '2026-05-22T22:23:53.221757+00:00'
-  ended_at: '2026-05-22T22:49:57.244268+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-600-https-arxiv-org-abs-2605-15298/paper/reviews/john-von-neumann-simulated__2026-05-22__paper.md
-- slug: linus-pauling
-  started_at: '2026-05-22T22:49:57.244268+00:00'
-  ended_at: '2026-05-22T23:25:37.570460+00:00'
-  outcome: abstained
-  action: abstain
-- slug: marie-curie
-  started_at: '2026-05-22T23:25:37.570460+00:00'
-  ended_at: '2026-05-22T23:53:56.509373+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-22__research.md
-- slug: richard-feynman
-  started_at: '2026-05-22T23:53:56.509373+00:00'
-  ended_at: '2026-05-23T00:33:22.963126+00:00'
-  outcome: committed
-  action: propose_arxiv
-  committed_paths:
-  - state/personality-submissions/20260523T003322Z__richard-feynman.yaml
 - slug: rosalind-franklin
   started_at: '2026-05-23T00:33:22.963126+00:00'
   ended_at: '2026-05-23T01:22:37.461436+00:00'
@@ -1191,3 +691,524 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-549-exploring-the-distribution-of-smooth-num/reviews/research/_held/dan-rockmore-simulated__2026-05-27__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-27T23:37:53.753029+00:00'
+  ended_at: '2026-05-28T00:32:24.740488+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-549-exploring-the-distribution-of-smooth-num/reviews/research/dan-rockmore-simulated__2026-05-28__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-28T00:32:24.740488+00:00'
+  ended_at: '2026-05-28T01:21:32.918272+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md
+- slug: david-krakauer
+  started_at: '2026-05-28T01:21:32.918272+00:00'
+  ended_at: '2026-05-28T02:20:55.732697+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/david-krakauer-simulated__2026-05-28__research.md
+- slug: eric-kandel
+  started_at: '2026-05-28T02:20:55.732697+00:00'
+  ended_at: '2026-05-28T03:48:55.777547+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/eric-kandel-simulated__2026-05-28__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-28T03:48:55.777547+00:00'
+  ended_at: '2026-05-28T05:26:44.163050+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/freeman-dyson-simulated__2026-05-28__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-28T05:26:44.163050+00:00'
+  ended_at: '2026-05-28T06:49:03.986787+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/geoffrey-west-simulated__2026-05-28__paper.md
+- slug: john-von-neumann
+  started_at: '2026-05-28T06:49:03.986787+00:00'
+  ended_at: '2026-05-28T08:20:20.741500+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md
+- slug: linus-pauling
+  started_at: '2026-05-28T08:20:20.741500+00:00'
+  ended_at: '2026-05-28T09:49:00.844143+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/linus-pauling-simulated__2026-05-28__research.md
+- slug: marie-curie
+  started_at: '2026-05-28T09:49:00.844143+00:00'
+  ended_at: '2026-05-28T11:12:53.890977+00:00'
+  outcome: model_error
+- slug: marie-curie
+  started_at: '2026-05-28T11:12:53.890977+00:00'
+  ended_at: '2026-05-28T12:47:01.045506+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/reviews/research/marie-curie-simulated__2026-05-28__research.md
+- slug: richard-feynman
+  started_at: '2026-05-28T12:47:01.045506+00:00'
+  ended_at: '2026-05-28T14:17:15.912421+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-28__research.md
+- slug: rosalind-franklin
+  started_at: '2026-05-28T14:17:15.912421+00:00'
+  ended_at: '2026-05-28T15:49:49.472315+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/reviews/rosalind-franklin-simulated__2026-05-28__paper.md
+- slug: stephen-wolfram
+  started_at: '2026-05-28T15:49:49.472315+00:00'
+  ended_at: '2026-05-28T17:17:24.636474+00:00'
+  outcome: abstained
+  action: abstain
+- slug: ada-lovelace
+  started_at: '2026-05-28T17:17:24.636474+00:00'
+  ended_at: '2026-05-28T18:29:03.094759+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/reviews/ada-lovelace-simulated__2026-05-28__paper.md
+- slug: alan-turing
+  started_at: '2026-05-28T18:29:03.094759+00:00'
+  ended_at: '2026-05-28T19:26:29.456407+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/alan-turing-simulated__2026-05-28__research.md
+- slug: albert-einstein
+  started_at: '2026-05-28T19:26:29.456407+00:00'
+  ended_at: '2026-05-28T20:19:33.272776+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-28__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-28T20:19:33.272776+00:00'
+  ended_at: '2026-05-28T21:17:12.047563+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md
+- slug: daniel-kahneman
+  started_at: '2026-05-28T21:17:12.047563+00:00'
+  ended_at: '2026-05-28T22:10:15.770859+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md
+- slug: david-krakauer
+  started_at: '2026-05-28T22:10:15.770859+00:00'
+  ended_at: '2026-05-28T23:00:36.113028+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/david-krakauer-simulated__2026-05-28__paper.md
+- slug: eric-kandel
+  started_at: '2026-05-28T23:00:36.113028+00:00'
+  ended_at: '2026-05-29T00:37:58.027414+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/eric-kandel-simulated__2026-05-29__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-29T00:37:58.027414+00:00'
+  ended_at: '2026-05-29T01:42:13.630175+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/_held/freeman-dyson-simulated__2026-05-29__paper.md
+- slug: freeman-dyson
+  started_at: '2026-05-29T01:42:13.630175+00:00'
+  ended_at: '2026-05-29T03:06:53.758850+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-29__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-29T03:06:53.758850+00:00'
+  ended_at: '2026-05-29T04:59:56.754434+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/reviews/geoffrey-west-simulated__2026-05-29__paper.md
+- slug: john-von-neumann
+  started_at: '2026-05-29T04:59:56.754434+00:00'
+  ended_at: '2026-05-29T06:31:08.556493+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/john-von-neumann-simulated__2026-05-29__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-29T06:31:08.556493+00:00'
+  ended_at: '2026-05-29T07:53:11.566678+00:00'
+  outcome: model_error
+- slug: linus-pauling
+  started_at: '2026-05-29T07:53:11.566678+00:00'
+  ended_at: '2026-05-29T09:10:53.503949+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/linus-pauling-simulated__2026-05-29__research.md
+- slug: marie-curie
+  started_at: '2026-05-29T09:10:53.503949+00:00'
+  ended_at: '2026-05-29T10:47:29.667182+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/reviews/marie-curie-simulated__2026-05-29__paper.md
+- slug: richard-feynman
+  started_at: '2026-05-29T10:47:29.667182+00:00'
+  ended_at: '2026-05-29T12:05:50.241218+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-29__research.md
+- slug: rosalind-franklin
+  started_at: '2026-05-29T12:05:50.241218+00:00'
+  ended_at: '2026-05-29T13:38:09.000543+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/_held/rosalind-franklin-simulated__2026-05-29__paper.md
+- slug: rosalind-franklin
+  started_at: '2026-05-29T13:38:09.000543+00:00'
+  ended_at: '2026-05-29T15:05:34.983041+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-05-29__paper.md
+- slug: stephen-wolfram
+  started_at: '2026-05-29T15:05:34.983041+00:00'
+  ended_at: '2026-05-29T16:48:01.385312+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/reviews/stephen-wolfram-simulated__2026-05-29__paper.md
+- slug: ada-lovelace
+  started_at: '2026-05-29T16:48:01.385312+00:00'
+  ended_at: '2026-05-29T18:05:14.947946+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/ada-lovelace-simulated__2026-05-29__paper.md
+- slug: alan-turing
+  started_at: '2026-05-29T18:05:14.947946+00:00'
+  ended_at: '2026-05-29T19:23:31.443422+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/alan-turing-simulated__2026-05-29__research.md
+- slug: albert-einstein
+  started_at: '2026-05-29T19:23:31.443422+00:00'
+  ended_at: '2026-05-29T20:18:55.644547+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-29__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-29T20:18:55.644547+00:00'
+  ended_at: '2026-05-29T21:14:55.235869+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/dan-rockmore-simulated__2026-05-29__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-29T21:14:55.235869+00:00'
+  ended_at: '2026-05-29T22:08:44.976916+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/daniel-kahneman-simulated__2026-05-29__research.md
+- slug: david-krakauer
+  started_at: '2026-05-29T22:08:44.976916+00:00'
+  ended_at: '2026-05-29T22:57:53.531838+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/david-krakauer-simulated__2026-05-29__research.md
+- slug: eric-kandel
+  started_at: '2026-05-29T22:57:53.531838+00:00'
+  ended_at: '2026-05-29T23:32:28.665334+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/eric-kandel-simulated__2026-05-29__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-29T23:32:28.665334+00:00'
+  ended_at: '2026-05-30T00:00:46.984738+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/reviews/freeman-dyson-simulated__2026-05-30__paper.md
+- slug: geoffrey-west
+  started_at: '2026-05-30T00:00:46.984738+00:00'
+  ended_at: '2026-05-30T01:03:42.524324+00:00'
+  outcome: malformed_response
+- slug: geoffrey-west
+  started_at: '2026-05-30T01:03:42.524324+00:00'
+  ended_at: '2026-05-30T01:46:05.753215+00:00'
+  outcome: target_missing
+  action: contribute
+- slug: geoffrey-west
+  started_at: '2026-05-30T01:46:05.753215+00:00'
+  ended_at: '2026-05-30T03:05:08.059310+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/geoffrey-west-simulated__2026-05-30__research.md
+- slug: john-von-neumann
+  started_at: '2026-05-30T03:05:08.059310+00:00'
+  ended_at: '2026-05-30T04:48:15.658517+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-30T04:48:15.658517+00:00'
+  ended_at: '2026-05-30T06:08:24.216825+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/linus-pauling-simulated__2026-05-30__paper.md
+- slug: marie-curie
+  started_at: '2026-05-30T06:08:24.216825+00:00'
+  ended_at: '2026-05-30T07:29:21.384376+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/marie-curie-simulated__2026-05-30__research.md
+- slug: richard-feynman
+  started_at: '2026-05-30T07:29:21.384376+00:00'
+  ended_at: '2026-05-30T08:23:26.167394+00:00'
+  outcome: abstained
+  action: abstain
+- slug: rosalind-franklin
+  started_at: '2026-05-30T08:23:26.167394+00:00'
+  ended_at: '2026-05-30T09:17:11.216583+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/rosalind-franklin-simulated__2026-05-30__research.md
+- slug: stephen-wolfram
+  started_at: '2026-05-30T09:17:11.216583+00:00'
+  ended_at: '2026-05-30T10:13:31.160124+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-550-exploring-the-convergence-of-iterated-fu/reviews/research/stephen-wolfram-simulated__2026-05-30__research.md
+- slug: ada-lovelace
+  started_at: '2026-05-30T10:13:31.160124+00:00'
+  ended_at: '2026-05-30T11:01:33.159629+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-30__research.md
+- slug: alan-turing
+  started_at: '2026-05-30T11:01:33.159629+00:00'
+  ended_at: '2026-05-30T11:38:40.956945+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/alan-turing-simulated__2026-05-30__research.md
+- slug: albert-einstein
+  started_at: '2026-05-30T11:38:40.956945+00:00'
+  ended_at: '2026-05-30T12:24:11.592120+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-30__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-30T12:24:11.592120+00:00'
+  ended_at: '2026-05-30T13:34:07.482628+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/dan-rockmore-simulated__2026-05-30__paper.md
+- slug: daniel-kahneman
+  started_at: '2026-05-30T13:34:07.482628+00:00'
+  ended_at: '2026-05-30T14:34:11.501637+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/reviews/daniel-kahneman-simulated__2026-05-30__paper.md
+- slug: david-krakauer
+  started_at: '2026-05-30T14:34:11.501637+00:00'
+  ended_at: '2026-05-30T15:28:02.876195+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/david-krakauer-simulated__2026-05-30__paper.md
+- slug: eric-kandel
+  started_at: '2026-05-30T15:28:02.876195+00:00'
+  ended_at: '2026-05-30T15:55:42.107618+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/eric-kandel-simulated__2026-05-30__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-30T15:55:42.107618+00:00'
+  ended_at: '2026-05-30T16:22:45.638685+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/freeman-dyson-simulated__2026-05-30__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-30T16:22:45.638685+00:00'
+  ended_at: '2026-05-30T16:49:51.795154+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/reviews/research/geoffrey-west-simulated__2026-05-30__research.md
+- slug: john-von-neumann
+  started_at: '2026-05-30T16:49:51.795154+00:00'
+  ended_at: '2026-05-30T17:54:18.829598+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/_held/john-von-neumann-simulated__2026-05-30__paper.md
+- slug: john-von-neumann
+  started_at: '2026-05-30T17:54:18.829598+00:00'
+  ended_at: '2026-05-30T18:52:24.348498+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-30T18:52:24.348498+00:00'
+  ended_at: '2026-05-30T19:34:09.863554+00:00'
+  outcome: target_missing
+  action: comment
+- slug: linus-pauling
+  started_at: '2026-05-30T19:34:09.863554+00:00'
+  ended_at: '2026-05-30T20:02:02.327551+00:00'
+  outcome: abstained
+  action: abstain
+- slug: marie-curie
+  started_at: '2026-05-30T20:02:02.327551+00:00'
+  ended_at: '2026-05-30T20:53:37.289540+00:00'
+  outcome: malformed_response
+- slug: marie-curie
+  started_at: '2026-05-30T20:53:37.289540+00:00'
+  ended_at: '2026-05-30T21:22:59.169133+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/marie-curie-simulated__2026-05-30__paper.md
+- slug: richard-feynman
+  started_at: '2026-05-30T21:22:59.169133+00:00'
+  ended_at: '2026-05-30T21:51:14.762859+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-30__research.md
+- slug: rosalind-franklin
+  started_at: '2026-05-30T21:51:14.762859+00:00'
+  ended_at: '2026-05-30T22:22:42.434472+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/rosalind-franklin-simulated__2026-05-30__paper.md
+- slug: stephen-wolfram
+  started_at: '2026-05-30T22:22:42.434472+00:00'
+  ended_at: '2026-05-30T22:48:52.605695+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/stephen-wolfram-simulated__2026-05-30__research.md
+- slug: ada-lovelace
+  started_at: '2026-05-30T22:48:52.605695+00:00'
+  ended_at: '2026-05-30T23:22:55.851798+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-30__research.md
+- slug: alan-turing
+  started_at: '2026-05-30T23:22:55.851798+00:00'
+  ended_at: '2026-05-30T23:50:23.653292+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/reviews/alan-turing-simulated__2026-05-30__paper.md
+- slug: albert-einstein
+  started_at: '2026-05-30T23:50:23.653292+00:00'
+  ended_at: '2026-05-31T00:34:33.918360+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-31__research.md
+- slug: dan-rockmore
+  started_at: '2026-05-31T00:34:33.918360+00:00'
+  ended_at: '2026-05-31T01:43:54.988190+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/dan-rockmore-simulated__2026-05-31__research.md
+- slug: daniel-kahneman
+  started_at: '2026-05-31T01:43:54.988190+00:00'
+  ended_at: '2026-05-31T03:06:44.284878+00:00'
+  outcome: model_error
+- slug: daniel-kahneman
+  started_at: '2026-05-31T03:06:44.284878+00:00'
+  ended_at: '2026-05-31T05:03:45.455677+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/reviews/research/daniel-kahneman-simulated__2026-05-31__research.md
+- slug: david-krakauer
+  started_at: '2026-05-31T05:03:45.455677+00:00'
+  ended_at: '2026-05-31T06:49:41.006955+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/david-krakauer-simulated__2026-05-31__paper.md
+- slug: eric-kandel
+  started_at: '2026-05-31T06:49:41.006955+00:00'
+  ended_at: '2026-05-31T08:04:34.158748+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/eric-kandel-simulated__2026-05-31__research.md
+- slug: freeman-dyson
+  started_at: '2026-05-31T08:04:34.158748+00:00'
+  ended_at: '2026-05-31T09:33:53.545693+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-31__research.md
+- slug: geoffrey-west
+  started_at: '2026-05-31T09:33:53.545693+00:00'
+  ended_at: '2026-05-31T10:22:50.449693+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-638-https-arxiv-org-abs-2605-28820/reviews/research/geoffrey-west-simulated__2026-05-31__research.md
+- slug: john-von-neumann
+  started_at: '2026-05-31T10:22:50.449693+00:00'
+  ended_at: '2026-05-31T11:09:02.489105+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-31__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-31T11:09:02.489105+00:00'
+  ended_at: '2026-05-31T12:02:13.501196+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/_held/linus-pauling-simulated__2026-05-31__paper.md

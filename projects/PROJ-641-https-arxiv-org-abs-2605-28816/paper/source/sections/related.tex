@@ -1,0 +1,25 @@
+% \vspace{-3mm}
+\section{Related Work}
+% \vspace{-2mm}
+
+\noindent\textbf{Video generation.}
+Diffusion-based generative models~\cite{ho2020denoising, lipman2022flow, song2020score} have become a leading approach for video generation.
+Built upon latent diffusion models~\cite{rombach2022high}, recent methods~\cite{chen2024videocrafter2, guo2023animatediff, yang2024cogvideox} perform generative modeling in the latent space, enabling more efficient synthesis of high-quality videos.
+In parallel, autoregressive video generation approaches~\cite{chen2024diffusion, henschel2025streamingt2v, kim2024fifo} have attracted increasing attention for their potential to extend generation to arbitrary-length sequences, thereby offering a promising basis for building world models.
+Driven by scalable architectures~\cite{peebles2023scalable} and increasingly sophisticated data curation pipelines, large-scale video generation systems~\cite{veo, sora, wan, kling, gao2025seedance, kong2024hunyuanvideo} trained on large-scale datasets have further exhibited emergent zero-shot abilities to understand, model, and manipulate the visual world~\cite{wiedemer2025video}, bringing physical world simulation closer to reality.
+
+\noindent\textbf{Video world models.}
+With the development of video diffusion transformers and the rapid advances in text-to-video and image-to-video generation, a growing body of world-modeling research has begun to repurpose video diffusion models as visual simulators~\cite{yang2023unisim,bar2025navigation,liang2024dreamitate}.
+Rather than learning compact abstract states for downstream planning and decision making, these methods directly model future visual observations through generative video prediction.
+We therefore refer to this family of approaches as video world models, highlighting their central reliance on video generation for simulating the evolution of the visual world.
+Recent video world models have been increasingly studied in embodied scenarios, where agents must anticipate the visual consequences of actions and interactions.
+Representative applications span robotics~\cite{mereu2025generative,yang2023learning,li2025unified,li2026causal,ye2026world,gao2026dreamdojo}, video games~\cite{alonso2024diffusion,he2025matrix,valevski2024diffusion,xiao2025worldmem, fan2022minedojo}, autonomous driving~\cite{agarwal2025cosmos,hu2023gaia}, and physical simulation~\cite{li2025pisa,yuan2026inference}, suggesting their potential as general-purpose simulators for dynamic visual environments.
+Beyond open-loop video rollout, recent efforts~\cite{hyworld2025,worldplay2025,yu2025cam} further move toward interactive and temporally consistent world modeling, where the simulated environment can react to user or agent actions while preserving coherent scene structure, object dynamics, and long-range temporal consistency.
+
+\noindent\textbf{Video diffusion model distillation.}
+Real-time generation is a crucial requirement for building world models.
+A common strategy for video diffusion models is to accelerate sampling through distillation~\cite{salimans2022progressive, geng2025mean, frans2024one}, which enables few-step inference and thus supports real-time synthesis.
+Several works~\cite{sauer2024fast, sauer2024adversarial, kang2024distilling, lin2025diffusion, lin2024sdxl, lin2025autoregressive} introduce adversarial training objectives to reduce the number of denoising steps, but such methods are often prone to optimization instability and model collapse.
+Another line of approaches~\cite{yin2024one, yin2024improved, lu2025adversarial} leverages variational score distillation~\cite{wang2023prolificdreamer} to obtain strong few-step generation performance.
+Beyond these general acceleration techniques, CausVid~\cite{yin2025slow} tackles real-time autoregressive generation by transferring knowledge from a bidirectional diffusion teacher to a causal student model.
+Building on this causal generation setup, Self-Forcing~\cite{huang2025self} further improves rollout training to reduce the exposure bias accumulated during long-horizon generation.

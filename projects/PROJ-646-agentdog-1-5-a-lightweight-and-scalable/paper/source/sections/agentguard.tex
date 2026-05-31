@@ -1,0 +1,789 @@
+\section{\agentdog{}}
+\label{sec:agentdog}
+
+In this section, we introduce \agentdog{}, a diagnostic guardrail model for agentic AI systems. As shown in Figure~\ref{fig:task_example}, \agentdog{} evaluates the entire execution trajectory of the agent to detect unsafe behavior and identify its underlying risk factors. We develop a rationale-enhanced and cost-efficient construction framework, improving \agentdog{}'s safety judgment accuracy, and supporting low-cost deployment. As shown in Figure~\ref{fig:1.5pipeline}, we first formalize the two target tasks: trajectory-level safety evaluation and fine-grained risk diagnosis in Section~\ref{subsec:taskdef}. Based on these task definitions, Section~\ref{subsec:datapre} describes how we prepare the training data through taxonomy-guided data collection and data purification. Using the resulting high-quality corpus, Section~\ref{subsec:train} introduces the supervised fine-tuning and reinforcement learning procedure for two-stage training \agentdog{}. Finally, Section~\ref{subsec:evaluation} evaluates the trained models on trajectory-level safety judgment, fine-grained risk diagnosis, and cross-environment benchmarks.
+
+
+\subsection{Task Definition}
+\label{subsec:taskdef}
+\begin{figure}[h]
+    \centering
+
+    % 合并后的整体图片
+    \includegraphics[width=0.85\linewidth]{figures/v1p5taskdefinition-crop.pdf}
+
+    \vspace{-0.5em}
+
+    % 保留左图 caption
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \caption{Trajectory-level safety evaluation.}
+        \label{fig:task_example_left}
+    \end{subfigure}
+    \hfill
+    % 保留右图 caption
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \caption{Fine-grained risk diagnosis.}
+        \label{fig:task_example_right}
+    \end{subfigure}
+
+    \caption{Example task instructions for the \toolAG{} classification tasks. A task consists of four main components. \toolAG{} is trained on producing the desired result in the output format described in the instructions.}
+    \label{fig:task_example}
+\end{figure}
+Following the task definition of AgentDoG~\citep{liu2026agentdogdiagnosticguardrailframework}, we consider two diagnostic tasks. The first is \textit{trajectory-level safety diagnosis}, which requires the model to determine whether an agent exhibits unsafe behavior at any point during its execution trajectory. The second is \textit{fine-grained risk diagnosis}, which requires the model to identify the risk source, failure mode, and corresponding real-world harm associated with the unsafe behavior.
+
+\textbf{Trajectory-level safety evaluation.}
+Given an agent trajectory $\mathcal{T}=\{t_1,\dots,t_n\}$, where each step $t_i=(a_i,o_i)$ consists of an action $a_i$ and an observation $o_i$, the goal is to predict a binary label
+\begin{equation}
+y \in \{\texttt{safe},\texttt{unsafe}\}.
+\end{equation}
+A trajectory is labeled \texttt{safe} if the agent does not execute any unsafe action or decision pattern, including cases where malicious, injected, or risky instructions are safely refused, ignored, or handled. It is labeled \texttt{unsafe} if any step exhibits unsafe behavior:
+\begin{equation}
+y=\texttt{unsafe}\;\;\Longleftrightarrow\;\;\exists i\in\{1,\dots,n\},\;\; \mathsf{Unsafe}(t_i)=\mathrm{True}.
+\end{equation}
+The evaluator is also given the available tool descriptions to assess both the agent's decisions and the consequences of tool use.
+
+\textbf{Fine-grained risk diagnosis.}
+For an unsafe trajectory, the model further predicts diagnostic labels
+\begin{equation}
+y_{\rm fine}=(\ell^{\text{mode}}, \ell^{\text{harm}}, \ell^{\text{risk}})
+\in
+\mathcal{L}^{\text{mode}}
+\times
+\mathcal{L}^{\text{harm}}
+\times
+\mathcal{L}^{\text{risk}},
+\end{equation}
+corresponding to the \textit{failure mode}, \textit{real-world harm}, and \textit{risk source}, as defined in our taxonomy (Section~\ref{sec:safety_taxonmy}).
+
+\textbf{Prompting.}
+Figure~\ref{fig:task_example} shows the prompt templates for the two tasks. Compared with the templates of AgentDoG, the new prompts introduce explicit CoT-style rationale generation before the final label prediction. For trajectory-level safety evaluation, the model is guided to reason about the agent's evidence basis, intent, concrete consequences, and safety impact before outputting a binary judgment. For fine-grained risk diagnosis, the model first produces a structured explanation of the failure mode, real-world harm, and risk
+source, and then predicts one label for each dimension.
+
+\subsection{Data Preparation}
+
+In this subsection, we introduce a taxonomy-guided data preparation pipeline that produces a compact, high-quality training corpus for \agentdog{} with explicit reasoning traces that connect trajectory evidence to safety verdicts. The key idea is to steer the generation of data with the three-dimensional risk taxonomy defined in Section~\ref{sec:safety_taxonmy} so that trajectories systematically cover the agentic risk space. However, raw synthesized trajectories are often noisy, redundant, or lack such rationale annotations, making them insufficient for directly training a reasoning-capable judge. 
+
+\label{subsec:datapre}
+\begin{figure}[t]
+    \centering
+    \scalebox{1}[1]{\includegraphics[width=0.92\linewidth]{figures/section4.pdf}}
+    \vspace{-10pt}
+    \caption{Building Pipeline of \agentdog{}. The upper panel presents the data engine, the lower-left panel illustrates the data preparation and training recipe of \agentdog{}, and the lower-right panel shows how \agentdog{} is applied to construct agentic SFT data.}
+    \label{fig:1.5pipeline}
+    \vspace{-10pt}
+\end{figure}
+
+
+To this end, the pipeline proceeds in two stages. Section~\ref{sec:data_collection} introduces the taxonomy-guided DataEngine, which independently samples one category from each of the three risk dimensions for every trajectory, constructs tool-calling interactions designed to trigger the corresponding risk pattern, augments each trajectory with chain-of-thought rationales, and applies fine-grained balancing across taxonomy dimensions. Section~\ref{sec:data_purification} then presents the influence-function-based data purification that removes low-value examples to produce a compact yet informative training corpus.
+
+\subsubsection{Data Collection}
+\label{sec:data_collection}
+
+
+As illustrated in Figure~\ref{fig:1.5pipeline}, we adopt a planner-based pipeline for data synthesis, designed to generate long-horizon, tool-augmented interaction trajectories with controllable risk injection and reliable safety labels. Building on the taxonomy-guided trajectory construction pipeline introduced in the original AgentDoG~\citep{liu2026agentdogdiagnosticguardrailframework} and ATBench~\citep{li2026atbench}, this pipeline further expands scenario coverage to a broader tool/MCP ecosystem and strengthens automatic quality control. It consists of three stages: \emph{planning}, which samples risk configurations and produces trajectory sketches; \emph{trajectory synthesis}, which instantiates each sketch into a complete multi-turn interaction; and \emph{automatic validation}, which filters out malformed or semantically inconsistent trajectories.
+
+
+\textbf{Stage 1: Planning.}
+For each trajectory, we first sample a risk configuration tuple from the three-dimensional safety taxonomy defined in Section~\ref{sec:safety_taxonmy}, comprising one category each from risk source, failure mode, and real-world harm. We then determine the safety outcome of the trajectory, specifying whether it is intended to be safe (the agent successfully detects and mitigates the risk) or unsafe (the risk is triggered and the agent executes the erroneous behavior). In parallel, we sample a candidate set of tools from the tool library. Given these inputs, a planner produces a trajectory sketch that defines the user task, the selected tools, the high-level step sequence, and the exact risk injection point.
+
+\textbf{Stage 2: Trajectory synthesis.}
+Given the structured sketch produced in Stage~1, the synthesis stage instantiates it into a complete multi-turn interaction trace containing user messages, agent responses, tool calls, and environment feedback. The same scenario skeleton can be instantiated as either a safe or unsafe trajectory. In the unsafe variant, the agent fails to detect the risk and executes the erroneous behavior. In the safe variant, the agent correctly handles the risk by refusing, verifying, warning, falling back to a safer action, or stopping the risky execution path.
+
+\textbf{Stage 3: Automatic validation.}
+The collected trajectories are filtered through dual-layer automatic quality control. A rule checker verifies structural validity, including tool-call format, schema, and type constraints, value constraints, and referential integrity. A model checker evaluates semantic quality, including rationality, step-to-step coherence, goal alignment, factual plausibility, and consistency between the trajectory behavior and its assigned risk labels. This validation retains only trajectories whose labels are supported by observable behavior rather than by intent alone. The resulting pool covers 5,973 unique tools and MCP servers, all observed taxonomy dimensions, including 15 risk sources, 21 failure modes, 11 real-world harm categories.
+
+
+\textbf{Reasoning chain-of-thought (CoT) augmentation.}
+\label{sec:CoT gene}
+As shown in Figure~\ref{fig:1.5pipeline}, to enable the model to learn not only the final verdict but also the complete reasoning pathway from trajectory evidence to safety judgment, we augment each trajectory with an explicit chain-of-thought (CoT) rationale. Specifically, we deploy GPT-5.4 as the teacher model: for each training sample, GPT-5.4 generates a detailed, step-by-step reasoning process using a curated template (Appendix~\ref{app:templates}). These CoT annotations allow the student model to produce more informative and interpretable justifications while improving overall judgment accuracy.
+
+\textbf{Fine-grained data selection and balance.}
+\label{sec:data_balance}
+As illustrated in Figure~\ref{fig:1.5pipeline}, since different risk categories vary considerably in their natural frequency, directly using the raw data would allow a small number of frequent patterns to dominate training, weakening the model's judgment on low-frequency risks. To address this, we apply fine-grained distributional control over the collected trajectories. Each example is indexed by its risk source, failure mode, and real-world harm, so that both marginal categories and joint risk tuples can be monitored. Rather than enforcing mechanical uniformity, we adopt soft balancing: overrepresented categories are down-sampled when necessary, while rare but valid cases are retained if their labels are supported by clear trajectory evidence. This balance between coverage, realism, and label reliability helps the dataset better reflect the diverse safety challenges faced by tool-augmented agents.
+
+
+\subsubsection{Data Purification}
+\label{sec:data_purification}
+
+This subsection describes how we purify the raw safety SFT pool into a compact training set that better supports agent safety guardrail behavior. The raw SFT pool contains examples of varying usefulness: some directly teach the model to recognize risky agent behaviors, whereas others are redundant, weakly related to the guardrail task, or may encourage overfitting to spurious surface patterns. We therefore apply a preference-aware influence-function-based data selection method \cite{lin2026preferenceawareinfluencefunctionbaseddataselection} to retain examples that most directly improve risk recognition while reducing the final dataset size.
+
+We first define the raw training pool and the guardrail target signal used for data selection. Let \(D_{\mathrm{raw}}=\{z_i\}_{i=1}^{n}\) denote the raw SFT pool, where each example \(z_i=(x_i,y_i)\) consists of an instruction or agent-context input and its training response. We define the desired guardrail behavior using a small set of safety target prompts \(Q_{\mathrm{safe}}\). For each target prompt \(q\in Q_{\mathrm{safe}}\), we construct a paired response: \(y_q^{+}\) is the \emph{target-positive response}, which correctly identifies the risk in the agent trajectory and gives an appropriate guardrail judgment, while \(y_q^{-}\) is the \emph{target-negative response}, which misses, downplays, or incorrectly classifies the risk. This pair specifies the local behavior we want to strengthen: the model should become more likely to produce the risk-identifying guardrail response than the risk-missing response.
+
+We next define the target-response gradients that will be used to construct the guardrail direction. For any target prompt-response pair \((q,y)\), we calculate the length-normalized likelihood \(\bar p_{\theta}(y\mid q)=p_{\theta}(y\mid q)^{1/|y|}\) to reduce length bias between paired responses, and define the corresponding token-average cross-entropy loss as \(\bar\ell(q,y;\theta)=-\log \bar p_{\theta}(y\mid q)\). At the reference checkpoint \(\hat\theta\), the target-response gradient is
+\begin{equation}
+\small
+\hat{\bar g}_{(q,y)}
+=
+\nabla_\theta \bar\ell(q,y;\theta)\big|_{\theta=\hat\theta}.
+\label{eq:guardrail-target-gradient}
+\end{equation}
+
+We estimate how strongly the reference model already prefers the correct guardrail response for each safety target pair. This preference is computed as the normalized likelihood assigned to the target-positive response:
+\begin{equation}
+\small
+\hat\pi_q
+=
+\frac{
+\bar p_{\hat\theta}(y_q^{+}\mid q)
+}{
+\bar p_{\hat\theta}(y_q^{+}\mid q)
++
+\bar p_{\hat\theta}(y_q^{-}\mid q)
+}.
+\label{eq:guardrail-positive-preference}
+\end{equation}
+A larger \(\hat\pi_q\) means that the model is already closer to the desired risk-identifying behavior for prompt \(q\), so this pair provides a more actionable local signal for data selection. The preference weight avoids treating all target prompts uniformly: nearby and learnable guardrail behaviors receive stronger weights, while distant or noisy target pairs contribute less to the selection signal.
+
+We use the preference-weighted target gradients to construct a single guardrail direction in parameter space. This direction aggregates the gradient contrast between correctly identifying risk and missing the risk, weighted by the model's current preference for the correct response:
+\begin{equation}
+\small
+\hat g_{\mathrm{guard}}
+=
+\frac{1}{|Q_{\mathrm{safe}}|}
+\sum_{q\in Q_{\mathrm{safe}}}
+\hat\pi_q
+\left(
+\hat{\bar g}_{(q,y_q^{+})}
+-
+\hat{\bar g}_{(q,y_q^{-})}
+\right).
+\label{eq:guardrail-target-direction}
+\end{equation}
+The resulting vector represents the local parameter-space change that increases the model's preference for correctly identifying risky agent trajectories over missing or misclassifying them.
+
+We then compute candidate-example gradients so that each raw SFT example can be compared with the guardrail direction. For a candidate example \(z=(x,y)\), we use the standard sequence-level SFT loss \(\ell(x,y;\theta)=-\log p_\theta(y\mid x)\) and compute its gradient at the reference checkpoint:
+\begin{equation}
+\small
+\hat g_z
+=
+\nabla_\theta \ell(x,y;\theta)\big|_{\theta=\hat\theta}.
+\label{eq:guardrail-sft-gradient}
+\end{equation}
+
+Finally, we score each raw SFT example by how strongly its training signal aligns with the preference-aware guardrail direction under the local curvature of the SFT objective. The purification score is
+\begin{equation}
+\small
+s_{\pi}(z)
+=
+\hat g_z^\top \hat g_{\mathrm{guard}}.
+\label{eq:guardrail-prism-score}
+\end{equation}
+A larger \(s_{\pi}(z)\) indicates that training on example \(z\) is expected to move the model more strongly toward the desired guardrail behavior, namely correctly recognizing risky agent trajectories and producing the appropriate safety judgment.
+
+We retain the highest-scoring examples to form the purified dataset. Low-scoring examples are removed because their training signals are weakly aligned with, irrelevant to, or potentially conflicting with the desired guardrail direction. The resulting purified set \(D_{\mathrm{keep}}\) retains the most informative examples, significantly reducing the dataset size to roughly 1k samples while preserving or improving overall quality. This filtering reduces fine-tuning cost and mitigates overfitting to spurious patterns in the raw SFT data, while concentrating the training budget on examples that most directly improve safety guardrail performance.
+
+
+
+\subsection{Training}
+\label{subsec:train}
+
+To enhance the model's judgment capability and rationale generation ability, we follow DeepSeek's~\citep{guo2025deepseek} training recipe and adopt a two-stage training pipeline. We first apply Supervised Fine-Tuning (SFT) to the base model to obtain a coarse-grained judgment model and initialize a fine-grained judgment model. We then use Reinforcement Learning (RL) to further optimize the fine-grained model. In the SFT stage, the model is trained on the purified CoT-augmented dataset to acquire a solid foundation of
+reasoning patterns and fine-grained discriminative knowledge. Subsequently,
+the RL stage further refines the model's decision boundaries by optimizing
+directly toward reward signals that reflect fine-grained evaluation
+criteria, encouraging the model to produce more nuanced and precise
+judgments beyond what supervised learning alone can achieve.
+
+
+\subsubsection{Supervised Fine-Tuning}
+To start with, we train the model with standard SFT on either the coarse-grained or the fine-grained dataset $\mathcal{D}$ of input-output demonstrations $(x,y)$. Given an input context $x$, the model is optimized to generate the target response
+$y$ autoregressively by maximizing the conditional likelihood of each
+target token. Equivalently, we minimize the negative log-likelihood
+objective:
+\begin{equation}
+\small
+\mathcal{L}_{\mathrm{SFT}}(\theta)
+=
+-\mathbb{E}_{(x,y)\sim \mathcal{D}}
+\sum_{t=1}^{|y|}
+\log \pi_\theta(y_t \mid x, y_{<t}).
+\label{eq:sft-objective}
+\end{equation}
+
+Here, $\pi_\theta$ denotes the model policy parameterized by $\theta$,
+$y_t$ is the $t$-th token of the target output, and $y_{<t}$ denotes the
+preceding target tokens. This objective encourages the model to imitate
+the reference demonstrations in $\mathcal{D}$ by assigning high
+probability to the annotated outputs conditioned on the input context. We fine-tuned Qwen3.5-0.8B, Qwen3.5-2B, Qwen3.5-4B~\citep{qwen35}, and Llama-3.1-8B-Instruct~\citep{dubey2024llama} with a learning rate of 1e-5.
+
+\subsubsection{Reinforcement Learning}
+\label{sec:rl}
+
+The RL stage refines the SFT policy toward more accurate fine-grained judgment via reinforcement learning with verifiable rewards, using Group Reward-Decoupled Normalization Policy Optimization (GDPO; \citealp{liu2026gdpo}) to preserve the multi-dimensional reward signal. For each query $q_i$, the rollout policy samples $G$ responses, and a deterministic verifier scores each along three dimensions (failure mode, real-world harm, risk source), yielding a binary reward vector $(r_1,r_2,r_3)$; an upstream reasoning-block gate zeros all three if the response omits a non-trivial analysis span. We prefer GDPO over scalar GRPO~\citep{shao2024deepseekmath} because fine-grained judgment contains many partial-satisfaction cases, where summing rewards into one scalar makes a rollout correct on failure mode but wrong elsewhere, indistinguishable from qualitatively different patterns after group-relative normalization. GDPO instead normalizes advantages per dimension, combines them with weights $(w_1,w_2,w_3)=(0.3,0.4,0.3)$, applies batch-level normalization, and we retain any rollout group with non-zero variance in any dimension, so the per-dimension signal is not discarded.
+
+The resulting normalized advantage
+$\hat A_{\mathrm{sum}}^{(i,j)}$ serves as the response-level learning
+signal for rollout $o_{i,j}$; it is obtained by batch-normalizing the
+weighted sum of the dimension-wise advantages. This response-level
+advantage is shared by all tokens in the same rollout. The token-level
+policy ratio is defined as
+\begin{equation}
+\small
+s_{i,j,t}(\theta)
+=
+\frac{
+\pi_\theta(o_{i,j}^{t}\mid q_i,o_{i,j}^{<t})
+}{
+\pi_{\theta_{\mathrm{old}}}(o_{i,j}^{t}\mid q_i,o_{i,j}^{<t})
+},
+\label{eq:policy-ratio}
+\end{equation}
+where $q_i$ denotes a query sampled from the data
+$\mathcal{D}$, $t$ indexes tokens in rollout $o_{i,j}$, and
+$\{o_{i,j}\}_{j=1}^{G}\sim\pi_{\theta_{\mathrm{old}}}(\cdot\mid q_i)$.
+
+For compactness, we define the token-level clipped surrogate term as
+\begin{equation}
+\small
+\ell_{i,j,t}^{\mathrm{clip}}(\theta)
+=
+\min\!\left(
+s_{i,j,t}(\theta)\hat A_{\mathrm{sum}}^{(i,j)},
+\operatorname{clip}\!\left(
+s_{i,j,t}(\theta),
+1-\epsilon_{\mathrm{low}},
+1+\epsilon_{\mathrm{high}}
+\right)
+\hat A_{\mathrm{sum}}^{(i,j)}
+\right).
+\label{eq:clipped-term}
+\end{equation}
+We optimize the policy with the following KL-regularized clipped
+surrogate objective:
+\begin{equation}
+\small
+\mathcal{J}_{\mathrm{GDPO}}(\theta)
+=
+\mathbb{E}_{q_i\sim\mathcal{D},\,\{o_{i,j}\}_{j=1}^{G}
+\sim\pi_{\theta_{\mathrm{old}}}(\cdot\mid q_i)}
+\left[
+\frac{1}{G}\sum_{j=1}^{G}
+\frac{1}{T_{i,j}}\sum_{t=1}^{T_{i,j}}
+\left(
+\ell_{i,j,t}^{\mathrm{clip}}(\theta)
+-
+\beta
+D_{\mathrm{KL}}\!\left(
+\pi_\theta(\cdot\mid q_i,o_{i,j}^{<t})
+\,\|\, 
+\pi_{\mathrm{ref}}(\cdot\mid q_i,o_{i,j}^{<t})
+\right)
+\right)
+\right],
+\label{eq:gdpo-objective}
+\end{equation}
+where $T_{i,j}$ is the length of rollout $o_{i,j}$,
+$\epsilon_{\mathrm{low}}=0.2$, $\epsilon_{\mathrm{high}}=0.28$,
+$\beta=0.001$, lr=1e-6, and $G=8$.
+
+\subsection{Evaluation}
+\label{subsec:evaluation}
+
+We provide a comprehensive evaluation of \agentdog{}'s capability in agentic safety diagnosis. Our experiments are designed to assess the model along three critical dimensions: \textbf{(1) Trajectory-level safety evaluation}, which identifies unsafe behaviors in multi-step interactions; \textbf{(2) Fine-grained risk diagnosis}, which categorizes specific risk sources and failure modes; and \textbf{(3) Across prominent agentic execution environments}, which assesses safety judgment capabilities in widely adopted agentic scenarios.
+
+\subsubsection{Experimental Setup}
+\textbf{Benchmarks and metrics}
+We utilized \textbf{R-Judge}~\citep{rjudge2024}, \textbf{ATBench}~\citep{li2026atbench}, \textbf{ATBench-Claw}~\citep{yang2026benchmarkstrajectorysafetyevaluation} and \textbf{ATBench-Codex}~\citep{yang2026benchmarkstrajectorysafetyevaluation} to evaluate the performance of our \agentdog{}. Each dataset consists of complete agent trajectories, where each trajectory is classified as either safe or unsafe. 
+
+The evaluation is structured as two complementary tasks:
+
+\begin{itemize}
+\item \textbf{Trajectory-level safety evaluation:} The classification of each trajectory as safe or unsafe, utilizing standard metrics such as Accuracy, Precision, Recall, and F1-score. Specifically, we assess \agentdog{} on \textbf{R-Judge} and \textbf{ATBench}.
+\item \textbf{Fine-grained risk diagnosis:} The classification of specific risk labels for unsafe trajectories, which include Risk Source, Failure Mode, and Real-world Harm. We report the accuracy of these fine-grained labels, including Risk Source Acc, Failure Mode Acc, and Real-world Harm Acc on our \textbf{\toolBench{}}.
+\item \textbf{Evaluation across prominent agentic execution environments:} To assess the generalization ability of \agentdog{}, we conduct experiments of \agentdog{} on \textbf{ATBench-Claw} and \textbf{ATBench-Codex} with the results presented in figure form.
+\end{itemize}
+
+\textbf{Baselines.} We compare \agentdog{} with three groups of baselines: closed-source
+frontier models, general open-source models, and specialized guard models. The closed-source baselines include GPT-5.4~\citep{openai_gpt54_2026}, GPT-5.2~\citep{openai_gpt52_2025}, Gemini-3-Flash~\citep{googlecloud_gemini3flash_docs_2026}, and Gemini-3.1-Pro~\citep{gemini3}. The open-source baselines include Qwen3~\citep{qwen3} and Qwen3.5-series~\citep{qwen35} and Llama-3.1-8B-Instruct models~\citep{dubey2024llama} with different parameter scales. The guard model baselines include LlamaGuard, Qwen3-Guard, ShieldAgent, JoySafety, and NemoGuard~\citep{inan2023llama, qwen3guard2025, shieldagent2025, jd-opensource2025, nemo_guardrails2023}. For our models, we evaluate multiple \agentdog{} variants based on Qwen3.5-0.8B, Qwen3.5-2B, Qwen3.5-4B, and Llama-3.1-8B-Instruct, together with AgentDoG~1.0 as the previous-version reference.
+
+\subsubsection{Trajectory-level Safety Results}
+
+\begingroup
+\begin{table*}[t]
+\centering
+\caption{Performance comparison across R-Judge and ATBench using Accuracy, Precision, Recall, and F1-score.}
+\setlength{\tabcolsep}{9pt}
+\renewcommand{\arraystretch}{0.85}
+\resizebox{0.9\linewidth}{!}{
+\begin{tabular}{@{}l cccc | cccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} 
+& \multicolumn{4}{c|}{\textbf{R-Judge}}
+& \multicolumn{4}{c}{\textbf{ATBench}} \\
+\cmidrule(l){2-5}
+\cmidrule(l){6-9}
+& Acc & Prec. & Rec. & F1
+& Acc & Prec. & Rec. & F1 \\
+\midrule
+
+\rowcolor{AgentDoGColor!50}
+% \multicolumn{9}{l}{\textbf{Closed-Source Models}} \\
+\multicolumn{1}{@{}l}{\textbf{Closed-Source Models}} & & & & & & & & \\
+\midrule
+\textcolor{gray}{GPT-5.4} & \textcolor{gray}{93.3} & \textcolor{gray}{93.1} & \textcolor{gray}{94.3} & \textcolor{gray}{93.7} & \textcolor{gray}{73.7} & \textcolor{gray}{68.5} & \textcolor{gray}{87.1} & \textcolor{gray}{76.7} \\
+\textcolor{gray}{GPT-5.2} & \textcolor{gray}{90.8} & \textcolor{gray}{86.8} & \textcolor{gray}{97.5} & \textcolor{gray}{91.8} & \textcolor{gray}{69.0} & \textcolor{gray}{65.6} & \textcolor{gray}{79.3} & \textcolor{gray}{71.8} \\
+\textcolor{gray}{Gemini-3-Flash} & \textcolor{gray}{95.2} & \textcolor{gray}{98.7} & \textcolor{gray}{92.1} & \textcolor{gray}{95.3} & \textcolor{gray}{76.4} & \textcolor{gray}{79.3} & \textcolor{gray}{71.0} & \textcolor{gray}{74.9} \\
+\textcolor{gray}{Gemini-3.1-Pro} & \textcolor{gray}{97.3} & \textcolor{gray}{99.1} & \textcolor{gray}{95.7} & \textcolor{gray}{97.4} & \textcolor{gray}{75.5} & \textcolor{gray}{76.1} & \textcolor{gray}{73.8} & \textcolor{gray}{75.0} \\
+
+\midrule
+\rowcolor{AgentDoGColor!50}
+% \multicolumn{9}{l}{\textbf{Open-Source Models}} \\
+\multicolumn{1}{@{}l}{\textbf{Open-Source Models}}   & & & & & & & & \\
+\midrule
+Qwen3.5-397B-A17B & 85.6 & 81.3 & 94.5 & 87.4 & 66.8 & 65.5 & 70.2 & 67.8 \\
+Qwen3.5-4B & 81.0 & 82.1 & 81.9 & 82.0 & 45.9 & 41.2 & 20.7 & 27.6 \\
+Qwen3.5-2B & 54.1 & 67.6 & 25.2 & 36.7 & 59.1 & 74.3 & 19.2 & 30.5 \\
+Qwen3.5-0.8B & 33.7 & 27.6 & 15.8 & 20.1 & 48.6 & 66.7 & 5.9 & 10.8 \\
+QwQ-32B & 89.5 & \scoreBest{94.9} & 84.7 & \scoreHigh{89.5} & 57.7 & \scoreHigh{81.9} & 19.1 & 31.0 \\
+Qwen3-235B-A22B-Instruct-2507 & 85.1 & 80.7 & 94.4 & 87.0 & 59.2 & 58.2 & 63.8 & 60.8 \\
+Qwen3-4B-Instruct-2507 & 68.4 & 73.8 & 62.4 & 67.6 & 55.7 & 77.6 & 15.3 & 25.5 \\
+Qwen2.5-7B-Instruct & 68.4 & 77.4 & 56.8 & 65.5 & 53.4 & 73.8 & 9.7 & 17.1 \\
+Llama-3.1-8B-Instruct & 53.7 & 53.3 & \scoreBest{99.8} & 69.5 & 45.3 & 47.3 & \scoreBest{89.5} & 61.9 \\
+
+\midrule
+\rowcolor{AgentDoGColor!50}
+% \multicolumn{9}{l}{\textbf{Guard Models}} \\
+\multicolumn{1}{@{}l}{\textbf{Guard Models}}         & & & & & & & & \\
+\midrule
+LlamaGuard3-8B & 61.2 & 69.1 & 48.1 & 56.7 & 53.1 & \scoreBest{85.7} & 3.8 & 7.3 \\
+LlamaGuard4-12B & 63.8 & 68.3 & 58.8 & 63.2 & 58.1 & 63.8 & 30.9 & 41.7 \\
+Qwen3-Guard & 40.6 & 23.6 & 5.6 & 9.0 & 51.5 & 40.0 & 0.4 & 0.8 \\
+ShieldAgent & 81.0 & 74.0 & \scoreHigh{98.8} & 84.6 & 62.5 & 58.0 & \scoreHigh{81.4} & 67.7 \\
+JoySafety & 52.5 & 57.2 & 40.2 & 47.2 & 56.9 & 61.7 & 35.0 & 44.7 \\
+NemoGuard & 54.4 & 60.1 & 40.6 & 48.5 & 49.9 & 49.5 & 41.6 & 45.2 \\
+
+\midrule
+\rowcolor{AgentDoGColor!50}
+% \multicolumn{9}{l}{\textbf{Our Models}} \\
+\multicolumn{1}{@{}l}{\textbf{Our Models}}           & & & & & & & & \\
+\midrule
+AgentDoG~1.0-4B (Qwen3 Base) & \scoreHigh{91.8} & 87.5 & \scoreHigh{98.5} & \scoreBest{92.7} & 64.0 & 59.2 & \scoreHigh{88.9} & 71.1 \\
+\textbf{\textit{\toolAG{}-0.8B (Qwen3.5 Base)}} & 75.7 & 83.3 & 67.5 & 74.6 & 60.3 & 58.6 & 68.6 & 63.2 \\
+\textbf{\textit{\toolAG{}-2B (Qwen3.5 Base)}} & 71.5 & 78.0 & 64.1 & 70.4 & 69.0 & 70.1 & 65.7 & 67.8 \\
+\textbf{\textit{\toolAG{}-8B (Llama-3.1 Base)}} & 75.5 & 68.6 & \scoreHigh{98.8} & 81.0 & \scoreHigh{70.9} & 67.1 & 81.2 & \scoreHigh{73.5} \\
+\textbf{\textit{\toolAG{}-4B (Qwen3.5 Base)}} & \scoreBest{92.2} & \scoreHigh{91.7} & 93.7 & \scoreBest{92.7} & \scoreHigh{72.4} & 69.2 & 80.3 & \scoreHigh{74.3} \\
+\textbf{\textit{\toolAG{}-4B-U (Qwen3.5 Base)}} & \scoreHigh{90.4} & \scoreHigh{93.9} & 87.6 & \scoreHigh{90.6} & \scoreBest{78.4} & \scoreHigh{79.8} & 75.7 & \scoreBest{77.7} \\
+
+\bottomrule
+\end{tabular}}
+\vspace{-12pt}
+\label{tab:main_results}
+\end{table*}
+\endgroup
+
+
+\textbf{\agentdog{} demonstrates strong trajectory-level safety judgment.}
+    \agentdog{}-4B achieves the best overall performance among open-source
+    and guard models, obtaining 92.2\% accuracy and 92.7\% F1 on R-Judge, and
+    72.4\% accuracy and 74.3\% F1 on ATBench. Compared with AgentDoG~1.0,
+    \agentdog{}-4B maintains the same F1 score on R-Judge while improving
+    ATBench accuracy by 8.4 points and F1 by 3.2 points, demonstrating
+    improved generalization to agentic safety scenarios.
+
+\textbf{\agentdog{} achieves superior performance over general-purpose and guard models.}
+    \agentdog{}-4B outperforms much larger open-source models such as
+    Qwen3.5-397B-A17B on ATBench, despite using only 4B parameters. It also
+    approaches the performance of closed-source frontier models, achieving an
+    ATBench F1 score close to GPT-5.2 and Gemini-3-Flash. \agentdog{}-4B
+    also consistently surpasses specialized guard models, including LlamaGuard,
+    Qwen3-Guard, ShieldAgent, JoySafety, and NemoGuard. These results suggest
+    that trajectory-level safety supervision is more effective than model scale
+    for agent safety judgment.
+
+\textbf{\agentdog{} enables low-cost and efficient deployment.}
+    The small-scale variants of \agentdog{} demonstrate a favorable
+    efficiency--performance trade-off. Even with only 0.8B parameters,
+    \agentdog{}-0.8B achieves 75.7\% accuracy and 74.6\% F1 on R-Judge, while
+    reaching 60.3\% accuracy and 63.2\% F1 on ATBench, outperforming several
+    larger general-purpose and guard models. Moreover, \agentdog{}-2B
+    matches the ATBench F1 score of Qwen3.5-397B-A17B while requiring only a
+    tiny fraction of the parameter budget. This indicates that high-quality
+    trajectory-level supervision and diagnostic data can distill reliable
+    agentic safety judgment into compact models, enabling lower inference
+    cost, smaller memory footprint, and easier deployment in real-world agent
+    monitoring systems.
+
+
+\textbf{Fine-grained diagnostic supervision further improves trajectory-level safety judgment.}
+It is worth noting that we further explored whether coarse-grained
+trajectory-level safety evaluation and fine-grained risk diagnosis can be
+integrated into a single model. This exploration yields
+\textbf{\agentdog{}-4B-U}, an additional unified ``bonus'' variant based on the
+Qwen3.5-4B backbone. Interestingly, we observe a bonus effect: introducing
+fine-grained diagnostic reasoning supervision can further improve coarse-grained
+trajectory-level judgment. As shown in Table~\ref{tab:main_results} and
+Figure~\ref{fig:atbench_size_acc}, \agentdog{}-4B-U achieves the best
+ATBench trajectory-level performance among our variants, with 78.4\%
+accuracy and 77.7\% F1, and also performs strongly on the adapted
+agentic-environment benchmarks, reaching 84.4\% accuracy on ATBench-Codex
+and 87.6\% accuracy on ATBench-Claw. This suggests that
+learning to identify the failure mode, real-world harm, and risk source can
+provide a useful intermediate structure for binary safety decisions. However, due to resource constraints, we did not further carefully tune this unified model
+specifically for fine-grained diagnosis. Therefore, we report it mainly as
+an additional trajectory-level variant and leave systematic optimization of
+unified coarse-to-fine agent safety models to future work. We also release this unified model
+to support future community development, and its prompting template is provided
+in Appendix~\ref{tem:Unified template}.
+
+\subsubsection{Fine-grained Risk Diagnosis Results}
+
+\begingroup
+% Reduce dense cell coloring: keep only Best/High highlights.
+\renewcommand{\scoreGood}[1]{#1}
+\renewcommand{\scoreMid}[1]{#1}
+\renewcommand{\scoreLow}[1]{#1}
+\renewcommand{\scoreWorst}[1]{#1}
+\begin{table*}[t]
+\centering
+\caption{Performance comparison on ATBench. RS, FM, and RWH denote Risk Source, Failure Mode, and Real-world Harm. Avg. is the mean score across the three dimensions. Guard Models are excluded because they only output binary labels.}
+\label{tab:atbench_f}
+\vspace{-6pt}
+
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{1.12}
+\newcommand{\rot}[1]{\rotatebox{80}{#1}}
+
+\resizebox{\textwidth}{!}{%
+\large
+\begin{tabular}{l|cccc|ccccccccc|cccccc}
+\toprule
+\cellcolor{white}
+& \multicolumn{4}{c|}{\textbf{Closed-Source Models}}
+& \multicolumn{9}{c|}{\textbf{Open-Source Models}}
+& \multicolumn{6}{c}{\textbf{Our Models}} \\
+\cmidrule(lr){2-5}
+\cmidrule(lr){6-14}
+\cmidrule(lr){15-20}
+
+Metric
+  & \rotatebox{80}{\makebox[4cm][l]{\hspace{0.35cm}\textcolor{gray}{GPT-5.4}}}
+  & \rotatebox{80}{\makebox[4cm][l]{\hspace{0.35cm}\textcolor{gray}{GPT-5.2}}}
+& \rot{\textcolor{gray}{Gemini-3-Flash}}
+& \rot{\textcolor{gray}{Gemini-3.1-Pro}}
+& \rot{Qwen3.5-397B}
+& \rot{Qwen3.5-0.8B}
+& \rot{Qwen3.5-2B}
+& \rot{Qwen3.5-4B}
+& \rot{QwQ-32B}
+& \rot{Qwen3-235B}
+& \rot{Qwen3-4B-Inst.}
+& \rot{Qwen2.5-7B-Inst.}
+& \rot{Llama3.1-8B-Inst.}
+& \rot{AgentDoG~1.0-4B}
+& \rot{\textbf{\textit{\agentdog{}-0.8B}}}
+& \rot{\textbf{\textit{\agentdog{}-2B}}}
+& \rot{\textbf{\textit{\agentdog{}-8B}}}
+& \rot{\textbf{\textit{\agentdog{}-4B}}}
+& \rot{\textbf{\textit{\agentdog{}-4B-U}}}\\
+\midrule
+
+Risk Source
+& \textcolor{gray}{33.6} & \textcolor{gray}{29.5} & \textcolor{gray}{18.4} & \textcolor{gray}{24.8}
+& \scoreMid{7.7} & \scoreWorst{1.3} & \scoreMid{7.7} & \scoreLow{6.6} & \scoreGood{15.8} & \scoreMid{7.0} & \scoreWorst{1.0} & \scoreLow{5.3} & \scoreLow{6.2}
+& \scoreGood{46.8} & \scoreHigh{65.7} & \scoreHigh{68.0} & \scoreHigh{72.9} & \scoreBest{75.2} & 24.1 \\
+
+Failure Mode
+& \textcolor{gray}{13.5} & \textcolor{gray}{12.0} & \textcolor{gray}{8.3} & \textcolor{gray}{12.6}
+& \scoreLow{3.6} & \scoreWorst{2.9} & \scoreMid{6.6} & \scoreWorst{3.0} & \scoreMid{9.4} & \scoreGood{11.6} & \scoreMid{9.6} & \scoreLow{6.0} & \scoreLow{5.8}
+& \scoreGood{16.5} & \scoreHigh{18.4} & \scoreHigh{24.0} & \scoreHigh{24.6} & \scoreBest{27.5} & 9.5 \\
+
+Real-world Harm
+& \textcolor{gray}{30.2} & \textcolor{gray}{26.8} & \textcolor{gray}{15.0} & \textcolor{gray}{18.5}
+& \scoreWorst{6.8} & \scoreWorst{4.7} & \scoreLow{11.1} & \scoreLow{8.2} & \scoreMid{22.9} & \scoreGood{26.6} & \scoreMid{21.2} & \scoreMid{15.5} & \scoreMid{15.5}
+& \scoreGood{40.6} & \scoreHigh{44.9} & \scoreHigh{53.8} & \scoreHigh{52.5} & \scoreBest{62.9} & 28.4 \\
+
+\midrule
+Avg.
+& \textcolor{gray}{25.8} & \textcolor{gray}{22.8} & \textcolor{gray}{13.9} & \textcolor{gray}{18.6}
+& \scoreLow{6.0} & \scoreWorst{3.0} & \scoreLow{8.5} & \scoreWorst{5.9} & \scoreGood{16.0} & \scoreMid{15.1} & \scoreMid{10.6} & \scoreLow{8.9} & \scoreMid{9.2}
+& \scoreGood{34.6} & \scoreHigh{43.0} & \scoreHigh{48.6} & \scoreHigh{50.0} & \scoreBest{55.2} & 20.7 \\
+
+\bottomrule
+\end{tabular}%
+}
+\vspace{-10.5pt}
+\end{table*}
+\endgroup
+
+
+\textbf{\agentdog{} provides strong fine-grained risk diagnosis.}
+    As shown in Table~\ref{tab:atbench_f}, \agentdog{}-4B achieves the best overall performance across all compared
+    models, obtaining 75.2\% on Risk Source, 27.5\% on Failure Mode, and 62.9\% on
+    Real-world Harm, with an average score of 55.2\%. Compared with
+    AgentDoG~1.0-4B, \agentdog{}-4B improves the average score by 20.6
+    points, demonstrating that the proposed training pipeline substantially
+    enhances the model's ability to localize and categorize concrete safety
+    risks beyond binary judgment.
+
+\textbf{\agentdog{} shows a clear advantage over general-purpose and frontier models.}
+    General-purpose open-source models perform poorly on ATBench, with most
+    average scores below 20.0\%, indicating that fine-grained agentic risk
+    diagnosis remains challenging without targeted supervision. In contrast,
+    \agentdog{}-4B substantially outperforms large open-source models such
+    as Qwen3.5-397B and Qwen3-235B, and also surpasses closed-source frontier
+    models including GPT-5.4, GPT-5.2, Gemini-3-Flash, and Gemini-3.1-Pro.
+    This suggests that fine-grained safety diagnosis requires specialized
+    risk-aware training signals rather than relying solely on general model
+    capability.
+
+\textbf{\agentdog{} enables low-cost and efficient diagnostic capability.}
+    The compact \agentdog{} variants also show strong diagnostic performance.
+    \agentdog{}-0.8B achieves an average score of 43.0\%, already exceeding
+    all closed-source and general open-source baselines, while
+    \agentdog{}-2B further improves the average score to 48.6\%. These results
+    indicate that fine-grained risk diagnosis can be effectively distilled
+    into small models, enabling practical deployment with lower inference
+    cost, reduced memory footprint, and faster safety monitoring in the real-world
+    agent systems.
+
+
+\subsubsection{Performance Across Prominent Agentic Execution Environments}
+
+\begin{figure*}[ht]
+\centering
+\footnotesize
+\begin{tikzpicture}
+\tikzset{
+    base label/.style={
+        font=\tiny,
+        fill=white,
+        fill opacity=0.9,
+        text opacity=1,
+        inner sep=0.8pt,
+        rounded corners=1pt
+    },
+    our label/.style={
+        font=\tiny,
+        text=orange!45!red!90!black,
+        fill=white,
+        fill opacity=0.92,
+        text opacity=1,
+        inner sep=0.8pt,
+        rounded corners=1pt
+    }
+}
+
+\begin{groupplot}[
+    group style={group size=2 by 1, horizontal sep=1.05cm},
+    width=0.48\linewidth,
+    height=0.40\linewidth,
+    xmode=log,
+    xmin=0.65, xmax=40,
+    ymin=15, ymax=90,
+    xtick={0.8,2,4,8,16,32},
+    xticklabels={0.8,2,4,8,16,32},
+    ytick={0,20,40,60,80},
+    xlabel={Model size (B params)},
+    ylabel={Accuracy},
+    grid=major,
+    major grid style={gray!15},
+    axis line style={gray!55},
+    tick style={gray!55},
+    tick label style={font=\scriptsize, text=gray!65!black},
+    label style={font=\scriptsize},
+    title style={font=\bfseries\scriptsize},
+    axis background/.style={
+        fill=none,
+        path picture={
+            \shade[
+                shading=axis,
+                left color=green!20!white,
+                right color=white,
+                shading angle=45
+            ]
+            (path picture bounding box.north west)
+            rectangle
+            (path picture bounding box.south east);
+        }
+    },
+    legend columns=3,
+    legend style={
+        font=\scriptsize,
+        draw=none,
+        fill=none,
+        at={(1.04,-0.18)},
+        anchor=north,
+        column sep=8pt,
+        row sep=2pt,
+    },
+    clip=false,
+]
+
+\nextgroupplot[title={ATBench-Codex}]
+
+\addlegendimage{empty legend}
+\addlegendentry{}
+
+\addplot[densely dashed, line width=0.6pt, teal!65!black] coordinates {(0.65,79.2) (40,79.2)};
+\addlegendentry{Closed-source low}
+
+\addplot[loosely dashed, line width=0.6pt, red!90!black] coordinates {(0.65,81.2) (40,81.2)};
+\addlegendentry{Closed-source high}
+
+\addplot[
+    only marks,
+    mark=*,
+    mark size=2.4pt,
+    draw=blue!60!black,
+    fill=white,
+    line width=0.55pt,
+    opacity=0.92
+] coordinates {
+    (17,83.8)
+    (4,78.0)
+    (32,67.6)
+    (22,73.4)
+    (3.7,59.4)
+    (7,64.0)
+    (8,54.8)
+    % (2,1.8)
+    (0.8,19.0)
+};
+\addlegendentry{Open-source}
+
+\addplot[
+    only marks,
+    mark=x,
+    mark size=3.0pt,
+    draw=gray!70!black,
+    line width=0.75pt,
+    opacity=0.82
+] coordinates {
+    (8.0,55.2)
+    (12,64.6)
+    (4.3,51.0)
+    (8.8,57.8)
+    (7.2,45.6)
+    (9.6,50.6)
+};
+\addlegendentry{Guard models}
+
+\addplot[
+    only marks,
+    mark=diamond*,
+    mark size=3.4pt,
+    draw=orange!45!red!95!black,
+    fill=orange!75!red,
+    line width=0.55pt,
+    opacity=0.98
+] coordinates {
+    (4.2,80.0)
+    (0.8,70.2)
+    (2,75.6)
+    (8,73.2)
+    (4.4,84.4)
+};
+\addlegendentry{\toolAG{} variants}
+
+\node[base label, text=blue!55!black, anchor=south west] at (axis cs:11,85) {Qwen3.5-397B};
+\node[base label, text=blue!55!black, anchor=south west] at (axis cs:15,75) {Qwen3-235B};
+\node[base label, text=gray!65!black, anchor=south west] at (axis cs:12,61) {LlamaGuard4};
+% \node[base label, text=blue!55!black, anchor=south west] at (axis cs:0.8,19.0) {Qwen3.5-0.8B};
+% \node[base label, text=blue!55!black, anchor=south west] at (axis cs:2,1.8) {Qwen3.5-2B};
+
+\node[our label, anchor=south west] at (axis cs:0.8,82) {\toolAG{}-4B-U};
+\node[our label, anchor=south west] at (axis cs:4.6,78) {\toolAG{}-4B};
+
+\nextgroupplot[title={ATBench-Claw}, ylabel={}]
+\addplot[densely dashed, line width=0.6pt, teal!65!black] coordinates {(0.65,78.1) (40,78.1)};
+\addplot[loosely dashed, line width=0.6pt, red!90!black] coordinates {(0.65,83.6) (40,83.6)};
+
+\addplot[
+    only marks,
+    mark=*,
+    mark size=2.4pt,
+    draw=blue!60!black,
+    fill=white,
+    line width=0.55pt,
+    opacity=0.92
+] coordinates {
+    (17,76.7)
+    (4,78.9)
+    (32,77.6)
+    (22,82.8)
+    (3.7,68.8)
+    (7,71.8)
+    (8,50.6)
+    % (2,10.4)
+    (0.8,19.8)
+};
+
+\addplot[
+    only marks,
+    mark=x,
+    mark size=3.0pt,
+    draw=gray!70!black,
+    line width=0.75pt,
+    opacity=0.82
+] coordinates {
+    (8.0,63.6)
+    (12,74.4)
+    (4.3,51.0)
+    (8.8,68.1)
+    (7.2,39.6)
+    (9.6,43.2)
+};
+
+\addplot[
+    only marks,
+    mark=diamond*,
+    mark size=3.4pt,
+    draw=orange!45!red!95!black,
+    fill=orange!75!red,
+    line width=0.55pt,
+    opacity=0.98
+] coordinates {
+    (4.2,84.0)
+    (0.8,78.4)
+    (2,74.8)
+    (8,78.2)
+    (4.4,87.6)
+};
+
+\node[base label, text=blue!55!black, anchor=south west] at (axis cs:11,78) {Qwen3.5-397B};
+\node[base label, text=blue!55!black, anchor=south west] at (axis cs:15,84) {Qwen3-235B};
+\node[base label, text=gray!65!black, anchor=south west] at (axis cs:12,70) {LlamaGuard4};
+% \node[base label, text=blue!55!black, anchor=south west] at (axis cs:0.8,19.8) {Qwen3.5-0.8B};
+% \node[base label, text=blue!55!black, anchor=south west] at (axis cs:2,10.4) {Qwen3.5-2B};
+
+\node[our label, anchor=north west] at (axis cs:0.8,89) {\toolAG{}-4B-U};
+\node[our label, anchor=north west] at (axis cs:4.6,85) {\toolAG{}-4B};
+
+\end{groupplot}
+
+\end{tikzpicture}
+\caption{Accuracy on ATBench-Codex and ATBench-Claw across model sizes. The x-axis uses dense model size and active parameters for MoE models. Closed-source models are represented by the highest and lowest closed-source reference lines because their parameter sizes are not publicly available. Guard models without explicit size in the model name are placed using approximate backbone sizes, with slight horizontal jitter for readability. Qwen3.5-0.8B and Qwen3.5-2B are not reported due to low strict-parser validity for presentation.}
+\label{fig:atbench_size_acc}
+\vspace{-5pt}
+\end{figure*}
+
+
+This evaluation aims to assess whether \agentdog{} can maintain robust safety diagnosis under shifts to prominent agentic execution environments. To this end, we perform Codex- and Claw-style trajectory-format adaptation training and evaluate the adapted model on ATBench-Claw and ATBench-Codex. Results are shown in Figure~\ref{fig:atbench_size_acc}:
+
+\textbf{\agentdog{} generalizes robustly across execution environments.}
+    \agentdog{}-4B achieves 80.0\% accuracy on ATBench-Codex and 84.0\%
+    accuracy on ATBench-Claw, showing that the model can preserve strong
+    safety judgment capability under different trajectory formats and
+    execution protocols. Notably, its performance on ATBench-Codex falls
+    within the closed-source frontier model range, while its performance on
+    ATBench-Claw slightly exceeds the closed-source high reference line.
+
+\textbf{\agentdog{} remains competitive against large models.}
+    Despite using only 4B parameters, \agentdog{}-4B performs competitively
+    with much larger open-source models. On ATBench-Claw, it outperforms
+    Qwen3-235B and Qwen3.5-397B, indicating that environment-adaptive safety
+    supervision can provide stronger robustness than model scale alone.
+
+\textbf{\agentdog{} enables low-cost adaptation to agentic platforms.}
+    The tiny \agentdog{} variants also show strong transferability. In
+    particular, \agentdog{}-0.8B achieves 70.2\% accuracy on ATBench-Codex and
+    78.4\% accuracy on ATBench-Claw, outperforming all larger
+    guard and many open-source baselines. This suggests that \agentdog{} can be
+    efficiently adapted to new agentic execution environments with a small
+    parameter budget, making it practical for low-cost deployment across
+    diverse real-world agent platforms.
+
+
+

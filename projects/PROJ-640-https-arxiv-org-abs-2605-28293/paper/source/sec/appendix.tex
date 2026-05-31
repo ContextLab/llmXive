@@ -1,0 +1,733 @@
+\section{Theoretical Analysis}
+\label{app:theory}
+
+This section provides the formal statement and complete proof of Theorem~\ref{thm:collapse}, which is informally presented in Section~\ref{sec:analysis} of the main text.
+
+\subsection{Length Collapse: Formal Statement and Proof of Theorem~\ref{thm:collapse}}
+\label{app:length_collapse}
+
+Section~\ref{sec:analysis} presents an informal statement of Theorem~\ref{thm:collapse}, which characterizes how gradient updates systematically reduce stopping probability when step-level rewards have positive mean. Here we provide the formal statement and complete proof.
+
+\paragraph{Setup.} To isolate the length mechanism from item selection, we consider a simplified model where the policy makes only \texttt{continue} or \texttt{stop} decisions. At each step $t \in \{1, \ldots, L_{\max}\}$, the policy stops with probability $p = \sigma(\theta) \in (0,1)$, where $\sigma(\cdot)$ is the sigmoid function and $\theta \in \mathbb{R}$ is the learnable parameter. Let $\tau \leq L_{\max}$ denote the stopping time, and define the total return as
+\begin{equation}
+    G = \sum_{t=1}^{\tau} r_t,
+\end{equation}
+where $r_t$ is the step-level reward at time $t$. The objective is $J(\theta) = \mathbb{E}_{\pi_\theta}[G]$. For this stylized analysis, we treat the conditional means $\mathbb{E}[r_t \mid \tau \ge t]$ as fixed (i.e., not depending on $\theta$), so that $J(\theta)$ can be analyzed as a function of $p=\sigma(\theta)$.
+
+\begin{theorem}[Length Collapse Rate]\label{thm:collapse_formal}
+Suppose the expected step-level reward satisfies $\mathbb{E}[r_t \mid \tau \geq t] \geq \mu_{\min} > 0$ for all $t \in \{1, \ldots, L_{\max}\}$. Consider gradient flow dynamics
+\begin{equation}
+    \frac{\mathrm{d}\theta(s)}{\mathrm{d}s} \;=\; \frac{\mathrm{d}J}{\mathrm{d}\theta}\bigl(\theta(s)\bigr),
+    \qquad \theta(0)=\theta_0,
+\end{equation}
+and let $p(s)=\sigma(\theta(s))$. Then:
+\begin{enumerate}
+    \item $p(s)$ is strictly decreasing and $p(s) \to 0$ as $s \to \infty$;
+    \item There exist constants $S, K > 0$ such that for all $s \geq S$,
+    \begin{equation}
+        p(s) \leq \frac{K}{s}.
+    \end{equation}
+\end{enumerate}
+Consequently, the expected path length $\mathbb{E}[\tau] \to L_{\max}$ as $s \to \infty$.
+\end{theorem}
+
+\begin{proof}
+We proceed in four steps.
+
+\paragraph{Step 1: Express $J$ as a function of $p$.} Define the event
+\begin{equation}
+    E_t := \{\tau \geq t\} = \{a_1 = \cdots = a_{t-1} = \texttt{cont}\},
+\end{equation}
+representing that the policy has not stopped before step $t$. Under the homogeneous stopping policy, $\mathbb{P}(E_t) = (1-p)^{t-1}$. By the tower property,
+\begin{equation}
+    J \;=\; \sum_{t=1}^{L_{\max}} \mathbb{E}[r_t \mathbf{1}_{E_t}]
+    \;=\; \sum_{t=1}^{L_{\max}} \mathbb{P}(E_t)\,\mathbb{E}[r_t \mid E_t]
+    \;=\; \sum_{t=1}^{L_{\max}} \mu_t (1-p)^{t-1},
+\end{equation}
+where $\mu_t := \mathbb{E}[r_t \mid E_t] \geq \mu_{\min} > 0$ by assumption. Under the setup above, $\{\mu_t\}$ are treated as constants, so $J$ can be viewed as a function of $p$.
+
+\paragraph{Step 2: Show $\mathrm{d}J/\mathrm{d}\theta < 0$.} Differentiating with respect to $p$:
+\begin{equation}
+    \frac{\mathrm{d}J}{\mathrm{d}p}
+    \;=\; -\sum_{t=2}^{L_{\max}} (t-1)\mu_t (1-p)^{t-2}
+    \;\leq\; -\mu_{\min} \sum_{t=2}^{L_{\max}} (t-1)(1-p)^{t-2}
+    \;<\; 0
+\end{equation}
+for $p \in (0,1)$. Since
+\begin{equation}
+    \frac{\mathrm{d}p}{\mathrm{d}\theta} = p(1-p) > 0,
+\end{equation}
+the chain rule gives
+\begin{equation}
+    \frac{\mathrm{d}J}{\mathrm{d}\theta}
+    \;=\; \frac{\mathrm{d}J}{\mathrm{d}p}\cdot \frac{\mathrm{d}p}{\mathrm{d}\theta}
+    \;<\; 0.
+\end{equation}
+Under gradient ascent flow, $\frac{\mathrm{d}\theta(s)}{\mathrm{d}s} = \frac{\mathrm{d}J}{\mathrm{d}\theta}<0$, so $\theta(s)$ is strictly decreasing, and consequently $p(s)=\sigma(\theta(s))$ is strictly decreasing.
+
+\paragraph{Step 3: Prove $p(s) \to 0$.} Since $p(s)\in(0,1)$ is monotonically decreasing, the limit $p_\infty := \lim_{s \to \infty} p(s)$ exists with $p_\infty \in [0,1)$. Suppose for contradiction that $p_\infty > 0$. 
+
+Because $p(s)\to p_\infty$, there exists $S_1$ such that for all $s \geq S_1$,
+\begin{equation}
+    |p(s)-p_\infty| \le \min\Bigl\{\frac{p_\infty}{2},\,\frac{1-p_\infty}{2}\Bigr\}.
+\end{equation}
+In particular, for all $s\ge S_1$ we have
+\begin{equation}
+    p(s)\ge \frac{p_\infty}{2}
+    \qquad\text{and}\qquad
+    1-p(s)\ge \frac{1-p_\infty}{2},
+\end{equation}
+hence
+\begin{equation}
+    p(s)\bigl(1-p(s)\bigr)\ge \frac{p_\infty}{2}\cdot \frac{1-p_\infty}{2}.
+\end{equation}
+
+Note that for all $p\in(0,1)$,
+\begin{equation}
+    \frac{\mathrm{d}J}{\mathrm{d}p}
+    \;=\; -\sum_{t=2}^{L_{\max}} (t-1)\mu_t (1-p)^{t-2}
+    \;\leq\; -\mu_2
+    \;\leq\; -\mu_{\min}.
+\end{equation}
+Thus, for $s \geq S_1$,
+\begin{equation}
+    \frac{\mathrm{d}\theta(s)}{\mathrm{d}s}
+    \;=\; \frac{\mathrm{d}J}{\mathrm{d}\theta}
+    \;=\; \frac{\mathrm{d}J}{\mathrm{d}p}\bigl(p(s)\bigr)\cdot \frac{\mathrm{d}p}{\mathrm{d}\theta}\bigl(\theta(s)\bigr)
+    \;\leq\; -\mu_{\min}\cdot \frac{p_\infty}{2}\cdot \frac{1-p_\infty}{2}
+    \;=:\; -c \;<\; 0.
+\end{equation}
+This implies $\theta(s) \to -\infty$ as $s\to\infty$, hence $p(s)=\sigma(\theta(s))\to 0$, contradicting $p_\infty>0$. Therefore $p_\infty=0$.
+
+\paragraph{Step 4: Establish the $O(1/s)$ convergence rate.} By the chain rule,
+\begin{equation}
+    \frac{\mathrm{d}p(s)}{\mathrm{d}s}
+    \;=\; \frac{\mathrm{d}p}{\mathrm{d}\theta}\cdot \frac{\mathrm{d}\theta}{\mathrm{d}s}
+    \;=\; \frac{\mathrm{d}p}{\mathrm{d}\theta}\cdot \frac{\mathrm{d}J}{\mathrm{d}\theta}
+    \;=\; \frac{\mathrm{d}p}{\mathrm{d}\theta}\cdot \frac{\mathrm{d}J}{\mathrm{d}p}\cdot \frac{\mathrm{d}p}{\mathrm{d}\theta}
+    \;=\; p(s)^2(1-p(s))^2\cdot \frac{\mathrm{d}J}{\mathrm{d}p}\bigl(p(s)\bigr).
+\end{equation}
+Using $\frac{\mathrm{d}J}{\mathrm{d}p} \leq -\mu_{\min}$,
+\begin{equation}
+    \frac{\mathrm{d}p(s)}{\mathrm{d}s}
+    \;\leq\; -\mu_{\min}\, p(s)^2(1-p(s))^2.
+\end{equation}
+Since $p(s) \to 0$, there exists $S_0$ such that $p(s) \leq 1/2$ for all $s \geq S_0$, giving $(1-p(s))^2 \geq 1/4$. Thus, for $s \geq S_0$,
+\begin{equation}
+    \frac{\mathrm{d}p(s)}{\mathrm{d}s}
+    \;\leq\; -\frac{\mu_{\min}}{4}\, p(s)^2.
+\end{equation}
+Define $q(s):=1/p(s)$. Then
+\begin{equation}
+    \frac{\mathrm{d}q(s)}{\mathrm{d}s}
+    \;=\; -\frac{1}{p(s)^2}\frac{\mathrm{d}p(s)}{\mathrm{d}s}
+    \;\geq\; \frac{\mu_{\min}}{4}.
+\end{equation}
+Integrating from $S_0$ to $s$ yields
+\begin{equation}
+    \frac{1}{p(s)} \;\geq\; \frac{1}{p(S_0)} + \frac{\mu_{\min}}{4}(s - S_0),
+\end{equation}
+which implies
+\begin{equation}
+    p(s) \;\leq\; \frac{4}{\mu_{\min}(s - S_0)}.
+\end{equation}
+Setting $S = S_0 + 1$ and $K = 4S/\mu_{\min}$, we obtain $p(s) \leq K/s$ for all $s \geq S$.
+\end{proof}
+
+\paragraph{Implication.} The $O(1/s)$ decay rate demonstrates that length collapse is a structural consequence of positive step-level reward means, not a tuning artifact. Under standard policy gradient updates, the stopping probability vanishes at a polynomial rate, causing path length to converge to $L_{\max}$ regardless of path quality. This motivates Stepwise Reward Centering (Section~\ref{sec:centering}), which enforces zero-mean stepwise gains and thereby avoids length collapse.
+
+
+\section{Data Construction and Implementation}
+\label{app:data}
+
+This section describes the data construction pipeline and implementation details of ProRL. We first clarify how our implementation relates to the item-level formulation (Section~\ref{app:semantic_id}). We then present the dataset statistics (Section~\ref{app:dataset}), the training data construction process (Section~\ref{app:data_process}), and the semantic tokenization procedure (Section~\ref{app:semantic}).
+
+\subsection{Implementation via Semantic IDs}
+\label{app:semantic_id}
+
+The item-level formulation in Section~\ref{sec:task} provides a conceptual framework where each action selects an item $i \in \mathcal{I}$. In practice, we instantiate this framework using \textbf{semantic IDs}, a widely adopted technique in generative recommendation~\cite{zhai2024actions,hou2025surveygenerativerecommendationdata}. This subsection clarifies the relationship between the conceptual formulation and our implementation, and establishes their theoretical compatibility.
+
+\paragraph{Semantic ID Representation.} Each item $i$ is represented as a sequence of $K$ discrete tokens $(c_1^i, c_2^i, \ldots, c_K^i)$ via Residual Quantized VAE (detailed in Section~\ref{app:semantic}). In our experiments, $K=4$. The policy $\pi_\theta$ autoregressively generates these tokens, producing a sequence of $K \cdot L + 1$ tokens (including the EOS token) that decodes to a path of $L$ items.
+
+\paragraph{Theoretical Compatibility.} The semantic ID implementation is fully compatible with the item-level framework presented in the main text:
+\begin{itemize}
+    \item When $K=1$, the two formulations are identical.
+    \item When $K>1$, generating an item $(c_1, \ldots, c_K)$ can be viewed as a single composite action in the item-level formulation.
+\end{itemize}
+
+Formally, let $\tilde{\pi}_\theta(i \mid s)$ denote the probability of generating item $i$ under the semantic ID policy. This probability is given by:
+\begin{equation}
+\label{eq:semantic_id_prob}
+\tilde{\pi}_\theta(i \mid s) = \prod_{j=1}^{K} \pi_\theta(c_j^i \mid s, c_1^i, \ldots, c_{j-1}^i).
+\end{equation}
+
+The item-level reward $r_t$ and advantage $\hat{A}_t$ (Eq.~\eqref{eq:centering} and Eq.~\eqref{eq:step-advantage}) are computed at the item level after decoding. During backpropagation, the gradient is distributed to all $K$ tokens of item $i_t$:
+\begin{equation}
+\label{eq:gradient_distribution}
+\nabla_\theta \log \tilde{\pi}_\theta(i_t \mid s_t) \cdot \hat{A}_t = \sum_{j=1}^{K} \nabla_\theta \log \pi_\theta(c_j^{i_t} \mid \cdot) \cdot \hat{A}_t.
+\end{equation}
+
+That is, \textbf{all tokens within the same item share the item-level advantage}, preserving the semantics of our rectified policy gradient estimator (Eq.~\eqref{eq:g-rect}).
+
+\paragraph{Benefits of Semantic IDs.} This implementation offers practical advantages:
+\begin{enumerate}
+    \item \textit{Reduced action space}: The vocabulary size reduces from $|\mathcal{I}|$ items to $|\mathcal{C}|$ codebook entries, where typically $|\mathcal{C}| \ll |\mathcal{I}|$.
+    \item \textit{Semantic generalization}: Items with similar semantics share token prefixes, enabling better generalization.
+    \item \textit{Compatibility with Sequence-to-Sequence}: Standard encoder-decoder Transformers naturally handle token sequences.
+\end{enumerate}
+
+Crucially, the theoretical analysis in Section~\ref{sec:analysis} and Appendix~\ref{app:length_collapse} remains valid: it depends only on the decomposition $R = \sum_t r_t$ and the property $\mathbb{E}[r_t] > 0$, which hold at the item level regardless of how items are tokenized.
+
+
+\subsection{Dataset Statistics}
+\label{app:dataset}
+
+Our experiments utilize three public datasets: MovieLens-1M\footnote{\url{https://grouplens.org/datasets/movielens/1m/}}, Steam\footnote{\url{https://cseweb.ucsd.edu//~jmcauley/datasets.html\#steam_data/}}, and Amazon-Book\footnote{\url{https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/}}. The MovieLens-1M dataset includes a total of 1,000,209 interactions, with an average interaction length of 165.59 per user, and a total of 3,040 items. The Steam dataset consists of 7,793,069 interactions, with an average length of 3.03 per user, and a total of 15,474 items. The Amazon-Book dataset consists of 29,475,453 interactions, with an average length of 2.86 per user, and a total of 4,493,336 items.
+
+\begin{table}[t]
+\caption{Dataset statistics.}
+\label{tab:dataset_appendix}
+ \begin{center}
+\begin{tabular}{lcccc}
+ \toprule[1.5pt]
+ \textbf{Dataset} & \textbf{\# Users} & \textbf{\# Items} & \textbf{\# Interaction} & \textbf{\# Avg. Int.} \\
+ \midrule
+ MovieLens-1M & 6,040 & 3,040 & 1,000,209 & 165.59\\
+ Steam & 2,567,538 & 15,474 & 7,793,069 & 3.03  \\
+ Amazon-Book & 10,297,355 & 4,493,336  & 29,475,453 & 2.86  \\
+ \bottomrule[1.5pt]
+ \end{tabular}
+ \end{center}
+ \end{table}
+
+We apply k-core preprocessing to filter out users and items with fewer than a particular interactions to ensure sufficient data for model training. Specifically, for the MovieLens-1M and Steam datasets, we apply 20- and 40-core filters to users and items, respectively. For the Amazon-Book datasets, we conduct a 100-core filter for users and a 40-core filter for items. 
+
+\textbf{Coherence Knowledge Exploitation.} Before getting the Smooth-Guided Data, we need to pre-define the attributes used to exploit the coherence between adjacent items. For the MovieLens-1M datasets, we regard the genres of movies as bridge attributes, which means the adjacent movies that share at least one genre are correlated. We filter out the "Drama" genre, as "Drama" is a large category showing the least correlation. For the Steam dataset, we regard the categories, publisher, and developer as the bridge attributes. For the Amazon-Book dataset, we use the category as the bridge attribute to exploit subsequences with adjacent correlation.
+
+\textbf{Data Splitting.} To ensure a robust evaluation and prevent information leakage across users, we adopt a user-centric data partitioning strategy. Specifically, the entire pool of unique users, along with their corresponding interaction subsequences, is randomly partitioned into training, validation, and testing sets with a ratio of 80\%, 10\%, and 10\%, respectively. This split ensures that the model is tested on previously unseen users, thereby evaluating its generalization capability in proactive scenarios. Detailed statistics for the processed datasets, including the number of proactive logs comprising: history interaction and the target item, are summarized in Table~\ref{tab:processed}.
+
+\begin{table}[t]
+\caption{Processed Dataset statistics.}
+\label{tab:processed}
+ \begin{center}
+\begin{tabular}{lccc}
+ \toprule[1.5pt]
+ \textbf{Dataset} & \textbf{\# Training} & \textbf{\# Validation} & \textbf{\# Test} \\
+ \midrule
+ MovieLens-1M & 56,141 & 6,771 & 6,177\\
+ Steam & 78,152 & 9,522 & 9,956\\
+ Amazon-Book & 66,881 & 8,986 & 7,921\\
+ \bottomrule[1.5pt]
+ \end{tabular}
+ \end{center}
+ \end{table}
+
+\subsection{Smooth Guided Data Construction}
+\label{app:data_process}
+
+While pre-trained Language Models have shown promise~\cite{brown2020language,ouyang2022training}, directly adapting their weights to recommendation often incurs \textit{negative transfer} due to the semantic gap between linguistic contexts and behavioral patterns~\cite{zhang2025collm,bao2023tallrec,wang2025predicting}. To avoid this noise, we opt to pre-train our proactive agent from scratch. However, training on raw interaction logs~\cite{zhu2023influential} is suboptimal: raw sequences reflect passive user drift rather than goal-oriented planning, leading to \textit{goal misalignment}. To bridge this gap, we propose an trajectory mining strategy. Instead of indiscriminately slicing sequences, we distill high-quality, physically coherent \textit{expert demonstrations} from historical logs, governed by a rigorous \textbf{Feasibility Oracle}.
+
+\subsubsection{The Feasibility Oracle}
+The core of our mining strategy is to ensure that every step in the training data represents a valid, smooth transition that a user would naturally accept.
+
+\begin{definition}[Feasibility Oracle]
+Let $\mathcal{I}$ be the item set. We define the Feasibility Oracle as an indicator function $\mathcal{F}: \mathcal{I} \times \mathcal{I} \to \{0, 1\}$, which evaluates whether the transition $(i_t \to i_{t+1})$ satisfies semantic coherence constraints.
+\end{definition}
+
+To ensure generalizability, we instantiate $\mathcal{F}$ for both structured and unstructured scenarios:
+
+\paragraph{Instantiation I: Structure-based (via KG).}
+If a Knowledge Graph (KG) $\mathcal{G}$ is available, feasibility is grounded in explicit attribute sharing. Let $\mathcal{N}(i)$ be the set of one-hop neighbors of item $i$ in $\mathcal{G}$. A transition is feasible if:
+\begin{equation}
+    \mathcal{F}_{\text{KG}}(i_t, i_{t+1}) = \mathbb{I}(|\mathcal{N}(i_t) \cap \mathcal{N}(i_{t+1})| \ge 1).
+\end{equation}
+
+\paragraph{Instantiation II: Semantics-based (via LLM).}
+For domains lacking structured metadata, we leverage LLMs as a proxy for human judgment on transition naturalness. We construct a verification prompt $\mathcal{P}(i_t, i_{t+1})$ and define:
+\begin{equation}
+    \mathcal{F}_{\text{LLM}}(i_t, i_{t+1}) = \mathbb{I}(\text{LLM}(\mathcal{P}(i_t, i_{t+1})) = \texttt{"Yes"}).
+\end{equation}
+
+\subsubsection{Trajectory Distillation Process}
+Guided by $\mathcal{F}$, we refine history logs into a set of \textit{expert demonstrations}. The procedure is detailed in Algorithm~\ref{alg:mining}.
+
+\begin{algorithm}[tb]
+   \caption{Goal-oriented Trajectory Mining}
+   \label{alg:mining}
+\begin{algorithmic}[1]
+   \STATE {\bfseries Input:} User sequence $S_u$, Oracle $\mathcal{F}$, History Length $n$
+   \STATE {\bfseries Output:} Expert Demonstration Set $\mathcal{D}_{u}$
+   
+   \STATE Initialize current path $\tau \leftarrow \{ S_u[n] \}$
+   \STATE Initialize $\mathcal{D}_{u} \leftarrow \emptyset$
+
+   \FOR{index $k = n + 1$ {\bfseries to} $|S_u|$}
+       \STATE Let $prev = S_u[k-1]$, $curr = S_u[k]$
+       
+       \IF{$\mathcal{F}(prev, curr) == 0$}
+           \STATE \COMMENT{// Lack coherence: archive the path}
+           \IF{$|\tau| > 1$}
+               \STATE Let $g = \tau[-1]$ \COMMENT{The last item as the target}
+               \STATE $\mathcal{D}_{u} \leftarrow \mathcal{D}_{u} \cup \{(\tau, g)\}$ 
+           \ENDIF
+           \STATE $\tau \leftarrow \emptyset $ \COMMENT{Reset path}
+       \ENDIF
+       \STATE Append $curr$ to $\tau$
+   \ENDFOR
+   
+   \STATE \bfseries Return $\mathcal{D}_{u}$
+\end{algorithmic}
+\end{algorithm}
+
+By strictly enforcing $\mathcal{F}$, the dataset $\mathcal{D}_{\text{expert}}$ eliminates abrupt transitions while preserving the authentic, multi-step reasoning chains found in real user behavior. This provides the model with a rich set of feasible plans to learn from before optimizing for efficiency in later stages.
+
+\subsection{Semantic Tokenization}
+\label{app:semantic}
+
+This subsection details the semantic ID generation process introduced in Section~\ref{app:semantic_id}.
+
+\subsubsection{Item Profile Generation}
+
+For each item, we first build a rich item profile. Instead of relying only on raw fields (e.g., title, short description, sparse attributes), we prompt a large language model to generate a structured, high-level description of the item (e.g., key functions, typical usage scenarios, target users, style, and complementary items). This step normalizes noisy metadata and incorporates external world knowledge, allowing items with similar semantics to be described in a consistent manner, even when their original texts are heterogeneous or incomplete. Specifically, we utilize GPT-4 as a foundation model to generate the item profile. The prompt details and item profile generated are shown in Figure~\ref{fig:prompt_knowledge}.
+
+\begin{figure}[ht]
+  \begin{center}
+    \centerline{\includegraphics[width=0.8\columnwidth]{figure/prompt_knowledge.pdf}}
+    \caption{
+       Prompt and item profile for MovieLens-1M dataset.
+    }
+    \label{fig:prompt_knowledge}
+  \end{center}
+\end{figure}
+
+\subsubsection{Semantic ID Generation}
+
+To get the semantic ID of each item, we follow the manner of existing works. We first feed the item profile into a text (or multimodal) embedding model to obtain a dense representation in a shared semantic space. Here, we use the state-of-the-art embedding model qwen3-embedding-8B~\cite{qwen3embedding} as our backbone to map the text profile into embeddings. The resulting vector captures both surface-level semantics (brands, categories, attributes) and higher-level concepts (use cases, aesthetics, user intent), which is essential for semantic retrieval and clustering.
+
+Finally, we train a Residual Quantized VAE (RQ-VAE) on these embeddings to map each continuous vector to a compact sequence of codebook indices, i.e., a semantic ID. RQ-VAE progressively quantizes the residuals of the embedding, allowing us to represent items with a short discrete code while preserving fine-grained semantic similarity. The RQ-VAE model comprises three components: a DNN encoder that encodes the input semantic embedding into a latent representation, a residual quantizer that outputs a quantized representation, and a DNN decoder that decodes the quantized representation back into the original semantic input embedding space.
+
+Specifically, the encoder comprises five intermediate layers of sizes 2048, 1024, 512, 256, and 128, each with ReLU activation, culminating in a final latent representation dimension of 128. To quantize this representation, five levels of residual quantization are used. For each level, a codebook of cardinality 128 is maintained, where each vector in the codebook has a dimension of 768 following the output of the qwen3-embedding-8B model~\cite{qwen3embedding}. When computing the total loss, we use $\beta= 0.25$. The RQ-VAE model is trained for 10k epochs. We use Adagrad optimizer with a learning rate of 0.001 and a batch size of 2048. Upon training, we use the learned encoder and the quantization component to generate a 3-tuple Semantic ID for each item. To avoid multiple items being mapped to the same Semantic ID, we add a unique 4th code for items that share the same first three codewords, i.e. two items associated with a tuple (64, 8, 29) are assigned (64, 8, 29, 0) and (64, 8, 29, 1) respectively (if there are no collisions, we still assign 0 as the fourth codeword). This results in a unique Semantic ID of length $K=4$ for each item in the recommendation corpus.
+
+
+\section{Evaluation Metrics}
+\label{app:evaluation}
+
+This section provides detailed definitions of the evaluation metrics used in Section~\ref{sec:exp}. For each subsequence in the testing set, we randomly sampled an item that the user did not interact with as the target item, which follows the setting of the existing works~\cite{bi2024proactive,wang2025leveraging,wang2025tunable}. Finally, we report the results on the test set. We detail the four evaluation metrics used in our experiments: IoI (Increase of Interest), IoR (Increase of Rank), CTR~(i.e., HitRate), and Coherence. CTR is calculated by treating each intermediate item in the guiding sequence as a separate single-choice task. The final CTR reported is the average of these CTR across all correct answers in the sequence. IoI and IoR quantify the sequence-level user interests shift towards the target item. Coherence calculates the correlation of any adjacent items in the guiding sequence. The SASRec evaluator used for computing IoI, IoR, and CTR is trained exclusively on the complete interaction histories of training-split users. Below are the definitions of each metric, along with an example calculation.
+
+\textbf{IoI (Increase of Interest).} IoI quantifies how much the modelled interest in the target item $i_T$ changes when an influence path $L_u$ is appended to the original interaction history $S_u$. Let $P(i \mid s)$ denote the evaluator's predicted acceptance probability of item $i$ conditioned on sequence $s$, and let $\oplus$ denote sequence concatenation. The formula of IoI is:
+
+\begin{equation}
+\mathrm{IoI}(S_u, L_u, i_T)
+=
+\log P\bigl(i_T \mid S_u \oplus L_u\bigr)
+-
+\log P\bigl(i_T \mid S_u\bigr).
+\end{equation}
+
+A positive IoI indicates that, according to the evaluator, the influence path $L_u$ increases the user's preference for the target item $i_T$ relative to using the history $S_u$ alone. Here, we pretrained the SASRec as an evaluator to calculate the $P\bigl(i \mid s\bigr)$.
+
+\textbf{IoR (Increase of Rank).} IoR measures how much the ranking position of the target item $i_T$ improves when the influence path $L_u$ is appended to the original history $S_u$. Let $R(i \mid s)$ denote the rank of item $i$ (with $1$ being the best rank) under the evaluator conditioned on sequence $s$. The IoR is defined as: 
+
+\begin{equation}
+\mathrm{IoR}(S_u, L_u, i_T)
+=
+R\bigl(i_T \mid S_u\bigr) - R\bigl(i_T \mid S_u \oplus L_u\bigr)
+.
+\end{equation}
+
+By construction, a positive IoR means that the target item moves
+upwards in the ranked list (i.e., becomes more prominent in the
+recommendation list) after incorporating the influence path $L_u$
+into the user sequence. Specifically, we utilize a pretrained SASRec as an evaluator to calculate the $R\bigl(i \mid s\bigr)$.
+
+\textbf{Coherence.} Coherence describes the correlation of the adjacent items in the sequence. We define the metric to quantify how semantically consistent a given guiding sequence $L_u = [i_1, i_2, \dots, i_{|L_u|}]$ is. Let $\mathrm{corr}(i,j)$ denote the correlation between two items
+$i$ and $j$. In our setting, $\mathrm{corr}(i,j)$ is defined based on shared item features as shown in Formula~\ref{formula:corr}.
+\begin{equation}
+\mathrm{corr}(i,j) =
+\begin{cases}
+\label{formula:corr}
+1, & \text{if $i$ and $j$ share at least one common feature,} \\
+0, & \text{otherwise.}
+\end{cases}
+\end{equation}
+
+The coherence of the guiding sequence $L_u$ is then defined as the average correlation
+over all adjacent item pairs in $L_u$:
+\begin{equation}
+\mathrm{Coherence}(L_u)
+=
+\frac{1}{|L_u|-1}
+\sum_{k=1}^{|L_u|-1}
+\mathrm{corr}\bigl(i_k, i_{k+1}\bigr).
+\end{equation}
+
+\textbf{CTR.} CTR quantifies the average interaction probability of a user $u$ with the items in a guiding sequence $L_u = [i_1, i_2, \dots, i_{|L_u|}]$. Let $f_{\mathrm{SASRec}}(\cdot)$ denote the SASRec~\cite{kang2018self} encoder that maps an item sequence $S$ to a user embedding in $\mathbb{R}^d$. For each position $k \in \{1,\dots,|L_u|\}$, we first construct the prefix-augmented sequence in Formula~\ref{formula:prex}, where $\oplus$ denotes sequence concatenation.
+\begin{equation}
+\label{formula:prex}
+S_u^{(k)} =
+\begin{cases}
+S_u, & k = 1,\\[2pt]
+S_u \oplus [i_1, i_2, \dots, i_{k-1}], & k \ge 2,
+\end{cases}
+\end{equation}
+
+The corresponding user embedding is then given by $\mathbf{h}_u^{(k)} = f_{\mathrm{SASRec}}\bigl(S_u^{(k)}\bigr) \in \mathbb{R}^d.$ Let $\mathbf{v}_i \in \mathbb{R}^d$ denote the embedding of item $i$. The predicted interaction probability between user $u$ and the $k$-th item $i_k$ in $L_u$ is computed from the inner product between $\mathbf{h}_u^{(k)}$ and $\mathbf{v}_{i_k}$~\cite{bi2024proactive,lian2025itmprec}:
+
+\begin{equation}
+p_{u,k}
+=
+\sigma\!\left(
+\bigl(\mathbf{h}_u^{(k)}\bigr)^\top \mathbf{v}_{i_k}
+\right),
+\qquad
+\sigma(x) = \frac{1}{1 + e^{-x}}.
+\end{equation}
+
+The sequence-level CTR of user $u$ on the guiding sequence $L_u$
+is defined as the average interaction probability:
+\begin{equation}
+\mathrm{CTR}(S_u, L_u)
+=
+\frac{1}{|L_u|}
+\sum_{k=1}^{|L_u|}
+p_{u,k}.
+\end{equation}
+
+
+\section{Baselines}
+\label{app:baselines}
+
+To thoroughly evaluate our proposed methods for proactive path reasoning, we conduct comprehensive evaluations across various types of methods, including both Sequential recommendation and proactive recommendation methods. The baselines are as follows:
+
+\subsection{Sequential Recommendation Methods}
+
+\begin{itemize}
+    \item \textbf{GRU4Rec~\cite{hidasi2015session}}, a representative baseline that utilizes the standard GRU architecture to effectively encode user interaction sequences.
+    \item \textbf{BERT4Rec~\cite{sun2019bert4rec}}, a widely-adopted model that uses bidirectional self-attention layers to incorporate deeper contextual information across user behavior sequences.
+    \item \textbf{LightSANs~\cite{fan2021lighter}}, a novel approach that leverages a low-rank decomposition self-attention mechanism to efficiently capture user-item interactions.
+    \item \textbf{FEARec~\cite{du2023frequency}}, a contrastive learning-based model that uses time domain attention and auto-correlation.
+\end{itemize}
+
+\subsection{Proactive Recommendation Methods}
+
+\begin{itemize}
+    \item \textbf{IRN~\cite{zhu2023influential}}, a proactive recommendation paradigm that generates influence paths via a Transformer-based Influential Recommender Network with a personalized impressionability mask that controls how strongly each user is nudged.
+    \item \textbf{IPG~\cite{bi2024proactive}}, an iterative preference guidance framework for proactive recommendation that items in guiding sequences are re-ranked using an explicit IPG score that jointly considers interaction probability and guiding value.
+    \item \textbf{ITMPRec~\cite{lian2025itmprec}}, an intention-based targeted multi-round proactive recommendation framework which iteratively nudges users toward the pre-match target item via intention-induced scoring and user-specific arousal coefficients.
+    \item \textbf{LLM-IPP~\cite{wang2025leveraging}}, a LLM-based method that formulates influence path planning as a prompt-based reasoning task for large language models, enabling them to generate coherent multi-step recommendation paths that guide users from their historical interactions to a designated target item while taking into account item semantics, user intent, and transition coherence.
+    \item \textbf{T-PRA~\cite{wang2025tunable}}, a tunable LLM-based proactive recommendation agent that formulates proactive recommendation as a sequential decision-making and path-planning problem, where an LLM-based Actor–Advisor framework~\cite{kahneman2011thinking} adapts recommendations in real time based on simulated user feedback, and an LLM-based Critic with multi-objective rewards is used to perform DPO-style~\cite{rafailov2023direct} agent tuning so that the learned policy optimizes long-term influence toward target items rather than only short-term accuracy.
+\end{itemize}
+
+\section{Implementation Details}
+\label{app:implementation}
+
+This section provides implementation details for all methods evaluated in Section~\ref{sec:exp}.
+
+\subsection{Sequential Recommendation Methods}
+
+We implement BERT4Rec, GRU4Rec, CORE, LightSANs, and FEARec using the open-source recommendation library RecBole~\cite{zhao2021recbole}. Since sequential recommendation methods are not designed for proactive tasks, to make a justified comparison, we follow the setting from ~\cite{zhao2021recbole}. The details are as follows: 
+
+Given a user's interaction history $S_u$ and a predefined objective item $i_T$, we first employ a standard sequential recommender (e.g., GRU4Rec) to generate a top-k list of next-item candidates at each step. These candidates are then re-ranked according to their distance to the objective item in the item embedding space, and the closest item is greedily appended to the influence path. The procedure is repeated until the objective item is reached or a maximum path length is exceeded. In this way, the baseline still learns user preferences and sequential dependencies in the usual next-item fashion, but the greedy re-ranking at inference time makes the resulting recommendation sequence proactively drift toward the target item.
+
+For these models above, we ensured that key settings, such as batch size, the number of encoder blocks, and attention heads, were aligned with our model for a fair comparison. However, for other settings, we followed the recommended configurations in the original papers.
+
+To make a fair comparison and avoid label leakage, we collect the interaction data from the user in the training set, as described in Section~\ref{app:data_process}, to train the sequential recommendation methods for validation.
+
+\subsection{Proactive Recommendation Methods}
+
+\begin{itemize}
+    \item \textbf{IRN~\cite{zhu2023influential}}: we set the mask weights to \(w_t = 1\) and \(w_h = 0.05\). We segment users' interaction sequences into subsequences whose length lies between \(l_{\min} = 20\) and \(l_{\max} = 60\). The model is trained for 200 epochs, and during inference, we generate influence paths of length 10, consistent with the original inference setup.
+    \item \textbf{IPG~\cite{bi2024proactive}}: we set the preference-evolution coefficient $\gamma=0.8$ following the original work. For user and item representation, we adopt a pretrained BERT4Rec as the backbone to compute their embeddings with 64 dimension. We iteratively generate 10 intermediate items as influence paths, consistent with the original inference setup.
+    \item \textbf{ITMPRec~\cite{lian2025itmprec}}: We adopt the item embeddings learned by BERT4Rec and perform k-means clustering with \(k = 256\) to obtain the intention vectors $C$. The personalized preference-evolution coefficient \(\gamma_u\) is thresholded with a cutoff of 0.2. The intention-level coefficient is set to \(\lambda = 0.1\), and for the top-\(n\) pre-selection stage before re-ranking, we follow the original work and choose the top 10 items. We generate influence paths comprising 10 items which follows the original inference setup.
+    \item \textbf{LLM-IPP~\cite{wang2025leveraging}}: we adopt Llama-3.1-8B-Instruct~\cite{dubey2024llama} as the backbone model to generate the guiding sequences, and use the Tree-of-Thought prompt variant, which was reported to achieve the best performance in the original work.
+    \item \textbf{T-PRA~\cite{wang2025tunable}}: we follow the original hyperparameter settings: we use Llama-3.1-8B-Instruct~\cite{dubey2024llama} as the base model for all agents, and fine-tune them with LoRA~\cite{hu2022lora} of rank 8 applied to all transformer modules. The models are trained for 5 epochs per dataset with a learning rate of \(5\times10^{-5}\), a cosine learning-rate scheduler with a warm-up ratio of \(10\%\), and 8 gradient accumulation steps. During inference, we set the decoding temperature to 0.5.
+\end{itemize}
+
+\subsection{ProRL}
+\label{app:prorl}
+
+ProRL undergoes a two-stage framework including pretraining and reinforcement learning. To obtain a strong prior $\pi_0$, we pretrain a T5-based sequence-to-sequence model on carefully constructed Smooth-Guided paths elaborated in Section~\ref{app:data_process}. As described in Section~\ref{app:semantic_id}, the model operates on semantic ID sequences: each item is represented by $K=4$ tokens, and the policy autoregressively generates these tokens. This pretraining stage provides: a semantic prior that constrains the action space, planning capability for guiding the path, and a foundation for efficient RL fine-tuning.
+
+In the RL stage, we explore the optimal strategy leading to both path feasibility and guiding effectiveness by SRC and PSAE. The rewards are computed at the item level after decoding the generated token sequences back to items, and the gradients are distributed to all tokens within each item according to Eq.~\eqref{eq:gradient_distribution}.
+
+\begin{table}[t]
+    \centering
+    \caption{Hyperparameter settings categorized by training stages.}
+    \label{tab:hyperparameters_grouped}
+    
+    \begin{tabular*}{0.75\textwidth}{@{\extracolsep{\fill}} l l c c c}
+        \toprule[1.5pt]
+        \textbf{Stage} & \textbf{Hyperparameter} & \textbf{MovieLens-1M} & \textbf{Steam} & \textbf{Amazon-Book} \\
+        \midrule
+        
+        \multirow{8}{*}{\textbf{Common}} 
+          & num\_layers & 3 & 3 & 3 \\
+          & d\_model & 128 & 128 & 128 \\
+          & d\_ff & 512 & 512 & 512 \\
+          & num\_heads & 4 & 4 & 4 \\
+          & d\_kv & 64 & 64 & 64 \\
+          & dropout\_rate & 0.1 & 0.1 & 0.1 \\
+          & optimizer & adamw & adamw & adamw \\
+        \midrule
+        
+        \multirow{5}{*}{\textbf{Pretrain}} 
+          & learning\_rate & 0.005 & 0.005 & 0.005 \\
+          & batch\_size & 1,024 & 1,024 & 1,024 \\
+          & max\_epochs & 200 & 200 & 200 \\
+          & warmup\_steps & 10,000 & 10,000 & 10,000 \\
+          & vocabulary\_size & 1,026 & 1,026 & 1,026 \\
+        \midrule
+        
+        \multirow{6}{*}{\textbf{RL}} 
+          & learning\_rate & 1e-4 & 1e-5 & 5e-4 \\
+          & batch\_size & 128 & 128 & 128 \\
+          & num\_return\_samples & 16 & 16 & 16 \\
+          & temperature & 1 & 1 & 1 \\
+          & kl\_coeff & 0.01 & 0.01 & 0.01 \\
+          & RL\_epochs & 50 & 50 & 50 \\
+          & $\alpha$ & 1 & 1 & 1 \\
+          & $\beta$ & 1 & 1 & 1 \\
+          & $\gamma$ & 1 & 1 & 1 \\
+        \bottomrule[1.5pt]
+    \end{tabular*}
+\end{table}
+
+\begin{table}[t!]
+  \centering
+  \caption{Experimental Results on Different Datasets}
+  \label{tab:ablation_dataprocess}
+  \resizebox{0.8\linewidth}{!}{
+    \begin{tabular}{cccccc}
+      \toprule[1.5pt]
+      Dataset & Model & CTR & Coherence & IoI & IoR \\
+      \midrule
+      \multirow[c]{2}{*}{MovieLens-1M}
+        & w SmGD & 0.8671 & \textbf{0.7488} &\textbf{0.8600} & \textbf{254.42} \\
+        & w/o SmGD      & \textbf{0.9110} & 0.5522 & -0.0531 & 75.23 \\
+      \midrule
+      \multirow[c]{2}{*}{Steam}
+        & w SmGD & 0.7453 & \textbf{0.9493} & \textbf{0.4230} & \textbf{101.15} \\
+        & w/o SmGD      & \textbf{0.7787} & 0.8051 & 0.2598 & 64.63 \\
+      \midrule
+      \multirow[c]{2}{*}{Amazon-Book}
+        & w SmGD & \textbf{0.6410} & \textbf{0.6885} & \textbf{0.1650} & \textbf{72.91} \\
+        & w/o SmGD      & 0.6155 & 0.5506 & 0.1026 & 17.01 \\
+      \bottomrule[1.5pt]
+    \end{tabular}
+  }
+\end{table}
+
+\textbf{Pretraining.} We implement a lightweight encoder-decoder Transformer backbone adapted from T5~\cite{raffel2020exploring}. The model is configured with a shallow depth, utilizing three layers for both the encoder and the decoder. Regarding the attention mechanism, we employ four heads with a head dimension of 64. We set the hidden dimension to 128 and the intermediate feed-forward network dimension to 512, while using ReLU for activation. This configuration yields a highly efficient model with approximately 1.97M parameters (excluding embeddings).
+
+\textbf{Reinforcement Learning.} Following the pretraining phase, we employ reinforcement learning to further refine the policy $\pi$, shifting the model's focus from mere sequence imitation to goal-oriented trajectory optimization. The reward signal comprises two primary components: a feasible reward that ensures user acceptance of intermediate items, and a guidance reward that quantifies the effectiveness of guidance.
+
+To address the high variance and sparse signals inherent in long-sequence generation, we employ Stepwise Reward Centering. This technique dynamically adjusts the baseline for rewards at each step, effectively eliminating the length bias incurred by length manipulation. Furthermore, we implement Position-Specific Advantage Estimation, which assigns credit more precisely by considering the temporal importance of each item in the guidance path. During the fine-tuning process, we optimize the policy using a policy gradient objective, incorporating a KL-divergence constraint relative to $\pi_0$ to prevent the model from collapsing into suboptimal, repetitive paths.
+
+This two-stage approach enables ProRL to generate trajectories that are not only highly reachable for users but also strategically aligned with the intended guidance objectives.
+
+{\paragraph{A2C Baseline Implementation.}
+\label{app:a2c}
+For the A2C baseline in Section~\ref{sec:ablation_gradient}, we implement a critic network as a 2-layer MLP with 256 hidden units. Since a randomly initialized critic invariably causes training collapse, we warm up the critic for 5 epochs before joint actor-critic training. We search over the critic loss coefficient in $\{0.1, 0.25, 0.5, 1.0\}$, with all other settings identical to ProRL. We report the best results (coefficient 0.25).}
+
+
+\section{Supplementary Experiments}
+\label{app:supp_exp}
+
+This section presents additional experiments including ablation studies, sensitivity analyses, and cross-environment evaluations to further validate the ProRL framework.
+
+\subsection{Smooth-Guided Data Construction}
+
+To validate the need to utilize the Smooth-Guided Data (SmGD) described in Section~\ref{app:data_process} for pretraining, we conducted an ablation study comparing our approach with the data processing method proposed in~\cite{zhu2023influential}. The results are shown in Table~\ref{tab:ablation_dataprocess}. Comparative results demonstrate that the model pretrained on SmGD outperforms the model trained on randomly sliced data across most proactive recommendation metrics. This confirms that semantically coherent training data is crucial for effective guidance.
+
+\begin{figure}[!t]
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{figure/pretrain_epoch_all.pdf}}
+\caption{The impact of pre-training maturity on reinforcement learning efficiency. We evaluate the performance of ProRL across different stages of the pre-training process (1\%, 33\%, 66\%, and 100\% completion) on the MovieLens-1M dataset. The results indicate that a sufficiently converged semantic prior is a prerequisite for effective RL optimization, as it effectively constrains the action space and mitigates the sparse reward challenge in proactive guidance.}
+\label{fig:pretrain_impact}
+\end{center}
+\end{figure}
+
+
+\subsection{Impact of Pre-training Initialization}
+
+To investigate the dependence of reinforcement learning on the quality of semantic priors, we analyzed the performance of ProRL when initialized with checkpoints from different stages of the pre-training process (1\%, 33\%, 66\%, and 100\%). As illustrated in Figure~\ref{fig:pretrain_impact}, the agent initialized with only minimal pre-training fails to learn a meaningful policy, confirming that the sparsity of successful guidance signals in the high-dimensional action space renders cold-start exploration infeasible. Conversely, we observe a strict positive correlation between the maturity of the supervised prior and the efficiency of the RL phase. This demonstrates that robust supervised pre-training is not merely a warm-up but a foundational prerequisite, constructing a semantic map that narrows the action space and enables the agent to effectively optimize for long-term strategic guidance.
+
+
+\subsection{Model Robustness Analysis}
+
+Target selection in proactive recommendation generally prioritizes either random items~\cite{zhu2023influential,bi2024proactive,wang2025leveraging,wang2025tunable} or those with high user interaction potential~\cite{lian2025itmprec}. To verify the robustness of our approach, we implement two selection schemes: Random Selection and Filtered Selection. In the former, we randomly assign a non-interacted item as the target. In the latter, we score candidate items based on predicted interaction willingness and select those ranked at the 20th, 40th, and 60th percentiles as targets. This design enables us to evaluate the guidance capabilities of our method against baselines under varying degrees of target difficulty.
+
+Specifically, we compare against FEARec (best sequential model in Table~\ref{tab:overall comparison}) and proactive methods (IPG, ITMPRec, LLM-IPP) across all three datasets. The results in Figure~\ref{fig:robust} consistently demonstrate that ProRL achieves superior robustness.
+
+\begin{figure}[!t]
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{figure/robustness.pdf}}
+\caption{Robustness analysis across varying target selection schemes and guidance difficulties. We evaluate the performance on three datasets under Random Selection and Filtered Selection (20th, 40th, and 60th percentiles of interaction willingness). Higher percentiles represent higher guidance difficulty (lower user interest). Our method consistently outperforms baselines across all metrics, CTR, Coherence, IoI, and IoR, demonstrating superior robustness regardless of target accessibility.}
+\label{fig:robust}
+\end{center}
+\end{figure}
+
+\subsubsection{Performance Superiority Across Diverse Metrics}
+Robustness in proactive recommendation requires a model to maintain high user satisfaction while effectively executing guidance goals. ProRL demonstrates a ``Pareto dominance'' over existing methods across all four key dimensions:
+
+\begin{itemize}
+    \item \textbf{User Engagement Preservation (CTR \& Coherence):} 
+    Unlike baseline models that often sacrifice user experience to force guided items, ProRL maintains exceptionally high engagement metrics.
+    On the dense \textit{MovieLens-1M} dataset, our model sustains a Click-Through Rate (CTR) of approximately $0.89$ and a Semantic Coherence of $0.95$ across all intervention ratios. In contrast, strong baselines like FEARec only achieve CTRs in the range of $ 0.55$ to $0.60$. 
+    Even on the sparse \textit{Steam} dataset, where maintaining coherence is challenging, ProRL achieves a Coherence score of $>0.8$, significantly outperforming purely generative baselines, such as ITMPRec ($0.65$ on average). This indicates that the latent space editing mechanism of ProRL successfully preserves the user's inherent preference manifold while injecting guided items.
+
+    \item \textbf{Guidance Efficacy and Impact (IoI \& IoR):} 
+    On the \textit{Steam} dataset, most baselines exhibit negative IoI values, indicating that guided items disrupt natural item transitions. ProRL consistently maintains positive IoI scores. In terms of IoR, ProRL achieves scores between $1300$ and $1500$ on \textit{Steam}, an order of magnitude higher than standard baselines (typically $<200$).
+\end{itemize}
+
+\subsubsection{Stability Under Varying Intervention Intensities}
+A robust proactive recommender must remain stable regardless of the aggressiveness of the guidance signal. We analyzed the performance variance under different target ratios ($20\%$, $40\%$, $60\%$) and a stochastic setting:
+
+\begin{itemize}
+    \item \textbf{Insensitivity to Guidance Pressure:} 
+    Standard proactive models often suffer from performance degradation as the guidance target ratio increases (e.g., forcing $60\%$ of items to be from a target set). However, ProRL exhibits remarkable stability. On the \textit{MovieLens-1M} dataset, as the ratio increases from $20\%$ to $60\%$, the fluctuation in Coherence is minimal (staying above $0.94$), whereas competitive baselines like ITMPRec see a sharper decline. This suggests that ProRL's gradient-based perturbation finds optimal injection points that are resilient to the quantity of guided items.
+    
+    \item \textbf{Resilience to Random Targets:} 
+    The \textit{Random} setting serves as a stress test with unpredictable guidance goals. ProRL adapts seamlessly, achieving a CTR of $0.547$ and Coherence of $0.89$ on \textit{MovieLens-1M}, matching or exceeding fixed-ratio scenarios. This confirms that ProRL learns a robust policy rather than overfitting to a specific intervention pattern.
+\end{itemize}
+
+\subsubsection{Adaptability to Data Characteristics}
+ProRL's consistent top performance across domains with varying data densities, from the sparse \textit{Steam} to the dense \textit{MovieLens-1M}, confirms that its core mechanism is domain-agnostic.
+
+\subsection{Performance on Unseen evaluators: Full Results}
+\label{app:unseen evaluator}
+
+To show the generalization ability of our methods, we evaluate the performance on GRU4Rec, BERT4Rec and LightSANs as unseen evaluators during training process. The results of the BERT4Rec and LightSANs are shown in Table~\ref{tab:bert4rec_comparison}, Table~\ref{tab:lightsans_comparison} respectively.
+
+\begin{table*}[t]
+\centering
+  \caption{Proactive Recommendation performance of all models on different datasets (BERT4Rec as evaluator) in terms of CTR~(i.e., HitRate), Coherence, IoI, and IoR. The best performances are highlighted in bold. The superscript * indicates the Improvement is statistically significant, where the p-value is less than 0.05.}\label{tab:bert4rec_comparison}
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{c c cccc cccc cccc}
+      \toprule[1.5pt]
+            \multicolumn{2}{c}{\textbf{Dataset}} & \multicolumn{4}{c}{\textbf{MovieLens-1M}} & \multicolumn{4}{c}{\textbf{Steam}} & \multicolumn{4}{c}{\textbf{Amazon-Book}} \\
+            \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
+        % \midrule
+            \multicolumn{2}{c}{\textbf{Model}} & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR\\
+        \midrule
+            \multicolumn{2}{c}{GRU4Rec}
+            & 0.5914 & 0.3717 & 2.0435 & 69.08 & 0.4716 & 0.7026
+            & -0.0863 & -8.44 & 0.5748 & 0.5838 & -0.0554 & 100.99 \\
+            \multicolumn{2}{c}{LightSANs}
+            & 0.5995 & 0.3957 & 2.0493 & 83.29 & 0.4556 & 0.7150
+            & -0.0784 & -13.41 & 0.5783 & 0.5934 & 0.0865 & 165.33 \\
+            \multicolumn{2}{c}{FEARec}
+            & 0.5849 & 0.3964 & 2.1734 & 109.23 & 0.4509 & 0.7177
+            & -0.0937 & -11.39 & 0.5637 & 0.6020 & 0.1803 & 231.99 \\
+        \hline
+        \midrule
+            \multicolumn{2}{c}{IRN}
+            & 0.7688 & 0.4706 & 2.2364 & 121.64 & 0.3740 & 0.6698
+            & -0.5034 & -10.15 & 0.5607 & 0.5477 & 0.0217 & 111.62 \\
+            \multicolumn{2}{c}{IPG}
+            & 0.4887 & 0.3725 & 2.5595 & 146.41 & 0.2246 & 0.6740
+            & 0.1017 & 11.43 & 0.5072 & 0.5531 & 1.0802 & 548.84 \\
+            \multicolumn{2}{c}{ITMPRec}
+            & 0.4821 & 0.3714 & 2.5632 & 150.00 & 0.2262 & 0.6725
+            & 0.1117 & 11.73 & 0.5068 & 0.5540 & 1.0939 & 552.92 \\
+            \multicolumn{2}{c}{LLM-IPP}
+            & 0.6540 & 0.6288 & 2.2720 & 85.45 & 0.3424 & 0.8022
+            & -0.4542 & -12.19 & 0.5709 & 0.5132 & 0.2681 & 176.14 \\
+            \multicolumn{2}{c}{T-PRA}
+            & 0.4612 & 0.3415 & 2.4502 & 220.75 & 0.3012 & 0.7399
+            & 0.2215 & 24.12 & 0.5024 & 0.4418 & 0.6588 & 323.12 \\
+        \hline
+        \midrule
+            \rowcolor{tableours}
+            \multicolumn{2}{c}{\textbf{ProRL (Ours)}}
+            & \textbf{0.8403}$^{*}$ & \textbf{0.8422}$^{*}$ & \textbf{2.6111} & \textbf{699.03}$^{*}$ & \textbf{0.4805}$^{*}$ & \textbf{0.8707}$^{*}$ &
+            \textbf{0.4258}$^{*}$ & \textbf{68.27}$^{*}$ & \textbf{0.8192}$^{*}$ & \textbf{0.6823}$^{*}$ & \textbf{2.7400}$^{*}$ & \textbf{1290.14}$^{*}$ \\
+      \bottomrule[1.5pt]
+      \end{tabular}
+      }
+\end{table*}
+
+\begin{table*}[t]
+\centering
+  \caption{Proactive Recommendation performance of all models on different datasets (LightSANs as evaluator) in terms of CTR~(i.e., HitRate), Coherence, IoI, and IoR. The best performances are highlighted in bold. The superscript * indicates the Improvement is statistically significant, where the p-value is less than 0.05.}\label{tab:lightsans_comparison}
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{c c cccc cccc cccc}
+      \toprule[1.5pt]
+            \multicolumn{2}{c}{\textbf{Dataset}} & \multicolumn{4}{c}{\textbf{MovieLens-1M}} & \multicolumn{4}{c}{\textbf{Steam}} & \multicolumn{4}{c}{\textbf{Amazon-Book}} \\
+            \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
+        % \midrule
+            \multicolumn{2}{c}{\textbf{Model}} & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR & CTR & Coherence & IoI & IoR\\
+        \midrule
+            \multicolumn{2}{c}{GRU4Rec}
+            & 0.4136 & 0.3717 & 1.5489 & 102.42 & 0.4275 & 0.7026
+            & 0.0391 & 27.93 & 0.5527 & 0.5838 & 0.1417 & 119.23 \\
+            \multicolumn{2}{c}{BERT4Rec}
+            & 0.4432 & 0.3889 & 1.2425 & 73.62 & 0.4444 & 0.7390
+            & 0.0927 & 26.23 & 0.5662 & 0.5591 & 0.1623 & 113.93 \\
+            \multicolumn{2}{c}{FEARec}
+            & 0.4126 & 0.3964 & 1.7654 & 153.61 & 0.4189 & 0.7177
+            & -0.0104 & 9.07 & 0.5489 & 0.6020 & 0.5008 & 227.05 \\
+        \hline
+        \midrule
+            \multicolumn{2}{c}{IRN}
+            & 0.6812 & 0.4706 & 1.9027 & 188.26 & 0.3452 & 0.6698
+            & 0.0240 & 8.87 & 0.5334 & 0.5477 & 0.1913 & 131.60 \\
+            \multicolumn{2}{c}{IPG}
+            & 0.3417 & 0.3725 & 2.1786 & 182.28 & 0.2354 & 0.6740
+            & 0.1361 & 35.56 & 0.5401 & 0.5531 & 0.5428 & 255.12 \\
+            \multicolumn{2}{c}{ITMPRec}
+            & 0.3323 & 0.3714 & 2.2083 & 187.68 & 0.2325 & 0.6725
+            & 0.1440 & 39.88 & 0.5427 & 0.5540 & 0.5585 & 239.98 \\
+            \multicolumn{2}{c}{LLM-IPP}
+            & 0.7722 & 0.6288 & 2.5571 & 681.90 & 0.3198 & 0.8022
+            & 0.9927 & 237.36 & 0.5651 & 0.5132 & 1.5765 & 430.93 \\
+            \multicolumn{2}{c}{T-PRA}
+            & 0.5128 & 0.3415 & 2.6012 & 712.21 & 0.2617 & 0.7399
+            & 1.0823 & 220.12 & 0.5012 & 0.4418 & 1.7812 & 502.98 \\
+        \hline
+        \midrule
+            \rowcolor{tableours}
+            \multicolumn{2}{c}{\textbf{ProRL (Ours)}}
+            & \textbf{0.8090}$^{*}$ & \textbf{0.8422}$^{*}$ & \textbf{2.9820}$^{*}$ & \textbf{755.83}$^{*}$ & \textbf{0.5239}$^{*}$ & \textbf{0.8707}$^{*}$ &
+            \textbf{1.3722}$^{*}$ & \textbf{306.12}$^{*}$ & \textbf{0.8912}$^{*}$ & \textbf{0.6775}$^{*}$ & \textbf{2.8851}$^{*}$ & \textbf{1286.74}$^{*}$ \\
+      \bottomrule[1.5pt]
+      \end{tabular}
+      }
+\end{table*}
+
+\subsection{Alternative Approaches to Eliminating the Length Shortcut}
+\label{app:alternatives}
+
+Section~\ref{sec:centering} introduces Stepwise Reward Centering, which eliminates the length shortcut by subtracting the empirically estimated expected step reward. A natural question arises: can we achieve the same effect through manual hyperparameter tuning instead of data-driven estimation?
+
+\textbf{Alternative Approach: Fixed Offset.} We consider a simplified alternative where a fixed offset $\epsilon$ is subtracted from the variance-normalized step reward:
+\begin{equation}
+\tilde{r}_t = \sum_{i=1}^{K} w_i \cdot \frac{r_t^{(i)}}{\sigma^{(i)}} - \epsilon,
+\end{equation}
+where $\sigma^{(i)}$ is the standard deviation of the $i$-th reward component. Unlike Eq.~\eqref{eq:reward-normalize}, this formulation omits the mean subtraction $\mu^{(i)}$ and instead relies on a manually determined offset $\epsilon$ to neutralize the positive bias in step rewards. By tuning $\epsilon$, one might hope to manually achieve zero expected gain from path extension.
+
+\textbf{Experimental Setup.} In multi-objective settings, the interaction between multiple reward components would make offset tuning even more complex and unstable. To give this alternative approach its best chance, we simplify the evaluation by using IoI as the sole reward signal on the Amazon-Book dataset. All other training hyperparameters remain identical to the main experiments. We vary the offset $\epsilon \in \{0.0, -0.2, -0.4, -0.6, -0.8, -1.0\}$ and monitor the average path length of rollouts during the first 10 epochs of RL training.
+
+\textbf{Results.} Figure~\ref{fig:epoch_length} reveals the extreme sensitivity of this approach. When $\epsilon$ is small (close to 0, light orange curves), the positive bias in step rewards persists, and the model rapidly converges to maximum-length paths ($L \approx 10$), exhibiting the length shortcut phenomenon described in Section~\ref{sec:analysis}. As $\epsilon$ increases in magnitude, a phase transition occurs: at $\epsilon \approx -0.8$, paths collapse to minimal length ($L \approx 1$), and at $\epsilon = -1.0$, the model generates near-empty paths ($L \approx 0$). Between these extremes, intermediate values of $\epsilon$ (e.g., $-0.6$) produce unstable behavior, since path length varies significantly across epochs rather than converging to a stable value.
+
+\textbf{Implications.} These results demonstrate that even in the simplified single-reward setting, the effective operating region for manual offset tuning is extremely narrow. A small miscalibration leads to either the original length shortcut (overlong paths) or the opposite failure mode (trivially short paths). In practice, multi-objective rewards would introduce additional complexity, making robust offset selection even more challenging. In contrast, ProRL (dark blue starred curve) achieves stable, reasonable path lengths ($L \approx 3$--$4$) without any manual tuning. By estimating $\mu^{(i)}$ from rollouts collected during the first training epoch and freezing the estimates thereafter, Stepwise Reward Centering automatically calibrates to the actual reward distribution without manual tuning, ensuring that path extension yields zero expected gain throughout training. This data-driven approach eliminates the need for sensitive hyperparameter search and provides robust performance across different reward configurations and datasets.
+
+\begin{figure}[t!]
+\begin{center}
+\centerline{\includegraphics[width=0.6\columnwidth]{figure/epoch_length.pdf}}
+\caption{Sensitivity analysis of fixed reward offset on Amazon-Book using IoI as the sole reward. The color gradient indicates offset magnitude (darker = more negative). Small offsets (light orange) lead to maximum-length paths (length shortcut), while large offsets (dark orange) cause path collapse to near-zero length. ProRL (blue stars) achieves stable, moderate path lengths through data-driven reward centering without manual tuning.}
+\label{fig:epoch_length}
+\end{center}
+\end{figure}
+
+\subsection{Decision Quality Evaluation}
+
+To evaluate the quality of local decisions, we compare performance at each path length, as shown in Figure~\ref{fig:length_profit}. ProRL consistently outperforms baselines across all steps. Unlike baselines that rely on prolonged interactions to slowly accumulate preference shifts, ProRL ensures that every step contributes meaningfully. By addressing the length shortcut and high gradient variance, ProRL maximizes the utility of each step, demonstrating that superior path-level performance is built on effective optimization at every position.
+
+\begin{figure}[t!]
+\begin{center}
+\centerline{\includegraphics[width=0.92\columnwidth]{figure/Length_profit.pdf}}
+\caption{Performance comparison across varying path lengths on the MovieLens-1M (A, B) and Amazon-Book (C, D) datasets.}
+\label{fig:length_profit}
+\end{center}
+\end{figure}

@@ -1,0 +1,83 @@
+% Requires: \usepackage{booktabs,amssymb,array,tabularx}
+
+\begin{table*}[h]
+\caption{\textbf{Dataset licenses and basic properties.}
+We summarize the scene type, real/synthetic domain, dynamic content, and public license or access terms for each dataset.
+``Non-Commercial'' denotes non-commercial use, ``Terms'' denotes dataset-specific access terms, and ``Not specified'' indicates that no clear standalone public dataset license was identified.}
+\label{tab:dataset_profile_summary_cited}
+\centering
+\tiny
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{@{}c >{\centering\arraybackslash}X c c c >{\centering\arraybackslash}X@{}}
+\toprule
+\textbf{Idx.} & \textbf{Dataset} & \textbf{Scene Type} & \textbf{Real/Synth.} & \textbf{Dynamic} & \textbf{License / Access Terms} \\
+\midrule
+1  & CO3D~\cite{reizenstein2021co3d} & Object & Real & Static & CC BY-NC 4.0 \\
+2  & RealEstate10K~\cite{zhou2018stereomagnification} & Indoor+Outdoor & Real & Static & CC BY 4.0 \\
+3  & ScanNet~\cite{dai2017scannet} & Indoor & Real & Static & Non-Commercial \\
+4  & ScanNet++~\cite{yeshwanth2023scannet++} & Indoor & Real & Static & Non-Commercial \\
+5  & ARKitScenes~\cite{dehghan2021arkitscenes} & Indoor & Real & Static & Non-Commercial \\
+6  & Habitat~\cite{savva2019habitat} & Indoor & Real & Static & Habitat dataset-specific terms \\
+7  & BlendedMVS~\cite{yao2020blendedmvs} & Indoor+Outdoor & Synth. & Static & CC BY 4.0 \\
+8  & MegaDepth~\cite{li2018megadepth} & Outdoor & Real & Static & CC BY 4.0 + source image licenses \\
+9  & DL3DV~\cite{ling2024dl3dv} & Indoor+Outdoor & Real & Mostly Static & DL3DV Terms \\
+10 & MapFree~\cite{arnold2022mapfree} & Outdoor & Real & Static & Non-Commercial \\
+11 & WildRGBD~\cite{xia2024wildrgbd} & Object & Real & Static & MIT \\
+12 & Waymo~\cite{sun2020waymo} & Outdoor & Real & Dynamic & Non-Commercial \\
+13 & VirtualKITTI~\cite{cabon2020vkitti} & Outdoor & Synth. & Dynamic & CC BY-NC-SA 3.0 \\
+14 & TartanAir~\cite{wang2020tartanair} & Indoor+Outdoor & Synth. & Dynamic & CC BY 4.0 \\
+15 & Unreal4K~\cite{tosi2021unreal} & Indoor+Outdoor & Synth. & Static & MIT \\
+16 & MVS-Synth~\cite{huang2018mvs} & Outdoor & Synth. & Mostly Static & Non-Commercial \\
+17 & HyperSim~\cite{roberts2021hypersim} & Indoor & Synth. & Static & CC BY-SA 3.0 \\
+18 & Mapillary~\cite{antequera2020mapillary} & Outdoor & Real & Static & CC BY-NC-SA \\
+19 & ASE~\cite{avetisyan2024scenescript} & Indoor & Synth. & Static & Non-Commercial \\
+20 & ADT~\cite{pan2023aria} & Indoor & Real & Dynamic & Non-Commercial \\
+21 & PointOdyssey~\cite{zheng2023pointodyssey} & Indoor+Outdoor & Synth. & Dynamic & CC BY-NC-SA 4.0 \\
+22 & Spring~\cite{mehl2023spring} & Outdoor & Synth. & Dynamic & CC BY 4.0 \\
+23 & Dynamic Replica~\cite{Karaev_2023_dynamic_stereo} & Indoor & Synth. & Dynamic & Non-Commercial \\
+24 & ParallelDomain-4D~\cite{vanhoorick2024gcd} & Outdoor & Synth. & Dynamic & CC BY-NC 4.0 \\
+25 & SAIL-VOS 3D~\cite{hu2021sailvos3d} & Indoor+Outdoor & Synth. & Dynamic & Non-Commercial \\
+26 & OmniObject3D~\cite{wu2023omniobject3d} & Object & Real & Static & CC BY 4.0 \\
+27 & StaticThings3D~\cite{schroeppel2022rmvd} & Object & Synth. & Static & Non-Commercial \\
+28 & TartanGround~\cite{patel2025tartanground} & Outdoor & Synth. & Static & CC BY 4.0 \\
+29 & Matterport3D~\cite{chang2017matterport3d} & Indoor & Real & Static & Non-Commercial \\
+30 & BEDLAM~\cite{black2023bedlam} & Human-centric & Synth. & Dynamic & Non-Commercial \\
+31 & UASOL~\cite{bauer2019uasol} & Outdoor & Real & Static & CC BY-NC-SA 3.0 \\
+32 & MVImgNet~\cite{yu2023mvimgnet} & Object & Real & Static & MVImgNet Terms \\
+33 & CoP3D~\cite{sinha2023cop3d} & Object & Real & Dynamic & CC BY-NC 4.0 \\
+34 & EDEN~\cite{le2021eden} & Outdoor & Synth. & Static & Research Use \\
+35 & IRS~\cite{wang2021irs} & Indoor & Synth. & Static & Apache 2.0 \\
+36 & Synscapes~\cite{wrenninge2018synscapes} & Outdoor & Synth. & Dynamic & Non-Commercial \\
+37 & 3D Ken Burns~\cite{niklaus2019kenburns} & Indoor+Outdoor & Synth. & Static & CC BY-NC-SA 4.0 \\
+38 & SmartPortraits~\cite{kornilova2022smartportraits} & Human-centric & Real & Dynamic & Academic Use \\
+39 & UrbanSyn~\cite{gomez2025urbansyn} & Outdoor & Synth. & Dynamic & CC BY-SA 4.0 \\
+40 & HOI4D~\cite{liu2022hoi4d} & Indoor & Real & Dynamic & CC BY-NC 4.0 \\
+41 & Kubric~\cite{greff2022kubric} & Object & Synth. & Dynamic & Apache 2.0 \\
+42 & Replica~\cite{straub2019replica} & Indoor & Real & Static & Research Use \\
+43 & Objaverse~\cite{deitke2023objaverse} & Object & Synth. & Static & Per-object CC licenses \\
+44 & TexVerse~\cite{zhang2025texverse} & Object & Synth. & Static & Per-object CC licenses \\
+45 & GTA-SfM~\cite{wang2020flow} & Outdoor & Synth. & Static & Not specified \\
+46 & SceneNet RGB-D~\cite{mccormac2016scenenet} & Indoor & Synth. & Static & Non-Commercial \\
+47 & MatrixCity~\cite{li2023matrixcity} & Outdoor & Synth. & Static & CC BY-NC 4.0 \\
+48 & Mid-Air~\cite{fonder2019midair} & Outdoor & Synth. & Static & CC BY-NC-SA 4.0 \\
+49 & KITTI-360~\cite{liao2021kitti360} & Outdoor & Real & Dynamic & CC BY-NC-SA 3.0 \\
+50 & Gibson~\cite{xia2018gibson} & Indoor & Real & Static & Non-Commercial \\
+51 & HM3D~\cite{ramakrishnan2021hm3d} & Indoor & Real & Static & Non-Commercial \\
+52 & Taskonomy~\cite{zamir2018taskonomy} & Indoor & Real & Static & Non-Commercial \\
+53 & MegaSynth~\cite{jiang2025megasynth} & Indoor & Synth. & Static & CC BY-NC-SA 4.0 \\
+54 & OmniWorld~\cite{zhou2025omniworld} & Outdoor & Synth. & Dynamic & CC BY-NC-SA 4.0 \\
+55 & Trellis~\cite{xiang2025structured} & Object & Synth. & Static & MIT \\
+56 & TauAgent~\cite{gil2021online} & Indoor+Outdoor & Synth. & Dynamic & Not specified \\
+57 & Structured3D~\cite{zheng2020structured3d} & Indoor & Synth. & Static & Structured3D Terms \\
+58 & DIML Outdoor~\cite{cho2021diml} & Outdoor & Real & Mostly Static & Non-Commercial \\
+59 & DDAD~\cite{guizilini2020packnet} & Outdoor & Real & Dynamic & CC BY-NC-SA 4.0 \\
+60 & Argoverse~\cite{chang2019argoverse} & Outdoor & Real & Dynamic & CC BY-NC-SA 4.0 \\
+61 & Lyft~\cite{houston2021one} & Outdoor & Real & Dynamic & CC BY-NC-SA 4.0 \\
+62 & PandaSet~\cite{xiao2021pandaset} & Outdoor & Real & Dynamic & CC BY 4.0 \\
+63 & DSEC~\cite{gehrig2021dsec} & Outdoor & Real & Dynamic & CC BY-SA 4.0 \\
+64 & Driving Stereo~\cite{yang2019drivingstereo} & Outdoor & Real & Dynamic & MIT \\
+65 & Cityscapes~\cite{cordts2016cityscapes} & Outdoor & Real & Dynamic & Non-Commercial \\
+\bottomrule
+\end{tabularx}
+\end{table*}

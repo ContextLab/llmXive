@@ -1,0 +1,58 @@
+\definecolor{nvgreen}{RGB}{118, 185, 0}
+\definecolor{nvheader}{RGB}{118, 185, 0}
+\definecolor{nvlightgreen}{RGB}{240, 249, 226}
+\definecolor{nvwhite}{RGB}{255, 255, 255}
+\definecolor{nvfont}{RGB}{255, 255, 255}
+
+\begin{table}[H]
+\centering
+\vspace{+2mm}
+\caption{Overview of supported perception tasks and their corresponding prompt templates. \texttt{[PHRASE]} denotes a free-form natural language description, and \texttt{[CATEGORIES]} denotes a comma-separated list of category names.}
+\label{tab:task_prompts}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{6pt}
+\small
+
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}m{3.2cm} c >{\raggedright\arraybackslash}X}
+\arrayrulecolor{nvgreen}
+\toprule
+\rowcolor{nvheader}
+\textcolor{nvwhite}{\textbf{Task}} & \textcolor{nvwhite}{\textbf{Output}} & \textcolor{nvwhite}{\textbf{Question Template}} \\
+\midrule
+
+\rowcolor{nvlightgreen}
+\textbf{Object Detection} & Box & Locate all the instances that matches the following description:  \texttt{[CATEGORIES]}. \\
+\midrule\noalign{\vspace{3pt}}
+
+\rowcolor{nvwhite}
+ & Single Box & Locate a single instance that matches the following description: \texttt{[PHRASE]}. \\
+
+\rowcolor{nvwhite}
+\multirow{-2}{3.2cm}{\textbf{Phrase Grounding}} & Multiple Boxes & Locate all the instances that match the following description: \texttt{[PHRASE]}. \\
+\midrule
+
+\rowcolor{nvlightgreen}
+\textbf{Text Grounding} & Box & Please locate the text referred as \texttt{[PHRASE]}. \\
+\midrule
+
+\rowcolor{nvwhite}
+\textbf{Scene Text Detection} & Box & Detect all the text in box format. \\
+\midrule
+
+\rowcolor{nvlightgreen}
+\textbf{Document Layout Analysis} & Box & Detect all the objects in the image that belong to the category set: \texttt{[CATEGORIES]}. \\
+\midrule\noalign{\vspace{3pt}}
+
+\rowcolor{nvwhite}
+ & Box & Locate the region that matches the following description: \texttt{[PHRASE]}. \\
+\rowcolor{nvwhite}
+\multirow{-2}{3.2cm}{\textbf{GUI Grounding}} & Point & Point to: \texttt{[PHRASE]}. \\
+\midrule
+
+\rowcolor{nvlightgreen}
+\textbf{Pointing} & Point & Point to: \texttt{[PHRASE]}. \\
+\bottomrule
+
+\end{tabularx}
+\end{table}

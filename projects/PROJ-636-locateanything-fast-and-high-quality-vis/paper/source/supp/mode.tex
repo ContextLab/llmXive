@@ -1,0 +1,70 @@
+\begin{table*}[!t]
+    \centering
+    \vspace{+7mm}
+    \caption{Comprehensive performance of our Fast, Hybrid, and Slow configurations across multiple visual tasks. Throughput (measured in Boxes Per Second, BPS) is reported in the header for each mode. For general detection (COCO, LVIS), we report Average Precision (AP), Average Recall (AR), and F1@mIoU. For other tasks, we report the primary comprehensive metric (e.g., F1@mIoU, F1@mIoU, Avg Acc).}
+    \label{tab:grand_summary_tasks}
+    \resizebox{1.0\textwidth}{!}{
+        \renewcommand{\arraystretch}{1.2}
+        \setlength{\tabcolsep}{10pt}
+        \begin{tabular}{ll c | c | c | c}
+            \toprule
+            \multirow{2}{*}{\textbf{Task Group}} & \multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Metric}} & \textbf{Fast Model} & \textbf{Hybrid Model} & \textbf{Slow Model} \\
+            & & & (15.3 BPS) & (12.7 BPS) & (4.3 BPS) \\
+            \midrule
+            
+            % --- Detection ---
+            \multirow{8}{*}{\textbf{Detection}} 
+            & \multirow{3}{*}{COCO} 
+            & P@mIoU & \underline{58.9} & \textbf{60.8} & \textbf{60.8} \\
+            & & R@mIoU & 46.8 & \underline{49.7}  & \textbf{50.3} \\
+            & & F1@mIoU & 52.2 & \underline{54.7} & \textbf{55.1} \\
+            \cline{2-6} \rule{0pt}{10pt}
+            & \multirow{3}{*}{LVIS} 
+            & P@mIoU & 64.3 & \textbf{68.4} & \underline{68.0} \\
+            & & R@mIoU & 37.1 & \underline{40.3} & \textbf{42.8} \\
+            & & F1@mIoU & 47.0 & \underline{50.7} & \textbf{52.6} \\
+            \cline{2-6} \rule{0pt}{10pt}
+            % Dense
+            & Dense200 & F1@mIoU & 46.8 & \underline{61.3} & \textbf{61.5} \\
+            & VisDrone & F1@mIoU & 34.4 & \underline{39.8} & \textbf{40.2} \\
+            \midrule
+            
+            \multirow{4}{*}{\textbf{OCR}} 
+            & HierText & F1@mIoU & 28.8 & \underline{29.1} & \textbf{43.2} \\
+            & ICDAR2015 & F1@mIoU & 26.6 & \underline{26.4} & \textbf{27.3} \\
+            & TotalText & F1@mIoU & 44.4 & \underline{44.6} & \textbf{47.5} \\
+            & SROIE & F1@mIoU & 38.8 & \underline{39.3} & \textbf{64.4} \\ 
+            \midrule
+            % -------% 
+            
+            % --- Layout --- 
+            \multirow{2}{*}{\textbf{Layout}} 
+            & DocLayNet & F1@mIoU & 67.2 & \underline{77.7} & \textbf{80.4} \\
+            & M6Doc & F1@mIoU & 64.1 & \textbf{70.5} & \underline{69.7} \\
+            \midrule
+
+            % --- GUI ---
+            \textbf{GUI} 
+            & ScreenSpot-Pro & Acc & 59.7 & \underline{60.3} & \textbf{60.5} \\
+            \midrule
+
+            % --- Referring ---
+            \multirow{3}{*}{\textbf{Referring}} 
+            & HumanRef & F1@mIoU & 66.8 & \underline{78.5} & \textbf{79.1} \\
+            & RefCOCOg val & F1@mIoU & 70.8 & \textbf{73.4} & \underline{72.4} \\
+            & RefCOCOg test & F1@mIoU & 72.5 & \textbf{74.8} & \underline{73.8} \\
+            \midrule
+            
+            
+            % --- Pointing ---
+            \multirow{4}{*}{\textbf{Pointing}} 
+            & COCO & F1@Point & 83.1 & \underline{83.9} & \textbf{84.8} \\
+            & LVIS & F1@Point & 74.4 & \underline{76.6} & \textbf{76.9} \\
+            & Dense200 & F1@Point & \textbf{89.4} & 87.6 & \underline{88.3} \\
+            & VisDrone & F1@Point & 58.1 & \underline{60.4} & \textbf{61.3} \\
+
+            \bottomrule
+        \end{tabular}
+    }
+\vspace{-2mm}
+\end{table*}

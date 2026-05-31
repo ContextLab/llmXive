@@ -1,0 +1,280 @@
+\section{More Visualizations}
+We include extended 24-second multi-agent rollouts, qualitative comparisons against baselines, and real-world robotic coordination videos in the supplementary video, offering a more intuitive demonstration of our method.
+
+\section{Proof of Simplex Equidistance}
+\label{app:simplex-equidistance}
+
+We provide the derivation for the equidistance property of Simplex Rotary Agent Encoding. 
+Let $V$ denote the simplex pool size, matching the notation of the main paper.
+We first construct the simplex vertices in $\mathbb{R}^{V}$ and then embed them into the $(d_p/2)$-dimensional agent angle space, where $d_p$ is the agent rotary band size and $V\leq d_p/2+1$.
+
+Let $\mathbf{e}_p\in\mathbb{R}^{V}$ denote the one-hot vector of agent $p$, and let $\mathbf{1}\in\mathbb{R}^{V}$ denote the all-one vector. 
+We define the centered vector
+\begin{equation}
+\bar{\mathbf{s}}_p
+=
+\mathbf{e}_p-\frac{1}{V}\mathbf{1}.
+\end{equation}
+These vectors lie in the zero-mean subspace because
+\begin{equation}
+\mathbf{1}^{\top}\bar{\mathbf{s}}_p=0.
+\end{equation}
+For any agent $p$, the squared norm of $\bar{\mathbf{s}}_p$ is
+\begin{align}
+\|\bar{\mathbf{s}}_p\|_2^2
+&=
+\left(
+\mathbf{e}_p-\frac{1}{V}\mathbf{1}
+\right)^{\top}
+\left(
+\mathbf{e}_p-\frac{1}{V}\mathbf{1}
+\right) \\
+&=
+1-\frac{2}{V}+\frac{1}{V} \\
+&=
+\frac{V-1}{V}.
+\end{align}
+For two distinct agents $p\neq q$, their inner product is
+\begin{align}
+\bar{\mathbf{s}}_p^{\top}\bar{\mathbf{s}}_q
+&=
+\left(
+\mathbf{e}_p-\frac{1}{V}\mathbf{1}
+\right)^{\top}
+\left(
+\mathbf{e}_q-\frac{1}{V}\mathbf{1}
+\right) \\
+&=
+0-\frac{1}{V}-\frac{1}{V}+\frac{1}{V} \\
+&=
+-\frac{1}{V}.
+\end{align}
+After normalization, we obtain
+\begin{equation}
+\mathbf{s}_p
+=
+\sqrt{\frac{V}{V-1}}
+\bar{\mathbf{s}}_p.
+\end{equation}
+Therefore,
+\begin{align}
+\|\mathbf{s}_p\|_2^2 &= 1, \\
+\mathbf{s}_p^{\top}\mathbf{s}_q
+&=
+-\frac{1}{V-1},
+\qquad p\neq q.
+\end{align}
+The squared distance between any two distinct simplex vertices ($V\geq 2 $) is then
+\begin{align}
+\|\mathbf{s}_p-\mathbf{s}_q\|_2^2
+&=
+\|\mathbf{s}_p\|_2^2
++
+\|\mathbf{s}_q\|_2^2
+-
+2\mathbf{s}_p^{\top}\mathbf{s}_q \\
+&=
+2+\frac{2}{V-1} \\
+&=
+\frac{2V}{V-1},
+\qquad p\neq q.
+\end{align}
+Thus, all distinct agent pairs are exactly equidistant in the simplex angle space.
+
+In Simplex Rotary Agent Encoding, the agent angle is defined as
+\begin{equation}
+\boldsymbol{\theta}_p
+=
+\alpha\mathbf{s}_p,
+\end{equation}
+where $\alpha$ is a scalar scale factor. 
+Therefore, for any $p\neq q$,
+\begin{align}
+\|\boldsymbol{\theta}_p-\boldsymbol{\theta}_q\|_2^2
+&=
+\alpha^2
+\|\mathbf{s}_p-\mathbf{s}_q\|_2^2 \\
+&=
+\alpha^2
+\frac{2V}{V-1}.
+\end{align}
+Hence, all different-agent pairs receive the same amount of separation in the underlying agent angle space. We further analyze the induced distance in the complex RoPE space. 
+The complex rotary representation of agent $p$ is
+\begin{equation}
+\boldsymbol{\Phi}_p
+=
+\exp(i\boldsymbol{\theta}_p).
+\end{equation}
+For two agents $p$ and $q$, the squared distance between their complex rotations is
+\begin{align}
+\|\boldsymbol{\Phi}_p-\boldsymbol{\Phi}_q\|_2^2
+&=
+\left\|
+\exp(i\boldsymbol{\theta}_p)
+-
+\exp(i\boldsymbol{\theta}_q)
+\right\|_2^2 \\
+&=
+\sum_{r=1}^{d_p/2}
+\left|
+e^{i\theta_p^r}
+-
+e^{i\theta_q^r}
+\right|^2 \\
+&=
+\sum_{r=1}^{d_p/2}
+2\left(
+1-\cos(\theta_p^r-\theta_q^r)
+\right).
+\end{align}
+For sufficiently small $\alpha$ such that the coordinate-wise angle differences $|\theta_p^r-\theta_q^r|$ are small for all $r$, we use the approximation $1-\cos x\approx x^2/2$. 
+Thus,
+\begin{align}
+\|\boldsymbol{\Phi}_p-\boldsymbol{\Phi}_q\|_2^2
+&\approx
+\sum_{r=1}^{d_p/2}
+(\theta_p^r-\theta_q^r)^2 \\
+&=
+\|\boldsymbol{\theta}_p-\boldsymbol{\theta}_q\|_2^2 \\
+&=
+\alpha^2
+\frac{2V}{V-1},
+\qquad p\neq q.
+\end{align}
+This shows that Simplex Rotary Agent Encoding guarantees exact equidistance in the agent angle space and yields approximately equal pairwise separation in the complex RoPE space. 
+In the common implementation where the centered one-hot simplex is embedded with zero padding and $d_p/2\geq V$, the complex-space distance is also identical across distinct agent pairs because all pairwise difference vectors share the same non-zero coordinate pattern up to permutation.
+
+\section{More Architecture}
+\label{app:more-architecture}
+
+\subsection{Action Design}
+\label{app:action-design}
+
+We use explicit per-agent action traces as additional conditioning signals.
+For both domains, actions are synchronized with the video frames and provided separately for different agents.
+The action specification is domain-specific: the game domain uses player control commands, while the robot domain uses continuous end-effector state.
+
+\noindent\textbf{Game action format.}
+For Minecraft-style game videos, each agent action at a frame contains $25$ fields: $23$ discrete player controls and $2$ continuous camera controls.
+The discrete controls cover inventory interaction, hotbar selection, movement, item manipulation, and mouse-button actions.
+The continuous camera controls describe horizontal and vertical view motion.
+Table~\ref{tab:game-action-format} summarizes the game action fields.
+
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \caption{Game action format. Each frame stores a $25$-field action vector for each agent.}
+  \label{tab:game-action-format}
+  \vspace{4pt}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Index} & \textbf{Field} & \textbf{Description} \\
+    \midrule
+    $0$ & \texttt{inventory} & Open inventory \\
+    $1$ & \texttt{ESC} & Exit or cancel current menu \\
+    $2$--$10$ & \texttt{hotbar.1}--\texttt{hotbar.9} & Select hotbar slot 1--9 \\
+    $11$--$14$ & \texttt{forward}, \texttt{back}, \texttt{left}, \texttt{right} & Locomotion controls \\
+    $15$--$17$ & \texttt{jump}, \texttt{sneak}, \texttt{sprint} & Movement modifiers \\
+    $18$ & \texttt{swapHands} & Swap held item between hands \\
+    $19$--$22$ & \texttt{attack}, \texttt{use}, \texttt{pickItem}, \texttt{drop} & Interaction and item manipulation \\
+    $23$--$24$ & \texttt{cameraX}, \texttt{cameraY} & Horizontal yaw and vertical pitch motion \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\noindent\textbf{Robot action format.}
+For robot videos, each agent action at a frame contains $10$ continuous fields describing the robot end-effector and gripper.
+The action contains the 3D end-effector position, a 6D orientation field, and the gripper opening value.
+The same format is used for the left and right robots, producing one temporally aligned action sequence per robot.
+Table~\ref{tab:robot-action-format} summarizes the robot action fields.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \caption{Robot action format. Each frame stores a $10$-field continuous action vector for each robot.}
+  \label{tab:robot-action-format}
+  \vspace{4pt}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Index} & \textbf{Field} & \textbf{Description} \\
+    \midrule
+    $0$--$2$ & \texttt{pos\_x}, \texttt{pos\_y}, \texttt{pos\_z} & End-effector position \\
+    $3$--$8$ & \texttt{rot\_6d\_0}--\texttt{rot\_6d\_5} & End-effector orientation \\
+    $9$ & \texttt{gripper} & Gripper opening value \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\section{Additional Implementation Details}
+\label{app:additional_implementation_details}
+
+\noindent\textbf{Architecture.}
+Both bidirectional teacher model and causal student model are based on Cosmos-Predict2.5-2B~\cite{ali2025world-simulation},  with hidden dimension $D=2048$, $28$ transformer blocks, $16$ attention heads (head dimension $128$), MLP ratio $4$, and AdaLN-LoRA of rank $256$. Player identity is injected via our Simplex Rotary Agent Encoding (Sec.~\ref{sec:simplex-rotary-agent-encoding}), partitioning the head dimension as $(64, 32, 16, 16)$ across the $(t, p, h, w)$ axes and assigning each agent a vertex of a regular simplex as its rotation phase. We use a simplex pool of size $4$ over $2$ active runtime slots: at every training step we randomly sample $2$ of the $4$ vertices and additionally permute the agent slot order, forcing the model to disambiguate players exclusively through the simplex marker and allowing the same checkpoint to serve up to $4$ players at inference. Per-player actions (a $23$-dimensional keyboard one-hot and a $2$-dimensional camera vector) are encoded by a single shared action encoder: two MLP branches that lift each modality to $128$ dimensions, a fusion MLP that maps the concatenated $256$-dimensional vector through a $4\times$-stride 1D temporal convolution, and a final projection to the model dimension $D=2048$. The encoder output is added as a per-block bias to the self-attention input of every transformer layer. The causal student additionally enables (i) \emph{Sparse Hub Attention}: each player attends only to its own past tokens and to $K=8$ learnable global hub tokens per latent frame; and (ii) \emph{local windowed attention}: each query attends to the most recent $24$ latent frames per view, bounding the inference KV cache independently of generation length. The bidirectional teacher uses standard dense self-attention.
+
+\noindent\textbf{Stages 1 and 2 -- Bidirectional teacher and causal student pretraining.}
+Both the teacher and the student are initialized from the publicly released Cosmos-Predict2.5-2B TI2V checkpoint and trained on 2-agent gameplay at $320 \times 480$ per view. The teacher is first pretrained on $93$-frame clips (latent length $24$) for $10{,}000$ iterations and then fine-tuned on $189$-frame clips (latent length $48$) for $6{,}000$ iterations, while the causal student is pretrained on $93$-frame clips for $15{,}000$ iterations. Both stages use AdamW with learning rate $3{\times}10^{-5}$, weight decay $10^{-3}$, $(\beta_1, \beta_2) = (0.0, 0.999)$, $100$-step linear warm-up, and gradient clipping at $0.1$. The teacher is trained on $32$ NVIDIA GB200s and the student on $32$ NVIDIA GB200s. We do not apply classifier-free guidance (CFG) at inference, as we empirically observe that unguided sampling produces more accurate results.
+
+\noindent\textbf{Stage 3 -- Self-Forcing distillation.}
+The distillation model couples three networks: the student (trainable, initialized from Stage 2), a frozen \emph{real score} (the Stage-1 teacher), and a trainable \emph{fake score} also initialized from the Stage-1 teacher. We follow Self-Forcing~\cite{huang2025self} to optimize the student model with the DMD~\cite{yin2024one} loss on $189$-frame clips. At each generator step, each block is denoised with timesteps $\{1000, 750, 500, 250\}$ (warped by the flow shift $5.0$). After each block, the model re-forwards the block under context-noise level $128$ and writes the result into the per-layer KV cache before proceeding. Generator and critic are updated alternately at a $1{:}4$ ratio: the student is updated once every $5$ iterations, while on the remaining iterations the fake critic is updated with a flow-velocity prediction loss; the real score is kept frozen throughout. Distillation runs for $400$ iterations on $32$ NVIDIA GB200s, using AdamW with learning rates $2{\times}10^{-6}$ (student) and $4{\times}10^{-7}$ (critic), weight decay $10^{-2}$, $(\beta_1, \beta_2) = (0.0, 0.999)$.
+
+\noindent\textbf{Inference.}
+At inference time, the student generates each per-view latent block autoregressively with the same $4$-step denoising schedule and block size as in training. The KV cache uses the rolling local-attention window of $24$ latent frames per view, decoupling the generated sequence length from cache memory.
+
+
+\section{Additional Ablations}
+\label{app:additional-ablations}
+
+We compare three variants of our model: causal, bidirectional, and distilled.
+As shown in Table~\ref{tab:model-variant-ablation}, we report FVD, FID, LPIPS, PSNR, and SSIM to evaluate perceptual quality and reconstruction fidelity.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \caption{Comparison of causal, bidirectional, and distilled variants of our model.}
+  \label{tab:model-variant-ablation}
+  \vspace{4pt}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    \textbf{Variant}
+      & FVD $\downarrow$
+      & FID $\downarrow$
+      & LPIPS $\downarrow$
+      & PSNR $\uparrow$
+      & SSIM $\uparrow$ \\
+    \midrule
+    Bidirectional
+      & $227.3$ & $31.0$ & $0.272$ & $27.7$ & $0.828$ \\
+    Causal
+      & $266.4$ & $34.4$ & $0.277$ & $26.2$ & $0.805$ \\
+    Distilled
+      & $239.7$ & $30.9$ & $0.273$ & $26.8$ & $0.811$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+We provide an additional ablation on the number of hub tokens $K$ used in Sparse Hub Attention.
+In our design, hub tokens serve as the compact shared state through which agents exchange information, so $K$ controls the capacity of the cross-agent communication bottleneck.
+When $K$ is too small, the hub has limited capacity to summarize multi-agent state, which can hurt generation quality.
+Increasing $K$ provides a richer shared state by allowing the hub to summarize multi-agent interactions with greater capacity.
+As shown in Table~\ref{tab:hub-token-ablation}, we sweep $K\in\{1,8,32,128\}$ and report FVD, FID, LPIPS, PSNR, and SSIM.
+This ablation helps identify a practical operating point where the hub has enough capacity for cross-agent interaction.
+
+\input{tables/table_4}
+
+\section{More Experimental Results}
+\label{app:more-experimental-results}
+
+\subsection{Training Stage Comparison}
+\label{app:training-stage-comparison}
+
+We compare three training stages of our model: the bidirectional teacher, the causal student, and the distilled model.
+As shown in Table~\ref{tab:model-variant-ablation}, the bidirectional teacher achieves the best overall performance due to its access to full temporal context during generation.
+The causal variant, while enabling streaming inference with KV caching, shows degraded performance because it can only attend to past frames.
+The distilled model recovers much of the teacher's quality while retaining the causal structure, demonstrating that knowledge distillation effectively transfers bidirectional modeling capacity into a streaming-compatible architecture.

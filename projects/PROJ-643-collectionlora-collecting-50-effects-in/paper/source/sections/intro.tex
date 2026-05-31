@@ -1,0 +1,41 @@
+\section{Introduction}
+\label{sec:intro}
+Recently, diffusion models~\cite{flux2024,labs2025flux,flux-2-2025,qwenimage,sd1,esser2024scaling,peebles2023scalable} have revolutionized the field of image editing, enabling unprecedented fine-grained control and high-quality content modification. For customized image editing~\cite{mou2025dreamo,gal2022image,kumari2023multi,wu2025dcoardeepconceptinjection, Photodoodle,ye2023ip,zhang2023addingconditionalcontroltexttoimage,guo2025any2anytryon,zhang2025easycontrol,xie2023omnicontrol,huang2024incontextloradiffusiontransformers,liu2025llm4gen,she2025mosaic,liu2025tfcustom}, the community typically trains specific effect LoRAs~\cite{LoRA,huang2024incontextloradiffusiontransformers,OmniConsistency} using limited paired data and cascades them with acceleration LoRA during inference to achieve rapid, few-step generation. 
+However, scaling this paradigm in practice exposes three bottlenecks as illustrated in Fig.~\ref{fig:intro}(a): (i) \textbf{Storage costs.} Deploying all effect LoRAs imposes substantial storage overhead on individual devices. (ii) \textbf{Routing latency and errors.} Retrieving and dynamically loading specific LoRAs from the LoRA bank introduces inference latency and the risk of routing mismatches. (iii) \textbf{LoRA conflicts.} Linearly combining effect and acceleration LoRAs disrupts the original feature manifolds, inevitably causing concept bleeding and style degradation.
+
+To fundamentally address deployment challenges, we aim to consolidate diverse visual effects into a single LoRA. While the concept of distilling knowledge from various domain experts into a unified student model has achieved remarkable success in the realm of Large Language Models (LLMs)~\cite{yang2025qwen3technicalreport,coreteam2026mimov2flashtechnicalreport,deepseek_v4_pro}, it remains largely unexplored within the field of diffusion models. In this work, we treat individual effect LoRAs as distinct visual experts and build our framework upon Distribution Matching Distillation (DMD)~\cite{dmd1,dmd2}.  However, directly applying standard DMD to a multi-teacher setting poses severe challenges. First, initializing the student from the base model creates a massive distribution gap with the experts, leading to distribution collapse during training. Second, consolidating diverse concepts within a shared parameter space with limited data not only causes conflicts between concepts but also degrades the model's generalization ability. To address these challenges, we propose \textbf{CollectionLoRA, a Multi-Teacher On-Policy Distillation framework for diffusion models}. CollectionLoRA stabilizes multi-teacher distillation via three key components: (i) We design a Probabilistic Dual-Stream Routing (PDSR) mechanism that dynamically introduces unlabeled general-domain data as regularization to preserve the model's generalization ability. (ii)  We introduce an Asymmetric Orthogonal Prompting (AOP) strategy. By assigning original prompts to teachers and VLM-rewritten prompts with orthogonal trigger words to the student, it isolates distinct concepts in the latent space and eliminates manual tuning. (iii) Finally, we propose a Coarse-to-Fine Distillation Objective (C2F-DO) to bridge the distribution gap between the student and experts. It combines flow matching~\cite{lipman2023flowmatchinggenerativemodeling} to prevent distribution collapse with Target Simulation (TS) to restore realistic fine details.
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/zip_intro.pdf}
+    \captionof{figure}{Comparison between conventional multi-LoRA pipelines and the proposed CollectionLoRA. \textbf{Conventional}: Training and deploying task-specific LoRA weights for each concept, which are sequentially composed with an acceleration LoRA during inference. \textbf{CollectionLoRA}: Consolidating the acceleration prior and all target concepts into a single unified module through multi-teacher distillation.}
+    \label{fig:intro}
+    \vspace{-0.4cm}
+\end{figure*} 
+In summary, the main contributions are threefold:
+\vspace{-0.1cm}
+\begin{itemize}
+    \item \textbf{New Deployment Paradigm.} We are the first to systematically identify three critical bottlenecks in the conventional multi-LoRA deployment pipeline—storage overhead, routing latency, and parameter conflicts—and propose CollectionLoRA, a multi-teacher on-policy distillation framework that consolidates diverse visual effects and few-step generation into a single LoRA, fundamentally resolving these issues.
+
+    \item \textbf{Effective Multi-Teacher On-Policy Distillation Framework.} To address the 
+    unique challenges of multi-teacher distillation, we introduce 
+    three key components: \textit{Probabilistic Dual-Stream Routing} (PDSR) for regularization and generalization preservation, \textit{Asymmetric 
+    Orthogonal Prompting} (AOP) for concept isolation in the prompt space, and a 
+    \textit{Coarse-to-Fine Distillation Objective} (C2F-DO) that synergizes 
+    trajectory anchoring with distribution matching to stabilize optimization and restore high-frequency details.
+    \item \textbf{Superior Performance and Scalability.} Extensive experiments on EffectBench demonstrate that CollectionLoRA distills \textbf{50 visual effects 
+    and few-step generation} into a single LoRA, surpassing independent single-task teachers in concept fidelity while reducing deployment costs. Our framework further \textbf{scales to 180 effects}, reducing deployment overhead to 
+    \textbf{0.5\%} of the conventional paradigm without catastrophic quality degradation. Beyond individual effects, we discover an \textbf{zero-shot effect composition} capability, where multiple effects can be seamlessly combined 
+    at inference time without any additional training.
+\end{itemize}
+
+
+
+% In summary, the main contributions are threefold:
+% \begin{itemize}
+%     \item We provide an in-depth analysis of the current deployment paradigm for customized image editing, explicitly identifying the limitations of cascading effect and acceleration LoRAs, including storage costs, routing latency, and LoRA conflicts. Motivated by these challenges, we propose a new paradigm tailored for large-scale deployment, as illustrated in Fig.~\ref{fig:intro}(b).
+%     \item We propose CollectionLoRA, a multi-teacher on-policy distillation framework that successfully consolidates diverse visual effect priors and few-step generation capabilities into a single LoRA. Specifically, we introduce three key components to address the challenges of multi-teacher distillation: Probabilistic Dual-Stream Routing (PDSR) to enhance model generalization, Asymmetric Orthogonal Prompting (AOP) to mitigate concept conflicts, and the Coarse-to-Fine Distillation Objective (C2F-DO) to stabilize the optimization trajectory. 
+%     \item Extensive experiments demonstrate that CollectionLoRA distills \textbf{50 visual effects and few-step generation capabilities} into a single LoRA, dramatically reducing deployment overhead while surpassing the concept fidelity of independent teachers. Allowing a trade-off in generation quality, our framework can further\textbf{ scale to 180 experts}, plummeting deployment costs to 0.5\% of the conventional paradigm.
+% \end{itemize}
+
+
+

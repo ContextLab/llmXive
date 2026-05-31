@@ -1,0 +1,21 @@
+% \begin{table}[htbp]
+\begin{table}[!t]
+\centering
+\caption{Quantitative comparison on our EffectBench.}
+\label{tab:main_results}
+\resizebox{\columnwidth}{!}{ 
+\begin{tabular}{ccccccccc} % 修改为 9 个 c
+\toprule
+\textbf{Setting} & \textbf{Method} & \textbf{CLIP} ($\uparrow$) & \textbf{DreamSim} ($\downarrow$) & \textbf{DINO} ($\uparrow$) & \textbf{VSA} ($\uparrow$) & \textbf{EditReward} ($\uparrow$) & \textbf{BCR} ($\downarrow$) & \textbf{NFE} ($\downarrow$) \\
+\midrule
+\multirow{2}{*}[-2pt]{\makecell{Single \\ Effect}} & \makecell{Base} & 0.726 & 0.434 & 0.611 & 4.075 & 1.007 & 0.141 & 40 $\times$  2 \\ % 添加数据
+\cmidrule(lr){2-9} % 修改跨度为 2-9
+ & \makecell{Base+Lightning} & 0.717 & 0.441 & \textbf{0.612} & 3.901 & 0.986 & 0.168 & 8 \\ % 添加数据
+\midrule
+\multirow{2}{*}[-2pt]{\makecell{50 Effects \\ in 1}} & \makecell{FM + Lightning} & 0.703 & 0.468 & 0.611 & 4.150 & 0.929 & 0.217 & 8 \\ % 添加数据
+\cmidrule(lr){2-9} % 修改跨度为 2-9
+ & \makecell{\textbf{Ours}} & \textbf{0.727} & \textbf{0.425} & 0.600 & \textbf{4.380} & \textbf{1.052} & \textbf{0.087} & \textbf{8} \\ % 添加数据
+\bottomrule
+\end{tabular}
+}
+\end{table}

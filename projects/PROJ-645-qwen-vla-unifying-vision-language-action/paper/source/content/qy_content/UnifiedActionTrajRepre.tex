@@ -1,0 +1,23 @@
+% We unify all continuous control signals into a single tensor format consumed by the DiT-based action expert, regardless of embodiment or task family.
+We unify the tensor interface and masking scheme, but do not force all embodiments into a single physical action semantic space. Each dataset preserves its native control convention, specified through the embodiment prompt and dataset-specific normalization.
+Concretely, each training sample contributes a target tensor $\mathbf{Y} \in \mathbb{R}^{H \times K}$, where $H$ is a fixed prediction horizon and $K$ is a fixed channel dimension shared across all control modes.
+
+% We unify the tensor interface and masking scheme, but do not force all embodiments into a single physical action semantic space. Each dataset preserves its native control convention, specified through the embodiment prompt and dataset-specific normalization.
+
+\paragraph{Control signal types.}
+We cover two families of continuous control signals.
+\textit{Manipulation} signals include delta end-effector position ($\Delta x, \Delta y, \Delta z$), end-effector rotation expressed as Euler angles or quaternions, absolute joint positions, gripper aperture, and dexterous-hand joint angles.
+\textit{Navigation trajectory} signals follow the VLN convention and are represented as $(\Delta x, \Delta y, \Delta\theta)$ per waypoint, encoding relative displacement and heading change in the ground plane.
+Despite their different physical semantics, both families are sequences of real-valued vectors predicted over a horizon, and are therefore treated identically by the action expert.
+
+\paragraph{Channel layout.}
+\label{sec:unified_rep:channel_mask}
+A given control mode uses $c \leq K$ channels.
+These $c$ task-relevant values are placed in the \emph{leading} $c$ dimensions of $\mathbf{Y}$, and the remaining $K - c$ dimensions are zero-padded.
+A per-channel binary mask $\mathbf{M} \in \{0,1\}^{H \times K}$ records which channels carry valid signals: $M_{h,k} = 1$ if and only if channel $k < c$ and time step $h$ falls within the task's chunk length $H_{\text{task}} \leq H$.
+This scheme requires no embodiment-specific output heads; a single set of DiT parameters handles all control modes, with the mask preventing padded entries from influencing the gradient.
+
+\paragraph{Task-aware conditioning.}
+Each training sample is prefixed with the embodiment-aware prompt described in \cref{sec:embodiment}, which specifies the robot platform, arm configuration, control frequency, and prediction horizon.
+For VLN samples the prompt analogously states the navigation convention and waypoint horizon.
+These prompt tokens are processed by the VLM backbone and their hidden states are concatenated with the noisy action chunk as input to the DiT, so the action expert is always conditioned on the precise control specification of the current sample without any architectural changes.

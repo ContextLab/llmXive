@@ -1,0 +1,322 @@
+\newcommand{\cmt}[1]{{\footnotesize\textcolor{red}{#1}}}
+\newcommand{\cmto}[1]{{\footnotesize\textcolor{orange}{#1}}}
+\newcommand{\note}[1]{\cmt{Note: #1}}
+\newcommand{\question}[1]{\cmto{Question: #1}}
+\newcommand{\edits}[1]{\textcolor{blue}{#1}}
+\newcommand{\editsred}[1]{\textcolor{red}{#1}}
+\newcommand{\editsp}[1]{\textcolor{purple}{#1}}
+\newcommand{\editsv}[1]{\textcolor{magenta}{#1}}
+
+
+
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\data}{\mathcal{D}}
+\newcommand{\E}{\mathbb{E}}
+
+\newcommand{\etal}{{et~al.}\ }
+\newcommand{\eg}{\emph{e.g.},\ }
+\newcommand{\ie}{\emph{i.e.},\ }
+\newcommand{\nth}{\text{th}}
+\newcommand{\pr}{^\prime}
+\newcommand{\tr}{^\mathrm{T}}
+\newcommand{\inv}{^{-1}}
+\newcommand{\pinv}{^{\dagger}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\gauss}{\mathcal{N}}
+
+\newcommand{\reward}{r}
+\newcommand{\policy}{\pi}
+\newcommand{\mdp}{\mathcal{M}}
+\newcommand{\states}{\mathcal{S}}
+\newcommand{\actions}{\mathcal{A}}
+\newcommand{\observations}{\mathcal{O}}
+\newcommand{\transitions}{T}
+\newcommand{\initstate}{d_0}
+\newcommand{\freq}{d}
+\newcommand{\obsfunc}{E}
+\newcommand{\initial}{\mathcal{I}}
+\newcommand{\horizon}{H}
+\newcommand{\rewardevent}{R}
+\newcommand{\probr}{p_\rewardevent}
+\newcommand{\metareward}{\bar{\reward}}
+\newcommand{\discount}{\gamma}
+\newcommand{\behavior}{{\pi_\beta}}
+\newcommand{\bellman}{\mathcal{B}}
+\newcommand{\qparams}{\phi}
+\newcommand{\qparamset}{\Phi}
+\newcommand{\qset}{\mathcal{Q}}
+\newcommand{\batch}{B}
+\newcommand{\qfeat}{\mathbf{f}}
+\newcommand{\Qfeat}{\mathbf{F}}
+\newcommand{\hatbehavior}{\hat{\pi}_\beta}
+
+\newcommand{\traj}{\tau}
+
+\newcommand{\pihi}{\pi^{\text{hi}}}
+\newcommand{\pilo}{\pi^{\text{lo}}}
+\newcommand{\ah}{\mathbf{w}}
+
+
+\newcommand{\loss}{\mathcal{L}}
+\newcommand{\eye}{\mathbf{I}}
+
+\newcommand{\model}{\hat{p}}
+
+\newcommand{\pimix}{\pi_{\text{mix}}}
+
+\newcommand{\pib}{\bar{\pi}}
+\newcommand{\epspi}{\epsilon_{\pi}}
+\newcommand{\epsmodel}{\epsilon_{m}}
+
+\newcommand{\return}{\mathcal{R}}
+
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\en}{\mathcal{E}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bd}{\mathbf{d}}
+\newcommand{\be}{\mathbf{e}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\boldm}{\mathbf{m}}
+\newcommand{\bo}{\mathbf{o}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\ot}{\bo_t}
+\newcommand{\st}{\bs_t}
+\newcommand{\at}{\ba_t}
+\newcommand{\op}{\mathcal{O}}
+\newcommand{\opt}{\op_t}
+\newcommand{\kl}{D_\text{KL}}
+\newcommand{\tv}{D_\text{TV}}
+\newcommand{\ent}{\mathcal{H}}
+\newcommand{\bG}{\mathbf{G}}
+\newcommand{\byk}{\mathbf{y_k}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bV}{\mathbf{V}}
+\newcommand{\bD}{\mathbf{D}}
+\newcommand{\bR}{\mathbf{R}}
+\newcommand{\bQ}{\mathbf{Q}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bN}{\mathbf{N}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bU}{\mathbf{U}}
+\newcommand{\bO}{\mathbf{O}}
+\newcommand{\leftnorm}{\left\vert \left\vert}
+\newcommand{\rightnorm}{\right\vert \right\vert}
+
+\newcommand{\bzhi}{\bz^\text{hi}}
+\newcommand{\expected}{\mathbb{E}}
+\newcommand{\deepnet}{\bW_N(k, t) \bW_\phi(k, t)}
+\newcommand{\features}{\bW_\phi(k, t)}
+\newcommand{\stateactioni}{[\bs_i; \ba_i]}
+\newcommand{\cosine}{\text{cos}}
+
+
+\def\thetaP{\theta^{\prime}}
+\def\cf{\emph{c.f.}\ }
+\def\vs{\emph{vs}.\ }
+\def\etc{\emph{etc.}\ }
+\def\Eqref#1{Equation~\ref{#1}}
+\def\ss#1{\scriptsize #1}
+
+\newenvironment{repeatedthm}[1]{\@begintheorem{#1}{\unskip}}{\@endtheorem}
+
+\newcommand{\methodname}{OmniRetrieval}
+
+\definecolor{blanchedalmond}{rgb}{1.0, 0.92, 0.8}
+\definecolor{carmine}{rgb}{0.59, 0.0, 0.09}
+\definecolor{lightblue}{rgb}{0.22,0.45,0.70}%
+
+
+\newcommand{\rebuttal}[1]{#1}
+
+\def\bellmanop{T^\circ}
+\def\qop{Q^\circ}
+\def\qpi{Q^\pi}
+\def\qs{Q^*}
+\def\Qstar{Q^*}
+\def\Qt{Q_{\theta}}
+\def\Qtp{Q_{\thetaP}}
+\def\ld{\ell_{\lambda}}
+
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{sketchtheorem}{Sketch Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{formulation}[theorem]{Formulation}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{exercise}[theorem]{Exercise}
+
+
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+
+\renewcommand{\mathbf}{\boldsymbol}
+
+\newcommand{\conv}{\circledast}
+\newcommand{\mb}{\mathbf}
+\newcommand{\mc}{\mathcal}
+\newcommand{\mf}{\mathfrak}
+\newcommand{\md}{\mathds}
+\newcommand{\bb}{\mathbb}
+\newcommand{\msf}{\mathsf}
+\newcommand{\mcr}{\mathscr}
+\newcommand{\magnitude}[1]{ \left| #1 \right| }
+\newcommand{\set}[1]{\left\{ #1 \right\}}
+\newcommand{\condset}[2]{ \left\{ #1 \;\middle|\; #2 \right\} }
+
+
+\newcommand{\reals}{\bb R}
+\newcommand{\proj}{\mathrm{proj}}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\R}{\reals}
+\newcommand{\Cp}{\bb C}
+\newcommand{\Z}{\bb Z}
+\newcommand{\N}{\bb N}
+\newcommand{\Sp}{\bb S}
+\newcommand{\Ba}{\bb B}
+\newcommand{\indicator}[1]{\mathbbm 1\left\{#1\right\}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\rvline}{\hspace*{-\arraycolsep}\vline\hspace*{-\arraycolsep}}
+\makeatletter
+\def\Ddots{\mathinner{\mkern1mu\raise\p@
+\vbox{\kern7\p@\hbox{.}}\mkern2mu
+\raise4\p@\hbox{.}\mkern2mu\raise7\p@\hbox{.}\mkern1mu}}
+\makeatother
+
+
+\newcommand{\event}{\mc E}
+
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\im}{\mathrm{i}}
+
+\newcommand{\wh}{\widehat}
+\newcommand{\wt}{\widetilde}
+\newcommand{\ol}{\overline}
+
+
+\newcommand{\betagrad}{\beta_{\mathrm{grad}}}
+
+\newcommand{\norm}[2]{\left\| #1 \right\|_{#2}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\row}[1]{\text{row}\left( #1 \right)}
+\newcommand{\innerprod}[2]{\left\langle #1,  #2 \right\rangle}
+\newcommand{\prob}[1]{\bb P\left[ #1 \right]}
+\newcommand{\expect}[1]{\bb E\left[ #1 \right]}
+\newcommand{\integral}[4]{\int_{#1}^{#2}\; #3\; #4}
+\newcommand{\paren}[1]{\left( #1 \right)}
+\newcommand{\brac}[1]{\left[ #1 \right]}
+\newcommand{\Brac}[1]{\left\{ #1 \right\}}
+
+\newcommand{\moff}{m_\mr{off}}
+\newcommand{\mon}{m_\mr{on}}
+\newcommand{\EmpiricalOffline}{\wh{\bb E}_{\mc D^\nu_h}}
+\newcommand{\EmpiricalOnline}{\wh{\bb E}_{\mc D^\tau_h}}
+\newcommand{\Deltaoff}{\Delta_\mr{off}}
+\newcommand{\Deltaon}{\Delta_\mr{on}}
+\newcommand{\Vmax}{V_{\max}}
+\newcommand{\regret}{\mr{Reg}}
+\newcommand{\regreton}{\mr{Sub}_{\mr {on}}}
+\newcommand{\regretoff}{\mr{Sub}_{\mr {off}}}
+\newcommand{\Doff}{\mc D_\mr{off}}
+\newcommand{\Don}{\mc D_\mr{on}}
+\newcommand{\piref}{\pi_\mr{ref}}
+
+\newcommand{\nt}[1]{{\color{purple}{\bf [Next: #1]}}}
+\newcommand{\here}{{\color{purple}{\bf [Writing here]}}}
+\newcommand{\mr}{\mathrm}
+\newcommand{\sym}{\mathrm{Sym}}
+\newcommand{\sks}{\mathrm{Skew}}
+\newcommand{\inprod}[2]{\langle#1,#2\rangle}
+\newcommand{\clip}{\msf{clipped}}
+\newcommand{\beha}{\msf b}
+\numberwithin{equation}{section}
+
+\definecolor{amaranth}{rgb}{0.9, 0.17, 0.31}
+\definecolor{antiquebrass}{rgb}{0.8, 0.58, 0.46}
+\definecolor{antiquefuchsia}{rgb}{0.57, 0.36, 0.51}
+\definecolor{chromeyellow}{rgb}{0.31, 0.47, 0.26}
+
+
+\def \endprf{\hfill {\vrule height6pt width6pt depth0pt}\medskip}
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\def\Var{\mathrm{Var}}
+
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\thres}{\mathrm{thres}}
+\newcommand{\Eop}{\mathop{\mathbb E}}
+\newcommand{\Ebb}{{\mathbb E}}
+
+\newcommand{\what}{\widehat w}
+\newcommand{\Qhat}{\widehat Q}
+\newcommand{\vhat}{\widehat v}
+
+\newcommand{\Acal}{\mathcal A}
+\newcommand{\Bcal}{\mathcal B}
+\newcommand{\Ccal}{\mathcal C}
+\newcommand{\Dcal}{\mathcal D}
+\newcommand{\Ecal}{\mathcal E}
+\newcommand{\Fcal}{\mathcal F}
+\newcommand{\Gcal}{\mathcal G}
+\newcommand{\Hcal}{\mathcal H}
+\newcommand{\Ical}{\mathcal I}
+\newcommand{\Jcal}{\mathcal J}
+\newcommand{\Kcal}{\mathcal K}
+\newcommand{\Lcal}{\mathcal L}
+\newcommand{\Mcal}{\mathcal M}
+\newcommand{\Ncal}{\mathcal N}
+\newcommand{\Ocal}{\mathcal O}
+\newcommand{\Pcal}{\mathcal P}
+\newcommand{\Qcal}{\mathcal Q}
+\newcommand{\Rcal}{\mathcal R}
+\newcommand{\Scal}{\mathcal S}
+\newcommand{\Tcal}{\mathcal T}
+\newcommand{\Ucal}{\mathcal U}
+\newcommand{\Vcal}{\mathcal V}
+\newcommand{\Wcal}{\mathcal W}
+\newcommand{\Xcal}{\mathcal X}
+\newcommand{\Ycal}{\mathcal Y}
+\newcommand{\Zcal}{\mathcal Z}
+
+\newcommand{\RR}{\mathbb R}
+
+\newcommand{\T}{\mathsf{T}}
+
+\newcommand{\1}{\mathds 1}
+
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+
+% \newcommand{\cmark}{\ding{51}}%
+% \newcommand{\xmark}{\ding{55}}%
+
+\newcommand{\algocmt}[1]{{\color{SeaGreen}\Comment{\textit{#1}}}}
+\newcommand{\pfname}[2]{\bf\em Proof of {#1}~{#2}}
+\newcommand{\cpfname}[1]{\bf\em Proof of \cref{#1}}
+
+\newcommand{\KL}{\mathbb{D}_\mathrm{KL}}
+\newcommand{\midd}{~\|~}
+\newcommand{\midmid}{~\middle|~}

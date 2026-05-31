@@ -1,0 +1,75 @@
+\section{Introduction}
+
+Spatial foundation models have already been widely deployed across robotics~\citep{yang2026robo3r,lin2025evo,zhang2025spatial}, AR/VR~\citep{yang2026neoverse}, autonomous driving~\citep{chen2025dggt}, and embodied AI~\citep{kareer2025egomimic,zheng2026egoscale}. 
+%
+This extensive adoption is driven by their remarkable ability to recover accurate 3D structures from mere images or videos, establishing them as general-purpose visual geometry backbones for spatial intelligence. 
+%
+However, operating in these real-world applications is inherently chaotic and far more demanding than standard reconstruction benchmarks. 
+%
+To truly support these downstream tasks, a robust model must maintain its reliability when confronting unpredictable scene domain shifts, highly variable sparse-to-dense input regimes, and strict hardware memory constraints. 
+%
+This raises the central question of this work: \emph{if spatial foundation models are expected to support general-purpose spatial intelligence, can they truly serve as robust all-round players across the diverse conditions of the 3D world?}
+
+However, existing evaluations fall short in several critical aspects. 
+%
+First, they cover only a narrow slice of today's model paradigms. 
+%
+Spatial foundation models now span feed-forward~\citep{wang2025vggt,keetha2026mapanything,lin2025depth}, optimization-based~\citep{wang2024dust3r,leroy2024mast3r,zhang2024monst3r}, streaming~\citep{streamVGGT,stream3r2025,chen2026lingbotmap}, SLAM-based~\citep{maggio2025vggt-slam,murai2024_mast3rslam}, chunk-based~\citep{deng2025vggtlong}, and test-time training (TTT)~\citep{chen2025ttt3r,xie2026scal3r,zhang2026loger} approaches, yet most benchmarks evaluate only one or a few of them under separate protocols. 
+%
+Second, current comparisons are often not standardized. 
+%
+Even when papers report results on the same dataset, they may use different scene splits, private subsets, frame indices, temporal windows, or input densities, making direct comparison ambiguous. 
+%
+Third, existing protocols rarely expose how models scale with sequence density. 
+%
+For example, a model that works well on sparse image sets may fail on dense long videos because of memory growth, accumulated drift, or degraded global consistency; conversely, bounded-memory methods (e.g., online, chunk-wise, and TTT) may be undervalued when evaluation is restricted to short sequences. 
+%
+Finally, test domains remain too limited for assessing real-world spatial intelligence. 
+%
+Standard indoor or object-centric reconstruction datasets do not capture the diversity of robotics, autonomous driving, egocentric perception, and wrist-mounted manipulation settings. 
+%
+These gaps motivate a benchmark that is cross-paradigm, deterministic, density-aware, and domain-diverse: one that can fairly compare models, reveal how performance changes from sparse views to dense streams, and diagnose where current spatial foundation models succeed or fail.
+
+To address the aforementioned challenges, we introduce \textbf{\benchmark}. 
+%
+By incorporating a deterministic density-aware protocol, broad domain diversity, and cross-paradigm comparisons, this comprehensive benchmark serves as a beacon to guide and verify spatial foundation models toward becoming true \textbf{all-round players}.
+%
+\benchmark is built around three core design principles:
+%
+\noindent\textbf{(1) Deterministic Multi-Density Evaluation Protocol.}
+To systematically assess model robustness across varying input scales, \benchmark adopts a deterministic sampling strategy to precompute frame indices across \textbf{4} distinct density regimes: \textit{single-frame}, \textit{sparse}, \textit{medium}, and \textit{dense}. 
+%
+By evaluating each scene under these standardized configurations across several key metrics, our protocol ensures both a comprehensive understanding of model performance and full reproducibility across different paradigms.
+%
+\noindent\textbf{(2) Broad Domain Coverage Across 19 Datasets.}
+%
+\benchmark aggregates \textbf{19} datasets and \textbf{546} scenes in total, spanning a comprehensive range of conditions, including \textit{indoor} and \textit{outdoor} environments, \textit{static} and \textit{dynamic} scenes, \textit{real-world} and \textit{synthetic} data, and diverse viewpoint types.
+%
+Each scene is annotated with orthogonal tags along these axes, enabling fine-grained cross-domain filtering and aggregation, supporting over 100 distinct evaluation configurations that far exceed any existing benchmark.
+%
+\noindent\textbf{(3) Comprehensive and Cross-Paradigm Model Comparison.}
+%
+\benchmark provides unified adapters for \textbf{31} state-of-the-art models and \textbf{41} variants in total, spanning all six reconstruction paradigms: \textit{optimization-based}, \textit{end-to-end feed-forward}, \textit{online streaming}, \textit{chunk-wise}, \textit{TTT-based}, and \textit{SLAM-based} systems.
+%
+All methods are evaluated under a unified protocol, enabling fair and direct comparison across several geometric tasks, including \textit{depth} and \textit{camera pose estimation}, \textit{reconstruction}, \textit{prior-enhanced geometry prediction}, and \textit{trajectory estimation}.
+
+We further conduct extensive analysis experiments on \benchmark, revealing several key insights:
+\textbf{(1) Full-context attention defines the accuracy upper bound}, with globally coupled feed-forward models consistently outperforming bounded-memory approaches under the same input budget.
+%
+\textbf{(2) Bounded-memory models unlock long-horizon scalability}, enabling continuous reconstruction beyond the memory limits of full-context models, at the cost of geometry estimation accuracy.
+%
+\textbf{(3) Data quality outweighs data volume}, as carefully curated pseudo-GT supervision consistently outperforms larger but noisier training mixtures.
+%
+\textbf{(4) Egocentric and wrist-view domains remain the dominant OOD failure modes}, exposing a field-level gap that cannot be addressed by scaling existing training mixtures alone.
+
+
+To further address the gap in egocentric and wrist-view domains, we curate \textbf{\dataset}, a dataset comprising \textbf{22K} scenes with \textbf{5.5M} frames of 3D data in total from egocentric and robot wrist-view sources. 
+%
+We train our proposed \textbf{Depth-Anything-Next} (\ours) on \dataset, establishing a strong domain-specific baseline for these underexplored viewpoints.
+%
+The key contributions of our work are summarized as follows.
+\begin{itemize}
+    \item \benchmark is the first standardized benchmark for comprehensive evaluation of 3D spatial foundation models on several geometry tasks, aggregating 19 diverse datasets and 546 scenes, and providing unified adapters for 32 methods and 41 variants across all six paradigms.
+    \item Through extensive experiments on \benchmark, we conduct a comprehensive cross-paradigm analysis and derive key insights into model robustness, domain generalization, and input-density scaling behavior, highlighting promising directions for future research.
+    \item Experiments show that \ours achieves substantial gains over DA3-Giant: $+47\%$/$+59\%$ in depth estimation and $+3.1\%$/$+5.5\%$ in pose estimation on sparse/medium inputs, demonstrating that targeted in-domain data curation effectively closes the embodied domain gap.
+\end{itemize}

@@ -1,0 +1,91 @@
+% \section{Preliminaries}
+
+% \subsection{Feed-Forward Reconstruction Models}
+
+% \subsection{}
+
+
+
+
+
+
+
+
+% \section{Preliminaries}
+% \label{sec:prelim}
+% In this section, we introduce the problem setting and the key components of our approach. We begin by formalizing the given task and then introduce two pipeline designs for image restoration and geometry estimation.
+
+% \subsection{Task Formulation}
+% Given a set of degraded multi-view images $\mathbf{I}_{\mathrm{deg}} \in \mathbb{R}^{V \times H \times W \times 3}$, where $V$ denotes the number of views, our objective is to recover both the restored images $\mathbf{I}_{\mathrm{res}} \in \mathbb{R}^{V \times H \times W \times 3}$ and the underlying scene geometry $\mathbf{G} = (\mathbf{D}, \mathbf{C})$. Here, $\mathbf{D} \in \mathbb{R}^{V \times H \times W \times 1}$ and $\mathbf{C} \in \mathbb{R}^{V \times 9}$ denote the per-view depth maps and corresponding camera poses, respectively. To this end, we employ a feed-forward reconstructor $\mathcal{F}(\cdot)$ and a restoration denoiser $\mathcal{S}(\cdot)$, and investigate two pipeline designs for image restoration and geometry estimation.
+
+% \subsection{Pixel-Level Denoising Pipeline}
+% A straightforward approach is to adopt a restore-and-reconstruct pipeline, in which degraded inputs are first processed by a denoiser to produce restored images, $\mathbf{I}_{\mathrm{res}} = \mathcal{S}(\mathbf{I}_{\mathrm{deg}})$, which are subsequently fed into the feed-forward reconstructor $\mathcal{F}(\cdot)$ for geometry estimation:
+% \begin{equation}
+% \mathbf{G} = \mathcal{F}(\mathbf{I}_{\mathrm{res}}),
+% \quad \text{where} \quad
+% \mathbf{I}_{\mathrm{res}} = \mathcal{S}\big(\mathbf{I}_{\mathrm{deg}}\big).
+% \end{equation}
+% The denoiser $\mathcal{S}(\cdot)$ is instantiated using existing image restoration models~\cite{zamir2022restormer, hidiff, instructir}.
+
+% While simple, this design exhibits two key limitations: (1) most image restoration methods~\cite{zamir2022restormer, hidiff, instructir} are designed for single-view inputs; thus, applying $\mathcal{S}(\cdot)$ independently to each view fails to exploit multi-view information and enforce cross-view geometric consistency during denoising; (2) although a recent approach~\cite{mao2025sir} extends restoration to the multi-view setting, it operates in a heavily compressed latent space~\cite{kingma2013auto}, introducing an information bottleneck that limits the representation of geometric structures and fine-grained details critical for 3D reconstruction.
+
+% \subsection{Representation-Level Denoising Pipeline}
+% To address the aforementioned limitations, we propose performing denoising directly in the representation space of the feed-forward reconstructor $\mathcal{F}(\cdot)$. This design is inspired by Representation Autoencoders (RAEs)~\cite{zheng2025diffusion}, which demonstrate that high-dimensional, semantically rich representations better preserve both global structure and local details than conventional latent spaces. Motivated by this insight, we move beyond image-space and conventional VAE-based formulations and instead exploit the feature space of feed-forward reconstruction models as a more suitable domain for denoising.
+
+% Specifically, we integrate the denoiser $\mathcal{S}(\cdot)$ within the feed-forward reconstructor $\mathcal{F}(\cdot)$ to operate on intermediate feature representations. The degraded input $\mathbf{I}_{\mathrm{deg}}$ is first encoded into a feature representation $\mathbf{Z}_{\mathrm{deg}}$, on which denoising is applied to obtain $\mathbf{Z}_{\mathrm{res}}$, followed by geometry estimation:
+% \begin{equation}
+% \mathbf{G} = \mathcal{F}(\mathbf{Z}_{\mathrm{res}}),
+% \quad \text{where} \quad
+% \mathbf{Z}_{\mathrm{res}} = \mathcal{S}\big(\mathcal{F}_{\mathrm{enc}}(\mathbf{I}_{\mathrm{deg}})\big).
+% \end{equation}
+
+
+
+
+
+
+% \section{Preliminaries}
+
+
+% \subsection{Feed-forward Reconstruction Models}
+% \label{subsec:prelim_ff3d}
+
+% Given a set of multi-view images $\mathbf{I} = \{\mathbf{I}_v\}_{v=1}^{V}$, their 3D geometry $\mathbf{G}$, comprising per-view depth maps $\mathbf{D} =\{\mathbf{D}_v\}_{v=1}^{V}$ and camera poses $\mathbf{C} = \{\mathbf{C}_v\}_{v=1}^{V}$, is obtained using a feed-forward reconstructor $\mathcal{F}$:
+% \begin{equation}
+% \mathbf{G} = (\mathbf{D}, \mathbf{C}) = \mathcal{F}(\mathbf{I}),
+% \end{equation}
+% where $\mathbf{I} \in \mathbb{R}^{V \times H \times W \times 3}$, $\mathbf{D} \in \mathbb{R}^{V \times H \times W \times 1}$, and $\mathbf{C} \in \mathbb{R}^{V \times 9}$, with the camera pose components: translation $\mathbf{t} \in \mathbb{R}^3$, rotation quaternion $\mathbf{q} \in \mathbb{R}^4$, and field of view $\mathbf{f} \in \mathbb{R}^2$.
+
+% The reconstructor $\mathcal{F}$ consists of an $L$-layer multi-view encoder $\mathcal{E}$ and two task-specific heads: a depth head $\mathcal{H}_d$ and a camera head $\mathcal{H}_c$. First, the encoder produces per-layer multi-view representations:
+% \begin{equation}
+% \{\mathbf{x}^{(\ell)}\}_{\ell=1}^{L} = \mathcal{E}(\mathbf{I}),
+% \end{equation}
+% where each $\mathbf{x}^{(\ell)} = \{\mathbf{x}_i^{(\ell)}\}_{i=1}^{V}$ denotes the representation at layer $\ell$ with $\mathbf{x} \in \mathbb{R}^{V \times N_{\mathrm{all}} \times d}$. These multi-view representations are then passed to their respective depth and camera heads to obtain depth and camera pose. Specifically, the depth head $\mathcal{H}_d$ aggregates representations from a set of intermediate layers $\mathcal{S} \subset \{1,\dots,L\}$, while the camera head uses the final-layer representation $\mathbf{x}^{(L)}$:
+% \begin{equation}
+% \mathbf{D} = \mathcal{H}_d\!\left(\{\mathbf{x}^{(\ell)}_{\mathrm{patch}}\}_{\ell \in \mathcal{S}}\right),
+% \qquad
+% \mathbf{C} = \mathcal{H}_c\!\left(\mathbf{x}^{(L)}_{\mathrm{cam}}\right),
+% \end{equation}
+% where $\mathbf{x}^{(\ell)}_{\mathrm{patch}} \in \mathbb{R}^{V \times N_\mathrm{patch}\times d}$ denotes the patch tokens and 
+% $\mathbf{x}_{\mathrm{cam}} \in \mathbb{R}^{V \times N_{\mathrm{cam}} \times d}$ denotes the $[\mathrm{CLS}]$ camera token. $V=1$ corresponds to the monocular case and $V>1$ to the multi-view setting, 
+% $N_{\mathrm{all}} = N_{\mathrm{patch}} + N_{\mathrm{cam}}$ denotes the total number of latent tokens per view, consisting of patch tokens and a camera token, and $d$ is the encoded feature dimension. 
+
+
+
+% \subsection{Diffusion process}
+% \label{subsec:prelim_diffusion}
+% We adopt a continuous-time diffusion framework based on flow matching. Let $\mathbf{z} \sim p_{\mathrm{data}}(\mathbf{z})$ denote samples from the data distribution and $\mathbf{\epsilon} \sim \mathcal{N}(0, \mathbf{I})$ denote Gaussian noise. A linear interpolation probability path is defined as
+% \begin{equation}
+%     \mathbf{z}_t = (1 - t)\mathbf{z} + t\mathbf{\epsilon},
+%     \quad t \in [0,1].
+% \end{equation}
+% Following~\cite{lipman2022flow, liu2022flow}, 
+% a neural network $v_\theta(\mathbf{z}_t, t)$ is trained to predict
+% the corresponding velocity field under the flow matching objective:
+% \begin{equation}
+%     \mathcal{L}_{\mathrm{flow}} = \mathbb{E}_{\mathbf{z}, \mathbf{\epsilon}, t} \left[ \left\| v_\theta(\mathbf{z}_t, t) - (\mathbf{\epsilon} - \mathbf{z}) \right\|_2^2 \right].
+% \end{equation}
+% % Additional details on the ODE/SDE formulation are provided in the supplementary material.
+
+
+

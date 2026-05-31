@@ -1,0 +1,325 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "00README.XXX"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ailablogo.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "colm2025_conference.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "colm2025_conference.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "custom.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fancyhdr.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/ATBench_family.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/ATBench_fine.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/abs_acc.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentdog_app2.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentdog_app2_cropped.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentdog_prompt_coarsegrained.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentdog_prompt_finegrained.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentic-sft3.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentic_data_dis.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentic_data_dis_replicated_close_nocollision_v2_cropped.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/agentic_data_dis_replicated_close_nocollision_v6_cropped.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/app2_agentdog.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/benchmark/benchmark_distribution.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/benchmark/distribution_comparison.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/big_agent_guard_tr_st_new.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/combined_coarse_fine_Acc_with_logo.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/dataengine.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/distribution_comparison.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/env.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/env_scal.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/intro-fig.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/logo.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/logo/GitHub_Invertocat_Black_Clearspace.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/logo/hf-logo.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/logo/hf-logo.svg"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/logo/modelscope.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/openclaw_pre_reply_guardrail.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/openclaw_pre_reply_guardrail_editable.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline_1.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline_kawaii.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline_mul.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline_mul.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline_old.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipeline_sim.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipline_env.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pipline_env2.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pre_reply_guardrail_framework_v04.jpg"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/pre_reply_guardrail_framework_v07.jpg"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/radarrl.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/raddarrl.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/safety_env.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/safety_env_pipeline.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/section4.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/section4_see.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/taxonomy_customize.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/v1p5taskdefinition-crop.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/xai_attribution_agent_dog.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/xai_attribution_comparison.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "natbib.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/agentdog_app2.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/agentdog_app2_cropped.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/agentdog_prompt_coarsegrained.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/agentdog_prompt_finegrained.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/agentguard.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/agentic_xai.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/appendix_app1.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/appendix_benchmark.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/appendix_dogtemplate.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/appendix_env.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/appendix_eval.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/appendix_taxonomy.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/application1.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/application2.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/authorship.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/conclusion.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/evaluation.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/intro-fig.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/introduction.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/related_work.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/safety_taxonomy.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

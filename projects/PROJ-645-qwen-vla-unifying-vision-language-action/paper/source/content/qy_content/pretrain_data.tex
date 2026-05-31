@@ -1,0 +1,37 @@
+\label{sec:data}
+
+The quality and diversity of the pretraining corpus directly determine how well
+the cognitive backbone and motor decoder co-adapt across embodiments and task
+families.
+We construct a large and heterogeneous pretraining mixture to equip the model
+with broad embodied perception, spatial reasoning, and action generation
+capabilities.
+The mixture spans five data families: robot manipulation trajectories, human
+egocentric demonstrations, synthetic simulation data, navigation and
+trajectory-centric data, and auxiliary vision-language data.
+Table~\ref{tab:data} summarizes the composition and sampling weights of each
+source.
+
+\begin{table}[h]
+\centering
+\caption{Pretraining data mixture composition.}
+\label{tab:data}
+\begin{tabular}{lc}
+\toprule
+\textbf{Data Source} & \textbf{Proportion (\%)} \\
+\midrule
+Robot Manipulation Trajectories      & 74.2 \\
+Human Egocentric Trajectories                & 6.0  \\
+Navigation Trajectories                     & 7.5  \\
+Synthetic Simulation Trajectories (ours)            & 3.7  \\
+General Vision-Language Data         & 3.4  \\
+Spatial Grounding (2D)               & 2.5  \\
+Autonomous Driving VQA               & 2.4  \\
+Fine-Grained Embodied Action Caption & 0.2  \\
+\midrule
+\textbf{Total}                       & \textbf{100.0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{content/qy_content/robotics_manipulation_trajectories}

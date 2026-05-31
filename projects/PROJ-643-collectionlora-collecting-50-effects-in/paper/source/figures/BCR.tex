@@ -1,0 +1,45 @@
+\begin{figure}[htbp]
+\centering
+\begin{tcolorbox}[
+    colback=gray!5!white,      % 极浅的灰色背景，不刺眼
+    colframe=gray!60!black,    % 边框颜色
+    title=\textbf{Prompt for BCR Metric Evaluation}, % 文本框标题
+    fonttitle=\sffamily\bfseries,
+    boxrule=0.8pt,             % 边框粗细
+    arc=3pt,                   % 边框圆角
+    left=8pt, right=8pt, top=8pt, bottom=8pt % 内部边距
+]
+\small % 使用较小的字体以节省空间并区分正文
+
+You are an expert data evaluator specializing in assessing image special-effect editing. You will receive four sets of input information:
+
+\begin{enumerate}
+    \item \textbf{Editing Instruction}: Text describing the desired editing effect.
+    \item \textbf{Reference Template Image Pair} (including the ``Template Source Image'' and ``Template Result Image''): Serves as the Visual Ground Truth, defining the ideal transformation logic and stylistic standard for the instruction.
+    \item \textbf{Test Image Pair} (including the ``Test Source Image'' and ``Test Result Image''): The target subject for evaluation.
+    \item \textbf{Expert Evaluation Criteria}: Standards defined by experts to assess whether the test images meet the specified requirements.
+\end{enumerate}
+
+Your sole task is to determine whether the test image pair is a \textbf{Bad Case} based on the expert evaluation criteria and the transformation logic demonstrated by the reference template. 
+
+\textit{Note:} Do not overly focus on the texture or minor details of the test image pair. A case should only be judged as a ``bad case'' if there is a clear and explicit violation of the expert evaluation criteria.
+
+\vspace{0.5em}
+\noindent\textbf{Output Format Requirements:}\\
+Please output strictly in standard JSON format. Do not include Markdown code blocks (e.g., \texttt{```json ... ```}) or any other textual explanation. The JSON structure is as follows:
+
+\begin{verbatim}
+{
+    "brief_reasoning": "Briefly state the reasoning based on the 
+                criteria (under 20 words).",
+    "is_bad_case": <true/false>
+}
+\end{verbatim}
+
+\noindent Current Editing Instruction: \texttt{"\{\}"} \\
+Current Expert Evaluation Criteria: \texttt{"\{\}"}
+
+\end{tcolorbox}
+\caption{The prompt template used for querying the Multimodal Large Language Model (MLLM) to evaluate the BCR metric.}
+\label{fig:bcr_prompt}
+\end{figure}

@@ -1,0 +1,180 @@
+\begin{table*}[h]
+\caption{\textbf{Quantitative depth estimation results.} We report AbsRel$\downarrow$ and $\delta_1\uparrow$ on the DA3 benchmark~\cite{depthanything3} using the DA3-BASE~\cite{depthanything3} checkpoint as the feed-forward 3D reconstruction model. The best result is highlighted in \textbf{bold} and the second best is \underline{underlined}.}
+\label{supple_tab:da3_base_depth}
+\centering
+%\setlength{\tabcolsep}{5pt}
+%\renewcommand{\arraystretch}{1.1}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccc ccccc ccccc ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c}{\textbf{HiRoom}}
+& \multicolumn{2}{c}{\textbf{ETH3D}}
+& \multicolumn{2}{c}{\textbf{DTU}}
+& \multicolumn{2}{c}{\textbf{7Scenes}}
+& \multicolumn{2}{c}{\textbf{ScanNet$++$}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$ \\
+\midrule
+
+\textit{Input Conditions} \\
+\midrule
+% HQ Input
+% & 0.012 & 99.4
+% & 0.021 & 99.70
+% & 0.055 & 95.2
+% & 0.062 & 93.7
+% & 0.035 & 97.5 
+% \\
+
+HQ Input
+&    0.039   &       98.28
+&    0.035   &      98.89
+&    0.051   &      97.13
+&    0.068  &       93.50
+&    0.044   &       97.08
+\\
+
+
+% LQ Input
+% & 0.191 & 78.6
+% & 0.087 & 90.4
+% & 0.061 & 94.5
+% & 0.137 & 81.9
+% & 0.092 & 89.5 
+% \\
+
+LQ Input
+&   0.195    &       77.75
+&   0.124    &      84.75
+&   0.057   &       95.66
+&   0.144    &      79.19
+&   0.123    &      85.07
+\\
+
+
+
+\midrule
+
+\textit{Single-View Restoration} \\
+\midrule
+
+% Restormer~\cite{zamir2022restormer}
+% & 0.21 & 74.1
+% & 0.14 & 82.2 
+% & 0.061 & 94.6
+% & 0.117 & 85.0
+% & 0.097 & 89.1 
+% \\
+
+Restormer~\cite{zamir2022restormer}
+&   0.202    &      76.56
+&   0.147    &      80.91
+&   0.057    &       95.71
+&   0.119    &      84.47
+&   \underline{0.112}    &      \underline{86.36}
+\\
+
+
+% HI-Diff~\cite{chen2023hierarchical}
+% & 0.2389 & 70.2
+% & 0.105 & 86.3  
+% & 0.065 & 93.8
+% & 0.131 & 82.2
+% & 0.097 &  89.2 
+% \\
+
+HI-Diff~\cite{chen2023hierarchical}
+&   0.237    &       71.45
+&   0.122    &       84.88
+&   0.063    &       94.36
+&   0.143    &       80.08
+&   0.131    &       84.02
+\\
+
+% InstructIR~\cite{conde2024high}
+% & 0.227 & 71.7
+% & 0.142 & 81.3 
+% & \textbf{0.056} & 95.0
+% & 0.124 & 83.3
+% & 0.128 &  83.4 
+% \\
+
+InstructIR~\cite{conde2024high}
+&   0.215    &       74.66
+&   0.142    &       81.43
+&   \underline{0.054}   &      \underline{95.94}
+&   0.123    &       83.69
+&   0.143    &       82.27
+\\
+
+
+MoCE-IR~\cite{zamfir2024complexityexperts}
+&  0.186     &       79.12
+&  0.124     &       85.07
+&  \textbf{0.053}     &       \textbf{96.16}
+&  0.132     &       81.52
+&  0.122    &        85.51
+\\
+
+
+\midrule
+\textit{Multi-View Restoration} \\
+\midrule
+
+VRT~\cite{liang2024vrt}
+&   0.195    &      77.72
+&   \underline{0.122}    &      \underline{85.24}
+&   0.056    &      95.93
+&   0.147    &      78.14
+&   0.125    &      84.70
+\\
+
+
+FMA-Net~\cite{Youk_2024_CVPR}
+&   0.251    &       69.54
+&   0.137    &       82.12
+&   0.063    &       95.13
+&   0.178    &       73.26
+&   0.159    &       79.07
+\\
+
+
+VAE$_\text{MVD}$
+&    \underline{0.099}   &       \underline{92.80}
+&    0.248   &       63.74
+&    \underline{0.054}   &       95.85
+&    \underline{0.106}   &       \underline{87.43}
+&    0.160   &        77.57
+\\
+
+
+
+% \textbf{GARD (Ours)}
+% & \textbf{0.201} & \textbf{97.2}
+% & \textbf{0.036} & \textbf{98.4}
+% & \underline{0.057} & \textbf{95.1}
+% & \textbf{0.0707} & \textbf{92.7}
+% & \textbf{0.040} & \textbf{96.7}  
+% \\
+
+\textbf{GARD$_\text{BASE}$ (Ours)}
+&   \textbf{0.079}    &   \textbf{95.04}
+&   \textbf{0.063}    &   \textbf{95.54}
+&   0.060    &   95.23
+&   \textbf{0.081}   &    \textbf{91.60}
+&   \textbf{0.059}    &   \textbf{95.76}
+\\
+
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+

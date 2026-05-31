@@ -1,0 +1,115 @@
+\begin{table*}[t]
+\caption{\textbf{Quantitative restoration results.} We report PSNR$\uparrow$ and LPIPS$\downarrow$ for image restoration on the DA3 benchmark~\cite{depthanything3}, comparing single-view and multi-view restoration approaches. The best result is highlighted in \textbf{bold} and the second best is \underline{underlined}.}
+\label{tab:image_metric}
+\centering
+%\setlength{\tabcolsep}{3pt}
+%\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccc ccccc ccccc ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c}{\textbf{HiRoom}}
+& \multicolumn{2}{c}{\textbf{ETH3D}}
+& \multicolumn{2}{c}{\textbf{DTU}}
+& \multicolumn{2}{c}{\textbf{7Scenes}}
+& \multicolumn{2}{c}{\textbf{ScanNet$++$}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+
+& PSNR$\uparrow$ & LPIPS$\downarrow$
+& PSNR$\uparrow$ & LPIPS$\downarrow$
+& PSNR$\uparrow$ & LPIPS$\downarrow$
+& PSNR$\uparrow$ & LPIPS$\downarrow$
+& PSNR$\uparrow$ & LPIPS$\downarrow$ \\
+% \midrule
+
+% \textit{Input Conditions} \\
+% \midrule
+
+% LQ
+% &  &  &  &  &  &  &  &  &  &  \\
+
+\midrule
+
+\textit{Single-View Restoration} \\
+\midrule
+Restormer~\cite{zamir2022restormer}
+& 17.49 & 0.544
+& 20.97	& 0.672
+& 17.73 & 0.588
+& 21.30 & {0.428}
+& 21.50 & 0.415  \\
+
+HI-Diff~\cite{chen2023hierarchical}
+& 17.35 & 0.551
+& 20.45 & \underline{0.586}
+& 17.39  & 0.591
+& 19.82	& {0.428}
+& 20.68 & 0.413  \\
+
+InstructIR~\cite{conde2024high}
+& 17.51 & 0.549
+& 20.93	& 0.666
+& 20.38 & 0.558
+& 20.93 & 0.440
+& 21.15 & 0.402  \\
+
+MoCE-IR~\cite{zamfir2024complexityexperts}
+& 17.69  &    0.560
+& 21.00  &    0.611
+&  20.38 &    0.562
+&  20.60 &    0.491
+&  \underline{21.19} &    0.431
+\\
+
+
+\midrule
+\textit{Multi-View Restoration} \\
+\midrule
+
+VRT~\cite{liang2024vrt}
+& 17.47  &    0.562
+& 20.82  &    0.606
+& 17.61  &    0.606
+& 19.79  &    0.510
+& 20.83  &     0.437
+\\
+
+FMA-Net~\cite{Youk_2024_CVPR}
+& 17.14 &   0.551
+& 20.65 &   \textbf{0.571}
+& 17.13 & 0.572
+& 18.84 & 0.534
+& 19.98 & 0.455
+\\
+
+% MVRM$_\text{VAE}$
+% VAE$_\text{MVD}$
+% &  19.11 &	0.443
+% &  21.25	& 0.640
+% &  20.47	& 0.450
+% &  21.55 &	0.417
+% & 21.06 & 	0.384  \\
+
+
+% MVRM$_\text{VAE (70K)}$
+VAE$_\text{MVD}$
+&    \underline{19.76}	&   \underline{0.493}
+&     \underline{21.37}	&   0.638
+&    \underline{20.54}	&  \underline{0.434}
+&     \underline{21.74}	&   \underline{0.404}
+&    \underline{21.19}	&  \underline{0.379} \\
+
+
+\textbf{GARD (Ours)}
+% \textbf{MVRM$_\text{GARD}$ (Ours)}
+& \textbf{21.89}	& \textbf{0.362}
+& \textbf{21.88}	& {0.635}
+& \textbf{21.25} & \textbf{0.418}
+& \textbf{22.67} &	\textbf{0.249}
+& \textbf{22.19} & \textbf{0.345} \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}

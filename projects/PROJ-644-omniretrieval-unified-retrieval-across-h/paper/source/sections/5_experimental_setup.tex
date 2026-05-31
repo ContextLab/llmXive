@@ -1,0 +1,69 @@
+\section{Experimental Setup}
+
+\subsection{Datasets and Knowledge Bases}
+
+We evaluate OmniRetrieval on a benchmark compiled from 13 datasets that, in combination, span all four native backends, and that together provide a pool of 309 distinct knowledge bases.
+
+\vspace{-0.075in}
+\paragraph{Document Search}
+For document retrieval over unstructured corpora, whose task is to identify documents that are most relevant to a natural-language query, we use seven datasets of various domains from the BEIR benchmark~\citep{BEIR}: NFCorpus (medical)~\citep{NFCorpus}, SciFact (scientific claim verification)~\citep{SciFact}, FiQA~\citep{FiQA} (financial question answering), MS MARCO (web passages)~\citep{MSMARCO}, FEVER (Wikipedia fact verification)~\citep{FEVER}, Natural Questions (short-answer question answering)~\citep{NQ}, and HotpotQA~\citep{HotpotQA} (multi-hop question answering). Each document collection itself serves as a knowledge base.
+
+\vspace{-0.075in}
+\paragraph{Relational Databases}
+For text-to-SQL, the task of translating a natural-language question into a SQL query over a relational database, we use Spider~\citep{Spider} and BIRD~\citep{Bird}: Spider brings 206 databases across diverse domains, and BIRD brings a further 80 databases from real-world applications, yielding 286 knowledge bases in total, with each provided as a SQLite database against which the SQL is executed.
+
+\vspace{-0.075in}
+\paragraph{RDF Knowledge Graphs}
+For text-to-SPARQL, the task of translating a natural-language question into an executable SPARQL query over an RDF knowledge graph (a structured store of subject-predicate-object triples), we use the following three datasets: SimpleQuestions~\citep{SimpleQuestions} for single-triple factoid questions, QALD-10~\citep{QALD10} for hand-curated questions covering factoid and aggregation queries, and LC-QuAD 2.0~\citep{LCQuAD2} for large-scale, compositional questions. As the largest publicly-queryable RDF knowledge graph and the standard target of modern SPARQL benchmarks, Wikidata is the single knowledge base in this backend, against whose public SPARQL endpoint\footnote{\url{https://query.wikidata.org/sparql}} the query is executed.
+
+\vspace{-0.075in}
+\paragraph{Labeled Property Graphs}
+For text-to-Cypher, the task of translating a natural-language question into a Cypher query over a property graph (whose nodes and edges carry typed labels along with key-value properties dictated by the graph-specific data model), we use Text2Cypher~\citep{Text2Cypher}, which spans 15 graphs from the Neo4j collection, covering various domains (such as movie recommendations, company structures, social networks, and financial investigations), with the generated query executed against the Neo4j endpoint\footnote{\url{neo4j+s://demo.neo4jlabs.com:7687}}.
+
+For each dataset, we sample 300 questions for evaluation. The structural context $c_b$ is a topical descriptor for document collections and a schema for each structured backend (such as relational databases, RDF knowledge graphs, and labeled property graphs); example queries and the verbatim form of each $c_b$ are in Appendix~\ref{sec:appendix_context}.
+
+\subsection{Methods}
+
+We compare OmniRetrieval against three groups of baselines, while holding the backbone model and per-backend execution engines fixed so that any difference traces to how each method engages the pool of sources.
+
+\vspace{-0.025in}
+\paragraph{Single-Backend Baselines}
+We first include four baselines that pin the pipeline to a single retrieval paradigm and operate on every query irrespective of the underlying knowledge. Specifically, \textbf{Document Search} answers a question through retrieval over an unstructured corpus; \textbf{Text-to-SQL} formulates a SQL query against a relational database; \textbf{Text-to-SPARQL} formulates a SPARQL query against an RDF knowledge graph; and \textbf{Text-to-Cypher} formulates a Cypher query against a labeled property graph. For a fair comparison with our framework, the knowledge base within each paradigm is selected per query in the same manner.
+
+\vspace{-0.025in}
+\paragraph{KB Routing}
+We further include a baseline that, unlike the four above, lets the model choose any backend per query: it reads the catalog of source descriptors jointly with the question and routes to a single knowledge base, after which query formulation and execution proceed on that source.
+
+\vspace{-0.025in}
+\paragraph{OmniRetrieval}
+This is the proposed framework, which engages multiple candidate sources: given a question, it reads the source catalog and returns a short list of candidates (e.g., 3), formulates a native query for each, executes them, and consolidates the results through cross-source evidence selection.
+
+\vspace{-0.025in}
+\paragraph{Oracle}
+As a non-comparable upper bound, this method achieves perfect source selection, using the gold knowledge base annotated in each sample and leaving only query formulation and execution.
+
+\vspace{-0.025in}
+\paragraph{Unified-Representation}
+A direct comparison against methods that collapse heterogeneous sources into a unified representation~\citep{UniK, UDT, DiFaR} is not realizable, since materializing such a representation is already infeasible at our benchmark scale, itself a small slice of real-world deployments. For example, while Wikipedia underlies several of our corpora at 7 million passages, Wikidata holds well over 15 billion triples\footnote{\url{https://www.wikidata.org/}}, several orders of magnitude beyond typical dense indexes. The same gap recurs for labeled property graphs, where paths (the natural retrieval unit) grow exponentially with hop length and three-hop paths on one graph in our pool already reach tens of billions; and for relational databases, where one database in our pool holds over 70 million rows while row-level encoding further discards joins and set operations SQL is meant to express. Nonetheless, we report these methods under a feasibility-constrained setup in Table~\ref{tab:constrained_baseline}.
+
+\subsection{Evaluation Metrics}
+
+We utilize three metrics covering source selection, retrieval quality, and a soft, judge-based assessment, all macro-averaged across the four native retrieval paradigms so that each contributes equally.
+
+\vspace{-0.025in}
+\paragraph{Source Selection Accuracy}
+It measures how often a method selects and includes both the correct backend and knowledge base for each question.
+
+\vspace{-0.025in}
+\paragraph{Retrieval Accuracy}
+It evaluates the quality of retrieved results: \textbf{NDCG@10} for document search (how well the retrieved ranking matches the gold relevance annotations), and \textbf{Execution Match} for SQL, SPARQL, and Cypher (whether the executed result set matches that of the gold query).
+
+\vspace{-0.025in}
+\paragraph{LLM-as-a-Judge}
+The metrics above are strict: they require the predicted output to match the gold reference exactly, penalizing both the surface-form differences (such as a passage versus a table row) and the selection to a legitimately alternative source. To complement them with a softer signal that tolerates these surface differences, we use an \textbf{LLM-as-a-Judge}~\citep{GEval} with GPT-5.4-mini~\citep{GPT-54}: the judge sees the question, the prediction, and the gold annotation, and credits the prediction whenever the predicted output is semantically equivalent to gold or faithfully realizes the question against an alternative knowledge base.
+
+\subsection{Implementation Details}
+
+For each comparison, we instantiate all methods with the same backbone, which spans GPT-5.4~\citep{GPT-54}, Gemini-3.1 (Pro)~\citep{Gemini31Pro}, Sonnet-4.6~\citep{Sonnet46}, Qwen-3.5 (27B)~\citep{Qwen3.5}, and Gemma-4 (31B)~\citep{Gemma4}, where closed-source backbones are served through their APIs, while open-source ones are served locally with vLLM~\citep{vLLM}. For document retrieval, we use \texttt{all-MiniLM-L6-v2}~\citep{SBERT} as the shared encoder, but, instead of embedding the question directly, it is first rewritten into a hypothetical passage and then embedded. For text-to-SPARQL, the entity-linking step follows the procedure from~\citet{ToG}, used to build the context $c_b$. Further implementation details are in Appendix~\ref{sec:appendix_implementation}, and the prompts are in Appendix~\ref{sec:appendix_prompts}.
+
+\input{tables/main_table}

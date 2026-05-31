@@ -1,0 +1,90 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Per-Dataset Results on Lingbot-Depth}.
+Only metrics available for the \textit{Single Frame} regime are reported.
+The best, second-best, and third-best results in each column are highlighted in
+\colorbox{bestred}{deep blue}, \colorbox{secondorange}{medium blue}, and \colorbox{thirdyellow}{light blue}, respectively.
+Within each sub-category, the \textbf{bold} value marks the in-group best.
+Note that \ours (Ours) is excluded from the per-column rankings.
+}
+\label{tab:dataset_lingbot}
+\resizebox{0.5\textwidth}{!}{%
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c >{\columncolor{subcol}}c}
+\toprule
+\multirow{2.5}{*}{\textbf{Method}}
+& \multirow{2.5}{*}{\makecell{\textbf{\#Params}\\\textbf{(M)}}}
+& \multicolumn{6}{c}{\textbf{Depth}} \\
+\cmidrule(lr){3-8}
+ & & AbsRel$\downarrow$ & SqRel$\downarrow$ & RMSE$\downarrow$ & $\delta_{1.03}\uparrow$ & $\delta_{1.05}\uparrow$ & $\delta_{1.10}\uparrow$ \\
+\midrule
+% =========================================================
+\multicolumn{8}{c}{\cellcolor{catgray}\textbf{Optimization-based}} \\
+\midrule
+ DUSt3R & 571.2 & \textbf{0.949} & \textbf{18.34} & \textbf{0.836} & 0.308 & 0.439 & 0.636 \\
+ MASt3R & 688.6 & 1.227 & 35.58 & 0.911 & \textbf{0.349} & \textbf{0.485} & \textbf{0.682} \\
+\midrule
+% =========================================================
+\multicolumn{8}{c}{\cellcolor{catgray}\textbf{End-to-End Feed-Forward}} \\
+\midrule
+ VGGT & 1257 & \cellcolor{thirdyellow}0.428 & \cellcolor{secondorange}2.572 & 0.692 & 0.387 & 0.519 & 0.709 \\
+ Fast3R & 647.5 & 0.804 & 11.42 & 0.826 & 0.285 & 0.390 & 0.543 \\
+ FastVGGT & 1158 & \cellcolor{secondorange}0.424 & \cellcolor{bestred}\textbf{2.505} & 0.692 & 0.388 & 0.520 & 0.710 \\
+ MUSt3R & 423.4 & 1.110 & 30.18 & 0.831 & 0.368 & 0.484 & 0.681 \\
+ MapAnything & 1228 & 1.326 & 42.33 & 0.784 & 0.423 & 0.571 & 0.749 \\
+ OmniVGGT & 1217 & \cellcolor{bestred}\textbf{0.419} & \cellcolor{thirdyellow}2.593 & \textbf{0.614} & 0.428 & 0.557 & 0.751 \\
+ $\pi^{3}$ & 958.7 & 1.485 & 59.37 & 0.793 & \cellcolor{secondorange}\textbf{0.480} & \cellcolor{bestred}\textbf{0.622} & \cellcolor{thirdyellow}0.771 \\
+ $\pi^{3}$-X & 1360 & 1.118 & 31.36 & 0.674 & 0.461 & 0.592 & \cellcolor{bestred}\textbf{0.780} \\
+ AMB3R & 1563 & 1.453 & 54.6 & 0.762 & 0.439 & 0.572 & 0.750 \\
+ DA3-Small & 34.3 & 0.973 & 22.16 & 0.796 & 0.240 & 0.359 & 0.578 \\
+ DA3-Base & 135.4 & 0.875 & 18.38 & 0.661 & 0.338 & 0.480 & 0.694 \\
+ DA3-Large & 410.9 & 0.881 & 19.73 & 0.628 & 0.382 & 0.534 & 0.726 \\
+ DA3-Giant & 1356 & 1.034 & 26.41 & 0.693 & 0.440 & 0.586 & 0.744 \\
+ DA3-Nested & 1690 & 1.015 & 25.81 & 0.707 & 0.448 & 0.594 & 0.758 \\
+ WorldMirror & 1263 & 0.962 & 27.24 & 0.681 & 0.434 & 0.567 & 0.746 \\
+ VGGT-Omega & 1144 & 1.647 & 73.16 & 0.889 & 0.450 & 0.582 & 0.768 \\
+ \ours (Ours) & 1304 & 0.405 & 3.183 & 0.611 & 0.399 & 0.529 & 0.715 \\
+\midrule
+% =========================================================
+\multicolumn{8}{c}{\cellcolor{catgray}\textbf{Online}} \\
+\midrule
+ Spann3r$^{224}$ & 658.7 & 0.843 & 13.87 & 1.055 & 0.203 & 0.321 & 0.509 \\
+ CUT3R & 793.3 & \textbf{0.543} & \textbf{4.487} & 0.611 & 0.347 & 0.482 & 0.677 \\
+ MonST3R & 571.2 & 0.660 & 8.235 & 0.792 & 0.332 & 0.455 & 0.636 \\
+ Point3R & 828 & 0.988 & 23.95 & 0.766 & 0.300 & 0.422 & 0.632 \\
+ Stream3R-S & 1191 & 1.228 & 40.11 & 0.741 & \cellcolor{thirdyellow}\textbf{0.474} & \cellcolor{secondorange}\textbf{0.615} & \cellcolor{secondorange}\textbf{0.773} \\
+ Stream3R-W & 1191 & 1.228 & 40.11 & 0.741 & \cellcolor{thirdyellow}\textbf{0.474} & \cellcolor{secondorange}\textbf{0.615} & \cellcolor{secondorange}\textbf{0.773} \\
+ StreamVGGT & 1257 & 0.553 & 5.858 & \cellcolor{thirdyellow}0.611 & 0.399 & 0.528 & 0.727 \\
+ Page4D & 1257 & 0.566 & 6.851 & 0.734 & 0.355 & 0.474 & 0.667 \\
+ InfiniteVGGT & 1257 & 0.547 & 5.667 & \cellcolor{secondorange}\textbf{0.610} & 0.399 & 0.528 & 0.727 \\
+ Wint3R & 749.5 & 1.869 & 90.54 & 1.231 & 0.385 & 0.502 & 0.682 \\
+ LongStream-B & 1191 & 1.572 & 60.93 & 0.831 & 0.372 & 0.510 & 0.722 \\
+ LongStream-S & 1191 & 1.572 & 60.93 & 0.831 & 0.372 & 0.510 & 0.722 \\
+ LingbotMap$^{*}$-W & 1158 & 0.883 & 15.64 & 0.768 & 0.385 & 0.516 & 0.693 \\
+ LingbotMap$^{*}$-S & 1158 & 0.883 & 15.64 & 0.768 & 0.385 & 0.516 & 0.693 \\
+\midrule
+% =========================================================
+\multicolumn{8}{c}{\cellcolor{catgray}\textbf{Chunk-wise}} \\
+\midrule
+ VGGT-Long & 1257 & \cellcolor{thirdyellow}\textbf{0.428} & \cellcolor{secondorange}\textbf{2.572} & \textbf{0.692} & 0.387 & 0.519 & 0.709 \\
+ $\pi^{3}$-Long & 958.7 & 1.485 & 59.37 & 0.793 & \cellcolor{secondorange}\textbf{0.480} & \cellcolor{bestred}\textbf{0.622} & \cellcolor{thirdyellow}\textbf{0.771} \\
+ DA3-Streaming & 1356 & 1.034 & 26.41 & 0.693 & 0.440 & 0.586 & 0.744 \\
+\midrule
+% =========================================================
+\multicolumn{8}{c}{\cellcolor{catgray}\textbf{SLAM-based}} \\
+\midrule
+ MASt3R-SLAM & 688.6 & 0.619 & 4.389 & 0.784 & 0.150 & 0.241 & 0.438 \\
+ VGGT-SLAM & 1257 & \cellcolor{thirdyellow}\textbf{0.428} & \cellcolor{secondorange}\textbf{2.572} & \textbf{0.692} & \textbf{0.387} & \textbf{0.519} & \textbf{0.709} \\
+\midrule
+% =========================================================
+\multicolumn{8}{c}{\cellcolor{catgray}\textbf{Test-Time Training}} \\
+\midrule
+ TTT3R & 793.3 & 0.543 & 4.488 & 0.611 & 0.347 & 0.482 & 0.677 \\
+ Scal3R & 1266 & 0.546 & 5.438 & 0.682 & 0.424 & 0.555 & 0.733 \\
+ LoGeR & 1255 & 0.662 & 9.432 & 0.617 & 0.465 & \cellcolor{thirdyellow}\textbf{0.607} & 0.764 \\
+ LoGeR$^*$ & 1255 & \textbf{0.506} & \textbf{4.440} & \cellcolor{bestred}\textbf{0.607} & \cellcolor{bestred}\textbf{0.487} & 0.605 & \textbf{0.769} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

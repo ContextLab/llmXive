@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-05-28T09:16:55.907798Z'
+current_stage: paper_review
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-634-https-arxiv-org-abs-2605-27367
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'SpatialBench: Is Your Spatial Foundation Model an All-Round Player?'
+updated_at: '2026-05-28T15:10:09.239350Z'

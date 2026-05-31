@@ -1,0 +1,43 @@
+\begin{table*}[!tbp]
+\caption{\textbf{Datasets used for the initial world-knowledge alignment.} We pretrain the base VLM on this diverse mixture of datasets across various domains to ensure broad coverage of general knowledge. Specifically, Stage-1 incorporates only the caption-related datasets shown here. In Stage-2, all datasets listed in this table are fully integrated into the training process to build robust, comprehensive multimodal capabilities.}
+\renewcommand{\arraystretch}{1.2}
+    \setlength\tabcolsep{6pt}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{m{1.6cm}|>{\small}m{15.4cm}}
+\footnotesize Category & \small Dataset  \\
+\hline
+
+\rowcolor{gray!15}\footnotesize 
+Captioning \& Knowledge & ShareGPT4o~\cite{opengvlab_sharegpt4o_dataset}, KVQA~\cite{shah2019kvqa}, Movie-Posters~\cite{skvarre_movie_posters_100k}, Google-Landmark~\cite{weyand2020googlelandmark}, WikiArt~\cite{wikiart_dataset}, Weather-QA~\cite{ma2024weatherqa}, Coco-Colors~\cite{mscoco-controlnet-canny-less-colors}, music-sheet~\cite{sheet_music_clean}, SPARK~\cite{yu2024spark}, Image-Textualization~\cite{pi2024image_textualization}, SAM-Caption~\cite{pixart_alpha_sam_llava_captions10m}, Tmdb-Celeb-10k~\cite{ashraq_tmdb_celeb_10k}, CC3M~\cite{sharma2018conceptual}, pixmo-cap~\cite{deitke2025molmo}, Multi-UI~\cite{liu2024harnessingwebpageuistextrich}, RICO~\cite{deka2017rico} \\
+
+\footnotesize 
+Mathematics \& Code & GeoQA+~\cite{cao2022geoqa_plus}, MathQA~\cite{yu2023mathqa}, CLEVR-Math/Super~\cite{lindstrom2022clevrmath, li2023superclevr}, Geometry3K~\cite{lu2021intergps}, MAVIS-math-rule-geo~\cite{zhang2024mavis}, MAVIS-math-metagen~\cite{zhang2024mavis}, InterGPS~\cite{lu2021intergps}, Raven~\cite{zhang2019raven}, GEOS~\cite{seo2015geos}, UniGeo~\cite{chen2022unigeo}, Design2Code~\cite{si2025design2code}, OpenMathInstruct~\cite{toshniwal2024openmathinstruct}\\
+
+\rowcolor{gray!15}\footnotesize 
+Science &AI2D~\cite{kembhavi2016ai2d}, ScienceQA~\cite{lu2022scienceqa}, TQA~\cite{kembhavi2017tqa}, PathVQA~\cite{he2020pathvqa}, SciQA~\cite{auer2023sciqa}, Textbooks-QA, VQA-RAD~\cite{lau2018vqarad}, VisualWebInstruct~\cite{tiger_lab_visualwebinstruct}, PMC-VQA~\cite{zhang2023pmcvqa}
+
+\\\footnotesize 
+Chart \& Table &ChartQA~\cite{masry2022chartqa}, MMC-Inst~\cite{liu2023mmcinst}, DVQA~\cite{kafle2018dvqa}, PlotQA~\cite{methani2020plotqa}, LRV-Instruction~\cite{liu2023lrv-instruction}, TabMWP~\cite{lu2022tablemwp}, UniChart~\cite{masry2023unichart}, Vistext~\cite{tang2023vistext}, TAT-DQA~\cite{zhu2022tatdqa}, VQAonBD~\cite{VQAonDB}, FigureQA~\cite{kahou2017figureqa}, Chart2Text~\cite{kantharaj2022chart2text}, RobuT-\{Wikisql, SQA, WTQ\}~\cite{zhao2023robut}, MultiHiertt~\cite{zhao2022multihiertt}, MMTab~\cite{zheng2024multimodal} \\
+\rowcolor{gray!15}\footnotesize
+
+Naive OCR & SynthDoG~\cite{kim2022synthdog}, MTWI~\cite{he2018icpr2018_MTWI}, LVST~\cite{sun2019lsvt}, SROIE~\cite{huang2019icdar_sroie}, FUNSD~\cite{jaume2019funsd}, Latex-Formula~\cite{oleehyo_latex_formulas}, IAM~\cite{marti2002iam}, Handwriting-Latex~\cite{aida}, ArT~\cite{chng2019art}, CTW~\cite{yuan2019ctw}, ReCTs~\cite{zhang2019rects}, COCO-Text~\cite{veit2016cocotext}, SVRD~\cite{yu2023icdar_svrd}, Hiertext~\cite{long2023icdar_hiertext}, RoadText~\cite{tom2023icdar_roadtext}, MapText~\cite{li2024icdar_maptext}, CAPTCHA~\cite{captcha}, Est-VQA~\cite{wang2020estvqa}, HME-100K~\cite{tal}, TAL-OCR-ENG~\cite{tal}, TAL-HW-MATH~\cite{tal}, IMGUR5K~\cite{krishnan2023textstylebrush_Imgur5K}, ORAND-CAR~\cite{diem2014icfhr_RAND_CAR}, Invoices-and-Receipts-OCR~\cite{mychen76_invoices_receipts_ocr_v1},  Chrome-Writting~\cite{mouchere2016icfhr2016_chrome_writing}, IIIT5k~\cite{mishra2012scene_iiit5k}, K12-Printing~\cite{tal}, Memotion~\cite{ramamoorthy2022memotion}, Arxiv2Markdown, Handwritten-Mathematical-Expression~\cite{Azu}, WordArt~\cite{xie2022toward_wordart}, 
+RenderedText~\cite{wendlerc_renderedtext}, Handwriting-Forms~\cite{ift_handwriting_forms}\\
+
+\footnotesize 
+OCR QA &  DocVQA~\cite{clark2017docqa}, InfoVQA~\cite{mathew2022infographicvqa}, TextVQA~\cite{singh2019textvqa}, ArxivQA~\cite{li2024multimodal_arxivQA},
+ScreencQA~\cite{hsiao2022screenqa}, DocReason~\cite{mplug_docreason25k}, Ureader~\cite{ye2023ureader}, FinanceQA~\cite{Sujet-Finance-QA-Vision-100k}, DocMatrix~\cite{laurenccon2024building_docmatrix}, A-OKVQA~\cite{schwenk2022aokvqa}, Diagram-Image-To-Text~\cite{kamizuru00_diagram_image_to_text}, MapQA~\cite{chang2022mapqa}, OCRVQA~\cite{mishra2019ocrvqa}, ST-VQA~\cite{biten2019stvqa}, SlideVQA~\cite{tanaka2023slidevqa}, PDF-VQA~\cite{ding2023PDFvqa}, SQuAD-VQA, VQA-CD~\cite{mahamoud2024chic_vqa_cd}, Block-Diagram~\cite{shreyanshu09_block_diagram}, MTVQA~\cite{tang2024mtvqa}, ColPali~\cite{faysse2024colpali}, BenthamQA~\cite{mathew2021asking_benthamqa}, VSR~\cite{zhang2021vsr}, pixmo-docs~\cite{deitke2025molmo}\\
+
+\rowcolor{gray!15}\footnotesize 
+General VQA & LLaVA-150K~\cite{liu2023llava}, LVIS-Instruct4V~\cite{wang2023lvisinstruct4v}, ALLaVA~\cite{chen2024allava},  Laion-GPT4V~\cite{laion_gpt4v_dataset}, LLAVAR~\cite{zhang2023llavar}, SketchyVQA~\cite{tu2023many}, VizWiz~\cite{gurari2018vizwiz}, IDK~\cite{cha2024visually}, AlfworldGPT, LNQA~\cite{pont2020connecting_lnqa}, Face-Emotion~\cite{fastjob_visual_emotional_analysis}, SpatialSense~\cite{yang2019spatialsense}, Indoor-QA~\cite{keremberke_indoor_scene_classification}, Places365~\cite{zhou2017places365}, MMinstruct~\cite{liu2024mminstruct}, DriveLM~\cite{sima2023drivelm}, YesBut~\cite{nandy2024yesbut}, WildVision~\cite{lu2024wildvision}, LLaVA-Critic-113k~\cite{xiong2024llava_critic}, PhyCritic~\cite{xiong2026phycritic}, RLAIF-V~\cite{yu2024rlaif_v}, VQAv2~\cite{goyal2017vqav2}, MMRA~\cite{wu2024mmra}, KONIQ~\cite{hosu2020koniq}, MMDU~\cite{liu2024mmdu}, Spot-The-Diff~\cite{jhamtani2018learning_spotthediff}, Hateful-Memes~\cite{kiela2020hateful_memes}, COCO-QA~\cite{ren2015exploring_cocoqa}, NLVR~\cite{suhr2017corpus_nlvr2}, Mimic-CGD~\cite{laurenccon2024matters}, Datikz~\cite{belouadi2023automatikz_datikz},
+Chinese-Meme~\cite{emo_visual_data_chinese_meme}, IconQA~\cite{lu2021iconqa}, Websight~\cite{laurenccon2024unlocking_websight}, OmniAlign~\cite{zhao2025omnialign}, pixmo-cap-qa~\cite{deitke2025molmo}, pixmo-ask-model-anything~\cite{deitke2025molmo}, Cauldron~\cite{laurenccon2024matters} \\
+
+\footnotesize 
+Text-only & Orca~\cite{lian2023openorca}, Orca-Math~\cite{mitra2024orca}, OpenCodeInterpreter~\cite{zheng2024opencodeinterpreter}
+MathInstruct~\cite{yue2023mammoth_mathinstruct}, WizardLM~\cite{xu2023wizardlm}, TheoremQA~\cite{chen2023theoremqa}, OpenHermes2.5~\cite{OpenHermes2_5}, NuminaMath-CoT~\cite{numina_math_datasets}, Python-Code-25k~\cite{flytech_python_codes_25k}, Infinity-Instruct~\cite{baai_infinity_instruct},
+Python-Code-Instructions-18k-Alpaca~\cite{iamtarun_python_code_instructions_18k_alpaca}, Ruozhiba~\cite{looksjuicy_ruozhiba}, InfinityMATH~\cite{zhang2024infinitymath}, StepDPO~\cite{lai2024stepDPO}, TableLLM~\cite{zhang2024tablellm}, UltraInteract-sft~\cite{yuan2024advancing_ultrainteract}\\
+
+\rowcolor{gray!15}\footnotesize 
+Counting & FSC147~\cite{m_Ranjan-etal-CVPR21}, TallyQA~\cite{acharya2019tallyqa} \\
+\end{tabular}}
+\label{tab:data_sft}
+\end{table*}

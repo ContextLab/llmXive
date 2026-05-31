@@ -1,0 +1,118 @@
+\clearpage
+\section{The Collection of \dataset}
+\label{appendix:datasets}
+
+\begin{wraptable}{r}{0.60\textwidth}
+  \vspace{-4pt}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.03}
+  \setlength{\tabcolsep}{2pt}
+  \centering
+  \caption{\textbf{\dataset dataset statistics.}}
+  \label{egoexpert-table}
+  \begin{tabularx}{\linewidth}{@{}
+    >{\centering\arraybackslash}p{0.42cm}
+    >{\raggedright\arraybackslash}X
+    >{\centering\arraybackslash}p{0.78cm}
+    >{\centering\arraybackslash}p{0.72cm}
+    >{\raggedleft\arraybackslash}p{0.76cm}
+    >{\raggedleft\arraybackslash}p{0.92cm}
+  @{}}
+  \toprule
+  \textbf{Id} & \textbf{Dataset} & \textbf{View} & \textbf{R/S} & \textbf{Fr.} & \textbf{Sc.} \\ \midrule
+  1 & \textbf{Xperience~\citep{xperience_10m}}          & Ego   & Real & 400K & 100    \\
+  2 & \textbf{Aria Digital Twin}~\citep{pan2023aria}    & Ego   & Syn. & 86K  & 232    \\
+  3 & \textbf{Colosseum}~\citep{pumacay2024colosseum}   & Wrist & Syn. & 334K & 1,837  \\
+  4 & \textbf{HOI4D}~\citep{liu2022hoi4d}               & Ego   & Real & 739K & 2,466  \\
+  5 & \textbf{RLBench}~\citep{james2020rlbench}         & Wrist & Syn. & 1.2M & 5,120  \\
+  6 & \textbf{Robolab}~\citep{yang2026robolab}          & Wrist & Syn. & 158K & 132    \\
+  7 & \textbf{RoboTwin}~\citep{chen2025robotwin}        & Wrist & Syn. & 2.6M & 11,923 \\
+  \bottomrule
+  \end{tabularx}
+  \vspace{-6pt}
+\end{wraptable}
+
+This section details the data collection pipeline of \dataset.
+%
+\dataset consists of 22K sequences with 5.5M frames in total.
+%
+Each scene in the dataset contains an image sequence $\mathbf{I}\in\mathbb{R}^{ N\times H\times W\times 3}$, depth maps $\mathbf{D}\in\mathbb{R}^{H\times W\times N}$, camera intrinsics $\mathbf{K}\in\mathbb{R}^{3\times 3}$, and camera extrinsics $\mathbf{G}_{\text{c2w}}\in\mathrm{SE}(3)$ for each frame.
+%
+%
+Fig.~\ref{Fig.egoexpert} showcases data samples from \dataset.
+%
+Note that all evaluation scenes in \benchmark are held out from the training splits of their respective datasets.
+% -----------------------------------------------------------------------
+
+\textbf{Aria Digital Twin (ADT).}
+ADT~\citep{pan2023aria} is an egocentric RGB-D dataset captured with Meta Project Aria smart glasses in two instrumented indoor environments.
+%
+It comprises 200 sequences of natural daily activities performed by 9 participants interacting with 398 object instances (344 static, 74 dynamic). 
+%
+We process the raw data into 232 sequences with 86K frames in total at a resolution of $512 \times 512$ using official preprocessing scripts. 
+%
+We observe scattered outlier points along object boundaries in scene visualizations and apply a unified depth post-processing step to refine the depth maps accordingly.
+
+
+% -----------------------------------------------------------------------
+\textbf{HOI4D.}
+HOI4D~\citep{liu2022hoi4d} is a large-scale 4D egocentric dataset for category-level human-object interaction, containing 2.4M RGB-D frames across 4,000 sequences collected by 9 participants interacting with 800 object instances from 16 categories in 610 distinct indoor rooms.
+%
+Each frame provides RGB and depth from a head-mounted RGBD camera with a resolution of $1920 \times 1080$, together with camera 6-DoF poses, 3D hand poses, category-level object poses, panoptic segmentation, and reconstructed scene point clouds.
+%
+We directly use a subset of the raw HOI4D data (2.5K scenes and 739K frames) with only depth post-processing filtering (Appendix~\ref{appendix:DepthPost-Processing}) applied.
+
+
+
+% -----------------------------------------------------------------------
+\textbf{RLBench.}
+RLBench~\citep{james2020rlbench} is a large-scale robot learning benchmark and simulation environment built on CoppeliaSim~\citep{rohmer2013CoppeliaSim}, featuring more than 100 distinct hand-designed manipulation tasks ranging from simple reaching to long-horizon multi-stage operations.
+%
+Each task provides an unlimited supply of expert demonstrations via built-in motion planners. 
+%
+Visual observations include RGB, depth, and segmentation from both an over-the-shoulder stereo camera and an eye-in-hand monocular camera, with pixel-accurate synthetic depth and ground-truth 6-DoF camera poses available at every frame.
+%
+Since the original simulation's wrist-view camera does not capture the gripper, we adjust the wrist camera pose relative to the end-effector and increase the resolution to $1280 \times 720$ to broaden the field of view.
+%
+We collect around 50 episodes per task using motion planners with random seeds across 103 tasks to form our dataset, with 1.2M frames in total.
+
+% -----------------------------------------------------------------------
+\textbf{Robo Colosseum.}
+The Robo Colosseum~\citep{pumacay2024colosseum} is a robotic manipulation benchmark built on top of RLBench that introduces systematic environmental perturbations for evaluating generalization.
+%
+It provides 20 diverse manipulation tasks evaluated across 14 perturbation axes, including object color, texture, and size, background and tabletop appearance, lighting conditions, number of distractors, physical properties, and camera pose, with each perturbation applied independently and in combination.
+%
+RGB, depth, and camera pose annotations are identical in format to RLBench.
+%
+We similarly adjust the initial wrist camera placement and set the rendering resolution 
+to $1280 \times 720$. 
+%
+We collect 100 episodes per task with random seeds across 19 tasks, which is 1.8K episodes with 334K frames.
+%
+Domain randomization is configured as follows: the number of distractor objects is set to 5--8; camera pose perturbations follow  \texttt{euler\_range}~$= [[-0.05,-0.05,-0.05],\,[0.05,0.05,0.05]]$ and \texttt{position\_range}~$= [[0,0,0],\,[0,0,0.3]]$; surface colors (\emph{e.g.}, table and objects) are randomized within \texttt{color\_range}~$= [[0.25,0.25,0.25],\,[1.0,1.0,1.0]]$; lighting color is randomized within $[[0,0,0],\,[0.5,0.5,0.5]]$; object scale is perturbed in the range $[0.8,\,1.0]$; and texture randomization is enabled for objects, the table surface, and the background.
+
+% -----------------------------------------------------------------------
+\textbf{RoboTwin.}
+RoboTwin~\citep{chen2025robotwin} is a large-scale simulation-based dataset and benchmark for bimanual robotic manipulation, built on top of the RoboTwin Object Dataset (RoboTwin-OD) comprising 731 object instances across 147 categories with rich manipulation annotations (grasp points, functional points, object axes) and diverse language descriptions.
+%
+It spans 50 dual-arm collaborative manipulation tasks executed across 5 heterogeneous robot embodiments.
+%
+For \dataset, we collect data using five robot embodiments: Aloha-AgileX, ARX-X5, Franka, Piper, and UR5 across 50 bimanual tasks, which is 11K scenes with 2.6M frames in total.
+%
+The wrist camera resolution is set to $1280 \times 720$ with a field of view of $60^\circ$, and approximately 25 episodes are collected per task. 
+%
+Domain randomization is enabled with random backgrounds, cluttered table setups, a clean background rate of 0.2, random table height variation of 0.1, and random lighting. 
+%
+The wrist camera position is randomly switched between two fixed placements across episodes. For each episode, the image sequence from either the left or right arm is randomly selected for collection.
+%
+The RoboTwin dataset has 12K episodes, comprising 2.6M frames in total.
+
+% -----------------------------------------------------------------------
+\textbf{Robolab.}
+Robolab~\citep{yang2026robolab} is a high-fidelity simulation benchmarking framework for task-generalist robotic policies, developed by NVIDIA and built on Isaac Sim.
+%
+It introduces the Robolab-120 benchmark comprising 120 tasks organized along three competency axes: \textit{visual}, \textit{procedural}, and \textit{relational}, each at three difficulty levels, with LLM-enabled generation of novel scenes and tasks.
+%
+Scenes feature photorealistic assets and physically accurate simulation, with ground-truth RGB, depth, and 6-DoF camera poses from wrist-mounted and external cameras.
+%
+For \dataset, we use $\pi_{0.5}$~\citep{intelligence2025pi05} as the trajectory generator to collect data across 108 tasks under 2 background settings, yielding a total of 158K frames at a resolution of $1280 \times 720$.

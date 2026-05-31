@@ -1,0 +1,44 @@
+\section{Introduction}
+\label{sec:intro}
+
+Recommender systems excel at reflecting what users already like~\cite{zhou2018deep,zhai2024actions,hou2025heterogeneous,mei2025goracs}, but platforms are rarely satisfied with merely mirroring past behavior~\cite{liu2021neural,CREU}. A streaming service that has just acquired an exclusive jazz catalogue, or an e-commerce site launching a new line of tech accessories, needs users to step beyond their established habits. However, when unfamiliar items are pushed directly into the feed, they are often ignored, lowering acceptance probability~\cite{zheng2018drn,cheng2016wide}. It exposes a fundamental tension: platforms need certain items to be discovered, while users are anchored in familiar preferences~\cite{li2019multi}.
+
+
+\begin{figure}[t!]
+\centerline{\includegraphics[width=\columnwidth]{figure/Illustrate_proact.pdf}}
+\caption{
+A toy example of proactive recommendation.
+By progressively blending genre (shown via pie charts), each intermediate item in the guidance path maintains the user's engagement while gradually shifting his/her preferences from Sci-Fi to Comedy.}
+\label{fig:Illustrate}
+\end{figure}
+
+This tension motivates a different paradigm of recommendation: rather than abruptly presenting unfamiliar items, a recommender system can gradually shift user preferences toward them through carefully designed paths. \textbf{Proactive Recommendation Systems (PRSs)}~\cite{zhu2023influential,lian2025itmprec,wang2025tunable} are then proposed to implement this progressive guidance strategy. Given a user's interaction history and a platform-specified target item that the user has not yet engaged with, a PRS constructs a \emph{path} of intermediate items bridging current user preference to the target item. The system then sequentially recommends items along this path, maintaining acceptance probability at each step while shifting preferences toward the target item. As illustrated in Figure~\ref{fig:Illustrate}, to guide a Sci-Fi fan toward a comedy movie, the system might recommend WALL-E (Sci-Fi + Animation) $\rightarrow$ Zootopia (Animation + Comedy) $\rightarrow$ The Secret Life of Walter Mitty (Comedy). Each intermediate item remains acceptable to the user, yet the path as a whole cultivates interests for previously unexplored genre.
+
+Designing such paths requires satisfying two objectives simultaneously~\cite{bi2024proactive}. The first is \textbf{Path Feasibility}: every intermediate item along the path must achieve high acceptance probability to maintain user engagement. The second is \textbf{Guidance Effectiveness}: the complete path must significantly increase the probability that the user eventually accepts the target item. In practice~\cite{zhu2023influential, wang2025tunable}, these probabilities are estimated by a user simulator, i.e., a recommender system (e.g., SASRec) trained on historical interactions (Section~\ref{sec:formulation}). Crucially, these two objectives must be optimized jointly, as locally feasible choices do not guarantee globally effective paths without foresight into their long-term consequences.
+
+Existing PRS research has explored various strategies. Heuristic methods~\cite{bi2024proactive,lian2025itmprec} rely on predefined rules to greedily select items at each step, but such local search often yields globally suboptimal paths. LLM-based methods~\cite{wang2025leveraging,wang2025tunable} plan paths with large language models (LLMs), but are impractical for industrial deployment due to prohibitive costs. Supervised methods~\cite{zhu2023influential} treat historical interaction sequences as reference paths which are used to train compact Sequence-to-Sequence models (e.g., T5~\cite{raffel2020exploring}). While such lightweight models are attractive for deployment, their reliance on imitating historical data hinders discovering superior paths beyond the training distribution.
+
+
+In this paper, we employ the lightweight transformer framework of prior work~\cite{zhu2023influential}, but seek to move beyond imitation of historical interactions. We formalize Path Feasibility and Guidance Effectiveness as quantitative metrics over which proactive recommendation is cast as a reward maximization problem. Reinforcement learning (RL) with policy gradient~\cite{sutton1999policy,mei2026good} handles this problem directly (Section~\ref{sec:task}): the model samples candidate paths, receives reward computed by these metrics, and learns to produce higher-reward paths via gradient-based updates. This exploration-driven paradigm should theoretically enable discovery of effective paths beyond the training distribution. However, preliminary empirical studies (Section \ref{sec:analysis}) reveal that standard policy-gradient RL exhibits severe failure modes in PRS.
+
+\textbf{Policy Gradient Estimation Deficiencies.} Through empirical studies of applying standard policy-gradient RL to a PRS, we found that it rapidly degenerates into generating \emph{nearly identical overlong paths} (Section~\ref{sec:analysis}), preventing it from discovering effective, user-specific guidance paths. 
+We trace this failure to two deficiencies in standard policy gradient estimation as below.
+
+\emph{Deficiency 1: Length Shortcut.} We show that path-level rewards in PRS decompose into step-level rewards with a positive mean per step. Thus, longer paths yield higher expected rewards. In standard policy-gradient estimation, variation in sampled path lengths naturally arises, causing length to dominate the gradient signal. This biases the model toward extending paths rather than exploring diverse ones.
+
+\emph{Deficiency 2: High Gradient Variance.} Standard estimation weights each step's gradient by the entire path-level reward. Given the decomposition structure above, this uniform treatment ignores that each step only affects future rewards, resulting in high gradient variance.
+
+\textbf{ProRL: Rectified Policy Gradients for PRS.} 
+To address these deficiencies, we propose ProRL, an RL framework that rectifies policy gradient estimation for proactive recommendation. 
+Specifically, 
+\emph{Stepwise Reward Centering} eliminates the length shortcut by subtracting the per-step mean at each position, rectifying the gradient away from spurious length manipulation toward effective path exploration. \emph{Position-Specific Advantage Estimation} reduces gradient variance by exploiting the decomposition structure of path rewards to define a low-variance advantage estimator, rectifying gradient estimates toward their expected values. These two rectifications together yield policy gradient estimates that precisely target path quality, enabling effective optimization of both feasibility and effectiveness.
+
+In summary, the main contributions of this paper include:
+\begin{enumerate}[leftmargin=*]
+
+\item We identify two gradient estimation deficiencies specific to proactive recommendation, the length shortcut and high gradient variance, that cause standard policy gradients to fail in Proactivate Recommendation System.
+
+\item We propose ProRL, which rectifies these deficiencies through two task-specialized mechanisms. Stepwise Reward Centering adapts classical reward centering to the positive-mean step reward structure of PRS, and Position-Specific Advantage Estimation leverages PRS reward decomposition to compute step-adapted baselines without a learned critic.
+
+\item Extensive experiments on three real-world datasets demonstrate that ProRL significantly outperforms state-of-the-art methods. Ablation studies and cross-evaluator analysis validate each component's contribution and the generalizability of the learned policy.
+\end{enumerate}

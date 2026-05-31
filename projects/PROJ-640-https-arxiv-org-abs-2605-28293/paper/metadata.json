@@ -1,0 +1,58 @@
+{
+  "arxiv_id": "2605.28293",
+  "arxiv_url": "https://arxiv.org/abs/2605.28293",
+  "title": "ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified Policy Gradient Estimation",
+  "authors": [
+    "Hongru Hou",
+    "Tiehua Mei",
+    "Denghui Geng",
+    "Jinhui Huang",
+    "Ao Xu",
+    "Hengrui Chen",
+    "Jiaqing Liang",
+    "Deqing Yang"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Proactive Recommender Systems (PRSs) aim to guide user preference shift toward target items by generating paths of intermediate recommendations. Reinforcement learning (RL) provides a principled framework for optimizing such sequential decision tasks, as path rewards can naturally capture both short-term acceptance and long-term guidance effectiveness. However, naively applying policy gradients to PRS results in deficient gradient estimation. We identify two deficiencies: (1) path-level rewards decompose into step-level rewards with positive mean, creating a length-dependent bias that causes gradients to favor path extension over meaningful exploration; (2) weighting each step by the entire path-level reward ignores the decomposition structure, leading to high gradient variance. To rectify these two deficiencies, we propose an effective RL framework ProRL with two novel mechanisms for proactive recommendation. First, Stepwise Reward Centering subtracts expected rewards to neutralize length-dependent bias, ensuring that path extension yields zero expected gradient signal. Second, Position-Specific Advantage Estimation leverages the reward decomposition structure to compute step-dependent baselines, reducing gradient variance. Together, these mechanisms yield policy gradients that precisely target path quality. Our experiments on three real-world datasets demonstrate that ProRL significantly outperforms state-of-the-art PRSs. Our code is available at https://github.com/hongruhou89/ProRL.",
+  "submitted_via": "llmXive dashboard, GitHub issue #246",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/hongruhou89/ProRL"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "algorithmic.sty",
+    "algorithm.sty",
+    "example_paper.bib",
+    "fancyhdr.sty",
+    "figure",
+    "figure/Figure2.2_thin.pdf",
+    "figure/Illustrate_proact.pdf",
+    "figure/main_RL_thin.pdf",
+    "figure/prompt_knowledge.pdf",
+    "figure/all_curves_final.pdf",
+    "figure/robustness.pdf",
+    "figure/epoch_length.pdf",
+    "figure/Length_profit.pdf",
+    "figure/pretrain_epoch_all.pdf",
+    "icml2026.bst",
+    "icml2026.sty",
+    "main.tex",
+    "sec",
+    "sec/Impact_statement.tex",
+    "sec/abs.tex",
+    "sec/ack.tex",
+    "sec/appendix.tex",
+    "sec/conclusion.tex",
+    "sec/exp.tex",
+    "sec/intro.tex",
+    "sec/method.tex",
+    "sec/preliminary.tex",
+    "sec/related_work.tex"
+  ]
+}

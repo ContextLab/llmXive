@@ -1,0 +1,110 @@
+\section{Safety Taxonomy and ATBench Family}
+\label{sec:safety_taxonmy}
+\label{sec:benchmark}
+
+
+In this section, we introduce the safety taxonomy and the ATBench benchmark family.
+We build on the AgentDoG~\citep{liu2026agentdogdiagnosticguardrailframework} and ATBench~\citep{li2026atbench}, which decompose trajectory-level safety diagnosis into three dimensions.
+However, as agent execution settings diversify rapidly, the fixed leaf categories of the original taxonomy can no longer capture setting-specific risks. In this work, we keep the three-dimensional decomposition unchanged and extend the ATBench family to new execution settings by customizing the leaf categories for each setting.
+Section~\ref{subsec:taxonomy_design} presents the taxonomy design. Section~\ref{subsec:customization} introduces the customization mechanism for new settings. Section~\ref{subsec:benchmark_instances} describes the benchmark instances.
+
+
+\subsection{Taxonomy Design}
+\label{subsec:taxonomy_design}
+
+The safety taxonomy must support interpretable diagnosis in diverse and evolving agent execution scenarios while remaining a stable framework for training and evaluation.
+To achieve this, we build on the original extensible three-dimensional decomposition of trajectory-level risks from AgentDoG, and adapt it to new settings through setting-specific leaf-category extension and inherited-category refinement without losing cross-setting comparability.
+We first explain the three-dimensional decomposition and its shared annotation framework, then discuss how the taxonomy is extended to new settings while preserving comparability.
+
+\textbf{Three-dimensional decomposition and annotation framework.}
+Trajectory-level agent safety is inherently multi-faceted, and a flat label space cannot represent it well.
+In agent systems, unsafe outcomes may originate from user instructions, tool descriptions, environment observations, persistent state, runtime feedback, repository artifacts, or the agent's own reasoning.
+Once such risks enter the trajectory, they may manifest as different failure modes, including incorrect tool calls, over-privileged actions, missing validation of external information, unsafe command executions, and unverified success claims.
+Such failures, in turn, may cause downstream real-world consequences ranging from privacy leakage, system-integrity damage, and financial loss to physical, psychological, reputational, and governance-level harm.
+Without separating these three aspects, a flat label space would conflate where the risk enters, how the agent fails, and what harm follows, making interpretable diagnosis difficult.
+To address this, the AgentDoG taxonomy decomposes diagnosis along three dimensions---\textbf{risk source}, \textbf{failure mode}, and \textbf{real-world harm}---so that a guard model can produce an interpretable judgment along each dimension rather than a binary safe/unsafe verdict.
+The base ATBench follows the same framework at the annotation level: each trajectory carries a safe/unsafe label, and each unsafe trajectory additionally receives one primary label along each of the three taxonomy dimensions.
+In this work, we preserve exactly this annotation framework across all benchmark instances, so that extending to a new execution setting changes only the leaf categories, not the task itself.
+
+\textbf{Setting-specific extension and comparability.}
+Keeping the three high-level dimensions fixed while customizing the leaf categories is necessary because the set of fine-grained risks evolves much faster than any single static label list could accommodate.
+Each new agent execution setting introduces its own boundaries of state, permission, artifact, execution, and routing, ranging from persistent sessions and approval mechanisms to repository files, executable scripts, dependencies, and Model Context Protocol (MCP)~\citep{anthropicModelContextProtocol2025} descriptions, and external communication channels.
+If we instead defined a separate taxonomy and benchmark protocol for each such setting, guardrail training and evaluation would fragment into incompatible tasks.
+To avoid this, we keep the trajectory-level task constant across all settings---judging whether the trace is safe and diagnosing it along the three taxonomy dimensions---and adapt only the leaf categories and the form of trajectory evidence to the target setting.
+Because all benchmark instances retain the same three high-level dimensions, their results remain comparable at the level of risk source, failure mode, and real-world harm, while each instance stays sensitive to its actual execution context by introducing its own leaf categories.
+As two concrete instances, ATBench-Claw and ATBench-Codex~\citep{yang2026benchmarkstrajectorysafetyevaluation} customize the taxonomy for their respective execution evidence: the former focuses on sessions, approvals, cross-tool execution, channel routing, and unattended automation, while the latter focuses on repository artifacts, command execution, dependency and MCP interactions, workspace mutation, and verification claims.
+The complete customized category definitions are provided in Appendix~\ref{app:openclaw_taxonomy}.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/taxonomy_customize.pdf}
+\caption{\agentdog{} uses the original three-dimensional agentic safety taxonomy as a shared diagnostic structure spanning risk source, failure mode, and real-world harm. Setting-specific customizations for ATBench-Claw and ATBench-Codex are organized on top of this shared structure, illustrating how new execution settings can introduce additional leaf categories while retaining compatibility with the original taxonomy dimensions.}
+\label{fig:taxonomy_customization}
+\end{figure*}
+
+\subsection{Customization Mechanism}
+\label{subsec:customization}
+
+Agent execution settings evolve faster than any fixed set of leaf categories can accommodate~\citep{yang2026benchmarkstrajectorysafetyevaluation}. To update the taxonomy, we customize it through two operations: \textbf{adding new leaf categories} for risks that are not covered by existing labels, and \textbf{strengthening inherited categories} by sharpening their operational scope to the new setting. We describe each operation below and then explain how they jointly serve as a practical framework for both data construction and benchmark evaluation.
+
+
+\textbf{Adding new leaf categories.}
+We add a new leaf category whenever a new execution setting introduces a risk source, failure mode, or real-world harm that the base taxonomy cannot express precisely.
+In practice, such risks are typically tied to new state, permission, artifact, execution, or routing boundaries: OpenClaw introduces session contamination and approval bypass, while Codex introduces repository artifact injection, dependency or MCP supply-chain compromise, destructive workspace mutation, and unsafe shell/script execution.
+Adding these categories gives setting-specific risks their own labels, rather than forcing them into the closest---and possibly misleading---existing category.
+
+\textbf{Strengthening inherited categories.}
+We strengthen an inherited category when the underlying base concept remains valid, but its operational meaning needs to be sharpened for the new setting.
+For instance, \textbf{failure to validate tool outputs} remains a general failure mode, but in Codex agents it specifically covers the validation of test outputs, build logs, dependency behavior, shell-command side effects, and MCP responses; likewise, \textbf{unauthorized information disclosure} remains a general failure mode, but in Codex it may involve repository secrets, environment variables, credential files, logs, or private connector outputs rather than only conversational content.
+By refining rather than replacing these categories, we preserve label continuity, so that diagnostic concepts learned from general tool-use trajectories can transfer to new execution settings.
+
+\textbf{From taxonomy to benchmark.}
+Together, these two operations turn the taxonomy into a practical framework for both data construction and benchmark evaluation.
+Concretely, for each benchmark instance, the same combination of risk source, failure mode, and real-world harm determines where the risk should be injected, how the agent is expected to fail, what evidence must be preserved in the trajectory, and which real-world harm should be evaluated.
+As a result, taxonomy extension and benchmark extension are not separate design steps; they are two views of the same trajectory-level diagnosis problem.
+
+\subsection{Benchmark Instances}
+\label{subsec:benchmark_instances}
+
+
+We choose general tool-use agents as the base setting for two reasons.
+First, they cover the broadest existing range of agent applications, so a protocol defined in this setting naturally carries over to more specialized ones.
+Second, they make the limitation of prompt-level safety judgment easy to demonstrate: unsafe behavior may first appear in intermediate planning, tool invocation, environment feedback, delayed state reuse, or later actions conditioned on earlier context, even when the final response itself looks benign.
+\toolBench{} therefore treats the complete multi-turn execution trace as the unit of evaluation, assigns each trajectory a safe/unsafe label, and annotates each unsafe trajectory with one primary label along each of the three taxonomy dimensions.
+In total, it contains 1,000 audited trajectories (503 safe, 497 unsafe), exposes agents to 2,084 available tools, where 1,954 are actually invoked, and averages 9.01 turns and 3.95k tokens per trajectory.
+Beyond providing the base evaluation instance, \toolBench{} also establishes the construction principle followed by the rest of the family: the taxonomy guides not only post-hoc annotation but also data generation itself, controlling both trajectory diversity and realism (the full construction pipeline is described in Section~\ref{sec:data_collection}).
+
+
+\textbf{Extension to OpenClaw: \toolBenchClaw{}.}
+The base setting does not cover agents that persist state across sessions, dispatch through skills or plugins, or take actions that require approval or cross-channel routing.
+\toolBenchClaw{} extends the protocol to one such setting, OpenClaw~\citep{steinberger2026openclaw}, in which safety-critical behavior is shaped by sessions, tools, skills, approvals, routing, and external actions~\citep{yang2026benchmarkstrajectorysafetyevaluation}.
+Because generic tool-use trajectories do not explicitly represent session identity, skill or plugin trust, approval state, routing boundaries, or externally visible side effects, the taxonomy adds or refines leaf categories such as sender/session identity ambiguity, persistent memory or session-state contamination, skill/plugin supply-chain compromise, policy precedence misinterpretation, approval bypass, action-scope overreach, cross-tool attack chaining, cross-channel misrouting, and unsafe unattended automation.
+In addition, a new real-world harm category covering compliance, legal, and auditability concerns is introduced to capture governance and approval-trace violations.
+To support diagnosis at this finer granularity, each trajectory records the session transcript, tool and skill snapshots, environment observations, ordered execution events, binary and fine-grained labels, judgment rationales, and defense outcomes.
+The benchmark contains 500 trajectories (204 safe, 296 unsafe), with an average of 13.09 message events per trajectory.
+
+\textbf{Extension to Codex: \toolBenchCodex{}.}
+Conversational and stateful tool-use settings still leave out a third class of agents, whose unsafe behavior is determined by the executable artifacts they produce rather than by what they say.
+\toolBenchCodex{} extends the protocol to this case, focusing on the Codex execution setting~\citep{yang2026benchmarkstrajectorysafetyevaluation}, in which agents act on repositories, shell commands, patches, dependencies, MCP servers, network access, and execution policies; the corresponding risks may be embedded in repository files, build scripts, dependency specifications, MCP metadata, test outputs, shell feedback, or generated patches.
+The taxonomy therefore introduces new categories for repository and command-execution risks---such as repository artifact injection, dependency or MCP supply-chain compromise, destructive workspace mutation, and unsafe shell/script execution---and, in parallel, sharpens a set of inherited categories (prompt injection, corrupted tool feedback, over-privileged action, improper tool use, unauthorized disclosure, and misleading or unverified information) to the constraints of coding agents.
+Each trajectory pairs a normalized conversation with a structured \texttt{codex\_rollout}, together with top-level safety fields, tool metadata, and optional injected tool descriptions.
+The benchmark contains 500 trajectories (250 safe, 250 unsafe), with an average conversation length of 7.51 turns and an average rollout of 21.80 events.
+
+
+Together, the three benchmarks let us evaluate not only whether \agentdog{} detects unsafe trajectories, but also whether it diagnoses where risks originate, how failures unfold, and what real-world harm they may cause across very different execution settings; Figure~\ref{fig:atbench_family} summarizes this benchmark family.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/ATBench_family.pdf}
+\caption{ATBench family used to evaluate \agentdog{}. All benchmark instances share the same three-dimensional safety taxonomy and trajectory-level diagnosis task, while ATBench-Claw and ATBench-Codex customize the execution setting, trajectory evidence, and leaf categories for their target agent environments. Complete customized category definitions are provided in Appendix~\ref{app:openclaw_taxonomy}.}
+\label{fig:atbench_family}
+\vspace{-10pt}
+\end{figure*}
+
+
+The ATBench family directly supports the scalability of \agentdog{}.
+When a new agent execution setting appears, the framework does not require redefining the guardrail task from scratch.
+Instead, the high-level taxonomy remains fixed, the leaf categories and trajectory schema are customized to the setting, and the resulting benchmark evaluates the same binary judgment and three-dimensional diagnosis framework.
+This alignment between taxonomy design and benchmark construction allows \agentdog{} to evolve with autonomous agents while retaining a stable basis for comparison, data generation, model training, and deployment evaluation.

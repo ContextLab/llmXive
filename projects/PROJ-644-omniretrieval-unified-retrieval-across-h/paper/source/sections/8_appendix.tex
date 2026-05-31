@@ -1,0 +1,166 @@
+
+\section{Benchmark Details}
+\label{sec:appendix_context}
+
+This section provides additional details on our benchmark, including example questions (Table~\ref{tab:appendix_examples}), the verbatim structural context $c_b$ for each backend, and a note on the use of existing artifacts.
+
+\input{tables/appendix_examples}
+
+\subsection{Document Search}
+\label{sec:appendix_context_search}
+For each corpus, $c_b$ is a short topical descriptor comprising a one-line description of the domain, and the typical document style. The example below is the verbatim $c_b$ used for NFCorpus.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, boxrule=0.5pt, arc=2mm, left=4pt, right=4pt, top=3pt, bottom=3pt]
+{\footnotesize
+\begin{verbatim}
+Corpus: nfcorpus
+Description: Medical and nutritional information retrieval
+Query type: a consumer-health or nutrition query, often very terse,
+  either a one-to-three-word topic stub (a food, condition, or substance)
+  or a popular-science headline phrased for a lay audience
+Document style: a PubMed-style biomedical research abstract with a formal
+  scientific title, written in technical register
+\end{verbatim}
+}
+\end{tcolorbox}
+
+\subsection{Relational Databases}
+\label{sec:appendix_context_sql}
+For each relational database, $c_b$ is the schema, exposed as the \texttt{CREATE TABLE} declarations of all tables, including column types, primary keys, and foreign keys. The example below is the verbatim $c_b$ for the Spider database \texttt{concert\_singer} (one of four tables shown; the other three are omitted).
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, boxrule=0.5pt, arc=2mm, left=4pt, right=4pt, top=3pt, bottom=3pt]
+{\footnotesize
+\begin{verbatim}
+CREATE TABLE "singer" (
+  "Singer_ID" int,
+  "Name" text,
+  "Country" text,
+  "Song_Name" text,
+  "Song_release_year" text,
+  "Age" int,
+  "Is_male" bool,
+  PRIMARY KEY ("Singer_ID")
+)
+[CREATE TABLE statements for concert, singer_in_concert, and stadium omitted]
+\end{verbatim}
+}
+\end{tcolorbox}
+
+\subsection{RDF Knowledge Graphs}
+\label{sec:appendix_context_sparql}
+For Wikidata, $c_b$ is built per question and combines (i) a fixed preamble of SPARQL prefixes and schematic query templates with (ii) the topic entities mentioned in the question, linked to Wikidata QIDs, and (iii) the top-30 candidate predicates per entity, ranked by semantic similarity between the predicate label and the question. The example below is an abridged $c_b$ for the LC-QuAD 2.0 question shown in Table~\ref{tab:appendix_examples}.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, boxrule=0.5pt, arc=2mm, left=4pt, right=4pt, top=3pt, bottom=3pt]
+{\footnotesize
+\begin{verbatim}
+Knowledge graph: Wikidata
+Prefixes: wd: (entity), wdt: (direct/truthy property), p: (entity -> statement node),
+  ps: (statement -> main value), pq: (statement -> qualifier value), rdfs: (for rdfs:label)
+Format examples (schematic IDs; use the actual topic entities and relations for the query):
+  SELECT ?x WHERE { wd:Qxxx wdt:Pyyy ?x }
+  SELECT ?x WHERE { wd:Qxxx wdt:Pyyy ?y . ?y wdt:Pzzz ?x }
+  ASK WHERE { wd:Qxxx wdt:Pyyy wd:Qzzz }
+  [count, filter, order-by forms omitted]
+
+Topic entities (from the question, already linked to Wikidata QIDs):
+- wd:Q188920  (Delta Air Lines)
+- wd:Q1002697 (periodical)
+
+Linked relations (candidate properties per topic entity, choose among these):
+- wd:Q188920  (Delta Air Lines):
+    - P31   (instance of)
+    - P229  (IATA airline designator)
+    - P2813 (house publication)
+    [further candidates omitted]
+- wd:Q1002697 (periodical):
+    - P31  (instance of)
+    [further candidates omitted]
+\end{verbatim}
+}
+\end{tcolorbox}
+
+\subsection{Labeled Property Graphs}
+\label{sec:appendix_context_cypher}
+For each Text2Cypher graph, $c_b$ is the graph schema, exposed as node labels with typed property keys, relationship types with typed property keys, and the list of edges as triples. The example below is the verbatim $c_b$ for the database \texttt{neo4jlabs\_demo\_db\_movies}.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, boxrule=0.5pt, arc=2mm, left=4pt, right=4pt, top=3pt, bottom=3pt]
+{\footnotesize
+\begin{verbatim}
+Node properties:
+- Movie
+  - `title`: STRING Example: "The Matrix"
+  - `votes`: INTEGER Min: 1, Max: 5259
+  - `tagline`: STRING
+    Example: "Welcome to the Real World"
+  - `released`: INTEGER Min: 1975, Max: 2012
+- Person
+  - `born`: INTEGER Min: 1929, Max: 1996
+  - `name`: STRING Example: "Keanu Reeves"
+Relationship properties:
+- ACTED_IN
+  - `roles: LIST` Min Size: 1, Max Size: 6
+- REVIEWED
+  - `summary: STRING` Available options: [...]
+  - `rating: INTEGER` Min: 45, Max: 100
+The relationships:
+(:Person)-[:ACTED_IN]->(:Movie)
+(:Person)-[:DIRECTED]->(:Movie)
+(:Person)-[:PRODUCED]->(:Movie)
+(:Person)-[:WROTE]->(:Movie)
+(:Person)-[:FOLLOWS]->(:Person)
+(:Person)-[:REVIEWED]->(:Movie)
+\end{verbatim}
+}
+\end{tcolorbox}
+
+\subsection{Use of Existing Artifacts}
+\label{sec:appendix_artifacts}
+All artifacts used in our benchmark (the 13 datasets and 309 knowledge bases) are existing public resources, and we use each under its respective license and terms. Our use is restricted to research purposes, consistent with the intended use specified by the original releases, and we do not perform additional filtering for personally identifying information or offensive content, deferring to the policies of the upstream datasets.
+
+\section{Implementation Details}
+\label{sec:appendix_implementation}
+We use a sampling temperature of $0.0$ across all LLM calls (source selection, query formulation, and cross-source evidence selection), which makes the predictions deterministic, so all reported numbers come from a single run per configuration. The maximum number of generated tokens is capped at $1024$. Open-source backbones are served locally on a single NVIDIA H200 GPU.
+
+\section{Per-Paradigm Breakdown}
+\label{sec:appendix_per_paradigm}
+Table~\ref{tab:per_route_breakdown} reports the per-paradigm decomposition of the three metrics from Table~\ref{tab:main}, broken down by the four native retrieval paradigms (Search, SQL, SPARQL, Cypher) at each of the five backbones. The macro average across the four columns recovers the corresponding column in Table~\ref{tab:main}.
+
+\section{Paradigm Prediction Balance}
+\label{sec:appendix_paradigm_balance}
+To examine how source selection allocates predictions across the four retrieval paradigms, we report the predicted paradigm distribution in Figure~\ref{fig:paradigm_balance}, under per-paradigm balanced weighting in which each gold paradigm contributes equally to the totals, so the reference becomes a uniform $25\%$ line per paradigm. We show both the top-1 candidate and the full pool of emitted candidates. From this, we observe that the predicted distribution stays within a narrow band of the balanced reference across all five backbone models: SQL ranges over $30$ to $37\%$ at top-1, and Search ranges over $27$ to $37\%$, indicating that source selection remains broadly balanced across paradigms even though the underlying catalog is dominated by relational databases ($\approx 93\%$, 286 of 309 knowledge sources).
+
+\input{figures/paradigm_balance}
+
+\section{Prompts}
+\label{sec:appendix_prompts}
+This section lists the prompts used in our framework, covering the source selection, query formulation, and cross-source evidence selection steps, as well as the LLM-as-a-Judge metric.
+
+\vspace{-0.1in}
+\paragraph{Source Selection}
+Figure~\ref{fig:source_selection_prompt} shows the prompt used for source selection. Given a catalog of available knowledge bases grouped by backend, where each knowledge base is summarized by a short descriptor (such as description, examples, or schema summary), the model returns up to $k$ ranked candidate sources for the question.
+
+\vspace{-0.1in}
+\paragraph{Query Formulation}
+Figure~\ref{fig:query_formulation_prompt} shows the system prompts for the three native query languages and the shared user template that grounds the query in the backend context $c_b$. For document retrieval, the question is additionally rewritten into a hypothetical passage with the prompt in Figure~\ref{fig:search_rewriting_prompt}, similar to~\citet{HyDE}.
+
+\vspace{-0.1in}
+\paragraph{Cross-Source Evidence Selection}
+Figure~\ref{fig:evidence_selection_prompt} shows the prompt for picking the best candidates among multiple source-specific retrieval results.
+
+\vspace{-0.1in}
+\paragraph{LLM-as-a-Judge}
+Figure~\ref{fig:judge_prompt} shows the prompt used by the LLM-as-a-Judge metric, used to assess whether the predicted answer answers the question by direct match or faithful realization against gold and question on an alternative knowledge base.
+
+\input{tables/per_route_breakdown}
+
+\clearpage
+
+\input{figures/prompts/source_selection}
+
+\input{figures/prompts/query_formulation}
+
+\input{figures/prompts/search_rewriting}
+
+\input{figures/prompts/evidence_selection}
+
+\input{figures/prompts/judge}

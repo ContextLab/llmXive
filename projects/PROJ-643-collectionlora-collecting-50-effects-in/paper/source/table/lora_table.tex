@@ -1,0 +1,24 @@
+\begin{table}[htbp]
+\centering
+\caption{Examples of Teacher Prompts and the corresponding Refined Student Prompts.}
+\label{tab:prompt_comparison}
+\footnotesize % 减小字号以适应长文本
+\renewcommand{\arraystretch}{1.3} % 稍微增加行高，提升阅读舒适度
+\begin{tabularx}{\textwidth}{@{} l X X @{}}
+\toprule
+\textbf{LoRA Name} & \textbf{Teacher Prompt} & \textbf{Student Prompt (with Trigword)} \\
+\midrule
+
+1117\_3dshatanpangchongwu & 
+Change the style to 3D realistic, change the background to a beach, change the pose to standing, and add swim trunks. & 
+\textless 1117\_\allowbreak 3dshatanpangchongwu\_\allowbreak Xy5995\textgreater Transform the pet into a 3D realistic style, place it against a beach background, adjust its pose to standing, dress it in brightly colored swim trunks, maintain the fur texture, and keep the overall style cute and expressive. \\
+
+\addlinespace % 增加行间距区分不同样本
+
+1117\_chongwushouzhi & 
+Based on the pet in the original image, retain its fur color, patterns, demeanor, expression, and body proportions, shrink it to finger size, and have it lying on a human finger. & 
+\textless 1117\_\allowbreak chongwushouzhi\_\allowbreak RN8pcKDi\textgreater Based on the pet in the original image, retain its fur color, patterns, demeanor, expression, and body proportions, reduce it to finger size, place it lying on a human finger, maintain the same perspective, softly blur the background, and enhance realism and fine texture. \\
+
+\bottomrule
+\end{tabularx}
+\end{table}

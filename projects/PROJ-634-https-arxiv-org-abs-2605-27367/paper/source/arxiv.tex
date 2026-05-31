@@ -1,0 +1,142 @@
+\PassOptionsToPackage{most,breakable}{tcolorbox}
+\PassOptionsToPackage{dvipsnames,table}{xcolor}
+\PassOptionsToPackage{numbers,compress}{natbib}
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[final]{arxiv}
+
+% Standard package includes
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{amsfonts}
+\usepackage{mathpazo}
+\usepackage[xcharter,bigdelims,vvarbb]{newtxmath}
+\usepackage[scaled]{helvet}
+\usepackage[scaled=1.1]{zlmtt}
+\usepackage{latexsym}
+
+\usepackage{pifont}
+\usepackage{placeins}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{subcaption}
+\usepackage{arydshln}
+\usepackage{adjustbox}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{rotating}
+\usepackage{titletoc}
+\usepackage{comment}
+\usepackage{wrapfig}
+\usepackage{needspace}
+\usepackage{nicefrac}
+\usepackage{microtype}
+
+\usepackage{siunitx}
+\sisetup{separate-uncertainty=true}
+
+\usepackage{dblfloatfix}
+\usepackage{graphicx}
+\usepackage{cuted}
+\usepackage{capt-of}
+\usepackage{xspace}
+
+\setlist[itemize]{leftmargin=2em}
+
+\input{macro}
+
+% Holi-Spatial-style first-page logo strip.
+% pdflatex uses the PNG generated from logo/ropedia_Green.svg.
+\firstpagelogos{logo/ropedia_Green.png}{logo/hkust.pdf}{logo/ntu_logo.jpg}
+\abstractlogo{logo/Horizontal_Black.png}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+\setlength\titlebox{5.2cm}
+
+\title{\benchmark}
+\subtitle{Is Your Spatial Foundation Model an All-Round Player?}
+
+% Merge footnotes onto one line
+\newcommand{\authorfootnotes}{%
+  \begingroup
+  \renewcommand{\thefootnote}{}%
+  \footnotetext{* Equal contribution. $\dagger$ Corresponding author.}%
+  \endgroup
+  \addtocounter{footnote}{-1}%
+}
+
+\author{
+  \AuthorName{Haosong Peng}{1,*}\quad
+  \RopediaAuthorName{Hao Li}{2,3,*}\quad
+  \AuthorName{Jiaqi Chen}{3}\quad
+  \AuthorName{Yuhao Pan}{1}\quad
+  \RopediaAuthorName{Runmao Yao}{2}\quad
+  \AuthorName{Yalun Dai}{2}\\[0.55ex]
+  \AuthorName{Fushuo Huo}{4}\quad
+  \RopediaAuthorName{Fangzhou Hong}{2}\quad
+  \RopediaAuthorName{Zhaoxi Chen}{2}\quad
+  \AuthorName{Haozhao Wang}{5}\\[0.55ex]
+  \AuthorName{Dingwen Zhang}{3}\quad
+  \RopediaAuthorName{Ziwei Liu}{2}\quad
+  \AuthorName{Wenchao Xu}{1,$\dagger$}\\[1.0ex]
+  {\normalfont\footnotesize
+  \mbox{\textsuperscript{1}Hong Kong University of Science and Technology}\quad
+  \mbox{\textsuperscript{2}Nanyang Technological University}\quad
+  \mbox{\textsuperscript{\ropediamark}Ropedia}\\
+  \mbox{\textsuperscript{3}Northwestern Polytechnical University}\quad
+  \mbox{\textsuperscript{4}Southeast University}\quad
+  \mbox{\textsuperscript{5}Huazhong University of Science and Technology}}
+}
+
+\begin{document}
+\maketitle
+\authorfootnotes
+
+\begin{paperresources}
+\paperresourceicon{\resourceprojecticon}{Project Page}{https://ropedia.github.io/SpatialBench/}{ropedia.github.io/SpatialBench}
+\quad
+\paperresourceicon{\resourcehficon}{Dataset}{https://huggingface.co/datasets/ropedia-ai/DA-Next-5M}{ropedia-ai/DA-Next-5M}\\
+\paperresourceicon{\resourcegithubicon}{Code}{https://github.com/Ropedia/SpatialBench}{github.com/Ropedia/SpatialBench}
+\qquad \quad \quad
+\paperresourceicon{\resourcehficon}{Model}{https://huggingface.co/ropedia-ai/DA-Next}{ropedia-ai/DA-Next}
+\end{paperresources}
+
+\vspace{7pt}
+{\centering
+\includegraphics[width=1\textwidth]{figs/teaser.pdf}
+\par\vspace{6pt}
+\begin{minipage}{\textwidth}
+\footnotesize
+\refstepcounter{figure}\label{fig:teaser}
+Figure 1 | \textbf{\benchmark} provides a reproducible, cross-paradigm benchmark spanning 19 datasets, 546 scenes, 41 models, and 6 paradigms under deterministic multi-density sampling.
+Our analysis reveals insights on model design, domain generalization, data curation, and beyond, complemented by \ours and \dataset to address the embodied domain gap.
+\end{minipage}
+\par}
+
+\vspace{8pt}
+\begin{abstract}
+While spatial foundation models have demonstrated impressive performance on standard datasets, a critical question remains: are they truly \textbf{\textit{all-round players}} capable of generalizing robustly across diverse downstream tasks, arbitrary viewpoints, shifting scene domains, varying input densities, and specific hardware constraints?
+%
+Answering this overarching question requires a holistic assessment, yet current models are mainly evaluated on specific domains for which they were specifically designed or trained.
+%
+Such evaluations are intrinsically limited by narrow paradigm coverage, limited scene domains, and arbitrary frame sampling, making it fundamentally difficult to assess their true generalization capabilities.
+%
+To address this gap, we present \textbf{\benchmark}, a cross-paradigm, domain-diverse benchmark for spatial foundation models with deterministic sampling.
+%
+\benchmark features unprecedented scale and rigorous deterministic design, comprising \textbf{19} datasets and \textbf{546} scenes across \textbf{5} diverse spatial domains. It comprehensively evaluates \textbf{41} models across \textbf{6} paradigms on \textbf{5} task suites under \textbf{4} different input density settings.
+%
+Our extensive evaluation reveals that current models are not yet all-round players, and uncovers crucial insights for future advancement. Specifically, we demonstrate that full-context attention maximizes accuracy while bounded-memory strategies unlock long-sequence scalability.
+%
+Moreover, our empirical evaluations in challenging embodied and egocentric tasks demonstrate that strict domain alignment and high data quality are far more critical to performance than simple dataset scaling.
+%
+Furthermore, to address the largest data gap identified in our analysis, we go beyond evaluation by introducing a large-scale dataset, \textbf{DA-Next-5M}, and a strong baseline model, \textbf{DA-Next}, pushing the boundaries of spatial representation learning.
+\end{abstract}
+
+\input{body}
+
+\end{document}

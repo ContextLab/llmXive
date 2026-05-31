@@ -1,0 +1,73 @@
+\section{Experiments}
+\label{sec:exp}
+
+In this section, we present the detailed experimental setup, generation results, and ablation studies on key training factors.
+
+\subsection{Setup}
+
+We train two models, Wan2.1-T2V-1.3B~\cite{wan2025wan} and HY1.5-TI2V-8B~\cite{kong2024hunyuanvideo}, to generate videos of resolution $480\times 832$ with 77 frames. The autoregressive chunk size is set to 4 latent frames. For few-step distillation, we use 4 steps following Causal Forcing~\cite{zhu2026causal}. Roughly speaking, unless otherwise specified, for the HY1.5-based training, we use a batch size of 32 and a learning rate of $1\times 10^{-5}$; the bidirectional model is trained for 8K steps, followed\footnote{This 8K-step model is used as $s_{\text{real}}$ and $s_{\text{fake}}$ in Causal Forcing Stage 3, whereas Stage 1 is initialized from the 5K-step model.} by 4K steps for Causal Forcing Stage 1, 1.5K steps for Stage 2, and 500 steps for Stage 3. For the Wan2.1-based training, we use a batch size of 32 and a learning rate of $2\times 10^{-6}$; the bidirectional model is trained for 5K steps, followed by 4K steps for Causal Forcing Stage 1, 2K steps for Stage 2, and 200 steps for Stage 3. For details on the data, please refer to Sec.~\ref{sec:ablation}.
+
+
+\begin{table}[t]
+    \centering
+    \caption{\textbf{First-frame latency of different HY1.5 and Wan2.1 models.} We report the first-frame latency on a single A800 GPU. VAE-related time is excluded.}
+    \label{tab:latency}
+    \begin{tabular}{lccc}
+        \toprule
+        Base model & Model type & First-frame latency (s) & Speedup over multi-step bidirectional \\
+        \midrule
+        HY1.5~\cite{kong2024hunyuanvideo} & Multi-step bidirectional & 771.041 & $1.00\times$ \\
+        HY1.5 & Multi-step AR & 81.014 & $9.52\times$ \\
+        HY1.5 & Few-step AR & 3.446 & $223.75\times$ \\
+        \midrule
+        Wan2.1 & Multi-step bidirectional & 269.055 & $1.00\times$ \\
+        Wan2.1~\cite{wan2025wan} & Multi-step AR & 28.651 & $9.39\times$ \\
+        Wan2.1 & Few-step AR & 1.137 & $236.64\times$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{Results}
+In this section, we present the final results of applying the minWM framework to Wan2.1 and HY1.5. We first report the first-frame latency on the single A800 GPU excluding the VAE-related time, and then show several generated video samples.
+
+
+\paragraph{Few-step AR models substantially reduce the first-frame latency.
+} As shown in Tab.~\ref{tab:latency}, minWM substantially reduces the first-frame latency of both base models. In particular, the final few-step AR model achieves a $223.75\times$ first-frame latency reduction over the multi-step bidirectional HY1.5 baseline, and a $236.64\times$ first-frame latency reduction over the multi-step bidirectional Wan2.1 baseline. Notably, since the bidirectional model generates the entire sequence at once, its first-frame latency is naturally much higher than that of the AR model, which generates the first frame first and then continues to generate subsequent frames. In practical deployment scenarios, the low first-frame latency of the AR model allows users to start watching while generation is still ongoing, thereby reducing perceived waiting time.
+
+
+\paragraph{Few-step AR models preserve camera-controllable generation capability.} As shown in Fig.~\ref{fig:main}, the model is capable of camera-controllable generation and supports changing the camera action, demonstrating the effectiveness of the distillation algorithm in preserving the model's controllability.
+
+
+
+\input{Figures_tex/main}
+
+\subsection{Ablation Studies}
+\label{sec:ablation}
+In this section, we examine key factors encountered during training and present the corresponding ablation studies.
+
+\paragraph{Training data.}
+
+
+We first attempted to train on SpatialVid~\cite{wang2025spatialvid} data. Under our current training setup, however, models trained in this way, including both HY1.5~\cite{kong2024hunyuanvideo} and Wan2.1~\cite{wan2025wan}, did not yet achieve reliable camera-controllable generation, as illustrated in Fig.~\ref{fig:ablation-data}(a). Even with additional data filtering, the model still struggled to perform accurate camera control in our experiments. We hypothesize that this may be related to the use of perception-estimated camera poses, which can introduce pose noise or trajectory inconsistency compared with ground-truth trajectories. \textit{This result should be interpreted as a limitation of our current SpatialVid-based training attempt rather than a conclusion that SpatialVid is unsuitable for this task.} We leave improved filtering, pose refinement, and more systematic SpatialVid-based training to future work.
+
+
+Based on this observation, we argue that ground-truth camera poses are crucial. We therefore adopt a 3D reconstruction and re-rendering strategy: we reconstruct scenes from the DL3DV~\cite{ling2024dl3dv} dataset and then render videos along prescribed camera trajectories. With this data, the model successfully learns camera controllability, as illustrated in Fig.~\ref{fig:ablation-data}(b).
+
+For the open-source version, we adopt another dataset construction strategy: we sample images from OpenVid~\cite{nan2024openvid} and other sources, and use WorldPlay~\cite{sun2025worldplay} to generate videos following specified camera trajectories. This also provides effective ground-truth trajectories, and the model can likewise learn camera controllability, as illustrated in Fig.~\ref{fig:ablation-data}(c).
+
+
+\paragraph{Training steps.} 
+
+Taking HY1.5 as an example, we further report the number of training steps required for the bidirectional diffusion model to acquire camera controllability. We find that after only one to two thousand training steps, the model remains completely uncontrollable, as illustrated in Fig.~\ref{fig:ablation-steps}(a). After around five thousand steps, the model begins to exhibit camera controllability, as illustrated in Fig.~\ref{fig:ablation-steps}(b). After eight thousand steps, the model achieves strong controllability, as illustrated in Fig.~\ref{fig:ablation-steps}(c).
+
+\paragraph{Minimal batch size.}
+
+Taking Wan2.1 as an example, we investigate the minimum batch size required for learning camera controllability, aiming to facilitate research under limited computational budgets. We find that when the batch size is smaller than 4, the model often fails to learn camera controllability, as illustrated in Fig.~\ref{fig:ablation-bs}(a). With a batch size of 8, the model's controllability improves substantially, but remains somewhat unstable, as illustrated in Fig.~\ref{fig:ablation-bs}(b). With a batch size of 16, the full training pipeline can be successfully completed with high controllability, as illustrated in Fig.~\ref{fig:ablation-bs}(c).
+
+
+\input{Figures_tex/data}
+
+\input{Figures_tex/steps}
+
+\input{Figures_tex/bs}

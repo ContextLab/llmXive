@@ -1,0 +1,137 @@
+
+\begin{table*}[t]
+\caption{\textbf{Quantitative 3D reconstruction results.} We report Overall$\downarrow$ and F-Score$\uparrow$ for 3D reconstruction on the DA3 benchmark~\cite{depthanything3}, comparing single-view and multi-view restoration approaches. The best result is highlighted in \textbf{bold} and the second best is \underline{underlined}.}
+\label{tab:recon}
+\centering
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c}{\textbf{HiRoom}}
+& \multicolumn{2}{c}{\textbf{ETH3D}}
+& \multicolumn{1}{c}{\textbf{DTU}}
+& \multicolumn{2}{c}{\textbf{7Scenes}}
+& \multicolumn{2}{c}{\textbf{ScanNet$++$}} \\
+\cmidrule(lr){2-3} 
+\cmidrule(lr){4-5} 
+\cmidrule(lr){6-6} 
+\cmidrule(lr){7-8} 
+\cmidrule(lr){9-10}
+
+& Overall$\downarrow$ & F-score$\uparrow$
+& Overall$\downarrow$ & F-score$\uparrow$
+& Overall$\downarrow$
+& Overall$\downarrow$ & F-score$\uparrow$
+& Overall$\downarrow$ & F-score$\uparrow$ \\
+\midrule
+
+\textit{Input Conditions} \\
+\midrule
+HQ Input
+& 0.069 & 84.05
+& 0.812 & 60.81
+& 2.475
+& 0.159 & 45.15
+& 0.265 & 50.25 \\
+
+LQ Input
+& 1.634 & 11.74
+& {1.564} & \underline{37.50}
+& 6.611
+& 0.363 & 18.40
+& 0.335 & 24.13 \\
+
+\midrule
+
+\textit{Single-View Restoration} \\
+\midrule
+Restormer~\cite{zamir2022restormer}
+& 0.842 & 11.21
+& 2.116 & 33.97 
+& 7.272
+& 0.388 & 27.92
+& {0.326} & \underline{30.45} \\
+
+
+HI-Diff~\cite{chen2023hierarchical}
+& 1.778 & 8.07
+& 3.256 & 35.10  
+& 7.758
+& 0.392 & 25.92
+& 0.334 & 25.83 \\
+
+
+InstructIR~\cite{conde2024high}
+& 0.992 & \underline{12.41}
+& 2.263 & 33.71  
+& \underline{5.563}
+& 0.311 & \underline{29.80}
+& 0.366 & 26.06 \\
+
+MoCE-IR~\cite{zamfir2024complexityexperts}
+&  1.275 & 10.62
+&  1.539 & 37.15
+&  6.120
+&  0.291 & 26.31
+&  0.324  & 25.97
+\\
+
+\midrule
+
+\textit{Multi-View Restoration} \\
+\midrule
+
+VRT~\cite{liang2024vrt}
+& 1.289  & 9.45
+& \underline{1.493} & 35.14
+& 7.570
+& 0.538 &  19.53
+& \underline{0.319} &  26.72
+\\
+
+
+FMA-Net~\cite{Youk_2024_CVPR}
+&  1.988 &   9.61
+&  1.865 &   35.65
+&  7.415
+&  1.368 &   13.37
+&  0.389 &   19.66
+\\
+
+
+% FMA-Net~\cite{Youk_2024_CVPR}
+% & 1.988 & 9.61 
+% & 1.865 & 35.66
+% & 7.415
+% & 1.368 & 13.37 
+% & 0.390 & 19.66 \\
+
+
+
+VAE$_\text{MVD}$
+& \underline{0.750} & 11.26
+& 2.046 & 25.64   
+& 7.745
+& \underline{0.259} & 28.16
+& 0.343 & 28.38 \\
+
+
+\textbf{GARD (Ours)}
+& \textbf{0.293} & \textbf{18.25}
+& \textbf{1.136} & \textbf{45.79} 
+& \textbf{4.760}
+& \textbf{0.190} & \textbf{36.08}
+& \textbf{0.277} & \textbf{35.77} \\
+
+% \textbf{MVRM$_\text{GARDv2}$ (Ours)}
+% &  &  
+% &  &  
+% &     
+% &  &  
+% &  &   \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}

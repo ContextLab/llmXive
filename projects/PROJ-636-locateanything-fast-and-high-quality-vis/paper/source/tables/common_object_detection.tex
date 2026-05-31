@@ -1,0 +1,54 @@
+\begin{table*}[t]
+\centering
+\caption{Results on LVIS and COCO. Throughout all tables, ``-'' means that the information was not reported in the respective papers or the model does not support the corresponding task, \textbf{bold} and \underline{underline} highlight the best and second-best, and BPS (Boxes Per Second) measures decoding throughput.}
+\vspace{-1mm}
+\label{tab:lvis_coco_f1_merged}
+\resizebox{1.0\textwidth}{!}{
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{l|c|c|ccc|c|ccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}} &
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}\textbf{Throughput}\\ \end{tabular}} &
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}\textbf{Zero-Shot}\\ \textbf{(LVIS)} \end{tabular}} &
+\multicolumn{3}{c|}{\textbf{LVIS} (F1@IoU)} &
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}\textbf{Zero-Shot}\\ \textbf{(COCO)}\end{tabular}} &
+\multicolumn{3}{c}{\textbf{COCO} (F1@IoU)} \\
+\cline{4-6}\cline{8-10}
+& & &
+0.5 & 0.95 & Mean &
+&
+0.5 & 0.95 & Mean \\
+
+\midrule
+\multicolumn{10}{c}{{Open-set Specialized Detectors}} \\
+\midrule
+
+Grounding DINO-Swin-T~\citep{liu2023grounding} & - & Yes & 47.7 & \underline{22.7} & 38.8 & Yes & 69.8 & \underline{23.0} & \underline{56.6} \\
+
+\midrule
+
+\multicolumn{10}{c}{{Closed-set Specialized Detectors}} \\
+\midrule
+Faster RCNN-R50~\citep{ren2016faster}        & - & - & - & - & - & No & 60.6 & 7.1  & 48.1 \\
+DETR-R50~\citep{carion2020end}               & - & - & - & - & - & No & 65.9 & 13.6 & 48.3 \\
+Deformable-DETR-R50~\citep{zhu2021deformabledetrdeformabletransformers}    & - & - & - & - & - & No & 69.7 & 17.7 & 54.7 \\
+DINO-R50~\citep{zhang2022dino}               & - & - & - & - & - & No & 68.8 & 21.1 & 55.6 \\
+DINO-Swin-L~\citep{zhang2022dino}            & - & - & - & - & - & No & \textbf{75.6} & \textbf{25.4} & \textbf{62.1} \\
+
+\midrule
+\multicolumn{10}{c}{{Vision-Language Models}} \\
+\midrule
+DeepSeek-VL2-Small~\citep{wu2024deepseekvl2mixtureofexpertsvisionlanguagemodels}  & - & - & 56.2 & 21.0 & 41.8 & - & 60.9 & 14.9 & 45.9 \\
+MiMo-VL-7B~\citep{coreteam2025mimovltechnicalreport}          & 1.0 & - & 49.5 & 8.8  & 31.4 & - & 56.5 & 6.7  & 35.9 \\
+OVIS2.5-2B~\citep{lu2025ovis25technicalreport}          & 1.3 & - & 54.4 & 15.8 & 37.4 & - & 56.2 & 10.3 & 38.7 \\
+Qwen3-VL-4B~\citep{bai2025qwen3vltechnicalreport}         & 1.1 & - & 59.8 & 20.0 & 43.5 & - & 63.0 & 14.2 & 46.1 \\ 
+Qwen3-VL-8B~\citep{bai2025qwen3vltechnicalreport}         & 1.0 & - & 61.5 & 20.2 & 44.8 & - & 62.8 & 14.0 & 45.7 \\ 
+Cosmos-Reason2-8B~\citep{cosmosreason2}         & 1.0 & - & 56.4 & 9.8 & 40.2 & - & 56.4 & 9.8 & 39.3 \\ 
+SEED1.5-VL~\citep{guo2025seed15vltechnicalreport}          & - & Yes & \textbf{65.6} & 19.5 & 46.7 & Yes & 71.3 & 14.3 & 51.4 \\
+Rex-Omni-3B~\citep{jiang2025rexomni}             & \underline{5.0} & Yes & \underline{64.3} & 20.7 & \underline{46.9} & Yes & \underline{72.0} & 15.9 & 52.9 \\
+\rowcolor{lightblue!10}
+LocateAnything-3B      & \textbf{12.7} & Yes & 62.3 & \textbf{31.1} & \textbf{50.7} & Yes & 70.1 & 19.3 & 54.7 \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}

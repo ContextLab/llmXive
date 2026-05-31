@@ -1,0 +1,10 @@
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{suppl/suppl_asset/JAE_camera_sim_figure_copy_2.pdf}
+    \caption{
+    \textbf{Feature similarity analysis across layers.}
+    We evaluate the cosine similarity between the restored feature representations and the corresponding clean HQ representations across the multi-view encoder layers of the feed-forward 3D reconstruction model~\cite{depthanything3}. The GARD denoiser is applied at layer $K=18$. Across all DA3 benchmark~\cite{depthanything3} datasets, the feature similarity of the degraded LQ representations (red) progressively decreases in deeper layers due to the accumulation of degradation-induced feature distortion. In contrast, the restored representations produced by the GARD denoiser (blue) recover feature representations that remain substantially closer to the clean HQ representations throughout the deeper layers. This demonstrates that the GARD denoiser effectively restores geometry-aware features and suppresses degradation propagation, resulting in substantially improved consistency with the clean HQ representations. Please zoom in for clearer visualization.
+    }
+    \label{fig:suppl_feat_sim}
+\end{figure}
+

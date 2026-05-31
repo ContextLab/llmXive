@@ -1,0 +1,90 @@
+\section{Depth-Anything-Next}
+\label{dan}
+To fill the gap of 3D foundation models in the egocentric and wrist-view domains, we introduce Depth-Anything-Next and our \dataset dataset in this section.
+
+\subsection{\dataset Dataset}
+
+\begin{figure}[t] 
+\centering 
+\includegraphics[width=\columnwidth]{figs/egoexpert.pdf}
+\caption{\textbf{\dataset Data Samples}. The dataset showcases a diverse array of assets and episodes.} 
+\vspace{-10pt}
+\label{Fig.egoexpert} %
+\end{figure}
+
+We curate \textbf{\dataset}, a large-scale 3D dataset comprising 5.5M high-quality frames across 22K scenes, primarily collected from egocentric and wrist-view perspectives.
+%
+This category of views presents unique challenges, including high motion dynamics, frequent occlusions, and ultra-close-range capture, making it a critical data paradigm for embodied intelligence applications.
+%
+Tab.~\ref{egoexpert-table} presents the statistics of \dataset, where all datasets provide image sequences, metric depths, camera intrinsics, and extrinsics.
+%
+For simulation-based datasets, extensive domain randomization is applied to various factors, including background appearance, object size, color, and wrist camera placement.
+%
+Please refer to Appendix~\ref{appendix:datasets} for the data collection pipeline.
+
+
+\subsection{Model Architecture}
+
+\begin{wrapfigure}{r}{0.7\textwidth}
+  \centering
+  \vspace{-10pt}  % 微调垂直位置
+  \includegraphics[width=\linewidth]{figs/danext.pdf}
+  \vspace{-15pt}
+  \caption{\textbf{Overview of Depth-Anything-Next.} The model incorporates additional scale tokens to learn the scene-level metric scale. Optionally, camera pose information can be embedded as GT camera tokens to serve as auxiliary input to provide geometric guidance.}
+  \label{fig:dan}
+  \vspace{-10pt}
+\end{wrapfigure}
+
+Depth-Anything-Next builds upon the architecture of DA3~\citep{lin2025depth}, while extending it with the capability to predict absolute scale in an end-to-end manner. 
+%
+Fig.~\ref{fig:dan} illustrates the overall architecture of \ours.
+%
+Specifically, \ours takes a sequence of frames $\mathbf{I} = \{I_i\}^N_{i=1}$ and auxiliary camera information $\mathbf{C} = \{C_i\}^N_{i=1}$ as input, where each $C_i=\{K_i,G_i\}$ comprises the intrinsics $K_i\in \mathbb{R}^{3\times 3}$ and the pose $G_i\in\mathrm{SE}(3)$.
+%
+All the frames are first patchified into patch tokens $\mathbf{e}_f$. 
+%
+The patch tokens from all frames are then concatenated with camera tokens $\mathbf{e}_c$ and scale tokens $\mathbf{e}_s$, and jointly processed by the transformer encoder 
+$\mathcal{E}$:
+%
+$
+(\hat{\mathbf{e}}_c,\hat{\mathbf{e}}_s,\hat{\mathbf{e}}_f)=\mathcal{E}(\mathbf{e}_c,\mathbf{e}_s,\mathbf{e}_f).
+$
+Here, $\mathbf{e}_c$ represents GT camera tokens when auxiliary camera information is available, and defaults to learnable camera tokens otherwise.
+%
+\ours adopts pure transformer blocks as its encoder, where frame-wise self-attention and global self-attention alternate throughout the layers.
+%
+After being processed by the encoder ($L$ layers), the patch tokens $\hat{\mathbf{e}}_f$ and camera tokens $\hat{\mathbf{e}}_c$ are fed into the Dual-DPT heads to produce the final depth map $\hat{\mathbf{D}}$ and ray map $\hat{\mathbf{R}}$ predictions, while the scale tokens $\hat{\mathbf{e}}_s$ are passed through a lightweight MLP to regress a scalar scale factor $\hat{S}$.
+%
+Finally, the scene point cloud is reconstructed from the predicted depth map $\hat{\mathbf{D}}$, ray map $\hat{\mathbf{R}}$, and scale factor $\hat{S}$.
+%
+
+
+
+\subsection{Implementation Details}
+
+\textbf{Training Objectives.}
+Following DA3~\citep{lin2025depth}, our training objective is a multi-task loss comprising five components: depths $\{\hat{\mathbf{D}},\mathbf{D}\}$, depth gradients $\{\nabla\hat{\mathbf{D}},\nabla\mathbf{D}\}$, ray maps $\{\hat{\mathbf{R}},\mathbf{R}\}$, points $\{\hat{\mathbf{P}},\mathbf{P}\}$, and scale $\{\hat{S},S\}$ supervision.
+%
+The total loss is defined as $\mathcal{L} = \mathcal{L}_{\text{depth}} + \alpha \mathcal{L}_{\text{grad}}+ \mathcal{L}_{\text{ray}} + \mathcal{L}_{\text{pmap}} + \mathcal{L}_{\text{scale}}$.
+%
+Prior to loss computation, all ground-truth signals are canonicalized into the first-camera coordinate frame and then normalized by a per-scene scale factor $S$, defined as the mean $\ell_2$ norm of the valid ground-truth world points $\mathbf{P}$. We divide $\mathbf{P}$, $\mathbf{D}$, and the camera translations by $S$, and use $S$ itself as the regression target of the scale head, so that $\hat{S}$ recovers the absolute metric scale to which the other predictions are invariant.
+%
+All loss terms are based on the $\ell_1$ norm with $\alpha=1$, where the scale loss is defined as: $\mathcal{L}_{\text{scale}} = \| f_{\log}(\hat{S}) - f_{\log}(S) \|_1$ and $f_{\log }: \mathbf{x} \rightarrow(\mathbf{x} /\|\mathbf{x}\|) \cdot \log (1+\|\mathbf{x}\|)$.
+
+
+\textbf{Datasets.} 
+We train our model mainly on \dataset.
+%
+To mitigate potential generalization degradation, we retain data from 11 general 3D datasets for joint training, including Mapfree~\citep{arnold2022mapfree}, Hypersim~\citep{roberts2021hypersim}, Infinigen~\citep{raistrick2024infinigen}, etc.
+%
+The full datasheet and dataset mixture can be found in the Appendix~\ref{appendix:dan}.
+
+\textbf{Training Details.}
+Our \ours architecture follows DA3-Giant~\citep{lin2025depth} with $L = 41$ Transformer blocks and is initialized by pre-trained weights.
+%
+During training, each batch incorporates ground-truth camera information as auxiliary input with probability $p=20\%$.
+%
+The training runs end-to-end on 4 NVIDIA H200 GPUs over seven days.
+%
+We provide complete implementation details in Appendix~\ref{appendix:dan}.
+

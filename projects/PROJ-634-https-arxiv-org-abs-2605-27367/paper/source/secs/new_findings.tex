@@ -1,0 +1,210 @@
+\section{Findings: How to Train Your Best Spatial Foundation Models?}
+\input{tabs/main_table}
+
+Tab.~\ref{tab:main_leaderboard_filtered} presents the main results on \benchmark, reporting depth, camera pose, trajectory, and point cloud metrics across single-frame, sparse, medium, dense, and average settings for 41 models spanning six reconstruction paradigms.
+%
+We refer the reader to Appendix~\ref{appendix:completeresults} for per-regime sub-tables and per-dataset metric breakdowns.
+% =========================================================================
+% Combined figure 1: Operating snapshot + Memory scaling
+% =========================================================================
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/geobench_p2_operating_snapshot.png}
+    \captionof{figure}{\textbf{Operating snapshot.} Memory, depth error, and inference time at $N=800$.}
+    \label{fig:geobench_operating_snapshot}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/geobench_p1_memory_curve.png}
+    \captionof{figure}{\textbf{Memory scaling.} Peak GPU memory versus input sequence length.}
+    \label{fig:geobench_memory_scaling}
+  \end{minipage}
+  % \vspace{-10pt}
+\end{figure}
+
+\noindent\textbf{Full-Context Attention Sets the Accuracy Upper Bound on High-Memory GPUs.}
+Fig.~\ref{fig:geobench_operating_snapshot} compares representative models at a fixed sequence length of $N=800$, where all compared methods successfully complete the input.
+%
+Under this shared input budget, full-context feed-forward models occupy the strongest accuracy region of the memory--accuracy Pareto plot.
+%
+In particular, DA3-Giant and $\pi^{3}$ achieve the lowest depth errors among the compared paradigms, outperforming streaming and online-map variants in reconstruction accuracy.
+%
+This indicates that globally coupled attention over the input sequence remains a highly effective representation mechanism for geometric reasoning.
+%
+By jointly resolving cross-view correspondences and enforcing scene-level consistency, full-context models provide stronger reconstruction accuracy and generalization under the same budget.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{Under the same input budget, the full-context attention models still define the accuracy upper bound, suggesting that globally coupled representations remain crucial for high-fidelity 3D geometry estimation and reconstruction.}
+}
+
+\noindent\textbf{Bounded-Memory Modeling Enables Long-Sequence Reconstruction on Limited GPUs.}
+The accuracy advantage of full-context models comes with a clear physical constraint.
+%
+As shown in Fig.~\ref{fig:geobench_memory_scaling}, their GPU memory consumption grows rapidly with sequence length and eventually reaches the out-of-memory boundary on dense long-horizon inputs.
+%
+Streaming, online, chunk-wise, and TTT variants exhibit a different scaling behavior: by restricting the active context through causal updates, sliding windows, or chunked inference, they maintain substantially flatter memory curves and can continue processing sequences that full-context models cannot complete under the same hardware budget.
+%
+As sequence length grows, these methods show stronger trajectory-level consistency (lower ATE), reflecting their ability to maintain long-range geometric alignment.
+%
+However, their depth estimation accuracy remains below that of full-context models across all input regimes, indicating that bounded-memory inference trades pairwise geometric precision for scalability.
+%
+Thus, these two model families occupy complementary operating regimes: full-context models are preferable when accuracy on bounded inputs is the priority, while bounded-memory methods are better suited for long-horizon or resource-constrained deployment.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{Streaming, chunk-wise, and TTT models trade part 
+of the full-context accuracy advantage for bounded-memory inference, enabling 
+continuous long-horizon reconstruction under realistic hardware constraints.}
+}
+
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/geobench_p4_data_vs_performance.png}
+    \captionof{figure}{\textbf{Training coverage.} Dataset count, parameter scale, and \benchmark accuracy.}
+    \label{fig:geobench_training_coverage}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/geobench_p3_auc30_domains.png}
+    \captionof{figure}{\textbf{Domain-level OOD severity.} Mean AUC@30 grouped by evaluation domain.}
+    \label{fig:geobench_domain_ood}
+  \end{minipage}
+  % \vspace{-5pt}
+\end{figure}
+
+\noindent\textbf{Training Data Volume Correlates with Performance, but Data Quality is the a Critical Factor.}
+Tab.~\ref{tab:merged_dataset_usage_training_only} summarizes the training datasets used across all evaluated methods, showing considerable variation in both dataset count and domain coverage.
+%
+As shown in Fig.~\ref{fig:geobench_training_coverage}, there is a clear positive correlation between the number of training datasets and composite benchmark score within the end-to-end and online paradigms: methods trained on more diverse data sources consistently achieve higher performance.
+%
+However, data volume alone does not tell the full story.
+%
+Within comparable dataset counts, data quality plays a more decisive role than sheer dataset quantity.
+%
+A representative example is DA3, which leverages synthetic datasets to train a teacher model and subsequently refines noisy depth estimates to generate high-quality pseudo-GT supervision. 
+%
+This careful curation strategy enables DA3 to achieve the highest composite scores among feed-forward models, despite not relying on the largest training corpus.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{Training data volume and performance are positively correlated, but data quality is the more decisive factor: carefully curated, high-quality pseudo-GT supervision consistently outperforms larger but noisier training mixtures under comparable dataset scales.}
+}
+
+\noindent\textbf{Egocentric-View and Wrist-View Remain the Dominant OOD Failure Modes.}
+The most severe generalization gap exposed by \benchmark is not on standard indoor reconstruction datasets, but on embodied-view domains.
+%
+As shown in Fig.~\ref{fig:geobench_domain_ood}, the cross-method average remains relatively strong on indoor datasets, while performance drops sharply on ego-view and especially wrist-view sequences.
+%
+This failure is not caused by a single weak model: the OOD curve averages over the full evaluated method pool, indicating a field-level limitation.
+%
+The training-data analysis explains this behavior.
+%
+Current pre-training mixtures heavily cover standard indoor and outdoor reconstruction data, but real robot wrist-view data is systematically absent, and real egocentric coverage is sparse.
+
+To address this gap, \ours is trained on \dataset, which explicitly incorporates egocentric and wrist-view data into the training mixture.
+%
+As shown in Tab.~\ref{tab:main_leaderboard_filtered}, \ours achieves consistent and substantial improvements over DA3-Giant across depth and camera pose metrics: depth AbsRel improves by 47\% from $0.095$ to $0.050$ on sparse inputs and 59\% from $0.086$ to $0.035$ on medium inputs, while AUC@30 improves by $+3.1\%$ and $+5.5\%$ respectively.
+%
+These gains confirm that targeted in-domain data curation is an effective and practical strategy for closing the OOD gap.
+
+\observationbox{
+\textbf{Takeaway}: \textit{The largest remaining data gap is domain diversity, not only data volume: ego-view and wrist-view data are underrepresented in current training mixtures and produce the strongest OOD failures on \benchmark. %
+\ours, trained on \dataset, directly addresses this gap.}
+}
+
+\noindent\textbf{Is Test-Time Training a Free Lunch?}
+
+
+\begin{wraptable}{r}{0.58\textwidth}
+\vspace{-20pt}
+\centering
+\caption{\textbf{TTT vs.\ Base model across input length regimes.}
+For each (Base model, TTT) pair, we report aggregate camera-pose \textbf{AUC@30} ($\uparrow$) and global trajectory \textbf{ATE} ($\downarrow$), formatted as \emph{base} $\rightarrow$ \emph{TTT}. {\color{ForestGreen}Green} marks improvement, {\color{red}red} marks regression. $^{\dagger}$ Vanilla VGGT OOMs under \emph{Dense}.
+}
+\label{tab:ttt_length_ablation}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{l l c c}
+\toprule
+\textbf{Regime} & \textbf{Pair} & \textbf{AUC@30}~$\uparrow$ & \textbf{ATE}~$\downarrow$ \\
+\midrule
+\multirow{3}{*}{Sparse}
+ & CUT3R / TTT3R & 0.519 $\rightarrow$ {\color{red}0.470}        & --- \\
+ & VGGT / Scal3R & 0.700 $\rightarrow$ {\color{ForestGreen}0.732} & --- \\
+ & Pi3 / LoGeR   & 0.742 $\rightarrow$ {\color{red}0.708}        & --- \\
+\midrule
+\multirow{3}{*}{Medium}
+ & CUT3R / TTT3R & 0.469 $\rightarrow$ {\color{ForestGreen}0.493} & 2.68 $\rightarrow$ {\color{ForestGreen}2.34} \\
+ & VGGT / Scal3R & 0.687 $\rightarrow$ {\color{red}0.670}         & 0.73 $\rightarrow$ {\color{ForestGreen}0.40} \\
+ & Pi3 / LoGeR   & 0.749 $\rightarrow$ {\color{red}0.714}         & 0.57 $\rightarrow$ {\color{red}0.57} \\
+\midrule
+\multirow{3}{*}{Dense}
+ & CUT3R / TTT3R & 0.165 $\rightarrow$ {\color{ForestGreen}0.321} & 25.5 $\rightarrow$ {\color{ForestGreen}21.1} \\
+ & VGGT$^{\dagger}$ / Scal3R & N/A $\rightarrow$ {\color{ForestGreen}0.480}           & N/A $\rightarrow$ \color{ForestGreen}{2.40} \\
+ & Pi3 / LoGeR   & 0.524 $\rightarrow$ {\color{ForestGreen}0.598} & 16.4 $\rightarrow$ {\color{ForestGreen}4.60} \\
+\bottomrule
+\end{tabular}
+\vspace{-12pt}
+\end{wraptable}
+
+Tab.~\ref{tab:ttt_length_ablation} contrasts three pairs of feedforward 3D foundation models with their test-time training (TTT) descendants: CUT3R~\citep{wang2025cut3r} / TTT3R~\citep{chen2025ttt3r}, VGGT~\citep{wang2025vggt} / Scal3R~\citep{xie2026scal3r}, and Pi3~\citep{wang2025pi3} / LoGeR~\citep{zhang2026loger} across \emph{Sparse}, \emph{Medium}, and \emph{Dense}, summarized by aggregate camera-pose \textbf{AUC@30} ($\uparrow$) and global trajectory \textbf{ATE} ($\downarrow$).
+%
+Specifically, the TTT methods are designed to digest sequences longer than the context their base models were trained on.
+%
+For example, Scal3R inserts chunk-wise Global Context Memory into VGGT, and LoGeR augments Pi3 with a parametric TTT memory plus sliding-window attention.
+%
+Therefore, the natural prior is that TTT should pay off most when sequences are long, and least when they are short and discontinuous.
+%
+The \emph{Dense} block confirms this expectation. 
+%
+TTT3R nearly doubles AUC@30 ($0.165\!\to\!0.321$, $+95\%$) and cuts ATE by $17.5\%$; LoGeR lifts AUC@30 by $14.1\%$ and reduces ATE by $72\%$ over Pi3; Scal3R is the \textit{only} VGGT-family model that runs at all, since vanilla VGGT OOMs under thousand-frame inputs.
+%
+In the \emph{Medium} setting, inputs contain a mix of short and moderately long segments, which limits the benefit of TTT. 
+%
+Gains become inconsistent across metrics: AUC@30 improves only for TTT3R ($+5.1\%$) while regressing for Scal3R ($-2.5\%$) and LoGeR ($-4.7\%$); ATE narrows for TTT3R ($-12.7\%$) and Scal3R ($-45.2\%$) but stays flat for LoGeR ($0.57\!\to\!0.57$).
+%
+In the \emph{Sparse} setting, inputs consist of only $4$--$15$ frames with large baselines and limited temporal continuity, making it difficult for TTT methods to perform effective test-time updates. 
+%
+As a result, the end-to-end base models outperform their TTT counterparts on AUC@30 in two of the three pairs, with only Scal3R holding even ($+4.7\%$).
+%
+\observationbox{
+\textbf{Takeaway}: \textit{TTT's gains are concentrated on \emph{dense} long sequences, where it consistently improves both pairwise camera pose accuracy and global trajectory consistency over the base models, which confirms that TTT is engineered as a length-generalization mechanism rather than as a universal free lunch.}
+}
+
+
+
+% \Needspace{0.72\textheight}
+\noindent\textbf{Can Injecting GT Priors Drive Performance to a Perfect Level?}
+
+\input{tabs/prior_table}
+
+Tab.~\ref{tab:prior_ablation_combined} presents an ablation study on the effect of injecting ground-truth depth and camera pose priors for five prior-aware models (DA3-Giant, MapAnything, OmniVGGT, $\pi^3$-X, and WorldMirror) across sparse and medium input settings, evaluated on depth, camera, trajectory, and point cloud metrics.
+%
+All prior-aware models benefit from depth prior injection to varying degrees, with depth metrics approaching near-GT-level accuracy across the board.
+%
+However, the effect of camera pose priors is more nuanced.
+%
+DA3-Giant and MapAnything exhibit strong prior adherence: injecting GT camera poses leads to highly consistent pose predictions, with AUC@15 maintained above 90\% under all settings.
+%
+In contrast, OmniVGGT, $\pi^{3}$-X, and WorldMirror show moderate improvements but fail to fully conform to the injected camera poses under challenging conditions (see Fig.~\ref{Fig.bad_case} in Appendix.~\ref{prior_vis}), partially overriding them with their own predictions.
+%
+\observationbox{
+\textbf{Takeaway}: \textit{Injecting GT depth priors consistently drives depth estimation to near-perfect accuracy, yet camera pose priors yield inconsistent gains. Some models partially override the injected poses with their own predictions and fail under challenging conditions.}
+}
+
+Fig.~\ref{Fig.main_vis} presents a qualitative comparison against representative baselines, where \ours yields a more accurate camera trajectory and sharper geometry under challenging viewpoints.
+%
+Due to space limitations, we provide additional visualizations in Appendix~\ref{prior_vis} and findings in Appendix~\ref{appendix:other_findings}.
+
+
+\begin{figure*}[!tbp]
+\centering
+\includegraphics[width=\textwidth]{figs/main_vis.pdf}
+\caption{\textbf{Qualitative comparison of multi-view 3D reconstruction on \benchmark.}}
+\label{Fig.main_vis}
+\end{figure*}

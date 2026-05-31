@@ -1,0 +1,44 @@
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figures/realgrid_4x4.jpg}
+  \caption{\textbf{Qualitative out-of-distribution generalization of Qwen-VLA-Base on the ALOHA dual-arm robot.}
+  \textbf{Top-left:} color-conditioned grasping of green, blue, red, and yellow balls.
+  \textbf{Top-right:} upper two panels show grasping of novel objects (green broccoli, toy duck);
+    lower two panels show a compositional ``clean up the table'' task with sequential pick-and-place
+    into a bin (blue umbrella, toy duck, bottled yogurt).
+  \textbf{Bottom-left:} interaction with completely unseen objects (sunglasses, plush doll, toy duck).
+  \textbf{Bottom-right:} atomic action transfer through uncapping a pen and placing the cap,
+    robust to unseen yellow backgrounds.}
+  \label{fig:qualitative_ood}
+\end{figure}
+
+To qualitatively examine continual pre-training, we evaluate \textbf{Qwen-VLA-Base} on the ALOHA dual-arm robot under four out-of-distribution settings: color grounding, novel object manipulation, unseen object recognition, and background robustness. Representative rollouts are shown in \cref{fig:qualitative_ood}.
+
+\paragraph{Color grounding (top-left).}
+We test whether Qwen-VLA-Base can discriminate between visually similar objects that differ only in color.
+Across four trials the robot is prompted with ``grasp \{color\} ball'' for green, blue, red, and yellow, respectively.
+In all cases the model correctly identifies the target color and produces accurate reaching-and-grasping trajectories, indicating color-conditioned semantic grounding after continual pre-training.
+
+\paragraph{Novel object grasping and compositional clean-up (top-right).}
+We next test whether the model can \emph{zero-shot} grasp objects never seen in manipulation pretraining data.
+The top two panels show successful grasping prompted by ``grasp \{object\}'' for a green broccoli and a toy duck, both absent from the manipulation training set.
+The model successfully localizes and grasps the broccoli; for the toy duck, it correctly identifies the object and reaches toward it, though the irregular shape prevents a stable grasp.
+The bottom two panels further demonstrate a compositional task prompted by ``clean up the table,'' where the robot sequentially picks up a blue umbrella, a toy duck, and a bottled yogurt and places them into a bin. All three are everyday objects absent from the manipulation set.
+Qwen-VLA-Base clears all objects in sequence, showing zero-shot visual recognition of novel objects and re-planning after each pick-and-place cycle.
+This behavior is consistent with the mixed VL--VLA--VLN training setup: visual-language data exposes the model to a broader object vocabulary, which can transfer to manipulation even without in-domain demonstrations.
+
+\paragraph{Unseen object interaction (bottom-left).}
+We further probe zero-shot generalization by issuing ``approach \{object\}'' instructions for object categories entirely absent from pretraining: sunglasses, a plush doll, and a toy duck.
+Notably, the ``approach'' action itself is almost never present in our manipulation data, yet the model correctly interprets the instruction and navigates the end-effector toward each target object.
+For the toy duck, the model even succeeds in grasping it by the head.
+For sunglasses, the model accurately localizes the object and approaches it, though the thin and flat geometry prevents a stable grasp. This reflects the physical boundary of shape generalization rather than a failure in visual recognition or instruction following.
+This result suggests instruction-following transfer from mixed VL--VLA--VLN continual pre-training: the model can follow novel action verbs and recognize unseen objects using linguistic and visual coverage from the general-purpose pre-training data.
+
+\paragraph{Background robustness (bottom-right).}
+Finally, we probe robustness to visual domain shift.
+Qwen-VLA-Base successfully uncaps a pen and places the cap on the table, which is a dexterous two-stage action requiring precise force control.
+While this task may have been encountered during pre-training, the yellow background used here was never seen during training.
+Despite this unseen visual context, the policy completes the task without any degradation.
+This invariance to background perturbation is consistent with the visual diversity of the general-purpose VL understanding data used during continual pre-training. Exposure to natural images with varied scenes, lighting, and backgrounds may encourage the visual encoder to focus on task-relevant objects rather than spurious background cues.
+
+

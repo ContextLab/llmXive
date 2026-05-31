@@ -1,0 +1,53 @@
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3.8pt}%
+  \renewcommand{\arraystretch}{1.12}%
+  \setlength{\belowcaptionskip}{10pt}%
+    % \vspace{-10mm}
+    \caption{Comparison with Solaris across multi-agent evaluation protocols. FID and FVD are lower better ($\downarrow$). Best per column in \textbf{bold}.}%
+  \label{tab:method-comparison}%
+  % \vspace{-3mm}%
+  \resizebox{0.8\linewidth}{!}{%
+    \begin{tabular}{@{}
+        >{\raggedright\arraybackslash}p{2.2cm}
+        *{10}{c}
+        @{}
+      }
+      \toprule
+      \multirow{2}{*}{Method}
+        & \multicolumn{2}{c}{Memory}
+        & \multicolumn{2}{c}{Grounding}
+        & \multicolumn{2}{c}{Movement}
+        & \multicolumn{2}{c}{Building}
+        & \multicolumn{2}{c}{Consistency} \\
+      \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+        & FVD $\downarrow$ & FID $\downarrow$
+        & FVD $\downarrow$ & FID $\downarrow$
+        & FVD $\downarrow$ & FID $\downarrow$
+        & FVD $\downarrow$ & FID $\downarrow$
+        & FVD $\downarrow$ & FID $\downarrow$ \\
+      \midrule
+      Frame concat~\cite{enigma2025introducing_multiverse}
+        & $450.6$ & $69.8$
+        & $528.3$ & $63.2$
+        & $556.9$ & $65.0$
+        & $551.8$ & $87.3$
+        & $576.0$ & $123.2$ \\
+      \parbox[t]{2.2cm}{\raggedright Solaris~\cite{savva2026solaris}}
+        & $333.8$ & $51.7$
+        & $301.9$ & $36.1$
+        & $311.1$ & $36.3$
+        & $448.6$ & $71.0$
+        & $443.1$ & $94.8$ \\
+      \textbf{$\gamma$-World (Ours)}
+        & \textbf{184.1} & \textbf{24.8}
+        & \textbf{199.3} & \textbf{24.0}
+        & \textbf{191.5} & \textbf{21.2}
+        & \textbf{264.5} & \textbf{32.1}
+        & \textbf{280.0} & \textbf{46.9} \\
+      \bottomrule
+    \end{tabular}%
+    
+  }%
+\end{table*}

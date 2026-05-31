@@ -1,0 +1,148 @@
+%%%%%%%% ICML 2026 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+\usepackage{multirow}
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2026} with \usepackage[nohyperref]{icml2026} above.
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+% \usepackage{icml2026}
+
+% For preprint, use
+% \usepackage[preprint]{icml2026}
+
+% If accepted, instead use the following line for the camera-ready submission:
+\usepackage[accepted]{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem}
+
+% ---- Aesthetic packages (matching CPO paper style) ----
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{tcolorbox}
+
+% Table row colors (academic blue palette, matching citecolor=cyan)
+\definecolor{tableheader}{RGB}{229,240,254}
+\definecolor{tableours}{RGB}{238,249,255}
+
+% Gray highlight box style (CPO paper)
+\definecolor{greyL}{RGB}{240,240,240}
+\tcbset{
+  highlightbox/.style={
+    colback=greyL,
+    colframe=black,
+    boxrule=1pt,
+    arc=5pt,
+    boxsep=5pt,
+    left=5pt, right=5pt, top=0pt, bottom=0pt,
+    fontupper=\itshape
+  }
+}
+
+% Colored hyperlinks (matching CPO paper)
+\hypersetup{
+    colorlinks=true,
+    citecolor=cyan,
+    linkcolor=red,
+    urlcolor=cyan,
+}
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\hhr}[1]{\textcolor{purple}{[H: #1]}}
+\newcommand{\hhrn}[1]{\textcolor{purple}{#1}}
+\definecolor{codecomment}{RGB}{63,127,127}
+\renewcommand{\algorithmiccomment}[1]{\textcolor{codecomment}{\#\ #1}}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{ProRL: Effective RL for Proactive Recommendation via Rectified Policy Gradient Estimation}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{ProRL: Effective Reinforcement Learning for Proactive \\ Recommendation via Rectified Policy Gradient Estimation}
+
+  \icmlsetsymbol{equal}{*}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Hongru Hou}{equal,yyy}
+    \icmlauthor{Tiehua Mei}{equal,yyy}
+    \icmlauthor{Denghui Geng}{yyy}
+    \icmlauthor{Jinhui Huang}{yyy}\\
+    \icmlauthor{Ao Xu}{yyy}
+    \icmlauthor{Hengrui Chen}{yyy}
+    \icmlauthor{Jiaqing Liang}{yyy}
+    \icmlauthor{Deqing Yang}{yyy}
+  \end{icmlauthorlist}
+    
+    \icmlaffiliation{yyy}{School of Data Science, Fudan University, Shanghai, China}
+    
+    \icmlcorrespondingauthor{Deqing Yang}{yangdeqing@fudan.edu.cn}
+    \icmlkeywords{Machine Learning, ICML}
+
+  \vskip 0.3in
+]
+
+\printAffiliationsAndNotice{\icmlEqualContribution}
+
+\input{sec/abs}
+\input{sec/intro}
+\input{sec/preliminary}
+\input{sec/method}
+\input{sec/exp}
+\input{sec/related_work}
+\input{sec/conclusion}
+\input{sec/ack}
+
+\input{sec/Impact_statement}
+
+\bibliographystyle{icml2026}
+\bibliography{example_paper}
+
+% APPENDIX
+\newpage
+\appendix
+\onecolumn
+
+\input{sec/appendix}
+
+\end{document}

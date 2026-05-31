@@ -1,0 +1,92 @@
+\begin{table}[h]
+\centering
+
+\subfloat[
+\textbf{Pose estimation accuracy.} We report the area under the curve (AUC30)$\uparrow$ for pose evaluation.
+\label{tab:lr_ablation_pose}
+]{
+\begin{minipage}{0.48\linewidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\multirow{2}{*}{Model} &
+\multirow{2}{*}{Interp. Flow} &
+\multirow{2}{*}{Alignment} &
+\multicolumn{3}{c}{AUC30$\uparrow$} \\
+\cmidrule(lr){4-6}
+& & & ETH3D & DTU & ScanNet++ \\
+\midrule
+A    & \texttimes & \texttimes & 67.30 & 87.21 & 84.12 \\
+B    & \texttimes & \checkmark & 66.42 & 85.49 & 84.90 \\
+C    & \checkmark & \texttimes & \underline{73.85} & \underline{89.99} & \underline{85.90} \\
+\midrule
+D (Full) & \checkmark & \checkmark & \textbf{74.68} & \textbf{92.37} & \textbf{87.45} \\
+\bottomrule
+\end{tabular}}
+\end{minipage}
+}
+\hfill
+\subfloat[
+\textbf{3D reconstruction accuracy.} We report Overall$\downarrow$ for DTU, while F-score$\uparrow$ is reported for the remaining benchmarks.
+\label{tab:lr_ablation_recon}
+]{
+\begin{minipage}{0.48\linewidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\multirow{2}{*}{Model} &
+\multirow{2}{*}{Interp. Flow} &
+\multirow{2}{*}{Alignment} &
+\multicolumn{3}{c}{F-score$\uparrow$ / Overall$\downarrow$} \\
+\cmidrule(lr){4-6}
+& & & ETH3D & DTU & ScanNet++ \\
+\midrule
+A   & \texttimes & \texttimes & 39.91 & 5.43 & 31.52 \\
+B    & \texttimes & \checkmark & 38.44 & 5.40 & 30.63 \\
+C    & \checkmark & \texttimes & \underline{44.65} & \underline{4.92} & \underline{32.40} \\
+\midrule
+D (Full) & \checkmark & \checkmark & \textbf{45.79} & \textbf{4.76} & \textbf{35.77} \\
+\bottomrule
+\end{tabular}}
+\end{minipage}
+}
+\vspace{-5pt}
+\caption{\textbf{Ablation on GARD training components.}
+We conduct an ablation study on the training components of GARD across three representative benchmarks spanning outdoor, object-centric, and indoor scenes: ETH3D~\cite{schops2017multi}, DTU~\cite{aanaes2016large}, and ScanNet++~\cite{yeshwanth2023scannet++}, respectively.}
+\label{tab:abl_gard_training}\vspace{-10pt}
+\end{table}
+
+
+
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{lcccccccc}
+% \toprule
+% \multirow{2}{*}{Model} &
+% \multirow{2}{*}{LQ2HQ} &
+% \multirow{2}{*}{Alignment} &
+% \multicolumn{2}{c}{Camera Pose} &
+% \multicolumn{2}{c}{3D Reconstruction} &
+% \multicolumn{2}{c}{Image Metric} \\
+% \cmidrule(lr){4-5}
+% \cmidrule(lr){6-7}
+% \cmidrule(lr){8-9}
+% & &
+% & Auc5$\uparrow$ & Auc30$\uparrow$
+% & F-score$\uparrow$ & Acc$\uparrow$
+% & PSNR$\uparrow$ & SSIM$\uparrow$ \\
+% \midrule
+% A    & \texttimes & \checkmark &  &  &  &  &  &  \\
+% B    & \checkmark & \texttimes &  &  &  &  &  &  \\
+% C    & \checkmark & \checkmark &  &  &  &  &  &  \\
+% \midrule
+% Full & \checkmark & \checkmark &  &  &  &  &  &  \\
+% \bottomrule
+% \end{tabular}
+% \vspace{5pt}
+% \caption{\textbf{Ablation on LQ2HQ training and attention alignment.}
+% We evaluate the effects of LQ2HQ training and attention alignment on camera pose estimation, 3D reconstruction quality, and image restoration performance.}
+% \label{tab:lr_ablation}
+% \end{table}

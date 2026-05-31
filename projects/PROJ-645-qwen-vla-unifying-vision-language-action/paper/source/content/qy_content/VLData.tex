@@ -1,0 +1,84 @@
+% \subsubsection{Robotics Manipulation Trajectories}
+% \subsubsection{Vision-Language Data}
+\label{sec:vl-data}
+
+We further incorporate auxiliary vision-language supervision (8.5\% combined)
+to strengthen semantic grounding, fine-grained instruction following, and
+general visual reasoning.
+
+\paragraph{Fine-grained embodied action caption.}
+Most existing robot datasets provide only coarse task-level labels
+(e.g., ``pick up the ceramic bowl''), which are insufficient for precise
+action prediction: the same label may correspond to vastly different
+execution strategies (e.g., grasping from the left vs.\ the right,
+rotating clockwise vs.\ counter-clockwise), creating ambiguity during
+policy learning. Drawing inspiration from fine-grained text control in
+video generation, we construct dense action descriptions that tightly
+couple language to each individual episode.
+%
+To build a diverse yet manageable annotation set, we draw episodes from
+major open-source manipulation datasets across all task categories and
+apply a clustering-based selection strategy: episodes within each task
+are grouped by their action information, and representative ones are
+sampled to ensure broad coverage.
+%
+Each selected episode is annotated along 13 dimensions: action primitive,
+actor identity, object recognition and disambiguation, contact region,
+source and target location, trajectory and orientation, gripper state,
+and body motion. We use a two-stage pipeline for annotation.
+In the first stage, a vision-language model (Qwen3.6-plus) watches the
+video and extracts a coarse action sequence along with the manipulated
+object. In the second stage, the video is densely sampled into frames
+to preserve subtle motion details; the model then re-watches these
+frames conditioned on the first-stage output and produces fine-grained,
+step-by-step descriptions enriched with contact points, spatial
+relationships, and motion trajectories.
+For multi-view datasets, an additional refinement pass incorporates
+wrist- or side-camera footage to correct details only visible from
+close-up or alternative perspectives.
+All generated captions are finally reviewed and corrected by human
+annotators.
+%
+This pipeline yields approximately 48{,}000 fine-grained video--caption
+pairs (0.2\% of the pretraining mixture).
+Table~\ref{tab:caption-example} contrasts a coarse label with our
+fine-grained caption for the same episode.
+
+\begin{table}[h]
+\centering
+\caption{Coarse task label vs.\ fine-grained action caption for the same episode.}
+\label{tab:caption-example}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{0.15\linewidth} p{0.75\linewidth}}
+\toprule
+\textbf{Coarse label} & ``Pick up, rotate, and place the ceramic bowl.'' \\
+\midrule
+\textbf{Fine-grained} &
+  \textit{Step 1:} Pick up the ceramic bowl from the right far edge. \newline
+  \textit{Step 2:} Rotate the bowl clockwise for two full circles. \newline
+  \textit{Step 3:} Place the bowl at the center of the table. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Building on the annotated data, we further fine-tune a dedicated VLM for
+embodied action captioning. We also design a companion evaluation
+benchmark consisting of QA pairs derived from the ground-truth
+annotations together with a scoring rubric for assessing caption quality.
+
+\paragraph{Autonomous driving VQA.}
+We incorporate autonomous-driving visual question-answering data (2.4\%) as a complementary source of visually grounded, decision-oriented supervision. This mixture focuses on four transferable capabilities: (1) \emph{Temporal scene understanding}: driving scenes evolve under ego-motion, dynamic agents, and changing hazards. We include LingoQA~\citep{marcu2024lingoqa}, DriveAction~\citep{hao2025driveaction}, and MMAU~\citep{fang2024abductive} to strengthen event understanding and future-state prediction. 
+(2) \emph{Surround-view spatial reasoning}: multi-camera observations provide wide-field geometric context. We include Impromptu-VLA~\citep{chiimpromptu}, nuScenes-QA~\citep{qian2024nuscenes}, nuScenes-MQA~\citep{inoue2024nuscenes}, MapLM~\citep{cao2024maplm}, and WaymoQA~\citep{yu2025waymoqa} to improve viewpoint-robust localization and spatial-relation understanding across diverse vehicles, sensors, and road layouts. 
+(3) \emph{Language-grounded localization}: embodied agents must bind language to objects, regions, and spatial relations before acting. We include CODA-LM~\citep{chen2025automated}, Talk2Car~\citep{deruyttere2019talk2car}, DrivingVQA~\cite{corbiere2025retrieval}, DriveLM~\citep{sima2024drivelm}, W3DA~\citep{zhou2025towards}, and GRAID~\citep{elmaaroufi2025graid} for object-level grounding and region-aware question answering. 
+(4) \emph{Planning-aware reasoning}: safe decision making requires linking perception to route, lane, and trajectory constraints. We include Bench2Drive-VL~\citep{jia2026bench2drive}, DriveGPT4~\citep{xu2024drivegpt4}, OmniDrive~\citep{wang2025omnidrive}, Senna~\citep{jiang2024senna}, NAVSIM-RecogDrive~\citep{li2025recogdrive}, and NAVSIM-Traj to provide supervision for maneuver selection and future trajectory prediction. 
+Prior to pretraining, all data sources undergo standardization into a unified conversational format. We convert multiple-choice annotations into free-form QA supervision and normalize bounding boxes to a 1000-scale coordinate system. Additionally, multi-frame samples receive frame tags to maintain temporal order, while surround-view samples are assigned view tags to explicitly denote camera identity. Collectively, these structured sources offer transferable supervision for object-centric grounding, temporal state estimation, intent prediction, and goal-conditioned decision-making. This comprehensively complements the manipulation and navigation data utilized in our embodied pretraining.
+
+\paragraph{Spatial grounding.}
+We include 2D bounding box grounding data (2.5\%) to reinforce object-level
+spatial understanding. Accurate spatial grounding is a prerequisite for
+language-conditioned manipulation, where the model must localize task-relevant
+objects from instruction-specified descriptions.
+
+\paragraph{General vision-language data.}
+To preserve robust visual perception and language grounding during embodied VLA pretraining, we supplement the primary action-centric dataset with a curated mixture of general vision-language data (3.4\% of total tokens). This auxiliary mixture explicitly comprises: (1) captioning data for image--text alignment; (2) knowledge-oriented VQA and visual reasoning for world knowledge retention; (3) OCR and text-grounding samples for fine-grained textual perception; (4) interleaved instruction-following data for stable cross-modal alignment; and (5) common grounding tasks (e.g., referring expression, spatial relation prediction) for object-level language grounding. 
+Critically, to better support embodied reasoning, we strategically up-weight video-centric, spatial-relation, and 3D-aware supervision within this mixture. Collectively, these general vision-language objectives mitigate catastrophic forgetting, retain foundational world-knowledge priors, and enhance robustness in language-conditioned embodied perception.

@@ -1,0 +1,39 @@
+% Main body sections
+\input{secs/intro}
+\input{secs/related}
+\input{secs/benchmark}
+\input{secs/danext}
+\input{secs/new_findings}
+\input{secs/conclusion}
+
+
+\newpage
+{
+\small
+\bibliography{custom}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+  \startcontents[appendix]
+  \begingroup
+  \small
+  \linespread{0.94}\selectfont
+  \printcontents[appendix]{l}{1}{%
+    \section*{Appendix Contents}%
+    \vspace{-0.75em}%
+  }
+  \endgroup
+  \newpage
+
+\input{secs/appendix/data_curation}
+\input{secs/appendix/benchmark_detail}
+\input{secs/appendix/data_collection}
+\input{secs/appendix/danext}
+\input{secs/appendix/additional_finding}
+\input{secs/appendix/full_results}
+\input{secs/appendix/limitation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

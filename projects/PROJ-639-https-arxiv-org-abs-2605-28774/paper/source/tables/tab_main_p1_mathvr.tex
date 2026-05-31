@@ -1,0 +1,85 @@
+\begin{table*}[t]
+    \caption{Main results --- Pass@1 (\%, $\uparrow$) on \textbf{nine multimodal benchmarks}, grouped into three categories: Reasoning, Perception, and Search. All methods use \textbf{Qwen3-VL-Thinking}~\citep{Qwen3VL} at four sizes (2B, 4B, 8B, 32B). Best result per column within each size block is \textbf{bolded}; second-best is \underline{underlined}. \textit{$\Delta$} rows show AXPO's gain over SFT\,+\,GRPO, the strongest comparable training recipe where AXPO outperforms it in most of evaluations. Pass@4 results are reported in \autoref{tab:main-p4}.}
+    \vspace{-0.1in}
+    \label{tab:main-p1}
+    \centering
+    \small
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l ccc cccc cc >{\columncolor{mygray}}c}
+        \toprule
+        \multicolumn{1}{c}{} &
+        \multicolumn{3}{c}{\textbf{Reasoning}} &
+        \multicolumn{4}{c}{\textbf{Perception}} &
+        \multicolumn{2}{c}{\textbf{Search}} &
+        \multicolumn{1}{c}{\multirow{2}{*}[-3pt]{\textbf{Avg.}}} \\
+        \cmidrule(lr){2-4} \cmidrule(lr){5-8} \cmidrule(lr){9-10}
+        \textbf{Method} &
+        \shortstack{Math\\Vision} & \shortstack{Dyna\\Math} & \shortstack{Math\\-VR} &
+        V$^{\star}$ & \shortstack{Visual\\Probe} & \shortstack{HRBen.\\-4K} & \shortstack{HRBen.\\-8K} &
+        \shortstack{HR-MM\\Search} & \shortstack{MM\\Search} & \multicolumn{1}{c}{} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-2B-Thinking}} \\
+        \midrule
+        Base
+            & 18.6 & 60.5 & 16.9 & 63.0 & 5.0 & 64.6 & 55.9 & 8.2 & 27.7 & 35.6 \\
+        GRPO
+            & 33.7 & 64.9 & 34.6 & 67.1 & 23.8 & 65.0 & 59.4 & \textbf{18.4} & \textbf{41.4} & 45.4 \\
+        SFT
+            & 28.9 & 64.1 & 30.2 & 75.9 & 24.5 & 73.1 & 68.8 & 14.5 & 35.9 & 46.2 \\
+        \quad+\,GRPO
+            & \underline{34.8} & \underline{66.4} & \underline{35.8} & \textbf{81.7} & \textbf{36.1} & \underline{74.3} & \underline{70.6} & 15.7 & \underline{40.6} & \underline{50.7} \\
+        \rowcolor{myblue}
+        \quad+\,\textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+            & \textbf{35.0} & \textbf{66.9} & \textbf{38.9} & \underline{81.3} & \underline{35.1} & \textbf{77.9} & \textbf{72.4} & \underline{18.1} & 40.3 & \textbf{51.8} \\
+        \rowcolor{myblue!50}
+        \textit{\;\;$\Delta$ vs.\ SFT\,+\,GRPO}
+            & \dpos{0.2} & \dpos{0.5} & \dpos{3.1} & \dneg{0.4} & \dneg{1.0} & \dpos{3.6} & \dpos{1.8} & \dpos{2.4} & \dneg{0.3} & \dposavg{1.1} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-4B-Thinking}} \\
+        \midrule
+        Base
+            & 48.0 & \underline{76.6} & 50.8 & 80.6 & 24.8 & 73.6 & 67.5 & 16.9 & 37.8 & 53.0 \\
+        GRPO
+            & \underline{52.5} & 76.2 & \textbf{57.9} & 82.7 & 29.7 & 75.5 & 71.1 & 12.7 & 23.8 & 53.6 \\
+        SFT
+            & 49.1 & 76.3 & 55.3 & 87.0 & 34.7 & \underline{79.5} & \underline{74.1} & \textbf{20.6} & 41.5 & 57.6 \\
+        \quad+\,GRPO
+            & 51.6 & \textbf{77.2} & \underline{57.4} & \textbf{90.2} & \underline{38.0} & 78.8 & 73.8 & 20.0 & \underline{42.3} & \underline{58.8} \\
+        \rowcolor{myblue}
+        \quad+\,\textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+            & \textbf{52.8} & 76.4 & 57.2 & \underline{88.9} & \textbf{43.6} & \textbf{80.9} & \textbf{78.3} & \underline{20.1} & \textbf{43.3} & \textbf{60.2} \\
+        \rowcolor{myblue!50}
+        \textit{\;\;$\Delta$ vs.\ SFT\,+\,GRPO}
+            & \dpos{1.2} & \dneg{0.8} & \dneg{0.2} & \dneg{1.3} & \dpos{5.6} & \dpos{2.1} & \dpos{4.5} & \dpos{0.1} & \dpos{1.0} & \dposavg{1.4} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-8B-Thinking}} \\
+        \midrule
+        Base
+            & 47.1 & 75.9 & 54.9 & 77.7 & 31.8 & 72.8 & 66.1 & 21.0 & 42.7 & 54.4 \\
+        GRPO
+            & 54.4 & 77.2 & 58.9 & 85.7 & \underline{40.1} & 77.1 & 73.9 & 20.6 & \textbf{45.1} & 59.2 \\
+        SFT
+            & 50.9 & 76.8 & 58.4 & 84.8 & 38.4 & \underline{79.5} & 74.4 & 23.0 & 40.6 & 58.5 \\
+        \quad+\,GRPO
+            & \underline{55.3} & \underline{78.2} & \underline{60.4} & \underline{87.7} & \underline{40.1} & \underline{79.5} & \underline{74.9} & \underline{24.4} & 44.0 & \underline{60.5} \\
+        \rowcolor{myblue}
+        \quad+\,\textbf{AXPO}\,\scalebox{0.8}{\textit{(Ours)}}
+            & \textbf{56.1} & \textbf{79.0} & \textbf{60.6} & \textbf{87.8} & \textbf{45.8} & \textbf{83.3} & \textbf{77.0} & \textbf{25.9} & \underline{45.0} & \textbf{62.3} \\
+        \rowcolor{myblue!50}
+        \textit{\;\;$\Delta$ vs.\ SFT\,+\,GRPO}
+            & \dpos{0.8} & \dpos{0.8} & \dpos{0.2} & \dpos{0.1} & \dpos{5.7} & \dpos{3.8} & \dpos{2.1} & \dpos{1.5} & \dpos{1.0} & \dposavg{1.8} \\
+        \midrule
+
+        \multicolumn{11}{l}{\textit{Qwen3-VL-32B-Thinking} (inference-only baseline)} \\
+        \midrule
+        Base
+            & 56.5 & 83.3 & 64.1 & 89.1 & 40.3 & 85.3 & 78.9 & 22.8 & 46.1 & 62.9 \\
+
+        \bottomrule
+    \end{tabular}
+    }
+\vspace{-0.15in}
+\end{table*}

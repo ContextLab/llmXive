@@ -1,0 +1,91 @@
+\documentclass[10pt,logo,copyright]{nvidiatechreport}
+\linespread{1.15}
+
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{makecell}
+\usepackage{multirow}
+
+\usepackage[numbers, sort]{natbib}
+\definecolor{citecolor}{HTML}{0071BC}
+\definecolor{linkcolor}{HTML}{ED1C24}
+
+\usepackage{nicefrac}
+\usepackage{float}
+\usepackage{array}
+
+\input{macros}
+
+\title{\ourslong: Generative Multi-Agent World Modeling Beyond Two Players}
+
+\author{
+  \textbf{Fangfu Liu}$^{1,2*}$ \quad
+  \textbf{Kai He}$^{1,3,4*}$ \quad
+  \textbf{Tianchang Shen}$^{1}$ \quad
+  \textbf{Tianshi Cao}$^{1}$ \quad
+  \textbf{Sanja Fidler}$^{1,3,4}$ \quad
+  \textbf{Yueqi Duan}$^{2}$ \quad
+  \textbf{Jun~Gao}$^{1}$  \newline
+  \textbf{Igor Gilitschenski}$^{3,4\dagger}$ \quad
+  \textbf{Zian Wang}$^{1\dagger}$ \quad
+  \textbf{Xuanchi Ren}$^{1\dagger}$ \\
+  \small $^{1}$NVIDIA \quad $^{2}$Tsinghua University \quad $^{3}$University of Toronto \quad $^{4}$Vector Institute
+}
+
+\fancypagestyle{firststyle}{%
+  \fancyhead[L]{\includegraphics[width=90pt]{assets/nvidia-logo.png}}%
+  \fancyhead[R]{{\footerfont\itshape\monthyeardate\today}}%
+  \fancyhead[C]{}%
+  \fancyfoot[L]{%
+    \footerfont$^{*}$Equal contribution; order interchangeable.\\
+    \footerfont$^{\dagger}$Joint advising.
+  }%
+  \fancyfoot[R]{\copyrightext}%
+  \fancyfoot[C]{\footerfont\bfseries\relax}%
+}
+
+
+\begin{document}
+\maketitle
+% \begin{center}
+% \vspace{-1em}
+% \textbf{Project page:} \url{https://research.nvidia.com/labs/sil/projects/gamma-world}
+% \end{center}
+\begin{center}
+\vspace{-1em}
+\textbf{Project page:} 
+\href{https://research.nvidia.com/labs/sil/projects/gamma-world}{research.nvidia.com/gamma-world}
+\end{center}
+% \vspace{-1em}
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/teaser.pdf}
+  % \vspace{-1.5em}
+  \caption{We propose \ours, a novel generative multi-agent world model from virtual games to real-world environments. More results and video demos are available on our \href{https://research.nvidia.com/labs/sil/projects/gamma-world}{project page}.}
+  \label{fig:teaser}
+\end{figure}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\abscontent
+
+\input{sections/intro}
+\input{sections/related}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\clearpage
+\newpage
+\appendix
+\input{sections/appendix}
+
+\clearpage
+{
+\small
+\bibliographystyle{abbrv}
+\bibliography{main}
+}
+\end{document}

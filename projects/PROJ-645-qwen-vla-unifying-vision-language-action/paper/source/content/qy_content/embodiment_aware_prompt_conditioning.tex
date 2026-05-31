@@ -1,0 +1,19 @@
+\label{sec:embodiment}
+
+To support multiple robot embodiments within one shared model, we prepend a
+robot-specific textual prompt to each training example that describes the
+current platform, arm configuration, and control convention.
+The prompt follows the template:
+
+\begin{quote}
+\texttt{The robot is \{robot\_tag\} with \{single arm / dual arms\}[, waist][, and mobile base].
+The control frequency is \{FPS\} Hz.
+Please predict the next \{chunk\_size\} control actions to execute the following task: \{ori\_instruction\}.}
+\end{quote}
+
+\noindent The robot tag and optional modifiers (\emph{waist}, \emph{mobile base}) are set per
+embodiment; \texttt{FPS} and \texttt{chunk\_size} reflect the dataset's original control
+frequency and prediction horizon.
+Table~\ref{tab:robots} in \cref{sec:data} summarises the representative robot
+platforms covered by our pretraining corpus together with their arm
+configurations and action types.

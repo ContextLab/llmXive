@@ -1,0 +1,113 @@
+\section{Evaluation}
+In this section, we provide a comprehensive evaluation of \toolAG{}'s capabilities in ensuring agent safety. Our experiments are designed to assess the model in two critical dimensions: (1) \textbf{Trajectory-level safety evaluation}, identifying unsafe behaviors in multi-step interactions; and (2) \textbf{Fine-grained risk diagnosis}, categorizing specific risk sources and failure modes. We begin by describing our experimental setup, including datasets, metrics and baselines in Section~\ref{subsec:experimental_setup}. Subsequently, we present the trajectory-level comparison results in Section~\ref{subsec:coarsegrained_results}, followed by a detailed analysis of fine-grained diagnosis capabilities in Section~\ref{subsec:finegrained_results}.
+
+\subsection{Experimental Setup}
+\label{subsec:experimental_setup}
+\begin{table}[t]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{lcccccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Model}} & \multicolumn{4}{c}{\textbf{R-Judge}} & \multicolumn{4}{c}{\textbf{ASSE-Safety}} & \multicolumn{4}{c}{\textbf{\toolBench{}}} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+     & Acc & Prec. & Rec. & F1 & Acc & Prec. & Rec. & F1 & Acc & Prec. & Rec. & F1 \\
+    \midrule
+
+    % --- General Models ---
+    \multicolumn{13}{l}{\textcolor{gray}{\textbf{Closed-Source Models}}} \\
+    \midrule
+    \color{gray}GPT-5.2 & \color{gray}90.8 & \color{gray}87.1 & \color{gray}97.0 & \color{gray}91.8 & \color{gray}77.4 & \color{gray}82.4 & \color{gray}74.4 & \color{gray}78.2 & \color{gray}90.0 & \color{gray}84.7 & \color{gray}97.6 & \color{gray}90.7 \\
+    \color{gray}Gemini-3-Flash & \color{gray}95.2 & \color{gray}98.6 & \color{gray}92.3 & \color{gray}95.3 & \color{gray}75.9 & \color{gray}89.5 & \color{gray}63.4 & \color{gray}74.2 & \color{gray}75.6 & \color{gray}98.5 & \color{gray}52.0 & \color{gray}68.1 \\
+    \color{gray}Gemini-3-Pro & \color{gray}94.3 & \color{gray}94.0 & \color{gray}95.3 & \color{gray}94.7 & \color{gray}78.5 & \color{gray}85.9 & \color{gray}72.5 & \color{gray}78.6 & \color{gray}87.2 & \color{gray}92.7 & \color{gray}80.8 & \color{gray}86.3 \\
+    \midrule
+    \multicolumn{13}{l}{\textbf{Open-Source Models}} \\
+    \midrule
+    QwQ-32B & 89.5 & 95.8 & 83.9 & 89.5 & 68.2 & 88.7 & 47.8 & 62.1 & 63.0 & 93.3 & 28.0 & 43.1 \\
+    Qwen3-235B-A22B-Instruct-2507 & 85.1 & 80.6 & 94.6 & 87.0 & 77.6 & 85.4 & 71.1 & 77.6 & 84.6 & 99.4 & 69.6 & 81.9 \\
+    Qwen3-4B-Instruct-2507 & 68.4 & 73.8 & 62.4 & 67.6 & 60.9 & 87.5 & 33.1 & 48.1 & 61.6 & 64.1 & 52.8 & 57.9 \\
+    Qwen2.5-7B-Instruct & 68.4 & 77.5 & 56.7 & 65.5 & 58.8 & 81.3 & 31.9 & 45.8 & 59.4 & 65.8 & 39.2 & 49.1 \\
+    Llama3.1-8B-Instruct & 53.7 & 53.3 & 100.0 & 69.5 & 55.2 & 55.0 & 98.3 & 70.6 & 49.6 & 49.8 & 99.2 & 66.3 \\
+
+    \midrule
+    % --- Guard Models ---
+    \multicolumn{13}{l}{\textbf{Guard Models}} \\
+    \midrule
+    JoySafety & 52.5 & 57.1 & 40.3 & 47.2 & 39.9 & 40.9 & 22.6 & 29.1 & 56.9 & 62.6 & 34.8 & 44.7 \\
+    LlamaGuard3-8B\footnotemark[1] & 61.2 & 73.0 & 46.4 & 56.7 & 54.5 & 77.6 & 24.7 & 37.4 & 53.3 & 100.0 & 6.8 & 12.7 \\
+    LlamaGuard4-12B\footnotemark[1]  & 63.8 & 71.9 & 56.4 & 63.2 & 56.3 & 79.9 & 27.8 & 41.2 & 58.1 & 100.0 & 16.4 & 28.2 \\
+    NemoGuard & 54.4 & 60.2 & 40.6 & 48.5 & 43.4 & 47.2 & 30.3 & 36.9 & 49.9 & 50.0 & 41.2 & 45.2 \\
+    PolyGuard & 54.3 & 54.1 & 87.9 & 67.0 & 56.3 & 62.7 & 49.4 & 55.2 & 73.8 & 68.7 & 87.6 & 77.0 \\
+    Qwen3-Guard\footnotemark[1]  & 40.6 & 25.4 & 5.5 & 9.0 & 48.2 & 61.2 & 15.8 & 25.1 & 55.3 & 100.0 & 10.8 & 19.5 \\
+    ShieldGemma-27B\footnotemark[2]  & 47.7 & 100.0 & 1.0 & 2.0 & 47.2 & 65.1 & 7.0 & 12.6 & 50.9 & 77.8 & 2.8 & 5.4 \\
+    ShieldGemma-9B\footnotemark[2] & 47.7 & 100.0 & 1.0 & 2.0 & 47.2 & 71.0 & 5.5 & 10.1 & 51.1 & 80.0 & 3.2 & 6.2 \\
+    ShieldAgent & 81.0 & 74.1 & 98.7 & 84.6 & 79.6 & 76.5 & 90.5 & 82.9 & 76.0 & 90.1 & 58.4 & 70.9 \\
+    \midrule
+    \multicolumn{13}{l}{\textbf{Our Models}} \\
+    \midrule
+    \toolAG{}-Qwen3-4B & \textbf{91.8} & 88.0 & 98.0 & 92.7 & 80.4 & 85.5 & 77.3 & 81.2 & \textbf{92.8} & 90.5 & 95.6 & 93.0 \\
+    \toolAG{}-Qwen2.5-7B & 91.7 & 88.2 & 97.3 & 92.5 & 79.8 & 84.3 & 77.4 & 80.7 & 87.4 & 82.1 & 95.6 & 88.4 \\
+    \toolAG{}-Llama3.1-8B & 78.2 & 71.6 & 97.3 & 82.5 & \textbf{81.1} & 80.0 & 87.2 & 83.4 & 87.6 & 80.9 & 98.4 & 88.8 \\
+    
+    \bottomrule
+    
+    \end{tabular}
+    }
+    \caption{Performance in \% comparison across R-Judge, ASSE-Safety and \toolBench{}. We mainly compare our models with open-source models and guard models. We utilize standard metrics including Accuracy, Precision, Recall, and F1-score. \toolAG{} (Ours) achieves a strong balance between these metrics, outperforming most specialized Guard Models.}
+    \label{tab:main_results}
+\end{table}
+\footnotetext[1]{These guard models show high precision but low recall on \toolBench{}, as they often overlook unsafe intermediate steps and misclassify trajectories as safe.}
+\footnotetext[2]{Due to context length constraints, we utilize a different method to evaluate ShieldGemma. See Appendix~\ref{subsec:eval_methods} for more details.}
+
+\paragraph{Evaluation benchmark and metrics.} We utilized \textbf{R-Judge} \citep{yuan-etal-2024-r},  \textbf{ASSE-Safety} \citep{luo2025agentauditor} and \textbf{\toolBench{}} (Section~\ref{sec:benchmark}) to evaluate the performance of our \toolAG{}. Each dataset consists of complete agent trajectories, where each trajectory is classified as either safe or unsafe. The evaluation is structured as two complementary tasks:
+\begin{itemize}
+\item \textbf{Trajectory-level safety evaluation:} The classification of each trajectory as safe or unsafe, utilizing standard metrics such as Accuracy, Precision, Recall, and F1-score.
+\item \textbf{Fine-grained risk diagnosis:} The classification of specific risk labels for unsafe trajectories, which include Risk Source, Failure Mode, and Real-world Harm. We report the accuracy of these fine-grained labels, including Risk Source Acc, Failure Mode Acc, and Real-world Harm Acc on our \toolBench{} benchmark.
+\end{itemize}
+
+\paragraph{Baselines.} We evaluated our model against leading guard models like LlamaGuard3-8B, LlamaGuard4-12B\citep{inan2023llama}, Qwen3-Guard \citep{qwen3guard2025},  ShieldAgent \citep{shieldagent2025}, JoySafety \citep{jd-opensource2025}, ShieldGemma \citep{shieldgemma2024}, PolyGuard \citep{poliguard2025}, NemoGuard \citep{nemo_guardrails2023}, alongside general models including Gemini-3-Flash \citep{googlecloud_gemini3flash_docs_2026}, GPT-5.2 \citep{openai_gpt52_2025}, and Qwen3-235B-A22B-Instruct-2507 \citep{qwen3}. The detailed introduction of these dataset and evaluation details can be found at Appendix~\ref{sec:eval_details}.
+
+\subsection{Trajectory-level Safety Results}
+\label{subsec:coarsegrained_results}
+
+
+
+
+
+
+
+\paragraph{Superiority of general models over existing guards.}
+Table~\ref{tab:main_results} presents the comparative results of \toolAG{} against general models and specialized guard models across the R-Judge, ASSE-Safety, and \toolBench{} benchmarks. We observe that general models show strong baselines, significantly outperforming existing guard models on all benchmarks. We hypothesize this primarily to two reasons: first, general models go through extensive post-training and have strong instruction-following capabilities, which allows them better to adhere to our task definition; second, existing guard models are not trained on agent trajectory data, so there is a mismatch between the training data of many guard models and our evaluation setting.
+
+\paragraph{Challenges of distributional shift for guard models.}
+In particular, many guard models are primarily trained and validated on single-turn prompts or short-form dialogue safety data rather than long, tool-augmented agent trajectories. Since our benchmarks require reasoning over multi-step interaction traces, they can differ substantially from the original training distribution of these guard models. As a result, this evaluation constitutes an out-of-distribution scenario for many existing guard models, which may contribute to their degraded performance.
+
+\paragraph{\toolAG{} achieves competitive state-of-the-art results.}
+Compared to these baseline models, \toolAG{} demonstrates excellent performance. It significantly outperforms all specialized guard models and remains competitive with general models which have larger parameter scales. Specifically, on the R-Judge benchmark, \toolAG{}-Qwen3-4B achieves an F1 score of 92.7\%, surpassing GPT-5.2 (91.8\%) and approaching the performance of Gemini-3-Flash (95.3\%). Similarly, on the ASSE-Safety dataset, \toolAG{}-Llama3.1-8B attains an F1 score of 83.4\%, outperforming Gemini-3-Pro (78.6\%). Moreover, \toolAG{} maintains a balanced trade-off between precision and recall across all datasets. In contrast, existing guard models often exhibit extremely low recall (\emph{e.g.}, ShieldGemma reports recall below 10\%), reflecting an overly conservative prediction behavior that leads to missed safety risks.
+
+\subsection{Fine-grained Risk Diagnosis Results}
+\label{subsec:finegrained_results}
+
+
+
+\begin{table}[t]
+\centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcccccccc}
+    \toprule
+    \textbf{Metric} & \textbf{\begin{tabular}[c]{@{}c@{}}\toolAG{}\\    Qwen3-FG-4B\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}\toolAG{}\\Llama3.1-FG-8B\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}\toolAG{}\\ Qwen2.5-FG-7B\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Gemini-3\\ Flash\end{tabular}} & \textbf{GPT-5.2} & \textbf{\begin{tabular}[c]{@{}c@{}}Gemini-3\\ Pro\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Qwen3-235B\\ A22B-Instruct-2507\end{tabular}} & \textbf{QwQ-32B} \\ 
+    \midrule
+    Risk Source Accuracy & \textbf{82.0} & 81.6 & 81.2 & 38.0 & 41.6 & 36.8 & 19.6 & 23.2 \\
+    Failure Mode Accuracy & \textbf{32.4} & 31.6 & 28.8 & 22.4 & 20.4 & 17.6 & 17.2 & 14.4 \\
+    Real-world Harm Accuracy & 58.4 & 57.6 & \textbf{59.2} & 34.8 & 30.8 & 32.0 & 38.0 & 34.8 \\ 
+    \bottomrule
+    \end{tabular}%
+}
+\caption{Fine-grained diagnosis accuracy (\%) on \toolBench{}. We compare \toolAG{} with five leading LLMs across three dimensions: Risk Source, Failure Mode, and Real-world Harm. \toolAG{}-Qwen3-FG-4B significantly outperforms all baselines, particularly in identifying Risk Sources (82.0\%), Failure Mode(32.4\%) and Real-world Harm (58.4\%), demonstrating the efficacy of our fine-grained supervision.}
+\label{tab:finegrained_results}
+\end{table}
+
+\paragraph{Criticality of granular safety auditing.}
+Table~\ref{tab:finegrained_results} illustrates the performance comparison between \toolAG{} and general models on the fine-grained classification tasks within \toolBench{}, specifically covering Risk Source, Failure Mode, and Real-world Harm. While binary classification can indicate whether a trajectory is safe, it provides limited insight into the root cause of a violation. Fine-grained diagnosis is therefore critical for safety auditing, remediation, and system debugging, as it helps identify why unsafe behavior occurs and which component or interaction pattern is responsible. A detailed discussion of these risk taxonomies and their role in safety auditing is provided in Section~\ref{sec:safety_taxonmy}.
+
+\paragraph{Advantage of explicit taxonomy supervision.}
+In this fine-grained setting, \toolAG{} demonstrates a significant performance advantage. We observe that general models exhibit difficulty in mapping trajectories to specific risk taxonomies; for instance, Gemini-3-Pro achieves only 36.8\% accuracy on Risk Source, whereas \toolAG{}-Qwen3-FG-4B achieves 82.0\%. This trend is consistent across all three fine-grained labels. Notably, in Real-world Harm Accuracy, \toolAG{}-Qwen2.5-FG-7B reaches 59.2\%, which is significantly higher than the best baseline model, Qwen3-235B-A22B-Instruct-2507 (38.0\%).  We hypothesize that this gap arises because general models typically lack explicit supervision on fine-grained risk taxonomies during training, making attribution difficult even if they can detect unsafe trajectories effectively. In contrast, \toolAG{} is trained with trajectory-level and fine-grained risk annotations, enabling more accurate diagnosis of how and why agent behaviors become unsafe.

@@ -1,0 +1,181 @@
+\begin{table*}[h]
+\caption{\textbf{Quantitative 3D reconstruction results.} We report Overall$\downarrow$ and F-Score$\uparrow$ for 3D reconstruction on the DA3 benchmark~\cite{depthanything3} using the DA3-BASE~\cite{depthanything3} checkpoint as the feed-forward 3D reconstruction model. The best result is highlighted in \textbf{bold} and the second best is \underline{underlined}.}
+\label{supple_tab:da3_base_recon}
+\centering
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c}{\textbf{HiRoom}}
+& \multicolumn{2}{c}{\textbf{ETH3D}}
+& \multicolumn{1}{c}{\textbf{DTU}}
+& \multicolumn{2}{c}{\textbf{7Scenes}}
+& \multicolumn{2}{c}{\textbf{ScanNet$++$}} \\
+\cmidrule(lr){2-3}
+\cmidrule(lr){4-5}
+\cmidrule(lr){6-6}
+\cmidrule(lr){7-8}
+\cmidrule(lr){9-10}
+
+& Overall$\downarrow$ & F-score$\uparrow$
+& Overall$\downarrow$ & F-score$\uparrow$
+& Overall$\downarrow$
+& Overall$\downarrow$ & F-score$\uparrow$
+& Overall$\downarrow$ & F-score$\uparrow$ \\
+\midrule
+
+\multicolumn{10}{l}{\textit{Input Conditions}} \\
+\midrule
+
+% HQ Input
+% & 0.349 & 22.2
+% & 1.229 & 37.1
+% & 5.811
+% & 0.187 & 32.0
+% & 0.340 & 26.1 
+% \\
+
+HQ Input
+&  0.349     &      22.29
+&  1.220     &      37.92
+&  5.843
+&  0.186     &      31.89
+&  0.340    &       26.09
+\\
+
+% LQ Input
+% & \underline{0.931} & 7.5
+% & 3.455 & 11.8
+% & 8.417
+% & \underline{0.529} & \underline{12.6}
+% & \underline{0.474} & \underline{13.1} 
+% \\
+
+LQ Input
+&  0.946     &      7.58
+&  3.337     &      11.85
+&  8.429
+&  0.529     &      12.56
+&  \underline{0.476}    &       \underline{13.12}
+\\
+
+
+\midrule
+
+
+\multicolumn{10}{l}{\textit{Single-View Restoration}} \\
+\midrule
+
+% Restormer~\cite{zamir2022restormer}
+% & 1.124 & \underline{7.60}
+% & \underline{3.084} & \underline{14.5}
+% & 9.106
+% & 1.599 & 0.00
+% & 1.370 & 1.83 
+% \\
+
+Restormer~\cite{zamir2022restormer}
+&   0.889    &       7.67
+&   3.212    &       \underline{14.67}
+&   9.064
+&   0.755   &       13.24
+&   0.489   &       12.16
+\\
+
+
+% HI-Diff~\cite{chen2023hierarchical}
+% & 1.605 & 4.52
+% & 3.753 & 8.01
+% & 8.847
+% & 1.617 & 0.00
+% & 1.217 & 2.12 
+% \\
+
+HI-Diff~\cite{chen2023hierarchical}
+&   1.173    &       4.58
+&   3.737     &      8.02
+&   8.826
+&   0.551   &       12.95
+&   0.612    &      8.33
+\\
+
+% InstructIR~\cite{conde2024high}
+% & 1.027 & 6.12
+% & 3.560 & 8.05
+% & \underline{7.972}
+% & 1.601 & 0.00
+% & 1.327 & 1.83 
+% \\
+
+InstructIR~\cite{conde2024high}
+&  1.183     &     6.23
+&  3.653    &      7.29
+&  7.960
+&  0.501     &     14.19
+&  0.562    &      9.03
+\\
+
+MoCE-IR~\cite{zamfir2024complexityexperts}
+&   0.870   &      7.81
+&   \underline{2.909}    &     13.95
+&   7.942   
+&   0.504    &     12.17
+&   0.554   &      9.45 
+\\
+
+
+\midrule
+
+\multicolumn{10}{l}{\textit{Multi-View Restoration}} \\
+\midrule
+
+VRT~\cite{liang2024vrt}
+&    0.882   &     7.87  
+&    3.226   &     10.68 
+&    8.770  
+&    0.750   &     6.98
+&    0.558   &     8.96  
+\\
+
+
+FMA-Net~\cite{Youk_2024_CVPR}
+&   1.319    &   4.45
+&   3.623    &   11.92
+&   8.653    
+&   1.171    &   4.53
+&   0.813    &   5.80
+\\
+
+
+VAE$_\text{MVD}$
+&   \textbf{0.389}    &     \underline{11.63}
+&   5.518    &     4.63
+&   \underline{7.571}
+&   \underline{0.314}    &    \underline{20.15}
+&   0.636    &    6.21
+\\
+
+
+% \textbf{GARD (Ours)}
+% & \textbf{0.513}    & \textbf{12.72}
+% & \textbf{1.996}    & \textbf{20.71}
+% & \textbf{6.323} 
+% & \textbf{0.498}    & \textbf{14.25}
+% & \textbf{0.347}    & \textbf{21.52}
+% \\
+
+\textbf{GARD$_\text{BASE}$ (Ours)}
+&  \underline{0.512}    &    \textbf{12.69}
+&  \textbf{2.047}   &     \textbf{20.38}  
+&  \textbf{6.304}
+&  \textbf{0.232}     &     \textbf{23.41}
+&  \textbf{0.347}     &     \textbf{21.60}  
+\\
+
+
+\bottomrule
+\end{tabular}
+}
+
+\end{table*}

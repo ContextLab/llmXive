@@ -1,0 +1,30 @@
+\begin{figure*}
+\centering
+\begin{promptbox}
+\textbf{[System]}\\[2pt]
+You are a strict but fair evaluator. You will see a user question and two sides: a PREDICTED side (the model's chosen KB) and a GOLD side (the labeled KB, known to be correct). Each side carries its KB schema/context, the query that was run, and the resulting answer.
+
+Decide whether the predicted side correctly answers the user question. There are two independent ways the prediction can be correct: (1) ANSWER MATCH, the predicted answer is equivalent in meaning to the gold answer, allowing reordering, alias differences, formatting differences, or extra surrounding context; (2) FAITHFUL IMPLEMENTATION ON A DIFFERENT KB, the predicted query faithfully realizes what the user asked, interpreted against the predicted KB schema and data, and the predicted answer is what that query correctly produces. The values may differ entirely from gold because the predicted KB legitimately holds different content. This case applies whenever more than one knowledge base could reasonably answer the same kind of question.
+
+If the gold answer is empty or otherwise degenerate (the gold query may itself be buggy or stale), the gold reference is uninformative, judge by FAITHFUL IMPLEMENTATION alone in that case. Reject when the predicted answer is off-topic or when the predicted query plainly fails to capture what the question is asking. If both pred and gold answers are empty, ALWAYS count it as an ANSWER MATCH (this overrides any reasoning about whether the question should have a real-world answer). If only the predicted answer is empty, reject. Use the schemas and queries on both sides to interpret unfamiliar values.
+
+\tcbline
+
+\textbf{[User]}\\[2pt]
+\begin{verbatim}
+Question: <question>
+
+[PREDICTED] route=<route> | kb=<kb_id>
+query: <query>
+<context and answer>
+
+[GOLD] route=<route> | kb=<kb_id>
+query: <query>
+<context and answer>
+
+Respond with JSON: {"correct": true|false, "reason": "<one-line reason>"}
+\end{verbatim}
+\end{promptbox}
+\caption{LLM-as-a-Judge prompt used to assess answer correctness.}
+\label{fig:judge_prompt}
+\end{figure*}

@@ -1,0 +1,126 @@
+\begin{table*}[h]
+\caption{\textbf{Quantitative depth estimation results.} We report AbsRel$\downarrow$ and $\delta_1\uparrow$ across the DA3 benchmarks~\cite{depthanything3}. The best result is highlighted in \textbf{bold} and the second best is \underline{underlined}.}
+\label{supple_tab:da3_giant_depth}
+\centering
+%\setlength{\tabcolsep}{5pt}
+%\renewcommand{\arraystretch}{1.1}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccc ccccc ccccc ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c}{\textbf{HiRoom}}
+& \multicolumn{2}{c}{\textbf{ETH3D}}
+& \multicolumn{2}{c}{\textbf{DTU}}
+& \multicolumn{2}{c}{\textbf{7Scenes}}
+& \multicolumn{2}{c}{\textbf{ScanNet$++$}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$
+& AbsRel$\downarrow$ & $\delta_1\uparrow$ \\
+\midrule
+
+\textit{Input Conditions} \\
+\midrule
+HQ Input
+& 0.012 & 99.4
+& 0.021 & 99.7
+& 0.055 & 95.2
+& 0.062 & 93.7
+& 0.035 & 97.5 \\
+
+LQ Input
+& 0.191 & 78.6
+& 0.087 & 90.4
+& 0.061 & 94.5
+& 0.137 & 81.9
+& 0.092 & 89.5 \\
+
+\midrule
+
+\textit{Single-View Restoration} \\
+\midrule
+
+Restormer~\cite{zamir2022restormer}
+& 0.210 & 74.1
+& 0.140 & 82.2 
+& 0.061 & 94.6
+& 0.117 & 85.0
+& 0.097 & 89.1 \\
+
+HI-Diff~\cite{chen2023hierarchical}
+& 0.239 & 70.2
+& 0.105 & 86.3  
+& 0.065 & 93.8
+& 0.131 & 82.2
+& 0.097 &  89.2 \\
+
+InstructIR~\cite{conde2024high}
+& 0.227 & 71.7
+& 0.142 & 81.3 
+& \underline{0.056} & 95.0
+& 0.124 & 83.3
+& 0.128 &  83.4 \\
+
+MoCE-IR~\cite{zamfir2024complexityexperts}
+& 0.198  &   76.8
+& 0.096  &   88.3
+& \textbf{0.055}  &   95.6
+& 0.125  &   84.5
+& 0.092  &   89.6
+\\
+
+\midrule
+
+\textit{Multi-View Restoration} \\
+\midrule
+
+VRT~\cite{liang2024vrt}
+& 0.193  &   77.9
+& 0.087  &   90.2
+& 0.060  &   94.7
+& 0.144  &   80.5
+& 0.092  &   89.8
+\\
+
+FMA-Net~\cite{Youk_2024_CVPR}
+& 0.240 &    70.8
+& 0.101 &    88.0
+& 0.064 &    94.1
+& 0.153 &    76.8
+& 0.121 &    85.5
+\\
+
+
+
+VAE$_\text{MVD}$
+& \underline{0.188} & \underline{80.2}
+& \underline{0.069} & \underline{95.4}
+& {0.057} & \underline{95.9}
+& \underline{0.093} & \underline{89.0}
+& \underline{0.068} & \underline{93.2} \\
+
+
+\textbf{GARD (Ours)}
+& \textbf{0.048} & \textbf{97.2}
+& \textbf{0.036} & \textbf{98.4}
+& {0.057} & \textbf{96.1}
+& \textbf{0.071} & \textbf{92.7}
+& \textbf{0.040} & \textbf{96.7}  \\
+
+% \textbf{MVRM$_\text{GARDv2}$ (Ours)}
+% &  &  
+% &  &  
+% &  &   
+% &  &  
+% &  &   \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+

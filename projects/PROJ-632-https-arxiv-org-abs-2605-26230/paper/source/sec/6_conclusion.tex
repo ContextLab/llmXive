@@ -1,0 +1,17 @@
+\input{tab/image_metric}
+\input{fig/rgb_main}
+
+\input{tab/abl_model}
+\input{tab/abl_maxview}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented \textbf{GARD}, a Geometry-Aware Restoration Denoising framework that performs image restoration in the geometry-aware feature space of feed-forward 3D reconstruction models. By leveraging geometry-aware representations, GARD effectively refines degraded features, which are subsequently passed to both the 3D geometry decoder and the RGB image decoder to recover accurate 3D scene geometry and high-quality restored multi-view RGB images. This representation-level denoising strategy enables the joint restoration of scene structure and appearance from degraded multi-view inputs. Extensive experiments demonstrate that GARD consistently outperforms existing single-view and multi-view restoration methods, highlighting the effectiveness of restoration in geometry-aware feature space.
+
+\paragraph{Limitation and future directions.}
+As a diffusion-based method, GARD requires iterative denoising steps, limiting its efficiency in latency-sensitive settings. Future work will focus on more efficient denoiser designs and multi-layer denoising strategies to further reduce error accumulation and improve reconstruction quality.
+
+
+
+\clearpage

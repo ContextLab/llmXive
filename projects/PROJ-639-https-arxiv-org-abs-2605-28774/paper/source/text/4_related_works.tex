@@ -1,0 +1,11 @@
+\section{Related Works}
+\label{sec:related}
+
+\paragraph{Agentic reasoning for VLMs.}
+Agentic reasoning extends the reasoning loop beyond the model's token space, allowing it to emit a tool call, receive an external output, and condition subsequent reasoning on it~\citep{ReAct, AgenticReasoning}. Tools span knowledge search~\citep{Search-o1, Search-R1}, computation~\citep{tora, TIR, retool, mathcoder, T1}, and visual perception~\citep{pixelreasoner, mini-o3, pyvision, deepeyes, agenticvision, thinkingwithimages}. Recent VLM systems combine image manipulation with code and search~\citep{mmsearch, deepeyesv2, pyvision-rl, visualsketchpad, vthinker}, and follow a two-stage SFT-then-RL recipe.
+
+\paragraph{RL for agentic reasoning.}
+On thinking-only trajectories, group-relative methods like GRPO~\citep{GRPO, DAPO, prorl} normalize rewards within $N$ rollouts and uniformly assign the resulting advantage; BroRL~\citep{brorl} analyzes how scaling $N$ closes coverage gaps. Three lines extend this family to tool-using rollouts: \emph{direct ports} that reuse outcome-reward RL without changing the sampling structure~\citep{deepeyes, deepeyesv2, rstar2, ToolRL, torl, thyme, AgenticReasoningRL, hrmmsearch}, \emph{mid-trajectory branching} that resamples the continuation after a tool call to absorb tool-output uncertainty~\citep{arpo, aepo}, and \emph{reward shaping} that adds bonus or penalty terms on tool use~\citep{pyvision-rl, otc}. We include more detailed comparison with related works in \appref{app:related-works}.
+
+\paragraph{Our contribution.}
+AXPO contrasts with each line. Against direct use of GRPO, it restores learning signal on the all-wrong tool-using subgroups identified in \autoref{sec:gap}, which uniform sampling cannot reach. Against mid-trajectory branching~\citep{arpo, aepo}, it resamples \emph{at} the tool-call boundary rather than after the tool observation, exploring the tool call itself rather than the continuation given a tool output. Against reward shaping, it acts on the rollout distribution while leaving the reward intact.
