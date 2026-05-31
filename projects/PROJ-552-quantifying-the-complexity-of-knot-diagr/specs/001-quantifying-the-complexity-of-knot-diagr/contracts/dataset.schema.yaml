@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord Schema"
+description: "Schema for individual knot records with computed invariants"
+type: "object"
+required:
+  - "knot_id"
+  - "crossing_number"
+  - "braid_index"
+  - "is_alternating"
+  - "alternating_classifiable"
+  - "raw_data_hash"
+  - "computation_timestamp"
+  - "computation_seed"
+properties:
+  knot_id:
+    type: "string"
+    description: "Unique identifier for the knot (e.g., '10_123')"
+    pattern: "^[0-9]+_[0-9]+$"
+  crossing_number:
+    type: "integer"
+    description: "Minimal crossing number for the knot"
+    minimum: 1
+    maximum: 13
+  braid_index:
+    type: "integer"
+    description: "Minimum braid index for the knot"
+    minimum: 1
+  is_alternating:
+    type: "boolean"
+    description: "True if alternating, False if non-alternating"
+  arc_index:
+    type:
+      - "integer"
+      - "null"
+    description: "Arc index computed via Birman-Menasco method; null if not computable"
+  seifert_circle_count:
+    type:
+      - "integer"
+      - "null"
+    description: "Seifert circle count via Seifert's algorithm; null if not computable"
+  bridge_number:
+    type:
+      - "integer"
+      - "null"
+    description: "Bridge number via Schubert's decomposition; null if not computable"
+  diagram_representation:
+    type:
+      - "string"
+      - "null"
+    description: "Type of diagram representation available"
+    enum:
+      - "braid_word"
+      - "dt_code"
+      - "minimal_crossing"
+      - "null"
+  missing_invariant_flags:
+    type: "array"
+    description: "Flags for missing invariants"
+    items:
+      type: "string"
+      enum:
+        - "braid_word_unavailable"
+        - "dt_code_incomplete"
+        - "diagram_representation_missing"
+        - "computation_failed"
+  alternating_classifiable:
+    type: "boolean"
+    description: "True if classification is unambiguous"
+  raw_data_hash:
+    type: "string"
+    description: "SHA-256 hash of source record"
+    pattern: "^[a-f0-9]{64}$"
+  computation_timestamp:
+    type: "string"
+    description: "When invariants were computed (ISO 8601 format)"
+    format: "date-time"
+  computation_seed:
+    type: "integer"
+    description: "Random seed used for computation"
+    minimum: 0
