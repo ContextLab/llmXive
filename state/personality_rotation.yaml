@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-05-31T19:31:33.765157+00:00'
+last_used: david-krakauer
+last_used_at: '2026-05-31T19:59:27.466295+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-23T10:59:51.682683+00:00'
-  ended_at: '2026-05-23T11:56:27.880129+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-23__paper.md
 - slug: david-krakauer
   started_at: '2026-05-23T11:56:27.880129+00:00'
   ended_at: '2026-05-23T12:19:34.813447+00:00'
@@ -1209,5 +1202,10 @@ history:
 - slug: daniel-kahneman
   started_at: '2026-05-31T18:53:45.034469+00:00'
   ended_at: '2026-05-31T19:31:33.765157+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-05-31T19:31:33.765157+00:00'
+  ended_at: '2026-05-31T19:59:27.466295+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
