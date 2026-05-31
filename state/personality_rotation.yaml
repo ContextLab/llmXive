@@ -1,11 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-05-31T17:54:14.428646+00:00'
-last_outcome: committed
+last_used: albert-einstein
+last_used_at: '2026-05-31T18:27:41.966259+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: albert-einstein
-  started_at: '2026-05-23T08:18:03.284180+00:00'
-  ended_at: '2026-05-23T09:11:50.634412+00:00'
-  outcome: model_error
 - slug: albert-einstein
   started_at: '2026-05-23T09:11:50.634412+00:00'
   ended_at: '2026-05-23T10:07:45.621139+00:00'
@@ -1214,3 +1210,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-637-https-arxiv-org-abs-2605-28814/reviews/research/alan-turing-simulated__2026-05-31__research.md
+- slug: albert-einstein
+  started_at: '2026-05-31T17:54:14.428646+00:00'
+  ended_at: '2026-05-31T18:27:41.966259+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
