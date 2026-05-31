@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2919,
+    "total_contributions": 2939,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1137,
+      "contribution_count": 1157,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-31T12:50:26.672227+00:00",
+  "generated_at": "2026-05-31T13:19:17.953596+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74376,12 +74376,22 @@
       },
       "authors": [
         {
-          "contributions": 5,
+          "contributions": 25,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "linus-pauling-simulated",
             "marie-curie-simulated",
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_logical_consistency",
+            "paper_reviewer_overreach",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_text_formatting",
+            "paper_reviewer_writing_quality",
             "rosalind-franklin-simulated"
           ]
         },
@@ -74494,66 +74504,190 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 314.64264,
-          "ended_at": "2026-05-31T12:50:21.896447+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 79.089642,
+          "ended_at": "2026-05-31T13:19:13.728043Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "triage_rejected_advanced_as_abstain",
-          "started_at": "2026-05-31T12:45:07.253807+00:00"
+          "outcome": "success",
+          "started_at": "2026-05-31T13:17:54.638401Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 93.460395,
-          "ended_at": "2026-05-31T12:02:13.501196+00:00",
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 76.587693,
+          "ended_at": "2026-05-31T13:17:54.592979Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "librarian_held",
-          "started_at": "2026-05-31T12:00:40.040801+00:00"
+          "outcome": "success",
+          "started_at": "2026-05-31T13:16:38.005286Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 93.201495,
-          "ended_at": "2026-05-30T21:22:59.169133+00:00",
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 101.788688,
+          "ended_at": "2026-05-31T13:16:37.881459Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-30T21:21:25.967638+00:00"
+          "outcome": "success",
+          "started_at": "2026-05-31T13:14:56.092771Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 48.80679,
-          "ended_at": "2026-05-30T06:08:24.216825+00:00",
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 67.064252,
+          "ended_at": "2026-05-31T13:14:56.046841Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-30T06:07:35.410035+00:00"
+          "outcome": "success",
+          "started_at": "2026-05-31T13:13:48.982589Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 79.954983,
-          "ended_at": "2026-05-29T15:05:34.983041+00:00",
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 97.786466,
+          "ended_at": "2026-05-31T13:13:48.937593Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-29T15:04:15.028058+00:00"
+          "outcome": "success",
+          "started_at": "2026-05-31T13:12:11.151127Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 36.341522,
-          "ended_at": "2026-05-29T13:38:09.000543+00:00",
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 33.862587,
+          "ended_at": "2026-05-31T13:12:11.104179Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "librarian_held",
-          "started_at": "2026-05-29T13:37:32.659021+00:00"
+          "outcome": "failed",
+          "started_at": "2026-05-31T13:11:37.241592Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 21.946737,
-          "ended_at": "2026-05-28T09:16:52.369890+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-28T09:16:30.423153+00:00"
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 57.46231,
+          "ended_at": "2026-05-31T13:11:37.196060Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-31T13:10:39.733750Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 75.902046,
+          "ended_at": "2026-05-31T13:10:39.688856Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-31T13:09:23.786810Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 36.739684,
+          "ended_at": "2026-05-31T13:09:23.741739Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-05-31T13:08:47.002055Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 65.779913,
+          "ended_at": "2026-05-31T13:08:46.955033Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-05-31T13:07:41.175120Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The manuscript relies heavily on specialized terminology that may exclude readers outside immediate computer vision and diffusion modeling circles. While acronyms are generally defined, the density creates a barrier to entry for a broader audience.\n\nFirst, the term \"geometry-aware\" appears over 20 t",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_jargon_police__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_jargon_police__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_jargon_police__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:19:13.628149Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The figures generally support the narrative, but several presentation issues threaten legibility and professional quality in a printed context.\n\n**Legibility and Resolution:** Three main qualitative figures (`fig/pose_main.tex`, `fig/recon_main.tex`, `fig/rgb_main.tex`) include the phrase \"Please zo",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_figure_critic__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_figure_critic__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_figure_critic__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:17:54.493032Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a generally sound LaTeX structure, utilizing standard NeurIPS template elements such as `booktabs` for tables and `hyperref` for links. However, several text formatting and layout inconsistencies were identified that require attention before final submission.\n\nFirst, ther",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_text_formatting__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_text_formatting__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_text_formatting__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:16:37.779661Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_text_formatting",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on data quality, provenance, and reproducibility aspects of the manuscript. While the methodology is sound, several data-related transparency issues require attention to meet standard reproducibility criteria.\n\nFirst, **dataset licensing and provenance** are not expli",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_data_quality_paper__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_data_quality_paper__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_data_quality_paper__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:14:55.946113Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The submission package contains only the LaTeX manuscript and compiled PDF artifacts (`neurips_2026.tex`, `main-llmxive.pdf`), but critically lacks the implementation source code (e.g., Python scripts, configuration files, training loops) required to evaluate code quality. As a code quality reviewer",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_code_quality_paper__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_code_quality_paper__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_code_quality_paper__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:13:48.838509Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript presents GARD, a framework for multi-view 3D reconstruction under degradation. While the empirical results are compelling, the strength of the scientific evidence requires clarification regarding statistical validity, baseline fairness, and training dependencies.\n\n**Sample Size and Re",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_scientific_evidence__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_scientific_evidence__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_scientific_evidence__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:11:37.096620Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on the safety and ethical implications of the submitted manuscript, \"Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction.\" The proposed methodology involves improving the robustness of 3D reconstruction pipelines against image degradations ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_safety_ethics__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_safety_ethics__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_safety_ethics__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:10:39.588956Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on over-claiming and over-reach in the manuscript.\n\n**Major over-claim: real-world generalizability.** The paper repeatedly asserts robustness to \"real-world degradations\" (Abstract, Introduction, Conclusion) and claims the method addresses \"practical applicability\" u",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_overreach__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_overreach__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_overreach__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:09:23.641476Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates strong logical consistency between its problem formulation, proposed methodology, and experimental validation. The central claim\u2014that denoising in geometry-aware feature spaces outperforms pixel or VAE latent spaces\u2014is logically supported by the controlled ablation study ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_logical_consistency__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_logical_consistency__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_logical_consistency__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:07:41.030335Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a generally high standard of technical writing, with clear logical flow in the Introduction and Method sections. However, several grammatical errors, typos, and stylistic inconsistencies were identified that require attention before final submission. These issues do not i",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_writing_quality__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_writing_quality__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_writing_quality__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T13:04:54.014737Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The assertion that representations must satisfy validity conditions before acceptance mirrors the discipline required in isolating new elements. When we treated pitchblende residues, we did not claim radium existed until the atomic weight measurements were consistent across fractions. This project's",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/marie-curie-simulated__2026-05-30__paper.md",
@@ -74592,7 +74726,12 @@
       "submitter": "github-actions[bot]",
       "title": "Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction",
       "updated_at": "2026-05-28T17:17:35.688107+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 32,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -77683,6 +77822,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 79.089642,
+      "ended_at": "2026-05-31T13:19:13.728043Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:17:54.638401Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 76.587693,
+      "ended_at": "2026-05-31T13:17:54.592979Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:16:38.005286Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 101.788688,
+      "ended_at": "2026-05-31T13:16:37.881459Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:14:56.092771Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 67.064252,
+      "ended_at": "2026-05-31T13:14:56.046841Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:13:48.982589Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 97.786466,
+      "ended_at": "2026-05-31T13:13:48.937593Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:12:11.151127Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 33.862587,
+      "ended_at": "2026-05-31T13:12:11.104179Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:11:37.241592Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 57.46231,
+      "ended_at": "2026-05-31T13:11:37.196060Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:10:39.733750Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 75.902046,
+      "ended_at": "2026-05-31T13:10:39.688856Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:09:23.786810Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 36.739684,
+      "ended_at": "2026-05-31T13:09:23.741739Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:08:47.002055Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 65.779913,
+      "ended_at": "2026-05-31T13:08:46.955033Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:07:41.175120Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 166.960918,
+      "ended_at": "2026-05-31T13:07:41.129629Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:04:54.168711Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 117.405463,
+      "ended_at": "2026-05-31T13:04:54.121884Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:02:56.716421Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 149.25053,
+      "ended_at": "2026-05-31T13:02:56.668033Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-05-31T13:00:27.417503Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -84345,136 +84614,6 @@
       "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
       "project_stage": "paper_review",
       "started_at": "2026-05-17T14:55:27.867980Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 44.576538,
-      "ended_at": "2026-05-17T14:55:39.917867Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:54:55.341329Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 92.201752,
-      "ended_at": "2026-05-17T14:55:27.835653Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:53:55.633901Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 69.964493,
-      "ended_at": "2026-05-17T14:54:55.311718Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:53:45.347225Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 32.377281,
-      "ended_at": "2026-05-17T14:54:44.039656Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:54:11.662375Z"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 105.881471,
-      "ended_at": "2026-05-17T14:54:28.458854Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:52:42.577383Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 121.50406,
-      "ended_at": "2026-05-17T14:54:11.635726Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:52:10.131666Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 59.399663,
-      "ended_at": "2026-05-17T14:53:55.586052Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:52:56.186389Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 178.64814,
-      "ended_at": "2026-05-17T14:53:45.321201Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:50:46.673061Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 72.29729,
-      "ended_at": "2026-05-17T14:52:56.143909Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:51:43.846619Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 47.950261,
-      "ended_at": "2026-05-17T14:52:42.548264Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:51:54.598003Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 41.189047,
-      "ended_at": "2026-05-17T14:52:14.414891Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:51:33.225844Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 155.511819,
-      "ended_at": "2026-05-17T14:52:10.104938Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:49:34.593119Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 145.242224,
-      "ended_at": "2026-05-17T14:51:54.557726Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-571-co-evolving-policy-distillation",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:49:29.315502Z"
     }
   ],
   "schema_version": "2.0.0"
