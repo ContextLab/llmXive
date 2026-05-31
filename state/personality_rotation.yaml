@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-05-30T23:50:23.653292+00:00'
+last_used: albert-einstein
+last_used_at: '2026-05-31T00:34:33.918360+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-22T18:09:23.182629+00:00'
-  ended_at: '2026-05-22T19:08:48.590349+00:00'
-  outcome: abstained
-  action: abstain
 - slug: geoffrey-west
   started_at: '2026-05-22T19:08:48.590349+00:00'
   ended_at: '2026-05-22T20:10:18.955335+00:00'
@@ -1199,3 +1194,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/reviews/alan-turing-simulated__2026-05-30__paper.md
+- slug: albert-einstein
+  started_at: '2026-05-30T23:50:23.653292+00:00'
+  ended_at: '2026-05-31T00:34:33.918360+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-31__research.md
