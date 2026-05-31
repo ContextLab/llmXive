@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-05-31T10:22:50.449693+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-05-31T11:09:02.489105+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-22T23:25:37.570460+00:00'
-  ended_at: '2026-05-22T23:53:56.509373+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-22__research.md
 - slug: richard-feynman
   started_at: '2026-05-22T23:53:56.509373+00:00'
   ended_at: '2026-05-23T00:33:22.963126+00:00'
@@ -1212,3 +1205,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-638-https-arxiv-org-abs-2605-28820/reviews/research/geoffrey-west-simulated__2026-05-31__research.md
+- slug: john-von-neumann
+  started_at: '2026-05-31T10:22:50.449693+00:00'
+  ended_at: '2026-05-31T11:09:02.489105+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-31__paper.md
