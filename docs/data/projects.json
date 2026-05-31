@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-31T22:26:50.437611+00:00",
+  "generated_at": "2026-05-31T22:50:29.196488+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -56852,6 +56852,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 121.379251,
+          "ended_at": "2026-05-31T22:50:24.317924+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-05-31T22:48:22.938673+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 24.679888,
           "ended_at": "2026-05-31T18:53:45.034469+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -56921,14 +56929,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-31T06:48:59.729671Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 62.77049,
-          "ended_at": "2026-05-31T06:48:59.696095Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-05-31T06:47:56.925605Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -77962,6 +77962,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Linus Pauling (simulated)",
+      "duration_s": 121.379251,
+      "ended_at": "2026-05-31T22:50:24.317924+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "linus-pauling",
+      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+      "project_stage": "clarified",
+      "started_at": "2026-05-31T22:48:22.938673+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "John von Neumann (simulated)",
       "duration_s": 95.641995,
       "ended_at": "2026-05-31T22:22:59.074937+00:00",
@@ -84799,16 +84813,6 @@
       "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
       "project_stage": "paper_review",
       "started_at": "2026-05-17T15:05:40.564126Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 95.357818,
-      "ended_at": "2026-05-17T15:05:40.522731Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:04:05.164913Z"
     }
   ],
   "schema_version": "2.0.0"
