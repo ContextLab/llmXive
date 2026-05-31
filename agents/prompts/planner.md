@@ -57,6 +57,12 @@ $schema: ...
 - For computational projects, `contracts/` MUST include at least one
   schema (e.g., dataset schema, output schema) that the
   Implementer's tests can validate against.
+- Each `contracts/*.schema.yaml` file MUST be a SINGLE YAML document: do
+  NOT place a `---` document separator inside a contract file, and do NOT
+  concatenate multiple schemas (or a schema plus an example) into one
+  file. If you need more than one schema, emit a separate
+  `<!-- FILE: contracts/<name>.schema.yaml -->` block per schema. A file
+  with an internal `---` parses as multiple documents and is rejected.
 - For dataset/code/paper references in research.md, cite ONLY the URLs listed in
   the "# Verified datasets" block of the user message (these have been
   web-searched and reachability/format-verified for you). NEVER invent or guess
