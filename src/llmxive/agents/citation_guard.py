@@ -251,6 +251,36 @@ def _is_structurally_unresolvable(value: str, kind: CitationKind) -> str | None:
     return None
 
 
+_PAREN_GROUP_RE = re.compile(r"\(([^()]+)\)")
+_REFISH_RE = re.compile(r"https?://|doi\.org|\barxiv\b|\b10\.\d{4,9}/", re.IGNORECASE)
+
+
+def dedup_repeated_refs(text: str) -> str:
+    """Collapse a parenthetical that lists the SAME reference two+ times.
+
+    Cosmetic citation hygiene (PURE, no network): an LLM specifier/reviser
+    occasionally emits a citation like ``(https://doi.org/10.x, https://doi.org/10.x)``
+    — the identical DOI/URL repeated inside one parenthetical (observed on
+    PROJ-552 SC-001). This collapses such a group to a single reference so the
+    duplicate never reaches the rendered paper. CONSERVATIVE: a group is
+    collapsed ONLY when every ``,``/``;``-separated part is byte-identical AND
+    looks like a reference (URL / doi.org / DOI / arXiv) — so legitimate
+    parentheticals with distinct content are never touched.
+    """
+    def _collapse(m: re.Match[str]) -> str:
+        inner = m.group(1)
+        parts = [p.strip() for p in re.split(r"\s*[;,]\s*", inner) if p.strip()]
+        if (
+            len(parts) >= 2
+            and len(set(parts)) == 1
+            and _REFISH_RE.search(parts[0]) is not None
+        ):
+            return f"({parts[0]})"
+        return m.group(0)
+
+    return _PAREN_GROUP_RE.sub(_collapse, text)
+
+
 def strip_unresolvable_offline(text: str) -> tuple[str, GuardReport]:
     """Flag ONLY structurally-unresolvable references (no network).
 
@@ -259,7 +289,11 @@ def strip_unresolvable_offline(text: str) -> tuple[str, GuardReport]:
     HTTP (keeps the loop fast and offline reviser tests network-free). Verified
     or merely-need-network refs are left untouched here; full verification runs
     at the stage-production point via :func:`verify_and_clean`.
+
+    Also applies pure citation hygiene (:func:`dedup_repeated_refs`) so a
+    duplicated-DOI parenthetical is collapsed every reviser round.
     """
+    text = dedup_repeated_refs(text)
     verdicts: list[CitationVerdict] = []
     for ext in extract_citations(text):
         reason = _is_structurally_unresolvable(ext.value, ext.kind)
@@ -309,6 +343,9 @@ def verify_and_clean(
     callers correlate this pass with the citations store without a second
     extraction. Returns ``(cleaned_text, GuardReport)``.
     """
+    # Pure citation hygiene first (collapse a duplicated-DOI parenthetical) so
+    # the cleaned text flows through resolution + back to disk.
+    text = dedup_repeated_refs(text)
     # Structurally-unresolvable refs (malformed arXiv) need no HTTP — judge them
     # first so a fabricated id is flagged even if the network is down.
     extracted = extract_citations(text)

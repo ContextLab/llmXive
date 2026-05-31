@@ -180,3 +180,41 @@ def test_find_unverified_markers_multiple_bodies_in_order() -> None:
     assert "arXiv:2402.13" in bodies[0]
     assert "10.1234/fake.9999" in bodies[1]
     assert "example.invalid/nope" in bodies[2]
+
+
+def test_dedup_repeated_refs_collapses_duplicated_doi_parenthetical():
+    """Cosmetic citation hygiene (PROJ-552 SC-001): a specifier emitted
+    `(https://doi.org/10.1142/X, https://doi.org/10.1142/X)` — the SAME DOI
+    twice in one parenthetical. dedup_repeated_refs collapses it to a single
+    reference so the duplicate never reaches the rendered paper."""
+    from llmxive.agents.citation_guard import dedup_repeated_refs
+
+    glitch = (
+        "at least 9,988 (https://doi.org/10.1142/s0218216525500099, "
+        "https://doi.org/10.1142/s0218216525500099)prime knots"
+    )
+    out = dedup_repeated_refs(glitch)
+    assert out.count("10.1142/s0218216525500099") == 1
+    assert "(https://doi.org/10.1142/s0218216525500099)" in out
+    # three identical DOIs collapse too
+    assert dedup_repeated_refs("(doi:10.1234/abc; doi:10.1234/abc; doi:10.1234/abc)") \
+        == "(doi:10.1234/abc)"
+    # repeated arXiv url collapses
+    assert dedup_repeated_refs(
+        "(https://arxiv.org/abs/2402.13, https://arxiv.org/abs/2402.13)"
+    ) == "(https://arxiv.org/abs/2402.13)"
+
+
+def test_dedup_repeated_refs_never_touches_distinct_or_nonref_parentheticals():
+    """CONSERVATIVE: only byte-identical reference groups collapse. Distinct
+    refs, author-year lists, and ordinary prose parentheticals are untouched."""
+    from llmxive.agents.citation_guard import dedup_repeated_refs
+
+    for unchanged in (
+        "(https://a.org/x, https://a.org/y)",   # distinct URLs
+        "(Foo 2020, Bar 2021)",                  # author-year, not refs
+        "(see Section 2, Table 3)",              # cross-refs, not citations
+        "(the minimal crossing number)",         # plain prose
+        "(https://oeis.org/A002863)",            # single ref
+    ):
+        assert dedup_repeated_refs(unchanged) == unchanged
