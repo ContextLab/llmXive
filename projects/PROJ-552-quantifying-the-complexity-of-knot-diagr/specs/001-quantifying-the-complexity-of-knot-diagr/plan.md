@@ -1,37 +1,37 @@
 # Implementation Plan: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-29 | **Spec**: specs/001-knot-complexity-analysis/spec.md
+**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-29 | **Spec**: `specs/001-knot-complexity-analysis/spec.md`
 **Input**: Feature specification from `/specs/001-knot-complexity-analysis/spec.md`
 
 ## Summary
 
-This feature implements a multi-phase research program to quantify the relationship between crossing number and braid index for prime knots with crossing number ≤13. The analysis is stratified by alternating/non-alternating classification (Phase 1 scope). The technical approach involves downloading knot data from Knot Atlas, computing additional invariants (arc index, Seifert circle count, bridge number), performing exploratory data analysis with scatter plots, fitting regression models (linear and non-linear), constructing a composite complexity score, and validating against held-out test sets with statistical testing (Pearson/Spearman correlation, ANOVA).
+This feature implements a multi-phase research program to quantify knot diagram complexity by analyzing the relationship between crossing number and braid index for prime knots with crossing number ≤13. The implementation focuses on Phase 1: stratified analysis by alternating/non-alternating classification, with exploratory regression modeling and composite complexity score construction. The technical approach involves downloading data from Knot Atlas (with retry logic), computing additional invariants (arc index, Seifert circle count, bridge number), performing exploratory data analysis with stratified scatter plots, fitting linear and non-linear regression models, and validating a composite complexity score against held-out test data.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas, numpy, scipy, matplotlib, seaborn, requests, pyyaml, datasets  
-**Storage**: File-based (data/ directory with CSV/JSON/Parquet files)  
-**Testing**: pytest with contract tests against schema definitions  
-**Target Platform**: Linux server (GitHub Actions runner compatible)  
-**Project Type**: computational research library/CLI  
-**Performance Goals**: Complete analysis on ≤13 crossing number dataset (≈30k knots) in <2 hours  
-**Constraints**: Dataset completeness ≥95% for crossing numbers ≤10; invariant computation ≥99% coverage; reproducibility with pinned random seeds and checksums  
-**Scale/Scope**: ≈30k prime knots at crossing number 13; Phase 1 validates ≤10 (≈1,701 knots)
+**Language/Version**: Python 3.11
+**Primary Dependencies**: pandas, numpy, scipy, matplotlib, seaborn, requests, pyyaml, jupyter
+**Storage**: Files (data/ directory with parquet/CSV outputs)
+**Testing**: pytest with contract tests against YAML schemas
+**Target Platform**: Linux server (GitHub Actions compatible)
+**Project Type**: computational research / data analysis
+**Performance Goals**: Complete dataset download and invariant computation within 15 minutes for ≤13 crossing number dataset
+**Constraints**: Exponential backoff retry logic (1s → 60s max), ≥95% data completeness for ≤10 crossing numbers, ≥95% algorithm validation match where reference coverage ≥10%
+**Scale/Scope**: ~2,000 prime knots (crossing numbers 1-10), ~27,635 at crossing number 13 (downloaded but not fully validated in Phase 1)
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Constitution Principle | Status | Notes |
-|------------------------|--------|-------|
-| I. Reproducibility | COMPLIANT | Random seeds pinned in code; requirements.txt at code/; end-to-end runnable scripts |
-| II. Verified Accuracy | COMPLIANT | All citations will be validated by Reference-Validator Agent; no fabricated dataset URLs |
-| III. Data Hygiene | COMPLIANT | Checksums recorded under data/; no in-place modifications; derivation notes in docs/reproducibility/ |
-| IV. Single Source of Truth | COMPLIANT | All figures/statistics trace to data/ rows and code/ blocks; no hand-typed numbers |
-| V. Versioning Discipline | COMPLIANT | Content hashes for all artifacts; state file updated on changes |
-| VI. Mathematical Invariant Consistency | COMPLIANT | Invariants validated against KnotInfo reference values where available; ≥95% pass threshold |
-| VII. Statistical Significance Thresholds | COMPLIANT | Both Pearson and Spearman correlation reported; effect sizes (Cohen's d, r) alongside p-values |
+| Principle | Compliance Status | Implementation Action |
+|-----------|-------------------|----------------------|
+| I. Reproducibility | ✅ COMPLIANT | Random seeds pinned in `code/`; all external datasets fetched from canonical source; `requirements.txt` at `projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/` |
+| II. Verified Accuracy | ✅ COMPLIANT | Reference-Validator Agent runs at artifact write, Advancement-Evaluator before review points, blocking gate on `research_review` → `research_accepted`; citation title overlap ≥0.7 |
+| III. Data Hygiene | ✅ COMPLIANT | All files under `data/` checksummed (SHA-256); raw data preserved unchanged; derivations written to new filenames; PII scan on commits |
+| IV. Single Source of Truth | ✅ COMPLIANT | Every figure/statistic traces to exactly one row in `data/` and one block in `code/`; no hand-typed numbers in paper |
+| V. Versioning Discipline | ✅ COMPLIANT | Every artifact carries content hash; Advancement-Evaluator invalidates stale review records on hash change; `updated_at` timestamp updated on artifact change |
+| VI. Mathematical Invariant Consistency | ✅ COMPLIANT | Computed invariants verified against primary mathematical literature; discrepancies documented with derivation notes in `data/` |
+| VII. Statistical Significance Thresholds | ✅ COMPLIANT | All statistical claims include p-values, confidence intervals, effect sizes; both Pearson and Spearman reported where distribution assumptions uncertain |
 
 ## Project Structure
 
@@ -44,75 +44,68 @@ specs/001-knot-complexity-analysis/
 ├── data-model.md        # Phase 1 output (/speckit-plan command)
 ├── quickstart.md        # Phase 1 output (/speckit-plan command)
 ├── contracts/           # Phase 1 output (/speckit-plan command)
-│   ├── knot_record.schema.yaml
-│   └── invariants_dataset.schema.yaml
 └── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── download/
-│   ├── __init__.py
-│   └── knot_atlas_downloader.py
-├── compute/
-│   ├── __init__.py
-│   ├── invariant_computer.py
-│   └── tie_breaker.py
-├── analysis/
-│   ├── __init__.py
-│   ├── exploratory.py
-│   ├── regression.py
-│   └── validation.py
-├── reproducibility/
-│   ├── __init__.py
-│   ├── checksums.py
-│   ├── logs.py
-│   └── validation_scripts.py
+projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/
+├── code/
+│   ├── requirements.txt
+│   ├── data_download.py
+│   ├── invariant_computation.py
+│   ├── exploratory_analysis.py
+│   ├── regression_models.py
+│   ├── composite_score.py
+│   └── reproducibility/
+│       ├── invariant_algorithms.md
+│       ├── algorithm_validation.md
+│       ├── tie_breaking_rules.md
+│       ├── validation_status.md
+│       ├── validation_scope.md
+│       ├── discrepancy_notes.md
+│       └── reproducibility_logs.jsonl
+├── data/
+│   ├── raw/
+│   │   └── knot_atlas_raw.jsonl
+│   ├── processed/
+│   │   ├── knots_crossing_1_to_10.parquet
+│   │   ├── knots_crossing_11_to_13.parquet
+│   │   └── invariants_computed.parquet
+│   └── plots/
+│       ├── crossing_vs_braid_alternating.png
+│       ├── crossing_vs_braid_non_alternating.png
+│       └── composite_score_validation.png
+├── docs/
+│   └── reproducibility/
+│       ├── invariant_algorithms.md
+│       ├── algorithm_validation.md
+│       ├── tie_breaking_rules.md
+│       ├── validation_status.md
+│       ├── validation_scope.md
+│       └── checksums.json
+├── tests/
+│   ├── contract/
+│   │   └── test_knot_schema.py
+│   ├── integration/
+│   │   └── test_data_pipeline.py
+│   └── unit/
+│       ├── test_invariant_computation.py
+│       └── test_regression_models.py
 ├── config/
 │   └── complexity_weights.yaml
-└── main.py
-
-data/
-├── raw/
-│   └── knot_atlas_raw.json
-├── processed/
-│   ├── knots_cleaned.csv
-│   └── invariants_computed.csv
-├── plots/
-│   ├── crossing_vs_braid_alternating.png
-│   └── crossing_vs_braid_non_alternating.png
-└── reproducibility/
-    ├── checksums.json
-    └── logs/
-
-docs/
-└── reproducibility/
-    ├── invariant_algorithms.md
-    ├── algorithm_validation.md
-    ├── tie_breaking_rules.md
-    ├── validation_scope.md
-    ├── validation_status.md
-    └── uncomputable_invariants.md
-
-tests/
-├── contract/
-│   ├── test_knot_record_schema.py
-│   └── test_invariants_dataset_schema.py
-├── integration/
-│   ├── test_download_pipeline.py
-│   └── test_computation_pipeline.py
-└── unit/
-    ├── test_invariant_computer.py
-    └── test_tie_breaker.py
+└── specs/001-knot-complexity-analysis/
+    ├── plan.md
+    ├── research.md
+    ├── data-model.md
+    ├── quickstart.md
+    └── contracts/
+        └── knot_dataset.schema.yaml
 ```
 
-**Structure Decision**: Single computational research library structure selected. All analysis code under code/ with clear separation of concerns (download, compute, analysis, reproducibility). Data files under data/ with raw/ and processed/ subdirectories to enforce data hygiene (no in-place modifications). Tests organized by type (contract, integration, unit) to support independent testability per user stories.
+**Structure Decision**: Single project structure selected for computational research workflow. All code, data, and documentation organized under project root with clear separation between raw data (`data/raw/`), processed data (`data/processed/`), and analysis outputs (`data/plots/`). This follows Constitution Principle III (Data Hygiene) by preserving raw data unchanged and writing derivations to new filenames.
 
 ## Complexity Tracking
 
-> **No violations requiring justification**
-
-All complexity decisions are aligned with Constitution Principles and spec requirements. No additional layers or patterns beyond standard Python research project structure.
+No violations requiring justification. Standard computational research structure applied.

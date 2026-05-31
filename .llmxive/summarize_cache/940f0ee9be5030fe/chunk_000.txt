@@ -1,0 +1,106 @@
+# Feature Specification: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
+
+**Feature Branch**: `001-knot-complexity-analysis`
+**Created**: 2026-05-29
+**Status**: Draft
+**Input**: User description: "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index"
+
+**Research Question (Phase 1)**: How does the relationship between crossing number and braid index vary across prime knots with crossing number ≤13, and what patterns emerge when stratifying by alternating/non-alternating classification?
+
+**Scope Boundary (Phase 1)**: This spec implements analysis stratified by alternating/non-alternating classification only. Multi-class prime knot exploration (torus, satellite, hyperbolic) is deferred to Phase 2+ as documented in Assumptions. This scope boundary is the implementation default for this iteration.
+
+**Validation Scope (Phase 1)**: Dataset completeness validation focuses on crossing numbers ≤10 as the Phase 1 benchmarking scope. Data collection covers all knots with crossing number ≤13, but full validation across all crossing numbers ≤13 is deferred to future iterations. This is a deliberate scope decision for practical verification purposes in exploratory analysis.
+
+**Multi-Phase Framing**: The project is structured as a multi-phase research program. Phase 1 establishes foundational analysis on alternating/non-alternating dichotomy. Phase 2+ will incorporate additional knot classes (torus, satellite, hyperbolic) as data extraction pipelines and classification logic are developed. This phased approach ensures incremental validation.
+
+## User Scenarios & Testing *(mandatory)*
+
+<!--
+ IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
+ Each user story/journey must be INDEPENDLY TESTABLE - meaning if you implement just ONE of them,
+ you should still have a viable MVP (Minimum Viable Product) that delivers value.
+
+ Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
+ Think of each story as a standalone slice of functionality that can be:
+ - Developed independently
+ - Tested independently
+ - Deployed independently
+ - Demonstrated to users independently
+-->
+
+### User Story 1 - Download and Parse Knot Data from Knot Atlas (Priority: P1)
+
+As a researcher, I need to download knot data from Knot Atlas including crossing numbers, braid indices, and prime knot classifications for all prime knots with crossing number ≤13 so that I have a testable dataset for correlation analysis.
+
+**Why this priority**: This is the foundational step without which no analysis can proceed. The dataset quality and completeness directly determines the validity of all downstream findings.
+
+**Independent Test**: Can be fully tested by executing the data download script and verifying the output contains all prime knots with crossing number ≤13 with consistent representation of crossing number and braid index fields. A validation against standard knot tables (KnotInfo, Hoste-Thistlethwaite-Weeks enumeration) confirms dataset completeness for the highest crossing number in scope.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Knot Atlas is accessible, **When** the download script executes, **Then** the dataset contains all prime knots with crossing number ≤13 with crossing number, braid index, and alternating/non-alternating classification fields populated
+2. **Given** the dataset is downloaded, **When** a data quality check runs, **Then** at least 95% of records have both crossing number and braid index values present (no nulls in required invariant fields)
+
+---
+
+### User Story 2 - Compute Additional Invariants and Perform Exploratory Analysis (Priority: P2)
+
+As a researcher, I need to compute additional invariants (arc index, Seifert circle count, bridge number) from available diagram representations and perform exploratory data analysis including scatter plots of crossing number vs. braid index stratified by alternating/non-alternating classification so that I can identify correlation patterns before fitting models.
+
+**Why this priority**: Exploratory analysis informs model selection and reveals whether the hypothesized non-linear relationship exists. This step validates the research direction before committing to regression modeling.
+
+**Independent Test**: Can be fully tested by generating scatter plots and summary statistics showing the crossing number vs. braid index relationship for alternating knots separately from non-alternating knots, with at least 3 additional invariants computed per knot.
+
+**Acceptance Scenarios**:
+
+1. **Given** the parsed dataset, **When** the invariant computation module runs, **Then** each knot record includes arc index, Seifert circle count, and bridge number values where computable from available diagram representations (minimal crossing diagrams, braid words, or Dowker-Thistlethwaite codes)
+2. **Given** the computed invariants, **When** exploratory plots are generated, **Then** scatter plots show crossing number vs. braid index with distinct stratification for alternating and non-alternating prime knots
+
+---
+
+### User Story 3 - Fit Regression Models and Validate Composite Complexity Score (Priority: P3)
+
+As a researcher, I need to fit multiple regression models to test linear vs. non-linear relationships and construct a composite complexity score as a weighted combination of crossing number and braid index, then validate against held-out test set by testing correlation with arc index and Seifert circle count so that I can determine whether the composite measure shows predictive power.
+
+**Why this priority**: This is the core analytical output that answers the research question. It builds on the data foundation and exploratory analysis to produce the predictive model and validation results.
+
+**Independent Test**: Can be fully tested by executing the regression and validation pipeline on a held-out test set (e.g., 20% of knots) and producing correlation coefficients between the composite complexity score and arc index/Seifert circle count. Results are considered valid if correlation coefficients and effect sizes are reported with appropriate statistical context, regardless of whether thresholds are met.
+
+**Acceptance Scenarios**:
+
+1. **Given** the exploratory analysis results, **When** regression models are fitted, **Then** at least two model types (linear and non-linear) are compared with goodness-of-fit metrics (R², AIC/BIC) documented for each
+2. **Given** a composite complexity score is constructed, **When** validation is performed on held-out test set, **Then** Pearson and Spearman correlation with arc index and Seifert circle count is computed and reported with statistical significance testing (ANOVA for group differences where applicable), effect sizes (Cohen's d or r), and comparison against individual invariants to demonstrate composite performance
+3. **Given** alternating and non-alternating knot classifications, **When** ANOVA testing runs, **Then** group difference analysis is performed with p-values and effect sizes (Cohen's d) reported for the crossing number vs. braid index relationship between groups
+
+---
+
+### User Story 4 - Edge Case Handling, Data Quality, and Reproducibility Documentation (Priority: P4)
+
+As a researcher, I need the system to handle edge cases (API unavailability, missing invariants, ambiguous classifications, crossing number ties) with documented fallback behaviors, AND produce complete reproducibility documentation for all code and data transformations, so that analysis can proceed robustly and results can be independently verified.
+
+**Why this priority**: Edge case handling ensures reproducibility and robustness. Without explicit handling, silent failures or inconsistent behavior could invalidate downstream results. Reproducibility documentation is essential for scientific validation and community verification.
+
+**Independent Test**: Can be fully tested by (1) simulating edge cases (API failures, missing data fields, ambiguous classifications) and verifying that the system produces appropriate flags, logs, and partial results rather than crashing or silently excluding data, AND (2) verifying that all reproducibility artifacts (checksums, logs, derivation notes, random seeds) are present and complete according to FR-009.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Knot Atlas is unavailable, **When** retry logic executes, **Then** exponential backoff is applied and partial results are cached to disk after 3 consecutive failures
+2. **Given** a knot record has missing invariant data, **When** the computation module processes it, **Then** the record is flagged with missing_invariant_flags rather than being silently excluded
+3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as "unclassifiable"
+4. **Given** crossing number ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records
+5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ directory
+
+---
+
+### Edge Cases
+
+- What happens when Knot Atlas is unavailable or rate-limited during download? (System should implement retry logic with exponential backoff and cache partial results)
+- How does system handle knots where braid index or other invariants are not computable from available diagram representations? (Records should be flagged with missing_invariant_flags rather than silently excluded)
+- What happens when alternating vs. non-alternating classification is ambiguous or missing for a knot? (System should either exclude from stratified analysis or mark as unclassifiable)
+- How does system handle ties or near-ties in crossing number when determining "minimal" representations? (Document tie-breaking rules and ensure consistency across all invariant computations)
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST download knot data from Knot Atlas (https://katlas.org/wiki/Main_Page) including crossing numbers, braid indices, and alternating/non-alternating classification for all prime knots with crossing number ≤13. Data format follows Knot Atlas JSON schema as documented at or CSV export with documented column mapping.
