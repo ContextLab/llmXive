@@ -36,12 +36,16 @@ def _make_claim(
     claim_id: str,
     status: ClaimStatus,
     resolved_value: str | None = None,
+    raw_text: str = "the value is 9988 units",
 ) -> Claim:
+    # raw_text carries a numeric token so the prose-preserving render (Fix A)
+    # can swap the asserted number for resolved_value; the surrounding prose is
+    # preserved (it is no longer collapsed to a bare value).
     return Claim(
         claim_id=claim_id,
         kind=ClaimKind.NUMERIC,
-        raw_text="some number",
-        canonical="some number",
+        raw_text=raw_text,
+        canonical=raw_text,
         context="test context",
         artifact_path="test.md",
         source_type="inline",
@@ -116,6 +120,107 @@ class TestOfflineGateLogic:
         _, report = render(text, claims)
         assert report.blocked is True
         assert len(report.unresolved_markers) == 2
+
+
+# ---------------------------------------------------------------------------
+# Idempotency tier (Fix B) — process_document run twice must not accumulate
+# its own artifacts, with a REAL deterministic extraction backend (no mocks:
+# this is a concrete implementation of the chat protocol that reflects the
+# document text, mirroring the established offline-backend pattern).
+# ---------------------------------------------------------------------------
+
+
+class _ReflectingExtractionBackend:
+    """Real ``chat`` backend: emits one extraction claim PER sentence ending
+    with a number in the document it is handed. Deterministic, no network.
+
+    This lets the idempotency test observe whether the claim layer re-extracts
+    its OWN prior-round markers/pointers: if stripping fails, the marker text
+    becomes a "sentence" the extractor would lift as a new bogus claim.
+    """
+
+    def __init__(self) -> None:
+        self.last_seen_doc = ""
+
+    def chat(self, messages, **kwargs):  # type: ignore[no-untyped-def]
+        import re as _re
+
+        # The user message carries the document under "# Document to extract...".
+        doc = ""
+        for m in messages:
+            content = getattr(m, "content", "")
+            if "Document to extract claims from" in content:
+                doc = content
+        self.last_seen_doc = doc
+        # Emit a claim for any [UNRESOLVED-CLAIM: ...] body still present — this
+        # is exactly the feedback loop Fix B must prevent. If stripping works,
+        # the doc the backend sees has NO markers, so it emits none of these.
+        bogus = _re.findall(r"\[UNRESOLVED-CLAIM:\s*([^\]]+)\]", doc)
+        claims_yaml = ["claims:"]
+        for body in bogus:
+            safe = body.replace("'", " ").strip()
+            claims_yaml.append(f"  - claim_text: '{safe}'")
+            claims_yaml.append(f"    canonical: '{safe}'")
+        if not bogus:
+            claims_yaml = ["claims: []"]
+        text = "\n".join(claims_yaml)
+
+        class _R:
+            def __init__(self, t: str) -> None:
+                self.text = t
+
+        return _R(text)
+
+
+class TestProcessDocumentIdempotent:
+    def test_prior_marker_not_reextracted(self, tmp_path: Path) -> None:
+        """A doc carrying a prior-round [UNRESOLVED-CLAIM] marker is stripped
+        BEFORE extraction, so the marker body never becomes a new claim and the
+        output does not accumulate markers (PROJ-552 root causes 2 & 4)."""
+        from llmxive.claims.service import process_document
+
+        (tmp_path / "state" / "claims").mkdir(parents=True, exist_ok=True)
+        backend = _ReflectingExtractionBackend()
+        doc = (
+            "# Spec\n\nThere are 9988 prime knots. "
+            "[UNRESOLVED-CLAIM: c_017129ae — subjective claim cannot be substantiated]\n"
+        )
+        rendered, claims, _gate = process_document(
+            doc,
+            artifact_path="projects/PROJ-T-idem/specs/spec.md",
+            project_id="PROJ-T-idem",
+            backend=backend,
+            model=None,
+            repo_root=tmp_path,
+        )
+        # The backend never saw the marker (it was stripped before extraction)…
+        assert "[UNRESOLVED-CLAIM:" not in backend.last_seen_doc
+        # …so no bogus marker-body claim was extracted…
+        assert claims == []
+        # …and the rendered output carries no accumulated marker.
+        assert "[UNRESOLVED-CLAIM:" not in rendered
+        assert "There are 9988 prime knots." in rendered
+
+    def test_double_run_is_stable(self, tmp_path: Path) -> None:
+        """Running process_document twice on its own output is a fixed point."""
+        from llmxive.claims.service import process_document
+
+        (tmp_path / "state" / "claims").mkdir(parents=True, exist_ok=True)
+        backend = _ReflectingExtractionBackend()
+        doc = (
+            "# Spec\n\nThe census lists 9988 prime knots. "
+            "{{claim:c_3369e68a}} [UNRESOLVED-CLAIM: c_3369e68a — stale]\n"
+        )
+        out1, _c1, _g1 = process_document(
+            doc, artifact_path="projects/PROJ-T-idem2/specs/spec.md",
+            project_id="PROJ-T-idem2", backend=backend, model=None, repo_root=tmp_path,
+        )
+        out2, _c2, _g2 = process_document(
+            out1, artifact_path="projects/PROJ-T-idem2/specs/spec.md",
+            project_id="PROJ-T-idem2", backend=backend, model=None, repo_root=tmp_path,
+        )
+        assert "{{claim:" not in out1 and "[UNRESOLVED-CLAIM:" not in out1
+        assert out2 == out1
 
 
 # ---------------------------------------------------------------------------

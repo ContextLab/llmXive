@@ -145,3 +145,94 @@ class TestRender:
         # Either matched and substituted, or left and blocked — either is valid
         # but this tests the regex handles it gracefully (no crash)
         assert isinstance(rendered, str)
+
+
+class TestProsePreservingRender:
+    """Fix A — render preserves the claim's full sentence, swapping ONLY the
+    asserted token for ``resolved_value`` (PROJ-552 garble regression)."""
+
+    def _sentence_claim(
+        self, raw_text: str, resolved_value: str, *, kind: ClaimKind = ClaimKind.NUMERIC
+    ) -> Claim:
+        cid = compute_claim_id(kind, raw_text, "ctx")
+        return Claim(
+            claim_id=cid,
+            kind=kind,
+            raw_text=raw_text,
+            canonical=raw_text,
+            context="ctx",
+            artifact_path="projects/PROJ-552/specs/spec.md",
+            source_type="external",
+            status=ClaimStatus.VERIFIED,
+            resolved_value=resolved_value,
+            evidence={"url": "https://oeis.org/A002863"},
+            resolver="grounding",
+            attempts=1,
+            updated_at="2026-05-30T00:00:00Z",
+        )
+
+    def test_proj552_garble_regression(self):
+        # The exact PROJ-552 sentence; the asserted 27,635 must become 9988 and
+        # NOTHING else may change — the whole sentence is preserved.
+        sentence = (
+            "For crossing number 13, the exact count is 27,635 prime knots "
+            "(Hoste, Thistlethwaite & Weeks 1998)."
+        )
+        c = self._sentence_claim(sentence, "9988")
+        ptr = to_pointer(c.claim_id)
+        rendered, report = render(ptr, {c.claim_id: c})
+        assert rendered == (
+            "For crossing number 13, the exact count is 9988 prime knots "
+            "(Hoste, Thistlethwaite & Weeks 1998)."
+        )
+        assert "27,635" not in rendered
+        assert not report.blocked
+
+    def test_render_is_idempotent_when_already_correct(self):
+        # Asserted token already equals resolved_value (with separators stripped)
+        # → prose returned byte-for-byte unchanged, and re-render is identical.
+        sentence = "There are 9,988 prime knots (OEIS A002863)."
+        c = self._sentence_claim(sentence, "9988")
+        ptr = to_pointer(c.claim_id)
+        once, _ = render(ptr, {c.claim_id: c})
+        assert once == sentence  # comma form preserved — NOT collapsed to 9988
+        # Feeding the already-correct prose back (no pointer) is a no-op too.
+        twice, _ = render(once, {c.claim_id: c})
+        assert twice == once
+
+    def test_not_verified_appends_marker_preserving_prose(self):
+        sentence = "The catalog lists 27,635 prime knots (no source)."
+        cid = compute_claim_id(ClaimKind.NUMERIC, sentence, "ctx")
+        c = Claim(
+            claim_id=cid,
+            kind=ClaimKind.NUMERIC,
+            raw_text=sentence,
+            canonical=sentence,
+            context="ctx",
+            artifact_path="projects/PROJ-552/specs/spec.md",
+            source_type="external",
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            resolved_value=None,
+            evidence=None,
+            resolver=None,
+            attempts=1,
+            updated_at="2026-05-30T00:00:00Z",
+        )
+        ptr = to_pointer(c.claim_id)
+        rendered, report = render(ptr, {c.claim_id: c})
+        # Prose preserved; ONE marker appended (not a bare-marker replacement).
+        assert rendered.startswith(sentence + " [UNRESOLVED-CLAIM:")
+        assert rendered.endswith("]")
+        assert report.blocked
+        assert len(report.unresolved_markers) == 1
+
+    def test_entity_fact_unchanged_when_value_present(self):
+        sentence = "The census was produced by Hoste, Thistlethwaite and Weeks."
+        c = self._sentence_claim(
+            sentence, "Hoste, Thistlethwaite and Weeks", kind=ClaimKind.ENTITY_FACT
+        )
+        ptr = to_pointer(c.claim_id)
+        rendered, report = render(ptr, {c.claim_id: c})
+        # resolved_value already in the sentence → prose untouched (no garble).
+        assert rendered == sentence
+        assert not report.blocked

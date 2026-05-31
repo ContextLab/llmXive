@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.claims.extract import extract_claims
+from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 from llmxive.claims.pointer import GateReport, render, substitute_pointers
 from llmxive.claims.resolve import resolve
@@ -149,6 +150,10 @@ def process_document(
 
     Never raises — on extraction failure returns ``(text, [], GateReport())``.
     """
+    # Step 0: Strip prior claim-layer artifacts (markers + stray pointers) so a
+    # re-run does NOT re-extract its own output (idempotency — root causes 2/4).
+    text = strip_claim_artifacts(text)
+
     # Step 1: Extract claims from the document.
     try:
         new_claims = extract_claims(

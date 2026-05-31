@@ -7,6 +7,7 @@ from llmxive.claims.gate import (
     find_unresolved_claims,
     has_unresolved_claims,
     mark_unresolved,
+    strip_claim_artifacts,
 )
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 
@@ -100,3 +101,41 @@ class TestFindUnresolvedClaims:
         text = "[UNRESOLVED-CLAIM: my-body-text]"
         bodies = find_unresolved_claims(text)
         assert bodies[0] == "my-body-text"
+
+
+class TestStripClaimArtifacts:
+    """Fix B — re-running the claim layer must not re-extract its own output."""
+
+    def test_removes_marker_preserving_prose(self):
+        text = (
+            "There are 9988 prime knots. [UNRESOLVED-CLAIM: c_017129ae — "
+            "subjective] The census is reputable."
+        )
+        out = strip_claim_artifacts(text)
+        assert "[UNRESOLVED-CLAIM:" not in out
+        assert "There are 9988 prime knots." in out
+        assert "The census is reputable." in out
+
+    def test_removes_stray_pointer(self):
+        text = "The count is {{claim:c_3369e68a}} per the source."
+        out = strip_claim_artifacts(text)
+        assert "{{claim:" not in out
+        assert "The count is per the source." in out
+
+    def test_no_marker_no_change_except_spacing(self):
+        text = "A clean sentence with no artifacts."
+        assert strip_claim_artifacts(text) == text
+
+    def test_idempotent(self):
+        text = "Count 9988. [UNRESOLVED-CLAIM: c_aaaaaaaa — r] {{claim:c_bbbbbbbb}}"
+        once = strip_claim_artifacts(text)
+        twice = strip_claim_artifacts(once)
+        assert once == twice
+        assert "[UNRESOLVED-CLAIM:" not in once
+        assert "{{claim:" not in once
+
+    def test_preserves_newlines(self):
+        text = "Line one.\n\nLine two [UNRESOLVED-CLAIM: c_cccccccc — r].\n\nLine three."
+        out = strip_claim_artifacts(text)
+        assert "\n\n" in out
+        assert out.count("\n\n") == 2
