@@ -45,6 +45,7 @@ from llmxive.pipeline._kickback import (
     consume_convergence_kickback,
     reset_kickback_count,
 )
+from llmxive.speckit._stage_panel import StagePanelEscalation, StagePanelKickback
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.implement_cmd import ImplementerAgent
 from llmxive.speckit.paper_clarify_cmd import PaperClarifierAgent
@@ -445,7 +446,22 @@ def run_one_step(
             prompt_version=entry.prompt_version,
             agent_name=entry.name,
         )
-        speckit_agent.run(sk_ctx)
+        try:
+            speckit_agent.run(sk_ctx)
+        except StagePanelKickback as exc:
+            # CONTROLLED non-convergence: the panel already wrote its
+            # convergence_kickback.yaml sentinel. Do NOT propagate — fall through
+            # to _decide_next_stage below, which CONSUMES that sentinel and routes
+            # the project to the content stage to auto-retry (bounded by the
+            # per-stage kickback cap → human escalation). Propagating instead
+            # would skip routing entirely: the project would loop at this stage
+            # forever (current_stage never advances; the cap never increments).
+            logger.info("stage-panel kickback for %s: %s", project.id, exc)
+        except StagePanelEscalation as exc:
+            # Engine failure: the panel wrote human_input_needed.yaml. Fall
+            # through so _decide_next_stage routes to HUMAN_INPUT_NEEDED rather
+            # than crashing the entire run loop with an unhandled exception.
+            logger.warning("stage-panel escalation for %s: %s", project.id, exc)
     else:
         raise RuntimeError(f"no implementation registered for agent {agent_name!r}")
 

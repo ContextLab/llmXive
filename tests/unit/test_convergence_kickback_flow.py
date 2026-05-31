@@ -186,5 +186,97 @@ def test_kickback_transitions_are_valid() -> None:
     assert is_valid_transition(Stage.PAPER_CLARIFIED, Stage.PAPER_CLARIFIED)
 
 
+# --- run_one_step catches the panel's raise and ROUTES (the real bug) ------
+#
+# The _decide_next_stage tests above prove routing works ONCE REACHED. But the
+# spec panel signals non-convergence by RAISING StagePanelKickback from inside
+# the agent run (after writing the sentinel). Before the Part-7 fix that raise
+# propagated straight out of run_one_step (caught only by the CLI as a FAIL), so
+# _decide_next_stage was never reached: the sentinel was never consumed, the
+# project looped at SPECIFIED forever, and the kickback cap never incremented.
+# These two tests exercise the REAL run_one_step exception handling + the REAL
+# _decide_next_stage/_kickback routing; only the panel agent + registry/store
+# collaborators are substituted to inject the controlled signal.
+
+
+def _stub_registry_entry(name: str):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(
+        prompt_path=Path("prompts/x.md"),
+        default_backend="dartmouth",
+        fallback_backends=[],
+        default_model="m",
+        prompt_version="1.0.0",
+        name=name,
+    )
+
+
+def test_run_one_step_catches_kickback_and_routes(tmp_path: Path, monkeypatch) -> None:
+    from llmxive.pipeline import graph
+    from llmxive.speckit._stage_panel import StagePanelKickback
+    from llmxive.state import project as project_store
+
+    project = _spec_project()
+    mem = tmp_path / "projects" / project.id / ".specify" / "memory"
+
+    class _KickbackAgent:
+        def run(self, sk_ctx) -> None:
+            _write_sentinel(mem, to_stage="flesh_out_in_progress", stage="spec")
+            raise StagePanelKickback(
+                "spec panel did not converge (kickback → flesh_out_in_progress)"
+            )
+
+    monkeypatch.setitem(graph._SPECKIT_AGENTS, "clarifier", _KickbackAgent)
+    monkeypatch.setattr(
+        graph.registry_loader, "get",
+        lambda name, repo_root=None: _stub_registry_entry(name),
+    )
+    monkeypatch.setattr(project_store, "load", lambda pid, repo_root=None: project)
+    monkeypatch.setattr(project_store, "save", lambda p, repo_root=None: None)
+
+    result = graph.run_one_step(project, repo_root=tmp_path)
+
+    # Routed to the content stage — NOT looped at SPECIFIED, NOT raised.
+    assert result.current_stage == Stage.FLESH_OUT_IN_PROGRESS
+    # Sentinel consumed and the per-stage cap counter incremented.
+    assert not (mem / "convergence_kickback.yaml").exists()
+    assert yaml.safe_load((mem / "kickback_count.yaml").read_text()) == {"spec": 1}
+
+
+def test_run_one_step_catches_escalation_and_routes_to_human(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from llmxive.pipeline import graph
+    from llmxive.speckit._stage_panel import StagePanelEscalation
+    from llmxive.state import project as project_store
+
+    project = _spec_project()
+    mem = tmp_path / "projects" / project.id / ".specify" / "memory"
+
+    class _EscalationAgent:
+        def run(self, sk_ctx) -> None:
+            mem.mkdir(parents=True, exist_ok=True)
+            (mem / "human_input_needed.yaml").write_text(
+                yaml.safe_dump({"reason": "spec panel engine failure: boom", "stage": "spec"}),
+                encoding="utf-8",
+            )
+            raise StagePanelEscalation("spec panel engine failure: boom")
+
+    monkeypatch.setitem(graph._SPECKIT_AGENTS, "clarifier", _EscalationAgent)
+    monkeypatch.setattr(
+        graph.registry_loader, "get",
+        lambda name, repo_root=None: _stub_registry_entry(name),
+    )
+    monkeypatch.setattr(project_store, "load", lambda pid, repo_root=None: project)
+    monkeypatch.setattr(project_store, "save", lambda p, repo_root=None: None)
+
+    result = graph.run_one_step(project, repo_root=tmp_path)
+
+    # Engine failure routes to HUMAN_INPUT_NEEDED instead of crashing the run.
+    assert result.current_stage == Stage.HUMAN_INPUT_NEEDED
+    assert result.human_escalation_reason
+
+
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(pytest.main([__file__, "-q"]))
