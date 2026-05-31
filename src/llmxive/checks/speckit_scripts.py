@@ -9,14 +9,14 @@ has begun.
 
 from __future__ import annotations
 
-import os
 import stat
 import sys
-from pathlib import Path
+
+from llmxive.config import repo_root as _repo_root
 
 
 def main() -> int:
-    repo = Path(__file__).resolve().parent.parent.parent.parent
+    repo = _repo_root()
     script_roots = [
         repo / ".specify" / "scripts" / "bash",
         repo / ".specify" / "extensions" / "git" / "scripts" / "bash",

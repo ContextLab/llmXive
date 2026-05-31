@@ -15,7 +15,6 @@ dependencies = [
   "langchain>=0.3",
   "langgraph>=0.2",
   "langchain-dartmouth>=0.3.1",
-  "langchain-huggingface>=0.1",
   "huggingface_hub",
   # Data validation
   "pydantic>=2",
@@ -35,6 +34,9 @@ dependencies = [
   "numpy",
   "scipy",
   "pandas",
+  # Spec 018 (computational claim verification): safe symbolic evaluation of
+  # arithmetic / comparisons / unit conversions / algebraic identities / logic.
+  "sympy",
   # scripts/extract_paper_content.py uses it indirectly via regex but
   # pylatexenc is the canonical pure-python LaTeX parser used as a
   # fallback for future structured walks (e.g. AST-aware citation
@@ -56,6 +58,7 @@ dev = [
   "pytest-asyncio",
   "ruff",
   "mypy",
+  "types-PyYAML",
 ]
 
 [project.scripts]

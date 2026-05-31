@@ -27,6 +27,7 @@ third-party dependency (Principle IV). See
 
 from __future__ import annotations
 
+import http.client
 import re
 import urllib.error
 import urllib.request
@@ -203,14 +204,16 @@ def _probe(url: str, *, timeout: int) -> None:
     if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
         raise UnreachableReference(url, "malformed URL (no http(s):// scheme)")
 
-    def _request(method: str, extra_headers: dict[str, str] | None = None):
+    def _request(method: str, extra_headers: dict[str, str] | None = None) -> http.client.HTTPResponse:
         headers = {"User-Agent": _USER_AGENT}
         if extra_headers:
             headers.update(extra_headers)
         req = urllib.request.Request(url, method=method, headers=headers)
         # ``urlopen`` raises HTTPError for >=400; 3xx is followed by the
         # default redirect handler, so a final-status read yields 200-399.
-        return urllib.request.urlopen(req, timeout=timeout)
+        resp = urllib.request.urlopen(req, timeout=timeout)
+        assert isinstance(resp, http.client.HTTPResponse)
+        return resp
 
     try:
         try:

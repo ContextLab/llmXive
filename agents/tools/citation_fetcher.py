@@ -136,7 +136,7 @@ def _fetch_arxiv(value: str, *, cited_title: str, timeout: float) -> FetchResult
         arxiv_id = m.group(1)
     try:
         # arxiv package handles parsing the Atom feed; lazy-import.
-        import arxiv  # type: ignore[import-not-found]
+        import arxiv
     except ImportError as exc:
         return FetchResult(
             status=VerificationStatus.UNREACHABLE,

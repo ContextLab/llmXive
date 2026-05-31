@@ -14,7 +14,6 @@ import ast
 import unittest
 from pathlib import Path
 
-
 BANNED_PREFIXES = (
     "anthropic",
     "openai",

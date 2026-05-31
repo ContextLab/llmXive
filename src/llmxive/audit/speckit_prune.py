@@ -14,7 +14,7 @@ CLI:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -37,7 +37,7 @@ STAGE_ARTIFACTS: list[tuple[str, list[str]]] = [
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _project_id_from_path(p: Path) -> str | None:
@@ -137,7 +137,7 @@ def audit_artifacts(repo_root: Path) -> dict[str, Any]:
             real = is_real(p, repo_root=repo_root)
             classification = "REAL" if real else "TEMPLATE"
             reason = "" if real else "classified template by _real_only_guard.is_real()"
-        except Exception as exc:  # noqa: BLE001 — capture all classifier failures
+        except Exception as exc:
             classification = "TEMPLATE"
             reason = f"guard raised: {exc}"
 
@@ -224,7 +224,7 @@ def _walk_back_to_real_stage(history_path: Path, repo_root: Path) -> str:
         # artifacts have all been deleted by the prune is treated as no-longer
         # surviving — walk further back.
         if any_found and all_real:
-            return stage
+            return str(stage)
     return "flesh_out_complete"
 
 
@@ -232,8 +232,8 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
     """Audit then optionally delete templates + roll stages back. FR-008/FR-009."""
     report = audit_artifacts(repo_root)
     report["apply"] = apply
-    report["deleted_paths"]: list[str] = []
-    report["rolled_back_projects"]: dict[str, dict[str, str]] = {}
+    report["deleted_paths"] = []
+    report["rolled_back_projects"] = {}
     report["run_id"] = str(uuid4())
 
     if not apply:
@@ -274,7 +274,7 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
         # away project state for files the rollback can't recover from).
         proj_yaml = repo_root / "state" / "projects" / f"{project_id}.yaml"
         prior_stage = ""
-        doc = {}
+        doc: dict[str, Any] = {}
         if proj_yaml.exists():
             doc = yaml.safe_load(proj_yaml.read_text()) or {}
             prior_stage = doc.get("current_stage", "")
@@ -317,7 +317,7 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
         }
 
     # Log to run-log per FR-023.
-    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    month = datetime.now(UTC).strftime("%Y-%m")
     run_log_path = repo_root / "state" / "run-log" / month / f"{report['run_id']}.jsonl"
     run_log_path.parent.mkdir(parents=True, exist_ok=True)
     with run_log_path.open("w") as fh:
@@ -339,4 +339,4 @@ def prune_templates(repo_root: Path, *, apply: bool) -> dict[str, Any]:
     return report
 
 
-__all__ = ["audit_artifacts", "prune_templates", "_walk_back_to_real_stage"]
+__all__ = ["_walk_back_to_real_stage", "audit_artifacts", "prune_templates"]

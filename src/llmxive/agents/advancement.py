@@ -9,29 +9,72 @@ written an accept review** before the project can advance to
 RESEARCH_ACCEPTED or PAPER_ACCEPTED. The list of required specialists
 is read from agents/registry.yaml at evaluation time (any agent whose
 name starts with `research_reviewer_` or `paper_reviewer_`).
+
+Two distinct rejection semantics (post spec-015 T042 + maintainer review):
+
+  * **Engine kickback** (the modern path): a panel surfaces specific,
+    actionable concerns; the engine writes ``auto-revisions/round-N/``
+    with per-concern tasks; the project STAYS at RESEARCH_REVIEW or
+    PAPER_REVIEW with ``revision_spec_path`` set; the implementer
+    picks up the round + applies the revisions. This is FORMATIVE
+    feedback — "fix these specific things and try again."
+
+  * **Terminal-judgment stages** (kept, NOT folded into engine):
+    ``RESEARCH_REJECTED``, ``RESEARCH_FULL_REVISION``, and
+    ``PAPER_FUNDAMENTAL_FLAWS`` are retained because they encode a
+    SUMMATIVE editorial verdict that the engine kickback shape can't
+    represent:
+
+      - ``RESEARCH_REJECTED`` — winning recommendation is ``reject``;
+        the panel judges the submission isn't redeemable in its
+        current shape. The project transitions back to BRAINSTORMED
+        (lifecycle.ALLOWED_TRANSITIONS) so the author can re-pitch
+        from scratch.
+      - ``RESEARCH_FULL_REVISION`` — winning recommendation is
+        ``full_revision``; the panel asks for ground-up rewrite, not
+        a per-concern revision. Transitions back to CLARIFIED.
+      - ``PAPER_FUNDAMENTAL_FLAWS`` — the paper-track equivalent of
+        ``RESEARCH_REJECTED``; transitions back to BRAINSTORMED.
+
+    These stages are surfaced in ``web_data.py`` as the public
+    "rejected" status — the project tracker MUST be able to render
+    them as distinct from active projects. Folding them into engine
+    kickback would lose that public-status distinction AND would
+    require the engine to be able to represent "panel said REJECT
+    outright," which the per-concern shape can't.
+
+    The codepath at lines ~365-368 (winning_recommendation == "reject"
+    / "full_revision") is the live producer of these stages for
+    legacy records that pre-date the engine; new engine-produced
+    records use the kickback path below. The two paths coexist
+    deliberately.
 """
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
 from llmxive.agents.lifecycle import is_valid_transition
-from llmxive.config import (
-    PAPER_ACCEPT_THRESHOLD,
-    RESEARCH_ACCEPT_THRESHOLD,
-)
+from llmxive.config import repo_root as _repo_root
+
+# Spec 015 T041 / FR-019: the RESEARCH_ACCEPT_THRESHOLD / PAPER_ACCEPT_THRESHOLD
+# point gates were removed; advancement no longer reads any point threshold from
+# config. The sole gate is unanimous LLM-panel acceptance.
 from llmxive.state import citations as citations_store
 from llmxive.state import project as project_store
 from llmxive.state import reviews as reviews_store
 from llmxive.types import (
+    Citation,
     Project,
-    ReviewerKind,
     ReviewRecord,
     Stage,
     VerificationStatus,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _required_specialists(prefix: str, *, repo_root: Path | None = None) -> set[str]:
@@ -155,7 +198,7 @@ def _infer_live_hash(records: list[ReviewRecord]) -> str | None:
 
 def _consolidate_action_items(
     records: list[ReviewRecord], *, live_hash: str | None = None,
-) -> list:
+) -> list[object]:
     """Deduplicate action items by id across all per-specialist
     most-recent non-accept reviews. Preserves first-seen order.
     """
@@ -174,63 +217,81 @@ class AdvancementError(RuntimeError):
     """Raised when a requested transition is invalid."""
 
 
-def _produced_by(project: Project, artifact_path: str) -> str | None:
-    """Best-effort author lookup from the project's run-log; v1 stub.
+def _produced_by(
+    project: Project, artifact_path: str, *, repo_root: Path | None = None,
+) -> str | None:
+    """Return the agent that most-recently wrote ``artifact_path`` for this
+    project, by scanning ``state/run-log/<YYYY-MM>/*.jsonl`` (spec 015 T025 /
+    FR-018: self-review prevention — previously a stub that returned None).
 
-    A future refinement reads state/run-log/ to find the entry that wrote
-    the artifact and returns entry.agent_name. For v1 we return None so
-    self-review filtering is done by reviewer-name comparison only.
+    Match policy: an entry "wrote" the artifact iff its ``outputs`` list
+    contains the path. Comparison is exact, then suffix (so a callsite that
+    stores ``projects/PROJ-X/code/foo.py`` matches a run-log output recorded as
+    ``code/foo.py`` and vice-versa). Returns the ``agent_name`` of the LATEST
+    matching entry, or ``None`` if no run-log evidence exists.
+
+    ``repo_root`` overrides the default state-root resolution for tests; in
+    production callers omit it and the path falls back to the repo's own state/.
     """
-    return None
+    from pathlib import Path as _Path
+
+    from llmxive.state.runlog import _state_root
+
+    try:
+        state_dir = (_Path(repo_root) / "state") if repo_root is not None else _state_root()
+        log_root = state_dir / "run-log"
+    except Exception:
+        return None
+    if not log_root.is_dir():
+        return None
+
+    def _matches(outputs: list[str]) -> bool:
+        target = artifact_path
+        for o in outputs:
+            if o == target:
+                return True
+            # Suffix-match either direction to tolerate relative-vs-absolute
+            # bookkeeping differences.
+            if target.endswith(o) or o.endswith(target):
+                return True
+            # Path-segment compare for robustness against leading "./" etc.
+            try:
+                if _Path(o).as_posix().endswith(_Path(target).as_posix()):
+                    return True
+            except (TypeError, ValueError):
+                pass
+        return False
+
+    from llmxive.types import RunLogEntry
+    latest_agent: str | None = None
+    latest_ended = None
+    for month_dir in sorted(log_root.iterdir(), reverse=True):
+        if not month_dir.is_dir() or month_dir.name.startswith("."):
+            continue
+        for jsonl in sorted(month_dir.glob("*.jsonl"), reverse=True):
+            for line in jsonl.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    entry = RunLogEntry.model_validate_json(line)
+                except Exception:
+                    continue
+                if entry.project_id != project.id:
+                    continue
+                if not _matches(entry.outputs):
+                    continue
+                if latest_ended is None or entry.ended_at > latest_ended:
+                    latest_ended = entry.ended_at
+                    latest_agent = entry.agent_name
+    return latest_agent
 
 
-def _award_review_points(
-    project: Project,
-    records: list[ReviewRecord],
-    *,
-    bucket: str,
-    citations: list[citations_store.Citation],
-    is_paper_stage: bool,
-) -> Project:
-    """Sum eligible review records into the right point bucket.
-
-    Eligibility filters:
-    1. The record's artifact_hash matches the live artifact's hash
-       (anti-tamper).
-    2. The reviewer is not the artifact's author (self-review prohibited).
-    3. The reviewed artifact has no citation in unreachable/mismatch
-       status (FIX C2 — Reference-Validator gates point award).
-    """
-    bad_artifacts: set[str] = {
-        c.artifact_path
-        for c in citations
-        if c.verification_status in (VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH)
-    }
-    awarded: float = 0.0
-    for rec in records:
-        if rec.artifact_path in bad_artifacts:
-            continue
-        live_hash = project.artifact_hashes.get(rec.artifact_path)
-        if live_hash and live_hash != rec.artifact_hash:
-            continue
-        author = _produced_by(project, rec.artifact_path)
-        if author and author == rec.reviewer_name:
-            continue
-        # Reject un-authenticated human reviews. Anyone could drop a
-        # YAML file into reviews/ claiming reviewer_kind=human; the
-        # github_authenticated flag is set only by the OAuth-backed
-        # submission flow.
-        if rec.reviewer_kind == ReviewerKind.HUMAN and not rec.github_authenticated:
-            continue
-        awarded += rec.score
-    target = (
-        project.points_paper if is_paper_stage else project.points_research
-    )
-    target = dict(target)
-    target[bucket] = round(target.get(bucket, 0.0) + awarded, 2)
-    if is_paper_stage:
-        return project.model_copy(update={"points_paper": target})
-    return project.model_copy(update={"points_research": target})
+# Spec 015 T041 / FR-019: `_award_review_points` was REMOVED with the point
+# system. Unanimous LLM-panel acceptance is now the sole gate; human and
+# simulated-personality reviews are advisory inputs via stage-aware triage
+# (`llmxive.convergence.triage`), never points. The `points_research` /
+# `points_paper` fields on Project are retained on disk for back-compat but no
+# advancement-decision path reads them.
 
 
 def _winning_recommendation(records: list[ReviewRecord]) -> str | None:
@@ -316,45 +377,117 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         else:
             return project
 
-    # Research-review handling (US3 wiring; placeholder logic now).
+    # Research-review handling.
+    # Spec 015 T041 / FR-019/FR-020: point system REMOVED. The sole gate is now
+    # unanimous LLM-panel acceptance (every required research_reviewer_* must
+    # have an accept record), matching the paper-side gate. No accumulated
+    # threshold, no _award_review_points call. Human / simulated-personality
+    # reviews are advisory inputs via stage-aware triage, never points.
+    #
+    # Spec 015 T042 / FR-034: the 3 transient research-revision stages
+    # (RESEARCH_MINOR_REVISION + reuse of full / rejected) were deleted.
+    # The convergence engine is the sole inter-stage revision driver:
+    # on non-unanimous-accept we emit a KickbackRecord routed by adaptive
+    # severity to a stable stage (TASKED/CLARIFIED/BRAINSTORMED) via
+    # ``llmxive.convergence.revision_adapter.kickback_to_revision_spec``.
     if project.current_stage == Stage.RESEARCH_REVIEW:
         records = reviews_store.list_for(project.id, stage="research", repo_root=repo_root)
-        project = _award_review_points(
-            project,
-            records,
-            bucket="research_review",
-            citations=cits,
-            is_paper_stage=False,
-        )
-        accept_total = sum(r.score for r in records if r.verdict == "accept")
         winning = _winning_recommendation(records)
         required = _required_specialists("research_reviewer_", repo_root=repo_root)
         all_accept = _all_specialists_accept(records, required)
-        # Both gates must pass: enough points AND every specialist accepts.
+        has_any_accept = any(r.verdict == "accept" for r in records)
+        has_any_non_accept = any(r.verdict != "accept" for r in records)
+        unanimous = all_accept and (
+            bool(required) or (has_any_accept and not has_any_non_accept)
+        )
         if (
-            accept_total >= RESEARCH_ACCEPT_THRESHOLD
-            and all_accept
+            unanimous
             and not _has_blocking_citations(cits)
+            and not _has_unverified_markers(project, track="research", repo_root=repo_root)
         ):
             return _transition(project, Stage.RESEARCH_ACCEPTED)
-        if winning == "minor_revision":
-            return _transition(project, Stage.RESEARCH_MINOR_REVISION)
-        if winning == "full_revision":
-            return _transition(project, Stage.RESEARCH_FULL_REVISION)
+        # FATAL judgments still need to be representable. The engine path
+        # below routes the rest; here we keep the (rare) full-reject and
+        # full-revision codepaths so a winning_recommendation of `reject`
+        # / `full_revision` is honored on records that pre-date the engine.
         if winning == "reject":
             return _transition(project, Stage.RESEARCH_REJECTED)
-        return project  # not enough votes yet
+        if winning == "full_revision":
+            return _transition(project, Stage.RESEARCH_FULL_REVISION)
+        # Spec 015 T042 engine path: a winning `minor_revision` (or any
+        # other non-accept) now triggers the convergence-adapter kickback.
+        # We don't run the engine itself here (advancement is a non-LLM
+        # evaluator) — instead we project the available action items
+        # straight onto a synthetic KickbackRecord whose worst-severity
+        # adapts the legacy verdict, and let the adapter write the
+        # auto-revisions dir for the implementer to pick up. The PROJECT
+        # STAYS at RESEARCH_REVIEW; the implementer transitions it back
+        # out after applying the revision.
+        consolidated = _consolidate_action_items(records)
+        if consolidated:
+            from llmxive.convergence.revision_adapter import (
+                kickback_to_revision_spec,
+            )
+            from llmxive.convergence.types import (
+                Concern,
+                KickbackRecord,
+                Severity,
+                from_legacy_severity,
+                worst_severity,
+            )
+            engine_concerns = [
+                Concern(
+                    id=str(getattr(it, "id", "") or "000000000000")[:12].ljust(12, "0"),
+                    reviewer="research_reviewer",
+                    severity=from_legacy_severity(
+                        getattr(it, "severity", "writing") or "writing"
+                    ),
+                    artifact=f"projects/{project.id}/specs/",
+                    location="",
+                    # Spec-015: Concern.text is now ``min_length=1``.
+                    # ActionItem.text is already non-empty, but legacy
+                    # records (without action_items) may pass through
+                    # here with an empty fallback. Use an explicit
+                    # marker rather than risk ValidationError.
+                    text=(getattr(it, "text", "") or "").strip()
+                         or "<no text on legacy action item>",
+                    round=1,
+                )
+                for it in consolidated
+            ]
+            worst = worst_severity([c.severity for c in engine_concerns])
+            kb = KickbackRecord(
+                from_stage="research_review",
+                to_stage=("tasked" if worst in {Severity.WRITING, Severity.REQUIREMENT, Severity.CODE}
+                         else ("clarified" if worst in {Severity.METHODOLOGY}
+                               else "brainstormed")),
+                worst_severity=worst,
+                unresolved_concerns=engine_concerns,
+                artifact_links=[f"projects/{project.id}/specs/"],
+                reason=(
+                    "advancement.evaluate: research-review non-convergence; "
+                    "routing via engine adapter."
+                ),
+            )
+            spec_dir = kickback_to_revision_spec(
+                kb,
+                project_id=project.id,
+                repo_root=repo_root or _repo_root(),
+            )
+            rel = spec_dir.relative_to(
+                repo_root or _repo_root()
+            )
+            return project.model_copy(update={
+                "current_stage": Stage.RESEARCH_REVIEW,
+                "revision_spec_path": str(rel),
+            })
+        return project  # not enough votes / no action items yet
 
-    # Paper-review handling (spec 012 convergence pipeline).
+    # Paper-review handling (spec 012 convergence pipeline; spec 015 T041 removed
+    # the redundant _award_review_points bookkeeping — the all-specialists-accept
+    # gate was always the actual decision).
     if project.current_stage == Stage.PAPER_REVIEW:
         records = reviews_store.list_for(project.id, stage="paper", repo_root=repo_root)
-        project = _award_review_points(
-            project,
-            records,
-            bucket="paper_review",
-            citations=cits,
-            is_paper_stage=True,
-        )
         required = _required_specialists("paper_reviewer_", repo_root=repo_root)
         # Spec 012 / FR-003: most-recent verdict per specialist against the
         # live artifact hash. For the live_hash, we use the most common
@@ -367,30 +500,48 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         if (
             _all_specialists_accept_most_recent(records, required, live_hash=live_hash)
             and not _has_blocking_citations(cits)
+            and not _has_unverified_markers(project, track="paper", repo_root=repo_root)
         ):
             return _transition(project, Stage.PAPER_ACCEPTED)
 
         # Spec 012 / FR-004-008: severity-based routing.
         max_sev = _max_severity_across_specialists(records, live_hash=live_hash)
 
-        # Back-compat for legacy records (prompt_version 1.0.x) with no
-        # action_items: fall back to the pre-spec-012 `_winning_recommendation`
-        # so we don't regress projects whose reviewers haven't yet been
-        # re-run under the new prompts. _max_severity returns None in this
-        # case, which lets us detect "no spec-012-style data available".
+        # Spec 015 T042 / FR-034: the 3 transient paper-revision stages
+        # (PAPER_MINOR_REVISION, PAPER_MAJOR_REVISION_WRITING/SCIENCE)
+        # + the 3 spec-012 stages (PAPER_REVISION_IN_PROGRESS,
+        # READY_FOR_IMPLEMENTATION, PAPER_REVISION_BLOCKED) were ALL
+        # deleted. The convergence engine + adapter is the SOLE inter-
+        # stage revision driver: on non-convergence we synthesize a
+        # KickbackRecord, run it through
+        # :func:`kickback_to_revision_spec` to write an auto-revisions
+        # round dir, and KEEP the project at PAPER_REVIEW with
+        # ``revision_spec_path`` set so the implementer picks it up.
+        # On classifiable diagnostic failures the implementer's failsafe
+        # itself writes the next round; on UNKNOWN failures it routes
+        # to ``Stage.AGENT_BLOCKED``.
+        #
+        # Back-compat: if a record set is legacy-only (no action_items),
+        # we still need to make a routing decision. We fall back to
+        # `_winning_recommendation` for those records and route the
+        # FATAL judgments through legacy stages that still exist
+        # (RESEARCH_REJECTED-equivalent: PAPER_FUNDAMENTAL_FLAWS;
+        # rejection-to-backlog: BRAINSTORMED via FATAL severity).
         if max_sev is None and not _all_specialists_accept_most_recent(
             records, required, live_hash=live_hash
         ):
             winning = _winning_recommendation(records)
-            if winning == "minor_revision":
-                return _transition(project, Stage.PAPER_MINOR_REVISION)
-            if winning == "major_revision_writing":
-                return _transition(project, Stage.PAPER_MAJOR_REVISION_WRITING)
-            if winning == "major_revision_science":
-                return _transition(project, Stage.PAPER_MAJOR_REVISION_SCIENCE)
             if winning == "fundamental_flaws":
                 return _transition(project, Stage.PAPER_FUNDAMENTAL_FLAWS)
-            return project
+            # legacy minor / major rev → engine kickback path below
+            # with a synthesized SCIENCE severity for major_science and
+            # WRITING for the others.
+            if winning in {"minor_revision", "major_revision_writing"}:
+                max_sev = "writing"
+            elif winning == "major_revision_science":
+                max_sev = "science"
+            else:
+                return project  # not enough info yet
 
         if max_sev == "fatal":
             # Reject to backlog with consolidated fatal items appended to
@@ -402,24 +553,27 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     _consolidate_action_items(records, live_hash=live_hash),
                     repo_root=repo_root,
                 )
-            except Exception:  # noqa: BLE001 — defensive; rationale failure must not block transition
+            except Exception:
                 pass
             return _transition(project, Stage.BRAINSTORMED)
 
-        # Spec 012 → 013 (in flight): per the 2026-05-18 user clarification,
-        # arxiv-intake papers are NO LONGER auto-accepted-with-caveats.
-        # The journal's value proposition is that LLM agents apply the
-        # revisions (and join the author list on the revised manuscript).
-        # Both home-grown AND arxiv-intake papers now route through the
-        # same auto-plan revision pipeline; the upstream_feedback.yaml
-        # is retained as a record but no longer gates the transition.
         if max_sev in ("writing", "science"):
             from llmxive.agents.upstream_feedback import is_arxiv_intake, record_round
-            project_dir = (repo_root or Path(__file__).resolve().parents[3]) / "projects" / project.id
+            from llmxive.convergence.revision_adapter import (
+                kickback_to_revision_spec,
+            )
+            from llmxive.convergence.types import (
+                Concern,
+                KickbackRecord,
+                Severity,
+                from_legacy_severity,
+                worst_severity,
+            )
+            project_dir = (repo_root or _repo_root()) / "projects" / project.id
             if is_arxiv_intake(project_dir):
                 # Preserve the upstream_feedback annotation for diagnostics
                 # but DON'T short-circuit to PAPER_ACCEPTED. Fall through
-                # to the standard revision pipeline below.
+                # to the engine-adapter path below.
                 try:
                     record_round(
                         project.id,
@@ -427,44 +581,58 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                         action_items=_consolidate_action_items(records, live_hash=live_hash),
                         repo_root=repo_root,
                     )
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
-            # All papers with writing/science items route through the
-            # auto-plan revision pipeline (FR-006/007/009).
-            from llmxive.agents.revision_planner import (
-                ArxivIntakeError, RevisionPlanningError, run_revision_pipeline,
-            )
             consolidated = _consolidate_action_items(records, live_hash=live_hash)
-            kind = "paper_writing" if max_sev == "writing" else "paper_science"
-            # Move to PAPER_REVISION_IN_PROGRESS first so the scheduler's
-            # idempotency rule kicks in (FR-009). Even if the planner
-            # fails below, the project doesn't get re-triggered until
-            # someone unblocks it.
-            project = _transition(project, Stage.PAPER_REVISION_IN_PROGRESS)
-            try:
-                result = run_revision_pipeline(
-                    project.id, consolidated, revision_kind=kind, repo_root=repo_root,
-                )
-            except ArxivIntakeError:
-                # Defensive — we already checked is_arxiv_intake above. If
-                # the planner still detects this case, stay at PAPER_REVISION_IN_PROGRESS
-                # so a human notices.
+            if not consolidated:
+                # Nothing actionable yet — stay at PAPER_REVIEW for more
+                # reviews to arrive.
                 return project
-            except RevisionPlanningError:
-                # Planner emitted partial state but failed. Transition to
-                # blocked so the operator notices + can unblock.
-                return _transition(project, Stage.PAPER_REVISION_BLOCKED)
-
-            if result.final_outcome == "ready_for_implementation":
-                return project.model_copy(update={
-                    "current_stage": Stage.READY_FOR_IMPLEMENTATION,
-                    "revision_spec_path": str(result.revision_spec_path.relative_to(
-                        repo_root or Path(__file__).resolve().parents[3]
-                    )),
-                })
-            # final_outcome == "paper_revision_blocked"
-            return _transition(project, Stage.PAPER_REVISION_BLOCKED)
+            engine_concerns = [
+                Concern(
+                    id=str(getattr(it, "id", "") or "000000000000")[:12].ljust(12, "0"),
+                    reviewer="paper_reviewer",
+                    severity=from_legacy_severity(
+                        getattr(it, "severity", "writing") or "writing"
+                    ),
+                    artifact=f"projects/{project.id}/paper/source/",
+                    location="",
+                    # Spec-015: Concern.text is now ``min_length=1`` —
+                    # see the research_reviewer branch above for rationale.
+                    text=(getattr(it, "text", "") or "").strip()
+                         or "<no text on legacy action item>",
+                    round=1,
+                )
+                for it in consolidated
+            ]
+            worst = worst_severity([c.severity for c in engine_concerns])
+            kb = KickbackRecord(
+                from_stage="paper_review",
+                to_stage=("paper_tasked" if worst in {
+                    Severity.WRITING, Severity.REQUIREMENT, Severity.CODE,
+                } else ("paper_clarified" if worst == Severity.METHODOLOGY
+                        else ("clarified" if worst == Severity.SCIENCE
+                              else "brainstormed"))),
+                worst_severity=worst,
+                unresolved_concerns=engine_concerns,
+                artifact_links=[f"projects/{project.id}/paper/source/"],
+                reason=(
+                    "advancement.evaluate: paper-review non-convergence; "
+                    "routing via engine adapter."
+                ),
+            )
+            repo = repo_root or _repo_root()
+            spec_dir = kickback_to_revision_spec(
+                kb,
+                project_id=project.id,
+                repo_root=repo,
+            )
+            rel = spec_dir.relative_to(repo)
+            return project.model_copy(update={
+                "current_stage": Stage.PAPER_REVIEW,
+                "revision_spec_path": str(rel),
+            })
 
         # No specialists yet, or some other non-canonical state — keep
         # waiting at PAPER_REVIEW for more reviews.
@@ -473,11 +641,34 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
     return project
 
 
-def _has_blocking_citations(cits: list[citations_store.Citation]) -> bool:
+def _has_blocking_citations(cits: list[Citation]) -> bool:
     return any(
         c.verification_status in (VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH)
         for c in cits
     )
+
+
+def _has_unverified_markers(
+    project: Project, *, track: str, repo_root: Path | None
+) -> bool:
+    """F-18 hard-block: True iff the project's governing ``track`` artifacts
+    still carry an ``[UNVERIFIED: ...]`` citation-guard marker.
+
+    A fabricated / unverifiable reference left in a produced doc is a blocking
+    defect that the citations store may NOT reflect (the store tracks verified
+    Citation rows; the guard rewrites raw refs in-place). This complements
+    :func:`_has_blocking_citations` so an accept transition is blocked if EITHER
+    a stored citation failed OR a produced governing doc still has a marker."""
+    from llmxive.agents.citation_guard import project_unverified_markers
+
+    bodies = project_unverified_markers(project.id, track=track, repo_root=repo_root)
+    if bodies:
+        logger.warning(
+            "advancement: blocking %s accept for %s — unresolved unverified-citation "
+            "marker(s) in governing artifacts: %s",
+            track, project.id, "; ".join(bodies),
+        )
+    return bool(bodies)
 
 
 def _transition(project: Project, target: Stage) -> Project:
@@ -493,4 +684,4 @@ def commit(project: Project, *, repo_root: Path | None = None) -> None:
     project_store.save(project, repo_root=repo_root)
 
 
-__all__ = ["evaluate", "commit", "AdvancementError"]
+__all__ = ["AdvancementError", "commit", "evaluate"]

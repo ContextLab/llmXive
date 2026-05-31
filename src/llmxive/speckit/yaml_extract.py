@@ -15,7 +15,7 @@ import yaml
 _FENCE_RE = re.compile(r"```(?:yaml|yml)?\s*\n(.*?)\n```", re.DOTALL | re.IGNORECASE)
 
 
-def parse_yaml_lenient(text: str):
+def parse_yaml_lenient(text: str) -> object:
     """Parse YAML from possibly-fenced or prose-wrapped LLM output.
 
     Strategy:

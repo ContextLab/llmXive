@@ -16,7 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from llmxive.agents.prompts import load_prompt, render_prompt
+from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.runner import run_script
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
@@ -138,7 +138,8 @@ class SpecifierAgent(SlashCommandAgent):
         # template-classified artifact, delete it, log the actionable error,
         # and DO NOT advance project progression points (SC-004).
         from llmxive.speckit._real_only_guard import (
-            TemplateRefused, assert_real_or_raise,
+            TemplateRefused,
+            assert_real_or_raise,
         )
         try:
             assert_real_or_raise(spec_path, repo_root=repo)

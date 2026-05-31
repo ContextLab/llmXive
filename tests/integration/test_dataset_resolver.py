@@ -86,8 +86,8 @@ def test_sniff_format_detects_sdf(file_server):
 
 
 def test_verify_candidate_reachable_csv(file_server):
-    from llmxive.librarian.dataset_sources import DatasetCandidate
     from llmxive.librarian.dataset_resolver import verify_candidate
+    from llmxive.librarian.dataset_sources import DatasetCandidate
     root, base = file_server
     (root / "d.csv").write_text("x,y\n1,2\n")
     c = DatasetCandidate("D", f"{base}/d.csv", "D", "figshare")
@@ -96,9 +96,9 @@ def test_verify_candidate_reachable_csv(file_server):
 
 
 def test_verify_candidate_404_returns_none(file_server):
-    from llmxive.librarian.dataset_sources import DatasetCandidate
     from llmxive.librarian.dataset_resolver import verify_candidate
-    root, base = file_server
+    from llmxive.librarian.dataset_sources import DatasetCandidate
+    _root, base = file_server
     c = DatasetCandidate("D", f"{base}/missing.csv", "D", "figshare")
     assert verify_candidate(c) is None
 
@@ -164,8 +164,11 @@ def test_resolve_datasets_candidates_tried_granularity(file_server, monkeypatch)
 
 def test_write_manifest_roundtrip(tmp_path):
     import yaml
+
     from llmxive.librarian.dataset_resolver import (
-        ResolvedDatasets, ResolvedIntent, write_manifest,
+        ResolvedDatasets,
+        ResolvedIntent,
+        write_manifest,
     )
     rd = ResolvedDatasets(datasets=[
         ResolvedIntent("QM9", "verified",
@@ -181,7 +184,11 @@ def test_write_manifest_roundtrip(tmp_path):
 
 
 def test_unresolved_intents_lists(tmp_path):
-    from llmxive.librarian.dataset_resolver import ResolvedDatasets, ResolvedIntent, unresolved_intents
+    from llmxive.librarian.dataset_resolver import (
+        ResolvedDatasets,
+        ResolvedIntent,
+        unresolved_intents,
+    )
     rd = ResolvedDatasets(datasets=[
         ResolvedIntent("QM9", "verified", candidates=[{"url": "u"}], candidates_tried=[]),
         ResolvedIntent("BogusSet", "unresolved", candidates=[], candidates_tried=[]),

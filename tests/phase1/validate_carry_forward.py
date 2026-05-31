@@ -31,7 +31,7 @@ _REPO_ROOT = _HERE.parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from tests.phase1 import citation_resolver
+from tests.phase1 import citation_resolver  # noqa: E402 -- import after sys.path bootstrap above
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = (
@@ -111,12 +111,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if not isinstance(manifest, dict) or "projects" not in manifest:
-        print(f"error: manifest missing top-level 'projects' key", file=sys.stderr)
+        print("error: manifest missing top-level 'projects' key", file=sys.stderr)
         return 1
 
     projects = manifest["projects"] or []
     if not isinstance(projects, list):
-        print(f"error: 'projects' must be a list", file=sys.stderr)
+        print("error: 'projects' must be a list", file=sys.stderr)
         return 1
 
     print(f"validating {len(projects)} carry-forward project(s) from {manifest_path}")

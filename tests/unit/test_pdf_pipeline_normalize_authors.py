@@ -5,7 +5,9 @@ from __future__ import annotations
 import unittest
 
 from llmxive.pipeline.pdf_pipeline.normalize_authors import (
-    _split_authors, _strip_thanks, normalize,
+    _split_authors,
+    _strip_thanks,
+    normalize,
 )
 
 

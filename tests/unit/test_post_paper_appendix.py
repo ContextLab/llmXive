@@ -6,8 +6,6 @@ project-directory URL, NOT the dashboard root (FR-033).
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from llmxive.pipeline import post_paper_appendix as ppa
 
 

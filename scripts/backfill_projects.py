@@ -23,7 +23,7 @@ import json
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -262,7 +262,7 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--skip-issues", action="store_true")
     args = ap.parse_args()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     repo = REPO
 
     # Step 1: every projects/PROJ-*/ dir without state.
@@ -287,7 +287,7 @@ def main() -> int:
     issues = json.loads(proc.stdout)
     idea_issues = [
         i for i in issues
-        if any(l["name"] == "idea" for l in i.get("labels", []))
+        if any(lbl["name"] == "idea" for lbl in i.get("labels", []))
     ]
     existing_ids = {p.stem for p in (repo / "state" / "projects").glob("PROJ-*.yaml")}
     # Track which issue numbers already have a state record (via idea front-matter).

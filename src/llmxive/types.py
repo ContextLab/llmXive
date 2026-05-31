@@ -14,11 +14,10 @@ from __future__ import annotations
 import hashlib
 import re
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
 
 # ----- action item id (spec 012) ---------------------------------------------
 
@@ -77,7 +76,7 @@ SnakeNameField = Annotated[str, Field(pattern=SNAKE_NAME_RE.pattern)]
 # ----- enums ------------------------------------------------------------------
 
 
-class Stage(str, Enum):
+class Stage(StrEnum):
     """Project lifecycle stages (FR-003).
 
     Mirrors the enum in contracts/project-state.schema.yaml. The
@@ -109,7 +108,17 @@ class Stage(str, Enum):
     # Research-quality review
     RESEARCH_REVIEW = "research_review"
     RESEARCH_ACCEPTED = "research_accepted"
-    RESEARCH_MINOR_REVISION = "research_minor_revision"
+    # Spec 015 T042 / FR-034: the 7 transient revision stages
+    # (RESEARCH_MINOR_REVISION, RESEARCH_FULL_REVISION? - kept,
+    # PAPER_MINOR_REVISION, PAPER_MAJOR_REVISION_WRITING/SCIENCE,
+    # PAPER_REVISION_IN_PROGRESS, READY_FOR_IMPLEMENTATION,
+    # PAPER_REVISION_BLOCKED) were DELETED. The convergence engine is
+    # the sole inter-stage revision driver: every non-convergence emits
+    # a ``KickbackRecord`` whose ``to_stage`` is a regular (stable)
+    # stage like ``tasked`` / ``clarified`` / ``brainstormed``, and the
+    # auto-revisions directory (specs/auto-revisions/<id>/round-N/)
+    # carries the per-concern work for the implementer agent to pick
+    # up. See ``llmxive.convergence.revision_adapter`` for the bridge.
     RESEARCH_FULL_REVISION = "research_full_revision"
     RESEARCH_REJECTED = "research_rejected"
     # Paper drafting Spec Kit pipeline
@@ -124,17 +133,11 @@ class Stage(str, Enum):
     # Final paper review
     PAPER_REVIEW = "paper_review"
     PAPER_ACCEPTED = "paper_accepted"
-    PAPER_MINOR_REVISION = "paper_minor_revision"
-    PAPER_MAJOR_REVISION_WRITING = "paper_major_revision_writing"
-    PAPER_MAJOR_REVISION_SCIENCE = "paper_major_revision_science"
     PAPER_FUNDAMENTAL_FLAWS = "paper_fundamental_flaws"
-    # Convergence-pipeline stages (spec 012):
-    #   PAPER_REVISION_IN_PROGRESS  — auto-plan pipeline is generating a revision spec
-    #   READY_FOR_IMPLEMENTATION    — revision spec ready; implementer agent picks it up
-    #   PAPER_REVISION_BLOCKED      — analyzer stuck; terminal until human unblock
-    PAPER_REVISION_IN_PROGRESS = "paper_revision_in_progress"
-    READY_FOR_IMPLEMENTATION = "ready_for_implementation"
-    PAPER_REVISION_BLOCKED = "paper_revision_blocked"
+    # Spec 015 (FR-036/FR-054): mandatory manual maintainer sign-off gate before
+    # any Zenodo DOI mint. Flow: paper_accepted -> publisher(assemble) ->
+    # awaiting_publication_signoff -> [maintainer approves] -> publisher(mint) -> posted.
+    AWAITING_PUBLICATION_SIGNOFF = "awaiting_publication_signoff"
     POSTED = "posted"
     # Spec 013 (FR-030): 5 consecutive Zenodo failures during publication
     # transition the project to PUBLISH_BLOCKED. Operator clears via
@@ -143,9 +146,15 @@ class Stage(str, Enum):
     # Cross-stage states
     HUMAN_INPUT_NEEDED = "human_input_needed"
     BLOCKED = "blocked"
+    # Spec 015 T042 / FR-034 generic agent-failsafe state. Reached when
+    # an agent's failsafe (e.g. implementer's 5-consecutive-failure
+    # diagnostic) cannot classify the failure into an actionable Concern.
+    # Cleared via `llmxive project unblock-agent <PROJ-ID>` after the
+    # operator edits the action items file.
+    AGENT_BLOCKED = "agent_blocked"
 
 
-class ArtifactKind(str, Enum):
+class ArtifactKind(StrEnum):
     IDEA = "idea"
     TECHNICAL_DESIGN = "technical_design"
     IMPLEMENTATION_PLAN = "implementation_plan"
@@ -157,38 +166,39 @@ class ArtifactKind(str, Enum):
     PROJECT_STATE = "project_state"
 
 
-class BackendName(str, Enum):
+class BackendName(StrEnum):
     DARTMOUTH = "dartmouth"
-    HUGGINGFACE = "huggingface"
+    # The HF Inference-API backend was removed (2026-05-29): HF models run
+    # LOCALLY via the `local`/transformers backend, with no API token.
     LOCAL = "local"
 
 
-class BackendKind(str, Enum):
+class BackendKind(StrEnum):
     OPENAI_COMPATIBLE = "openai_compatible"
     HF_INFERENCE = "hf_inference"
     LOCAL_TRANSFORMERS = "local_transformers"
 
 
-class CitationKind(str, Enum):
+class CitationKind(StrEnum):
     URL = "url"
     ARXIV = "arxiv"
     DOI = "doi"
     DATASET = "dataset"
 
 
-class VerificationStatus(str, Enum):
+class VerificationStatus(StrEnum):
     VERIFIED = "verified"
     UNREACHABLE = "unreachable"
     MISMATCH = "mismatch"
     PENDING = "pending"
 
 
-class ReviewerKind(str, Enum):
+class ReviewerKind(StrEnum):
     LLM = "llm"
     HUMAN = "human"
 
 
-class Outcome(str, Enum):
+class Outcome(StrEnum):
     SUCCESS = "success"
     FAILED = "failed"
     SKIPPED = "skipped"
@@ -222,9 +232,13 @@ class Project(_Strict):
     speckit_paper_dir: str | None = None
     revision_round: int = Field(default=0, ge=0)
     human_escalation_reason: str | None = None
-    # Spec 012: points to a completed RevisionSpec dir when current_stage
-    # == READY_FOR_IMPLEMENTATION. Cleared back to None when the implementer
-    # agent completes and the project re-enters PAPER_REVIEW.
+    # Spec 015 T042: points to the most-recent auto-revisions directory
+    # (specs/auto-revisions/<id>/round-N/) written by
+    # ``llmxive.convergence.revision_adapter.kickback_to_revision_spec``
+    # whenever the convergence engine emits a KickbackRecord. The
+    # implementer agent polls projects with this set + a non-empty
+    # auto-revisions tasks.md and applies the per-Concern work in place.
+    # Cleared back to None when the implementer completes a round.
     revision_spec_path: str | None = None
 
     @field_validator("points_research", "points_paper")
@@ -308,7 +322,7 @@ class ReviewRecord(_Strict):
     reviewer_kind: ReviewerKind
     artifact_path: str
     artifact_hash: Sha256Field
-    score: Literal[0.0, 0.5, 1.0]
+    score: float
     verdict: Literal[
         "accept",
         "minor_revision",
@@ -333,6 +347,16 @@ class ReviewRecord(_Strict):
     # non-empty for non-accept (validator below). Old records (without this
     # field) load with the default empty list — back-compat preserved.
     action_items: list[ActionItem] = Field(default_factory=list)
+
+    @field_validator("score")
+    @classmethod
+    def _score_in_allowed_set(cls, v: float) -> float:
+        # Spec 015 removes the point system, but this field is retained for
+        # back-compat with stored records; preserve the historical constraint.
+        # (Replaces a Literal[float] annotation, which is invalid per PEP 586.)
+        if v not in (0.0, 0.5, 1.0):
+            raise ValueError("score must be one of 0.0, 0.5, 1.0")
+        return v
 
     @model_validator(mode="after")
     def _score_matches_verdict(self) -> ReviewRecord:

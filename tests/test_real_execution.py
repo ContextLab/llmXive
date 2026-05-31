@@ -4,16 +4,14 @@ Real integration tests for llmXive code execution system
 Creates actual virtual environments and executes real code
 """
 
-import os
-import sys
 import json
-import tempfile
 import shutil
 import subprocess
-import unittest
+import sys
+import tempfile
 import time
+import unittest
 from pathlib import Path
-from typing import Dict, List
 
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'scripts'))
@@ -23,27 +21,27 @@ from code_execution_manager import CodeExecutionManager
 
 class TestRealCodeExecution(unittest.TestCase):
     """Real integration tests that create actual environments and run code"""
-    
+
     @classmethod
     def setUpClass(cls):
         """Set up test class - check system requirements"""
         print("\n" + "="*60)
         print("REAL EXECUTION TESTS - SYSTEM CHECK")
         print("="*60)
-        
+
         # Check Python version
         python_version = sys.version_info
         print(f"Python version: {python_version.major}.{python_version.minor}.{python_version.micro}")
         if python_version < (3, 8):
             raise unittest.SkipTest("Python 3.8+ required for real tests")
-        
+
         # Check venv module
         try:
             import venv
-            print("✅ venv module available")
+            print(f"✅ venv module available ({venv.__name__})")
         except ImportError:
-            raise unittest.SkipTest("venv module not available")
-        
+            raise unittest.SkipTest("venv module not available") from None
+
         # Check subprocess functionality
         try:
             result = subprocess.run(['python', '--version'], capture_output=True, text=True, timeout=10)
@@ -52,31 +50,31 @@ class TestRealCodeExecution(unittest.TestCase):
             else:
                 raise unittest.SkipTest("subprocess not working properly")
         except Exception as e:
-            raise unittest.SkipTest(f"subprocess error: {e}")
-        
+            raise unittest.SkipTest(f"subprocess error: {e}") from e
+
         print("✅ All system requirements met")
-    
+
     def setUp(self):
         """Set up individual test"""
         self.temp_dir = Path(tempfile.mkdtemp(prefix="llmxive_real_test_"))
         self.manager = CodeExecutionManager(self.temp_dir)
         print(f"\n🔧 Test directory: {self.temp_dir}")
-        
+
     def tearDown(self):
         """Clean up test environment"""
         if self.temp_dir.exists():
             print(f"🧹 Cleaning up: {self.temp_dir}")
             shutil.rmtree(self.temp_dir, ignore_errors=True)
-    
+
     def test_real_simple_python_execution(self):
         """Test real execution of simple Python code"""
         print("\n🧪 Testing simple Python execution")
-        
+
         # Create project structure
         project_path = self.temp_dir / "simple_project"
         code_dir = project_path / "code"
         code_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create simple Python script
         main_script = code_dir / "main.py"
         main_script.write_text("""#!/usr/bin/env python3
@@ -109,59 +107,59 @@ with open("test_output.json", "w") as f:
 print("Result saved to test_output.json")
 print("=== Test Complete ===")
 """)
-        
+
         # Execute the code
         print("🚀 Executing simple Python script...")
         start_time = time.time()
-        
+
         result = self.manager.execute_code(project_path, main_script, timeout=60)
-        
+
         execution_time = time.time() - start_time
         print(f"⏱️  Execution completed in {execution_time:.2f} seconds")
-        
+
         # Verify results
         self.assertTrue(result['success'], f"Execution failed: {result['error']}")
         self.assertEqual(result['exit_code'], 0)
         self.assertIn('Simple Python Test', result['output'])
         self.assertIn('Test Complete', result['output'])
-        
+
         # Verify output file was created
         output_file = project_path / "test_output.json"
         self.assertTrue(output_file.exists(), "Output file was not created")
-        
+
         # Verify output file content
-        with open(output_file, 'r') as f:
+        with open(output_file) as f:
             output_data = json.load(f)
-        
+
         self.assertEqual(output_data['test'], 'simple_python')
         self.assertEqual(output_data['status'], 'success')
         self.assertEqual(output_data['calculation'], 15)
-        
+
         # Verify execution reports were created
         json_report = project_path / "code" / "execution_report.json"
         md_report = project_path / "code" / "execution_report.md"
-        
+
         self.assertTrue(json_report.exists(), "JSON execution report not created")
         self.assertTrue(md_report.exists(), "Markdown execution report not created")
-        
+
         print("✅ Simple Python execution test passed")
-    
+
     def test_real_python_with_packages(self):
         """Test real execution with package installation"""
         print("\n🧪 Testing Python with package dependencies")
-        
+
         # Create project structure
         project_path = self.temp_dir / "package_project"
         code_dir = project_path / "code"
         code_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create requirements.txt with basic packages
         requirements_file = project_path / "requirements.txt"
         requirements_file.write_text("""# Basic scientific packages
 numpy>=1.20.0
 pandas>=1.3.0
 """)
-        
+
         # Create Python script that uses packages
         main_script = code_dir / "main.py"
         main_script.write_text("""#!/usr/bin/env python3
@@ -218,54 +216,55 @@ print("\\n=== Package Test Complete ===")
 print(f"NumPy version: {np.__version__}")
 print(f"Pandas version: {pd.__version__}")
 """)
-        
+
         # Execute the code
         print("🚀 Executing Python script with package dependencies...")
         print("⚠️  This may take longer due to package installation...")
         start_time = time.time()
-        
+
         result = self.manager.execute_code(project_path, main_script, timeout=300)  # 5 minutes for package install
-        
+
         execution_time = time.time() - start_time
         print(f"⏱️  Execution completed in {execution_time:.2f} seconds")
-        
+
         # Verify results
         self.assertTrue(result['success'], f"Execution failed: {result['error']}")
         self.assertEqual(result['exit_code'], 0)
         self.assertIn('Package Dependencies Test', result['output'])
         self.assertIn('Package Test Complete', result['output'])
-        
+
         # Verify output files were created
         csv_file = project_path / "data_output.csv"
         json_file = project_path / "package_test_result.json"
-        
+
         self.assertTrue(csv_file.exists(), "CSV output file was not created")
         self.assertTrue(json_file.exists(), "JSON result file was not created")
-        
+
         # Verify CSV content
+        import pandas as pd
         df_check = pd.read_csv(csv_file)
         self.assertEqual(df_check.shape, (5, 3))
         self.assertEqual(list(df_check.columns), ['A', 'B', 'C'])
-        
+
         # Verify JSON content
-        with open(json_file, 'r') as f:
+        with open(json_file) as f:
             result_data = json.load(f)
-        
+
         self.assertEqual(result_data['test'], 'package_dependencies')
         self.assertEqual(result_data['status'], 'success')
         self.assertEqual(result_data['dataframe_sum_A'], 15)
-        
+
         print("✅ Package dependencies test passed")
-    
+
     def test_real_python_data_analysis(self):
         """Test real data analysis with visualization"""
         print("\n🧪 Testing real data analysis workflow")
-        
+
         # Create project structure
         project_path = self.temp_dir / "analysis_project"
         code_dir = project_path / "code"
         code_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create requirements with visualization packages
         requirements_file = project_path / "requirements.txt"
         requirements_file.write_text("""numpy>=1.20.0
@@ -273,7 +272,7 @@ pandas>=1.3.0
 matplotlib>=3.5.0
 scipy>=1.7.0
 """)
-        
+
         # Create comprehensive analysis script
         main_script = code_dir / "main.py"
         main_script.write_text("""#!/usr/bin/env python3
@@ -347,7 +346,7 @@ axes[0, 1].set_ylabel('Value')
 colors = {'A': 'red', 'B': 'blue', 'C': 'green'}
 for group in ['A', 'B', 'C']:
     group_data = df[df['group'] == group]
-    axes[1, 0].scatter(group_data['value'], group_data['score'], 
+    axes[1, 0].scatter(group_data['value'], group_data['score'],
                       c=colors[group], alpha=0.6, label=f'Group {group}')
 axes[1, 0].set_title('Value vs Score by Group')
 axes[1, 0].set_xlabel('Value')
@@ -411,67 +410,68 @@ print(f"ANOVA significant: {p_value < 0.05}")
 print(f"Files created: {len(results['files_created'])}")
 print("=== Real Data Analysis Complete ===")
 """)
-        
+
         # Execute the code
         print("🚀 Executing comprehensive data analysis...")
         print("⚠️  This may take longer due to package installation and analysis...")
         start_time = time.time()
-        
+
         result = self.manager.execute_code(project_path, main_script, timeout=300)
-        
+
         execution_time = time.time() - start_time
         print(f"⏱️  Execution completed in {execution_time:.2f} seconds")
-        
+
         # Verify results
         self.assertTrue(result['success'], f"Execution failed: {result['error']}")
         self.assertEqual(result['exit_code'], 0)
         self.assertIn('Real Data Analysis Test', result['output'])
         self.assertIn('Real Data Analysis Complete', result['output'])
-        
+
         # Verify all output files were created
         expected_files = [
             'analysis_results.png',
             'analysis_data.csv',
             'analysis_results.json'
         ]
-        
+
         for filename in expected_files:
             file_path = project_path / filename
             self.assertTrue(file_path.exists(), f"Output file {filename} was not created")
             print(f"✅ Created: {filename} ({file_path.stat().st_size} bytes)")
-        
+
         # Verify CSV data
+        import pandas as pd
         csv_file = project_path / "analysis_data.csv"
         df_check = pd.read_csv(csv_file)
         self.assertEqual(df_check.shape, (1000, 4))
         self.assertEqual(set(df_check.columns), {'group', 'value', 'score', 'category'})
-        
+
         # Verify JSON results
         json_file = project_path / "analysis_results.json"
-        with open(json_file, 'r') as f:
+        with open(json_file) as f:
             analysis_results = json.load(f)
-        
+
         self.assertEqual(analysis_results['test'], 'real_data_analysis')
         self.assertEqual(analysis_results['status'], 'success')
         self.assertEqual(analysis_results['dataset_info']['n_samples'], 1000)
         self.assertIn('anova_f_stat', analysis_results['statistical_tests'])
-        
+
         # Verify PNG file exists and has reasonable size
         png_file = project_path / "analysis_results.png"
         png_size = png_file.stat().st_size
         self.assertGreater(png_size, 10000, "PNG file seems too small")  # At least 10KB
-        
+
         print("✅ Real data analysis test passed")
-    
+
     def test_real_error_handling(self):
         """Test real error handling and recovery"""
         print("\n🧪 Testing real error handling")
-        
+
         # Create project structure
         project_path = self.temp_dir / "error_project"
         code_dir = project_path / "code"
         code_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create script with intentional errors
         error_script = code_dir / "main.py"
         error_script.write_text("""#!/usr/bin/env python3
@@ -488,50 +488,50 @@ except ImportError as e:
 print("About to cause division by zero...")
 result = 10 / 0  # This will raise ZeroDivisionError
 """)
-        
+
         # Execute the code
         print("🚀 Executing script with intentional errors...")
         start_time = time.time()
-        
+
         result = self.manager.execute_code(project_path, error_script, timeout=60)
-        
+
         execution_time = time.time() - start_time
         print(f"⏱️  Execution completed in {execution_time:.2f} seconds")
-        
+
         # Verify error was captured
         self.assertFalse(result['success'], "Expected execution to fail")
         self.assertNotEqual(result['exit_code'], 0)
         self.assertIn('ZeroDivisionError', result['error'])
-        
+
         # Verify partial output was captured
         self.assertIn('Starting error test', result['output'])
         self.assertIn('Expected import error', result['output'])
-        
+
         # Verify error report was created
         json_report = project_path / "code" / "execution_report.json"
         md_report = project_path / "code" / "execution_report.md"
-        
+
         self.assertTrue(json_report.exists(), "Error report JSON not created")
         self.assertTrue(md_report.exists(), "Error report markdown not created")
-        
+
         # Verify error report content
-        with open(json_report, 'r') as f:
+        with open(json_report) as f:
             report = json.load(f)
-        
+
         self.assertFalse(report['success'])
         self.assertIn('ZeroDivisionError', report['error'])
-        
+
         print("✅ Real error handling test passed")
-    
+
     def test_real_timeout_handling(self):
         """Test real timeout scenarios"""
         print("\n🧪 Testing real timeout handling")
-        
+
         # Create project structure
         project_path = self.temp_dir / "timeout_project"
         code_dir = project_path / "code"
         code_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create script that runs longer than timeout
         timeout_script = code_dir / "main.py"
         timeout_script.write_text("""#!/usr/bin/env python3
@@ -547,44 +547,44 @@ for i in range(15):
 
 print("Script completed (this should not appear)")
 """)
-        
+
         # Execute with short timeout
         print("🚀 Executing script with 5-second timeout...")
         start_time = time.time()
-        
+
         result = self.manager.execute_code(project_path, timeout_script, timeout=5)
-        
+
         execution_time = time.time() - start_time
         print(f"⏱️  Execution stopped after {execution_time:.2f} seconds")
-        
+
         # Verify timeout was handled
         self.assertFalse(result['success'], "Expected execution to timeout")
         self.assertIn('timed out', result['error'].lower())
-        
+
         # Should have captured some output before timeout
         self.assertIn('Starting timeout test', result['output'])
-        
+
         # Should not have the completion message
         self.assertNotIn('Script completed', result['output'])
-        
+
         # Verify execution was actually stopped (should be close to 5 seconds)
         self.assertLess(execution_time, 8, "Execution took too long, timeout may not have worked")
         self.assertGreater(execution_time, 3, "Execution was too quick, may not have actually run")
-        
+
         print("✅ Real timeout handling test passed")
-    
+
     def test_real_environment_isolation(self):
         """Test that environments are properly isolated"""
         print("\n🧪 Testing real environment isolation")
-        
+
         # Create two separate projects
         project1_path = self.temp_dir / "isolation_project1"
         project2_path = self.temp_dir / "isolation_project2"
-        
+
         for project_path in [project1_path, project2_path]:
             code_dir = project_path / "code"
             code_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create script that modifies environment in project 1
         script1 = project1_path / "code" / "main.py"
         script1.write_text("""#!/usr/bin/env python3
@@ -616,7 +616,7 @@ with open("project1_result.json", "w") as f:
 
 print("Project 1 execution complete")
 """)
-        
+
         # Create script for project 2
         script2 = project2_path / "code" / "main.py"
         script2.write_text("""#!/usr/bin/env python3
@@ -654,44 +654,44 @@ with open("project2_result.json", "w") as f:
 
 print("Project 2 execution complete")
 """)
-        
+
         # Execute both projects
         print("🚀 Executing project 1...")
         result1 = self.manager.execute_code(project1_path, script1, timeout=60)
-        
+
         print("🚀 Executing project 2...")
         result2 = self.manager.execute_code(project2_path, script2, timeout=60)
-        
+
         # Verify both executed successfully
         self.assertTrue(result1['success'], f"Project 1 failed: {result1['error']}")
         self.assertTrue(result2['success'], f"Project 2 failed: {result2['error']}")
-        
+
         # Verify isolation - check project 1 results
         project1_result_file = project1_path / "project1_result.json"
         self.assertTrue(project1_result_file.exists())
-        
-        with open(project1_result_file, 'r') as f:
-            project1_data = json.load(f)
-        
+
+        with open(project1_result_file) as f:
+            json.load(f)  # verify project 1 result is valid JSON
+
         # Verify isolation - check project 2 results
         project2_result_file = project2_path / "project2_result.json"
         self.assertTrue(project2_result_file.exists())
-        
-        with open(project2_result_file, 'r') as f:
+
+        with open(project2_result_file) as f:
             project2_data = json.load(f)
-        
+
         # Verify isolation worked
-        self.assertFalse(project2_data['project1_file_exists'], 
+        self.assertFalse(project2_data['project1_file_exists'],
                         "Project 1 file should not exist in project 2 directory")
         self.assertEqual(project2_data['project1_env_var'], 'not_found',
                         "Project 1 environment variable should not persist to project 2")
-        
+
         # Verify files were created in correct locations
         self.assertTrue((project1_path / "project1_marker.txt").exists())
         self.assertTrue((project2_path / "project2_marker.txt").exists())
         self.assertFalse((project2_path / "project1_marker.txt").exists())
         self.assertFalse((project1_path / "project2_marker.txt").exists())
-        
+
         print("✅ Real environment isolation test passed")
 
 
@@ -699,14 +699,14 @@ def run_real_tests():
     """Run all real integration tests"""
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    
+
     # Add test class
     suite.addTests(loader.loadTestsFromTestCase(TestRealCodeExecution))
-    
+
     # Run tests with detailed output
     runner = unittest.TextTestRunner(verbosity=2, stream=sys.stdout, buffer=False)
     result = runner.run(suite)
-    
+
     return result.wasSuccessful()
 
 
@@ -717,9 +717,9 @@ if __name__ == "__main__":
     print("⚠️  WARNING: These tests install real packages")
     print("⚠️  WARNING: These tests may take several minutes")
     print("=" * 60)
-    
+
     success = run_real_tests()
-    
+
     if success:
         print("\n" + "=" * 60)
         print("🎉 ALL REAL TESTS PASSED!")

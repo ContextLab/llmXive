@@ -16,11 +16,11 @@ from typing import Any
 
 import yaml
 
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
 @dataclass
@@ -155,7 +155,7 @@ class RepositoryHygieneAgent(Agent):
     """Read-only hygiene checker. Persists flag list to state."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         flags = _check_gitignore(repo) + _check_leftover_artifacts(repo)
         loc_flags, loc_metric = _check_loc_metric(repo)
         flags.extend(loc_flags)
@@ -179,7 +179,7 @@ class RepositoryHygieneAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = parse_yaml_lenient(response.text) or {}
         except yaml.YAMLError:

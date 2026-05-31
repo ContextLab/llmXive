@@ -5,7 +5,6 @@ NO LLM CALLS (spec 010 FR-013).
 
 from __future__ import annotations
 
-
 _KIND_TO_DEFAULT_CLASS = {
     "literal_command_text": "source_fixable",
     "non_square_bracket_cite": "source_fixable",

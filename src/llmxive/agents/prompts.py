@@ -9,14 +9,15 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from string import Template
+
+from llmxive.config import repo_root as _repo_root
 
 _TOKEN_RE = re.compile(r"\{\{\s*(?P<name>[a-z_][a-z0-9_]*)\s*\}\}", re.IGNORECASE)
 
 
 def load_prompt(prompt_path: str, *, repo_root: Path | None = None) -> str:
     """Read the raw prompt Markdown by repo-relative path."""
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     path = repo / prompt_path
     if not path.exists():
         raise FileNotFoundError(f"prompt template not found: {path}")
@@ -49,4 +50,4 @@ def render_prompt(
     return substitute(load_prompt(prompt_path, repo_root=repo_root), values)
 
 
-__all__ = ["load_prompt", "substitute", "render_prompt"]
+__all__ = ["load_prompt", "render_prompt", "substitute"]

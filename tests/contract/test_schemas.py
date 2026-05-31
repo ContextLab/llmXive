@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from llmxive.contract_validate import list_contracts, validate
 
-
 GOOD: dict[str, object] = {
     "agent-registry": {
         "version": "0.1.0",

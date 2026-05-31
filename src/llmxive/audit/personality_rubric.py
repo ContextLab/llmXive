@@ -294,7 +294,7 @@ def audit_contribution(contribution: dict[str, Any]) -> ManifestItem:
     )
 
 
-def audit(*, personalities_dir: Path | str, feed_glob: str = "projects/PROJ-*/activity.jsonl", repo_root: Path | str = ".", since: str | None = None, **_: Any) -> dict:
+def audit(*, personalities_dir: Path | str, feed_glob: str = "projects/PROJ-*/activity.jsonl", repo_root: Path | str = ".", since: str | None = None, **_: Any) -> dict[str, Any]:
     """Walk persona cards + recent feed contributions; emit manifest dict.
 
     Persona-card validation is delegated to verify_persona_evidence.py (T022a) +

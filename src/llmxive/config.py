@@ -9,19 +9,41 @@ authoritative thresholds on the about page.
 
 from __future__ import annotations
 
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
 
+
+def repo_root() -> Path:
+    """Resolve the llmXive repository root.
+
+    Honors the ``LLMXIVE_REPO_ROOT`` environment variable when set and
+    non-empty (returning ``Path(env).resolve()``); otherwise falls back to
+    the installed repo root computed from this module's own fixed location
+    (``src/llmxive/config.py`` → ``parent.parent.parent``).
+
+    The env override lets hermetic tests / alternate checkouts redirect all
+    DATA lookups (schemas, prompts, registry, projects, state, constitution,
+    inspections, run-log) to a synthetic root, while the CODE still runs from
+    the installed package. Because this is computed from a fixed location it
+    is depth-independent — callers never need to count ``.parent`` climbs.
+    """
+    env = os.environ.get("LLMXIVE_REPO_ROOT")
+    if env:
+        return Path(env).resolve()
+    return Path(__file__).resolve().parent.parent.parent
+
 # Defaults documented in spec.md / plan.md / research.md.
 DEFAULTS: dict[str, float | int] = {
-    "RESEARCH_ACCEPT_THRESHOLD": 5.0,
-    "PAPER_ACCEPT_THRESHOLD": 5.0,
     "TASKER_MAX_REVISION_ROUNDS": 5,
     "LEAF_TASK_BUDGET_SECONDS": 300,
     "SANDBOX_BUDGET_SECONDS": 240,
     "CITATION_TITLE_OVERLAP_THRESHOLD": 0.7,
     "STAGE_ADVANCEMENT_RATE_WINDOW_DAYS": 7,
+    # Spec 015: convergence engine per-step round cap + per-round wall-clock budget.
+    "CONVERGENCE_MAX_ROUNDS": 3,
+    "CONVERGENCE_PER_ROUND_BUDGET_SECONDS": 600,
 }
 
 # Patterns for parsing the about page. Format expected:
@@ -35,7 +57,7 @@ _THRESHOLD_RE: re.Pattern[str] = re.compile(
 
 
 def _about_path() -> Path:
-    return Path(__file__).resolve().parent.parent.parent / "web" / "about.html"
+    return repo_root() / "web" / "about.html"
 
 
 @lru_cache(maxsize=1)
@@ -72,25 +94,45 @@ def all_keys() -> list[str]:
 
 
 # Module-level convenience constants (resolved at import time).
-RESEARCH_ACCEPT_THRESHOLD: float = float(get("RESEARCH_ACCEPT_THRESHOLD"))
-PAPER_ACCEPT_THRESHOLD: float = float(get("PAPER_ACCEPT_THRESHOLD"))
 TASKER_MAX_REVISION_ROUNDS: int = int(get("TASKER_MAX_REVISION_ROUNDS"))
 LEAF_TASK_BUDGET_SECONDS: int = int(get("LEAF_TASK_BUDGET_SECONDS"))
 SANDBOX_BUDGET_SECONDS: int = int(get("SANDBOX_BUDGET_SECONDS"))
 CITATION_TITLE_OVERLAP_THRESHOLD: float = float(get("CITATION_TITLE_OVERLAP_THRESHOLD"))
 STAGE_ADVANCEMENT_RATE_WINDOW_DAYS: int = int(get("STAGE_ADVANCEMENT_RATE_WINDOW_DAYS"))
+CONVERGENCE_MAX_ROUNDS: int = int(get("CONVERGENCE_MAX_ROUNDS"))
+CONVERGENCE_PER_ROUND_BUDGET_SECONDS: int = int(get("CONVERGENCE_PER_ROUND_BUDGET_SECONDS"))
+
+
+def unpaywall_email() -> str | None:
+    """Contact email for the Unpaywall API (tier-2 OA discovery).
+
+    Defaults to the project mailbox. Returns None when explicitly set blank,
+    which disables the Unpaywall retrieval tier (Semantic Scholar OA still runs).
+    """
+    if "UNPAYWALL_EMAIL" in os.environ:
+        return os.environ["UNPAYWALL_EMAIL"] or None
+    return "llmxive@gmail.com"
+
+
+def grounding_cache_dir(root: Path | None = None) -> Path:
+    """Directory for the full-text + verdict caches (transient, uncommitted)."""
+    r = root if root is not None else repo_root()
+    return r / "state" / "grounding-cache"
 
 
 __all__ = [
-    "RESEARCH_ACCEPT_THRESHOLD",
-    "PAPER_ACCEPT_THRESHOLD",
-    "TASKER_MAX_REVISION_ROUNDS",
+    "CITATION_TITLE_OVERLAP_THRESHOLD",
+    "CONVERGENCE_MAX_ROUNDS",
+    "CONVERGENCE_PER_ROUND_BUDGET_SECONDS",
+    "DEFAULTS",
     "LEAF_TASK_BUDGET_SECONDS",
     "SANDBOX_BUDGET_SECONDS",
-    "CITATION_TITLE_OVERLAP_THRESHOLD",
     "STAGE_ADVANCEMENT_RATE_WINDOW_DAYS",
-    "DEFAULTS",
-    "get",
+    "TASKER_MAX_REVISION_ROUNDS",
     "about_page_published",
     "all_keys",
+    "get",
+    "grounding_cache_dir",
+    "repo_root",
+    "unpaywall_email",
 ]

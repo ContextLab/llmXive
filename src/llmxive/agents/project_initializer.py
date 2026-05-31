@@ -19,6 +19,7 @@ from pathlib import Path
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt, substitute
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.runner import init_speckit_in
 from llmxive.types import AgentRegistryEntry, Project, Stage
 
@@ -30,7 +31,7 @@ class ProjectInitializerAgent(Agent):
         super().__init__(registry_entry)
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
 
         # Render the constitution template with project-specific tokens
         # BEFORE the LLM sees it (so the model adapts a concrete
@@ -87,7 +88,7 @@ class ProjectInitializerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = repo / "projects" / ctx.project_id
         constitution_path = project_dir / ".specify" / "memory" / "constitution.md"
 

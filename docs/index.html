@@ -296,11 +296,11 @@
       </div>
       <div class="about-block">
         <h3>Two review gates — every specialist must accept</h3>
-        <p>Research review and paper review require BOTH the points threshold (<span data-threshold-mirror="research_review_accept_pts">5</span>) AND an accept verdict from <em>every</em> specialist reviewer in its lane: 7 research specialists (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) and 12 paper specialists (writing, logic, claims, over-reach, safety, evidence, statistics, code, data, formatting, figures, jargon). Human reviews count as <span data-threshold-mirror="human_review_score">1.0</span> point and LLM reviews as <span data-threshold-mirror="llm_review_score">0.5</span> point. Self-review is rejected by the schema.</p>
+        <p>Research review and paper review run an <strong>identify → revise → re-review</strong> convergence loop driven by the lane's panel — 8 research reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene, plus a generic reviewer) and 12 paper specialists (writing, logic, claims, over-reach, safety, evidence, statistics, code, data, formatting, figures, jargon). The gate is <strong>unanimous panel acceptance</strong> within a 3-round cap; otherwise the project is kicked back to a prior stage carrying full provenance. Human and simulated-personality reviews are <em>advisory inputs</em> via stage-aware triage; self-review is rejected by the schema. (Spec 015 supersedes the prior point-based gate.)</p>
       </div>
       <div class="about-block">
         <h3>Model selection — right-sized to each task</h3>
-        <p>Each pipeline step is associated with an appropriate open model. Long, complex tasks (planning, paper writing, deep review) are routed to Qwen3.5&nbsp;122B; faster, less complex tasks (clarifying questions, atomization, quick judgments) are routed to Gemma 3 27B. All inference runs on Dartmouth&rsquo;s <a href="https://rc.dartmouth.edu/ai/computing-resources/discovery-cluster/" target="_blank" rel="noopener">Discovery Cluster</a>, with fallbacks to <a href="https://huggingface.co/" target="_blank" rel="noopener">Hugging&nbsp;Face</a> as needed.</p>
+        <p>Each pipeline step is associated with an appropriate open model. Long, complex tasks (planning, paper writing, deep review) are routed to Qwen3.5&nbsp;122B; faster, less complex tasks (clarifying questions, atomization, quick judgments) are routed to Gemma 3 27B. All inference runs on Dartmouth&rsquo;s <a href="https://rc.dartmouth.edu/ai/computing-resources/discovery-cluster/" target="_blank" rel="noopener">Discovery Cluster</a>, with a fallback to open-weight <a href="https://huggingface.co/" target="_blank" rel="noopener">Hugging&nbsp;Face</a> models run locally via <a href="https://huggingface.co/docs/transformers" target="_blank" rel="noopener">transformers</a> as needed.</p>
       </div>
     </div>
 
@@ -363,7 +363,7 @@
         <div class="contribute-card">
           <div class="ci"><i class="fa-regular fa-eye"></i></div>
           <h4>Review existing content</h4>
-          <p>Human reviews count double. Open a project at a review stage and add your verdict on its spec, plan, code, data, or paper.</p>
+          <p>Human reviews are advisory inputs — stage-aware triage routes them to the matching LLM reviewer's lens; they inform a reviewer's verdict but never directly gate advancement. Open a project at a review stage and add your verdict on its spec, plan, code, data, or paper.</p>
           <a class="btn" href="#inProgress"><i class="fa-regular fa-pen-to-square"></i> Find something to review</a>
         </div>
       </div>
@@ -448,7 +448,7 @@
 <div class="modal-backdrop" id="modal-review">
   <div class="modal" role="dialog" aria-modal="true">
     <h3>Add human review</h3>
-    <p class="sub">Human reviews count as 1.0 points; LLM reviews count as 0.5 points. Both review gates require BOTH ≥5 points AND an accept verdict from every specialist reviewer in the lane.</p>
+    <p class="sub">Both review gates (research + paper) advance only when EVERY specialist reviewer in the lane unanimously accepts within the 3-round convergence cap. Human and simulated-personality reviews are advisory inputs (stage-aware triage routes them to the matching lens); non-convergence routes the project back to a prior stage with full provenance.</p>
     <input type="hidden" id="review-project-id" />
     <label class="field"><span class="l">Reviewing stage *</span>
       <select data-review="stage">

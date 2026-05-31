@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -15,8 +15,7 @@ from llmxive.types import (
     RevisionRound,
 )
 
-
-_NOW = datetime(2026, 5, 19, 10, 14, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 5, 19, 10, 14, 0, tzinfo=UTC)
 
 
 def _make_round(round_n: int, tasks_done: int = 5) -> RevisionRound:

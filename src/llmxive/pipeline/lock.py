@@ -7,11 +7,12 @@ the past) are forcibly released on next acquire.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import yaml
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.types import Lock
 
 
@@ -20,7 +21,7 @@ class LockError(RuntimeError):
 
 
 def _state_root() -> Path:
-    return Path(__file__).resolve().parent.parent.parent.parent / "state"
+    return _repo_root() / "state"
 
 
 def _lock_path(project_id: str, *, repo_root: Path | None = None) -> Path:
@@ -41,7 +42,7 @@ def acquire(
     """
     path = _lock_path(project_id, repo_root=repo_root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if path.exists():
         existing = Lock.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
         if existing.expires_at > now:
@@ -79,7 +80,7 @@ def is_locked(project_id: str, *, repo_root: Path | None = None) -> bool:
     if not path.exists():
         return False
     existing = Lock.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
-    return existing.expires_at > datetime.now(timezone.utc)
+    return existing.expires_at > datetime.now(UTC)
 
 
-__all__ = ["acquire", "release", "is_locked", "LockError"]
+__all__ = ["LockError", "acquire", "is_locked", "release"]

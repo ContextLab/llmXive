@@ -14,24 +14,22 @@ project advances to `research_accepted` / `research_minor_revision` /
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import yaml
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
-from llmxive.state import project as project_store
+from llmxive.config import repo_root as _repo_root
 from llmxive.state import reviews as reviews_store
+from llmxive.state import runlog as runlog_store
 from llmxive.types import (
     AgentRegistryEntry,
-    BackendName,
-    ReviewRecord,
     ReviewerKind,
+    ReviewRecord,
 )
-
 
 _FRONTMATTER_RE = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
@@ -69,7 +67,7 @@ class ResearchReviewerAgent(Agent):
         super().__init__(registry_entry)
 
     def _project_dir(self, ctx: AgentContext) -> Path:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         return repo / "projects" / ctx.project_id
 
     def _feature_dir(self, project_dir: Path) -> Path | None:
@@ -88,7 +86,7 @@ class ResearchReviewerAgent(Agent):
         return candidates[0]
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = self._project_dir(ctx)
         feature_dir = self._feature_dir(project_dir)
         if feature_dir is None:
@@ -138,7 +136,7 @@ class ResearchReviewerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         text = response.text.strip()
         match = _FRONTMATTER_RE.match(text)
         if not match:
@@ -155,7 +153,7 @@ class ResearchReviewerAgent(Agent):
         front["model_name"] = response.model
         front["backend"] = response.backend
         front["prompt_version"] = self.entry.prompt_version
-        front["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+        front["reviewed_at"] = datetime.now(UTC).isoformat()
 
         # Compute the artifact_hash from the live tasks.md.
         project_dir = self._project_dir(ctx)
@@ -170,16 +168,21 @@ class ResearchReviewerAgent(Agent):
 
         record = ReviewRecord.model_validate(front)
 
-        # Look up the artifact's author for self-review prevention.
-        # The runtime cannot infer authorship reliably yet (US3 stub),
-        # so we pass None — Pydantic still enforces the per-verdict score
-        # rules at validate time.
+        # Self-review prevention (discrepancy #7 / #49): resolve the agent that
+        # actually produced the reviewed artifact from the run-log so
+        # reviews_store refuses a reviewer reviewing its own output. (For the
+        # research panel the producer is the tasker/implementer — disjoint from
+        # the research_reviewer* names — so this is defense-in-depth; None when
+        # the run-log has no record of the artifact, preserving prior behavior.)
+        producer = runlog_store.producer_of_artifact(
+            ctx.project_id, record.artifact_path, repo_root=repo
+        )
         path = reviews_store.write(
             record,
             body=body,
             stage="research",
             review_type="research",
-            produced_by_agent=None,
+            produced_by_agent=producer,
             repo_root=repo,
         )
         return [str(path.relative_to(repo))]

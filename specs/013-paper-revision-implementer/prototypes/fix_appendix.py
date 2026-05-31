@@ -2,20 +2,22 @@
 by a buggy version of `gen_appendix.py`. Walks the file character-by-
 character and undoes the systematic over-escaping:
 
-  \textbackslash\{\}<word>\{...\}  →  \<word>{...}
-  \$ ... \$                          →  $ ... $   (math mode restored)
-  \textasciicircum\{\}\{...\}        →  ^{...}    (rare super-script case)
+  \textbackslash\\{\\}<word>\\{...\\}  →  \\<word>{...}
+  \\$ ... \\$                          →  $ ... $   (math mode restored)
+  \textasciicircum\\{\\}\\{...\\}        →  ^{...}    (rare super-script case)
   "..."                              →  ``...''   (curly quotes)
 
 Brace balancing treats real `{` / `}` (already-correct LaTeX commands
 inside the over-escaped wrapper, e.g. `\texttt{x}`) as nesting that does
 NOT change the escaped-brace depth, so we correctly find the matching
-`\}` even when the wrapped content has its own real braces.
+`\\}` even when the wrapped content has its own real braces.
 
 Usage:  python fix_appendix.py main-llmxive.tex 2820 3014 main-llmxive.tex
         (start/end are 1-based, inclusive)
 """
+# ruff: noqa: RUF001  # this file's UNICODE_MATH table intentionally contains Greek/math glyphs as data
 from __future__ import annotations
+
 import re
 import sys
 

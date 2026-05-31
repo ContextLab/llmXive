@@ -44,7 +44,7 @@ def _sha256_tree(root: Path) -> dict[str, str]:
 
 def _make_registry_entry() -> AgentRegistryEntry:
     """Construct the same registry entry the production runner builds for
-    project_initializer. Mirrors agents/registry.yaml lines 83-97."""
+    project_initializer. Mirrors agents/registry.yaml project_initializer."""
     return AgentRegistryEntry(
         name="project_initializer",
         purpose="Bootstrap a per-project Spec Kit scaffold and render a project constitution.",
@@ -53,7 +53,7 @@ def _make_registry_entry() -> AgentRegistryEntry:
         prompt_path="agents/prompts/project_initializer.md",
         prompt_version="1.0.0",
         default_backend="dartmouth",
-        fallback_backends=["huggingface", "local"],
+        fallback_backends=["local"],
         default_model="qwen.qwen3.5-122b",
         wall_clock_budget_seconds=300,
         paid_opt_in=False,
@@ -134,6 +134,12 @@ def test_project_initializer_skips_existing_constitution(
     # lands inside our fake_repo.
     import llmxive.agents.project_initializer as pi_mod
 
+    # The agent resolves its repo via llmxive.config.repo_root(), which honors
+    # $LLMXIVE_REPO_ROOT. (The legacy __file__ monkeypatch below is now inert
+    # after the spec-015 repo-root centralization, but kept harmless.) Point
+    # repo_root() at the fake repo so the agent writes THERE, not into the real
+    # repo (which previously both failed the assertion and polluted projects/).
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(fake_repo))
     monkeypatch.setattr(pi_mod, "__file__", str(fake_module_file))
 
     # Construct agent + ctx + a synthetic ChatResponse whose text would
@@ -203,6 +209,12 @@ def test_project_initializer_writes_on_first_invocation(
 
     import llmxive.agents.project_initializer as pi_mod
 
+    # The agent resolves its repo via llmxive.config.repo_root(), which honors
+    # $LLMXIVE_REPO_ROOT. (The legacy __file__ monkeypatch below is now inert
+    # after the spec-015 repo-root centralization, but kept harmless.) Point
+    # repo_root() at the fake repo so the agent writes THERE, not into the real
+    # repo (which previously both failed the assertion and polluted projects/).
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(fake_repo))
     monkeypatch.setattr(pi_mod, "__file__", str(fake_module_file))
 
     entry = _make_registry_entry()
@@ -269,6 +281,12 @@ def test_full_tree_idempotent_after_two_agent_invocations(
 
     import llmxive.agents.project_initializer as pi_mod
 
+    # The agent resolves its repo via llmxive.config.repo_root(), which honors
+    # $LLMXIVE_REPO_ROOT. (The legacy __file__ monkeypatch below is now inert
+    # after the spec-015 repo-root centralization, but kept harmless.) Point
+    # repo_root() at the fake repo so the agent writes THERE, not into the real
+    # repo (which previously both failed the assertion and polluted projects/).
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(fake_repo))
     monkeypatch.setattr(pi_mod, "__file__", str(fake_module_file))
 
     entry = _make_registry_entry()

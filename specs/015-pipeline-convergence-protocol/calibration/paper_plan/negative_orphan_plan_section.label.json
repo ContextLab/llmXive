@@ -1,0 +1,6 @@
+{
+  "stage": "paper_plan",
+  "label": "negative_orphan_plan_section",
+  "expected_lens": "spec_section_coverage",
+  "description": "Injected an orphan plan section not authorized by the paper spec. Expected lens: spec_section_coverage (METHODOLOGY-class \u2014 plan invents structure absent from the spec)."
+}

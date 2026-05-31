@@ -9,11 +9,8 @@ Covers FR-010 / FR-011 / FR-012:
 
 from __future__ import annotations
 
-import json
-import shutil
 from pathlib import Path
 
-import pytest
 import yaml
 
 from llmxive.agents import personality as p
@@ -28,7 +25,7 @@ class TestAliasResolverSuffixGuard:
     def test_simulated_suffix_never_mapped(self, tmp_path: Path) -> None:
         """A name ending in ' (simulated)' returns unchanged even when an
         alias entry maps the real name. (FR-011)"""
-        from llmxive.web_data import _resolve_alias, _ALIAS_CACHE
+        from llmxive.web_data import _ALIAS_CACHE, _resolve_alias
 
         # Build an alias file that DOES map both names — the guard must
         # prevent the simulated form from collapsing.
@@ -62,7 +59,7 @@ class TestAliasResolverSuffixGuard:
             _ALIAS_CACHE.clear()
 
     def test_unrelated_simulated_name_returns_unchanged(self, tmp_path: Path) -> None:
-        from llmxive.web_data import _resolve_alias, _ALIAS_CACHE
+        from llmxive.web_data import _ALIAS_CACHE, _resolve_alias
         _ALIAS_CACHE.clear()
         # No alias file at all.
         canon, kind = _resolve_alias("Marie Curie (simulated)", "llm", tmp_path)
@@ -169,7 +166,7 @@ class TestWebDataSimulatedDistinct:
         materialization keeps them distinct. End-to-end FR-011 check."""
         # We test the resolver layer (the contributor materialization in
         # web_data goes through `_resolve_alias`, which we just guarded).
-        from llmxive.web_data import _resolve_alias, _ALIAS_CACHE
+        from llmxive.web_data import _ALIAS_CACHE, _resolve_alias
 
         (tmp_path / "state").mkdir()
         (tmp_path / "state" / "contributor_aliases.yaml").write_text(
@@ -187,10 +184,10 @@ class TestWebDataSimulatedDistinct:
         _ALIAS_CACHE.clear()
         try:
             # The real person, in any of his alias forms, collapses to canonical.
-            real_canon, real_kind = _resolve_alias("dkahneman", "human", tmp_path)
+            real_canon, _real_kind = _resolve_alias("dkahneman", "human", tmp_path)
             assert real_canon == "Daniel Kahneman"
             # The simulated persona stays separate.
-            sim_canon, sim_kind = _resolve_alias("Daniel Kahneman (simulated)", "llm", tmp_path)
+            sim_canon, _sim_kind = _resolve_alias("Daniel Kahneman (simulated)", "llm", tmp_path)
             assert sim_canon == "Daniel Kahneman (simulated)"
             # They are NOT equal — the website's contributor list will show
             # two distinct rows (FR-011).

@@ -18,6 +18,7 @@ diagnostic report's § 4 table.
 from __future__ import annotations
 
 import json
+import os
 import re
 import tempfile
 from pathlib import Path
@@ -35,10 +36,11 @@ STATE_PROJECTS = REPO_ROOT / "state" / "projects"
 
 HAS_DM_KEY = bool(load_dartmouth_key(prompt_if_missing=False))
 HAS_SS_KEY = bool(load_semantic_scholar_key(prompt_if_missing=False))
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 
 both_keys_required = pytest.mark.skipif(
-    not (HAS_DM_KEY and HAS_SS_KEY),
-    reason="Cross-domain US4 needs DARTMOUTH_CHAT_API_KEY + SEMANTIC_SCHOLAR_API_KEY",
+    not (HAS_DM_KEY and HAS_SS_KEY and _REAL),
+    reason="Cross-domain US4 needs DARTMOUTH_CHAT_API_KEY + SEMANTIC_SCHOLAR_API_KEY + LLMXIVE_REAL_TESTS=1",
 )
 
 # Sourced from the single canonical constant (#116) — the cross-domain

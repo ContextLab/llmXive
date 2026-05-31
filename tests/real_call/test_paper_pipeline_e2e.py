@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -86,7 +86,7 @@ def test_one_paper_step_advances_fixture(fresh_paper_project: Path) -> None:
     from llmxive.types import Project, Stage
 
     project_id = "PROJ-001-paperpipe"
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     project = Project(
         id=project_id,
         title="Tiny Paper-Pipe Smoke",

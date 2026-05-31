@@ -7,8 +7,11 @@ hardcoded.
 
 from __future__ import annotations
 
+import logging
 import os
-from typing import Iterable
+import time
+from collections.abc import Callable, Iterable
+from typing import Any, TypeVar
 
 from llmxive.backends.base import (
     BaseBackend,
@@ -18,6 +21,103 @@ from llmxive.backends.base import (
     TransientBackendError,
     invoke_with_deadline,
 )
+
+# --- centralized transient-error retry (T015-class outages) --------------
+#
+# Dartmouth Chat occasionally goes into maintenance windows (the gateway
+# starts responding with an HTML 302 redirect to outage.dartmouth.edu) or
+# emits brief flickers (5xx / connection-reset / model-temporarily-
+# unloaded). Without retries, a single such glitch fails the entire
+# caller's call chain — calibration runs, panel-driven convergence, the
+# pipeline cron, etc. all bail.
+#
+# Defaults: max_retries=3 + exponential backoff (5s, 10s, 20s) = 35 s total
+# wait. Tunable per-instance (constructor kwargs) or globally via env vars:
+#   DARTMOUTH_MAX_RETRIES   — int, default 3
+#   DARTMOUTH_RETRY_BASE_S  — float seconds, default 5.0
+# A brief 30s-2min flicker is absorbed silently; a long-running outage
+# surfaces as the final TransientBackendError after the retries exhaust
+# (so the caller's own retry/fallback logic kicks in — same TransientError
+# semantics as before, just with built-in resilience to brief faults).
+
+_DEFAULT_MAX_RETRIES = int(os.environ.get("DARTMOUTH_MAX_RETRIES", "3"))
+_DEFAULT_RETRY_BASE_S = float(os.environ.get("DARTMOUTH_RETRY_BASE_S", "5.0"))
+_RETRY_MULTIPLIER = 2.0
+
+_log = logging.getLogger(__name__)
+_T = TypeVar("_T")
+
+
+# Substrings (matched case-insensitively against the exception text) that mark a
+# Dartmouth/vLLM failure as TRANSIENT — retried by _retry_with_backoff and, on
+# exhaustion, surfaced so the router can fall through to another model. Anything
+# not matched here is treated as a PermanentBackendError (no retry).
+_TRANSIENT_ERROR_MARKERS: tuple[str, ...] = (
+    "rate limit", "quota", "429", "timeout", "5xx",
+    # Dartmouth's vLLM backend transients:
+    "500", "502", "503", "504", "internal server error",
+    "cannot connect to host", "connection reset", "connection refused",
+    "service unavailable", "bad gateway", "gateway timeout",
+    "internalservererror", "operation not permitted",
+    "litellm.internalservererror",
+    # A listed model can be transiently unloaded on the vLLM cluster.
+    "not found", "no such model", "does not exist", "model_not_found",
+    # Network-level transients:
+    "temporary failure", "name resolution", "connection error",
+    # Connection dropped mid-stream while reading a large response (common when a
+    # flaky endpoint streams a big planner/reviewer reply): requests
+    # ChunkedEncodingError wrapping urllib3/http.client IncompleteRead, SSL EOF,
+    # RemoteDisconnected, broken pipe, connection aborted.
+    "connection broken", "incompleteread", "incomplete read",
+    "chunkedencodingerror", "chunked encoding",
+    "connection aborted", "broken pipe", "remotedisconnected",
+    "remote end closed", "eof occurred",
+    # Dartmouth maintenance redirect: 302 to outage.dartmouth.edu.
+    "outage.dartmouth.edu", "moved temporarily", "302 moved", "<!doctype html",
+)
+
+
+def _is_transient_error_text(text: str) -> bool:
+    """True if *text* (an exception's lowercased str) names a retryable
+    Dartmouth/vLLM transient — see :data:`_TRANSIENT_ERROR_MARKERS`."""
+    low = text.lower()
+    return any(marker in low for marker in _TRANSIENT_ERROR_MARKERS)
+
+
+def _retry_with_backoff(
+    fn: Callable[[], _T],
+    *,
+    max_retries: int,
+    base_delay_s: float,
+    description: str = "Dartmouth call",
+) -> _T:
+    """Call ``fn()``; on :class:`TransientBackendError`, retry with
+    exponential backoff up to ``max_retries`` times. Permanent errors
+    propagate immediately (no point retrying them). Total wait at
+    defaults: 5 + 10 + 20 = 35 s.
+
+    The last transient exception is re-raised when retries exhaust, so
+    the caller's existing TransientBackendError handling still triggers
+    on real outages — this just absorbs brief flickers transparently.
+    """
+    last_exc: TransientBackendError | None = None
+    for attempt in range(max_retries + 1):
+        try:
+            return fn()
+        except TransientBackendError as exc:
+            last_exc = exc
+            if attempt >= max_retries:
+                break
+            delay = base_delay_s * (_RETRY_MULTIPLIER ** attempt)
+            _log.warning(
+                "%s transient error (attempt %d/%d): %s; sleeping %.1fs",
+                description, attempt + 1, max_retries + 1, exc, delay,
+            )
+            time.sleep(delay)
+    # All retries exhausted — surface the final transient so the caller's
+    # router can fall through to a peer model.
+    assert last_exc is not None  # for mypy: loop exit implies last_exc was set
+    raise last_exc
 
 
 def _ensure_api_key_env() -> None:
@@ -78,7 +178,7 @@ def _cloud_models_url() -> str:
     return base.rstrip("/") + "/models"
 
 
-def _fetch_cloud_models() -> list[dict]:
+def _fetch_cloud_models() -> list[dict[str, Any]]:
     """Fetch the raw model catalog (with per-model pricing) from Dartmouth Chat.
 
     We query chat.dartmouth.edu/api/models directly rather than via
@@ -93,7 +193,7 @@ def _fetch_cloud_models() -> list[dict]:
         raise PermanentBackendError(
             "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
         )
-    import requests
+    import requests  # type: ignore[import-untyped]  # no stubs; types-requests not installed
 
     resp = requests.get(
         _cloud_models_url(),
@@ -104,7 +204,7 @@ def _fetch_cloud_models() -> list[dict]:
     return list((resp.json() or {}).get("data") or [])
 
 
-def _model_token_costs(model_obj: dict) -> tuple[float | None, float | None]:
+def _model_token_costs(model_obj: dict[str, Any]) -> tuple[float | None, float | None]:
     """Return (input_cost_per_token, output_cost_per_token) for a catalog entry.
 
     The catalog nests pricing at different depths (internal models under
@@ -176,13 +276,29 @@ class DartmouthBackend(BaseBackend):
     name = "dartmouth"
     is_paid = False
 
-    def __init__(self, *, model_name: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        model_name: str | None = None,
+        max_retries: int | None = None,
+        retry_base_delay_s: float | None = None,
+    ) -> None:
         _ensure_api_key_env()
         if not os.environ.get("DARTMOUTH_CHAT_API_KEY"):
             raise PermanentBackendError(
                 "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
             )
         self._model_name = model_name
+        # Retry config — falls back to module defaults (env-overridable);
+        # see ``_retry_with_backoff`` docstring for what gets retried.
+        self._max_retries = (
+            _DEFAULT_MAX_RETRIES if max_retries is None else max_retries
+        )
+        self._retry_base_delay_s = (
+            _DEFAULT_RETRY_BASE_S
+            if retry_base_delay_s is None
+            else retry_base_delay_s
+        )
 
     def _client(self, model: str):  # type: ignore[no-untyped-def]
         try:
@@ -193,7 +309,7 @@ class DartmouthBackend(BaseBackend):
             ) from exc
         # 3 min per-request timeout. The router can retry the same
         # model 3x and walk through 3 fallback models, so worst-case
-        # per-stage delay is bounded at 6×3=18 min instead of 6×10=60.
+        # per-stage delay is bounded at 6x3=18 min instead of 6x10=60.
         # Healthy 32K-token completions on Dartmouth's vLLM cluster
         # finish in 30s-2min; anything past 3 min is a sick connection
         # we want to abandon and try a peer model on.
@@ -255,7 +371,8 @@ class DartmouthBackend(BaseBackend):
             )
 
         client = self._client(model)
-        msg_objs = []
+        from langchain_core.messages import BaseMessage as _BaseMessage
+        msg_objs: list[_BaseMessage] = []
         for m in messages:
             if m.role == "system":
                 msg_objs.append(SystemMessage(content=m.content))
@@ -284,80 +401,81 @@ class DartmouthBackend(BaseBackend):
                 description=f"Dartmouth model {model!r}",
             )
 
-        try:
-            reply = _invoke(kwargs)
-        except TransientBackendError:
-            raise
-        except Exception as exc:
-            text = str(exc).lower()
-            # Some models (e.g. the gpt-5 family) reject any temperature != 1.
-            # If we sent one and that's the complaint, drop it and retry once
-            # (litellm `drop_params` behaviour) rather than failing the call.
-            if (
-                "temperature" in kwargs
-                and "temperature" in text
-                and ("unsupported" in text or "only temperature" in text or "support" in text)
-            ):
-                retry_kwargs = {k: v for k, v in kwargs.items() if k != "temperature"}
-                try:
-                    reply = _invoke(retry_kwargs)
-                except TransientBackendError:
-                    raise
-                except Exception as exc2:
-                    exc = exc2
-                    text = str(exc2).lower()
-                else:
-                    exc = None  # type: ignore[assignment]
-            if exc is not None:
-                transient_markers = (
-                    "rate limit", "quota", "429", "timeout", "5xx",
-                    # Dartmouth's vLLM backend transients:
-                    "500", "502", "503", "504", "internal server error",
-                    "cannot connect to host", "connection reset", "connection refused",
-                    "service unavailable", "bad gateway", "gateway timeout",
-                    "internalservererror", "operation not permitted",
-                    "litellm.internalservererror",
-                    # A listed model can be transiently unloaded on the vLLM
-                    # cluster ("Model X not found"). It's model-specific, so
-                    # treat it as transient and let the router fall through to
-                    # a free peer model rather than killing the whole chain.
-                    "not found", "no such model", "does not exist", "model_not_found",
-                    # Network-level transients:
-                    "temporary failure", "name resolution", "connection error",
+        def _do_one_attempt() -> ChatResponse:
+            """One end-to-end attempt: invoke + classify + parse the reply.
+            Raises :class:`TransientBackendError` on retryable failures (the
+            outer :func:`_retry_with_backoff` absorbs brief ones); raises
+            :class:`PermanentBackendError` on hard failures (no retry).
+            ``kwargs`` is captured from the enclosing scope and may be
+            mutated by the temperature-drop fallback; that's intentional
+            so subsequent outer-loop attempts don't keep re-sending a
+            known-rejected parameter."""
+            try:
+                reply = _invoke(kwargs)
+            except TransientBackendError:
+                raise
+            except Exception as exc:
+                text = str(exc).lower()
+                # Some models (e.g. the gpt-5 family) reject any
+                # temperature != 1. Drop it and retry once
+                # (litellm drop_params behavior).
+                if (
+                    "temperature" in kwargs
+                    and "temperature" in text
+                    and ("unsupported" in text or "only temperature" in text or "support" in text)
+                ):
+                    retry_kwargs = {k: v for k, v in kwargs.items() if k != "temperature"}
+                    try:
+                        reply = _invoke(retry_kwargs)
+                    except TransientBackendError:
+                        raise
+                    except Exception as exc2:
+                        exc = exc2
+                        text = str(exc2).lower()
+                    else:
+                        exc = None  # type: ignore[assignment]
+                if exc is not None:
+                    if _is_transient_error_text(text):
+                        raise TransientBackendError(str(exc)) from exc
+                    raise PermanentBackendError(str(exc)) from exc
+
+            text_out = str(reply.content)
+            # Reasoning models (Qwen 3.5, gpt-oss) consume completion-budget
+            # tokens on hidden <think> tokens that are stripped from
+            # .content. Too-small max_tokens yields '' + finish_reason=
+            # 'length' — treat as transient so the router can fall through
+            # to a non-reasoning model.
+            meta = getattr(reply, "response_metadata", {}) or {}
+            finish_reason = meta.get("finish_reason")
+            if not text_out.strip() and finish_reason == "length":
+                usage = meta.get("token_usage", {}) or {}
+                raise TransientBackendError(
+                    f"Dartmouth model {model!r} returned empty content "
+                    f"(finish_reason=length, completion_tokens={usage.get('completion_tokens')}); "
+                    "reasoning budget exhausted — retry with larger max_tokens or fall through to a non-reasoning model"
                 )
-                if any(s in text for s in transient_markers):
-                    raise TransientBackendError(str(exc)) from exc
-                raise PermanentBackendError(str(exc)) from exc
+            if not text_out.strip():
+                # Other empty replies (filter, refusal, etc.) — surface loudly.
+                raise PermanentBackendError(
+                    f"Dartmouth model {model!r} returned empty content "
+                    f"(finish_reason={finish_reason!r}, additional_kwargs={getattr(reply, 'additional_kwargs', {})})"
+                )
 
-        text_out = str(reply.content)
-        # Detect "reasoning ate the budget" failure mode: reasoning models
-        # (Qwen 3.5, gpt-oss) emit internal <think> tokens that count
-        # toward the completion budget but are stripped from .content.
-        # When max_tokens is too small the entire budget is consumed and
-        # we get '' back with finish_reason='length'. Treat that as
-        # transient so the router falls through to a non-reasoning model
-        # rather than silently passing junk downstream.
-        meta = getattr(reply, "response_metadata", {}) or {}
-        finish_reason = meta.get("finish_reason")
-        if not text_out.strip() and finish_reason == "length":
-            usage = meta.get("token_usage", {}) or {}
-            raise TransientBackendError(
-                f"Dartmouth model {model!r} returned empty content "
-                f"(finish_reason=length, completion_tokens={usage.get('completion_tokens')}); "
-                "reasoning budget exhausted — retry with larger max_tokens or fall through to a non-reasoning model"
-            )
-        if not text_out.strip():
-            # Other empty replies (filter, refusal, etc.) — surface loudly.
-            raise PermanentBackendError(
-                f"Dartmouth model {model!r} returned empty content "
-                f"(finish_reason={finish_reason!r}, additional_kwargs={getattr(reply, 'additional_kwargs', {})})"
+            return ChatResponse(
+                text=text_out,
+                model=model,
+                backend=self.name,
+                cost_estimate_usd=0.0,  # Dartmouth Chat is free for community members
             )
 
-        return ChatResponse(
-            text=text_out,
-            model=model,
-            backend=self.name,
-            cost_estimate_usd=0.0,  # Dartmouth Chat is free for community members
+        # Centralized retry — absorbs brief transient failures (Dartmouth
+        # maintenance windows, vLLM cluster flickers, 5xx). Permanent
+        # errors propagate immediately. See ``_retry_with_backoff``.
+        return _retry_with_backoff(
+            _do_one_attempt,
+            max_retries=self._max_retries,
+            base_delay_s=self._retry_base_delay_s,
+            description=f"Dartmouth {model!r}",
         )
 
     def healthcheck(self) -> bool:
@@ -369,8 +487,8 @@ class DartmouthBackend(BaseBackend):
 
 
 __all__ = [
+    "KNOWN_FREE_MODELS",
     "DartmouthBackend",
     "free_chat_models",
     "is_free_model",
-    "KNOWN_FREE_MODELS",
 ]

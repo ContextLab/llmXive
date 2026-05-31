@@ -1,0 +1,872 @@
+{
+  "fetched_at": "2026-05-29T19:51:47Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index",
+      "target_n": 5
+    },
+    "duration_seconds": 800.661,
+    "ended_at": "2026-05-29T19:51:47Z",
+    "expansion": null,
+    "extracted_queries": [
+      "diagrammatic complexity knot invariants minimization",
+      "knot census Rolfsen table hyperbolic volume",
+      "bridge number tunnel number unknotting number",
+      "crossing number braid index inequality",
+      "braid representation Seifert surface Reidemeister"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 2,
+      "sampled_count": 2,
+      "sampled_pointers": [
+        "1001.1559",
+        "2212.14737"
+      ]
+    },
+    "per_query_hit_count": {
+      "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics": 3,
+      "braid representation Seifert surface Reidemeister": 5,
+      "bridge number tunnel number unknotting number": 6,
+      "crossing number braid index inequality": 6,
+      "diagrammatic complexity knot invariants minimization": 4,
+      "knot census Rolfsen table hyperbolic volume": 6
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "https://doi.org/10.1142/S0219199722500766",
+          "rationale": "The paper focuses on computing Kauffman bracket skein modules for lens spaces using braid theory, rather than measuring or quantifying knot complexity via crossing number or braid index as invariants. It falls under the rejection rule for distinct constructs sharing only homonym keywords (\"braid\" as a computational tool vs. \"braid index\" as a complexity metric).",
+          "title": "The Kauffman bracket skein module of the lens spaces via unoriented braids"
+        },
+        {
+          "primary_pointer": "2510.04248",
+          "rationale": "The paper focuses on knotted surfaces (2-knots in $\\mathbb{R}^4$) and their specific diagrams (triplane, braid charts), whereas the user's question targets classical knot diagrams (1-knots in $\\mathbb{R}^3$) and the standard crossing number invariant. While it discusses braid index, the shift to higher-dimensional topology makes it a distinct construct rather than canonical prior work for quantifying the complexity of standard knot diagrams.",
+          "title": "Trisected Rainbows and Braids"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-05-29T19:38:27Z",
+    "term_input": {
+      "normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+      "raw": "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We study a knot type through the ropelength-filtered spaces of its thick representatives. For a knot type $K$ and a scale parameter $\\Lambda>0$, let $Y_\\Lambda(K)=\\mathcal{R}_{1,\\Lambda}(K)$ be the space of representatives of $K$ with thickness at least $1$ and length at most $\\Lambda$, modulo reparametrization and orientation-preserving Euclidean isometries. The basic equivalence relation is defined by admissible deformations: two representatives are equivalent at scale $\\Lambda$ if they can be joined through representatives that remain in $Y_\\Lambda(K)$. The resulting admissible components form a one-parameter persistence object as $\\Lambda$ increases. We prove that the first birth level of this admissible-component persistence is exactly the ropelength $\\operatorname{Rop}(K)$. The initial layer $I(K)=Y_{\\operatorname{Rop}(K)}(K)$ is the ideal stratum of $K$. Thus the ropelength-minimizing locus is not treated merely as a set of ideal shapes, but as the birth stratum of a constrained deformation theory. We define the ideal admissible-component set $\\Pi^{\\mathrm{ad}}_{\\mathrm{ideal}}(K)$, the ideal component number $\\nu_{\\mathrm{ideal}}(K)$, and pairwise ideal merge scales. For the fixed knot type $K$, the central invariant introduced here is the ropelength ultrapseudometric $d_{\\mathrm{merge}}(C,D)=\\mu_{\\mathrm{ideal}}(C,D)-\\operatorname{Rop}(K)$ defined for $C,D\\in\\Pi^{\\mathrm{ad}}_{\\mathrm{ideal}}(K)$. We prove that this function is finite-valued and satisfies the strong triangle inequality. The pure merge Vietoris--Rips filtration is a secondary simplicial encoding of this ultrapseudometric structure: it records the same zero-dimensional merge data and has no higher-dimensional homological content beyond the merge partition itself. We also compute the basic case of the unknot and indicate finite polygonal and diagrammatic approximations as further directions.",
+          "claimed_authors": [
+            "Makoto Ozawa"
+          ],
+          "claimed_title": "The Ideal Stratum and Deformation Persistence of Knot Types",
+          "claimed_venue": "",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17905"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='The Ideal Stratum and Deformation Persistence of Knot Types')",
+        "failed_at": "2026-05-29T19:41:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Doubly periodic tangles (DP tangles) are configurations of curves embedded in the thickened plane, invariant under translations in two transversal directions. In this paper we extend the classical theory of DP tangles by introducing the theory of {\\it doubly periodic pseudo tangles} (pseudo DP tangles), which incorporate undetermined crossings called {\\it precrossings}, inspired by the theory of pseudo knots. Pseudo DP tangles are defined as liftings of spatial pseudo links in the thickened torus, called {\\it pseudo motifs}, and are analyzed through diagrammatic methods that account for both local and global isotopies. We emphasize on {\\it pseudo cover equivalence}, a concept defining equivalence between finite covers of pseudo motif diagrams. We investigate the notion of equivalence for these structures, leading to an analogue of the Reidemeister theorem for pseudo DP tangles. Furthermore, we address the complexities introduced by pseudo cover equivalence in defining minimal pseudo motif diagrams. This work contributes to the broader understanding of periodic entangled structures and can find applications in diverse fields such as textiles, materials science and crystallography due to their periodic nature.",
+          "claimed_authors": [
+            "I. Diamantis",
+            "Sofia Lambropoulou",
+            "Sonia Mahmoudi"
+          ],
+          "claimed_title": "The Theory of Doubly Periodic Pseudo Tangles",
+          "claimed_venue": "",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.16808"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='The Theory of Doubly Periodic Pseudo Tangles')",
+        "failed_at": "2026-05-29T19:41:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Homologically fibered knots are knots whose exteriors satisfy the same homological conditions as fibered knots. In our previous paper, we observed that for such a knot, higher-order Alexander invariants defined by Cochran, Harvey and Friedl are generally factorized into the part of the Magnus matrix and that of a certain Reidemeister torsion, both of which are known as invariants of homology cylinders over a surface. In this paper, we study more details of the invariants and give some concrete calculations by restricting to the case of the invariants associated with metabelian quotients of their knot groups. We provide examples of explicit calculations of the invariants for all the 12 crossings non-fibered homologically fibered knots.",
+          "claimed_authors": [
+            "Hiroshi Goda",
+            "Takuya Sakasai"
+          ],
+          "claimed_title": "Factorization formulas and computations of higher-order Alexander invariants for homologically fibered knots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3326"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Factorization formulas and computations of higher-order Alexander invariants for homologically fibered knots')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "Jason DeBlois"
+          ],
+          "claimed_title": "GENERIC HYPERBOLIC KNOT COMPLEMENTS WITHOUT HIDDEN SYMMETRIES",
+          "claimed_venue": "",
+          "claimed_year": 2017,
+          "primary_pointer": "https://www.semanticscholar.org/paper/737d21e68adabcb7c72bda7f0eb5530c1dd9458d"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='GENERIC HYPERBOLIC KNOT COMPLEMENTS WITHOUT HIDDEN SYMMETRIES')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We define the {\\it Wirtinger number} of a link, an invariant closely related to the meridional rank. The Wirtinger number is the minimum number of generators of the fundamental group of the link complement over all meridional presentations in which every relation is an iterated Wirtinger relation arising in a diagram. We prove that the Wirtinger number of a link equals its bridge number. This equality can be viewed as establishing a weak version of Cappell and Shaneson's Meridional Rank Conjecture, and suggests a new approach to this conjecture. Our result also leads to a combinatorial technique for obtaining strong upper bounds on bridge numbers. This technique has so far allowed us to add the bridge numbers of approximately 50,000 prime knots of up to 14 crossings to the knot table. As another application, we use the Wirtinger number to show there exists a universal constant $C$ with the property that the hyperbolic volume of a prime alternating link $L$ is bounded below by $C$ times the bridge number of $L$.",
+          "claimed_authors": [
+            "Ryan Blair",
+            "Alexandra Kjuchukova",
+            "R. Velazquez",
+            "P. Villanueva"
+          ],
+          "claimed_title": "Wirtinger systems of generators of knot groups",
+          "claimed_venue": "Communications in analysis and geometry",
+          "claimed_year": 2017,
+          "primary_pointer": "https://doi.org/10.4310/CAG.2020.V28.N2.A2"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Wirtinger systems of generators of knot groups')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "In 2010, Turaev introduced knotoids as a variation on knots that replaces the embedding of a circle with the embedding of a closed interval with two endpoints. A variety of knot invariants have been extended to knotoids. Here we provide definitions of hyperbolicity for both spherical and planar knotoids. We prove that the product of hyperbolic spherical knotoids is hyperbolic and the volumes add. We also determine the least volume of a rational spherical knotoid and provide various classes of hyperbolic knotoids. We also include tables of hyperbolic volumes for both spherical and planar knotoids.",
+          "claimed_authors": [
+            "C. Adams",
+            "A. Bonat",
+            "M. Chande",
+            "J. Chen",
+            "Maxwell Jiang",
+            "Z. Romrell",
+            "Daniel Santiago",
+            "Benjamin Shapiro",
+            "Dora Woodruff"
+          ],
+          "claimed_title": "Hyperbolic knotoids",
+          "claimed_venue": "European Journal of Mathematics",
+          "claimed_year": 2022,
+          "primary_pointer": "https://doi.org/10.1007/s40879-024-00755-z"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Hyperbolic knotoids')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We identify all hyperbolic knots whose complements are in the census of orientable one-cusped hyperbolic manifolds with eight ideal tetrahedra. We also compute their Jones polynomials.",
+          "claimed_authors": [
+            "Abhijit Champanerkar",
+            "Ilya Kofman",
+            "Timothy Mullen"
+          ],
+          "claimed_title": "The 500 simplest hyperbolic knots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.4439"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='The 500 simplest hyperbolic knots')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We complete the project begun by Callahan, Dean and Weeks to identify all knots whose complements are in the SnapPea census of hyperbolic manifolds with seven or fewer tetrahedra. Many of these ``simple'' hyperbolic knots have high crossing number. We also compute their Jones polynomials.",
+          "claimed_authors": [
+            "Abhijit Champanerkar",
+            "Ilya Kofman",
+            "Eric Patterson"
+          ],
+          "claimed_title": "The next simplest hyperbolic knots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "math/0311380"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='The next simplest hyperbolic knots')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We exhibit braid positive presentations for all L-space knots in the SnapPy census except one, which is not braid positive. The normalized HOMFLY polynomial of o9_30634, when suitably normalized is not positive, failing a condition of Ito for braid positive knots.\n  We generalize this knot to a 1-parameter family of hyperbolic L-space knots that might not be braid positive. Nevertheless, as pointed out by Teragaito, this family yields the first examples of hyperbolic L-space knots whose formal semigroups are actual semigroups, answering a question of Wang. Furthermore, the roots of the Alexander polynomials of these knots are all roots of unity, disproving a conjecture of Li-Ni.",
+          "claimed_authors": [
+            "Kenneth L. Baker",
+            "Marc Kegel"
+          ],
+          "claimed_title": "Census L-space knots are braid positive, except for one that is not",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.12013"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Census L-space knots are braid positive, except for one that is not')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "We prove that the tunnel number of a satellite chain link with a number of components higher than or equal to twice the bridge number of the companion is as small as possible among links with the same number of components. We prove this result to be sharp for satellite chain links over a 2-bridge knot. We also observe that the links in the main result satisfy the genus versus rank conjecture.",
+          "claimed_authors": [
+            "D. Girão",
+            "J. Nogueira",
+            "António Salgueiro"
+          ],
+          "claimed_title": "On unknotting tunnel systems of satellite chain links",
+          "claimed_venue": "Algebraic &amp; Geometric Topology",
+          "claimed_year": 2021,
+          "primary_pointer": "https://doi.org/10.2140/agt.2022.22.307"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='On unknotting tunnel systems of satellite chain links')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "H. Goda",
+            "M. Teragaito"
+          ],
+          "claimed_title": "Tunnel Number One Genus One Non-Simple Knots",
+          "claimed_venue": "",
+          "claimed_year": 1999,
+          "primary_pointer": "https://doi.org/10.3836/TJM/1270041615"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Tunnel Number One Genus One Non-Simple Knots')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "K. Shimokawa"
+          ],
+          "claimed_title": "On Tunnel Number One Alternating Knots and Links",
+          "claimed_venue": "",
+          "claimed_year": 1998,
+          "primary_pointer": "https://www.semanticscholar.org/paper/3098544739d4b8d6f0b82f567a143e703538914a"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='On Tunnel Number One Alternating Knots and Links')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $A$ be a non-CM simple abelian variety over a number field $K$. For a place $v$ of $K$ such that $A$ has good reduction at $v$, let $F(A,v)$ denote the Frobenius field generated by the corresponding Frobenius eigenvalues. Assuming $A$ has connected monodromy groups, we show that the set of places $v$ such that $F(A,v)$ is isomorphic to a fixed number field has upper Dirichlet density zero. Assuming the GRH, we give a power saving upper bound for the number of such places.",
+          "claimed_authors": [
+            "Ashay A. Burungale",
+            "Haruzo Hida",
+            "Shilin Lai"
+          ],
+          "claimed_title": "On the Frobenius fields of abelian varieties over number fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07935"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='On the Frobenius fields of abelian varieties over number fields')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The well known binary and decimal representations of the integers, and other similar number systems, admit many generalisations. Here, we investigate whether still every integer could have a finite expansion on a given integer base b, when we choose a digit set that does not contain 0. We prove that such digit sets exist and we provide infinitely many examples for every base b with |b|\\ge 4, and for b=-2. For the special case b=-2, we give a full characterisation of all valid digit sets.",
+          "claimed_authors": [
+            "Christiaan van de Woestijne"
+          ],
+          "claimed_title": "Noncanonical number systems in the integers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0804.2190"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Noncanonical number systems in the integers')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the $a$-numbers of $\\mathbb{Z}/p^2\\mathbb{Z}$-covers in characteristic $p>2$ and extend a technique originally introduced by Farnell and Pries for $\\mathbb{Z}/p\\mathbb{Z}$-covers. As an application of our approach, we demonstrate that the $a$-numbers of ``minimal'' $\\mathbb{Z}/9\\mathbb{Z}$-covers can be deduced from the associated branching datum.",
+          "claimed_authors": [
+            "Huy Dang",
+            "Steven R. Groen"
+          ],
+          "claimed_title": "$a$-Numbers of Cyclic Degree $p^2$ Covers of the Projective Line",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.12153"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='$a$-Numbers of Cyclic Degree $p^2$ Covers of the Projective Line')",
+        "failed_at": "2026-05-29T19:41:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "A Seifert surface of a knot or link inS 3 is an oriented surface in S 3 whose boundary coincides with that of the link. A corresponding Seifert matrix has as its entries the linking numbers of a set of homology generators of the surface. Thus a Seifert matrix encodes essential information about the structure of a link and, unsurprisingly, can be used to dene powerful invariants, such as the Alexander polynomial. The program SeifertView has been designed to visualise Seifert surfaces given by braid representations, but it does not give the user any technical information about the knot or link. This article describes an algorithm which could work alongside SeifertView and compute a Seifert matrix from the same braids and surfaces. It also calculates the genus of the surface, the Alexander polynomial of the knot and the signature of the knot.",
+          "claimed_authors": [
+            "J. Collins"
+          ],
+          "claimed_title": "An algorithm for computing the Seifert matrix of a link from a braid representation",
+          "claimed_venue": "Ensaios matemáticos",
+          "claimed_year": 2016,
+          "primary_pointer": "https://doi.org/10.21711/217504322016/em304"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='An algorithm for computing the Seifert matrix of a link from a braid representation')",
+        "failed_at": "2026-05-29T19:41:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": "Non-Hermitian systems host band degeneracies that are fundamentally distinct from those in Hermitian systems, most notably exceptional points (EPs) where both eigenvalues and eigenvectors coalesce. In three dimensional (3D) non-Hermitian systems, such degeneracies can form closed exceptional loops (ELs), whose global geometry can exhibit nontrivial knot and link structures. In this work, we present a universal and constructive framework for realizing knotted and linked ELs in 3D systems, establishing a direct correspondence between knot theory and non-Hermitian band degeneracies. Starting from an arbitrary knot or link specified by a braid representation, we systematically construct minimal two-band non-Hermitian Hamiltonians whose ELs faithfully realize the prescribed topology in momentum space, enabling a classification of non-Hermitian topological phases based on knot invariants such as braid words and Alexander polynomials. We show that these knotted ELs are generically stable and give rise to non-Hermitian metallic phases characterized by Seifert surfaces, reflecting the defective nature of exceptional degeneracies, in sharp contrast to nodal lines in Hermitian systems that typically require symmetry protection or fine-tuning. Furthermore, we demonstrate that knotted ELs can be continuously deformed and untied through controlled topological transitions driven by a single tuning parameter, providing a deterministic mechanism for manipulating knot topology in momentum space. We also propose an experimental realization in electro-acoustic systems, demonstrating the feasibility of observing knotted ELs through nonreciprocal coupling and tunable parameters. Our results establish knot and link topology as a natural classification scheme for non-Hermitian topological matter and suggest broad applicability in engineered platforms such as photonic, acoustic, and circuit-based systems.",
+          "claimed_authors": [
+            "Bin Jiang",
+            "Ao-lin Guo",
+            "Qilin Cai",
+            "Jian-Hua Jiang"
+          ],
+          "claimed_title": "Generating Exceptional Knots and Links with Arbitrary Braiding Topology",
+          "claimed_venue": "",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.04143"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Generating Exceptional Knots and Links with Arbitrary Braiding Topology')",
+        "failed_at": "2026-05-29T19:41:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "semantic_scholar",
+          "claimed_abstract": null,
+          "claimed_authors": [
+            "J. V. Wijk",
+            "A. Cohen"
+          ],
+          "claimed_title": "Visualization of Seifert surfaces",
+          "claimed_venue": "IEEE Transactions on Visualization and Computer Graphics",
+          "claimed_year": 2006,
+          "primary_pointer": "https://doi.org/10.1109/TVCG.2006.83"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Visualization of Seifert surfaces')",
+        "failed_at": "2026-05-29T19:41:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proves that every oriented non-disk Seifert surface $F$ for a knot $K$ in $S^3$ is smoothly concordant to a Seifert surface $F^{\\prime}$ for a hyperbolic knot $K^{\\prime}$ of arbitrarily large volume. This gives a new and simpler proof of the result of Friedl and of Kawauchi that every knot is $S$-equivalent to a hyperbolic knot of arbitrarily large volume. The construction also gives a new and simpler proof of the result of Silver and Whitten and of Kawauchi that for every knot $K$ there is a hyperbolic knot $K^{\\prime}$ of arbitrarily large volume and a map of pairs $f:(S^3,K^{\\prime})\\rightarrow (S^3,K)$ which induces an epimorphism on the knot groups. An example is given which shows that knot Floer homology is not an invariant of Seifert surface concordance. The paper also proves that a set of finite volume hyperbolic 3-manifolds with unbounded Haken numbers has unbounded volumes.",
+          "claimed_authors": [
+            "Robert Myers"
+          ],
+          "claimed_title": "Concordance of Seifert surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.00516"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Concordance of Seifert surfaces')",
+        "failed_at": "2026-05-29T19:41:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study an invariant of a 3-manifold which consists of Reidemeister torsion for linear representations which pass through a finite group. We show a Dehn surgery formula on this invariant and compute that of a Seifert manifold over $S^2$. As a consequence we obtain a necessary condition for a result of Dehn surgery along a knot to be Seifert fibered, which can be applied even in a case where abelian Reidemeister torsion gives no information.",
+          "claimed_authors": [
+            "Takahiro Kitayama"
+          ],
+          "claimed_title": "Reidemeister torsion for linear representations and Seifert surgery on knots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0810.1912"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Reidemeister torsion for linear representations and Seifert surgery on knots')",
+        "failed_at": "2026-05-29T19:41:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper investigates the relationship between the signature and the crossing number of knots and links. We refine existing theorems and provide a comprehensive classification of links with specific properties, particularly those with signatures that deviate by a fixed amount from their crossing numbers. The main results include the identification of all links for which the sum of the signature and crossing number equals 2, which are shown to be closures of positive 3-braids. Additionally, we explore the implications of these findings in the context of band surgeries and their applications to vortex knots and DNA topology.",
+          "claimed_authors": [
+            "Kai Ishihara",
+            "Kei Okada",
+            "Koya Shimokawa"
+          ],
+          "claimed_title": "Signature and crossing number of links",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.00445"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Signature and crossing number of links')",
+        "failed_at": "2026-05-29T19:41:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Using Birman, Ko, and Lee's left canonical form of a braid, we characterize almost strongly quasipositive braids and give estimates of the fractional Dehn twist coefficient.",
+          "claimed_authors": [
+            "Michele Capovilla-Searle",
+            "Keiko Kawamuro",
+            "Rebecca Sorsen"
+          ],
+          "claimed_title": "Birman-Ko-Lee Left Canonical Form and its Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00064"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index ', candidate_title='Birman-Ko-Lee Left Canonical Form and its Applications')",
+        "failed_at": "2026-05-29T19:41:21Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yury Belousov"
+          ],
+          "title": "On the complexity of meander-like diagrams of knots",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.05014",
+        "summary": "It is known that each knot has a semimeander diagram (i. e. a diagram composed of two smooth simple arcs), however the number of crossings in such a diagram can only be roughly estimated. In the present paper we provide a new estimate of the complexity of the semimeander diagrams. We prove that for each knot $K$ with more than 10 crossings, there exists a semimeander diagram with no more than $0.31 \\cdot 1.558^{\\operatorname{cr}(K)}$ crossings, where $\\operatorname{cr}(K)$ is the crossing number of $K$. As a corollary, we provide new estimates of the complexity of other meander-like types of knot diagrams, such as meander diagrams and potholders. We also describe an efficient algorithm for constructing a semimeander diagram from a given one.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.05014",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hwa Jeong Lee",
+            "Yoonsang Lee",
+            "Chanmin Lee",
+            "Yeseo Park",
+            "Hun Kim",
+            "Gyo Taek Jin"
+          ],
+          "title": "Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.02717",
+        "summary": "We give a list of minimal grid diagrams of the 13 crossing prime nonalternating knots which have arc index 13. There are 9,988 prime knots with crossing number 13. Among them 4,878 are alternating and have arc index 15. Among the other nonalternating knots, 49, 399, 1,412 and 3,250 have arc index 10, 11, 12, and 13, respectively. We used the Dowker-Thistlethwaite code of the 3,250 knots provided by the program Knotscape to generate spanning trees of the corresponding knot diagrams to obtain minimal arc presentations in the form of grid diagrams.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.02717",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tomas Boothby",
+            "Allison Henrich",
+            "Alexander Leaf"
+          ],
+          "title": "Minimal Diagrams of Free Knots",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1008.3163",
+        "summary": "Manturov recently introduced the idea of a free knot, i.e. an equivalence class of virtual knots where equivalence is generated by crossing change and virtualization moves. He showed that if a free knot diagram is associated to a graph that is irreducibly odd, then it is minimal with respect to the number of classical crossings. Not all minimal diagrams of free knots are associated to irreducibly odd graphs, however. We introduce a family of free knot diagrams that arise from certain permutations that are minimal but not irreducibly odd.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1008.3163",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gustavo Cardoso",
+            "Oscar Ocampo"
+          ],
+          "title": "Seifert circles, crossing number and the braid index of generalized knots and links",
+          "venue": "Topology and its Applications",
+          "year": 2022
+        },
+        "primary_pointer": "https://doi.org/10.1016/j.topol.2025.109351",
+        "summary": "For classical links Ohyama proved an inequality involving the minimal crossing number and the braid index, then motivated from this Takeda showed an analogous inequality for virtual links. In this paper, we are interested in studying properties of links independent of the type of crossings, and for this reason, we introduce generalized crossings for diagrams and generalized Reidemeister-type moves. The aim of this work is to prove the same type of inequality mentioned above but now involving the total crossing number and the braid index of generalized knots and links. In particular, we show that the result holds for virtual singular links.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://linkinghub.elsevier.com/retrieve/pii/S016686412500149X",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.1016/j.topol.2025.109351"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Y. Ohyama"
+          ],
+          "title": "On the Minimal Crossing Number and the Braid Index of Links",
+          "venue": "Canadian Journal of Mathematics - Journal Canadien de Mathematiques",
+          "year": 1993
+        },
+        "primary_pointer": "https://doi.org/10.4153/CJM-1993-007-x",
+        "summary": "",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://www.cambridge.org/core/journals/canadian-journal-of-mathematics/article/on-the-minimal-crossing-number-and-the-braid-index-of-links/FC29A70314343599AB9D39AF810916FF",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [
+            "https://doi.org/10.4153/CJM-1993-007-x",
+            "https://www.cambridge.org/core/product/identifier/S0008414X0001395X/type/journal_article"
+          ],
+          "summary_grounding_score": 0.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keiko Kawamuro"
+          ],
+          "title": "The algebraic crossing number and the braid index of knots and links",
+          "venue": "",
+          "year": 2006
+        },
+        "primary_pointer": "https://doi.org/10.2140/agt.2006.6.2313",
+        "summary": "It has been conjectured that the algebraic crossing number of a link is uniquely determined in minimal braid representation. This conjecture is true for many classes of knots and links. \nThe Morton-Franks-Williams inequality gives a lower bound for braid index. And sharpness of the inequality on a knot type implies the truth of the conjecture for the knot type. \nWe prove that there are infinitely many examples of knots and links for which the inequality is not sharp but the conjecture is still true. We also show that if the conjecture is true for K and L, then it is also true for the (p,q)-cable of K and for the connect sum of K and L.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "semantic_scholar",
+          "final_url": "https://msp.org/agt/2006/6-5/p11.xhtml",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [
+            "https://doi.org/10.2140/agt.2006.6.2313",
+            "http://www.msp.org/agt/2006/6-5/p11.xhtml"
+          ],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gustavo Cardoso",
+            "Oscar Ocampo"
+          ],
+          "title": "Seifert circles, crossing number and the braid index of generalized knots and links",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.14737",
+        "summary": "For classical links Ohyama proved an inequality involving the minimal crossing number and the braid index, then motivated from this Takeda showed an analogous inequality for virtual links. In this paper, we are interested in studying properties of links independent of the type of crossings, and for this reason, we introduce generalized crossings for diagrams and generalized Reidemeister-type moves. The aim of this work is to prove the same type of inequality mentioned above but now involving the total crossing number and the braid index of generalized knots and links. In particular, we show that the result holds for virtual singular links.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.14737",
+          "http_status": 200,
+          "pdf_sample_score": 0.1966,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daishiro Nishida"
+          ],
+          "title": "Triple Crossing Number and Double Crossing Braid Index",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1805.04428",
+        "summary": "Traditionally, knot theorists have considered projections of knots where there are two strands meeting at every crossing. A triple crossing is a crossing where three strands meet at a single point, such that each strand bisects the crossing. In this paper we find a relationship between the triple crossing number and the double crossing braid index, namely $β_2(L) \\le c_3(L) + 1$. We find an infinite family of knots that achieve equality, which allows us to determine both the double crossing braid index and the triple crossing number of these knots.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1805.04428",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Colin Adams",
+            "Thomas Crawford",
+            "Benjamin DeMeo",
+            "Michael Landry",
+            "Alex Tong Lin",
+            "MurphyKate Montee",
+            "Seojung Park",
+            "Saraswathi Venkatesh",
+            "Farrah Yhee"
+          ],
+          "title": "Knot projections with a single multi-crossing",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.5742",
+        "summary": "Introduced recently, an n-crossing is a singular point in a projection of a link at which n strands cross such that each strand travels straight through the crossing. We introduce the notion of an übercrossing projection, a knot projection with a single n-crossing. Such a projection is necessarily composed of a collection of loops emanating from the crossing. We prove the surprising fact that all knots have a special type of übercrossing projection, which we call a petal projection, in which no loops contain any others. The rigidity of this form allows all the information about the knot to be concentrated in a permutation corresponding to the levels at which the strands lie within the crossing. These ideas give rise to two new invariants for a knot K: the übercrossing number ü(K), and petal number p(K). These are the least number of loops in any übercrossing or petal projection of K, respectively. We relate ü(K) and p(K) to other knot invariants, and compute p(K) for several classes of knots, including all knots of nine or fewer crossings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1208.5742",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jae-Wook Chung",
+            "Xiao-Song Lin"
+          ],
+          "title": "On the bridge number of knot diagrams with minimal crossings",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "math/0301320",
+        "summary": "Given a diagram $D$ of a knot $K$, we consider the number $c(D)$ of crossings and the number $b(D)$ of overpasses of $D$. We show that, if $D$ is a diagram of a nontrivial knot $K$ whose number $c(D)$ of crossings is minimal, then $1+\\sqrt{1+c(D)} \\leq b(D)\\leq c(D)$. These inequalities are shape in the sense that the upper bound of $b(D)$ is achieved by alternating knots and the lower bound of $b(D)$ is achieved by torus knots. The second inequality becomes an equality only when the knot is an alternating knot. We prove that the first inequality becomes an equality only when the knot is a torus knot.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/math/0301320",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jae-Wook Chung",
+            "Seulgi Jeong",
+            "Dongseok Kim"
+          ],
+          "title": "On the semi-threading of knot diagrams with minimal overpasses",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1302.3835",
+        "summary": "Given a knot diagram $D$, we construct a semi-threading circle for it which can be an axis of $D$ as a closed braid depending on knot diagrams. In particular, we consider semi-threading circles for minimal diagrams of a knot with respect to overpasses which give us some information related to the braid index. By this notion, we show that, for every nontrivial knot $K$, the braid index $b(K)$ of $K$ is not less than the minimum number $l(K)$ of overpasses of diagrams. Moreover, they are the same for a torus knot.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1302.3835",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sungjong No",
+            "Seungsang Oh",
+            "Hyungkee Yoo"
+          ],
+          "title": "Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1806.09719",
+        "summary": "In this paper, we introduce a bisected vertex leveling of a plane graph. Using this planar embedding, we present elementary proofs of the well-known upper bounds in terms of the minimal crossing number on braid index $b(L)$ and arc index $α(L)$ for any knot or non-split link $L$, which are $b(L) \\leq \\frac{1}{2} c(L) + 1$ and $α(L) \\leq c(L) + 2$. We also find a quadratic upper bound of the minimal crossing number of delta diagrams of $L$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1806.09719",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keiko Kawamuro"
+          ],
+          "title": "The algebraic crossing number and the braid index of knots and links",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0907.1019",
+        "summary": "It has been conjectured that the algebraic crossing number of a link is uniquely determined in minimal braid representation. This conjecture is true for many classes of knots and links.\n  The Morton-Franks-Williams inequality gives a lower bound for braid index. And sharpness of the inequality on a knot type implies the truth of the conjecture for the knot type.\n  We prove that there are infinitely many examples of knots and links for which the inequality is not sharp but the conjecture is still true. We also show that if the conjecture is true for K and L, then it is also true for the (p,q)-cable of K and for the connect sum of K and L.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/0907.1019",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chad Wiley"
+          ],
+          "title": "Crossing changes in closed 3-braid diagrams",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1001.1559",
+        "summary": "A crossing in a knot is nugatory if changing the crossing does not change the knot type. Using an invariant of certain types of closed 3-braid diagrams, we show that if a closed 3-braid contains a nugatory crossing then its braid index is one or two. This proves a special case of a conjecture on nugatory crossings due to Xiao-Song Lin.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1001.1559",
+          "http_status": 200,
+          "pdf_sample_score": 0.1287,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Philipp Korablev",
+            "Vladimir Tarkaev"
+          ],
+          "title": "A relation between the crossing number and the height of a knotoid",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2009.02718",
+        "summary": "Knotoids are open ended knot diagrams regarded up to Reidemeister moves and isotopies. The notion is introduced by V.~Turaev in 2012. Two most important numeric characteristics of a knotoid are the crossing number and the height. The latter is the least number of intersections between a diagram and an arc connecting its endpoints, where the minimum is taken over all representative diagrams and all such an arcs disjoint from crossings. In the paper we answer the question: are there any relations between the crossing number and the height of a knotoid. We prove that the crossing number of a knotoid is greater than or equal to twice the height of the knotoid. Combining the inequality with known lower bounds of the height we obtain a lower bounds of the crossing number of a knotoid via the extended bracket polynomial, the affine index polynomial and the arrow polynomial of the knotoid. As an application of our result we prove an upper bound for the length of a bridge in a minimal diagram of a classical knot: the number of crossings in a minimal diagram of a knot is greater than or equal to three times the length of a longest bridge in the diagram.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2009.02718",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-05-29T19:41:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

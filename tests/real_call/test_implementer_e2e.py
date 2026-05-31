@@ -21,17 +21,10 @@ from __future__ import annotations
 import json
 import os
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
-import yaml
-
-pytestmark = pytest.mark.skipif(
-    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
-    reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
-)
-
 
 from llmxive.agents.base import AgentContext
 from llmxive.agents.implementer import LLMXiveImplementer
@@ -39,6 +32,11 @@ from llmxive.agents.registry import load as load_registry
 from llmxive.state import project as project_state
 from llmxive.state import revision_history as rh_state
 from llmxive.types import Project, Stage
+
+pytestmark = pytest.mark.skipif(
+    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
+    reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
+)
 
 
 _REPO = Path(__file__).resolve().parents[2]
@@ -97,13 +95,16 @@ A long URL exists at https://github.com/xrenaf/MEMLENS.
             encoding="utf-8",
         )
 
+    # Spec 015 T042: the implementer now picks up projects at
+    # PAPER_REVIEW with a non-empty revision_spec_path; the deleted
+    # READY_FOR_IMPLEMENTATION stage has been removed.
     proj = Project(
         id=pid,
         title="Fixture Paper",
         field="test",
-        current_stage=Stage.READY_FOR_IMPLEMENTATION,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        current_stage=Stage.PAPER_REVIEW,
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
         revision_spec_path=f"specs/auto-revisions/{pid}/round-1",
     )
     project_state.save(proj, repo_root=repo)
@@ -118,7 +119,7 @@ def test_implementer_e2e_writing_fixture() -> None:
         agent = LLMXiveImplementer(registry_entry=entry)
         ctx = AgentContext(
             project_id=pid,
-            run_id=f"test-run-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+            run_id=f"test-run-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
             task_id="t-impl",
             inputs=["paper", "implementation_plan"],
         )
@@ -132,7 +133,9 @@ def test_implementer_e2e_writing_fixture() -> None:
         # (d) stage transition
         proj = project_state.load(pid, repo_root=_REPO)
         assert proj is not None
-        assert proj.current_stage in {Stage.PAPER_REVIEW, Stage.PAPER_REVISION_BLOCKED}, (
+        # Spec 015 T042: PAPER_REVIEW (success) or AGENT_BLOCKED
+        # (truly opaque failure → operator triage).
+        assert proj.current_stage in {Stage.PAPER_REVIEW, Stage.AGENT_BLOCKED}, (
             f"unexpected stage {proj.current_stage.value!r}"
         )
 
@@ -150,7 +153,7 @@ def test_implementer_e2e_writing_fixture() -> None:
         # when blips occur (a CI run hit 1264s on three tasks). 2400s (40 min)
         # is generous headroom over that observed worst case — absorbing a run
         # where every task walks the fallback chain — while still catching a
-        # genuine hang (bounded anyway by the 180s per-request deadline × the
+        # genuine hang (bounded anyway by the 180s per-request deadline x the
         # finite retry/fallback fan-out).
         assert log.duration_s <= 2400.0, (
             f"SC-001 budget exceeded: {log.duration_s:.1f}s"

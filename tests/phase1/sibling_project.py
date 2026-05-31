@@ -46,7 +46,7 @@ ALLOWED_START_STAGES = {"brainstormed", "flesh_out_in_progress", "flesh_out_comp
 
 
 def _now_iso() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def _slug_part(project_id: str) -> str:

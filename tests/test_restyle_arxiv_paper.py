@@ -183,7 +183,7 @@ class TestStripUsepackageLines:
         # Conservative: if ANY name in a multi-name \usepackage line conflicts,
         # the whole line is stripped — caller would otherwise have to know how to
         # split the line and re-emit just the safe entries.
-        new, stripped = r._strip_usepackage_lines(
+        _new, stripped = r._strip_usepackage_lines(
             "\\usepackage{natbib,geometry,inputenc}\n"
         )
         assert "geometry" in stripped

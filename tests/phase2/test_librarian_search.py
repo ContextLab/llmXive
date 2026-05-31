@@ -10,6 +10,7 @@ key is missing. arXiv tests have no key dependency.
 
 from __future__ import annotations
 
+import os
 import time
 
 import pytest
@@ -24,9 +25,16 @@ from llmxive.librarian.search import (
 )
 
 HAS_SS_KEY = bool(load_semantic_scholar_key(prompt_if_missing=False))
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 ss_required = pytest.mark.skipif(
-    not HAS_SS_KEY,
-    reason="SEMANTIC_SCHOLAR_API_KEY not set; SS-backed tests require the key",
+    not (HAS_SS_KEY and _REAL),
+    reason="SS-backed tests require SEMANTIC_SCHOLAR_API_KEY + LLMXIVE_REAL_TESTS=1",
+)
+
+# arXiv real-HTTP tests need no key but still hit the network.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="hits real arXiv HTTP; needs LLMXIVE_REAL_TESTS=1",
 )
 
 
@@ -72,6 +80,7 @@ def test_token_bucket_thread_safe():
 # --- arXiv client (no key required) ----------------------------------------
 
 
+@real_required
 def test_arxiv_get_by_id_real():
     """Fetching a known arXiv paper by ID returns the right metadata."""
     ax = ArxivClient(min_interval_seconds=0.5)
@@ -85,6 +94,7 @@ def test_arxiv_get_by_id_real():
     assert candidate.claimed_abstract is not None and len(candidate.claimed_abstract) > 100
 
 
+@real_required
 def test_arxiv_search_real():
     """Keyword search returns ≥1 candidate for a well-known query."""
     ax = ArxivClient(min_interval_seconds=0.5)

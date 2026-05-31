@@ -13,9 +13,10 @@ from __future__ import annotations
 
 import hashlib
 import re
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import yaml
 
@@ -23,14 +24,15 @@ from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import chat_with_fallback
+from llmxive.config import repo_root as _repo_root
 from llmxive.state import citations as citations_store
 from llmxive.state import reviews as reviews_store
+from llmxive.state import runlog as runlog_store
 from llmxive.types import (
     AgentRegistryEntry,
     ReviewerKind,
     ReviewRecord,
 )
-
 
 _FRONTMATTER_RE = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
@@ -277,38 +279,40 @@ def _build_corpus_with_summaries(
     cache_dir: Path | None = None,
 ) -> str:
     """Return a corpus for the reviewer prompt. If the raw `.tex`
-    concatenation fits in `final_budget`, return verbatim. Otherwise:
-    chunk the corpus, summarize each chunk with `summarize_fn`, and
-    return a notice + joined summaries.
-
-    The chunked path requires `summarize_fn`. Falling back to truncation
-    when none is provided keeps unit tests (which run without a backend)
-    working.
+    concatenation fits in `final_budget` (chars), return it verbatim.
+    Otherwise delegate context reduction to the SSoT ``tools/summarize``
+    primitive (spec 015 T017): it builds an on-disk inode-table that
+    preserves every section heading / numeric claim / citation / ref
+    verbatim and pages content in on demand, superseding the previous
+    truncate-with-notice fallback. ``chunk_size`` is retained for
+    backward compatibility with callers but is no longer used (chunking
+    is budget-derived inside the primitive).
     """
+    from llmxive.tools.summarize import summarize
+
     raw = _gather_raw_concat(source_dir)
-    if not raw or len(raw) <= final_budget:
+    if not raw:
         return raw
-    if summarize_fn is None:
-        # No summarizer — fall back to truncation (legacy behavior).
-        return _concat_tex(source_dir, max_chars=final_budget)
-    chunks = _chunk_corpus(raw, max_chunk_size=chunk_size)
-    summary_blocks: list[str] = []
-    for i, chunk in enumerate(chunks, start=1):
-        summary = _cached_summarize(chunk, summarize_fn, cache_dir=cache_dir)
-        summary_blocks.append(
-            f"=== AUTO-SUMMARIZED CHUNK {i}/{len(chunks)} "
-            f"({len(chunk)} bytes -> {len(summary)} bytes) ===\n{summary}"
-        )
-    header = (
-        "=== NOTICE: The full paper source exceeded the reviewer's "
-        f"context budget ({len(raw)} > {final_budget} bytes). It was "
-        f"split into {len(chunks)} chunks and each chunk was summarized "
-        "by an LLM in isolation. The summaries preserve section "
-        "headings, numeric claims, references, and quoted material; "
-        "redundant prose was dropped. Treat the summaries as faithful "
-        "but lossy transcripts of the original. ===\n\n"
+    goal = (
+        "preserve every section/subsection heading, numeric claim, percentage, "
+        "\\cite/\\citep/\\citet key, \\ref/\\label, and figure caption verbatim"
     )
-    return header + "\n\n".join(summary_blocks)
+    token_budget = max(1, final_budget // 4)  # ~4 chars/token
+
+    inner = summarize_fn  # local binding so the closure narrows the Optional
+
+    def _fn(chunk: str, _goal: str) -> str:
+        # Preserve the existing 1-arg summarize_fn contract + disk memoization.
+        assert inner is not None  # _fn is only wired when a summarizer was provided
+        return _cached_summarize(chunk, inner, cache_dir=cache_dir)
+
+    return summarize(
+        raw,
+        goal=goal,
+        token_budget=token_budget,
+        cache_dir=str(cache_dir) if cache_dir is not None else None,
+        summarize_fn=(_fn if inner is not None else None),
+    )
 
 
 def _summarize_bibfile(source_dir: Path, *, max_chars: int = 30_000) -> str:
@@ -395,7 +399,7 @@ class PaperReviewerAgent(Agent):
         super().__init__(registry_entry)
 
     def _project_dir(self, ctx: AgentContext) -> Path:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         return repo / "projects" / ctx.project_id
 
     def _paper_feature_dir(self, project_dir: Path) -> Path | None:
@@ -412,7 +416,7 @@ class PaperReviewerAgent(Agent):
         return candidates[0]
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         project_dir = self._project_dir(ctx)
         paper_dir = project_dir / "paper"
         feature_dir = self._paper_feature_dir(project_dir)
@@ -512,7 +516,7 @@ class PaperReviewerAgent(Agent):
             prior_for_self = reviews_store.prior_reviews_for_specialist(
                 ctx.project_id, self.entry.name, stage="paper", repo_root=repo,
             )
-        except Exception:  # noqa: BLE001 — defensive; prior-loading must not break review
+        except Exception:
             prior_for_self = []
         if prior_for_self:
             most_recent = prior_for_self[-1]
@@ -578,7 +582,7 @@ class PaperReviewerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         text = response.text.strip()
         match = _FRONTMATTER_RE.match(text)
         if not match:
@@ -594,7 +598,7 @@ class PaperReviewerAgent(Agent):
         front["model_name"] = response.model
         front["backend"] = response.backend
         front["prompt_version"] = self.entry.prompt_version
-        front["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+        front["reviewed_at"] = datetime.now(UTC).isoformat()
 
         # Normalize score: the LLM occasionally picks a verdict but
         # forgets the verdict↔score binding (e.g., verdict=accept with
@@ -617,13 +621,14 @@ class PaperReviewerAgent(Agent):
         items = front.get("action_items") or []
         if not isinstance(items, list):
             items = []
-        from llmxive.types import action_item_id  # local import to avoid cycle at module load
         import re as _re
-        normalized: list[dict] = []
+
+        from llmxive.types import action_item_id  # local import to avoid cycle at module load
+        normalized: list[dict[str, Any]] = []
         for raw in items:
             if not isinstance(raw, dict):
                 continue
-            text = raw.get("text")
+            text = str(raw.get("text") or "").strip()
             severity = raw.get("severity")
             if not text or severity not in ("writing", "science", "fatal"):
                 continue
@@ -658,12 +663,17 @@ class PaperReviewerAgent(Agent):
                 front["artifact_path"] = str(meta_path.relative_to(repo))
 
         record = ReviewRecord.model_validate(front)
+        # Self-review prevention (discrepancy #7 / #49): resolve the real
+        # producer of the reviewed artifact from the run-log (was a None stub).
+        producer = runlog_store.producer_of_artifact(
+            ctx.project_id, record.artifact_path, repo_root=repo
+        )
         path = reviews_store.write(
             record,
             body=body,
             stage="paper",
             review_type="paper",
-            produced_by_agent=None,
+            produced_by_agent=producer,
             repo_root=repo,
         )
         return [str(path.relative_to(repo))]

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import textwrap
@@ -15,7 +16,18 @@ from tests.phase1 import citation_resolver as cr
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RESOLVER = PROJECT_ROOT / "tests" / "phase1" / "citation_resolver.py"
 
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 
+# These tests resolve real external URLs (arXiv, DOI, example.invalid)
+# or shell out to the resolver script that does — they hang offline, so
+# they skip outside real-call mode.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="resolves real external URLs; needs LLMXIVE_REAL_TESTS=1",
+)
+
+
+@real_required
 def test_self_test_exits_zero():
     """T009: --self-test must pass against arxiv + invalid host."""
     result = subprocess.run(
@@ -30,6 +42,7 @@ def test_self_test_exits_zero():
     assert "[self-test] A: resolved; B: unreachable" in result.stderr
 
 
+@real_required
 def test_known_good_arxiv():
     """Known-good arXiv ID resolves cleanly via the API."""
     citation = cr.Citation(
@@ -44,6 +57,7 @@ def test_known_good_arxiv():
     assert result.stage1_evidence["http_status"] == 200
 
 
+@real_required
 def test_known_bad_url():
     """Invalid host returns unreachable, not resolved."""
     citation = cr.Citation(
@@ -57,6 +71,7 @@ def test_known_bad_url():
     assert result.final_verdict == "failed"
 
 
+@real_required
 def test_doi_redirect_resolves():
     """DOI URL must follow redirects and accept the final 2xx status."""
     # 10.1145/3173574.3174156 = a CHI 2018 paper, well-known DOI that redirects
@@ -155,6 +170,7 @@ def test_priority_arxiv_over_url():
     assert citations[0].kind == "arxiv"
 
 
+@real_required
 def test_full_resolver_integration_on_temp_file(tmp_path: Path):
     """End-to-end: write an idea.md with mixed citations, run the script, parse JSON."""
     idea = tmp_path / "test-idea.md"

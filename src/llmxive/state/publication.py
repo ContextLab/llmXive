@@ -20,7 +20,6 @@ import yaml
 
 from llmxive.types import DOIVersion, Publication
 
-
 _MIRROR_FIELDS = ("doi", "doi_url", "zenodo_id", "volume", "issue", "doi_versions")
 
 
@@ -108,7 +107,7 @@ def _mirror_to_metadata_json(
     Other fields (authors, arxiv_id, title) are left untouched per FR-016.
     """
     p = _metadata_path(project_id, repo_root=repo_root)
-    data: dict = {}
+    data: dict[str, object] = {}
     if p.is_file():
         data = json.loads(p.read_text(encoding="utf-8")) or {}
     data["doi"] = pub.doi

@@ -1,10 +1,11 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (uninitialized template) → 1.0.0
-Rationale: Initial ratification of the llmXive constitution. MAJOR bump from
-template-only state (no prior numbered version) to first formally adopted
-governance document.
+Version change: (uninitialized template) → 1.0.0 → 1.1.0
+Rationale: 1.0.0 = initial ratification (MAJOR bump from template-only state).
+1.1.0 (2026-05-27, spec 015 / issue #239) = MINOR — added Principle VI
+(Convergent Review, NON-NEGOTIABLE) and replaced the point-based "Review
+thresholds" quality gate with unanimous-panel convergence + advisory triage.
 
 Modified principles:
   - [PRINCIPLE_1_NAME] → I. Single Source of Truth (NON-NEGOTIABLE)
@@ -170,6 +171,34 @@ of compute and API spend. Up-front validation is cheap; late failure is
 expensive. This principle protects both the user's time and the project's
 budget.
 
+### VI. Convergent Review (NON-NEGOTIABLE)
+
+Every step that produces reviewable work MUST run a disciplined
+**identify → revise → re-review** convergence cycle driven by that step's
+review panel: each panelist raises structured critical concerns (R1); the
+step's reviser addresses every concern and emits a per-concern change-log
+(R2); each panelist re-judges its own concerns against the change-log (R3).
+A step's gate is **unanimous acceptance by its LLM review panel** within a
+3-round per-step cap; on non-convergence the project is **kicked back** to the
+appropriate prior stage carrying full provenance (the unresolved concerns +
+links to all artifacts/reviews + a plain-language "why it failed to converge").
+
+There is NO accumulated point system: a panel either unanimously accepts, or
+the work is revised and re-reviewed (kickbacks allowed, with no global cap —
+each cycle is expected to improve the artifact until it converges). Human and
+simulated-personality reviews are **advisory inputs** — routed through a
+stage-aware triage (quality + safety + on-topic) to the matching panelist —
+and never directly gate advancement. Mechanical scaffolding, dispatch, and
+maintenance steps are exempt. Convergence MUST be reported honestly: a step is
+never recorded as passed/converged when its panel has not unanimously accepted.
+
+**Rationale**: Most pipeline steps historically advanced with no critique at
+all, and the one self-critique loop never honestly converged (it masked
+non-convergence as "passed"). A single SSoT convergence protocol makes quality
+a function of disciplined revision rather than accumulated points, gives a
+reasonable idea a convergent path to publication, and rejects work that cannot
+converge — always with honest, inspectable provenance.
+
 ## Additional Constraints & Operational Standards
 
 The following operational standards apply to all work in this repository:
@@ -220,10 +249,13 @@ released:
 - **Reference validation**: Before any paper or user-facing document is
   considered complete, every cited reference MUST be downloaded and reviewed
   per Principle II.
-- **Review thresholds**: Status advancement (Backlog → Ready → In Progress
-  → Done) follows the point-based review system documented in the project
-  README; LLM reviews count 0.5 points and human reviews count 1 point. The
-  documented minimums MUST be met before transition.
+- **Convergence gate (review model)**: Status advancement (Backlog → Ready →
+  In Progress → Done) is governed by the convergence protocol (Principle VI),
+  NOT a point system. A reviewable step advances iff its LLM review panel
+  unanimously accepts within the 3-round per-step cap; otherwise the project is
+  kicked back with full provenance. Human and simulated-personality reviews are
+  advisory inputs via stage-aware triage, never points. (Supersedes the prior
+  0.5/1.0-point thresholds — spec 015 / #239.)
 
 ## Governance
 
@@ -261,4 +293,4 @@ reasons. Unjustified violations block merge.
 here, contributors should consult the project `README.md` and the
 repository-level `CLAUDE.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-04-28
+**Version**: 1.1.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-05-27

@@ -4,10 +4,8 @@ Test runner for llmXive code execution system
 Runs all tests and generates coverage reports
 """
 
-import os
-import sys
-import unittest
 import subprocess
+import sys
 from pathlib import Path
 
 # Add project root to path
@@ -20,17 +18,17 @@ def run_unit_tests():
     print("=" * 60)
     print("RUNNING UNIT TESTS")
     print("=" * 60)
-    
+
     # Import and run unit tests
     from test_code_execution_manager import run_tests as run_unit_tests_func
-    
+
     success = run_unit_tests_func()
-    
+
     if success:
         print("\n✅ All unit tests passed!")
     else:
         print("\n❌ Some unit tests failed!")
-    
+
     return success
 
 def run_integration_tests():
@@ -38,17 +36,17 @@ def run_integration_tests():
     print("\n" + "=" * 60)
     print("RUNNING INTEGRATION TESTS")
     print("=" * 60)
-    
+
     # Import and run integration tests
     from test_pipeline_integration import run_tests as run_integration_tests_func
-    
+
     success = run_integration_tests_func()
-    
+
     if success:
         print("\n✅ All integration tests passed!")
     else:
         print("\n❌ Some integration tests failed!")
-    
+
     return success
 
 def run_system_tests():
@@ -56,25 +54,25 @@ def run_system_tests():
     print("\n" + "=" * 60)
     print("RUNNING SYSTEM TESTS")
     print("=" * 60)
-    
+
     tests_passed = 0
     tests_total = 0
-    
+
     # Test Python version
     tests_total += 1
-    print(f"Testing Python version... ", end="")
-    if sys.version_info >= (3, 8):
+    print("Testing Python version... ", end="")
+    if sys.version_info >= (3, 8):  # noqa: UP036 -- standalone env self-test; runs on arbitrary interpreters, result is counted
         print("✅ PASS")
         tests_passed += 1
     else:
         print("❌ FAIL (Python 3.8+ required)")
-    
+
     # Test required modules
     required_modules = [
-        'json', 'os', 'sys', 'subprocess', 'tempfile', 
+        'json', 'os', 'sys', 'subprocess', 'tempfile',
         'pathlib', 'unittest', 'uuid', 'datetime'
     ]
-    
+
     for module in required_modules:
         tests_total += 1
         print(f"Testing {module} import... ", end="")
@@ -84,27 +82,29 @@ def run_system_tests():
             tests_passed += 1
         except ImportError:
             print("❌ FAIL")
-    
+
     # Test code execution manager import
     tests_total += 1
     print("Testing CodeExecutionManager import... ", end="")
     try:
         from code_execution_manager import CodeExecutionManager
+        assert CodeExecutionManager is not None
         print("✅ PASS")
         tests_passed += 1
     except ImportError as e:
         print(f"❌ FAIL ({e})")
-    
+
     # Test virtual environment creation capability
     tests_total += 1
     print("Testing virtual environment capability... ", end="")
     try:
         import venv
+        assert venv is not None
         print("✅ PASS")
         tests_passed += 1
     except ImportError:
         print("❌ FAIL (venv module not available)")
-    
+
     # Test subprocess functionality
     tests_total += 1
     print("Testing subprocess functionality... ", end="")
@@ -117,7 +117,7 @@ def run_system_tests():
             print("❌ FAIL (subprocess execution failed)")
     except Exception:
         print("❌ FAIL (subprocess error)")
-    
+
     print(f"\nSystem tests: {tests_passed}/{tests_total} passed")
     return tests_passed == tests_total
 
@@ -126,44 +126,44 @@ def run_performance_tests():
     print("\n" + "=" * 60)
     print("RUNNING PERFORMANCE TESTS")
     print("=" * 60)
-    
-    import time
+
     import tempfile
+    import time
     from pathlib import Path
-    
+
     try:
         from code_execution_manager import CodeExecutionManager
-        
+
         # Test environment detection performance
         print("Testing environment detection performance... ", end="")
         start_time = time.time()
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             manager = CodeExecutionManager(temp_path)
-            
+
             # Create test project
             test_project = temp_path / "test_project"
             test_project.mkdir()
             (test_project / "main.py").write_text("print('test')")
             (test_project / "requirements.txt").write_text("numpy>=1.20.0")
-            
+
             # Test detection
             for _ in range(10):
-                requirements = manager.detect_project_requirements(test_project)
-        
+                manager.detect_project_requirements(test_project)
+
         end_time = time.time()
         elapsed = end_time - start_time
-        
+
         if elapsed < 1.0:  # Should complete in under 1 second
             print(f"✅ PASS ({elapsed:.3f}s)")
         else:
             print(f"⚠️  SLOW ({elapsed:.3f}s)")
-        
+
         # Test report generation performance
         print("Testing report generation performance... ", end="")
         start_time = time.time()
-        
+
         mock_exec_result = {
             'execution_id': 'test-123',
             'start_time': '2025-07-09T10:00:00',
@@ -180,21 +180,21 @@ def run_performance_tests():
             'error': '',
             'files_created': []
         }
-        
+
         # Generate reports multiple times
         for _ in range(100):
-            report = manager._format_execution_report(mock_exec_result)
-        
+            manager._format_execution_report(mock_exec_result)
+
         end_time = time.time()
         elapsed = end_time - start_time
-        
+
         if elapsed < 1.0:  # Should complete in under 1 second
             print(f"✅ PASS ({elapsed:.3f}s)")
         else:
             print(f"⚠️  SLOW ({elapsed:.3f}s)")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ FAIL ({e})")
         return False
@@ -204,7 +204,7 @@ def generate_test_report():
     print("\n" + "=" * 60)
     print("GENERATING TEST REPORT")
     print("=" * 60)
-    
+
     report_content = f"""# llmXive Code Execution System Test Report
 
 **Generated:** {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -305,11 +305,11 @@ python tests/test_pipeline_integration.py
 - Performance tests use basic timing measurements
 - Integration tests verify pipeline step integration without full pipeline execution
 """
-    
+
     report_path = Path(__file__).parent / "test_report.md"
     with open(report_path, 'w') as f:
         f.write(report_content)
-    
+
     print(f"Test report generated: {report_path}")
     return report_path
 
@@ -317,47 +317,47 @@ def main():
     """Run all tests and generate report"""
     print("🧪 llmXive Code Execution System Test Suite")
     print("=" * 60)
-    
+
     # Check if we're in the right directory
     if not (Path(__file__).parent.parent / 'scripts' / 'code_execution_manager.py').exists():
         print("❌ Error: code_execution_manager.py not found in scripts/ directory")
         print("Please run this script from the project root directory")
         return 1
-    
+
     # Run all test suites
     results = []
-    
+
     # System tests first
     results.append(("System Tests", run_system_tests()))
-    
+
     # Unit tests
     results.append(("Unit Tests", run_unit_tests()))
-    
+
     # Integration tests
     results.append(("Integration Tests", run_integration_tests()))
-    
+
     # Performance tests
     results.append(("Performance Tests", run_performance_tests()))
-    
+
     # Generate test report
-    report_path = generate_test_report()
-    
+    generate_test_report()
+
     # Print summary
     print("\n" + "=" * 60)
     print("TEST SUMMARY")
     print("=" * 60)
-    
+
     total_passed = 0
     total_tests = len(results)
-    
+
     for test_name, passed in results:
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"{test_name}: {status}")
         if passed:
             total_passed += 1
-    
+
     print(f"\nOverall: {total_passed}/{total_tests} test suites passed")
-    
+
     if total_passed == total_tests:
         print("🎉 All tests passed! Code execution system is ready for production.")
         return 0

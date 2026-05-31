@@ -9,7 +9,9 @@ from __future__ import annotations
 import unittest
 
 from llmxive.pipeline.pdf_pipeline.normalize_references import (
-    normalize, normalize_bib_style, normalize_cite_macros,
+    normalize,
+    normalize_bib_style,
+    normalize_cite_macros,
     normalize_natbib_to_numeric,
 )
 

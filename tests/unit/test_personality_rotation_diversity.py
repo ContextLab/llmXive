@@ -51,7 +51,7 @@ class TestPositionDiversity(unittest.TestCase):
         # Add many entries; load_positions should return at most MAX_RETAINED_POSITIONS
         from llmxive.agents.position_diversity import MAX_RETAINED_POSITIONS
 
-        for i in range(MAX_RETAINED_POSITIONS + 5):
+        for _ in range(MAX_RETAINED_POSITIONS + 5):
             record_position(self.state, "PROJ-001-foo", "lean_toward")
         positions = load_positions(self.state)["PROJ-001-foo"]
         self.assertEqual(len(positions), MAX_RETAINED_POSITIONS)

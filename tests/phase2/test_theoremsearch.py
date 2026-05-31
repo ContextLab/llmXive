@@ -14,6 +14,7 @@ test hits the live API.
 from __future__ import annotations
 
 import json
+import os
 import socket
 from pathlib import Path
 
@@ -24,6 +25,8 @@ from llmxive.agents.librarian import _theoremsearch_candidates
 from llmxive.backends.base import TransientBackendError
 from llmxive.librarian.search import Candidate
 from llmxive.librarian.theoremsearch import API_URL, TheoremSearchClient
+
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _SEARCH_FIXTURE = _FIXTURES / "theoremsearch_search_response.json"
@@ -262,7 +265,10 @@ def _network_reachable(host: str = "api.theoremsearch.com", port: int = 443, tim
         return False
 
 
-@pytest.mark.skipif(not _network_reachable(), reason="api.theoremsearch.com not reachable")
+@pytest.mark.skipif(
+    not (_REAL and _network_reachable()),
+    reason="needs LLMXIVE_REAL_TESTS=1 + api.theoremsearch.com reachable",
+)
 def test_real_api_smoke() -> None:
     client = TheoremSearchClient()  # real ArxivClient, real HTTP
     out = client.search("sharp bound spectral gap random regular graphs", limit=5)
@@ -294,8 +300,8 @@ def _real_librarian_ready() -> bool:
 
 
 @pytest.mark.skipif(
-    not _real_librarian_ready(),
-    reason="needs DARTMOUTH_CHAT_API_KEY + SEMANTIC_SCHOLAR_API_KEY + network",
+    not (_REAL and _real_librarian_ready()),
+    reason="needs LLMXIVE_REAL_TESTS=1 + DARTMOUTH_CHAT_API_KEY + SEMANTIC_SCHOLAR_API_KEY + network",
 )
 def test_librarian_statistics_field_triggers_theoremsearch_unconditionally(tmp_path) -> None:
     """`field="statistics"` → TheoremSearch is queried WITHOUT consulting

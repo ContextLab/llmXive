@@ -1,0 +1,6 @@
+{
+  "stage": "paper",
+  "label": "negative_nonexistent_citation",
+  "expected_lens": "claim_accuracy",
+  "description": "Injected a fabricated citation [FabricatedAuthor2024]. Expected lens: claim_accuracy (SCIENCE-class \u2014 claim supported by a non-existent paper)."
+}

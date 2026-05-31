@@ -13,12 +13,13 @@ from pathlib import Path
 
 import yaml
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
 from llmxive.types import Citation
 
 
 def _state_root() -> Path:
-    return Path(__file__).resolve().parent.parent.parent.parent / "state"
+    return _repo_root() / "state"
 
 
 def _citations_path(project_id: str, *, repo_root: Path | None = None) -> Path:
@@ -70,4 +71,4 @@ def title_overlap(cited_title: str, fetched_title: str) -> float:
     return len(cited & fetched) / len(cited)
 
 
-__all__ = ["load", "save", "tokenize_title", "title_overlap"]
+__all__ = ["load", "save", "title_overlap", "tokenize_title"]

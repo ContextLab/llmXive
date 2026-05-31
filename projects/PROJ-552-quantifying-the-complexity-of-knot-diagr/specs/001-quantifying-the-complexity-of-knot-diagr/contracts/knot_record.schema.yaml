@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: KnotRecord
+type: object
+description: Represents a single prime knot with all computed invariants and metadata
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+  - is_alternating
+  - source_checksum
+properties:
+  knot_id:
+    type: string
+    description: "Unique identifier (e.g., \"8_19\" for knot 8.19)"
+    pattern: "^[0-9]+_[0-9]+$"
+  crossing_number:
+    type: integer
+    description: "Minimum crossing number of the knot"
+    minimum: 1
+    maximum: 13
+  braid_index:
+    type: integer
+    description: "Minimum braid index of the knot"
+    minimum: 1
+  is_alternating:
+    type:
+      - boolean
+      - "null"
+    description: "Whether the knot is alternating (True), non-alternating (False), or unclassifiable (None)"
+  arc_index:
+    type:
+      - integer
+      - "null"
+    description: "Arc index (computed via Birman-Menasco method)"
+  seifert_circle_count:
+    type:
+      - integer
+      - "null"
+    description: "Seifert circle count (computed via Seifert's algorithm)"
+  bridge_number:
+    type:
+      - integer
+      - "null"
+    description: "Bridge number (computed via Schubert's bridge decomposition)"
+  braid_word:
+    type:
+      - string
+      - "null"
+    description: "Braid word representation if available"
+  dt_code:
+    type:
+      - string
+      - "null"
+    description: "Dowker-Thistlethwaite code if available"
+  missing_invariant_flags:
+    type:
+      - array
+      - "null"
+    description: "List of reasons why invariants could not be computed"
+    items:
+      type: string
+  source_checksum:
+    type: string
+    description: "SHA-256 checksum of source record"
+    pattern: "^[a-f0-9]{64}$"
+additionalProperties: false

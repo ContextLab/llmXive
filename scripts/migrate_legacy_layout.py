@@ -28,7 +28,7 @@ import re
 import shutil
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 LEGACY_TREES: tuple[str, ...] = (
@@ -105,7 +105,7 @@ def gather_plan(repo_root: Path) -> MigrationPlan:
         plan.deletes.append(legacy_path)
 
     # Decide initial stage per project from stages_seen.
-    for proj_id, state in plan.project_states.items():
+    for state in plan.project_states.values():
         seen = set(state["stages_seen"].split(","))
         if "paper" in seen and "technical-design" not in seen:
             state["current_stage"] = "human_input_needed"
@@ -142,7 +142,7 @@ def apply_plan(plan: MigrationPlan) -> None:
         print(f"[move] {src.relative_to(plan.repo_root)} -> {dst.relative_to(plan.repo_root)}")
 
     # Write per-project state files.
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     for proj_id, state in plan.project_states.items():
         target = state_dir / f"{proj_id}.yaml"
         if target.exists():

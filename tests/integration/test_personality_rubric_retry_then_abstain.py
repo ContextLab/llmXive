@@ -25,11 +25,10 @@ from llmxive.agents import personality as p
 from llmxive.agents.personality import (
     ACTION_ABSTAIN,
     ACTION_COMMENT,
+    OUTCOME_RUBRIC_REJECTED,
     Action,
     CatalogEntry,
-    OUTCOME_RUBRIC_REJECTED,
     Personality,
-    RotationState,
     _rubric_gate_or_convert_to_abstain,
 )
 

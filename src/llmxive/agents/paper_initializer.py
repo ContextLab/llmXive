@@ -9,15 +9,15 @@ Stage transitions: `research_accepted` → `paper_drafting_init`.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt, substitute
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.runner import init_speckit_in
 from llmxive.types import AgentRegistryEntry, Project, Stage
-
 
 PAPER_CONSTITUTION_TEMPLATE_PATH = "agents/templates/paper_project_constitution.md"
 
@@ -31,10 +31,10 @@ class PaperInitializerAgent(Agent):
         super().__init__(registry_entry)
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         title = ctx.metadata.get("title", ctx.project_id)
         field = ctx.metadata.get("field", "general")
-        date = datetime.now(timezone.utc).date().isoformat()
+        date = datetime.now(UTC).date().isoformat()
         rendered_template = render_prompt(
             PAPER_CONSTITUTION_TEMPLATE_PATH,
             {
@@ -75,7 +75,7 @@ class PaperInitializerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         paper_dir = repo / "projects" / ctx.project_id / "paper"
 
         # Mechanical step: scaffold .specify/ inside the paper subdirectory.

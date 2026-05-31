@@ -8,16 +8,13 @@ Covers:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
-import pytest
-
-from llmxive.agents.publisher import resolve_badge, _bump_failure_counter
+from llmxive.agents.publisher import _bump_failure_counter, resolve_badge
 from llmxive.types import RevisionRound, VolumeIssue
 
-
-_NOW = datetime(2026, 5, 19, 10, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 5, 19, 10, 0, 0, tzinfo=UTC)
 
 
 def _round(tasks_done: int) -> RevisionRound:
@@ -53,17 +50,17 @@ class TestResolveBadge:
 
 class TestVolumeIssue:
     def test_from_datetime_yy_mm(self) -> None:
-        vi = VolumeIssue.from_datetime(datetime(2026, 5, 19, tzinfo=timezone.utc))
+        vi = VolumeIssue.from_datetime(datetime(2026, 5, 19, tzinfo=UTC))
         assert vi.volume == "26"
         assert vi.issue == "05"
         assert vi.display == "26.05"
 
     def test_january(self) -> None:
-        vi = VolumeIssue.from_datetime(datetime(2026, 1, 1, tzinfo=timezone.utc))
+        vi = VolumeIssue.from_datetime(datetime(2026, 1, 1, tzinfo=UTC))
         assert vi.display == "26.01"
 
     def test_december(self) -> None:
-        vi = VolumeIssue.from_datetime(datetime(2099, 12, 31, tzinfo=timezone.utc))
+        vi = VolumeIssue.from_datetime(datetime(2099, 12, 31, tzinfo=UTC))
         assert vi.display == "99.12"
 
 
@@ -98,8 +95,8 @@ class TestPaperPublisherSmoke:
         assert PaperPublisher.__name__ == "PaperPublisher"
 
     def test_can_construct_with_registry_entry(self) -> None:
-        from llmxive.agents.registry import load
         from llmxive.agents.publisher import PaperPublisher
+        from llmxive.agents.registry import load
         reg = load()
         entry = next(e for e in reg.agents if e.name == "paper_publisher")
         agent = PaperPublisher(registry_entry=entry)

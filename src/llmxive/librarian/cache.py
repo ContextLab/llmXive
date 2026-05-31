@@ -103,7 +103,10 @@ def get(
     if age_seconds > max_age:
         return None
 
-    return entry.get("result")
+    result = entry.get("result")
+    if not isinstance(result, dict):
+        return None
+    return result
 
 
 def set(

@@ -22,7 +22,7 @@ import threading
 import time
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]  # no stub package available
 
 from llmxive.credentials import load_semantic_scholar_key
 
@@ -241,10 +241,10 @@ def _ss_primary_pointer(paper: dict[str, Any]) -> str | None:
     if eids.get("DOI"):
         return f"https://doi.org/{eids['DOI']}"
     if eids.get("ArXiv"):
-        return eids["ArXiv"]  # bare arXiv ID; arXiv client handles it
+        return str(eids["ArXiv"])  # bare arXiv ID; arXiv client handles it
     url = paper.get("url")
     if url:
-        return url
+        return str(url)
     pid = paper.get("paperId")
     return f"semantic-scholar:{pid}" if pid else None
 
@@ -303,7 +303,7 @@ class ArxivClient:
             )
             return []
         try:
-            import arxiv  # type: ignore[import-not-found]
+            import arxiv
         except ImportError:
             return self._search_via_xml(query, max_results=max_results)
 
@@ -376,7 +376,7 @@ class ArxivClient:
     def get_by_id(self, arxiv_id: str) -> Candidate | None:
         """Fetch a single paper by arXiv ID (e.g., '1706.03762' or '1706.03762v3')."""
         try:
-            import arxiv  # type: ignore[import-not-found]
+            import arxiv
         except ImportError:
             return self._search_via_xml(f"id:{arxiv_id}", max_results=1)[:1][0] if False else None
 

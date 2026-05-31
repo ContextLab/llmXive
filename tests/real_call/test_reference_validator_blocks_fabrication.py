@@ -11,14 +11,11 @@ source fetch path that the Reference-Validator depends on.
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 from llmxive.agents.reference_validator import has_blocking_citations, validate_artifact
-from llmxive.state import project as project_store
-from llmxive.types import Project, Stage
 
 
 @pytest.mark.skipif(

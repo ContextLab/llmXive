@@ -16,12 +16,13 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from collections.abc import Iterable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable
 
 import yaml
 
+from llmxive.config import repo_root as _config_repo_root
 
 SCHEMA_VERSION = 1
 
@@ -40,7 +41,7 @@ def is_arxiv_intake(project_dir: Path) -> bool:
 def _repo_root(repo_root: Path | None) -> Path:
     if repo_root is not None:
         return Path(repo_root)
-    return Path(__file__).resolve().parents[3]
+    return _config_repo_root()
 
 
 def _arxiv_id_for(project_id: str, *, repo_root: Path) -> str:
@@ -53,7 +54,7 @@ def _arxiv_id_for(project_id: str, *, repo_root: Path) -> str:
         return ""
 
 
-def _atomic_write_yaml(path: Path, payload: dict) -> None:
+def _atomic_write_yaml(path: Path, payload: dict[str, object]) -> None:
     """Atomic write via .tmp + os.replace; preserves YAML formatting."""
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -65,7 +66,7 @@ def record_round(
     project_id: str,
     *,
     verdict_class: str,
-    action_items: Iterable,
+    action_items: Iterable[object],
     note: str = "",
     repo_root: Path | None = None,
 ) -> Path:
@@ -115,7 +116,7 @@ def record_round(
     rounds = existing.setdefault("rounds", [])
     rounds.append({
         "round_number": len(rounds) + 1,
-        "triggered_at": datetime.now(timezone.utc).isoformat(),
+        "triggered_at": datetime.now(UTC).isoformat(),
         "verdict_class": verdict_class,
         "note": note,
         "action_items": items_yaml,
@@ -126,7 +127,7 @@ def record_round(
 
 def append_rejection_rationale(
     project_id: str,
-    fatal_action_items: Iterable,
+    fatal_action_items: Iterable[object],
     *,
     repo_root: Path | None = None,
 ) -> Path | None:
@@ -154,7 +155,7 @@ def append_rejection_rationale(
     rationale_lines = [
         "",
         "",
-        f"## Rejection rationale ({datetime.now(timezone.utc).date().isoformat()})",
+        f"## Rejection rationale ({datetime.now(UTC).date().isoformat()})",
         "",
         "Paper-stage review found one or more `fatal`-severity action items. "
         "The underlying research question is returned to the backlog so a "
@@ -175,7 +176,7 @@ def append_rejection_rationale(
 
 __all__ = [
     "SCHEMA_VERSION",
+    "append_rejection_rationale",
     "is_arxiv_intake",
     "record_round",
-    "append_rejection_rationale",
 ]

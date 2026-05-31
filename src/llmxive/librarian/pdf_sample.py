@@ -22,7 +22,7 @@ import random
 import re
 from collections.abc import Sequence
 
-import requests
+import requests  # type: ignore[import-untyped]  # installed, no stubs
 
 from llmxive.librarian.search import USER_AGENT
 from llmxive.librarian.verify import (

@@ -121,10 +121,38 @@ OUTCOME_TIMEOUT = "timeout"
 # rotation. Spec-008 FR-017 hold-on-failure still applies to infrastructure
 # outcomes only (rate_limited / model_error / malformed_response / timeout).
 OUTCOME_RUBRIC_REJECTED = "rubric_rejected_advanced_as_abstain"
+# Spec 015 T040 / FR-021-022: a personality comment failing stage-aware
+# triage (`llmxive.convergence.triage.triage_submission` — quality /
+# safety / on-topic) is NOT persisted as a review. Pointer DOES advance
+# (the persona did their job; the content just wasn't useful for the
+# panel), so the rotation moves on — same pointer semantics as
+# OUTCOME_RUBRIC_REJECTED.
+OUTCOME_TRIAGE_REJECTED = "triage_rejected_advanced_as_abstain"
 
 # Outcomes that ADVANCE the rotation pointer. All others HOLD it so the
 # same persona retries (FR-017).
-ADVANCING_OUTCOMES = {OUTCOME_COMMITTED, OUTCOME_ABSTAINED, OUTCOME_RUBRIC_REJECTED}
+ADVANCING_OUTCOMES = {
+    OUTCOME_COMMITTED,
+    OUTCOME_ABSTAINED,
+    OUTCOME_RUBRIC_REJECTED,
+    OUTCOME_TRIAGE_REJECTED,
+}
+
+# Spec 015 T040: lens lists used to triage personality comments toward
+# the appropriate review panel (research-side 8-panel vs paper-side
+# 12-panel). The convergence engine consumes triage_record.mapped_lenses
+# as advisory input to the named reviewer(s).
+_RESEARCH_REVIEW_LENSES: tuple[str, ...] = (
+    "idea_quality", "creativity",
+    "implementation_correctness", "implementation_completeness",
+    "code_quality", "data_quality", "filesystem_hygiene",
+)
+_PAPER_REVIEW_LENSES: tuple[str, ...] = (
+    "claim_accuracy", "logical_consistency", "statistical_analysis",
+    "scientific_evidence", "figure_critic", "jargon_police",
+    "overreach", "safety_ethics", "code_quality", "data_quality",
+    "text_formatting", "writing_quality",
+)
 
 ACTION_COMMENT = "comment"
 ACTION_CONTRIBUTE = "contribute"
@@ -359,12 +387,21 @@ def load_pool(pool_root: Path | str | None = None) -> PoolLoadResult:
 # T007 / T010: rotation-state YAML IO
 # ---------------------------------------------------------------------------
 
-_ROTATION_DEFAULT = {
+_ROTATION_DEFAULT: dict[str, list[Any] | str | None] = {
     "last_used": None,
     "last_used_at": "1970-01-01T00:00:00+00:00",
     "last_outcome": OUTCOME_ABSTAINED,
     "history": [],
 }
+
+
+def _default_rotation_state() -> RotationState:
+    return RotationState(
+        last_used=None,
+        last_used_at="1970-01-01T00:00:00+00:00",
+        last_outcome=OUTCOME_ABSTAINED,
+        history=[],
+    )
 
 
 def load_rotation_state(state_path: Path | str | None = None) -> RotationState:
@@ -380,20 +417,20 @@ def load_rotation_state(state_path: Path | str | None = None) -> RotationState:
         state_path = Path(ROTATION_PATH)
     state_path = Path(state_path)
     if not state_path.is_file():
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     try:
         raw = state_path.read_text(encoding="utf-8")
     except OSError as exc:
         log.warning("personality: rotation state read failed (%s); recovering with default", exc)
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     try:
         data = yaml.safe_load(raw) or {}
     except yaml.YAMLError as exc:
         log.warning("personality: rotation state YAML parse error (%s); recovering with default", exc)
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     if not isinstance(data, dict):
         log.warning("personality: rotation state not a dict; recovering with default")
-        return RotationState(**_ROTATION_DEFAULT)
+        return _default_rotation_state()
     # Use ``.get`` with defaults so missing keys don't blow up.
     return RotationState(
         last_used=data.get("last_used"),
@@ -748,7 +785,7 @@ def _hold_for_librarian(result: DispatchResult, repo_root: Path) -> DispatchResu
 
 
 def _today_iso_date() -> str:
-    return _dt.datetime.now(_dt.timezone.utc).date().isoformat()
+    return _dt.datetime.now(_dt.UTC).date().isoformat()
 
 
 def _slug_for_review_filename(persona: Personality) -> str:
@@ -818,6 +855,25 @@ def dispatch(action: Action, persona: Personality, repo_root: Path) -> DispatchR
     return result
 
 
+def _project_id_from_artifact_path(artifact_rel: str) -> str | None:
+    """Extract the ``PROJ-...`` id from an artifact-relative path of the
+    form ``projects/<PROJ-ID>/...``. Returns ``None`` when the path
+    doesn't follow the canonical layout (e.g. action targeted a
+    non-project artifact). Used by :func:`_dispatch_comment` to decide
+    whether to look up the project's current stage for living-document
+    routing (FR-047).
+    """
+    if not artifact_rel:
+        return None
+    parts = artifact_rel.split("/")
+    if len(parts) < 2 or parts[0] != "projects":
+        return None
+    pid = parts[1]
+    if not pid.startswith("PROJ-"):
+        return None
+    return pid
+
+
 def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> DispatchResult:
     """Comment branch — writes a review file via the canonical
     :func:`llmxive.state.reviews.write` helper.
@@ -828,13 +884,21 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
     paper_reviewer pipeline is the formal review). Score is 0.5 (LLM-
     review per the standard scoring) and may be overridden later if
     spec-008 evolves to require persona-specific verdicts.
+
+    Spec 015 T078 / FR-047: when the target project's current_stage is
+    ``Stage.POSTED`` the comment is NOT a formal review — it's a
+    post-publication discussion contribution. We route it through
+    :func:`llmxive.agents.living_document.ingest_comment` instead, which
+    appends to the per-project living log + recompile queue (the
+    publisher consumes the queue when the maintainer triggers a batched
+    recompile).
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from llmxive.state import reviews as reviews_store
-    from llmxive.types import ReviewRecord, ReviewerKind
+    from llmxive.types import BackendName, ReviewerKind, ReviewRecord, Stage
 
-    artifact_rel = action.target_artifact_path
+    artifact_rel = action.target_artifact_path or ""
     artifact_abs = repo_root / artifact_rel
     # Pick the review stage based on the artifact path: anything under
     # `<proj>/paper/` is a paper-stage review; everything else is
@@ -846,6 +910,89 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
     # Body = persona's content + disclaimer footer (F8 placement: bottom,
     # after horizontal rule).
     body = (action.content or "").strip() + _make_disclaimer(persona)
+
+    # Spec 015 T040 / FR-021-022: stage-aware triage. Personality comments
+    # are advisory inputs to the formal review panels — they are gated by
+    # quality + safety + on-topic checks BEFORE being persisted, and the
+    # triage record's mapped_lenses tells downstream wiring which panel
+    # reviewer(s) should treat this comment as an input. preserved=False
+    # → don't write the review file; advance the rotation pointer.
+    from llmxive.convergence.triage import triage_submission
+
+    triage_stage = "paper_review" if is_paper_stage else "research_review"
+    triage_lenses = list(
+        _PAPER_REVIEW_LENSES if is_paper_stage else _RESEARCH_REVIEW_LENSES
+    )
+
+    # Spec 015 T078 / FR-047-048: if the target project is in POSTED,
+    # route the comment through the living-document path. We resolve the
+    # project's current_stage from on-disk state; missing state →
+    # fall through to the legacy review-store path (handles brand-new
+    # projects where the state file hasn't been written yet).
+    project_id = _project_id_from_artifact_path(artifact_rel)
+    project_stage: Stage | None = None
+    if project_id is not None:
+        try:
+            from llmxive.state import project as project_store
+
+            project_stage = project_store.load(
+                project_id, repo_root=repo_root,
+            ).current_stage
+        except FileNotFoundError:
+            project_stage = None
+        except Exception:
+            # Defensive: corrupt state file shouldn't crash the cron tick.
+            # Fall through to the legacy review-store path; the maintainer
+            # will notice the persisted review missed the living-doc log
+            # via the recompile queue counter staying at 0.
+            project_stage = None
+
+    if project_stage == Stage.POSTED and project_id is not None:
+        from llmxive.agents import living_document
+
+        project_dir = repo_root / "projects" / project_id
+        ingest_result = living_document.ingest_comment(
+            project_dir=project_dir,
+            comment_text=body,
+            author=persona.slug,
+            source="personality",
+            stage="posted",
+            lenses=list(_PAPER_REVIEW_LENSES),
+        )
+        if not ingest_result.persisted:
+            return DispatchResult(
+                outcome=OUTCOME_TRIAGE_REJECTED,
+                committed_paths=[],
+                error=(
+                    "living-document triage rejected (stage=posted): "
+                    f"{ingest_result.excluded_reason or 'unknown reason'}"
+                ),
+            )
+        assert ingest_result.log_path is not None  # narrowed by persisted=True
+        try:
+            rel = ingest_result.log_path.relative_to(repo_root).as_posix()
+        except ValueError:
+            rel = ingest_result.log_path.as_posix()
+        return DispatchResult(outcome=OUTCOME_COMMITTED, committed_paths=[rel])
+
+    triage_record = triage_submission(
+        body,
+        source="personality",
+        author=persona.slug,
+        stage=triage_stage,
+        lenses=triage_lenses,
+    )
+    if not triage_record.preserved:
+        return DispatchResult(
+            outcome=OUTCOME_TRIAGE_REJECTED,
+            committed_paths=[],
+            error=(
+                f"triage rejected (stage={triage_stage}): "
+                f"{triage_record.excluded_reason or 'unknown reason'}; "
+                f"quality_pass={triage_record.quality_pass}; "
+                f"safe_on_topic={triage_record.safe_on_topic}"
+            ),
+        )
 
     # Record the reviewer as "<slug>-simulated" (filename-friendly) so the
     # produced filename carries the (simulated) marker. The display_name
@@ -866,10 +1013,10 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
         score=0.0,
         verdict="minor_revision",
         feedback=(action.content or "")[:500],
-        reviewed_at=datetime.now(timezone.utc),
+        reviewed_at=datetime.now(_dt.UTC),
         prompt_version="1.0.0",
         model_name=MODEL_NAME,
-        backend="dartmouth",
+        backend=BackendName.DARTMOUTH,
     )
     try:
         path = reviews_store.write(
@@ -880,7 +1027,7 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
             produced_by_agent=None,
             repo_root=repo_root,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return DispatchResult(
             outcome=OUTCOME_MODEL_ERROR,
             committed_paths=[],
@@ -902,13 +1049,15 @@ def _dispatch_contribute(action: Action, persona: Personality, repo_root: Path) 
     `feedback/` subdir so a downstream triage step can find it without a
     GitHub-issue round-trip (which would require write-tokens at tick time).
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     project_id = action.target_project_id
+    if project_id is None:
+        return DispatchResult(outcome=OUTCOME_ABSTAINED, committed_paths=[], error="no target_project_id")
     proj_dir = repo_root / "projects" / project_id
     feedback_dir = proj_dir / "feedback"
     feedback_dir.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(_dt.UTC).strftime("%Y%m%dT%H%M%SZ")
     fname = f"{persona.slug}-simulated__{ts}.md"
     path = feedback_dir / fname
 
@@ -920,7 +1069,7 @@ def _dispatch_contribute(action: Action, persona: Personality, repo_root: Path) 
         "model_kind": MODEL_KIND,
         "target_artifact": action.target_artifact_path,
         "target_artifact_kind": action.target_artifact_kind,
-        "submitted_at": datetime.now(timezone.utc).isoformat(),
+        "submitted_at": datetime.now(_dt.UTC).isoformat(),
         "kind": "feedback",
     }
     body = (action.content or "").strip() + _make_disclaimer(persona)
@@ -944,11 +1093,11 @@ def _dispatch_propose_arxiv(action: Action, persona: Personality, repo_root: Pat
     submissions go through, with `submitter` set to the persona's
     (simulated) display name.
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     sub_dir = repo_root / "state" / "personality-submissions"
     sub_dir.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(_dt.UTC).strftime("%Y%m%dT%H%M%SZ")
     fname = f"{ts}__{persona.slug}.yaml"
     path = sub_dir / fname
     payload = {
@@ -957,7 +1106,7 @@ def _dispatch_propose_arxiv(action: Action, persona: Personality, repo_root: Pat
         "personality_slug": persona.slug,
         "model_name": MODEL_NAME,
         "model_kind": MODEL_KIND,
-        "submitted_at": datetime.now(timezone.utc).isoformat(),
+        "submitted_at": datetime.now(_dt.UTC).isoformat(),
         "arxiv_url": action.arxiv_url,
         "search_terms": action.arxiv_search_terms or [],
         "rationale": (action.content or "").strip(),
@@ -1050,7 +1199,7 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
 
 def _write_run_log_entry(repo_root: Path, entry: dict[str, Any]) -> None:
     """Append a single JSONL line to the canonical run-log path."""
-    now = _dt.datetime.now(_dt.timezone.utc)
+    now = _dt.datetime.now(_dt.UTC)
     log_dir = repo_root / "state" / "run-log" / now.strftime("%Y-%m")
     log_dir.mkdir(parents=True, exist_ok=True)
     # File-per-tick so concurrent ticks (shouldn't happen — see FR-016 —
@@ -1085,13 +1234,13 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         The run-log entry dict (also written to disk).
     """
     repo_root = Path(repo_root)
-    started = _dt.datetime.now(_dt.timezone.utc)
+    started = _dt.datetime.now(_dt.UTC)
 
     # ── 1. Load pool ──
     pool_result = load_pool(repo_root / POOL_PATH)
     if not pool_result.personalities:
         entry = _build_log_entry(
-            started, _dt.datetime.now(_dt.timezone.utc),
+            started, _dt.datetime.now(_dt.UTC),
             slug=None, display_name=None, action=None,
             outcome=OUTCOME_ABSTAINED,
             project_id=None, committed_paths=[],
@@ -1107,7 +1256,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         persona = match[0] if match else None
         if persona is None:
             entry = _build_log_entry(
-                started, _dt.datetime.now(_dt.timezone.utc),
+                started, _dt.datetime.now(_dt.UTC),
                 slug=force_slug, display_name=None, action=None,
                 outcome=OUTCOME_ABSTAINED,
                 project_id=None, committed_paths=[],
@@ -1119,7 +1268,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         persona = select_next(pool_result.personalities, state.last_used)
         if persona is None:
             entry = _build_log_entry(
-                started, _dt.datetime.now(_dt.timezone.utc),
+                started, _dt.datetime.now(_dt.UTC),
                 slug=None, display_name=None, action=None,
                 outcome=OUTCOME_ABSTAINED,
                 project_id=None, committed_paths=[],
@@ -1146,14 +1295,14 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
             raw_response = Path(fixture_path).read_text(encoding="utf-8")
         else:
             raw_response = _call_llm_for_persona(persona, catalog, repo_root)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         # Distinguish rate-limit / transient backend errors from any other
         # failure — rate-limit explicitly records OUTCOME_RATE_LIMITED so
         # post-hoc audits can see the difference. Either way the pointer
         # HOLDS (FR-017).
         outcome = _classify_llm_exception(exc)
         note = f"LLM call failed ({outcome}): {exc}"
-        ended = _dt.datetime.now(_dt.timezone.utc)
+        ended = _dt.datetime.now(_dt.UTC)
         entry = _build_log_entry(
             started, ended, slug=persona.slug, display_name=display,
             action=None, outcome=outcome,
@@ -1170,7 +1319,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
     except ParseError as exc:
         outcome = OUTCOME_MALFORMED
         note = exc.reason
-        ended = _dt.datetime.now(_dt.timezone.utc)
+        ended = _dt.datetime.now(_dt.UTC)
         entry = _build_log_entry(
             started, ended, slug=persona.slug, display_name=display,
             action=None, outcome=outcome,
@@ -1193,7 +1342,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         artifact_rel = action_obj.target_artifact_path or ""
         if artifact_rel and not (repo_root / artifact_rel).exists():
             outcome = OUTCOME_TARGET_MISSING
-            ended = _dt.datetime.now(_dt.timezone.utc)
+            ended = _dt.datetime.now(_dt.UTC)
             entry = _build_log_entry(
                 started, ended, slug=persona.slug, display_name=display,
                 action=action_obj.action, outcome=outcome,
@@ -1222,7 +1371,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
     # ── 6. Dispatch ──
     dispatch_result = dispatch(action_obj, persona, repo_root)
     outcome = dispatch_result.outcome
-    ended = _dt.datetime.now(_dt.timezone.utc)
+    ended = _dt.datetime.now(_dt.UTC)
     entry = _build_log_entry(
         started, ended, slug=persona.slug, display_name=display,
         action=action_obj.action, outcome=outcome,
@@ -1327,6 +1476,7 @@ def _maybe_advance_pointer(
     if committed_paths:
         history_entry["committed_paths"] = committed_paths
 
+    new_last_used: str | None
     if outcome in ADVANCING_OUTCOMES:
         new_last_used = persona.slug
     else:
@@ -1336,7 +1486,7 @@ def _maybe_advance_pointer(
         last_used=new_last_used,
         last_used_at=ended.isoformat(),
         last_outcome=outcome,
-        history=list(state.history) + [history_entry],
+        history=[*state.history, history_entry],
     )
     write_rotation_state(new_state, repo_root / ROTATION_PATH)
 
@@ -1345,7 +1495,7 @@ def _maybe_advance_pointer(
 # Spec 009 FR-004 + Clarification Q3: rubric gate
 # ---------------------------------------------------------------------------
 
-def _action_to_dict(action: "Action") -> dict[str, Any]:
+def _action_to_dict(action: Action) -> dict[str, Any]:
     """Convert an Action dataclass into the rubric scorer's expected dict shape."""
     return {
         "id": "<pending>",
@@ -1361,12 +1511,12 @@ def _action_to_dict(action: "Action") -> dict[str, Any]:
 
 
 def _rubric_gate_or_convert_to_abstain(
-    action: "Action",
+    action: Action,
     raw_response: str,
     persona: Personality,
-    catalog: "list[CatalogEntry]",
+    catalog: list[CatalogEntry],
     repo_root: Path,
-) -> tuple["Action", str | None]:
+) -> tuple[Action, str | None]:
     """Apply the spec-009 rubric to a contribution; retry once; on second
     failure persist the rejected body to .audit/rejected-contributions.jsonl
     and convert the action into an abstain.
@@ -1406,7 +1556,7 @@ def _rubric_gate_or_convert_to_abstain(
             ),
         )
         retry_action = parse_action(retry_raw)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.info("rubric retry failed to produce parseable response for %s: %s", persona.slug, exc)
         return _convert_to_rubric_abstain(action, raw_response, persona, repo_root, hint), \
             f"rubric_failure_after_retry: {hint}"
@@ -1422,9 +1572,9 @@ def _rubric_gate_or_convert_to_abstain(
 
 
 def _convert_to_rubric_abstain(
-    action: "Action", rejected_body: str, persona: Personality,
+    action: Action, rejected_body: str, persona: Personality,
     repo_root: Path, hint: str,
-) -> "Action":
+) -> Action:
     """Persist the rejected body to .audit/rejected-contributions.jsonl
     (per the persona's target project, if any) and return an abstain Action."""
     if action.target_project_id:

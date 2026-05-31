@@ -21,9 +21,10 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.state import citations as citations_store
 from llmxive.types import (
     Citation,
@@ -44,6 +45,20 @@ LOGGER = logging.getLogger(__name__)
 
 _URL_RE = re.compile(r"https?://[^\s<>()\[\]\"']+", re.IGNORECASE)
 _ARXIV_RE = re.compile(r"\barXiv:\s*(\d{4}\.\d{4,5})(v\d+)?\b", re.IGNORECASE)
+# Malformed / fabricated arXiv refs: ``arXiv:`` followed by a token that is
+# NOT a valid modern id (``\d{4}.\d{4,5}(vN)?``) nor an old-style
+# ``cs.CL/0301012`` id. Real arXiv ids have a 4-or-5-digit sequence number, so
+# a fabricated ``arXiv:2402.13`` (only 2 trailing digits) is captured HERE and
+# treated as UNRESOLVABLE. Without this, the well-formed pattern silently drops
+# it and the fabricated reference slips past the convergence panel (the
+# PROJ-552 fabrication-cascade bug, F-18). The captured token is the raw,
+# greppable id-like string so the guard can flag it verbatim.
+_ARXIV_MALFORMED_RE = re.compile(
+    r"\barXiv:\s*(?P<id>[0-9][0-9A-Za-z.\-/]*)",
+    re.IGNORECASE,
+)
+# Old-style arXiv ids (``cs.CL/0301012``) — valid, must NOT be flagged.
+_ARXIV_OLD_STYLE_RE = re.compile(r"^[a-z\-]+(?:\.[A-Z]{2})?/\d{7}$")
 _DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b", re.IGNORECASE)
 _MARKDOWN_LINK_RE = re.compile(r"\[(?P<title>[^\]]+)\]\((?P<url>https?://[^\s)]+)\)")
 
@@ -67,7 +82,7 @@ def extract_citations(artifact_text: str) -> list[ExtractedCitation]:
     out: list[ExtractedCitation] = []
 
     # Markdown links first — they carry titles.
-    for i, m in enumerate(_MARKDOWN_LINK_RE.finditer(artifact_text)):
+    for m in _MARKDOWN_LINK_RE.finditer(artifact_text):
         url = m.group("url")
         key = ("url", url)
         if key in seen:
@@ -97,9 +112,33 @@ def extract_citations(artifact_text: str) -> list[ExtractedCitation]:
             )
         )
 
-    # arXiv ids.
+    # arXiv ids (well-formed modern ids).
     for m in _ARXIV_RE.finditer(artifact_text):
         ax = m.group(1)
+        key = ("arxiv", ax)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(
+            ExtractedCitation(
+                cite_id=f"c-{len(out) + 1:03d}",
+                kind=CitationKind.ARXIV,
+                value=ax,
+            )
+        )
+
+    # Malformed / fabricated arXiv refs (F-18). Anything matching ``arXiv:<tok>``
+    # whose token is NOT a well-formed modern id (already captured above) nor a
+    # valid old-style ``archive.SUBJ/NNNNNNN`` id is surfaced as an arxiv-kind
+    # citation so the guard flags it ``[UNVERIFIED]`` (the librarian's arXiv
+    # lookup will also return MISMATCH/UNREACHABLE for it).
+    for m in _ARXIV_MALFORMED_RE.finditer(artifact_text):
+        ax = m.group("id").rstrip(".,;:")
+        if not ax:
+            continue
+        # Skip well-formed ids (handled above) and valid old-style ids.
+        if re.fullmatch(r"\d{4}\.\d{4,5}(v\d+)?", ax) or _ARXIV_OLD_STYLE_RE.match(ax):
+            continue
         key = ("arxiv", ax)
         if key in seen:
             continue
@@ -152,13 +191,13 @@ def validate_artifact(
     # Lazy import — citation_fetcher pulls httpx and (optionally) arxiv.
     import sys
 
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     if str(repo) not in sys.path:  # pragma: no cover — defensive
         sys.path.insert(0, str(repo))
     from agents.tools.citation_fetcher import fetch_citation
 
     extracted = extract_citations(artifact_text)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Read existing citations and drop any old entries for this artifact.
     existing = citations_store.load(project_id, repo_root=repo)

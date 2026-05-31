@@ -12,9 +12,7 @@ Outputs an Audit Manifest. Pruning is a separate mode invoked by audit.cli.
 
 from __future__ import annotations
 
-import json
 import re
-from glob import glob
 from pathlib import Path
 from typing import Any
 
@@ -225,7 +223,7 @@ def _strip_md(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def audit(*, projects_dir: Path | str, templates_dir: Path | str, repo_root: Path | str = ".", **_: Any) -> dict:
+def audit(*, projects_dir: Path | str, templates_dir: Path | str, repo_root: Path | str = ".", **_: Any) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     projects_dir = Path(projects_dir).resolve()
     templates_dir = Path(templates_dir).resolve()

@@ -16,6 +16,12 @@ Usage:
     python scripts/validate_phase3.py --all
     python scripts/validate_phase3.py --emit-carry-forward
     python scripts/validate_phase3.py --all --no-reset
+    python scripts/validate_phase3.py --project PROJ-X --repo-root /path/to/repo
+
+The optional ``--repo-root`` redirects every repo-relative path (state,
+projects, inspections, run-log) AND the ``python -m llmxive run``
+subprocess ``cwd`` at the passed root. When omitted it defaults to the
+script's own repository (back-compatible).
 
 Exit codes:
     0 — all selected projects reached `clarified` and passed all post-conditions
@@ -32,7 +38,7 @@ import re
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -42,22 +48,38 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SPEC_DIR = REPO_ROOT / "specs" / "011-phase3-specify-clarify-testing"
 INSPECTIONS_DIR = SPEC_DIR / "inspections"
 
+SPEC_SUBPATH = ("specs", "011-phase3-specify-clarify-testing")
+
 CANONICAL_PROJECTS = (
     "PROJ-261-evaluating-the-impact-of-code-duplicatio",
     "PROJ-262-predicting-molecular-dipole-moments-with",
 )
 
 
+def _spec_dir(repo_root: Path) -> Path:
+    """Resolve the spec-011 dir under an arbitrary repo root.
+
+    When ``repo_root`` is the script's own repo, this equals the module
+    constant ``SPEC_DIR`` (back-compat).
+    """
+    return repo_root.joinpath(*SPEC_SUBPATH)
+
+
+def _inspections_dir(repo_root: Path) -> Path:
+    return _spec_dir(repo_root) / "inspections"
+
+
 # ──────────────────────────────────────────────────────────────────────
 # T009 — preflight
 # ──────────────────────────────────────────────────────────────────────
 
-def _preflight(project_ids: list[str]) -> dict[str, dict[str, Any]]:
+def _preflight(project_ids: list[str], *, repo_root: Path) -> dict[str, dict[str, Any]]:
     """Run the 7 preflight checks from plan.md Section V.
 
     Exits 2 with a clear stderr message on any failure. Returns a per-
     project metadata dict the rest of the harness threads through.
     """
+    inspections_dir = _inspections_dir(repo_root)
     # (a) Dartmouth key resolvable + populate env for subprocess inheritance
     from llmxive.credentials import load_dartmouth_key
     key = load_dartmouth_key()
@@ -70,7 +92,7 @@ def _preflight(project_ids: list[str]) -> dict[str, dict[str, Any]]:
     # (b) llmxive runner importable
     rc = subprocess.run(
         [sys.executable, "-m", "llmxive", "run", "--help"],
-        capture_output=True, text=True, cwd=str(REPO_ROOT),
+        capture_output=True, text=True, cwd=str(repo_root),
     )
     if rc.returncode != 0:
         _exit_2(f"preflight (b): `python -m llmxive run --help` failed (rc={rc.returncode})\n{rc.stderr}")
@@ -78,7 +100,7 @@ def _preflight(project_ids: list[str]) -> dict[str, dict[str, Any]]:
     # (c)(d)(e)(f) per-project checks
     metadata: dict[str, dict[str, Any]] = {}
     for pid in project_ids:
-        proj_state = REPO_ROOT / "state" / "projects" / f"{pid}.yaml"
+        proj_state = repo_root / "state" / "projects" / f"{pid}.yaml"
         if not proj_state.is_file():
             _exit_2(f"preflight (c) [{pid}]: state YAML not found at {proj_state}")
         ydata = yaml.safe_load(proj_state.read_text(encoding="utf-8"))
@@ -89,7 +111,7 @@ def _preflight(project_ids: list[str]) -> dict[str, dict[str, Any]]:
                 "If you want to re-run validation, roll the project back manually."
             )
 
-        proj_dir = REPO_ROOT / "projects" / pid
+        proj_dir = repo_root / "projects" / pid
         idea_files = list((proj_dir / "idea").glob("*.md")) if (proj_dir / "idea").is_dir() else []
         if not idea_files or not any(f.stat().st_size > 0 for f in idea_files):
             _exit_2(f"preflight (d) [{pid}]: no non-empty idea/*.md under {proj_dir / 'idea'}")
@@ -97,13 +119,13 @@ def _preflight(project_ids: list[str]) -> dict[str, dict[str, Any]]:
         cnf = proj_dir / ".specify" / "scripts" / "bash" / "create-new-feature.sh"
         if not cnf.is_file() or not os.access(cnf, os.X_OK):
             _exit_2(
-                f"preflight (e) [{pid}]: {cnf.relative_to(REPO_ROOT)} missing or not executable "
+                f"preflight (e) [{pid}]: {cnf.relative_to(repo_root)} missing or not executable "
                 "(Phase 2 contract violation — re-run project_initializer)"
             )
 
         gitstat = subprocess.run(
             ["git", "status", "--porcelain", "--", f"projects/{pid}/"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT),
+            capture_output=True, text=True, cwd=str(repo_root),
         )
         if gitstat.returncode != 0:
             _exit_2(f"preflight (f) [{pid}]: `git status` failed: {gitstat.stderr}")
@@ -116,12 +138,12 @@ def _preflight(project_ids: list[str]) -> dict[str, dict[str, Any]]:
 
         metadata[pid] = {
             "state_yaml_pre": ydata,
-            "idea_files": [str(f.relative_to(REPO_ROOT)) for f in idea_files],
+            "idea_files": [str(f.relative_to(repo_root)) for f in idea_files],
         }
 
     # (g) inspections dir writable
-    INSPECTIONS_DIR.mkdir(parents=True, exist_ok=True)
-    probe = INSPECTIONS_DIR / ".preflight_probe"
+    inspections_dir.mkdir(parents=True, exist_ok=True)
+    probe = inspections_dir / ".preflight_probe"
     try:
         probe.write_text("ok", encoding="utf-8")
         probe.unlink()
@@ -142,14 +164,14 @@ def _exit_2(msg: str) -> None:
 # T010 — reset (FR-015)
 # ──────────────────────────────────────────────────────────────────────
 
-def _reset_project_specs(project_id: str) -> list[str]:
+def _reset_project_specs(project_id: str, *, repo_root: Path) -> list[str]:
     """Wipe pre-existing ``projects/<id>/specs/<n>-<slug>/`` directories.
 
     Returns the project-relative paths removed. Also clears
     ``state/projects/<id>.yaml::speckit_research_dir`` if it pointed at
     any removed path.
     """
-    proj_dir = REPO_ROOT / "projects" / project_id
+    proj_dir = repo_root / "projects" / project_id
     specs_dir = proj_dir / "specs"
     if not specs_dir.is_dir():
         return []
@@ -157,21 +179,21 @@ def _reset_project_specs(project_id: str) -> list[str]:
     for sub in sorted(specs_dir.iterdir()):
         if sub.is_dir() and re.match(r"^\d{3}-", sub.name):
             shutil.rmtree(sub)
-            removed.append(str(sub.relative_to(REPO_ROOT)))
+            removed.append(str(sub.relative_to(repo_root)))
 
     if removed:
         # Clear speckit_research_dir if it pointed at a removed path.
         from llmxive.state import project as project_store
         try:
-            project = project_store.load(project_id, repo_root=REPO_ROOT)
+            project = project_store.load(project_id, repo_root=repo_root)
             current_pointer = project.speckit_research_dir
             if current_pointer and any(current_pointer.startswith(p) for p in removed):
                 project = project.model_copy(update={
                     "speckit_research_dir": None,
-                    "updated_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.now(UTC),
                 })
-                project_store.save(project, repo_root=REPO_ROOT)
-        except Exception as exc:  # noqa: BLE001 — log and continue
+                project_store.save(project, repo_root=repo_root)
+        except Exception as exc:
             print(f"[validate_phase3] WARN: couldn't clear speckit_research_dir for {project_id}: {exc}",
                   file=sys.stderr)
     return removed
@@ -181,12 +203,12 @@ def _reset_project_specs(project_id: str) -> list[str]:
 # T013 — single-agent orchestrator
 # ──────────────────────────────────────────────────────────────────────
 
-def _snapshot_spec_md(project_id: str) -> dict[str, str]:
+def _snapshot_spec_md(project_id: str, *, repo_root: Path) -> dict[str, str]:
     """Return {relpath: content} for every spec.md currently under projects/<id>/specs/."""
-    proj_dir = REPO_ROOT / "projects" / project_id
+    proj_dir = repo_root / "projects" / project_id
     out: dict[str, str] = {}
     for spec_md in proj_dir.glob("specs/*/spec.md"):
-        out[str(spec_md.relative_to(REPO_ROOT))] = spec_md.read_text(encoding="utf-8")
+        out[str(spec_md.relative_to(repo_root))] = spec_md.read_text(encoding="utf-8")
     return out
 
 
@@ -194,6 +216,8 @@ def _run_one_agent(
     project_id: str,
     agent_label: str,
     reset_artifacts: list[str],
+    *,
+    repo_root: Path,
 ) -> dict[str, Any]:
     """Drive one agent (specifier OR clarifier) via the production CLI.
 
@@ -203,23 +227,23 @@ def _run_one_agent(
 
     Returns: dict with outcome, duration_s, inspection_path, error.
     """
-    started = datetime.now(timezone.utc)
-    before_snapshot = _snapshot_spec_md(project_id)
+    started = datetime.now(UTC)
+    before_snapshot = _snapshot_spec_md(project_id, repo_root=repo_root)
 
-    insp_subdir = INSPECTIONS_DIR / project_id
+    insp_subdir = _inspections_dir(repo_root) / project_id
     insp_subdir.mkdir(parents=True, exist_ok=True)
 
     env = {**os.environ, "LLMXIVE_INSPECTION_DIR": str(insp_subdir)}
     proc = subprocess.run(
         [sys.executable, "-m", "llmxive", "run", "--project", project_id, "--max-tasks", "1"],
-        capture_output=True, text=True, cwd=str(REPO_ROOT), env=env, timeout=900,
+        capture_output=True, text=True, cwd=str(repo_root), env=env, timeout=900,
     )
-    ended = datetime.now(timezone.utc)
-    after_snapshot = _snapshot_spec_md(project_id)
+    ended = datetime.now(UTC)
+    after_snapshot = _snapshot_spec_md(project_id, repo_root=repo_root)
 
     # Read the state YAML to determine outcome.
     from llmxive.state import project as project_store
-    project = project_store.load(project_id, repo_root=REPO_ROOT)
+    project = project_store.load(project_id, repo_root=repo_root)
     new_stage = project.current_stage.value if hasattr(project.current_stage, "value") else str(project.current_stage)
 
     insp_path = insp_subdir / f"{agent_label}.json"
@@ -245,7 +269,7 @@ def _run_one_agent(
         "agent": agent_label,
         "stage_after": new_stage,
         "duration_s": (ended - started).total_seconds(),
-        "inspection_path": str(insp_path.relative_to(REPO_ROOT)) if insp_path.exists() else None,
+        "inspection_path": str(insp_path.relative_to(repo_root)) if insp_path.exists() else None,
         "subprocess_rc": proc.returncode,
         "subprocess_stderr_tail": (proc.stderr or "").splitlines()[-10:],
         "record_outcome": (record or {}).get("outcome"),
@@ -256,15 +280,15 @@ def _run_one_agent(
 # T014 — per-project orchestrator
 # ──────────────────────────────────────────────────────────────────────
 
-def _run_one_project(project_id: str, *, reset: bool) -> dict[str, Any]:
+def _run_one_project(project_id: str, *, reset: bool, repo_root: Path) -> dict[str, Any]:
     """End-to-end Phase 3 for one project: reset → Specifier → Clarifier → post-conditions."""
-    reset_artifacts = _reset_project_specs(project_id) if reset else []
+    reset_artifacts = _reset_project_specs(project_id, repo_root=repo_root) if reset else []
     print(f"[validate_phase3] {project_id}: reset {len(reset_artifacts)} pre-existing spec dir(s)",
           file=sys.stderr)
 
     agents_run: list[dict[str, Any]] = []
     # Specifier
-    spec_result = _run_one_agent(project_id, "specifier", reset_artifacts)
+    spec_result = _run_one_agent(project_id, "specifier", reset_artifacts, repo_root=repo_root)
     agents_run.append(spec_result)
     print(f"[validate_phase3] {project_id}: specifier {spec_result['record_outcome'] or 'unknown'} "
           f"({spec_result['duration_s']:.1f}s), stage={spec_result['stage_after']}",
@@ -273,7 +297,7 @@ def _run_one_project(project_id: str, *, reset: bool) -> dict[str, Any]:
     final_state = spec_result["stage_after"]
     # Clarifier — only run if Specifier succeeded (stage advanced to 'specified')
     if final_state == "specified":
-        clar_result = _run_one_agent(project_id, "clarifier", [])
+        clar_result = _run_one_agent(project_id, "clarifier", [], repo_root=repo_root)
         agents_run.append(clar_result)
         print(f"[validate_phase3] {project_id}: clarifier {clar_result['record_outcome'] or 'unknown'} "
               f"({clar_result['duration_s']:.1f}s), stage={clar_result['stage_after']}",
@@ -281,7 +305,7 @@ def _run_one_project(project_id: str, *, reset: bool) -> dict[str, Any]:
         final_state = clar_result["stage_after"]
 
     # T015 — post-conditions
-    passed, failures, warnings = _check_postconditions(project_id, agents_run)
+    passed, failures, warnings = _check_postconditions(project_id, agents_run, repo_root=repo_root)
     if passed:
         print(f"[validate_phase3] {project_id}: post-conditions PASS", file=sys.stderr)
     else:
@@ -304,21 +328,22 @@ def _run_one_project(project_id: str, *, reset: bool) -> dict[str, Any]:
 # ──────────────────────────────────────────────────────────────────────
 
 def _check_postconditions(
-    project_id: str, agents_run: list[dict[str, Any]]
+    project_id: str, agents_run: list[dict[str, Any]], *, repo_root: Path
 ) -> tuple[bool, list[str], list[str]]:
     """Return (passed, failures, warnings). See task T015 for the 6 checks."""
     failures: list[str] = []
     warnings: list[str] = []
+    inspections_dir = _inspections_dir(repo_root)
 
     # (a) current_stage == clarified
     from llmxive.state import project as project_store
-    project = project_store.load(project_id, repo_root=REPO_ROOT)
+    project = project_store.load(project_id, repo_root=repo_root)
     stage = project.current_stage.value if hasattr(project.current_stage, "value") else str(project.current_stage)
     if stage != "clarified":
         failures.append(f"current_stage is {stage!r}, expected 'clarified'")
 
     # (b) spec.md exists
-    proj_dir = REPO_ROOT / "projects" / project_id
+    proj_dir = repo_root / "projects" / project_id
     spec_files = list(proj_dir.glob("specs/*/spec.md"))
     if not spec_files:
         failures.append("no spec.md found under projects/<id>/specs/*/")
@@ -343,7 +368,7 @@ def _check_postconditions(
         failures.append(f"SC-003 violation: spec.md has {marker_count} [NEEDS CLARIFICATION] marker(s) remaining")
 
     # (e) FR-010 — run-log entries present
-    log_root = REPO_ROOT / "state" / "run-log"
+    log_root = repo_root / "state" / "run-log"
     if log_root.is_dir():
         found_agents: set[str] = set()
         for jsonl in log_root.rglob("*.jsonl"):
@@ -365,7 +390,7 @@ def _check_postconditions(
             failures.append(f"FR-010 violation: no run-log entries for agents: {sorted(missing)}")
 
     # (f) FR-006 cap-flag — count markers in Specifier's spec.md (pre-Clarifier)
-    spec_inspection = INSPECTIONS_DIR / project_id / "specifier.json"
+    spec_inspection = inspections_dir / project_id / "specifier.json"
     if spec_inspection.is_file():
         rec = json.loads(spec_inspection.read_text(encoding="utf-8"))
         # Find the spec.md "after" content from file_diffs
@@ -387,26 +412,33 @@ def _check_postconditions(
 # T023/T024 — carry-forward manifest
 # ──────────────────────────────────────────────────────────────────────
 
-def _emit_carry_forward(results: list[dict[str, Any]]) -> Path:
-    """Write specs/011-…/carry-forward.yaml per contracts/carry-forward.md."""
+def _emit_carry_forward(
+    results: list[dict[str, Any]], *, repo_root: Path | None = None
+) -> Path:
+    """Write specs/011-…/carry-forward.yaml per contracts/carry-forward.md.
+
+    ``repo_root`` defaults to the module-level ``REPO_ROOT`` for
+    back-compat with callers (and tests that monkeypatch ``SPEC_DIR``).
+    """
+    repo = repo_root or REPO_ROOT
     git_sha = subprocess.run(
         ["git", "rev-parse", "HEAD"],
-        capture_output=True, text=True, cwd=str(REPO_ROOT),
+        capture_output=True, text=True, cwd=str(repo),
     )
     head = git_sha.stdout.strip() if git_sha.returncode == 0 else "HEAD"
     # Detect uncommitted changes — if any, fall back to "HEAD" sentinel
     dirty = subprocess.run(
         ["git", "status", "--porcelain"],
-        capture_output=True, text=True, cwd=str(REPO_ROOT),
+        capture_output=True, text=True, cwd=str(repo),
     )
     if dirty.returncode == 0 and dirty.stdout.strip():
-        print(f"[validate_phase3] WARN: working tree has uncommitted changes; using 'HEAD' sentinel in carry-forward.yaml",
+        print("[validate_phase3] WARN: working tree has uncommitted changes; using 'HEAD' sentinel in carry-forward.yaml",
               file=sys.stderr)
         head = "HEAD"
 
     manifest: dict[str, Any] = {
         "spec": "011-phase3-specify-clarify-testing",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "final_commit": head,
         "projects": [],
     }
@@ -442,7 +474,8 @@ def _emit_carry_forward(results: list[dict[str, Any]]) -> Path:
             "justification": j,
         })
 
-    out_path = SPEC_DIR / "carry-forward.yaml"
+    spec_dir = SPEC_DIR if repo_root is None else _spec_dir(repo)
+    out_path = spec_dir / "carry-forward.yaml"
     tmp = out_path.with_suffix(".yaml.tmp")
     tmp.write_text(
         yaml.safe_dump(manifest, sort_keys=False, default_flow_style=False, allow_unicode=True),
@@ -465,22 +498,36 @@ def main(argv: list[str] | None = None) -> int:
                     help="Also emit carry-forward.yaml (implicit with --all)")
     ap.add_argument("--no-reset", action="store_true",
                     help="Skip the FR-015 reset (preserves any pre-existing specs/<n>-<slug>/)")
+    ap.add_argument("--repo-root", default=None,
+                    help="Operate against this repo root instead of the script's own "
+                         "(default). Redirects all state/projects/inspections/run-log paths "
+                         "AND the `python -m llmxive run` subprocess cwd.")
     args = ap.parse_args(argv)
 
     if not args.project and not args.all:
         ap.error("must specify either --project <id> or --all")
 
+    repo_root = Path(args.repo_root).resolve() if args.repo_root else REPO_ROOT
+
+    # Export LLMXIVE_REPO_ROOT so (a) this script's own in-process
+    # llmxive.state/project_store calls resolve data under the chosen root,
+    # and (b) every `python -m llmxive run` subprocess we spawn (which
+    # inherits os.environ) operates on the same root instead of the
+    # installed package's repo. The CODE still runs from the installed
+    # package; only DATA lookups follow the override.
+    os.environ["LLMXIVE_REPO_ROOT"] = str(repo_root)
+
     project_ids = list(CANONICAL_PROJECTS) if args.all else [args.project]
-    _preflight(project_ids)
+    _preflight(project_ids, repo_root=repo_root)
 
     reset = not args.no_reset
     results: list[dict[str, Any]] = []
     for pid in project_ids:
-        results.append(_run_one_project(pid, reset=reset))
+        results.append(_run_one_project(pid, reset=reset, repo_root=repo_root))
 
     if args.all or args.emit_carry_forward:
-        cf_path = _emit_carry_forward(results)
-        print(f"[validate_phase3] carry-forward → {cf_path.relative_to(REPO_ROOT)}",
+        cf_path = _emit_carry_forward(results, repo_root=repo_root)
+        print(f"[validate_phase3] carry-forward → {cf_path.relative_to(repo_root)}",
               file=sys.stderr)
 
     passed_count = sum(1 for r in results if r["passed"])

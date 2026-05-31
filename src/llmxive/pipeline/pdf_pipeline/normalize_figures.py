@@ -86,7 +86,7 @@ def _rewrite_options(opts: str, bucket: str) -> str:
 
 def normalize(src: str) -> str:
     """Rewrite every \\includegraphics width into a bounded bucket."""
-    def _sub(m: re.Match) -> str:
+    def _sub(m: re.Match[str]) -> str:
         opts = m.group("opts") or ""
         path = m.group("path")
         wm = WIDTH_OPT_RE.search(opts)
@@ -100,7 +100,7 @@ def normalize(src: str) -> str:
         ratio = _parse_width_to_ratio(wm.group("val"))
         if ratio is None:
             # Unparseable width — leave alone but log a comment marker
-            return m.group(0)
+            return str(m.group(0))
         bucket = _ratio_to_bucket(ratio)
         new_opts = _rewrite_options(opts, bucket)
         return f"\\includegraphics[{new_opts}]{{{path}}}"

@@ -198,13 +198,41 @@ class TaskerAgent(SlashCommandAgent):
 
         spec_path = Path(mechanical_output["spec_path"])
         plan_path = Path(mechanical_output["plan_path"])
+
+        # Spec 015 T027 production cutover: the convergence engine is
+        # now the DEFAULT analyze-resolve path. The legacy Mode-A/Mode-B
+        # loop below is retained only as an emergency rollback via the
+        # opt-out env var ``LLMXIVE_TASKER_LEGACY=1`` (FR-009 SSoT: one
+        # convergence engine parameterized per step). The dispatch
+        # happens AFTER the Mode-A write above so the bridge has a
+        # tasks.md to revise.
+        from llmxive.speckit._tasker_engine_bridge import (
+            tasker_engine_enabled as _tasker_engine_enabled,
+        )
+        self._inspection_rounds: list[dict[str, Any]] = []
+        if _tasker_engine_enabled():
+            self._run_engine_path(
+                ctx=ctx,
+                repo=repo,
+                tasks_path=tasks_path,
+                spec_path=spec_path,
+                plan_path=plan_path,
+                written=written,
+            )
+            return written
         # spec 014 / FR-004 (T007): accumulate one observability sub-record per
         # analyze round into self._inspection_rounds. This is OBSERVABILITY
         # ONLY — no decision/branch below reads it. _maybe_write_inspection in
         # slash_command.py picks it up via getattr(agent, "_inspection_rounds").
-        self._inspection_rounds: list[dict[str, Any]] = []
         for round_idx in range(TASKER_MAX_REVISION_ROUNDS):
             try:
+                # Spec 015 T031 + FR-030: include the project's constitution.md
+                # in analyze inputs (when present) so the analyzer can flag
+                # Constitution-Check violations.
+                _const_path = ctx.project_dir / ".specify" / "memory" / "constitution.md"
+                _const_text = (
+                    _const_path.read_text(encoding="utf-8") if _const_path.exists() else None
+                )
                 report = run_analyze(
                     spec_text=spec_path.read_text(encoding="utf-8"),
                     plan_text=plan_path.read_text(encoding="utf-8"),
@@ -213,6 +241,9 @@ class TaskerAgent(SlashCommandAgent):
                     fallback_backends=ctx.fallback_backends,
                     default_model=ctx.default_model,
                     repo_root=repo,
+                    project_dir=ctx.project_dir,
+                    kind="research",
+                    constitution_text=_const_text,
                 )
             except _BackendError as exc:
                 print(f"[tasker] analyze round {round_idx + 1} failed: {exc}; "
@@ -298,59 +329,30 @@ class TaskerAgent(SlashCommandAgent):
                 if not patch or not isinstance(patch, str):
                     continue
                 # Mode-B patches replace the WHOLE file. Validate the
-                # patch keeps the file's essential structure: tasks.md
-                # must have >=5 task IDs (else it's been replaced with
-                # prose like "All tasks completed"); spec.md and
-                # plan.md must have >=1 markdown header.
-                import re as _re_inner
-                if f == "tasks.md":
-                    n_ids = len(_re_inner.findall(
-                        r"^- \[[ Xx]\] T\d+[a-z]?\b", patch, _re_inner.MULTILINE
-                    ))
-                    if n_ids < 5:
-                        print(
-                            f"[tasker] refusing Mode-B tasks.md patch: "
-                            f"only {n_ids} task IDs (need >=5). The LLM "
-                            f"likely replaced the file with prose. Skipping."
-                        )
-                        continue
-                if f in ("spec.md", "plan.md"):
-                    if not _re_inner.search(r"^# ", patch, _re_inner.MULTILINE):
-                        print(
-                            f"[tasker] refusing Mode-B {f} patch: "
-                            f"no markdown headers. Skipping."
-                        )
-                        continue
-                if f == "spec.md":
-                    # FR-012 (spec 014): refuse a Mode-B patch that DELETES
-                    # requirements from spec.md. The LLM otherwise "resolves"
-                    # analyze findings by gutting the spec (observed on
-                    # PROJ-262: 12 FR / 5 SC -> 0 FR / 2 SC across rounds) —
-                    # the exact "weaken the constraint to make analyze pass"
-                    # the constitution forbids ("fix the code, not the test").
-                    # The set of distinct FR-/SC- identifiers MUST NOT shrink.
-                    _ids_re = r"\b(?:FR|SC)-\d+"
-                    _cur = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
-                    _cur_ids = set(_re_inner.findall(_ids_re, _cur))
-                    _new_ids = set(_re_inner.findall(_ids_re, patch))
-                    if len(_new_ids) < len(_cur_ids):
-                        print(
-                            f"[tasker] refusing Mode-B spec.md patch: it drops "
-                            f"requirements ({len(_cur_ids)} -> {len(_new_ids)} "
-                            f"FR/SC ids); a constraint would be deleted. Skipping."
-                        )
-                        continue
-                # Spec 010 fix: the original escalate branch wrote `patch`
-                # to disk verbatim; if the LLM returned a diff here, it
-                # would pollute the canonical file. Reuse the same
-                # _diff_guard used by the main path.
-                from llmxive.speckit._diff_guard import looks_like_diff
-                is_diff, reason = looks_like_diff(patch)
-                if is_diff:
-                    print(
-                        f"[tasker] refusing Mode-B {f} patch: "
-                        f"looks like a diff ({reason}). Skipping."
-                    )
+                # patch via the FR-031 SSoT pre-filter guards
+                # (_legacy_guards.check_legacy_guards) so the same
+                # rejection logic runs in BOTH the legacy loop AND the
+                # convergence-engine bridge (spec-015 T027).
+                from llmxive.speckit._legacy_guards import (
+                    check_legacy_guards as _check_legacy_guards,
+                )
+                if f not in ("tasks.md", "spec.md", "plan.md"):
+                    continue
+                _original_for_guard = ""
+                if f == "spec.md" and spec_path.exists():
+                    _original_for_guard = spec_path.read_text(encoding="utf-8")
+                elif f == "plan.md" and plan_path.exists():
+                    _original_for_guard = plan_path.read_text(encoding="utf-8")
+                elif f == "tasks.md" and tasks_path.exists():
+                    _original_for_guard = tasks_path.read_text(encoding="utf-8")
+                _refusals = _check_legacy_guards(
+                    filename=f,
+                    new_content=patch,
+                    original_content=_original_for_guard,
+                )
+                if _refusals:
+                    for _msg in _refusals:
+                        print(f"[tasker] {_msg}. Skipping.")
                     continue
                 if f == "spec.md":
                     spec_path.write_text(patch, encoding="utf-8")
@@ -412,8 +414,235 @@ class TaskerAgent(SlashCommandAgent):
         )
         return written
 
+    def _run_engine_path(
+        self,
+        *,
+        ctx: SlashCommandContext,
+        repo: Path,
+        tasks_path: Path,
+        spec_path: Path,
+        plan_path: Path,
+        written: list[str],
+    ) -> None:
+        """Spec 015 T027 production cutover — convergence-engine path
+        replacing the legacy Mode-A/Mode-B loop.
 
-def _parse_tasker_response(text: str) -> dict | None:
+        Mirrors the legacy semantics:
+
+        1. Reads the project's constitution.md (if present) so it can be
+           passed to the analyzer and (via ``extra_inputs``) to the engine
+           reviser.
+        2. Runs the first ``run_analyze`` (Mode-A equivalent) on the just-
+           written tasks.md + on-disk spec.md + plan.md. If the analyzer
+           returns ``CLEAN``, records a single observability round and
+           writes the ``tasker_rounds.yaml`` marker — no engine call
+           needed.
+        3. Otherwise delegates the iterative resolve to
+           :func:`run_tasker_via_engine` (which runs the engine internally
+           up to ``CONVERGENCE_MAX_ROUNDS=3``, applies the FR-031
+           deterministic guards on every R2 writeback, and persists the
+           tasks.md / spec.md / plan.md changes).
+        4. After the engine returns, runs ``run_analyze`` once more to
+           confirm the analyzer is clean on the post-engine artifacts;
+           records the final round + writes the ``tasker_rounds.yaml``
+           marker (``converged`` reflects the actual analyzer + engine
+           outcomes — FR-016 honest reporting).
+
+        Backend failures during the FIRST analyze are NOT fatal: tasks.md
+        was already validated in ``write_artifacts`` to have ≥5 task IDs
+        and pass the diff guard — the analyze loop is a polish step. If
+        the first analyze can't run, we skip the engine loop and let the
+        downstream specialist reviewers catch substantive issues.
+        """
+        from llmxive.backends.base import BackendError as _BackendError
+        from llmxive.backends.router import make_backend
+        from llmxive.speckit._tasker_engine_bridge import run_tasker_via_engine
+
+        _const_path = ctx.project_dir / ".specify" / "memory" / "constitution.md"
+        _const_text = (
+            _const_path.read_text(encoding="utf-8") if _const_path.exists() else None
+        )
+
+        # ---- Round 0: first analyze (Mode-A equivalent) ----
+        try:
+            first_report = run_analyze(
+                spec_text=spec_path.read_text(encoding="utf-8"),
+                plan_text=plan_path.read_text(encoding="utf-8"),
+                tasks_text=tasks_path.read_text(encoding="utf-8"),
+                default_backend=ctx.default_backend,
+                fallback_backends=ctx.fallback_backends,
+                default_model=ctx.default_model,
+                repo_root=repo,
+                project_dir=ctx.project_dir,
+                kind="research",
+                constitution_text=_const_text,
+            )
+        except _BackendError as exc:
+            print(
+                f"[tasker/engine] initial analyze failed: {exc}; "
+                "skipping engine resolve loop"
+            )
+            return
+
+        if is_clean(first_report):
+            # First analyze is clean — no engine call needed.
+            self._inspection_rounds.append({
+                "round_index": 0,
+                "analyze_report": first_report,
+                "mode_b_patch": None,
+                "verdict": "clean",
+                "files_rewritten": [],
+                "diffs": {},
+            })
+            rounds_marker = (
+                ctx.project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
+            )
+            rounds_marker.parent.mkdir(parents=True, exist_ok=True)
+            rounds_marker.write_text(
+                yaml.safe_dump({"rounds_used": 1, "converged": True}),
+                encoding="utf-8",
+            )
+            return
+
+        # ---- Engine resolve loop ----
+        # Package the analyze report as a single synthetic finding so the
+        # bridge's _AnalyzeReportReviewer feeds the engine's R1 the
+        # analyzer's full critique. Severity defaults to "writing" (the
+        # most conservative) inside analyze_findings_to_concerns; if the
+        # analyzer is producing structured class tags they survive
+        # through analyze_findings_to_concerns's class→severity map.
+        analyze_findings = [{
+            "id": "F001",
+            "class": "writing",
+            "artifact": tasks_path.relative_to(repo).as_posix(),
+            "location": "",
+            "text": first_report,
+        }]
+
+        # Snapshot the pre-engine state for the observability diff.
+        _round_before = {
+            "spec.md": spec_path.read_text(encoding="utf-8") if spec_path.exists() else "",
+            "plan.md": plan_path.read_text(encoding="utf-8") if plan_path.exists() else "",
+            "tasks.md": tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else "",
+        }
+
+        try:
+            backend = make_backend(ctx.default_backend.value)
+        except Exception as exc:
+            print(
+                f"[tasker/engine] backend instantiation failed: {exc}; "
+                "falling back to legacy path is not possible mid-write; "
+                "marking non-converged"
+            )
+            rounds_marker = (
+                ctx.project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
+            )
+            rounds_marker.parent.mkdir(parents=True, exist_ok=True)
+            rounds_marker.write_text(
+                yaml.safe_dump({"rounds_used": 1, "converged": False}),
+                encoding="utf-8",
+            )
+            return
+
+        try:
+            engine_result = run_tasker_via_engine(
+                project_id=ctx.project_id,
+                repo_root=repo,
+                tasks_path=tasks_path,
+                spec_path=spec_path,
+                plan_path=plan_path,
+                analyze_findings=analyze_findings,
+                backend=backend,
+                constitution_text=_const_text,
+                analyze_report_text=first_report,
+                model=ctx.default_model,
+            )
+        except Exception as exc:
+            print(
+                f"[tasker/engine] engine path raised: {exc}; "
+                "marking non-converged + leaving on-disk artifacts unchanged"
+            )
+            rounds_marker = (
+                ctx.project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
+            )
+            rounds_marker.parent.mkdir(parents=True, exist_ok=True)
+            rounds_marker.write_text(
+                yaml.safe_dump({"rounds_used": 1, "converged": False}),
+                encoding="utf-8",
+            )
+            return
+
+        _round_after = {
+            "spec.md": spec_path.read_text(encoding="utf-8") if spec_path.exists() else "",
+            "plan.md": plan_path.read_text(encoding="utf-8") if plan_path.exists() else "",
+            "tasks.md": tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else "",
+        }
+        _files_rewritten = [
+            fn for fn in ("spec.md", "plan.md", "tasks.md")
+            if _round_before[fn] != _round_after[fn]
+        ]
+        _round_diffs = {
+            fn: _unified_diff(_round_before[fn], _round_after[fn], fn)
+            for fn in _files_rewritten
+        }
+
+        # ---- Final analyze + honest reporting (FR-016) ----
+        try:
+            final_report = run_analyze(
+                spec_text=spec_path.read_text(encoding="utf-8"),
+                plan_text=plan_path.read_text(encoding="utf-8"),
+                tasks_text=tasks_path.read_text(encoding="utf-8"),
+                default_backend=ctx.default_backend,
+                fallback_backends=ctx.fallback_backends,
+                default_model=ctx.default_model,
+                repo_root=repo,
+                project_dir=ctx.project_dir,
+                kind="research",
+                constitution_text=_const_text,
+            )
+            final_clean = is_clean(final_report)
+        except _BackendError as exc:
+            # If the final analyze can't run, fall back to the engine's
+            # `converged` flag for the honest verdict.
+            print(
+                f"[tasker/engine] final analyze failed: {exc}; "
+                "trusting engine convergence flag for verdict"
+            )
+            final_report = "ANALYZER_UNAVAILABLE"
+            final_clean = engine_result.convergence.converged
+
+        rounds_used = max(1, engine_result.convergence.rounds_used + 1)
+        self._inspection_rounds.append({
+            "round_index": 0,
+            "analyze_report": first_report,
+            "mode_b_patch": None,
+            "verdict": "engine_dispatched",
+            "files_rewritten": _files_rewritten,
+            "diffs": _round_diffs,
+        })
+        self._inspection_rounds.append({
+            "round_index": 1,
+            "analyze_report": final_report,
+            "mode_b_patch": None,
+            "verdict": "clean" if final_clean else "non_converged",
+            "files_rewritten": [],
+            "diffs": {},
+        })
+        rounds_marker = (
+            ctx.project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
+        )
+        rounds_marker.parent.mkdir(parents=True, exist_ok=True)
+        rounds_marker.write_text(
+            yaml.safe_dump({
+                "rounds_used": rounds_used,
+                "converged": final_clean,
+                "path": "engine",
+            }),
+            encoding="utf-8",
+        )
+
+
+def _parse_tasker_response(text: str) -> dict[str, Any] | None:
     """Parse Tasker Mode-B response, preferring JSON, falling back to YAML.
 
     LLMs often emit raw newlines inside JSON string values (which JSON
@@ -426,6 +655,7 @@ def _parse_tasker_response(text: str) -> dict | None:
     """
     import json as _json
     import re as _re_local
+
     from llmxive.speckit.yaml_extract import parse_yaml_lenient as _parse_yaml
 
     raw = (text or "").strip()
@@ -440,7 +670,8 @@ def _parse_tasker_response(text: str) -> dict | None:
 
     # Try direct JSON.
     try:
-        return _json.loads(inner)
+        parsed = _json.loads(inner)
+        return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
 
@@ -448,13 +679,15 @@ def _parse_tasker_response(text: str) -> dict | None:
     # the text in/out of double-quoted regions and replace literal
     # control chars with their JSON-escaped form.
     try:
-        return _json.loads(_escape_newlines_in_json_strings(inner))
+        parsed = _json.loads(_escape_newlines_in_json_strings(inner))
+        return parsed if isinstance(parsed, dict) else None
     except _json.JSONDecodeError:
         pass
 
     # Try lenient YAML.
     try:
-        return _parse_yaml(inner)
+        parsed = _parse_yaml(inner)
+        return parsed if isinstance(parsed, dict) else None
     except yaml.YAMLError as exc:
         print(f"[tasker] both JSON and YAML parse failed: {exc}")
         return None

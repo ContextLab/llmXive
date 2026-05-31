@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 llmXive is an automated system for scientific discovery driven by LLMs with occasional human input. It's structured as a project management platform with five main task categories, each linked to GitHub issues:
 
 1. **Backlog**: Brainstormed ideas requiring development
-2. **Ready**: Ideas with technical design documents reviewed by ≥10 LLMs or ≥5 human scientists
+2. **Ready**: Ideas whose technical design documents pass **unanimous LLM-panel acceptance** within the 3-round convergence cap (per spec 015 — supersedes the prior "≥10 LLMs / ≥5 humans" point-based threshold)
 3. **In Progress**: Ideas with vetted implementation plans ready for execution
-4. **Reviews**: Formal reviews of designs, implementations, papers, and code
+4. **Reviews**: Formal reviews of designs, implementations, papers, and code (advisory only — human/personality reviews route through stage-aware triage and never directly gate advancement)
 5. **Done**: Completed projects with associated papers
 
 ## Repository Architecture
@@ -29,7 +29,7 @@ Each directory contains a README.md with specific tables tracking projects, cont
 
 ### Project Status Management
 - Projects move through: Backlog → Ready → In Progress → Done
-- Each stage requires specific point thresholds (LLM reviews = 0.5 points, human reviews = 1 point)
+- Each reviewable stage runs identify→revise→re-review with its LLM panel; advancement requires **unanimous panel acceptance** within 3 rounds (else adaptive kickback to the prior stage). The legacy 0.5/1.0 review-point system has been removed (spec 015).
 - Status is tracked via GitHub issue labels and project board columns
 
 ### Documentation Standards
@@ -47,7 +47,7 @@ Each directory contains a README.md with specific tables tracking projects, cont
 ### Review Process
 - Review files named as: `author__MM-DD-YYYY__type.md` (type: A=automatic, M=manual)
 - Reviews organized in subdirectories: Design/Implementation/Paper/Code
-- Minimum review thresholds must be met before status advancement
+- Advancement requires **unanimous LLM-panel acceptance** within the 3-round convergence cap (spec 015); human and simulated-personality reviews are advisory inputs only, routed through stage-aware triage before reaching a panelist
 
 ## Common Development Tasks
 
@@ -64,11 +64,11 @@ Since this is primarily a research documentation repository without traditional 
 - Always use absolute paths when referencing files across directories
 - Maintain the table structures in README files when adding new entries
 - Verify all external links and references before committing
-- Follow the point-based review system for project advancement
+- Follow the convergence-based review model (unanimous LLM-panel acceptance within the 3-round cap; spec 015) for project advancement; do NOT re-introduce accumulated 0.5/1.0 review points
 - Use GitHub issues for all project tracking and communication
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/014-phase4-plan-tasks-testing/plan.md](specs/014-phase4-plan-tasks-testing/plan.md).
+[specs/018-approximate-numeric-verification/plan.md](specs/018-approximate-numeric-verification/plan.md).
 <!-- SPECKIT END -->

@@ -18,7 +18,6 @@ Modules:
 from __future__ import annotations
 
 import sys
-from types import ModuleType
 
 # Module-level LLM-import guard. Anyone importing pdf_pipeline triggers this.
 _BANNED_LLM_MODULES = {

@@ -78,10 +78,10 @@ def _valid_five_file_block(*, research_urls: str = "", bad_data_model: bool = Fa
 
 def _make_planner_ctx(tmp_path: Path):
     """Build a SlashCommandContext + mechanical_output for the Planner."""
+    import shutil
+
     from llmxive.speckit.slash_command import SlashCommandContext
     from llmxive.types import BackendName
-
-    import shutil
 
     proj_id = "PROJ-TEST-plan"
     proj_dir = tmp_path / "projects" / proj_id
@@ -214,13 +214,23 @@ class TestArtifactSetComplete:
 
 
 class TestTemplateRejection:
-    def test_template_plan_md_triggers_guard_emit_and_unlinks(self, tmp_path: Path) -> None:
+    def test_template_plan_md_triggers_guard_emit_and_unlinks(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """FR-008: a template-equal plan.md → TemplateRefused; write_artifacts
-        unlinks all artifacts written this invocation."""
+        unlinks all artifacts written this invocation.
+
+        Updated for the bounded planner revision loop (#015 / PROJ-552): the
+        guard now fails closed (raise + unlink) only when no usable corrective
+        backend is available. Force the offline path (make_backend → None) so
+        this asserts the original hard-fail-closed contract without a live LLM
+        re-call — exactly the behavior a real offline run takes."""
+        import llmxive.backends.router as router
         from llmxive.backends.base import ChatResponse
         from llmxive.speckit._real_only_guard import TemplateRefused
         from llmxive.speckit.plan_cmd import PlannerAgent
 
+        monkeypatch.setattr(router, "make_backend", lambda name: None)
         ctx, mech, feature_dir = _make_planner_ctx(tmp_path)
         template_path = REPO_ROOT / ".specify" / "templates" / "plan-template.md"
         if not template_path.is_file():
@@ -343,13 +353,22 @@ class TestUrlReachability:
         from llmxive.speckit._research_guard import assert_urls_reachable
         assert_urls_reachable("This research.md cites no external references.")
 
-    def test_planner_write_artifacts_unlinks_on_bad_url(self, tmp_path: Path) -> None:
+    def test_planner_write_artifacts_unlinks_on_bad_url(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """FR-006 end-to-end: a bad URL in research.md makes the Planner
-        unlink every artifact and raise UnreachableReference."""
+        unlink every artifact and raise UnreachableReference.
+
+        Updated for the bounded planner revision loop (#015 / PROJ-552): force
+        the offline path (make_backend → None) so the guard fails closed without
+        a live corrective re-call — the same hard-fail-closed contract this test
+        has always asserted, now via the loop's no-backend branch."""
+        import llmxive.backends.router as router
         from llmxive.backends.base import ChatResponse
         from llmxive.speckit._research_guard import UnreachableReference
         from llmxive.speckit.plan_cmd import PlannerAgent
 
+        monkeypatch.setattr(router, "make_backend", lambda name: None)
         ctx, mech, feature_dir = _make_planner_ctx(tmp_path)
         block = _valid_five_file_block(
             research_urls=f"- Dataset: {_dead_url()}"
@@ -569,10 +588,23 @@ class TestModeBGuards:
 # ──────────────────────────────────────────────────────────────────────
 
 class TestAnalyzeLoopEscalation:
+    """Legacy Mode-A/Mode-B regression tests.
+
+    Spec 015 T027 made the convergence engine the default analyze-resolve
+    path; these tests exercise the legacy Mode-A/Mode-B loop (preserved
+    as the emergency-rollback path via ``LLMXIVE_TASKER_LEGACY=1``).
+    Each test forces the legacy path via the env var so the legacy
+    contract (escalate → human_input_needed.yaml; cap-hit best-effort;
+    FR-031 constraint-preservation guard) is still regression-tested.
+    The new engine-default behavior is tested separately in
+    ``test_tasker_production_cutover.py``.
+    """
+
     def test_never_clean_analyze_escalates(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Drive a never-clean analyze with a synthetic escalate verdict on the
         last round; assert human_input_needed.yaml is written and the round is
-        captured in _inspection_rounds."""
+        captured in _inspection_rounds. (Legacy path only — see class docstring.)"""
+        monkeypatch.setenv("LLMXIVE_TASKER_LEGACY", "1")
         import llmxive.speckit.tasks_cmd as tasks_cmd
         from llmxive.backends.base import ChatResponse
         from llmxive.config import TASKER_MAX_REVISION_ROUNDS
@@ -621,7 +653,9 @@ class TestAnalyzeLoopEscalation:
         WITHOUT a clean report AND WITHOUT an explicit escalate verdict, the
         Tasker accepts tasks.md as best-effort (records converged:false) and does
         NOT write human_input_needed.yaml — the project is allowed to advance to
-        'analyzed'. (human_input_needed is reserved for explicit escalate.)"""
+        'analyzed'. (human_input_needed is reserved for explicit escalate.)
+        Legacy path only — see class docstring."""
+        monkeypatch.setenv("LLMXIVE_TASKER_LEGACY", "1")
         import llmxive.speckit.tasks_cmd as tasks_cmd
         from llmxive.backends.base import ChatResponse
         from llmxive.config import TASKER_MAX_REVISION_ROUNDS
@@ -657,7 +691,10 @@ class TestAnalyzeLoopEscalation:
         """FR-012 (Tasker guard): a Mode-B patch that gut's spec.md (fewer FR/SC
         identifiers than the current file) MUST be refused at the source. The
         LLM otherwise 'converges' analyze by deleting requirements (observed on
-        PROJ-262: 12 FR / 5 SC -> 0 FR / 2 SC). spec.md must stay intact."""
+        PROJ-262: 12 FR / 5 SC -> 0 FR / 2 SC). spec.md must stay intact.
+        Legacy path; same guards run via _legacy_guards.check_legacy_guards
+        on both legacy + engine paths (FR-031 SSoT)."""
+        monkeypatch.setenv("LLMXIVE_TASKER_LEGACY", "1")
         import re
 
         import llmxive.speckit.tasks_cmd as tasks_cmd

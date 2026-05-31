@@ -10,8 +10,6 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-import pytest
-
 from llmxive.agents import personality as p
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "personality"

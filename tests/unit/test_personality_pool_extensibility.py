@@ -8,7 +8,6 @@ edits — Story 2 / FR-020. Drives :func:`personality.load_pool` and
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 from llmxive.agents import personality as p
@@ -60,7 +59,7 @@ class TestPoolExtensibility:
 
     def test_11th_appears_in_rotation_within_one_cycle(self, tmp_path: Path) -> None:
         pool = tmp_path / "pool"
-        slugs = _seed_pool(pool, 10)
+        _slugs = _seed_pool(pool, 10)
         # Drive the rotation through all 10 starting from the first.
         res = p.load_pool(pool)
         # Add the 11th BEFORE we visit it.

@@ -13,6 +13,8 @@ advancement; failure_reason populated.
 
 from __future__ import annotations
 
+import os
+
 import pytest
 import requests
 
@@ -27,6 +29,15 @@ from llmxive.librarian.verify import (
     VerificationLog,
     VerifiedCitation,
     verify_citation,
+)
+
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
+
+# These scenarios make real HTTP calls (SS API, arXiv resolve, PDF
+# fetch of an unreachable host), so they skip outside real-call mode.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="makes real network calls; needs LLMXIVE_REAL_TESTS=1",
 )
 
 # --- Scenario 1: backend unreachable ---------------------------------------
@@ -60,6 +71,7 @@ def test_arxiv_unreachable_returns_empty_loudly(capsys):
     assert "OSError" in captured.err or "simulated network failure" in captured.err
 
 
+@real_required
 def test_ss_client_with_invalid_key_raises_loud():
     """An obviously-invalid SS key triggers loud HTTP error, not silent
     empty result."""
@@ -74,6 +86,7 @@ def test_ss_client_with_invalid_key_raises_loud():
 # --- Scenario 2: title mismatch (synthetic DOI-redirects-to-wrong-paper) ---
 
 
+@real_required
 def test_synthetic_title_mismatch_recorded_as_failure():
     """A candidate whose claimed_title doesn't match the real fetched
     title fails with reason='title_mismatch'. Mirrors the case where
@@ -101,6 +114,7 @@ def test_synthetic_title_mismatch_recorded_as_failure():
 # --- Scenario 3: paywall on PDF download ---
 
 
+@real_required
 def test_paywalled_pdf_returns_none_grounding():
     """A 401/403 on PDF download surfaces as summary_grounded_pdf=None
     AND failure_reason populated (not silently True/False)."""

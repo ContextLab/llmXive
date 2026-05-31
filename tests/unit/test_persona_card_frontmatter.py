@@ -18,7 +18,7 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:  # pragma: no cover
-    raise SystemExit("PyYAML required: pip install pyyaml")
+    raise SystemExit("PyYAML required: pip install pyyaml") from None
 
 
 PERSONA_DIR = Path(__file__).resolve().parents[2] / "agents" / "prompts" / "personalities"

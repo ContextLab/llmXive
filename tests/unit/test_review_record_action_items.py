@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -20,7 +20,7 @@ def _base_kwargs(verdict: str = "accept", score: float = 0.5, prompt_version: st
         "score": score,
         "verdict": verdict,
         "feedback": "x",
-        "reviewed_at": datetime.now(timezone.utc),
+        "reviewed_at": datetime.now(UTC),
         "prompt_version": prompt_version,
         "model_name": "qwen.qwen3.5-122b",
         "backend": BackendName.DARTMOUTH,

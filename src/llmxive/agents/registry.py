@@ -10,12 +10,13 @@ from pathlib import Path
 
 import yaml
 
+from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
 from llmxive.types import AgentRegistry, AgentRegistryEntry
 
 
 def _registry_path() -> Path:
-    return Path(__file__).resolve().parent.parent.parent.parent / "agents" / "registry.yaml"
+    return _repo_root() / "agents" / "registry.yaml"
 
 
 def load(*, repo_root: Path | None = None) -> AgentRegistry:
@@ -39,4 +40,4 @@ def list_names(*, repo_root: Path | None = None) -> list[str]:
     return [a.name for a in load(repo_root=repo_root).agents]
 
 
-__all__ = ["load", "get", "list_names"]
+__all__ = ["get", "list_names", "load"]

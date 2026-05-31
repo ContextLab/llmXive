@@ -9,15 +9,12 @@ of non-`authors` metadata.json fields.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-
-import pytest
 
 from llmxive.pipeline import authors as authors_module
 
-
-_NOW = datetime(2026, 5, 19, 10, 14, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 5, 19, 10, 14, 0, tzinfo=UTC)
 
 
 def _write_metadata(path: Path, data: dict) -> None:

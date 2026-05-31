@@ -2,27 +2,26 @@
 
 For each backend in the agent registry, attempts a cheap probe:
   - dartmouth: ChatDartmouth.list() — confirms key validity + service health
-  - huggingface: list_models() — static whitelist; success requires HF_TOKEN
   - local: import transformers — confirms the dep is installed
 
 Exits 1 if any required backend fails. The "required" set is just
-`dartmouth` (the default for most agents); HF and local are advisory
-fallbacks (their failure is a soft warning).
+`dartmouth` (the default for most agents); local is an advisory
+fallback (its failure is a soft warning).
 """
 
 from __future__ import annotations
 
 import os
 import sys
-from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
 from llmxive.backends import router as backend_router
 from llmxive.backends.base import BackendError
+from llmxive.config import repo_root as _repo_root
 
 
 def main() -> int:
-    repo = Path(__file__).resolve().parent.parent.parent.parent
+    repo = _repo_root()
     try:
         reg = registry_loader.load(repo_root=repo)
     except Exception as exc:

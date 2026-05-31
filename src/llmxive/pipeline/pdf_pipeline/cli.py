@@ -21,6 +21,8 @@ import sys
 import time
 from pathlib import Path
 
+from llmxive.config import repo_root as _repo_root
+
 from .compile import compile_pdf
 from .restyle import restyle_file
 
@@ -66,7 +68,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
     # repo's papers/.style/ — Constitution I single-source-of-truth.
     cls_dest = out_dir / "llmxive.cls"
     if not cls_dest.exists():
-        repo_cls = Path(__file__).resolve().parents[4] / "papers" / ".style" / "llmxive.cls"
+        repo_cls = _repo_root() / "papers" / ".style" / "llmxive.cls"
         if repo_cls.exists():
             shutil.copy2(repo_cls, cls_dest)
         else:
@@ -106,7 +108,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    return build_parser().parse_args(argv).handler(build_parser().parse_args(argv))
+    args = build_parser().parse_args(argv)
+    result: int = args.handler(args)
+    return result
 
 
 if __name__ == "__main__":

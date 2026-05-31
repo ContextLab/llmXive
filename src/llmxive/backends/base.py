@@ -13,8 +13,9 @@ from __future__ import annotations
 
 import abc
 import threading
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Callable, Iterable, TypeVar
+from typing import TypeVar
 
 
 @dataclass(frozen=True)
@@ -54,9 +55,9 @@ def invoke_with_deadline(
 ) -> _T:
     """Run ``fn()`` under a hard wall-clock deadline and return its result.
 
-    LLM client libraries (langchain's ``ChatDartmouth`` / ``ChatHuggingFace``,
-    which wrap ``ChatOpenAI`` / ``HuggingFaceEndpoint``) accept a nominal
-    ``timeout`` but forward it as a *chat-completion body parameter*, not as an
+    LLM client libraries (langchain's ``ChatDartmouth``, which wraps
+    ``ChatOpenAI``) accept a nominal ``timeout`` but forward it as a
+    *chat-completion body parameter*, not as an
     HTTP/socket timeout. A sick connection therefore blocks the calling thread
     indefinitely — observed in CI as a backend ``invoke`` hanging for ~54 min
     until the job-level timeout killed it.
@@ -79,7 +80,7 @@ def invoke_with_deadline(
     def _runner() -> None:
         try:
             result.append(fn())
-        except BaseException as exc:  # noqa: BLE001 — carried to caller thread
+        except BaseException as exc:
             error.append(exc)
 
     worker = threading.Thread(
@@ -123,8 +124,8 @@ class BaseBackend(abc.ABC):
 
 
 __all__ = [
-    "BaseBackend",
     "BackendError",
+    "BaseBackend",
     "ChatMessage",
     "ChatResponse",
     "PermanentBackendError",

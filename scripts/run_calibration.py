@@ -1,0 +1,447 @@
+#!/usr/bin/env python3
+"""Run differential calibration for one stage against the spec-015
+calibration set (T068 / FR-046).
+
+Usage::
+
+    python scripts/run_calibration.py --stage spec
+    python scripts/run_calibration.py --stage tasks --model qwen.qwen3.5-122b
+    python scripts/run_calibration.py --stage all --domain (unspecified)
+
+Writes the adjudication report to
+``specs/015-pipeline-convergence-protocol/calibration/reports/<stage>__<timestamp>.md``.
+
+The script is designed to run in CI (GitHub Actions
+``.github/workflows/spec015-calibration.yml``) — it consumes the
+``DARTMOUTH_CHAT_API_KEY`` secret, runs against the on-disk calibration
+set, and commits the produced report. Maintainer adjudication is done
+afterward in the report file's checklist (FR-046 differential + manual
+rule — no fixed over-flag threshold).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+
+from llmxive.backends.dartmouth import DartmouthBackend
+from llmxive.calibration.builder import (
+    _IDEA_POSITIVE,
+    _PLAN_POSITIVE,
+    _SPEC_POSITIVE,
+    _TASKS_POSITIVE,
+)
+from llmxive.calibration.differential import CalibrationRun, adjudicate
+from llmxive.calibration.injectors import Injection
+from llmxive.convergence.engine import run_convergence
+from llmxive.convergence.llm_reviewer import build_panel
+from llmxive.convergence.reviewspecs import (
+    build_idea_reviewspec,
+    build_paper_implement_reviewspec,
+    build_paper_plan_reviewspec,
+    build_paper_spec_reviewspec,
+    build_paper_tasks_reviewspec,
+    build_plan_reviewspec,
+    build_spec_reviewspec,
+    build_tasks_reviewspec,
+)
+from llmxive.convergence.types import ConvergenceResult
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+CALIBRATION_ROOT = REPO_ROOT / "specs" / "015-pipeline-convergence-protocol" / "calibration"
+REPORTS_DIR = CALIBRATION_ROOT / "reports"
+
+
+# Stage → (build_*_reviewspec, panel-lens list, on-disk calibration-set subdir)
+_STAGES: dict[str, tuple[object, list[str], str]] = {
+    "idea": (
+        build_idea_reviewspec,
+        ["rq_validity", "novelty", "feasibility", "idea_quality"],
+        "idea",  # injector: circular_rq → rq_validity
+    ),
+    "spec": (
+        build_spec_reviewspec,
+        ["requirements_coverage", "internal_consistency", "testability", "scope"],
+        "spec",
+    ),
+    "plan": (
+        build_plan_reviewspec,
+        ["methodology", "spec_coverage", "data_resources", "plan_consistency"],
+        "plan",
+    ),
+    "tasks": (
+        build_tasks_reviewspec,
+        ["coverage", "ordering", "executability", "constraint_preservation"],
+        "tasks",
+    ),
+    "paper_spec": (
+        build_paper_spec_reviewspec,
+        ["reader_scenario_coverage", "claims_supported",
+         "required_sections_figures", "scope_vs_research"],
+        # Post-2026-05-29: per-stage calibration subdir. The injector
+        # used here (``unsupported_claim``) targets ``claims_supported``
+        # which lives on this panel.
+        "paper_spec",
+    ),
+    "paper_plan": (
+        build_paper_plan_reviewspec,
+        ["paper_structure", "spec_section_coverage", "plan_constitution_consistency"],
+        "paper_plan",  # injector: orphan_plan_section → spec_section_coverage
+    ),
+    "paper_tasks": (
+        build_paper_tasks_reviewspec,
+        ["coverage", "ordering", "executability", "constraint_preservation"],
+        "paper_tasks",  # injector: fr_without_task → coverage (paper-side)
+    ),
+    "paper_implement": (
+        build_paper_implement_reviewspec,
+        # The paper_implement registry uses the 12-panel; we run a
+        # subset relevant to the calibration negative (nonexistent_citation).
+        ["claim_accuracy", "scientific_evidence", "writing_quality",
+         "figure_critic"],
+        "paper_implement",  # injector: nonexistent_citation → claim_accuracy
+    ),
+}
+
+
+def _load_entries(stage_subdir: str) -> list[tuple[str, str, str | None]]:
+    """Return ``[(label, text, expected_lens_or_None), ...]`` from the
+    on-disk calibration set for ``stage_subdir``."""
+    stage_dir = CALIBRATION_ROOT / stage_subdir
+    if not stage_dir.is_dir():
+        raise FileNotFoundError(f"calibration subdir not found: {stage_dir}")
+    out: list[tuple[str, str, str | None]] = []
+    for md in sorted(stage_dir.glob("*.md")):
+        label = md.stem
+        sidecar = md.with_suffix(".label.json")
+        meta = json.loads(sidecar.read_text()) if sidecar.exists() else {}
+        out.append((label, md.read_text(), meta.get("expected_lens")))
+    return out
+
+
+def _make_backend(model: str, max_tokens: int) -> DartmouthBackend:
+    """Build a Dartmouth backend with per-call max_tokens injected."""
+    b = DartmouthBackend()
+    orig_chat = b.chat
+
+    def chat_with_budget(messages, model=None, **kw):  # type: ignore[no-untyped-def]
+        # Default kwargs the engine + reviser pass through.
+        kw.setdefault("max_tokens", max_tokens)
+        return orig_chat(messages, model=model, **kw)
+
+    b.chat = chat_with_budget  # type: ignore[assignment]
+    return b
+
+
+@dataclass
+class _Outcome:
+    label: str
+    expected_lens: str | None
+    result: ConvergenceResult
+    elapsed_s: float
+
+
+def _load_constitution() -> str:
+    """Read the repo-level constitution; return ``""`` if absent.
+
+    The calibration runner uses the repo's own constitution as the
+    closest available stand-in for a project constitution (the
+    calibration harness runs against synthetic artifacts that have no
+    project of their own). The repo path is the convention used by
+    every research-side speckit command in ``src/llmxive/speckit/``.
+    """
+    const_path = REPO_ROOT / ".specify" / "memory" / "constitution.md"
+    if const_path.exists():
+        return const_path.read_text(encoding="utf-8")
+    return ""
+
+
+def _supporting_artifacts_for_stage(stage: str) -> dict[str, str]:
+    """Build the sentinel ``__X__`` artifact dict each stage's reviser
+    consults beyond its primary artifact.
+
+    Without these, the panel emits "spec.md not provided" /
+    "constitution.md not provided" concerns that look like real findings
+    — the spec-015 calibration repro symptom (every panel reporting
+    "X not provided" on calibration runs).
+
+    The supporting context comes from the SYNTHETIC seed positives in
+    :mod:`llmxive.calibration.builder` (NOT from real on-disk artifacts).
+    Calibration's whole point is narrow evaluation — using the seed
+    positives for the upstream stages is intentional: the panel sees
+    coherent upstream context that the negative-injected artifact
+    should be evaluated against.
+
+    Some keys are legitimately empty (no comments / no prior reviews /
+    no analyze report exists for the synthetic seeds). Empty string is
+    acceptable — the reviser's ``artifacts.get("__X__", "")`` fallback
+    sees the explicit empty rather than a silently-missing key.
+    """
+    constitution = _load_constitution()
+    # All keys default to "" so the reviser's `.get(key, "")` returns
+    # the supplied empty rather than the default — keeps the fail-loud
+    # contract explicit.
+    common_empty = {
+        "__comments_block__": "",
+        "__prior_reviews__": "",
+        "__analyze_report__": "",
+        "__spec_template__": "",
+        "__code_summary__": "",
+        "__data_summary__": "",
+    }
+    if stage == "idea":
+        # FleshOutReviser only reads the idea Markdown (the primary artifact)
+        # + __comments_block__. Idea is the EARLIEST stage: NO constitution
+        # exists yet (constitution_input=False), so none is supplied.
+        return {**common_empty}
+    if stage == "spec":
+        # spec_reviser pulls __idea_md__, __comments_block__, __spec_template__.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__idea_md__": _IDEA_POSITIVE,
+        }
+    if stage == "plan":
+        # plan_reviser pulls __constitution__, __comments_block__, __spec_md__.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+        }
+    if stage == "tasks":
+        # tasks_reviser pulls __analyze_report__, __prior_reviews__,
+        # __constitution__, __comments_block__, __spec_md__, __plan_md__.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+            "__plan_md__": _PLAN_POSITIVE,
+        }
+    if stage == "paper_spec":
+        # paper_spec_reviser pulls __code_summary__, __data_summary__,
+        # __constitution__, __comments_block__. The code/data summaries
+        # don't exist in the synthetic harness; supply empty strings so
+        # the key is present (the reviser sees explicit empty).
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+        }
+    if stage == "paper_plan":
+        # PaperPlanReviser shares plan_reviser.py — same contract as plan.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+        }
+    if stage == "paper_tasks":
+        # PaperTasksReviser shares tasks_reviser.py — same contract as tasks.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__spec_md__": _SPEC_POSITIVE,
+            "__plan_md__": _PLAN_POSITIVE,
+        }
+    if stage == "paper_implement":
+        # paper_implement_reviser pulls __paper_spec_md__, __paper_plan_md__,
+        # __results_md__, __tasks_md__, __constitution__, __comments_block__.
+        # No synthetic seed exists for results.md (it's a real-data
+        # artifact in production); supply empty so the key is present.
+        return {
+            **common_empty,
+            "__constitution__": constitution,
+            "__paper_spec_md__": _SPEC_POSITIVE,
+            "__paper_plan_md__": _PLAN_POSITIVE,
+            "__tasks_md__": _TASKS_POSITIVE,
+            "__results_md__": "",
+        }
+    return {**common_empty, "__constitution__": constitution}
+
+
+def _run_one(
+    *, stage: str, label: str, text: str, backend: object, model: str,
+) -> ConvergenceResult:
+    build_fn, lenses, _ = _STAGES[stage]
+    spec = build_fn(  # type: ignore[operator]
+        backend=backend, repo_root=REPO_ROOT, project_id="PROJ-000-calibration",
+        model=model,
+    )
+    spec.reviewers = build_panel(
+        stage=spec.stage, lenses=lenses, backend=backend, repo_root=REPO_ROOT,
+        model=model,
+    )
+    artifacts_key = _artifact_key_for_stage(stage)
+    # Supply the primary artifact PLUS every sentinel ``__X__`` key the
+    # stage's reviser reads (FR-049 fail-loud). Without the sentinels
+    # the panel emits "X not provided" concerns that look like real
+    # findings (spec-015 calibration repro symptom).
+    extras = _supporting_artifacts_for_stage(stage)
+    artifacts = {artifacts_key: text, **extras}
+    constitution = extras.get("__constitution__") or None
+    return run_convergence(spec, artifacts, constitution=constitution)
+
+
+def _artifact_key_for_stage(stage: str) -> str:
+    return {
+        # FleshOutReviser requires the idea md under a key through /idea/ ending .md.
+        "idea": "projects/PROJ-000-calibration/idea/idea.md",
+        "spec": "specs/000-calib/spec.md",
+        "plan": "specs/000-calib/plan.md",
+        "tasks": "specs/000-calib/tasks.md",
+        "paper_spec": "paper/specs/000-calib/spec.md",
+        "paper_plan": "paper/specs/000-calib/plan.md",
+        "paper_tasks": "paper/specs/000-calib/tasks.md",
+        "paper_implement": "paper/source/main.tex",
+    }[stage]
+
+
+def run_stage(*, stage: str, model: str, domain: str, max_tokens: int,
+              timeout_s: float) -> Path:
+    """Run differential calibration for one stage; write report; return path."""
+    if stage not in _STAGES:
+        raise SystemExit(
+            f"unknown stage {stage!r}; expected one of {list(_STAGES)!r}"
+        )
+    _, _, subdir = _STAGES[stage]
+    entries = _load_entries(subdir)
+    if not entries:
+        raise SystemExit(f"no calibration entries found for stage {stage!r}")
+
+    backend = _make_backend(model=model, max_tokens=max_tokens)
+    outcomes: list[_Outcome] = []
+    errors: list[tuple[str, str]] = []  # (label, error message snippet)
+    print(f"[calibration] stage={stage!r}  entries={len(entries)}  model={model!r}",
+          flush=True)
+    for label, text, expected_lens in entries:
+        t0 = time.monotonic()
+        try:
+            result = _run_one(
+                stage=stage, label=label, text=text, backend=backend, model=model,
+            )
+            elapsed = time.monotonic() - t0
+            print(f"[calibration] {label!s:30}  converged={result.converged}  "
+                  f"concerns={len(result.concern_history)}  ({elapsed:.1f}s)",
+                  flush=True)
+        except Exception as exc:
+            elapsed = time.monotonic() - t0
+            err_str = str(exc)
+            print(f"[calibration] {label!s:30}  ERROR after {elapsed:.1f}s: {err_str}",
+                  flush=True)
+            errors.append((label, err_str))
+            # Dartmouth Chat outage detector: the API responds with an HTML
+            # redirect to outage.dartmouth.edu during planned maintenance.
+            # No point continuing — abort fast so we don't burn 25 min per
+            # subsequent entry.
+            if "outage.dartmouth.edu" in err_str or "Moved Temporarily" in err_str:
+                raise SystemExit(
+                    f"[calibration] aborting: detected Dartmouth Chat outage "
+                    f"(entry {label!r} got HTML redirect to outage page). "
+                    f"Re-run after https://api.dartmouth.edu recovers."
+                ) from exc
+            result = ConvergenceResult(
+                stage=stage, converged=False, rounds_used=0,
+            )
+        outcomes.append(_Outcome(
+            label=label, expected_lens=expected_lens,
+            result=result, elapsed_s=elapsed,
+        ))
+        if elapsed > timeout_s:
+            print(f"[calibration] timeout budget exceeded ({elapsed:.1f}s > "
+                  f"{timeout_s}s); skipping remaining entries.", flush=True)
+            break
+
+    # Honesty gate: if EVERY entry errored, abort without writing a misleading
+    # "0 caught / N missed" report (which the workflow would happily commit).
+    if errors and len(errors) == len(outcomes):
+        raise SystemExit(
+            f"[calibration] aborting: all {len(errors)} entries errored. "
+            f"First error: {errors[0][1][:200]!r}. No report written."
+        )
+
+    runs = _outcomes_to_calibration_runs(stage, outcomes)
+    report = adjudicate(runs, domain=domain)
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    out_path = REPORTS_DIR / f"{stage}__{ts}.md"
+    runner_version = _runner_version()
+    out_path.write_text(report.to_markdown(domain=domain, runner_version=runner_version))
+    print(f"[calibration] report → {out_path.relative_to(REPO_ROOT)}", flush=True)
+    return out_path
+
+
+def _runner_version() -> str | None:
+    """Best-effort runner-version identifier — git short hash of the
+    commit producing this report. Used by FR-044's recommender to
+    filter stale reports out of aggregation. Returns ``None`` if git
+    isn't available or the working tree isn't a git repo."""
+    import subprocess as _sp
+    try:
+        out = _sp.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=REPO_ROOT, stderr=_sp.DEVNULL, timeout=5,
+        ).decode().strip()
+        return out or None
+    except (OSError, _sp.SubprocessError):
+        return None
+
+
+def _outcomes_to_calibration_runs(
+    stage: str, outcomes: list[_Outcome],
+) -> list[CalibrationRun]:
+    """Pair the positive with each negative to build CalibrationRuns."""
+    positive = next((o for o in outcomes if o.label == "positive"), None)
+    if positive is None:
+        raise SystemExit(
+            f"no `positive.md` entry found for stage {stage!r}; "
+            "calibration requires a clean baseline."
+        )
+    runs: list[CalibrationRun] = []
+    for o in outcomes:
+        if o.label == "positive":
+            continue
+        injector_name = o.label.removeprefix("negative_")
+        injection = Injection(
+            text="<<from disk>>",
+            expected_lens=o.expected_lens or "<unknown>",
+            description=f"Injector: {injector_name}",
+            original=positive.result.stage,
+        )
+        runs.append(CalibrationRun(
+            injector_name=injector_name,
+            injection=injection,
+            clean_result=positive.result,
+            injected_result=o.result,
+        ))
+    return runs
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--stage", default="spec", choices=[*list(_STAGES), "all"],
+                   help="which stage to calibrate (or 'all')")
+    p.add_argument("--model", default="qwen.qwen3.5-122b",
+                   help="Dartmouth model id")
+    p.add_argument("--max-tokens", type=int, default=8192,
+                   help="per-call max_tokens (reasoning models need ≥4096)")
+    p.add_argument("--domain", default="(unspecified)",
+                   help="domain label written into the report header")
+    p.add_argument("--timeout", type=float, default=1800.0,
+                   help="per-stage soft timeout in seconds (skip remaining "
+                        "entries after this; default 30 min)")
+    args = p.parse_args(argv)
+
+    stages = list(_STAGES) if args.stage == "all" else [args.stage]
+    for stage in stages:
+        run_stage(
+            stage=stage, model=args.model, domain=args.domain,
+            max_tokens=args.max_tokens, timeout_s=args.timeout,
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

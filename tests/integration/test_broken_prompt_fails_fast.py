@@ -16,7 +16,6 @@ control. No network. No LLM. Designed to run in milliseconds.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -83,25 +82,16 @@ def _patch_loader(
 def test_pass_when_prompt_exists_with_heading(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    # Hermetic happy path: a synthetic 1-agent registry whose prompt lives
+    # under a tmp repo, reached via the LLMXIVE_REPO_ROOT override the check
+    # honors through llmxive.config.repo_root().
     prompt = tmp_path / "agents" / "prompts" / "testbroken.md"
     prompt.parent.mkdir(parents=True)
     prompt.write_text("# Test Broken\n\nHello.\n", encoding="utf-8")
-    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path))
 
     reg = _make_registry(prompt_relpath="agents/prompts/testbroken.md")
     _patch_loader(monkeypatch, registry=reg, repo_root=tmp_path)
-    # Force the check module to use tmp_path as repo by monkeypatching
-    # __file__ resolution: the easiest is to ensure the prompt resolves
-    # against the cwd. The check uses Path(__file__) parents — patch
-    # there too.
-    monkeypatch.setattr(
-        "llmxive.checks.prompts.Path",
-        type(Path("")),  # leave Path itself; rely on relative resolution
-    )
-
-    # Easier: just run from repo root with the *real* registry — verify
-    # the happy path on the actual repo (24 agents, all prompts present).
-    monkeypatch.undo()  # discard the synthetic registry
     rc = prompt_check.main()
     assert rc == 0
     out = capsys.readouterr().out

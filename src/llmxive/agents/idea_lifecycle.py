@@ -16,10 +16,12 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.config import repo_root as _repo_root
 from llmxive.types import AgentRegistryEntry
 
 
@@ -42,7 +44,7 @@ class _IdeaPhaseAgent(Agent):
         super().__init__(registry_entry)
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         system = render_prompt(
             self.prompt_path,
             {
@@ -98,7 +100,7 @@ class BrainstormAgent(_IdeaPhaseAgent):
     prompt_path = "agents/prompts/brainstorm.md"
 
     def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         title = ctx.metadata.get("title", ctx.project_id)
         slug = _slugify(title)
         idea_dir = repo / "projects" / ctx.project_id / "idea"
@@ -129,7 +131,7 @@ class FleshOutAgent(_IdeaPhaseAgent):
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         messages = super().build_messages(ctx)
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         # spec 003 / D12: forward any [REVISED] hint from a prior
         # research_question_validator iteration so this re-run actually
         # adopts the revised question instead of regenerating the rejected
@@ -191,7 +193,7 @@ class FleshOutAgent(_IdeaPhaseAgent):
         query: str,
         title: str,
         field: str,
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Invoke the LibrarianAgent directly per spec 005 / FR-007.
 
         Returns a list of librarian-shaped verified-citation dicts (the
@@ -206,7 +208,7 @@ class FleshOutAgent(_IdeaPhaseAgent):
             print(f"[flesh_out] librarian import failed: {exc!r}")
             return []
 
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         idea_dir = repo / "projects" / ctx.project_id / "idea"
         idea_md_path: Path | None = None
         if idea_dir.is_dir():
@@ -251,7 +253,7 @@ class FleshOutAgent(_IdeaPhaseAgent):
     })
 
     def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         title = ctx.metadata.get("title", ctx.project_id)
         idea_dir = repo / "projects" / ctx.project_id / "idea"
         idea_dir.mkdir(parents=True, exist_ok=True)
@@ -353,7 +355,7 @@ class IdeaSelectorAgent(_IdeaPhaseAgent):
     prompt_path = "agents/prompts/idea_selector.md"
 
     def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         target = (
             repo
             / "projects"
@@ -390,7 +392,7 @@ class ResearchQuestionValidatorAgent(_IdeaPhaseAgent):
     prompt_path = "agents/prompts/research_question_validator.md"
 
     def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         idea_dir = repo / "projects" / ctx.project_id / "idea"
         idea_dir.mkdir(parents=True, exist_ok=True)
 

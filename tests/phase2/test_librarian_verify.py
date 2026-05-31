@@ -7,6 +7,8 @@ resolver behavior the librarian now subsumes.
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from llmxive.librarian.search import ArxivClient, Candidate
@@ -17,6 +19,15 @@ from llmxive.librarian.verify import (
     VerifiedCitation,
     jaccard_tokens,
     verify_citation,
+)
+
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
+
+# The verify_citation tests resolve real arXiv URLs (and example.invalid),
+# so they must skip outside real-call mode.
+real_required = pytest.mark.skipif(
+    not _REAL,
+    reason="resolves real arXiv/HTTP URLs; needs LLMXIVE_REAL_TESTS=1",
 )
 
 # --- Tokenization + Jaccard ------------------------------------------------
@@ -55,6 +66,7 @@ def test_jaccard_case_insensitive():
 # --- verify_citation: real arXiv ------------------------------------------
 
 
+@real_required
 def test_known_good_arxiv_verifies():
     """Real Vaswani paper passes URL + title-overlap; summary grounded
     when the librarian's summary is derived from the abstract."""
@@ -71,6 +83,7 @@ def test_known_good_arxiv_verifies():
     assert result.verification_log.summary_grounding_score >= SUMMARY_GROUNDING_THRESHOLD
 
 
+@real_required
 def test_known_bad_url_fails_with_url_not_resolves():
     """A primary_pointer pointing to a non-existent host returns a
     VerificationFailure with reason='url_not_resolves'."""
@@ -88,6 +101,7 @@ def test_known_bad_url_fails_with_url_not_resolves():
     assert result.reason == "url_not_resolves"
 
 
+@real_required
 def test_title_mismatch_fails():
     """A candidate whose claimed title doesn't match the fetched title
     fails with reason='title_mismatch'."""
@@ -110,6 +124,7 @@ def test_title_mismatch_fails():
     assert "token-overlap" in result.details
 
 
+@real_required
 def test_summary_not_grounded_fails():
     """A candidate whose librarian-summary is unrelated to the abstract
     fails with reason='summary_not_grounded'."""
@@ -122,6 +137,7 @@ def test_summary_not_grounded_fails():
     assert result.reason == "summary_not_grounded"
 
 
+@real_required
 def test_verify_handles_missing_abstract_gracefully():
     """A candidate with no claimed_abstract still completes (URL +
     title checks pass; summary-grounding is a no-op)."""

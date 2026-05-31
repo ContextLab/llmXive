@@ -1,4 +1,4 @@
-"""Real-call (T105): Dartmouth-quota detection routes the next call to HF.
+"""Real-call (T105): Dartmouth-quota detection routes the next call to local.
 
 Per the spec's FIX A2/K1 wording, the primary path here is to induce
 a real Dartmouth 429 — but doing that nightly burns a real test
@@ -14,7 +14,7 @@ exercises the router contract).
 from __future__ import annotations
 
 import os
-from typing import Iterable
+from collections.abc import Iterable
 
 import pytest
 
@@ -48,12 +48,12 @@ class _AlwaysTransient(BaseBackend):
         return True
 
 
-class _FakeHFSucceeds(BaseBackend):
-    name = "huggingface"
+class _FakeLocalSucceeds(BaseBackend):
+    name = "local"
     is_paid = False
 
     def list_models(self) -> list[str]:
-        return ["Qwen/Qwen2.5-7B-Instruct"]
+        return ["Qwen/Qwen2.5-3B-Instruct"]
 
     def chat(
         self,
@@ -64,7 +64,7 @@ class _FakeHFSucceeds(BaseBackend):
         temperature: float | None = None,
     ) -> ChatResponse:
         return ChatResponse(
-            text="OK from HF",
+            text="OK from local",
             model=model,
             backend=self.name,
             cost_estimate_usd=0.0,
@@ -78,8 +78,8 @@ class _FakeHFSucceeds(BaseBackend):
     os.environ.get("LLMXIVE_REAL_TESTS") != "1",
     reason="set LLMXIVE_REAL_TESTS=1 to exercise the router fallback test",
 )
-def test_dartmouth_transient_error_routes_to_hf(monkeypatch: pytest.MonkeyPatch) -> None:
-    """A TransientBackendError on Dartmouth advances the chain to HF."""
+def test_dartmouth_transient_error_routes_to_local(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A TransientBackendError on Dartmouth advances the chain to local."""
     # Replace the router's backend factory with our synthetic doubles.
     # This is the "secondary fast-feedback layer" path — Constitution
     # Principle III's primary verification (a real 429 from Dartmouth)
@@ -90,8 +90,8 @@ def test_dartmouth_transient_error_routes_to_hf(monkeypatch: pytest.MonkeyPatch)
     def fake_make(name: str) -> BaseBackend:
         if name == "dartmouth":
             return _AlwaysTransient()
-        if name == "huggingface":
-            return _FakeHFSucceeds()
+        if name == "local":
+            return _FakeLocalSucceeds()
         return real_make(name)
 
     monkeypatch.setattr(backend_router, "make_backend", fake_make)
@@ -99,11 +99,11 @@ def test_dartmouth_transient_error_routes_to_hf(monkeypatch: pytest.MonkeyPatch)
     response = backend_router.chat_with_fallback(
         [ChatMessage(role="user", content="ping")],
         default_backend="dartmouth",
-        fallback_backends=["huggingface"],
+        fallback_backends=["local"],
         model="qwen.qwen3.5-122b",
     )
-    assert response.backend == "huggingface", (
-        f"expected fallback to HF; got backend={response.backend!r}"
+    assert response.backend == "local", (
+        f"expected fallback to local; got backend={response.backend!r}"
     )
-    assert response.text == "OK from HF"
+    assert response.text == "OK from local"
     assert response.cost_estimate_usd == 0.0

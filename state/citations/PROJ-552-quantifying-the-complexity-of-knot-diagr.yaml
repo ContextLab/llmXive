@@ -1,0 +1,33 @@
+- artifact_hash: 888b394b3c47a8c085dfeaa8dbabdbd14e7dbb4b079f24cf6c9afecd21609664
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-05-31T06:49:34.126528Z'
+- artifact_hash: f83fd9ab7ca9ae1348654bf6ca11a9d6f6c02b27734c1b63620c0c89a9bb23e8
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/001-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org/wiki/Main_Page
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-05-31T07:07:08.202985Z'
+- artifact_hash: f83fd9ab7ca9ae1348654bf6ca11a9d6f6c02b27734c1b63620c0c89a9bb23e8
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/001-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://katlas.org/wiki/KnotAtlasAPI
+  verification_status: mismatch
+  verified_against_url: https://katlas.org/wiki/KnotAtlasAPI
+  verified_at: '2026-05-31T07:07:08.202985Z'

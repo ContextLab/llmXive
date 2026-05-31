@@ -11,22 +11,27 @@ immediately with a precondition-specific message, not silent skips.
 from __future__ import annotations
 
 import json
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any
 
 import yaml
-from jsonschema import Draft202012Validator, ValidationError
+from jsonschema import (  # type: ignore[import-untyped]  # no stubs available for jsonschema
+    Draft202012Validator,
+    ValidationError,
+)
+
+from llmxive.config import repo_root as _repo_root
 
 CONTRACTS_DIR: Path = (
-    Path(__file__).resolve().parent.parent.parent
+    _repo_root()
     / "specs"
     / "001-agentic-pipeline-refactor"
     / "contracts"
 )
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_schema(name: str) -> dict[str, Any]:
     candidates = [
         CONTRACTS_DIR / f"{name}.schema.yaml",
@@ -74,4 +79,4 @@ def list_contracts() -> list[str]:
     return names
 
 
-__all__ = ["validate", "is_valid", "list_contracts", "CONTRACTS_DIR"]
+__all__ = ["CONTRACTS_DIR", "is_valid", "list_contracts", "validate"]

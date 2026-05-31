@@ -12,10 +12,16 @@ import json
 import re
 import zipfile
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
 
-import requests
+import requests  # type: ignore[import-untyped]  # no stub package available
+import yaml
 
-from llmxive.librarian.dataset_sources import DatasetCandidate, USER_AGENT
+from llmxive.librarian import dataset_sources as _sources
+from llmxive.librarian import verify as _verify
+from llmxive.librarian.dataset_sources import USER_AGENT, DatasetCandidate
+from llmxive.librarian.verify import query_relevance_score
 
 _SAMPLE_BYTES = 256 * 1024   # cap the sample download at 256 KB
 _SNIFF_TIMEOUT = 20
@@ -130,9 +136,6 @@ def sniff_format(url: str) -> FormatReport:
     return FormatReport(ok, fmt, len(sample), None if ok else "unrecognized/non-dataset content")
 
 
-from llmxive.librarian import verify as _verify
-
-
 @dataclass(frozen=True)
 class VerifiedDataset:
     intent: str
@@ -205,11 +208,6 @@ def probe_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifyRes
     return VerifyResult("verified", c.url, None, dataset)
 
 
-from pathlib import Path
-
-from llmxive.librarian import dataset_sources as _sources
-from llmxive.librarian.verify import query_relevance_score
-
 _DOI_RE = re.compile(r"\b(10\.\d{4,9}/[^\s)\]\"'>}]+)", re.IGNORECASE)
 # Capitalized/alnum dataset-name tokens, e.g. QM9, ImageNet, CIFAR-10, MD17.
 _NAME_RE = re.compile(r"\b([A-Z][A-Za-z]*\d[\w-]*|[A-Z]{2,}[A-Za-z0-9-]*)\b")
@@ -221,8 +219,8 @@ _AUTHORITY = {"huggingface": 4, "zenodo": 3, "figshare": 3, "datacite": 2, "sema
 class ResolvedIntent:
     intent: str
     status: str                       # "verified" | "unresolved"
-    candidates: list[dict] = field(default_factory=list)        # top-N verified
-    candidates_tried: list[dict] = field(default_factory=list)  # audit
+    candidates: list[dict[str, object]] = field(default_factory=list)        # top-N verified
+    candidates_tried: list[dict[str, object]] = field(default_factory=list)  # audit
 
 
 @dataclass
@@ -281,7 +279,7 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
     deadline = time.monotonic() + budget_s
     resolved: list[ResolvedIntent] = []
     for intent in extract_dataset_intents(spec_text):
-        tried: list[dict] = []
+        tried: list[dict[str, object]] = []
         verified: list[VerifiedDataset] = []
         for c in _gather_candidates(intent):
             if time.monotonic() > deadline:
@@ -314,16 +312,11 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
     return ResolvedDatasets(datasets=resolved)
 
 
-from datetime import datetime, timezone
-
-import yaml
-
-
 def write_manifest(rd: ResolvedDatasets, *, project_dir: Path) -> Path:
     out = Path(project_dir) / ".specify" / "memory" / "resolved_datasets.yaml"
     out.parent.mkdir(parents=True, exist_ok=True)
     doc = {
-        "resolved_at": datetime.now(timezone.utc).isoformat(),
+        "resolved_at": datetime.now(UTC).isoformat(),
         "datasets": [
             {"intent": d.intent, "status": d.status,
              "candidates": d.candidates, "candidates_tried": d.candidates_tried}
@@ -347,6 +340,6 @@ def render_planner_block(rd: ResolvedDatasets) -> str:
         if d.status != "verified":
             lines.append(f"- {d.intent}: NO verified source found (do NOT cite a URL for it).")
             continue
-        urls = ", ".join(c["url"] for c in d.candidates)
+        urls = ", ".join(str(c["url"]) for c in d.candidates)
         lines.append(f"- {d.intent} ({d.candidates[0]['format']}): {urls}")
     return "\n".join(lines)

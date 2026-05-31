@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -43,7 +43,7 @@ def republish(project_id: str, *, repo_root: Path) -> int:
         project_id,
         {
             "current_stage": Stage.PAPER_ACCEPTED.value,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         },
         repo_root=repo_root,
     )

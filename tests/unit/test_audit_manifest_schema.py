@@ -18,9 +18,9 @@ from pathlib import Path
 import jsonschema
 
 from llmxive.audit.manifest import (
+    Defect,
     ManifestItem,
     RuleFired,
-    Defect,
     add_item,
     new_manifest,
     read_manifest,

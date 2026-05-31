@@ -9,7 +9,6 @@ from pathlib import Path
 import jsonschema
 import yaml
 
-
 SCHEMA_PATH = (
     Path(__file__).resolve().parents[2]
     / "specs"

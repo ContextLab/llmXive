@@ -20,17 +20,11 @@ from __future__ import annotations
 import json
 import os
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 import requests
-
-pytestmark = pytest.mark.skipif(
-    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
-    reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
-)
-
 
 from llmxive.agents.base import AgentContext
 from llmxive.agents.publisher import PaperPublisher
@@ -39,6 +33,11 @@ from llmxive.credentials import MissingCredentialError, load_zenodo_token
 from llmxive.state import project as project_state
 from llmxive.state import publication as pub_state
 from llmxive.types import Project, Stage
+
+pytestmark = pytest.mark.skipif(
+    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
+    reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
+)
 
 
 _REPO = Path(__file__).resolve().parents[2]
@@ -114,8 +113,8 @@ This is a sandbox test publication.
         title="Sandbox Publisher Fixture",
         field="test",
         current_stage=Stage.PAPER_ACCEPTED,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
     project_state.save(proj, repo_root=repo)
     return pid
@@ -131,7 +130,7 @@ def test_publisher_sandbox_e2e_first_publication() -> None:
         agent = PaperPublisher(registry_entry=entry)
         ctx = AgentContext(
             project_id=pid,
-            run_id=f"sandbox-pub-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+            run_id=f"sandbox-pub-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
             task_id="t-pub",
             inputs=["paper"],
         )
@@ -198,7 +197,7 @@ def test_publisher_sandbox_versioning_preserves_original_doi() -> None:
             pid,
             {
                 "current_stage": Stage.PAPER_ACCEPTED.value,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
             },
             repo_root=_REPO,
         )
@@ -208,7 +207,7 @@ def test_publisher_sandbox_versioning_preserves_original_doi() -> None:
         agent = PaperPublisher(registry_entry=entry)
         ctx = AgentContext(
             project_id=pid,
-            run_id=f"sandbox-rev-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+            run_id=f"sandbox-rev-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
             task_id="t-pub2",
             inputs=["paper"],
         )

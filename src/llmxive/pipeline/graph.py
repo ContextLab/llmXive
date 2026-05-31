@@ -14,29 +14,38 @@ without changing public APIs.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import logging
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
+from llmxive.agents import registry as registry_loader
 from llmxive.agents.advancement import evaluate as advancement_evaluate
+from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.idea_lifecycle import (
     BrainstormAgent,
     FleshOutAgent,
     IdeaSelectorAgent,
     ResearchQuestionValidatorAgent,
 )
-from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.lifecycle import is_valid_transition
 from llmxive.agents.paper_initializer import PaperInitializerAgent
 from llmxive.agents.paper_reviewer import PaperReviewerAgent
 from llmxive.agents.project_initializer import (
     ProjectInitializerAgent,
-    transition_to_project_initialized,
 )
+from llmxive.agents.publisher import PaperPublisher
 from llmxive.agents.research_reviewer import ResearchReviewerAgent
-from llmxive.agents import registry as registry_loader
 from llmxive.agents.runner import run_agent
+from llmxive.config import repo_root as _repo_root
+from llmxive.pipeline._kickback import (
+    CONVERGENCE_KICKBACK_CAP,
+    consume_convergence_kickback,
+    reset_kickback_count,
+)
+from llmxive.speckit._stage_panel import StagePanelEscalation, StagePanelKickback
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.implement_cmd import ImplementerAgent
 from llmxive.speckit.paper_clarify_cmd import PaperClarifierAgent
@@ -51,11 +60,11 @@ from llmxive.speckit.tasks_cmd import TaskerAgent
 from llmxive.state import project as project_store
 from llmxive.types import (
     AgentRegistryEntry,
-    BackendName,
     Project,
     Stage,
 )
 
+logger = logging.getLogger(__name__)
 
 # Map (current_stage, agent_name) — the agent invoked when a project is
 # at the keyed stage. The agent's run() drives the transition to the
@@ -96,6 +105,27 @@ STAGE_TO_AGENT: dict[Stage, str] = {
     # paper_review (handled by advancement.evaluate).
     Stage.PAPER_COMPLETE: "paper_reviewer",
     Stage.PAPER_REVIEW: "paper_reviewer",
+    # FR-021/036/054 (discrepancy #2 / #58): the publisher runs at
+    # AWAITING_PUBLICATION_SIGNOFF. It self-gates on the maintainer DOI
+    # sign-off — no sign-off → no-op (stays awaiting); sign-off present →
+    # final compile + Zenodo DOI + publication.yaml + transition to POSTED.
+    # (PAPER_ACCEPTED → AWAITING_PUBLICATION_SIGNOFF is the pass-through flip
+    # in _decide_next_stage; the publisher is the SOLE driver of → POSTED.)
+    Stage.AWAITING_PUBLICATION_SIGNOFF: "paper_publisher",
+}
+
+
+# Maps the stage at which each doc-stage convergence panel RUNS to the
+# ``stage_label`` that panel passes to ``run_stage_panel`` (and thus the key
+# used in the kickback-count file). Used to reset the kickback counter once a
+# panel converges and the project advances forward (F-20 Part B). The tasks /
+# paper_tasks panels run via ``_tasker_engine_bridge`` (no run_stage_panel
+# sentinel), so their stages are intentionally absent.
+_STAGE_PANEL_LABEL: dict[Stage, str] = {
+    Stage.SPECIFIED: "spec",
+    Stage.CLARIFIED: "plan",
+    Stage.PAPER_SPECIFIED: "paper_spec",
+    Stage.PAPER_CLARIFIED: "paper_plan",
 }
 
 
@@ -149,9 +179,10 @@ _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "research_reviewer": ResearchReviewerAgent,
     "paper_initializer": PaperInitializerAgent,
     "paper_reviewer": PaperReviewerAgent,
+    "paper_publisher": PaperPublisher,
 }
 
-_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], SlashCommandAgent]] = {
+_SPECKIT_AGENTS: dict[str, type[SlashCommandAgent]] = {
     "specifier": SpecifierAgent,
     "clarifier": ClarifierAgent,
     "planner": PlannerAgent,
@@ -190,6 +221,43 @@ def _human_input_marker(project_dir: Path) -> bool:
     )
 
 
+def _write_human_escalation_marker(
+    memory_dir: Path, reason: str, stage_label: str
+) -> None:
+    """Drop a ``human_input_needed.yaml`` recording why the project escalated
+    (convergence-kickback cap exceeded or unroutable target). The reason is
+    also surfaced onto the Project's ``human_escalation_reason`` field by
+    ``run_one_step`` (read back from this marker)."""
+    import yaml
+
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    (memory_dir / "human_input_needed.yaml").write_text(
+        yaml.safe_dump({"reason": reason, "stage": stage_label}), encoding="utf-8"
+    )
+
+
+def _human_escalation_reason_from_markers(project_dir: Path) -> str | None:
+    """Read the ``reason`` from whichever ``human_input_needed.yaml`` marker
+    exists (research- or paper-side), for surfacing onto the Project."""
+    import yaml
+
+    for marker in (
+        project_dir / ".specify" / "memory" / "human_input_needed.yaml",
+        project_dir / "paper" / ".specify" / "memory" / "human_input_needed.yaml",
+    ):
+        if not marker.exists():
+            continue
+        try:
+            data = yaml.safe_load(marker.read_text(encoding="utf-8")) or {}
+        except (OSError, yaml.YAMLError):
+            continue
+        if isinstance(data, dict):
+            reason = data.get("reason")
+            if isinstance(reason, str) and reason.strip():
+                return reason
+    return None
+
+
 def _paper_complete_preconditions_met(
     project_id: str, project_dir: Path, *, repo_root: Path | None = None
 ) -> bool:
@@ -200,6 +268,25 @@ def _paper_complete_preconditions_met(
     list is empty.
     """
     if not _all_paper_tasks_done(project_dir):
+        return False
+    # F-18 hard-block: a paper artifact that still carries an
+    # ``[UNVERIFIED: ...]`` citation-guard marker (a fabricated / unverifiable
+    # reference) must NOT advance to paper_complete. Checked BEFORE the
+    # expensive LaTeX build so an unverified-reference paper short-circuits
+    # cheaply. Complements the citation-store gate below: the store tracks
+    # verified Citation rows, whereas the guard rewrites unresolvable refs
+    # in-place — so EITHER signal blocks advancement.
+    from llmxive.agents.citation_guard import project_unverified_markers
+
+    marker_bodies = project_unverified_markers(
+        project_id, track="paper", repo_root=repo_root
+    )
+    if marker_bodies:
+        logger.warning(
+            "paper_complete gate: blocking %s — unresolved unverified-citation "
+            "marker(s) in paper artifacts: %s",
+            project_id, "; ".join(marker_bodies),
+        )
         return False
     # LaTeX build is REQUIRED — a paper-stage project without a
     # compilable main.tex is by definition not paper_complete.
@@ -239,21 +326,21 @@ def run_one_step(
     Returns the updated project. Raises if no agent is wired for the
     project's current stage.
     """
-    repo = repo_root or Path(__file__).resolve().parent.parent.parent.parent
+    repo = repo_root or _repo_root()
     run_id = run_id or str(uuid4())
+    entry_stage = project.current_stage  # for the POSTED issue-close hook below
 
     agent_name = STAGE_TO_AGENT.get(project.current_stage)
 
-    # Revision states are transient: route them forward immediately
-    # without invoking an agent (the next scheduled run will pick the
-    # routed target up).
+    # Spec 015 T042 / FR-034: the 7 transient revision stages were deleted.
+    # The remaining stages that need pass-through routing (no agent runs
+    # for them) are: RESEARCH_FULL_REVISION / RESEARCH_REJECTED (kept for
+    # terminal-ish judgments), PAPER_FUNDAMENTAL_FLAWS (same), and
+    # PAPER_ACCEPTED (publisher-bound). Each of those resolves to its
+    # forward stage in ``_decide_next_stage`` below.
     if agent_name is None and project.current_stage in {
-        Stage.RESEARCH_MINOR_REVISION,
         Stage.RESEARCH_FULL_REVISION,
         Stage.RESEARCH_REJECTED,
-        Stage.PAPER_MINOR_REVISION,
-        Stage.PAPER_MAJOR_REVISION_WRITING,
-        Stage.PAPER_MAJOR_REVISION_SCIENCE,
         Stage.PAPER_FUNDAMENTAL_FLAWS,
         Stage.PAPER_ACCEPTED,
     }:
@@ -265,7 +352,7 @@ def run_one_step(
         project = project.model_copy(
             update={
                 "current_stage": next_stage,
-                "updated_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(UTC),
             }
         )
         project_store.save(project, repo_root=repo)
@@ -336,7 +423,7 @@ def run_one_step(
                 try:
                     run_agent(agent, ctx, repo_root=repo)
                 except Exception as exc:
-                    print(f"[graph] reviewer {an!r} failed: {exc}")
+                    logger.warning("reviewer %r failed: %s", an, exc)
             else:
                 # Single-agent stages (brainstorm, flesh_out, etc.) —
                 # propagate failures so the run is marked failed.
@@ -359,7 +446,22 @@ def run_one_step(
             prompt_version=entry.prompt_version,
             agent_name=entry.name,
         )
-        speckit_agent.run(sk_ctx)
+        try:
+            speckit_agent.run(sk_ctx)
+        except StagePanelKickback as exc:
+            # CONTROLLED non-convergence: the panel already wrote its
+            # convergence_kickback.yaml sentinel. Do NOT propagate — fall through
+            # to _decide_next_stage below, which CONSUMES that sentinel and routes
+            # the project to the content stage to auto-retry (bounded by the
+            # per-stage kickback cap → human escalation). Propagating instead
+            # would skip routing entirely: the project would loop at this stage
+            # forever (current_stage never advances; the cap never increments).
+            logger.info("stage-panel kickback for %s: %s", project.id, exc)
+        except StagePanelEscalation as exc:
+            # Engine failure: the panel wrote human_input_needed.yaml. Fall
+            # through so _decide_next_stage routes to HUMAN_INPUT_NEEDED rather
+            # than crashing the entire run loop with an unhandled exception.
+            logger.warning("stage-panel escalation for %s: %s", project.id, exc)
     else:
         raise RuntimeError(f"no implementation registered for agent {agent_name!r}")
 
@@ -381,36 +483,105 @@ def run_one_step(
             )
         update_fields: dict[str, Any] = {
             "current_stage": next_stage,
-            "updated_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(UTC),
             "last_run_id": run_id,
         }
         # The Project schema requires human_escalation_reason when stage
         # is human_input_needed; supply one when the transition target
-        # is the human-input stage (typically from flesh-out scope-reject).
+        # is the human-input stage. Prefer the reason recorded in the
+        # human_input_needed.yaml marker (e.g. the convergence-kickback cap
+        # escalation); fall back to the flesh-out scope-reject default.
         if next_stage == Stage.HUMAN_INPUT_NEEDED and not project.human_escalation_reason:
             update_fields["human_escalation_reason"] = (
-                "flesh-out judged idea out of GitHub-Actions-feasible scope; "
-                "idea archived under projects/<id>/idea/.archive/. Replace with "
-                "a tighter brainstorm or terminate."
+                _human_escalation_reason_from_markers(project_dir)
+                or (
+                    "flesh-out judged idea out of GitHub-Actions-feasible scope; "
+                    "idea archived under projects/<id>/idea/.archive/. Replace with "
+                    "a tighter brainstorm or terminate."
+                )
             )
         project = project.model_copy(update=update_fields)
-        # Issue-lifecycle hook: close the linked GitHub issue when the
-        # project transitions to POSTED. Best-effort — failures here do
-        # not abort the pipeline.
-        if next_stage == Stage.POSTED:
-            try:
-                from llmxive.integrations import issues as issues_mod
-                issues_mod.close_issue_for_project(repo, project)
-            except Exception as exc:  # pragma: no cover — telemetry only
-                print(f"[graph] issue-close hook failed for {project.id}: {exc}")
     project_store.save(project, repo_root=repo)
+    # Issue-lifecycle hook: close the linked GitHub issue when the project
+    # REACHES POSTED this step — whether via a graph transition or the
+    # publisher's OWN self-transition (paper_publisher sets POSTED directly
+    # via project_state.update, so the graph sees no next_stage change).
+    # Best-effort — failures here do not abort the pipeline.
+    if project.current_stage == Stage.POSTED and entry_stage != Stage.POSTED:
+        try:
+            from llmxive.integrations import issues as issues_mod
+            issues_mod.close_issue_for_project(repo, project)
+        except Exception as exc:  # pragma: no cover — telemetry only
+            logger.warning("issue-close hook failed for %s: %s", project.id, exc)
     return project
+
+
+def _convergence_kickback_memory_dirs(project_dir: Path) -> list[Path]:
+    """The two memory dirs a doc-stage panel may drop its sentinel into:
+    the research-side and the paper-side ``.specify/memory/`` (mirrors
+    ``_human_input_marker``)."""
+    return [
+        project_dir / ".specify" / "memory",
+        project_dir / "paper" / ".specify" / "memory",
+    ]
 
 
 def _decide_next_stage(
     project: Project, project_dir: Path, *, repo_root: Path | None = None
 ) -> Stage:
     """Pick the appropriate post-agent stage for the project."""
+    # ADAPTIVE convergence kickback (F-14 / F-20 Part B): a doc-stage panel
+    # that did NOT converge drops a generic ``convergence_kickback.yaml`` record
+    # carrying the content stage to roll back to. Consume it BEFORE the
+    # ``human_input_needed.yaml`` check so the project auto-retries at the
+    # content stage instead of stalling for a human — bounded by a per-stage
+    # kickback cap that escalates to human_input_needed after repeated failures.
+    for mem_dir in _convergence_kickback_memory_dirs(project_dir):
+        decision = consume_convergence_kickback(mem_dir)
+        if decision is None:
+            continue
+        if decision.escalate:
+            reason = (
+                f"Convergence kickback cap exceeded: the {decision.stage_label!r} "
+                f"convergence panel kicked the project back "
+                f"{decision.count} time(s) (cap={CONVERGENCE_KICKBACK_CAP}) without "
+                f"reaching unanimous acceptance. A human must intervene. "
+                f"Last reason: {decision.reason}"
+            )
+            _write_human_escalation_marker(mem_dir, reason, decision.stage_label)
+            return Stage.HUMAN_INPUT_NEEDED
+        try:
+            target_stage = Stage(decision.to_stage or "")
+        except ValueError:
+            logger.warning(
+                "convergence_kickback to_stage %r is not a valid Stage; "
+                "escalating %s to human_input_needed",
+                decision.to_stage, project.id,
+            )
+            _write_human_escalation_marker(
+                mem_dir,
+                f"convergence kickback named unknown stage "
+                f"{decision.to_stage!r}; cannot auto-route. {decision.reason}",
+                decision.stage_label,
+            )
+            return Stage.HUMAN_INPUT_NEEDED
+        logger.info(
+            "adaptive convergence kickback: %s -> %s (count=%d, stage=%s)",
+            project.id, target_stage.value, decision.count,
+            decision.stage_label,
+        )
+        return target_stage
+
+    # No pending convergence kickback at this stage → the panel converged this
+    # tick (the project advances forward). Reset the kickback counter for the
+    # panel that runs at the project's CURRENT stage so a later, legitimate
+    # kickback starts from a clean count (F-20 Part B: "reset when the project
+    # successfully advances PAST the kicked-back stage").
+    panel_label = _STAGE_PANEL_LABEL.get(project.current_stage)
+    if panel_label is not None:
+        for mem_dir in _convergence_kickback_memory_dirs(project_dir):
+            reset_kickback_count(mem_dir, panel_label)
+
     if _human_input_marker(project_dir):
         return Stage.HUMAN_INPUT_NEEDED
 
@@ -431,7 +602,7 @@ def _decide_next_stage(
         if idea_dir.is_dir():
             archive_dir = idea_dir / ".archive"
             archive_dir.mkdir(parents=True, exist_ok=True)
-            ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
             for md in sorted(idea_dir.glob("*.md")):
                 # Don't archive diagnostic side-files; just the canonical
                 # idea body. We move only non-diagnostic .md files.
@@ -500,32 +671,34 @@ def _decide_next_stage(
         evaluated = advancement_evaluate(project, repo_root=repo_root)
         return evaluated.current_stage
 
-    # US3 revision-state routing (T068). These states are transient —
-    # they record what the reviewer pool decided, and the very next
-    # scheduled run routes the project to the appropriate prior stage
-    # so the right agent picks it up:
-    #   research_minor_revision → tasked   (re-Tasker)
-    #   research_full_revision  → clarified (back to Specifier
-    #                             effectively, via Planner→Tasker)
-    #   research_rejected       → brainstormed (back to Brainstorm)
-    if cur == Stage.RESEARCH_MINOR_REVISION:
-        return Stage.TASKED
+    # Spec 015 T042 / FR-034: the 7 transient revision stages were
+    # DELETED. Routing decisions for any non-convergence are now made
+    # by ``advancement.py``'s engine-adapter path (which emits a
+    # KickbackRecord whose ``to_stage`` is one of the stable stages
+    # below). Only the kept "terminal-ish judgment" stages still need
+    # forward routing here:
+    #   research_full_revision  → clarified
+    #   research_rejected       → brainstormed
+    #   paper_fundamental_flaws → brainstormed
     if cur == Stage.RESEARCH_FULL_REVISION:
         return Stage.CLARIFIED
     if cur == Stage.RESEARCH_REJECTED:
         return Stage.BRAINSTORMED
-
-    # US5 paper-revision routing.
-    if cur == Stage.PAPER_MINOR_REVISION:
-        return Stage.PAPER_TASKED
-    if cur == Stage.PAPER_MAJOR_REVISION_WRITING:
-        return Stage.PAPER_CLARIFIED
-    if cur == Stage.PAPER_MAJOR_REVISION_SCIENCE:
-        return Stage.CLARIFIED  # back to research clarified
     if cur == Stage.PAPER_FUNDAMENTAL_FLAWS:
         return Stage.BRAINSTORMED
+    # Spec 015 T035 / FR-036 + FR-054 (discrepancy #2 / #58): PAPER_ACCEPTED
+    # does NOT shortcut to POSTED. PAPER_ACCEPTED -> AWAITING_PUBLICATION_SIGNOFF
+    # is a pass-through flip here; at AWAITING the `paper_publisher` agent runs
+    # (STAGE_TO_AGENT) and is the SOLE driver of -> POSTED: it self-gates on the
+    # maintainer sign-off and only transitions after the real compile + Zenodo
+    # DOI + publication.yaml succeed. We must NOT auto-advance AWAITING -> POSTED
+    # here: doing so would mark a project POSTED with no DOI/publication.yaml if
+    # the publisher hadn't (or couldn't) run. So AWAITING stays AWAITING until
+    # the publisher itself sets POSTED (seen on the post-agent reload).
     if cur == Stage.PAPER_ACCEPTED:
-        return Stage.POSTED
+        return Stage.AWAITING_PUBLICATION_SIGNOFF
+    if cur == Stage.AWAITING_PUBLICATION_SIGNOFF:
+        return Stage.AWAITING_PUBLICATION_SIGNOFF
 
     return STAGE_AFTER_AGENT.get(cur, cur)
 
@@ -537,4 +710,4 @@ def _collect_idea_inputs(project_dir: Path, repo: Path) -> list[str]:
     return [str(p.relative_to(repo)) for p in sorted(idea_dir.glob("*.md"))]
 
 
-__all__ = ["run_one_step", "STAGE_TO_AGENT", "STAGE_AFTER_AGENT"]
+__all__ = ["STAGE_AFTER_AGENT", "STAGE_TO_AGENT", "run_one_step"]

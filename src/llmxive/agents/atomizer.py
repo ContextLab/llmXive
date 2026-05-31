@@ -13,26 +13,25 @@ The agent's output records the sub-task tree; the parent task's
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import yaml
-
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
-
+from llmxive.config import repo_root as _repo_root
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 MAX_ATOMIZATION_DEPTH = 4
 
 
 class TaskAtomizerAgent(Agent):
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
-        parent_task = ctx.metadata.get("parent_task", {})
+        repo = _repo_root()
+        parent_task: Any = ctx.metadata.get("parent_task", {})
         current_depth = int(ctx.metadata.get("current_depth", 0))
 
         system = render_prompt(
@@ -58,7 +57,7 @@ class TaskAtomizerAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = Path(__file__).resolve().parent.parent.parent.parent
+        repo = _repo_root()
         try:
             doc = parse_yaml_lenient(response.text)
         except yaml.YAMLError as exc:
@@ -88,4 +87,4 @@ class TaskAtomizerAgent(Agent):
         return [str(out_path.relative_to(repo))]
 
 
-__all__ = ["TaskAtomizerAgent", "MAX_ATOMIZATION_DEPTH"]
+__all__ = ["MAX_ATOMIZATION_DEPTH", "TaskAtomizerAgent"]

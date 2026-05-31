@@ -6,6 +6,8 @@ DARTMOUTH_CHAT_API_KEY so CI without the key still passes.
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from llmxive.credentials import load_dartmouth_key
@@ -17,6 +19,7 @@ from llmxive.librarian.query_extractor import (
 )
 
 HAS_DM_KEY = bool(load_dartmouth_key(prompt_if_missing=False))
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 
 
 # --- Parser tests (no LLM) ----------------------------------------------------
@@ -176,7 +179,7 @@ def test_fallback_queries_all_stop_words() -> None:
 # --- Real LLM smoke test ------------------------------------------------------
 
 
-@pytest.mark.skipif(not HAS_DM_KEY, reason="extractor LLM requires DARTMOUTH_CHAT_API_KEY")
+@pytest.mark.skipif(not (HAS_DM_KEY and _REAL), reason="extractor LLM requires DARTMOUTH_CHAT_API_KEY + LLMXIVE_REAL_TESTS=1")
 def test_extract_queries_returns_short_decomposed_set() -> None:
     """End-to-end: a sentence-shaped research question gets decomposed
     into 3-5 short keyword queries, each different from the others."""
@@ -196,7 +199,7 @@ def test_extract_queries_returns_short_decomposed_set() -> None:
     assert len(set(qs)) >= 3
 
 
-@pytest.mark.skipif(not HAS_DM_KEY, reason="extractor LLM requires DARTMOUTH_CHAT_API_KEY")
+@pytest.mark.skipif(not (HAS_DM_KEY and _REAL), reason="extractor LLM requires DARTMOUTH_CHAT_API_KEY + LLMXIVE_REAL_TESTS=1")
 def test_extract_queries_includes_synonym_vocabulary() -> None:
     """For a question that uses 'code duplication', at least one
     query should use the canonical alternative vocabulary

@@ -17,13 +17,12 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-from pathlib import Path
 
 from llmxive import credentials as cred_mod
 from llmxive.agents import registry as registry_loader
-from llmxive.config import all_keys, about_page_published
+from llmxive.config import about_page_published, all_keys
+from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import list_contracts
-
 
 REQUIRED_TOOLS = ["git"]
 OPTIONAL_TOOLS = ["pdflatex", "uvx", "uv", "pipx"]
@@ -72,7 +71,7 @@ def _check_registry() -> list[str]:
         return [f"agent registry: {exc}"]
     except Exception as exc:
         return [f"agent registry parse failure: {exc}"]
-    repo = Path(__file__).resolve().parent.parent.parent
+    repo = _repo_root()
     for agent in reg.agents:
         prompt = repo / agent.prompt_path
         if not prompt.exists():
@@ -134,4 +133,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["main", "PreflightError"]
+__all__ = ["PreflightError", "main"]

@@ -2,6 +2,20 @@ target-version = "py311"
 line-length = 100
 src = ["src", "tests"]
 
+# Spec 015 T084: per-project trees under `projects/<id>/` may carry their
+# own (sometimes stale) `.ruff.toml` configs. Those are project-side
+# artifacts authored by the implementer agent and may target older ruff
+# versions; the infrastructure-side checks here MUST stay scoped to
+# infrastructure code (src/ + tests/), not crawl the generated project
+# trees. Without this, `ruff check .` fails on any stale per-project
+# config and we can't run the project-wide lint gate.
+extend-exclude = [
+  "projects/",
+  ".venv/",
+  "build/",
+  "dist/",
+]
+
 [lint]
 select = [
   "E",    # pycodestyle errors

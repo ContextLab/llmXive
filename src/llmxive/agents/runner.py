@@ -15,11 +15,10 @@ through. Per-agent re-implementation is forbidden by Constitution I.
 from __future__ import annotations
 
 import logging
-import os
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
-from typing import Iterator
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.pipeline import lock as lockmod
@@ -95,8 +94,8 @@ def _record_dispatch(
     *,
     agent_name: str,
     feed_delivered: bool,
-    manifest: dict | None = None,
-    failure: dict | None = None,
+    manifest: dict[str, object] | None = None,
+    failure: dict[str, object] | None = None,
 ) -> None:
     """Spec 009 FR-034 inputs: record dispatch metadata for the feedback-loop auditor."""
     from llmxive.feed import FeedStore
@@ -149,4 +148,4 @@ def run_agent(
         return agent.run(ctx)
 
 
-__all__ = ["run_agent", "project_lock"]
+__all__ = ["project_lock", "run_agent"]

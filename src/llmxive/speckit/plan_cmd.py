@@ -13,6 +13,7 @@ Stage transitions: `clarified` → `planned`.
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,23 @@ from llmxive.librarian.dataset_resolver import (
 from llmxive.speckit.runner import run_script
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
+logger = logging.getLogger(__name__)
+
+# Bounded planner revision-with-feedback loop (#015 / PROJ-552). A malformed
+# planner artifact (e.g. a contracts schema with an internal ``---`` multi-doc
+# marker, or an unquoted ``: `` that breaks YAML) must SELF-CORRECT instead of
+# hard-crashing and stranding the project at ``clarified``. On a deterministic-
+# guard failure we re-call the planner LLM with the exact guard error as
+# corrective feedback and retry, up to this many times (so up to 3 total
+# attempts: the initial response + this many revisions). When no usable backend
+# is available (offline) the loop does NOT retry — it re-raises the guard
+# exception, preserving the original fail-closed behavior and keeping offline
+# unit tests network-free.
+MAX_PLAN_REVISION_RETRIES = 2
+
+# Reasoning-safe token budget for the corrective re-call (mirrors the planner's
+# normal call path; qwen3.5-122b et al. need a large budget to emit five files).
+_REASONING_MAX_TOKENS = 131_072
 
 _FILE_MARKER_RE = re.compile(
     r"<!--\s*FILE:\s*(?P<path>[^\s]+)\s*-->\s*\n",
@@ -111,7 +129,7 @@ class PlannerAgent(SlashCommandAgent):
             repo_root=ctx.project_dir.parent.parent,
         )
         write_manifest(resolved, project_dir=ctx.project_dir)
-        return {  # type: ignore[no-any-return]
+        return {
             "feature_dir": str(feature_dir),
             "spec_path": str(spec_path),
             "script_result": result,
@@ -170,26 +188,34 @@ class PlannerAgent(SlashCommandAgent):
             ChatMessage(role="user", content=user),
         ]
 
-    def write_artifacts(
+    def _write_and_validate(
         self,
         ctx: SlashCommandContext,
         mechanical_output: dict[str, Any],
-        llm_response: ChatResponse,
+        response_text: str,
     ) -> list[str]:
+        """Split → FR-005 → write files → FR-007 → FR-006 for one LLM response.
+
+        Returns the list of artifact paths written (relative to ``repo``).
+        Raises the relevant guard exception (``IncompleteArtifactSet``,
+        ``InconsistentDataModel``, ``UnreachableReference``, ``TemplateRefused``,
+        or a diff-leak ``RuntimeError``) on a failed validation, unlinking any
+        partial writes first so a refused set never pollutes the tree.
+        """
         repo = ctx.project_dir.parent.parent
         feature_dir = Path(mechanical_output["feature_dir"])
         if not feature_dir.is_absolute():
             feature_dir = repo / feature_dir
         feature_dir.mkdir(parents=True, exist_ok=True)
 
-        from llmxive.speckit._real_only_guard import guard_emit, TemplateRefused
+        from llmxive.speckit._real_only_guard import guard_emit
         from llmxive.speckit._research_guard import (
             assert_artifact_set_complete,
             assert_data_model_contracts_consistent,
             assert_urls_reachable,
         )
 
-        files = _split_multi_file(llm_response.text)
+        files = _split_multi_file(response_text)
 
         # FR-005: fail closed on an incomplete/partial multi-file split BEFORE
         # any per-file work, so a malformed response never leaves partial
@@ -228,7 +254,194 @@ class PlannerAgent(SlashCommandAgent):
         except Exception:
             _unlink_all_written()
             raise
+
         return written
+
+    def write_artifacts(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        llm_response: ChatResponse,
+    ) -> list[str]:
+        repo = ctx.project_dir.parent.parent
+        feature_dir = Path(mechanical_output["feature_dir"])
+        if not feature_dir.is_absolute():
+            feature_dir = repo / feature_dir
+
+        # --- bounded revision-with-feedback loop (#015 / PROJ-552) ----------
+        # Attempt the deterministic write+guard pipeline on the planner's
+        # response. On a guard failure, re-call the planner LLM with the exact
+        # guard error as corrective feedback and retry, up to
+        # MAX_PLAN_REVISION_RETRIES times. When no usable backend is available
+        # (offline / make_backend None / re-call raises) we do NOT retry and
+        # re-raise the LAST guard exception — preserving the original
+        # fail-closed behavior and keeping offline unit tests network-free.
+        response_text = llm_response.text
+        attempt = 0
+        while True:
+            try:
+                written = self._write_and_validate(
+                    ctx, mechanical_output, response_text
+                )
+                break
+            except Exception as guard_exc:
+                if attempt >= MAX_PLAN_REVISION_RETRIES:
+                    raise  # cap reached — fail closed on the last guard error.
+                revised = self._revise_with_feedback(
+                    ctx, mechanical_output, guard_exc
+                )
+                if revised is None:
+                    raise  # no usable backend — fail closed (offline-safe).
+                attempt += 1
+                logger.info(
+                    "plan revision retry %d/%d after guard failure: %s",
+                    attempt, MAX_PLAN_REVISION_RETRIES,
+                    f"{type(guard_exc).__name__}: {guard_exc}",
+                )
+                response_text = revised
+
+        # --- plan convergence panel (spec-015 / #239) -----------------------
+        # The just-written plan.md + sibling design docs are now reviewed by
+        # the live 4-lens plan panel (methodology / spec_coverage /
+        # data_resources / plan_consistency) via the convergence engine. Run
+        # only AFTER the artifacts pass the guards.
+        self._run_plan_panel(ctx, feature_dir, repo)
+        return written
+
+    def _revise_with_feedback(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        guard_exc: Exception,
+    ) -> str | None:
+        """Re-call the planner LLM with corrective feedback; return its text.
+
+        Rebuilds the planner messages and appends ONE extra user message that
+        quotes the exact guard error and instructs the model to FIX precisely
+        that defect and re-emit ALL FIVE files in the multi-file FILE-marker
+        format. Returns the corrected response text, or ``None`` when no usable
+        backend is available (``make_backend`` returns None / raises) or the
+        re-call itself fails — the caller treats ``None`` as "cannot retry" and
+        re-raises the last guard exception. This None-on-no-backend gate is what
+        keeps offline unit tests network-free.
+        """
+        try:
+            from llmxive.backends.router import make_backend
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return None
+
+        messages = list(self.build_prompt(ctx, mechanical_output))
+        corrective = (
+            "# Correction required\n\n"
+            "Your previous response was rejected by a deterministic validator "
+            "with this exact error:\n\n"
+            f"    {type(guard_exc).__name__}: {guard_exc}\n\n"
+            "Fix PRECISELY that defect — do not change anything else — and "
+            "re-emit ALL FIVE plan documents (plan.md, research.md, "
+            "data-model.md, quickstart.md, and at least one "
+            "contracts/<name>.schema.yaml) in the same multi-file format, each "
+            "preceded by its own `<!-- FILE: <path> -->` marker. Every "
+            "contracts/*.yaml MUST be a single, valid YAML document (no internal "
+            "`---` multi-document separators) and every value containing a colon "
+            "followed by a space (e.g. `(target: >=95%)`) MUST be quoted so the "
+            "schema parses."
+        )
+        messages.append(ChatMessage(role="user", content=corrective))
+
+        try:
+            response = self._chat_reasoning_safe(backend, messages, ctx.default_model)
+        except Exception as exc:
+            logger.info(
+                "plan revision re-call failed (%s: %s); cannot retry",
+                type(exc).__name__, exc,
+            )
+            return None
+        text = getattr(response, "text", "") or ""
+        if not text.strip():
+            return None
+        return text
+
+    @staticmethod
+    def _chat_reasoning_safe(
+        backend: Any, messages: list[ChatMessage], model: str | None
+    ) -> Any:
+        """Call ``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
+        gracefully if the backend signature differs (mirrors the try/except
+        pattern in claims/extract.py::_chat_reasoning_safe)."""
+        kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
+        if model is not None:
+            kwargs["model"] = model
+        try:
+            return backend.chat(messages, **kwargs)
+        except TypeError:
+            kwargs.pop("max_tokens", None)
+            try:
+                return backend.chat(messages, **kwargs)
+            except TypeError:
+                return backend.chat(messages)
+
+    def _run_plan_panel(
+        self,
+        ctx: SlashCommandContext,
+        feature_dir: Path,
+        repo: Path,
+    ) -> None:
+        from llmxive.backends.router import make_backend
+        from llmxive.convergence.reviewspecs import build_plan_reviewspec
+        from llmxive.speckit._stage_panel import (
+            _constitution,
+            _read,
+            render_recent_comments_block,
+            run_stage_panel,
+        )
+
+        try:
+            backend = make_backend(ctx.default_backend.value)
+        except Exception:
+            backend = None
+        if backend is None:
+            return  # offline / no-LLM: agent already produced the artifacts.
+
+        # The PlanReviser edits plan.md + research.md + data-model.md +
+        # quickstart.md + contracts/*; supply every one that exists under its
+        # canonical key so a revised doc lands at the right path.
+        artifact_paths: dict[str, Path] = {}
+        for name in ("plan.md", "research.md", "data-model.md", "quickstart.md"):
+            p = feature_dir / name
+            if p.exists():
+                artifact_paths[str(p.relative_to(repo))] = p
+        for c in sorted((feature_dir / "contracts").glob("*")):
+            if c.is_file():
+                artifact_paths[str(c.relative_to(repo))] = c
+        # The PlanReviser reads the source spec from a key ending 'spec.md';
+        # include it so the panel evaluates the plan against its spec.
+        spec_path = feature_dir / "spec.md"
+        if spec_path.exists():
+            artifact_paths[str(spec_path.relative_to(repo))] = spec_path
+
+        memory_dir = ctx.project_dir / ".specify" / "memory"
+        constitution_text = _constitution(memory_dir) or None
+        spec = build_plan_reviewspec(
+            backend=backend, repo_root=repo, project_id=ctx.project_id,
+            model=ctx.default_model,
+        )
+        run_stage_panel(
+            stage_label="plan",
+            spec=spec,
+            artifact_paths=artifact_paths,
+            extra_inputs={
+                "__constitution__": constitution_text or "",
+                "__comments_block__": render_recent_comments_block(ctx.project_dir),
+                "__spec_md__": _read(spec_path),
+            },
+            repo_root=repo,
+            memory_dir=memory_dir,
+            producer="planner",
+            constitution=constitution_text,
+        )
 
 
 __all__ = ["PlannerAgent"]

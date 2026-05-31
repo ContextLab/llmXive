@@ -31,9 +31,10 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from datetime import date as _date
-from typing import Any, Sequence
+from datetime import UTC
+from typing import Any
 
 _LOG = logging.getLogger(__name__)
 
@@ -225,7 +226,8 @@ def _gh_api_create_issue(repo: str, payload: dict[str, Any]) -> dict[str, Any]:
     proc = subprocess.run(args, input=json.dumps(payload), capture_output=True, text=True)
     if proc.returncode != 0:
         raise RuntimeError(f"gh api failed: {proc.stderr.strip() or proc.stdout.strip()}")
-    return json.loads(proc.stdout)
+    result: dict[str, Any] = json.loads(proc.stdout)
+    return result
 
 
 def _list_recent_paper_issue_urls(repo: str, *, per_page: int = 100) -> set[str]:
@@ -247,7 +249,7 @@ def _list_recent_paper_issue_urls(repo: str, *, per_page: int = 100) -> set[str]
         text = proc.stdout.strip()
         try:
             data = json.loads(text)
-            chunks = [data] if isinstance(data, list) else [data]
+            chunks = [data]
         except json.JSONDecodeError:
             # adjacent arrays
             text = text.replace("][", ",")
@@ -344,8 +346,8 @@ def _today_utc() -> str:
 
     Tests / manual runs can still pass an explicit `--date YYYY-MM-DD`.
     """
-    from datetime import datetime, timedelta, timezone
-    return (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+    from datetime import datetime, timedelta
+    return (datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%d")
 
 
 def cli_main(argv: Sequence[str] | None = None) -> int:

@@ -7,7 +7,6 @@ covered by tests/real_call/test_personality_liveness_real.py (T009).
 from __future__ import annotations
 
 import json
-import time
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory

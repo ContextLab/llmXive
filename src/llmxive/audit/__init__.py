@@ -16,7 +16,7 @@ from typing import Any
 
 __version__ = "0.1.0"
 
-_REGISTRY: dict[str, Any] = {}
+_REGISTRY: dict[str, Any] = {}  # auditor-name -> callable(**kwargs) -> dict[str, Any]
 
 
 def register(name: str, fn: Any) -> None:
@@ -24,22 +24,25 @@ def register(name: str, fn: Any) -> None:
     _REGISTRY[name] = fn
 
 
-def run_audit(name: str, **kwargs: Any) -> dict:
+def run_audit(name: str, **kwargs: Any) -> dict[str, Any]:
     """Dispatch to the named auditor and return its manifest dict."""
     if name not in _REGISTRY:
         raise KeyError(
             f"Unknown auditor: {name!r}. Registered: {sorted(_REGISTRY)}. "
             f"Did you forget to import the auditor module?"
         )
-    return _REGISTRY[name](**kwargs)
+    result: dict[str, Any] = _REGISTRY[name](**kwargs)
+    return result
 
 
 # Import sub-modules so they self-register. Done at end to avoid circular imports.
-from . import manifest  # noqa: E402,F401
-from . import personality_rubric  # noqa: E402,F401
-from . import template_vs_real  # noqa: E402,F401
-from . import pdf_auditor  # noqa: E402,F401
-from . import feedback_loop  # noqa: E402,F401
+from . import (  # noqa: E402  (deferred to break the auditor<->package cycle)
+    feedback_loop,  # noqa: F401
+    manifest,  # noqa: F401
+    pdf_auditor,  # noqa: F401
+    personality_rubric,  # noqa: F401
+    template_vs_real,  # noqa: F401
+)
 
 # Spec 010 re-exports (single-source-of-truth shortcuts for callers).
 from .liveness import check_pointer  # noqa: E402,F401

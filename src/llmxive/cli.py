@@ -12,7 +12,8 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC
 
 from llmxive import credentials as cred_mod
 from llmxive import preflight
@@ -38,6 +39,26 @@ def _cmd_run(args: argparse.Namespace) -> int:
     from llmxive.pipeline import graph, scheduler
     from llmxive.state import project as project_store
 
+    # F-19: enable the factual-grounding guard (LLM extraction + real-HTTP
+    # grounding) on the reviser chokepoint for real pipeline runs. It is OFF by
+    # default so offline reviser unit tests (which assert exact backend call
+    # counts and run network-free) are unaffected; a real run always grounds.
+    os.environ.setdefault("LLMXIVE_GROUNDING_GUARD", "1")
+
+    # Spec 016: enable the claim-verification layer (extract -> register ->
+    # substitute -> resolve -> render) on the reviser chokepoint for real
+    # pipeline runs. OFF by default for the same network-free-unit-test reason;
+    # a real run always verifies claims.
+    os.environ.setdefault("LLMXIVE_CLAIM_LAYER", "1")
+
+    # Spec 017: enable the authoritative-fill layer (auto-correct unresolvable
+    # numeric/entity claims from OEIS/Wikipedia/Wikidata) on real pipeline runs.
+    # OFF by default so offline tests stay network-free.
+    # Spec 018: the approximate-constant and computational verification modes
+    # (verify.mode.select_mode → approximate/computational branch in
+    # claims/resolve.py) also ride on this flag — no separate flag needed.
+    os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")
+
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
     if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
         return _cmd_run_stage_independent(args)
@@ -53,6 +74,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     completed = 0
     for _ in range(max(1, args.max_tasks)):
+        from llmxive.types import Project as _Project
+        project: _Project | None
         if args.project:
             try:
                 project = project_store.load(args.project)
@@ -226,14 +249,12 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     without network access. The fallback is logged so cron operators
     notice when the LLM path is broken.
     """
-    from datetime import datetime, timezone
-    from pathlib import Path
     import random
     import re
+    from datetime import datetime
+    from pathlib import Path
 
-    from llmxive.agents import idea_lifecycle
     from llmxive.agents import registry as registry_loader
-    from llmxive.agents.base import AgentContext
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.router import chat_with_fallback
     from llmxive.state import project as project_store
@@ -251,14 +272,13 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
     field_pool = [args.field] if args.field else list(LIBRARIAN_DEFAULT_FIELDS)
 
     n_target = max(1, args.count)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     try:
         entry = registry_loader.get("brainstorm")
     except KeyError:
         print("error: brainstorm agent not registered", file=sys.stderr)
         return 1
-    agent = idea_lifecycle.BrainstormAgent(entry)
 
     rng = random.Random()
     created = 0
@@ -273,7 +293,7 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
         try:
             system = render_prompt(
                 "agents/prompts/brainstorm.md",
-                {"field": field, "existing_titles": existing_titles},
+                {"field": field, "existing_titles": "\n".join(existing_titles)},
                 repo_root=repo,
             )
         except Exception as exc:
@@ -318,7 +338,7 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
                 title = m.group(1).strip().strip("*").strip()
                 break
         if not title:
-            print(f"[brainstorm] no title heading in response; skipping", file=sys.stderr)
+            print("[brainstorm] no title heading in response; skipping", file=sys.stderr)
             continue
         if any(title.lower() == t.lower() for t in existing_titles):
             print(f"[brainstorm] duplicate title {title!r}; skipping", file=sys.stderr)
@@ -458,7 +478,7 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
             for f in heal_summary["failed"]:
                 print(f"[submissions] heal failed for {f['project']}: {f['reason']}",
                       file=sys.stderr)
-    except Exception as exc:  # noqa: BLE001 — heal is best-effort
+    except Exception as exc:
         print(f"[submissions] heal pass failed (non-fatal): {exc!r}", file=sys.stderr)
 
     # ── list open human-submission issues (paginated) ──
@@ -469,7 +489,7 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
         return 2
     # `gh api --paginate` concatenates JSON arrays — handle either one array or
     # several concatenated arrays.
-    issues: list[dict] = []
+    issues: list[dict[str, object]] = []
     out = out.strip()
     if out:
         try:
@@ -523,8 +543,8 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
 
 def _cmd_speckit_audit_artifacts(args: argparse.Namespace) -> int:
     """`llmxive speckit audit-artifacts` (FR-007)."""
-    from pathlib import Path
     import json
+    from pathlib import Path
 
     from llmxive.audit.speckit_prune import audit_artifacts
 
@@ -548,7 +568,6 @@ def _cmd_speckit_audit_artifacts(args: argparse.Namespace) -> int:
 def _cmd_speckit_prune_templates(args: argparse.Namespace) -> int:
     """`llmxive speckit prune-templates` (FR-008/FR-009)."""
     from pathlib import Path
-    import json
 
     from llmxive.audit.speckit_prune import prune_templates
 
@@ -581,13 +600,13 @@ def _cmd_speckit_prune_templates(args: argparse.Namespace) -> int:
 
 def _cmd_pdf_audit(args: argparse.Namespace) -> int:
     """`llmxive pdf-pipeline audit <path>` (FR-014)."""
-    from datetime import datetime, timezone
+    from datetime import datetime
     from pathlib import Path
 
     from llmxive.pipeline.pdf_pipeline.audit import audit_directory, audit_pdf
 
     path = Path(args.path)
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     out_dir = Path(args.out_dir) / today
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -613,16 +632,19 @@ def _cmd_pdf_audit(args: argparse.Namespace) -> int:
     return 0 if agg["total_failures"] == 0 else 1
 
 
-def _cmd_project_unblock(args: argparse.Namespace) -> int:
-    """`llmxive project unblock <PROJ-ID>` (spec 012 / FR-023).
+def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
+    """`llmxive project unblock-agent <PROJ-ID>` (spec 015 / FR-034).
 
-    Operator escape hatch for projects stuck at PAPER_REVISION_BLOCKED.
-    Refuses to no-op-unblock: requires the operator to have actually
-    modified `state/revisions/<PROJ-ID>/round-<N>.yaml` since the block
-    was recorded (mtime check). On success, transitions the project to
-    PAPER_REVIEW (or PAPER_MINOR_REVISION if --to-minor is passed).
+    Operator escape hatch for projects stuck at :class:`Stage.AGENT_BLOCKED`
+    (the new generic agent-failsafe sink that replaces the deleted
+    ``PAPER_REVISION_BLOCKED``). Refuses to no-op-unblock: requires the
+    operator to have actually modified an action items file
+    (``specs/auto-revisions/<PROJ-ID>/round-*/`` or
+    ``state/revisions/<PROJ-ID>/round-*.yaml``) since the block was
+    recorded (mtime check). On success, routes the project back to the
+    review stage that emitted the diagnostic (defaulting to PAPER_REVIEW).
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
     from pathlib import Path
 
     from llmxive.state import project as project_store
@@ -632,49 +654,152 @@ def _cmd_project_unblock(args: argparse.Namespace) -> int:
     repo = Path.cwd()
     try:
         project = project_store.load(project_id, repo_root=repo)
-    except Exception as exc:  # noqa: BLE001
-        print(f"[unblock] ERROR: cannot load {project_id}: {exc}", file=sys.stderr)
+    except Exception as exc:
+        print(f"[unblock-agent] ERROR: cannot load {project_id}: {exc}", file=sys.stderr)
         return 2
 
-    if project.current_stage != Stage.PAPER_REVISION_BLOCKED:
+    if project.current_stage != Stage.AGENT_BLOCKED:
         print(
-            f"[unblock] ERROR: {project_id} is at {project.current_stage.value}, "
-            f"not paper_revision_blocked; refusing to unblock.",
+            f"[unblock-agent] ERROR: {project_id} is at "
+            f"{project.current_stage.value}, not agent_blocked; refusing "
+            f"to unblock.",
             file=sys.stderr,
         )
         return 2
 
-    # FR-023(b): require the action-items file to have been touched since the block.
-    # We approximate "since the block" as "in the last 24h relative to project.updated_at"
-    # OR "mtime is newer than project.updated_at" if the file exists.
-    revisions_dir = repo / "state" / "revisions" / project_id
-    round_files = sorted(revisions_dir.glob("round-*.yaml")) if revisions_dir.is_dir() else []
-    if not round_files:
+    # FR-034(b): the operator MUST have touched an action items file
+    # since the block. We look BOTH at
+    # ``state/revisions/<PROJ-ID>/round-*.yaml`` (legacy) and
+    # ``specs/auto-revisions/<PROJ-ID>/round-*/`` (spec 015 adapter).
+    candidates: list[Path] = []
+    legacy_dir = repo / "state" / "revisions" / project_id
+    if legacy_dir.is_dir():
+        candidates.extend(sorted(legacy_dir.glob("round-*.yaml")))
+    auto_revs = repo / "specs" / "auto-revisions" / project_id
+    if auto_revs.is_dir():
+        # The implementer reads tasks.md; an operator edits THAT to
+        # change scope.
+        for round_dir in sorted(auto_revs.glob("round-*")):
+            for fname in ("tasks.md", "spec.md"):
+                p = round_dir / fname
+                if p.is_file():
+                    candidates.append(p)
+    if not candidates:
         print(
-            f"[unblock] ERROR: no state/revisions/{project_id}/round-*.yaml files found. "
+            f"[unblock-agent] ERROR: no auto-revisions files found under "
+            f"specs/auto-revisions/{project_id}/ or state/revisions/{project_id}/. "
             f"Nothing to validate as 'operator-edited'.",
             file=sys.stderr,
         )
         return 2
-    latest_round = round_files[-1]
-    file_mtime = datetime.fromtimestamp(latest_round.stat().st_mtime, tz=timezone.utc)
+    latest = max(candidates, key=lambda p: p.stat().st_mtime)
+    file_mtime = datetime.fromtimestamp(latest.stat().st_mtime, tz=UTC)
     if file_mtime <= project.updated_at:
         print(
-            f"[unblock] ERROR: {latest_round.name} mtime ({file_mtime.isoformat()}) is "
-            f"NOT newer than project.updated_at ({project.updated_at.isoformat()}). "
-            f"Refusing no-op-unblock — edit the action items first.",
+            f"[unblock-agent] ERROR: {latest.name} mtime ({file_mtime.isoformat()}) "
+            f"is NOT newer than project.updated_at "
+            f"({project.updated_at.isoformat()}). Refusing no-op-unblock — "
+            f"edit the action items first.",
             file=sys.stderr,
         )
         return 2
 
-    target = Stage.PAPER_MINOR_REVISION if args.to_minor else Stage.PAPER_REVIEW
+    target = (
+        Stage.RESEARCH_REVIEW if args.to_research else Stage.PAPER_REVIEW
+    )
     project = project.model_copy(update={
         "current_stage": target,
-        "updated_at": datetime.now(timezone.utc),
-        "revision_spec_path": None,
+        "updated_at": datetime.now(UTC),
+        # Keep revision_spec_path so the implementer picks the edited
+        # action items up next tick.
     })
     project_store.save(project, repo_root=repo)
-    print(f"[unblock] {project_id}: paper_revision_blocked → {target.value}")
+    print(f"[unblock-agent] {project_id}: agent_blocked → {target.value}")
+    return 0
+
+
+def _cmd_project_publish_approve(args: argparse.Namespace) -> int:
+    """`llmxive project publish-approve <PROJ-ID> [--who X] --what Y` (spec 015 / FR-054).
+
+    Records the mandatory manual maintainer sign-off before any Zenodo DOI is
+    minted (initial publication or living-document version). The publisher and
+    the pipeline graph both refuse to advance past
+    ``AWAITING_PUBLICATION_SIGNOFF`` until this record exists.
+
+    Identity binding: ``--who`` defaults to the active ``gh auth status``
+    identity. The CLI refuses to record a sign-off without an identity
+    unless ``--allow-no-gh-identity`` is passed. The resolved gh identity
+    is ALSO recorded as ``recorded_by_gh_user`` so audit reviewers see
+    both the responsible human AND the actual operator (which may differ
+    when one maintainer is recording on behalf of another).
+    """
+    from pathlib import Path
+
+    from llmxive.speckit._publication_signoff import (
+        resolve_gh_user,
+        write_signoff,
+    )
+
+    project_id = args.project_id
+    repo = Path.cwd()
+    project_dir = repo / "projects" / project_id
+    if not project_dir.is_dir():
+        print(f"[publish-approve] ERROR: no project dir {project_dir}", file=sys.stderr)
+        return 2
+
+    gh_user = resolve_gh_user()
+    who = args.who or gh_user
+    if not who:
+        if not args.allow_no_gh_identity:
+            print(
+                "[publish-approve] ERROR: could not resolve the active "
+                "GitHub identity (gh CLI not installed, not logged in, "
+                "or parsing failed) AND --who was not provided. Either "
+                "log in with `gh auth login`, pass --who explicitly, or "
+                "pass --allow-no-gh-identity to record an unbound "
+                "sign-off (FR-054 audit trail will be weaker).",
+                file=sys.stderr,
+            )
+            return 2
+        # The operator explicitly opted out of identity binding — we
+        # still require --who to be passed.
+        if not args.who:
+            print(
+                "[publish-approve] ERROR: --allow-no-gh-identity also "
+                "requires --who to be passed explicitly (the sign-off "
+                "MUST identify a responsible human).",
+                file=sys.stderr,
+            )
+            return 2
+        who = args.who
+
+    if args.who and gh_user and args.who.strip() != gh_user:
+        # Operator is recording on behalf of someone else. Allowed, but
+        # the discrepancy is surfaced in stderr so it's visible in CI
+        # logs / audit trails (the recorded_by_gh_user YAML field also
+        # captures the gh identity).
+        print(
+            f"[publish-approve] NOTE: --who ({args.who!r}) differs from "
+            f"the active gh identity ({gh_user!r}); both will be "
+            f"recorded in the sign-off YAML.",
+            file=sys.stderr,
+        )
+
+    memory_dir = project_dir / ".specify" / "memory"
+    try:
+        path = write_signoff(
+            memory_dir, who=who, what=args.what, kind=args.kind,
+            recorded_by_gh_user=gh_user,
+        )
+    except ValueError as exc:
+        print(f"[publish-approve] ERROR: {exc}", file=sys.stderr)
+        return 2
+    print(
+        f"[publish-approve] {project_id}: recorded {args.kind} sign-off "
+        f"by {who!r}"
+        + (f" (gh identity: {gh_user!r})" if gh_user else " (no gh identity)")
+        + f" → {path.relative_to(repo)}"
+    )
     return 0
 
 
@@ -709,7 +834,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_backends = subs.add_parser("backends", help="backend operations")
     backends_subs = p_backends.add_subparsers(dest="backends_cmd", required=True)
     p_lm = backends_subs.add_parser("list-models", help="list models for a backend")
-    p_lm.add_argument("--backend", required=True, choices=["dartmouth", "huggingface", "local"])
+    p_lm.add_argument("--backend", required=True, choices=["dartmouth", "local"])
     p_lm.set_defaults(func=_cmd_backends_list_models)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")
@@ -799,19 +924,47 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_pdf_audit.set_defaults(func=_cmd_pdf_audit)
 
-    # Spec 012 / FR-023: project unblock CLI.
+    # Spec 015 / FR-034: project unblock-agent CLI (renamed from `unblock`).
     p_project = subs.add_parser("project", help="project state operations")
     project_subs = p_project.add_subparsers(dest="project_cmd", required=True)
     p_unblock = project_subs.add_parser(
-        "unblock",
-        help="manually unblock a project stuck at paper_revision_blocked",
+        "unblock-agent",
+        help="manually unblock a project stuck at agent_blocked",
     )
     p_unblock.add_argument("project_id", help="e.g. PROJ-564-qwen-image-vae-2-0-...")
     p_unblock.add_argument(
-        "--to-minor", action="store_true",
-        help="transition to paper_minor_revision (default: paper_review)",
+        "--to-research", action="store_true",
+        help="route back to research_review (default: paper_review)",
     )
-    p_unblock.set_defaults(func=_cmd_project_unblock)
+    p_unblock.set_defaults(func=_cmd_project_unblock_agent)
+
+    # Spec 015 T035 / FR-054: manual maintainer DOI sign-off before any Zenodo
+    # publication. Records who/when/what to .specify/memory/publication_signoff.yaml.
+    p_signoff = project_subs.add_parser(
+        "publish-approve",
+        help="record manual maintainer sign-off for DOI mint (FR-054)",
+    )
+    p_signoff.add_argument("project_id", help="e.g. PROJ-261-evaluating-the-impact-...")
+    p_signoff.add_argument(
+        "--who", default=None,
+        help="approver identity (default: the active `gh auth` username). "
+             "If --who differs from the gh identity, BOTH are recorded.",
+    )
+    p_signoff.add_argument(
+        "--what", required=True,
+        help="one-line description of what is being approved (e.g. 'paper v1, all 12 reviewers accept')",
+    )
+    p_signoff.add_argument(
+        "--kind", choices=("initial", "version"), default="initial",
+        help="initial publication or a living-document version DOI (default: initial)",
+    )
+    p_signoff.add_argument(
+        "--allow-no-gh-identity", action="store_true",
+        help="explicit opt-out for the gh-identity binding (rare; "
+             "still requires --who). FR-054 audit trail is weaker without "
+             "a gh identity.",
+    )
+    p_signoff.set_defaults(func=_cmd_project_publish_approve)
 
     return parser
 
@@ -826,4 +979,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["main", "build_parser"]
+__all__ = ["build_parser", "main"]

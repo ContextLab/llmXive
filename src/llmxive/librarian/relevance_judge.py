@@ -140,7 +140,7 @@ def judge_one(
     candidate_abstract: str,
     model: str = "qwen.qwen3.5-122b",
     default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("huggingface", "local"),
+    fallback_backends: Sequence[str] = ("local",),
 ) -> JudgeVerdict:
     """Judge a single candidate's relevance to the user's query.
 
@@ -213,7 +213,7 @@ def filter_by_relevance(
     query: str,
     model: str = "qwen.qwen3.5-122b",
     default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("huggingface", "local"),
+    fallback_backends: Sequence[str] = ("local",),
 ) -> tuple[list[VerifiedCitation], list[tuple[VerifiedCitation, JudgeVerdict]]]:
     """Apply the relevance judge to each VerifiedCitation; return
     ``(kept, rejected)`` where rejected items carry the judge's

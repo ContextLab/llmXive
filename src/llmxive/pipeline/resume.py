@@ -28,4 +28,4 @@ def last_failed_agent(project: Project, *, repo_root: Path | None = None) -> str
     return last.agent_name
 
 
-__all__ = ["needs_resume", "last_failed_agent"]
+__all__ = ["last_failed_agent", "needs_resume"]

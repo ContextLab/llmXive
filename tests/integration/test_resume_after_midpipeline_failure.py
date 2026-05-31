@@ -7,7 +7,7 @@ helper reports the right state.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from llmxive.pipeline import resume as resume_mod
@@ -30,7 +30,7 @@ def _bootstrap_state(repo: Path) -> None:
 def test_resume_helper_detects_prior_failure(tmp_path: Path) -> None:
     repo = tmp_path
     _bootstrap_state(repo)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     project = Project(
         id="PROJ-001-resume",
@@ -74,7 +74,7 @@ def test_resume_helper_returns_false_after_success(tmp_path: Path) -> None:
     """A success entry after the failure clears the resume flag."""
     repo = tmp_path
     _bootstrap_state(repo)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     project = Project(
         id="PROJ-002-resumeclear",

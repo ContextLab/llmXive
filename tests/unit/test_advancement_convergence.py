@@ -7,28 +7,24 @@ that compose them.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-
-import pytest
 
 from llmxive.agents.advancement import (
     _all_specialists_accept_most_recent,
     _consolidate_action_items,
     _infer_live_hash,
     _max_severity_across_specialists,
-    _most_recent_per_specialist,
 )
 from llmxive.agents.upstream_feedback import is_arxiv_intake, record_round
 from llmxive.types import ActionItem, BackendName, ReviewerKind, ReviewRecord
-
 
 # --- Helpers -----------------------------------------------------------------
 
 
 _HASH_A = "a" * 64
 _HASH_B = "b" * 64
-_NOW = datetime(2026, 5, 17, 12, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 5, 17, 12, 0, 0, tzinfo=UTC)
 
 
 def _rec(name: str, verdict: str, *, hash_: str = _HASH_A, when: datetime = _NOW,
@@ -152,7 +148,7 @@ class TestMaxSeverityAcrossSpecialists:
 class TestConsolidateActionItems:
     def test_deduplicates_by_id(self) -> None:
         item_a = ActionItem.from_text("missing β_k.", "writing")
-        item_b = ActionItem.from_text("missing β_k value.", "writing")
+        _item_b = ActionItem.from_text("missing β_k value.", "writing")
         # These canonicalize differently in our helper (different texts), but
         # the canonical IDs may not collide. We test that EXACTLY identical
         # items dedupe.

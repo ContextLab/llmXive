@@ -439,7 +439,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  {err.splitlines()[0]}", file=sys.stderr)
     # Per project failures are reported; the run itself succeeds (the
     # workflow will keep retrying on subsequent ticks).
-    return 0 if not fail_count else 0
+    return 0
 
 
 if __name__ == "__main__":

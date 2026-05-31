@@ -11,10 +11,9 @@ import json
 import shutil
 import tempfile
 import unittest
-from datetime import datetime, timezone
 from pathlib import Path
 
-from llmxive.agents.base import Agent, AgentContext
+from llmxive.agents.base import AgentContext
 from llmxive.agents.runner import run_agent
 from llmxive.feed import FeedStore
 

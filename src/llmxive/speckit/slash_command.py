@@ -25,7 +25,7 @@ from __future__ import annotations
 import abc
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -88,7 +88,7 @@ class SlashCommandAgent(abc.ABC):
         """
 
     def run(self, ctx: SlashCommandContext) -> RunLogEntry:
-        started = datetime.now(timezone.utc)
+        started = datetime.now(UTC)
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
@@ -119,7 +119,7 @@ class SlashCommandAgent(abc.ABC):
             failure_reason = f"{type(exc).__name__}: {exc}"
             raise
         finally:
-            ended = datetime.now(timezone.utc)
+            ended = datetime.now(UTC)
             entry = RunLogEntry(
                 run_id=ctx.run_id,
                 entry_id=str(uuid4()),
@@ -159,7 +159,7 @@ def _maybe_write_inspection(
     llm_response_text: str,
     model_used: str,
     backend_used: BackendName,
-    agent: "SlashCommandAgent | None" = None,
+    agent: SlashCommandAgent | None = None,
 ) -> None:
     """Spec 011 / FR-003 inspection-record hook (opt-in via env var).
 
@@ -200,7 +200,7 @@ def _maybe_write_inspection(
             spec_root=Path(env_dir).parent.parent,  # env points at .../inspections/<project_id>; spec_root = .../  (two parents up)
             rounds=rounds,
         )
-    except Exception:  # noqa: BLE001 — never block an agent on a capture failure
+    except Exception:
         pass
 
 
@@ -220,6 +220,7 @@ def _validate_artifact_citations(
     """
     # Lazy import to avoid a cycle: speckit -> agents.reference_validator
     # would form a cycle on package import.
+    from llmxive.agents.citation_guard import verify_and_clean
     from llmxive.agents.reference_validator import validate_artifact
     from llmxive.state.project import hash_file
 
@@ -234,6 +235,29 @@ def _validate_artifact_citations(
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
+        # F-18 strip/flag pass: verify every external reference against its
+        # primary source (real HTTP via the canonical fetch_citation) and
+        # rewrite the doc IN PLACE, marking each unresolvable reference
+        # ``[UNVERIFIED: <ref> — <reason>]`` (Constitution Principle II — never
+        # silently publish a fabricated / unreachable citation). The cleaned
+        # text is written back BEFORE persistence so the citations store and
+        # the on-disk doc agree, and so the convergence panel never sees a
+        # fake reference to ask the reviser to "fix".
+        try:
+            cleaned, report = verify_and_clean(
+                text,
+                repo_root=repo,
+                project_id=ctx.project_id,
+                artifact_path=relpath,
+            )
+            if report.flagged_count and cleaned != text:
+                path.write_text(cleaned, encoding="utf-8")
+                text = cleaned
+        except Exception:
+            # Non-fatal: the guard must never block an artifact write. The
+            # reviser-path structural guard + the persisted-citations gate
+            # remain as backstops.
+            pass
         try:
             validate_artifact(
                 project_id=ctx.project_id,
@@ -242,10 +266,48 @@ def _validate_artifact_citations(
                 artifact_hash=hash_file(path),
                 repo_root=repo,
             )
-        except Exception:  # noqa: BLE001 — never let validation kill a write
+        except Exception:
             # Non-fatal: validation is best-effort during artifact writes.
             # The blocking gates upstream (Advancement-Evaluator) re-check
             # the persisted citations YAML on every transition decision.
+            pass
+
+        # T019 / FR-016: run the claim layer AFTER the F-18 citation pass.
+        # Requires a backend (LLM extraction) — skip gracefully on maintenance
+        # paths where ctx has no backend (e.g. dispatch-only callers).
+        _backend = getattr(ctx, "default_backend", None)
+        if _backend is None:
+            continue
+        try:
+            from llmxive.backends.router import make_backend
+            from llmxive.claims.service import process_document
+
+            backend_obj = make_backend(_backend.value if hasattr(_backend, "value") else str(_backend))
+            rendered, _claims, gate_report = process_document(
+                text,
+                artifact_path=relpath,
+                project_id=ctx.project_id,
+                backend=backend_obj,
+                model=ctx.default_model,
+                repo_root=repo,
+            )
+            # Rewrite in place if the rendered output differs.
+            if rendered != text:
+                path.write_text(rendered, encoding="utf-8")
+                text = rendered
+            # Surface claim block the same way F-18 surfaces an [UNVERIFIED]
+            # block: record via validate_artifact so the Advancement-Evaluator
+            # gate picks it up.  The GateReport.blocked flag is the signal.
+            if gate_report.blocked:
+                validate_artifact(
+                    project_id=ctx.project_id,
+                    artifact_path=relpath,
+                    artifact_text=text,
+                    artifact_hash=hash_file(path),
+                    repo_root=repo,
+                )
+        except Exception:
+            # Non-fatal: claim processing must never block an artifact write.
             continue
 
 

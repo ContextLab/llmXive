@@ -18,9 +18,9 @@ import unittest
 from pathlib import Path
 
 from llmxive.speckit._real_only_guard import (
-    TemplateRefused, guard_emit, assert_real_or_raise,
+    TemplateRefused,
+    guard_emit,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = REPO_ROOT / ".specify" / "templates"

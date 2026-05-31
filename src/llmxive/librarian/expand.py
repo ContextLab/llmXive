@@ -60,7 +60,7 @@ def expand_terms(
     expansion_prompt: str | None = None,
     model: str = "qwen.qwen3.5-122b",
     default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("huggingface", "local"),
+    fallback_backends: Sequence[str] = ("local",),
 ) -> list[tuple[int, str]]:
     """Ask the LLM for ``n`` ranked alternative phrasings of
     ``original_term``.

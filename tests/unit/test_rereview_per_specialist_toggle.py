@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-
-import pytest
 
 from llmxive.state.reviews import prior_reviews_for_specialist
 from llmxive.types import ActionItem, BackendName, ReviewerKind, ReviewRecord
 
-
-_NOW = datetime(2026, 5, 17, 12, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 5, 17, 12, 0, 0, tzinfo=UTC)
 
 
 def _write_review_file(

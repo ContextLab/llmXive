@@ -11,13 +11,13 @@ Exits 1 with a one-line-per-failure message on any violation.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
+from llmxive.config import repo_root as _repo_root
 
 
 def main() -> int:
-    repo = Path(__file__).resolve().parent.parent.parent.parent
+    repo = _repo_root()
     failures: list[str] = []
     try:
         reg = registry_loader.load(repo_root=repo)

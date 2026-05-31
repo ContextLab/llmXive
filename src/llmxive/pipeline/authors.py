@@ -22,6 +22,7 @@ import re
 import tempfile
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from llmxive.types import AuthorEntry
 
@@ -55,7 +56,7 @@ def add_implementer(
     agents (different name or different version) DO produce new entries.
     Non-`authors` fields of metadata.json are NEVER modified (FR-016).
     """
-    data: dict = {}
+    data: dict[str, Any] = {}
     if metadata_path.is_file():
         data = json.loads(metadata_path.read_text(encoding="utf-8")) or {}
     authors = data.get("authors") or []
@@ -103,7 +104,7 @@ def list_authors(metadata_path: Path) -> list[AuthorEntry]:
             continue
         try:
             out.append(AuthorEntry.model_validate(r))
-        except Exception:  # noqa: BLE001 — defensive against legacy junk
+        except Exception:
             # Try with default kind=human if a bare {"name": "..."} entry
             try:
                 out.append(AuthorEntry(name=str(r.get("name", "")), kind="human"))

@@ -6,6 +6,8 @@ DARTMOUTH_CHAT_API_KEY so CI without the key still passes.
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from llmxive.credentials import load_dartmouth_key
@@ -16,6 +18,7 @@ from llmxive.librarian.relevance_judge import (
 )
 
 HAS_DM_KEY = bool(load_dartmouth_key(prompt_if_missing=False))
+_REAL = os.environ.get("LLMXIVE_REAL_TESTS") == "1"
 
 
 # --- Parser tests (no LLM) ----------------------------------------------------
@@ -70,7 +73,7 @@ def test_parse_verdict_inline_no_keyword() -> None:
 # --- Real LLM smoke test (gated on backend availability) ----------------------
 
 
-@pytest.mark.skipif(not HAS_DM_KEY, reason="judge LLM requires DARTMOUTH_CHAT_API_KEY")
+@pytest.mark.skipif(not (HAS_DM_KEY and _REAL), reason="judge LLM requires DARTMOUTH_CHAT_API_KEY + LLMXIVE_REAL_TESTS=1")
 def test_judge_one_returns_no_for_field_adjacent_paper() -> None:
     """The bug we're solving: 'GNN for dipole-moment prediction' should
     NOT admit a 'GNN for social-influence prediction' paper, even
@@ -95,7 +98,7 @@ def test_judge_one_returns_no_for_field_adjacent_paper() -> None:
     )
 
 
-@pytest.mark.skipif(not HAS_DM_KEY, reason="judge LLM requires DARTMOUTH_CHAT_API_KEY")
+@pytest.mark.skipif(not (HAS_DM_KEY and _REAL), reason="judge LLM requires DARTMOUTH_CHAT_API_KEY + LLMXIVE_REAL_TESTS=1")
 def test_judge_one_returns_yes_for_on_topic_paper() -> None:
     """Conversely a directly-on-topic paper should pass."""
     v = judge_one(

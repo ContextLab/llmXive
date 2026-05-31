@@ -75,7 +75,7 @@ def _verdict_cache_path(repo_root: Path) -> Path:
     return repo_root.joinpath(*_VERDICT_CACHE_RELPATH)
 
 
-def _read_verdict_cache(repo_root: Path) -> dict[str, dict]:
+def _read_verdict_cache(repo_root: Path) -> dict[str, dict[str, object]]:
     """Load the flat verdict-cache dict; absent/malformed → ``{}`` (logged)."""
     path = _verdict_cache_path(repo_root)
     if not path.exists():
@@ -234,7 +234,7 @@ def is_math_theory_question(
             librarian_prompt_version=librarian_prompt_version,
             model=model,
             default_backend=default_backend,
-            fallback_backends=list(fallback_backends or ("huggingface", "local")),
+            fallback_backends=list(fallback_backends or ("local",)),
             repo_root=repo_root,
         ).verdict
     )

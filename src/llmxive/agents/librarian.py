@@ -367,11 +367,11 @@ class LibrarianAgent(Agent):
                 )
                 if rejected:
                     judge_rejected_count = len(rejected)
-                    for c, v in rejected:
+                    for _vc_rej, _jv_rej in rejected:
                         judge_rejections.append({
-                            "primary_pointer": c.primary_pointer,
-                            "title": (c.bibliographic_info or {}).get("title", ""),
-                            "rationale": v.rationale,
+                            "primary_pointer": _vc_rej.primary_pointer,
+                            "title": (_vc_rej.bibliographic_info or {}).get("title", ""),
+                            "rationale": _jv_rej.rationale,
                         })
                 if kept:
                     verified = kept
@@ -382,11 +382,11 @@ class LibrarianAgent(Agent):
                     # the Search trail / downstream agents can label them.
                     marginal_fallback_used = True
                     flagged: list[VerifiedCitation] = []
-                    for c, _v in rejected:
-                        new_bib = dict(c.bibliographic_info or {})
+                    for vc, _ in rejected:
+                        new_bib = dict(vc.bibliographic_info or {})
                         new_bib["topically_marginal"] = True
                         flagged.append(
-                            dataclasses.replace(c, bibliographic_info=new_bib)
+                            dataclasses.replace(vc, bibliographic_info=new_bib)
                         )
                     verified = flagged
                 # Re-evaluate outcome after the judge prunes.
