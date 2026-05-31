@@ -1,14 +1,7 @@
 last_used: john-von-neumann
-last_used_at: '2026-05-31T11:09:02.489105+00:00'
-last_outcome: committed
+last_used_at: '2026-05-31T12:02:13.501196+00:00'
+last_outcome: librarian_held
 history:
-- slug: richard-feynman
-  started_at: '2026-05-22T23:53:56.509373+00:00'
-  ended_at: '2026-05-23T00:33:22.963126+00:00'
-  outcome: committed
-  action: propose_arxiv
-  committed_paths:
-  - state/personality-submissions/20260523T003322Z__richard-feynman.yaml
 - slug: rosalind-franklin
   started_at: '2026-05-23T00:33:22.963126+00:00'
   ended_at: '2026-05-23T01:22:37.461436+00:00'
@@ -1212,3 +1205,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-31__paper.md
+- slug: linus-pauling
+  started_at: '2026-05-31T11:09:02.489105+00:00'
+  ended_at: '2026-05-31T12:02:13.501196+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/_held/linus-pauling-simulated__2026-05-31__paper.md
