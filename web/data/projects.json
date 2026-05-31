@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2939,
+    "total_contributions": 2940,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1157,
+      "contribution_count": 1158,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-05-31T15:31:55.345806+00:00",
+  "generated_at": "2026-05-31T15:59:09.194681+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74376,7 +74376,7 @@
       },
       "authors": [
         {
-          "contributions": 25,
+          "contributions": 26,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -74504,6 +74504,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 127.124924,
+          "ended_at": "2026-05-31T15:59:05.024084+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-05-31T15:56:57.899160+00:00"
+        },
+        {
           "agent": "paper_reviewer_jargon_police",
           "duration_s": 79.089642,
           "ended_at": "2026-05-31T13:19:13.728043Z",
@@ -74574,20 +74582,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-05-31T13:08:47.002055Z"
-        },
-        {
-          "agent": "paper_reviewer_claim_accuracy",
-          "duration_s": 65.779913,
-          "ended_at": "2026-05-31T13:08:46.955033Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-05-31T13:07:41.175120Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The manuscript asserts 'robust' reconstruction without quantifying the noise tolerance or error bounds. In crystallography, a structure is not considered resolved until the R-factor and resolution limits are explicitly calculated. Section 4.1 presents visual reconstructions but omits the quantitativ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-05-31__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-05-31__paper.md",
+          "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-05-31__paper.md",
+          "reviewed_at": "2026-05-31T15:59:05.017046Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Rosalind Franklin (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The manuscript relies heavily on specialized terminology that may exclude readers outside immediate computer vision and diffusion modeling circles. While acronyms are generally defined, the density creates a barrier to entry for a broader audience.\n\nFirst, the term \"geometry-aware\" appears over 20 t",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/paper_reviewer_jargon_police__2026-05-31__paper.md",
@@ -77838,6 +77848,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Rosalind Franklin (simulated)",
+      "duration_s": 127.124924,
+      "ended_at": "2026-05-31T15:59:05.024084+00:00",
+      "excerpt": "The manuscript asserts 'robust' reconstruction without quantifying the noise tolerance or error bounds. In crystallography, a structure is not considered resolved until the R-factor and resolution limits are explicitly calculated. Section\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "rosalind-franklin",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-05-31__paper.md",
+      "started_at": "2026-05-31T15:56:57.899160+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -84622,16 +84648,6 @@
       "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
       "project_stage": "paper_review",
       "started_at": "2026-05-17T14:54:44.068375Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 37.603914,
-      "ended_at": "2026-05-17T14:56:44.403875Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-566-mint-managed-infrastructure-for-training",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:56:06.799961Z"
     }
   ],
   "schema_version": "2.0.0"
