@@ -50,6 +50,7 @@ from pathlib import Path
 
 import yaml
 
+from llmxive.backends.base import TransientBackendError
 from llmxive.convergence.project_runner import run_engine_for_project
 from llmxive.convergence.types import Concern, ConcernResponse, ReviewSpec, Verdict
 from llmxive.speckit._comments_context import render_recent_comments_block
@@ -227,7 +228,18 @@ def run_stage_panel(
             constitution=constitution,
             on_round=on_round,
         )
-    except Exception as exc:  # engine failure — escalate, do not swallow.
+    except TransientBackendError:
+        # A TRANSIENT backend failure (endpoint hung past its deadline / 5xx /
+        # connection dropped — the backend's own retry+backoff already
+        # exhausted) is NOT a human-actionable engine failure: a human cannot
+        # fix a transiently-degraded model endpoint. Re-raise it AS-IS (do NOT
+        # write human_input_needed.yaml, do NOT wrap in StagePanelEscalation) so
+        # the run fails transiently and the project STAYS at its current stage
+        # to retry on the next scheduler tick when the endpoint recovers.
+        # run_one_step does not catch TransientBackendError, so it surfaces to
+        # the CLI as a transient FAIL with no stage change.
+        raise
+    except Exception as exc:  # genuine engine failure — escalate, do not swallow.
         _write_human_input_needed(
             memory_dir,
             {

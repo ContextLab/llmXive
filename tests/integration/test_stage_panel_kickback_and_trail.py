@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from llmxive.backends.base import TransientBackendError
 from llmxive.convergence.types import (
     Concern,
     ConcernResponse,
@@ -165,6 +166,34 @@ def test_engine_exception_writes_human_input_needed(tmp_path: Path) -> None:
     memory_dir = tmp_path / "repo" / "projects" / "PROJ-902-x" / ".specify" / "memory"
     # Genuine engine failure → human escalation, NOT the adaptive sentinel.
     assert (memory_dir / "human_input_needed.yaml").exists()
+    assert not (memory_dir / "convergence_kickback.yaml").exists()
+
+
+def test_transient_backend_error_does_not_escalate_to_human(tmp_path: Path) -> None:
+    """A TRANSIENT backend failure (hung endpoint / 5xx, backend retries already
+    exhausted) must NOT strand the project at human_input_needed — a human can't
+    fix a degraded endpoint. It re-raises AS-IS (not StagePanelEscalation) so the
+    run fails transiently and the project stays put to retry when the endpoint
+    recovers. Regression for the PROJ-552 plan-panel false-escalation."""
+    key = "projects/PROJ-902-x/specs/001-x/spec.md"
+    concern = Concern(
+        id="c1", reviewer="methodology", severity=Severity.SCIENCE,
+        artifact=key, text="x",
+    )
+
+    class _Hung(_ScriptedReviser):
+        def revise(self, artifacts, concerns):  # type: ignore[no-untyped-def]
+            raise TransientBackendError(
+                "Dartmouth model 'qwen.qwen3.5-122b' hung past 180s deadline"
+            )
+
+    reviewer = _ScriptedReviewer("methodology", concern, accept_round=None)
+    # Re-raised as the raw transient — NOT wrapped in StagePanelEscalation.
+    with pytest.raises(TransientBackendError):
+        _run(tmp_path, reviewers=[reviewer], reviser=_Hung(key))
+    memory_dir = tmp_path / "repo" / "projects" / "PROJ-902-x" / ".specify" / "memory"
+    # Crucially: NO human-escalation marker and NO kickback sentinel were written.
+    assert not (memory_dir / "human_input_needed.yaml").exists()
     assert not (memory_dir / "convergence_kickback.yaml").exists()
 
 
