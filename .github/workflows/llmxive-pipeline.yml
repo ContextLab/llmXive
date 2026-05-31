@@ -78,3 +78,21 @@ jobs:
           if [[ -n "${PROJECT_ID:-}" ]]; then ARGS+=(--project "$PROJECT_ID"); fi
           if [[ -n "${STAGE:-}" ]]; then ARGS+=(--stage "$STAGE"); fi
           python -m llmxive "${ARGS[@]}"
+      - name: Persist pipeline progress
+        # Commit + push whatever the pipeline produced (advanced stage, new
+        # artifacts, run-log telemetry) back to the branch this run checked out,
+        # so progress survives the ephemeral runner. always(): even a transient
+        # endpoint failure leaves the project parked at its stage (no partial
+        # artifacts — the stage guards unlink those) and we still keep the
+        # run-log. [skip ci] on the message avoids retriggering the pipeline.
+        if: always()
+        run: |
+          git config user.name "llmxive-pipeline-bot"
+          git config user.email "noreply@anthropic.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no pipeline changes to commit"
+          else
+            git commit -m "chore(pipeline): persist run progress [skip ci]"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
