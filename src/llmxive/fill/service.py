@@ -112,9 +112,21 @@ def _is_math_claim(claim: Claim, *, backend: Any, model: str | None,
 # ---------------------------------------------------------------------------
 
 def _cache_key_parts(claim: Claim) -> tuple[str, str, str | None]:
-    """Return (source_id, claim_text, number) for grounding cache keying."""
-    canonical = claim.canonical or claim.raw_text or ""
-    return ("fill", canonical, claim.resolved_value)
+    """Return (source_id, fact_fingerprint, number) for grounding cache keying.
+
+    The middle component is a rephrase-independent FACT FINGERPRINT (number +
+    sorted subject keywords from subject_query) rather than the raw canonical.
+    The convergence reviser rephrases a claim every round → a new canonical →
+    a guaranteed cache MISS under the old keying, forcing full re-resolution
+    via arXiv/OEIS each round.  Keying on the fingerprint lets rephrasings of
+    the same fact share one verdict entry, while two DIFFERENT facts (different
+    numbers or different subject) still get different keys (see
+    fact_fingerprint docstring for the no-collision argument).
+    """
+    from llmxive.fill.subject_query import fact_fingerprint
+
+    fingerprint = fact_fingerprint(claim)
+    return ("fill", fingerprint, claim.resolved_value)
 
 
 def _load_cached(claim: Claim, *, repo_root: Path | None) -> FillResult | None:
@@ -302,45 +314,79 @@ def fill_claim(
         math = _is_math_claim(claim, backend=backend, model=model, repo_root=repo_root)
         channel_names = channels_for(claim.kind, math=math)
 
-        # Gather all fetched sources across channels
-        all_sources: list[FetchedSource] = []
-        for ch_name in channel_names:
+        # Gating (Fix E): "theorem" is the lowest-authority math channel and the
+        # heaviest arXiv caller.  Run the higher-authority channels first; if one
+        # of them yields a verified fill, SKIP the theorem channel entirely (no
+        # arXiv per-candidate fetches).  Authority order is encoded by
+        # channels_for(), so we simply defer "theorem" to a second pass.
+        primary_channels = [c for c in channel_names if c != "theorem"]
+        deferred_theorem = "theorem" in channel_names
+
+        def _run_channel(ch_name: str) -> list[FetchedSource]:
             fn = _get_channel(ch_name)
             if fn is None:
                 logger.debug("fill.service: channel %r not available, skipping", ch_name)
-                continue
-            channels_tried.append(ch_name)
+                return []
+            if ch_name not in channels_tried:
+                channels_tried.append(ch_name)
             try:
-                fetched = fn(q, claim)
-                all_sources.extend(fetched)
+                # The theorem + paper channels accept repo_root for their
+                # negative caches; others use the plain (q, claim) signature.
+                if ch_name in ("theorem", "paper"):
+                    return list(fn(q, claim, repo_root=repo_root))
+                return list(fn(q, claim))
+            except TypeError:
+                # Channel signature does not accept repo_root → call without it.
+                try:
+                    return list(fn(q, claim))
+                except Exception as exc:
+                    logger.warning("fill.service: channel %r raised: %s", ch_name, exc)
+                    return []
             except Exception as exc:
                 logger.warning("fill.service: channel %r raised: %s", ch_name, exc)
+                return []
 
-        # Step 4: cross-channel OEIS enrichment
+        def _extract_candidates(
+            sources: list[FetchedSource],
+        ) -> list[tuple[FetchedSource, str]]:
+            cands: list[tuple[FetchedSource, str]] = []
+            for source in sources:
+                try:
+                    # Trim OEIS b-file sources to the relevant window so the LLM
+                    # locator stays within token budget.
+                    effective_source = _trim_oeis_source(source, claim)
+                    val = extract_value(
+                        effective_source, claim,
+                        backend=backend, model=model, repo_root=repo_root,
+                    )
+                    if val is not None:
+                        # Record the win against the ORIGINAL (full) source for
+                        # provenance (url/source_id are unchanged; only text differs).
+                        cands.append((source, val))
+                except Exception as exc:
+                    logger.warning("fill.service: extract_value failed for %s: %s",
+                                   source.source_id, exc)
+            return cands
+
+        # Step 4a: run higher-authority channels + OEIS enrichment.
+        all_sources: list[FetchedSource] = []
+        for ch_name in primary_channels:
+            all_sources.extend(_run_channel(ch_name))
+
         all_sources = _oeis_enrich(all_sources, claim, q)
-        # Ensure "oeis" is in channels_tried if we added OEIS sources from enrichment
         oeis_added = any(s.channel == "oeis" for s in all_sources)
         if oeis_added and "oeis" not in channels_tried:
             channels_tried.append("oeis")
 
-        # Step 5: extract values (present-in-source gated inside extract_value)
-        candidates: list[tuple[FetchedSource, str]] = []
-        for source in all_sources:
-            try:
-                # Trim OEIS b-file sources to the relevant window so the LLM
-                # locator stays within token budget.
-                effective_source = _trim_oeis_source(source, claim)
-                val = extract_value(
-                    effective_source, claim,
-                    backend=backend, model=model, repo_root=repo_root,
-                )
-                if val is not None:
-                    # Record the win against the ORIGINAL (full) source for
-                    # provenance (url/source_id are unchanged; only text differs).
-                    candidates.append((source, val))
-            except Exception as exc:
-                logger.warning("fill.service: extract_value failed for %s: %s",
-                               source.source_id, exc)
+        # Step 5a: extract from higher-authority sources first.
+        candidates = _extract_candidates(all_sources)
+
+        # Step 4b/5b: only fall through to the theorem channel if no
+        # higher-authority channel produced a verified fill.
+        if not candidates and deferred_theorem:
+            theorem_sources = _run_channel("theorem")
+            all_sources.extend(theorem_sources)
+            candidates = _extract_candidates(theorem_sources)
 
         # Step 6: no candidates → blocked
         if not candidates:

@@ -374,7 +374,22 @@ class ArxivClient:
         return []
 
     def get_by_id(self, arxiv_id: str) -> Candidate | None:
-        """Fetch a single paper by arXiv ID (e.g., '1706.03762' or '1706.03762v3')."""
+        """Fetch a single paper by arXiv ID (e.g., '1706.03762' or '1706.03762v3').
+
+        Respects the same circuit breaker as ``search()``: while
+        ``_disabled_until > now`` (a sustained-429 cool-off is in effect) this
+        short-circuits to ``None`` WITHOUT a network attempt, so the
+        per-candidate path (theorem/papers fill channels) also stops hammering
+        arXiv once the breaker has tripped.
+        """
+        # Circuit-breaker check: short-circuit on sustained 429s.
+        if time.monotonic() < self._disabled_until:
+            import sys as _sys
+            print(
+                f"[arxiv] circuit-breaker active; skipping get_by_id={arxiv_id!r}",
+                file=_sys.stderr,
+            )
+            return None
         try:
             import arxiv
         except ImportError:

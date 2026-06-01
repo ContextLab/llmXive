@@ -101,6 +101,99 @@ def _tidy(text: str) -> str:
     return text.strip()
 
 
+# Stop-words excluded from the fact fingerprint so trivial rephrasings (which
+# shuffle/insert function words) still collapse to the same subject token set.
+_FINGERPRINT_STOP = frozenset({
+    "the", "a", "an", "of", "in", "at", "to", "and", "or", "for", "by", "with",
+    "there", "are", "is", "it", "its", "as", "on", "that", "this", "these",
+    "those", "be", "been", "was", "were", "has", "have", "had", "number",
+    "value", "count", "exact", "exactly", "total", "about", "approximately",
+    "equals", "equal", "which", "whose", "from", "into", "per",
+})
+
+
+def _singularize(token: str) -> str:
+    """Collapse a simple English plural to its singular stem (best-effort).
+
+    Only used inside the fact fingerprint so that the convergence reviser's
+    plural toggling ("crossings"↔"crossing", "knots"↔"knot") does not produce a
+    new cache key.  Deliberately conservative — handles the common ``-ies`` and
+    trailing ``-s`` cases on tokens long enough that the stem is still
+    meaningful; leaves short tokens (``is`` already stop-worded, ``gas``) and
+    ``-ss`` words (``class``, ``mass``) unchanged.  Mis-stemming is harmless for
+    correctness: the numeric component of the fingerprint already separates
+    different facts, so the worst case is a rare missed cache hit, never a
+    wrong-fact collision.
+    """
+    if len(token) > 3 and token.endswith("ies"):
+        return token[:-3] + "y"
+    if (
+        len(token) > 3
+        and token.endswith("s")
+        and not token.endswith("ss")
+        and not token.endswith("us")
+    ):
+        return token[:-1]
+    return token
+
+
+def fact_fingerprint(
+    claim: Claim,
+    *,
+    backend: Any = None,
+    model: str | None = None,
+    repo_root: Path | None = None,
+) -> str:
+    """Return a stable, rephrase-independent fingerprint of the FACT a claim asserts.
+
+    The fingerprint is used as the fill verdict cache key so that the convergence
+    reviser's per-round rephrasings of the SAME fact share one cache entry (which
+    avoids re-resolving the same fact via arXiv/OEIS every round).
+
+    Composition (deliberately number-aware):
+      ``<sorted-numeric-tokens> | <sorted-subject-keywords>``
+
+    Correctness — two DIFFERENT facts must NOT collide:
+      * The *full set* of salient numeric tokens in the claim text is included
+        (sorted), so a fact asserting 9988 and one asserting 27635 — or one
+        qualified by "13 crossings" vs "12 crossings" — get different numeric
+        components and therefore different fingerprints.
+      * The subject keyword set is derived from :func:`subject_query` (the same
+        deterministic subject extraction the search layer uses) with stop-words
+        and digits stripped, so two facts about different subjects differ.
+      * Only same-numbers + same-subject rephrasings collapse to one key.
+
+    This function is PURE and deterministic when ``backend`` is ``None`` (the
+    common cache-keying path); a backend is accepted only to mirror
+    ``subject_query``'s signature and is not required.
+    """
+    raw = claim.raw_text or claim.canonical or ""
+
+    # Numeric component: ALL salient numbers in the claim (sorted, bare digits).
+    # Including the full set — not just the asserted value — keeps qualifier
+    # numbers (e.g. the crossing index) part of the fact identity.
+    bare_numbers = sorted({
+        re.sub(r"[\s,_]", "", tok)
+        for tok in re.findall(r"[-+]?\d[\d,_ ]*(?:\.\d+)?", raw)
+    })
+    num_part = " ".join(bare_numbers)
+
+    # Subject component: subject keywords from the deterministic search query,
+    # lower-cased, de-punctuated, stop-words + pure-digit tokens removed,
+    # singular-normalized (so "crossings"/"crossing", "knots"/"knot" collapse —
+    # the reviser freely toggles plurals between rounds), then sorted.
+    subject = subject_query(claim, backend=None, model=None, repo_root=None)
+    tokens = re.sub(r"[^a-z0-9 ]", " ", subject.lower()).split()
+    keywords = sorted({
+        _singularize(t)
+        for t in tokens
+        if t not in _FINGERPRINT_STOP and not t.isdigit() and len(t) > 1
+    })
+    subj_part = " ".join(keywords)
+
+    return f"{num_part}|{subj_part}"
+
+
 def subject_query(
     claim: Claim,
     *,
@@ -247,4 +340,4 @@ def _strip_parentheticals(text: str) -> str:
     return _tidy(text)
 
 
-__all__ = ["strip_asserted_value", "subject_query"]
+__all__ = ["fact_fingerprint", "strip_asserted_value", "subject_query"]
