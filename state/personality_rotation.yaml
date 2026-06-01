@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-01T21:15:23.100886+00:00'
-last_outcome: committed
+last_used: david-krakauer
+last_used_at: '2026-06-01T22:26:49.261956+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: richard-feynman
-  started_at: '2026-05-23T22:48:08.325889+00:00'
-  ended_at: '2026-05-23T23:20:06.717712+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-23__research.md
 - slug: rosalind-franklin
   started_at: '2026-05-23T23:20:06.717712+00:00'
   ended_at: '2026-05-23T23:48:32.501463+00:00'
@@ -1211,3 +1204,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/reviews/research/daniel-kahneman-simulated__2026-06-01__research.md
+- slug: david-krakauer
+  started_at: '2026-06-01T21:15:23.100886+00:00'
+  ended_at: '2026-06-01T22:26:49.261956+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
