@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-01T22:26:54.274217+00:00",
+  "generated_at": "2026-06-01T23:12:25.015046+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -65907,6 +65907,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 120.258391,
+          "ended_at": "2026-06-01T23:12:20.667535+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-01T23:10:20.409144+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 45.97777,
           "ended_at": "2026-06-01T22:26:49.261956+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -79456,6 +79464,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 120.258391,
+      "ended_at": "2026-06-01T23:12:20.667535+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "eric-kandel",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-06-01T23:10:20.409144+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "David Krakauer (simulated)",
       "duration_s": 45.97777,
       "ended_at": "2026-06-01T22:26:49.261956+00:00",
@@ -85820,16 +85842,6 @@
       "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
       "project_stage": "analyzed",
       "started_at": "2026-05-21T14:50:11.029469Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 92.590128,
-      "ended_at": "2026-05-21T14:44:04.815942Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
-      "project_stage": "analyzed",
-      "started_at": "2026-05-21T14:42:32.225814Z"
     }
   ],
   "schema_version": "2.0.0"

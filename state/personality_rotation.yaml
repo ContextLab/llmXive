@@ -1,11 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-06-01T22:26:49.261956+00:00'
+last_used: eric-kandel
+last_used_at: '2026-06-01T23:12:20.667535+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-23T23:20:06.717712+00:00'
-  ended_at: '2026-05-23T23:48:32.501463+00:00'
-  outcome: model_error
 - slug: rosalind-franklin
   started_at: '2026-05-23T23:48:32.501463+00:00'
   ended_at: '2026-05-24T00:33:11.530890+00:00'
@@ -1207,5 +1203,10 @@ history:
 - slug: david-krakauer
   started_at: '2026-06-01T21:15:23.100886+00:00'
   ended_at: '2026-06-01T22:26:49.261956+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-01T22:26:49.261956+00:00'
+  ended_at: '2026-06-01T23:12:20.667535+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
