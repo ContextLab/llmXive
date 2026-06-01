@@ -119,3 +119,35 @@ def test_normalization_ignores_case_punctuation_and_spacing():
     )
     dups = [f for f in scan_spec_quality(spec) if f.kind == "duplicate_requirement"]
     assert len(dups) == 1
+
+
+def test_scanner_flags_paraphrase_duplicate_fr_not_just_exact():
+    """Regression: the REAL PROJ-552 duplicate (FR-008 vs FR-010) differs by a
+    couple of filler words ('including'/'and'), so exact-normalized equality
+    missed it. Token-set (Jaccard) similarity must catch the paraphrase."""
+    from llmxive.speckit._spec_quality import scan_spec_quality
+
+    spec = (
+        "### Functional Requirements\n"
+        "- **FR-008**: System MUST apply statistical tests (Pearson/Spearman "
+        "correlation, ANOVA for group differences) to assess significance of findings\n"
+        "- **FR-010**: System MUST apply statistical tests including Pearson/Spearman "
+        "correlation and ANOVA for group differences to assess significance of findings\n"
+    )
+    dups = [f for f in scan_spec_quality(spec) if f.kind == "duplicate_requirement"]
+    assert len(dups) == 1, dups
+    assert "FR-008" in dups[0].text and "FR-010" in dups[0].text
+
+
+def test_scanner_no_false_duplicate_on_distinct_frs_sharing_boilerplate():
+    """Distinct FRs that share only 'System MUST …' boilerplate must NOT be
+    flagged as duplicates (no false positives)."""
+    from llmxive.speckit._spec_quality import scan_spec_quality
+
+    spec = (
+        "### Functional Requirements\n"
+        "- **FR-001**: System MUST download knot data from Knot Atlas for all knots with crossing number 13\n"
+        "- **FR-002**: System MUST parse and clean the dataset to extract consistent invariant representations\n"
+        "- **FR-003**: System MUST compute arc index and bridge number from diagram representations\n"
+    )
+    assert [f for f in scan_spec_quality(spec) if f.kind == "duplicate_requirement"] == []

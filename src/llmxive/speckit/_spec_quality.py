@@ -136,29 +136,52 @@ def _scan_placeholders(text: str) -> list[SpecQualityFinding]:
     return findings
 
 
+# Two FRs are near-duplicates when their normalized word sets overlap at least
+# this much (Jaccard). 0.80 catches real paraphrase-duplicates (e.g. PROJ-552's
+# FR-008 vs FR-010, which differ only by "including"/"and" → ~0.89 overlap) while
+# leaving genuinely-distinct FRs — which share only boilerplate like
+# "system must" — well below threshold (~0.2-0.3), so no false positives.
+_DUP_SIMILARITY_THRESHOLD = 0.80
+
+
 def _scan_duplicate_requirements(text: str) -> list[SpecQualityFinding]:
-    """Flag two FR bullets whose normalized requirement text is identical."""
-    seen: dict[str, str] = {}  # normalized text -> first FR id
-    findings: list[SpecQualityFinding] = []
+    """Flag two FR bullets whose requirement text is near-identical.
+
+    Uses token-set (Jaccard) similarity rather than exact-normalized equality so
+    paraphrase-duplicates that differ by a few filler words are still caught.
+    """
+    frs: list[tuple[str, set[str], str]] = []  # (id, token set, raw text)
     for m in _FR_BULLET_RE.finditer(text):
-        fr_id = m.group("id")
         norm = _normalize_requirement(m.group("text"))
         if not norm:
             continue
-        prior = seen.get(norm)
-        if prior is not None and prior != fr_id:
-            findings.append(
-                SpecQualityFinding(
-                    kind="duplicate_requirement",
-                    reason=(
-                        f"{prior} and {fr_id} state the same requirement "
-                        f"(near-identical text) — collapse or differentiate them"
-                    ),
-                    text=f"{prior} ≈ {fr_id}: {m.group('text').strip()}",
+        frs.append((m.group("id"), set(norm.split()), m.group("text").strip()))
+
+    findings: list[SpecQualityFinding] = []
+    flagged: set[tuple[str, str]] = set()
+    for i in range(len(frs)):
+        id_a, toks_a, _ = frs[i]
+        for j in range(i + 1, len(frs)):
+            id_b, toks_b, raw_b = frs[j]
+            if id_a == id_b or (id_a, id_b) in flagged:
+                continue
+            union = toks_a | toks_b
+            if not union:
+                continue
+            jaccard = len(toks_a & toks_b) / len(union)
+            if jaccard >= _DUP_SIMILARITY_THRESHOLD:
+                flagged.add((id_a, id_b))
+                findings.append(
+                    SpecQualityFinding(
+                        kind="duplicate_requirement",
+                        reason=(
+                            f"{id_a} and {id_b} state the same requirement "
+                            f"({jaccard:.0%} word overlap) — collapse or "
+                            f"differentiate them"
+                        ),
+                        text=f"{id_a} ≈ {id_b}: {raw_b}",
+                    )
                 )
-            )
-        else:
-            seen.setdefault(norm, fr_id)
     return findings
 
 
