@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-01T13:24:32.199944+00:00'
-last_outcome: malformed_response
+last_used: albert-einstein
+last_used_at: '2026-06-01T15:37:17.099116+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-05-23T21:18:28.669641+00:00'
-  ended_at: '2026-05-23T21:49:20.272223+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-23__research.md
 - slug: richard-feynman
   started_at: '2026-05-23T21:49:20.272223+00:00'
   ended_at: '2026-05-23T22:17:51.918205+00:00'
@@ -1209,3 +1202,8 @@ history:
   started_at: '2026-06-01T11:20:38.126797+00:00'
   ended_at: '2026-06-01T13:24:32.199944+00:00'
   outcome: malformed_response
+- slug: albert-einstein
+  started_at: '2026-06-01T13:24:32.199944+00:00'
+  ended_at: '2026-06-01T15:37:17.099116+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
