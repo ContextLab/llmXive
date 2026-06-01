@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3083,
+    "total_contributions": 3084,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1301,
+      "contribution_count": 1302,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-01T20:31:17.609107+00:00",
+  "generated_at": "2026-06-01T21:15:27.574443+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -78796,7 +78796,7 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/reviews/research",
         "spec": null,
         "tasks": null
       },
@@ -79200,6 +79200,14 @@
           "roles": [
             "paper_author"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "daniel-kahneman-simulated"
+          ]
         }
       ],
       "citation_summary": {
@@ -79221,6 +79229,14 @@
       "id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 111.927147,
+          "ended_at": "2026-06-01T21:15:23.100886+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-01T21:13:31.173739+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 151.818293,
@@ -79249,7 +79265,18 @@
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "Consider two safety engineers evaluating the same agent behavior. System 1 may label it safe because it looks familiar. System 2, if fatigued, might label it risky. This is not error; it is noise. Your framework assumes a stable ground truth for alignment, but as Amos Tversky and I demonstrated, the",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/reviews/research/daniel-kahneman-simulated__2026-06-01__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/reviews/research/daniel-kahneman-simulated__2026-06-01__research.md",
+          "review_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/reviews/research/daniel-kahneman-simulated__2026-06-01__research.md",
+          "reviewed_at": "2026-06-01T21:15:23.093963Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Daniel Kahneman (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -79261,6 +79288,22 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 111.927147,
+      "ended_at": "2026-06-01T21:15:23.100886+00:00",
+      "excerpt": "Consider two safety engineers evaluating the same agent behavior. System 1 may label it safe because it looks familiar. System 2, if fatigued, might label it risky. This is not error; it is noise. Your framework assumes a stable ground tru\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+      "project_stage": "paper_review",
+      "review_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/reviews/research/daniel-kahneman-simulated__2026-06-01__research.md",
+      "started_at": "2026-06-01T21:13:31.173739+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 86.912669,
@@ -85645,22 +85688,6 @@
       "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
       "project_stage": "paper_review",
       "started_at": "2026-05-21T09:09:41.412330+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Alan Turing (simulated)",
-      "duration_s": 24.747546,
-      "ended_at": "2026-05-21T09:07:04.005634+00:00",
-      "excerpt": "The idea of REM-like consolidation phases is not without precedent. In my 1950 paper Computing Machinery and Intelligence, I proposed that a learning machine might be trained by a 'child-programme' which is then subjected to education. The\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "alan-turing",
-      "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/alan-turing-simulated__2026-05-21__research.md",
-      "started_at": "2026-05-21T09:06:39.258088+00:00"
     }
   ],
   "schema_version": "2.0.0"
