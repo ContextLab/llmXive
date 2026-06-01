@@ -1,0 +1,143 @@
+project_id: PROJ-638-https-arxiv-org-abs-2605-28820
+arxiv_id: '2605.28820'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-01T14:13:06.051329+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 6dc852f7512e
+    text: 'Correct the DocVQA citation: The current bib entry (Clark & Gardner, 2018)
+      refers to reading comprehension, not the DocVQA dataset (Masry et al., 2021).
+      Update to the correct source to ensure factual accuracy.'
+    severity: writing
+  - id: 56fa4191e634
+    text: Complete the truncated bibliography entry for OpenImag (Datasets:OpenImag).
+      The current entry is cut off, preventing verification of this citation.
+    severity: writing
+  - id: 1dc4195139f5
+    text: Verify all future-dated citations (e.g., Qwen3, GeoThinker 2026) are intentional
+      and consistent with the paper's timeline context, as they may appear as hallucinations
+      to external readers.
+    severity: writing
+  - id: 981efc80f304
+    text: Code artifacts (training scripts, model definitions, evaluation pipelines)
+      are missing from the review package, preventing assessment of reproducibility
+      and implementation quality.
+    severity: writing
+  - id: d5cf4cbcc398
+    text: Dependency specifications (requirements.txt, environment.yml) are absent,
+      making it impossible to verify dependency hygiene or environment reproducibility.
+    severity: writing
+  - id: 01e04f42270a
+    text: Test suites and CI configurations are not provided, so test coverage and
+      modularity cannot be evaluated.
+    severity: writing
+  - id: 45a1b3e2308d
+    text: Explicitly list training dataset names, licenses, and access URLs in a new
+      Data Availability section.
+    severity: science
+  - id: 66a770198739
+    text: Include version hashes or commit tags for the code and data used to generate
+      reported results.
+    severity: science
+  - id: e2683d7e87dc
+    text: Verify all external URLs in the bibliography for stability and provide DOIs
+      where possible.
+    severity: writing
+  - id: 1a2d26e1d90a
+    text: Restructure the three-panel layout at line 548. Multiple \caption commands
+      in one figure* environment cause numbering conflicts. Use subcaption package
+      or separate floats.
+    severity: writing
+  - id: 7eb8dc60199e
+    text: Correct the filename typo 'trainning_recipe.pdf' to 'training_recipe.pdf'
+      at line 252 to maintain professionalism.
+    severity: writing
+  - id: 3d91e3b2f21c
+    text: Ensure all plot axes in figures 4a-c have sufficient font size for print
+      legibility and verify colorblind-safe palettes are used.
+    severity: writing
+  - id: 39914879e337
+    text: Define all acronyms (KV, RoPE, VE) at first use; KV caching appears in Introduction
+      without definition.
+    severity: writing
+  - id: 338dc0164b4f
+    text: Replace coined terms like 'Pre-Buffer' and 'One-Vision' with plain descriptions
+      or define them clearly upon first mention.
+    severity: writing
+  - id: 48cd90866585
+    text: Reduce frequency of 'native' and 'spatiotemporal'; use 'unified' and 'space
+      and time' to improve accessibility.
+    severity: writing
+  - id: b49516778f2e
+    text: Abstract claims NEO-ov 'excels at fine-grained visual perception' (Line
+      28). Table 1 shows NEO-ov 8B trails Qwen3-VL on DocVQA (91.2 vs 93.3) and OCRBench
+      (81.2 vs 85.8). Limitations (Line 558) admit OCR is underexplored. Tone down
+      'excels' to 'remains competitive' to avoid overclaiming on fine-grained tasks.
+    severity: writing
+  - id: f0fb8c8c43ec
+    text: Introduction (Line 65) states NEO-ov 'surpasses... encoder-based competitors'.
+      Table 1 (Line 305) shows NEO-ov 8B MMMU score (68.1) is below Qwen3-VL (69.6).
+      Adjust claim to 'approaches or matches' top-tier modular systems where data
+      does not support surpassing.
+    severity: writing
+  - id: 8572f9d1ccc8
+    text: Title 'At Scale' (Line 1) implies frontier scaling. Model uses 8B backbone
+      (Line 362). While valid for native VLMs, clarify scale context in Abstract to
+      distinguish from trillion-token modular predecessors to prevent overinterpretation
+      of 'scale'.
+    severity: writing
+  - id: a936e6d88a5e
+    text: Expand the 'Ethical Considerations' section to detail specific data safety
+      protocols used for the 80M+ web-scraped samples (e.g., PII removal, copyright
+      filtering, harmful content moderation).
+    severity: writing
+  - id: 834a1c4d9ccf
+    text: Provide a more concrete analysis of potential dual-use risks, specifically
+      regarding the model's fine-grained OCR and spatial intelligence capabilities,
+      rather than generic statements.
+    severity: writing
+  - id: a0dd4fc13bed
+    text: Provide statistical significance testing (e.g., confidence intervals, p-values)
+      for benchmark comparisons, as point estimates alone cannot establish reliable
+      performance differences.
+    severity: science
+  - id: 3b8c95a403bd
+    text: Clarify compute budget parity in Figure 3a ablation; claim of 'fair comparison'
+      conflicts with main model using pretrained Qwen3 backbones.
+    severity: science
+  - id: db5dfbd803dc
+    text: Report variance across multiple training runs (e.g., 3 seeds) rather than
+      single-run results to assess reproducibility and robustness.
+    severity: science
+  - id: cf1b5db97666
+    text: Address multiple comparisons problem across 27+ benchmarks without statistical
+      correction to reduce false positive risk.
+    severity: science
+  - id: 4d554eb9b91b
+    text: Report standard deviations or confidence intervals for key benchmark scores
+      (e.g., MMMU, VideoMME) to validate claims of superiority over baselines. Single
+      point estimates are insufficient for statistical significance.
+    severity: science
+  - id: 6d6ed7235c6f
+    text: Resolve the model size inconsistency between Implementation Details (Qwen3-1.7B)
+      and Table headers (Instruct-2B) to ensure reproducibility.
+    severity: writing
+  - id: 75937ef41d03
+    text: Discuss the statistical significance of ablation study results (Figures
+      3-5) or acknowledge the limitation of single-run comparisons.
+    severity: science
+  - id: 7823c4f3ae90
+    text: Replace informal transition words like 'Besides' with 'Furthermore' or 'Moreover'
+      in the Introduction to maintain academic tone.
+    severity: writing
+  - id: 6855a3ea9125
+    text: Correct missing definite articles, such as 'the original LLM tokenizer'
+      in the Methodology section.
+    severity: writing
+  - id: 9210576ece8d
+    text: Replace commercial phrasing like 'launch' in the Conclusion with 'propose'
+      or 'present' to align with academic conventions.
+    severity: writing
