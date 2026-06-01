@@ -1,0 +1,137 @@
+project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
+arxiv_id: '2605.18233'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-01T11:10:16.066988+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: ce594ee2f260
+    text: No executable source code, dependency files (e.g., requirements.txt), or
+      test suite included in the submission. Pseudocode in Appendix (Alg. 1-6) is
+      not executable. Repository link or code artifacts must be provided to evaluate
+      reproducibility, modularity, and implementation quality.
+    severity: science
+  - id: 7c02ab3093c4
+    text: The paper lacks explicit license information for VBench, NarrLV, and foundation
+      models (VideoCrafter2, Wan2.1). Add a data availability statement specifying
+      licenses for all external datasets and models used.
+    severity: writing
+  - id: b8b8f752539d
+    text: No version numbers are specified for VBench or NarrLV benchmarks. Include
+      version identifiers or commit hashes to ensure reproducibility of evaluation
+      results.
+    severity: writing
+  - id: 1645e314732f
+    text: The project page URL (https://xiaokunfeng.github.io/miga_homepage/) in the
+      abstract has no archival guarantee. Consider adding an arXiv snapshot or DOI
+      for permanent access.
+    severity: writing
+  - id: 68319942ac43
+    text: Evaluation data (VBench/NarrLV prompts, data splits) are not described with
+      sufficient detail. Add a data card appendix specifying prompt counts, split
+      sizes, and any preprocessing applied.
+    severity: writing
+  - id: e610e649a446
+    text: Revise Figure 1 caption (line ~130) to clarify that static images represent
+      keyframes from videos, not the videos themselves.
+    severity: writing
+  - id: 7eb1aa3ee923
+    text: Add accessibility alt-text descriptions for all figures using the accessibility
+      package or descriptive captions to support screen readers.
+    severity: writing
+  - id: b4f8e5dd61c2
+    text: Ensure axis labels in ablation charts (Fig 5, Fig 6) are legible at print
+      scale; verify font sizes are >= 8pt.
+    severity: writing
+  - id: 6e7a18de3706
+    text: Define 'latents' with plain language (e.g., 'compressed representations')
+      upon first use in Section 3.1 to aid non-specialist readers.
+    severity: writing
+  - id: b7c454ad9bb6
+    text: Provide a concise, intuitive explanation for 'noise span' in the Introduction
+      or Section 3.2, as it is central to the method but currently defined only mathematically.
+    severity: writing
+  - id: 9aface39a642
+    text: Ensure all acronyms in tables (S.C., B.C., M.S., T.F., O.S.) are explicitly
+      defined in the table caption or immediately preceding text, not just in the
+      main body.
+    severity: writing
+  - id: 131b4a42dfc2
+    text: Simplify or define Appendix jargon such as 'MMDiT', 'KV Flush', and 'RoPE
+      Cut' for readers who may only skim the main text.
+    severity: writing
+  - id: f232d747b625
+    text: Revise the Impact Statement to explicitly discuss dual-use risks (e.g.,
+      deepfakes, misinformation) and mitigation strategies, rather than dismissing
+      societal consequences.
+    severity: writing
+  - id: c9e1d8a01556
+    text: Add a statement in the Appendix confirming that the user study received
+      IRB approval or followed ethical guidelines regarding informed consent for annotators.
+    severity: writing
+  - id: daec83d23c43
+    text: Add statistical significance testing (e.g., t-tests, confidence intervals)
+      to all quantitative comparisons in Tables 1-3. Currently no p-values or error
+      bars are reported for the claimed 4.7% S.C. improvement over FIFO-Diffusion.
+    severity: science
+  - id: 91c5627b535d
+    text: Report the exact number of evaluation prompts used for main VBench/NarrLV
+      experiments (only 50% subset mentioned for ablations in App.~\ref{app:ab_exp_imp}).
+      This affects reproducibility and claim robustness.
+    severity: science
+  - id: bb45b0ed7176
+    text: Address multiple comparison concerns in ablation studies. Tab.~\ref{tab:ab_zig_length}
+      tests 6 $L_{\mathrm{zig}}$ values and Tab.~\ref{app:tab_2} tests 8 $\delta_{\mathrm{adju}}$
+      values without correction for multiple testing.
+    severity: science
+  - id: 6e1332814088
+    text: Provide power analysis or sample size justification for the user study (48
+      prompts, 8 annotators). Report confidence intervals for the percentage differences
+      in Table~\ref{tab:user_study}.
+    severity: science
+  - id: cecdfb352b8b
+    text: Report standard deviations or 95% confidence intervals for all benchmark
+      scores (VBench, NarrLV) in Tables 1 and 2 to assess result stability.
+    severity: science
+  - id: 9d454181aee5
+    text: Include statistical significance tests (e.g., paired t-tests) comparing
+      MIGA against baselines to validate claims of state-of-the-art performance.
+    severity: science
+  - id: 50afb12a21bd
+    text: Provide p-values or binomial test results for the user study in Appendix
+      Table 2 to support the claim of consistent outperformance.
+    severity: science
+  - id: 373410389d91
+    text: Remove commented-out code blocks (e.g., duplicate figure environment at
+      lines 112-125, commented \vspace commands) before final submission.
+    severity: writing
+  - id: 6e6bcd2e31f9
+    text: Standardize citation commands to use \citep consistently throughout (currently
+      mixed \cite and \citep).
+    severity: writing
+  - id: a137a2c21ccb
+    text: Remove todonotes package usage for final submission; all TODO comments should
+      be resolved or deleted.
+    severity: writing
+  - id: 740aaa74273e
+    text: Consider renaming section "Related Works" to "Related Work" for grammatical
+      consistency with academic conventions.
+    severity: writing
+  - id: 97cba8ad404e
+    text: Verify all figure references (e.g., fig:app_wan_case, fig:app_videocrafter_case)
+      correspond to existing figures in the compiled PDF.
+    severity: writing
+  - id: ba07b387eb13
+    text: Standardize capitalization for model names (e.g., 'VideoCrafter2' vs 'videocrafter2',
+      'Wan2.1' vs 'Wan-2.1') throughout the text and tables for consistency.
+    severity: writing
+  - id: 87d6c45d980b
+    text: Remove all commented-out LaTeX code (e.g., author list comments, unused
+      package lines) from the final submission to ensure a clean build.
+    severity: writing
+  - id: f981e3ba5e65
+    text: Tighten sentence structures in the Abstract and Introduction (lines 105-120)
+      to reduce redundancy regarding 'training-inference gap' and 'consistency'.
+    severity: writing
