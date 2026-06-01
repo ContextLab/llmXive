@@ -96,6 +96,24 @@ caller will mark this idea rejected.
 - The `Methodology sketch` MUST mention how data will be obtained,
   what computation will be performed, and what statistical test (if
   any) will be applied.
+- **Validation independence (NON-NEGOTIABLE)**. Any validation,
+  evaluation, or ground-truth target named in the `Methodology sketch`
+  MUST be independent of the construct's own inputs/predictors. Do NOT
+  validate a composite, derived, or aggregate measure against a
+  quantity that is mathematically determined by its components —
+  i.e., a quantity that is a monotone function of, a sub-component of,
+  or a known algebraic identity on those inputs. Validating a
+  constructed measure against something it is built from is circular
+  (tautological): the "result" is guaranteed by construction and
+  proves nothing. To stay independent, EITHER (a) choose an
+  evaluation target measured/obtained separately from the construct's
+  inputs (a different instrument, dataset, or downstream outcome), OR
+  (b) reframe the claim as an exploratory correlation between distinct
+  quantities rather than a predictive validation. This is distinct
+  from the research-question circularity rule above: that rule governs
+  the predictor/predicted variables in the `## Research question`;
+  this rule governs the validation/evaluation design in the
+  `## Methodology sketch`.
 - Output ONLY the Markdown document.
 
 ## RESEARCH-QUESTION QUALITY (NON-NEGOTIABLE)
@@ -142,6 +160,30 @@ If you receive a `[REVISED]…[/REVISED]` hint in the input (left by a prior
 research_question_validator iteration), treat that as the suggested
 research question for this revision. Adopt it verbatim or improve on it,
 but DO NOT regenerate the same question that was previously rejected.
+
+## DOWNSTREAM REVIEW CONCERNS (NON-NEGOTIABLE)
+
+If the input contains a "DOWNSTREAM REVIEW CONCERNS" section (left when a
+later spec/plan convergence panel kicked this project back to the idea
+stage), those concerns are REQUIRED revisions, not optional suggestions.
+You MUST revise the relevant parts of the idea — especially the
+`## Methodology sketch` — so that EACH listed concern is resolved. Do NOT
+merely re-elaborate the previous idea: a re-statement that leaves the
+concern intact will be kicked back again.
+
+In particular, if a concern describes a **circular or tautological
+validation** (the methodology validates a constructed measure against a
+quantity that is mathematically dependent on the measure's own
+inputs/predictors), you MUST fix it by EITHER:
+
+- choosing a validation/evaluation target that is INDEPENDENT of the
+  construct's own inputs (measured separately, or a genuinely downstream
+  outcome), OR
+- reframing the claim as an exploratory correlation between distinct
+  quantities rather than a predictive validation.
+
+Apply the same independence test described under "Validation independence"
+in the Rules section to the revised methodology before finishing.
 
 ## SCOPE CONSTRAINTS (NON-NEGOTIABLE)
 

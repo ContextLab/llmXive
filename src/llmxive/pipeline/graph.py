@@ -42,6 +42,7 @@ from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
     CONVERGENCE_KICKBACK_CAP,
+    KickbackDecision,
     consume_convergence_kickback,
     reset_kickback_count,
 )
@@ -526,6 +527,48 @@ def _convergence_kickback_memory_dirs(project_dir: Path) -> list[Path]:
     ]
 
 
+#: Durable, project-local note carrying a downstream panel's unresolved
+#: concerns to the content stage (flesh_out / brainstorm). Lives in
+#: ``projects/<id>/idea/`` so the idea-phase agents find it; removed by
+#: FleshOutAgent._persist once consumed so stale concerns never re-apply.
+KICKBACK_FEEDBACK_FILENAME = "kickback_feedback.md"
+
+
+def _write_kickback_feedback(project_dir: Path, decision: KickbackDecision) -> None:
+    """Persist a consumed convergence-kickback's diagnosis for the content stage.
+
+    The ``convergence_kickback.yaml`` sentinel (and its ``unresolved_concerns``)
+    is deleted by :func:`consume_convergence_kickback` during routing, so the
+    flesh-out / brainstorm agent would otherwise never see WHY the project was
+    kicked back. We write the reason + each unresolved-concern body to
+    ``projects/<id>/idea/kickback_feedback.md`` as a clearly-headed Markdown
+    note the agent injects into its next prompt.
+    """
+    idea_dir = project_dir / "idea"
+    idea_dir.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Downstream review concerns (address in this revision)",
+        "",
+        "A downstream convergence panel kicked this project back to the idea "
+        "stage. You MUST revise the idea — especially the `Methodology sketch` "
+        "— to RESOLVE each concern below, not merely re-state the idea.",
+        "",
+        f"**Why it was kicked back**: {decision.reason}",
+        "",
+        "## Unresolved concerns",
+        "",
+    ]
+    if decision.unresolved_concerns:
+        lines.extend(f"- {c}" for c in decision.unresolved_concerns)
+    else:
+        lines.append(
+            "- (no per-concern bodies were carried; see the reason above)"
+        )
+    (idea_dir / KICKBACK_FEEDBACK_FILENAME).write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
 def _decide_next_stage(
     project: Project, project_dir: Path, *, repo_root: Path | None = None
 ) -> Stage:
@@ -565,6 +608,15 @@ def _decide_next_stage(
                 decision.stage_label,
             )
             return Stage.HUMAN_INPUT_NEEDED
+        # Persist the panel's diagnosis where the content agent will read it.
+        # When a kickback routes to a CONTENT stage (flesh_out / brainstorm),
+        # the sentinel (and its concern bodies) was just DELETED by
+        # consume_convergence_kickback — so without this the flesh-out agent
+        # re-elaborates the SAME flawed idea and the downstream panel kicks it
+        # straight back (the infinite spec↔flesh_out loop). Drop a durable,
+        # human+LLM-readable markdown note the agent ingests on its next run.
+        if target_stage in {Stage.FLESH_OUT_IN_PROGRESS, Stage.BRAINSTORMED}:
+            _write_kickback_feedback(project_dir, decision)
         logger.info(
             "adaptive convergence kickback: %s -> %s (count=%d, stage=%s)",
             project.id, target_stage.value, decision.count,

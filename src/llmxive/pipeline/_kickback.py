@@ -62,6 +62,12 @@ class KickbackDecision:
     reason: str
     #: 1-based count of kickbacks at this stage AFTER this one.
     count: int
+    #: The unresolved-concern bodies (``Concern.text`` strings) carried from the
+    #: kickback record. Captured here BEFORE the sentinel is deleted so the graph
+    #: can persist them for the content stage (flesh_out / brainstorm) — otherwise
+    #: the panel's diagnosis is lost and the content agent re-elaborates the same
+    #: flawed idea (the infinite spec↔flesh_out loop this field fixes).
+    unresolved_concerns: tuple[str, ...] = ()
 
 
 def _read_counts(memory_dir: Path) -> dict[str, int]:
@@ -126,6 +132,18 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
     to_stage = payload.get("to_stage")
     stage_label = str(payload.get("stage") or "convergence")
     reason = str(payload.get("reason") or "convergence panel did not converge")
+    # Capture the unresolved-concern bodies BEFORE the sentinel is unlinked
+    # below — the graph persists these for the content stage so flesh_out
+    # actually addresses the panel's diagnosis instead of re-elaborating the
+    # same flawed idea.
+    raw_concerns = payload.get("unresolved_concerns")
+    concern_texts: tuple[str, ...] = ()
+    if isinstance(raw_concerns, list):
+        concern_texts = tuple(
+            str(c["text"]).strip()
+            for c in raw_concerns
+            if isinstance(c, dict) and str(c.get("text") or "").strip()
+        )
     # FR-013/014 / T021: unresolved-claim kickbacks get an extra automated retry
     # budget (CLAIM_RETRY_BUDGET) before the normal CONVERGENCE_KICKBACK_CAP
     # human-escalation path kicks in.  The sentinel writer sets this flag.
@@ -170,6 +188,7 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
             stage_label=stage_label,
             reason=reason,
             count=new_count,
+            unresolved_concerns=concern_texts,
         )
 
     return KickbackDecision(
@@ -178,6 +197,7 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
         stage_label=stage_label,
         reason=reason,
         count=new_count,
+        unresolved_concerns=concern_texts,
     )
 
 

@@ -40,6 +40,18 @@ class _IdeaPhaseAgent(Agent):
 
     prompt_path: str = ""
 
+    #: Files that share ``idea/`` with the canonical idea body but are
+    #: diagnostic / feedback artifacts — never the idea note itself.
+    #: ``research_question_validation.md`` is the validator's output;
+    #: ``kickback_feedback.md`` is a downstream panel's unresolved-concern note
+    #: (persisted by the graph when a convergence kickback routes to a content
+    #: stage). Both MUST be excluded from idea-body selection so flesh_out
+    #: doesn't overwrite/mistake them for the idea.
+    IDEA_BODY_EXCLUDED_NAMES: frozenset[str] = frozenset({
+        "research_question_validation.md",
+        "kickback_feedback.md",
+    })
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         super().__init__(registry_entry)
 
@@ -65,7 +77,7 @@ class _IdeaPhaseAgent(Agent):
         idea_dir = repo / "projects" / ctx.project_id / "idea"
         if idea_dir.exists():
             for md in sorted(idea_dir.glob("*.md")):
-                if md.name in {"research_question_validation.md"}:
+                if md.name in self.IDEA_BODY_EXCLUDED_NAMES:
                     continue
                 idea_body = md.read_text(encoding="utf-8", errors="replace")
                 break
@@ -132,6 +144,33 @@ class FleshOutAgent(_IdeaPhaseAgent):
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         messages = super().build_messages(ctx)
         repo = _repo_root()
+        # REACTIVE kickback feedback: if a downstream (spec/plan) convergence
+        # panel kicked this project back, the graph persisted the panel's
+        # unresolved concerns to idea/kickback_feedback.md. Inject them so the
+        # agent RESOLVES the methodology/science concern (e.g. a circular
+        # validation) instead of re-elaborating the same flawed idea. The file
+        # is excluded from idea-body selection (IDEA_BODY_EXCLUDED_NAMES) and
+        # removed by _persist once consumed.
+        feedback_md = (
+            repo / "projects" / ctx.project_id / "idea" / "kickback_feedback.md"
+        )
+        if feedback_md.exists():
+            fb_text = feedback_md.read_text(encoding="utf-8", errors="replace").strip()
+            if fb_text:
+                fb_block = (
+                    "# DOWNSTREAM REVIEW CONCERNS — RESOLVE THESE IN THIS REVISION\n\n"
+                    "A downstream convergence panel kicked this project back to the\n"
+                    "idea stage. Treat the concerns below as REQUIRED revisions: you\n"
+                    "MUST change the relevant parts of the idea — especially the\n"
+                    "`Methodology sketch` — so that EACH concern is resolved. Do NOT\n"
+                    "simply re-state the previous idea.\n\n"
+                    f"{fb_text}\n"
+                )
+                last = messages[-1]
+                messages[-1] = ChatMessage(
+                    role=last.role,
+                    content=last.content + "\n\n" + fb_block,
+                )
         # spec 003 / D12: forward any [REVISED] hint from a prior
         # research_question_validator iteration so this re-run actually
         # adopts the revised question instead of regenerating the rejected
@@ -244,13 +283,14 @@ class FleshOutAgent(_IdeaPhaseAgent):
         return result.to_dict().get("verified_citations") or []
 
     # spec 003 / D13: diagnostic artifacts that share idea_dir with the
-    # canonical idea file but MUST NOT be picked as the overwrite target.
-    _DIAGNOSTIC_ARTIFACT_NAMES: frozenset[str] = frozenset({
-        "research_question_validation.md",
-        # citation_resolution.json is .json so already excluded by *.md, but
-        # if the resolver ever switches output format, keep this list
-        # explicit.
-    })
+    # canonical idea file but MUST NOT be picked as the overwrite target (or
+    # as the librarian's Search-trail target). Mirrors the base class's
+    # IDEA_BODY_EXCLUDED_NAMES so the kickback-feedback note is never mistaken
+    # for the idea body here either.
+    #   - research_question_validation.md: the validator's output.
+    #   - kickback_feedback.md: a downstream panel's unresolved-concern note.
+    # (citation_resolution.json is .json, already excluded by *.md.)
+    _DIAGNOSTIC_ARTIFACT_NAMES: frozenset[str] = _IdeaPhaseAgent.IDEA_BODY_EXCLUDED_NAMES
 
     def _persist(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
         repo = _repo_root()
@@ -315,6 +355,17 @@ class FleshOutAgent(_IdeaPhaseAgent):
             # blank line between body and trail.
             out = out.rstrip() + "\n\n" + preserved_trail
         target.write_text(out, encoding="utf-8")
+
+        # Consume any downstream-review feedback now that the revised idea is
+        # persisted: remove idea/kickback_feedback.md so a later, UNRELATED
+        # flesh_out run doesn't re-apply these (now-addressed) concerns. Best
+        # effort — a removal failure must not crash a successful persist.
+        feedback_md = idea_dir / "kickback_feedback.md"
+        if feedback_md.exists():
+            try:
+                feedback_md.unlink()
+            except OSError as exc:  # pragma: no cover — telemetry only
+                print(f"[flesh_out] could not remove {feedback_md}: {exc!r}")
 
         # Scope check: if the LLM declared the idea out-of-scope per
         # the brainstorm/flesh-out scope constraints, write a sentinel
