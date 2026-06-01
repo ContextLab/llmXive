@@ -321,3 +321,122 @@ def test_unresolved_claim_marker_in_sentinel_key_does_not_block():
     res = run_convergence(spec, arts)
     assert res.converged is True
     assert res.kickback is None
+
+
+# --- spec 015 hardening (B2): deterministic spec-quality gate -------------
+# The spec-quality scanner backstops the panel lenses at the ``clarified``
+# stage. A surviving [NEEDS CLARIFICATION], unfilled placeholder, or duplicate
+# FR in the produced spec.md MUST block convergence even when the panel passes.
+
+_CLEAN_SPEC_BODY = (
+    "# Feature Specification\n\n"
+    "**Created**: 2026-05-29\n\n"
+    "- **FR-001**: The system MUST compute the crossing number.\n"
+    "- **FR-002**: The system MUST compute the braid index.\n"
+)
+
+
+class _SpecPlaceholderReviser:
+    """A reviser whose 'fix' leaves an unfilled [DATE] placeholder in spec.md."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def revise(self, artifacts, concerns):
+        self.calls += 1
+        new = {"specs/x/spec.md": _CLEAN_SPEC_BODY.replace("2026-05-29", "[DATE]")}
+        return new, [ConcernResponse(concern_id=c.id, response="addressed",
+                                     what_changed="edit") for c in concerns]
+
+
+def _clarified_spec(reviewers, reviser, *, max_rounds=3):
+    return ReviewSpec(
+        stage="clarified", artifacts=["specs/*/spec.md"], reviewers=reviewers,
+        reviser=reviser,
+        kickback_routing={
+            Severity.WRITING: "project_initialized",
+            Severity.REQUIREMENT: "project_initialized",
+            Severity.METHODOLOGY: "flesh_out_in_progress",
+            Severity.SCIENCE: "flesh_out_in_progress",
+            Severity.FATAL: "flesh_out_in_progress",
+        },
+        overflow_goal="preserve ids", advance_stage="planned", max_rounds=max_rounds,
+    )
+
+
+def test_spec_quality_placeholder_blocks_convergence_even_when_panel_passes():
+    """The panel passes, but the produced spec.md still carries an unfilled
+    [DATE] placeholder → engine must NOT converge and must kick back."""
+    rev = FakeReviewer(r1=[_c("c1")])  # passes on first re-review
+    res = run_convergence(
+        _clarified_spec([rev], _SpecPlaceholderReviser()),
+        {"specs/x/spec.md": "x"},
+    )
+    assert res.converged is False
+    assert res.next_stage is None
+    assert res.kickback is not None
+    assert res.kickback.worst_severity == Severity.REQUIREMENT
+    assert any("template_placeholder" in c.text and "[DATE]" in c.text
+               for c in res.concern_history)
+
+
+def test_spec_quality_duplicate_fr_and_clarification_block():
+    """A converged spec.md carrying a duplicate FR + a surviving NEEDS
+    CLARIFICATION marker must block (both classes flagged)."""
+    dirty = (
+        _CLEAN_SPEC_BODY
+        + "- **FR-003**: The system MUST validate against the arc index.\n"
+        + "- **FR-004**: The system MUST validate against the arc-index.\n"
+        + "- **FR-005**: Report results [NEEDS CLARIFICATION: at what scale?].\n"
+    )
+
+    class _DirtyReviser:
+        def revise(self, artifacts, concerns):
+            return {"specs/x/spec.md": dirty}, [
+                ConcernResponse(concern_id=c.id, response="ok", what_changed="e")
+                for c in concerns
+            ]
+
+    rev = FakeReviewer(r1=[_c("c1")])
+    res = run_convergence(_clarified_spec([rev], _DirtyReviser()),
+                          {"specs/x/spec.md": "x"})
+    assert res.converged is False
+    texts = " ".join(c.text for c in res.concern_history)
+    assert "duplicate_requirement" in texts
+    assert "needs_clarification" in texts
+
+
+def test_clean_spec_converges_normally_at_clarified_stage():
+    """A clean spec.md (no placeholders, distinct FRs, no clarification marker)
+    converges — the spec-quality gate must not false-positive."""
+
+    class _CleanReviser:
+        def revise(self, artifacts, concerns):
+            return {"specs/x/spec.md": _CLEAN_SPEC_BODY}, [
+                ConcernResponse(concern_id=c.id, response="ok", what_changed="e")
+                for c in concerns
+            ]
+
+    rev = FakeReviewer(r1=[_c("c1")])
+    res = run_convergence(_clarified_spec([rev], _CleanReviser()),
+                          {"specs/x/spec.md": "x"})
+    assert res.converged is True
+    assert res.next_stage == "planned"
+    assert res.kickback is None
+
+
+def test_spec_quality_gate_only_runs_at_clarified_stage():
+    """The spec-quality scanner is spec-stage-specific: a [DATE] placeholder in a
+    non-clarified stage's doc must NOT trip this gate (the FR/placeholder grammar
+    is spec.md-only)."""
+    rev = FakeReviewer(r1=[])  # converges immediately
+
+    class _PlanReviser:
+        def revise(self, artifacts, concerns):
+            return {"plan.md": "Created [DATE]"}, []
+
+    # _marker_spec uses stage="planned" — the spec-quality gate must be inert.
+    res = run_convergence(_marker_spec([rev], _PlanReviser()),
+                          {"plan.md": "clean, no markers"})
+    assert res.converged is True
+    assert res.kickback is None

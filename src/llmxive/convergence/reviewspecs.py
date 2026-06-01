@@ -154,7 +154,8 @@ def _spec_research_spec() -> ReviewSpec:
         stage="clarified",
         artifacts=["specs/*/spec.md"],
         reviewers=_todo_reviewers(
-            ["requirements_coverage", "internal_consistency", "testability", "scope"],
+            ["requirements_coverage", "internal_consistency", "testability", "scope",
+             "scientific_soundness"],
             prompt_task="T050", wiring_task="T054",
         ),
         reviser=_TodoReviser("specifier+clarifier", wiring_task="T054"),
@@ -177,7 +178,8 @@ def _spec_research_plan() -> ReviewSpec:
         artifacts=["specs/*/plan.md", "specs/*/research.md", "specs/*/data-model.md",
                    "specs/*/quickstart.md", "specs/*/contracts/*"],
         reviewers=_todo_reviewers(
-            ["methodology", "spec_coverage", "data_resources", "plan_consistency"],
+            ["methodology", "spec_coverage", "data_resources", "plan_consistency",
+             "scientific_soundness"],
             prompt_task="T051", wiring_task="T056",
         ),
         reviser=_TodoReviser("planner", wiring_task="T056"),

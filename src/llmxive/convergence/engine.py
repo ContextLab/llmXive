@@ -116,6 +116,58 @@ def _unverified_marker_concerns(
     return concerns
 
 
+def _spec_quality_concerns(
+    artifacts: dict[str, str], *, stage: str, reviewer: str
+) -> list[Concern]:
+    """Synthesize a blocking :class:`Concern` per spec-quality defect the
+    deterministic scanner (:func:`llmxive.speckit._spec_quality.scan_spec_quality`)
+    finds in a ``spec.md`` produced-doc artifact.
+
+    The panel lenses catch consistency/coverage/scope issues but reliably MISS
+    mechanical regressions (a surviving ``[NEEDS CLARIFICATION: …]`` marker, an
+    unfilled ``[DATE]``/``[link]``/branch-name placeholder, a leftover
+    ``/speckit-…`` instruction line, or a duplicate FR). This pure scan is the
+    reliable backstop, mirroring ``_unverified_marker_concerns``: each finding
+    becomes a blocking concern appended to ``open_concerns`` before the
+    converged check, so the reviser MUST resolve it within the cap (and a
+    converged spec is guaranteed to carry none).
+
+    Only runs at the spec stage (``clarified``) and only over ``spec.md`` doc
+    artifacts — the scanner's FR/placeholder grammar is spec-specific. A
+    duplicate-FR or surviving-clarification defect is a ``requirement``-class
+    concern (the FR set itself is broken); its kickback routing points at an
+    earlier spec/content stage per the spec's ``kickback_routing`` table."""
+    if stage != "clarified":
+        return []
+    from llmxive.speckit._spec_quality import scan_spec_quality
+
+    concerns: list[Concern] = []
+    idx = 0
+    for path in sorted(artifacts):
+        if not _is_doc_artifact_key(path):
+            continue
+        if not path.replace("\\", "/").endswith("spec.md"):
+            continue
+        for finding in scan_spec_quality(artifacts[path]):
+            concerns.append(
+                Concern(
+                    id=f"specqual{idx:04d}"[:12].ljust(12, "0"),
+                    reviewer=reviewer,
+                    severity=Severity.REQUIREMENT,
+                    artifact=path,
+                    location="",
+                    text=(
+                        f"[{finding.kind}] {finding.reason} in '{path}': "
+                        f"{finding.text!r}. A converged spec must not carry this; "
+                        f"the reviser must resolve it before the spec advances."
+                    ),
+                    round=1,
+                )
+            )
+            idx += 1
+    return concerns
+
+
 def run_convergence(
     spec: ReviewSpec,
     artifacts: dict[str, str],
@@ -254,8 +306,15 @@ def run_convergence(
     # alias the unified gate via ``claims.gate``), so this single pass blocks on
     # both unresolved citations AND any other unresolved factual claim the
     # claim-verification layer could not resolve to a verified value/receipt.
+    _guard_reviewer = panel[0].name if panel else "claim_guard"
+    # Deterministic backstops (Constitution Principle II): the unified
+    # ``[UNRESOLVED-CLAIM: …]`` marker gate AND the spec-quality scanner
+    # (surviving [NEEDS CLARIFICATION] / unfilled placeholder / duplicate FR).
+    # Both synthesize blocking concerns the reviser must resolve within the cap.
     marker_concerns = _unverified_marker_concerns(
-        artifacts, stage=spec.stage, reviewer=(panel[0].name if panel else "claim_guard")
+        artifacts, stage=spec.stage, reviewer=_guard_reviewer
+    ) + _spec_quality_concerns(
+        artifacts, stage=spec.stage, reviewer=_guard_reviewer
     )
     if marker_concerns:
         existing_ids = {c.id for c in open_concerns}
