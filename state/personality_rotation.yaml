@@ -1,12 +1,7 @@
 last_used: richard-feynman
-last_used_at: '2026-06-01T00:36:03.139015+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-01T01:48:59.344585+00:00'
+last_outcome: target_missing
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-23T16:49:01.779782+00:00'
-  ended_at: '2026-05-23T17:52:53.318618+00:00'
-  outcome: abstained
-  action: abstain
 - slug: linus-pauling
   started_at: '2026-05-23T17:52:53.318618+00:00'
   ended_at: '2026-05-23T18:55:39.185137+00:00'
@@ -1202,4 +1197,9 @@ history:
   started_at: '2026-05-31T23:53:34.413703+00:00'
   ended_at: '2026-06-01T00:36:03.139015+00:00'
   outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-01T00:36:03.139015+00:00'
+  ended_at: '2026-06-01T01:48:59.344585+00:00'
+  outcome: target_missing
   action: comment
