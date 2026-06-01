@@ -8,9 +8,12 @@ inputs are routed through ``tools/summarize``. See contracts/convergence-engine.
 
 from __future__ import annotations
 
+import os
 import re
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
+from concurrent.futures import ThreadPoolExecutor
+from typing import TypeVar
 
 from llmxive.agents.citation_guard import (
     UNVERIFIED_MARKER_PREFIX,
@@ -23,6 +26,7 @@ from .types import (
     Concern,
     ConcernResponse,
     ConvergenceResult,
+    Reviewer,
     ReviewSpec,
     Severity,
     Verdict,
@@ -31,6 +35,84 @@ from .types import (
 # A hook the caller supplies to persist a per-round inspection record + run-log entry
 # (FR-015/050/051). Signature: (round_index, concerns, responses, verdicts) -> None.
 RoundHook = Callable[[int, list[Concern], list[ConcernResponse], list[Verdict]], None]
+
+# Default upper bound on concurrent panel-lens calls. The panel lenses are
+# independent (no cross-reviewer state), so the engine dispatches their long
+# reasoning-model calls in parallel with a bounded pool — a pure wall-clock
+# optimization that leaves results byte-for-byte identical to the serial path.
+# Env-overridable via ``LLMXIVE_PANEL_MAX_CONCURRENCY`` for tuning/throttling.
+_PANEL_MAX_CONCURRENCY = 8
+
+
+def _panel_max_concurrency() -> int:
+    """Resolve the concurrency cap, honoring ``LLMXIVE_PANEL_MAX_CONCURRENCY``.
+
+    An unset / empty / non-positive / unparsable override falls back to the
+    module default. The pool is always additionally bounded by the panel size
+    at the call site, so a tiny panel never spins up idle workers."""
+    raw = os.environ.get("LLMXIVE_PANEL_MAX_CONCURRENCY")
+    if raw:
+        try:
+            val = int(raw)
+        except ValueError:
+            return _PANEL_MAX_CONCURRENCY
+        if val > 0:
+            return val
+    return _PANEL_MAX_CONCURRENCY
+
+
+_T = TypeVar("_T")
+
+
+def _map_indices(n: int, fn: Callable[[int], _T]) -> list[_T]:
+    """Call ``fn(i)`` for ``i`` in ``range(n)``, returning results in INDEX
+    order — independent of which call finishes first.
+
+    The panel lenses are independent, so the (long reasoning-model) calls are
+    dispatched concurrently with a bounded ``ThreadPoolExecutor``; results are
+    collected keyed by index and re-assembled in order, so the engine's output
+    (concern/verdict ordering, dedupe, convergence outcome) is identical to the
+    prior serial behavior. If any call raises, the first exception (by index) is
+    re-raised AFTER the pool drains — never swallowed, never a partial result —
+    so the circuit-breaker's run-abort path stays intact.
+
+    ``n`` of 0 or 1 runs inline (no pool) — the serial path — so tiny panels
+    never depend on the executor."""
+    if n <= 0:
+        return []
+    if n == 1:
+        return [fn(0)]
+
+    max_workers = min(n, _panel_max_concurrency())
+    if max_workers <= 1:
+        return [fn(i) for i in range(n)]
+
+    results: list[_T | None] = [None] * n
+    errors: list[BaseException | None] = [None] * n
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = {pool.submit(fn, i): i for i in range(n)}
+        for fut in futures:
+            idx = futures[fut]
+            try:
+                results[idx] = fut.result()
+            except BaseException as exc:  # propagate below in index order
+                errors[idx] = exc
+    # Propagate the FIRST error in index order (deterministic), matching the
+    # serial path where the earliest-panel-index failure aborts the phase.
+    for err in errors:
+        if err is not None:
+            raise err
+    return [r for r in results]  # type: ignore[misc]  # all populated (no errors)
+
+
+def _map_reviewers(
+    subset: Sequence[Reviewer], fn: Callable[[Reviewer], _T]
+) -> list[_T]:
+    """Apply ``fn`` to each reviewer in ``subset``, returning results in INPUT
+    (panel) order. Thin wrapper over :func:`_map_indices` so R1 ``identify`` and
+    R3 ``rereview`` share the same bounded-pool, ordered, exception-propagating
+    dispatch."""
+    return _map_indices(len(subset), lambda i: fn(subset[i]))
 
 
 def _resolved(v: Verdict) -> bool:
@@ -212,10 +294,16 @@ def run_convergence(
     verdict_history: list[Verdict] = []
 
     # --- R1: identify ---
+    # The lenses are independent, so dispatch ``identify`` concurrently; results
+    # are merged in PANEL order (not completion order) so ``open_concerns`` is
+    # assembled identically to the serial path.
     seen = _present(artifacts)
     open_concerns: list[Concern] = []
-    for r in panel:
-        for c in r.identify(seen, constitution=const, advisory=advisory):
+    r1_results = _map_reviewers(
+        panel, lambda r: r.identify(seen, constitution=const, advisory=advisory)
+    )
+    for concerns in r1_results:
+        for c in concerns:
             open_concerns.append(c)
     concern_history.extend(open_concerns)
     if on_round is not None:
@@ -257,14 +345,45 @@ def run_convergence(
         # `converged`.
         round_verdicts: list[Verdict] = []
         next_open: list[Concern] = []
+        # Select the re-reviewing subset FIRST, in panel order, applying the
+        # skip-accepter optimization (an R1-accepter with no own concerns is
+        # skipped when R2 changed nothing -> no rereview call dispatched for it,
+        # exactly as the serial path). Capture each reviewer's own concerns so
+        # assembly below stays panel-ordered after the concurrent dispatch.
+        rereviewers: list[Reviewer] = []
+        own_by_reviewer: list[list[Concern]] = []
         for r in panel:
             own = [c for c in open_concerns if c.reviewer == r.name]
             if not own and not r2_changed_artifacts:
                 continue  # accepter + nothing changed -> no wasted re-review
-            own_responses = [resp for resp in responses
+            rereviewers.append(r)
+            own_by_reviewer.append(own)
+
+        def _rereview_one(
+            idx: int,
+            *,
+            _revs: list[Reviewer] = rereviewers,
+            _owns: list[list[Concern]] = own_by_reviewer,
+            _responses: list[ConcernResponse] = responses,
+            _seen: dict[str, str] = seen,
+        ) -> list[Verdict]:
+            # Per-round state is bound as default args (not captured by closure)
+            # so each worker reads THIS round's slice — no late-binding hazard.
+            r = _revs[idx]
+            own = _owns[idx]
+            own_responses = [resp for resp in _responses
                              if any(resp.concern_id == c.id for c in own)]
-            verdicts = r.rereview(seen, own, own_responses,
-                                  constitution=const, advisory=advisory)
+            return r.rereview(_seen, own, own_responses,
+                              constitution=const, advisory=advisory)
+
+        # Dispatch the independent rereview calls concurrently; results come
+        # back in subset (== panel) order so verdict/next_open assembly is
+        # identical to the serial path. We map over indices (not the reviewer
+        # objects) so each worker reads its OWN ``own``/responses slice — no
+        # shared mutable closure state across threads.
+        verdict_lists = _map_indices(len(rereviewers), _rereview_one)
+
+        for own, verdicts in zip(own_by_reviewer, verdict_lists, strict=True):
             round_verdicts.extend(verdicts)
             judged = {v.concern_id: v for v in verdicts}
             for c in own:
