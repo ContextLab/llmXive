@@ -184,3 +184,39 @@ def test_permanent_errors_stay_permanent():
         "valueerror: bad request body",
     ):
         assert not _is_transient_error_text(txt), txt
+
+
+def test_backoff_delay_is_capped_to_ride_out_multi_minute_outage(monkeypatch):
+    """The per-attempt delay is capped (default 60s) so exponential backoff
+    plateaus instead of exploding — the client keeps re-probing ~once a minute
+    across a multi-minute Dartmouth outage (302->outage / hang) rather than
+    sleeping for huge single intervals. Regression for extending the window from
+    35s to ~5 min."""
+
+    sleeps: list[float] = []
+    monkeypatch.setattr("llmxive.backends.dartmouth.time.sleep", lambda s: sleeps.append(s))
+
+    def fn():
+        raise TransientBackendError("302 moved (outage.dartmouth.edu)")
+
+    # base=10, x2 each attempt: 10,20,40,80,160,320,640,1280 -> capped at 60.
+    with pytest.raises(TransientBackendError):
+        _retry_with_backoff(fn, max_retries=8, base_delay_s=10.0)
+    assert sleeps == pytest.approx([10.0, 20.0, 40.0, 60.0, 60.0, 60.0, 60.0, 60.0])
+    # rode out > 5 minutes before giving up
+    assert sum(sleeps) >= 300.0
+
+
+def test_default_retry_window_spans_several_minutes():
+    """The shipped defaults must give up only after several minutes, not 35s."""
+    from llmxive.backends import dartmouth
+
+    assert dartmouth._DEFAULT_MAX_RETRIES >= 6
+    # cumulative wait at defaults (capped) must exceed ~4 minutes
+    base, mult, cap = (
+        dartmouth._DEFAULT_RETRY_BASE_S,
+        dartmouth._RETRY_MULTIPLIER,
+        dartmouth._DEFAULT_RETRY_MAX_DELAY_S,
+    )
+    total = sum(min(base * (mult ** a), cap) for a in range(dartmouth._DEFAULT_MAX_RETRIES))
+    assert total >= 240.0, f"default retry window only {total}s — too short to ride a few-min outage"

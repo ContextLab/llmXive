@@ -31,17 +31,25 @@ from llmxive.backends.base import (
 # caller's call chain — calibration runs, panel-driven convergence, the
 # pipeline cron, etc. all bail.
 #
-# Defaults: max_retries=3 + exponential backoff (5s, 10s, 20s) = 35 s total
-# wait. Tunable per-instance (constructor kwargs) or globally via env vars:
-#   DARTMOUTH_MAX_RETRIES   — int, default 3
-#   DARTMOUTH_RETRY_BASE_S  — float seconds, default 5.0
-# A brief 30s-2min flicker is absorbed silently; a long-running outage
-# surfaces as the final TransientBackendError after the retries exhaust
-# (so the caller's own retry/fallback logic kicks in — same TransientError
-# semantics as before, just with built-in resilience to brief faults).
+# Defaults: max_retries=8 + capped exponential backoff
+# (5, 10, 20, 40, 60, 60, 60, 60 s) ≈ 5.25 min total wait. The Dartmouth Chat
+# endpoint goes into maintenance (HTTP 302 → outage.dartmouth.edu) or hangs for
+# a FEW MINUTES at a time and then comes back, so the retry window must SPAN
+# those minutes — a 35 s window gave up far too soon and stranded every pipeline
+# stage. The per-delay CAP (default 60 s) keeps the backoff from exploding and
+# makes the client re-probe the endpoint at least once a minute, so recovery is
+# detected promptly. Tunable per-instance (constructor kwargs) or via env vars:
+#   DARTMOUTH_MAX_RETRIES        — int, default 8
+#   DARTMOUTH_RETRY_BASE_S       — float seconds, default 5.0
+#   DARTMOUTH_RETRY_MAX_DELAY_S  — float seconds, per-attempt cap, default 60.0
+# A multi-minute outage is now ridden out silently; a genuinely long-running
+# outage still surfaces as the final TransientBackendError after the retries
+# exhaust (caller's own retry/fallback semantics unchanged — just far more
+# resilient to the typical few-minute Dartmouth flap).
 
-_DEFAULT_MAX_RETRIES = int(os.environ.get("DARTMOUTH_MAX_RETRIES", "3"))
+_DEFAULT_MAX_RETRIES = int(os.environ.get("DARTMOUTH_MAX_RETRIES", "8"))
 _DEFAULT_RETRY_BASE_S = float(os.environ.get("DARTMOUTH_RETRY_BASE_S", "5.0"))
+_DEFAULT_RETRY_MAX_DELAY_S = float(os.environ.get("DARTMOUTH_RETRY_MAX_DELAY_S", "60.0"))
 _RETRY_MULTIPLIER = 2.0
 
 _log = logging.getLogger(__name__)
@@ -92,9 +100,10 @@ def _retry_with_backoff(
     description: str = "Dartmouth call",
 ) -> _T:
     """Call ``fn()``; on :class:`TransientBackendError`, retry with
-    exponential backoff up to ``max_retries`` times. Permanent errors
-    propagate immediately (no point retrying them). Total wait at
-    defaults: 5 + 10 + 20 = 35 s.
+    exponential backoff (capped per-attempt at ``_DEFAULT_RETRY_MAX_DELAY_S``)
+    up to ``max_retries`` times. Permanent errors propagate immediately (no
+    point retrying them). Total wait at defaults: 5+10+20+40+60+60+60+60 ≈
+    5.25 min — long enough to ride out a typical few-minute Dartmouth flap.
 
     The last transient exception is re-raised when retries exhaust, so
     the caller's existing TransientBackendError handling still triggers
@@ -108,7 +117,10 @@ def _retry_with_backoff(
             last_exc = exc
             if attempt >= max_retries:
                 break
-            delay = base_delay_s * (_RETRY_MULTIPLIER ** attempt)
+            delay = min(
+                base_delay_s * (_RETRY_MULTIPLIER ** attempt),
+                _DEFAULT_RETRY_MAX_DELAY_S,
+            )
             _log.warning(
                 "%s transient error (attempt %d/%d): %s; sleeping %.1fs",
                 description, attempt + 1, max_retries + 1, exc, delay,
