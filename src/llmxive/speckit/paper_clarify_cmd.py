@@ -25,10 +25,16 @@ class PaperClarifierAgent(SlashCommandAgent):
         return "speckit.clarify"
 
     def _spec_path(self, ctx: SlashCommandContext) -> Path:
-        candidates = sorted((ctx.project_dir / "paper").glob("specs/*/spec.md"))
-        if not candidates:
-            raise FileNotFoundError(f"no paper spec.md in {ctx.project_dir}/paper/specs/")
-        return candidates[0]
+        # Spec-015 fix: resolve the paper feature dir via the project's
+        # authoritative speckit_paper_dir pointer so a convergence kickback
+        # clarifies the CURRENT paper spec.md, not the superseded first-glob
+        # one. SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        feature_dir = resolve_feature_dir(ctx, paper=True)
+        spec_path = feature_dir / "spec.md"
+        if not spec_path.exists():
+            raise FileNotFoundError(f"no paper spec.md in {feature_dir}")
+        return spec_path
 
     def _memory_dir(self, ctx: SlashCommandContext) -> Path:
         return ctx.project_dir / "paper" / ".specify" / "memory"

@@ -99,16 +99,13 @@ class PlannerAgent(SlashCommandAgent):
         return "speckit.plan"
 
     def _feature_dir(self, ctx: SlashCommandContext) -> Path:
-        candidates = sorted(ctx.project_dir.glob("specs/*/"))
-        if not candidates:
-            raise FileNotFoundError(f"no specs/ feature directory in {ctx.project_dir}")
-        for c in candidates:
-            if (c / "tasks.md").exists():
-                return c
-        for c in candidates:
-            if (c / "spec.md").exists():
-                return c
-        return candidates[0]
+        # Spec-015 fix: resolve via the project's authoritative
+        # speckit_research_dir pointer (set by specify_cmd) so a convergence
+        # kickback (specs/001 → specs/002) plans against the CURRENT spec, not
+        # the superseded first-glob one. Legacy projects fall back to the
+        # latest spec dir. SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        return resolve_feature_dir(ctx)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)

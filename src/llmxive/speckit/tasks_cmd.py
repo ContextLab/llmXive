@@ -47,19 +47,14 @@ class TaskerAgent(SlashCommandAgent):
         return "speckit.tasks"
 
     def _feature_dir(self, ctx: SlashCommandContext) -> Path:
-        candidates = sorted(ctx.project_dir.glob("specs/*/"))
-        if not candidates:
-            raise FileNotFoundError(f"no specs/ feature dir in {ctx.project_dir}")
-        # Prefer dir with tasks.md, fall back to dir with spec.md.
-        # An LLM's earlier wrong-slug write can leave a ghost specs/
-        # subdir; alphabetical-first picks the wrong one.
-        for c in candidates:
-            if (c / "tasks.md").exists():
-                return c
-        for c in candidates:
-            if (c / "spec.md").exists():
-                return c
-        return candidates[0]
+        # Spec-015 fix: resolve via the project's authoritative
+        # speckit_research_dir pointer so a convergence kickback
+        # (specs/001 → specs/002) builds tasks against the CURRENT spec, not
+        # the superseded first-glob one. The fallback still handles ghost
+        # slug dirs by preferring spec.md, but picks the LATEST not the first.
+        # SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        return resolve_feature_dir(ctx)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)

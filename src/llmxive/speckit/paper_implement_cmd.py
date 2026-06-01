@@ -92,16 +92,12 @@ class PaperImplementerAgent(SlashCommandAgent):
         return ctx.project_dir / "paper"
 
     def _feature_dir(self, ctx: SlashCommandContext) -> Path:
-        candidates = sorted(self._paper_dir(ctx).glob("specs/*/"))
-        if not candidates:
-            raise FileNotFoundError(f"no paper specs/ feature dir in {ctx.project_dir}")
-        for c in candidates:
-            if (c / "tasks.md").exists():
-                return c
-        for c in candidates:
-            if (c / "spec.md").exists():
-                return c
-        return candidates[0]
+        # Spec-015 fix: resolve via the project's authoritative
+        # speckit_paper_dir pointer so a convergence kickback implements
+        # against the CURRENT paper tasks.md, not the superseded first-glob
+        # one. SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        return resolve_feature_dir(ctx, paper=True)
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str, str | None] | None:
         for m in _TASK_RE.finditer(tasks_text):

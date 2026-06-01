@@ -20,16 +20,12 @@ class PaperPlannerAgent(SlashCommandAgent):
         return ctx.project_dir / "paper"
 
     def _feature_dir(self, ctx: SlashCommandContext) -> Path:
-        candidates = sorted(self._paper_dir(ctx).glob("specs/*/"))
-        if not candidates:
-            raise FileNotFoundError(f"no specs/ feature dir in {self._paper_dir(ctx)}")
-        for c in candidates:
-            if (c / "tasks.md").exists():
-                return c
-        for c in candidates:
-            if (c / "spec.md").exists():
-                return c
-        return candidates[0]
+        # Spec-015 fix: resolve via the project's authoritative
+        # speckit_paper_dir pointer (set by paper_specify_cmd) so a
+        # convergence kickback plans against the CURRENT paper spec, not the
+        # superseded first-glob one. SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        return resolve_feature_dir(ctx, paper=True)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         paper_dir = self._paper_dir(ctx)

@@ -40,19 +40,14 @@ class ImplementerAgent(SlashCommandAgent):
         return "speckit.implement"
 
     def _feature_dir(self, ctx: SlashCommandContext) -> Path:
-        candidates = sorted(ctx.project_dir.glob("specs/*/"))
-        if not candidates:
-            raise FileNotFoundError(f"no specs/ feature dir in {ctx.project_dir}")
-        # Prefer the dir that actually has tasks.md (or spec.md) — when
-        # the LLM wrote artifacts to a ghost slug-mismatched directory,
-        # the alphabetically-first candidate may be empty/incomplete.
-        for c in candidates:
-            if (c / "tasks.md").exists():
-                return c
-        for c in candidates:
-            if (c / "spec.md").exists():
-                return c
-        return candidates[0]
+        # Spec-015 fix: resolve via the project's authoritative
+        # speckit_research_dir pointer so a convergence kickback
+        # (specs/001 → specs/002) implements against the CURRENT tasks.md, not
+        # the superseded first-glob one. The fallback still prefers a
+        # spec.md-bearing dir over a ghost slug dir, but picks the LATEST.
+        # SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        return resolve_feature_dir(ctx)
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str] | None:
         for m in _TASK_RE.finditer(tasks_text):
@@ -219,14 +214,20 @@ class ImplementerAgent(SlashCommandAgent):
 
         if verdict == "completed":
             project_root = ctx.project_dir
-            # Identify the canonical feature_dir (e.g., "001-foo-bar")
+            # Identify the canonical feature_dir (e.g., "002-foo-bar")
             # so we can rewrite the LLM's wrong slug. The LLM tends to
             # use spec.md's branch_name (which it invents differently
             # from the project_id slug create-new-feature.sh actually
             # used), creating ghost specs/<wrong-slug>/ directories.
+            # Spec-015 fix: canonicalize to the project's AUTHORITATIVE
+            # feature dir (the speckit_research_dir the rest of this stage
+            # already resolved into mechanical_output["feature_dir"]), NOT
+            # the first-glob specs/001 — otherwise a post-kickback implement
+            # would scatter artifacts back into the superseded spec dir.
+            feature_dir_name = Path(mechanical_output["feature_dir"]).name
             existing_specs = sorted((project_root / "specs").glob("[0-9]*"))
-            canonical_spec_dirname = (
-                existing_specs[0].name if existing_specs else None
+            canonical_spec_dirname = feature_dir_name or (
+                existing_specs[-1].name if existing_specs else None
             )
             for art in doc.get("artifacts", []) or []:
                 relpath = art.get("path")

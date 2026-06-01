@@ -41,11 +41,16 @@ class ClarifierAgent(SlashCommandAgent):
         return "speckit.clarify"
 
     def _spec_path(self, ctx: SlashCommandContext) -> Path:
-        # Find the project's spec.md by walking specs/.
-        candidates = sorted(ctx.project_dir.glob("specs/*/spec.md"))
-        if not candidates:
-            raise FileNotFoundError(f"no spec.md in {ctx.project_dir}/specs/")
-        return candidates[0]
+        # Spec-015 fix: resolve the feature dir via the project's authoritative
+        # speckit_research_dir pointer so a convergence kickback
+        # (specs/001 → specs/002) clarifies the CURRENT spec.md, not the
+        # superseded first-glob one. SSoT: llmxive.speckit._feature_dir.
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        feature_dir = resolve_feature_dir(ctx)
+        spec_path = feature_dir / "spec.md"
+        if not spec_path.exists():
+            raise FileNotFoundError(f"no spec.md in {feature_dir}")
+        return spec_path
 
     def _memory_dir(self, ctx: SlashCommandContext) -> Path:
         return ctx.project_dir / ".specify" / "memory"
