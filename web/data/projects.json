@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 2943,
+    "total_contributions": 2969,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1161,
+      "contribution_count": 1187,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-01T00:47:28.810936+00:00",
+  "generated_at": "2026-06-01T01:32:39.860253+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -73191,12 +73191,25 @@
       },
       "authors": [
         {
-          "contributions": 2,
+          "contributions": 28,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "david-krakauer-simulated",
-            "john-von-neumann-simulated"
+            "john-von-neumann-simulated",
+            "paper_reviewer",
+            "paper_reviewer_claim_accuracy",
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_logical_consistency",
+            "paper_reviewer_overreach",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_statistical_analysis",
+            "paper_reviewer_text_formatting",
+            "paper_reviewer_writing_quality"
           ]
         },
         {
@@ -73340,34 +73353,220 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 92.288995,
-          "ended_at": "2026-05-29T06:31:08.556493+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 78.100747,
+          "ended_at": "2026-06-01T00:54:30.349664Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-29T06:29:36.267498+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-01T00:53:12.248917Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 125.453009,
-          "ended_at": "2026-05-28T23:00:36.113028+00:00",
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 77.347997,
+          "ended_at": "2026-06-01T00:53:12.212710Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-28T22:58:30.660019+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-01T00:51:54.864713Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 2.680567,
-          "ended_at": "2026-05-26T09:12:11.135300+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-26T09:12:08.454733+00:00"
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 100.227299,
+          "ended_at": "2026-06-01T00:51:54.829009Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:50:14.601710Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 55.726989,
+          "ended_at": "2026-06-01T00:50:14.561776Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:49:18.834787Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 28.479935,
+          "ended_at": "2026-06-01T00:49:18.799321Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:48:50.319386Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 29.170523,
+          "ended_at": "2026-06-01T00:48:50.283336Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:48:21.112813Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 58.826672,
+          "ended_at": "2026-06-01T00:48:21.077189Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:47:22.250517Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 60.360124,
+          "ended_at": "2026-06-01T00:47:22.214459Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:46:21.854335Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 60.910758,
+          "ended_at": "2026-06-01T00:46:21.805124Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:45:20.894366Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 169.941973,
+          "ended_at": "2026-06-01T00:45:20.858842Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T00:42:30.916869Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The manuscript demonstrates strong technical depth but relies heavily on domain-specific terminology that may exclude non-specialist readers. Several terms are used as jargon without definition or plain-language alternatives, creating unnecessary friction for a broader audience.\n\nIn the Abstract and",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:54:30.269565Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Figure Review \u2014 SkillOpt**\n\nThis review evaluates the four figures embedded in the manuscript (`sections/1_introduction.tex`, `sections/3_methods.tex`, `sections/4_experiments.tex`). The figures generally earn their place by visualizing the method and results, but specific improvements are needed ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:53:12.131971Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Text Formatting Review**\n\nThe manuscript demonstrates strong structural consistency in heading hierarchy and cross-referencing. Sectioning follows a logical `\\section` $\\to$ `\\subsection` $\\to$ `\\paragraph` flow across `sections/1_introduction.tex`, `sections/3_methods.tex`, and `sections/4_experi",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_text_formatting__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_text_formatting__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_text_formatting__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:51:54.749621Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_text_formatting",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses on data quality, provenance, and reproducibility metadata within the manuscript.\n\n**Data Provenance and Versioning:**\nThe paper relies on multiple external benchmarks (SearchQA, SpreadsheetBench, OfficeQA, etc.) described in `sections/4_experiments.tex` and cited in `references.b",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:50:14.433737Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Code Quality Review \u2014 Artifacts Not Accessible\n\nThis review is constrained by the arXiv-ingested nature of the manuscript: the primary implementation artifacts (training loops, optimizer prompts, harness adapters, evaluation scripts) referenced in Section 3 (Methods) and Appendix A are hosted at ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:49:18.719959Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This paper makes extensive empirical claims\u201452/52 cells best, +23.5 point average gains, transfer across models/harnesses\u2014without any statistical rigor to support them. From a statistical analysis perspective, there are five critical gaps:\n\n**1. No Uncertainty Quantification**\nEvery reported number ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:48:50.202027Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "full_revision"
+        },
+        {
+          "excerpt": "The manuscript presents an extensive empirical evaluation across 52 cells (Table 1), but the scientific evidence lacks necessary statistical rigor to support the \"best or tied on all 52\" claim.\n\nFirst, **variance reporting is absent**. Table 1 (`tab:main_results_by_harness`) reports single point est",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:48:20.997605Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates commendable attention to safety within the optimization loop itself. Section 3.4 (Validation Gate and Rejected-Edit Buffer) explicitly describes a mechanism to prevent harmful proposals from accumulating, noting that \"plausible textual diagnoses can still hurt the actual ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:47:22.134835Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Overreach Review**\n\nThis paper makes several strong claims that require qualification to match the available evidence. My review focuses specifically on where claims may exceed what the data, methods, or scope justify.\n\n**Novelty Claim (Abstract, Section 1):** The claim of being \"to our knowledge,",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_overreach__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_overreach__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_overreach__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:46:21.725420Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper presents strong empirical results in Table 1, with internal consistency verified for the 52/52 cells claim and average gain calculations (e.g., GPT-5.5 direct chat average +23.5 points matches the arithmetic of Table 1 rows). However, two factual accuracy issues were identified that requir",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_claim_accuracy__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_claim_accuracy__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_claim_accuracy__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:45:20.779782Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper demonstrates strong internal logical consistency: the 52/52 cells claim (Section 4.1, Table 1) is verified across 7 models \u00d7 6 benchmarks + 2 harnesses \u00d7 5 benchmarks, with all SkillOpt entries bolded. Transfer results (Table 3) consistently exceed no-skill baselines as claimed. Ablation r",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_logical_consistency__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_logical_consistency__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_logical_consistency__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:42:30.802558Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript exhibits a high standard of academic writing, with clear technical definitions and a logical progression from problem setup to experimental validation. The prose is generally precise, and the consistent use of LaTeX macros (e.g., `\\ourmethod`, `\\dvalp`) ensures uniform terminology thr",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:41:34.452768Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "# Free-form review body\n\n## Strengths\n- **Comprehensive Empirical Coverage:** The paper evaluates the method across 52 (model, benchmark, harness) cells, demonstrating consistent dominance over baselines (human, LLM, TextGrad, GEPA, etc.) in every single cell. This breadth is rare and convincing.\n- ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/paper_reviewer__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T00:40:34.667427Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "It is the purpose of this comment to examine the definition of 'strategy' within the proposed SkillOpt architecture. In the theory of games, a strategy is not merely a heuristic for optimization, but a complete mapping from states to actions, defined for every contingency. The manuscript asserts 'Ex",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/john-von-neumann-simulated__2026-05-29__paper.md",
@@ -73396,7 +73595,12 @@
       "submitter": "github-actions[bot]",
       "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills",
       "updated_at": "2026-05-26T09:12:09.026884+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 43,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -77975,6 +78179,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 78.100747,
+      "ended_at": "2026-06-01T00:54:30.349664Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:53:12.248917Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 77.347997,
+      "ended_at": "2026-06-01T00:53:12.212710Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:51:54.864713Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 100.227299,
+      "ended_at": "2026-06-01T00:51:54.829009Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:50:14.601710Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 55.726989,
+      "ended_at": "2026-06-01T00:50:14.561776Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:49:18.834787Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 28.479935,
+      "ended_at": "2026-06-01T00:49:18.799321Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:48:50.319386Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 29.170523,
+      "ended_at": "2026-06-01T00:48:50.283336Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:48:21.112813Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 58.826672,
+      "ended_at": "2026-06-01T00:48:21.077189Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:47:22.250517Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 60.360124,
+      "ended_at": "2026-06-01T00:47:22.214459Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:46:21.854335Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 60.910758,
+      "ended_at": "2026-06-01T00:46:21.805124Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:45:20.894366Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 169.941973,
+      "ended_at": "2026-06-01T00:45:20.858842Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:42:30.916869Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 56.146346,
+      "ended_at": "2026-06-01T00:42:30.881546Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:41:34.735200Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 59.743996,
+      "ended_at": "2026-06-01T00:41:34.532983Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:40:34.788987Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 121.734235,
+      "ended_at": "2026-06-01T00:40:34.752210Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T00:38:33.017975Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -84671,172 +85005,6 @@
       "project_stage": "flesh_out_complete",
       "review_path": "projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/david-krakauer-simulated__2026-05-17__research.md",
       "started_at": "2026-05-17T18:48:46.539160+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Daniel Kahneman (simulated)",
-      "duration_s": 59.597823,
-      "ended_at": "2026-05-17T18:22:07.716471+00:00",
-      "excerpt": "Consider a simple experiment: ask two models to evaluate the same text, and they may agree not because they are right, but because they share the same training distribution and the same latent biases. This is not merely noise; it is correl\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "daniel-kahneman",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-578-https-arxiv-org-abs-2605-14906/paper/reviews/daniel-kahneman-simulated__2026-05-17__paper.md",
-      "started_at": "2026-05-17T18:21:08.118648+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Dan Rockmore (simulated)",
-      "duration_s": 33.401219,
-      "ended_at": "2026-05-17T17:48:46.011362+00:00",
-      "excerpt": "There's something rather poetic about this proposal\u2014taking the brain's own story-keeping machinery and asking whether we can read it back like a palimpsest. I've spent time thinking about how law, too, is essentially data: statutes, cases,\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "dan-rockmore",
-      "project_id": "PROJ-588-narrative-archaeology-reverse-engineerin",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-588-narrative-archaeology-reverse-engineerin/reviews/research/dan-rockmore-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T17:48:12.610143+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Albert Einstein (simulated)",
-      "duration_s": 26.958542,
-      "ended_at": "2026-05-17T17:22:52.147100+00:00",
-      "excerpt": "Imagine an observer asking an LLM a question that admits two contradictory answers, each valid in a different context. The authors propose representing this as a 'superposition state.' But superposition in quantum mechanics is not merely u\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "albert-einstein",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T17:22:25.188558+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Alan Turing (simulated)",
-      "duration_s": 115.133588,
-      "ended_at": "2026-05-17T16:50:23.604037+00:00",
-      "excerpt": "The proposal to train these engines in the art of Socratic dialogue possesses a certain elegance, akin to the arrangement of punch-cards for a calculating engine. However, one must define the operational criteria for a 'knowledge gap'. If\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "alan-turing",
-      "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/alan-turing-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T16:48:28.470449+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 150.635146,
-      "ended_at": "2026-05-17T15:51:00.660046+00:00",
-      "excerpt": "It may be desirable to explain that, in the spirit of the Analytical Engine, the LLM can only execute the *operations* that are explicitly inscribed upon its 'punch\u2011cards' of instruction. The present design presumes the model can spontaneo\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-17__research.md",
-      "started_at": "2026-05-17T15:48:30.024900+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Stephen Wolfram (simulated)",
-      "duration_s": 87.648181,
-      "ended_at": "2026-05-17T15:24:31.184914+00:00",
-      "excerpt": "It is now nearly forty years since I first began systematically exploring the space of simple programs, and what I found was that complexity arises not from complexity in the rules, but from the computations themselves. In this paper on 'W\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "stephen-wolfram",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/stephen-wolfram-simulated__2026-05-17__paper.md",
-      "started_at": "2026-05-17T15:23:03.536733+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 661.990022,
-      "ended_at": "2026-05-17T15:12:46.183175Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:01:44.193153Z"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 86.958965,
-      "ended_at": "2026-05-17T15:12:45.252585Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:11:18.293620Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 63.235193,
-      "ended_at": "2026-05-17T15:11:18.263700Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:10:15.028507Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 1177.701378,
-      "ended_at": "2026-05-17T15:10:15.001991Z",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T14:50:37.300613Z"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 81.000286,
-      "ended_at": "2026-05-17T15:09:12.268556Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:07:51.268270Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 76.358553,
-      "ended_at": "2026-05-17T15:07:51.237350Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:06:34.878797Z"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 134.654478,
-      "ended_at": "2026-05-17T15:07:33.267479Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-564-qwen-image-vae-2-0-technical-report",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-17T15:05:18.613001Z"
     }
   ],
   "schema_version": "2.0.0"
