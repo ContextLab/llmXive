@@ -22,6 +22,39 @@ from llmxive.speckit.runner import run_script
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
+def _find_prior_spec(*, current_feature_dir: Path) -> Path | None:
+    """Locate the prior mature spec.md to revise from (spec-015 fix).
+
+    On a post-kickback REGENERATION the convergence graph routes
+    spec → flesh_out → project_initialize → specify, and ``create-new-feature.sh``
+    mints a fresh ``specs/NNN-*`` dir (``current_feature_dir``) for THIS run.
+    The mature spec the panel already converged toward lives in a
+    lower-numbered sibling. Regenerating from scratch ignores it and ratchets
+    quality DOWN; instead we feed that prior spec back in as a revision base.
+
+    Returns the highest-numbered ``specs/NNN-*/spec.md`` that is:
+
+    * a sibling of ``current_feature_dir`` (same ``specs/`` parent),
+    * NOT ``current_feature_dir`` itself (the dir this run writes to), and
+    * non-empty (more than whitespace).
+
+    Returns ``None`` for a genuine first-time spec (no such sibling), in which
+    case the Specifier's behavior is UNCHANGED.
+    """
+    specs_root = current_feature_dir.parent
+    if not specs_root.is_dir():
+        return None
+    current = current_feature_dir.resolve()
+    candidates = sorted(
+        d for d in specs_root.glob("*/") if d.is_dir() and d.resolve() != current
+    )
+    for d in reversed(candidates):
+        spec_md = d / "spec.md"
+        if spec_md.is_file() and spec_md.read_text(encoding="utf-8").strip():
+            return spec_md
+    return None
+
+
 class SpecifierAgent(SlashCommandAgent):
     def slash_command_name(self) -> str:
         return "speckit.specify"
@@ -92,11 +125,44 @@ class SpecifierAgent(SlashCommandAgent):
         from llmxive.speckit._comments_context import render_recent_comments_block
         comments_block = render_recent_comments_block(ctx.project_dir)
 
+        # Spec-015 fix: on a post-kickback REGENERATION (the realigned idea is
+        # re-specified into a fresh specs/NNN dir), seed from the PRIOR mature
+        # spec so convergence improves monotonically instead of ratcheting
+        # quality down. First-time specs (no prior non-empty spec) are UNCHANGED.
+        revision_block = ""
+        feature_dir_str = str(mechanical_output.get("FEATURE_DIR", ""))
+        if feature_dir_str:
+            current_feature_dir = Path(feature_dir_str)
+            if not current_feature_dir.is_absolute():
+                current_feature_dir = repo / current_feature_dir
+            prior_spec = _find_prior_spec(current_feature_dir=current_feature_dir)
+            if prior_spec is not None:
+                prior_text = prior_spec.read_text(encoding="utf-8")
+                revision_block = (
+                    "# Prior spec (revision base)\n\n"
+                    "A prior version of this spec already exists below. The idea "
+                    "has been realigned to address a review concern, so you are "
+                    "RE-specifying — not starting fresh. Produce the spec by "
+                    "REVISING the prior version: preserve EVERY still-valid "
+                    "functional requirement, success criterion, edge case, key "
+                    "entity, and already-resolved clarification. Do NOT drop "
+                    "detail. Do NOT re-introduce `[NEEDS CLARIFICATION]` for "
+                    "anything the prior spec already resolved. Only change what "
+                    "the realigned idea actually requires. The result MUST be at "
+                    "least as complete as the prior spec (no fewer requirements "
+                    "or success criteria unless the realigned idea explicitly "
+                    "removes that scope).\n\n"
+                    "```markdown\n"
+                    f"{prior_text.strip()}\n"
+                    "```\n\n"
+                )
+
         user = (
             "# Idea Markdown\n\n"
             f"{idea_md}\n\n"
             "# Spec template (canonical Spec Kit)\n\n"
             f"{spec_template}\n\n"
+            + revision_block
             + (comments_block + "\n\n" if comments_block else "")
             + "# Task\n\n"
             "Produce the final spec.md content."
@@ -163,4 +229,4 @@ class SpecifierAgent(SlashCommandAgent):
         return [str(spec_path.relative_to(repo))]
 
 
-__all__ = ["SpecifierAgent"]
+__all__ = ["SpecifierAgent", "_find_prior_spec"]
