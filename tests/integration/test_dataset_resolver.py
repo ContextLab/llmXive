@@ -1,6 +1,7 @@
 import functools
 import http.server
 import io
+import os
 import socketserver
 import threading
 import zipfile
@@ -112,6 +113,12 @@ def test_extract_dataset_intents_finds_doi_and_name():
     assert any("qm9" in i.lower() for i in intents)      # named dataset captured
 
 
+@pytest.mark.skipif(
+    not os.environ.get("LLMXIVE_REAL_TESTS"),
+    reason="Real network call to zenodo/figshare — set LLMXIVE_REAL_TESTS=1 to run; "
+    "gated so the deterministic offline gate is network-free (was flaking on "
+    "zenodo read-timeouts).",
+)
 def test_resolve_datasets_real_qm9(tmp_path):
     """Real-call: QM9 must resolve to >=1 verified candidate across the sources."""
     from llmxive.librarian.dataset_resolver import resolve_datasets
