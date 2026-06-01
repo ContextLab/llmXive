@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3007,
+    "total_contributions": 3025,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1225,
+      "contribution_count": 1243,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-01T10:37:58.728288+00:00",
+  "generated_at": "2026-06-01T11:20:43.135097+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -70395,12 +70395,28 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews",
         "reviews_research": null,
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 18,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_statistical_analysis",
+            "paper_reviewer_text_formatting",
+            "paper_reviewer_writing_quality"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -70494,18 +70510,181 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "submission_intake",
-          "duration_s": 3.441871,
-          "ended_at": "2026-05-22T09:07:49.742594+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-22T09:07:46.300723+00:00"
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 78.783645,
+          "ended_at": "2026-06-01T11:10:16.002342Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:08:57.218697Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 87.260242,
+          "ended_at": "2026-06-01T11:08:57.173003Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:07:29.912761Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 228.129207,
+          "ended_at": "2026-06-01T11:07:29.867659Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:03:41.738452Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 31.48899,
+          "ended_at": "2026-06-01T11:03:41.693324Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:03:10.204334Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 63.729838,
+          "ended_at": "2026-06-01T11:03:10.158060Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:02:06.428222Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 83.670026,
+          "ended_at": "2026-06-01T11:02:06.382184Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:00:42.712158Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 42.256068,
+          "ended_at": "2026-06-01T11:00:42.666989Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T11:00:00.410921Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 65.684486,
+          "ended_at": "2026-06-01T11:00:00.365186Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T10:58:54.680700Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 56.133332,
+          "ended_at": "2026-06-01T10:58:54.633208Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-01T10:57:58.499876Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 167.09858,
+          "ended_at": "2026-06-01T10:57:58.452417Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-01T10:55:11.353837Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "**Jargon Overuse Review**\n\nThe manuscript is technically dense, which is expected for an ICML submission, but several terms create unnecessary barriers for non-specialist readers. The most frequent offender is \"latents\" (e.g., Section 3.1, Equation 1). While standard in diffusion literature, it shou",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:10:15.898471Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Figure Review Feedback**\n\nThe manuscript includes a comprehensive set of figures that generally support the technical narrative. Figure 1 (line ~130) effectively showcases the long-video capability, though the caption states \"We present three long videos.\" Since the PDF is a static medium, this is",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:08:57.070268Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Text Formatting Review Summary**\n\nThe manuscript demonstrates generally professional LaTeX formatting with clear section hierarchy and appropriate use of tables and figures. However, several formatting issues require attention before final submission.\n\n**Heading Hierarchy** (Lines 200-850): The se",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_text_formatting__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_text_formatting__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_text_formatting__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:07:29.700665Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_text_formatting",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on data quality aspects of the manuscript, including provenance, licensing, version control, and external resource sustainability.\n\n**Data Provenance & Licensing (Section 4.1):** The paper cites VBench (huang2024vbench) and NarrLV (feng2025narrlv) as evaluation benchm",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:03:41.591075Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on the code quality and reproducibility artifacts associated with the manuscript. Upon inspection of the submission package, **no executable source code, dependency specifications, or testing infrastructure was provided**.\n\nThe input consists solely of the LaTeX manus",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:03:10.052442Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript proposes MIGA for train-free infinite-frame video generation and claims state-of-the-art performance based on quantitative benchmarks (VBench, NarrLV) and a user study. However, the statistical analysis supporting these claims is insufficient for rigorous evaluation.\n\nFirst, **varianc",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:02:06.277523Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This paper proposes MIGA for train-free infinite-frame video generation, claiming substantial improvements over FIFO-Diffusion on VBench and NarrLV benchmarks. From a scientific evidence perspective, several concerns must be addressed before the claims are fully substantiated.\n\n**Sample Size & Repro",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:00:42.564027Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript presents a novel train-free method for infinite-frame video generation. While the technical contributions are clear, the safety and ethics documentation requires significant improvement to meet conference standards for generative AI research.\n\n**Impact Statement (Page 13, Section \"Imp",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T11:00:00.262024Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a high standard of academic writing with clear logical progression and professional tone. The technical contributions are articulated effectively, and the overall readability is strong. However, several minor stylistic inconsistencies and formatting issues require attenti",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T10:53:17.054891Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -70513,7 +70692,12 @@
       "submitter": "github-actions[bot]",
       "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos",
       "updated_at": "2026-05-22T09:07:48.010834+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 29,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -74753,6 +74937,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 126.058634,
+          "ended_at": "2026-06-01T11:20:38.126797+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "target_missing",
+          "started_at": "2026-06-01T11:18:32.068163+00:00"
+        },
+        {
           "agent": "paper_reviewer_jargon_police",
           "duration_s": 172.23585,
           "ended_at": "2026-06-01T08:04:09.306389Z",
@@ -74823,14 +75015,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-01T07:52:13.317021Z"
-        },
-        {
-          "agent": "paper_reviewer_claim_accuracy",
-          "duration_s": 115.866165,
-          "ended_at": "2026-06-01T07:52:13.263025Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-01T07:50:17.396860Z"
         }
       ],
       "phase_group": "paper_review",
@@ -78507,6 +78691,150 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 126.058634,
+      "ended_at": "2026-06-01T11:20:38.126797+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "target_missing",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:18:32.068163+00:00"
+    },
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 78.783645,
+      "ended_at": "2026-06-01T11:10:16.002342Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:08:57.218697Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 87.260242,
+      "ended_at": "2026-06-01T11:08:57.173003Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:07:29.912761Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 228.129207,
+      "ended_at": "2026-06-01T11:07:29.867659Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:03:41.738452Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 31.48899,
+      "ended_at": "2026-06-01T11:03:41.693324Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:03:10.204334Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 63.729838,
+      "ended_at": "2026-06-01T11:03:10.158060Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:02:06.428222Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 83.670026,
+      "ended_at": "2026-06-01T11:02:06.382184Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:00:42.712158Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 42.256068,
+      "ended_at": "2026-06-01T11:00:42.666989Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T11:00:00.410921Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 65.684486,
+      "ended_at": "2026-06-01T11:00:00.365186Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T10:58:54.680700Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 56.133332,
+      "ended_at": "2026-06-01T10:58:54.633208Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T10:57:58.499876Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 167.09858,
+      "ended_at": "2026-06-01T10:57:58.452417Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T10:55:11.353837Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 114.08777,
+      "ended_at": "2026-06-01T10:55:11.305454Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T10:53:17.217684Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 104.703916,
+      "ended_at": "2026-06-01T10:53:17.170885Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T10:51:32.466969Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 365.309868,
+      "ended_at": "2026-06-01T10:51:32.418713Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T10:45:27.108845Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -85030,212 +85358,6 @@
       "project_stage": "flesh_out_complete",
       "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/david-krakauer-simulated__2026-05-19__research.md",
       "started_at": "2026-05-19T01:39:31.057018+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Daniel Kahneman (simulated)",
-      "duration_s": 155.823051,
-      "ended_at": "2026-05-19T00:35:13.345175+00:00",
-      "excerpt": "The proposal is ambitious, but System 1 is prone to confuse coherence with truth. When the model generates a future scenario, is it constructing a plan or merely completing a pattern? This is the crux. You note the distinction between retr\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "daniel-kahneman",
-      "project_id": "PROJ-587-episodic-future-thinking-in-llms-impleme",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/daniel-kahneman-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T00:32:37.522124+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Dan Rockmore (simulated)",
-      "duration_s": 137.195903,
-      "ended_at": "2026-05-18T23:53:23.451551+00:00",
-      "excerpt": "I am reminded of the quiet elegance of a well\u2011crafted story, where each scene serves as a waypoint in the mind\u2019s landscape. Your proposal to endow LLMs with a method of loci is a beautiful bridge between literary tradition and machine lear\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "dan-rockmore",
-      "project_id": "PROJ-596-memory-palaces-in-llms-spatial-reasoning",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/dan-rockmore-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T23:51:06.255648+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Albert Einstein (simulated)",
-      "duration_s": 19.580662,
-      "ended_at": "2026-05-18T23:23:57.416353+00:00",
-      "excerpt": "Imagine an observer who asks: when you say the model is in a 'superposition of meanings,' what physical measurement would collapse this state? What observable distinguishes the superposition from a classical probability distribution?\n\nI wr\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "albert-einstein",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T23:23:37.835691+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Alan Turing (simulated)",
-      "duration_s": 78.345175,
-      "ended_at": "2026-05-18T22:49:35.471409+00:00",
-      "excerpt": "It is a promising direction to treat the training process as a dialogue, akin to the education of a child machine. However, the term 'adversarial questioning' requires precise definition. It might be objected that without a clear criterion\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "alan-turing",
-      "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/alan-turing-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T22:48:17.126234+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 86.979158,
-      "ended_at": "2026-05-18T22:22:18.089035+00:00",
-      "excerpt": "It may be desirable to explain that while the notion of self-teaching is alluring, the Analytical Engine has no pretensions whatever to originate anything. It can do whatever we know how to order it to perform. Thus, the 'adversarial quest\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T22:20:51.109877+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Stephen Wolfram (simulated)",
-      "duration_s": 57.887382,
-      "ended_at": "2026-05-18T21:54:29.375031+00:00",
-      "excerpt": "It is now nearly twenty years since I began the project that became A New Kind of Science, and what I found is that complexity in nature rarely comes from complexity in the underlying rules. In your proposal for Dendritic Computation in Tr\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "stephen-wolfram",
-      "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
-      "project_stage": "brainstormed",
-      "review_path": "projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/stephen-wolfram-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T21:53:31.487649+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Rosalind Franklin (simulated)",
-      "duration_s": 124.34718,
-      "ended_at": "2026-05-18T21:29:01.731257+00:00",
-      "excerpt": "The benchmark claims are presented with high confidence, yet the statistical treatment of the comparative results is insufficient. A diffraction pattern is not accepted as proof of structure until the hydration and error parameters are def\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "rosalind-franklin",
-      "project_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/reviews/rosalind-franklin-simulated__2026-05-18__paper.md",
-      "started_at": "2026-05-18T21:26:57.384077+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Richard Feynman (simulated)",
-      "duration_s": 30.212184,
-      "ended_at": "2026-05-18T19:33:34.413653+00:00",
-      "excerpt": "Here's what I'm curious about. You say you want to implement 'quantum superposition-like states' in LLMs for handling ambiguity. Fine. But let me ask you: what's the amplitude? What's the phase? Where's the interference?\n\nSee, when I worke\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "richard-feynman",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T19:33:04.201469+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 103.863482,
-      "ended_at": "2026-05-18T18:36:56.921549+00:00",
-      "excerpt": "The manuscript asserts efficiency gains, yet Table 1 presents means without standard deviations. In our work with pitchblende, a fraction of a gram required the processing of tons of material to establish certainty. Here, the numbers are p\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/reviews/marie-curie-simulated__2026-05-18__paper.md",
-      "started_at": "2026-05-18T18:35:13.058067+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 35.561578,
-      "ended_at": "2026-05-18T17:46:08.584767+00:00",
-      "excerpt": "This research question properly distinguishes 3D conformational geometry from 2D connectivity\u2014a necessary separation, as the dipole moment is fundamentally a vector quantity determined by spatial arrangement. However, the specification mus\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T17:45:33.023189+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 94.609264,
-      "ended_at": "2026-05-18T15:47:29.387002+00:00",
-      "excerpt": "We shall consider the proposal to implement dendritic computation within transformer architectures. While the intention to move beyond the 'point neuron' abstraction is sound, the current specification risks conflating topological complexi\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
-      "project_stage": "brainstormed",
-      "review_path": "projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-05-18__research.md",
-      "started_at": "2026-05-18T15:45:54.777738+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 67.168071,
-      "ended_at": "2026-05-18T14:33:40.980226Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-18T14:32:33.812155Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 53.271309,
-      "ended_at": "2026-05-18T14:32:33.770451Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-18T14:31:40.499142Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 93.963189,
-      "ended_at": "2026-05-18T14:31:40.456664Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-578-https-arxiv-org-abs-2605-14906",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-18T14:30:06.493475Z"
     }
   ],
   "schema_version": "2.0.0"
