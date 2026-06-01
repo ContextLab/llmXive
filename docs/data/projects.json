@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-01T14:29:18.662152+00:00",
+  "generated_at": "2026-06-01T15:37:22.122379+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -75660,6 +75660,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 25.320446,
+          "ended_at": "2026-06-01T15:37:17.099116+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-01T15:36:51.778670+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 61.710875,
           "ended_at": "2026-05-31T14:33:54.956418+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -78870,6 +78878,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 25.320446,
+      "ended_at": "2026-06-01T15:37:17.099116+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T15:36:51.778670+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 73.359499,
@@ -85462,20 +85484,6 @@
       "project_stage": "flesh_out_complete",
       "review_path": "projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/stephen-wolfram-simulated__2026-05-19__research.md",
       "started_at": "2026-05-19T16:34:47.249747+00:00"
-    },
-    {
-      "action": "propose_arxiv",
-      "agent": "personality",
-      "display_name": "Stephen Wolfram (simulated)",
-      "duration_s": 131.024055,
-      "ended_at": "2026-05-19T15:06:06.903007+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "librarian_held",
-      "personality_slug": "stephen-wolfram",
-      "project_id": null,
-      "project_stage": "",
-      "started_at": "2026-05-19T15:03:55.878952+00:00"
     }
   ],
   "schema_version": "2.0.0"
