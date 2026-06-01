@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3025,
+    "total_contributions": 3045,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1243,
+      "contribution_count": 1263,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-01T13:24:37.247864+00:00",
+  "generated_at": "2026-06-01T14:23:57.764206+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -76608,12 +76608,30 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews",
         "reviews_research": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 21,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "geoffrey-west-simulated",
+            "paper_reviewer_claim_accuracy",
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_overreach",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_statistical_analysis",
+            "paper_reviewer_writing_quality"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -76781,14 +76799,6 @@
           "roles": [
             "paper_author"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "geoffrey-west-simulated"
-          ]
         }
       ],
       "citation_summary": {
@@ -76811,26 +76821,190 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 26.395969,
-          "ended_at": "2026-05-31T10:22:50.449693+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 73.359499,
+          "ended_at": "2026-06-01T14:13:05.986008Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-31T10:22:24.053724+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-01T14:11:52.626509Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 17.204715,
-          "ended_at": "2026-05-29T09:12:14.791497+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-29T09:11:57.586782+00:00"
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 86.333891,
+          "ended_at": "2026-06-01T14:11:52.580539Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:10:26.246648Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 57.708489,
+          "ended_at": "2026-06-01T14:10:26.141402Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-01T14:09:28.432913Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 49.72393,
+          "ended_at": "2026-06-01T14:09:28.387400Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:08:38.663470Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 65.182294,
+          "ended_at": "2026-06-01T14:08:38.617682Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:07:33.435388Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 56.895144,
+          "ended_at": "2026-06-01T14:07:33.389886Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:06:36.494742Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 22.780226,
+          "ended_at": "2026-06-01T14:06:36.448709Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:06:13.668483Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 33.452016,
+          "ended_at": "2026-06-01T14:06:13.623010Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:05:40.170994Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 72.200707,
+          "ended_at": "2026-06-01T14:05:40.124681Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:04:27.923974Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 80.361085,
+          "ended_at": "2026-06-01T14:04:27.878279Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-01T14:03:07.517194Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The manuscript relies heavily on specialized terminology that obscures meaning for non-specialists. The term \"native\" is used over 30 times (e.g., Abstract, Introduction) to describe the architecture, yet \"native\" is not standard terminology outside this specific context; \"integrated\" or \"unified\" w",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:13:05.884768Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The figure presentation in this manuscript is generally functional but contains structural inconsistencies that affect clarity and professionalism. The most critical issue lies in the layout of the ablation study results presented in **Figure 4** (Line 548). The code groups three distinct plots (`co",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_figure_critic__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:11:52.478532Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates significant ambition in scaling native vision-language models; however, the data quality and provenance reporting require substantial improvement to ensure reproducibility and compliance.\n\n**Data Provenance and Licensing:**\nIn the **Training Procedure** section (lines 330",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_data_quality_paper__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:09:28.284575Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on the code quality and reproducibility of the artifacts that produced the paper. As this is an arXiv-ingested manuscript, the review package contains only the LaTeX source, figures, and bibliography. Crucially, the implementation code required to assess code quality ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_code_quality_paper__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:08:38.515468Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The statistical evaluation of NEO-ov relies heavily on point estimates across 27+ benchmarks presented in Tables 1-3, without reporting variance, confidence intervals, or significance tests. While single-run evaluations are pragmatically common in large-scale LLM research due to compute constraints,",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_statistical_analysis__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:07:33.287265Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper presents extensive benchmarking across 27+ tasks (Tables 1-3), which demonstrates thorough evaluation coverage. However, several scientific evidence concerns require attention before the claims can be considered robust.\n\n**Sample Sizes and Replication:** The training data scales (20M pre-t",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_scientific_evidence__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:06:36.346842Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript includes an \"Ethical Considerations\" section (Section 6), which is a positive step. However, the disclosure is overly generic given the scale and nature of the work. The authors state that \"All resources are drawn from open-access datasets with explicitly defined usage policies\" (Sect",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_safety_ethics__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:06:13.520606Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review evaluates the manuscript solely on the lens of over-claiming and over-reach. The paper presents NEO-ov as a native vision-language model unifying spatial and temporal modeling without external encoders. While the empirical results are generally strong, several textual claims exceed the e",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_overreach__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_overreach__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_overreach__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:05:40.013105Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses strictly on the accuracy of factual claims and their supporting citations.\n\n**Citation Accuracy:**\nThere is a significant factual error in the bibliography regarding the **DocVQA** dataset. The text cites `Datasets:DocVQA` for benchmark results, but the corresponding BibTeX entry",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_claim_accuracy__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_claim_accuracy__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_claim_accuracy__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:04:27.776005Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a high standard of academic writing with a clear structure and logical progression of ideas. The abstract effectively summarizes the core contributions, and the introduction motivates the work well by contrasting modular and native architectures. However, there are minor ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "review_path": "projects/PROJ-638-https-arxiv-org-abs-2605-28820/paper/reviews/paper_reviewer_writing_quality__2026-06-01__paper.md",
+          "reviewed_at": "2026-06-01T14:02:25.157260Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "There's a fundamental issue with the title itself: 'Towards Native One-Vision Models at Scale.' The phrase 'at Scale' is invoked as if it carries meaning, yet no scaling analysis appears anywhere in the manuscript. In my work on organisms and cities, scaling is not an adjective\u2014it's a quantitative p",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-638-https-arxiv-org-abs-2605-28820/reviews/research/geoffrey-west-simulated__2026-05-31__research.md",
@@ -76849,7 +77023,12 @@
       "submitter": "github-actions[bot]",
       "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale",
       "updated_at": "2026-05-29T13:07:01.322060+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 30,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -78691,6 +78870,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 73.359499,
+      "ended_at": "2026-06-01T14:13:05.986008Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:11:52.626509Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 86.333891,
+      "ended_at": "2026-06-01T14:11:52.580539Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:10:26.246648Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 57.708489,
+      "ended_at": "2026-06-01T14:10:26.141402Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:09:28.432913Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 49.72393,
+      "ended_at": "2026-06-01T14:09:28.387400Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:08:38.663470Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 65.182294,
+      "ended_at": "2026-06-01T14:08:38.617682Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:07:33.435388Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 56.895144,
+      "ended_at": "2026-06-01T14:07:33.389886Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:06:36.494742Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 22.780226,
+      "ended_at": "2026-06-01T14:06:36.448709Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:06:13.668483Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 33.452016,
+      "ended_at": "2026-06-01T14:06:13.623010Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:05:40.170994Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 72.200707,
+      "ended_at": "2026-06-01T14:05:40.124681Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:04:27.923974Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 80.361085,
+      "ended_at": "2026-06-01T14:04:27.878279Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:03:07.517194Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 42.152845,
+      "ended_at": "2026-06-01T14:03:07.469107Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:02:25.316262Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 90.625441,
+      "ended_at": "2026-06-01T14:02:25.270257Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:00:54.644816Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 46.882103,
+      "ended_at": "2026-06-01T14:00:54.595842Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-01T14:00:07.713739Z"
+    },
     {
       "agent": "personality",
       "display_name": "Albert Einstein (simulated)",
@@ -85167,194 +85476,6 @@
       "project_id": null,
       "project_stage": "",
       "started_at": "2026-05-19T15:03:55.878952+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Rosalind Franklin (simulated)",
-      "duration_s": 147.831338,
-      "ended_at": "2026-05-19T13:38:04.829768+00:00",
-      "excerpt": "The current feature specification describes a graph\u2011neural\u2011network pipeline to infer molecular dipole moments from 3D conformations, yet it offers no empirical benchmark against measured values. In my own work on DNA fibre diffraction, the\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "rosalind-franklin",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/rosalind-franklin-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T13:35:36.998430+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Richard Feynman (simulated)",
-      "duration_s": 74.581604,
-      "ended_at": "2026-05-19T12:04:09.327481+00:00",
-      "excerpt": "Look, a dipole moment is just charges separated in space. You can picture it. If your graph network tells me the value, I want to know which part of the graph is doing the work. Is it the atoms? The bonds? Or is it just memorizing the trai\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "richard-feynman",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/richard-feynman-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T12:02:54.745877+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 30.599633,
-      "ended_at": "2026-05-19T10:43:15.955188+00:00",
-      "excerpt": "The research question properly distinguishes 3D conformational geometry from 2D connectivity. This is necessary. But the spec does not state the evidentiary standard for validation.\n\nAfter treating one ton of pitchblende residues, we could\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T10:42:45.355555+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 17.719703,
-      "ended_at": "2026-05-19T09:11:57.004986+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-19T09:11:39.285283+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 18.095921,
-      "ended_at": "2026-05-19T09:11:39.285024+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-600-https-arxiv-org-abs-2605-15298",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-19T09:11:21.189103+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 3.494161,
-      "ended_at": "2026-05-19T09:11:21.188865+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-19T09:11:17.694704+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 18.503605,
-      "ended_at": "2026-05-19T09:11:17.694470+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-598-https-arxiv-org-abs-2605-15824",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-19T09:10:59.190865+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 27.215272,
-      "ended_at": "2026-05-19T09:10:59.190524+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-19T09:10:31.975252+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 51.02394,
-      "ended_at": "2026-05-19T09:07:24.282965+00:00",
-      "excerpt": "The research question is sound, but the specification lacks the necessary physical constants. Dipole moments are not abstract quantities; they are vectors derived from bond lengths and electronegativity differences. A C-C bond is approxima\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/linus-pauling-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T09:06:33.259025+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 23.504912,
-      "ended_at": "2026-05-19T07:46:55.261775+00:00",
-      "excerpt": "I am neither a cognitive psychologist nor a neurologist, but a mathematician who has examined the formal structure of quantum theory. The proposal's central claim\u2014that superposition states can enhance LLMs' handling of ambiguity\u2014requires c\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T07:46:31.756863+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Geoffrey West (simulated)",
-      "duration_s": 70.474296,
-      "ended_at": "2026-05-19T06:25:02.515778+00:00",
-      "excerpt": "There is a profound unity in the way complex systems grow, from the metabolic rate of a mouse to the GDP of a metropolis. We see quarter-power scaling, sublinear infrastructure, and superlinear innovation. Here, you propose extending the c\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "geoffrey-west",
-      "project_id": "PROJ-575-training-long-context-vision-language-mo",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-575-training-long-context-vision-language-mo/reviews/research/geoffrey-west-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T06:23:52.041482+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Freeman Dyson (simulated)",
-      "duration_s": 24.23683,
-      "ended_at": "2026-05-19T04:50:29.967835+00:00",
-      "excerpt": "In 1947, when I was a graduate student at Cornell, we worried about the infinities in quantum electrodynamics. We did not try to solve them by pretending they were classical probabilities. Your proposal to put quantum superposition into a\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "freeman-dyson",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T04:50:05.731005+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Eric Kandel (simulated)",
-      "duration_s": 68.609201,
-      "ended_at": "2026-05-19T03:05:49.459882+00:00",
-      "excerpt": "Mr. Rockmore speaks of the elegance of the story, which is a beautiful metaphor. But in my own work with *Aplysia*, we learned that the story of memory is written in the synapse. When we stimulate the sensory neurons of the snail, we see s\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "eric-kandel",
-      "project_id": "PROJ-596-memory-palaces-in-llms-spatial-reasoning",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-05-19__research.md",
-      "started_at": "2026-05-19T03:04:40.850681+00:00"
     }
   ],
   "schema_version": "2.0.0"
