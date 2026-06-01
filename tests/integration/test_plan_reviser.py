@@ -135,6 +135,53 @@ def test_plan_reviser_edits_multiple_artifacts(tmp_path: Path):
     assert data_model_key in user_msg
 
 
+def test_plan_reviser_allows_new_contract_schema_in_feature_dir(tmp_path: Path):
+    """The reviser may ADD a new plan artifact (e.g. a contracts schema a panel
+    concern asked for) inside the feature dir — not only edit existing files.
+    Regression for PROJ-552: the reviser added contracts/composite-score.schema.yaml
+    and the too-strict guard hard-failed the whole panel to human_input_needed."""
+    plan_key = "specs/002-x/plan.md"
+    existing_schema = "specs/002-x/contracts/knot-invariant.schema.yaml"
+    new_schema = "specs/002-x/contracts/composite-score.schema.yaml"
+    artifacts = {
+        plan_key: "# plan v1\nMethodology: regression.\n",
+        "specs/002-x/data-model.md": "# data-model\nentity: knot\n",
+        "specs/002-x/spec.md": "# spec\n## FR\n- FR-001: composite score\n",
+        "specs/002-x/research.md": "# research",
+        "specs/002-x/quickstart.md": "# quickstart",
+        existing_schema: "$schema: x\ntitle: KnotInvariant\n",
+        "__constitution__": "Principle V.",
+    }
+    concerns = [
+        Concern(
+            id="C1", reviewer="data_resources", severity=Severity.REQUIREMENT,
+            artifact=plan_key, location="contracts",
+            text="the composite complexity score needs its own contracts schema.",
+        ),
+    ]
+    fake_reply = {
+        "updated_artifacts": {
+            plan_key: "# plan v2\nMethodology: regression. Adds composite score schema.\n",
+            new_schema: "$schema: x\ntitle: CompositeScore\n",
+        },
+        "responses": [
+            {"concern_id": "C1", "response": "added composite-score schema",
+             "what_changed": "new contracts/composite-score.schema.yaml",
+             "artifacts_changed": [new_schema]},
+        ],
+    }
+    backend = _FakeBackend(response_text=json.dumps(fake_reply))
+    reviser = PlanReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-002-x",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    updated, _ = reviser.revise(artifacts, concerns)
+    # The NEW schema was accepted (not rejected / not an escalation).
+    assert new_schema in updated
+    assert "CompositeScore" in updated[new_schema]
+    assert "v2" in updated[plan_key]
+
+
 def test_plan_reviser_rejects_writes_outside_plan_set(tmp_path: Path):
     """If the LLM tries to write a path that isn't in the declared plan
     artifacts, the reviser must raise — not silently drop, not silently

@@ -68,6 +68,25 @@ def _is_plan_artifact(key: str, *, paper: bool) -> bool:
     return any(key.endswith(s) for s in _PLAN_ARTIFACT_SUFFIXES)
 
 
+def _feature_dirs_of(valid_paths: set[str]) -> set[str]:
+    """The feature dir(s) the existing plan artifacts live in.
+
+    A NEW plan artifact is accepted only inside one of these dirs — so the
+    reviser may add a ``contracts/<name>.schema.yaml`` next to the existing
+    plan files, but never write to ``src/``, ``tests/``, or a different
+    ``specs/NNN`` dir. For a ``.../specs/002-x/contracts/foo.schema.yaml`` path
+    the feature dir is ``.../specs/002-x``; for ``.../specs/002-x/plan.md`` it
+    is the file's parent, also ``.../specs/002-x``.
+    """
+    dirs: set[str] = set()
+    for p in valid_paths:
+        if "/contracts/" in p:
+            dirs.add(p.split("/contracts/", 1)[0])
+        elif "/" in p:
+            dirs.add(p.rsplit("/", 1)[0])
+    return dirs
+
+
 def _is_source_spec(key: str, *, paper: bool) -> bool:
     """The spec.md that the plan is built FROM (research-side or paper-side
     depending on the reviser). NOT a plan artifact."""
@@ -284,16 +303,31 @@ class _AbstractPlanReviser:
                 "'updated_artifacts' map; got: 0 artifacts"
             )
         valid_set = set(valid_paths)
+        # The reviser may legitimately ADD a NEW plan artifact (e.g. a
+        # contracts/<name>.schema.yaml a panel concern asked for) — not only
+        # edit the pre-existing files. Allow a path that is itself a plan-stage
+        # artifact AND lives inside the SAME feature dir as the existing plan
+        # artifacts. Writes OUTSIDE that dir (src/, tests/, the source spec, a
+        # different specs/NNN dir) are still rejected. Restricting to only the
+        # pre-existing file set wrongly hard-failed a valid revision and
+        # escalated the whole plan panel to a human (PROJ-552 composite-score).
+        feature_dirs = _feature_dirs_of(valid_set)
         updates: dict[str, str] = {}
         rejected: list[str] = []
         for path, text in raw_updates.items():
-            if path in valid_set and isinstance(text, str):
+            if not isinstance(text, str):
+                rejected.append(str(path))
+            elif path in valid_set:
                 updates[path] = text
+            elif _is_plan_artifact(path, paper=self._is_paper_side) and any(
+                path.startswith(d + "/") for d in feature_dirs
+            ):
+                updates[path] = text  # NEW plan artifact within the feature dir
             else:
                 rejected.append(str(path))
         if rejected:
             # Honest reporting — don't silently drop attempts to write
-            # outside the declared plan-artifact set.
+            # outside the declared plan-artifact set / feature dir.
             raise RuntimeError(
                 f"{type(self).__name__}: response tried to write artifacts "
                 f"outside the plan set: {rejected!r}. Valid: {sorted(valid_set)!r}"
