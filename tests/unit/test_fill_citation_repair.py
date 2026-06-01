@@ -130,3 +130,83 @@ class TestRepairCitation:
         # Should contain both the OEIS A-number and the URL in some form
         assert "A002863" in result
         assert "oeis.org" in result
+
+
+# ---------------------------------------------------------------------------
+# Regression: a small numeric value ("2") must not match inside a larger
+# number ("2026") and must be scoped to the claim's own sentence.
+# ---------------------------------------------------------------------------
+
+
+class TestRepairCitationNumericBoundaryScoping:
+    def _bridge_claim(self) -> Claim:
+        raw = "The trefoil is a 2-bridge knot in standard knot tables"
+        return Claim(
+            claim_id="c_bridge",
+            kind=ClaimKind.NUMERIC,
+            raw_text=raw,
+            canonical=raw,
+            context="knot theory bridge number",
+            artifact_path="spec.md",
+            source_type="external",
+            status=ClaimStatus.NOT_ENOUGH_INFO,
+            resolved_value="2",
+            evidence=None,
+            resolver=None,
+            attempts=0,
+            updated_at="2026-01-01T00:00:00Z",
+        )
+
+    def _bridge_prov(self) -> FillProvenance:
+        return FillProvenance(
+            value="2",
+            source_id="2-bridge_knot",
+            url="https://en.wikipedia.org/wiki/2-bridge_knot",
+            quote="2-bridge knot",
+            channel="wikipedia",
+            conflicts=[],
+        )
+
+    def test_does_not_split_date_in_frontmatter(self):
+        """The exact production corruption: value '2' must not land inside '2026'."""
+        text = (
+            "**Created**: 2026-05-29\n\n"
+            "The trefoil is a 2-bridge knot in standard knot tables.\n"
+        )
+        result = repair_citation(
+            text, claim=self._bridge_claim(), provenance=self._bridge_prov()
+        )
+        # The date token must remain intact — never split by an inserted citation.
+        assert "2026-05-29" in result, f"date was split: {result!r}"
+        assert "2 (Wikipedia" not in result.split("\n")[0], (
+            f"citation injected into the date line: {result!r}"
+        )
+        # If a citation was inserted at all, it must be on the bridge-number line.
+        if "Wikipedia" in result:
+            bridge_line = next(
+                ln for ln in result.splitlines() if "2-bridge knot" in ln
+            )
+            assert "Wikipedia" in bridge_line, (
+                f"citation not adjacent to the bridge sentence: {result!r}"
+            )
+
+    def test_unrelated_standalone_two_not_cited(self):
+        """A standalone '2' far from the claim's sentence must not be cited."""
+        text = (
+            "The study uses at least 2 regression model types.\n\n"
+            "Knot theory has a long history.\n"
+        )
+        result = repair_citation(
+            text, claim=self._bridge_claim(), provenance=self._bridge_prov()
+        )
+        # The bridge sentence/anchor is absent, so no citation may be inserted.
+        assert result == text, (
+            f"citation wrongly injected near unrelated '2': {result!r}"
+        )
+
+    def test_multi_digit_standalone_value_still_repaired(self):
+        """Regression guard: standalone multi-digit values still get cited."""
+        text = "There are 9988 prime knots at 13 crossings."
+        result = repair_citation(text, claim=_claim(), provenance=_prov())
+        assert "A002863" in result and "oeis.org" in result
+        assert "9988" in result

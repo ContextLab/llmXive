@@ -24,7 +24,13 @@ _CLAIM_POINTER_RE = re.compile(
 # SENTENCE comma after a number ("number 13, the …") is NOT swallowed into the
 # token. Matched against raw_text directly so we can swap the as-appears token
 # (rendered prose keeps its original grouping where unchanged).
-_NUMBER_IN_TEXT_RE = re.compile(r"[-+]?\d{1,3}(?:[,_]\d{3})*(?:\.\d+)?|[-+]?\d+(?:\.\d+)?")
+#
+# The grouped alternative requires at least one ``[,_]\d{3}`` group (``+`` not
+# ``*``); otherwise a bare run of 4+ digits like ``9988`` would be truncated to
+# its first three digits (``998``) by the ``\d{1,3}`` prefix, leaving a stray
+# ``8`` token — which corrupted rendered prose ("9988" → "99888"). An ungrouped
+# integer therefore falls through to the second alternative and is matched whole.
+_NUMBER_IN_TEXT_RE = re.compile(r"[-+]?\d{1,3}(?:[,_]\d{3})+(?:\.\d+)?|[-+]?\d+(?:\.\d+)?")
 
 
 @dataclass
