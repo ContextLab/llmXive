@@ -150,3 +150,205 @@ rounds:
     text: Differentiate captions in suppl/suppl_fig/suppl_attn.tex and suppl/suppl_fig/suppl_attn_target.tex,
       which are currently identical.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-01T08:04:09.428522+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: b7e0777c35f9
+    text: Clarify the definition of 'geometry-aware' representations by specifying
+      the angular tolerances or spatial constraints measured in the feature analysis
+      (Fig. 3) to avoid ambiguity.
+    severity: writing
+  - id: c11d23414045
+    text: Temper claims regarding 'real-world robustness' in the Abstract and Introduction
+      to reflect that training relies on synthetic degradations (Hypersim/TartanAir)
+      rather than diverse real-world noise.
+    severity: writing
+  - id: e9442c33235c
+    text: 'Ensure all bibliography entries in state/citations/PROJ-632...yaml are
+      updated to verification_status: verified to meet acceptance criteria.'
+    severity: writing
+  - id: bf7f00c17ffd
+    text: 'Inconsistent dataset count: Text in sec/5_exp.tex claims 3 evaluation datasets
+      (HiRoom, 7Scenes, ScanNet++), but tables and implementation details list 5 (including
+      ETH3D, DTU). Update text to match tables.'
+    severity: writing
+  - id: 063e3547f275
+    text: 'Citation inaccuracy: Fig. 3 caption cites kingma2013auto for feature cost
+      volumes. The VAE paper does not define cost volumes; cite specific encoder implementation
+      or rephrase.'
+    severity: writing
+  - id: eb8b3b0624ff
+    text: 'Reproduction clarity: Explicitly state SIR-Diff baseline is based on unofficial
+      reproduction due to lack of official code to qualify comparison claims.'
+    severity: science
+  - id: 350fb546c7b9
+    text: The submission package lacks the implementation source code (e.g., Python
+      scripts, requirements.txt) required to evaluate code quality, modularity, and
+      reproducibility. Please include the code artifacts or a verified private repository
+      link to enable verification of the experimental claims.
+    severity: science
+  - id: 6bd0c11b3fd3
+    text: Explicitly list the licenses for all training and evaluation datasets (Hypersim,
+      TartanAir, ETH3D, DTU, 7Scenes, ScanNet++, HiRoom) in the supplementary material
+      to ensure compliance and provenance clarity.
+    severity: writing
+  - id: 2dc01de5225d
+    text: Clarify the code repository link in the author block (neurips_2026.tex,
+      line ~130); currently, the display text points to a project page while the href
+      points to GitHub, which may confuse reproducibility efforts.
+    severity: writing
+  - id: ab5af10a7b4d
+    text: Pin the version of the external motion blur codebase (LeviBorodenko/motionblur)
+      cited in sec/5_exp.tex to prevent link rot and ensure exact reproduction of
+      degradation pipelines.
+    severity: writing
+  - id: cb46805cc2ab
+    text: Specify the exact data splits and scene identifiers used for evaluation
+      datasets (e.g., ScanNet++ validation scenes) in the supplementary material,
+      as only general names are currently provided.
+    severity: writing
+  - id: 88e6f9146fc2
+    text: Remove 'Please zoom in' from captions in pose_main, recon_main, rgb_main,
+      and all supplementary figures (suppl_cost_volume, suppl_depth, suppl_feat_sim,
+      suppl_pose, suppl_recon, suppl_rgb_recon). Ensure figures are 300+ DPI and legible
+      at print size without zooming.
+    severity: writing
+  - id: 8f42ea1770a2
+    text: Replace negative \vspace commands (e.g., fig/architecture.tex line 5, fig/comparison.tex,
+      fig/geometry_aware_feature.tex, fig/pose_main.tex, fig/recon_main.tex, fig/rgb_main.tex,
+      fig/teaser.tex) with standard LaTeX spacing to prevent layout overlap in camera-ready
+      version.
+    severity: writing
+  - id: 7b9603226611
+    text: Convert suppl/suppl_fig/suppl_cost_volume.tex image from .jpg to .pdf/.png
+      to preserve text sharpness and avoid compression artifacts.
+    severity: writing
+  - id: 5dfd7b413fef
+    text: Ensure colorblind-safe palettes in suppl_feat_sim.tex; do not rely solely
+      on red/blue differentiation for curve distinction. Use patterns, markers, or
+      colorblind-friendly color combinations.
+    severity: writing
+  - id: a7367fbd5284
+    text: Define 'geometry-aware' operationally (e.g., depth consistency) or reduce
+      frequency to avoid buzzword saturation.
+    severity: writing
+  - id: b0c95e3c22db
+    text: Expand all acronyms (HQ, LQ, PCK, DA3) at first use in main text and captions.
+    severity: writing
+  - id: 2716764249e4
+    text: Simplify 'feed-forward reconstruction models' to 'single-pass models' for
+      broader accessibility.
+    severity: writing
+  - id: 8f4a2c1d9e7b
+    text: Expand 'VAE' (Variational Autoencoder) at first use in sec/1_intro.tex.
+    severity: writing
+  - id: 3b5c7d9e1f2a
+    text: Expand 'DiT', 'PSNR', and 'LPIPS' at first use in sec/4_method.tex and sec/5_exp.tex.
+    severity: writing
+  - id: 0f51b68ad87b
+    text: The paper claims robustness to 'real-world degradations' (Sec. 1, Sec. 6)
+      but only tests synthetic motion blur on clean datasets (Hypersim/TartanAir).
+      This over-claims generalizability without validation on real degraded imagery.
+    severity: science
+  - id: 2608ec706674
+    text: The comparison with SIR-Diff (Suppl. Sec. 4.4) admits incomplete reproduction
+      due to unavailable code/checkpoints, yet SIR-Diff results are presented as definitive
+      baselines. This undermines fair comparison claims.
+    severity: science
+  - id: 5eba522739bd
+    text: "The 'geometry-aware' label for DA3 features is asserted based on PCK cost-volume\
+      \ analysis (Fig. 3) but not rigorously validated\u2014DA3 shows marginal gains\
+      \ over DINOv2, and no ablation isolates 'geometry' from general representation\
+      \ quality."
+    severity: writing
+  - id: 09cfa026f676
+    text: Training uses V=4 views with near-camera/near-random selection strategies,
+      while evaluation uses V=10 views. The paper claims view-count improvements generalize
+      but doesn't address potential distribution shift between train/eval view selection.
+    severity: writing
+  - id: 5ead2ce6e187
+    text: The conclusion states effectiveness across 'challenging real-world degradations'
+      (Sec. 6), but only motion blur is evaluated. Claims about robustness to noise,
+      compression, or lighting variations are unsupported.
+    severity: writing
+  - id: 1da9683f035c
+    text: Add an explicit 'Ethical Considerations' or 'Broader Impact' section to
+      address potential dual-use implications of robust perception systems (e.g.,
+      surveillance, autonomous navigation in contested environments).
+    severity: writing
+  - id: 053d9872028d
+    text: Confirm and cite dataset licenses (e.g., ScanNet++, ETH3D) in the Implementation
+      Details to ensure compliance with data privacy terms regarding human subjects
+      in indoor scenes.
+    severity: writing
+  - id: baf08add8908
+    text: Uncomment and confirm the public release statement in the Abstract (sec/0_abs.tex)
+      to ensure reproducibility and transparency standards are met.
+    severity: writing
+  - id: 97adae803bd1
+    text: Add statistical significance testing (e.g., paired t-tests) for the main
+      quantitative results in Tables 1 and 2 to confirm improvements are not due to
+      variance.
+    severity: science
+  - id: b7988d97a9c2
+    text: Clarify whether single-view baseline restoration models (Restormer, HI-Diff,
+      etc.) were fine-tuned on the specific motion blur distribution used in training
+      to ensure a fair comparison.
+    severity: science
+  - id: f209cf4cbe10
+    text: Discuss the dependency of the Attention Alignment Loss on ground-truth geometry
+      during training and how this impacts real-world deployment where GT is unavailable.
+    severity: science
+  - id: 6265f47c3df8
+    text: Report mean and standard deviation over at least 3 random seeds for all
+      quantitative results (pose, reconstruction, image metrics) instead of single-point
+      estimates to establish statistical robustness.
+    severity: science
+  - id: ee26249e85a9
+    text: Perform statistical significance testing (e.g., paired t-test) to validate
+      that performance gains over baselines are statistically significant rather than
+      due to random variance.
+    severity: science
+  - id: d1ebc862401b
+    text: Address the statistical implications of training with up to 4 views but
+      evaluating with 10 views; provide analysis on generalization variance across
+      view counts.
+    severity: science
+  - id: 7910bbdb11cb
+    text: Table tab/image_metric is input in sec/6_conclusion.tex but referenced in
+      sec/5_exp.tex. Move the input to the correct section to ensure proper layout.
+    severity: writing
+  - id: d2071ffdba93
+    text: sec/3_prelim.tex contains only commented-out content, causing a missing
+      Section 3 in the compiled PDF. Remove the input line or uncomment the content.
+    severity: writing
+  - id: 984a29f0338b
+    text: Inconsistent \vspace usage across figure files (e.g., fig/recon_main.tex
+      has three instances, others have one). Standardize spacing for visual consistency.
+    severity: writing
+  - id: d29bd74a474c
+    text: sec/2_rel.tex uses \paragraph for major topics, while sec/4_method.tex uses
+      \subsection. Use \subsection for Related Work topics to maintain hierarchy consistency.
+    severity: writing
+  - id: c718598ead08
+    text: 'Correct subject-verb agreement in sec/1_intro.tex: ''their attention mechanism
+      encode'' should be ''mechanisms encode'' or ''mechanism encodes''.'
+    severity: writing
+  - id: 2ba3f357e0e7
+    text: 'Fix typos in sec/5_exp.tex: ''degradtations'' should be ''degradations'',
+      and ''informations'' should be ''information''.'
+    severity: writing
+  - id: d7831e034a7c
+    text: 'Standardize hyphenation in sec/1_intro.tex: use ''high-dimensional'' and
+      ''high-fidelity'' consistently.'
+    severity: writing
+  - id: 7a057ebc547d
+    text: Improve sentence structure in sec/5_exp.tex (Image restoration paragraph)
+      to break up the long run-on sentence regarding VAE_MVD and baselines.
+    severity: writing
+  - id: 1c34f079a957
+    text: 'Correct article usage in suppl/suppl_sec/extended_exp.tex: ''7Scenes is
+      an dataset'' should be ''a dataset''.'
+    severity: writing
