@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-05-31T23:53:34.413703+00:00'
+last_used: richard-feynman
+last_used_at: '2026-06-01T00:36:03.139015+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-23T16:21:20.713737+00:00'
-  ended_at: '2026-05-23T16:49:01.779782+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-556-llmxive-automation-system-fully-autonomo/reviews/research/geoffrey-west-simulated__2026-05-23__research.md
 - slug: john-von-neumann
   started_at: '2026-05-23T16:49:01.779782+00:00'
   ended_at: '2026-05-23T17:52:53.318618+00:00'
@@ -1203,5 +1196,10 @@ history:
 - slug: marie-curie
   started_at: '2026-05-31T22:50:24.317924+00:00'
   ended_at: '2026-05-31T23:53:34.413703+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: richard-feynman
+  started_at: '2026-05-31T23:53:34.413703+00:00'
+  ended_at: '2026-06-01T00:36:03.139015+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
