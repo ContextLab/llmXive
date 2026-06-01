@@ -1,11 +1,7 @@
 last_used: alan-turing
-last_used_at: '2026-06-01T09:19:31.945046+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-01T11:20:38.126797+00:00'
+last_outcome: target_missing
 history:
-- slug: marie-curie
-  started_at: '2026-05-23T20:17:59.543362+00:00'
-  ended_at: '2026-05-23T20:47:22.437583+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-05-23T20:47:22.437583+00:00'
   ended_at: '2026-05-23T21:18:28.669641+00:00'
@@ -1207,4 +1203,9 @@ history:
   started_at: '2026-06-01T07:16:18.121832+00:00'
   ended_at: '2026-06-01T09:19:31.945046+00:00'
   outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: albert-einstein
+  started_at: '2026-06-01T09:19:31.945046+00:00'
+  ended_at: '2026-06-01T11:20:38.126797+00:00'
+  outcome: target_missing
   action: comment
