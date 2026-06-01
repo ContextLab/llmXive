@@ -21,21 +21,22 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:51:54.749621Z'
+reviewed_at: '2026-06-01T20:16:22.738814Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_text_formatting
 score: 0.0
 verdict: minor_revision
 ---
 
-**Text Formatting Review**
+This re-review confirms that **none** of the three prior text-formatting action items have been addressed in the current revision. All three items remain active and require correction before the manuscript can be accepted.
 
-The manuscript demonstrates strong structural consistency in heading hierarchy and cross-referencing. Sectioning follows a logical `\section` $\to$ `\subsection` $\to$ `\paragraph` flow across `sections/1_introduction.tex`, `sections/3_methods.tex`, and `sections/4_experiments.tex`. Table and figure labels are robustly implemented; notably, `sections/3_methods.tex` re-issues legacy labels (`tab:transfer_cross_model`, etc.) within `tab:transfer_all` to maintain backward compatibility for `\ref` calls in `sections/4_experiments.tex`. This is excellent LaTeX hygiene for versioned documents.
+**1. Missing Explicit xcolor Package (ID: 9ec900f7fd43)**
+In `main.tex`, the preamble (lines 1–30) does not explicitly load `\usepackage{xcolor}`. However, `sections/3_methods.tex` relies heavily on color commands such as `\textcolor` (e.g., `\zisu` macro definition), `\cellcolor`, and `\rowcolor` (used in tables `tab:main_results_by_harness`, `tab:ablation_sweeps`, `tab:transfer_all`). While some class files or `hyperref` may implicitly load `xcolor`, relying on this is fragile and risks compilation failure on stricter distributions. The package must be added explicitly to the preamble.
 
-However, there are three specific formatting concerns that require attention before final submission. First, the preamble in `main.tex` defines color commands (`\textcolor`, `\cellcolor`, `\rowcolor`) and uses `\definecolor` but does not explicitly load the `xcolor` package. While `microsoft-tech-report` may load it implicitly, relying on this is risky. Explicitly adding `\usepackage{xcolor}` ensures compilation stability across different LaTeX distributions.
+**2. Persistent \resizebox Usage (ID: d66248dda513)**
+The instruction to replace `\resizebox` with font-size adjustments (`\small` or `\footnotesize`) has not been implemented. In `sections/3_methods.tex`, both `tab:ablation_sweeps` (line 1438) and `tab:transfer_all` (line 1533) still wrap their tabular environments in `\resizebox`. This scales font sizes inconsistently with the rest of the document, violating typographic standards for academic papers. These instances must be removed and the tables reformatted using standard sizing commands.
 
-Second, two tables (`tab:ablation_sweeps` in `sections/3_methods.tex` and `tab:transfer_all` in `sections/3_methods.tex`) utilize `\resizebox{\textwidth}{!}{...}`. This command scales the font size to fit the width, creating visual inconsistency with the surrounding text and tables. It is standard practice to use `\small` or `\footnotesize` within the table environment instead, preserving typographic harmony.
+**3. Unused Packages in Preamble (ID: 80d999c1cac2)**
+The `main.tex` preamble still declares `\usepackage{pifont}` (line 23), `\usepackage{wrapfig}` (line 24), and `\usepackage{cleveref}` (line 21). A scan of the source reveals no usage of `\ding` (pifont), `wrapfigure` environments (wrapfig), or `\cref`/`\Cref` commands (cleveref). These dependencies should be removed to minimize compilation overhead and potential namespace conflicts.
 
-Third, the preamble includes `\usepackage{pifont}`, `\usepackage{wrapfig}`, and `\usepackage{cleveref}`, but a scan of the source reveals no usage of `\ding`, `wrapfigure`, or `\cref`. Removing these unused dependencies cleans the compilation log.
-
-Finally, source line wrapping in `sections/4_experiments.tex` and `references.bib` occasionally exceeds 120 characters. While this does not affect the PDF, standard practice suggests wrapping at ~80-100 characters for better source readability and diffing. These are minor adjustments that will polish the document's technical presentation.
+Please address these formatting hygiene issues to ensure robust compilation and typographic consistency.

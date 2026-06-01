@@ -209,3 +209,204 @@ rounds:
       found in sections/3_methods.tex and sections/4_experiments.tex into main.tex
       preamble.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-01T20:19:18.946695+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 256d18bda9a4
+    text: Clarify the distinction between 'Executive Strategy' and 'Skill Optimization'
+      in the introduction to address prior reviewer concerns on terminology consistency.
+    severity: writing
+  - id: c31e454de098
+    text: 'Confirm that all 2026-dated references in references.bib have verification_status:
+      verified in the project citation state to meet acceptance criteria.'
+    severity: writing
+  - id: 69d3a62e4e28
+    text: Expand the related work section to include the historical comparison suggested
+      by prior reviewer david-krakauer-simulated regarding skill evolution lineage.
+    severity: writing
+  - id: 1034d23c488f
+    text: Recalculate the 'Cost / pt' column in Table 2 (lines 320-335) to ensure
+      consistency with 'Train tokens' and Table 1 score gains (e.g., LiveMath reported
+      3.6M vs calculated 0.79M).
+    severity: science
+  - id: 468a8bd38a5e
+    text: Code repository at https://aka.ms/SkillOpt is not accessible for independent
+      verification. Include a public GitHub/GitLab link with commit hash in the paper
+      for reproducibility.
+    severity: science
+  - id: cafbcbba7997
+    text: Add a reproducibility checklist section detailing dependencies, environment
+      setup, and hardware requirements needed to reproduce the 52 benchmark cells.
+    severity: science
+  - id: 19c6ee1fd0e4
+    text: Include test coverage metrics and CI/CD status badges in the paper appendix
+      to demonstrate code quality and reliability of the implementation.
+    severity: writing
+  - id: f9ebd8597420
+    text: Add specific dataset version numbers or commit hashes for all benchmarks
+      (e.g., SearchQA, SpreadsheetBench) in references.bib or Section 4 to ensure
+      data provenance reproducibility.
+    severity: writing
+  - id: 605fa7eafd2c
+    text: Specify an open-source license (e.g., MIT, Apache 2.0) for the released
+      code and skill artifacts in sections/0_abstract.tex or the repository README.
+    severity: writing
+  - id: 3a6a6e384017
+    text: Provide a pinned Git commit hash or tag for the code at https://aka.ms/SkillOpt
+      to prevent link rot and version drift between paper submission and code access.
+    severity: writing
+  - id: b2675fadc8b4
+    text: Add accessible alt text descriptions to all \includegraphics figures (Fig
+      1, 2, 3) for screen reader compliance.
+    severity: writing
+  - id: 3a0a976ccc5c
+    text: Ensure subplot labels (a), (b), (c) appear directly on Figure 3 images,
+      not solely in the caption.
+    severity: writing
+  - id: af5ad84dce7e
+    text: Increase font size in Figure 4 (skill_excerpts) from \footnotesize to \scriptsize
+      minimum for print legibility.
+    severity: writing
+  - id: 830b3263e68a
+    text: Verify color palettes in Figures 1 and 2 are colorblind-safe and distinguishable
+      in grayscale print.
+    severity: writing
+  - id: bdab7335a1a7
+    text: Refactor Figure 3 (epoch_ablation) to use the subcaption package for machine-readable
+      subplot labels rather than relying on a single PDF image.
+    severity: writing
+  - id: ad7b7787b558
+    text: Replace "text-space optimizer" with "text-based optimizer" for clarity.
+    severity: writing
+  - id: 45a67ff7022d
+    text: Replace "harness" with "execution environment" in Abstract and Methods.
+    severity: writing
+  - id: 11e43d163e64
+    text: Define acronyms QA, SoK, and MCQ at first use.
+    severity: writing
+  - id: 85e45e713b42
+    text: Replace "rollouts" with "executions" or "test runs".
+    severity: writing
+  - id: e82f78c25103
+    text: Standardize "selection split" to "validation set".
+    severity: writing
+  - id: 69dcf8f7f4ea
+    text: The claim that 'without the gate, a stronger optimizer could push harmful
+      rewrites' (Section 4.2, 'Effect of optimizer strength') is a causal assertion
+      not directly tested. No ablation compares performance with and without the validation
+      gate itself.
+    severity: science
+  - id: 0a08b9b24041
+    text: The validation gate ablation only tests 'rejected-edit buffer' removal,
+      not the gate's strictness (strictly greater vs. greater-or-equal). Section 4.2
+      states 'ties are rejected' but this threshold is not ablated.
+    severity: science
+  - id: 8ed85da4206a
+    text: The abstract's claim of being 'first systematic controllable text-space
+      optimizer' should be qualified given that TextGrad, GEPA, and EvoSkill are prompt/skill
+      optimizers with validation gates. Suggest 'among the first' or specify what
+      'systematic controllable' uniquely means compared to these baselines.
+    severity: writing
+  - id: 8a4fa4754d96
+    text: The '52 of 52 cells best or tied-best' claim (Section 4.1, Table 1) should
+      include statistical significance testing or confidence intervals. Without this,
+      the universal superiority claim may overstate the empirical evidence, especially
+      for small differences.
+    severity: science
+  - id: 7f2031120682
+    text: "Cross-harness transfer claims (e.g., +59.7 points on SpreadsheetBench Codex\u2192\
+      Claude Code) should acknowledge that this is a single benchmark case study.\
+      \ The paper frames this as generalizable deployment signal but the evidence\
+      \ base for such dramatic cross-harness transfer is limited to one benchmark."
+    severity: writing
+  - id: 0aa0bdc55123
+    text: The deep-learning optimization analogy (learning rates, validation gates,
+      momentum/slow updates) is repeatedly described as 'operational rather than decorative'
+      but the paper does not provide evidence that these analogies have functional
+      equivalence to weight-space optimization. Consider qualifying this as 'conceptual
+      analogy' rather than 'operational'.
+    severity: writing
+  - id: 4bccfb2026bd
+    text: The limitations section acknowledges some constraints but downplays the
+      training cost. While deployment cost is zero, training requires 'additional
+      rollout computation and calls to an optimizer model' which for some benchmarks
+      (e.g., SearchQA at 37.9M tokens/point) is substantial. This cost-benefit tradeoff
+      should be more prominently discussed in the main text.
+    severity: writing
+  - id: f6c3883b3af6
+    text: Add a paragraph in the Discussion or Conclusion explicitly addressing potential
+      misuse scenarios (dual-use) and recommending safety constraints for the optimizer
+      in high-risk domains.
+    severity: writing
+  - id: c3d5558fc272
+    text: Report variance (standard deviation) across multiple random seeds for the
+      52 cells in Table 1. Single point estimates without variance prevent statistical
+      significance claims.
+    severity: science
+  - id: ee480dd615be
+    text: Justify the small training set sizes for LiveMathematicianBench (35 items)
+      and ALFWorld (39 tasks). Demonstrate sensitivity to training set size to rule
+      out overfitting.
+    severity: science
+  - id: 9b8c3e5ee02f
+    text: Normalize or explicitly compare compute budgets. Training token costs vary
+      by 70x (0.6M vs 46.4M tokens/pt) in Table 4, complicating efficiency claims.
+    severity: science
+  - id: c1da1cdc4e65
+    text: Report confidence intervals or standard deviations for all benchmark scores.
+      The paper claims 52/52 wins but provides no uncertainty estimates. With 52 cells
+      and 6+ baselines per cell, multiple-comparisons inflation is a serious concern.
+      Add SE/SD across seeds or bootstrap CIs.
+    severity: science
+  - id: 810005739e59
+    text: Perform statistical significance testing between method and baselines. Point
+      differences like 87.1 vs 87.0 in Table 2 (ablation_sweeps) lack statistical
+      justification. Use paired t-tests or non-parametric equivalents with proper
+      multiple-comparison correction (e.g., Bonferroni, Holm-Bonferroni).
+    severity: science
+  - id: 024f691a17fa
+    text: Specify the number of independent runs per configuration and random seeds.
+      The paper mentions 'deterministic train/selection/test splits' but does not
+      report variance across seeds or runs, making reproducibility and effect-size
+      uncertainty impossible to assess.
+    severity: science
+  - id: d2b68b27d19c
+    text: Address overfitting to the selection split in the validation gate. With
+      strict inequality gating (> current score), small noise-driven improvements
+      could accumulate. Report selection-vs-test gap analysis (e.g., Figure 1 shows
+      trends but no statistical test of generalization gap).
+    severity: science
+  - id: 3ce13e9a9c16
+    text: 'Provide power analysis or sample-size justification for benchmarks with
+      small training pools (e.g., LiveMath: 35 training items). Small samples may
+      not support the claimed effect sizes, and Type II error rates are unknown.'
+    severity: science
+  - id: 9ec900f7fd43
+    text: Add \usepackage{xcolor} explicitly in main.tex preamble. Current use of
+      \textcolor, \cellcolor, and \rowcolor (e.g., sections/3_methods.tex) relies
+      on implicit loading which risks compilation failure.
+    severity: writing
+  - id: d66248dda513
+    text: Replace \resizebox in tab:ablation_sweeps (sections/3_methods.tex) and tab:transfer_all
+      (sections/3_methods.tex) with \small or \footnotesize. Resizing scales font
+      size inconsistently with the rest of the document.
+    severity: writing
+  - id: 80d999c1cac2
+    text: Remove unused packages \usepackage{pifont}, \usepackage{wrapfig}, and \usepackage{cleveref}
+      from main.tex preamble to reduce dependency overhead.
+    severity: writing
+  - id: 2e66dc7a58ed
+    text: Move Table 1 (main_results_by_harness) from sections/3_methods.tex to sections/4_experiments.tex
+      to align with standard narrative flow (results after methods).
+    severity: writing
+  - id: 4714e192726b
+    text: Break down long sentences in the Abstract (lines 2-4) and Introduction (lines
+      60-70) to improve readability and reduce cognitive load.
+    severity: writing
+  - id: d198c6f3acd3
+    text: Consolidate duplicate macro definitions (e.g., \providecommand{\ourmethod})
+      found in sections/3_methods.tex and sections/4_experiments.tex into main.tex
+      preamble.
+    severity: writing

@@ -39,25 +39,25 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:46:21.725420Z'
+reviewed_at: '2026-06-01T20:10:03.156474Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_overreach
 score: 0.0
 verdict: minor_revision
 ---
 
-**Overreach Review**
+**Overreach Re-Review — SkillOpt**
 
-This paper makes several strong claims that require qualification to match the available evidence. My review focuses specifically on where claims may exceed what the data, methods, or scope justify.
+This re-review assesses whether the prior action items from my previous overreach review have been adequately addressed in the current revision. Five of five prior items remain **unaddressed** or only partially addressed:
 
-**Novelty Claim (Abstract, Section 1):** The claim of being "to our knowledge, the first systematic controllable text-space optimizer for agent skills" is overstated. The baselines include TextGrad (gradient-style natural-language prompt optimization), GEPA (reflective prompt evolution), and EvoSkill (skill-folder evolution). These methods also use validation feedback and iterative improvement. The paper should clarify what "systematic controllable" uniquely means—perhaps the bounded edit budget and rejected-edit buffer are the distinguishing features, but this should be explicitly stated rather than implied as a first-of-kind claim.
+1. **Abstract novelty claim (ID 8ed85da4206a)**: The abstract still states "first systematic controllable text-space optimizer" without qualification. TextGrad, GEPA, and EvoSkill are listed as baselines but the paper does not explain what "first" means given these methods also use validation gates and iterative refinement.
 
-**Universal Superiority Claim (Section 4.1, Table 1):** The "52 of 52 cells best or tied-best" claim is verifiable from Table 1, but the paper does not report statistical significance testing or confidence intervals. Given that some differences are small (e.g., SearchQA improvements of 1-2 points), claiming universal superiority without uncertainty quantification overstates the empirical support. The oracle-baseline gap of +5.4 points is more defensible but should be qualified as "within our experimental setup."
+2. **52/52 statistical claim (ID 8a4fa4754d96)**: Section 4.1 and Table 1 still present the "best or tied-best on all 52 cells" claim without any statistical significance testing, confidence intervals, or acknowledgment that small differences may not be meaningful.
 
-**Transfer Claims (Section 4.3, Table 4):** The cross-harness transfer results are impressive but limited in scope. The +59.7 point gain on SpreadsheetBench (Codex→Claude Code) is a single data point that the paper uses to argue for generalizable procedural knowledge. This should be framed as "promising evidence" rather than a deployment signal. The cross-benchmark transfer (OlympiadBench→Omni-MATH) shows smaller gains (+1.3 to +3.7 points), which suggests the transferability claim should be more carefully bounded by task similarity.
+3. **Cross-harness transfer generalization (ID 7f2031120682)**: Section 4.3 still frames the +59.7 point SpreadsheetBench transfer as "the clearest deployment signal" without acknowledging this is limited to a single benchmark case study.
 
-**Optimization Analogy (Throughout):** The paper repeatedly describes the skill optimization loop as "deliberately shaped like a training algorithm" with "learning-rate analogue," "validation gate," and "momentum term." While the paper states this is "operational rather than decorative," it does not provide evidence that these components functionally correspond to weight-space optimization mechanisms. This analogy should be qualified as "conceptual" or "design-inspired" rather than "operational."
+4. **Deep-learning analogy (ID 0aa0bdc55123)**: Introduction Section 1 still states "The deep-learning analogy is operational rather than decorative" without evidence of functional equivalence to weight-space optimization.
 
-**Cost Framing (Section 4.4):** The emphasis on "zero inference-time model calls at deployment" is accurate but may downplay the practical cost. Training requires substantial compute (e.g., SearchQA at 37.9M tokens/point). The limitations section acknowledges training cost but the main text frames this as "measurable and paid before deployment" without sufficient discussion of when this tradeoff is favorable versus when direct model fine-tuning or human skill writing might be more efficient.
+5. **Training cost prominence (ID 4bccfb2026bd)**: The limitations section mentions training cost but the 37.9M tokens/point figure for SearchQA in Table 3 is not prominently discussed in the main text as a significant tradeoff.
 
-**Recommendation:** Minor revision to qualify strong claims with appropriate uncertainty bounds, clarify what distinguishes the method from existing optimizers, and temper transfer generalization claims given the limited cross-domain evidence.
+No new overreach issues were introduced in this revision. All five prior action items require attention before acceptance.

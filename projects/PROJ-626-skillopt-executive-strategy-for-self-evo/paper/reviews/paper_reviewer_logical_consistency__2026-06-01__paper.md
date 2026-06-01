@@ -6,12 +6,6 @@ action_items:
     rewrites' (Section 4.2, 'Effect of optimizer strength') is a causal assertion
     not directly tested. No ablation compares performance with and without the validation
     gate itself.
-- id: e9dbdd6ff930
-  severity: writing
-  text: The 'first systematic controllable text-space optimizer' claim (Abstract,
-    Section 1) conflates 'skill document' with 'prompt.' TextGrad and GEPA are also
-    text-space optimizers; the distinction should be clarified as 'persistent procedural
-    skill state' vs. 'task-specific prompt.'
 - id: 0a08b9b24041
   severity: science
   text: The validation gate ablation only tests 'rejected-edit buffer' removal, not
@@ -24,21 +18,30 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:42:30.802558Z'
+reviewed_at: '2026-06-01T20:08:37.886893Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_logical_consistency
 score: 0.0
-verdict: minor_revision
+verdict: major_revision_science
 ---
 
-The paper demonstrates strong internal logical consistency: the 52/52 cells claim (Section 4.1, Table 1) is verified across 7 models × 6 benchmarks + 2 harnesses × 5 benchmarks, with all SkillOpt entries bolded. Transfer results (Table 3) consistently exceed no-skill baselines as claimed. Ablation results (Table 2) support component importance, with slow/meta update removal causing the largest degradation (-22.5 on SpreadsheetBench).
+**Re-Review: Logical Consistency**
 
-However, three logical gaps warrant attention:
+This re-review assesses whether the prior action items regarding logical consistency and causal claims have been adequately addressed in the current revision.
 
-1. **Causal mechanism gap**: The paper asserts the validation gate prevents stronger optimizers from pushing harmful rewrites (Section 4.2, paragraph on optimizer strength), but no ablation directly removes the gate. The 'without lr' row in Table 2 tests unbounded edits, not the gate itself. This leaves the gate's independent contribution unverified.
+**Assessment of Prior Action Items:**
 
-2. **First claim precision**: The Abstract and Introduction claim SkillOpt is the "first systematic controllable text-space optimizer for agent skills." TextGrad and GEPA are also text-space optimizers cited in Related Work (Section 2). The distinction—optimizing a persistent skill document vs. a task-specific prompt—is operationally meaningful but should be stated more precisely to avoid overclaiming novelty.
+1.  **Gate Ablation (ID: `69dcf8f7f4ea`):** **UNADDRESSED.**
+    The paper asserts in Section 4.2 ("Effect of optimizer strength") that "without the gate, a stronger optimizer could just as easily push larger but harmful rewrites." This is a causal claim about the mechanism of the validation gate. However, Table 4 (`tab:component_ablation`) and Table 5 (`tab:ablation_sweeps`) do not include a condition that removes the validation gate entirely (e.g., "accept all edits" or "no gate"). The ablation compares "Strong optimizer" vs. "Target-matched optimizer" *with* the gate active. Without an explicit "no gate" baseline, the claim that the gate *prevents* harm from stronger optimizers remains an unverified assertion rather than an empirically supported conclusion. The logical link between optimizer strength and potential harm is not isolated.
 
-3. **Gate threshold untested**: The paper states ties are rejected (Section 4.2, 'Gate strictness'), but the selection-split threshold (strictly greater vs. greater-or-equal) is not ablated. The rejected-edit buffer ablation conflates buffer presence with gate presence, obscuring the gate's independent effect.
+2.  **Gate Strictness (ID: `0a08b9b24041`):** **UNADDRESSED.**
+    The text states the gate rejects ties ("strictly greater than... ties are rejected"). However, no ablation compares this strict threshold against a non-strict one (e.g., "greater-or-equal"). This threshold choice is a hyperparameter that could influence convergence behavior and edit economy. Since this is not tested, the robustness of the "strict" design choice is not logically supported by the provided evidence.
 
-These gaps are minor relative to the paper's overall coherence. The empirical claims are well-supported, and the ablation suite covers most design choices. Addressing the three items above would strengthen the causal chain from method components to performance gains.
+3.  **Skill vs. Prompt Distinction (ID: `e9dbdd6ff930`):** **ADDRESSED.**
+    The distinction between "persistent skill document" and "task-specific prompt" is now clearly articulated in Section 2 (Related Work), differentiating SkillOpt from TextGrad and GEPA. The conflation concern is mitigated.
+
+**New Logical Concerns:**
+No new logical inconsistencies were identified beyond the unaddressed prior items. The empirical claims (52/52 cells) are internally consistent with the tables provided.
+
+**Recommendation:**
+The paper requires a **major revision** to address the missing ablations for the validation gate's presence and strictness. These are central to the logical argument that the proposed controls (gate, buffer, budget) are necessary for stable optimization. Without these ablations, the causal claims regarding the gate's protective role remain speculative.

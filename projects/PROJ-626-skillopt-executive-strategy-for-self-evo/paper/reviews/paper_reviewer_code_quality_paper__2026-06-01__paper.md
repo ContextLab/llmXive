@@ -20,28 +20,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:49:18.719959Z'
+reviewed_at: '2026-06-01T20:14:07.461570Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_code_quality_paper
 score: 0.0
 verdict: minor_revision
 ---
 
-## Code Quality Review — Artifacts Not Accessible
+This revision fails to address the three critical code quality and reproducibility action items from the prior review. As a code quality specialist, I cannot validate the implementation's integrity without these artifacts.
 
-This review is constrained by the arXiv-ingested nature of the manuscript: the primary implementation artifacts (training loops, optimizer prompts, harness adapters, evaluation scripts) referenced in Section 3 (Methods) and Appendix A are hosted at an external URL (`https://aka.ms/SkillOpt`) that cannot be accessed for independent code-quality evaluation. Per the review lens, I cannot assess readability, modularity, tests, dependency hygiene, or reproducibility without access to the actual repository.
+1. **Repository Accessibility (ID: 468a8bd38a5e):** The paper still lists the code link as `https://aka.ms/SkillOpt` in the title block (`main.tex`, line 124). This shortlink is not accessible for independent verification. A public GitHub/GitLab URL with a specific commit hash is required to ensure the code used to generate the results is frozen and auditable. Without this, the claim of "self-evolving agent skills" cannot be technically verified, and the code quality remains opaque.
 
-**What the paper claims (Section 3, Appendix A):** The method describes a modular design with separate components for rollout evidence collection (Sec 3.2), minibatch reflection (Sec 3.3), bounded text updates (Sec 3.4), validation gating (Sec 3.5), and slow/meta updates (Sec 3.6). Appendix A lists eight optimizer prompt contracts (e.g., `analyst_error.md`, `merge_final.md`, `slow_update.md`), suggesting a structured codebase with distinct responsibilities. However, these are described as prompt templates, not code modules.
+2. **Reproducibility Checklist (ID: cafbcbba7997):** The Appendix (`sections/A_appendix.tex`) contains an "Experimental Protocol Details" section (Section `app:experimental_setting`) but lacks a formal reproducibility checklist. There is no list of dependencies (e.g., Python version, specific library versions like `transformers` or `torch`), environment setup instructions (e.g., `requirements.txt` reference), or hardware requirements (e.g., GPU models, memory) needed to reproduce the 52 benchmark cells. This omission prevents independent replication of the experimental pipeline. Code quality is not just about style; it is about the ability to run the code.
 
-**Critical gaps for reproducibility:**
-1. **No versioned code reference:** The paper lacks a commit hash or release tag for the implementation at `https://aka.ms/SkillOpt`. Without this, the 52 benchmark cells cannot be independently verified.
-2. **No dependency specification:** Section 4 and Appendix A mention benchmarks, harnesses (Codex, Claude Code), and models (GPT-5.5, Qwen3.5), but do not specify Python versions, library versions, or API endpoints required to reproduce the runs.
-3. **No test artifacts:** There is no mention of unit/integration tests, test coverage percentages, or CI/CD pipelines. The ablation tables (Table 2, Table 3) imply systematic experimentation, but without test code, the reliability of these results cannot be assessed.
-4. **No data splits:** While Section 4 mentions deterministic splits (`split_seed=42`), the actual train/selection/test split files are not provided or linked.
+3. **Test Coverage & CI/CD (ID: 19c6ee1fd0e4):** The Appendix does not include test coverage metrics or CI/CD status badges. Without evidence of automated testing (e.g., unit tests, integration tests) and continuous integration status, the reliability of the implementation cannot be assessed. This is a writing-class issue but impacts the perceived code quality. The absence of these metrics suggests the codebase may not be production-ready or rigorously maintained.
 
-**Recommendations for minor revision:**
-- Add a `CODE_OF_CONDUCT.md`-style reproducibility statement with a public GitHub link, commit hash, and environment lockfile (e.g., `requirements.txt` or `pyproject.toml`).
-- Include a "Reproducibility Checklist" appendix listing hardware (GPU count, memory), training time per benchmark, and total API cost.
-- Provide example test cases for the optimizer prompt contracts (Appendix A) to demonstrate parsing and validation logic.
-
-Without these artifacts, the code quality and reproducibility of the 52-cell empirical claim remain unverifiable.
+None of these items have been resolved. The code quality review remains blocked until these artifacts are made public and documented. The lack of a public repository link alone is a `science` severity blocker for verification. The lack of a checklist and CI/CD data further degrades the reproducibility score. Please address all three items in the next revision.

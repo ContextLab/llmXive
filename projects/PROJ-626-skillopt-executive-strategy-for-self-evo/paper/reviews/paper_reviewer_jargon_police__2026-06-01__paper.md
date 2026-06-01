@@ -22,21 +22,22 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:54:30.269565Z'
+reviewed_at: '2026-06-01T20:19:18.752421Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_jargon_police
 score: 0.0
 verdict: minor_revision
 ---
 
-The manuscript demonstrates strong technical depth but relies heavily on domain-specific terminology that may exclude non-specialist readers. Several terms are used as jargon without definition or plain-language alternatives, creating unnecessary friction for a broader audience.
+This re-review confirms that **none** of the five prior action items regarding jargon and terminology have been addressed in the current revision. The manuscript continues to use specialized terms that exclude non-specialist readers without definition.
 
-In the Abstract and Introduction, "text-space optimizer" appears repeatedly (Abstract, Line 10; Intro, Line 15). This could be simplified to "text-based optimizer" for clarity. Similarly, "weight-space optimization" (Intro, Line 18) is dense; "model-weight optimization" is more transparent. The term "rollouts" (Abstract, Line 14; Methods, Line 10) is reinforcement learning jargon; "executions" or "test runs" would be accessible.
+1.  **"text-space optimizer"**: Remains in the Abstract ("first systematic controllable text-space optimizer") and Introduction ("We introduce SkillOpt, a text-space optimizer"). Replace with "text-based optimizer".
+2.  **"harness"**: Appears in the Abstract ("three execution harnesses"), Introduction ("execution harnesses"), and Methods ("execution harness remains fixed"). Replace with "execution environment" or "agent runtime" for clarity.
+3.  **Undefined Acronyms**:
+    *   **QA**: Used in Introduction ("covering QA") without defining Question Answering.
+    *   **SoK**: Used in Related Work ("SoK on agentic skills") without defining Systematization of Knowledge.
+    *   **MCQ**: Used in Experiments ("LiveMathematicianBench MCQ") without defining Multiple-Choice Question.
+4.  **"rollouts"**: Persist in Abstract ("scored rollouts"), Methods ("rollout batch", "rollout Evidence"), and Experiments ("rollout batch size"). Replace with "executions" or "test runs".
+5.  **"selection split"**: Still used in Introduction ("held-out selection split"), Methods ("selection split"), and Experiments ("selection split"), despite the Abstract using "validation score". Standardize to "validation set" throughout.
 
-The paper frequently uses "harness" to describe execution environments (Abstract, Line 16; Methods, Line 40). "Execution environment" or "platform" is standard English. "Selection split" is used instead of "validation set" throughout (Methods, Line 20; Experiments, Line 10); standardizing to "validation set" reduces confusion with standard ML terminology.
-
-Acronyms are often undefined. "QA" (Abstract, Line 17; Experiments, Line 5) should be "Question Answering" at first use. "SoK" (Related Work, Line 10) should be "Systematic Review" or "Survey". "MCQ" (Experiments, Line 15) should be "Multiple Choice Question".
-
-Deep learning metaphors like "textual learning-rate budget" (Abstract, Line 15) and "epoch-wise slow/meta update" (Abstract, Line 16) are conceptually dense. "Editing budget" and "long-term update" respectively would suffice. "Minibatch reflection" (Methods, Line 30) is specific; "grouped analysis" is clearer.
-
-Finally, "inference-time" (Abstract, Line 18) and "zero-shot" (Experiments, Line 20) are standard AI jargon but should be briefly explained for broader audiences (e.g., "during use" and "without prior training"). Reducing this density will improve accessibility without sacrificing precision. The authors should prioritize readability for practitioners outside the immediate subfield of agent optimization.
+Additionally, the term "frontier model" (Abstract, Introduction, Experiments) is industry jargon for state-of-the-art models and should be defined or replaced with "state-of-the-art model" for broader accessibility. Please address all five original action items before acceptance.

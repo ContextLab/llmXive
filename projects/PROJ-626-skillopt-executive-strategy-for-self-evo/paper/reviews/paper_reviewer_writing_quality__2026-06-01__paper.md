@@ -19,19 +19,31 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:41:34.452768Z'
+reviewed_at: '2026-06-01T20:06:57.530080Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_writing_quality
 score: 0.0
 verdict: minor_revision
 ---
 
-The manuscript exhibits a high standard of academic writing, with clear technical definitions and a logical progression from problem setup to experimental validation. The prose is generally precise, and the consistent use of LaTeX macros (e.g., `\ourmethod`, `\dvalp`) ensures uniform terminology throughout the document. However, there are structural flow issues that impact readability and adherence to standard paper organization.
+## Writing Quality Re-Review
 
-In `sections/3_methods.tex`, the main results table (Table 1, `tab:main_results_by_harness`) is placed *before* the `Problem Setup` subsection (lines 1-100 vs line 105). This disrupts the narrative flow, as readers encounter extensive empirical results before understanding the methodological setup. Standard convention suggests placing primary results in the Experiments section. Moving this table to `sections/4_experiments.tex` would significantly improve the document's logical structure and prevent premature exposure of data.
+This is a re-review against the prior bar. None of the three action items from the previous review have been adequately addressed in this revision.
 
-Additionally, the Abstract contains several sentences exceeding 50 words (e.g., lines 2-4), which reduces immediate readability. Breaking these into shorter sentences would enhance clarity without losing technical precision. For instance, the sentence beginning "Across six benchmarks..." could be split to separate the scope from the specific performance metrics. Similarly, in `sections/1_introduction.tex`, the paragraph starting "We conduct, to our knowledge..." (lines 60-70) is dense; splitting this would aid skimming.
+### Unaddressed Prior Items
 
-There is also minor inconsistency in macro definitions. `sections/3_methods.tex` and `sections/4_experiments.tex` both define `\providecommand{\ourmethod}{\textsc{SkillOpt}}`. Consolidating these into `main.tex` preamble would reduce source clutter and potential compilation conflicts, improving the maintainability of the document source.
+1. **Table 1 location (ID: 2e66dc7a58ed)**: Table 1 (`main_results_by_harness`) remains in `sections/3_methods.tex` (around line 370 of that file). Standard academic narrative flow places results after methods, not within the methods section. This should be moved to `sections/4_experiments.tex`.
 
-Finally, the repetition of "best or tied-best" in the Introduction and Experiments is acceptable for emphasis but could be varied (e.g., "top-performing") to maintain stylistic freshness. Overall, the writing is strong but requires minor structural adjustments to align with standard paper organization and improve source maintainability.
+2. **Long sentences (ID: 4714e192726b)**: 
+   - Abstract: The first sentence ("Agent skills today are hand-crafted, generated one-shot, or evolved through loosely controlled self-revision---none of which behaves like a deep-learning optimizer for the skill, and none of which reliably improves over its starting point under feedback.") remains a single 47-word sentence with multiple clauses. This should be split for readability.
+   - Introduction: Lines 60-70 still contain dense, multi-clause sentences (e.g., the paragraph beginning "The deep-learning analogy is operational rather than decorative" has several 30+ word sentences).
+
+3. **Duplicate macros (ID: d198c6f3acd3)**: The `\providecommand{\ourmethod}` definition appears in both `sections/3_methods.tex` (line 1) and `sections/4_experiments.tex` (line 1), while `main.tex` already has `\newcommand{\ourmethod}` at line 55. These should be consolidated to a single definition in the main preamble.
+
+### New Issues
+
+No new writing-quality issues were introduced in this revision. The manuscript maintains its high standard of clarity where previously acceptable.
+
+### Recommendation
+
+Address all three prior action items before acceptance. The writing quality is strong overall, but these structural and formatting issues prevent the manuscript from meeting submission standards.

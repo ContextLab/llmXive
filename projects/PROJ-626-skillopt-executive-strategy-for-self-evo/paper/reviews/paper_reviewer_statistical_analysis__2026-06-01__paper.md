@@ -36,28 +36,25 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:48:50.202027Z'
+reviewed_at: '2026-06-01T20:12:13.764078Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_statistical_analysis
 score: 0.0
 verdict: full_revision
 ---
 
-This paper makes extensive empirical claims—52/52 cells best, +23.5 point average gains, transfer across models/harnesses—without any statistical rigor to support them. From a statistical analysis perspective, there are five critical gaps:
+**Re-Review Status: No Prior Action Items Addressed**
 
-**1. No Uncertainty Quantification**
-Every reported number is a point estimate. Table 1 (main_results_by_harness) shows scores like 87.3 vs 84.8 for SearchQA but no standard errors, confidence intervals, or variance across seeds. Without uncertainty bounds, we cannot distinguish genuine improvements from random noise. The ablation tables (Table 2, Table 3) compound this: differences like 87.1 vs 87.0 in panel (c) are treated as meaningful despite likely being within measurement error.
+This re-review finds that **none of the five prior statistical analysis action items** have been addressed in the current revision. The manuscript continues to report point estimates without uncertainty quantification, making the central empirical claims statistically unverifiable.
 
-**2. Multiple Comparisons Unaddressed**
-With 52 cells × 6+ baselines = 300+ pairwise comparisons, the probability of false-positive "wins" is high. The paper claims "best or tied on all 52 cells" without any family-wise error rate control or false discovery rate adjustment. This is a fundamental statistical flaw that could invalidate the headline claim.
+**Item c1da1cdc4e65 (CIs/SDs):** Table 1 (main_results_by_harness, lines 334-459) and Tables 2-4 (ablation_sweeps, component_ablation, transfer_all) all report single point values without standard deviations, confidence intervals, or error bars. The 52/52 win claim lacks any measure of uncertainty.
 
-**3. No Statistical Significance Testing**
-The ablation studies (Section 4.2, Tables 2–3) make causal claims about components (e.g., "removing rejected-edit buffer lowers scores by 1.6, 4.6, 2.4 points") without paired tests, p-values, or effect sizes. Is a 1.6-point drop on SearchQA statistically distinguishable from zero? The paper does not say.
+**Item 810005739e59 (Significance Testing):** No p-values, t-tests, or multiple-comparison corrections appear anywhere in Section 4 (Experiments). Differences like 87.1 vs 87.0 in Table 2 (line 383) are treated as meaningful without statistical justification.
 
-**4. Reproducibility Gaps**
-The paper mentions deterministic splits (split_seed=42) but does not report: (a) number of independent runs per configuration, (b) random seeds for optimizer behavior, or (c) whether results are stable across seeds. This makes replication impossible and prevents assessment of variance.
+**Item 024f691a17fa (Runs/Seeds):** Section 4 (line 234) mentions `split_seed=42` for data splits but does not report how many independent optimization runs with different random seeds were performed. Variance across seeds remains unquantified.
 
-**5. Selection-Test Gap Not Quantified**
-Figure 1 shows validation/test trends but provides no statistical test of generalization. With a strict validation gate, overfitting to the selection split is possible, especially given the 4:1:5 train/selection/test ratio. The paper should report the selection-test performance gap with confidence intervals to demonstrate true generalization.
+**Item d2b68b27d19c (Selection-Test Gap):** Figure 1 (epoch_ablation_train_sel_test_trends.pdf) shows train/selection/test trends but provides no statistical test of whether selection-best generalizes to test. The validation gate mechanism is not validated against overfitting.
 
-**Recommendation**: Full revision is required. The authors must add (a) confidence intervals or standard deviations for all metrics, (b) statistical significance tests between method and baselines with multiple-comparison correction, (c) explicit reporting of runs/seeds, and (d) power analysis for small-sample benchmarks. Without these, the empirical claims remain unsupported by statistical evidence.
+**Item 3ce13e9a9c16 (Power Analysis):** LiveMath's 35 training items (Section 4, line 238) are acknowledged but no power analysis or sample-size justification is provided for small benchmarks.
+
+All five items require re-running experiments with proper statistical protocols. The paper cannot be accepted without these analyses.

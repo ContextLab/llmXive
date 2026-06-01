@@ -20,4 +20,7 @@ ready:
 - project_id: PROJ-567-anyflow-any-step-video-diffusion-model-w
   revision_spec_path: specs/auto-revisions/PROJ-567-anyflow-any-step-video-diffusion-model-w/round-1
   queued_at: '2026-06-01T17:08:44.450374+00:00'
+- project_id: PROJ-626-skillopt-executive-strategy-for-self-evo
+  revision_spec_path: specs/auto-revisions/PROJ-626-skillopt-executive-strategy-for-self-evo/round-1
+  queued_at: '2026-06-01T20:19:18.977852+00:00'
 blocked: []

@@ -20,25 +20,22 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:50:14.433737Z'
+reviewed_at: '2026-06-01T20:15:13.791162Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_data_quality_paper
 score: 0.0
 verdict: minor_revision
 ---
 
-This review focuses on data quality, provenance, and reproducibility metadata within the manuscript.
+This re-review finds that all three data quality action items from the prior review remain unaddressed in the current manuscript revision. While the paper provides a seed for data splits (`split_seed=42` in `sections/4_experiments.tex`, line 10), this does not substitute for explicit dataset versioning or repository commit hashes required for full provenance reproducibility.
 
-**Data Provenance and Versioning:**
-The paper relies on multiple external benchmarks (SearchQA, SpreadsheetBench, OfficeQA, etc.) described in `sections/4_experiments.tex` and cited in `references.bib`. While the text mentions `split_seed=42` for deterministic splits, it lacks specific dataset version identifiers (e.g., commit hashes, release tags, or dataset card versions). Without these, it is impossible to verify that the training/evaluation data matches the reported results, especially for datasets that may evolve over time (e.g., `li2026skillsbench` in `references.bib`).
+**1. Dataset Provenance (`references.bib`, `sections/4_experiments.tex`)**
+The bibliography entries for benchmarks such as `dunn2017searchqa` (line 115), `spreadsheetbench` (line 136), and `opsahl2026officeqa` (line 129) cite publications or arXiv IDs but omit specific dataset version numbers, commit hashes, or snapshot dates. Section 4 mentions deterministic splits but does not anchor the benchmark data itself to a verifiable state. Without these identifiers, external reviewers cannot reconstruct the exact data distribution used for training and evaluation, violating standard data quality norms for reproducible ML research.
 
-**Artifact Licensing and Availability:**
-The abstract (`sections/0_abstract.tex`) provides a code link (`https://aka.ms/SkillOpt`) but does not specify a software license for the released code or the generated skill artifacts (`best_skill.md`). This ambiguity prevents downstream users from understanding usage rights. Additionally, the bibliography contains several arXiv preprints and proprietary model references (`openai2026gpt54`) without API version constraints, limiting reproducibility of the optimization phase.
+**2. License Specification (`main.tex`, `sections/0_abstract.tex`)**
+The title block in `main.tex` (lines 86-88) and the abstract in `sections/0_abstract.tex` (line 4) provide a code link (`https://aka.ms/SkillOpt`) but do not specify an open-source license (e.g., MIT, Apache 2.0). This omission prevents users from legally understanding the terms of use for the released skill artifacts and code. License information must be explicitly stated in the manuscript or the linked repository README (referenced in the paper).
 
-**Link Stability and Schema:**
-The use of a Microsoft alias (`aka.ms`) for the code repository introduces a risk of link rot if the organization changes ownership. A permanent URL (e.g., Zenodo DOI or GitHub commit) would be more robust. Furthermore, while the paper describes the skill schema (`best_skill.md`, `edit_apply_report.json`), there is no formal schema definition (e.g., JSON Schema) provided for the benchmark inputs/outputs or the skill edit operations, which hinders automated validation of the data pipeline.
+**3. Code Version Pinning (`main.tex`)**
+The code link `https://aka.ms/SkillOpt` (line 87 in `main.tex`, line 5 in `sections/0_abstract.tex`) remains unversioned. Shortened URLs are susceptible to link rot and version drift. A pinned Git commit hash or release tag must be included in the text to ensure the code accessed by readers corresponds exactly to the results reported in the paper.
 
-**Missing Data Handling:**
-Section 4 notes that unmeasured cells are marked as `\na`, which is appropriate for result tables. However, the manuscript does not explicitly state how missing or failed benchmark executions (e.g., tool call timeouts) are handled during the rollout phase in `sections/3_methods.tex`. Clarifying whether these are excluded, imputed, or treated as zero-score failures is necessary for data integrity.
-
-To reach `accept`, the authors must address the provenance, licensing, and version control gaps identified above.
+Please address these metadata gaps to ensure the data and code artifacts are fully reproducible and legally clear.

@@ -21,19 +21,25 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-01T00:48:20.997605Z'
+reviewed_at: '2026-06-01T20:11:42.058013Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_scientific_evidence
 score: 0.0
 verdict: minor_revision
 ---
 
-The manuscript presents an extensive empirical evaluation across 52 cells (Table 1), but the scientific evidence lacks necessary statistical rigor to support the "best or tied on all 52" claim.
+## Re-Review: Scientific Evidence
 
-First, **variance reporting is absent**. Table 1 (`tab:main_results_by_harness`) reports single point estimates for every benchmark, model, and harness combination. Given the stochastic nature of LLM execution and the optimizer itself (an LLM), a single run per cell is insufficient to claim dominance. Without standard deviations or confidence intervals derived from multiple random seeds (e.g., N=5), the "52/52" claim is statistically unverifiable. A method appearing "best" in a single seed may fall within the error bars of a competitor. The ablation tables (Table 3, Table 4) also lack variance metrics, making it impossible to assess if observed differences (e.g., 87.1 vs 87.0) are meaningful.
+This re-review assesses whether the prior action items from my previous scientific evidence review have been adequately addressed in the current revision.
 
-Second, **sample sizes for specific benchmarks are critically small**. In `sections/4_experiments.tex` (paragraph "Default optimizer hyperparameters"), the authors note LiveMathematicianBench has only 35 training items per epoch and ALFWorld has 39 tasks. Optimizing a skill on such small datasets risks overfitting to the specific training instances rather than learning generalizable procedures. While the paper argues for transferability (Table 6), the initial optimization relies on these small pools. A sensitivity analysis showing performance stability as training set size varies (beyond the 1-example vs 100% sweep in Table 3) is needed to confirm robustness.
+### Prior Action Item Status
 
-Third, **compute budget normalization is unclear**. Table 5 (`tab:skill_cost_case`) shows training token costs per point ranging from 0.6M (SpreadsheetBench) to 46.4M (DocVQA). Comparing efficiency across benchmarks or against baselines without normalizing for total compute budget or inference cost weakens the efficiency argument. If a baseline uses fewer tokens to achieve a lower score, the "cost per point" metric is misleading without context on total budget constraints.
+**Item c3d5558fc272 (variance reporting) — NOT ADDRESSED:** Table 1 (`tab:main_results_by_harness`) continues to report single point estimates for all 52 cells without any variance measures (standard deviation, confidence intervals, or multiple seed results). The text in Section 4 (Main Results) and Section 5.1 (Ablations) makes no mention of random seed replication or variance across runs. Without variance estimates, claims of statistical significance (e.g., "best or tied-best on all 52 cells") cannot be validated. This remains a critical gap for scientific evidence.
 
-To strengthen the scientific evidence, the authors must report variance across seeds for all main results, provide justification or sensitivity analysis for small training sets, and clarify compute budget constraints in efficiency comparisons.
+**Item ee480dd615be (training set size) — PARTIALLY ADDRESSED:** Table 3 (tab:ablation_sweeps) panel (a) shows training set size sensitivity across 1 example to 100% of train partition for SearchQA, SpreadsheetBench, and LiveMath. However, the specific justification for LiveMathematicianBench's 35 training items and ALFWorld's 39 tasks is still absent from the Experiments section (Section 4). No sensitivity analysis is provided for ALFWorld, and the paper does not explicitly argue why these small sizes are sufficient to prevent overfitting. The ablation data helps but does not fully address the concern.
+
+**Item 9b8c3e5ee02f (compute budget normalization) — NOT ADDRESSED:** Table 6 (`tab:skill_cost_case`) still reports training token costs per point ranging from 0.6M (SpreadsheetBench) to 46.4M (DocVQA) tokens/pt. This 70x variation remains unnormalized and unexplained in the context of efficiency claims. Section 5.2 discusses cost-per-point but does not normalize across benchmarks or provide a fair comparison framework. Efficiency claims in the Abstract ("adds zero inference-time model calls at deployment") are not comparable to baselines without compute-normalized training cost reporting.
+
+### New Issues
+
+No new scientific evidence concerns were identified in this revision. The core empirical claims remain strong but require the above statistical and methodological clarifications to be fully substantiated.
