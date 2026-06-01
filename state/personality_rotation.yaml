@@ -1,11 +1,7 @@
-last_used: rosalind-franklin
-last_used_at: '2026-06-01T03:07:58.732652+00:00'
+last_used: stephen-wolfram
+last_used_at: '2026-06-01T05:15:22.897491+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-23T18:55:39.185137+00:00'
-  ended_at: '2026-05-23T19:28:25.268531+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-05-23T19:28:25.268531+00:00'
   ended_at: '2026-05-23T19:55:08.190246+00:00'
@@ -1203,3 +1199,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-06-01__paper.md
+- slug: stephen-wolfram
+  started_at: '2026-06-01T03:07:58.732652+00:00'
+  ended_at: '2026-06-01T05:15:22.897491+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/stephen-wolfram-simulated__2026-06-01__paper.md
