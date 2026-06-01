@@ -558,7 +558,10 @@ class LLMReviewer:
         backend: Any,
         repo_root: Path,
         model: str | None = None,
-        max_tokens: int | None = 131_072,
+        # Reasoning-safe but BOUNDED: a measured full-spec review used ~9.7K
+        # completion tokens; 32_768 is ~3x headroom. 128K invites the reasoning
+        # model to keep thinking past the wall-clock deadline (→ hang/thrash).
+        max_tokens: int | None = 32_768,
     ) -> None:
         self.name = lens
         self._lens = lens
@@ -569,10 +572,11 @@ class LLMReviewer:
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
         # chain-of-thought tokens count against the response budget. The
         # 512-default of OpenAI-shaped APIs is far too small (reasoning
-        # consumes it all → empty content + finish_reason=length). Use the
-        # router's reasoning-safe budget (131072) so a complex lens never
-        # exhausts the budget before emitting its verdict; qwen's 256K
-        # context leaves ample input room.
+        # consumes it all → empty content + finish_reason=length). 32_768 is
+        # a reasoning-safe but BOUNDED budget (~3x the ~9.7K measured for a
+        # full-spec review): big enough that a complex lens never exhausts it
+        # before emitting its verdict, small enough that reasoning finishes
+        # inside the wall-clock deadline (128K invited past-deadline thinking).
         self._max_tokens = max_tokens
         # Eager-load the system prompt — fail fast if missing.
         self._system_prompt = _load_system_prompt(

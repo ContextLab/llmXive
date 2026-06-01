@@ -50,7 +50,7 @@ from pathlib import Path
 
 import yaml
 
-from llmxive.backends.base import TransientBackendError
+from llmxive.backends.base import BackendUnavailable, TransientBackendError
 from llmxive.convergence.project_runner import run_engine_for_project
 from llmxive.convergence.types import Concern, ConcernResponse, ReviewSpec, Verdict
 from llmxive.speckit._comments_context import render_recent_comments_block
@@ -228,6 +228,19 @@ def run_stage_panel(
             constitution=constitution,
             on_round=on_round,
         )
+    except BackendUnavailable:
+        # The backend's circuit breaker is OPEN: the Dartmouth endpoint is
+        # PERSISTENTLY down (sustained outage). This is NOT a human-actionable
+        # engine failure (a human cannot revive a dead endpoint) and NOT a panel
+        # non-convergence kickback. Re-raise AS-IS (do NOT write
+        # human_input_needed.yaml, do NOT wrap in StagePanelEscalation) so the
+        # run aborts cleanly and the project STAYS at its current stage to resume
+        # on the next scheduled tick once the endpoint recovers. The run loop's
+        # `except Exception` catches it and fails the run with state preserved.
+        # NOTE: must precede the generic `except Exception` below — and the
+        # TransientBackendError clause — because BackendUnavailable subclasses
+        # PermanentBackendError, not TransientBackendError.
+        raise
     except TransientBackendError:
         # A TRANSIENT backend failure (endpoint hung past its deadline / 5xx /
         # connection dropped — the backend's own retry+backoff already

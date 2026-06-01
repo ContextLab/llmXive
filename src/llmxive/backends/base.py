@@ -44,6 +44,18 @@ class PermanentBackendError(BackendError):
     """A failure that should not trigger fallback (auth, bad request)."""
 
 
+class BackendUnavailable(PermanentBackendError):
+    """A backend's circuit breaker is OPEN: the endpoint is persistently down.
+
+    Raised immediately (no retry/fallback burn) once a per-backend circuit
+    breaker trips on a SUSTAINED outage — too many consecutive fully-failed
+    calls, or no success within a wall-clock window. Subclasses
+    PermanentBackendError so the run loop's existing permanent-error handling
+    aborts the run cleanly (stage state preserved for the next scheduled tick)
+    instead of thrashing for hours on a dead endpoint.
+    """
+
+
 _T = TypeVar("_T")
 
 
@@ -125,6 +137,7 @@ class BaseBackend(abc.ABC):
 
 __all__ = [
     "BackendError",
+    "BackendUnavailable",
     "BaseBackend",
     "ChatMessage",
     "ChatResponse",

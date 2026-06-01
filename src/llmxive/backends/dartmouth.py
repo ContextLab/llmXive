@@ -14,6 +14,7 @@ from collections.abc import Callable, Iterable
 from typing import Any, TypeVar
 
 from llmxive.backends.base import (
+    BackendUnavailable,
     BaseBackend,
     ChatMessage,
     ChatResponse,
@@ -51,6 +52,147 @@ _DEFAULT_MAX_RETRIES = int(os.environ.get("DARTMOUTH_MAX_RETRIES", "8"))
 _DEFAULT_RETRY_BASE_S = float(os.environ.get("DARTMOUTH_RETRY_BASE_S", "5.0"))
 _DEFAULT_RETRY_MAX_DELAY_S = float(os.environ.get("DARTMOUTH_RETRY_MAX_DELAY_S", "60.0"))
 _RETRY_MULTIPLIER = 2.0
+
+# --- reasoning-aware per-request wall-clock deadline ---------------------
+#
+# qwen.qwen3.5-122b / gpt-oss are *reasoning* models: they spend completion-token
+# budget on hidden <think> tokens before emitting any answer. A realistic
+# full-spec (~7k-token) review prompt completes cleanly (finish=stop) in ~234s
+# using ~9.7K completion tokens — but ONLY when given enough deadline. The old
+# hard-coded 180s deadline abandoned such a call mid-reasoning, so reviewer /
+# reviser stages on a reasoning model could NEVER complete (→ 7h zero-progress
+# thrash: retried on the same model ~27 min/call). Give reasoning models a
+# longer deadline (360s = measured 234s + margin); non-reasoning models (gemma,
+# llama) answer immediately and keep the 180s default. Both env-overridable.
+_DEFAULT_DEADLINE_S = float(os.environ.get("LLMXIVE_DARTMOUTH_DEADLINE_S", "180.0"))
+_DEFAULT_REASONING_DEADLINE_S = float(
+    os.environ.get("LLMXIVE_DARTMOUTH_REASONING_DEADLINE_S", "360.0")
+)
+
+# Substrings (matched case-insensitively against the model id) that mark a model
+# as a REASONING model needing the longer deadline. Covers the qwen3.5 / qwen3
+# and gpt-oss families served on Dartmouth's vLLM cluster.
+_REASONING_MODELS: tuple[str, ...] = ("qwen3.5", "qwen3", "gpt-oss")
+
+
+def _is_reasoning_model(model: str) -> bool:
+    """True if *model* spends hidden completion-token budget on <think> tokens
+    before answering (qwen3.5 / qwen3 / gpt-oss families)."""
+    low = model.lower()
+    return any(marker in low for marker in _REASONING_MODELS)
+
+
+def _deadline_for_model(model: str) -> float:
+    """Per-request wall-clock deadline (seconds) for *model*.
+
+    Reasoning models get ``_DEFAULT_REASONING_DEADLINE_S`` (they reason before
+    answering); everything else gets ``_DEFAULT_DEADLINE_S``. Used for BOTH the
+    ``invoke_with_deadline`` timeout and the ``model_kwargs['timeout']`` so the
+    two stay consistent.
+    """
+    if _is_reasoning_model(model):
+        return _DEFAULT_REASONING_DEADLINE_S
+    return _DEFAULT_DEADLINE_S
+
+
+# --- circuit breaker (SUSTAINED-outage fast-abort) -----------------------
+#
+# The per-call retry/backoff above rides out SHORT flaps (minutes) — the user
+# wants that. The circuit breaker is the SECOND line of defense: when the
+# Dartmouth endpoint is PERSISTENTLY down, the breaker trips so the pipeline
+# aborts FAST instead of thrashing for hours (observed: review/reviser calls
+# retried 9x on a dead endpoint at ~27 min/call → 7h zero-progress). It is a
+# NO-OP in normal operation: a single transient failure followed by a success
+# never trips it. State is per-DartmouthBackend instance. Both thresholds are
+# constants, env-overridable.
+_DEFAULT_BREAKER_MAX_CONSECUTIVE = int(
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_MAX_CONSECUTIVE", "3")
+)
+_DEFAULT_BREAKER_WINDOW_S = float(
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", "1800.0")  # 30 min
+)
+
+
+class _CircuitBreaker:
+    """Trips OPEN on a sustained outage so callers abort fast.
+
+    Tracks consecutive fully-failed calls (a call that exhausted the backend's
+    retries and raised :class:`TransientBackendError`) and the wall-clock time
+    of the first failure in the current run of failures. Trips when EITHER:
+
+      * ``max_consecutive`` consecutive full failures accumulate, OR
+      * no success occurs within ``window_s`` of the first failure
+        (a slow-drip outage that never quite reaches ``max_consecutive``),
+
+    whichever comes first. When OPEN, :meth:`call` raises
+    :class:`BackendUnavailable` immediately WITHOUT invoking the inner callable
+    (so the retry budget is not burned). ANY success resets the breaker fully.
+
+    Only :class:`TransientBackendError` counts as a failure — a
+    :class:`PermanentBackendError` (e.g. the paid-model guard) is not an outage
+    signal and passes straight through without advancing the breaker.
+
+    ``clock`` is injectable for deterministic tests (defaults to
+    ``time.monotonic``).
+    """
+
+    def __init__(
+        self,
+        *,
+        max_consecutive: int = _DEFAULT_BREAKER_MAX_CONSECUTIVE,
+        window_s: float = _DEFAULT_BREAKER_WINDOW_S,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        self._max_consecutive = max_consecutive
+        self._window_s = window_s
+        self._clock = clock
+        self._consecutive_failures = 0
+        self._first_failure_at: float | None = None
+
+    def _is_open(self) -> bool:
+        if self._consecutive_failures >= self._max_consecutive:
+            return True
+        if (
+            self._first_failure_at is not None
+            and (self._clock() - self._first_failure_at) >= self._window_s
+        ):
+            return True
+        return False
+
+    def _open_error(self) -> BackendUnavailable:
+        mins = self._window_s / 60.0
+        return BackendUnavailable(
+            f"circuit open: Dartmouth endpoint persistently unavailable after "
+            f"{self._consecutive_failures} consecutive failures / {mins:.0f} min"
+        )
+
+    def call(self, fn: Callable[[], _T]) -> _T:
+        """Run ``fn()`` unless the breaker is OPEN (then raise immediately).
+
+        Records a full failure on :class:`TransientBackendError`; resets on
+        success. Other exceptions (PermanentBackendError, programming bugs)
+        pass through unchanged and do NOT advance the breaker.
+        """
+        if self._is_open():
+            raise self._open_error()
+        try:
+            result = fn()
+        except TransientBackendError:
+            self._record_failure()
+            raise
+        # PermanentBackendError / unrelated exceptions: not an outage signal —
+        # propagate without touching breaker state.
+        self._reset()
+        return result
+
+    def _record_failure(self) -> None:
+        if self._first_failure_at is None:
+            self._first_failure_at = self._clock()
+        self._consecutive_failures += 1
+
+    def _reset(self) -> None:
+        self._consecutive_failures = 0
+        self._first_failure_at = None
 
 _log = logging.getLogger(__name__)
 _T = TypeVar("_T")
@@ -311,6 +453,10 @@ class DartmouthBackend(BaseBackend):
             if retry_base_delay_s is None
             else retry_base_delay_s
         )
+        # Per-instance circuit breaker: aborts FAST on a SUSTAINED outage so a
+        # dead endpoint can't drive a multi-hour retry thrash. No-op in normal
+        # operation (single transient + success never trips). See _CircuitBreaker.
+        self._breaker = _CircuitBreaker()
 
     def _client(self, model: str):  # type: ignore[no-untyped-def]
         try:
@@ -337,7 +483,8 @@ class DartmouthBackend(BaseBackend):
                 "ignore", message=r".*Parameters \{'timeout'\}.*"
             )
             return ChatDartmouth(
-                model_name=model, model_kwargs={"timeout": 180}
+                model_name=model,
+                model_kwargs={"timeout": _deadline_for_model(model)},
             )
 
     def list_models(self) -> list[str]:
@@ -404,12 +551,15 @@ class DartmouthBackend(BaseBackend):
             # nominal `timeout` model_kwarg is forwarded as a chat-completion
             # body param, NOT as an HTTP/socket timeout, so a sick connection
             # can block indefinitely (observed in CI as a ~54-min hang). Run
-            # the call on a daemon thread and abandon it past 180s so the
-            # router falls through to a peer model. See invoke_with_deadline's
-            # docstring for why ThreadPoolExecutor would re-create the hang.
+            # the call on a daemon thread and abandon it past the deadline so
+            # the router falls through to a peer model. The deadline is
+            # reasoning-aware (longer for qwen3.5/gpt-oss, which reason before
+            # answering) and matches the client's model_kwargs['timeout']. See
+            # invoke_with_deadline's docstring for why ThreadPoolExecutor would
+            # re-create the hang.
             return invoke_with_deadline(
                 lambda: client.invoke(msg_objs, **call_kwargs),
-                timeout=180.0,
+                timeout=_deadline_for_model(model),
                 description=f"Dartmouth model {model!r}",
             )
 
@@ -483,11 +633,19 @@ class DartmouthBackend(BaseBackend):
         # Centralized retry — absorbs brief transient failures (Dartmouth
         # maintenance windows, vLLM cluster flickers, 5xx). Permanent
         # errors propagate immediately. See ``_retry_with_backoff``.
-        return _retry_with_backoff(
-            _do_one_attempt,
-            max_retries=self._max_retries,
-            base_delay_s=self._retry_base_delay_s,
-            description=f"Dartmouth {model!r}",
+        #
+        # The retry is wrapped by the per-instance circuit breaker: if the
+        # breaker is already OPEN (sustained outage) it raises BackendUnavailable
+        # here WITHOUT burning the retry budget; otherwise a fully-exhausted
+        # retry (final TransientBackendError) counts toward tripping it, and any
+        # success resets it. See ``_CircuitBreaker``.
+        return self._breaker.call(
+            lambda: _retry_with_backoff(
+                _do_one_attempt,
+                max_retries=self._max_retries,
+                base_delay_s=self._retry_base_delay_s,
+                description=f"Dartmouth {model!r}",
+            )
         )
 
     def healthcheck(self) -> bool:
@@ -500,6 +658,7 @@ class DartmouthBackend(BaseBackend):
 
 __all__ = [
     "KNOWN_FREE_MODELS",
+    "BackendUnavailable",
     "DartmouthBackend",
     "free_chat_models",
     "is_free_model",

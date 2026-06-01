@@ -148,9 +148,10 @@ def _parse_self_consistency_reply(text: str) -> SelfConsistencyResult:
 # OpenAI-shaped 512-token default is fully consumed by reasoning → empty content
 # + finish_reason=length → TransientBackendError. Reviser/self-consistency calls
 # go straight to ``backend.chat`` (not the router), so they must pass an adequate
-# budget themselves. 131072 matches ``chat_with_fallback``'s default and leaves
-# ample input room within qwen's 256K context.
-_REASONING_MAX_TOKENS = 131_072
+# budget themselves. 32_768 is reasoning-safe but BOUNDED (~3x the ~9.7K measured
+# for a full-spec call); 128K invited the model to reason past the wall-clock
+# deadline (→ hang/thrash).
+_REASONING_MAX_TOKENS = 32_768
 
 
 def _chat_reasoning_safe(
