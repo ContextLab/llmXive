@@ -1,11 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-01T05:15:22.897491+00:00'
-last_outcome: committed
+last_used: ada-lovelace
+last_used_at: '2026-06-01T07:16:18.121832+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-05-23T19:28:25.268531+00:00'
-  ended_at: '2026-05-23T19:55:08.190246+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-05-23T19:55:08.190246+00:00'
   ended_at: '2026-05-23T20:17:59.543362+00:00'
@@ -1206,3 +1202,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/stephen-wolfram-simulated__2026-06-01__paper.md
+- slug: ada-lovelace
+  started_at: '2026-06-01T05:15:22.897491+00:00'
+  ended_at: '2026-06-01T07:16:18.121832+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
