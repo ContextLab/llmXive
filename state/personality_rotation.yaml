@@ -1,11 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-01T15:37:17.099116+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-06-01T19:50:11.687729+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: richard-feynman
-  started_at: '2026-05-23T21:49:20.272223+00:00'
-  ended_at: '2026-05-23T22:17:51.918205+00:00'
-  outcome: model_error
 - slug: richard-feynman
   started_at: '2026-05-23T22:17:51.918205+00:00'
   ended_at: '2026-05-23T22:48:08.325889+00:00'
@@ -1205,5 +1201,10 @@ history:
 - slug: albert-einstein
   started_at: '2026-06-01T13:24:32.199944+00:00'
   ended_at: '2026-06-01T15:37:17.099116+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-01T15:37:17.099116+00:00'
+  ended_at: '2026-06-01T19:50:11.687729+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
