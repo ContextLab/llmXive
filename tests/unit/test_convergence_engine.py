@@ -121,6 +121,41 @@ def test_stale_verdict_never_counts_as_pass():
     assert res.converged is False and res.kickback is not None
 
 
+class _MissingResponseReviser:
+    """A reviser that always pads ``<missing>`` — the shape produced when the
+    reviser call fails or its output parses to zero artifacts."""
+
+    def __init__(self):
+        self.calls = 0
+
+    def revise(self, artifacts, concerns):
+        self.calls += 1
+        return dict(artifacts), [
+            ConcernResponse(
+                concern_id=c.id,
+                response="<missing>",
+                what_changed="reviser produced no response for this concern",
+            )
+            for c in concerns
+        ]
+
+
+def test_missing_reviser_response_never_counts_as_pass():
+    """FR-018 honesty: a concern the reviser left UNADDRESSED (a padded
+    ``<missing>`` response) must stay open even if a lenient re-reviewer marks it
+    ``pass`` — otherwise an unaddressed concern is masked as convergence. This is
+    the exact PROJ-552 plan-stage failure (26 ``<missing>`` responses re-reviewed
+    as ``pass`` → false convergence → kickback)."""
+    # The reviewer WOULD pass c1 on the first re-review (pass_at default = 1), but
+    # the reviser never actually addresses it.
+    rev = FakeReviewer(r1=[_c("c1", sev=Severity.METHODOLOGY)])
+    reviser = _MissingResponseReviser()
+    res = run_convergence(_spec([rev], reviser), {"a.md": "x"})
+    assert res.converged is False          # NOT masked as a pass
+    assert res.kickback is not None
+    assert res.rounds_used == 3            # stayed open through the cap
+
+
 def test_self_review_flag_never_counts_as_pass():
     rev = FakeReviewer(r1=[_c("c1")], selfreview={"c1"})
     res = run_convergence(_spec([rev], FakeReviser()), {"a.md": "x"})

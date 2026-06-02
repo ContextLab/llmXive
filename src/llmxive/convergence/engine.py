@@ -383,13 +383,23 @@ def run_convergence(
         # shared mutable closure state across threads.
         verdict_lists = _map_indices(len(rereviewers), _rereview_one)
 
+        # FR-018 honesty: a concern the reviser left UNADDRESSED — a padded
+        # ``"<missing>"`` response (the reviser call failed, or its output parsed
+        # to zero artifacts) — is NOT resolved, no matter what a lenient
+        # re-reviewer LLM says. Force it open deterministically so an unaddressed
+        # concern can never be marked a pass → false convergence. (This is the
+        # masking that hid the PROJ-552 plan-stage reviser failure: 26 padded
+        # ``<missing>`` responses were re-reviewed as ``pass``.)
+        unaddressed = {
+            resp.concern_id for resp in responses if resp.response == "<missing>"
+        }
         for own, verdicts in zip(own_by_reviewer, verdict_lists, strict=True):
             round_verdicts.extend(verdicts)
             judged = {v.concern_id: v for v in verdicts}
             for c in own:
                 v = judged.get(c.id)
-                if v is None or not _resolved(v):
-                    next_open.append(c)  # unresolved (failed, stale, self-review, or unjudged)
+                if c.id in unaddressed or v is None or not _resolved(v):
+                    next_open.append(c)  # unresolved (unaddressed, failed, stale, self-review, or unjudged)
             for v in verdicts:
                 next_open.extend(v.new_concerns)
         verdict_history.extend(round_verdicts)
