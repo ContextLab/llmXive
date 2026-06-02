@@ -15,9 +15,11 @@ from dataclasses import dataclass, field
 import pytest
 
 from llmxive.backends.base import (
+    BackendError,
     BackendUnavailable,
     ChatMessage,
     ChatResponse,
+    DeadlineExceededError,
     PermanentBackendError,
     TransientBackendError,
 )
@@ -40,6 +42,7 @@ class _RecordingBackend:
 
     name = "dartmouth"
     transient_models: set[str] = field(default_factory=set)
+    deadline_models: set[str] = field(default_factory=set)
     permanent_models: set[str] = field(default_factory=set)
     unavailable_models: set[str] = field(default_factory=set)
     calls: list[dict] = field(default_factory=list)  # type: ignore[type-arg]
@@ -50,6 +53,10 @@ class _RecordingBackend:
         )
         if model in self.unavailable_models:
             raise BackendUnavailable(f"circuit open on {model}")
+        if model in self.deadline_models:
+            raise DeadlineExceededError(
+                f"{model} hung past 360s deadline (no response received)"
+            )
         if model in self.transient_models:
             raise TransientBackendError(f"synthetic transient on {model}")
         if model in self.permanent_models:
@@ -86,6 +93,42 @@ def test_primary_transient_walks_to_first_peer():
     ]
     # Reasoning-safe budget carried to the PEER too.
     assert backend.calls[-1]["max_tokens"] == 32_768
+
+
+def test_primary_deadline_hang_falls_to_peer_after_one_attempt():
+    """A full-deadline hang on the primary is a model-down signal: the walk must
+    SKIP the remaining same-model attempts (each retry would cost another full
+    deadline on a hung model) and fall straight to the first healthy peer."""
+    backend = _RecordingBackend(deadline_models={"qwen.qwen3.5-122b"})
+    resp = chat_with_model_fallback(
+        backend, _MSGS, model="qwen.qwen3.5-122b", max_tokens=32_768
+    )
+    assert resp.text == "OK from openai.gpt-oss-120b"
+    models = [c["model"] for c in backend.calls]
+    # ONE primary attempt (not 3), then the first peer.
+    assert models == ["qwen.qwen3.5-122b", "openai.gpt-oss-120b"]
+
+
+def test_all_models_deadline_hang_one_attempt_each_then_error():
+    """When every model hangs past its deadline, each is tried exactly ONCE (no
+    3x burn on the hung primary), then the exhausted chain raises BackendError."""
+    backend = _RecordingBackend(
+        deadline_models={
+            "qwen.qwen3.5-122b",
+            "openai.gpt-oss-120b",
+            "google.gemma-4-31B-it",
+        }
+    )
+    with pytest.raises(BackendError):
+        chat_with_model_fallback(
+            backend, _MSGS, model="qwen.qwen3.5-122b", max_tokens=32_768
+        )
+    models = [c["model"] for c in backend.calls]
+    assert models == [
+        "qwen.qwen3.5-122b",
+        "openai.gpt-oss-120b",
+        "google.gemma-4-31B-it",
+    ]
 
 
 def test_reasoning_budget_exhausted_skips_remaining_primary_retries():

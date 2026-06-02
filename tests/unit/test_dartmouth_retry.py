@@ -12,6 +12,7 @@ from __future__ import annotations
 import pytest
 
 from llmxive.backends.base import (
+    DeadlineExceededError,
     PermanentBackendError,
     TransientBackendError,
 )
@@ -81,6 +82,30 @@ def test_retry_surfaces_final_transient_after_exhausting_attempts(monkeypatch):
         )
     # 1 initial + 3 retries = 4 attempts.
     assert len(attempts) == 4
+
+
+def test_retry_does_not_retry_deadline_hang(monkeypatch):
+    """A DeadlineExceededError (the model hung past its FULL deadline) is NOT
+    inner-retried — retrying the same hung model costs another full deadline and
+    almost never succeeds. It propagates after ONE attempt so the model-fallback
+    chain can escape to a healthy peer. Fast-flap transients keep their generous
+    retries (see test_retry_absorbs_brief_flicker / the 5-min outage test)."""
+    sleeps: list[float] = []
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps.append(s),
+    )
+    attempts = []
+
+    def fn():
+        attempts.append(1)
+        raise DeadlineExceededError(
+            "qwen hung past 360s deadline (no response received)"
+        )
+
+    with pytest.raises(DeadlineExceededError):
+        _retry_with_backoff(fn, max_retries=8, base_delay_s=1.0)
+    assert len(attempts) == 1  # NO inner retry on a deadline hang
+    assert sleeps == []        # and no backoff sleep
 
 
 def test_retry_does_not_retry_permanent_errors(monkeypatch):

@@ -40,6 +40,20 @@ class TransientBackendError(BackendError):
     """A failure the router should fall back from (rate limit, 5xx, timeout)."""
 
 
+class DeadlineExceededError(TransientBackendError):
+    """A model did NOT respond within its full per-request wall-clock deadline.
+
+    Distinct from a fast-flap transient (302/connection-reset/5xx, which fails in
+    well under a second and is worth retrying generously). A full-deadline hang
+    means the model is hung/down, not flickering — each retry on the SAME model
+    costs ANOTHER full deadline (e.g. 360s for a reasoning model). So retry layers
+    must NOT burn the generous fast-flap retry budget on it; they should fail fast
+    and let the model-fallback chain escape to a healthy peer. Subclasses
+    TransientBackendError so existing transient handling (router fallback, the
+    panel's transient-no-escalation path) still treats it as recoverable.
+    """
+
+
 class PermanentBackendError(BackendError):
     """A failure that should not trigger fallback (auth, bad request)."""
 
@@ -101,7 +115,7 @@ def invoke_with_deadline(
     worker.start()
     worker.join(timeout)
     if worker.is_alive():
-        raise TransientBackendError(
+        raise DeadlineExceededError(
             f"{description} hung past {timeout:.0f}s deadline (no response received)"
         )
     if error:
@@ -141,6 +155,7 @@ __all__ = [
     "BaseBackend",
     "ChatMessage",
     "ChatResponse",
+    "DeadlineExceededError",
     "PermanentBackendError",
     "TransientBackendError",
     "invoke_with_deadline",

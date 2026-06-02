@@ -15,6 +15,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
+    DeadlineExceededError,
     PermanentBackendError,
     TransientBackendError,
 )
@@ -165,6 +166,13 @@ def chat_with_model_fallback(
                 # BackendUnavailable), preserving the breaker's anti-thrash role.
                 saw_unavailable = True
                 errors.append(f"{m}(unavailable): {exc}")
+                break
+            except DeadlineExceededError as exc:
+                # The model hung past its FULL deadline — it is down, not
+                # flickering. Retrying the SAME model burns another full deadline
+                # and almost never succeeds; skip the remaining same-model
+                # attempts and fall straight to the next peer.
+                errors.append(f"{m}(deadline attempt {attempt + 1}): {exc}")
                 break
             except TransientBackendError as exc:
                 errors.append(f"{m}(transient attempt {attempt + 1}): {exc}")

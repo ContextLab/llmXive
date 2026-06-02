@@ -19,6 +19,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
+    DeadlineExceededError,
     PermanentBackendError,
     TransientBackendError,
     invoke_with_deadline,
@@ -261,6 +262,14 @@ def _retry_with_backoff(
             return fn()
         except TransientBackendError as exc:
             last_exc = exc
+            # A full-deadline hang means the model is down, not flickering:
+            # retrying it on the SAME model costs ANOTHER full deadline (e.g.
+            # 360s for a reasoning model) and almost never succeeds. Fail fast
+            # (no inner retry) so the model-fallback chain escapes to a healthy
+            # peer quickly. Fast-flap transients (302/reset/5xx) are NOT
+            # DeadlineExceededError and keep the generous retry budget below.
+            if isinstance(exc, DeadlineExceededError):
+                break
             if attempt >= max_retries:
                 break
             computed = min(
