@@ -1,11 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-02T08:58:07.508207+00:00'
-last_outcome: target_missing
+last_used: rosalind-franklin
+last_used_at: '2026-06-02T10:37:09.421092+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-05-24T09:39:49.898278+00:00'
-  ended_at: '2026-05-24T10:33:32.368862+00:00'
-  outcome: model_error
 - slug: alan-turing
   started_at: '2026-05-24T10:33:32.368862+00:00'
   ended_at: '2026-05-24T11:31:15.027592+00:00'
@@ -1209,3 +1205,10 @@ history:
   ended_at: '2026-06-02T08:58:07.508207+00:00'
   outcome: target_missing
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-02T08:58:07.508207+00:00'
+  ended_at: '2026-06-02T10:37:09.421092+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-06-02__paper.md
