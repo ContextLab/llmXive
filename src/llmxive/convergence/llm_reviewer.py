@@ -465,6 +465,23 @@ def _parse_response(
             f"LLMReviewer[{lens}]: frontmatter must be a YAML mapping; "
             f"got {type(meta).__name__}"
         )
+    # False-convergence guard (spec-015 honesty; same "absence of evidence MUST
+    # NOT pass" family as the reviser `<missing>` guard `a3e9d824` and the
+    # spec-019 fill gate). A contentless or truncated review — frontmatter with
+    # NEITHER a `verdict:` NOR a `concerns:`/`action_items:` key — carries no
+    # evidence that a review actually happened (e.g. `---\n---`, or the model
+    # hung after emitting only `notes:`). Defaulting such a review to `accept`
+    # with zero concerns silently rubber-stamps it as a clean pass. A GENUINE
+    # clean accept always states `verdict:` (spec-015 SSoT) or an explicit
+    # `action_items:`/`concerns:` (legacy panels). Raise so the engine treats it
+    # as non-convergence (retry) rather than false convergence.
+    if not ({"verdict", "concerns", "action_items"} & set(meta)):
+        raise RuntimeError(
+            f"LLMReviewer[{lens}]: review frontmatter has neither `verdict:` nor "
+            f"`concerns:`/`action_items:` — a contentless/truncated review MUST "
+            f"NOT count as acceptance (false-convergence guard). First 200 chars: "
+            f"{response_text[:200]!r}"
+        )
     verdict = str(meta.get("verdict", "")).strip().lower() or "accept"
     # Spec-015 SSoT schema uses ``concerns:``; the legacy 12-panel +
     # 8-panel prompts (paper_reviewer_*.md / research_reviewer_*.md)

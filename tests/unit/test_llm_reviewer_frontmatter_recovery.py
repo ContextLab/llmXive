@@ -150,3 +150,69 @@ class TestParseResponseRecovery:
         assert verdict == "reject"
         assert len(concerns) == 1
         assert "27635" in concerns[0].text
+
+
+class TestContentlessReviewGuard:
+    """False-convergence guard: a review whose frontmatter has NEITHER a
+    `verdict:` NOR a `concerns:`/`action_items:` key carries no evidence a review
+    happened, so it MUST NOT be silently defaulted to a clean `accept` with zero
+    concerns (the same "absence of evidence MUST NOT pass" principle as the
+    reviser `<missing>` guard and the spec-019 fill gate). Before this guard a
+    truncated/empty reviewer response masked as convergence."""
+
+    def test_empty_frontmatter_raises(self):
+        with pytest.raises(RuntimeError, match="false-convergence guard"):
+            _parse_response(
+                "---\n---\n", lens="scope", stage="clarified",
+                default_artifact="x.md",
+            )
+
+    def test_contentless_frontmatter_raises(self):
+        """Model hung after emitting only an unrelated key — no verdict, no
+        concerns. Previously returned ('accept', []) → silent convergence."""
+        with pytest.raises(RuntimeError, match="false-convergence guard"):
+            _parse_response(
+                "---\nnotes: the model stopped here\n---\n",
+                lens="scope", stage="clarified", default_artifact="x.md",
+            )
+
+    def test_explicit_verdict_only_is_legit_accept(self):
+        """A genuine clean accept states `verdict:` explicitly — NOT rejected."""
+        verdict, concerns = _parse_response(
+            "---\nverdict: accept\n---\n", lens="x", stage="clarified",
+            default_artifact="x.md",
+        )
+        assert verdict == "accept"
+        assert concerns == []
+
+    def test_explicit_empty_concerns_is_legit_accept(self):
+        verdict, concerns = _parse_response(
+            "---\nverdict: accept\nconcerns: []\n---\n", lens="x",
+            stage="clarified", default_artifact="x.md",
+        )
+        assert verdict == "accept"
+        assert concerns == []
+
+    def test_legacy_explicit_empty_action_items_is_legit_accept(self):
+        """Legacy paper/research panels signal 'clean' via an explicit
+        `action_items: []` (no `verdict:` key) — that is affirmative, NOT
+        contentless, so it MUST still parse as a clean accept."""
+        verdict, concerns = _parse_response(
+            "---\naction_items: []\n---\n", lens="x", stage="clarified",
+            default_artifact="x.md",
+        )
+        assert verdict == "accept"
+        assert concerns == []
+
+    def test_concerns_without_verdict_still_parses(self):
+        """A review that raises concerns but omits `verdict:` is not contentless
+        (it has evidence) — the concerns must be processed."""
+        resp = (
+            "---\nconcerns:\n  - severity: science\n"
+            "    text: the data source is unverified\n---\n"
+        )
+        _verdict, concerns = _parse_response(
+            resp, lens="x", stage="clarified", default_artifact="x.md",
+        )
+        assert len(concerns) == 1
+        assert "unverified" in concerns[0].text

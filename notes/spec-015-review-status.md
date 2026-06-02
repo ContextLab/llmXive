@@ -34,7 +34,7 @@ _Last updated: 2026-06-02 (session 5 — ⭐⭐ **STATUS REFRESH** section immed
 - **Stack health:** `LLMXIVE_CLAIM_LAYER`/`CLAIM_FILL`/`GROUNDING_GUARD` all default ON in `cli.py`; ruff clean; mypy clean (205 files); HEAD `d8a26890`.
 
 ### ⚠ STILL OPEN (verified) — ranked
-1. **⭐ REVIEWER missing-verdict → "accept" (`convergence/llm_reviewer.py:468`):** `verdict = str(meta.get("verdict","")).strip().lower() or "accept"`. A truncated reviewer response (no `verdict:` AND no `concerns:`) is silently treated as a clean ACCEPT → latent FALSE CONVERGENCE. Same "absence of evidence must not pass" family as `a3e9d824` / spec 019, but the REVIEWER layer (a3e9d824 fixed only the RESERVER layer). Flagged twice (session-2 L58 + here), never fixed. **TOP pressure-test target.**
+1. **⭐ REVIEWER missing-verdict → "accept" (`convergence/llm_reviewer.py`) — ✅ RESOLVED (session 5).** Was: `verdict = str(meta.get("verdict","")).strip().lower() or "accept"` defaulted a CONTENTLESS reviewer frontmatter (no `verdict:` AND no `concerns:`/`action_items:` — e.g. `---\n---`, or the model hung after only `notes:`) to a clean ACCEPT/0-concerns → latent FALSE CONVERGENCE. CONFIRMED exploitable via a live `_parse_response` probe. Fixed: a frontmatter lacking ALL of {`verdict`, `concerns`, `action_items`} now RAISES (engine → non-convergence/retry), while a genuine clean accept (explicit `verdict:` or explicit empty `concerns:`/`action_items:`) still parses. +6 regression tests (`test_llm_reviewer_frontmatter_recovery.py::TestContentlessReviewGuard`). This completes the "absence of evidence MUST NOT pass" honesty family alongside `a3e9d824` (reviser `<missing>`) and spec 019 (fill substantiation).
 2. **tasks/paper_tasks panels don't emit `convergence_kickback.yaml`** (run via `_tasker_engine_bridge`, not `run_stage_panel`) → a tasks-stage kickback won't adaptively route. Bites when PROJ-552 reaches the tasks stage (the stage AFTER plan).
 3. **dedup-by-(kind,number)** — PARTIAL: `canonical.subject_key` collapses agreeing dups; no explicit (kind,number) tuple collapse. Minor/harmless.
 4. **citation `)word` missing-space** — deliberately deferred ("too risky vs markdown"); `7116e7d0` did the `(DOI,DOI)` dedup only. Low-pri, pre-paper.
@@ -47,9 +47,9 @@ _Last updated: 2026-06-02 (session 5 — ⭐⭐ **STATUS REFRESH** section immed
 - **First plan run under the FIXED code = in-flight CI dispatch `26848737384`** (started 21:20Z, after the 17:19/17:27 fixes) → should CONVERGE (artifacts good) or legit-kick-back. It lacks spec 019 (merged after dispatch) but spec 019 affects fill/claim-resolution, not plan convergence. 2nd run `26850443428` queued.
 
 ### ▶▶ READY TO PRESSURE-TEST NEXT (recommended order)
-- **(1) Reviewer missing-verdict honesty gap (#1 above)** — fast, offline, high-value: a focused test that a truncated/verdict-less reviewer response does NOT silently converge; then fix `llm_reviewer.py:468` to treat absent-verdict-AND-absent-concerns as fail/stale, not accept. Closes the last known false-convergence masking path (completes the a3e9d824 + spec-019 honesty work).
-- **(2) Plan convergence under the fixed code** — fast LOCAL repro (minutes vs ~3h CI) on specs/004's plan + the plan-009 concerns: confirm the reviser now emits real responses and verdict-honesty correctly evaluates them; or watch dispatch 26848737384 land.
-- **(3) tasks-stage kickback wiring (#2 above)** — close BEFORE PROJ-552 reaches the tasks stage, else a tasks kickback won't route.
+- **(1) Reviewer missing-verdict honesty gap — ✅ DONE this session** (see STILL-OPEN #1, now resolved; fix + 6 tests). The last known false-convergence masking path is closed.
+- **(2) [NOW TOP] Plan convergence under the fixed code** — fast LOCAL repro (minutes vs ~3h CI) on specs/004's plan + the plan-009 concerns: confirm the reviser now emits real responses and verdict-honesty correctly evaluates them; or watch dispatch 26848737384 land. The artifacts are already good, so this should CONVERGE.
+- **(3) tasks-stage kickback wiring (STILL-OPEN #2)** — close BEFORE PROJ-552 reaches the tasks stage (the stage right after plan), else a tasks-panel kickback won't adaptively route.
 
 ---
 
