@@ -1,11 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-02T20:07:19.678204+00:00'
+last_used: david-krakauer
+last_used_at: '2026-06-02T21:33:21.749325+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: david-krakauer
-  started_at: '2026-05-24T14:31:56.317819+00:00'
-  ended_at: '2026-05-24T14:55:41.690308+00:00'
-  outcome: model_error
 - slug: david-krakauer
   started_at: '2026-05-24T14:55:41.690308+00:00'
   ended_at: '2026-05-24T15:25:24.811739+00:00'
@@ -1204,5 +1200,10 @@ history:
 - slug: daniel-kahneman
   started_at: '2026-06-02T18:46:52.650403+00:00'
   ended_at: '2026-06-02T20:07:19.678204+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-02T20:07:19.678204+00:00'
+  ended_at: '2026-06-02T21:33:21.749325+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
