@@ -4,6 +4,15 @@ choose(candidates) — given (FetchedSource, value) pairs from multiple channels
                      returns the highest-authority (lowest authority int) source's
                      value plus a conflicts list of lower-authority disagreements.
                      Never drops a conflict.  Deterministic by AUTHORITY rank.
+
+Spec-019 invariant (semantic substantiation): ``choose`` only ever receives
+candidates that already passed ``fill.extract._accept`` — i.e. literal presence
+AND, for PROSE channels, the subject-relevance + entailment gate. A
+relevance-failing PROSE candidate returns ``None`` from ``extract_value`` and so
+NEVER reaches this function; an all-fail set leaves ``candidates`` empty and the
+fill is blocked upstream in ``service.fill_claim``. The PROSE exclusion of
+spec-019 FR-008 is therefore satisfied at that single chokepoint — no gate is
+duplicated here (Constitution I: one trust boundary), and ``choose`` is unchanged.
 """
 
 from __future__ import annotations

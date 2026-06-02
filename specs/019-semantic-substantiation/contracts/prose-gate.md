@@ -100,8 +100,10 @@ def _accept(
 
 ```python
 # inserted after the existing kind guard, before cache/fetch:
-#   NUMERIC claim whose asserted value is a bound/percent  → blocked (no fetch)
+#   NUMERIC claim whose asserted value is an inequality (≤ ≥ < >) or percent (%)
+#                                                          → blocked (no fetch)
 #   NUMERIC claim asserting no numeric token (digit-less)  → blocked (no fetch)
+#   approximation markers (~ ≈) are NOT blocked — e.g. "π ≈ 3.14159" still fills
 ```
 
 **Contract**:

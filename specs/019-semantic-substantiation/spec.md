@@ -112,9 +112,11 @@ remain green with the new gate active.
 
 ### User Story 3 - Bound/inequality and digit-less claims are blocked before any fetch (Priority: P2)
 
-A bound/inequality claim (value preceded by ≤ ≥ < > ~ ≈ or a %) or a digit-less
-claim is not a fillable numeric fact. The fill entry point must refuse to
-numeric-fill it cheaply and deterministically, before any network fetch.
+An inequality-bound claim (value preceded by ≤ ≥ < >) or a percentage (value
+followed by %) or a digit-less claim is not a fillable point-valued numeric fact.
+The fill entry point must refuse to numeric-fill it cheaply and deterministically,
+before any network fetch. (Approximation markers ~ ≈ are NOT blocked — an
+approximate value is a fillable point value handled by the spec-018 path.)
 
 **Why this priority**: This is a cheap, deterministic pre-guard that eliminates
 an entire class of mis-fills (including the "≤6" class and "braid index ≤
@@ -188,10 +190,15 @@ source that asserts the correct one; confirm the wrong value is never grounded.
   index, Wikidata statement triple}; PROSE = {Wikipedia article text, paper
   full-text, theorem prose}. An unknown/unclassified channel MUST be treated as
   PROSE (fail-closed).
-- **FR-002**: The fill entry point MUST refuse to numeric-fill a bound/inequality
-  claim — a value preceded by `≤ ≥ < > ~ ≈` or a `%` — before any source fetch,
-  reusing the existing guards in `claims/canonical.py`
-  (`_is_bound_or_percent` / `_asserted_is_bound_or_percent` / `_BOUND_PREFIX`).
+- **FR-002**: The fill entry point MUST refuse to numeric-fill an
+  inequality-bound or percentage claim — a value preceded (ignoring sign and
+  whitespace) by one of `≤ ≥ < >`, or immediately followed by `%` — before any
+  source fetch. Approximation markers (`~ ≈`) are EXCLUDED from this block: an
+  approximate value such as `π ≈ 3.14159` is a fillable point value resolved via
+  the spec-018 approximate path, so it MUST still fill (SC-003). The block reuses
+  the `claims/canonical` value/number primitives via a focused
+  `_asserted_is_inequality_or_percent` predicate (`_INEQUALITY_PREFIX = "≤≥<>"`),
+  leaving the broader correction-time `_asserted_is_bound_or_percent` unchanged.
 - **FR-003**: The fill entry point MUST refuse to numeric-fill a digit-less
   claim (whose `raw_text` asserts no numeric token) before any source fetch.
 - **FR-004**: For STRUCTURED-channel candidates, the system MUST preserve the

@@ -99,7 +99,7 @@ class CanonicalFact:
 # ---------------------------------------------------------------------------
 
 
-def _subject_keywords(claim: Claim) -> list[str]:
+def subject_keywords(claim: Claim) -> list[str]:
     """Sorted, rephrase-independent subject keywords (no digits).
 
     Uses the citation-stripped subject prose (:func:`_subject_text`) and the
@@ -166,7 +166,7 @@ def subject_key(claim: Claim) -> str:
         if ad:
             exclude.add(ad)
 
-    keywords = _subject_keywords(claim)
+    keywords = subject_keywords(claim)
     if not keywords:
         # No distinctive subject → never a canonical fact (avoids matching a
         # bare number or an empty-subject claim against anything).
@@ -597,6 +597,38 @@ def _asserted_is_bound_or_percent(chunk: str, asserted: str) -> bool:
     return occurrences > 0
 
 
+# The fill pre-guard (spec 019) blocks a NUMERIC claim asserting an INEQUALITY
+# bound (≤ ≥ < >) or a PERCENTAGE — neither is a point-valued fact. Approximation
+# markers (~ ≈) are DELIBERATELY excluded here: an approximate value such as
+# "π ≈ 3.14159" is a fillable point value resolved via the spec-018 approximate
+# path, NOT a bound. (For canonical correction the broader ``_BOUND_PREFIX`` keeps
+# treating ~ ≈ values as non-overwritable; that is a different concern.)
+_INEQUALITY_PREFIX = "≤≥<>"
+
+
+def _asserted_is_inequality_or_percent(chunk: str, asserted: str) -> bool:
+    """True when EVERY occurrence of the asserted numeric token in ``chunk`` is an
+    inequality bound (preceded — ignoring a sign and any whitespace — by one of
+    ``≤ ≥ < >``) or a percentage (immediately followed by ``%``). Approximation
+    markers (~ ≈) do NOT count. PURE."""
+    digits = _digits_only(asserted)
+    if not digits:
+        return False
+    occurrences = 0
+    for m in _NUMBER_IN_TEXT_RE.finditer(chunk):
+        tok = m.group(0).rstrip()
+        if _digits_only(tok) != digits:
+            continue
+        occurrences += 1
+        before = chunk[: m.start()].rstrip("+- \t")
+        after = chunk[m.start() + len(tok):]
+        is_inequality = bool(before) and before[-1] in _INEQUALITY_PREFIX
+        is_percent = after[:1] == "%"
+        if not (is_inequality or is_percent):
+            return False  # a plain point value occurrence → do not block
+    return occurrences > 0
+
+
 # A clause boundary that terminates a number's LOCAL window. Forward: any of
 # ``) , ; :`` or a sentence period, a newline, or a coordinating conjunction
 # (` and `/` while `/` whereas `) — the noun phrase the number quantifies cannot
@@ -780,4 +812,5 @@ __all__ = [
     "apply_canonical_corrections",
     "build_canonical_facts",
     "subject_key",
+    "subject_keywords",
 ]
