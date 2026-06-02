@@ -270,8 +270,10 @@ def build_canonical_facts(claims: list[Claim]) -> dict[str, CanonicalFact]:
     Only VERIFIED claims with a ``resolved_value`` AND a fetched source
     contribute. Claims whose ``subject_key`` is "" are skipped, as are
     SEQUENCE/LIST claims (:func:`_is_sequence_like`) whose subject enumerates more
-    than ``_MAX_SUBJECT_NUMBERS`` numbers (they are not a single subject→value
-    fact). When the same subject_key recurs, the candidates should agree (all
+    than ``_MAX_SUBJECT_NUMBERS`` numbers, and DIGIT-LESS claims (whose own text
+    asserts no numeric value, so a ``resolved_value`` was fabricated by the fill)
+    — neither is a single subject→value fact. When the same subject_key recurs,
+    the candidates should agree (all
     verified to the same value); if they DON'T, the first sourced/verified value is
     kept and the conflicting one is ignored — a verified value is NEVER fabricated
     or blended.
@@ -290,6 +292,15 @@ def build_canonical_facts(claims: list[Claim]) -> dict[str, CanonicalFact]:
             continue
         if _is_sequence_like(claim):
             # Sequence/list claim (many enumerated numbers) → not a single fact.
+            continue
+        if _asserted_value(claim.raw_text or claim.canonical or "") is None:
+            # The claim text asserts NO numeric value, so a ``resolved_value`` was
+            # fabricated by the fill (e.g. the qualitative inequality "braid index
+            # ≤ crossing number for most knots" given a spurious "2" cited to an
+            # unrelated source). A numeric fact MUST assert a number in its own
+            # text; never promote a value the claim never stated. (The correction
+            # case is unaffected: "27,635 …" DOES assert a number — 27,635 — that
+            # is corrected to the verified 9,988.)
             continue
         source_id, url, quote = source
         candidate = CanonicalFact(

@@ -249,6 +249,28 @@ class TestBuildCanonicalFacts:
         assert _is_sequence_like(seq)
         assert build_canonical_facts([seq]) == {}
 
+    def test_skips_digitless_inequality_claim_with_fabricated_value(self) -> None:
+        """A qualitative inequality with NO numeric value in its own text must not
+        become a fact even if the fill assigned a (fabricated) resolved_value.
+
+        Real PROJ-552 garbage: "braid index ≤ crossing number for most knots per
+        known inequality" was filled to resolved_value "2" cited to an unrelated
+        source (an email address). A numeric fact must assert a number itself."""
+        bad = _verified_knot_claim(
+            "braid index ≤ crossing number for most knots per known inequality",
+            resolved_value="2",
+            claim_id="c_ineq",
+        )
+        assert build_canonical_facts([bad]) == {}
+
+    def test_correction_claim_still_built_value_differs_from_asserted(self) -> None:
+        """The guard must NOT skip the correction case: the raw_text asserts a
+        number (27,635) even though the verified value (9988) differs."""
+        ok = _verified_knot_claim(_FAB_13, resolved_value="9988", claim_id="c_corr")
+        facts = build_canonical_facts([ok])
+        assert len(facts) == 1
+        assert next(iter(facts.values())).value == "9988"
+
     def test_clean_single_subject_fact_survives_alongside_list(self) -> None:
         """The list claim is skipped but a properly-scoped 9988 claim still yields
         the clean fact."""
