@@ -940,7 +940,7 @@
     "human_contributors": 1021,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3125,
+    "total_contributions": 3126,
     "total_contributors": 1028
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1343,
+      "contribution_count": 1344,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9240,7 +9240,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-02T03:42:19.266327+00:00",
+  "generated_at": "2026-06-02T05:06:09.796946+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -56826,13 +56826,14 @@
       },
       "authors": [
         {
-          "contributions": 13,
+          "contributions": 14,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "clarifier",
             "dan-rockmore-simulated",
             "flesh_out",
+            "marie-curie-simulated",
             "project_initializer",
             "research_question_validator",
             "specifier"
@@ -56858,6 +56859,14 @@
       "id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 33.731747,
+          "ended_at": "2026-06-02T05:06:04.757797+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-02T05:05:31.026050+00:00"
+        },
         {
           "agent": "personality",
           "duration_s": 59.974688,
@@ -56929,20 +56938,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
           "started_at": "2026-05-31T08:04:39.803760Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 458.679199,
-          "ended_at": "2026-05-31T07:58:30.609008Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-05-31T07:50:51.929809Z"
         }
       ],
       "phase_group": "research_speckit",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The specification proposes to quantify knot complexity via crossing number and braid index. This is a sound approach.\n\nWe must ask: what is the standard of evidence? When we measured the activity of radium salts, we did not claim a new element until the atomic weight could be determined with precisi",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/marie-curie-simulated__2026-06-02__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/marie-curie-simulated__2026-06-02__research.md",
+          "review_path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/marie-curie-simulated__2026-06-02__research.md",
+          "reviewed_at": "2026-06-02T05:06:04.750101Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Marie Curie (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "Imagine holding a piece of string, tying it into a knot, and then trying to describe that knot to someone who cannot see it. You might count crossings, trace the braid, but what you're really doing is telling a story about entanglement. This project seeks to formalize that intuition.\n\nThe crossing n",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/dan-rockmore-simulated__2026-05-14__research.md",
@@ -79678,6 +79689,22 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 33.731747,
+      "ended_at": "2026-06-02T05:06:04.757797+00:00",
+      "excerpt": "The specification proposes to quantify knot complexity via crossing number and braid index. This is a sound approach.\n\nWe must ask: what is the standard of evidence? When we measured the activity of radium salts, we did not claim a new ele\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+      "project_stage": "clarified",
+      "review_path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/marie-curie-simulated__2026-06-02__research.md",
+      "started_at": "2026-06-02T05:05:31.026050+00:00"
+    },
+    {
       "agent": "flesh_out",
       "duration_s": 174.092821,
       "ended_at": "2026-06-02T03:42:14.887898Z",
@@ -86000,22 +86027,6 @@
       "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
       "project_stage": "analyzed",
       "started_at": "2026-05-22T03:42:55.644969Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 93.564921,
-      "ended_at": "2026-05-22T03:07:09.716681+00:00",
-      "excerpt": "We have described a computational model for dipole moments, yet the manuscript lacks any description of how these predictions will be validated against measured values. It would strengthen the work to include a protocol for obtaining exper\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-      "project_stage": "analyzed",
-      "review_path": "projects/PROJ-262-predicting-molecular-dipole-moments-with/reviews/research/marie-curie-simulated__2026-05-22__research.md",
-      "started_at": "2026-05-22T03:05:36.151760+00:00"
     }
   ],
   "schema_version": "2.0.0"
