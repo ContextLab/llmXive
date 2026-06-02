@@ -1,37 +1,39 @@
 # Implementation Plan: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-06-02 | **Spec**: `specs/001-knot-complexity-analysis/spec.md`
-**Input**: Feature specification from `/specs/001-knot-complexity-analysis/spec.md`
+**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-31 | **Spec**: `specs/001-knot-complexity-analysis/spec.md`
+**Input**: Feature specification from `specs/001-knot-complexity-analysis/spec.md`
 
 ## Summary
 
-This project quantifies the complexity of prime knots by analyzing the joint predictive relationship between crossing number and braid index for hyperbolic volume. Phase 1 focuses on the alternating/non-alternating dichotomy with validated completeness for crossing number ≤10 (data collected for ≤13). The technical approach involves downloading knot data from Knot Atlas, computing additional invariants (arc index, Seifert circle count, bridge number), fitting multiple regression models, and constructing a composite complexity score with extensive reproducibility documentation.
+This project quantifies the relationship between crossing number and braid index in predicting hyperbolic volume for prime knots, with systematic comparison between alternating and non-alternating classes. Phase 1 focuses on the alternating/non-alternating dichotomy with validated completeness for crossing numbers ≤10, while data collection extends to crossing number ≤13 (9,988 prime knots at crossing number 13 per OEIS A002863). The approach combines data extraction from Knot Atlas, computational invariant determination, exploratory analysis, and regression modeling with reproducibility requirements.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: pandas, scikit-learn, matplotlib, seaborn, requests, pyyaml, datasets (HuggingFace)
-**Storage**: Local filesystem (data/, docs/, code/)
-**Testing**: pytest with contract tests
-**Target Platform**: Linux server (GitHub Actions runner)
-**Project Type**: computational research / data analysis pipeline
-**Performance Goals**: Complete analysis of ≤13 crossing number knots (9,988 at c=13) within 2 hours
-**Constraints**: Retry logic for API failures (exponential backoff 1s→60s), ≥95% data completeness, ≥95% algorithm validation match threshold
-**Scale/Scope**: ~10,000 prime knots, 3 regression models, 3 additional invariants computed, extensive reproducibility documentation
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: pandas==2.2.2, numpy==1.26.4, scipy==1.13.1, matplotlib==3.9.0, seaborn==0.13.2, pyyaml==6.0.1, requests==2.32.3, retry==0.9.2, datasets==2.20.0  
+**Storage**: Local filesystem (data/, docs/reproducibility/)  
+**Testing**: pytest==8.2.2, pytest-cov==5.0.0  
+**Target Platform**: Linux server (GitHub Actions runner)  
+**Project Type**: computational research / data analysis  
+**Performance Goals**: Complete data download and processing within 4 hours for ≤13 crossing number dataset  
+**Constraints**: Must handle Knot Atlas API unavailability with exponential backoff; must flag rather than silently exclude records with missing invariants  
+**Scale/Scope**: ~10,000 prime knots (crossing number ≤13), 5+ invariants per knot, 3+ regression models
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Action |
-|-----------|--------|----------------------|
-| I. Reproducibility (NON-NEGOTIABLE) | ✅ PASS | Random seeds pinned in code (FR-009); external datasets fetched from canonical source; `requirements.txt` at `code/`; end-to-end runnable notebooks/scripts |
-| II. Verified Accuracy | ✅ PASS | All external citations verified against primary sources before contributing review points; title-token-overlap ≥0.7 threshold enforced by Reference-Validator Agent |
-| III. Data Hygiene | ✅ PASS | All files under `data/` checksummed (SHA-256); raw data preserved unchanged; transformations produce new files with documented derivation; PII scan enforced |
-| IV. Single Source of Truth | ✅ PASS | Every figure/statistic traces to exactly one row in `data/` and one block in `code/`; derived numbers not hand-typed into paper |
-| V. Versioning Discipline | ✅ PASS | Every artifact carries content hash; Advancement-Evaluator invalidates stale review records when hashed artifact changes |
-| VI. Mathematical Invariant Consistency | ✅ PASS | Computed invariants (crossing number, braid index, arc index, Seifert circle count, bridge number) verified against established definitions; discrepancies documented with derivation notes |
-| VII. Statistical Significance Thresholds | ✅ PASS | All statistical claims include p-values, confidence intervals, and effect size measures; BOTH Pearson AND Spearman reported where distribution assumptions uncertain (FR-008) |
+| Principle | Requirement | Implementation Approach | Status |
+|-----------|-------------|------------------------|--------|
+| I. Reproducibility (NON-NEGOTIABLE) | Every result reproducible by re-running code/ against data/ on fresh runner; random seeds pinned in code/ | All scripts under `code/` will pin random seeds at module level (e.g., `np.random.seed(42)`, `random.seed(42)`); requirements.txt pins all dependencies; data fetched from Knot Atlas on every run | ✓ PASS |
+| II. Verified Accuracy | Every external citation verified against primary source; title-token-overlap ≥0.7 | Reference-Validator Agent will verify all citations (e.g., OEIS A002863, Birman-Menasco 1988, Seifert 1934, Schubert 1956) before artifact write | ✓ PASS |
+| III. Data Hygiene | Datasets checksummed under data/; no in-place modification; derived files documented | SHA-256 checksums for all files under `data/`; raw data preserved in `data/raw/`; derivations written to `data/derived/` with derivation notes in `docs/reproducibility/` | ✓ PASS |
+| IV. Single Source of Truth | Every figure/statistic traces to exactly one row in data/ and one block in code/ | All statistics generated by code/ scripts; no hand-typed numbers in paper; derivation notes document transformation logic | ✓ PASS |
+| V. Versioning Discipline | Every artifact carries content hash; Advancement-Evaluator invalidates stale review records | Content hashes stored in `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml`; `updated_at` timestamp updated on artifact change | ✓ PASS |
+| VI. Mathematical Invariant Consistency | Every computed invariant verified against primary mathematical literature; discrepancies documented | Algorithm validation against KnotInfo reference values (≥10% coverage); validation results in `docs/reproducibility/algorithm_validation.md`; discrepancies documented with derivation notes | ✓ PASS |
+| VII. Statistical Significance Thresholds | All statistical claims include p-values, confidence intervals, effect sizes; Pearson AND Spearman where assumptions uncertain | Both Pearson and Spearman correlations reported per FR-008; effect sizes (Cohen's d, r²) documented alongside all p-values | ✓ PASS |
+
+**GATE RESULT**: All 7 principles satisfied. Project may proceed to implementation.
 
 ## Project Structure
 
@@ -44,64 +46,70 @@ specs/001-knot-complexity-analysis/
 ├── data-model.md        # Phase 1 output (/speckit-plan command)
 ├── quickstart.md        # Phase 1 output (/speckit-plan command)
 ├── contracts/           # Phase 1 output (/speckit-plan command)
+│   ├── knot_record.schema.yaml
+│   ├── invariants_dataset.schema.yaml
+│   └── regression_model.schema.yaml
 └── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
-├── models/
+projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/
+├── code/
 │   ├── __init__.py
-│   ├── knot_record.py      # KnotRecord entity definition
-│   └── regression_model.py # RegressionModel entity definition
-├── services/
-│   ├── __init__.py
-│   ├── data_download.py    # Knot Atlas download with retry logic
-│   ├── invariant_computation.py  # Arc index, Seifert circles, bridge number
-│   ├── exploratory_analysis.py   # Scatter plots, stratification
-│   └── regression_analysis.py    # Model fitting, composite score
-├── cli/
-│   └── __init__.py         # CLI entry points for pipeline stages
-└── lib/
-    ├── reproducibility.py  # Checksum, logging, seed pinning utilities
-    └── validation.py       # Algorithm validation against KnotInfo
-
-tests/
-├── contract/
-│   ├── test_knot_data_schema.py
-│   └── test_regression_output_schema.py
-├── integration/
-│   └── test_pipeline.py
-└── unit/
-    ├── test_invariant_computation.py
-    └── test_retry_logic.py
-
-data/
-├── raw/                    # Downloaded data (unchanged)
-├── processed/              # Derived datasets
-└── plots/                  # PNG output (1200x900 minimum)
-
-docs/
-└── reproducibility/
-    ├── checksums.md
-    ├── derivation_notes.md
-    ├── logs/
-    ├── algorithm_validation.md
-    ├── tie_breaking_rules.md
-    ├── validation_scope.md
-    └── excluded_knots.md
-
-config/
-└── complexity_weights.yaml # Composite score weight configuration
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── download_knot_atlas.py      # FR-001, FR-010
+│   │   ├── parse_and_clean.py          # FR-002
+│   │   └── compute_invariants.py       # FR-003
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── exploratory_analysis.py     # FR-004, FR-005
+│   │   ├── regression_models.py        # FR-005, FR-007
+│   │   └── statistical_tests.py        # FR-008
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── reproducibility.py          # FR-009
+│   │   └── edge_cases.py               # FR-010, FR-011, FR-012, FR-013
+│   └── config/
+│       └── complexity_weights.yaml     # FR-006
+├── data/
+│   ├── raw/
+│   │   └── knot_atlas_2026-05-31.json  # Raw download with checksum
+│   ├── derived/
+│   │   ├── knots_cleaned.parquet       # FR-002
+│   │   ├── knots_with_invariants.parquet  # FR-003
+│   │   └── plots/                      # FR-004, SC-009
+│   │       ├── crossing_vs_braid_alternating.png
+│   │       └── crossing_vs_braid_non_alternating.png
+│   └── checksums.txt                   # SHA-256 checksums
+├── docs/
+│   └── reproducibility/
+│       ├── checksums.md                # FR-009
+│       ├── derivation_notes.md         # FR-009
+│       ├── logs/                       # FR-009
+│       │   └── execution_2026-05-31.log
+│       ├── validation_scope.md         # SC-001, SC-013
+│       ├── algorithm_validation.md     # FR-003, SC-012
+│       ├── uncomputable_invariants.md  # FR-003
+│       ├── excluded_knots.md           # FR-014, SC-014
+│       ├── tie_breaking_rules.md       # FR-013, SC-008
+│       └── validation_status.md        # SC-008
+├── tests/
+│   ├── contract/
+│   │   └── test_schemas.py
+│   ├── integration/
+│   │   └── test_data_pipeline.py
+│   └── unit/
+│       ├── test_invariant_computation.py
+│       └── test_edge_cases.py
+├── requirements.txt
+└── pyproject.toml
 ```
 
-**Structure Decision**: Single project structure (Option 1) selected as this is a computational research pipeline without frontend/backend separation. All code resides under `src/` with tests, data, and documentation in separate top-level directories. This enables end-to-end reproducibility on a single runner per Constitution Principle I.
+**Structure Decision**: Single project structure chosen (Option 1) to maintain tight coupling between data processing, analysis, and reproducibility documentation. All code under `code/`, all data under `data/`, all documentation under `docs/reproducibility/` per Constitution Principle III (Data Hygiene).
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| 3 additional invariants (arc index, Seifert circle count, bridge number) | FR-003 requires exploratory extension beyond core crossing number/braid index analysis | Core research question focuses on crossing number + braid index predicting hyperbolic volume; additional invariants enable richer analysis but are not strictly required for MVP |
-| Composite complexity score | FR-006 requires exploratory construct for joint predictive analysis | Original research question asked about joint predictive relationships; composite score enables quantification but has no established mathematical basis (acknowledged in spec) |
-| Retry logic with exponential backoff | FR-010 requires robustness against API unavailability | Simple retry would fail on rate-limited scenarios; exponential backoff ensures resilience without excessive load |
+> No violations requiring justification. Constitution Check passed all 7 principles.

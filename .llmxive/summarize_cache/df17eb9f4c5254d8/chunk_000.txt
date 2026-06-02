@@ -1,0 +1,106 @@
+# Feature Specification: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
+
+**Feature Branch**: `001-knot-complexity-analysis`
+**Created**: 2026-05-31
+**Status**: Draft
+**Input**: User description: "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index"
+
+## Scope Boundaries
+
+<!--
+ Consolidated scope-related disclaimers for clarity and consistency.
+ All scope decisions made here apply throughout the specification.
+-->
+
+### Phase 1 Scope (Alternating/Non-Alternating Dichotomy)
+
+This Phase 1 analysis explicitly narrows the original multi-class prime knot exploration (torus, satellite, hyperbolic) to alternating/non-alternating dichotomy only. Multi-class exploration is deferred to Phase 2+ as documented in Assumptions. This scope boundary is the implementation default for this iteration and acknowledges the original research question encompasses broader knot classes.
+
+**Original Intent Preservation**: The full research question regarding multi-class prime knot exploration remains the long-term goal; Phase 1 establishes foundational analysis on the alternating/non-alternating dichotomy as a tractable first step.
+
+### Validation Scope (Crossing Number ≤10 vs ≤13)
+
+Dataset completeness validation focuses on crossing numbers ≤10 as the Phase 1 benchmarking scope. Data collection covers all knots with crossing number ≤13, but full validation across all crossing numbers ≤13 is deferred to future iterations.
+
+**Rationale**: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks enumeration), full validation is computationally impractical for Phase 1 exploratory analysis. This is a deliberate scope decision for practical verification purposes.
+
+**Phase 1 Conclusions Limitation**: Phase 1 conclusions are explicitly limited to the alternating/non-alternating dichotomy AND validated crossing number ≤10 data. Generalization to other knot classes (torus, hyperbolic, satellite) or to unvalidated crossing number 11-13 data requires additional validation in future phases and should not be claimed in Phase 1 final reports.
+
+### Measurement Precision Standard
+
+Consistent with rigorous scientific measurement standards, the analysis must establish precision thresholds for all computed invariants before correlation analysis proceeds. This includes documenting computational uncertainty for braid index (which requires algorithmic determination) versus crossing number (which is tabulated). See FR-003 for algorithm validation requirements and SC-012 for validation against reference values.
+
+### Multi-Phase Framing
+
+The project is structured as a multi-phase research program. Phase 1 establishes foundational analysis on alternating/non-alternating dichotomy. Phase 2+ will incorporate additional knot classes (torus, satellite, hyperbolic) as data extraction pipelines and classification logic are developed. This phased approach ensures incremental validation.
+
+## Research Question (Phase 1)
+
+To what extent do crossing number and braid index jointly predict the hyperbolic volume of prime knots, and does this relationship differ systematically between alternating and non-alternating classes?
+
+## User Scenarios & Testing *(mandatory)*
+
+<!--
+ IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
+ Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
+ you should still have a viable MVP (Minimum Viable Product) that delivers value.
+
+ Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
+ Think of each story as a standalone slice of functionality that can be:
+ - Developed independently
+ - Tested independently
+ - Deployed independently
+ - Demonstrated to users independently
+-->
+
+### User Story 1 - Download and Parse Knot Data from Knot Atlas (Priority: P1)
+
+As a researcher, I need to download knot data from Knot Atlas including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number ≤13 so that I have a testable dataset for correlation analysis.
+
+**Why this priority**: This is the foundational step without which no analysis can proceed. The dataset quality and completeness directly determines the validity of all downstream findings.
+
+**Independent Test**: Can be fully tested by executing the data download script and verifying the output contains all prime knots with crossing number ≤13 with consistent representation of crossing number, braid index, hyperbolic volume, and alternating/non-alternating classification fields. A validation against standard knot tables (KnotInfo, Hoste-Thistlethwaite-Weeks enumeration) confirms dataset completeness for the highest crossing number in scope.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Knot Atlas is accessible, **When** the download script executes, **Then** the dataset contains all prime knots with crossing number ≤13 with crossing number, braid index, hyperbolic volume, and alternating/non-alternating classification fields populated
+2. **Given** the dataset is downloaded, **When** a data quality check runs, **Then** at least 95% of records have crossing number, braid index, and hyperbolic volume values present (no nulls in required invariant fields)
+
+---
+
+### User Story 2 - Compute Additional Invariants and Perform Exploratory Analysis (Priority: P2)
+
+As a researcher, I need to compute additional invariants (arc index, Seifert circle count, bridge number) from available diagram representations and perform exploratory data analysis including scatter plots of crossing number vs. braid index stratified by alternating/non-alternating classification so that I can identify correlation patterns before fitting models.
+
+**Why this priority**: Exploratory analysis informs model selection and reveals whether the hypothesized non-linear relationship exists. This step validates the research direction before committing to regression modeling. **Exploratory Extension Acknowledgment**: Computation of arc index, Seifert circle count, and bridge number extends beyond the original idea's methodology (which focused on crossing number and braid index). These additional invariants are exploratory additions to enable richer analysis, with acknowledgment that the core research question concerns crossing number and braid index jointly predicting hyperbolic volume.
+
+**Independent Test**: Can be fully tested by generating scatter plots and summary statistics showing the crossing number vs. braid index relationship for alternating knots separately from non-alternating knots, with at least 3 additional invariants computed per knot.
+
+**Acceptance Scenarios**:
+
+1. **Given** the parsed dataset, **When** the invariant computation module runs, **Then** each knot record includes arc index, Seifert circle count, and bridge number values where computable from available diagram representations (minimal crossing diagrams, braid words, or Dowker-Thistlethwaite codes)
+2. **Given** the computed invariants, **When** exploratory plots are generated, **Then** scatter plots show crossing number vs. braid index with distinct stratification for alternating and non-alternating prime knots
+
+---
+
+### User Story 3 - Fit Regression Models and Validate Composite Complexity Score (Priority: P3)
+
+As a researcher, I need to fit multiple regression models to test linear vs. non-linear relationships for predicting hyperbolic volume from crossing number and braid index, construct a composite complexity score as a weighted combination of crossing number and braid index, and validate against exploratory validation sample so that I can determine whether the composite measure shows predictive power for geometric complexity.
+
+**Why this priority**: This is the core analytical output that answers the research question. It builds on the data foundation and exploratory analysis to produce the predictive model and validation results. **Composite Score Acknowledgment**: The composite complexity score is an exploratory construct not present in the original idea, which asked about joint predictive relationships rather than composite measures. This addition enables richer analysis while maintaining the core research question focus.
+
+**Independent Test**: Can be fully tested by executing the regression and validation pipeline on an exploratory validation sample (e.g., 20% of knots) and producing correlation coefficients and goodness-of-fit metrics. Results are considered valid if correlation coefficients, effect sizes, and model metrics are reported with appropriate statistical context, regardless of whether thresholds are met.
+
+**Acceptance Scenarios**:
+
+1. **Given** the exploratory analysis results, **When** regression models are fitted, **Then** at least three model types (linear, polynomial, and logarithmic) are compared with goodness-of-fit metrics (R², AIC/BIC, MAE) documented for each
+2. **Given** a composite complexity score is constructed, **When** validation is performed on exploratory validation sample, **Then** correlation with hyperbolic volume is computed and reported with statistical significance testing (ANOVA for group differences where applicable), effect sizes (Cohen's d or r), and comparison against individual invariants to demonstrate composite performance
+3. **Given** alternating and non-alternating knot classifications, **When** ANOVA testing runs, **Then** group difference analysis is performed with p-values and effect sizes (Cohen's d) reported for the crossing number vs. braid index relationship between groups
+4. **Given** regression model residuals are computed, **When** residual analysis runs, **Then** specific knot families (e.g., pretzel knots, torus knots) that deviate significantly from the global trend are identified and documented. **Residual Family Analysis**: This acceptance scenario implements the methodology from the original idea which explicitly included "Analyze residuals to identify specific knot families that deviate significantly from the global trend."
+
+---
+
+### User Story 4 - Edge Case Handling, Data Quality, and Reproducibility Documentation (Priority: P4)
+
+As a researcher, I need the system to handle edge cases (API unavailability, missing invariants, ambiguous classifications, crossing number ties) with documented fallback behaviors, AND produce complete reproducibility documentation for all code and data transformations, so that analysis can proceed robustly and results can be independently verified.
+
