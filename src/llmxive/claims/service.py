@@ -228,7 +228,88 @@ def process_document(
     except ImportError:
         pass  # fill package not available; skip silently
 
+    # Step 7 (spec 018 / canonical sweep): a verified fact is SUBJECT-keyed, so
+    # EVERY mention of a verified subject is forced to its verified value —
+    # closing the per-instance gap where one mention carries the verified value
+    # (9988) while a rephrased mention still asserts the fabrication (27,635).
+    # PURE STRENGTHENING: when there are no verified, sourced facts (or nothing
+    # to correct), build returns {} and apply is a no-op → output is unchanged.
+    try:
+        from llmxive.claims.canonical import (
+            apply_canonical_corrections,
+            build_canonical_facts,
+        )
+
+        facts = build_canonical_facts(resolved_claims)
+        if facts:
+            rendered_text, _corrections = apply_canonical_corrections(
+                rendered_text, facts
+            )
+            _persist_verified_facts(
+                facts, artifact_path=artifact_path,
+                project_id=project_id, repo_root=repo_root,
+            )
+    except Exception as exc:  # never crash a render on the trustworthiness sweep
+        logger.warning("claims.service: canonical sweep skipped (%s)", exc)
+
     return rendered_text, resolved_claims, gate_report
+
+
+def _project_dir(artifact_path: str, project_id: str, repo_root: Path) -> Path | None:
+    """Locate the project directory under ``repo_root`` for ``artifact_path``.
+
+    ``artifact_path`` is conventionally ``projects/<project-slug>/...`` — we take
+    the ``projects/<slug>`` prefix so the verified-fact memory lands beside the
+    project's other ``.specify`` state. Falls back to a ``project_id`` match when
+    the path does not start with ``projects/``. Returns None when no project
+    directory can be determined.
+    """
+    parts = Path(artifact_path).parts
+    if len(parts) >= 2 and parts[0] == "projects":
+        return repo_root / "projects" / parts[1]
+    projects_root = repo_root / "projects"
+    if projects_root.is_dir():
+        for child in projects_root.iterdir():
+            if child.is_dir() and child.name.startswith(project_id):
+                return child
+    return None
+
+
+def _persist_verified_facts(
+    facts: dict[str, Any],
+    *,
+    artifact_path: str,
+    project_id: str,
+    repo_root: Path,
+) -> None:
+    """Best-effort: write the canonical verified facts to per-project memory.
+
+    Target: ``projects/<id>/.specify/memory/verified_facts.yaml`` so later
+    stages can read the authoritative subject→value map. Never raises — an IO
+    failure must not break a render.
+    """
+    import yaml
+
+    project_dir = _project_dir(artifact_path, project_id, repo_root)
+    if project_dir is None:
+        return
+    out_path = project_dir / ".specify" / "memory" / "verified_facts.yaml"
+    payload = {
+        key: {
+            "value": fact.value,
+            "source_id": fact.source_id,
+            "url": fact.url,
+            "quote": fact.quote,
+        }
+        for key, fact in facts.items()
+    }
+    try:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(
+            yaml.safe_dump(payload, sort_keys=True), encoding="utf-8"
+        )
+    except OSError as exc:
+        logger.warning("claims.service: verified_facts persist failed (%s)", exc)
 
 
 __all__ = ["process_document", "resolve_registered_claims"]
