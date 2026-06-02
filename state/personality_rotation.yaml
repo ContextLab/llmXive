@@ -1,11 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-06-02T03:08:46.948289+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: marie-curie
+last_used_at: '2026-06-02T05:06:04.757797+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-05-24T06:45:31.472650+00:00'
-  ended_at: '2026-05-24T07:57:00.494286+00:00'
-  outcome: model_error
 - slug: alan-turing
   started_at: '2026-05-24T07:57:00.494286+00:00'
   ended_at: '2026-05-24T08:52:50.557849+00:00'
@@ -1207,3 +1203,10 @@ history:
   ended_at: '2026-06-02T03:08:46.948289+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: marie-curie
+  started_at: '2026-06-02T03:08:46.948289+00:00'
+  ended_at: '2026-06-02T05:06:04.757797+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/marie-curie-simulated__2026-06-02__research.md
