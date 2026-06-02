@@ -9521,7 +9521,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-02T10:37:13.819108+00:00",
+  "generated_at": "2026-06-02T10:42:51.818669+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -80386,7 +80386,7 @@
         "data": null,
         "idea": "projects/PROJ-647-mellum2-technical-report/idea/mellum2-technical-report.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-647-mellum2-technical-report/paper/pdf/2605.31268.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-647-mellum2-technical-report/paper/source/main.tex",
         "paper_spec": null,
@@ -80481,10 +80481,10 @@
       },
       "created_at": "2026-06-02T09:29:04.755488+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-647-mellum2-technical-report/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-647-mellum2-technical-report/paper/source/main.tex",
-        "repo_path": "projects/PROJ-647-mellum2-technical-report/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-647-mellum2-technical-report/paper/pdf/2605.31268.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-647-mellum2-technical-report/paper/pdf/2605.31268.pdf",
+        "repo_path": "projects/PROJ-647-mellum2-technical-report/paper/pdf/2605.31268.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "We present Mellum 2, an open-weight 12B-parameter Mixture-of-Experts (MoE) language model with 2.5B active parameters per token. Mellum 2 is a general-purpose language model specialized in software engineering, spanning code generation and editing, debugging, multi-step reasoning, tool use and function calling,\u2026",
@@ -80521,7 +80521,7 @@
         "data": null,
         "idea": "projects/PROJ-648-representation-forcing-for-bottleneck-fr/idea/representation-forcing-for-bottleneck-fr.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-648-representation-forcing-for-bottleneck-fr/paper/pdf/2605.31604.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -80648,10 +80648,10 @@
       },
       "created_at": "2026-06-02T09:29:07.162842+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-648-representation-forcing-for-bottleneck-fr/idea/representation-forcing-for-bottleneck-fr.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-648-representation-forcing-for-bottleneck-fr/idea/representation-forcing-for-bottleneck-fr.md",
-        "repo_path": "projects/PROJ-648-representation-forcing-for-bottleneck-fr/idea/representation-forcing-for-bottleneck-fr.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-648-representation-forcing-for-bottleneck-fr/paper/pdf/2605.31604.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-648-representation-forcing-for-bottleneck-fr/paper/pdf/2605.31604.pdf",
+        "repo_path": "projects/PROJ-648-representation-forcing-for-bottleneck-fr/paper/pdf/2605.31604.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Unified multimodal models (UMMs) aim to handle perception and generation in a single model. Yet existing UMMs still rely on a frozen, separately pretrained VAE for image generation, imposing a structural bottleneck. Naively removing it introduces a quality gap, as the model must learn both high-level structure and\u2026",
@@ -80688,7 +80688,7 @@
         "data": null,
         "idea": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/idea/trust-region-behavior-blending-for-on-po.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -80767,10 +80767,10 @@
       },
       "created_at": "2026-06-02T09:29:10.585976+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/idea/trust-region-behavior-blending-for-on-po.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/idea/trust-region-behavior-blending-for-on-po.md",
-        "repo_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/idea/trust-region-behavior-blending-for-on-po.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "On-policy distillation (OPD) trains a student on prefixes sampled from its own policy while matching a stronger teacher. This addresses the prefix mismatch of offline distillation, but early student rollouts can still be poor, placing teacher supervision on weak or low-quality prefixes. We propose Trust-Region\u2026",
@@ -80807,7 +80807,7 @@
         "data": null,
         "idea": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/idea/colleague-skill-automated-ai-skill-gener.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -80870,10 +80870,10 @@
       },
       "created_at": "2026-06-02T09:29:13.448212+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/idea/colleague-skill-automated-ai-skill-gener.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/idea/colleague-skill-automated-ai-skill-gener.md",
-        "repo_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/idea/colleague-skill-automated-ai-skill-gener.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "LLM agents are increasingly expected not only to complete isolated tasks, but also to carry bounded representations of human expertise, judgment, and interaction style. Building such person-grounded agents remains difficult because actionable knowledge associated with a person or role is usually embedded in\u2026",
@@ -80910,7 +80910,7 @@
         "data": null,
         "idea": "projects/PROJ-651-grepseek-training-search-agents-for-dire/idea/grepseek-training-search-agents-for-dire.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -80989,10 +80989,10 @@
       },
       "created_at": "2026-06-02T09:29:15.944372+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/idea/grepseek-training-search-agents-for-dire.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/idea/grepseek-training-search-agents-for-dire.md",
-        "repo_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/idea/grepseek-training-search-agents-for-dire.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Large Language Model (LLM) search agents have shown strong promise for knowledge-intensive language tasks through multiple rounds of reasoning and information retrieval. Most existing systems access information using a retriever that takes a keyword or natural language query and returns a ranked list of documents\u2026",
