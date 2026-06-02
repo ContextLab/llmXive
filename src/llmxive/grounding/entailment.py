@@ -9,12 +9,12 @@ from typing import Any, Literal, cast
 
 from llmxive.agents.grounding_guard import _number_anchor_re  # reuse number forms
 from llmxive.agents.prompts import load_prompt
+from llmxive.backends.router import reasoning_chat
 from llmxive.librarian.verify import jaccard_tokens
 
 logger = logging.getLogger(__name__)
 
 _ENTAILMENT_BLOCK = "agents/prompts/_shared/claim_entailment_block.md"
-_REASONING_MAX_TOKENS = 131_072
 _DEFAULT_MODEL = "qwen.qwen3.5-122b"
 _WINDOW = 320  # chars on each side of an anchor
 _MAX_PASSAGES = 5
@@ -93,20 +93,6 @@ def _parse_verdict(reply: str) -> Verdict:
     return Verdict(status, str(obj.get("evidence") or ""), str(obj.get("note") or ""))
 
 
-def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
-    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
-    if model is not None:
-        kwargs["model"] = model
-    try:
-        return backend.chat(messages, **kwargs)
-    except TypeError:
-        kwargs.pop("max_tokens", None)
-        try:
-            return backend.chat(messages, **kwargs)
-        except TypeError:
-            return backend.chat(messages)
-
-
 def assess(claim: str, doc: Any, *, backend: Any, model: str | None,
            repo_root: Path | None = None) -> Verdict:
     """One LLM entailment call over the located passages of the source text.
@@ -136,7 +122,7 @@ def assess(claim: str, doc: Any, *, backend: Any, model: str | None,
                             "Return the single YAML verdict."),
     ]
     try:
-        resp = _chat_reasoning_safe(backend, messages, model or _DEFAULT_MODEL)
+        resp = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
         reply = getattr(resp, "text", "") or ""
         if not reply.strip():
             raise ValueError("empty entailment reply")

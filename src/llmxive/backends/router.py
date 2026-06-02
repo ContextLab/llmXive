@@ -15,7 +15,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
-    DeadlineExceededError,
+    ModelDownError,
     PermanentBackendError,
     TransientBackendError,
 )
@@ -49,6 +49,21 @@ MODEL_FALLBACKS: dict[str, list[str]] = {
     "openai.gpt-oss-120b": ["qwen.qwen3.5-122b", "google.gemma-4-31B-it"],
     "google.gemma-4-31B-it": ["openai.gpt-oss-120b", "qwen.qwen3.5-122b"],
 }
+
+# ---------------------------------------------------------------------------
+# Reasoning-safe token budgets — the SINGLE source of truth (was duplicated as
+# ``_REASONING_MAX_TOKENS`` in 8 modules). qwen3.5-122b et al. are reasoning
+# models whose hidden chain-of-thought counts against ``max_tokens``.
+#   REASONING_MAX_TOKENS  — analysis/extraction/review calls: short structured
+#       outputs (claims, values, entailment verdicts). 32K is ample and avoids
+#       the reasoning-budget-exhaustion hang (the same bound the reviewer/reviser
+#       already use).
+#   GENERATION_MAX_TOKENS — calls that emit LARGE artifacts (the planner's
+#       corrective re-call must emit five files). Matches chat_with_fallback's
+#       default below.
+# ---------------------------------------------------------------------------
+REASONING_MAX_TOKENS = 32_768
+GENERATION_MAX_TOKENS = 131_072
 
 
 def _chat_one_model(
@@ -167,12 +182,12 @@ def chat_with_model_fallback(
                 saw_unavailable = True
                 errors.append(f"{m}(unavailable): {exc}")
                 break
-            except DeadlineExceededError as exc:
-                # The model hung past its FULL deadline — it is down, not
-                # flickering. Retrying the SAME model burns another full deadline
-                # and almost never succeeds; skip the remaining same-model
-                # attempts and fall straight to the next peer.
-                errors.append(f"{m}(deadline attempt {attempt + 1}): {exc}")
+            except ModelDownError as exc:
+                # THIS model is down (hung past its full deadline, or a 302→outage
+                # maintenance redirect) — not flickering. Retrying the SAME model
+                # burns another full deadline / will just re-redirect; skip the
+                # remaining same-model attempts and fall straight to the next peer.
+                errors.append(f"{m}(model-down attempt {attempt + 1}): {exc}")
                 break
             except TransientBackendError as exc:
                 errors.append(f"{m}(transient attempt {attempt + 1}): {exc}")
@@ -203,6 +218,40 @@ def chat_with_model_fallback(
     if saw_unavailable:
         raise BackendUnavailable(detail)
     raise BackendError(detail)
+
+
+def reasoning_chat(
+    backend: BaseBackend,
+    messages: Iterable[ChatMessage],
+    *,
+    model: str | None = None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+) -> ChatResponse:
+    """THE single entry point for a reasoning/analysis LLM call on a GIVEN backend.
+
+    Every claim/fill/grounding/triage/review reasoning call routes through here
+    instead of re-implementing the policy (this replaces the former per-module
+    ``_chat_reasoning_safe`` copies). It delegates to
+    :func:`chat_with_model_fallback`, so it automatically gets the full stack —
+    peer-model fallback (qwen→gpt-oss→gemma), retry+jitter+backoff, the per-model
+    circuit breaker, the per-request deadline, the deadline/302 fast-fail, and
+    stub-backend signature degradation — with the reasoning-safe
+    :data:`REASONING_MAX_TOKENS` default applied when the caller doesn't override
+    it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
+
+    ``model=None`` makes a single no-fallback call (the offline / injected-fake
+    test shape); production callers pass a concrete model and thus get the peer
+    walk. Use this — never call ``backend.chat`` directly (the centralization
+    guard test enforces that).
+    """
+    return chat_with_model_fallback(
+        backend,
+        messages,
+        model=model,
+        max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
+        temperature=temperature,
+    )
 
 
 def chat_with_fallback(
@@ -239,8 +288,9 @@ def chat_with_fallback(
         # there is no hard server-side cap; output is bounded by
         # ``max_input_tokens - input_tokens``. 128K is the highest cap
         # that fits every model in MODEL_FALLBACKS without per-model
-        # branching.
-        max_tokens = 131_072
+        # branching. This is the GENERATION budget (spec/plan/tasks/paper
+        # agents emit huge outputs) — the single source of truth.
+        max_tokens = GENERATION_MAX_TOKENS
     chain = [default_backend, *fallback_backends]
     errors: list[str] = []
     msg_list = list(messages)
@@ -275,4 +325,11 @@ def chat_with_fallback(
     )
 
 
-__all__ = ["chat_with_fallback", "chat_with_model_fallback", "make_backend"]
+__all__ = [
+    "GENERATION_MAX_TOKENS",
+    "REASONING_MAX_TOKENS",
+    "chat_with_fallback",
+    "chat_with_model_fallback",
+    "make_backend",
+    "reasoning_chat",
+]

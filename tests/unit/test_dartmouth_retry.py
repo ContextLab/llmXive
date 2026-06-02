@@ -13,10 +13,15 @@ import pytest
 
 from llmxive.backends.base import (
     DeadlineExceededError,
+    ModelDownError,
     PermanentBackendError,
     TransientBackendError,
 )
-from llmxive.backends.dartmouth import _is_transient_error_text, _retry_with_backoff
+from llmxive.backends.dartmouth import (
+    _is_model_down_text,
+    _is_transient_error_text,
+    _retry_with_backoff,
+)
 
 
 def test_retry_returns_value_on_first_success():
@@ -82,6 +87,45 @@ def test_retry_surfaces_final_transient_after_exhausting_attempts(monkeypatch):
         )
     # 1 initial + 3 retries = 4 attempts.
     assert len(attempts) == 4
+
+
+def test_302_outage_classified_as_model_down_not_generic_transient():
+    """A 302→outage.dartmouth.edu maintenance redirect is a model-DOWN signal
+    (distinct from a generic retryable transient). It is still a transient by
+    type so the router falls back, but it must match _is_model_down_text so the
+    retry layers fast-fail to a peer instead of burning the retry budget."""
+    for txt in (
+        "<title>302 Moved Temporarily</title> the document has moved to "
+        "http://outage.dartmouth.edu",
+        "302 moved",
+        "moved temporarily",
+    ):
+        assert _is_model_down_text(txt), txt
+        assert _is_transient_error_text(txt), txt  # still transient (router falls back)
+    # A generic transient is NOT a model-down signal — it keeps its retries.
+    for txt in ("503 service unavailable", "connection reset by peer", "429 rate"):
+        assert not _is_model_down_text(txt), txt
+
+
+def test_retry_does_not_retry_model_down(monkeypatch):
+    """A ModelDownError (302→outage, or a deadline hang — its subclass) is NOT
+    inner-retried; it propagates after ONE attempt so the model-fallback chain
+    escapes to a healthy peer. (DeadlineExceededError IS a ModelDownError, so the
+    deadline-hang test below is the subclass case.)"""
+    sleeps: list[float] = []
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps.append(s),
+    )
+    attempts = []
+
+    def fn():
+        attempts.append(1)
+        raise ModelDownError("302 Moved Temporarily → outage.dartmouth.edu")
+
+    with pytest.raises(ModelDownError):
+        _retry_with_backoff(fn, max_retries=8, base_delay_s=1.0)
+    assert len(attempts) == 1  # no inner retry on a model-down signal
+    assert sleeps == []
 
 
 def test_retry_does_not_retry_deadline_hang(monkeypatch):

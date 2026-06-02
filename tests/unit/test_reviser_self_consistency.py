@@ -24,9 +24,7 @@ from pathlib import Path
 
 from llmxive.backends.base import ChatResponse, TransientBackendError
 from llmxive.convergence.revisers._self_consistency import (
-    _REASONING_MAX_TOKENS,
     SelfConsistencyResult,
-    _chat_reasoning_safe,
     invoke_reviser_backend,
     run_with_self_consistency,
     self_consistency_pass,
@@ -440,28 +438,12 @@ class _ModelFallbackBackend:
         return ChatResponse(text=self.replies[model], model=model, backend="dartmouth")
 
 
-def test_chat_reasoning_safe_healthy_primary_no_fallback():
-    backend = _ModelFallbackBackend(replies={"qwen.qwen3.5-122b": "OK primary"})
-    resp = _chat_reasoning_safe(backend, [], "qwen.qwen3.5-122b")
-    assert resp.text == "OK primary"
-    assert [c["model"] for c in backend.calls] == ["qwen.qwen3.5-122b"]
-    # Reasoning-safe budget passed unchanged.
-    assert backend.calls[0]["max_tokens"] == _REASONING_MAX_TOKENS
-
-
-def test_chat_reasoning_safe_primary_transient_walks_to_peer():
-    backend = _ModelFallbackBackend(
-        replies={
-            "qwen.qwen3.5-122b": "unreached",
-            "openai.gpt-oss-120b": "OK from peer",
-        },
-        transient_models={"qwen.qwen3.5-122b"},
-    )
-    resp = _chat_reasoning_safe(backend, [], "qwen.qwen3.5-122b")
-    assert resp.text == "OK from peer"  # the chain was walked to the peer
-    assert backend.calls[-1]["model"] == "openai.gpt-oss-120b"
-    # The reasoning-safe budget reaches the PEER too.
-    assert backend.calls[-1]["max_tokens"] == _REASONING_MAX_TOKENS
+# NOTE: the reviser's reasoning call now routes through the central
+# router.reasoning_chat (the former local _chat_reasoning_safe was deleted in the
+# LLM-call centralization). reasoning_chat's routing + reasoning-safe budget are
+# tested directly in tests/unit/test_chat_with_model_fallback.py; the
+# reviser→reasoning_chat→fallback path is covered end-to-end by
+# test_invoke_reviser_backend_uses_fallback below.
 
 
 def test_invoke_reviser_backend_uses_fallback():

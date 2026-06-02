@@ -11,6 +11,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from llmxive.backends.router import reasoning_chat
 from llmxive.claims.models import Claim, ClaimKind
 from llmxive.fill.models import FetchedSource
 from llmxive.grounding.service import number_substantiated
@@ -208,45 +209,7 @@ def _offline_numeric_lookup(source: FetchedSource, claim: Claim) -> str | None:
     return None
 
 
-# Reasoning-safe response budget — qwen.qwen3.5-122b (the default panel/reviser
-# model) is a reasoning model whose hidden chain-of-thought counts against the
-# response budget; mirror grounding/entailment so the locator call is not
-# truncated to empty content.
-_REASONING_MAX_TOKENS = 131_072
-
-
 _DEFAULT_MODEL = "qwen.qwen3.5-122b"
-
-
-def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
-    """Reasoning fill-extraction call WITH model fallback.
-
-    Routes through :func:`chat_with_model_fallback` so a transient qwen
-    outage/hang falls back to a peer model (gpt-oss-120b → gemma) on the SAME
-    backend — parity with the convergence panel/reviser — instead of exhausting
-    retries on one down model. Degrades to a direct ``backend.chat`` for stub
-    backends / test fakes whose signature omits the kwargs (a ``TypeError`` from
-    the router walk).
-    """
-    resolved = model or _DEFAULT_MODEL
-    try:
-        from llmxive.backends.router import chat_with_model_fallback
-
-        return chat_with_model_fallback(
-            backend, messages, model=resolved, max_tokens=_REASONING_MAX_TOKENS
-        )
-    except TypeError:
-        pass  # stub / non-router backend → direct chat below
-
-    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS, "model": resolved}
-    try:
-        return backend.chat(messages, **kwargs)
-    except TypeError:
-        kwargs.pop("max_tokens", None)
-        try:
-            return backend.chat(messages, **kwargs)
-        except TypeError:
-            return backend.chat(messages)
 
 
 def _call_llm_locator(
@@ -282,7 +245,7 @@ def _call_llm_locator(
         # against the response budget; a small max_tokens yields empty content
         # (finish_reason=length). Mirror grounding/entailment's reasoning-safe
         # budget, degrading gracefully for backends/fakes that omit the kwarg.
-        response = _chat_reasoning_safe(backend, messages, model)
+        response = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
         text = getattr(response, "text", None) or ""
     except Exception:
         return None

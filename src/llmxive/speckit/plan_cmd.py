@@ -20,6 +20,7 @@ from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
 from llmxive.librarian.dataset_resolver import (
     render_planner_block,
     resolve_datasets,
@@ -41,10 +42,6 @@ logger = logging.getLogger(__name__)
 # exception, preserving the original fail-closed behavior and keeping offline
 # unit tests network-free.
 MAX_PLAN_REVISION_RETRIES = 2
-
-# Reasoning-safe token budget for the corrective re-call (mirrors the planner's
-# normal call path; qwen3.5-122b et al. need a large budget to emit five files).
-_REASONING_MAX_TOKENS = 131_072
 
 _FILE_MARKER_RE = re.compile(
     r"<!--\s*FILE:\s*(?P<path>[^\s]+)\s*-->\s*\n",
@@ -359,7 +356,7 @@ class PlannerAgent(SlashCommandAgent):
         messages.append(ChatMessage(role="user", content=corrective))
 
         try:
-            response = self._chat_reasoning_safe(backend, messages, ctx.default_model)
+            response = reasoning_chat(backend, messages, model=ctx.default_model, max_tokens=GENERATION_MAX_TOKENS)
         except Exception as exc:
             logger.info(
                 "plan revision re-call failed (%s: %s); cannot retry",
@@ -370,25 +367,6 @@ class PlannerAgent(SlashCommandAgent):
         if not text.strip():
             return None
         return text
-
-    @staticmethod
-    def _chat_reasoning_safe(
-        backend: Any, messages: list[ChatMessage], model: str | None
-    ) -> Any:
-        """Call ``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
-        gracefully if the backend signature differs (mirrors the try/except
-        pattern in claims/extract.py::_chat_reasoning_safe)."""
-        kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
-        if model is not None:
-            kwargs["model"] = model
-        try:
-            return backend.chat(messages, **kwargs)
-        except TypeError:
-            kwargs.pop("max_tokens", None)
-            try:
-                return backend.chat(messages, **kwargs)
-            except TypeError:
-                return backend.chat(messages)
 
     def _run_plan_panel(
         self,

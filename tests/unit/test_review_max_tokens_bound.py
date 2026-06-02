@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import inspect
 
+from llmxive.backends import router
 from llmxive.convergence import llm_reviewer
-from llmxive.convergence.revisers import _self_consistency
 
 
 def test_llm_reviewer_default_max_tokens_is_32768():
@@ -24,14 +24,18 @@ def test_llm_reviewer_default_max_tokens_is_32768():
     assert sig.parameters["max_tokens"].default == 32_768
 
 
-def test_self_consistency_reasoning_max_tokens_is_32768():
-    assert _self_consistency._REASONING_MAX_TOKENS == 32_768
+def test_central_reasoning_budget_is_32768():
+    """The reviser (and every other analysis/reasoning caller) now routes through
+    router.reasoning_chat, which defaults to the SINGLE-source-of-truth
+    REASONING_MAX_TOKENS (was duplicated per-module)."""
+    assert router.REASONING_MAX_TOKENS == 32_768
 
 
 def test_router_generation_default_unchanged():
-    """The generation default (131072) is for large-output GENERATION agents and
-    must stay put — only the review/reviser budgets are bounded."""
-    from llmxive.backends import router
-
+    """The generation budget (131072, for large-output GENERATION agents) must
+    stay put — only the analysis/reasoning budget is the smaller 32K. Both are now
+    single named constants in the router."""
+    assert router.GENERATION_MAX_TOKENS == 131_072
+    # chat_with_fallback applies the generation budget when the caller omits one.
     src = inspect.getsource(router.chat_with_fallback)
-    assert "131_072" in src
+    assert "GENERATION_MAX_TOKENS" in src

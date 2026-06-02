@@ -19,7 +19,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
-    DeadlineExceededError,
+    ModelDownError,
     PermanentBackendError,
     TransientBackendError,
     invoke_with_deadline,
@@ -239,6 +239,21 @@ def _is_transient_error_text(text: str) -> bool:
     return any(marker in low for marker in _TRANSIENT_ERROR_MARKERS)
 
 
+# The gateway redirects to its maintenance page when THIS model's pod is down:
+# an HTTP 302 → outage.dartmouth.edu. Unlike a generic fast flap, this is an
+# unambiguous "model unavailable" signal — retrying the same model is futile, so
+# it surfaces as a ModelDownError (fast-fail to a peer). Kept narrower than the
+# transient set on purpose (a bare ``<!doctype html`` error page from some other
+# cause stays a plain retryable transient).
+_MODEL_DOWN_MARKERS = ("outage.dartmouth.edu", "302 moved", "moved temporarily")
+
+
+def _is_model_down_text(text: str) -> bool:
+    """True if *text* names the maintenance/outage redirect (model is DOWN)."""
+    low = text.lower()
+    return any(marker in low for marker in _MODEL_DOWN_MARKERS)
+
+
 def _retry_with_backoff(
     fn: Callable[[], _T],
     *,
@@ -262,13 +277,14 @@ def _retry_with_backoff(
             return fn()
         except TransientBackendError as exc:
             last_exc = exc
-            # A full-deadline hang means the model is down, not flickering:
-            # retrying it on the SAME model costs ANOTHER full deadline (e.g.
-            # 360s for a reasoning model) and almost never succeeds. Fail fast
-            # (no inner retry) so the model-fallback chain escapes to a healthy
-            # peer quickly. Fast-flap transients (302/reset/5xx) are NOT
-            # DeadlineExceededError and keep the generous retry budget below.
-            if isinstance(exc, DeadlineExceededError):
+            # A ModelDownError means THIS model is unavailable (hung past its full
+            # deadline, or a 302→outage maintenance redirect): retrying it on the
+            # SAME model is futile and expensive (a deadline hang costs another
+            # full deadline; an outage will recur). Fail fast (no inner retry) so
+            # the model-fallback chain escapes to a healthy peer. Ordinary fast
+            # flaps (generic 5xx/reset) are NOT ModelDownError and keep the
+            # generous retry budget below.
+            if isinstance(exc, ModelDownError):
                 break
             if attempt >= max_retries:
                 break
@@ -636,6 +652,10 @@ class DartmouthBackend(BaseBackend):
                     else:
                         exc = None  # type: ignore[assignment]
                 if exc is not None:
+                    if _is_model_down_text(text):
+                        # 302 → outage.dartmouth.edu: THIS model is in
+                        # maintenance — fail fast to a peer (don't burn retries).
+                        raise ModelDownError(str(exc)) from exc
                     if _is_transient_error_text(text):
                         raise TransientBackendError(str(exc)) from exc
                     raise PermanentBackendError(str(exc)) from exc

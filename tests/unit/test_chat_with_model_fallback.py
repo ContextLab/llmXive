@@ -20,10 +20,15 @@ from llmxive.backends.base import (
     ChatMessage,
     ChatResponse,
     DeadlineExceededError,
+    ModelDownError,
     PermanentBackendError,
     TransientBackendError,
 )
-from llmxive.backends.router import chat_with_model_fallback
+from llmxive.backends.router import (
+    REASONING_MAX_TOKENS,
+    chat_with_model_fallback,
+    reasoning_chat,
+)
 
 _MSGS = [ChatMessage(role="user", content="ping")]
 
@@ -43,16 +48,23 @@ class _RecordingBackend:
     name = "dartmouth"
     transient_models: set[str] = field(default_factory=set)
     deadline_models: set[str] = field(default_factory=set)
+    down_models: set[str] = field(default_factory=set)
     permanent_models: set[str] = field(default_factory=set)
     unavailable_models: set[str] = field(default_factory=set)
     calls: list[dict] = field(default_factory=list)  # type: ignore[type-arg]
 
-    def chat(self, messages, *, model, max_tokens=None, temperature=None):  # type: ignore[no-untyped-def]
+    def chat(self, messages, *, model=None, max_tokens=None, temperature=None):  # type: ignore[no-untyped-def]
         self.calls.append(
             {"model": model, "max_tokens": max_tokens, "temperature": temperature}
         )
         if model in self.unavailable_models:
             raise BackendUnavailable(f"circuit open on {model}")
+        if model in self.down_models:
+            # The 302→outage maintenance-redirect shape (a non-deadline
+            # ModelDownError) — must also fast-fail to the peer.
+            raise ModelDownError(
+                "302 Moved Temporarily; document has moved to outage.dartmouth.edu"
+            )
         if model in self.deadline_models:
             raise DeadlineExceededError(
                 f"{model} hung past 360s deadline (no response received)"
@@ -307,3 +319,99 @@ def test_unavailable_primary_then_permanent_peer_still_aborts():
     # Unavailable occurred, the aggregate is BackendUnavailable.
     with pytest.raises(BackendUnavailable):
         chat_with_model_fallback(backend, _MSGS, model="qwen.qwen3.5-122b")
+
+
+# ---------------------------------------------------------------------------
+# 302→outage maintenance redirect (a non-deadline ModelDownError) — fast-fails
+# to the peer just like a deadline hang (both are "this model is down").
+# ---------------------------------------------------------------------------
+
+
+def test_primary_302_outage_falls_to_peer_after_one_attempt():
+    """A 302→outage.dartmouth.edu redirect is an unambiguous model-down signal:
+    skip the remaining same-model attempts (no retrying a model in maintenance)
+    and fall straight to the first healthy peer."""
+    backend = _RecordingBackend(down_models={"qwen.qwen3.5-122b"})
+    resp = chat_with_model_fallback(
+        backend, _MSGS, model="qwen.qwen3.5-122b", max_tokens=32_768
+    )
+    assert resp.text == "OK from openai.gpt-oss-120b"
+    # ONE primary attempt (not 3), then the first peer.
+    assert [c["model"] for c in backend.calls] == [
+        "qwen.qwen3.5-122b",
+        "openai.gpt-oss-120b",
+    ]
+
+
+# ---------------------------------------------------------------------------
+# reasoning_chat — THE central reasoning-call entry point. Every claim / fill /
+# grounding / triage / review reasoning call routes through it (the former
+# per-module _chat_reasoning_safe copies were deleted). It must apply the full
+# policy of chat_with_model_fallback with the reasoning-safe budget by default.
+# ---------------------------------------------------------------------------
+
+
+def test_reasoning_chat_healthy_primary_no_fallback_default_budget():
+    backend = _RecordingBackend()
+    resp = reasoning_chat(backend, _MSGS, model="qwen.qwen3.5-122b")
+    assert resp.text == "OK from qwen.qwen3.5-122b"
+    assert [c["model"] for c in backend.calls] == ["qwen.qwen3.5-122b"]
+    # Reasoning-safe budget applied by default (the single source of truth).
+    assert backend.calls[0]["max_tokens"] == REASONING_MAX_TOKENS == 32_768
+
+
+def test_reasoning_chat_transient_walks_to_peer_carrying_budget():
+    backend = _RecordingBackend(transient_models={"qwen.qwen3.5-122b"})
+    resp = reasoning_chat(backend, _MSGS, model="qwen.qwen3.5-122b")
+    assert resp.text == "OK from openai.gpt-oss-120b"
+    # The reasoning-safe budget reaches the PEER too.
+    assert backend.calls[-1]["max_tokens"] == REASONING_MAX_TOKENS
+
+
+def test_reasoning_chat_explicit_max_tokens_overrides_default():
+    """A generation-style caller (e.g. the planner re-call) passes a larger
+    budget; reasoning_chat honors it instead of the reasoning default."""
+    backend = _RecordingBackend()
+    reasoning_chat(backend, _MSGS, model="qwen.qwen3.5-122b", max_tokens=131_072)
+    assert backend.calls[0]["max_tokens"] == 131_072
+
+
+def test_reasoning_chat_model_none_single_call_no_fallback():
+    """model=None makes a single no-fallback call (the offline / injected-fake
+    test shape); no peer walk is attempted."""
+    backend = _RecordingBackend()
+    reasoning_chat(backend, _MSGS, model=None)
+    # Exactly ONE call, model=None, and no peer chain was walked.
+    assert [c["model"] for c in backend.calls] == [None]
+
+
+def test_reasoning_chat_302_outage_falls_to_peer():
+    """reasoning_chat inherits the model-down fast-fail: a 302→outage on the
+    primary routes to the peer after one attempt."""
+    backend = _RecordingBackend(down_models={"qwen.qwen3.5-122b"})
+    resp = reasoning_chat(backend, _MSGS, model="qwen.qwen3.5-122b")
+    assert resp.text == "OK from openai.gpt-oss-120b"
+    assert [c["model"] for c in backend.calls] == [
+        "qwen.qwen3.5-122b",
+        "openai.gpt-oss-120b",
+    ]
+
+
+def test_reasoning_chat_degrades_for_stub_backend():
+    """A stub backend whose chat signature omits max_tokens/temperature still
+    works — _chat_one_model degrades the kwargs (no per-module wrapper needed)."""
+
+    class _StubBackend:
+        name = "stub"
+
+        def __init__(self) -> None:
+            self.calls: list[dict] = []
+
+        def chat(self, messages, *, model=None):  # narrow signature
+            self.calls.append({"model": model})
+            return ChatResponse(text="STUB OK", model=model or "?", backend="stub")
+
+    stub = _StubBackend()
+    resp = reasoning_chat(stub, _MSGS, model="qwen.qwen3.5-122b")  # type: ignore[arg-type]
+    assert resp.text == "STUB OK"
+    assert stub.calls  # the call landed despite the narrow signature

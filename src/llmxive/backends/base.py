@@ -40,18 +40,26 @@ class TransientBackendError(BackendError):
     """A failure the router should fall back from (rate limit, 5xx, timeout)."""
 
 
-class DeadlineExceededError(TransientBackendError):
-    """A model did NOT respond within its full per-request wall-clock deadline.
+class ModelDownError(TransientBackendError):
+    """The specific model is UNAVAILABLE — not merely flickering.
 
-    Distinct from a fast-flap transient (302/connection-reset/5xx, which fails in
-    well under a second and is worth retrying generously). A full-deadline hang
-    means the model is hung/down, not flickering — each retry on the SAME model
-    costs ANOTHER full deadline (e.g. 360s for a reasoning model). So retry layers
-    must NOT burn the generous fast-flap retry budget on it; they should fail fast
-    and let the model-fallback chain escape to a healthy peer. Subclasses
+    Two triggers: the model hung past its full per-request deadline
+    (:class:`DeadlineExceededError`), or the gateway redirected to the
+    maintenance/outage page (a 302 → ``outage.dartmouth.edu``). Both mean
+    retrying the SAME model is futile and expensive (a deadline hang costs
+    another full deadline; an outage redirect will recur), so retry layers must
+    NOT burn the generous fast-flap retry budget on it — they fail fast and let
+    the model-fallback chain escape to a healthy peer. Subclasses
     TransientBackendError so existing transient handling (router fallback, the
-    panel's transient-no-escalation path) still treats it as recoverable.
+    panel's transient-no-escalation path) still treats it as recoverable;
+    ordinary fast flaps (generic 5xx/connection-reset) are NOT ModelDownError and
+    keep their generous retries.
     """
+
+
+class DeadlineExceededError(ModelDownError):
+    """A :class:`ModelDownError` where the model gave no response within its full
+    per-request wall-clock deadline (e.g. 360s for a reasoning model)."""
 
 
 class PermanentBackendError(BackendError):
@@ -156,6 +164,7 @@ __all__ = [
     "ChatMessage",
     "ChatResponse",
     "DeadlineExceededError",
+    "ModelDownError",
     "PermanentBackendError",
     "TransientBackendError",
     "invoke_with_deadline",

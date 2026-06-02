@@ -25,6 +25,8 @@ import re
 from collections.abc import Callable
 from typing import Literal
 
+from llmxive.backends.router import reasoning_chat
+
 from .types import TriageRecord
 
 # --- rule-based heuristics ---------------------------------------------------
@@ -216,7 +218,8 @@ def llm_topic_judge(
             stage=stage, lenses=", ".join(lenses) or "(none)", text=text,
         )
         try:
-            resp = backend.chat(  # type: ignore[attr-defined]
+            resp = reasoning_chat(
+                backend,  # type: ignore[arg-type]
                 [ChatMessage(role="user", content=prompt)],
                 model=model,
                 max_tokens=max_tokens,

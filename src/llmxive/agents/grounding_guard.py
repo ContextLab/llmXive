@@ -74,6 +74,7 @@ from llmxive.agents.citation_guard import (
     _inside_marker,
 )
 from llmxive.agents.prompts import load_prompt
+from llmxive.backends.router import reasoning_chat
 from llmxive.types import CitationKind
 
 logger = logging.getLogger(__name__)
@@ -83,8 +84,6 @@ _EXTRACTION_BLOCK_PATH = "agents/prompts/_shared/factual_grounding_extraction_bl
 # qwen3.5-122b (default panel/reviser model) is a reasoning model whose hidden
 # chain-of-thought counts against the response budget; mirror F-13's
 # reasoning-safe budget so the extraction call is not truncated.
-_REASONING_MAX_TOKENS = 131_072
-
 # The repo-wide default chat model (mirrors librarian/* + reviser fallbacks).
 # Real backends (Dartmouth) require ``model`` as a non-optional kwarg, so when a
 # caller threads ``model=None`` (the reviser path may, see ``spec_reviser`` which
@@ -370,20 +369,6 @@ def _followed_by_marker(text: str, literal: str) -> bool:
 # --- LLM extraction ---------------------------------------------------------
 
 
-def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
-    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
-    if model is not None:
-        kwargs["model"] = model
-    try:
-        return backend.chat(messages, **kwargs)
-    except TypeError:
-        kwargs.pop("max_tokens", None)
-        try:
-            return backend.chat(messages, **kwargs)
-        except TypeError:
-            return backend.chat(messages)
-
-
 def _cited_claim_from_fields(entry: dict[str, str]) -> CitedClaim | None:
     """Map one recovered ``{claim_text, source, number}`` dict to a CitedClaim.
 
@@ -523,7 +508,7 @@ def extract_cited_claims(
         ChatMessage(role="user", content="# Document to audit\n\n" + text + "\n\n# Task\n\nExtract the claims per the contract above; return the single YAML document."),
     ]
     try:
-        response = _chat_reasoning_safe(backend, messages, model or _DEFAULT_MODEL)
+        response = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
         reply = getattr(response, "text", "") or ""
         if not reply.strip():
             raise ValueError("extraction reply was empty")

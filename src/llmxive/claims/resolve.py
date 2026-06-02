@@ -34,8 +34,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Reasoning-safe token budget (mirrors grounding/entailment.py F-13 fix).
-_REASONING_MAX_TOKENS = 131_072
 _DEFAULT_MODEL = "qwen.qwen3.5-122b"
 
 

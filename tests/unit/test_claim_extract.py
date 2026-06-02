@@ -174,49 +174,11 @@ class TestStripNonclaimSections:
         assert "FR-002 here." in out
 
 
-class TestChatReasoningSafeFallback:
-    """The extraction reasoning call routes through the model-fallback chain so a
-    qwen flap escapes to a peer model (gpt-oss → gemma) instead of exhausting
-    retries on one down model — parity with the convergence panel/reviser."""
-
-    def test_routes_through_model_fallback(self, monkeypatch) -> None:
-        import llmxive.backends.router as router
-        from llmxive.claims.extract import _chat_reasoning_safe
-
-        seen: dict[str, object] = {}
-
-        def fake_fallback(backend, messages, *, model, max_tokens, temperature=None):
-            seen["model"] = model
-            seen["max_tokens"] = max_tokens
-            return "ROUTED"
-
-        monkeypatch.setattr(router, "chat_with_model_fallback", fake_fallback)
-        out = _chat_reasoning_safe(object(), [], "qwen.qwen3.5-122b")
-        assert out == "ROUTED"
-        assert seen["model"] == "qwen.qwen3.5-122b"
-        assert isinstance(seen["max_tokens"], int) and seen["max_tokens"] > 0
-
-    def test_degrades_to_direct_chat_for_stub_backend(self, monkeypatch) -> None:
-        import llmxive.backends.router as router
-        from llmxive.claims.extract import _chat_reasoning_safe
-
-        def boom(*a, **k):
-            raise TypeError("stub backend is not router-compatible")
-
-        monkeypatch.setattr(router, "chat_with_model_fallback", boom)
-
-        class _Stub:
-            def __init__(self) -> None:
-                self.calls: list[dict] = []
-
-            def chat(self, messages, **kwargs):
-                self.calls.append(kwargs)
-                return "DIRECT"
-
-        stub = _Stub()
-        out = _chat_reasoning_safe(stub, [], "qwen.qwen3.5-122b")
-        assert out == "DIRECT"
-        assert stub.calls  # the direct-chat path was exercised
+# NOTE: the extractor's reasoning call now routes through the central
+# router.reasoning_chat (the former local _chat_reasoning_safe was deleted in the
+# LLM-call centralization). reasoning_chat's routing + reasoning-safe budget +
+# stub-backend degradation are tested directly in
+# tests/unit/test_chat_with_model_fallback.py.
 
 
 class TestParseExtractionReply:
