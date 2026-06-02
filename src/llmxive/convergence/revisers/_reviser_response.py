@@ -95,10 +95,20 @@ RESPONSE_FORMAT_BLOCK = (
 # The path captures everything up to the trailing ``===`` on the BEGIN line;
 # the body is non-greedy up to the next END marker. DOTALL so the body may
 # span newlines.
+#
+# Equals-count TOLERANCE (``={2,}``): the prompt asks for exactly three ``=``,
+# but reasoning models emit the run NON-DETERMINISTICALLY as two, three, or more
+# ``=`` from one sample to the next. The strict 3-``=`` form silently extracted
+# ZERO artifacts whenever a sample used two — so the reviser's whole revision was
+# discarded, every concern padded ``<missing>``, and the panel kicked back (the
+# PROJ-552 plan-stage loop: round-1 happened to emit ``==`` → 0 artifacts →
+# kickback, while rounds that emitted ``===`` converged). The keywords
+# ``BEGIN_ARTIFACT`` / ``END_ARTIFACT`` anchor the match, so a looser delimiter
+# never over-matches ordinary ``==`` prose.
 _ARTIFACT_BLOCK_RE = re.compile(
-    r"^===BEGIN_ARTIFACT[ \t]+(?P<path>.+?)[ \t]*===[ \t]*\r?\n"
+    r"^={2,}BEGIN_ARTIFACT[ \t]+(?P<path>.+?)[ \t]*={2,}[ \t]*\r?\n"
     r"(?P<body>.*?)"
-    r"\r?\n?^===END_ARTIFACT===[ \t]*\r?$",
+    r"\r?\n?^={2,}END_ARTIFACT={2,}[ \t]*\r?$",
     re.DOTALL | re.MULTILINE,
 )
 

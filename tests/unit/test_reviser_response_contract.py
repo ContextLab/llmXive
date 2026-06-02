@@ -99,6 +99,40 @@ def test_delimited_multiple_artifacts():
     assert responses == []
 
 
+def test_delimited_tolerates_two_equals_delimiter_run():
+    """Regression (PROJ-552 plan-stage kickback loop): reasoning models emit the
+    ``=`` run NON-deterministically as two or three. The strict 3-``=`` regex
+    extracted ZERO artifacts whenever a sample used two → the entire revision was
+    discarded, every concern padded ``<missing>``, and the plan panel kicked back.
+    The delimiter must tolerate ``={2,}``. Body mirrors the real PROJ-552 schema
+    (``["number", "null"]`` — JSON-hostile, taken verbatim by the delimited form)."""
+    path = "specs/004-x/contracts/knot_record.schema.yaml"
+    body = 'type: ["number", "null"]\nminimum: 0'
+    reply = (
+        '```json\n{"responses": [{"concern_id": "C1", "response": "fixed", '
+        '"what_changed": "edited schema", "artifacts_changed": ["' + path + '"]}]}\n'
+        "```\n\n"
+        f"==BEGIN_ARTIFACT {path}==\n{body}\n==END_ARTIFACT==\n"
+    )
+    artifacts, responses = parse_reviser_response(reply, expected_artifacts=[path])
+    assert artifacts == {path: body}
+    assert responses and responses[0]["concern_id"] == "C1"
+
+
+def test_delimited_tolerates_mixed_equals_runs_in_one_reply():
+    """Two artifacts in one reply, one framed with two ``=`` and one with three —
+    both must extract (the model is not internally consistent within a reply)."""
+    reply = (
+        '```json\n{"responses": []}\n```\n'
+        "==BEGIN_ARTIFACT a/plan.md==\nplan body\n==END_ARTIFACT==\n"
+        "===BEGIN_ARTIFACT a/research.md===\nresearch body\n===END_ARTIFACT===\n"
+    )
+    artifacts, _responses = parse_reviser_response(
+        reply, expected_artifacts=["a/plan.md", "a/research.md"]
+    )
+    assert artifacts == {"a/plan.md": "plan body", "a/research.md": "research body"}
+
+
 def test_delimited_responses_parse_leniently_with_raw_newline():
     """A change-log JSON with a raw (unescaped) newline inside a string value
     must still parse via the lenient repair path."""
