@@ -318,8 +318,25 @@ _REASONING_MAX_TOKENS = 131_072
 
 
 def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
-    """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
-    gracefully for backends / fakes whose signature omits the kwargs."""
+    """Reasoning subject-query call WITH model fallback.
+
+    Routes through :func:`chat_with_model_fallback` so a transient qwen
+    outage/hang falls back to a peer model (gpt-oss-120b → gemma) on the SAME
+    backend — parity with the convergence panel/reviser — instead of exhausting
+    retries on one down model. Degrades to a direct ``backend.chat`` for stub
+    backends / fakes whose signature omits the kwargs (a ``TypeError`` from the
+    router walk). A ``model=None`` call has no chain to walk → direct chat.
+    """
+    if model is not None:
+        try:
+            from llmxive.backends.router import chat_with_model_fallback
+
+            return chat_with_model_fallback(
+                backend, messages, model=model, max_tokens=_REASONING_MAX_TOKENS
+            )
+        except TypeError:
+            pass  # stub / non-router backend → direct chat below
+
     kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
     if model is not None:
         kwargs["model"] = model

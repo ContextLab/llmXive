@@ -219,12 +219,26 @@ _DEFAULT_MODEL = "qwen.qwen3.5-122b"
 
 
 def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
-    """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
-    gracefully for backends / test fakes whose signature omits the kwargs."""
-    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
-    # Always include model — DartmouthBackend requires it as a keyword-only arg.
-    # Fall back to the default panel model when the caller passes None.
-    kwargs["model"] = model or _DEFAULT_MODEL
+    """Reasoning fill-extraction call WITH model fallback.
+
+    Routes through :func:`chat_with_model_fallback` so a transient qwen
+    outage/hang falls back to a peer model (gpt-oss-120b → gemma) on the SAME
+    backend — parity with the convergence panel/reviser — instead of exhausting
+    retries on one down model. Degrades to a direct ``backend.chat`` for stub
+    backends / test fakes whose signature omits the kwargs (a ``TypeError`` from
+    the router walk).
+    """
+    resolved = model or _DEFAULT_MODEL
+    try:
+        from llmxive.backends.router import chat_with_model_fallback
+
+        return chat_with_model_fallback(
+            backend, messages, model=resolved, max_tokens=_REASONING_MAX_TOKENS
+        )
+    except TypeError:
+        pass  # stub / non-router backend → direct chat below
+
+    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS, "model": resolved}
     try:
         return backend.chat(messages, **kwargs)
     except TypeError:

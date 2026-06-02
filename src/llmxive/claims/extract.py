@@ -106,6 +106,27 @@ def _filter_check_worthy(candidates: list[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def _chat_reasoning_safe(backend: Any, messages: list[Any], model: str | None) -> Any:
+    """Invoke ``backend`` for the extraction reasoning call, with model fallback.
+
+    Routes through :func:`chat_with_model_fallback` so a transient qwen
+    outage/hang falls back to a peer model (gpt-oss-120b → gemma) on the SAME
+    backend — the same resilience the convergence panel/reviser already use —
+    instead of exhausting retries on a single down model. Degrades to a direct
+    ``backend.chat`` for stub backends that don't fit the router contract (a
+    ``TypeError`` from the router walk), preserving the prior signature-degrading
+    behaviour. A genuine all-models failure propagates (the caller treats any
+    exception as an empty, no-op extraction pass).
+    """
+    if model is not None:
+        try:
+            from llmxive.backends.router import chat_with_model_fallback
+
+            return chat_with_model_fallback(
+                backend, messages, model=model, max_tokens=_REASONING_MAX_TOKENS
+            )
+        except TypeError:
+            pass  # stub / non-router backend → direct chat below
+
     kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
     if model is not None:
         kwargs["model"] = model
