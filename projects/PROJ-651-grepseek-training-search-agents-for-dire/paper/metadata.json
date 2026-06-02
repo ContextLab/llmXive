@@ -1,0 +1,46 @@
+{
+  "arxiv_id": "2605.29307",
+  "arxiv_url": "https://arxiv.org/abs/2605.29307",
+  "title": "GrepSeek: Training Search Agents for Direct Corpus Interaction",
+  "authors": [
+    "Alireza Salemi",
+    "Chang Zeng",
+    "Atharva Nijasure",
+    "Jui-Hui Chung",
+    "Razieh Rahimi",
+    "Fernando Diaz",
+    "Hamed Zamani"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Large Language Model (LLM) search agents have shown strong promise for knowledge-intensive language tasks through multiple rounds of reasoning and information retrieval. Most existing systems access information using a retriever that takes a keyword or natural language query and returns a ranked list of documents using an index of pre-computed document representations. In this work, we explore a complementary perspective in which the search agent treats the corpus itself as the search environment and finds evidence by issuing executable shell commands. We introduce GrepSeek, an optimized direct corpus interaction (DCI) search agent that trains a compact search agent to find, filter, and compose evidence from large text corpora. To address the instability of learning behavior directly with reinforcement learning on large corpora, we propose a two-stage training pipeline. First, we construct a cold-start dataset using an answer-aware Tutor and answer-blind Planner to generate verified, causally grounded search trajectories. Second, we refine the initialized policy with Group Relative Policy Optimization (GRPO), allowing the agent to improve its task-oriented search behavior through direct interaction with the corpus. To make DCI practical at scale, we further use a semantics-preserving sharded-parallel execution engine that accelerates shell-based retrieval by up to $7.6\\times$ while preserving byte-exact equivalence with sequential execution of the shell command. Experiments across seven open-domain question answering benchmarks show that GrepSeek achieves the strongest overall token-level $F_1$ and Exact Match. Our analysis also highlights the limitations of purely lexical interaction on queries with substantial surface-form variation, suggesting DCI as a practical and competitive method for search agents that can complement existing retrieval paradigms in the real world.",
+  "submitted_via": "llmXive dashboard, GitHub issue #257",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/goodfeli/dlbook_notation.",
+    "https://github.com/alirezasalemi7/grepseek",
+    "https://github.com/facebookresearch/faiss",
+    "https://github.com/verl-project/verl"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "iclr2026_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "fancyhdr.sty",
+    "figs",
+    "figs/efficiency_1x4.png",
+    "figs/example_fig.pdf",
+    "figs/main_figure.drawio.pdf",
+    "figs/sft_size_effect_em.png",
+    "figs/sft_size_effect_f1.png",
+    "figs/training_dynamics.png",
+    "iclr2026_conference.bib",
+    "iclr2026_conference.bst",
+    "iclr2026_conference.sty",
+    "iclr2026_conference.tex",
+    "math_commands.tex",
+    "natbib.sty"
+  ]
+}

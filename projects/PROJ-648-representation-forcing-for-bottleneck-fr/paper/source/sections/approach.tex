@@ -1,0 +1,58 @@
+\section{Representation Forcing}
+\label{sec:method}
+
+
+The design principle behind Representation Forcing is simple: in understanding, the encoder maps images to representations that capture high-level structure; in generation, the decoder mirrors this by predicting representations from text alone, before rendering them into pixels.
+In Sec.~\ref{sec:3.1}, we describe where these representations come from and how they are formulated. In Sec.~\ref{sec:3.2}, we show how the decoder predicts them to guide pixel-space generation. In Sec.~\ref{sec:3.3}, we present the overall architecture and training objective. The full training pipeline is illustrated in Figure~\ref{fig:overview}.
+
+\begin{figure}[t]
+\centering
+%\vspace{-4pt}
+\includegraphics[width=\linewidth]{figs/method.pdf}
+\caption{\textbf{Training pipeline of Representation Forcing.} \emph{Left:} The decoder processes a unified sequence of text tokens~(T), representation tokens~(R), and pixel patches~(P) within a shared transformer. Text and representation tokens are predicted autoregressively under next-token prediction ($\mathcal{L}_{\mathrm{LM}}$ and $\mathcal{L}_{\mathrm{Rep}}$), while pixel patches are generated via bidirectional diffusion from noise ($\mathcal{L}_{\mathrm{FM}}$). The image encoder provides continuous visual features to the transformer for understanding tasks. \emph{Right:} For generation training, an EMA copy of the image encoder extracts features from the ground-truth image, which are discretized via online quantization into representation tokens. These tokens provide both the training targets for $\mathcal{L}_{\mathrm{Rep}}$ and the teacher-forcing inputs at R positions. At inference, the right panel is bypassed entirely: the decoder predicts representation tokens from the text prompt alone, and these tokens remain in context to guide pixel-space diffusion.}
+\label{fig:overview}
+\end{figure}
+
+
+\subsection{Representations from Understanding}
+\label{sec:3.1}
+
+Rather than relying on an external latent space, we seek an intermediate representation that captures high-level structure \emph{from within the model itself}, so that pixel-space diffusion can focus on low-level rendering. The understanding encoder provides a natural source: its features, trained for visual comprehension, already encode the structural content we need. The encoder is jointly trained with the rest of the model. To make its features predictable by the decoder under the same next-token objective as text, and easy to sample at inference, we discretize them into a sequence of \emph{visual representation tokens} via vector quantization. Beyond enabling unified training, discretization encourages the representations to retain high-level structure while discarding fine-grained details, which achieves the factorization we seek between representation prediction and pixel rendering. We validate this choice against continuous regression in Sec.~\ref{sec:ablation}.
+
+We perform this discretization through online vector quantization, which requires no separate pretrained tokenizer. Since the encoder is jointly trained, its features evolve throughout training; we therefore extract features from an exponential moving average (EMA) copy of the encoder, providing slow-moving targets that keep the discrete assignments stable. Specifically, we use patch-level features from the last layer of the EMA encoder, before the final norm. We maintain a codebook of $K$ learnable prototype embeddings; for each patch-level feature, we compute its cosine similarity to all prototypes and assign it to the nearest one, producing a discrete token index. The codebook is updated online via momentum update following SwAV~\cite{swav}, and we apply Sinkhorn--Knopp balancing~\cite{knight2008sinkhorn} to prevent codebook collapse. This yields one representation token per spatial patch, forming a sequence that mirrors the spatial layout of the image and can be predicted in raster-scan order.
+
+
+
+
+\subsection{Generating Pixels via Predicted Representations}
+\label{sec:3.2}
+
+With the representation tokens defined, we now describe how the decoder uses them to generate images. During training, the EMA encoder provides the representation tokens as ground-truth targets, and the decoder learns to predict them autoregressively under cross-entropy loss, within the same next-token prediction stream as text. At inference, the encoder is no longer involved: the decoder produces the representation tokens from the text prompt alone. We call this process \textbf{Representation Forcing}: on one hand, the understanding encoder's representations force the decoder to learn the same high-level visual structure; on the other hand, the decoder's predicted representations force the pixel generation process to follow the intended semantic layout.
+
+Once predicted, the representation tokens remain in the sequence and serve as in-context conditioning for pixel-space generation; the pixel patches form the final image, while the representation tokens themselves are not part of the visible output. The same backbone performs this generation through flow matching. Following JiT~\cite{jit}, we adopt x-prediction with velocity loss. Given clean patches $\mathbf{x}$ and Gaussian noise $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$, noisy patches at time $t \in [0, 1]$ are
+\begin{equation}
+    \mathbf{z}_t = t\,\mathbf{x} + (1 - t)\,\boldsymbol{\epsilon}.
+\end{equation}
+The decoder predicts $\mathbf{x}_\theta$, and the flow-matching loss is
+\begin{equation}
+    \mathcal{L}_{\text{FM}} = \mathbb{E} \big\| \mathbf{v}_\theta - \mathbf{v} \big\|^2,
+\end{equation}
+where $\mathbf{v} = \mathbf{x} - \boldsymbol{\epsilon}$ and $\mathbf{v}_\theta = (\mathbf{x}_\theta - \mathbf{z}_t)/(1 - t)$.
+
+
+
+At the sequence level, as shown in Figure~\ref{fig:overview}, the model processes a unified token sequence structured as [text tokens, representation tokens, pixel patches]. Within the shared self-attention of the backbone, text and representation tokens follow causal attention as in standard autoregressive modeling, while the noisy pixel patches attend bidirectionally to each other and causally to all preceding text and representation tokens. This attention pattern is what makes the representation tokens act as in-context conditioning: the high-level structure they encode flows into pixel generation through standard self-attention, without any additional cross-attention or injection module.
+
+
+\subsection{Training and Inference}
+\label{sec:3.3}
+Our model adopts the Mixture-of-Transformers (MoT) architecture following BAGEL~\cite{bagel}. All tokens share the same multi-head self-attention layers, but are routed to modality-specific feed-forward experts based on their type. We maintain three groups of experts: one for multimodal understanding, one for representation token prediction, and one for pixel generation. Each representation token is embedded as the sum of two learnable embeddings: a 2D spatial position embedding, and a token identity embedding indexed by the discrete token ID. The latter is stored in a separate $K$-entry table.
+
+
+The model is trained end-to-end with a combined objective:
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{\text{LM}} + \mathcal{L}_{\text{FM}} + \mathcal{L}_{\text{Rep}},
+\end{equation}
+where $\mathcal{L}_{\text{LM}}$ is the cross-entropy loss for text next-token prediction, $\mathcal{L}_{\text{Rep}}$ is the cross-entropy loss for representation token prediction, and $\mathcal{L}_{\text{FM}}$ is the flow-matching loss for pixel generation following the x-prediction formulation in Sec.~\ref{sec:3.2}. To support classifier-free guidance at inference, we independently drop the text conditioning and the representation token sequence with probability 0.1 during training.
+
+At inference, generation proceeds in two stages. The decoder first produces the full representation token sequence autoregressively from the text prompt. Conditioned on both the text and the predicted representation tokens, the decoder then performs iterative denoising from Gaussian noise to synthesize the final image directly in pixel space. Classifier-free guidance is applied to both conditions.

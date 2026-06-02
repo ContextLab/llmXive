@@ -1,0 +1,39 @@
+{
+  "arxiv_id": "2605.31159",
+  "arxiv_url": "https://arxiv.org/abs/2605.31159",
+  "title": "Trust-Region Behavior Blending for On-Policy Distillation",
+  "authors": [
+    "Daniil Plyusov",
+    "Alexey Gorbatovski",
+    "Alexey Malakhov",
+    "Nikita Balagansky",
+    "Boris Shaposhnikov",
+    "Daria Korotyshova",
+    "Daniil Gavrilov"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "On-policy distillation (OPD) trains a student on prefixes sampled from its own policy while matching a stronger teacher. This addresses the prefix mismatch of offline distillation, but early student rollouts can still be poor, placing teacher supervision on weak or low-quality prefixes. We propose Trust-Region behavior Blending (TRB), a warmup method that replaces the early rollout policy with the closest-to-teacher behavior policy inside a student-centered KL trust region, while keeping the per-prefix reverse-KL OPD loss unchanged. The KL budget is annealed to zero, so training returns to pure student rollouts after warmup. Across two math-reasoning distillation settings, TRB attains the strongest average among the compared methods.",
+  "submitted_via": "llmXive dashboard, GitHub issue #259",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "arxiv.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_natbib.bst",
+    "acl.sty",
+    "arxiv.tex",
+    "custom.bib",
+    "images",
+    "images/continuation_gain.pdf",
+    "images/opd_skd_k50_t1_mean_0p6b_4b.pdf",
+    "images/tm_entropy_mean_1p7b_8b_trb_e0_02_es50.pdf",
+    "images/0p6b_4b_mean.pdf",
+    "images/support_vs_reward_auc_1p7b_8b_colored_paper.pdf",
+    "images/1p7b_8b_mean.pdf",
+    "images/trust_region.pdf"
+  ]
+}

@@ -1,0 +1,119 @@
+% Pass [table] option to xcolor (loaded by bytedance_seed.cls) for \rowcolor support.
+\PassOptionsToPackage{table}{xcolor}
+% Pass [normalem] option to ulem so \emph stays italic instead of becoming underline.
+\PassOptionsToPackage{normalem}{ulem}
+
+\documentclass[]{bytedance_seed}
+
+% single-column: \documentclass[]{bytedance_seed},
+% Please prioritize using single-column.
+%
+% twocolumn: \documentclass[twocolumn]{bytedance_seed}
+
+\usepackage[toc,page,header]{appendix}
+\usepackage{minitoc}
+
+% Additional packages required by the paper body
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{listings}
+\usepackage{marvosym} % for \Letter (envelope symbol for corresponding author)
+\newcommand{\corrmark}{\text{\Letter}}
+\lstset{
+  basicstyle=\small\ttfamily,
+  commentstyle=\color{teal},
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  mathescape=true,
+  emph={normalize, softmax, argmax, matmul, scatter_add, zeros, ones, view, expand},
+  emphstyle=\color{magenta},
+}
+
+%%%%%%%%%%%%%%%%%%%%
+
+\title{Representation Forcing for Bottleneck-Free Unified Multimodal Models}
+
+\author[1,2\,\dagger]{Yuqing Wang}
+\author[2\,\ddagger]{Zhijie Lin}
+\author[2]{Ceyuan Yang}
+\author[2]{Yang Zhao}
+\author[2]{Fei Xiao}
+\author[3,2\,\dagger]{Hao He}
+\author[2]{\\Qi Zhao}
+\author[2]{Zihan Ding}
+\author[3,2\,\dagger]{Fuyun Wang}
+\author[4,2\,\dagger]{Shuai Wang}
+\author[5,2\,\dagger]{Youliang Zhang}
+\author[2]{\\Haoqi Fan}
+\author[1\,\corrmark]{Xihui Liu}
+
+\affiliation[1]{University of Hong Kong}
+\affiliation[2]{ByteDance Seed}
+\affiliation[3]{The Chinese University of Hong Kong}
+\affiliation[4]{Nanjing University}
+\affiliation[5]{Tsinghua University}
+
+% Override the auto-built affiliation list so the line break after ByteDance Seed
+% does not leave a leading comma at the start of the next line.
+\renewcommand{\affiliationlist}{%
+  \affiliationformat[1]{University of Hong Kong},\;%
+  \affiliationformat[2]{ByteDance Seed}\\%
+  \affiliationformat[3]{The Chinese University of Hong Kong},\;%
+  \affiliationformat[4]{Nanjing University},\;%
+  \affiliationformat[5]{Tsinghua University}%
+}
+
+% Both contributions are rendered as footnotes on the first page (after \maketitle) instead of the title block.
+% \contribution[\dagger]{Work done during an internship at ByteDance Seed}
+% \contribution[\corrmark]{Corresponding author}
+
+\abstract{
+Unified multimodal models (UMMs) aim to handle perception and generation in a single model. Yet existing UMMs still rely on a frozen, separately pretrained VAE for image generation, imposing a structural bottleneck. Naively removing it introduces a quality gap, as the model must learn both high-level structure and low-level details from raw pixels. In this paper, we propose Representation Forcing (RF), a technique that closes this gap by making representation prediction a native capability of the model. Concretely, RF forces the decoder to autoregressively predict visual representations as intermediate tokens before pixels; these tokens then stay in context to guide pixel diffusion within the same backbone. By turning representations from perception outputs into generation targets, RF eliminates the need for any external generative latent space. We find that RF benefits both understanding and generation. On image generation, our pixel-space model with RF matches state-of-the-art VAE-based unified models. On image understanding, pixel-space RF generally outperforms its VAE-based variant. Together, these results offer an effective step toward end-to-end, bottleneck-free UMMs.
+}
+
+\date{\today}
+% \correspondence{Xihui Liu at \email{xxx@xxx}}
+
+% You can add additional info fields as follows
+\checkdata[Project Page]{\url{https://yuqingwang1029.github.io/RepresentationForcing}}
+
+\begin{document}
+\maketitle
+
+% Footnotes at the bottom of the first page (custom marks match the author superscripts).
+{\renewcommand{\thefootnote}{$\dagger$}%
+ \footnotetext{Work done during an internship at ByteDance Seed.}}
+{\renewcommand{\thefootnote}{$\ddagger$}%
+ \footnotetext{Project lead.}}
+{\renewcommand{\thefootnote}{\corrmark}%
+ \footnotetext{Corresponding author.}}
+\setcounter{footnote}{0}
+
+% 不需要目录就注释掉 注意目录不要和第一页放在一块 要有\newpage
+%\newpage
+%\tableofcontents
+%\newpage
+
+\input{sections/introduction}
+\input{sections/relatedwork}
+\input{sections/approach}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+
+\beginappendix
+
+\input{sections/appendix}
+
+\end{document}

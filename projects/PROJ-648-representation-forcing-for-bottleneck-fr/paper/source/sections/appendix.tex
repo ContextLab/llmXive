@@ -1,0 +1,102 @@
+\section{Implementation Details}
+
+\textbf{Training.} We train using AdamW~\cite{adamw} ($\beta_1{=}0.9$, $\beta_2{=}0.95$, $\epsilon{=}10^{-8}$, weight decay $0.1$, gradient clipping $1.0$). The learning rate follows linear warmup followed by a constant schedule, with a base rate of $5{\times}10^{-5}$ in Stages 1--2 and $2.5{\times}10^{-5}$ in Stage 3 for high-resolution stability. Newly initialized generation-related parameters use a $4{\times}$ multiplier on the base rate, while the LLM backbone keeps the base rate. Each GPU processes sequences of $32{,}768$ tokens, packed via NaViT-style variable-resolution batching. The online vector quantization codebook is updated via momentum (decay $0.9999$, $1$ Sinkhorn-Knopp iteration, temperature $0.5$); pseudocode is provided in Algorithm~\ref{alg:online_vq}. For classifier-free guidance, we independently drop the text condition and the entire representation token sequence, each with probability $0.1$.
+
+\textbf{Inference.} We maintain an exponential moving average of model parameters with decay $0.9999$ and perform inference using the EMA model. Generation proceeds in two stages: the decoder first produces the full representation token sequence autoregressively from the text prompt using top-$k$ sampling, then denoises Gaussian noise into pixel patches over $25$ flow-matching steps with dynamic timestep shifting~\cite{sd3}, conditioned on the text and predicted representation tokens. We apply two-condition CFG with $w_{\text{rep}}{=}2.0$ for representation token sampling and $w_{\text{pix}}{=}3.0$ for pixel patch denoising.
+
+\section{Online Vector Quantization Algorithm}
+\label{sec:appendix-vq}
+
+\begin{algorithm}[h]
+\caption{Pseudocode of Online Vector Quantization (PyTorch-like).}
+\label{alg:online_vq}
+\begin{lstlisting}[language=Python]
+# f_m: EMA understanding encoder
+# X: batch of samples (BxHxWx3)
+# C: visual prototypes (KxD)
+# m: momentum (default 0.9999)
+# t: temperature (default 0.5)
+
+Z = f_m(X).view(B * L, D)           # extract continuous features via EMA encoder
+Z = normalize(Z, dim=1)
+score = matmul(Z, C.T) / t          # pairwise cosine sims: (B*L, K)
+score = softmax(score, dim=1)       # row-normalize
+score = softmax(score, dim=0)       # column-normalize (Sinkhorn-Knopp, 1 iteration)
+A = argmax(score, dim=1)            # discrete assignment: (B*L,)
+
+N_k, C_new = zeros(K), zeros(K, D)
+A_c = A.view(B * L, 1).expand(B * L, K)
+C_new = scatter_add(C_new, dim=0, index=A_c, src=Z)
+N_k = scatter_add(N_k, dim=0, index=A, src=ones(B * L))
+C_new = normalize(C_new / N_k, dim=1) # new prototypes from assignments
+C = m * C + (1 - m) * C_new           # momentum update
+C = normalize(C, dim=1)
+\end{lstlisting}
+\end{algorithm}
+
+
+
+% \section{Text-to-Image Generation Prompts}
+% \label{app:prompts}
+
+% We provide the complete text prompts used to generate the images shown in the main paper.
+
+% \subsection{Qualitative Results (Figure~2)}
+
+% The following prompts correspond to the generated images in Figure~2, listed in row-major order (left to right, top to bottom).
+
+% \begin{table}[H]
+% \centering
+% \small
+% \renewcommand{\arraystretch}{1.3}
+% \begin{tabular}{c|p{12.5cm}}
+% \toprule
+% \textbf{\#} & \textbf{Prompt} \\
+% \midrule
+% 1 & A close-up photograph of a weathered Moai stone statue on Easter Island at sunset, its massive rectangular head and deep-set eye sockets carved from dark volcanic tuff. The statue stands on a grassy hillside overlooking the Pacific Ocean. A dramatic sky of deep orange, crimson, and purple clouds stretches behind it. \\
+% 2 & A black-and-white film photograph of a tabby cat wearing a small top hat perched between its ears, staring directly at the camera with an intense, dignified expression. The cat's striped fur pattern is sharply detailed, with long white whiskers fanning out symmetrically. High-contrast monochrome with rich tonal range. \\
+% 3 & A close-up portrait of an elderly Rajasthani man wearing a bright saffron-orange turban, his face deeply weathered with pronounced wrinkles across his forehead, cheeks, and neck. He has a long, upturned white mustache waxed to fine points. He wears a simple white cotton kurta. The background is a sun-baked pink sandstone wall. \\
+% 4 & A head-on close-up portrait of a giraffe looking directly into the camera with large dark eyes, its face filling the frame. The distinctive brown patch pattern and pale cream dividing lines are clearly visible. Two short ossicones topped with tufts of dark hair rise from its head. Clear blue sky background. \\
+% 5 & A rustic cast-iron skillet filled with a freshly baked blueberry and blackberry cobbler, topped with a scoop of melting vanilla ice cream. The golden-brown biscuit crust is cracked and rustic, revealing bubbling dark purple berry filling beneath. Steam rises from the hot dessert. The skillet sits on a grey linen cloth on a weathered wooden table. \\
+% 6 & A cozy still life seen through a rain-streaked window: a steaming cup of coffee on a wooden windowsill beside a small potted cactus and an open book. Outside the window, a blurred rainy city street with cars and pedestrians is visible through the wet glass. Warm indoor lighting contrasts with the grey overcast exterior. \\
+% 7 & A photorealistic photograph of a fox sculpted entirely from peeled clementine and orange segments, sitting in a lifelike pose on a dark slate surface. The body is constructed from overlapping citrus segments layered like fur, the tail curls upward in an elaborate spiral of thin orange slices. Green grape halves for eyes. \\
+% 8 & A striking portrait of a young woman standing still in a busy city crosswalk, wearing a bright powder-blue puffer jacket. She looks directly at the camera with a calm expression while dozens of pedestrians around her are captured in motion blur, creating ghostly streaks of movement. Overcast urban daylight. \\
+% 9 & A close-up portrait of a small scruffy terrier mix with golden-brown wiry fur, dark round eyes, and a black nose, looking directly into the camera with a sweet, slightly tilted head. Its coat is tousled and naturally messy. Warm indoor ambient lighting with a softly blurred domestic background. \\
+% 10 & A photograph taken from inside a sea cave looking outward, the cave opening framing a view of brilliant turquoise ocean water. The cave walls and ceiling are rough limestone in shades of blue-grey and warm tan. The water inside the cave is crystal clear, revealing the rocky bottom. \\
+% 11 & A vibrant photograph of a narrow cobblestone alley in a Mediterranean hillside village, flanked by colorful painted buildings in blue, yellow, pink, and white. The stone-paved path slopes upward. Colorful festive bunting flags are strung across the alley. Potted flowers line the doorways. Bright midday sunlight. \\
+% 12 & A detailed close-up of an ornate antique iron door knocker in the shape of a mythical dragon, mounted on a weathered oak door. The creature has a scaled body, curling tail, and holds a heavy ring in its mouth. The cast iron shows centuries of patina with dark oxidation. The wooden door has deep grain lines and cracks. \\
+% 13 & A close-up of a small handmade amigurumi crochet doll held in someone's hand. The doll has a round beige crocheted head with two small black bead eyes, a tiny smile, and wild curly orange yarn hair. It wears a small blue crocheted outfit. Visible individual yarn stitches, shallow depth of field. \\
+% 14 & An illustration in the style of traditional Japanese ukiyo-e woodblock printing depicting a great wave with white foam crests curling dramatically, with Mount Fuji visible in the background under stylized clouds. Characteristic limited color palette of indigo blue, white, and cream. \\
+% 15 & A close-up photograph of a single maple leaf-shaped cookie in warm autumn orange-red color, held between someone's fingers. The cookie has detailed veining patterns pressed into its surface mimicking a real maple leaf. Warm natural lighting highlights the translucent edges. \\
+% \bottomrule
+% \end{tabular}
+% \caption{Text prompts used for qualitative results in Figure~2.}
+% \label{tab:prompts_fig2}
+% \end{table}
+
+% \subsection{Ablation: Effect of Representation Forcing (Figure~4)}
+
+% The following prompts are used for the qualitative comparison between models trained with and without Representation Forcing in Figure~4. Each prompt is used to generate images under both settings with the same random seed.
+
+% \begin{table}[H]
+% \centering
+% \small
+% \renewcommand{\arraystretch}{1.3}
+% \begin{tabular}{c|p{12.5cm}}
+% \toprule
+% \textbf{\#} & \textbf{Prompt} \\
+% \midrule
+% 1 & A collection of ornate vintage glass perfume bottles arranged on an oval mirror tray on a vanity table. The bottles vary in size, shape, and color: deep cobalt blue, emerald green, clear crystal, and warm amber. Each has a decorative glass stopper. A pearl necklace is draped among the bottles. \\
+% 2 & A photorealistic photograph of a cat sculpted entirely from sliced kiwi fruit, sitting in a classic cat loaf position on a white marble surface. The body is formed from overlapping green kiwi rounds showing the distinctive black seed pattern. The face has bright green grape halves for eyes, a small pink nose, and thin grass stem whiskers. \\
+% 3 & Two kittens sleeping intertwined in a wicker basket lined with a chunky cream knitted blanket. One kitten is a black-and-white tuxedo with a dark face and white paws, the other is a pale ginger tabby with soft orange fur. Their tiny paws are curled together and their eyes are peacefully closed. Warm natural window light. \\
+% 4 & A pair of old leather boots sitting on a forest floor, completely overgrown with lush green moss, tiny ferns, and small white mushrooms sprouting from the tongue and lace holes. The leather is cracked and darkened with moisture. The forest floor is covered in pine needles and fallen leaves. Soft filtered forest light. \\
+% 5 & A vintage fire hydrant with heavy green patina and rust standing on fallen autumn leaves, with a tall glass of iced tea topped with fresh blueberries and a wooden stirrer placed beside it. The hydrant shows layers of peeling paint revealing corroded iron beneath. Warm afternoon natural light. \\
+% \bottomrule
+% \end{tabular}
+% \caption{Text prompts used for the ablation study in Figure~4.}
+% \label{tab:prompts_fig4}
+% \end{table}
+
+\section{Broader Impact}
+
+Like other text-to-image generation systems, Representation Forcing could potentially be misused to generate misleading or harmful visual content, including disinformation, non-consensual imagery, or deepfakes. Standard safeguards used for unified multimodal models---including safety filters, output watermarking, and controlled access---apply to RF-based systems.

@@ -1,0 +1,46 @@
+\section{Introduction}
+\label{sec:intro}
+
+
+
+The ability to perform understanding (text output) and generation (pixel output) within a unified framework represents a fundamental step toward general-purpose multimodal intelligence~\cite{chameleon,emu3,bagel,showo,janus}. Prevailing unified multimodal models (UMMs) pursue this by bringing language and image generation into a shared transformer backbone~\cite{transfusion, janusflow, bagel}, with next-token prediction for language and diffusion for image generation. However, despite this unification, the image generation pathway still depends on a separately pretrained, frozen VAE~\cite{vae,esser2020taming,stable_diff}: images are compressed into latents before diffusion is applied, and pixels are recovered through a fixed decoder. This creates a structural bottleneck. The latent space is optimized for reconstruction rather than the objectives of the unified model, and its lossy compression imposes a hard upper bound on generation quality that further training of the UMM cannot overcome. Removing this bottleneck is an important step toward end-to-end UMMs.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/teaser.pdf}
+\caption{\textbf{Architectural comparison.} (a)~Prevailing UMMs rely on a frozen VAE encoder and decoder for image generation, creating a structural bottleneck. (b)~Naively removing the VAE and generating directly in pixel space eliminates this bottleneck but loses structural guidance, leading to a quality gap. (c)~Representation Forcing closes this gap by training the transformer decoder to autoregressively predict visual representations (Rep head) before pixel generation. These representations are trained to match features from the model's own understanding encoder and remain in context within the shared transformer, providing structural guidance for pixel-space diffusion without any external latent space.}
+\label{fig:teaser}
+\end{figure}
+
+
+A natural alternative is to generate directly in pixel space. Recent works have shown pixel-space diffusion to be feasible for standalone generation models~\cite{jit,pixelflow,pixnerd}. However, we find that directly applying these methods in UMMs fails to match the quality of VAE-based counterparts. 
+We attribute this to the broader image distribution and richer text conditioning in UMMs: the model must learn both the high-level semantic structure and fine-grained details of an image from the same raw signal. 
+This motivates an intermediate representation that separates these two factors, so that the diffusion process can focus on low-level rendering without falling back to an external latent space.
+% We attribute this to the lack of a visually-grounded intermediate abstraction between text and raw pixels: the model must learn both the high-level semantic structure and fine-grained details of an image from the same raw signal. 
+
+The key question is where such a representation should come from. We observe that UMMs already provide one internally: their understanding pathway learns visual representations that capture high-level structure, such as object identity, spatial layout, and scene composition. In understanding, the encoder~\cite{siglip,tschannen2025siglip2,dinov2,dinov3} extracts these representations from observed images. In generation, however, no image is available, and the model must produce them from the input context alone. This means the model must learn to predict these representations on its own.
+
+
+In this paper, we propose \textbf{Representation Forcing} (RF), an approach that closes this gap by making representation prediction a native capability of the model. Our key idea is to ground the high-level visual representation in the decoder itself. Concretely, we use visual representations extracted by the understanding encoder as targets, and train the model decoder to predict them autoregressively under the same next-token prediction objective used for language. These predicted representations provide an explicit structural scaffold between text and pixels; they remain in the sequence as in-context conditioning, guiding pixel-space generation within the shared transformer. By turning representations from perception outputs into generation targets, RF grounds understanding and generation in a single representation space, without relying on a separately pretrained latent space (Figure~\ref{fig:teaser}).
+
+
+
+To validate Representation Forcing, we apply it to both pixel-space and VAE-based UMMs under controlled settings with the same architecture, data, and training budget. On image generation, our pixel-space model with RF matches the VAE-based baseline across standard benchmarks while preserving rich textural details (Figure~\ref{fig:demo}). On understanding, pixel-space RF outperforms its VAE-based variant, showing that pixel-space generation is more compatible with unified multimodal modeling than VAE-based generation. Ablations further reveal that RF is critical for pixel-space generation, while also bringing improvements to VAE-based settings. Together, these findings demonstrate that Representation Forcing benefits both directions of unified multimodal modeling, offering an effective step toward pixel-space, bottleneck-free UMMs.
+
+
+The main contributions of this work are summarized as follows:
+\begin{itemize}
+\item We propose Representation Forcing (RF), a simple approach that closes the quality gap of pixel-space image generation in unified multimodal models, eliminating the need for any pretrained VAE. RF trains the decoder to autoregressively predict visual representations as intermediate tokens, which then serve as in-context structural guidance for pixel-space diffusion within the same backbone.
+
+\item RF benefits both image generation and understanding across pixel-space and VAE-based UMMs. In particular, our pixel-space model with RF matches the VAE-based counterpart on generation and outperforms it on understanding, suggesting that pixel-space generation is more compatible with unified multimodal modeling than VAE-based generation.
+
+\item Our work advocates for unified multimodal models where perception and generation share a single, end-to-end-learned representation space, rather than coordinate across separately pretrained components such as external VAEs. Representation Forcing is a step toward fully unified multimodal models, where all capabilities are learned end-to-end within the model itself rather than inherited from independently trained components.
+\end{itemize}
+
+\begin{figure}[t]
+\centering
+% \vspace{-5pt}
+\includegraphics[width=\linewidth]{figs/demo.pdf}
+\caption{Text-to-image generation results at $1024 \times 1024$ resolution from our pixel-space unified model with Representation Forcing.}
+\label{fig:demo}
+\end{figure}

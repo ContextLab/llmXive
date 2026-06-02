@@ -1,0 +1,256 @@
+\section{Experiments}
+
+\subsection{Experimental Setup}
+\label{sec:exp_setup}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{2.8pt}
+\caption{\textbf{Evaluation of text-to-image generation.} $\dagger$ refers to methods using LLM rewriter. Our pixel-space model with Representation Forcing (RF-Pixel) matches state-of-the-art VAE-based unified models on both GenEval and DPG-Bench, without relying on any pretrained VAE.}
+\label{tab:geneval}
+\begin{tabular}{l|ccccccc|c}
+\toprule
+& \multicolumn{7}{c|}{GenEval} & DPG \\
+\cmidrule(lr){2-8} \cmidrule(lr){9-9}
+Model & Single Obj. & Two Obj. & Counting & Colors & Position & Color Attri. & Overall$\uparrow$ & Overall$\uparrow$ \\
+\midrule
+\multicolumn{9}{l}{\textit{Generation Only}} \\
+\midrule
+PixArt-$\alpha$~\cite{pixart}     & 0.98 & 0.50 & 0.44 & 0.80 & 0.08 & 0.07 & 0.48 & 71.11 \\
+SDv2.1~\cite{stable_diff}               & 0.98 & 0.51 & 0.44 & 0.85 & 0.07 & 0.17 & 0.50 & 68.09 \\
+DALL-E 2~\cite{dalle2}            & 0.94 & 0.66 & 0.49 & 0.77 & 0.10 & 0.19 & 0.52 & -- \\
+SDXL~\cite{sdxl}                  & 0.98 & 0.74 & 0.39 & 0.85 & 0.15 & 0.23 & 0.55 & 74.65 \\
+DALL-E 3~\cite{dalle3}            & 0.96 & 0.87 & 0.47 & 0.83 & 0.43 & 0.45 & 0.67 & 83.50 \\
+SD3-Medium~\cite{sd3}             & 0.99 & 0.94 & 0.72 & 0.89 & 0.33 & 0.60 & 0.74 & 84.08 \\
+FLUX.1-dev$^\dagger$~\cite{flux}  & 0.98 & 0.93 & 0.75 & 0.93 & 0.68 & 0.65 & 0.82 & 84.00 \\
+Seedream 3.0~\cite{seedream}      & 0.99 & 0.96 & 0.91 & 0.93 & 0.47 & 0.80 & 0.84 & 88.27 \\
+Z-Image-Turbo~\cite{zimageturbo}  & 1.00 & 0.95 & 0.77 & 0.89 & 0.65 & 0.68 & 0.82 & 84.86 \\
+Qwen-Image~\cite{qwenimage}       & 0.99 & 0.92 & 0.89 & 0.88 & 0.76 & 0.77 & 0.87 & 88.32 \\
+\midrule
+\multicolumn{9}{l}{\textit{Unified Models}} \\
+\midrule
+Chameleon~\cite{chameleon}         & --   & --   & --   & --   & --   & --   & 0.39 & -- \\
+LWM~\cite{lwm}                    & 0.93 & 0.41 & 0.46 & 0.79 & 0.09 & 0.15 & 0.47 & -- \\
+SEED-X~\cite{seedx}               & 0.97 & 0.58 & 0.26 & 0.80 & 0.19 & 0.14 & 0.49 & -- \\
+TokenFlow-XL~\cite{tokenflow}     & 0.95 & 0.60 & 0.41 & 0.81 & 0.16 & 0.24 & 0.55 & 73.38 \\
+ILLUME~\cite{illume}               & 0.99 & 0.86 & 0.45 & 0.71 & 0.39 & 0.28 & 0.61 & -- \\
+Janus~\cite{janus}                & 0.97 & 0.68 & 0.30 & 0.84 & 0.46 & 0.42 & 0.61 & -- \\
+Transfusion~\cite{transfusion}    & --   & --   & --   & --   & --   & --   & 0.63 & -- \\
+Emu3$^\dagger$~\cite{emu3}        & 0.99 & 0.81 & 0.42 & 0.80 & 0.49 & 0.45 & 0.66 & 81.60 \\
+Show-o~\cite{showo}               & 0.98 & 0.80 & 0.66 & 0.84 & 0.31 & 0.50 & 0.68 & -- \\
+Show-o2~\cite{showo2}             & 1.00 & 0.87 & 0.58 & 0.92 & 0.52 & 0.62 & 0.76 & 86.14 \\
+Janus-Pro-7B~\cite{janus-pro}     & 0.99 & 0.89 & 0.59 & 0.90 & 0.79 & 0.66 & 0.80 & 84.19 \\
+MetaQuery-XL$^\dagger$~\cite{metaquery} & -- & -- & -- & -- & -- & -- & 0.80 & 82.05 \\
+BLIP3-o~\cite{blip3o}             & --   & --   & --   & --   & --   & --   & 0.84 & 81.60 \\
+UniWorld-V1$^\dagger$~\cite{uniworld} & 0.98 & 0.93 & 0.81 & 0.89 & 0.74 & 0.71 & 0.84 & 81.38 \\
+OmniGen2$^\dagger$~\cite{omnigen2} & 0.99 & 0.96 & 0.74 & 0.98 & 0.71 & 0.75 & 0.86 & 83.57 \\
+BAGEL~\cite{bagel}                & 0.99 & 0.94 & 0.81 & 0.88 & 0.64 & 0.63 & 0.82 & 85.07 \\
+BAGEL$^\dagger$~\cite{bagel}      & 0.98 & 0.95 & 0.84 & 0.95 & 0.78 & 0.77 & 0.88 & -- \\
+\midrule
+\rowcolor{gray!10}\textbf{RF-Pixel (ours)} & 0.99 & 0.93 & 0.84 & 0.89 & 0.74 & 0.66 & 0.84 & 84.15 \\
+\rowcolor{gray!10}\textbf{RF-Pixel (ours)}$^\dagger$ & 0.98 & 0.95 & 0.88 & 0.87 & 0.92 & 0.70 & 0.88 &-  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Architecture.}
+Our model is initialized from Qwen3-A3B~\cite{qwen3}, a pretrained Mixture-of-Experts language model with 3B active parameters per token, and follows the Mixture-of-Transformers (MoT) architecture~\cite{bagel}: all tokens share self-attention layers but are routed to one of three modality-specific feed-forward expert pools---understanding, representation prediction, and pixel generation. The image encoder is DINOv3 ViT-H+/16~\cite{dinov3} with NaViT-style variable-resolution support~\cite{navit}, jointly trained with the rest of the model. We use a codebook of $K{=}16{,}384$ prototypes for the online vector quantization. For pixel-space generation we use a $16{\times}16$ patch size and adopt $x$-prediction with velocity loss~\cite{jit}. The pooling factor is a hyperparameter that trades off representation granularity against sequence length; we use $2{\times}2$ pooling throughout, yielding $N$ representation tokens for every $4N$ pixel patches over a shared spatial layout.
+
+
+
+\textbf{Data.}
+We follow the data construction and filtering pipeline of BAGEL~\cite{bagel}, training on a mixture of (1)~text-only data for language modeling and (2)~large-scale text--image pairs covering both image-to-text understanding (general VQA, document comprehension, spatial reasoning) and text-to-image generation.
+
+\textbf{Training.}
+We adopt a three-stage training strategy following ~\cite{bagel}: (i)~\emph{alignment}: with the backbone and encoder frozen, we train only the MLP connector for 10K iterations; (ii)~\emph{joint pre-training}: we unfreeze all components and jointly optimize on text and text--image pairs at resolutions up to 256 for 50K iterations; (iii)~\emph{continued training}: we extend resolutions up to 1024 for 20K iterations. Throughout training, image resolutions are sampled dynamically within the per-stage maximum and packed via NaViT-style variable-resolution batching.  More details are in the appendix.
+
+
+
+
+\textbf{Baselines.}
+For controlled comparison, we train VAE-based variants using the WanX-2.1 VAE~\cite{wanx}, replacing the pixel input/output with VAE latents while keeping the rest of the architecture, training data, and optimization identical. The four variants in our controlled study (Pixel, Pixel+RF, VAE, VAE+RF) differ \emph{only} in (a)~the generation pathway and (b)~whether RF is enabled. Ablations are conducted at 256 resolution; main results are reported at 1024 resolution.
+
+\subsection{Image Generation}
+\label{sec:t2i}
+
+
+
+We evaluate our pixel-space model with RF (denoted RF-Pixel in Table~\ref{tab:geneval}) on two standard text-to-image benchmarks: GenEval~\cite{geneval} for compositional generation and DPG-Bench~\cite{dpg} for dense prompt following. We compare against both generation-only models and unified multimodal models. Existing unified models all rely on separately pretrained generative components—either a frozen VAE/VQVAE within a single backbone (e.g., BAGEL, Show-o, Janus-Pro), or an external diffusion module conditioned on LLM-predicted features (e.g., BLIP3-o, MetaQuery, SEED-X). In contrast, our model operates entirely in pixel space without any separately pretrained generative module.
+
+
+As shown in Table~\ref{tab:geneval}, without LLM rewriter, RF-Pixel achieves a GenEval overall score of 0.84, slightly outperforming the BAGEL baseline (0.82) and matching unified models such as BLIP3-o (0.84). With LLM rewriter, RF-Pixel reaches 0.88, matching the state-of-the-art among unified models. On DPG-Bench, RF-Pixel scores 84.15 without rewriter, comparable to state-of-the-art VAE-based unified models. These results demonstrate that Representation Forcing effectively closes the quality gap between pixel-space and VAE-based generation, enabling an end-to-end pixel-space unified model to match VAE-based counterparts.
+
+
+
+\subsection{Image Understanding}
+\label{sec:understanding}
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\caption{\textbf{Impact of RF on understanding.} We compare understanding performance with and without RF under both VAE-based and pixel-space generation. MME$^*$ reports the average accuracy across all perception and cognition questions. {\tiny\color{teal}+x}/{\tiny\color{red}$-$x} denotes the change from adding RF. RF improves both settings, with large gains on general visual understanding and only slight reductions on document-oriented tasks. Pixel+RF benefits more from RF than VAE+RF (6/8 vs.\ 5/8 benchmarks improved), and outperforms VAE+RF on 6 out of 8 benchmarks.}
+\label{tab:understanding}
+\begin{tabular}{l|ccccc|ccc}
+\toprule
+& \multicolumn{5}{c|}{General Visual Understanding} & \multicolumn{3}{c}{Document \& Diagram} \\
+\cmidrule(lr){2-6} \cmidrule(lr){7-9}
+& MMMU & HalluBench & MME$^*$ & BLINK & RealWorldQA & AI2D & DocVQA & ChartQA \\
+\midrule
+VLM-only & 56.2 & 65.0 & 79.7 & 56.2 & 65.8 & 90.3 & 89.3 & 86.0 \\
+\midrule
+VAE    & 51.0 & 55.7 & 71.3 & 52.2 & 65.2 & 90.7 & 90.0 & 78.8 \\
+VAE+RF & 49.6{\tiny\color{red}\,$-$1.4} & 61.3{\tiny\color{teal}\,+5.6} & 79.3{\tiny\color{teal}\,+8.0} & 52.9{\tiny\color{teal}\,+0.7} & 66.6{\tiny\color{teal}\,+1.4} & 87.8{\tiny\color{red}\,$-$2.9} & 88.3{\tiny\color{red}\,$-$1.7} & 80.5{\tiny\color{teal}\,+1.7} \\
+\midrule
+Pixel    & 49.9 & 63.7 & 76.6 & 49.4 & 63.1 & 85.8 & 90.0 & 81.7 \\
+Pixel+RF & 54.2{\tiny\color{teal}\,+4.3} & 64.8{\tiny\color{teal}\,+1.1} & 80.2{\tiny\color{teal}\,+3.6} & 53.0{\tiny\color{teal}\,+3.6} & 65.8{\tiny\color{teal}\,+2.7} & 90.3{\tiny\color{teal}\,+4.5} & 88.0{\tiny\color{red}\,$-$2.0} & 81.3{\tiny\color{red}\,$-$0.4} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Beyond generation quality, we compare how different generation pathways affect understanding performance. As shown in Table~\ref{tab:understanding}, we train four generation variants---VAE-based and pixel-space, each with and without RF---on top of the same first-stage VLM baseline, using identical architecture and training data. Since we focus on pretraining-stage comparison, no post-training is applied. We include the VLM-only baseline as a reference.
+
+We evaluate on 8 benchmarks spanning two categories: (1)~general visual understanding, including MMMU~\cite{mmmu}, HallusionBench~\cite{hallubench}, MME~\cite{mme}, BLINK~\cite{blink}, and RealWorldQA~\cite{rwqa}, which test general visual understanding, hallucination robustness, and real-world perception; and (2)~document and diagram understanding, including AI2D~\cite{ai2d}, DocVQA~\cite{docvqa}, and ChartQA~\cite{chartqa}, which test structured visual comprehension.
+
+RF consistently improves understanding under both generation pathways. For pixel-space generation, RF improves 6 of 8 benchmarks, with substantial gains on MMMU~($+4.3$), MME~($+3.6$), BLINK~($+3.6$), AI2D~($+4.5$), and RealWorldQA~($+2.7$), with small reductions on DocVQA~($-2.0$) and ChartQA~($-0.4$). For VAE-based generation, RF improves 5 of 8 benchmarks, notably HalluBench~($+5.6$) and MME~($+8.0$). The improvements are concentrated on benchmarks that test high-level visual understanding---object recognition, spatial comprehension, and scene-level perception---which aligns with the nature of the representation tokens: they are derived from the understanding encoder and encode semantic structure rather than fine-grained details. The reductions on DocVQA and ChartQA, which rely heavily on precise text recognition and layout parsing, suggest that these capabilities are less directly supported by representation-level guidance.
+
+Pixel+RF outperforms VAE+RF on 6 out of 8 benchmarks. We attribute this to the removal of the external VAE latent space, which allows understanding and generation to share a single representation space more tightly. This result aligns with our broader motivation of moving toward bottleneck-free unified multimodal models.
+
+
+
+\subsection{Ablation Studies}
+\label{sec:ablation}
+
+We conduct ablation studies to analyze the key design choices of Representation Forcing in Table~\ref{tab:ablation}.
+
+
+
+
+\begin{table}[t]
+\centering
+% \vspace{-15pt}
+\caption{\textbf{Ablation studies.} All experiments are conducted under pixel-space generation at 256 resolution unless otherwise noted. (a)~Effect of RF under both pixel-space and VAE-based generation. (b)~Comparison between RF (decoder prediction) and REPA (auxiliary alignment) as representation guidance strategies. (c)~Discrete vs.\ continuous representation token formulation. (d)~Effect of codebook size $K$. (e)~Choice of understanding encoder evaluated on VLM-only benchmarks.}
+\label{tab:ablation}
+\begin{subtable}[t]{0.32\textwidth}
+\centering
+\small
+\caption{\textbf{RF on pixel-space and VAE-based generation.}}
+\label{tab:abl_representations}
+\begin{tabular}{lcc}
+\toprule
+ & Pixel & VAE \\
+\midrule
+w/o & 0.25 & 0.52 \\
+w/  & \textbf{0.76} & \textbf{0.77} \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.32\textwidth}
+\centering
+\small
+\caption{\textbf{Prediction vs.\ alignment.}}
+\label{tab:abl_integration}
+\begin{tabular}{lc}
+\toprule
+ & GenEval$\uparrow$ \\
+\midrule
+w/o      & 0.25 \\
+REPA     & 0.43 \\
+RF (ours) & \textbf{0.76} \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.32\textwidth}
+\centering
+\small
+\caption{\textbf{Rep.\ token formulation.}}
+\label{tab:abl_target}
+\begin{tabular}{lc}
+\toprule
+ & GenEval$\uparrow$ \\
+\midrule
+w/o        & 0.25 \\
+Continuous & 0.26 \\
+Discrete   & \textbf{0.76} \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+
+\noindent
+\begin{subtable}[t]{0.32\textwidth}
+\centering
+\small
+\caption{\textbf{Rep.\ token codebook size.}}
+\label{tab:abl_codebook}
+\begin{tabular}{lc}
+\toprule
+ & GenEval$\uparrow$ \\
+\midrule
+$K$=16384 & 0.76 \\
+$K$=32768 & \textbf{0.77} \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.65\textwidth}
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{\textbf{Understanding encoder.}}
+\label{tab:abl_encoder}
+\begin{tabular}{lccccc}
+\toprule
+ & MMMU & HalluBench & MME$^*$ & BLINK & RealWorldQA \\
+\midrule
+SigLIP2 & \textbf{56.3} & 64.4 & 76.8 & 53.4 & 62.5 \\
+DINOv3 & 56.2 & \textbf{65.0} & \textbf{79.7} & \textbf{56.2} & \textbf{65.8} \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}
+
+
+
+
+\textbf{Representations are critical for pixel-space generation.}
+We evaluate RF under both pixel-space and VAE-based generation, with results shown in Table~\ref{tab:abl_representations}. All four variants share the same architecture and training setup, differing only in the generation pathway and the presence of RF. Without RF, pixel-space generation scores only 0.25 on GenEval, while VAE-based generation reaches 0.52. As illustrated in Figure~\ref{fig:compare}, the pixel-space model without RF tends to produce images with poor structure, such as distorted objects and incoherent compositions, suggesting that the model struggles to jointly learn high-level layout and low-level detail from raw pixels alone. With RF, pixel-space generation jumps to 0.76, matching the VAE-based counterpart at 0.77, and the generated images become structurally coherent. RF also improves VAE-based generation from 0.52 to 0.77, confirming that explicit representation guidance benefits both settings, though the effect is most pronounced in pixel space.
+
+
+
+
+\textbf{Decoder prediction outperforms auxiliary alignment.}
+RF is not the only way to incorporate visual representations into
+generation. REPA~\cite{repa} takes an alternative approach by
+adding an auxiliary loss on the diffusion side that encourages the
+model's intermediate features to align with encoder representations.
+We apply both methods to the same pixel-space UMM under identical
+training conditions, using the same visual encoder (DINOv3~\cite{dinov3}) as the
+representation source, with results shown in
+Table~\ref{tab:abl_integration}. Without any guidance, pixel-space
+generation scores only 0.25. REPA improves this to 0.43, confirming
+that representation guidance helps, but the gain remains limited.
+RF achieves 0.76, substantially outperforming REPA. We attribute
+this difference to where the representation enters the generation
+process. REPA encourages feature similarity as a side objective,
+but the aligned features do not explicitly condition the generation
+output during inference. RF places predicted representations directly in the
+decoder's sequence, where pixel patches attend to them through
+shared self-attention. In high-dimensional pixel space, this direct
+conditioning proves more effective than implicit feature
+alignment.
+
+\textbf{Discrete prediction outperforms continuous regression.}
+The representation tokens can be formulated in different ways. Beyond our discrete approach with autoregressive cross-entropy prediction, an alternative is to predict continuous features directly, for example by adding a diffusion head at each representation position to causally regress the encoder features. We compare both formulations under the same setting (Table~\ref{tab:abl_target}). Continuous regression scores only 0.26, providing no improvement over the baseline without RF, while discrete tokens achieve 0.76. We attribute this to two factors. First, causally predicting high-dimensional continuous vectors is prone to error accumulation, where small prediction errors at early positions compound and degrade later predictions. Discrete tokens avoid this by reducing each position to a categorical choice, which is more robust under sequential prediction. Second, discretization naturally encourages the representations to retain high-level structure while discarding fine-grained detail---precisely the factorization that RF is designed to provide. Continuous targets preserve more low-level information, undermining this factorization.
+
+\textbf{Codebook size.} The codebook size $K$ controls the expressiveness of the discrete representation space. We compare $K$=16,384 and $K$=32,768 in Table~\ref{tab:abl_codebook}. The two settings perform comparably (0.76 vs.\ 0.77), suggesting that the model is not sensitive to codebook size within this range. We use $K$=16,384 in all other experiments, which is consistent with common practice in vector quantization.
+
+\textbf{Understanding encoder.} The choice of understanding encoder determines the quality of the representations that RF learns to predict. We compare SigLIP2~\cite{tschannen2025siglip2}, a contrastive vision-language model, and DINOv3~\cite{dinov3}, a self-supervised vision model, as the image encoder backbone (Table~\ref{tab:abl_encoder}). We find DINOv3 outperforms SigLIP2 on 4 out of 5 understanding benchmarks in our setting. We attribute DINOv3's advantage to its self-supervised training objective, which produces features with richer spatial and structural information compared to SigLIP2's language-aligned features. This aligns with RF's design: the representation tokens are meant to capture visual structure, which benefits from an encoder that prioritizes spatial fidelity over text alignment. We use DINOv3 as the default encoder.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/compare.pdf}
+\caption{\textbf{Qualitative comparison of pixel-space generation with and without RF.} Without RF, the model tends to produce images with poor structure, such as distorted object shapes and incoherent compositions. With RF, the model generates more coherent structures by first predicting high-level visual representations before pixel rendering, which provides explicit structural guidance for the diffusion process.}
+\label{fig:compare}
+\end{figure}

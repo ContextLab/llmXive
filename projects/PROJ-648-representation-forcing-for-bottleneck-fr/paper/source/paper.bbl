@@ -1,0 +1,308 @@
+\begin{thebibliography}{60}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Betker et~al.(2023)Betker, Goh, Jing, Brooks, Wang, Li, Ouyang, Zhuang, Lee, Guo, Manassra, Dhariwal, Chu, Jiao, and Ramesh]{dalle3}
+James Betker, Gabriel Goh, Li~Jing, Tim Brooks, Jianfeng Wang, Linjie Li, Long Ouyang, Juntang Zhuang, Joyce Lee, Yufei Guo, Wesam Manassra, Prafulla Dhariwal, Casey Chu, Yunxin Jiao, and Aditya Ramesh.
+\newblock Improving image generation with better captions.
+\newblock \emph{OpenAI Technical Report, \url{https://cdn.openai.com/papers/dall-e-3.pdf}}, 2023.
+
+\bibitem[{Black Forest Labs}(2024)]{flux}
+{Black Forest Labs}.
+\newblock {FLUX}.
+\newblock \url{https://github.com/black-forest-labs/flux}, 2024.
+
+\bibitem[Caron et~al.(2020)Caron, Misra, Mairal, Goyal, Bojanowski, and Joulin]{swav}
+Mathilde Caron, Ishan Misra, Julien Mairal, Priya Goyal, Piotr Bojanowski, and Armand Joulin.
+\newblock Unsupervised learning of visual features by contrasting cluster assignments.
+\newblock In \emph{NeurIPS}, 2020.
+
+\bibitem[{Chameleon Team}(2024)]{chameleon}
+{Chameleon Team}.
+\newblock Chameleon: Mixed-modal early-fusion foundation models.
+\newblock \emph{arXiv preprint arXiv:2405.09818}, 2024.
+
+\bibitem[Chen et~al.(2025{\natexlab{a}})Chen, Xu, Pan, Hu, Qin, Goldstein, Huang, Zhou, Xie, Savarese, et~al.]{blip3o}
+Jiuhai Chen, Zhiyang Xu, Xichen Pan, Yushi Hu, Can Qin, Tom Goldstein, Lifu Huang, Tianyi Zhou, Saining Xie, Silvio Savarese, et~al.
+\newblock Blip3-o: A family of fully open unified multimodal models-architecture, training and dataset.
+\newblock \emph{arXiv preprint arXiv:2505.09568}, 2025{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2024)Chen, Yu, Ge, Yao, Xie, Wu, Wang, Kwok, Luo, Lu, and Li]{pixart}
+Junsong Chen, Jincheng Yu, Chongjian Ge, Lewei Yao, Enze Xie, Yue Wu, Zhongdao Wang, James Kwok, Ping Luo, Huchuan Lu, and Zhenguo Li.
+\newblock {PixArt-$\alpha$}: Fast training of diffusion transformer for photorealistic text-to-image synthesis.
+\newblock In \emph{ICLR}, 2024.
+
+\bibitem[Chen et~al.(2025{\natexlab{b}})Chen, Ge, Zhang, Sun, and Luo]{pixelflow}
+Shoufa Chen, Chongjian Ge, Shilong Zhang, Peize Sun, and Ping Luo.
+\newblock {PixelFlow}: Pixel-space generative models with flow.
+\newblock \emph{arXiv preprint arXiv:2504.07963}, 2025{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{c}})Chen, Wu, Liu, Pan, Liu, Xie, Yu, and Ruan]{janus-pro}
+Xiaokang Chen, Zhiyu Wu, Xingchao Liu, Zizheng Pan, Wen Liu, Zhenda Xie, Xingkai Yu, and Chong Ruan.
+\newblock {Janus-Pro}: Unified multimodal understanding and generation with data and model scaling.
+\newblock \emph{arXiv preprint arXiv:2501.17811}, 2025{\natexlab{c}}.
+
+\bibitem[Dehghani et~al.(2023)Dehghani, Mustafa, Djolonga, Heek, Minderer, Caron, Steiner, Puigcerver, Geirhos, Alabdulmohsin, et~al.]{navit}
+Mostafa Dehghani, Basil Mustafa, Josip Djolonga, Jonathan Heek, Matthias Minderer, Mathilde Caron, Andreas Steiner, Joan Puigcerver, Robert Geirhos, Ibrahim~M Alabdulmohsin, et~al.
+\newblock Patch n' {P}ack: {N}a{V}i{T}, a vision transformer for any aspect ratio and resolution.
+\newblock In \emph{NeurIPS}, 2023.
+
+\bibitem[Deng et~al.(2025)Deng, Zhu, Li, Gou, Li, Wang, Zhong, Yu, Nie, Song, Shi, and Fan]{bagel}
+Chaorui Deng, Deyao Zhu, Kunchang Li, Chenhui Gou, Feng Li, Zeyu Wang, Shu Zhong, Weihao Yu, Xiaonan Nie, Ziang Song, Guang Shi, and Haoqi Fan.
+\newblock Emerging properties in unified multimodal pretraining.
+\newblock \emph{arXiv preprint arXiv:2505.14683}, 2025.
+
+\bibitem[Deng et~al.(2009)Deng, Dong, Socher, Li, Li, and Fei-Fei]{imagenet}
+Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li~Fei-Fei.
+\newblock Imagenet: A large-scale hierarchical image database.
+\newblock In \emph{CVPR}, 2009.
+
+\bibitem[Dhariwal and Nichol(2021)]{dhariwal2021diffusion}
+Prafulla Dhariwal and Alexander Nichol.
+\newblock Diffusion models beat gans on image synthesis.
+\newblock In \emph{NeurIPS}, volume~34, pages 8780--8794, 2021.
+
+\bibitem[Esser et~al.(2021)Esser, Rombach, and Ommer]{esser2020taming}
+Patrick Esser, Robin Rombach, and Bjorn Ommer.
+\newblock Taming transformers for high-resolution image synthesis.
+\newblock In \emph{CVPR}, 2021.
+
+\bibitem[Esser et~al.(2024)Esser, Kulal, Blattmann, Entezari, M{\"u}ller, Saini, Levi, Lorenz, Sauer, Boesel, Podell, Dockhorn, English, Lacey, Goodwin, Marek, and Rombach]{sd3}
+Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas M{\"u}ller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, Dustin Podell, Tim Dockhorn, Zion English, Kyle Lacey, Alex Goodwin, Yannik Marek, and Robin Rombach.
+\newblock Scaling rectified flow transformers for high-resolution image synthesis.
+\newblock In \emph{ICML}, 2024.
+
+\bibitem[Fu et~al.(2023)Fu, Chen, Shen, Qin, Zhang, Lin, Yang, Zheng, Li, Sun, et~al.]{mme}
+Chaoyou Fu, Peixian Chen, Yunhang Shen, Yulei Qin, Mengdan Zhang, Xu~Lin, Jinrui Yang, Xiawu Zheng, Ke~Li, Xing Sun, et~al.
+\newblock Mme: A comprehensive evaluation benchmark for multimodal large language models.
+\newblock \emph{arXiv preprint arXiv:2306.13394}, 2023.
+
+\bibitem[Fu et~al.(2024)Fu, Hu, Li, Feng, Wang, Lin, Roth, Smith, Ma, and Krishna]{blink}
+Xingyu Fu, Yushi Hu, Bangzheng Li, Yu~Feng, Haoyu Wang, Xudong Lin, Dan Roth, Noah~A. Smith, Wei-Chiu Ma, and Ranjay Krishna.
+\newblock {BLINK}: Multimodal large language models can see but not perceive.
+\newblock In \emph{ECCV}, 2024.
+
+\bibitem[Gao et~al.(2025)Gao, Gong, Guo, Hou, Lai, Li, Li, Lian, Liao, Liu, Liu, Shi, Sun, Tian, Tian, Wang, Wang, Wang, Wang, Wang, Wu, Wu, Xia, Xiao, Zhai, Zhang, Zhang, Zhang, Zhao, Yang, and Huang]{seedream}
+Yu~Gao, Lixue Gong, Qiushan Guo, Xiaoxia Hou, Zhichao Lai, Fanshi Li, Liang Li, Xiaochen Lian, Chao Liao, Liyang Liu, Wei Liu, Yichun Shi, Shiqi Sun, Yu~Tian, Zhi Tian, Peng Wang, Rui Wang, Xuanda Wang, Xun Wang, Ye~Wang, Guofeng Wu, Jie Wu, Xin Xia, Xuefeng Xiao, Zhonghua Zhai, Xinyu Zhang, Qi~Zhang, Yuwei Zhang, Shijia Zhao, Jianchao Yang, and Weilin Huang.
+\newblock Seedream 3.0 technical report.
+\newblock \emph{arXiv preprint arXiv:2504.11346}, 2025.
+
+\bibitem[Ge et~al.(2024)Ge, Zhao, Zhu, Ge, Yi, Song, Li, Ding, and Shan]{seedx}
+Yuying Ge, Sijie Zhao, Jinguo Zhu, Yixiao Ge, Kun Yi, Lin Song, Chen Li, Xiaohan Ding, and Ying Shan.
+\newblock {SEED-X}: Multimodal models with unified multi-granularity comprehension and generation.
+\newblock \emph{arXiv preprint arXiv:2404.14396}, 2024.
+
+\bibitem[Ghosh et~al.(2023)Ghosh, Hajishirzi, and Schmidt]{geneval}
+Dhruba Ghosh, Hannaneh Hajishirzi, and Ludwig Schmidt.
+\newblock {GenEval}: An object-focused framework for evaluating text-to-image alignment.
+\newblock In \emph{NeurIPS}, 2023.
+
+\bibitem[Guan et~al.(2024)Guan, Liu, Wu, Xian, Li, Liu, Wang, Chen, Huang, Yacoob, Manocha, and Zhou]{hallubench}
+Tianrui Guan, Fuxiao Liu, Xiyang Wu, Ruiqi Xian, Zongxia Li, Xiaoyu Liu, Xijun Wang, Lichang Chen, Furong Huang, Yaser Yacoob, Dinesh Manocha, and Tianyi Zhou.
+\newblock {HallusionBench}: An advanced diagnostic suite for entangled language hallucination and visual illusion in large vision-language models.
+\newblock In \emph{CVPR}, 2024.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{DDPM_paper}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{NeurIPS}, volume~33, 2020.
+
+\bibitem[Hoogeboom et~al.(2025)Hoogeboom, Mensink, Heek, Lamerigts, Gao, and Salimans]{sid2}
+Emiel Hoogeboom, Thomas Mensink, Jonathan Heek, Kay Lamerigts, Ruiqi Gao, and Tim Salimans.
+\newblock Simpler diffusion ({SiD2}): 1.5 {FID} on {ImageNet512} with pixel-space diffusion.
+\newblock In \emph{CVPR}, 2025.
+
+\bibitem[Hu et~al.(2024)Hu, Wang, Fang, Fu, Cheng, and Yu]{dpg}
+Xiwei Hu, Rui Wang, Yixiao Fang, Bin Fu, Pei Cheng, and Gang Yu.
+\newblock {ELLA}: Equip diffusion models with {LLM} for enhanced semantic alignment.
+\newblock \emph{arXiv preprint arXiv:2403.05135}, 2024.
+
+\bibitem[Kembhavi et~al.(2016)Kembhavi, Salvato, Kolve, Seo, Hajishirzi, and Farhadi]{ai2d}
+Aniruddha Kembhavi, Mike Salvato, Eric Kolve, Minjoon Seo, Hannaneh Hajishirzi, and Ali Farhadi.
+\newblock A diagram is worth a dozen images.
+\newblock In \emph{ECCV}, 2016.
+
+\bibitem[Kingma and Welling(2013)]{vae}
+Diederik~P Kingma and Max Welling.
+\newblock Auto-encoding variational bayes.
+\newblock \emph{arXiv preprint arXiv:1312.6114}, 2013.
+
+\bibitem[Knight(2008)]{knight2008sinkhorn}
+Philip~A Knight.
+\newblock The sinkhorn--knopp algorithm: convergence and applications.
+\newblock \emph{SIAM Journal on Matrix Analysis and Applications}, 30\penalty0 (1):\penalty0 261--275, 2008.
+
+\bibitem[Li and He(2025)]{jit}
+Tianhong Li and Kaiming He.
+\newblock Back to basics: Let denoising generative models denoise.
+\newblock \emph{arXiv preprint arXiv:2511.13720}, 2025.
+
+\bibitem[Lin et~al.(2025)Lin, Li, Cheng, Niu, Ye, He, Yuan, Yu, Wang, Ge, et~al.]{uniworld}
+Bin Lin, Zongjian Li, Xinhua Cheng, Yuwei Niu, Yang Ye, Xianyi He, Shenghai Yuan, Wangbo Yu, Shaodong Wang, Yunyang Ge, et~al.
+\newblock {UniWorld-V1}: High-resolution semantic encoders for unified visual understanding and generation.
+\newblock \emph{arXiv preprint arXiv:2506.03147}, 2025.
+
+\bibitem[Liu et~al.(2024)Liu, Yan, Zaharia, and Abbeel]{lwm}
+Hao Liu, Wilson Yan, Matei Zaharia, and Pieter Abbeel.
+\newblock World model on million-length video and language with blockwise {RingAttention}.
+\newblock \emph{arXiv preprint arXiv:2402.08268}, 2024.
+
+\bibitem[Loshchilov and Hutter(2019)]{adamw}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock In \emph{ICLR}, 2019.
+
+\bibitem[Ma et~al.(2025)Ma, Liu, Chen, Liu, Wu, Wu, Pan, Xie, Zhang, Yu, Zhao, Wang, Liu, and Ruan]{janusflow}
+Yiyang Ma, Xingchao Liu, Xiaokang Chen, Wen Liu, Chengyue Wu, Zhiyu Wu, Zizheng Pan, Zhenda Xie, Haowei Zhang, Xingkai Yu, Liang Zhao, Yisong Wang, Jiaying Liu, and Chong Ruan.
+\newblock {JanusFlow}: Harmonizing autoregression and rectified flow for unified multimodal understanding and generation.
+\newblock In \emph{CVPR}, 2025.
+
+\bibitem[Masry et~al.(2022)Masry, Long, Tan, Joty, and Hoque]{chartqa}
+Ahmed Masry, Do~Xuan Long, Jia~Qing Tan, Shafiq Joty, and Enamul Hoque.
+\newblock {ChartQA}: A benchmark for question answering about charts with visual and logical reasoning.
+\newblock In \emph{Findings of ACL}, 2022.
+
+\bibitem[Mathew et~al.(2020)Mathew, Karatzas, and Jawahar]{docvqa}
+Minesh Mathew, Dimosthenis Karatzas, and C.~V. Jawahar.
+\newblock {DocVQA}: A dataset for {VQA} on document images.
+\newblock \emph{arXiv preprint arXiv:2007.00398}, 2020.
+
+\bibitem[Oquab et~al.(2024)Oquab, Darcet, Moutakanni, Vo, Szafraniec, Khalidov, Fernandez, Haziza, Massa, El-Nouby, Assran, Ballas, Galuba, Howes, Huang, Li, Misra, Rabbat, Sharma, Synnaeve, Xu, Jegou, Mairal, Labatut, Joulin, and Bojanowski]{dinov2}
+Maxime Oquab, Timoth{\'e}e Darcet, Th{\'e}o Moutakanni, Huy~V. Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, Mahmoud Assran, Nicolas Ballas, Wojciech Galuba, Russell Howes, Po-Yao Huang, Shang-Wen Li, Ishan Misra, Michael Rabbat, Vasu Sharma, Gabriel Synnaeve, Hu~Xu, Herv{\'e} Jegou, Julien Mairal, Patrick Labatut, Armand Joulin, and Piotr Bojanowski.
+\newblock {DINOv2}: Learning robust visual features without supervision.
+\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2024.
+
+\bibitem[Pan et~al.(2025)Pan, Shukla, Singh, Zhao, Mishra, Wang, Xu, Chen, Li, Juefei-Xu, Hou, and Xie]{metaquery}
+Xichen Pan, Satya~Narayan Shukla, Aashu Singh, Zhuokai Zhao, Shlok~Kumar Mishra, Jialiang Wang, Zhiyang Xu, Jiuhai Chen, Kunpeng Li, Felix Juefei-Xu, Ji~Hou, and Saining Xie.
+\newblock Transfer between modalities with {MetaQueries}.
+\newblock \emph{arXiv preprint arXiv:2504.06256}, 2025.
+
+\bibitem[Podell et~al.(2024)Podell, English, Lacey, Blattmann, Dockhorn, M{\"u}ller, Penna, and Rombach]{sdxl}
+Dustin Podell, Zion English, Kyle Lacey, Andreas Blattmann, Tim Dockhorn, Jonas M{\"u}ller, Joe Penna, and Robin Rombach.
+\newblock {SDXL}: Improving latent diffusion models for high-resolution image synthesis.
+\newblock In \emph{ICLR}, 2024.
+
+\bibitem[Qu et~al.(2025)Qu, Zhang, Liu, Wang, Jiang, Gao, Ye, Du, Yuan, and Wu]{tokenflow}
+Liao Qu, Huichao Zhang, Yiheng Liu, Xu~Wang, Yi~Jiang, Yiming Gao, Hu~Ye, Daniel~K. Du, Zehuan Yuan, and Xinglong Wu.
+\newblock {TokenFlow}: Unified image tokenizer for multimodal understanding and generation.
+\newblock In \emph{CVPR}, 2025.
+
+\bibitem[Ramesh et~al.(2022)Ramesh, Dhariwal, Nichol, Chu, and Chen]{dalle2}
+Aditya Ramesh, Prafulla Dhariwal, Alex Nichol, Casey Chu, and Mark Chen.
+\newblock Hierarchical text-conditional image generation with {CLIP} latents.
+\newblock \emph{arXiv preprint arXiv:2204.06125}, 2022.
+
+\bibitem[Rombach et~al.(2022)Rombach, Blattmann, Lorenz, Esser, and Ommer]{stable_diff}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj{\"o}rn Ommer.
+\newblock High-resolution image synthesis with latent diffusion models.
+\newblock In \emph{CVPR}, 2022.
+
+\bibitem[Sim{\'e}oni et~al.(2025)Sim{\'e}oni, Vo, Seitzer, Baldassarre, Oquab, Jose, Khalidov, Szafraniec, Yi, Ramamonjisoa, Massa, Haziza, Wehrstedt, Wang, Darcet, Moutakanni, Sentana, Roberts, Vedaldi, Tolan, Brandt, Couprie, Mairal, J{\'e}gou, Labatut, and Bojanowski]{dinov3}
+Oriane Sim{\'e}oni, Huy~V. Vo, Maximilian Seitzer, Federico Baldassarre, Maxime Oquab, Cijo Jose, Vasil Khalidov, Marc Szafraniec, Seungeun Yi, Micha{\"e}l Ramamonjisoa, Francisco Massa, Daniel Haziza, Luca Wehrstedt, Jianyuan Wang, Timoth{\'e}e Darcet, Th{\'e}o Moutakanni, Leonel Sentana, Claire Roberts, Andrea Vedaldi, Jamie Tolan, John Brandt, Camille Couprie, Julien Mairal, Herv{\'e} J{\'e}gou, Patrick Labatut, and Piotr Bojanowski.
+\newblock {DINOv3}.
+\newblock \emph{arXiv preprint arXiv:2508.10104}, 2025.
+
+\bibitem[Sun et~al.(2023)Sun, Cui, Zhang, Zhang, Yu, Luo, Wang, Rao, Liu, Huang, and Wang]{emu2}
+Quan Sun, Yufeng Cui, Xiaosong Zhang, Fan Zhang, Qiying Yu, Zhengxiong Luo, Yueze Wang, Yongming Rao, Jingjing Liu, Tiejun Huang, and Xinlong Wang.
+\newblock Generative multimodal models are in-context learners.
+\newblock 2023.
+
+\bibitem[Tong et~al.(2026)Tong, Zheng, Wang, Tang, Ma, Brown, Yang, Fergus, LeCun, and Xie]{scale-rae-2026}
+Shengbang Tong, Boyang Zheng, Ziteng Wang, Bingda Tang, Nanye Ma, Ellis Brown, Jihan Yang, Rob Fergus, Yann LeCun, and Saining Xie.
+\newblock Scaling text-to-image diffusion transformers with representation autoencoders.
+\newblock \emph{arXiv preprint arXiv:2601.16208}, 2026.
+
+\bibitem[Tschannen et~al.(2025)Tschannen, Gritsenko, Wang, Naeem, Alabdulmohsin, Parthasarathy, Evans, Beyer, Xia, Mustafa, et~al.]{tschannen2025siglip2}
+Michael Tschannen, Alexey Gritsenko, Xiao Wang, Muhammad~Ferjad Naeem, Ibrahim Alabdulmohsin, Nikhil Parthasarathy, Talfan Evans, Lucas Beyer, Ye~Xia, Basil Mustafa, et~al.
+\newblock Siglip 2: Multilingual vision-language encoders with improved semantic understanding, localization, and dense features.
+\newblock \emph{arXiv preprint arXiv:2502.14786}, 2025.
+
+\bibitem[Wang et~al.(2025{\natexlab{a}})Wang, Lu, Yang, Huang, Han, Hou, Zhang, and Xu]{illume}
+Chunwei Wang, Guansong Lu, Junwei Yang, Runhui Huang, Jianhua Han, Lu~Hou, Wei Zhang, and Hang Xu.
+\newblock {ILLUME}: Illuminating your {LLM}s to see, draw, and self-enhance.
+\newblock In \emph{ICCV}, 2025{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2025{\natexlab{b}})Wang, Gao, Zhu, Huang, and Wang]{pixnerd}
+Shuai Wang, Ziteng Gao, Chenhui Zhu, Weilin Huang, and Limin Wang.
+\newblock {PixNerd}: Pixel neural field diffusion.
+\newblock \emph{arXiv preprint arXiv:2507.23268}, 2025{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2024)Wang, Zhang, Luo, Sun, Cui, Wang, Zhang, Wang, Li, Yu, et~al.]{emu3}
+Xinlong Wang, Xiaosong Zhang, Zhengxiong Luo, Quan Sun, Yufeng Cui, Jinsheng Wang, Fan Zhang, Yueze Wang, Zhen Li, Qiying Yu, et~al.
+\newblock {Emu3}: Next-token prediction is all you need.
+\newblock \emph{arXiv preprint arXiv:2409.18869}, 2024.
+
+\bibitem[{WanTeam} et~al.(2025){WanTeam}, Wang, Ai, Wen, Mao, Xie, Chen, Yu, Zhao, et~al.]{wanx}
+{WanTeam}, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di~Chen, Feiwu Yu, Haiming Zhao, et~al.
+\newblock {Wan}: Open and advanced large-scale video generative models.
+\newblock \emph{arXiv preprint arXiv:2503.20314}, 2025.
+
+\bibitem[Wu et~al.(2025{\natexlab{a}})Wu, Li, Zhou, Lin, Gao, Yan, ming Yin, Bai, Xu, Chen, Chen, Tang, Zhang, Wang, Yang, Yu, Cheng, Liu, Li, Zhang, Meng, Wei, Ni, Chen, Cao, Peng, Qu, Wu, Wang, Yu, Wen, Feng, Xu, Wang, Zhang, Zhu, Wu, Cai, and Liu]{qwenimage}
+Chenfei Wu, Jiahao Li, Jingren Zhou, Junyang Lin, Kaiyuan Gao, Kun Yan, Sheng ming Yin, Shuai Bai, Xiao Xu, Yilei Chen, Yuxiang Chen, Zecheng Tang, Zekai Zhang, Zhengyi Wang, An~Yang, Bowen Yu, Chen Cheng, Dayiheng Liu, Deqing Li, Hang Zhang, Hao Meng, Hu~Wei, Jingyuan Ni, Kai Chen, Kuan Cao, Liang Peng, Lin Qu, Minggang Wu, Peng Wang, Shuting Yu, Tingkun Wen, Wensen Feng, Xiaoxiao Xu, Yi~Wang, Yichang Zhang, Yongqiang Zhu, Yujia Wu, Yuxuan Cai, and Zenan Liu.
+\newblock Qwen-image technical report.
+\newblock \emph{arXiv preprint arXiv:2508.02324}, 2025{\natexlab{a}}.
+
+\bibitem[Wu et~al.(2025{\natexlab{b}})Wu, Chen, Wu, Ma, Liu, Pan, Liu, Xie, Yu, Ruan, and Luo]{janus}
+Chengyue Wu, Xiaokang Chen, Zhiyu Wu, Yiyang Ma, Xingchao Liu, Zizheng Pan, Wen Liu, Zhenda Xie, Xingkai Yu, Chong Ruan, and Ping Luo.
+\newblock Janus: Decoupling visual encoding for unified multimodal understanding and generation.
+\newblock In \emph{CVPR}, 2025{\natexlab{b}}.
+
+\bibitem[Wu et~al.(2025{\natexlab{c}})Wu, Zheng, Yan, Xiao, Luo, Wang, Li, Jiang, Liu, Zhou, Liu, Xia, Li, Deng, Wang, Luo, Zhang, Lian, Wang, Wang, Huang, and Liu]{omnigen2}
+Chenyuan Wu, Pengfei Zheng, Ruiran Yan, Shitao Xiao, Xin Luo, Yueze Wang, Wanli Li, Xiyan Jiang, Yexin Liu, Junjie Zhou, Ze~Liu, Ziyi Xia, Chaofan Li, Haoge Deng, Jiahao Wang, Kun Luo, Bo~Zhang, Defu Lian, Xinlong Wang, Zhongyuan Wang, Tiejun Huang, and Zheng Liu.
+\newblock {OmniGen2}: Towards instruction-aligned multimodal generation.
+\newblock \emph{arXiv preprint arXiv:2506.18871}, 2025{\natexlab{c}}.
+
+\bibitem[{xAI}(2024)]{rwqa}
+{xAI}.
+\newblock {RealWorldQA}.
+\newblock \url{https://huggingface.co/datasets/xai-org/RealworldQA}, 2024.
+
+\bibitem[Xie et~al.(2025{\natexlab{a}})Xie, Mao, Bai, Zhang, Wang, Lin, Gu, Chen, Yang, and Shou]{showo}
+Jinheng Xie, Weijia Mao, Zechen Bai, David~Junhao Zhang, Weihao Wang, Kevin~Qinghong Lin, Yuchao Gu, Zhijie Chen, Zhenheng Yang, and Mike~Zheng Shou.
+\newblock {Show-o}: One single transformer to unify multimodal understanding and generation.
+\newblock In \emph{ICLR}, 2025{\natexlab{a}}.
+
+\bibitem[Xie et~al.(2025{\natexlab{b}})Xie, Yang, and Shou]{showo2}
+Jinheng Xie, Zhenheng Yang, and Mike~Zheng Shou.
+\newblock {Show-o2}: Improved native unified multimodal models.
+\newblock In \emph{NeurIPS}, 2025{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2025)Yang, Li, Yang, Zhang, Hui, Zheng, Yu, Gao, Huang, Lv, Zheng, Liu, Zhou, Huang, Hu, Ge, Wei, Lin, Tang, Yang, Tu, Zhang, Yang, Yang, Zhou, Zhou, Lin, Dang, Bao, Yang, Yu, Deng, Li, Xue, Li, Zhang, Wang, Zhu, Men, Gao, Liu, Luo, Li, Tang, Yin, Ren, Wang, Zhang, Ren, Fan, Su, Zhang, Zhang, Wan, Liu, Wang, Cui, Zhang, Zhou, and Qiu]{qwen3}
+An~Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chujie Zheng, Dayiheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jing Zhou, Jingren Zhou, Junyang Lin, Kai Dang, Keqin Bao, Kexin Yang, Le~Yu, Lianghao Deng, Mei Li, Mingfeng Xue, Mingze Li, Pei Zhang, Peng Wang, Qin Zhu, Rui Men, Ruize Gao, Shixuan Liu, Shuang Luo, Tianhao Li, Tianyi Tang, Wenbiao Yin, Xingzhang Ren, Xinyu Wang, Xinyu Zhang, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yinger Zhang, Yu~Wan, Yuqiong Liu, Zekun Wang, Zeyu Cui, Zhenru Zhang, Zhipeng Zhou, and Zihan Qiu.
+\newblock Qwen3 technical report.
+\newblock \emph{arXiv preprint arXiv:2505.09388}, 2025.
+
+\bibitem[Yu et~al.(2025)Yu, Kwak, Jang, Jeong, Huang, Shin, and Xie]{repa}
+Sihyun Yu, Sangkyung Kwak, Huiwon Jang, Jongheon Jeong, Jonathan Huang, Jinwoo Shin, and Saining Xie.
+\newblock Representation alignment for generation: Training diffusion transformers is easier than you think.
+\newblock In \emph{ICLR}, 2025.
+
+\bibitem[Yue et~al.(2024)Yue, Ni, Zhang, Zheng, Liu, Zhang, Stevens, Jiang, Ren, Sun, Wei, Yu, Yuan, Sun, Yin, Zheng, Yang, Liu, Huang, Sun, Su, and Chen]{mmmu}
+Xiang Yue, Yuansheng Ni, Kai Zhang, Tianyu Zheng, Ruoqi Liu, Ge~Zhang, Samuel Stevens, Dongfu Jiang, Weiming Ren, Yuxuan Sun, Cong Wei, Botao Yu, Ruibin Yuan, Renliang Sun, Ming Yin, Boyuan Zheng, Zhenzhu Yang, Yibo Liu, Wenhao Huang, Huan Sun, Yu~Su, and Wenhu Chen.
+\newblock {MMMU}: A massive multi-discipline multimodal understanding and reasoning benchmark for expert {AGI}.
+\newblock In \emph{CVPR}, 2024.
+
+\bibitem[{Z-Image Team}(2025)]{zimageturbo}
+{Z-Image Team}.
+\newblock {Z-Image}: An efficient image generation foundation model with single-stream diffusion transformer.
+\newblock \emph{arXiv preprint arXiv:2511.22699}, 2025.
+
+\bibitem[Zhai et~al.(2023)Zhai, Mustafa, Kolesnikov, and Beyer]{siglip}
+Xiaohua Zhai, Basil Mustafa, Alexander Kolesnikov, and Lucas Beyer.
+\newblock Sigmoid loss for language image pre-training.
+\newblock In \emph{ICCV}, 2023.
+
+\bibitem[Zheng et~al.(2025)Zheng, Ma, Tong, and Xie]{rae}
+Boyang Zheng, Nanye Ma, Shengbang Tong, and Saining Xie.
+\newblock Diffusion transformers with representation autoencoders.
+\newblock \emph{arXiv preprint arXiv:2510.11690}, 2025.
+
+\bibitem[Zhou et~al.(2025)Zhou, Yu, Babu, Tirumala, Yasunaga, Shamis, Kahn, Ma, Zettlemoyer, and Levy]{transfusion}
+Chunting Zhou, Lili Yu, Arun Babu, Kushal Tirumala, Michihiro Yasunaga, Leonid Shamis, Jacob Kahn, Xuezhe Ma, Luke Zettlemoyer, and Omer Levy.
+\newblock Transfusion: Predict the next token and diffuse images with one multi-modal model.
+\newblock In \emph{ICLR}, 2025.
+
+\end{thebibliography}

@@ -1,0 +1,9 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\textbf{Limitations.} Due to computational constraints, our model is initialized from a pretrained large language model rather than trained from scratch on multimodal data. While this provides a strong language-grounded starting point, fully from-scratch multimodal pretraining may yield richer joint representations and is an important direction for future work. We also focus on still-image generation and do not extend RF to video or other temporal modalities.
+
+
+
+\textbf{Conclusion.}
+In this paper, we present Representation Forcing, a simple method for pixel-space image generation in unified multimodal models. The key idea is to let the decoder predict its own understanding representations as autoregressive targets before rendering pixels, providing structural guidance to pixel-space diffusion from within the same sequence. Our experiments show that this single mechanism is enough to close the quality gap with VAE-based generation while also improving multimodal understanding. The same representation serves both directions---interpreting visual inputs and guiding their generation---pointing to a closer integration of perception and generation. We see RF as a step toward fully end-to-end native multimodal learning, where all multimodal capabilities are acquired directly from raw inputs within a single model. We hope this work inspires further research in this direction.

@@ -1,0 +1,45 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "centernot.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/JetBrainsSans-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/JetBrainsSans-ExtraBold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/JetBrainsSans-Light.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/JetBrainsSans-Regular.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/JetBrainsSans-SemiBold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "references.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "xelatex"
+   }
+}
