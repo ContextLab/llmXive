@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-02T00:42:22.162539+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-06-02T01:52:34.711853+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: stephen-wolfram
-  started_at: '2026-05-24T02:20:19.652971+00:00'
-  ended_at: '2026-05-24T05:21:58.788575+00:00'
-  outcome: abstained
-  action: abstain
 - slug: ada-lovelace
   started_at: '2026-05-24T05:21:58.788575+00:00'
   ended_at: '2026-05-24T06:45:31.472650+00:00'
@@ -1207,5 +1202,10 @@ history:
 - slug: geoffrey-west
   started_at: '2026-06-01T23:59:02.463481+00:00'
   ended_at: '2026-06-02T00:42:22.162539+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-02T00:42:22.162539+00:00'
+  ended_at: '2026-06-02T01:52:34.711853+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
