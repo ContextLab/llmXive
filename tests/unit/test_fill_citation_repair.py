@@ -74,6 +74,17 @@ class TestRepairCitation:
         twice = repair_citation(once, claim=_claim(), provenance=_prov())
         assert once == twice
 
+    def test_inserted_citation_keeps_separator_before_next_word(self):
+        # Lost-separator regression: when the value is followed by a word, the
+        # inserted "(...)" must not abut it ("...A002863)prime"); a single space
+        # must separate the citation from the following word.
+        import re
+
+        text = "There are 9988 prime knots at 13 crossings."
+        result = repair_citation(text, claim=_claim(), provenance=_prov())
+        assert not re.search(r"A002863\)[A-Za-z0-9]", result), result
+        assert "prime knots" in result  # the following word survives intact
+
     def test_unrelated_prose_untouched(self):
         text = (
             "Knot theory began in the 19th century.\n"

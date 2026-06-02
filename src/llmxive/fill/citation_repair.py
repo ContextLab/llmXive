@@ -376,23 +376,17 @@ def repair_citation(text: str, *, claim: Claim, provenance: FillProvenance) -> s
     _, new_val_end = new_span
     auth_citation = _authoritative_inline(provenance)
 
-    # Append the authoritative citation right after the value
-    # If there's already a space after the value, insert without doubling
-    after = cleaned[new_val_end:new_val_end + 1]
-    if after == " ":
-        repaired = (
-            cleaned[:new_val_end]
-            + " "
-            + auth_citation
-            + cleaned[new_val_end + 1:]
-        )
-    else:
-        repaired = (
-            cleaned[:new_val_end]
-            + " "
-            + auth_citation
-            + cleaned[new_val_end:]
-        )
+    # Append the authoritative citation right after the value, with a single
+    # space on EACH side. The char that followed the value (a space, punctuation,
+    # or — rarely — a letter) now follows the citation; when that follower is
+    # alphanumeric we insert a separating space so the citation never abuts the
+    # next word (e.g. "9988 (OEIS A002863) prime", NOT the lost-separator
+    # "9988 (OEIS A002863)prime"). ``cleaned[:new_val_end]`` ends at the value
+    # (no trailing space), so the leading " " never doubles.
+    tail = cleaned[new_val_end:]
+    if tail[:1].isalnum():
+        tail = " " + tail
+    repaired = cleaned[:new_val_end] + " " + auth_citation + tail
 
     return repaired
 
