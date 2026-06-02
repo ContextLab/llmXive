@@ -38,4 +38,7 @@ ready:
 - project_id: PROJ-581-https-arxiv-org-abs-2605-13301
   revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301/round-1
   queued_at: '2026-06-02T14:02:41.704560+00:00'
+- project_id: PROJ-599-mmskills-towards-multimodal-skills-for-g
+  revision_spec_path: specs/auto-revisions/PROJ-599-mmskills-towards-multimodal-skills-for-g/round-1
+  queued_at: '2026-06-02T20:35:03.014000+00:00'
 blocked: []
