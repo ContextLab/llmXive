@@ -207,10 +207,16 @@ source that asserts the correct one; confirm the wrong value is never grounded.
   `grounding/entailment.py::assess` and accept the candidate ONLY when the
   verdict is `grounded`. A `contradicted`, `not_found`, or backend-error result
   MUST reject the candidate (fail-closed).
-- **FR-007**: `grounding/entailment.py::assess` and the
-  `claims/canonical.py` guards / `subject_keywords` MUST be reused unchanged;
-  this feature extends `fill/extract.py`, `fill/service.py`,
-  `fill/conflict.py`, and the fill-channels module only.
+- **FR-007**: `grounding/entailment.py::assess` MUST be reused unchanged (no edit
+  to its entailment logic or `Verdict`). The `claims/canonical.py` bound/value
+  guards MUST be reused unchanged; the existing subject-keyword helper MUST remain
+  a single implementation, promoted from private `_subject_keywords` to a public
+  `subject_keywords` (a visibility rename only, no logic change). New runtime
+  behavior is confined to the fill package: it extends `fill/extract.py`,
+  `fill/service.py`, the `fill/channels` module, MAY add one focused new module
+  `fill/relevance.py` for the prose gate, and leaves `fill/conflict.py`
+  functionally unchanged (documented invariant only). No other package's logic is
+  modified.
 - **FR-008**: Conflict resolution (`fill/conflict.choose`) MUST exclude any
   PROSE candidate that fails the relevance/entailment gate. If no STRUCTURED
   candidate exists and all PROSE candidates fail, the fill MUST be BLOCKED via
