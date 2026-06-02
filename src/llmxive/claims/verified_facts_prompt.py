@@ -67,6 +67,11 @@ def load_verified_facts(project_dir: Path | None) -> list[dict[str, Any]]:
     for key, entry in raw.items():
         if not isinstance(entry, dict):
             continue
+        if _malformed_subject_key(str(key)):
+            # A sequence/list subject key persisted before the build-time guard
+            # (see canonical._is_sequence_like) is a garbage fact; skip it so it
+            # never reaches the agent-facing block.
+            continue
         value = entry.get("value")
         if value is None or str(value).strip() == "":
             # A fact with no value can't instruct the agent toward an exact
@@ -145,6 +150,37 @@ def _humanize_subject(subject_key: str) -> str:
     if keywords and qualifiers:
         return f"{keywords} ({qualifiers})"
     return keywords or qualifiers or subject_key.strip()
+
+
+# Defensive bounds for a malformed (sequence/list) subject key persisted before
+# the build-time guard (canonical._is_sequence_like). Defined locally so this
+# module stays dependency-light (stdlib + PyYAML) and never imports canonical's
+# heavier chain just to read a constant.
+_MAX_QUALIFIER_NUMBERS = 2
+# A genuine qualifier (a crossing index, a dimension, a year) is small. A
+# many-digit qualifier token is a COLLAPSED sequence list: canonical's qualifier
+# regex eats the list's comma/space separators, so "1, 1, 2, 3, 7, 21, 49, 165,
+# 552, 2176, 9988" persists as ONE giant concatenated qualifier token.
+_MAX_QUALIFIER_DIGITS = 7
+
+
+def _malformed_subject_key(subject_key: str) -> bool:
+    """True when ``subject_key``'s qualifier component looks like a sequence/list.
+
+    The key shape is ``"<qualifier tokens>|<keyword tokens>"``. Flags EITHER too
+    many qualifier tokens (an expanded list) OR a single qualifier token with too
+    many digits (a collapsed list — the common persisted form). A key without
+    ``|`` has no qualifier component → never malformed. PURE.
+    """
+    quals_part, sep, _kw = subject_key.partition("|")
+    if not sep:
+        return False
+    quals = [tok for tok in quals_part.split() if any(c.isdigit() for c in tok)]
+    if len(quals) > _MAX_QUALIFIER_NUMBERS:
+        return True
+    return any(
+        sum(1 for c in tok if c.isdigit()) > _MAX_QUALIFIER_DIGITS for tok in quals
+    )
 
 
 def _str_or_empty(value: Any) -> str:

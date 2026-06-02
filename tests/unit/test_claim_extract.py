@@ -14,6 +14,7 @@ from llmxive.claims.extract import (
     _filter_check_worthy,
     _parse_extraction_reply,
     _tolerant_parse_claims,
+    strip_nonclaim_sections,
 )
 from llmxive.claims.models import ClaimStatus
 
@@ -100,6 +101,77 @@ class TestFilterCheckWorthy:
         ]
         result = _filter_check_worthy(candidates)
         assert result == ["There are 9988 prime knots (OEIS A002863), a well-known catalog."]
+
+
+class TestStripNonclaimSections:
+    """Citation/survey sections (References, Related Work) are excluded from the
+    text sent to the extractor — their citation years and titles must never become
+    the document's own claims (the PROJ-552 garbage-fact root cause)."""
+
+    _PROJ552 = (
+        "# Feature Spec\n\n"
+        "## User Scenarios\n\n"
+        "The dataset covers 9,988 prime knots at crossing number 13.\n\n"
+        "## Related Work\n\n"
+        "- [Seifert circles ... and links (2022)](https://arxiv.org/abs/2212.14737)"
+        " — Extends Ohyama's inequality.\n"
+        "- [Minimal grid diagrams ... arc index 13 (2024)]"
+        "(https://arxiv.org/abs/2402.02717) — Provides data on 9,988 prime knots.\n\n"
+        "## Requirements\n\n"
+        "- **FR-001**: System MUST download all knots with crossing number <= 13.\n\n"
+        "## Assumptions\n\n"
+        "The exact count is 9,988 prime knots, per OEIS A002863.\n\n"
+        "## References\n\n"
+        "1. Hoste, J. (1998). A Census of Knots. Exp. Math. 7(4), 281-299.\n"
+    )
+
+    def test_related_work_and_references_removed(self) -> None:
+        out = strip_nonclaim_sections(self._PROJ552)
+        # The citation years / referenced-paper metadata are gone.
+        assert "Related Work" not in out
+        assert "References" not in out
+        assert "2022" not in out  # citation year never extractable
+        assert "Hoste" not in out
+
+    def test_body_sections_and_real_fact_preserved(self) -> None:
+        out = strip_nonclaim_sections(self._PROJ552)
+        # The body — and the REAL 9,988 claim with its OEIS citation — survive,
+        # so masking Related Work never loses the verifiable fact.
+        assert "FR-001" in out
+        assert "OEIS A002863" in out
+        assert "9,988 prime knots at crossing number 13" in out
+
+    def test_identity_when_no_nonclaim_sections(self) -> None:
+        doc = "## A\n\nThere are 5 things.\n\n## B\n\nAnd 7 others.\n"
+        assert strip_nonclaim_sections(doc) == doc
+
+    def test_heading_inside_code_fence_not_masked(self) -> None:
+        doc = (
+            "## Intro\n\n```python\n# References\nx = 13\n```\n\n"
+            "## Body\n\nThere are 5 widgets.\n"
+        )
+        out = strip_nonclaim_sections(doc)
+        assert "There are 5 widgets." in out  # Body not swallowed
+        assert "x = 13" in out  # fenced code preserved
+
+    def test_excluded_section_with_subsection_fully_removed(self) -> None:
+        doc = (
+            "## Body\n\nfoo 1.\n\n## Bibliography\n\n"
+            "### Sub\n\nbar (1999).\n"
+        )
+        out = strip_nonclaim_sections(doc)
+        assert "1999" not in out and "Sub" not in out
+        assert "foo 1." in out
+
+    def test_consecutive_excluded_sections_both_removed(self) -> None:
+        doc = (
+            "## Related Work\n\ncited (2020).\n\n"
+            "## References\n\nWeeks (1998).\n\n"
+            "## Requirements\n\nFR-002 here.\n"
+        )
+        out = strip_nonclaim_sections(doc)
+        assert "2020" not in out and "Weeks" not in out
+        assert "FR-002 here." in out
 
 
 class TestParseExtractionReply:

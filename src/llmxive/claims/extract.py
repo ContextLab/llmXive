@@ -296,6 +296,85 @@ def _parse_extraction_reply(reply_text: str, artifact_path: str) -> list[Claim]:
 # Public API
 # ---------------------------------------------------------------------------
 
+# Headings whose CONTENT is citation/survey prose about OTHER works, not THIS
+# document's own testable claims. Extracting numeric claims from these yields
+# garbage "facts": a citation YEAR ("…knots and links (2022) — …"), a referenced
+# paper's arXiv-header date, or a coincidental OEIS sequence hit on a title number
+# — none of which is a commitment of this document. They are excluded from
+# extraction only; the rendered artifact is unchanged (render/pointer use the full
+# text), so the prose still appears in the document.
+_NONCLAIM_SECTION_TITLES = frozenset({
+    "references",
+    "bibliography",
+    "related work",
+    "related works",
+    "works cited",
+    "citations",
+    "sources",
+    "prior work",
+    "further reading",
+    "see also",
+    "acknowledgments",
+    "acknowledgements",
+})
+
+_HEADING_RE = re.compile(r"^(#{1,6})\s+(.*\S)\s*$")
+_FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
+
+
+def _normalize_heading_title(title: str) -> str:
+    """Normalise a markdown heading's title for non-claim-section matching.
+
+    Strips emphasis markers and trailing parentheticals (e.g. ``*(mandatory)*``,
+    ``(Priority: P1)``), lowercases, drops punctuation, collapses whitespace. So
+    ``## Related Work`` -> ``related work`` and ``## Requirements *(mandatory)*``
+    -> ``requirements``. PURE.
+    """
+    cleaned = re.sub(r"\*+", "", title)            # bold/italic markers
+    cleaned = re.sub(r"\(.*?\)", "", cleaned)      # "(mandatory)", "(Priority …)"
+    cleaned = re.sub(r"[^a-z0-9 ]", " ", cleaned.lower())
+    return " ".join(cleaned.split())
+
+
+def strip_nonclaim_sections(text: str) -> str:
+    """Remove citation/survey sections (References, Related Work, …) for EXTRACTION.
+
+    A markdown heading whose normalised title is in
+    :data:`_NONCLAIM_SECTION_TITLES` opens an excluded region that runs to the
+    next heading of the SAME OR HIGHER level (``#`` count ≤ the excluded heading's)
+    or end-of-text; the heading and its body are dropped. Everything else —
+    including all body sections (Requirements, Success Criteria, Assumptions) — is
+    preserved byte-for-byte, so claim spans extracted from the body still resolve
+    against the full document. Headings inside fenced code blocks are ignored.
+    PURE.
+    """
+    out: list[str] = []
+    skip_level = 0  # 0 = emitting; else the '#' count of the open excluded heading
+    in_fence = False
+    for line in text.splitlines(keepends=True):
+        body = line.rstrip("\n")
+        if _FENCE_RE.match(body):
+            in_fence = not in_fence
+            if not skip_level:
+                out.append(line)
+            continue
+        heading = None if in_fence else _HEADING_RE.match(body)
+        if heading is not None:
+            level = len(heading.group(1))
+            # A heading at the same-or-higher level closes the excluded region.
+            if skip_level and level <= skip_level:
+                skip_level = 0
+            if not skip_level and _normalize_heading_title(heading.group(2)) in (
+                _NONCLAIM_SECTION_TITLES
+            ):
+                skip_level = level
+                continue  # drop the excluded heading line itself
+        if skip_level:
+            continue
+        out.append(line)
+    return "".join(out)
+
+
 def extract_claims(
     text: str,
     *,
@@ -323,6 +402,10 @@ def extract_claims(
     except Exception as exc:
         logger.warning("claim_extract: prompt not found (%s); skipping extraction", exc)
         return []
+
+    # Exclude citation/survey sections (References, Related Work, …) so their
+    # citation years and titles are never extracted as the document's own claims.
+    text = strip_nonclaim_sections(text)
 
     messages = [
         ChatMessage(
@@ -364,4 +447,9 @@ def extract_claims(
     return [c for c in raw_claims if c.raw_text in filtered_set]
 
 
-__all__ = ["_filter_check_worthy", "extract_claims", "tolerant_field_entries"]
+__all__ = [
+    "_filter_check_worthy",
+    "extract_claims",
+    "strip_nonclaim_sections",
+    "tolerant_field_entries",
+]

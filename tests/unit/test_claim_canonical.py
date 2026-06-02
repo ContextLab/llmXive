@@ -234,6 +234,34 @@ class TestBuildCanonicalFacts:
         assert fact.value == "9988"  # first sourced wins
         assert fact.value in {"9988", "27635"}  # never a fabricated blend
 
+    def test_skips_sequence_list_claim_no_garbage_fact(self) -> None:
+        """A claim listing the WHOLE OEIS sequence is not a single subject→value
+        fact — keying it would map a garbage subject to one arbitrary list member.
+        build_canonical_facts must skip it (POLISH follow-up)."""
+        from llmxive.claims.canonical import _is_sequence_like
+
+        seq = _verified_knot_claim(
+            "The prime-knot counts by crossing number are 1, 1, 2, 3, 7, 21, "
+            "49, 165, 552, 2176, 9988.",
+            resolved_value="9988",
+        )
+        # Sanity: this claim's subject enumerates many numbers (sequence-like).
+        assert _is_sequence_like(seq)
+        assert build_canonical_facts([seq]) == {}
+
+    def test_clean_single_subject_fact_survives_alongside_list(self) -> None:
+        """The list claim is skipped but a properly-scoped 9988 claim still yields
+        the clean fact."""
+        seq = _verified_knot_claim(
+            "Counts: 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988.",
+            resolved_value="9988",
+            claim_id="c_seq",
+        )
+        ok = _verified_knot_claim(_OK_13, resolved_value="9988", claim_id="c_ok")
+        facts = build_canonical_facts([seq, ok])
+        assert len(facts) == 1
+        assert next(iter(facts.values())).value == "9988"
+
 
 # ---------------------------------------------------------------------------
 # apply_canonical_corrections — the PROJ-552 sweep

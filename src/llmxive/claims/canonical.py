@@ -238,14 +238,43 @@ def _fetched_source(claim: Claim) -> tuple[str, str, str] | None:
     return source_id, url, quote
 
 
+# A clean subject→value fact mentions only a HANDFUL of numbers in its subject:
+# the asserted value plus at most a couple of qualifier numbers (a crossing index,
+# a dimension, a year). A claim whose subject enumerates MANY numbers is a
+# SEQUENCE/LIST assertion — e.g. "the counts by crossing number are 1, 1, 2, 3, 7,
+# 21, 49, 165, 552, 2176, 9988" — not a single fact: keying it yields a garbage
+# entry (a meaningless qualifier bag, or one giant concatenated qualifier token
+# because the qualifier regex eats the list's comma/space separators) that would
+# pollute the verified-fact store and the agent-facing block. Such claims are
+# SKIPPED; the clean single-subject fact for the same value still comes from a
+# properly-scoped claim. The bound is generous — asserted value + a few qualifiers.
+_MAX_SUBJECT_NUMBERS = 4
+
+
+def _is_sequence_like(claim: Claim) -> bool:
+    """True when ``claim``'s SUBJECT enumerates more distinct numeric mentions than
+    a single subject→value fact plausibly carries (a sequence/list assertion).
+
+    Counts individual numeric tokens (:data:`_NUMBER_IN_TEXT_RE` does NOT span
+    separators) in the citation-stripped subject prose, so "1, 1, 2, 3, 7, 21, 49,
+    165, 552, 2176, 9988" counts as 11 while "9,988 … crossing number 13" counts
+    as 2. PURE.
+    """
+    subject = _subject_text(claim)
+    return len(_NUMBER_IN_TEXT_RE.findall(subject)) > _MAX_SUBJECT_NUMBERS
+
+
 def build_canonical_facts(claims: list[Claim]) -> dict[str, CanonicalFact]:
     """Map ``subject_key -> CanonicalFact`` for VERIFIED, sourced claims.
 
     Only VERIFIED claims with a ``resolved_value`` AND a fetched source
-    contribute. Claims whose ``subject_key`` is "" are skipped. When the same
-    subject_key recurs, the candidates should agree (all verified to the same
-    value); if they DON'T, the first sourced/verified value is kept and the
-    conflicting one is ignored — a verified value is NEVER fabricated or blended.
+    contribute. Claims whose ``subject_key`` is "" are skipped, as are
+    SEQUENCE/LIST claims (:func:`_is_sequence_like`) whose subject enumerates more
+    than ``_MAX_SUBJECT_NUMBERS`` numbers (they are not a single subject→value
+    fact). When the same subject_key recurs, the candidates should agree (all
+    verified to the same value); if they DON'T, the first sourced/verified value is
+    kept and the conflicting one is ignored — a verified value is NEVER fabricated
+    or blended.
     """
     facts: dict[str, CanonicalFact] = {}
     for claim in claims:
@@ -258,6 +287,9 @@ def build_canonical_facts(claims: list[Claim]) -> dict[str, CanonicalFact]:
             continue
         key = subject_key(claim)
         if not key:
+            continue
+        if _is_sequence_like(claim):
+            # Sequence/list claim (many enumerated numbers) → not a single fact.
             continue
         source_id, url, quote = source
         candidate = CanonicalFact(

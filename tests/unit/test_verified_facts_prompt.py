@@ -125,6 +125,41 @@ class TestLoadFacts:
         )
         assert load_verified_facts(tmp_path) == []
 
+    def test_malformed_sequence_key_skipped(self, tmp_path: Path) -> None:
+        """Persisted sequence/list facts (written before the build-time guard) are
+        skipped so they never reach the agent-facing block; the clean fact still
+        loads. Both real persisted shapes are covered: the COLLAPSED giant-digit
+        qualifier token (canonical's qualifier regex eats list separators) and the
+        EXPANDED many-token form."""
+        _write_facts(
+            tmp_path,
+            {
+                # Collapsed form — one giant concatenated qualifier token.
+                "11237214916555221769988|count knot prime sequence": {
+                    "value": "552",
+                    "source_id": _SOURCE_ID,
+                    "url": _URL,
+                    "quote": "",
+                },
+                # Expanded form — many qualifier tokens.
+                "1 2 3 7 21 49 165 552 2176|count knot prime sequence": {
+                    "value": "165",
+                    "source_id": _SOURCE_ID,
+                    "url": _URL,
+                    "quote": "",
+                },
+                _SUBJECT_KEY: {
+                    "value": _VALUE,
+                    "source_id": _SOURCE_ID,
+                    "url": _URL,
+                    "quote": "",
+                },
+            },
+        )
+        facts = load_verified_facts(tmp_path)
+        assert len(facts) == 1
+        assert facts[0]["value"] == _VALUE
+
 
 def load_facts_from_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
     """Helper: round-trip a payload through load_verified_facts via a temp dir."""
