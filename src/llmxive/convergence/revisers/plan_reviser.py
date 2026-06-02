@@ -271,6 +271,27 @@ class _AbstractPlanReviser:
             "'spec-root cause; flagged for kickback'.\n\n"
             + RESPONSE_FORMAT_BLOCK
         )
+
+        # Trustworthiness Phase 2: feed canonical verified facts back to the
+        # plan reviser. Pure addition — empty when no facts exist.
+        from llmxive.claims.verified_facts_prompt import (
+            load_verified_facts,
+            project_dir_for,
+            render_verified_facts_block,
+        )
+        artifact_hint = next(iter(plan_artifacts), None)
+        verified_facts_block = render_verified_facts_block(
+            load_verified_facts(
+                project_dir_for(
+                    self._repo_root,
+                    self._project_id,
+                    artifact_path=artifact_hint,
+                )
+            )
+        )
+        if verified_facts_block:
+            user_text += "\n\n" + verified_facts_block
+
         user_text += extra_instructions
 
         return [

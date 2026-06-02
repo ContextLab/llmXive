@@ -172,12 +172,22 @@ class PlannerAgent(SlashCommandAgent):
                 repo_root=repo,
             )
             dataset_block = render_planner_block(resolved)
+        # Trustworthiness Phase 2: feed canonical verified facts back into the
+        # planner. Pure addition — empty when no facts exist (byte-identical).
+        from llmxive.claims.verified_facts_prompt import (
+            load_verified_facts,
+            render_verified_facts_block,
+        )
+        verified_facts_block = render_verified_facts_block(
+            load_verified_facts(ctx.project_dir)
+        )
         user = (
             f"# spec.md\n\n{spec_text}\n\n"
             f"# Project constitution\n\n{project_constitution}\n\n"
             f"# Plan template\n\n{plan_template}\n\n"
             + (dataset_block + "\n\n" if dataset_block else "")
             + (comments_block + "\n\n" if comments_block else "")
+            + (verified_facts_block + "\n\n" if verified_facts_block else "")
             + "# Task\n\nProduce all five documents per the output contract."
         )
         return [

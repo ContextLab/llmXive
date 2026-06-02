@@ -157,6 +157,18 @@ class SpecifierAgent(SlashCommandAgent):
                     "```\n\n"
                 )
 
+        # Trustworthiness Phase 2: feed canonical verified facts back into the
+        # generation agent so it cites the verified value (and never invents a
+        # contradicting one). Pure addition — empty string when no facts exist,
+        # keeping a fact-free prompt BYTE-IDENTICAL to before.
+        from llmxive.claims.verified_facts_prompt import (
+            load_verified_facts,
+            render_verified_facts_block,
+        )
+        verified_facts_block = render_verified_facts_block(
+            load_verified_facts(ctx.project_dir)
+        )
+
         user = (
             "# Idea Markdown\n\n"
             f"{idea_md}\n\n"
@@ -164,6 +176,7 @@ class SpecifierAgent(SlashCommandAgent):
             f"{spec_template}\n\n"
             + revision_block
             + (comments_block + "\n\n" if comments_block else "")
+            + (verified_facts_block + "\n\n" if verified_facts_block else "")
             + "# Task\n\n"
             "Produce the final spec.md content."
         )
