@@ -70,5 +70,5 @@ Since this is primarily a research documentation repository without traditional 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/018-approximate-numeric-verification/plan.md](specs/018-approximate-numeric-verification/plan.md).
+[specs/019-semantic-substantiation/plan.md](specs/019-semantic-substantiation/plan.md).
 <!-- SPECKIT END -->
