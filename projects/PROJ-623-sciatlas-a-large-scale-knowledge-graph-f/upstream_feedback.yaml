@@ -1,0 +1,167 @@
+project_id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
+arxiv_id: '2605.22878'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-02T00:55:07.010761+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 9f9f8b484368
+    text: No code artifacts (implementation files, test suites, dependency manifests)
+      are provided in this submission. The paper mentions a GitHub repo (github.com/zjunlp/SciAtlas)
+      but the actual code cannot be evaluated for modularity, test coverage, or reproducibility.
+    severity: writing
+  - id: 3f55179c17d2
+    text: The paper describes a Neo4j-based KG system with Python-based keyword extraction
+      (Qwen3-30B-A3B), embedding generation (bge-large-en-v1.5), and retrieval algorithms.
+      A code quality review requires access to the actual implementation to assess
+      dependency hygiene, test coverage, and reproducibility from scratch.
+    severity: writing
+  - id: 031b4126e439
+    text: Section 5.2 (Construction) describes data pipelines but provides no code
+      snippets, configuration files, or deployment scripts. For reproducibility assessment,
+      include Dockerfile, requirements.txt, or conda environment specification in
+      the artifact package.
+    severity: writing
+  - id: 5c74e890e83e
+    text: Explicitly state the license for the derived SciAtlas KG and construction
+      code, as OpenAlex data licensing does not automatically apply to derived works
+      without clarification.
+    severity: science
+  - id: 3653173a5ac4
+    text: Specify the exact OpenAlex snapshot date or version used for the 43M paper
+      dataset to ensure reproducibility and allow for version control of the knowledge
+      graph.
+    severity: science
+  - id: 4acff4a49a5c
+    text: Clarify the current availability of the KG construction code; 'We will open'
+      suggests it is not yet released, hindering reproducibility of the data pipeline.
+    severity: writing
+  - id: 9ff705549c14
+    text: Verify legibility of 26 discipline labels in Figure 1 (intro.tex, line 6);
+      consider a bar chart if text overlaps.
+    severity: writing
+  - id: f9d7f69f6692
+    text: Ensure Figure 2 schema node labels remain readable at standard print resolution
+      (scimap.tex, line 6).
+    severity: writing
+  - id: 154c7fcf9714
+    text: Check color contrast in both figures for accessibility (colorblind-friendly
+      palettes).
+    severity: writing
+  - id: 975f38e61ebc
+    text: Add descriptive alt text or captions for accessibility compliance in LaTeX
+      source.
+    severity: writing
+  - id: 5c32029b886c
+    text: Abstract and Conclusion claim SciAtlas 'can serve as an effective cognitive
+      map to empower the full loop'. However, 'Limitations and Future Work' admits
+      only 'running examples... qualitative analysis level'. This creates a logical
+      gap between the strength of the conclusion and the provided evidence. Revise
+      claims to reflect the qualitative nature of the evaluation.
+    severity: writing
+  - id: a0fe6017fd72
+    text: Abstract and Conclusion state '12 categories of relational edges'. Appendix
+      Table 2 (`tab:relationships`) lists only 11 types (missing `PUBLISH_IN`). Ensure
+      schema documentation is internally consistent across Abstract, Statistics, and
+      Appendix.
+    severity: writing
+  - id: 0568fd775dc4
+    text: Temper the claim 'empower the full loop of automated scientific research'
+      in the Abstract and Conclusion. Section 6 admits evaluation is 'qualitative
+      analysis level' with no quantitative benchmarks for idea generation or trend
+      prediction.
+    severity: science
+  - id: 647ad3f80eed
+    text: Clarify the term 'deterministic association discovery' in the Abstract.
+      The pipeline uses LLMs for keyword extraction and reranking (Sec 3.1), which
+      are non-deterministic, contradicting the 'deterministic' claim.
+    severity: writing
+  - id: ccb7e12b195e
+    text: Provide comparative evidence or soften the claim 'significantly reducing
+      reasoning costs' in the Abstract. No compute/cost analysis is provided to substantiate
+      the 2-minute retrieval vs. LLM deep research comparison.
+    severity: science
+  - id: 652b1bdd22c0
+    text: Add a dedicated Ethics Statement addressing Dual-Use Research of Concern
+      (DURC) risks in automated idea generation.
+    severity: writing
+  - id: e75abc363d7b
+    text: Discuss potential biases in the OpenAlex data source and their impact on
+      scientific equity and fairness.
+    severity: writing
+  - id: 02a7ad623066
+    text: Clarify privacy implications of aggregating 109M author profiles and define
+      usage policies/ToS.
+    severity: writing
+  - id: 7bc421291007
+    text: 'Quantitative retrieval benchmarks missing: No Recall@K, MRR, or NDCG scores
+      provided against baselines (e.g., BM25, dense retrieval) to validate topological
+      reasoning claims.'
+    severity: science
+  - id: 87eda2b0fdca
+    text: 'Cost reduction claim unsupported: The claim of ''significantly reducing
+      reasoning costs'' lacks empirical latency or token-count comparison data against
+      LLM-based deep research frameworks.'
+    severity: science
+  - id: 274c478044b8
+    text: 'Ablation study needed: Hyperparameters (lambda values, restart probability
+      alpha) are set to defaults without sensitivity analysis to prove robustness.'
+    severity: science
+  - id: 87cdfaff31d3
+    text: The abstract and introduction claim the system 'significantly reduces reasoning
+      costs' and achieves 'high-relevance results', but no statistical evidence (e.g.,
+      mean latency with standard deviation, retrieval metrics like NDCG/MRR with confidence
+      intervals) is provided to support these claims. Quantitative benchmarks with
+      statistical significance testing against baselines are required.
+    severity: science
+  - id: e55a98542d12
+    text: Section 3 (Future Work) admits the current evaluation is 'qualitative',
+      contradicting the empirical claims made in the Abstract. The manuscript must
+      either remove unsupported statistical language (e.g., 'significantly') or provide
+      the missing quantitative analysis with appropriate statistical tests (e.g.,
+      t-tests, ANOVA) to validate performance differences.
+    severity: science
+  - id: 8ca8d5e70750
+    text: 'Duplicate package loads in main.tex: xspace (lines 45, 200), graphicx (lines
+      10, 250), amsmath (lines 180, 20) are loaded multiple times. Consolidate to
+      single loads.'
+    severity: writing
+  - id: cb0350ad8cca
+    text: 'Algorithm package conflict (main.tex): Both algorithm (line 150) and algorithm2e
+      (line 250) packages are loaded. These conflict; remove one or use algorithmicx
+      consistently throughout.'
+    severity: writing
+  - id: 2d717af68fb5
+    text: 'Color redefinition (main.tex): myyellow is defined twice with different
+      values (lines 120: rgb{0.68, 0.6, 0.1} and line 200: RGB{181, 181, 27}). Ensure
+      consistency.'
+    severity: writing
+  - id: b5470924c67c
+    text: 'Figure width typo (sections/scimap.tex, line 10): width=1.\textwidth should
+      be 1.0\textwidth or \textwidth. The ''1.'' syntax is non-standard.'
+    severity: writing
+  - id: 45ae18eda6a2
+    text: 'Cross-reference inconsistency: Use ''Figure'' vs ''Fig.'' consistently
+      (intro.tex uses ''Fig.'', retrieval.tex uses ''Eq.''). Follow style guide.'
+    severity: writing
+  - id: e96b947b5fc7
+    text: "Remove Chinese characters `\uFF08\u7EED\uFF09` from `sections/appendix.tex`\
+      \ table definition."
+    severity: writing
+  - id: 7f6afc469519
+    text: Fix truncated `ai-researcher` entry in `references.bib` to ensure compilation.
+    severity: writing
+  - id: dc6a4e5bf4c9
+    text: Standardize "Appx." to "Appendix" in `sections/application.tex` and `sections/scimap.tex`.
+    severity: writing
+  - id: e8be78de19ec
+    text: Correct "COOCUR" to "COOCCUR" in `sections/scimap.tex` construction paragraph.
+    severity: writing
+  - id: bcd578660b80
+    text: Change "his/her" to "their" in `sections/application.tex` for inclusivity.
+    severity: writing
+  - id: 72495a75a387
+    text: Fix "assign each keyword with" to "assign each keyword" in `sections/retrieval.tex`.
+    severity: writing
