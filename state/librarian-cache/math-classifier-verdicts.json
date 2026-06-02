@@ -31,6 +31,14 @@
     "classified_at": "2026-05-24T03:33:54Z",
     "verdict": false
   },
+  "PROJ-560-embodied-curriculum-learning-physical-si::1.6.0": {
+    "classified_at": "2026-06-02T03:26:41Z",
+    "verdict": false
+  },
+  "PROJ-561-self-improving-llm-recursive-architectur::1.6.0": {
+    "classified_at": "2026-06-02T03:34:47Z",
+    "verdict": false
+  },
   "PROJ-582-socratic-transformers-dialogue-based-sel::1.6.0": {
     "classified_at": "2026-05-30T03:33:41Z",
     "verdict": false
@@ -51,6 +59,10 @@
     "classified_at": "2026-05-23T03:20:45Z",
     "verdict": false
   },
+  "PROJ-590-cortical-column-llms-implementing-canoni::1.6.0": {
+    "classified_at": "2026-06-02T03:41:41Z",
+    "verdict": false
+  },
   "PROJ-591-neuromorphic-transformer-networks-spikin::1.6.0": {
     "classified_at": "2026-05-27T03:36:03Z",
     "verdict": false
@@ -59,12 +71,20 @@
     "classified_at": "2026-05-27T03:28:26Z",
     "verdict": false
   },
+  "PROJ-593-the-binding-problem-in-llms-implementing::1.6.0": {
+    "classified_at": "2026-06-02T03:38:22Z",
+    "verdict": false
+  },
   "PROJ-595-neural-narrative-networks-brain-inspired::1.6.0": {
     "classified_at": "2026-05-30T03:39:26Z",
     "verdict": false
   },
   "PROJ-596-memory-palaces-in-llms-spatial-reasoning::1.6.0": {
     "classified_at": "2026-05-30T03:36:52Z",
+    "verdict": false
+  },
+  "PROJ-603-https-arxiv-org-abs-2605-18678::1.6.0": {
+    "classified_at": "2026-06-02T03:30:47Z",
     "verdict": false
   }
 }
