@@ -13,9 +13,11 @@ from __future__ import annotations
 import datetime
 import hashlib
 import logging
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
+from llmxive.claims.canonical import subject_key
 from llmxive.claims.extract import extract_claims
 from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
@@ -170,12 +172,39 @@ def process_document(
     if not new_claims:
         return text, [], GateReport()
 
-    # Step 2: Upsert each claim into the registry (dedup by claim_id).
-    # Load registry once; upsert individually so we pick up prior VERIFIED state.
+    # Step 2: Upsert each claim into the registry (dedup by claim_id), with a
+    # subject-keyed VERIFIED reuse: a reviser REPHRASE yields a NEW claim_id for
+    # the SAME fact (same (kind, subject_key)), which defeats the claim_id-keyed
+    # reuse in resolve_registered_claims and re-resolves the fact from scratch
+    # every round. If the registry already holds a VERIFIED claim with this
+    # claim's (kind, subject_key), carry its verified value/evidence/source_hash
+    # onto the new claim so the resolve step reuses it (FR-015). Value-identical:
+    # resolution is by SUBJECT, so re-resolving would yield the same value — this
+    # only skips the redundant work (and corrects a re-fabricated value for
+    # free). Source-hash invalidation in resolve_registered_claims still applies,
+    # so a changed underlying source re-resolves normally.
+    verified_by_subject: dict[tuple[ClaimKind, str], Claim] = {}
+    for prior in _claim_store.load(project_id, repo_root=repo_root):
+        if prior.status == ClaimStatus.VERIFIED:
+            sk = subject_key(prior)
+            if sk:
+                verified_by_subject.setdefault((prior.kind, sk), prior)
     for claim in new_claims:
-        existing = _claim_store.get(project_id, claim.claim_id, repo_root=repo_root)
-        if existing is None:
-            _claim_store.upsert(project_id, claim, repo_root=repo_root)
+        if _claim_store.get(project_id, claim.claim_id, repo_root=repo_root) is not None:
+            continue
+        sk = subject_key(claim)
+        twin = verified_by_subject.get((claim.kind, sk)) if sk else None
+        if twin is not None and twin.claim_id != claim.claim_id:
+            claim = replace(
+                claim,
+                status=ClaimStatus.VERIFIED,
+                resolved_value=twin.resolved_value,
+                evidence=twin.evidence,
+                resolver=twin.resolver,
+                source_hash=twin.source_hash,
+                updated_at=_now_iso(),
+            )
+        _claim_store.upsert(project_id, claim, repo_root=repo_root)
 
     # Step 3: Substitute claim spans with {{claim:<id>}} pointers.
     spans = [(c.raw_text, c.claim_id) for c in new_claims]

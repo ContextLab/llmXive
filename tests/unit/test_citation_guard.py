@@ -218,3 +218,42 @@ def test_dedup_repeated_refs_never_touches_distinct_or_nonref_parentheticals():
         "(https://oeis.org/A002863)",            # single ref
     ):
         assert dedup_repeated_refs(unchanged) == unchanged
+
+
+def test_space_after_citation_paren_fixes_missing_space():
+    """Cosmetic citation hygiene (PROJ-552 SC-001): a citation parenthetical
+    immediately followed by a word (missing space) gets one space inserted —
+    triggered by a DOI/URL, a 4-digit year, or 'et al' inside the parens."""
+    from llmxive.agents.citation_guard import space_after_citation_paren
+
+    # DOI parenthetical (post-dedup shape) + missing space.
+    assert space_after_citation_paren(
+        "9,988 (https://doi.org/10.1142/s0218216525500099)prime knots"
+    ) == "9,988 (https://doi.org/10.1142/s0218216525500099) prime knots"
+    # Author-year citation, missing space (the real SC-001 glitch).
+    assert space_after_citation_paren(
+        "(Lee, Lee, Park, J. Knot Theory Ramifications 2025)prime knots"
+    ) == "(Lee, Lee, Park, J. Knot Theory Ramifications 2025) prime knots"
+    # 'et al' signal.
+    assert space_after_citation_paren("(Hoste et al., 1998)census") == \
+        "(Hoste et al., 1998) census"
+    # Idempotent: an already-spaced citation is untouched.
+    fixed = "(Lee 2025) prime"
+    assert space_after_citation_paren(fixed) == fixed
+
+
+def test_space_after_citation_paren_never_touches_markdown_code_or_prose():
+    """CONSERVATIVE: a space is inserted ONLY for a citation-looking parenthetical
+    that is NOT a markdown link target — markdown links, code calls, nested
+    parens, and non-citation parentheticals are left byte-identical."""
+    from llmxive.agents.citation_guard import space_after_citation_paren
+
+    for unchanged in (
+        "[Lee 2025](https://doi.org/10.1142/x)prime",  # markdown link target
+        "call foo(bar)baz here",                        # code, no citation signal
+        "see (Figure 3)below",                          # cross-ref, no citation
+        "(the minimal crossing number)is small",        # plain prose
+        "(2025) prime",                                  # already spaced
+        "nested (a (2025) b)word",                       # nested parens not matched
+    ):
+        assert space_after_citation_paren(unchanged) == unchanged

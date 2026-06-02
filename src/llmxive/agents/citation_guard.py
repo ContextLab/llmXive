@@ -253,6 +253,11 @@ def _is_structurally_unresolvable(value: str, kind: CitationKind) -> str | None:
 
 _PAREN_GROUP_RE = re.compile(r"\(([^()]+)\)")
 _REFISH_RE = re.compile(r"https?://|doi\.org|\barxiv\b|\b10\.\d{4,9}/", re.IGNORECASE)
+# A parenthetical immediately followed by a word char (the missing-space glitch),
+# excluding a markdown link target ``](…)``. The inner content is checked for a
+# citation signal before a space is inserted.
+_PAREN_BEFORE_WORD_RE = re.compile(r"(?<!\])\(([^()\n]+)\)(?=[A-Za-z])")
+_YEAR_RE = re.compile(r"\b(?:18|19|20)\d{2}\b")
 
 
 def dedup_repeated_refs(text: str) -> str:
@@ -281,6 +286,32 @@ def dedup_repeated_refs(text: str) -> str:
     return _PAREN_GROUP_RE.sub(_collapse, text)
 
 
+def space_after_citation_paren(text: str) -> str:
+    """Insert a missing space after a CITATION parenthetical that is immediately
+    followed by a word character.
+
+    Cosmetic citation hygiene (PURE, no network): an LLM specifier occasionally
+    drops the space after a closing citation paren — observed on PROJ-552 SC-001
+    (``…J. Knot Theory Ramifications 2025)prime knots…``). CONSERVATIVE: a space
+    is inserted ONLY when the parenthetical looks like a reference (URL / doi.org
+    / arXiv / DOI / a 4-digit year / "et al") AND the ``(`` is NOT a markdown link
+    target (``](…)``) — so code, markdown links, and ordinary parentheticals are
+    never touched. Inserting a space is itself benign: it never removes or
+    relocates content (unlike the earlier mid-token citation_repair bug).
+    """
+    def _space(m: re.Match[str]) -> str:
+        inner = m.group(1)
+        if (
+            _REFISH_RE.search(inner) is not None
+            or _YEAR_RE.search(inner) is not None
+            or "et al" in inner.lower()
+        ):
+            return f"{m.group(0)} "
+        return m.group(0)
+
+    return _PAREN_BEFORE_WORD_RE.sub(_space, text)
+
+
 def strip_unresolvable_offline(text: str) -> tuple[str, GuardReport]:
     """Flag ONLY structurally-unresolvable references (no network).
 
@@ -294,6 +325,7 @@ def strip_unresolvable_offline(text: str) -> tuple[str, GuardReport]:
     duplicated-DOI parenthetical is collapsed every reviser round.
     """
     text = dedup_repeated_refs(text)
+    text = space_after_citation_paren(text)
     verdicts: list[CitationVerdict] = []
     for ext in extract_citations(text):
         reason = _is_structurally_unresolvable(ext.value, ext.kind)
@@ -346,6 +378,7 @@ def verify_and_clean(
     # Pure citation hygiene first (collapse a duplicated-DOI parenthetical) so
     # the cleaned text flows through resolution + back to disk.
     text = dedup_repeated_refs(text)
+    text = space_after_citation_paren(text)
     # Structurally-unresolvable refs (malformed arXiv) need no HTTP — judge them
     # first so a fabricated id is flagged even if the network is down.
     extracted = extract_citations(text)
