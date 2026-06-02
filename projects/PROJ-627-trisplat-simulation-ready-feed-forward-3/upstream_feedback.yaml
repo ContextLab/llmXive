@@ -1,0 +1,157 @@
+project_id: PROJ-627-trisplat-simulation-ready-feed-forward-3
+arxiv_id: '2605.26115'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-02T07:54:33.084657+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: a6eb651ff5c9
+    text: Revise the claim that 'no information is lost during export' (Intro/Method)
+      to reflect the measured PSNR degradation (3.21 dB) in Appendix Table 6.
+    severity: writing
+  - id: 2fcc64b16645
+    text: Add missing BibTeX entries for cited works (e.g., Held2025Triangle, zhang2025advances)
+      to verify related work claims.
+    severity: writing
+  - id: b9f4108224b3
+    text: Ensure all citation keys in the text match the bibliography file to prevent
+      compilation errors and citation inaccuracies.
+    severity: writing
+  - id: 345a13e228ef
+    text: Code repository and implementation artifacts are missing from the review
+      package. Please include the full source code (scripts, models, training loops),
+      test suite, and dependency files (requirements.txt or pyproject.toml) to enable
+      assessment of modularity, test coverage, and reproducibility.
+    severity: science
+  - id: d5c03f9bfd48
+    text: Add a Data Availability Statement specifying dataset licenses (RE10K/DL3DV/ScanNet)
+      and compliance.
+    severity: writing
+  - id: 33e901b1b3fe
+    text: Provide a stable code repository URL with a specific commit hash and software
+      license (e.g., MIT/Apache).
+    severity: writing
+  - id: 8c0472f6947c
+    text: Archive the project page link (lhmd.top/trisplat) with a DOI to prevent
+      link rot.
+    severity: writing
+  - id: 8d8a7a0d12ff
+    text: Convert figures/teaser.png to vector format (.pdf/.eps) for print quality.
+    severity: writing
+  - id: 4f102a8745d9
+    text: Move main_dl3dv_mesh_render.pdf and main_dl3dv_textured_mesh.pdf to sections/04_experiments.tex.
+    severity: writing
+  - id: 9a5a094f8f68
+    text: Ensure axis labels are present on the pipeline2.pdf bubble chart, not just
+      in caption.
+    severity: writing
+  - id: e67f2b315feb
+    text: Add sub-figure labels (a, b, c) to grouped appendix figures.
+    severity: writing
+  - id: df499ee257ad
+    text: Define acronyms TSDF, SE(3), SO(3), and LPIPS at first use in the main text
+      to ensure accessibility for non-specialist readers.
+    severity: writing
+  - id: c599385ccc89
+    text: Replace dense jargon terms like 'post-hoc', 'gauge ambiguity', and 'latent
+      variable' with plainer alternatives (e.g., 'subsequent', 'coordinate ambiguity',
+      'internal representation').
+    severity: writing
+  - id: 1c17a6309010
+    text: Section 3.4 claims 'trivial' mesh extraction without post-processing, yet
+      describes discarding low-opacity triangles, correcting winding order, and merging
+      duplicate vertices. These ARE post-processing steps. Clarify whether 'no post-processing'
+      means 'no per-scene optimization' or truly no processing, to avoid logical tension
+      between abstract claims and method description.
+    severity: writing
+  - id: 789932f5a020
+    text: Appendix Table 6 shows TriSplat has -3.21 PSNR degradation from primitive
+      to mesh rendering. If rendering primitives ARE the exported mesh (core claim),
+      why does degradation exist? Either explain the source of this gap (e.g., opacity
+      thresholding, vertex merging artifacts) or clarify what 'no information loss'
+      means quantitatively.
+    severity: writing
+  - id: 5de6c512bb3f
+    text: Training objective Eq. 11 includes L_normal that directly supervises against
+      monocular teacher normals throughout training, not just during bootstrap phase.
+      This creates logical tension with Section 3.2's claim that the model 'relies
+      entirely on its own geometry' after release phase. Clarify whether teacher supervision
+      persists and how this affects the self-contained geometry claim.
+    severity: science
+  - id: b578d806b863
+    text: Simulation demonstrations (Appendix 6) show qualitative physics results
+      (ball drop, locomotion) but provide no quantitative metrics on collision accuracy,
+      surface normal consistency for contact, or simulation stability. For a 'simulation-ready'
+      claim, this evidence is insufficient to support the causal link between mesh
+      quality and downstream physics utility.
+    severity: science
+  - id: d0af52db9622
+    text: Abstract claims 'without any post-processing' (line 45) but Sec 3.4 describes
+      vertex merging and winding correction. This is post-processing; temper the claim
+      to 'minimal post-processing'.
+    severity: writing
+  - id: ddbc5dab6ad7
+    text: Simulation readiness is asserted via visual demos (Appendix 5.5) but lacks
+      quantitative physics benchmarks (e.g., collision stability, manifoldness). Add
+      limitations regarding watertightness requirements.
+    severity: science
+  - id: a0a7d8d9a788
+    text: Zero-shot simulation claims (ScanNet) rely on depth/normal metrics (Table
+      4) not simulation metrics. Clarify that simulation readiness on ScanNet is unverified
+      beyond geometric proxies.
+    severity: science
+  - id: 37fccf840fd2
+    text: Add a statement in Section 4.1 (Datasets) confirming adherence to dataset
+      licenses and privacy protocols, specifically regarding face blurring or consent
+      for YouTube-sourced RealEstate10K data.
+    severity: writing
+  - id: 618e4632f8f7
+    text: Include a brief discussion on potential dual-use risks (e.g., unauthorized
+      mapping of private infrastructure) and responsible use guidelines in the Conclusion
+      or an Ethics Statement.
+    severity: writing
+  - id: 3be20a063835
+    text: Provide quantitative metrics for simulation utility (e.g., collision detection
+      success rate, grasp success) to substantiate the 'simulation-ready' central
+      claim, as current evidence in Appendix 6 is purely qualitative.
+    severity: science
+  - id: c694d97310e5
+    text: "Report mean \xB1 standard deviation for all quantitative metrics in Tables\
+      \ 1-4 to assess result stability across scene samples."
+    severity: science
+  - id: 58aacf9b38ec
+    text: Conduct formal hypothesis testing (e.g., paired t-tests) comparing TriSplat
+      against baselines to validate claims of "consistent outperformance."
+    severity: science
+  - id: 3ed67aa4ae20
+    text: Include per-scene variance or confidence intervals for the zero-shot ScanNet
+      evaluation (Table 3) to demonstrate generalization stability.
+    severity: science
+  - id: 93b7cc41f08c
+    text: Replace custom \boldstart command with standard \subsubsection or \paragraph
+      commands to ensure semantic heading hierarchy and TOC generation.
+    severity: writing
+  - id: 54ef4b4bf955
+    text: Standardize BibTeX booktitle field formatting in reference.bib (remove extra
+      spaces before values).
+    severity: writing
+  - id: 180a0d3b12e6
+    text: Review \resizebox usage on tables in Appendix; prefer adjusting column widths
+      or font size to maintain readability.
+    severity: writing
+  - id: d39e4f457de6
+    text: 'Typo in section 04_experiments.tex, line ~145: ''rende ring'' should be
+      ''rendering''. Fix this typo in the phrase ''primary rende ring metric''.'
+    severity: writing
+  - id: 9d1892c18071
+    text: Section 02_related_work.tex has several very dense paragraphs (e.g., first
+      paragraph of 'Splatting-Based Scene Representations'). Consider breaking these
+      into 2-3 shorter paragraphs for improved readability.
+    severity: writing
+  - id: 48ef1e77a6a0
+    text: Some sentences throughout the manuscript are quite long and complex (e.g.,
+      introduction line ~25, related work line ~10). Consider splitting for better
+      flow without losing technical precision.
+    severity: writing

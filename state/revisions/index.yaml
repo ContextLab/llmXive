@@ -29,4 +29,7 @@ ready:
 - project_id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
   revision_spec_path: specs/auto-revisions/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/round-1
   queued_at: '2026-06-02T00:55:07.024886+00:00'
+- project_id: PROJ-627-trisplat-simulation-ready-feed-forward-3
+  revision_spec_path: specs/auto-revisions/PROJ-627-trisplat-simulation-ready-feed-forward-3/round-1
+  queued_at: '2026-06-02T07:54:33.104432+00:00'
 blocked: []
