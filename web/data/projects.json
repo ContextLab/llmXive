@@ -9521,7 +9521,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-02T13:45:02.983907+00:00",
+  "generated_at": "2026-06-02T13:52:24.598111+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -56958,6 +56958,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 171.83565,
+          "ended_at": "2026-06-02T13:52:20.190146+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-02T13:49:28.354496+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 98.320696,
           "ended_at": "2026-06-02T00:42:22.162539+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -81264,6 +81272,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Ada Lovelace (simulated)",
+      "duration_s": 171.83565,
+      "ended_at": "2026-06-02T13:52:20.190146+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "ada-lovelace",
+      "project_id": "PROJ-550-exploring-the-convergence-of-iterated-fu",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-06-02T13:49:28.354496+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Stephen Wolfram (simulated)",
       "duration_s": 101.686923,
       "ended_at": "2026-06-02T12:21:35.953243+00:00",
@@ -87492,16 +87514,6 @@
       "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
       "project_stage": "paper_review",
       "started_at": "2026-05-23T03:46:00.201931+00:00"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 270.511311,
-      "ended_at": "2026-05-23T03:38:51.007952Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-05-23T03:34:20.496641Z"
     }
   ],
   "schema_version": "2.0.0"
