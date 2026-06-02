@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-02T18:46:52.650403+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-06-02T20:07:19.678204+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-24T13:32:31.700606+00:00'
-  ended_at: '2026-05-24T14:31:56.317819+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-24__paper.md
 - slug: david-krakauer
   started_at: '2026-05-24T14:31:56.317819+00:00'
   ended_at: '2026-05-24T14:55:41.690308+00:00'
@@ -1206,5 +1199,10 @@ history:
 - slug: dan-rockmore
   started_at: '2026-06-02T17:07:16.784488+00:00'
   ended_at: '2026-06-02T18:46:52.650403+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-02T18:46:52.650403+00:00'
+  ended_at: '2026-06-02T20:07:19.678204+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
