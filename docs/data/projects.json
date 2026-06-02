@@ -9521,7 +9521,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-02T15:30:23.153442+00:00",
+  "generated_at": "2026-06-02T17:07:22.095896+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -76698,6 +76698,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 83.959988,
+          "ended_at": "2026-06-02T17:07:16.784488+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-02T17:05:52.824500+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 193.587449,
           "ended_at": "2026-06-02T10:37:09.421092+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -76767,14 +76775,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-01T07:56:30.036370Z"
-        },
-        {
-          "agent": "paper_reviewer_scientific_evidence",
-          "duration_s": 134.307203,
-          "ended_at": "2026-06-01T07:56:29.980890Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-01T07:54:15.673687Z"
         }
       ],
       "phase_group": "paper_review",
@@ -81475,6 +81475,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 83.959988,
+      "ended_at": "2026-06-02T17:07:16.784488+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-02T17:05:52.824500+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -87655,19 +87669,6 @@
       "project_id": "PROJ-608-autoresearchclaw-self-reinforcing-autono",
       "project_stage": "paper_review",
       "started_at": "2026-05-23T12:49:53.113225+00:00"
-    },
-    {
-      "agent": "personality",
-      "display_name": "David Krakauer (simulated)",
-      "duration_s": 23.029645,
-      "ended_at": "2026-05-23T12:19:34.813447+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "model_error",
-      "personality_slug": "david-krakauer",
-      "project_id": null,
-      "project_stage": "",
-      "started_at": "2026-05-23T12:19:11.783802+00:00"
     }
   ],
   "schema_version": "2.0.0"
