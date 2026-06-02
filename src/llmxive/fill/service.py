@@ -21,6 +21,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from llmxive.claims.canonical import _asserted_is_inequality_or_percent, _asserted_value
 from llmxive.claims.models import Claim, ClaimKind
 from llmxive.fill.channels import AUTHORITY, channels_for
 from llmxive.fill.channels import oeis as _oeis_mod
@@ -297,6 +298,24 @@ def fill_claim(
             reason="claim kind not fillable in v1",
             channels_tried=[],
         )
+
+    # Pre-guard (spec 019, Fail Fast): a NUMERIC claim whose asserted value is a
+    # bound/inequality/percent (≤ ≥ < > ~ ≈ or %) is not a point-valued fact, and
+    # a NUMERIC claim that asserts no numeric token cannot be numeric-filled.
+    # Both are refused BEFORE any fetch — never numeric-filled with a value.
+    if claim.kind == ClaimKind.NUMERIC:
+        chunk = claim.raw_text or claim.canonical or ""
+        asserted = _asserted_value(chunk)
+        if asserted is None:
+            return FillResult.blocked(
+                reason="numeric claim asserts no numeric value (digit-less)",
+                channels_tried=[],
+            )
+        if _asserted_is_inequality_or_percent(chunk, asserted):
+            return FillResult.blocked(
+                reason="numeric claim asserts an inequality bound or percent, not a point value",
+                channels_tried=[],
+            )
 
     # Cache hit short-circuits the search
     cached = _load_cached(claim, repo_root=repo_root)

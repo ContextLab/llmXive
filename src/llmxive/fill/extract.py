@@ -13,7 +13,9 @@ from typing import Any
 
 from llmxive.backends.router import reasoning_chat
 from llmxive.claims.models import Claim, ClaimKind
+from llmxive.fill.channels import is_prose
 from llmxive.fill.models import FetchedSource
+from llmxive.fill.relevance import prose_substantiated
 from llmxive.grounding.service import number_substantiated
 
 
@@ -98,6 +100,36 @@ def _entity_present(value: str, text: str) -> bool:
     return _norm(value) in _norm(text)
 
 
+def _accept(
+    candidate: str,
+    source: FetchedSource,
+    claim: Claim,
+    *,
+    backend: Any,
+    model: str | None,
+    repo_root: Path | None,
+) -> bool:
+    """The single admission gate for a fill candidate (spec 019).
+
+    A candidate is accepted iff it passes the literal-presence trust boundary
+    (:func:`present_in_source`) AND — for a PROSE channel — is semantically
+    substantiated (:func:`fill.relevance.prose_substantiated`). STRUCTURED
+    channels (constants / OEIS / Wikidata) carry an inherent subject<->value link
+    and are accepted on literal presence alone, exactly as before.
+
+    Both ``extract_value`` admission sites route through here so the prose gate
+    lives in exactly one place (no duplication; failing PROSE candidates never
+    enter the candidate list, so ``conflict.choose`` only ever ranks survivors).
+    """
+    if not present_in_source(candidate, source, claim.kind):
+        return False
+    if is_prose(source.channel):
+        return prose_substantiated(
+            candidate, source, claim, backend=backend, model=model, repo_root=repo_root
+        )
+    return True
+
+
 def extract_value(
     source: FetchedSource,
     claim: Claim,
@@ -126,7 +158,8 @@ def extract_value(
         candidate = _offline_numeric_lookup(source, claim)
         if candidate is None:
             return None
-        if present_in_source(candidate, source, claim.kind):
+        if _accept(candidate, source, claim, backend=None, model=model,
+                   repo_root=repo_root):
             return candidate
         return None
 
@@ -135,8 +168,10 @@ def extract_value(
                                   repo_root=repo_root)
     if candidate is None:
         return None
-    # Apply the trust-boundary gate before returning anything to the caller.
-    if present_in_source(candidate, source, claim.kind):
+    # Apply the trust-boundary gate (literal presence + PROSE semantic gate)
+    # before returning anything to the caller.
+    if _accept(candidate, source, claim, backend=backend, model=model,
+               repo_root=repo_root):
         return candidate
     return None
 

@@ -19,6 +19,7 @@ from llmxive.claims.canonical import (
     apply_canonical_corrections,
     build_canonical_facts,
     subject_key,
+    subject_keywords,
 )
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 
@@ -485,3 +486,28 @@ class TestApplyCanonicalCorrections:
         corrected, corrections = apply_canonical_corrections(text, facts)
         assert corrected == text
         assert corrections == []
+
+
+# ---------------------------------------------------------------------------
+# subject_keywords — public API (spec 019, C2: promoted from _subject_keywords)
+# ---------------------------------------------------------------------------
+
+
+class TestSubjectKeywordsPublic:
+    def test_public_keywords_are_digit_free_and_singular(self) -> None:
+        """The promoted public ``subject_keywords`` returns lowercase, digit-free,
+        singularized subject tokens (used by the spec-019 prose relevance gate)."""
+        claim = _verified_knot_claim(_OK_13, resolved_value="9988")
+        kws = subject_keywords(claim)
+        assert "knot" in kws          # plural 'knots' singularized
+        assert "crossing" in kws
+        assert all(not k.isdigit() for k in kws)  # no bare numbers
+        assert "9988" not in kws and "13" not in kws
+        assert kws == sorted(kws)     # sorted, stable
+
+    def test_keywords_back_subject_key(self) -> None:
+        """subject_key consumes the same keyword set, so a claim with real subject
+        content yields non-empty keywords and a non-empty key."""
+        claim = _verified_knot_claim(_OK_13, resolved_value="9988")
+        assert subject_keywords(claim)          # non-empty
+        assert subject_key(claim) != ""
