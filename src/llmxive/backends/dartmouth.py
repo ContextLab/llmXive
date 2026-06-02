@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import random
 import time
 from collections.abc import Callable, Iterable
 from typing import Any, TypeVar
@@ -103,8 +104,11 @@ def _deadline_for_model(model: str) -> float:
 # aborts FAST instead of thrashing for hours (observed: review/reviser calls
 # retried 9x on a dead endpoint at ~27 min/call → 7h zero-progress). It is a
 # NO-OP in normal operation: a single transient failure followed by a success
-# never trips it. State is per-DartmouthBackend instance. Both thresholds are
-# constants, env-overridable.
+# never trips it. State is per-(DartmouthBackend instance, RESOLVED model): each
+# model gets its OWN breaker so a single-model vLLM outage (e.g. qwen tripping)
+# does NOT block a healthy peer (gpt-oss) on the same backend — which is exactly
+# what lets the router's peer-model fallback route around a single down model.
+# Both thresholds are constants, env-overridable.
 _DEFAULT_BREAKER_MAX_CONSECUTIVE = int(
     os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_MAX_CONSECUTIVE", "3")
 )
@@ -259,10 +263,17 @@ def _retry_with_backoff(
             last_exc = exc
             if attempt >= max_retries:
                 break
-            delay = min(
+            computed = min(
                 base_delay_s * (_RETRY_MULTIPLIER ** attempt),
                 _DEFAULT_RETRY_MAX_DELAY_S,
             )
+            # Equal jitter: delay = half + uniform(0, half), half = computed/2,
+            # so delay ∈ [computed/2, computed]. Many lens calls retry in
+            # parallel; without jitter their identical backoff schedules
+            # re-synchronize into waves that hammer a just-recovering pod. The
+            # jitter de-correlates them while keeping the per-attempt cap intact.
+            half = computed / 2.0
+            delay = half + random.uniform(0.0, half)
             _log.warning(
                 "%s transient error (attempt %d/%d): %s; sleeping %.1fs",
                 description, attempt + 1, max_retries + 1, exc, delay,
@@ -453,10 +464,29 @@ class DartmouthBackend(BaseBackend):
             if retry_base_delay_s is None
             else retry_base_delay_s
         )
-        # Per-instance circuit breaker: aborts FAST on a SUSTAINED outage so a
-        # dead endpoint can't drive a multi-hour retry thrash. No-op in normal
-        # operation (single transient + success never trips). See _CircuitBreaker.
-        self._breaker = _CircuitBreaker()
+        # Per-MODEL circuit breakers: each resolved model name gets its OWN
+        # breaker (lazily created via ``_new_breaker``), so a SUSTAINED outage on
+        # one model (e.g. qwen) trips ONLY that model's breaker and can't block a
+        # healthy peer (gpt-oss) on the same backend instance. This is what lets
+        # the router walk to a healthy peer when one model is down. No-op in
+        # normal operation (single transient + success never trips). See
+        # _CircuitBreaker.
+        self._breakers: dict[str, _CircuitBreaker] = {}
+
+    def _new_breaker(self) -> _CircuitBreaker:
+        """Factory for a fresh per-model breaker (overridable in tests)."""
+        return _CircuitBreaker()
+
+    def _breaker_for(self, model: str) -> _CircuitBreaker:
+        """The circuit breaker guarding ``model`` on this backend (lazy-created).
+
+        Keyed by the resolved model name so each model's outage state is
+        isolated — qwen tripping OPEN never short-circuits gpt-oss."""
+        br = self._breakers.get(model)
+        if br is None:
+            br = self._new_breaker()
+            self._breakers[model] = br
+        return br
 
     def _client(self, model: str):  # type: ignore[no-untyped-def]
         try:
@@ -634,12 +664,14 @@ class DartmouthBackend(BaseBackend):
         # maintenance windows, vLLM cluster flickers, 5xx). Permanent
         # errors propagate immediately. See ``_retry_with_backoff``.
         #
-        # The retry is wrapped by the per-instance circuit breaker: if the
-        # breaker is already OPEN (sustained outage) it raises BackendUnavailable
-        # here WITHOUT burning the retry budget; otherwise a fully-exhausted
-        # retry (final TransientBackendError) counts toward tripping it, and any
-        # success resets it. See ``_CircuitBreaker``.
-        return self._breaker.call(
+        # The retry is wrapped by THIS MODEL's circuit breaker: if the model's
+        # breaker is already OPEN (sustained outage of that specific model) it
+        # raises BackendUnavailable here WITHOUT burning the retry budget;
+        # otherwise a fully-exhausted retry (final TransientBackendError) counts
+        # toward tripping it, and any success resets it. Keyed per resolved model
+        # so qwen's outage never blocks a healthy gpt-oss peer. See
+        # ``_CircuitBreaker`` / ``_breaker_for``.
+        return self._breaker_for(model).call(
             lambda: _retry_with_backoff(
                 _do_one_attempt,
                 max_retries=self._max_retries,

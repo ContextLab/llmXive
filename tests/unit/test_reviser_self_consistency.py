@@ -22,8 +22,12 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from llmxive.backends.base import ChatResponse, TransientBackendError
 from llmxive.convergence.revisers._self_consistency import (
+    _REASONING_MAX_TOKENS,
     SelfConsistencyResult,
+    _chat_reasoning_safe,
+    invoke_reviser_backend,
     run_with_self_consistency,
     self_consistency_pass,
 )
@@ -414,6 +418,68 @@ def test_parse_problems_win_over_ok_true():
     )
     assert result.ok is False
     assert result.problems == ["contradiction in FR-003"]
+
+
+# --- reviser routes its backend call through peer-model fallback ----------
+
+
+@dataclass
+class _ModelFallbackBackend:
+    """Injected fake (not a model mock): per-model success/failure + records
+    the kwargs each call received, so we can prove the reviser walked the
+    SAME-BACKEND peer-model chain and carried the reasoning-safe budget."""
+
+    replies: dict  # type: ignore[type-arg]  # model id -> reply text
+    transient_models: set = field(default_factory=set)  # type: ignore[type-arg]
+    calls: list = field(default_factory=list)  # type: ignore[type-arg]
+
+    def chat(self, messages, *, model, max_tokens=None, temperature=None):  # type: ignore[no-untyped-def]
+        self.calls.append({"model": model, "max_tokens": max_tokens})
+        if model in self.transient_models:
+            raise TransientBackendError(f"reasoning budget exhausted on {model}")
+        return ChatResponse(text=self.replies[model], model=model, backend="dartmouth")
+
+
+def test_chat_reasoning_safe_healthy_primary_no_fallback():
+    backend = _ModelFallbackBackend(replies={"qwen.qwen3.5-122b": "OK primary"})
+    resp = _chat_reasoning_safe(backend, [], "qwen.qwen3.5-122b")
+    assert resp.text == "OK primary"
+    assert [c["model"] for c in backend.calls] == ["qwen.qwen3.5-122b"]
+    # Reasoning-safe budget passed unchanged.
+    assert backend.calls[0]["max_tokens"] == _REASONING_MAX_TOKENS
+
+
+def test_chat_reasoning_safe_primary_transient_walks_to_peer():
+    backend = _ModelFallbackBackend(
+        replies={
+            "qwen.qwen3.5-122b": "unreached",
+            "openai.gpt-oss-120b": "OK from peer",
+        },
+        transient_models={"qwen.qwen3.5-122b"},
+    )
+    resp = _chat_reasoning_safe(backend, [], "qwen.qwen3.5-122b")
+    assert resp.text == "OK from peer"  # the chain was walked to the peer
+    assert backend.calls[-1]["model"] == "openai.gpt-oss-120b"
+    # The reasoning-safe budget reaches the PEER too.
+    assert backend.calls[-1]["max_tokens"] == _REASONING_MAX_TOKENS
+
+
+def test_invoke_reviser_backend_uses_fallback():
+    """The shared reviser revision turn (``invoke_reviser_backend``) goes
+    through the same fallback path and returns the peer's text on a primary
+    outage."""
+
+    class _Reviser:
+        def __init__(self, backend):
+            self._backend = backend
+            self._model = "qwen.qwen3.5-122b"
+
+    backend = _ModelFallbackBackend(
+        replies={"qwen.qwen3.5-122b": "x", "openai.gpt-oss-120b": "peer revision"},
+        transient_models={"qwen.qwen3.5-122b"},
+    )
+    text = invoke_reviser_backend(_Reviser(backend), [])
+    assert text == "peer revision"
 
 
 # --- Fix C: the reviser chokepoint runs 016 only, NOT F-19 ----------------

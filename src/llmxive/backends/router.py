@@ -11,6 +11,7 @@ from collections.abc import Iterable
 
 from llmxive.backends.base import (
     BackendError,
+    BackendUnavailable,
     BaseBackend,
     ChatMessage,
     ChatResponse,
@@ -49,6 +50,153 @@ MODEL_FALLBACKS: dict[str, list[str]] = {
 }
 
 
+def _chat_one_model(
+    backend: BaseBackend,
+    msg_list: list[ChatMessage],
+    *,
+    model: str | None,
+    max_tokens: int | None,
+    temperature: float | None,
+) -> ChatResponse:
+    """``backend.chat`` for ONE model, degrading for fakes/legacy signatures.
+
+    Production backends (Dartmouth/local) accept the full
+    ``model/max_tokens/temperature`` kwarg set. In-test fake backends and
+    legacy doubles often expose a narrower ``chat(messages, model=None)``
+    signature; calling them with ``max_tokens``/``temperature`` raises
+    ``TypeError``. We degrade progressively — drop ``temperature``, then
+    ``max_tokens``, then ``model`` — so the SAME helper drives both the real
+    peer-model fallback chain AND the injected-fake reviewer/reviser tests.
+
+    ``model=None`` is honored (omitted from the call) so callers that don't pin
+    a model still work. This NEVER catches backend errors — Transient/Permanent
+    propagate to the chain walker; only ``TypeError`` (signature mismatch) is
+    handled here.
+    """
+    base: dict[str, object] = {}
+    if model is not None:
+        base["model"] = model
+    attempts: list[dict[str, object]] = []
+    full = dict(base)
+    if max_tokens is not None:
+        full["max_tokens"] = max_tokens
+    if temperature is not None:
+        full["temperature"] = temperature
+    attempts.append(full)
+    # Degrade temperature first (keep the load-bearing reasoning budget longest),
+    # then max_tokens, then a bare model-only / no-kwarg call.
+    if temperature is not None and ("max_tokens" in full):
+        attempts.append({**base, "max_tokens": max_tokens})
+    attempts.append(dict(base))
+    if base:
+        attempts.append({})
+    last_type_error: TypeError | None = None
+    for kwargs in attempts:
+        try:
+            return backend.chat(msg_list, **kwargs)  # type: ignore[arg-type]
+        except TypeError as exc:
+            last_type_error = exc
+            continue
+    assert last_type_error is not None
+    raise last_type_error
+
+
+def chat_with_model_fallback(
+    backend: BaseBackend,
+    messages: Iterable[ChatMessage],
+    *,
+    model: str | None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+) -> ChatResponse:
+    """Peer-model fallback on a SINGLE, already-constructed backend instance.
+
+    Tries ``model`` (3 retries) then each peer in ``MODEL_FALLBACKS[model]`` (1
+    attempt each) on the GIVEN backend — the same SAME-BACKEND peer-model walk
+    :func:`chat_with_fallback` performs per backend, but operating on an
+    injected backend instance instead of constructing one by name. This is what
+    the convergence panel + reviser use so a transient outage on the primary
+    model (e.g. a qwen3.5-122b vLLM hang) walks to gpt-oss-120b / gemma without
+    swapping the backend object the caller already holds.
+
+    The same reasoning-safe ``max_tokens`` is passed to EVERY model in the
+    chain (the peers are also reasoning models and need the budget). A
+    ``reasoning budget exhausted`` transient skips the remaining same-model
+    retries (the model will exhaust it again) and falls straight to the peer.
+
+    A ``BackendUnavailable`` (the model's circuit breaker is OPEN / the model is
+    down) on ANY model in the chain — INCLUDING the primary — records it and
+    walks to the next peer (the model is down; try the next). It does NOT abort:
+    that is the fix for the per-model breaker composing with fallback. A
+    NON-Unavailable ``PermanentBackendError`` on the primary (paid-model guard, a
+    hard refusal) still aborts immediately (no peer walk). When the whole chain
+    is exhausted, if ANY failure was ``BackendUnavailable`` we raise
+    ``BackendUnavailable`` (a true full-endpoint outage → the run loop's existing
+    clean-abort path fires, preserving the breaker's anti-thrash purpose);
+    otherwise we raise the aggregate ``BackendError``. On a ``model=None`` call
+    there is no chain to walk — it is a single signature-degrading ``chat``.
+    """
+    import time as _time
+
+    msg_list = list(messages)
+    if model is None:
+        return _chat_one_model(
+            backend, msg_list, model=None,
+            max_tokens=max_tokens, temperature=temperature,
+        )
+    models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
+    errors: list[str] = []
+    saw_unavailable = False
+    for model_idx, m in enumerate(models_to_try):
+        attempts = 3 if model_idx == 0 else 1
+        for attempt in range(attempts):
+            if attempt:
+                _time.sleep(2.0 * attempt)
+            try:
+                return _chat_one_model(
+                    backend, msg_list, model=m,
+                    max_tokens=max_tokens, temperature=temperature,
+                )
+            except BackendUnavailable as exc:
+                # The MODEL is down (breaker OPEN). Retrying the same model is
+                # pointless (it will fast-fail), so skip the remaining same-model
+                # attempts and walk to the next peer — do NOT abort, even on the
+                # primary. A genuinely all-down chain still aborts below (via
+                # BackendUnavailable), preserving the breaker's anti-thrash role.
+                saw_unavailable = True
+                errors.append(f"{m}(unavailable): {exc}")
+                break
+            except TransientBackendError as exc:
+                errors.append(f"{m}(transient attempt {attempt + 1}): {exc}")
+                if "reasoning budget exhausted" in str(exc):
+                    break
+                if attempt == attempts - 1:
+                    break
+                continue
+            except PermanentBackendError as exc:
+                # A genuine permanent rejection (paid-model guard / hard refusal)
+                # — NOT a model-down signal. On the primary this won't heal by
+                # walking peers, so abort. On a peer, end this model's attempts.
+                errors.append(f"{m}(permanent): {exc}")
+                if model_idx == 0:
+                    raise
+                break
+    detail = (
+        "every model in chain "
+        + repr(models_to_try)
+        + " failed on backend "
+        + repr(getattr(backend, "name", type(backend).__name__))
+        + "; errors: "
+        + " | ".join(errors)
+    )
+    # If a model-down (breaker-open) signal appeared anywhere in an all-failed
+    # chain, surface it as BackendUnavailable so the run loop aborts CLEANLY on a
+    # true full-endpoint outage (rather than as a recoverable BackendError).
+    if saw_unavailable:
+        raise BackendUnavailable(detail)
+    raise BackendError(detail)
+
+
 def chat_with_fallback(
     messages: Iterable[ChatMessage],
     *,
@@ -72,8 +220,6 @@ def chat_with_fallback(
     next backend. This handles single-model vLLM outages on Dartmouth
     where other models on the same backend are still healthy.
     """
-    import time as _time
-
     if max_tokens is None:
         # 128K default — tokens cost time but not money on Dartmouth's
         # community plan, so we use the largest sensible budget. Per
@@ -96,44 +242,23 @@ def chat_with_fallback(
         except PermanentBackendError as exc:
             errors.append(f"{name}(init): {exc}")
             continue
-        # Try the primary model with retries, then fall back through
-        # peer models on the same backend.
-        models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
-        for model_idx, m in enumerate(models_to_try):
-            attempts = 3 if model_idx == 0 else 1
-            permanent_for_this_model = False
-            for attempt in range(attempts):
-                if attempt:
-                    _time.sleep(2.0 * attempt)
-                try:
-                    return backend.chat(
-                        msg_list,
-                        model=m,
-                        max_tokens=max_tokens,
-                        temperature=temperature,
-                    )
-                except TransientBackendError as exc:
-                    errors.append(
-                        f"{name}/{m}(transient attempt {attempt + 1}): {exc}"
-                    )
-                    # "Reasoning budget exhausted" means the SAME model
-                    # will exhaust its budget AGAIN on retry — skip
-                    # remaining same-model attempts and fall straight
-                    # to peer-model fallback. Saves up to 2x3min=6min
-                    # per call.
-                    if "reasoning budget exhausted" in str(exc):
-                        break
-                    if attempt == attempts - 1:
-                        break  # done with this model, try next
-                    continue
-                except PermanentBackendError as exc:
-                    errors.append(f"{name}/{m}(permanent): {exc}")
-                    permanent_for_this_model = True
-                    break  # don't retry permanent failures
-            # If permanent failure on the PRIMARY model (e.g., auth issue),
-            # don't bother trying peer models on the same backend.
-            if permanent_for_this_model and model_idx == 0:
-                break
+        # Try the primary model with retries, then fall back through peer
+        # models on the SAME backend — :func:`chat_with_model_fallback` owns
+        # that walk (and the reviewer/reviser share it). A permanent failure on
+        # the primary model surfaces as PermanentBackendError; a fully-exhausted
+        # transient chain surfaces as BackendError. Either way we move on to the
+        # next backend in ``chain`` (matching the prior per-backend semantics).
+        try:
+            return chat_with_model_fallback(
+                backend,
+                msg_list,
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+        except (PermanentBackendError, BackendError) as exc:
+            errors.append(f"{name}: {exc}")
+            continue
     raise BackendError(
         "every backend in chain "
         + repr(chain)
@@ -142,4 +267,4 @@ def chat_with_fallback(
     )
 
 
-__all__ = ["chat_with_fallback", "make_backend"]
+__all__ = ["chat_with_fallback", "chat_with_model_fallback", "make_backend"]

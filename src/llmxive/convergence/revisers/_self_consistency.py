@@ -44,6 +44,7 @@ import yaml
 
 from llmxive.agents.prompts import load_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.backends.router import chat_with_model_fallback
 
 from ..types import Concern, ConcernResponse
 
@@ -157,20 +158,21 @@ _REASONING_MAX_TOKENS = 32_768
 def _chat_reasoning_safe(
     backend: Any, messages: list[ChatMessage], model: str | None
 ) -> Any:
-    """``backend.chat`` with a reasoning-safe ``max_tokens``, degrading
-    gracefully for backends / test fakes whose signature omits the kwargs."""
-    kwargs: dict[str, Any] = {"max_tokens": _REASONING_MAX_TOKENS}
-    if model is not None:
-        kwargs["model"] = model
-    try:
-        return backend.chat(messages, **kwargs)
-    except TypeError:
-        # Fake/legacy signature: retry without max_tokens, then bare.
-        kwargs.pop("max_tokens", None)
-        try:
-            return backend.chat(messages, **kwargs)
-        except TypeError:
-            return backend.chat(messages)
+    """``backend.chat`` with a reasoning-safe ``max_tokens``, routed through the
+    SAME-BACKEND peer-model fallback chain.
+
+    Delegates to :func:`chat_with_model_fallback` so a transient outage/hang on
+    the reviser's primary model (e.g. a qwen3.5-122b vLLM stall) walks to
+    gpt-oss-120b / gemma on the same injected backend instead of retrying the
+    dead model — the panel and the reviser now share ONE fallback path. The
+    reasoning-safe ``_REASONING_MAX_TOKENS`` is carried to every peer (they're
+    also reasoning models / need the budget). The helper owns the
+    kwarg-degradation for backends / test fakes whose ``chat`` signature omits
+    ``max_tokens`` (and, when ``model`` is ``None``, makes a single
+    no-fallback call — the offline single-response reviser tests' shape)."""
+    return chat_with_model_fallback(
+        backend, messages, model=model, max_tokens=_REASONING_MAX_TOKENS
+    )
 
 
 def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:

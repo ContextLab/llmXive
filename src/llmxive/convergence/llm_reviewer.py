@@ -39,7 +39,9 @@ from typing import Any
 import yaml
 
 from llmxive.backends.base import ChatMessage
+from llmxive.backends.router import chat_with_model_fallback
 
+from . import review_cache
 from .types import Concern, Severity, Verdict
 
 # --- prompt loading -------------------------------------------------------
@@ -595,6 +597,22 @@ class LLMReviewer:
         user = self._compose_identify_user(
             artifacts=artifacts, constitution=constitution, advisory=advisory,
         )
+        # Resumable cache (spec: make qwen-outage recovery cheap). The key
+        # hashes EVERY review-determining input (composed user message +
+        # system prompt + lens + stage + model); a HIT is byte-for-byte
+        # equivalent to a fresh call's INPUTS, so reusing it cannot change
+        # the review. On MISS we call the model and STORE before returning.
+        # All cache ops are best-effort — never crash / change a review.
+        cache_key = review_cache.compose_key(
+            user=user,
+            system=self._system_prompt,
+            lens=self._lens,
+            stage=self._stage,
+            model=self._model,
+        )
+        cached = review_cache.load(self._repo_root, cache_key)
+        if cached is not None:
+            return cached
         messages = [
             ChatMessage(role="system", content=self._system_prompt),
             ChatMessage(role="user", content=user),
@@ -607,6 +625,7 @@ class LLMReviewer:
             stage=self._stage,
             default_artifact=default_artifact,
         )
+        review_cache.store(self._repo_root, cache_key, concerns)
         return concerns
 
     def rereview(
@@ -757,20 +776,20 @@ class LLMReviewer:
         return "(unknown)"
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
-        # Pass max_tokens through when the backend supports it (Dartmouth
-        # does; the fake-backend test doubles tolerate the kwarg via
-        # **kw). Falling back to bare chat() on backends that don't.
-        kwargs: dict[str, Any] = {}
-        if self._model is not None:
-            kwargs["model"] = self._model
-        if self._max_tokens is not None:
-            kwargs["max_tokens"] = self._max_tokens
-        try:
-            response = self._backend.chat(messages, **kwargs)
-        except TypeError:
-            # Backend didn't accept max_tokens — retry without it.
-            kwargs.pop("max_tokens", None)
-            response = self._backend.chat(messages, **kwargs)
+        # Route through the SAME-BACKEND peer-model fallback chain
+        # (:func:`chat_with_model_fallback`): a transient outage/hang on the
+        # primary model (e.g. a qwen3.5-122b vLLM stall) walks to gpt-oss-120b /
+        # gemma on the same injected backend instead of retrying the dead model
+        # and stalling the whole panel. The reasoning-safe ``max_tokens`` is
+        # carried to every peer (they're also reasoning models). The helper owns
+        # the kwarg-degradation for backends/test fakes whose ``chat`` signature
+        # omits ``max_tokens``/``temperature``.
+        response = chat_with_model_fallback(
+            self._backend,
+            messages,
+            model=self._model,
+            max_tokens=self._max_tokens,
+        )
         return getattr(response, "text", "") or ""
 
 

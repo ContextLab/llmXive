@@ -39,6 +39,12 @@ def test_retry_absorbs_brief_flicker(monkeypatch):
     monkeypatch.setattr(
         "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps.append(s),
     )
+    # Pin equal jitter to its UPPER bound so the slept delay == the computed
+    # backoff (delay = half + uniform(0, half); uniform→half ⇒ delay=computed).
+    # This asserts the exact backoff SCHEDULE while jitter is in play.
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.random.uniform", lambda _a, b: b,
+    )
 
     def fn():
         calls.append(1)
@@ -51,7 +57,7 @@ def test_retry_absorbs_brief_flicker(monkeypatch):
     )
     assert result == "recovered"
     assert len(calls) == 3
-    # Backoff: base * 2^0, base * 2^1 = 0.1, 0.2
+    # Backoff: base * 2^0, base * 2^1 = 0.1, 0.2 (jitter pinned to upper bound)
     assert sleeps == pytest.approx([0.1, 0.2])
 
 
@@ -141,6 +147,10 @@ def test_retry_backoff_multiplier_is_exponential(monkeypatch):
     monkeypatch.setattr(
         "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps.append(s),
     )
+    # Pin jitter to its upper bound → slept delay == computed backoff.
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.random.uniform", lambda _a, b: b,
+    )
 
     def fn():
         raise TransientBackendError("always fails")
@@ -195,6 +205,9 @@ def test_backoff_delay_is_capped_to_ride_out_multi_minute_outage(monkeypatch):
 
     sleeps: list[float] = []
     monkeypatch.setattr("llmxive.backends.dartmouth.time.sleep", lambda s: sleeps.append(s))
+    # Pin jitter to its upper bound → slept delay == computed (capped) backoff,
+    # so the cap/plateau contract is asserted exactly with jitter in play.
+    monkeypatch.setattr("llmxive.backends.dartmouth.random.uniform", lambda _a, b: b)
 
     def fn():
         raise TransientBackendError("302 moved (outage.dartmouth.edu)")
@@ -205,6 +218,58 @@ def test_backoff_delay_is_capped_to_ride_out_multi_minute_outage(monkeypatch):
     assert sleeps == pytest.approx([10.0, 20.0, 40.0, 60.0, 60.0, 60.0, 60.0, 60.0])
     # rode out > 5 minutes before giving up
     assert sum(sleeps) >= 300.0
+
+
+def test_backoff_delay_has_equal_jitter(monkeypatch):
+    """Each slept delay must be EQUAL-JITTERED around the computed backoff:
+    ``delay = half + uniform(0, half)`` where ``half = computed/2``. So the slept
+    value always falls in ``[computed/2, computed]``. This de-synchronizes the
+    many parallel lens-call retries so they don't reconverge into waves that
+    hammer a recovering pod. We assert the CONTRACT/range deterministically by
+    patching ``random.uniform`` to its endpoints — not a single fixed value."""
+    base, mult, cap = 10.0, 2.0, 60.0
+    computed = [min(base * (mult ** a), cap) for a in range(4)]  # 10,20,40,60
+
+    # uniform(0, half) at its LOWER bound (0) → delay == half == computed/2.
+    sleeps_low: list[float] = []
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps_low.append(s)
+    )
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.random.uniform", lambda _a, _b: 0.0
+    )
+
+    def fail():
+        raise TransientBackendError("503 service unavailable")
+
+    with pytest.raises(TransientBackendError):
+        _retry_with_backoff(fail, max_retries=4, base_delay_s=base)
+    assert sleeps_low == pytest.approx([c / 2 for c in computed])
+
+    # uniform(0, half) at its UPPER bound (half) → delay == computed.
+    sleeps_high: list[float] = []
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps_high.append(s)
+    )
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.random.uniform", lambda _a, b: b
+    )
+    with pytest.raises(TransientBackendError):
+        _retry_with_backoff(fail, max_retries=4, base_delay_s=base)
+    assert sleeps_high == pytest.approx(computed)
+
+    # And for an arbitrary real draw, every slept delay is in [computed/2, computed].
+    sleeps_mid: list[float] = []
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.time.sleep", lambda s: sleeps_mid.append(s)
+    )
+    monkeypatch.setattr(
+        "llmxive.backends.dartmouth.random.uniform", lambda _a, b: b * 0.37
+    )
+    with pytest.raises(TransientBackendError):
+        _retry_with_backoff(fail, max_retries=4, base_delay_s=base)
+    for slept, comp in zip(sleeps_mid, computed, strict=True):
+        assert comp / 2 <= slept <= comp
 
 
 def test_default_retry_window_spans_several_minutes():

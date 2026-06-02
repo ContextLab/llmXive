@@ -170,10 +170,12 @@ def test_permanent_error_does_not_count_as_breaker_failure():
 
 
 def test_chat_integrates_breaker_and_fails_fast(monkeypatch):
-    """End-to-end through DartmouthBackend.chat: once the endpoint has fully
-    failed K times, the next chat() raises BackendUnavailable WITHOUT invoking
-    the client (no retry-budget burn). Uses a deterministic failing fake client —
-    no external model is contacted; max_retries=0 keeps each call to one attempt."""
+    """End-to-end through DartmouthBackend.chat: once a MODEL has fully failed
+    K times, the next chat() for THAT model raises BackendUnavailable WITHOUT
+    invoking the client (no retry-budget burn). Uses a deterministic failing fake
+    client — no external model is contacted; max_retries=0 keeps each call to one
+    attempt. The breaker is now keyed PER MODEL: we override the per-model factory
+    so the test model trips after 3 consecutive failures."""
     from llmxive.backends import dartmouth as dm
 
     monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", "sk-test-fake")
@@ -189,8 +191,11 @@ def test_chat_integrates_breaker_and_fails_fast(monkeypatch):
 
     backend = dm.DartmouthBackend(max_retries=0)
     monkeypatch.setattr(backend, "_client", lambda model: _FailingClient())
-    # Trip after 3 consecutive full failures.
-    monkeypatch.setattr(backend, "_breaker", _CircuitBreaker(max_consecutive=3, window_s=1e9))
+    # Trip after 3 consecutive full failures — per-model breaker factory.
+    monkeypatch.setattr(
+        backend, "_new_breaker",
+        lambda: _CircuitBreaker(max_consecutive=3, window_s=1e9),
+    )
 
     msgs = [ChatMessage(role="user", content="hi")]
 
@@ -205,6 +210,69 @@ def test_chat_integrates_breaker_and_fails_fast(monkeypatch):
     with pytest.raises(BackendUnavailable):
         backend.chat(msgs, model="qwen.qwen3.5-122b")
     assert invoked["n"] == calls_after_three  # no further client call
+
+
+def test_chat_breaker_is_per_model_isolated(monkeypatch):
+    """A tripped breaker on model A must NOT block a healthy model B on the SAME
+    backend instance. This is the core fix: the breaker is keyed per RESOLVED
+    model name, so qwen's outage (breaker OPEN) doesn't strand a healthy gpt-oss
+    peer on the same backend. Model A always fails (trips its breaker); model B
+    always succeeds and must keep being invoked even after A is OPEN."""
+    from llmxive.backends import dartmouth as dm
+
+    monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", "sk-test-fake")
+    monkeypatch.setattr(dm, "is_free_model", lambda model: True)
+
+    model_a = "qwen.qwen3.5-122b"
+    model_b = "openai.gpt-oss-120b"
+    invoked: dict[str, int] = {model_a: 0, model_b: 0}
+
+    class _PerModelClient:
+        def __init__(self, model: str) -> None:
+            self._model = model
+
+        def invoke(self, *_a, **_k):
+            invoked[self._model] += 1
+            if self._model == model_a:
+                raise RuntimeError("503 service unavailable")  # transient
+            return _FakeReply("answer from B")
+
+    backend = dm.DartmouthBackend(max_retries=0)
+    monkeypatch.setattr(backend, "_client", lambda model: _PerModelClient(model))
+    monkeypatch.setattr(
+        backend, "_new_breaker",
+        lambda: _CircuitBreaker(max_consecutive=3, window_s=1e9),
+    )
+
+    msgs = [ChatMessage(role="user", content="hi")]
+
+    # Trip model A's breaker (3 consecutive full failures).
+    for _ in range(3):
+        with pytest.raises(TransientBackendError):
+            backend.chat(msgs, model=model_a)
+    # A is now OPEN — its next call fails fast WITHOUT invoking A's client again.
+    a_calls = invoked[model_a]
+    with pytest.raises(BackendUnavailable):
+        backend.chat(msgs, model=model_a)
+    assert invoked[model_a] == a_calls  # A short-circuited
+
+    # Model B's breaker is INDEPENDENT and still CLOSED — B's call proceeds.
+    resp = backend.chat(msgs, model=model_b)
+    assert resp.text == "answer from B"
+    assert invoked[model_b] == 1  # B's client WAS invoked
+    # And B stays healthy across repeated calls (its breaker never tripped).
+    resp2 = backend.chat(msgs, model=model_b)
+    assert resp2.text == "answer from B"
+    assert invoked[model_b] == 2
+
+
+class _FakeReply:
+    """Minimal stand-in for a langchain AIMessage reply used by chat()."""
+
+    def __init__(self, content: str) -> None:
+        self.content = content
+        self.response_metadata: dict = {"finish_reason": "stop"}
+        self.additional_kwargs: dict = {}
 
 
 class _FakeClock:
