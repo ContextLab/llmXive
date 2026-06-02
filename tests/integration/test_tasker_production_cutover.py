@@ -194,3 +194,67 @@ def test_legacy_guards_ssot_smoke():
         original_content="# Spec\n- **FR-001**: ok\n",
     )
     assert refusals  # either header OR constraint-preservation guard fires
+
+
+def test_engine_path_reraises_transient_backend_error(tmp_path, monkeypatch):
+    """A TransientBackendError from the engine resolve (a flapping endpoint) must
+    PROPAGATE out of _run_engine_path — NOT be swallowed into a converged:False
+    marker that lets run_one_step advance the tasks stage as though it accepted
+    (bug-#8 principle; parity with run_stage_panel). The first analyze + engine
+    call are stubbed to inject the controlled backend-down signal; the unit under
+    test is the tasker's exception handling, not the analyzer/engine themselves.
+    """
+    import pytest
+
+    from llmxive.backends import router as backend_router
+    from llmxive.backends.base import TransientBackendError
+    from llmxive.speckit import _tasker_engine_bridge as bridge
+    from llmxive.speckit import tasks_cmd
+    from llmxive.speckit.slash_command import SlashCommandContext
+    from llmxive.types import BackendName
+
+    project_dir = tmp_path / "projects" / "PROJ-903"
+    (project_dir / ".specify" / "memory").mkdir(parents=True)
+    spec_path = project_dir / "spec.md"
+    plan_path = project_dir / "plan.md"
+    tasks_path = project_dir / "tasks.md"
+    for p in (spec_path, plan_path, tasks_path):
+        p.write_text("# doc\n", encoding="utf-8")
+
+    # First analyze runs but is NOT clean → the engine resolve loop is entered.
+    monkeypatch.setattr(tasks_cmd, "run_analyze", lambda **kw: "NOT CLEAN: issues")
+    monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+    # The engine resolve hits a flapping endpoint and raises a transient error.
+    def _boom(**kw):
+        raise TransientBackendError("qwen hung past deadline; retries exhausted")
+    monkeypatch.setattr(bridge, "run_tasker_via_engine", _boom)
+    # Backend instantiation is a collaborator, not the unit under test — stub it
+    # so the engine resolve is reached without a real Dartmouth key.
+    monkeypatch.setattr(backend_router, "make_backend", lambda name: object())
+
+    ctx = SlashCommandContext(
+        project_id="PROJ-903",
+        project_dir=project_dir,
+        run_id="r1",
+        task_id="t1",
+        inputs=[],
+        expected_outputs=["tasks.md"],
+        prompt_template_path=Path("prompts/x.md"),
+        default_backend=BackendName.DARTMOUTH,
+        fallback_backends=[],
+        default_model="m",
+        prompt_version="1.0.0",
+        agent_name="tasker",
+    )
+    agent = tasks_cmd.TaskerAgent.__new__(tasks_cmd.TaskerAgent)
+    agent._inspection_rounds = []
+
+    with pytest.raises(TransientBackendError):
+        agent._run_engine_path(
+            ctx=ctx, repo=tmp_path, tasks_path=tasks_path, spec_path=spec_path,
+            plan_path=plan_path, written=[],
+        )
+    # MUST NOT have written a converged:False marker (which would let the project
+    # advance) — the transient error propagates so the project stays at PLANNED.
+    marker = project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
+    assert not marker.exists()

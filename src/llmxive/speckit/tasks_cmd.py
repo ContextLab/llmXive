@@ -23,7 +23,12 @@ from typing import Any
 import yaml
 
 from llmxive.agents.prompts import render_prompt
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import (
+    BackendUnavailable,
+    ChatMessage,
+    ChatResponse,
+    TransientBackendError,
+)
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
 from llmxive.speckit.analyze_cmd import is_clean, run_analyze
@@ -552,6 +557,14 @@ class TaskerAgent(SlashCommandAgent):
                 analyze_report_text=first_report,
                 model=ctx.default_model,
             )
+        except (TransientBackendError, BackendUnavailable):
+            # A transiently-degraded / circuit-broken endpoint is NOT
+            # human-actionable and MUST NOT advance the tasks stage (bug-#8
+            # principle; parity with run_stage_panel). Re-raise AS-IS so
+            # run_one_step fails transiently and the project STAYS at PLANNED to
+            # retry when the endpoint recovers — rather than swallowing the
+            # failure and advancing to TASKED as though the panel had accepted.
+            raise
         except Exception as exc:
             print(
                 f"[tasker/engine] engine path raised: {exc}; "
