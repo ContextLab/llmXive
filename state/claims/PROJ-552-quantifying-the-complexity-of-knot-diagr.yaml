@@ -3,11 +3,11 @@
   canonical: 27635 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
     1998
   claim_id: c_915d83d6
-  context: "Scope Boundary: While the dataset covers all knots with crossing number\
-    \ \u226413, validation benchmarking focuses on community-standard prime knot enumeration\
-    \ from KnotInfo and Hoste-Thistlethwaite-Weeks (1998) tables. Prime Knot Enumeration\
-    \ Reference: The number of prime knots at each crossing number is taken from KnotInfo\
-    \ and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration."
+  context: 'Scope Boundary: While the dataset covers all knots with crossing number
+    ≤13, validation benchmarking focuses on community-standard prime knot enumeration
+    from KnotInfo and Hoste-Thistlethwaite-Weeks (1998) tables. Prime Knot Enumeration
+    Reference: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration.'
   evidence:
     fill:
       channel: wikipedia
@@ -28,9 +28,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -41,19 +41,18 @@
   attempts: 1
   canonical: Cohen 1988 medium effect size conventions for regression R-squared
   claim_id: c_0951986d
-  context: "Composite complexity score demonstrates statistically significant correlation\
-    \ with at least one additional invariant on held-out test set, with effect sizes\
-    \ reported (r \u2265 0.3 for practical significance), AND demonstrates superior\
-    \ predictive power compared to crossing number or braid index individually (composite\
-    \ R\xB2 exceeds crossing number-only and braid-index-only R\xB2 values by \u2265\
-    0.05 absolute R\xB2 units, a practical significance threshold consistent with\
-    \ Cohen's f\xB2 conventions for medium effect size in regression contexts per\
-    \ Cohen, 1988)."
+  context: Composite complexity score demonstrates statistically significant correlation
+    with at least one additional invariant on held-out test set, with effect sizes
+    reported (r ≥ 0.3 for practical significance), AND demonstrates superior predictive
+    power compared to crossing number or braid index individually (composite R² exceeds
+    crossing number-only and braid-index-only R² values by ≥0.05 absolute R² units,
+    a practical significance threshold consistent with Cohen's f² conventions for
+    medium effect size in regression contexts per Cohen, 1988).
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Cohen's f\xB2 conventions for medium effect size in regression contexts\
-    \ per Cohen, 1988"
+  raw_text: Cohen's f² conventions for medium effect size in regression contexts per
+    Cohen, 1988
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -64,10 +63,10 @@
   attempts: 1
   canonical: 27635 prime knots at 13 crossings Hoste-Thistlethwaite-Weeks 1998
   claim_id: c_71bd9797
-  context: "Prime Knot Enumeration Reference: The number of prime knots at each crossing\
-    \ number is taken from KnotInfo and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration.\
-    \ For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998)."
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998).'
   evidence:
     fill:
       channel: wikipedia
@@ -79,9 +78,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -115,10 +114,10 @@
   canonical: prime knot counts validated against KnotInfo Hoste-Thistlethwaite-Weeks
     1998 crossing number 13
   claim_id: c_c5d27dd0
-  context: "Dataset contains all prime knots with crossing number \u226413 with \u2265\
-    95% completeness on required invariant fields; dataset completeness validated\
-    \ against KnotInfo and Hoste-Thistlethwaite-Weeks enumeration (1998) for prime\
-    \ knot counts at each crossing number \u226413"
+  context: Dataset contains all prime knots with crossing number ≤13 with ≥95% completeness
+    on required invariant fields; dataset completeness validated against KnotInfo
+    and Hoste-Thistlethwaite-Weeks enumeration (1998) for prime knot counts at each
+    crossing number ≤13
   evidence:
     fill:
       channel: oeis
@@ -129,8 +128,8 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "dataset completeness validated against KnotInfo and Hoste-Thistlethwaite-Weeks\
-    \ enumeration (1998) for prime knot counts at each crossing number \u226413"
+  raw_text: dataset completeness validated against KnotInfo and Hoste-Thistlethwaite-Weeks
+    enumeration (1998) for prime knot counts at each crossing number ≤13
   resolved_value: '9988'
   resolver: fill:oeis
   source_hash: null
@@ -153,9 +152,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). ''A Census of Knots.''\
-    \ *Experimental Mathematics*, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). ''A Census of Knots.''
+    *Experimental Mathematics*, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -187,9 +186,9 @@
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Seifert circle count via Seifert's algorithm on minimal crossing diagrams\
-    \ (Seifert, 1934, ''\xDCber das Geschlecht von Knoten'', *Mathematische Annalen*,\
-    \ 110, pp. 571-592)"
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, ''Über das Geschlecht von Knoten'', *Mathematische Annalen*, 110,
+    pp. 571-592)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -204,8 +203,8 @@
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "bridge number via Schubert's bridge decomposition (Schubert, 1956, ''\xDC\
-    ber eine numerische Knoteninvariante'', *Mathematische Zeitschrift*, 61, pp. 245-288)"
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, ''Über
+    eine numerische Knoteninvariante'', *Mathematische Zeitschrift*, 61, pp. 245-288)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -216,11 +215,10 @@
   attempts: 1
   canonical: 27635 prime knots at 13 crossings per Hoste-Thistlethwaite-Weeks 1998
   claim_id: c_4cd4091b
-  context: "While the dataset covers all knots with crossing number \u226413, validation\
-    \ benchmarking focuses on community-standard prime knot enumeration from KnotInfo\
-    \ and Hoste-Thistlethwaite-Weeks (1998) tables. The number of prime knots at each\
-    \ crossing number is taken from KnotInfo and the Hoste\u2013Thistlethwaite\u2013\
-    Weeks enumeration."
+  context: While the dataset covers all knots with crossing number ≤13, validation
+    benchmarking focuses on community-standard prime knot enumeration from KnotInfo
+    and Hoste-Thistlethwaite-Weeks (1998) tables. The number of prime knots at each
+    crossing number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
   evidence:
     fill:
       channel: wikipedia
@@ -232,9 +230,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -246,9 +244,9 @@
   canonical: 27635 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
     1998
   claim_id: c_421e2c77
-  context: "The number of prime knots at each crossing number is taken from KnotInfo\
-    \ and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration. For crossing number\
-    \ 13, the exact count is 27,635 prime knots."
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 27,635 prime knots.
   evidence:
     fill:
       channel: wikipedia
@@ -269,9 +267,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -302,22 +300,22 @@
   canonical: Seifert's algorithm for Seifert circle count published 1934 in Mathematische
     Annalen volume 110 pages 571-592
   claim_id: c_f85ccb4f
-  context: "Seifert circle count via Seifert's algorithm on minimal crossing diagrams\
-    \ (Seifert, 1934, '\xDCber das Geschlecht von Knoten', Mathematische Annalen,\
-    \ 110, pp. 571-592)"
+  context: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
   evidence:
     fill:
       channel: theorem
       conflicts: []
-      quote: "2 (c(D) \u2212 s(D) \u2212 |K| + 2) /B8"
+      quote: 2 (c(D) − s(D) − |K| + 2) /B8
       source_id: math/0303273
       url: https://arxiv.org/abs/math/0303273
       value: s(D)
     filled: true
   kind: numeric
-  raw_text: "Seifert circle count via Seifert's algorithm on minimal crossing diagrams\
-    \ (Seifert, 1934, '\xDCber das Geschlecht von Knoten', Mathematische Annalen,\
-    \ 110, pp. 571-592)"
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
   resolved_value: s(D)
   resolver: fill:theorem
   source_hash: null
@@ -329,13 +327,13 @@
   canonical: Schubert's bridge decomposition for bridge number published 1956 in Mathematische
     Zeitschrift volume 61 pages 245-288
   claim_id: c_97356803
-  context: "bridge number via Schubert's bridge decomposition (Schubert, 1956, '\xDC\
-    ber eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)"
+  context: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "bridge number via Schubert's bridge decomposition (Schubert, 1956, '\xDC\
-    ber eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)"
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -346,11 +344,10 @@
   attempts: 1
   canonical: 27635 prime knots at crossing number 13
   claim_id: c_6b3c6937
-  context: "The number of prime knots at each crossing number is taken from KnotInfo\
-    \ and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration. For crossing number\
-    \ 13, the exact count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite,\
-    \ M. B., & Weeks, J. (1998). 'A Census of Knots.' Experimental Mathematics, 7(4),\
-    \ 281\u2013299."
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite, M. B.,
+    & Weeks, J. (1998). 'A Census of Knots.' Experimental Mathematics, 7(4), 281–299.
   evidence:
     fill:
       channel: wikipedia
@@ -362,9 +359,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -376,13 +373,13 @@
   canonical: Birman-Menasco algorithm for arc index published 1988 in Mathematische
     Annalen 281 pp 127-138
   claim_id: c_e365b860
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method\
-    \ (Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische\
-    \ Annalen, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on\
-    \ minimal crossing diagrams (Seifert, 1934, '\xDCber das Geschlecht von Knoten',\
-    \ Mathematische Annalen, 110, pp. 571-592); bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)."
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -400,19 +397,19 @@
   canonical: Seifert algorithm for Seifert circle count published 1934 in Mathematische
     Annalen 110 pp 571-592
   claim_id: c_d6ca07cd
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method\
-    \ (Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische\
-    \ Annalen, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on\
-    \ minimal crossing diagrams (Seifert, 1934, '\xDCber das Geschlecht von Knoten',\
-    \ Mathematische Annalen, 110, pp. 571-592); bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)."
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Seifert circle count via Seifert's algorithm on minimal crossing diagrams\
-    \ (Seifert, 1934, '\xDCber das Geschlecht von Knoten', Mathematische Annalen,\
-    \ 110, pp. 571-592)"
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -424,13 +421,13 @@
   canonical: Schubert bridge decomposition published 1956 in Mathematische Zeitschrift
     61 pp 245-288
   claim_id: c_66ce0099
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method\
-    \ (Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische\
-    \ Annalen, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on\
-    \ minimal crossing diagrams (Seifert, 1934, '\xDCber das Geschlecht von Knoten',\
-    \ Mathematische Annalen, 110, pp. 571-592); bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)."
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
   evidence:
     fill:
       channel: wikipedia
@@ -451,8 +448,8 @@
       value: '2'
     filled: true
   kind: numeric
-  raw_text: "Bridge number via Schubert's bridge decomposition (Schubert, 1956, '\xDC\
-    ber eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)"
+  raw_text: Bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
   resolved_value: '2'
   resolver: fill:wikipedia
   source_hash: null
@@ -463,10 +460,10 @@
   attempts: 1
   canonical: 27,635 prime knots at crossing number 13
   claim_id: c_f7c36578
-  context: "Prime Knot Enumeration Reference: The number of prime knots at each crossing\
-    \ number is taken from KnotInfo and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration.\
-    \ For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998)."
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998).'
   evidence:
     fill:
       channel: oeis
@@ -481,9 +478,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:oeis
   source_hash: null
@@ -494,9 +491,9 @@
   attempts: 1
   canonical: 27635 prime knots at crossing number 13
   claim_id: c_9b974a8d
-  context: "The number of prime knots at each crossing number is taken from KnotInfo\
-    \ and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration. For crossing number\
-    \ 13, the exact count is 27,635 prime knots."
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 27,635 prime knots.
   evidence:
     fill:
       channel: wikipedia
@@ -508,9 +505,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -541,15 +538,15 @@
   canonical: Seifert circle count algorithm by Seifert 1934 Mathematische Annalen
     110 pp 571-592
   claim_id: c_e1e374c8
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method;\
-    \ Seifert circle count via Seifert's algorithm on minimal crossing diagrams (Seifert,\
-    \ 1934, '\xDCber das Geschlecht von Knoten', Mathematische Annalen, 110, pp. 571-592)"
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method;
+    Seifert circle count via Seifert''s algorithm on minimal crossing diagrams (Seifert,
+    1934, ''Über das Geschlecht von Knoten'', Mathematische Annalen, 110, pp. 571-592)'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Seifert circle count via Seifert's algorithm on minimal crossing diagrams\
-    \ (Seifert, 1934, '\xDCber das Geschlecht von Knoten', Mathematische Annalen,\
-    \ 110, pp. 571-592)"
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -561,9 +558,9 @@
   canonical: bridge number algorithm by Schubert 1956 Mathematische Zeitschrift 61
     pp 245-288
   claim_id: c_c7ee7583
-  context: "Invariant computation algorithms: bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)"
+  context: 'Invariant computation algorithms: bridge number via Schubert''s bridge
+    decomposition (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische
+    Zeitschrift, 61, pp. 245-288)'
   evidence:
     fill:
       channel: theorem
@@ -583,8 +580,8 @@
       value: b(K)
     filled: true
   kind: numeric
-  raw_text: "bridge number via Schubert's bridge decomposition (Schubert, 1956, '\xDC\
-    ber eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)"
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
   resolved_value: b(K)
   resolver: fill:theorem
   source_hash: null
@@ -626,11 +623,10 @@
   attempts: 1
   canonical: 27635 prime knots at 13 crossings
   claim_id: c_5494de85
-  context: "The number of prime knots at each crossing number is taken from KnotInfo\
-    \ and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration. For crossing number\
-    \ 13, the exact count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite,\
-    \ M. B., & Weeks, J. (1998). 'A Census of Knots.' Experimental Mathematics, 7(4),\
-    \ 281\u2013299."
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite, M. B.,
+    & Weeks, J. (1998). 'A Census of Knots.' Experimental Mathematics, 7(4), 281–299.
   evidence:
     fill:
       channel: wikipedia
@@ -642,9 +638,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -656,10 +652,10 @@
   canonical: 27635 prime knots at crossing number 13 from Hoste-Thistlethwaite-Weeks
     1998
   claim_id: c_66e93402
-  context: "The number of prime knots at each crossing number is taken from KnotInfo\
-    \ and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration. For crossing number\
-    \ 13, the exact count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite,\
-    \ M. B., & Weeks, J. (1998)."
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite, M. B.,
+    & Weeks, J. (1998).
   evidence:
     fill:
       channel: wikipedia
@@ -671,9 +667,9 @@
       value: '9988'
     filled: true
   kind: numeric
-  raw_text: "For crossing number 13, the exact count is 27,635 prime knots, as established\
-    \ in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'\
-    \ Experimental Mathematics, 7(4), 281\u2013299."
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
   resolved_value: '9988'
   resolver: fill:wikipedia
   source_hash: null
@@ -685,13 +681,13 @@
   canonical: Arc index via Birman-Menasco method 1988 Mathematische Annalen 281 pp
     127-138
   claim_id: c_ee4514b4
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method\
-    \ (Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische\
-    \ Annalen, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on\
-    \ minimal crossing diagrams (Seifert, 1934, '\xDCber das Geschlecht von Knoten',\
-    \ Mathematische Annalen, 110, pp. 571-592); bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)."
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -709,19 +705,19 @@
   canonical: Seifert circle count via Seifert algorithm 1934 Mathematische Annalen
     110 pp 571-592
   claim_id: c_0de87b33
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method\
-    \ (Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische\
-    \ Annalen, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on\
-    \ minimal crossing diagrams (Seifert, 1934, '\xDCber das Geschlecht von Knoten',\
-    \ Mathematische Annalen, 110, pp. 571-592); bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)."
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Seifert circle count via Seifert's algorithm on minimal crossing diagrams\
-    \ (Seifert, 1934, '\xDCber das Geschlecht von Knoten', Mathematische Annalen,\
-    \ 110, pp. 571-592)"
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -733,13 +729,13 @@
   canonical: Bridge number via Schubert bridge decomposition 1956 Mathematische Zeitschrift
     61 pp 245-288
   claim_id: c_602f6e21
-  context: "Invariant computation algorithms: arc index via Birman-Menasco method\
-    \ (Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische\
-    \ Annalen, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on\
-    \ minimal crossing diagrams (Seifert, 1934, '\xDCber das Geschlecht von Knoten',\
-    \ Mathematische Annalen, 110, pp. 571-592); bridge number via Schubert's bridge\
-    \ decomposition (Schubert, 1956, '\xDCber eine numerische Knoteninvariante', Mathematische\
-    \ Zeitschrift, 61, pp. 245-288)."
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
   evidence:
     fill:
       channel: theorem
@@ -759,11 +755,3321 @@
       value: min {p, q }
     filled: true
   kind: numeric
-  raw_text: "Bridge number via Schubert's bridge decomposition (Schubert, 1956, '\xDC\
-    ber eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)"
+  raw_text: Bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
   resolved_value: min {p, q }
   resolver: fill:theorem
   source_hash: null
   source_type: external
   status: verified
   updated_at: '2026-05-31T07:48:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco algorithm for arc index published in Mathematische Annalen
+    281, pp. 127-138, 1988
+  claim_id: c_c41a177a
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Mathematische Annalen 281, pp. 127-138, 1988
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Birman-Menasco_algorithm_for_arc_index_published_in_Mathemat
+    source_value: https://en.wikipedia.org/wiki/Birman-Menasco_algorithm_for_arc_index_published_in_Mathemat
+    subject: Birman-Menasco algorithm for arc index
+  kind: relational
+  raw_text: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T03:17:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert algorithm for knot genus published in Mathematische Annalen 110,
+    pp. 571-592, 1934
+  claim_id: c_4e3b96cb
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Mathematische Annalen 110, pp. 571-592, 1934
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Seifert_algorithm_for_knot_genus_published_in_Mathematische
+    source_value: https://en.wikipedia.org/wiki/Seifert_algorithm_for_knot_genus_published_in_Mathematische_
+    subject: Seifert algorithm for knot genus
+  kind: relational
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T03:23:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert bridge decomposition published in Mathematische Zeitschrift
+    61, pp. 245-288, 1956
+  claim_id: c_aa1e7519
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams (Seifert, 1934, ''Über das Geschlecht von Knoten'', Mathematische
+    Annalen, 110, pp. 571-592); bridge number via Schubert''s bridge decomposition
+    (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische Zeitschrift,
+    61, pp. 245-288).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In the mathematical field of knot theory, a 2-bridge knot is a knot which
+        can be regular isotoped so that the natural height function given by the z-coordinate
+        has only two maxima and two minima as critical points. Equivalently, these
+        are the knots with bridge number 2, the smallest possible bridge number for
+        a nontrivial knot. Every nontrivial knot with up to seven crossings is a 2-bridge
+        knot. The simplest knots with a bridge number of 3 have eight crossings. Of
+        the 1,701,936 knots with up to sixteen crossings, 5,546 are 2-bridge knots.
+      source_id: 2-bridge knot
+      url: https://en.wikipedia.org/wiki/2-bridge_knot
+      value: '2'
+    filled: true
+  kind: relational
+  raw_text: Bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: '2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T03:35:25Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: KnotInfo and Hoste-Thistlethwaite-Weeks enumeration as prime knot count
+    sources
+  claim_id: c_d876c8e5
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 27,635 prime knots, as established in Hoste, J., Thistlethwaite, M. B.,
+    & Weeks, J. (1998). 'A Census of Knots.' Experimental Mathematics, 7(4), 281–299.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KnotInfo_and_Hoste-Thistlethwaite-Weeks_enumeration_as_prime
+  kind: entity_fact
+  raw_text: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T03:49:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9,988 prime knots at crossing number 13
+  claim_id: c_57371125
+  context: Related Work section, citing 'Minimal grid diagrams of the prime knots
+    with crossing number 13 and arc index 13 (2024)' arXiv paper
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: Provides empirical data on 9,988 prime knots with crossing number 13,
+    establishing a testable dataset for correlation analysis.
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T04:15:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27,635 prime knots at crossing number 13
+  claim_id: c_15178e30
+  context: Assumptions section, citing Hoste-Thistlethwaite-Weeks enumeration reference
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T04:15:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13
+  claim_id: c_4c7917ea
+  context: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) — Provides empirical data on 9,988 prime knots with crossing number
+    13, establishing a testable dataset for correlation analysis.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: Provides empirical data on 9,988 prime knots with crossing number 13
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T04:32:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_7bfff348
+  context: Crossing numbers 11-13 data is downloaded but excluded from Phase 1 analysis;
+    this is documented in docs/reproducibility/validation_scope.md noting the practical
+    constraint (27,635 prime knots at crossing number 13) and justification for Phase
+    1 scope limitation.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705,
+        ... (sequence A002863 in the OEIS)
+      source_id: Knot tabulation
+      url: https://en.wikipedia.org/wiki/Knot_tabulation
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: 27,635 prime knots at crossing number 13
+  resolved_value: '9988'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T04:32:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco method for arc index 1988 Mathematische Annalen 281 pp
+    127-138
+  claim_id: c_ca03413c
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, A Algorithm for the Arc Index of a Knot, Mathematische
+    Annalen, 281, pp. 127-138)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, A Algorithm
+    for the Arc Index of a Knot, Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T04:42:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert algorithm for Seifert circle count 1934 Mathematische Annalen
+    110 pp 571-592
+  claim_id: c_9f4b1e46
+  context: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, Über das Geschlecht von Knoten, Mathematische Annalen, 110, pp.
+    571-592)
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: 2 (c(D) − s(D) − |K| + 2) /B8
+      source_id: math/0303273
+      url: https://arxiv.org/abs/math/0303273
+      value: s(D)
+    filled: true
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, Über das Geschlecht von Knoten, Mathematische Annalen, 110, pp.
+    571-592)
+  resolved_value: s(D)
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T05:24:15Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert bridge decomposition 1956 Mathematische Zeitschrift 61 pp 245-288
+  claim_id: c_a7eee171
+  context: bridge number via Schubert's bridge decomposition (Schubert, 1956, Über
+    eine numerische Knoteninvariante, Mathematische Zeitschrift, 61, pp. 245-288)
+  evidence:
+    fill:
+      channel: theorem
+      conflicts:
+      - channel: theorem
+        source_id: '1703.00041'
+        url: https://arxiv.org/abs/1703.00041
+        value: '2'
+      quote: ﬁrst knot invariants to be introduced was bridge number [32]; it is the
+        minimal number of maxima
+      source_id: '1606.03408'
+      url: https://arxiv.org/abs/1606.03408
+      value: '32'
+    filled: true
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, Über
+    eine numerische Knoteninvariante, Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: '32'
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T05:41:16Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: minimal crossing number braid index links 1993 foundational inequalities
+  claim_id: c_f07fd745
+  context: On the Minimal Crossing Number and the Braid Index of Links (1993) — Establishes
+    foundational inequalities between crossing number and braid index for classical
+    links.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: which was proved by Ohyama [11]. And Bae and Park [3] gave an up per
+      source_id: '1806.09719'
+      url: https://arxiv.org/abs/1806.09719
+      value: Ohyama
+    filled: true
+  kind: numeric
+  raw_text: On the Minimal Crossing Number and the Braid Index of Links (1993) — Establishes
+    foundational inequalities between crossing number and braid index for classical
+    links
+  resolved_value: Ohyama
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T06:01:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circles crossing number braid index generalized knots links 2022
+    Ohyama inequality virtual links
+  claim_id: c_0d81b15c
+  context: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) — Extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Deﬁnition 16). In Section 4 we prove the main result of the paper, see
+        Theorem 20, that is as
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: Theorem 20
+    filled: true
+  kind: numeric
+  raw_text: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) — Extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework
+  resolved_value: Theorem 20
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T06:14:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: algebraic crossing number braid index knots links 2006 uniquely determined
+    minimal braid representation
+  claim_id: c_39339ad6
+  context: The algebraic crossing number and the braid index of knots and links (2006)
+    — Investigates the conjecture that algebraic crossing number is uniquely determined
+    in minimal braid representation.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.2140/agt.2006.6.2313
+        url: http://msp.org/agt/2006/6-5/agt-v6-n5-p11-s.pdf
+        value: Conjecture 3.1
+      quote: 'Abstract Morton and Franks–Williams independently gave a lower bound
+        for the braid index b ( L ) of a link L in S 3 in terms of the v -span of
+        the Homfly-pt polynomial P L ( v , z ) of L : 1 2 span v P L ( v , z ) + 1
+        ⩽ b ( L ) . Up to now, many classes of knots and links satisfying the equality
+        of this Morton–Franks–Williams''s inequality have been founded. In this paper,
+        we give a new such a class K of knots and links and make an explicit formula
+        for determining the braid index of knots and links that belong to the class
+        K . This gives simultaneously a new class of knots and links satisfying the
+        Jones conjecture which says that the algebraic crossing number in a minimal
+        braid representation is a link invariant. We also give an algorithm to find
+        a minimal braid representative for a given knot or link in K .'
+      source_id: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      url: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      value: Jones conjecture
+    filled: true
+  kind: numeric
+  raw_text: The algebraic crossing number and the braid index of knots and links (2006)
+    — Investigates the conjecture that algebraic crossing number is uniquely determined
+    in minimal braid representation
+  resolved_value: Jones conjecture
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T06:32:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bridge number knot diagrams minimal crossings 2003 relates crossing number
+    bridge number
+  claim_id: c_79859346
+  context: On the bridge number of knot diagrams with minimal crossings (2003) — Relates
+    crossing number to bridge number, offering a third invariant for potential composite
+    measures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: On the bridge number of knot diagrams with minimal crossings (2003) —
+    Relates crossing number to bridge number, offering a third invariant for potential
+    composite measures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T06:51:21Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bisected vertex leveling plane graphs braid index arc index delta diagrams
+    2018 upper bounds crossing number
+  claim_id: c_023cb8e1
+  context: 'Bisected vertex leveling of plane graphs: braid index, arc index and delta
+    diagrams (2018) — Presents upper bounds for braid index in terms of crossing number
+    using planar graph embeddings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018) — Presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T06:59:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9,988 prime knots with crossing number 13
+  claim_id: c_af759aee
+  context: Related Work section citing arXiv paper 2402.02717
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A007504
+        url: https://oeis.org/A007504
+        value: '238'
+      - channel: oeis
+        source_id: A053701
+        url: https://oeis.org/A053701
+        value: '285'
+      - channel: oeis
+        source_id: A331452
+        url: https://oeis.org/A331452
+        value: '1124'
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: '2407.15859'
+        url: https://arxiv.org/abs/2407.15859
+        value: '9988'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 3,250
+      quote: 13 92
+      source_id: A000124
+      url: https://oeis.org/A000124
+      value: '92'
+    filled: true
+  kind: numeric
+  raw_text: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) — Provides empirical data on 9,988 prime knots with crossing number
+    13, establishing a testable dataset for correlation analysis.
+  resolved_value: '92'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T07:34:48Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco arc index algorithm published 1988 in Mathematische Annalen
+    volume 281 pages 127-138
+  claim_id: c_a2a7733f
+  context: FR-003 invariant computation algorithms documentation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T07:44:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert's algorithm for Seifert circle count published 1934 in Mathematische
+    Annalen volume 110 pages 571-592
+  claim_id: c_1869bb40
+  context: FR-003 invariant computation algorithms documentation
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: 2 (c(D) − s(D) − |K| + 2) /B8
+      source_id: math/0303273
+      url: https://arxiv.org/abs/math/0303273
+      value: s(D)
+    filled: true
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: s(D)
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T07:44:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert's bridge decomposition published 1956 in Mathematische Zeitschrift
+    volume 61 pages 245-288
+  claim_id: c_d5b6d365
+  context: FR-003 invariant computation algorithms documentation
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In the mathematical field of knot theory, a 2-bridge knot is a knot which
+        can be regular isotoped so that the natural height function given by the z-coordinate
+        has only two maxima and two minima as critical points. Equivalently, these
+        are the knots with bridge number 2, the smallest possible bridge number for
+        a nontrivial knot. Every nontrivial knot with up to seven crossings is a 2-bridge
+        knot. The simplest knots with a bridge number of 3 have eight crossings. Of
+        the 1,701,936 knots with up to sixteen crossings, 5,546 are 2-bridge knots.
+      source_id: 2-bridge knot
+      url: https://en.wikipedia.org/wiki/2-bridge_knot
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: '2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T08:03:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 1993 paper establishes crossing number and braid index inequalities for
+    classical links
+  claim_id: c_9739e3f4
+  context: Related Work section
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.4153/CJM-1993-007-x
+        url: https://www.cambridge.org/core/services/aop-cambridge-core/content/view/FC29A70314343599AB9D39AF810916FF/S0008414X0001395Xa.pdf/div-class-title-on-the-minimal-crossing-number-and-the-braid-index-of-links-div.pdf
+        value: THEOREM 3.8
+      quote: For classical links Ohyama proved an inequality involving the minimal
+        crossing number
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: Ohyama
+    filled: true
+  kind: numeric
+  raw_text: On the Minimal Crossing Number and the Braid Index of Links (1993) — Establishes
+    foundational inequalities between crossing number and braid index for classical
+    links.
+  resolved_value: Ohyama
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T08:24:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 2022 paper extends Ohyama's inequality to virtual links
+  claim_id: c_97e4569d
+  context: Related Work section
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2212.14737v1 [math.GT] 30 Dec 2022
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: '2022'
+    filled: true
+  kind: numeric
+  raw_text: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) — Extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework.
+  resolved_value: '2022'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T08:37:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 2006 paper investigates algebraic crossing number uniqueness conjecture
+    in minimal braid representation
+  claim_id: c_3b7b6611
+  context: Related Work section
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.2140/agt.2006.6.2313
+        url: http://msp.org/agt/2006/6-5/agt-v6-n5-p11-s.pdf
+        value: Conjecture 3.1
+      quote: 'Abstract Morton and Franks–Williams independently gave a lower bound
+        for the braid index b ( L ) of a link L in S 3 in terms of the v -span of
+        the Homfly-pt polynomial P L ( v , z ) of L : 1 2 span v P L ( v , z ) + 1
+        ⩽ b ( L ) . Up to now, many classes of knots and links satisfying the equality
+        of this Morton–Franks–Williams''s inequality have been founded. In this paper,
+        we give a new such a class K of knots and links and make an explicit formula
+        for determining the braid index of knots and links that belong to the class
+        K . This gives simultaneously a new class of knots and links satisfying the
+        Jones conjecture which says that the algebraic crossing number in a minimal
+        braid representation is a link invariant. We also give an algorithm to find
+        a minimal braid representative for a given knot or link in K .'
+      source_id: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      url: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      value: Jones conjecture
+    filled: true
+  kind: numeric
+  raw_text: The algebraic crossing number and the braid index of knots and links (2006)
+    — Investigates the conjecture that algebraic crossing number is uniquely determined
+    in minimal braid representation.
+  resolved_value: Jones conjecture
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T09:05:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 2003 paper relates crossing number to bridge number
+  claim_id: c_c3986372
+  context: Related Work section
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: On the bridge number of knot diagrams with minimal crossings (2003) —
+    Relates crossing number to bridge number, offering a third invariant for potential
+    composite measures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T09:26:23Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 2018 paper presents braid index upper bounds in terms of crossing number
+    using planar graph embeddings
+  claim_id: c_f9e245fe
+  context: Related Work section
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018) — Presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T09:36:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: Schubert bridge decomposition 1956
+  claim_id: c_738695ce
+  context: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  evidence: null
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T09:47:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: Muraoka-Ohyama inequality braid index Seifert circles
+  claim_id: c_4c90b00b
+  context: Known mathematical relationships exist between invariants (e.g., Muraoka-Ohyama
+    inequality relating braid index to Seifert circles; arc index bounds in terms
+    of crossing number)
+  evidence: null
+  kind: entity_fact
+  raw_text: Known mathematical relationships exist between invariants (e.g., Muraoka-Ohyama
+    inequality relating braid index to Seifert circles)
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T09:47:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number 13
+  claim_id: c_b7604fd7
+  context: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) — Provides empirical data on 9,988 prime knots with crossing number
+    13
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: Provides empirical data on 9,988 prime knots with crossing number 13,
+    establishing a testable dataset for correlation analysis
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T10:00:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: foundational inequalities crossing number braid index classical links
+  claim_id: c_69612f80
+  context: On the Minimal Crossing Number and the Braid Index of Links (1993) — Establishes
+    foundational inequalities between crossing number and braid index for classical
+    links
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: For classical links Ohyama proved an inequality involving the minimal
+        crossing number
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: Ohyama
+    filled: true
+  kind: entity_fact
+  raw_text: Establishes foundational inequalities between crossing number and braid
+    index for classical links
+  resolved_value: Ohyama
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T10:21:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: crossing number bridge number relationship
+  claim_id: c_5297708a
+  context: On the bridge number of knot diagrams with minimal crossings (2003) — Relates
+    crossing number to bridge number, offering a third invariant for potential composite
+    measures
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: bridge number, Wirtinger number.
+      source_id: https://doi.org/10.1016/j.disc.2019.03.013
+      url: https://arxiv.org/pdf/1710.11327
+      value: Wirtinger number
+    filled: true
+  kind: entity_fact
+  raw_text: Relates crossing number to bridge number, offering a third invariant for
+    potential composite measures
+  resolved_value: Wirtinger number
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T10:33:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: upper bounds braid index crossing number planar graph embeddings
+  claim_id: c_9b42f7cf
+  context: 'Bisected vertex leveling of plane graphs: braid index, arc index and delta
+    diagrams (2018) — Presents upper bounds for braid index in terms of crossing number
+    using planar graph embeddings'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X
+  kind: entity_fact
+  raw_text: Presents upper bounds for braid index in terms of crossing number using
+    planar graph embeddings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T10:44:30Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco arc index algorithm 1988
+  claim_id: c_3560d4fb
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T10:54:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert algorithm minimal crossing diagrams 1934
+  claim_id: c_b12362c6
+  context: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T11:03:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: Seifert (1934) algorithm for Seifert circle count
+  claim_id: c_d38f6717
+  context: Functional Requirements section, FR-003
+  evidence: null
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T12:46:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: Schubert (1956) bridge decomposition
+  claim_id: c_adf80816
+  context: Functional Requirements section, FR-003
+  evidence: null
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T12:46:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: 1993 paper establishes inequalities between crossing number and braid
+    index
+  claim_id: c_fd04f5ab
+  context: Related Work section
+  evidence: null
+  kind: numeric
+  raw_text: '[On the Minimal Crossing Number and the Braid Index of Links (1993)]
+    — Establishes foundational inequalities between crossing number and braid index
+    for classical links.'
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T12:46:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: 2006 paper investigates algebraic crossing number conjecture
+  claim_id: c_e2971ffd
+  context: Related Work section
+  evidence: null
+  kind: numeric
+  raw_text: '[The algebraic crossing number and the braid index of knots and links
+    (2006)] — Investigates the conjecture that algebraic crossing number is uniquely
+    determined in minimal braid representation.'
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T12:46:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: 2018 paper presents upper bounds for braid index
+  claim_id: c_aca38f81
+  context: Related Work section
+  evidence: null
+  kind: numeric
+  raw_text: '[Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018)] — Presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings.'
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T12:46:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27,635 prime knots at crossing number 13
+  claim_id: c_49ad5989
+  context: Assumptions section, Prime Knot Enumeration Reference
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T12:46:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9,988 prime knots with crossing number 13
+  claim_id: c_5d130ab4
+  context: Related Work section
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A007504
+        url: https://oeis.org/A007504
+        value: '238'
+      - channel: oeis
+        source_id: A053701
+        url: https://oeis.org/A053701
+        value: '285'
+      - channel: oeis
+        source_id: A331452
+        url: https://oeis.org/A331452
+        value: '1124'
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: '2407.15859'
+        url: https://arxiv.org/abs/2407.15859
+        value: '9988'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 3,250
+      quote: 13 92
+      source_id: A000124
+      url: https://oeis.org/A000124
+      value: '92'
+    filled: true
+  kind: numeric
+  raw_text: '[Minimal grid diagrams of the prime knots with crossing number 13 and
+    arc index 13 (2024)] — Provides empirical data on 9,988 prime knots with crossing
+    number 13, establishing a testable dataset for correlation analysis.'
+  resolved_value: '92'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T12:46:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Prime knot counts at crossing numbers 1 to 10
+  claim_id: c_ae41c0c1
+  context: Success Criteria section, SC-001
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: paper
+        source_id: '2407.15859'
+        url: https://arxiv.org/abs/2407.15859
+        value: '165'
+      quote: 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705,
+        ... (sequence A002863 in the OEIS)
+      source_id: Knot tabulation
+      url: https://en.wikipedia.org/wiki/Knot_tabulation
+      value: '552'
+    filled: true
+  kind: numeric
+  raw_text: 'Dataset completeness validated against KnotInfo and Hoste-Thistlethwaite-Weeks
+    enumeration for prime knot counts at each crossing number ≤10: c=1:1, c=2:0, c=3:1,
+    c=4:2, c=5:3, c=6:7, c=7:21, c=8:49, c=9:165, c=10:552.'
+  resolved_value: '552'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T13:01:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman & Menasco (1988) algorithm for arc index of a knot
+  claim_id: c_26357451
+  context: Functional Requirements section, FR-003
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T13:09:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: 27,635 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
+    1998
+  claim_id: c_8022a11e
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). ''A Census of Knots.''
+    Experimental Mathematics, 7(4), 281–299.'
+  evidence: null
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T15:51:23Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9,988 prime knots with crossing number 13 in 2024 study
+  claim_id: c_4362fd98
+  context: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) — Provides empirical data on 9,988 prime knots with crossing number
+    13, establishing a testable dataset for correlation analysis.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: Provides empirical data on 9,988 prime knots with crossing number 13,
+    establishing a testable dataset for correlation analysis
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T16:00:23Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: 9988 prime knots with crossing number 13 and arc index 13
+  claim_id: c_572f6575
+  context: Related Work section cites this paper as providing testable dataset for
+    correlation analysis
+  evidence: null
+  kind: numeric
+  raw_text: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) provides empirical data on 9,988 prime knots with crossing number
+    13
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T16:17:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: inequalities between crossing number and braid index for classical links
+    established 1993
+  claim_id: c_fd5e2f21
+  context: Related Work section lists this paper as establishing foundational inequalities
+    between crossing number and braid index
+  evidence: null
+  kind: numeric
+  raw_text: On the Minimal Crossing Number and the Braid Index of Links (1993) establishes
+    foundational inequalities between crossing number and braid index for classical
+    links
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T16:17:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: Ohyama inequality extended to virtual links 2022
+  claim_id: c_0728c9c0
+  context: Related Work section cites this paper as extending Ohyama's inequality
+    to virtual links
+  evidence: null
+  kind: numeric
+  raw_text: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T16:17:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: crossing number bridge number relationship established 2003
+  claim_id: c_1bc57266
+  context: Related Work section cites this paper as relating crossing number to bridge
+    number
+  evidence: null
+  kind: numeric
+  raw_text: On the bridge number of knot diagrams with minimal crossings (2003) relates
+    crossing number to bridge number, offering a third invariant for potential composite
+    measures
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-01T16:17:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_1afa0590
+  context: Validation Scope section states dataset covers all knots with crossing
+    number ≤13, with 27,635 prime knots at crossing number 13 as practical constraint
+    justification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T16:24:35Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13
+  claim_id: c_e9e5f40b
+  context: Related Work section, citing arXiv paper on minimal grid diagrams of prime
+    knots with crossing number 13
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: Provides empirical data on 9,988 prime knots with crossing number 13,
+    establishing a testable dataset for correlation analysis.
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T17:24:04Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_a10eef5f
+  context: Assumptions section, Prime Knot Enumeration Reference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T17:24:05Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number 13
+  claim_id: c_55399e14
+  context: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) — Provides empirical data on 9,988 prime knots with crossing number
+    13, establishing a testable dataset for correlation analysis.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: Provides empirical data on 9,988 prime knots with crossing number 13,
+    establishing a testable dataset for correlation analysis
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T17:27:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_c65ccd92
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). ''A Census of Knots.''
+    Experimental Mathematics, 7(4), 281–299.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T17:27:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_c59e0f67
+  context: 'Validation Scope (Phase 1): Dataset completeness validation focuses on
+    crossing numbers ≤10 as the Phase 1 benchmarking scope. Data collection covers
+    all knots with crossing number ≤13, but full validation across all crossing numbers
+    ≤13 is deferred to future iterations.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 27,635 prime knots at crossing number 13, full validation is computationally
+    impractical for Phase 1 exploratory analysis
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T17:40:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 from Hoste-Thistlethwaite-Weeks
+    1998
+  claim_id: c_f862f3db
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The exact count is 27,635 prime knots at crossing number 13, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T17:40:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco arc index algorithm 1988 Mathematische Annalen 281 pp
+    127-138
+  claim_id: c_0238816a
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische
+    Annalen, 281, pp. 127-138
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T17:46:28Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert 1934 Mathematische Annalen 110 pp 571-592
+  claim_id: c_3e6a4f6c
+  context: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen,
+    110, pp. 571-592
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T17:52:51Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert 1956 Mathematische Zeitschrift 61 pp 245-288
+  claim_id: c_fdb2305a
+  context: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Schubert, 1956, 'Über eine numerische Knoteninvariante', Mathematische
+    Zeitschrift, 61, pp. 245-288
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T17:59:41Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: minimal crossing number braid index links 1993 Canadian Journal of Mathematics
+  claim_id: c_d91cbebf
+  context: 'Related Work: On the Minimal Crossing Number and the Braid Index of Links
+    (1993) — Establishes foundational inequalities between crossing number and braid
+    index for classical links'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.4153/CJM-1993-007-x
+        url: https://www.cambridge.org/core/services/aop-cambridge-core/content/view/FC29A70314343599AB9D39AF810916FF/S0008414X0001395Xa.pdf/div-class-title-on-the-minimal-crossing-number-and-the-braid-index-of-links-div.pdf
+        value: c(L)>2{b(L)-1}
+      quote: For classical links Ohyama proved an inequality involving the minimal
+        crossing number
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: Ohyama
+    filled: true
+  kind: numeric
+  raw_text: On the Minimal Crossing Number and the Braid Index of Links (1993) — Establishes
+    foundational inequalities between crossing number and braid index for classical
+    links
+  resolved_value: Ohyama
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T18:17:44Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circles crossing number braid index generalized knots links 2022
+  claim_id: c_f449ce08
+  context: 'Related Work: Seifert circles, crossing number and the braid index of
+    generalized knots and links (2022) — Extends Ohyama''s inequality to virtual links'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2212.14737v1 [math.GT] 30 Dec 2022
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: '2022'
+    filled: true
+  kind: numeric
+  raw_text: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) — Extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework
+  resolved_value: '2022'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T18:24:05Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: algebraic crossing number braid index knots links 2006
+  claim_id: c_7b5c0760
+  context: 'Related Work: The algebraic crossing number and the braid index of knots
+    and links (2006) — Investigates the conjecture that algebraic crossing number
+    is uniquely determined in minimal braid representation'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.2140/agt.2006.6.2313
+        url: http://msp.org/agt/2006/6-5/agt-v6-n5-p11-s.pdf
+        value: Main Conjecture
+      quote: 'Abstract Morton and Franks–Williams independently gave a lower bound
+        for the braid index b ( L ) of a link L in S 3 in terms of the v -span of
+        the Homfly-pt polynomial P L ( v , z ) of L : 1 2 span v P L ( v , z ) + 1
+        ⩽ b ( L ) . Up to now, many classes of knots and links satisfying the equality
+        of this Morton–Franks–Williams''s inequality have been founded. In this paper,
+        we give a new such a class K of knots and links and make an explicit formula
+        for determining the braid index of knots and links that belong to the class
+        K . This gives simultaneously a new class of knots and links satisfying the
+        Jones conjecture which says that the algebraic crossing number in a minimal
+        braid representation is a link invariant. We also give an algorithm to find
+        a minimal braid representative for a given knot or link in K .'
+      source_id: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      url: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      value: Jones conjecture
+    filled: true
+  kind: numeric
+  raw_text: The algebraic crossing number and the braid index of knots and links (2006)
+    — Investigates the conjecture that algebraic crossing number is uniquely determined
+    in minimal braid representation
+  resolved_value: Jones conjecture
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T18:35:20Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bridge number knot diagrams minimal crossings 2003
+  claim_id: c_67b6ba20
+  context: 'Related Work: On the bridge number of knot diagrams with minimal crossings
+    (2003) — Relates crossing number to bridge number'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:math/0301320v1 [math.GT] 28 Jan 2003
+      source_id: https://doi.org/10.1017/S0305004104007753
+      url: https://arxiv.org/pdf/math/0301320
+      value: '2003'
+    filled: true
+  kind: numeric
+  raw_text: On the bridge number of knot diagrams with minimal crossings (2003) —
+    Relates crossing number to bridge number, offering a third invariant for potential
+    composite measures
+  resolved_value: '2003'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T18:50:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/002-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bisected vertex leveling plane graphs braid index arc index delta diagrams
+    2018
+  claim_id: c_ad262979
+  context: 'Related Work: Bisected vertex leveling of plane graphs: braid index, arc
+    index and delta diagrams (2018) — Presents upper bounds for braid index in terms
+    of crossing number'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2c2(L) + 1 using a bisected vertex leveling of a planar graph [5]. We
+        generalize this proof to obtain
+      source_id: https://doi.org/10.1142/S0218216519500020
+      url: https://arxiv.org/pdf/1805.04428
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: 'Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018) — Presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings'
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T19:10:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per OEIS A002863
+  claim_id: c_739a1eee
+  context: Dataset completeness validation focuses on crossing numbers ≤10 as the
+    Phase 1 benchmarking scope. Data collection covers all knots with crossing number
+    ≤13, but full validation across all crossing numbers ≤13 is deferred to future
+    iterations.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: With 9,988 (OEIS A002863, https://oeis.org/A002863) prime knots at crossing
+    number 13, full validation is computationally impractical for Phase 1 exploratory
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T22:18:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
+    enumeration
+  claim_id: c_4b30093b
+  context: While the dataset covers all knots with crossing number ≤13, validation
+    benchmarking focuses on crossing numbers ≤10 for practical verification purposes.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 27,635 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration), full validation is computationally impractical for Phase 1 exploratory
+    analysis.
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T22:18:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 as established in Hoste-Thistlethwaite-Weeks
+    1998
+  claim_id: c_4b4cc59f
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T22:18:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots with crossing number 13 documented in arXiv 2402.02717
+  claim_id: c_b1a9c63b
+  context: Related Work section lists Minimal grid diagrams of the prime knots with
+    crossing number 13 and arc index 13 (2024) as providing empirical data.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A007504
+        url: https://oeis.org/A007504
+        value: '238'
+      - channel: oeis
+        source_id: A053701
+        url: https://oeis.org/A053701
+        value: '285'
+      - channel: oeis
+        source_id: A331452
+        url: https://oeis.org/A331452
+        value: '1124'
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: '2407.15859'
+        url: https://arxiv.org/abs/2407.15859
+        value: '9988'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 92
+      source_id: A000124
+      url: https://oeis.org/A000124
+      value: '92'
+    filled: true
+  kind: numeric
+  raw_text: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) provides empirical data on 9,988 prime knots with crossing number
+    13, establishing a testable dataset for correlation analysis.
+  resolved_value: '92'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T22:40:08Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco arc index algorithm published 1988 in Mathematische Annalen
+    281
+  claim_id: c_2048c678
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Birman & Menasco (1988) published 'A Algorithm for the Arc Index of a
+    Knot' in Mathematische Annalen, 281, pp. 127-138.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T22:54:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert 1934 Über das Geschlecht von Knoten published in Mathematische
+    Annalen 110
+  claim_id: c_56789878
+  context: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592).
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Mathematische Annalen 110
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Seifert_1934_%C3%9Cber_das_Geschlecht_von_Knoten_published_in_Mat
+    source_value: https://en.wikipedia.org/wiki/Seifert_1934_Über_das_Geschlecht_von_Knoten_published_in_Mat
+    subject: Seifert 1934 Über das Geschlecht von Knoten
+  kind: relational
+  raw_text: Seifert (1934) published 'Über das Geschlecht von Knoten' in Mathematische
+    Annalen, 110, pp. 571-592.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T22:59:45Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert 1956 Über eine numerische Knoteninvariante published in Mathematische
+    Zeitschrift 61
+  claim_id: c_b8e51fba
+  context: Bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288).
+  evidence:
+    entailment_evidence: The passages mention the title 'Schubert 1956 Über eine numerische
+      Knoteninvariante' but state 'Wikipedia does not have an article with this exact
+      name' and do not mention the journal 'Mathematische Zeitschrift' or volume '61'.
+    entailment_status: not_found
+    object: Mathematische Zeitschrift 61
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Schubert_1956_%C3%9Cber_eine_numerische_Knoteninvariante_publishe
+    source_value: https://en.wikipedia.org/wiki/Schubert_1956_Über_eine_numerische_Knoteninvariante_publishe
+    subject: Schubert 1956 Über eine numerische Knoteninvariante
+  kind: relational
+  raw_text: Schubert (1956) published 'Über eine numerische Knoteninvariante' in Mathematische
+    Zeitschrift, 61, pp. 245-288.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T23:03:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_99df3dca
+  context: Assumptions section detailing Prime Knot Enumeration Reference for Phase
+    1 scope justification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    *Experimental Mathematics*, 7(4), 281–299.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T23:16:15Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13
+  claim_id: c_3af78a29
+  context: 'Validation Scope (Phase 1): Dataset completeness validation focuses on
+    crossing numbers ≤10 as the Phase 1 benchmarking scope. Data collection covers
+    all knots with crossing number ≤13, but full validation across all crossing numbers
+    ≤13 is deferred to future iterations. Rationale: With 27,635 prime knots at crossing
+    number 13 (per Hoste-Thistlethwaite-Weeks enumeration), full validation is computationally
+    impractical for Phase 1 exploratory analysis.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 27,635 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:31:48Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 established in Hoste Thistlethwaite
+    Weeks 1998 A Census of Knots
+  claim_id: c_a2acca09
+  context: 'Dataset Note: This study focuses on a subset of prime knots (those with
+    arc index 13), not the full enumeration of 27,635 prime knots at crossing number
+    13. The full count of 27,635 prime knots at crossing number 13 is established
+    in Hoste, Thistlethwaite, & Weeks (1998) ''A Census of Knots.'''
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: The full count of 27,635 prime knots at crossing number 13 is established
+    in Hoste, Thistlethwaite, & Weeks (1998) 'A Census of Knots.'
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:39:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 established in Hoste Thistlethwaite
+    Weeks 1998 A Census of Knots Experimental Mathematics 7 4 281-299
+  claim_id: c_3c62c00d
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). ''A Census of Knots.''
+    Experimental Mathematics, 7(4), 281–299.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T23:39:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: On the Minimal Crossing Number and the Braid Index of Links 1993 establishes
+    foundational inequalities crossing number braid index classical links
+  claim_id: c_7b4d72e0
+  context: 'Related Work: [On the Minimal Crossing Number and the Braid Index of Links
+    (1993)](https://www.cambridge.org/core/journals/canadian-journal-of-mathematics/article/on-the-minimal-crossing-number-and-the-braid-index-of-links/FC29A70314343599AB9D39AF810916FF)
+    — Establishes foundational inequalities relating crossing number and braid index
+    for classical links.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.4153/CJM-1993-007-x
+        url: https://www.cambridge.org/core/services/aop-cambridge-core/content/view/FC29A70314343599AB9D39AF810916FF/S0008414X0001395Xa.pdf/div-class-title-on-the-minimal-crossing-number-and-the-braid-index-of-links-div.pdf
+        value: THEOREM 3.8
+      quote: 'Providence: American Mathematical Society, 1993.'
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: '1993'
+    filled: true
+  kind: numeric
+  raw_text: On the Minimal Crossing Number and the Braid Index of Links (1993) establishes
+    foundational inequalities relating crossing number and braid index for classical
+    links.
+  resolved_value: '1993'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:47:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circles crossing number braid index generalized knots links 2022
+    extends Ohyama inequality virtual links
+  claim_id: c_912ca5de
+  context: 'Related Work: [Seifert circles, crossing number and the braid index of
+    generalized knots and links (2022)](https://linkinghub.elsevier.com/retrieve/pii/S016686412500149X)
+    — Extends Ohyama''s inequality to virtual links and generalizes the relationship
+    framework.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2212.14737v1 [math.GT] 30 Dec 2022
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: '2022'
+    filled: true
+  kind: numeric
+  raw_text: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework.
+  resolved_value: '2022'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:47:30Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: algebraic crossing number braid index knots links 2006 investigates conjecture
+    algebraic crossing number uniquely determined minimal braid representation
+  claim_id: c_055095e8
+  context: 'Related Work: [The algebraic crossing number and the braid index of knots
+    and links (2006)](https://msp.org/agt/2006/6-5/p11.xhtml) — Investigates the conjecture
+    that algebraic crossing number is uniquely determined in minimal braid representation.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.2140/agt.2006.6.2313
+        url: http://msp.org/agt/2006/6-5/agt-v6-n5-p11-s.pdf
+        value: Main Conjecture
+      quote: 'Abstract Morton and Franks–Williams independently gave a lower bound
+        for the braid index b ( L ) of a link L in S 3 in terms of the v -span of
+        the Homfly-pt polynomial P L ( v , z ) of L : 1 2 span v P L ( v , z ) + 1
+        ⩽ b ( L ) . Up to now, many classes of knots and links satisfying the equality
+        of this Morton–Franks–Williams''s inequality have been founded. In this paper,
+        we give a new such a class K of knots and links and make an explicit formula
+        for determining the braid index of knots and links that belong to the class
+        K . This gives simultaneously a new class of knots and links satisfying the
+        Jones conjecture which says that the algebraic crossing number in a minimal
+        braid representation is a link invariant. We also give an algorithm to find
+        a minimal braid representative for a given knot or link in K .'
+      source_id: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      url: https://doi.org/10.1016/J.TOPOL.2009.04.029
+      value: Jones conjecture
+    filled: true
+  kind: numeric
+  raw_text: The algebraic crossing number and the braid index of knots and links (2006)
+    investigates the conjecture that algebraic crossing number is uniquely determined
+    in minimal braid representation.
+  resolved_value: Jones conjecture
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:47:30Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Minimal grid diagrams prime knots crossing number 13 arc index 13 2024
+    provides empirical data prime knots crossing number 13
+  claim_id: c_ccb02252
+  context: 'Related Work: [Minimal grid diagrams of the prime knots with crossing
+    number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides
+    empirical data on prime knots with crossing number 13.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2407.15859'
+        url: https://arxiv.org/abs/2407.15859
+        value: '3250'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 3,250
+      quote: its minimal crossing number. There are 4878 prime alternating
+      source_id: '2406.15361'
+      url: https://arxiv.org/abs/2406.15361
+      value: '4878'
+    filled: true
+  kind: numeric
+  raw_text: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) provides empirical data on prime knots with crossing number 13.
+  resolved_value: '4878'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:58:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: On the bridge number of knot diagrams with minimal crossings 2003 relates
+    crossing number bridge number third invariant
+  claim_id: c_28a0e1b1
+  context: 'Related Work: [On the bridge number of knot diagrams with minimal crossings
+    (2003)](https://arxiv.org/abs/math/0301320) — Relates crossing number to bridge
+    number, offering a third invariant for potential composite measures.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:math/0301320v1 [math.GT] 28 Jan 2003
+      source_id: https://doi.org/10.1017/S0305004104007753
+      url: https://arxiv.org/pdf/math/0301320
+      value: '2003'
+    filled: true
+  kind: numeric
+  raw_text: On the bridge number of knot diagrams with minimal crossings (2003) relates
+    crossing number to bridge number, offering a third invariant for potential composite
+    measures.
+  resolved_value: '2003'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:58:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Bisected vertex leveling plane graphs braid index arc index delta diagrams
+    2018 presents upper bounds braid index crossing number planar graph embeddings
+  claim_id: c_a9f06433
+  context: 'Related Work: [Bisected vertex leveling of plane graphs: braid index,
+    arc index and delta diagrams (2018)](https://arxiv.org/abs/1806.09719) — Presents
+    upper bounds for braid index in terms of crossing number using planar graph embeddings.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2c2(L) + 1 using a bisected vertex leveling of a planar graph [5]. We
+        generalize this proof to obtain
+      source_id: https://doi.org/10.1142/S0218216519500020
+      url: https://arxiv.org/pdf/1805.04428
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: 'Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018) presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings.'
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-01T23:58:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman Menasco 1988 Algorithm for the Arc Index of a Knot Mathematische
+    Annalen 281 pp 127-138
+  claim_id: c_01489906
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Birman & Menasco, 1988, 'A Algorithm for the Arc Index of a Knot', Mathematische
+    Annalen, 281, pp. 127-138
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T23:58:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert 1934 Über das Geschlecht von Knoten Mathematische Annalen 110
+    pp 571-592
+  claim_id: c_bcff39b2
+  context: 'Invariant computation algorithms: Seifert circle count via Seifert''s
+    algorithm on minimal crossing diagrams (Seifert, 1934, ''Über das Geschlecht von
+    Knoten'', Mathematische Annalen, 110, pp. 571-592)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen,
+    110, pp. 571-592
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T23:58:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert 1956 Über eine numerische Knoteninvariante Mathematische Zeitschrift
+    61 pp 245-288
+  claim_id: c_88001c92
+  context: 'Invariant computation algorithms: bridge number via Schubert''s bridge
+    decomposition (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische
+    Zeitschrift, 61, pp. 245-288)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Schubert, 1956, 'Über eine numerische Knoteninvariante', Mathematische
+    Zeitschrift, 61, pp. 245-288
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-01T23:58:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Birman-Menasco method for arc index computation published 1988
+  claim_id: c_0e8a097b
+  context: 'Phase 2: Invariant Computation and Exploratory Analysis. Compute arc index
+    via Birman-Menasco method using spherogram/snappy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute arc index via Birman-Menasco method (Birman & Menasco, 1988) using
+    spherogram/snappy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:12:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Seifert's algorithm for Seifert circle count published 1934
+  claim_id: c_f31935bd
+  context: 'Phase 2: Invariant Computation and Exploratory Analysis. Compute Seifert
+    circle count via Seifert''s algorithm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute Seifert circle count via Seifert's algorithm (Seifert, 1934)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:22:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Schubert's bridge decomposition for bridge number published 1956
+  claim_id: c_66b916aa
+  context: 'Phase 2: Invariant Computation and Exploratory Analysis. Compute bridge
+    number via Schubert''s bridge decomposition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute bridge number via Schubert's bridge decomposition (Schubert, 1956)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:31:20Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Knot Atlas Prime Knots CSV export at katlas.org/wiki/Prime_Knots
+  claim_id: c_fc31f55a
+  context: Data Source Specification. Primary endpoint for downloading prime knot
+    data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Knot_Atlas_Prime_Knots_CSV_export_at_katlas.org/wiki/Prime_K
+  kind: entity_fact
+  raw_text: 'Primary Endpoint: https://katlas.org/wiki/Prime_Knots (CSV export format)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:35:03Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13
+  claim_id: c_86edcdb5
+  context: Data collection covers all knots with crossing number ≤13, but full validation
+    across all crossing numbers ≤13 is deferred to future iterations due to computational
+    constraints (9,988 prime knots at crossing number 13).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: 9,988 prime knots at crossing number 13
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T02:43:35Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: 27635 prime knots or 15000 after hyperbolic volume filtering
+  claim_id: c_1e959078
+  context: With N=27,635 prime knots (or ~15,000 after hyperbolic volume filtering),
+    power analysis indicates >99% power to detect Pearson correlation r≥0.3 at α=0.05
+    (two-tailed).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 49 (forty-nine) is the natural number following 48 and preceding 50.
+      source_id: 49 (number)
+      url: https://en.wikipedia.org/wiki/49_(number)
+      value: '49'
+    filled: true
+  kind: numeric
+  raw_text: N=27,635 prime knots (or ~15,000 after hyperbolic volume filtering)
+  resolved_value: '49'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T02:52:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: Birman-Menasco method for arc index 1988
+  claim_id: c_a555c3dc
+  context: 1. Compute arc index via Birman-Menasco method (Birman & Menasco, 1988)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute arc index via Birman-Menasco method (Birman & Menasco, 1988)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:58:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: Seifert algorithm for Seifert circle count 1934
+  claim_id: c_c04b707c
+  context: 2. Compute Seifert circle count via Seifert's algorithm (Seifert, 1934)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute Seifert circle count via Seifert's algorithm (Seifert, 1934)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:58:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: Schubert bridge decomposition 1956
+  claim_id: c_5b3575dd
+  context: 3. Compute bridge number via Schubert's bridge decomposition (Schubert,
+    1956)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute bridge number via Schubert's bridge decomposition (Schubert, 1956)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T02:58:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
+    enumeration
+  claim_id: c_bba796ea
+  context: 'Validation Scope (Phase 1): Dataset completeness validation focuses on
+    crossing numbers ≤10 as the Phase 1 benchmarking scope. Data collection covers
+    all knots with crossing number ≤13, but full validation across all crossing numbers
+    ≤13 is deferred to future iterations.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration), full validation is computationally impractical for Phase 1 exploratory
+    analysis.
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T03:10:05Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 Hoste Thistlethwaite Weeks 1998
+    Experimental Mathematics 7 4 281-299
+  claim_id: c_0fd3639a
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). ''A Census of Knots.''
+    Experimental Mathematics, 7(4), 281–299.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T03:10:05Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 or less from Hoste-Thistlethwaite-Weeks
+    1998 enumeration
+  claim_id: c_73bb546d
+  context: 'Scale/Scope: 27,635 prime knots at crossing number ≤13 downloaded (Hoste-Thistlethwaite-Weeks
+    1998 enumeration); InvariantsDataset.total_records expected ~15,000 after hyperbolic
+    volume filtering'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: 27,635 prime knots at crossing number ≤13 downloaded (Hoste-Thistlethwaite-Weeks
+    1998 enumeration)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T03:22:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: 1658 prime knots at crossing number 10 or less
+  claim_id: c_1980dddd
+  context: Phase 2 includes benchmarking on crossing number ≤10 subset (N≈1,658) before
+    full-scale execution
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: crossing number ≤10 subset (N≈1,658)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T03:30:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Arc index computed via Birman-Menasco method 1988
+  claim_id: c_aa602eda
+  context: Compute arc index via Birman-Menasco method (Birman & Menasco, 1988) using
+    spherogram/snappy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Arc index (Birman-Menasco) computation using spherogram/snappy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T03:34:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Seifert circle count computed via Seifert algorithm 1934
+  claim_id: c_a64437bb
+  context: Compute Seifert circle count via Seifert's algorithm (Seifert, 1934)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm (Seifert, 1934)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T03:38:23Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 1
+  canonical: Bridge number computed via Schubert bridge decomposition 1956
+  claim_id: c_c5ed4285
+  context: Compute bridge number via Schubert's bridge decomposition (Schubert, 1956)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bridge number via Schubert's bridge decomposition (Schubert, 1956)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T03:52:04Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 or less
+  claim_id: c_030615a5
+  context: With N=27,635 prime knots at crossing number ≤13 (Hoste-Thistlethwaite-Weeks
+    1998 enumeration), or ~15,000 after hyperbolic volume filtering, power analysis
+    indicates >99% power to detect Pearson correlation r≥0.3 at α=0.05 (two-tailed).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: N=27,635 prime knots at crossing number ≤13
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T03:52:28Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/research.md
+  attempts: 1
+  canonical: 1658 prime knots at crossing number 10 or less
+  claim_id: c_1192dec7
+  context: 'Computational Feasibility Validation: Benchmark invariant computation
+    on subset (crossing number ≤10, N≈1,658) before full-scale execution; document
+    algorithmic complexity scaling and adjust performance expectations accordingly'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark invariant computation on subset (crossing number ≤10, N≈1,658)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T03:58:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: A Census of Knots Hoste Thistlethwaite Weeks 1998 Experimental Mathematics
+  claim_id: c_d5462187
+  context: For crossing number 13, the exact count is 27,635 prime knots, as established
+    in Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  evidence: null
+  kind: numeric
+  raw_text: Hoste, J., Thistlethwaite, M. B., & Weeks, J. (1998). 'A Census of Knots.'
+    Experimental Mathematics, 7(4), 281–299.
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-02T03:59:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 0
+  canonical: Minimal grid diagrams prime knots crossing number 13 arc index 13 2024
+    arXiv
+  claim_id: c_0da17e1c
+  context: '[Minimal grid diagrams of the prime knots with crossing number 13 and
+    arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical data
+    on prime knots with crossing number 13.'
+  evidence: null
+  kind: numeric
+  raw_text: '[Minimal grid diagrams of the prime knots with crossing number 13 and
+    arc index 13 (2024)](https://arxiv.org/abs/2402.02717)'
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-02T03:59:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
+  claim_id: c_ff9cf95c
+  context: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration), full validation is computationally impractical for Phase 1 exploratory
+    analysis.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T03:59:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 27635 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
+    1998
+  claim_id: c_39b0d4cc
+  context: This study focuses on a subset of prime knots (those with arc index 13),
+    not the full enumeration of 27,635 prime knots at crossing number 13. The full
+    count of 27,635 prime knots at crossing number 13 is established in Hoste, Thistlethwaite,
+    & Weeks (1998) 'A Census of Knots.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: The full count of 27,635 prime knots at crossing number 13 is established
+    in Hoste, Thistlethwaite, & Weeks (1998) 'A Census of Knots.'
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T03:59:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: arc index via Birman-Menasco method 1988
+  claim_id: c_b5d63e67
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T04:01:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circle count via Seifert algorithm 1934
+  claim_id: c_83cbae20
+  context: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T04:11:50Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/003-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bridge number via Schubert bridge decomposition 1956
+  claim_id: c_f13bff61
+  context: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T04:19:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per OEIS A002863 and 2024 study
+  claim_id: c_478bd32f
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 9,988 prime knots, as established in
+    OEIS A002863.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 9,988 prime knots, as established
+    in OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study 'Minimal
+    grid diagrams of the prime knots with crossing number 13 and arc index 13.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T05:36:10Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: On the Minimal Crossing Number and the Braid Index of Links (1993) establishes
+    foundational inequalities relating crossing number and braid index for classical
+    links
+  claim_id: c_8e6b7191
+  context: Related Work section lists citations from the idea markdown verbatim.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: https://doi.org/10.4153/CJM-1993-007-x
+        url: https://www.cambridge.org/core/services/aop-cambridge-core/content/view/FC29A70314343599AB9D39AF810916FF/S0008414X0001395Xa.pdf/div-class-title-on-the-minimal-crossing-number-and-the-braid-index-of-links-div.pdf
+        value: THEOREM 3.8
+      quote: 'Providence: American Mathematical Society, 1993.'
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: '1993'
+    filled: true
+  kind: numeric
+  raw_text: On the Minimal Crossing Number and the Braid Index of Links (1993) — Establishes
+    foundational inequalities relating crossing number and braid index for classical
+    links.
+  resolved_value: '1993'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T05:36:10Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) extends Ohyama's inequality to virtual links
+  claim_id: c_4c196a7e
+  context: Related Work section lists citations from the idea markdown verbatim.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2212.14737v1 [math.GT] 30 Dec 2022
+      source_id: https://doi.org/10.1016/j.topol.2025.109351
+      url: http://arxiv.org/pdf/2212.14737
+      value: '2022'
+    filled: true
+  kind: numeric
+  raw_text: Seifert circles, crossing number and the braid index of generalized knots
+    and links (2022) — Extends Ohyama's inequality to virtual links and generalizes
+    the relationship framework.
+  resolved_value: '2022'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T05:36:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Minimal grid diagrams of the prime knots with crossing number 13 and
+    arc index 13 (2024) provides empirical data on 9988 prime knots with crossing
+    number 13
+  claim_id: c_06753eb0
+  context: Related Work section lists citations from the idea markdown verbatim.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A007504
+        url: https://oeis.org/A007504
+        value: '238'
+      - channel: oeis
+        source_id: A053701
+        url: https://oeis.org/A053701
+        value: '285'
+      - channel: oeis
+        source_id: A331452
+        url: https://oeis.org/A331452
+        value: '1124'
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: '2407.15859'
+        url: https://arxiv.org/abs/2407.15859
+        value: '9988'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 92
+      source_id: A000124
+      url: https://oeis.org/A000124
+      value: '92'
+    filled: true
+  kind: numeric
+  raw_text: Minimal grid diagrams of the prime knots with crossing number 13 and arc
+    index 13 (2024) — Provides empirical data on 9,988 prime knots with crossing number
+    13, establishing a testable dataset for correlation analysis.
+  resolved_value: '92'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T05:36:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: On the bridge number of knot diagrams with minimal crossings (2003) relates
+    crossing number to bridge number
+  claim_id: c_9787838c
+  context: Related Work section lists citations from the idea markdown verbatim.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:math/0301320v1 [math.GT] 28 Jan 2003
+      source_id: https://doi.org/10.1017/S0305004104007753
+      url: https://arxiv.org/pdf/math/0301320
+      value: '2003'
+    filled: true
+  kind: numeric
+  raw_text: On the bridge number of knot diagrams with minimal crossings (2003) —
+    Relates crossing number to bridge number, offering a third invariant for potential
+    composite measures.
+  resolved_value: '2003'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T05:36:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 'Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018) presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings'
+  claim_id: c_9086f717
+  context: Related Work section lists citations from the idea markdown verbatim.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2c2(L) + 1 using a bisected vertex leveling of a planar graph [5]. We
+        generalize this proof to obtain
+      source_id: https://doi.org/10.1142/S0218216519500020
+      url: https://arxiv.org/pdf/1805.04428
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: 'Bisected vertex leveling of plane graphs: braid index, arc index and
+    delta diagrams (2018) — Presents upper bounds for braid index in terms of crossing
+    number using planar graph embeddings.'
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T05:36:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: arc index via Birman-Menasco method Birman and Menasco 1988
+  claim_id: c_8ffbeb28
+  context: FR-003 specifies invariant computation algorithms with citations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T05:36:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circle count via Seifert's algorithm Seifert 1934
+  claim_id: c_efdda9c2
+  context: FR-003 specifies invariant computation algorithms with citations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T05:36:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bridge number via Schubert's bridge decomposition Schubert 1956
+  claim_id: c_762aef99
+  context: FR-003 specifies invariant computation algorithms with citations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T05:36:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per OEIS A002863
+  claim_id: c_a32c2cfd
+  context: With 9,988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration, OEIS A002863), full validation is computationally impractical for
+    Phase 1 exploratory analysis.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      - channel: paper
+        source_id: https://doi.org/10.1142/s0218216525500099
+        url: https://doi.org/10.1142/s0218216525500099
+        value: 9,988
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 9,988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration, OEIS A002863)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T12:13:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco algorithm for arc index published in Mathematische Annalen
+    281 pp. 127-138 1988
+  claim_id: c_b0b2243c
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138)'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Mathematische Annalen 281 pp. 127-138 1988
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Birman-Menasco_algorithm_for_arc_index_published_in_Mathemat
+    source_value: https://en.wikipedia.org/wiki/Birman-Menasco_algorithm_for_arc_index_published_in_Mathemat
+    subject: Birman-Menasco algorithm for arc index
+  kind: relational
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:14:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert's algorithm for Seifert circle count published in Mathematische
+    Annalen 110 pp. 571-592 1934
+  claim_id: c_7f115457
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method;
+    Seifert circle count via Seifert''s algorithm on minimal crossing diagrams (Seifert,
+    1934, ''Über das Geschlecht von Knoten'', Mathematische Annalen, 110, pp. 571-592)'
+  evidence:
+    entailment_evidence: Seifert's algorithm for Seifert circle count published in
+      Ma
+    entailment_status: not_found
+    object: Mathematische Annalen 110 pp. 571-592 1934
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Seifert's_algorithm_for_Seifert_circle_count_published_in_Ma
+    source_value: https://en.wikipedia.org/wiki/Seifert's_algorithm_for_Seifert_circle_count_published_in_Ma
+    subject: Seifert's algorithm for Seifert circle count
+  kind: relational
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:14:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert's bridge decomposition for bridge number published in Mathematische
+    Zeitschrift 61 pp. 245-288 1956
+  claim_id: c_daa1a80e
+  context: 'Invariant computation algorithms: bridge number via Schubert''s bridge
+    decomposition (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische
+    Zeitschrift, 61, pp. 245-288)'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Mathematische Zeitschrift 61 pp. 245-288 1956
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Schubert%27s_bridge_decomposition_for_bridge_number_published
+    source_value: https://en.wikipedia.org/wiki/Schubert's_bridge_decomposition_for_bridge_number_published_
+    subject: Schubert's bridge decomposition for bridge number
+  kind: relational
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:15:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per OEIS A002863 and 2024 arXiv
+    study
+  claim_id: c_677fb370
+  context: 'Prime Knot Enumeration Reference: The number of prime knots at each crossing
+    number is taken from KnotInfo and the Hoste–Thistlethwaite–Weeks enumeration.
+    For crossing number 13, the exact count is 9,988 prime knots, as established in
+    OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study ''Minimal
+    grid diagrams of the prime knots with crossing number 13 and arc index 13.'''
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 9,988 prime knots, as established
+    in OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study 'Minimal
+    grid diagrams of the prime knots with crossing number 13 and arc index 13.'
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T12:25:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per Hoste-Thistlethwaite-Weeks
+    enumeration
+  claim_id: c_b032008f
+  context: Validation Scope (Crossing Number ≤10 vs ≤13) section discussing dataset
+    completeness validation
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T12:35:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per OEIS A002863 and 2024 study
+  claim_id: c_d36d64b7
+  context: Assumptions section discussing Prime Knot Enumeration Reference
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 9,988 prime knots, as established
+    in OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study 'Minimal
+    grid diagrams of the prime knots with crossing number 13 and arc index 13.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:35:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco algorithm for arc index published 1988 in Mathematische
+    Annalen 281 pp 127-138
+  claim_id: c_5276b1c9
+  context: FR-003 functional requirement for invariant computation algorithms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:35:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert algorithm for Seifert circle count published 1934 in Mathematische
+    Annalen 110 pp 571-592
+  claim_id: c_817da48f
+  context: FR-003 functional requirement for invariant computation algorithms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:35:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert bridge decomposition published 1956 in Mathematische Zeitschrift
+    61 pp 245-288
+  claim_id: c_28d5aa9e
+  context: FR-003 functional requirement for invariant computation algorithms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:35:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13
+  claim_id: c_cb76edd4
+  context: Dataset completeness validation focuses on crossing numbers ≤10 as the
+    Phase 1 benchmarking scope. Data collection covers all knots with crossing number
+    ≤13, but full validation across all crossing numbers ≤13 is deferred to future
+    iterations.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T12:41:16Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 per OEIS A002863
+  claim_id: c_815dbddb
+  context: The number of prime knots at each crossing number is taken from KnotInfo
+    and the Hoste–Thistlethwaite–Weeks enumeration. For crossing number 13, the exact
+    count is 9,988 prime knots, as established in OEIS A002863.
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 9,988 prime knots, as established
+    in OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study 'Minimal
+    grid diagrams of the prime knots with crossing number 13 and arc index 13.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:41:16Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Birman-Menasco algorithm for arc index published 1988 in Mathematische
+    Annalen 281
+  claim_id: c_82b2459c
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method
+    (Birman & Menasco, 1988, ''A Algorithm for the Arc Index of a Knot'', Mathematische
+    Annalen, 281, pp. 127-138); Seifert circle count via Seifert''s algorithm on minimal
+    crossing diagrams.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:41:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert algorithm for Seifert circle count published 1934 in Mathematische
+    Annalen 110
+  claim_id: c_d0baee91
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method;
+    Seifert circle count via Seifert''s algorithm on minimal crossing diagrams (Seifert,
+    1934, ''Über das Geschlecht von Knoten'', Mathematische Annalen, 110, pp. 571-592);
+    bridge number via Schubert''s bridge decomposition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:41:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Schubert bridge decomposition published 1956 in Mathematische Zeitschrift
+    61
+  claim_id: c_dc33eabf
+  context: 'Invariant computation algorithms: arc index via Birman-Menasco method;
+    Seifert circle count via Seifert''s algorithm; bridge number via Schubert''s bridge
+    decomposition (Schubert, 1956, ''Über eine numerische Knoteninvariante'', Mathematische
+    Zeitschrift, 61, pp. 245-288).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:41:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 Hoste-Thistlethwaite-Weeks enumeration
+  claim_id: c_91ff931d
+  context: Rationale for validation scope limitation to crossing number ≤10 for Phase
+    1 benchmarking
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: With 9988 prime knots at crossing number 13 (per Hoste-Thistlethwaite-Weeks
+    enumeration)
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T12:43:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: 9988 prime knots at crossing number 13 OEIS A002863 2024 study
+  claim_id: c_0bf6914b
+  context: Assumptions section on Prime Knot Enumeration Reference
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: For crossing number 13, the exact count is 9,988 prime knots, as established
+    in OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study 'Minimal
+    grid diagrams of the prime knots with crossing number 13 and arc index 13.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-02T12:44:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: arc index Birman-Menasco method 1988 Mathematische Annalen 281 pp 127-138
+  claim_id: c_0c614e21
+  context: FR-003 specifies invariant computation algorithms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arc index via Birman-Menasco method (Birman & Menasco, 1988, 'A Algorithm
+    for the Arc Index of a Knot', Mathematische Annalen, 281, pp. 127-138)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:44:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: Seifert circle count Seifert algorithm 1934 Mathematische Annalen 110
+    pp 571-592
+  claim_id: c_eb5d7e9a
+  context: FR-003 specifies invariant computation algorithms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seifert circle count via Seifert's algorithm on minimal crossing diagrams
+    (Seifert, 1934, 'Über das Geschlecht von Knoten', Mathematische Annalen, 110,
+    pp. 571-592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:44:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/spec.md
+  attempts: 1
+  canonical: bridge number Schubert bridge decomposition 1956 Mathematische Zeitschrift
+    61 pp 245-288
+  claim_id: c_98819128
+  context: FR-003 specifies invariant computation algorithms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bridge number via Schubert's bridge decomposition (Schubert, 1956, 'Über
+    eine numerische Knoteninvariante', Mathematische Zeitschrift, 61, pp. 245-288)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-02T12:44:10Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/plan.md
+  attempts: 0
+  canonical: 9988 prime knots at 13 crossings
+  claim_id: c_da5d0123
+  context: Manual CSV export from Knot Atlas with checksum validation; KnotInfo tabulated
+    values for bridge number; OEIS A002863 for prime knot count verification (9,988
+    at c=13)
+  evidence: null
+  kind: numeric
+  raw_text: OEIS A002863 for prime knot count verification (9,988 at c=13)
+  resolved_value: null
+  resolver: null
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-06-02T13:10:32Z'

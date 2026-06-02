@@ -9,15 +9,15 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How does the relationship between crossing number and braid index vary across different classes of prime knots, and what structural properties of knot diagrams are jointly determined by these invariants?
+To what extent do crossing number and braid index jointly predict the hyperbolic volume of prime knots, and does this relationship differ systematically between alternating and non-alternating classes?
 
 ## Motivation
 
-Crossing number and braid index are two fundamental knot invariants that capture different aspects of diagrammatic complexity, yet their joint behavior across large datasets of knots remains underexplored. Understanding their correlation structure could reveal constraints in the space of possible knot diagrams that are not captured by either invariant alone, informing both theoretical bounds and practical classification workflows.
+Crossing number and braid index are combinatorial invariants derived from diagrammatic representations, whereas hyperbolic volume is a geometric invariant derived from the knot complement. While bounds exist linking these quantities, the precise functional relationship across large datasets of prime knots remains empirical. Quantifying this link would clarify how much geometric complexity is encoded in standard diagrammatic measures, potentially improving classification heuristics and theoretical bound tightening.
 
 ## Related work
 
-- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://www.cambridge.org/core/journals/canadian-journal-of-mathematics/article/on-the-minimal-crossing-number-and-the-braid-index-of-links/FC29A70314343599AB9D39AF810916FF) — Establishes foundational inequalities between crossing number and braid index for classical links.
+- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://www.cambridge.org/core/journals/canadian-journal-of-mathematics/article/on-the-minimal-crossing-number-and-the-braid-index-of-links/FC29A70314343599AB9D39AF810916FF) — Establishes foundational inequalities relating crossing number and braid index for classical links.
 - [Seifert circles, crossing number and the braid index of generalized knots and links (2022)](https://linkinghub.elsevier.com/retrieve/pii/S016686412500149X) — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
 - [The algebraic crossing number and the braid index of knots and links (2006)](https://msp.org/agt/2006/6-5/p11.xhtml) — Investigates the conjecture that algebraic crossing number is uniquely determined in minimal braid representation.
 - [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical data on 9,988 prime knots with crossing number 13, establishing a testable dataset for correlation analysis.
@@ -26,19 +26,19 @@ Crossing number and braid index are two fundamental knot invariants that capture
 
 ## Expected results
 
-We expect to identify a non-linear correlation between crossing number and braid index that varies systematically across alternating versus non-alternating prime knots. A composite complexity measure combining these invariants should show predictive power for related structural properties (e.g., arc index, Seifert circle count) that neither invariant alone can capture with comparable accuracy.
+We expect to find that crossing number and braid index jointly explain a significant portion of the variance in hyperbolic volume, but with systematic residuals for non-alternating knots. A non-linear model (e.g., logarithmic or power-law) should fit the data better than a linear one, reflecting the geometric constraints on volume growth relative to diagrammatic complexity.
 
 ## Methodology sketch
 
-- Download knot data from Knot Atlas (https://katlas.org) including crossing numbers, braid indices, and prime knot classifications for all knots with crossing number ≤13.
-- Parse and clean the dataset to extract consistent representations of crossing number and braid index for each prime knot.
-- Compute additional invariants (arc index, Seifert circle count, bridge number) from available diagram representations.
-- Perform exploratory data analysis: scatter plots of crossing number vs. braid index, stratified by alternating/non-alternating classification.
-- Fit multiple regression models to test linear vs. non-linear relationships between the two invariants.
-- Construct a composite complexity score as a weighted combination of crossing number and braid index.
-- Validate the composite measure against held-out knots by testing correlation with arc index and Seifert circle count.
-- Apply statistical tests (Pearson/Spearman correlation, ANOVA for group differences) to assess significance of findings.
-- Document all code and data transformations for reproducibility.
+- Download the prime knot census (up to 13 crossings) from the Knot Atlas (https://katlas.org) including crossing number, braid index, and hyperbolic volume.
+- Filter the dataset to include only prime knots with complete hyperbolic volume data (exclude torus/satellite knots where volume is zero or undefined).
+- Parse the data to align knot identifiers across the crossing number, braid index, and volume columns.
+- Split the dataset into training (80%) and hold-out test (20%) sets stratified by alternating/non-alternating classification.
+- Fit multiple regression models predicting hyperbolic volume from crossing number and braid index (linear, polynomial, and logarithmic forms).
+- Evaluate model performance on the hold-out set using Mean Absolute Error (MAE) and R-squared metrics.
+- Analyze residuals to identify specific knot families (e.g., pretzel knots) that deviate significantly from the global trend.
+- Apply statistical tests (ANOVA) to compare model fit between alternating and non-alternating subsets.
+- Document all code and data transformations for reproducibility within a single GitHub Actions job.
 
 ## Duplicate-check
 
@@ -49,7 +49,7 @@ We expect to identify a non-linear correlation between crossing number and braid
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-05-31T06:46:23Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-01T22:07:19Z
 **Outcome**: success
 **Original term**: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics
 **Verified citation count**: 15

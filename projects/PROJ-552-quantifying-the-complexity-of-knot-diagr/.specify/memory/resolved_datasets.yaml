@@ -1,26 +1,50 @@
-resolved_at: '2026-05-31T12:06:55.593268+00:00'
+resolved_at: '2026-06-02T12:56:42.982333+00:00'
 datasets:
+- intent: 10.1142/S0218216519500020
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/CSR_committees_and_the_voluntary_disclosures_of_climate_change_information_in_France/32490702
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aru.figshare.com/articles/journal_contribution/Qualitative_exploration_of_gambling_harm_among_UK_veterans_normalisation_stigma_and_postservice_escalation/32105239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Toxicity_and_femininity_in_Love_Island_how_reality_dating_shows_perpetuate_sexist_attitudes_towards_women/32490699
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/report/Evidence_of_Cooperative_Business_Impacts_a_Realist_Perspective/32490696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Secrecy_in_intimate_relationships_rethinking_transparency_and_deceit_in_monogamies_and_non-monogamies/32490693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-002
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Developing_leaders_on-line_using_action_learning_an_account_of_practice/32490714
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Editorial_Paris_and_pollution_heats_in_the_heat_a_topical_discussion_of_the_relationship_between_the_climate_and_sport/32490711
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Multi-Vendor_Implementation_and_Comparison_of_Concentric_Ring_Trajectory_Magnetic_Resonance_Spectroscopic_Imaging/32521656
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Re-evaluation_of_the_relationship_between_paranormal_belief_and_perceived_stress_using_statistical_modelling/32490708
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/RNA-seq/32521647
+  - url: https://repository.mmu.ac.uk/articles/conference_contribution/A_model_of_sustainable_corporate_governance/32490705
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CART-BCTX_Project/32521632
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/CSR_committees_and_the_voluntary_disclosures_of_climate_change_information_in_France/32490702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -49,19 +73,20 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20470525
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
   - url: https://zenodo.org/records/20453648
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20438566
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://archaeology.datastations.nl/dataset.xhtml?persistentId=doi:10.17026/AR/NYXVIJ
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -102,23 +127,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/In-Situ_Metabolic_Profiling_of_Single_Living_Cells_by_Liquid_Secondary_Ion_Mass_Spectrometry/32521670
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Wild_pigs_influence_tropical_forest_soil_microbial_communities_in_a_forest-agriculture_mosaic_landscape/32490846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Link_to_Data_associated_with_the_submitted_manuscript_Uncovering_hidden_functional_states_in_Cryo-EM_datasets_with_EMPROVE_b_b_b_/28870373
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/What_is_modular_fashion_towards_a_common_definition/32490840
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_b_Auxiliary_figure_and_discussion_for_Sancarlo_Paul_2026_The_taxonomics_of_the_lithe_basal_eutyrannosaur_genera_and_species_of_late_Maastrichtian_western_North_America_b_b_b_i_ZooNova_i_/32519379
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Legitimizing_and_Transforming_Gender_Relations_Within_the_Contemporary_Equestrian_Sport_of_Charrer_a_in_Mexico/32490837
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Counting_the_capital_cost_of_the_UK_s_elite_sport_funding_focus/32490834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Comments_on_The_relationship_between_T7_Fz_alpha_coherence_and_peak_performance_in_self_paced_sports_a_meta_analytical_review_Raman_Filho_Exp_Brain_2024_a_verbal_analytical_disagreement/32490831
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -142,27 +167,26 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://works.hcommons.org/records/1cxra-8pd46
+  - url: https://air.unimi.it/handle/2434/216688
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://works.hcommons.org/records/1cxra-8pd46
+  - url: https://zenodo.org/records/20510147
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20474651
+  - url: https://zenodo.org/records/20510147
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20474651
+  - url: https://doi.org/10.5281/zenodo.20011825
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://diamond-oa.lib.cam.ac.uk/handle/1812/579
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://doi.org/10.5281/zenodo.19935287
     source: datacite
-    status: wrong_format
-    reason: ('Connection aborted.', RemoteDisconnected('Remote end closed connection
-      without response'))
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
 - intent: III
   status: verified
   candidates:
@@ -204,23 +228,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/In-Situ_Metabolic_Profiling_of_Single_Living_Cells_by_Liquid_Secondary_Ion_Mass_Spectrometry/32521670
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Design_and_Implementation_of_IoT-based_Low-Cost_Smart_Saline_Micro_Pump/32490858
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Link_to_Data_associated_with_the_submitted_manuscript_Uncovering_hidden_functional_states_in_Cryo-EM_datasets_with_EMPROVE_b_b_b_/28870373
+  - url: https://ufs.figshare.com/articles/composition/_b_Reimagining_the_Amphitheatres_Ruins_through_South_African_Jazz_b_/32546124
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_b_Auxiliary_figure_and_discussion_for_Sancarlo_Paul_2026_The_taxonomics_of_the_lithe_basal_eutyrannosaur_genera_and_species_of_late_Maastrichtian_western_North_America_b_b_b_i_ZooNova_i_/32519379
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Affordances-in-practice_unravelling_blockchain-for-good_in_sustainable_investment/32490852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Wild_pigs_influence_tropical_forest_soil_microbial_communities_in_a_forest-agriculture_mosaic_landscape/32490846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/What_is_modular_fashion_towards_a_common_definition/32490840
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -236,31 +260,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8000218
+  - url: https://journals.sagepub.com/doi/10.1177/19322968221076559
     source: zenodo
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: HTTP 403
   - url: https://zenodo.org/records/8295786
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20474736
+  - url: https://air.unimi.it/handle/2434/150083
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20474736
+  - url: https://elib.spbstu.ru/dl/2/id26-95.pdf/info
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18327480
+  - url: https://zenodo.org/records/20510046
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18327480
+  - url: https://zenodo.org/records/20510260
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20474590
+  - url: https://data.indores.fr/dataset.xhtml?persistentId=doi:10.48579/PRO/LYB70N
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -268,23 +292,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/In-Situ_Metabolic_Profiling_of_Single_Living_Cells_by_Liquid_Secondary_Ion_Mass_Spectrometry/32521670
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Biometric_assessment_and_reproductive_biology_of_common_carp_Cyprinus_carpio_var_communis_in_Lake_Arekit_Ethiopia_fish_management_implication/32490936
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Link_to_Data_associated_with_the_submitted_manuscript_Uncovering_hidden_functional_states_in_Cryo-EM_datasets_with_EMPROVE_b_b_b_/28870373
+  - url: https://geolsoc.figshare.com/articles/dataset/S2_A_new_source-to-sink_synthesis_of_the_Middle_Triassic_Helsby_Sandstone_Formation_Sherwood_Sandstone_Group_river_system_of_the_British_Isles/32546322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_b_Auxiliary_figure_and_discussion_for_Sancarlo_Paul_2026_The_taxonomics_of_the_lithe_basal_eutyrannosaur_genera_and_species_of_late_Maastrichtian_western_North_America_b_b_b_i_ZooNova_i_/32519379
+  - url: https://repository.mmu.ac.uk/articles/chapter/Using_Corpus-Assisted_Approaches_to_Explore_UK_Police_Crisis_Negotiation/32490933
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Shreyas_Lab_Framework/32521665
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Embedding_the_concept_of_Decent_Work_in_career_development_learning/32490930
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Rosette_MRI_and_MRSI_at_clinical_and_preclinical_MRI_scanners/32521662
+  - url: https://repository.mmu.ac.uk/articles/book/The_Arden_Encyclopedia_of_Shakespeare_s_Language_Plays_and_Characters/32490924
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -300,28 +324,26 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13213336
+  - url: https://zenodo.org/records/6963358
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10384626
+  - url: https://zenodo.org/records/10282784
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20470525
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://doi.org/10.5281/zenodo.19526737
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+- intent: FR-014
+  status: unresolved
+  candidates: []
+  candidates_tried: []
 - intent: SC-001
   status: unresolved
   candidates: []
