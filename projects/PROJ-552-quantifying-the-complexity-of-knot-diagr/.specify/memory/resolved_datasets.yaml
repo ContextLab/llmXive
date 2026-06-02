@@ -1,68 +1,71 @@
-resolved_at: '2026-06-02T13:23:14.375510+00:00'
+resolved_at: '2026-06-02T15:38:15.465618+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.mmu.ac.uk/articles/chapter/African_Culinary_Arts_and_Sustainability_Practices_Evidence_from_Traditional_Food_Restaurants/32492934
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Managing_ecosystem_services_in_the_Brazilian_Amazon_the_influence_of_deforestation_and_forest_degradation_in_the_world_s_largest_rain_forest/32554398
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Portieria_hornemannii_15206_/32153052
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Haloplegma_duperreyi_22598_/32182671
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Portieria_hornemannii_15206_/32153052
+      port=443): Max retries exceeded with url: /articles/physical_object/Haloplegma_duperreyi_22598_/32182671
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Night_Landscapes_A_Challenge_to_World_Heritage_Protocols/32492931
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Portieria_hornemannii_15205_/32153049
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Haloplegma_africanum_22597_/32182668
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Portieria_hornemannii_15205_/32153049
+      port=443): Max retries exceeded with url: /articles/physical_object/Haloplegma_africanum_22597_/32182668
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/A_systematic_review_for_non-targeted_analysis_of_per-_and_polyfluoroalkyl_substances_PFAS_/32492928
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Quantifying_Bed_Surface_Roughness_in_Bedrock_and_Boulder_Bed_Rivers/32554395
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Haloplegma_africanum_22596_/32177412
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Haloplegma_africanum_22596_/32177412
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
 - intent: FR-002
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Portieria_hornemannii_15208_/32153058
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Halymenia_dilatata_22601_/32182686
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Portieria_hornemannii_15208_/32153058
+      port=443): Max retries exceeded with url: /articles/physical_object/Halymenia_dilatata_22601_/32182686
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/A_social_identity_perspective_on_lesbian_gay_bisexual_and_transgender_LGBT_entrepreneurs_networking_behavior/32492937
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Perceptions_of_Hospital_Care_Quality_According_to_People_Living_With_Multiple_Long_Term_Conditions_A_Scoping_Review/32554401
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Portieria_hornemannii_15207_/32153055
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Halymenia_dilatata_22600_/32182680
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Portieria_hornemannii_15207_/32153055
+      port=443): Max retries exceeded with url: /articles/physical_object/Halymenia_dilatata_22600_/32182680
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/chapter/African_Culinary_Arts_and_Sustainability_Practices_Evidence_from_Traditional_Food_Restaurants/32492934
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Haloplegma_duperreyi_22599_/32182677
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Haloplegma_duperreyi_22599_/32182677
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Managing_ecosystem_services_in_the_Brazilian_Amazon_the_influence_of_deforestation_and_forest_degradation_in_the_world_s_largest_rain_forest/32554398
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Portieria_hornemannii_15206_/32153052
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Portieria_hornemannii_15206_/32153052
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/10358914
     source: zenodo
     status: wrong_format
@@ -91,12 +94,12 @@ datasets:
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://zenodo.org/records/20453648
-    source: datacite
-    status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20453648
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/20438566
     source: datacite
     status: wrong_format
@@ -142,35 +145,38 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Strength_power_and_aerobic_capacity_of_transgender_athletes_a_cross-sectional_study/32546628
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22675_/32182926
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22675_/32182926
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22674_/32182923
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22674_/32182923
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Revisiting_the_playbook_Coaches_opinions_and_current_views_of_performance_development_and_load_monitoring_in_highly-trained_male_youth_basketball_players/32554527
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15296_/32153337
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22673_/32182920
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15296_/32153337
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22673_/32182920
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15295_/32153334
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22672_/32182917
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15295_/32153334
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22672_/32182917
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15294_/32153331
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15294_/32153331
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Molecular_Dynamics_Simulations_of_Nitric_Oxide_Scattering_Off_Graphene/32546625
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 401'
   - url: https://zenodo.org/records/5746416
     source: zenodo
     status: wrong_format
@@ -191,23 +197,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19985513
+  - url: https://iris.unitn.it/handle/11572/98196
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19985513
+  - url: https://zenodo.org/records/20512513
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20509831
+  - url: https://zenodo.org/records/20512513
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20509831
+  - url: https://zenodo.org/records/20511908
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20510339
+  - url: https://zenodo.org/records/20512483
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -252,36 +258,33 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15310_/32153382
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22689_/32182971
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15310_/32153382
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22689_/32182971
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15309_/32153379
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15309_/32153379
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Intersectionality_and_diversity_equity_and_inclusion_in_the_healthcare_and_scientific_workforces/32546661
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Validity_and_reliability_of_sprint_force-velocity_profiling_in_elite_football_Comparison_of_MySprint_GPS_and_radar_devices/32554551
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15308_/32153376
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22688_/32182968
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15308_/32153376
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22688_/32182968
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15307_/32153373
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Mulberry_leaf_disease_detection_by_CNN-ViT_with_XAI_integration/32554548
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22687_/32182965
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15307_/32153373
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22687_/32182965
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/3341783
@@ -304,23 +307,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.fdz-bildung.de/datenarchiv.php?id=1285
+  - url: https://usiena-air.unisi.it//handle/11365/1138520
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20510260
+  - url: https://aisberg.unibg.it//handle/10446/93510
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20510582
+  - url: https://air.iuav.it/handle/11578/306020
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6310252
+  - url: https://fair.unifg.it//handle/11369/382360
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6310252
+  - url: https://air.iuav.it/handle/11578/301307
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -328,35 +331,38 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15322_/32153421
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22703_/32183022
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15322_/32153421
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22703_/32183022
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Additively_manufactured_ready-to-use_platform_using_conductive_recycled_PLA_for_ketamine_sensing/32546682
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_sp_22702_/32183019
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_sp_22702_/32183019
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Clades_That_Frequently_Accumulate_Metals_Do_Not_Have_Low_Abundance_in_the_Tropical_Forests_of_Sulawesi_Indonesia/32554572
     source: figshare
     status: unreachable
     reason: 'reachability failed: HTTP 401'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15321_/32153418
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22701_/32183016
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15321_/32153418
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22701_/32183016
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Porphyra_capensis_15320_/32153415
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Heringia_mirabilis_22700_/32183013
     source: figshare
     status: unreachable
     reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Porphyra_capensis_15320_/32153415
+      port=443): Max retries exceeded with url: /articles/physical_object/Heringia_mirabilis_22700_/32183013
       (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
       certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://repository.mmu.ac.uk/articles/journal_contribution/The_azimuthal_correlation_between_the_leading_jet_and_the_scattered_lepton_in_deep_inelastic_scattering_at_HERA/32546679
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 401'
   - url: https://zenodo.org/records/3841160
     source: zenodo
     status: wrong_format
@@ -369,11 +375,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13213336
+  - url: https://zenodo.org/records/10384626
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10384626
+  - url: https://zenodo.org/records/6963358
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -382,11 +388,16 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20453648
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
+  - url: https://zenodo.org/records/20438566
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

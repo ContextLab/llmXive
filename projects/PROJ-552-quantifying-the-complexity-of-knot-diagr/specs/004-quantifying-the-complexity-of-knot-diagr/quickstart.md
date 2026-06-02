@@ -1,313 +1,234 @@
 # Quickstart: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-31
-
 ## Prerequisites
 
 - Python 3.11 or higher
 - pip (Python package manager)
 - Git (for version control)
-- Internet connectivity (for downloading Knot Atlas data)
-- Minimum 4GB RAM (for processing ~10,000 knot records)
-- Minimum 1GB free disk space (for data and derived files)
+- Internet connectivity (for downloading knot data from Knot Atlas)
 
 ## Installation
 
-### 1. Clone Repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-org>/llmXive.git
-cd llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+git clone <repository-url>
+cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
 ```
 
 ### 2. Create Virtual Environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
-```
-
-**requirements.txt contents**:
-```
-pandas==2.2.2
-numpy==1.26.4
-scipy==1.13.1
-matplotlib==3.9.0
-seaborn==0.13.2
-pyyaml==6.0.1
-requests==2.32.3
-retry==0.9.2
-datasets==2.20.0
-pytest==8.2.2
-pytest-cov==5.0.0
+pip install -r code/requirements.txt
 ```
 
 ### 4. Verify Installation
 
 ```bash
-python -c "import pandas; import scipy; print('Dependencies installed successfully')"
+python -c "import pandas; import numpy; import scipy; print('All dependencies installed successfully')"
 ```
 
-## Data Download and Processing
+## Quick Start Guide
 
-### 1. Download Knot Atlas Data
+### Step 1: Download Knot Data
 
 ```bash
-python code/data/download_knot_atlas.py
+python code/download/knot_atlas_downloader.py \
+ --max-crossing-number 13 \
+ --output-dir data/raw/ \
+ --retry-max 3 \
+ --backoff-initial 1 \
+ --backoff-max 60 \
+ --primary-source https://katlas.org \
+ --fallback-source https://arxiv.org/abs/2402.02717
 ```
 
-**Output**: `data/raw/knot_atlas_2026-05-31.json` (with SHA-256 checksum)
+This command will:
 
-**Expected behavior**:
-- Downloads all prime knots with crossing number ≤13
-- Implements retry logic with exponential backoff (1s → 2s → 4s → ... → 60s max)
-- Caches partial results after 3 consecutive failures
-- Records checksum in `data/checksums.txt`
+- Download **all** prime knots with crossing number ≤13 from the canonical Knot Atlas URL (https://katlas.org).
+- **API Endpoint**: Knot Atlas web tables (Parquet format).
+- If the Knot Atlas endpoint is unreachable, automatically fall back to the Hoste-Thistlethwaite-Weeks tables (arXiv 2402.02717).
+- **Fallback Availability Guarantee**: arXiv 2402.02717 contains tabulated invariants for all prime knots up to crossing 13 [UNRESOLVED-CLAIM: c_f3dc0711 — status=not_enough_info], ensuring data availability.
+- Apply exponential backoff retry logic (initial 1 s, max 60 s, multiplier 2).
+- Cache partial results after 3 consecutive failures.
+- Generate SHA-256 checksums for all downloaded files.
 
-### 2. Parse and Clean Data
+**Expected Output**: `data/raw/knot_atlas_full.parquet` (≈10,000+ records).
+
+**Scope Boundary Clarification**: This command performs **data collection (≤13)**, but **validated completeness (≤10)** applies only to the subset with crossing number ≤10 per SC-001. Phase 1 analyses are limited to the validated ≤10 subset.
+
+### Step 2: Compute Additional Invariants
 
 ```bash
-python code/data/parse_and_clean.py
+python code/compute/invariant_calculator.py \
+ --input data/raw/knot_atlas_full.parquet \
+ --output data/processed/knots_with_invariants.parquet \
+ --invariants arc_index seifert_circle_count bridge_number \
+ --completeness-threshold 0.99
 ```
 
-**Output**: `data/derived/knots_cleaned.parquet`
+This will:
 
-**Expected behavior**:
-- Extracts consistent representations of crossing number, braid index, hyperbolic volume
-- Flags records with missing invariant data
-- Documents excluded knots in `docs/reproducibility/excluded_knots.md`
+- Retrieve tabulated invariants where available; compute missing `arc_index`, `seifert_circle_count`, and `bridge_number` only for those records.
+- Flag records with `missing_invariant_flags` rather than excluding them (FR-011).
+- Validate that **≥99%** of the ≤10 subset have all required fields populated (SC-006).
+- Produce a validation report at `docs/reproducibility/algorithm_validation.md`.
 
-### 3. Compute Additional Invariants
+**Expected Output**: `data/processed/knots_with_invariants.parquet`.
+
+### Step 3: Run Exploratory Analysis
 
 ```bash
-python code/data/compute_invariants.py
+python code/analysis/exploratory.py \
+ --input data/processed/knots_with_invariants.parquet \
+ --output-dir data/plots/ \
+ --resolution 1200x900
 ```
 
-**Output**: `data/derived/knots_with_invariants.parquet`
+This will:
 
-**Expected behavior**:
-- Computes arc index, Seifert circle count, bridge number where diagram representations available
-- Flags records where invariants cannot be computed
-- Validates algorithms against KnotInfo (if coverage ≥10%)
-- Documents validation results in `docs/reproducibility/algorithm_validation.md`
-- Documents uncomputable invariants in `docs/reproducibility/uncomputable_invariants.md`
+- Generate scatter plots of crossing number vs. braid index stratified by alternating/non-alternating classification.
+- Save PNG files to `data/plots/` with minimum 1200 × 900 resolution.
 
-## Exploratory Analysis
+**Expected Output**: `data/plots/crossing_vs_braid_alternating.png`, `data/plots/crossing_vs_braid_non_alternating.png`.
 
-### 1. Generate Scatter Plots
+### Step 4: Fit Regression Models
 
 ```bash
-python code/analysis/exploratory_analysis.py
+python code/analysis/regression.py \
+ --input data/processed/knots_with_invariants.parquet \
+ --models linear polynomial logarithmic \
+ --output-dir data/processed/ \
+ --random-seed 42
 ```
 
-**Output**: `data/derived/plots/crossing_vs_braid_*.png` (1200x900 pixels minimum)
+This will:
 
-**Expected behavior**:
-- Generates scatter plots of crossing number vs. braid index
-- Stratifies by alternating/non-alternating classification
-- Saves PNG files to `data/derived/plots/`
+- Fit separate linear, polynomial, and logarithmic regression models for alternating and non-alternating knots, and an optional combined model with interaction terms.
+- Compute VIF scores and flag any predictor with VIF > 5.
+- Generate goodness-of-fit metrics (R², AIC/BIC, MAE).
+- Document results in `data/processed/regression_result.json`.
 
-### 2. Fit Regression Models
+**Expected Output**: `data/processed/regression_result.json` with model metrics.
+
+### Step 5: Compute Composite Complexity Score
 
 ```bash
-python code/analysis/regression_models.py
+python code/analysis/composite_score.py \
+ --input data/processed/knots_with_invariants.parquet \
+ --weights-crossing 0.5 \
+ --weights-braid 0.5 \
+ --validation-split 0.2 \
+ --random-seed 42 \
+ --output data/processed/composite_score_results.json
 ```
 
-**Output**: `data/derived/regression_models.parquet`
+This will:
 
-**Expected behavior**:
-- Fits linear, polynomial, and logarithmic regression models
-- Computes VIF for multicollinearity assessment
-- Identifies residual outliers (specific knot families)
-- Documents model metrics (R², AIC/BIC, MAE)
+- Create a weighted combination of crossing number and braid index (default 1:1).
+- Randomly split 20% of the validated ≤10 subset for an **exploratory correlation subset** (not a predictive validation).
+- Compute Pearson and Spearman correlations with hyperbolic volume and report effect sizes.
+- Output results to `data/processed/composite_score_results.json`.
 
-### 3. Run Statistical Tests
+### Step 6: Validate Tie-Breaking Rules
 
 ```bash
-python code/analysis/statistical_tests.py
+python code/validation/tie_breaking_validator.py \
+ --input data/processed/knots_with_invariants.parquet \
+ --output docs/reproducibility/validation_status.md
 ```
 
-**Output**: `data/derived/statistical_results.parquet`
+This script checks that the hierarchy (braid word > DT code; lexicographically first DT code) is applied consistently across all records and writes a status report.
 
-**Expected behavior**:
-- Computes Pearson AND Spearman correlations
-- Performs ANOVA with assumption checks (Levene's, Shapiro-Wilk)
-- Reports effect sizes (Cohen's d, r²) alongside p-values
-- Uses robust alternatives if assumptions violated
-
-## Reproducibility Verification
-
-### 1. Check Checksums
+### Step 7: Generate Reproducibility Documentation
 
 ```bash
-python code/utils/reproducibility.py verify-checksums
+python code/docs/generate_reproducibility_docs.py \
+ --data-dir data/ \
+ --output-dir docs/reproducibility/ \
+ --random-seed 42
 ```
 
-**Output**: Verification report in `docs/reproducibility/checksums.md`
+This will:
 
-### 2. Verify Tie-Breaking Rules
+- Generate SHA-256 checksums for all data files.
+- Create derivation notes with formula citations.
+- Record timestamped logs of all operations.
+- Produce `docs/reproducibility/checksums.md`, `derivation_notes.md`, etc.
+
+## Verification
+
+### Check Dataset Completeness
 
 ```bash
-python docs/reproducibility/validate_tie_breaking.py
+python -c "
+import pandas as pd
+df = pd.read_parquet('data/processed/knots_with_invariants.parquet')
+subset = df[df.crossing_number <= 10]
+print(f'Total knots ≤10: {len(subset)}')
+print(f'Completeness (required fields): {(subset[['crossing_number','braid_index','hyperbolic_volume','alternating_classification']].notna().all(axis=1).mean()*100):.2f}%')
+"
 ```
 
-**Output**: Validation status in `docs/reproducibility/validation_status.md`
-
-### 3. Review Derivation Notes
+### Validate Contract Compliance
 
 ```bash
-cat docs/reproducibility/derivation_notes.md
+python -m pytest tests/contract/ -v
 ```
 
-**Expected contents**:
-- Formula citations with page/section references
-- Step-by-step transformation logic
-- All parameter values used
-- Justification for non-standard choices
-
-## Running Tests
-
-### Unit Tests
+### Check Constitution Compliance
 
 ```bash
-pytest tests/unit/ -v
-```
-
-### Integration Tests
-
-```bash
-pytest tests/integration/ -v
-```
-
-### Contract Tests
-
-```bash
-pytest tests/contract/ -v
-```
-
-### Full Test Suite with Coverage
-
-```bash
-pytest tests/ -v --cov=code --cov-report=html
-```
-
-## Configuration
-
-### Complexity Score Weights
-
-Edit `config/complexity_weights.yaml` to configure composite complexity score weights:
-
-```yaml
-# Default equal weights (1:1 ratio)
-weight_crossing_number: 0.5
-weight_braid_index: 0.5
-
-# Example: Custom weights
-# weight_crossing_number: 0.7
-# weight_braid_index: 0.3
-```
-
-### Random Seeds
-
-Random seeds are pinned in code at module level:
-
-```python
-# code/__init__.py
-import random
-import numpy as np
-
-RANDOM_SEED = 42  # Configurable via environment variable
-random.seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
-```
-
-## Output Artifacts
-
-After successful execution, the following artifacts should be present:
-
-```
-data/
-├── raw/
-│   └── knot_atlas_2026-05-31.json       # Raw download
-├── derived/
-│   ├── knots_cleaned.parquet            # Cleaned dataset
-│   ├── knots_with_invariants.parquet    # Dataset with computed invariants
-│   ├── plots/
-│   │   ├── crossing_vs_braid_alternating.png
-│   │   └── crossing_vs_braid_non_alternating.png
-│   ├── regression_models.parquet        # Fitted models
-│   └── statistical_results.parquet      # Statistical test results
-└── checksums.txt                        # SHA-256 checksums
-
-docs/reproducibility/
-├── checksums.md                         # Checksum documentation
-├── derivation_notes.md                  # Transformation documentation
-├── logs/
-│   └── execution_2026-05-31.log         # Execution logs
-├── validation_scope.md                  # Phase 1 scope documentation
-├── algorithm_validation.md              # Algorithm validation results
-├── uncomputable_invariants.md           # Uncomputable invariant records
-├── excluded_knots.md                    # Excluded knot documentation
-├── tie_breaking_rules.md                # Tie-breaking rules
-└── validation_status.md                 # Validation status
+python code/docs/validate_constitution.py \
+ --constitution projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/.specify/memory/constitution.md \
+ --output docs/reproducibility/constitution_check.md
 ```
 
 ## Troubleshooting
 
 ### Knot Atlas Unavailable
 
-**Symptom**: Download script fails after 3 consecutive retries
+If the download fails due to API unavailability:
 
-**Solution**:
-- Check network connectivity
-- Verify Knot Atlas URL is accessible
-- Partial results cached to disk after 3 failures (FR-010)
-- Review `docs/reproducibility/logs/execution_*.log` for error details
+1. Retry logic automatically applies exponential backoff (1 s → 2 s → 4 s → … → 60 s max).
+2. After 3 consecutive failures, the pipeline switches to the fallback source (arXiv 2402.02717).
+3. Check `docs/reproducibility/validation_status.md` for download status.
+4. **Fallback Guarantee**: arXiv 3,250 contains complete tabulated data for prime knots up to crossing 13.
 
-### Missing Invariant Data
+### Missing Invariant Computations
 
-**Symptom**: High number of records flagged with `missing_invariant_flags`
+If invariants cannot be computed:
 
-**Solution**:
-- Review `docs/reproducibility/uncomputable_invariants.md` for specific reasons
-- Check if diagram representations (DT codes, braid words) are available in source data
-- Verify algorithm implementations in `code/data/compute_invariants.py`
-
-### ANOVA Assumption Violations
-
-**Symptom**: Levene's test or Shapiro-Wilk test indicates assumption violation
-
-**Solution**:
-- System automatically switches to robust alternatives (Welch's ANOVA, Kruskal-Wallis)
-- Documentation notes the deviation from standard ANOVA
-- Review `docs/reproducibility/derivation_notes.md` for assumption check results
+1. Records are flagged with `missing_invariant_flags` (not excluded).
+2. Review `docs/reproducibility/uncomputable_invariants.md` for details.
+3. Verify diagram representation availability (braid word or DT code).
 
 ### Multicollinearity Warning
 
-**Symptom**: VIF > 5 for any predictor
+If VIF > 5 for any predictor:
 
-**Solution**:
-- Document multicollinearity issue in final reports (FR-005)
-- Consider alternative model specifications
-- Acknowledge that braid index ≤ crossing number for most knots (known inequality)
+1. This is expected given the braid index ≤ crossing number relationship.
+2. Document in final reports as per FR-005.
+3. Coefficient interpretation may be affected; focus on overall model fit (R²).
 
 ## Next Steps
 
-After completing the quickstart:
-
-1. Review results in `data/derived/`
-2. Examine reproducibility documentation in `docs/reproducibility/`
-3. Run full test suite to verify all components
-4. Proceed to implementation phase (`/speckit-tasks` command)
+1. **Phase 2+**: Incorporate additional knot classes (torus, satellite, hyperbolic).
+2. **Validation Extension**: Full validation for crossing numbers 11-13.
+3. **Composite Score Refinement**: Explore alternative weighting schemes beyond 1:1 ratio.
+4. **Paper Production**: Generate final research paper with all validated results.
 
 ## Support
 
-- **Constitution Principles**: See `projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/.specify/memory/constitution.md`
-- **Feature Specification**: See `specs/001-knot-complexity-analysis/spec.md`
-- **Implementation Plan**: See `specs/001-knot-complexity-analysis/plan.md`
+For issues or questions:
+
+1. Check `docs/reproducibility/` for detailed documentation.
+2. Review `code/` for implementation details.
+3. Consult the project constitution for governance procedures.

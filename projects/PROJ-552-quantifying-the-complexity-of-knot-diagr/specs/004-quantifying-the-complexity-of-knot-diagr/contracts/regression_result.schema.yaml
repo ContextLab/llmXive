@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Represents fitted regression model with coefficients and goodness-of-fit metrics"
+type: object
+properties:
+ model_id:
+ type: string
+ description: "Unique identifier for this model"
+ pattern: "^model_[0-9]+$"
+ model_type:
+ type: string
+ description: "Type of regression model fitted"
+ enum:
+ - "linear"
+ - "polynomial"
+ - "logarithmic"
+ predictors:
+ type: array
+ description: "List of predictor variables used in the model"
+ items:
+ type: string
+ enum:
+ - "crossing_number"
+ - "braid_index"
+ - "arc_index"
+ - "seifert_circle_count"
+ - "bridge_number"
+ target:
+ type: string
+ description: "Target variable being predicted"
+ enum:
+ - "hyperbolic_volume"
+ coefficients:
+ type: object
+ description: "Model coefficients with predictor names as keys"
+ additionalProperties:
+ type: number
+ r_squared:
+ type: number
+ description: "Coefficient of determination (R²)"
+ minimum: 0
+ maximum: 1
+ adjusted_r_squared:
+ type: number
+ description: "Adjusted R² accounting for number of predictors"
+ minimum: -1
+ maximum: 1
+ aic:
+ type: number
+ description: "Akaike Information Criterion"
+ bic:
+ type: number
+ description: "Bayesian Information Criterion"
+ mae:
+ type: number
+ description: "Mean Absolute Error"
+ minimum: 0
+ vif_scores:
+ type: object
+ description: "Variance Inflation Factors per predictor"
+ additionalProperties:
+ type: number
+ minimum: 1
+ training_sample_size:
+ type: integer
+ description: "Number of records used for model fitting"
+ minimum: 1
+ validation_sample_size:
+ type: integer
+ description: "Number of records in exploratory validation sample"
+ minimum: 1
+ random_seed:
+ type: integer
+ description: "Random seed used for validation sample split"
+ multicollinearity_flag:
+ type: boolean
+ description: "True if any VIF > 5, indicating potential multicollinearity issue"
+required:
+ - model_id
+ - model_type
+ - predictors
+ - target
+ - r_squared
+ - aic
+ - bic
+ - mae
+ - training_sample_size
+ - random_seed
+ - multicollinearity_flag
+additionalProperties: false

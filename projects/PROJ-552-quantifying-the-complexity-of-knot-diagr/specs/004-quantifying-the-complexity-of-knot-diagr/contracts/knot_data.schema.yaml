@@ -1,70 +1,74 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "KnotRecord"
-description: "Schema for a single prime knot record with computed invariants"
+title: "KnotData"
+description: "Schema for a single prime knot record with computed invariants (canonical version)"
 type: "object"
 required:
-  - "knot_id"
-  - "crossing_number"
-  - "braid_index"
-  - "data_source"
-  - "checksum"
+ - "knot_id"
+ - "crossing_number"
+ - "braid_index"
+ - "alternating_classification"
+ - "source_checksum"
 properties:
-  knot_id:
-    type: "string"
-    description: "Unique identifier for the knot (e.g., \"10_123\", \"13_4567\")"
-    pattern: "^[0-9]+_[0-9]+$"
-  crossing_number:
-    type: "integer"
-    description: "Minimal crossing count"
-    minimum: 1
-    maximum: 13
-  braid_index:
-    type: "integer"
-    description: "Minimal braid representation index"
-    minimum: 1
-  hyperbolic_volume:
-    type: ["number", "null"]
-    description: "Geometric volume (null for torus/satellite knots)"
-    minimum: 0
-  is_alternating:
-    type: ["boolean", "null"]
-    description: "Alternating classification (null if ambiguous)"
-  arc_index:
-    type: ["integer", "null"]
-    description: "Computed arc index (null if not computable)"
-    minimum: 1
-  seifert_circle_count:
-    type: ["integer", "null"]
-    description: "Computed Seifert circle count (null if not computable)"
-    minimum: 1
-  bridge_number:
-    type: ["integer", "null"]
-    description: "Computed bridge number (null if not computable)"
-    minimum: 1
-  dt_code:
-    type: ["string", "null"]
-    description: "Dowker-Thistlethwaite code"
-  braid_word:
-    type: ["string", "null"]
-    description: "Braid word representation"
-  missing_invariant_flags:
-    type: "array"
-    description: "Flags for missing invariants"
-    items:
-      type: "string"
-      enum:
-        - "no_representation_available"
-        - "algorithm_not_implemented"
-        - "computation_failed"
-  data_source:
-    type: "string"
-    description: "Source of data (e.g., \"Knot Atlas\")"
-    enum:
-      - "Knot Atlas"
-      - "KnotInfo"
-      - "Hoste-Thistlethwaite-Weeks"
-  checksum:
-    type: "string"
-    description: "SHA-256 checksum of raw record"
-    pattern: "^[a-f0-9]{64}$"
+ knot_id:
+ type: "string"
+ description: "Unique identifier for the knot (e.g., \"10_123\", \"13_4567\")"
+ pattern: "^[0-9]+_[0-9]+$"
+ crossing_number:
+ type: "integer"
+ description: "Minimal crossing count"
+ minimum: 1
+ maximum: 13
+ braid_index:
+ type: "integer"
+ description: "Minimal braid representation index"
+ minimum: 1
+ hyperbolic_volume:
+ type: ["number", "null"]
+ description: "Geometric volume (null for torus/satellite knots)"
+ minimum: 0
+ alternating_classification:
+ type: "string"
+ description: "Alternating classification (null if ambiguous)"
+ enum:
+ - "alternating"
+ - "non-alternating"
+ - "unclassifiable"
+ arc_index:
+ type: ["integer", "null"]
+ description: "Computed arc index (null if not computable)"
+ minimum: 1
+ seifert_circle_count:
+ type: ["integer", "null"]
+ description: "Computed Seifert circle count (null if not computable)"
+ minimum: 1
+ bridge_number:
+ type: ["integer", "null"]
+ description: "Computed bridge number (null if not computable)"
+ minimum: 1
+ dt_code:
+ type: ["string", "null"]
+ description: "Dowker‑Thistlethwaite code"
+ braid_word:
+ type: ["string", "null"]
+ description: "Braid word representation"
+ missing_invariant_flags:
+ type: "array"
+ description: "Flags for missing invariants"
+ items:
+ type: "string"
+ enum:
+ - "no_representation_available"
+ - "algorithm_not_implemented"
+ - "computation_failed"
+ data_source:
+ type: "string"
+ description: "Source of data (e.g., \"Knot Atlas\")"
+ enum:
+ - "Knot Atlas"
+ - "KnotInfo"
+ - "Hoste‑Thistlethwaite‑Weeks"
+ source_checksum:
+ type: "string"
+ description: "SHA‑256 checksum of raw record"
+ pattern: "^[a-f0-9]{64}$"
 additionalProperties: false

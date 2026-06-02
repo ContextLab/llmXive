@@ -1,5 +1,16 @@
-002863 13|a002863 crossing knot oei prime:
+13|crossing knot prime:
   quote: 13 9988
   source_id: A002863
   url: https://oeis.org/A002863
   value: '9988'
+'|bridge decomposition schubert via':
+  quote: In the mathematical field of knot theory, a 2-bridge knot is a knot which
+    can be regular isotoped so that the natural height function given by the z-coordinate
+    has only two maxima and two minima as critical points. Equivalently, these are
+    the knots with bridge number 2, the smallest possible bridge number for a nontrivial
+    knot. Every nontrivial knot with up to seven crossings is a 2-bridge knot. The
+    simplest knots with a bridge number of 3 have eight crossings. Of the 1,701,936
+    knots with up to sixteen crossings, 5,546 are 2-bridge knots.
+  source_id: 2-bridge knot
+  url: https://en.wikipedia.org/wiki/2-bridge_knot
+  value: '2'
