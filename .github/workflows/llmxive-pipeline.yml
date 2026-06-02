@@ -43,10 +43,23 @@ permissions:
   issues: write
   pull-requests: write
 
+# Serialize all runs of this workflow on a branch (cron + manual dispatch) so two
+# runs never advance the same project / race on the shared git state. A new run
+# QUEUES behind the in-flight one (we never cancel mid-stage — that would strand a
+# project's partial artifacts); GitHub keeps at most one pending run per group.
+concurrency:
+  group: llmxive-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Public repo → unlimited Action minutes. The plan stage (planner lit-search +
+    # plan convergence panel) can run well past 60 min; a short cap would time it
+    # out every cron and the project would never advance. Give slow stages room
+    # (well under GitHub's 6 h hard ceiling). A run still EXITS as soon as
+    # `--max-tasks` is satisfied — this is only a safety cap, not a target.
+    timeout-minutes: 330
     steps:
       - name: Checkout
         uses: actions/checkout@v5
