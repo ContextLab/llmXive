@@ -35,4 +35,7 @@ ready:
 - project_id: PROJ-577-multabench-benchmarking-multimodal-tabul
   revision_spec_path: specs/auto-revisions/PROJ-577-multabench-benchmarking-multimodal-tabul/round-1
   queued_at: '2026-06-02T11:20:57.011033+00:00'
+- project_id: PROJ-581-https-arxiv-org-abs-2605-13301
+  revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301/round-1
+  queued_at: '2026-06-02T14:02:41.704560+00:00'
 blocked: []
