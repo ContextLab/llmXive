@@ -1,14 +1,7 @@
 last_used: richard-feynman
-last_used_at: '2026-06-02T07:05:41.886606+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-02T08:58:07.508207+00:00'
+last_outcome: target_missing
 history:
-- slug: alan-turing
-  started_at: '2026-05-24T08:52:50.557849+00:00'
-  ended_at: '2026-05-24T09:39:49.898278+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/_held/alan-turing-simulated__2026-05-24__research.md
 - slug: alan-turing
   started_at: '2026-05-24T09:39:49.898278+00:00'
   ended_at: '2026-05-24T10:33:32.368862+00:00'
@@ -1210,4 +1203,9 @@ history:
   started_at: '2026-06-02T05:06:04.757797+00:00'
   ended_at: '2026-06-02T07:05:41.886606+00:00'
   outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-02T07:05:41.886606+00:00'
+  ended_at: '2026-06-02T08:58:07.508207+00:00'
+  outcome: target_missing
   action: comment
