@@ -1,0 +1,201 @@
+project_id: PROJ-577-multabench-benchmarking-multimodal-tabul
+arxiv_id: '2605.10616'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-02T11:20:56.989499+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 2c8aeab3ffb8
+    text: 'Resolve dataset count discrepancy: Section 4 states ''Subsampled 20'' text-tabular
+      datasets, but Appendix Table tab:text_curation_rates reports ''Accepted 23''.
+      Clarify if the benchmark contains 20 or 23 text-tabular datasets.'
+    severity: writing
+  - id: 4a38088769e8
+    text: 'Verify DINO-v3 citation: Cite simeoni_dinov3_2025 for DINO-v3-small. DINOv2
+      is the public standard; confirm DINOv3 exists and the citation accurately reflects
+      the model used.'
+    severity: science
+  - id: fac48c5c759c
+    text: 'Refine GBDT comparison citation: The claim ''surpassing GBDTs'' cites GBDT
+      invention papers (e.g., breiman_random_2001). Cite the benchmark paper (erickson_tabarena_2025)
+      for the performance comparison claim.'
+    severity: writing
+  - id: 5e22dacfb005
+    text: Explicitly list software dependencies (e.g., requirements.txt) in the repository
+      and reference in the paper.
+    severity: writing
+  - id: b86986421547
+    text: Describe testing strategy (unit/integration tests) and coverage metrics
+      in Appendix C or main text.
+    severity: writing
+  - id: cce87ef997dd
+    text: Include specific code commit hash or tag to ensure exact reproducibility
+      of experimental results.
+    severity: writing
+  - id: 5ccfcda4f405
+    text: Clarify the licensing terms for the MulTaBench bundle. Explicitly confirm
+      redistribution rights for source datasets (e.g., CheXpert, CBIS-DDSM) which
+      often have restricted licenses.
+    severity: science
+  - id: c5c264416b61
+    text: Replace the generic Kaggle profile link (https://www.kaggle.com/chico89/datasets)
+      with a persistent archive link (e.g., Zenodo DOI or specific dataset collection
+      URL) to prevent link rot.
+    severity: writing
+  - id: 9b06806e6bfc
+    text: Report the percentage of rows dropped due to missing/corrupt images or files
+      during curation to ensure transparency on data loss.
+    severity: science
+  - id: f6b95d3bc51e
+    text: Reconcile the contradiction between Section 5 ("Uploaded to Kaggle") and
+      the Checklist ("upon acceptance"). Specify current availability status for reviewers.
+    severity: writing
+  - id: a294b9c0be79
+    text: Ensure all figures include alternative text or sufficiently descriptive
+      captions for accessibility compliance (e.g., fig:attention_main).
+    severity: writing
+  - id: d4f903451d08
+    text: Consolidate redundant leaderboard figures (fig:leaderboard, fig:leaderboard_cls,
+      fig:leaderboard_reg) to reduce visual clutter.
+    severity: writing
+  - id: cf015fbe8f18
+    text: Verify axis labels and units are legible at print scale in fig:compute_costs
+      and fig:leaderboard.
+    severity: writing
+  - id: c3f366d4439c
+    text: Define all acronyms (LoRA, MMTL, HPO, CI, VLMs, GBDTs, RAG) at first use
+      in the main text, not just in citations or appendices.
+    severity: writing
+  - id: fe7900086952
+    text: Replace field-specific jargon with plain English where possible (e.g., 'SOTA'
+      to 'state-of-the-art', 'learners' to 'models', 'scales' to 'sizes').
+    severity: writing
+  - id: 174feec7f7ce
+    text: Standardize terminology spelling (e.g., 'fine-tune' instead of 'finetune')
+      to meet general publication style guides.
+    severity: writing
+  - id: bc558ee67307
+    text: Claim 'largest image-tabular benchmarking effort to date' needs verification.
+      Cite specific prior benchmarks with dataset counts (e.g., MuG, TIME, MultimodalTabPFN)
+      to justify superlative. Abstract and Introduction, lines 1-15.
+    severity: writing
+  - id: 2a93acc9f453
+    text: Generalization claim 'gains generalize across learners, encoder scales,
+      and dimensions' overstates scope. Only 5 learners, 2 encoder sizes (small/large),
+      and 3 PCA dimensions tested. Qualify with 'across tested configurations' or
+      expand evaluation. Section 5, lines 1-10.
+    severity: writing
+  - id: 0a49bd34f892
+    text: Curation pipeline circularity understated. Datasets selected where TAR already
+      outperforms frozen, then TAR gains reported. 'Entangles problem with solution'
+      in Discussion (line 385) insufficient. Need explicit statement that benchmark
+      validates TAR on datasets pre-selected for TAR-sensitivity. Section 7, lines
+      380-390.
+    severity: science
+  - id: 6c681c04e088
+    text: "Attention map analysis presented as mechanistic evidence for TAR gains,\
+      \ but correlation \u2260 causation. Qualitative figures (Fig 6) show attention\
+      \ shifts but don't quantify relationship to performance. Remove causal language\
+      \ or add quantitative analysis. Section 5.4, lines 1-15."
+    severity: writing
+  - id: 590f07f2e3e3
+    text: Claims about healthcare/e-commerce 'high-impact domains' (Introduction)
+      lack domain-specific evidence. No medical or e-commerce benchmarks show particular
+      advantage over other domains. Either remove or provide domain-stratified analysis.
+      Introduction, lines 30-35.
+    severity: writing
+  - id: 252aa7cf3eb3
+    text: Computational cost analysis shows TAR is 10x slower for text encoders (Appendix
+      E2.3) but doesn't discuss cost-benefit tradeoff. For regression tasks with small
+      gains (+0.018 mean), is TAR justified? Add cost-efficiency discussion. Section
+      6, lines 1-20.
+    severity: science
+  - id: c959054b2f39
+    text: Expand the 'Broader impacts' section to explicitly discuss potential negative
+      societal impacts, such as algorithmic bias in healthcare or financial decision-making,
+      rather than only citing positive use cases.
+    severity: writing
+  - id: f48828bc226c
+    text: Clarify data provenance and consent status for datasets containing human
+      faces (e.g., CelebA, Instagram-based datasets) to ensure compliance with privacy
+      regulations and original licenses.
+    severity: writing
+  - id: 0bd80b23ee55
+    text: Revise the 'Safeguards' checklist answer from 'NA' to discuss potential
+      misuse risks of the benchmark, such as enabling discriminatory automated decision-making
+      systems.
+    severity: writing
+  - id: 0d97c160b63a
+    text: The curation pipeline filters datasets based on the performance of Target-Aware
+      Representations (TAR). Since acceptance requires Joint TAR > Joint Frozen, the
+      benchmark is biased toward the proposed method's success. Include analysis of
+      datasets that failed the Task-awareness criterion but passed Joint Signal to
+      demonstrate the phenomenon is not circular.
+    severity: science
+  - id: ac579ecba043
+    text: Report statistical significance (e.g., paired t-test or Wilcoxon signed-rank)
+      on the aggregate mean gain across the 40 datasets. Table 4 reports mean gain
+      (+0.022) without confidence intervals or p-values, making the practical significance
+      of the average improvement unclear.
+    severity: science
+  - id: e3a51b9ad527
+    text: For the image-tabular split, 15 of 20 datasets were manually curated to
+      meet criteria. Explicitly document the selection criteria for these manual additions
+      to ensure they were not cherry-picked to favor TAR, as reproducibility of this
+      subset is critical for the benchmark's validity.
+    severity: science
+  - id: d72f51263896
+    text: Specify CI calculation method (t-distribution for N=5 seeds) in Section
+      3.2 and Figure captions.
+    severity: writing
+  - id: 0ffe63639f1d
+    text: Add paired statistical tests (e.g., Wilcoxon) for TAR vs Frozen gains across
+      datasets in Section 5.
+    severity: science
+  - id: 97f3a6b65dac
+    text: Clarify if regression R^2 is on binned labels or original values in Appendix
+      A.1.
+    severity: writing
+  - id: b55a3ff889a4
+    text: Quantify selection bias impact in Discussion (Section 7) regarding curation
+      pipeline.
+    severity: science
+  - id: 5923ccd384eb
+    text: 'Inconsistent citation command usage: mix of \cite{}, \citet{}, \citep{}
+      without clear style guide. Standardize to one format (e.g., plain \cite{}) throughout
+      for consistency.'
+    severity: writing
+  - id: efee8a7853a0
+    text: 'Table formatting inconsistency: some tables use \setlength{\tabcolsep}
+      and \small, others don''t. Apply uniform spacing/caption styling across all
+      tables (e.g., tab:conditions, tab:petfinder, tab:multabench_datasets).'
+    severity: writing
+  - id: 9f97cc06d290
+    text: 'Cross-reference style inconsistency: use \S\ref{} in some places (e.g.,
+      line ~280) but \ref{} in others. Standardize reference formatting for section
+      citations.'
+    severity: writing
+  - id: c3969888f62b
+    text: 'Figure placement specifiers vary: [!t], [ht], [htb], [ht] without clear
+      rationale. Review and standardize figure placement for consistent document flow.'
+    severity: writing
+  - id: 5075064f8b28
+    text: The \paragraph{} command is used extensively but inconsistently formatted
+      (some have trailing text, some start new lines). Consider using \subsubsection{}
+      for formal subsections or standardize \paragraph{} usage.
+    severity: writing
+  - id: d8a1d3b29990
+    text: 'Convert telegraphic fragments to full sentences in Sections 4, 5, 6, and
+      7 for better flow. Example: ''Rows: 400 to 114,000'' should be ''The datasets
+      contain between 400 and 114,000 rows.'''
+    severity: writing
+  - id: 2f8baeb803ac
+    text: Correct hyphenation of 'state of the art' to 'state-of-the-art' when used
+      as an adjective (Introduction, Section 1).
+    severity: writing
+  - id: 0291104400b0
+    text: 'Fix subject omission in Section 5: ''In PetFinder, suppresses background''
+      lacks a clear subject (e.g., ''the model suppresses'').'
+    severity: writing

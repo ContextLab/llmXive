@@ -32,4 +32,7 @@ ready:
 - project_id: PROJ-627-trisplat-simulation-ready-feed-forward-3
   revision_spec_path: specs/auto-revisions/PROJ-627-trisplat-simulation-ready-feed-forward-3/round-1
   queued_at: '2026-06-02T07:54:33.104432+00:00'
+- project_id: PROJ-577-multabench-benchmarking-multimodal-tabul
+  revision_spec_path: specs/auto-revisions/PROJ-577-multabench-benchmarking-multimodal-tabul/round-1
+  queued_at: '2026-06-02T11:20:57.011033+00:00'
 blocked: []
