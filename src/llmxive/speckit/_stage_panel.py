@@ -52,7 +52,13 @@ import yaml
 
 from llmxive.backends.base import BackendUnavailable, TransientBackendError
 from llmxive.convergence.project_runner import run_engine_for_project
-from llmxive.convergence.types import Concern, ConcernResponse, ReviewSpec, Verdict
+from llmxive.convergence.types import (
+    Concern,
+    ConcernResponse,
+    KickbackRecord,
+    ReviewSpec,
+    Verdict,
+)
 from llmxive.speckit._comments_context import render_recent_comments_block
 
 logger = logging.getLogger(__name__)
@@ -138,6 +144,32 @@ def _write_convergence_kickback(
     out = memory_dir / CONVERGENCE_KICKBACK_FILENAME
     out.write_text(yaml.safe_dump(payload), encoding="utf-8")
     return out
+
+
+def emit_convergence_kickback(
+    memory_dir: Path, kickback: KickbackRecord, *, stage_label: str
+) -> Path:
+    """Build + persist the adaptive convergence-kickback sentinel from a
+    ``KickbackRecord``.
+
+    Single source of truth for the sentinel payload SHAPE — used by both
+    :func:`run_stage_panel` (spec / plan / paper panels) and the research-tasks
+    engine-bridge path (``tasks_cmd``). The ``stage`` key is the per-panel label
+    that keys the kickback-count file, so each panel's cap is independent.
+    """
+    return _write_convergence_kickback(
+        memory_dir,
+        {
+            "reason": kickback.reason,
+            "to_stage": kickback.to_stage,
+            "worst_severity": kickback.worst_severity.value,
+            "stage": stage_label,
+            "unresolved_concerns": [
+                c.model_dump(mode="json") for c in kickback.unresolved_concerns
+            ],
+            "artifact_links": list(kickback.artifact_links),
+        },
+    )
 
 
 def _next_trail_path(memory_dir: Path, stage_label: str) -> Path:
@@ -275,19 +307,7 @@ def run_stage_panel(
         # graph routes the project back to the content stage and auto-retries,
         # bounded by the per-project kickback cap. The record carries the full
         # provenance the next worker needs.
-        _write_convergence_kickback(
-            memory_dir,
-            {
-                "reason": kb.reason,
-                "to_stage": kb.to_stage,
-                "worst_severity": kb.worst_severity.value,
-                "stage": stage_label,
-                "unresolved_concerns": [
-                    c.model_dump(mode="json") for c in kb.unresolved_concerns
-                ],
-                "artifact_links": list(kb.artifact_links),
-            },
-        )
+        emit_convergence_kickback(memory_dir, kb, stage_label=stage_label)
         raise StagePanelKickback(
             f"{stage_label} panel did not converge: {kb.reason} "
             f"(kickback → {kb.to_stage})"
@@ -304,6 +324,7 @@ __all__ = [
     "_idea_md",
     "_read",
     "_spec_template",
+    "emit_convergence_kickback",
     "render_recent_comments_block",
     "run_stage_panel",
 ]

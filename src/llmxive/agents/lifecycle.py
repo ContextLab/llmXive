@@ -56,7 +56,13 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # CLARIFIED -> CLARIFIED self-loop: the plan convergence panel (run by the
     # planner at CLARIFIED) kicks back to ``clarified`` for spec-gap concerns.
     Stage.CLARIFIED: {Stage.PLANNED, Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
-    Stage.PLANNED: {Stage.TASKED, Stage.HUMAN_INPUT_NEEDED},
+    # PLANNED -> PLANNED self-loop: the tasks convergence panel (run by the
+    # tasker at PLANNED) kicks back to ``planned`` to re-task on a deeper
+    # unresolved concern — exactly mirroring the CLARIFIED self-loop for the
+    # plan panel. (A writing-only kickback routes forward to TASKED, already
+    # allowed.) Without this self-loop edge a tasks-stage kickback would crash
+    # run_one_step's is_valid_transition guard.
+    Stage.PLANNED: {Stage.PLANNED, Stage.TASKED, Stage.HUMAN_INPUT_NEEDED},
     Stage.TASKED: {Stage.ANALYZE_IN_PROGRESS, Stage.ANALYZED},
     Stage.ANALYZE_IN_PROGRESS: {Stage.ANALYZED, Stage.HUMAN_INPUT_NEEDED},
     Stage.ANALYZED: {Stage.IN_PROGRESS},
@@ -113,7 +119,13 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.PAPER_CLARIFIED: {
         Stage.PAPER_PLANNED, Stage.PAPER_CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
     },
-    Stage.PAPER_PLANNED: {Stage.PAPER_TASKED},
+    # PAPER_PLANNED -> PAPER_PLANNED self-loop: the paper_tasks convergence
+    # panel (run by the paper_tasker at PAPER_PLANNED) kicks back here to
+    # re-task on a deeper unresolved concern (mirrors PAPER_CLARIFIED). The
+    # HUMAN_INPUT_NEEDED edge lets the kickback cap escalate cleanly.
+    Stage.PAPER_PLANNED: {
+        Stage.PAPER_PLANNED, Stage.PAPER_TASKED, Stage.HUMAN_INPUT_NEEDED,
+    },
     Stage.PAPER_TASKED: {Stage.PAPER_ANALYZED},
     Stage.PAPER_ANALYZED: {Stage.PAPER_IN_PROGRESS},
     Stage.PAPER_IN_PROGRESS: {Stage.PAPER_COMPLETE, Stage.PAPER_IN_PROGRESS},

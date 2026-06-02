@@ -567,6 +567,32 @@ class TaskerAgent(SlashCommandAgent):
             )
             return
 
+        # Adaptive kickback (spec-015 F-20 Part B) — parity with the spec/plan
+        # panels: when the tasks convergence panel does NOT converge, emit the
+        # adaptive sentinel and raise StagePanelKickback so run_one_step routes
+        # the project back to the panel's kickback target (a writing-only nit →
+        # forward to TASKED; a deeper unresolved concern → self-loop at PLANNED to
+        # re-task), bounded by the per-stage kickback cap. Previously the tasker
+        # swallowed non-convergence into tasker_rounds.yaml and the project
+        # advanced as though the panel had accepted. The engine already persisted
+        # the per-round convergence trail.
+        _conv = engine_result.convergence
+        if not _conv.converged and _conv.kickback is not None:
+            from llmxive.speckit._stage_panel import (
+                StagePanelKickback,
+                emit_convergence_kickback,
+            )
+
+            emit_convergence_kickback(
+                ctx.project_dir / ".specify" / "memory",
+                _conv.kickback,
+                stage_label="tasks",
+            )
+            raise StagePanelKickback(
+                f"tasks panel did not converge: {_conv.kickback.reason} "
+                f"(kickback → {_conv.kickback.to_stage})"
+            )
+
         _round_after = {
             "spec.md": spec_path.read_text(encoding="utf-8") if spec_path.exists() else "",
             "plan.md": plan_path.read_text(encoding="utf-8") if plan_path.exists() else "",

@@ -120,13 +120,17 @@ STAGE_TO_AGENT: dict[Stage, str] = {
 # ``stage_label`` that panel passes to ``run_stage_panel`` (and thus the key
 # used in the kickback-count file). Used to reset the kickback counter once a
 # panel converges and the project advances forward (F-20 Part B). The tasks /
-# paper_tasks panels run via ``_tasker_engine_bridge`` (no run_stage_panel
-# sentinel), so their stages are intentionally absent.
+# paper_tasks panels run at PLANNED / PAPER_PLANNED and now also emit the
+# adaptive kickback sentinel (research tasker via the engine bridge; paper
+# tasker via run_stage_panel), so their stages are included here — otherwise a
+# converged tasks panel would never reset its kickback counter.
 _STAGE_PANEL_LABEL: dict[Stage, str] = {
     Stage.SPECIFIED: "spec",
     Stage.CLARIFIED: "plan",
+    Stage.PLANNED: "tasks",
     Stage.PAPER_SPECIFIED: "paper_spec",
     Stage.PAPER_CLARIFIED: "paper_plan",
+    Stage.PAPER_PLANNED: "paper_tasks",
 }
 
 

@@ -184,6 +184,16 @@ def test_kickback_transitions_are_valid() -> None:
     assert is_valid_transition(Stage.PAPER_SPECIFIED, Stage.PAPER_DRAFTING_INIT)
     assert is_valid_transition(Stage.PAPER_SPECIFIED, Stage.CLARIFIED)
     assert is_valid_transition(Stage.PAPER_CLARIFIED, Stage.PAPER_CLARIFIED)
+    # Tasks panels run at PLANNED / PAPER_PLANNED: a writing-only kickback
+    # advances (forward), a deeper concern self-loops to re-task, and the cap
+    # escalates to human input. All three must be valid transitions, else a
+    # tasks-stage kickback crashes run_one_step's is_valid_transition guard.
+    assert is_valid_transition(Stage.PLANNED, Stage.TASKED)
+    assert is_valid_transition(Stage.PLANNED, Stage.PLANNED)
+    assert is_valid_transition(Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED)
+    assert is_valid_transition(Stage.PAPER_PLANNED, Stage.PAPER_TASKED)
+    assert is_valid_transition(Stage.PAPER_PLANNED, Stage.PAPER_PLANNED)
+    assert is_valid_transition(Stage.PAPER_PLANNED, Stage.HUMAN_INPUT_NEEDED)
 
 
 # --- run_one_step catches the panel's raise and ROUTES (the real bug) ------
@@ -276,6 +286,122 @@ def test_run_one_step_catches_escalation_and_routes_to_human(
     # Engine failure routes to HUMAN_INPUT_NEEDED instead of crashing the run.
     assert result.current_stage == Stage.HUMAN_INPUT_NEEDED
     assert result.human_escalation_reason
+
+
+# --- tasks-stage adaptive kickback (research tasker now emits the sentinel) ---
+#
+# The research tasks panel runs at PLANNED via the engine bridge and previously
+# SWALLOWED non-convergence (recorded converged:False in tasker_rounds.yaml and
+# advanced anyway). It now emits the SAME convergence_kickback.yaml sentinel the
+# spec/plan panels do (via the shared emit_convergence_kickback helper) and
+# raises StagePanelKickback, so run_one_step routes it: a writing-only kickback
+# advances to TASKED, a deeper concern self-loops to PLANNED to re-task.
+
+
+def _planned_project() -> Project:
+    now = datetime.now(UTC)
+    return Project(
+        id="PROJ-902-tasks-kickback",
+        title="X",
+        field="mathematics",
+        current_stage=Stage.PLANNED,
+        created_at=now,
+        updated_at=now,
+        speckit_research_dir="specs/001-x",
+    )
+
+
+def test_emit_helper_writes_consumable_tasks_sentinel(tmp_path: Path) -> None:
+    """The shared helper builds a sentinel keyed by the 'tasks' label that the
+    real consume_convergence_kickback reads back identically."""
+    from llmxive.convergence.types import Concern, KickbackRecord, Severity
+    from llmxive.speckit._stage_panel import emit_convergence_kickback
+
+    kb = KickbackRecord(
+        from_stage="tasked",
+        to_stage="planned",
+        worst_severity=Severity.SCIENCE,
+        unresolved_concerns=[
+            Concern(id="c1", reviewer="coverage", severity=Severity.SCIENCE,
+                    artifact="specs/001-x/tasks.md", location="T003", text="missing setup"),
+        ],
+        artifact_links=["specs/001-x/tasks.md"],
+        reason="1 concern unresolved after 3 rounds",
+    )
+    mem = tmp_path / ".specify" / "memory"
+    emit_convergence_kickback(mem, kb, stage_label="tasks")
+
+    decision = consume_convergence_kickback(mem)
+    assert decision is not None
+    assert decision.escalate is False
+    assert decision.to_stage == "planned"
+    assert decision.stage_label == "tasks"
+    counts = yaml.safe_load((mem / "kickback_count.yaml").read_text())
+    assert counts == {"tasks": 1}  # independent per-stage cap
+
+
+def test_decide_routes_tasks_kickback_self_loop(tmp_path: Path) -> None:
+    from llmxive.pipeline.graph import _decide_next_stage
+
+    project = _planned_project()
+    project_dir = tmp_path / "projects" / project.id
+    mem = project_dir / ".specify" / "memory"
+    _write_sentinel(mem, to_stage="planned", stage="tasks")
+
+    # A deeper tasks concern self-loops to PLANNED (re-task) — NOT a crash.
+    assert _decide_next_stage(project, project_dir, repo_root=tmp_path) == Stage.PLANNED
+    assert not (mem / "convergence_kickback.yaml").exists()
+
+
+def test_decide_resets_tasks_counter_on_advance(tmp_path: Path) -> None:
+    from llmxive.pipeline._kickback import _read_counts
+    from llmxive.pipeline.graph import _decide_next_stage
+
+    project = _planned_project()
+    project_dir = tmp_path / "projects" / project.id
+    mem = project_dir / ".specify" / "memory"
+
+    _write_sentinel(mem, to_stage="planned", stage="tasks")
+    assert _decide_next_stage(project, project_dir, repo_root=tmp_path) == Stage.PLANNED
+    assert _read_counts(mem) == {"tasks": 1}
+
+    # Tasks panel converges (no sentinel) → forward to TASKED + counter reset.
+    nxt = _decide_next_stage(project, project_dir, repo_root=tmp_path)
+    assert nxt == Stage.TASKED
+    assert _read_counts(mem) == {}
+
+
+def test_run_one_step_catches_tasks_kickback_and_self_loops(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The REAL run_one_step seam for the tasker: a non-converging tasks panel
+    raises StagePanelKickback → run_one_step routes to the PLANNED self-loop
+    (not advance to TASKED, not crash), and the 'tasks' cap increments."""
+    from llmxive.pipeline import graph
+    from llmxive.speckit._stage_panel import StagePanelKickback
+    from llmxive.state import project as project_store
+
+    project = _planned_project()
+    mem = tmp_path / "projects" / project.id / ".specify" / "memory"
+
+    class _KickbackTasker:
+        def run(self, sk_ctx) -> None:
+            _write_sentinel(mem, to_stage="planned", stage="tasks")
+            raise StagePanelKickback("tasks panel did not converge (→ planned)")
+
+    monkeypatch.setitem(graph._SPECKIT_AGENTS, "tasker", _KickbackTasker)
+    monkeypatch.setattr(
+        graph.registry_loader, "get",
+        lambda name, repo_root=None: _stub_registry_entry(name),
+    )
+    monkeypatch.setattr(project_store, "load", lambda pid, repo_root=None: project)
+    monkeypatch.setattr(project_store, "save", lambda p, repo_root=None: None)
+
+    result = graph.run_one_step(project, repo_root=tmp_path)
+
+    assert result.current_stage == Stage.PLANNED  # self-loop, NOT advanced to TASKED
+    assert not (mem / "convergence_kickback.yaml").exists()
+    assert yaml.safe_load((mem / "kickback_count.yaml").read_text()) == {"tasks": 1}
 
 
 if __name__ == "__main__":  # pragma: no cover
