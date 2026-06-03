@@ -423,12 +423,14 @@ a:hover { color: var(--accent-2); }
 
 /* ── Buttons ───────────────────────────────────────────────── */
 .btn {
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 36px;            /* shared baseline so same-role buttons match exactly */
   padding: 8px 14px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  font-family: var(--mono); font-size: 12px; color: var(--text);
+  font-family: var(--mono); font-size: 12px; line-height: 1.2; color: var(--text);
+  white-space: nowrap;         /* labels never wrap → height/width stay stable (FIX 2c) */
   cursor: pointer;
   transition: all var(--t-fast);
 }
@@ -482,7 +484,10 @@ a:hover { color: var(--accent-2); }
   box-shadow: 0 0 0 3px var(--accent-tint);
 }
 .field textarea { min-height: 90px; resize: vertical; }
-.modal .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.modal .actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+/* All modal action buttons share .btn sizing; equal min-height + nowrap labels
+   keep same-role buttons identical and aligned regardless of label length. */
+.modal .actions .btn { min-height: 38px; }
 
 /* ── Footer ────────────────────────────────────────────────── */
 .foot {
@@ -519,6 +524,57 @@ a:hover { color: var(--accent-2); }
   .panel-head { flex-direction: column; align-items: start; }
   .pipeline-row { grid-template-columns: 1fr; gap: 16px; }
   .pipeline-row::before { display: none; }
+
+  /* ── Responsive topbar (FIX 1 / #262) ──────────────────────────
+     The single 64px no-wrap row crammed brand + Sign in + Submit a
+     paper + Submit Idea together; long labels wrapped to 2–3 lines
+     each, so every button was a different height and the row
+     overflowed below ~375px. Let the row wrap to two lines: brand
+     stays on the first line, the actions wrap onto their own line as
+     equal-height, equal-width compact buttons that never overflow. */
+  .topbar .row {
+    height: auto; min-height: 56px;
+    flex-wrap: wrap; gap: 8px 10px;
+    padding-top: 10px; padding-bottom: 10px;
+  }
+  .top-actions {
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  /* Buttons size to their (non-wrapping) label so no label is ever clipped,
+     and wrap to a new line when the row runs out of room. Equal min-height +
+     shared .btn styling keep them the same height and baseline-aligned
+     regardless of label length (FIX 2). */
+  .top-actions > * { flex: 0 1 auto; }
+  .top-actions .btn,
+  .top-actions .auth-chip {
+    justify-content: center;
+    padding-left: 12px; padding-right: 12px;
+  }
+
+  /* The sort/search .bar was a non-wrapping flex row with a 220px-min search
+     box, so it overflowed the viewport on phones (horizontal page scroll).
+     Let it wrap and let the search box take the full width of its own line. */
+  .bar { flex-wrap: wrap; }
+  .bar .grow { flex-basis: 100%; height: 0; }   /* force the search onto its own row */
+  .bar .search { min-width: 0; width: 100%; }
+}
+/* ── Tabs scroll affordance (FIX 1 / FR-002) ────────────────────
+   .tabs-row scrolls horizontally with a hidden scrollbar, so on narrow
+   screens there was no hint that more tabs exist off-screen. A right-edge
+   fade signals "scroll for more"; it sits above the row and ignores
+   pointer events so taps still reach the tabs. */
+.tabs .shell { position: relative; }
+.tabs .shell::after {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 0;
+  width: 28px; pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--bg) 85%);
+}
+@media (min-width: 1100px) {
+  /* Wide enough that every tab fits — drop the fade to keep desktop clean. */
+  .tabs .shell::after { display: none; }
 }
 
 /* ── llmXive 002 additions: auth chip + artifact dialog + expanded kanban ───── */
@@ -597,12 +653,10 @@ a:hover { color: var(--accent-2); }
   background: var(--accent-tint); color: var(--accent);
   margin-top: 6px;
 }
-.artifact-dialog .ad-close {
-  background: transparent; border: 0; cursor: pointer;
-  font-size: 18px; color: var(--muted);
-  padding: 4px 10px; border-radius: var(--r-sm);
-}
-.artifact-dialog .ad-close:hover { color: var(--text); background: var(--bg-2); }
+/* .ad-close now rides the shared .btn.ghost class (FIX 2). No bespoke sizing —
+   it inherits the same min-height / padding / font as every other .btn so the
+   head-action buttons are equal height and aligned. Only the icon size differs. */
+.artifact-dialog .ad-close i { font-size: 14px; }
 
 .artifact-dialog .ad-body {
   display: grid;
@@ -776,6 +830,14 @@ a:hover { color: var(--accent-2); }
 @media (max-width: 880px) {
   .artifact-dialog .ad-body { grid-template-columns: 1fr; }
   .artifact-dialog .ad-pdf { min-height: 240px; }
+}
+@media (max-width: 560px) {
+  /* Stack the dialog title above its action buttons; the buttons then form
+     one equal-width row so Add review / Send feedback / Close are the same
+     height and aligned even on a phone (FIX 2). */
+  .artifact-dialog .ad-head { flex-direction: column; align-items: stretch; }
+  .artifact-dialog .ad-head-actions { justify-content: stretch; }
+  .artifact-dialog .ad-head-actions .btn { flex: 1 1 0; min-width: 0; }
 }
 
 /* about page extensions */
@@ -1111,13 +1173,19 @@ a:hover { color: var(--accent-2); }
 .modal-msg.err { color: oklch(0.5 0.18 30); }
 .modal-msg a { color: var(--accent); text-decoration: underline; }
 
-.artifact-dialog .ad-head-actions { display: flex; align-items: center; gap: 8px; }
-.artifact-dialog .ad-feedback-btn {
-  background: transparent; border: 1px solid var(--line-soft); border-radius: var(--r-sm);
-  color: var(--text-2); font-size: 12px; padding: 6px 10px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px;
+/* Head-action buttons (Add review / Send feedback / Close) all ride the shared
+   .btn class now (FIX 2): equal min-height, identical padding/font/radius,
+   nowrap labels, baseline-aligned. The row keeps all three on one line on
+   normal/desktop dialogs (flex-shrink:0); the ≤560px rule below lets them
+   wrap into an equal-width row on phones without changing any button height. */
+.artifact-dialog .ad-head-actions {
+  display: flex; align-items: center; gap: 8px;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
-.artifact-dialog .ad-feedback-btn:hover { border-color: var(--accent); color: var(--accent); }
+/* Let the title block absorb the remaining width (and wrap its own text) so the
+   action row never gets squeezed into wrapping on wide dialogs. */
+.artifact-dialog .ad-head > div:first-child { min-width: 0; flex: 1 1 auto; }
 .artifact-dialog .ad-feedback {
   border-bottom: 1px solid var(--line-soft); background: var(--bg-2);
   padding: 14px 20px;

@@ -68,15 +68,16 @@
       + '<div class="ad-head">'
       + '<div><h2 class="ad-title">—</h2><span class="ad-stage-badge"></span></div>'
       + '<div class="ad-head-actions">'
-      + '<button class="ad-feedback-btn" type="button"><i class="fa-regular fa-comment-dots"></i> Send feedback</button>'
-      + '<button class="ad-close" aria-label="close"><i class="fa-solid fa-xmark"></i> Close</button>'
+      + '<button class="btn ad-review-btn" type="button"><i class="fa-regular fa-pen-to-square"></i> Add review</button>'
+      + '<button class="btn ad-feedback-btn" type="button"><i class="fa-regular fa-comment-dots"></i> Send feedback</button>'
+      + '<button class="btn ghost ad-close" type="button" aria-label="close"><i class="fa-solid fa-xmark"></i> Close</button>'
       + '</div>'
       + '</div>'
       + '<div class="ad-feedback" hidden>'
       + '<div class="ad-fb-inner">'
       + '<label class="field"><span class="l">Your feedback on this artifact</span>'
       + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? A maintenance agent will triage this to the right pipeline step within the hour."></textarea></label>'
-      + '<div class="ad-fb-actions">'
+      + '<div class="ad-fb-actions actions">'
       + '<span class="ad-fb-msg"></span>'
       + '<button class="btn ghost ad-fb-cancel" type="button">Cancel</button>'
       + '<button class="btn primary ad-fb-submit" type="button"><i class="fa-solid fa-paper-plane"></i> Submit feedback</button>'
@@ -102,6 +103,26 @@
     bd.querySelector(".ad-feedback-btn").addEventListener("click", () => {
       fbPanel.hidden = !fbPanel.hidden;
       if (!fbPanel.hidden) { fbMsg.innerHTML = ""; fbMsg.className = "ad-fb-msg"; fbText.focus(); }
+    });
+
+    // FIX 3 (#262 / #5): the human-review modal (#modal-review) existed but had
+    // no trigger anywhere in the UI. Open it from here, seeding the hidden
+    // #review-project-id with the project currently shown in this dialog so the
+    // submit handler in app.js posts the review against the right project.
+    // (Submission itself still requires GitHub login — #217 — handled in app.js.)
+    bd.querySelector(".ad-review-btn").addEventListener("click", () => {
+      const pid = _currentProject ? _currentProject.id : "";
+      const hidden = document.getElementById("review-project-id");
+      if (hidden) hidden.value = pid;
+      const m = document.getElementById("modal-review");
+      if (m) {
+        // Close this artifact dialog first: #ad-backdrop is appended to <body>
+        // after the static modals, so it would otherwise stack above
+        // #modal-review (same z-index) and hide it. Closing it also gives the
+        // reviewer a single, focused modal.
+        close();
+        m.classList.add("open");
+      }
     });
     bd.querySelector(".ad-fb-cancel").addEventListener("click", () => { fbPanel.hidden = true; });
     bd.querySelector(".ad-fb-submit").addEventListener("click", async () => {
