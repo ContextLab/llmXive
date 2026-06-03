@@ -1,0 +1,223 @@
+{
+  "fetched_at": "2026-06-03T03:47:20Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations",
+      "target_n": 5
+    },
+    "duration_seconds": 225.473,
+    "ended_at": "2026-06-03T03:47:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Spectral properties of deformed random matrices"
+        ],
+        [
+          2,
+          "Spiked random matrix models"
+        ],
+        [
+          3,
+          "BBP phase transition for eigenvalues"
+        ],
+        [
+          4,
+          "Outlier eigenvalues in random matrix theory"
+        ],
+        [
+          5,
+          "Limiting spectral distribution with low-rank perturbations"
+        ],
+        [
+          6,
+          "Local laws for sparse random matrices"
+        ],
+        [
+          7,
+          "Universality of eigenvalue statistics under perturbation"
+        ],
+        [
+          8,
+          "Wigner matrices with sparse noise"
+        ],
+        [
+          9,
+          "Eigenvalue outliers in spiked covariance models"
+        ],
+        [
+          10,
+          "Free probability and additive perturbations"
+        ],
+        [
+          11,
+          "Asymptotic spectral distribution of large sparse matrices"
+        ],
+        [
+          12,
+          "Perturbation theory for large random operators"
+        ],
+        [
+          13,
+          "Edge universality in perturbed random matrices"
+        ],
+        [
+          14,
+          "Sparse Wigner ensemble asymptotic limits"
+        ],
+        [
+          15,
+          "Non-Hermitian random matrix perturbations"
+        ],
+        [
+          16,
+          "Delocalization of eigenvectors in sparse perturbations"
+        ],
+        [
+          17,
+          "High-dimensional covariance estimation with sparsity"
+        ],
+        [
+          18,
+          "Concentration inequalities for sparse random matrices"
+        ],
+        [
+          19,
+          "Macroscopic spectral density of perturbed ensembles"
+        ],
+        [
+          20,
+          "Rank-one perturbations of random matrices"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics": 0,
+        "Asymptotic spectral distribution of large sparse matrices": 0,
+        "BBP phase transition for eigenvalues": 0,
+        "Concentration inequalities for sparse random matrices": 0,
+        "Delocalization of eigenvectors in sparse perturbations": 0,
+        "Edge universality in perturbed random matrices": 0,
+        "Eigenvalue outliers in spiked covariance models": 0,
+        "Free probability and additive perturbations": 0,
+        "High-dimensional covariance estimation with sparsity": 0,
+        "Limiting spectral distribution with low-rank perturbations": 0,
+        "Local laws for sparse random matrices": 0,
+        "Macroscopic spectral density of perturbed ensembles": 0,
+        "Non-Hermitian random matrix perturbations": 0,
+        "Outlier eigenvalues in random matrix theory": 0,
+        "Perturbation theory for large random operators": 0,
+        "Rank-one perturbations of random matrices": 0,
+        "Sparse Wigner ensemble asymptotic limits": 0,
+        "Spectral properties of deformed random matrices": 0,
+        "Spiked random matrix models": 0,
+        "Universality of eigenvalue statistics under perturbation": 0,
+        "Wigner matrices with sparse noise": 0
+      },
+      "total_queries_issued": 20
+    },
+    "extracted_queries": [
+      "finite rank spiked model eigenvalues",
+      "Wigner ensemble sparse perturbation spectrum",
+      "BBP phase transition spectral outliers",
+      "limiting spectral distribution convergence",
+      "universality class random matrix theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 0,
+      "sampled_count": 0,
+      "sampled_pointers": []
+    },
+    "per_query_hit_count": {
+      "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics": 3,
+      "BBP phase transition spectral outliers": 0,
+      "Wigner ensemble sparse perturbation spectrum": 0,
+      "finite rank spiked model eigenvalues": 0,
+      "limiting spectral distribution convergence": 0,
+      "universality class random matrix theory": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-03T03:43:34Z",
+    "term_input": {
+      "normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+      "raw": "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Supersymmetry is nowadays indispensable for many problems in Random Matrix Theory. It is presented here with an emphasis on conceptual and structural issues. An introduction to supermathematics is given. The Hubbard-Stratonovich transformation as well as its generalization and superbosonization are explained. The supersymmetric non-linear sigma model, Brownian motion in superspace and the color-flavor transformation are discussed.",
+          "claimed_authors": [
+            "Thomas Guhr"
+          ],
+          "claimed_title": "Supersymmetry in Random Matrix Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1005.0979"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Supersymmetry in Random Matrix Theory')",
+        "failed_at": "2026-06-03T03:46:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a cursory overview of applications of concepts from random matrix theory (RMT) to quantum electronics and classical & quantum optics. The emphasis is on phenomena, predicted or explained by RMT, that have actually been observed in experiments on quantum wires, quantum dots, disordered wave guides, and chaotic resonators. Topics considered include universal conductance fluctuations, weak localization and coherent backscattering, sub-Poissonian shot noise and open transmission channels, non-Gaussian conductance and thermopower distributions, mesoscopic superconductivity, grey-body radiation, and chaotic laser cavities.",
+          "claimed_authors": [
+            "C. W. J. Beenakker"
+          ],
+          "claimed_title": "Applications of random matrix theory to condensed matter and optical physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0904.1432"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Applications of random matrix theory to condensed matter and optical physics')",
+        "failed_at": "2026-06-03T03:46:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a concise review of the complex, real and quaternion real Ginibre random matrix ensembles and their elliptic deformations. Eigenvalue correlations are exactly reduced to two-point kernels and discussed in the strongly and weakly non-Hermitian limits of large matrix size.",
+          "claimed_authors": [
+            "B. A. Khoruzhenko",
+            "H. -J. Sommers"
+          ],
+          "claimed_title": "Non-Hermitian Random Matrix Ensembles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.5645"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Non-Hermitian Random Matrix Ensembles')",
+        "failed_at": "2026-06-03T03:46:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": []
+  },
+  "target_n": 5,
+  "term_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

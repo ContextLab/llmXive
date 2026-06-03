@@ -23,6 +23,10 @@
     "classified_at": "2026-05-30T03:43:36Z",
     "verdict": false
   },
+  "PROJ-555-investigating-the-potential-benefits-of-::1.6.0": {
+    "classified_at": "2026-06-03T03:30:39Z",
+    "verdict": false
+  },
   "PROJ-558-consciousness-bootstrapping-self-aware-a::1.6.0": {
     "classified_at": "2026-05-24T03:30:49Z",
     "verdict": false
@@ -41,6 +45,18 @@
   },
   "PROJ-582-socratic-transformers-dialogue-based-sel::1.6.0": {
     "classified_at": "2026-05-30T03:33:41Z",
+    "verdict": false
+  },
+  "PROJ-583-astrocyte-inspired-meta-learning-glial-m::1.6.0": {
+    "classified_at": "2026-06-03T03:35:47Z",
+    "verdict": false
+  },
+  "PROJ-584-predictive-coding-llms-implementing-hier::1.6.0": {
+    "classified_at": "2026-06-03T03:38:53Z",
+    "verdict": false
+  },
+  "PROJ-585-dendritic-computation-in-transformers-be::1.6.0": {
+    "classified_at": "2026-06-03T03:41:51Z",
     "verdict": false
   },
   "PROJ-586-social-memory-networks-modeling-collecti::1.6.0": {
