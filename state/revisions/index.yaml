@@ -65,4 +65,7 @@ ready:
 - project_id: PROJ-612-a-survey-of-large-audio-language-models
   revision_spec_path: specs/auto-revisions/PROJ-612-a-survey-of-large-audio-language-models/round-1
   queued_at: '2026-06-03T17:00:27.186747+00:00'
+- project_id: PROJ-651-grepseek-training-search-agents-for-dire
+  revision_spec_path: specs/auto-revisions/PROJ-651-grepseek-training-search-agents-for-dire/round-1
+  queued_at: '2026-06-03T19:50:35.904049+00:00'
 blocked: []
