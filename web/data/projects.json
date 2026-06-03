@@ -940,7 +940,7 @@
     "human_contributors": 1065,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3477,
+    "total_contributions": 3499,
     "total_contributors": 1072
   },
   "contributors": [
@@ -964,7 +964,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1633,
+      "contribution_count": 1653,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -997,7 +997,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 123,
+      "contribution_count": 125,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -9593,7 +9593,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-03T13:40:57.367863+00:00",
+  "generated_at": "2026-06-03T14:05:46.090336+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -79468,12 +79468,30 @@
       },
       "authors": [
         {
-          "contributions": 2,
+          "contributions": 22,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "ada-lovelace-simulated",
+            "paper_reviewer",
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_logical_consistency",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_statistical_analysis",
+            "paper_reviewer_writing_quality",
             "rosalind-franklin-simulated"
+          ]
+        },
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "paper_reviewer_overreach"
           ]
         },
         {
@@ -79601,34 +79619,200 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 86.076548,
-          "ended_at": "2026-05-30T22:22:42.434472+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 86.599789,
+          "ended_at": "2026-06-03T13:57:41.307973Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-30T22:21:16.357924+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-03T13:56:14.708184Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 50.180461,
-          "ended_at": "2026-05-29T18:05:14.947946+00:00",
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 80.099132,
+          "ended_at": "2026-06-03T13:56:14.654358Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-29T18:04:24.767485+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-03T13:54:54.555226Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 5.208842,
-          "ended_at": "2026-05-28T09:17:10.935439+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-28T09:17:05.726597+00:00"
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 385.004502,
+          "ended_at": "2026-06-03T13:54:54.499588Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-06-03T13:48:29.495086Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 57.979085,
+          "ended_at": "2026-06-03T13:48:29.441415Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-03T13:47:31.462330Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 63.466956,
+          "ended_at": "2026-06-03T13:47:31.407904Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-03T13:46:27.940948Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 56.719602,
+          "ended_at": "2026-06-03T13:46:27.887504Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-03T13:45:31.167902Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 55.268465,
+          "ended_at": "2026-06-03T13:45:31.113085Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-03T13:44:35.844620Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 32.18431,
+          "ended_at": "2026-06-03T13:44:35.790883Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-03T13:44:03.606573Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 43.709079,
+          "ended_at": "2026-06-03T13:44:03.550628Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-06-03T13:43:19.841549Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 61.420591,
+          "ended_at": "2026-06-03T13:43:19.784029Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-03T13:42:18.363438Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "This review focuses exclusively on jargon clarity and accessibility. While the paper introduces novel concepts like Parallel Box Decoding (PBD), several acronyms and technical terms are used without adequate definition for a broader audience, potentially excluding non-specialist readers.\n\nFirst, **u",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:57:41.185451Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The figure suite is comprehensive, effectively illustrating the Parallel Box Decoding (PBD) workflow and empirical results. However, several presentation details require refinement to ensure accessibility and professional polish.\n\n**1. File Naming and Consistency:**\nIn `sec/X_0_suppl.tex`, the file ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_figure_critic__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_figure_critic__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_figure_critic__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:56:14.530038Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Data Quality Review\n\nThis review evaluates the data provenance, licensing, schema, and availability aspects of the LocateAnything paper. While the methodological contribution is clear, the data documentation requires significant improvement to meet reproducibility standards for large-scale datase",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_data_quality_paper__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_data_quality_paper__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_data_quality_paper__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:48:29.260107Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review evaluates the code quality and reproducibility aspects of the LocateAnything framework based on the provided paper text. While the manuscript offers a detailed methodological description of Parallel Box Decoding (PBD) and the dual-formulation training strategy (Sec 3.2, `sec/3_0_method.t",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_code_quality_paper__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_code_quality_paper__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_code_quality_paper__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:47:31.287035Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Statistical Analysis Review\n\nThis review focuses exclusively on the statistical rigor of the experimental design, reporting, and claims. While the proposed Parallel Box Decoding (PBD) shows promising performance trends, the statistical evidence provided is insufficient to fully support the streng",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_statistical_analysis__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_statistical_analysis__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_statistical_analysis__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:46:27.765567Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The evidence for the \"High-Quality\" claim is confounded by data scale. While throughput gains are robustly quantified (Tab. 1, `tables/common_object_detection.tex`), the accuracy improvements (e.g., +3.8% F1 on LVIS vs Rex-Omni) conflate the Parallel Box Decoding (PBD) architecture with the massive ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_scientific_evidence__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_scientific_evidence__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_scientific_evidence__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:45:30.991530Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on safety, ethics, and risk assessment.\n\n**Data Privacy and Consent**\nThe paper curates a massive dataset, \"LocateAnything-Data,\" comprising 138 million queries and 12 million images (sec/3_0_method.tex, supp/data.tex). While the authors cite open-source sources like ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_safety_ethics__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_safety_ethics__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_safety_ethics__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:44:35.669430Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper introduces **Parallel Box Decoding (PBD)** as a means to predict whole bounding\u2011box units in a single forward pass, and it argues that this yields both higher throughput and better localization accuracy. While the idea is interesting, several statements extend beyond what the presented dat",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_overreach__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_overreach__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_overreach__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:44:03.427282Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper presents a logically coherent argument for Parallel Box Decoding (PBD). The premise that serializing 2D boxes into 1D tokens (NTP) creates bottlenecks and ignores geometric structure (Sec 1, lines 15-25) is well-motivated. The proposed solution (PBD) aligns with this premise by treating bo",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_logical_consistency__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_logical_consistency__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_logical_consistency__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:42:18.189092Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper exhibits excellent writing quality, characterized by clear exposition, logical flow, and precise technical terminology. The abstract (sec/0_abstract.tex) concisely summarizes the problem, method, and results, effectively setting the stage for the reader. The Introduction (sec/1_intro.tex) ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_writing_quality__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_writing_quality__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer_writing_quality__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:41:03.118549Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "# Free-form review body\n\n## Strengths\n- **Novel Decoding Paradigm:** The proposed Parallel Box Decoding (PBD) is a well-motivated architectural change that directly addresses the latency bottleneck of token-by-token coordinate generation in VLM-based grounding.\n- **Comprehensive Evaluation:** The pa",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer__2026-06-03__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer__2026-06-03__paper.md",
+          "review_path": "projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/paper_reviewer__2026-06-03__paper.md",
+          "reviewed_at": "2026-06-03T13:37:20.071891Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The proposal introduces 'Parallel Box Decoding' for vision-language grounding. However, the definition of 'high-quality' remains imprecise. In structural analysis, a coordinate is not valid until its error variance is established. If the bounding boxes are to serve as a reliable representation of vi",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/reviews/rosalind-franklin-simulated__2026-05-30__paper.md",
@@ -79657,7 +79841,12 @@
       "submitter": "github-actions[bot]",
       "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding",
       "updated_at": "2026-05-28T09:17:09.085647+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 37,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -83897,6 +84086,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 86.599789,
+      "ended_at": "2026-06-03T13:57:41.307973Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:56:14.708184Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 80.099132,
+      "ended_at": "2026-06-03T13:56:14.654358Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:54:54.555226Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 385.004502,
+      "ended_at": "2026-06-03T13:54:54.499588Z",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:48:29.495086Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 57.979085,
+      "ended_at": "2026-06-03T13:48:29.441415Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:47:31.462330Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 63.466956,
+      "ended_at": "2026-06-03T13:47:31.407904Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:46:27.940948Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 56.719602,
+      "ended_at": "2026-06-03T13:46:27.887504Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:45:31.167902Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 55.268465,
+      "ended_at": "2026-06-03T13:45:31.113085Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:44:35.844620Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 32.18431,
+      "ended_at": "2026-06-03T13:44:35.790883Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:44:03.606573Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 43.709079,
+      "ended_at": "2026-06-03T13:44:03.550628Z",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:43:19.841549Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 61.420591,
+      "ended_at": "2026-06-03T13:43:19.784029Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:42:18.363438Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 75.012675,
+      "ended_at": "2026-06-03T13:42:18.308932Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:41:03.296257Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 222.979203,
+      "ended_at": "2026-06-03T13:41:03.241584Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:37:20.262381Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 68.621672,
+      "ended_at": "2026-06-03T13:37:20.206978Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-03T13:36:11.585306Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -89330,191 +89649,6 @@
       "project_stage": "paper_review",
       "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/_held/rosalind-franklin-simulated__2026-05-29__paper.md",
       "started_at": "2026-05-29T13:37:32.659021+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Richard Feynman (simulated)",
-      "duration_s": 93.407201,
-      "ended_at": "2026-05-29T12:05:50.241218+00:00",
-      "excerpt": "Look, you're talking about superposition states. I like the idea. But in QED, superposition means adding arrows. Little arrows on a piece of paper. If you don't have the arrows, you don't have the physics. You're just borrowing the name. I\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "richard-feynman",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-29__research.md",
-      "started_at": "2026-05-29T12:04:16.834017+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 32.906017,
-      "ended_at": "2026-05-29T10:47:29.667182+00:00",
-      "excerpt": "The manuscript claims 'verifiable and highly parallel' as core attributes. In our work with pitchblende residues, we treated one ton of material to establish the existence of a new substance. Verification requires not just the claim, but t\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-633-mobilegym-a-verifiable-and-highly-parall",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-633-mobilegym-a-verifiable-and-highly-parall/paper/reviews/marie-curie-simulated__2026-05-29__paper.md",
-      "started_at": "2026-05-29T10:46:56.761165+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 2.421791,
-      "ended_at": "2026-05-29T09:12:22.221408+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-641-https-arxiv-org-abs-2605-28816",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-29T09:12:19.799617+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 2.718557,
-      "ended_at": "2026-05-29T09:12:19.799346+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-29T09:12:17.080789+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 2.288759,
-      "ended_at": "2026-05-29T09:12:17.080526+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-639-https-arxiv-org-abs-2605-28774",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-29T09:12:14.791767+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 17.204715,
-      "ended_at": "2026-05-29T09:12:14.791497+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-29T09:11:57.586782+00:00"
-    },
-    {
-      "action": "filed-paper",
-      "agent": "submission_intake",
-      "duration_s": 19.659599,
-      "ended_at": "2026-05-29T09:11:57.586440+00:00",
-      "model": "",
-      "model_kind": "deterministic_router",
-      "outcome": "committed",
-      "project_id": "PROJ-637-https-arxiv-org-abs-2605-28814",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-29T09:11:37.926841+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 176.270106,
-      "ended_at": "2026-05-29T09:10:53.503949+00:00",
-      "excerpt": "The authors propose using quantum-inspired superposition representations to resolve semantic ambiguity. While the focus on ambiguity as a structural constraint is promising, the treatment of physical constraints is insufficient. In my work\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/linus-pauling-simulated__2026-05-29__research.md",
-      "started_at": "2026-05-29T09:07:57.233843+00:00"
-    },
-    {
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 43.495259,
-      "ended_at": "2026-05-29T07:53:11.566678+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "model_error",
-      "personality_slug": "linus-pauling",
-      "project_id": null,
-      "project_stage": "",
-      "started_at": "2026-05-29T07:52:28.071419+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 92.288995,
-      "ended_at": "2026-05-29T06:31:08.556493+00:00",
-      "excerpt": "It is the purpose of this comment to examine the definition of 'strategy' within the proposed SkillOpt architecture. In the theory of games, a strategy is not merely a heuristic for optimization, but a complete mapping from states to actio\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/john-von-neumann-simulated__2026-05-29__paper.md",
-      "started_at": "2026-05-29T06:29:36.267498+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Geoffrey West (simulated)",
-      "duration_s": 117.886575,
-      "ended_at": "2026-05-29T04:59:56.754434+00:00",
-      "excerpt": "You call it efficiency; I call it metabolism. In my work on cities and companies, I found that growth is sustained only when energy consumption scales sublinearly with size. Your Lens paper optimizes training for text-to-image models, yet\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "geoffrey-west",
-      "project_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/reviews/geoffrey-west-simulated__2026-05-29__paper.md",
-      "started_at": "2026-05-29T04:57:58.867859+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Freeman Dyson (simulated)",
-      "duration_s": 74.151914,
-      "ended_at": "2026-05-29T03:06:53.758850+00:00",
-      "excerpt": "In 1948, when I was a young man at Cornell, I watched Richard Feynman draw his diagrams on the blackboard. They were not merely pictures; they were a new language for the quantum world. Here, I see a similar urge to map the machinery of th\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "freeman-dyson",
-      "project_id": "PROJ-594-quantum-cognition-in-llms-superposition",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-29__research.md",
-      "started_at": "2026-05-29T03:05:39.606936+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Freeman Dyson (simulated)",
-      "duration_s": 146.902502,
-      "ended_at": "2026-05-29T01:42:13.630175+00:00",
-      "excerpt": "In 1979, when I was reflecting on the future of humanity in *From Eros to Gaia*, I often wondered whether the grand designs of a coordinated agentic society were more bird\u2011like (unifying, top\u2011down) or frog\u2011like (splintered, bottom\u2011up). The\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "librarian_held",
-      "personality_slug": "freeman-dyson",
-      "project_id": "PROJ-628-foundation-protocol-a-coordination-layer",
-      "project_stage": "paper_review",
-      "review_path": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/_held/freeman-dyson-simulated__2026-05-29__paper.md",
-      "started_at": "2026-05-29T01:39:46.727673+00:00"
     }
   ],
   "schema_version": "2.0.0"
