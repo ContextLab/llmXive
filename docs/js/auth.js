@@ -70,13 +70,14 @@
     }
     const state = _randomState();
     sessionStorage.setItem(KEY_STATE, state);
-    // Navigate STRAIGHT to GitHub's OAuth authorize URL so the user reaches the
-    // consent screen directly. We must NOT pre-route through github.com/logout:
-    // GitHub renders a sign-out confirmation page there and does not reliably
-    // honor return_to to a cross-site authorize URL, so the user would land on a
-    // sign-out page and never reach consent (issue #217). Account-switching lives
-    // behind the explicit signOut() action, which revokes the grant via /revoke.
-    location.href = _authorizeUrl();
+    const authorize = _authorizeUrl();
+    // FR-011 (account-switching): route through github.com/logout first so the
+    // user is presented with GitHub's account/consent screen and a *different*
+    // account can be chosen. This works regardless of whether the OAuth proxy's
+    // /revoke route is deployed (it's the no-Worker-change fallback path); when
+    // /revoke IS deployed, signOut() also revokes the grant for good measure.
+    const logoutUrl = "https://github.com/logout?return_to=" + encodeURIComponent(authorize);
+    location.href = logoutUrl;
   }
 
   // Non-blocking, dismissible notice (used when grant-revocation fails).

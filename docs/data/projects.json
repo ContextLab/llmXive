@@ -10072,7 +10072,7 @@
         "research_reviewer_data_quality_research",
         "research_reviewer_filesystem_hygiene"
       ],
-      "description": "Eight specialist reviewers (a generic reviewer plus idea quality, creativity, implementation correctness, completeness, code quality, data quality, and filesystem hygiene) run an identify → revise → re-review convergence loop. Advancement requires unanimous panel acceptance within a 3-round cap; otherwise the project is kicked back to a prior stage. Human and simulated-personality reviews are advisory inputs routed through stage-aware triage, never a direct gate.",
+      "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-651-grepseek-training-search-agents-for-dire",
@@ -10398,7 +10398,7 @@
         "paper_reviewer_figure_critic",
         "paper_reviewer_jargon_police"
       ],
-      "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) run an identify → revise → re-review convergence loop. Advancement requires unanimous acceptance from every reviewer within a 3-round cap; otherwise the paper is kicked back carrying full provenance.",
+      "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-651-grepseek-training-search-agents-for-dire",

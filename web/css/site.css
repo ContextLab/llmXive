@@ -795,9 +795,6 @@ a:hover { color: var(--accent-2); }
   left: 5%; right: 5%;
 }
 
-/* hidden machine-readable threshold spans */
-.thresholds { display: none; }
-
 /* card stage badge */
 .card .stage-pill {
   font-family: var(--mono); font-size: 10px;
