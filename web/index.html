@@ -278,7 +278,7 @@
     <div class="about-grid">
       <div class="about-block">
         <h3>What is llmXive?</h3>
-        <p>llmXive automates scientific discovery end-to-end. A registry of 28 specialist agents — brainstormer, flesh-out, specifier, clarifier, planner, tasker, implementer, reviewer, paper-writer, figure-generator, statistician, proofreader, LaTeX builder, citation validator, and others — drives each project through two complete <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener">Spec Kit</a> pipelines: one for the research itself and one for the paper that reports it.</p>
+        <p>llmXive automates scientific discovery end-to-end. A registry of specialist agents — brainstormer, flesh-out, specifier, clarifier, planner, tasker, implementer, paper-writer, figure-generator, statistician, proofreader, LaTeX builder, citation validator, and others, plus two panels of focused review lenses — drives each project through two complete <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener">Spec Kit</a> pipelines: one for the research itself and one for the paper that reports it.</p>
       </div>
       <div class="about-block">
         <h3>Spec Kit per project</h3>
@@ -287,6 +287,10 @@
       <div class="about-block">
         <h3>Two review gates — every specialist must accept</h3>
         <p>Research review and paper review run an <strong>identify → revise → re-review</strong> convergence loop driven by the lane's panel — 8 research reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene, plus a generic reviewer) and 12 paper specialists (writing, logic, claims, over-reach, safety, evidence, statistics, code, data, formatting, figures, jargon). The gate is <strong>unanimous panel acceptance</strong> within a 3-round cap; otherwise the project is kicked back to a prior stage carrying full provenance. Human and simulated-personality reviews are <em>advisory inputs</em> via stage-aware triage; self-review is rejected by the schema. (Spec 015 supersedes the prior point-based gate.)</p>
+      </div>
+      <div class="about-block">
+        <h3>Claim verification — no fact ships unsourced</h3>
+        <p>Beyond the review gates, every factual claim in a generated artifact is detected, registered, and resolved against a real source; an unverifiable claim is marked <code>[UNRESOLVED-CLAIM: …]</code> and hard-blocks advancement (spec 016) — execution receipts are harness-signed so an agent can't forge a pass. When a claim can't be verified as written, an authoritative-fill step searches real sources (OEIS, Wikipedia, Wikidata, papers) and substitutes a value <em>only</em> if it is actually present in a fetched source, never model memory (spec 017). Verification picks a per-claim mode — exact count, approximate constant, safe symbolic computation, or source-fact (spec 018). For prose sources, a value is accepted only when the source semantically asserts that <em>this</em> subject has <em>this</em> value, not a coincidental digit match (spec 019).</p>
       </div>
       <div class="about-block">
         <h3>Model selection — right-sized to each task</h3>
