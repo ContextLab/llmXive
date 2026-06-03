@@ -1,11 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-03T13:00:32.610629+00:00'
-last_outcome: committed
+last_used: alan-turing
+last_used_at: '2026-06-03T14:40:16.474262+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-24T20:21:56.361646+00:00'
-  ended_at: '2026-05-24T20:47:45.379237+00:00'
-  outcome: model_error
 - slug: john-von-neumann
   started_at: '2026-05-24T20:47:45.379237+00:00'
   ended_at: '2026-05-24T21:20:31.981491+00:00'
@@ -1219,3 +1215,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/reviews/research/ada-lovelace-simulated__2026-06-03__research.md
+- slug: alan-turing
+  started_at: '2026-06-03T13:00:32.610629+00:00'
+  ended_at: '2026-06-03T14:40:16.474262+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
