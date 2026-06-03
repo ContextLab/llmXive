@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 664,
     "ai_contributors": 7,
-    "human_contributors": 1070,
+    "human_contributors": 1075,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3512,
-    "total_contributors": 1077
+    "total_contributions": 3578,
+    "total_contributors": 1082
   },
   "contributors": [
     {
@@ -1053,7 +1053,39 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Andrew Chen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Dongrui Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Fancy Kong"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Jun Gao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Kaijie Chen"
     },
     {
       "areas": [
@@ -1063,6 +1095,22 @@
       "contribution_count": 3,
       "kind": "human",
       "name": "Lin Qu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Murphy Zhuang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Pony Ma"
     },
     {
       "areas": [
@@ -1080,7 +1128,31 @@
       ],
       "contribution_count": 3,
       "kind": "human",
+      "name": "Rio Yang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Song Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
       "name": "Song Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Sueky Zhang"
     },
     {
       "areas": [
@@ -1104,7 +1176,55 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Andrew Chen"
+      "name": "Aaron Guan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Ada Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Alexy Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Andrew Lei"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Anson Qiu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Anya Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Arthur Fu"
     },
     {
       "areas": [
@@ -1142,12 +1262,28 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Carrie Ye"
+    },
+    {
+      "areas": [
         "engineering",
         "linguistics"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Chang Zeng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Charles Huang"
     },
     {
       "areas": [
@@ -1167,12 +1303,36 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Cleon Cheng"
+    },
+    {
+      "areas": [
         "computer science",
         "linguistics"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Conghui He"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Danney Zeng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Di Zhang"
     },
     {
       "areas": [
@@ -1196,7 +1356,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Fancy Kong"
+      "name": "Hailee Hou"
     },
     {
       "areas": [
@@ -1237,7 +1397,31 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Hera Feng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Hongquan Gu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Hongzhou Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Huan Feng"
     },
     {
       "areas": [
@@ -1249,12 +1433,28 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Irvine Lu"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Jiaru Zou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Jiayi Lin"
     },
     {
       "areas": [
@@ -1287,7 +1487,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Jun Gao"
+      "name": "Josh Ying"
     },
     {
       "areas": [
@@ -1303,7 +1503,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Kaijie Chen"
+      "name": "Kairus Liu"
     },
     {
       "areas": [
@@ -1312,6 +1512,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Kaiwen Zheng"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Kaixuan Fan"
     },
     {
       "areas": [
@@ -1328,7 +1536,23 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Kieran Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Kun Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Kyrie Lei"
     },
     {
       "areas": [
@@ -1358,12 +1582,44 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Logan Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Lucian Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Maeve Luo"
+    },
+    {
+      "areas": [
         "computer science",
         "linguistics"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Maohua Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Maxwell Yao"
     },
     {
       "areas": [
@@ -1380,7 +1636,23 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Miles Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Min Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Mind Lab"
     },
     {
       "areas": [
@@ -1396,7 +1668,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Murphy Zhuang"
+      "name": "Mutian Hong"
     },
     {
       "areas": [
@@ -1404,7 +1676,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Pony Ma"
+      "name": "Nolan Ho"
     },
     {
       "areas": [
@@ -1412,7 +1684,55 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Rio Yang"
+      "name": "Nora Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Peixuan Hua"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Qiuyu Jin"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Ray Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Regis Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Ruijia Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Runze Lv"
     },
     {
       "areas": [
@@ -1454,15 +1774,7 @@
       ],
       "contribution_count": 2,
       "kind": "human",
-      "name": "Song Cao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 2,
-      "kind": "human",
-      "name": "Sueky Zhang"
+      "name": "Steven Chiang"
     },
     {
       "areas": [
@@ -1471,6 +1783,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Sung Ju Hwang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Theo Li"
     },
     {
       "areas": [
@@ -1512,6 +1832,54 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Verity Niu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Vic Cao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Vincent Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Wei Zhao"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Wenlin Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xiang Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Xiao Yang"
     },
     {
@@ -1541,6 +1909,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Xinyue Zhu"
+    },
+    {
+      "areas": [
         "linguistics",
         "other"
       ],
@@ -1564,6 +1940,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Xuying Ning"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Ya Zhang"
     },
     {
       "areas": [
@@ -1622,6 +2006,22 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Yuhan Zhan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Yuhua Zhou"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Yuyang Zhao"
     },
     {
@@ -1630,7 +2030,23 @@
       ],
       "contribution_count": 2,
       "kind": "human",
+      "name": "Yuyi Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
       "name": "Zhaowei Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Zhihui Li"
     },
     {
       "areas": [
@@ -1663,15 +2079,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Aaron Guan"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Ada Zhou"
+      "name": "Adrian Zhou"
     },
     {
       "areas": [
@@ -1707,14 +2115,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Alexy Li"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -1727,7 +2127,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Andrew Lei"
+      "name": "Allen Lin"
     },
     {
       "areas": [
@@ -1744,22 +2144,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Anil Madamala"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Anson Qiu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Anya Zhang"
     },
     {
       "areas": [
@@ -1800,14 +2184,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Arman Cohan"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Arthur Fu"
     },
     {
       "areas": [
@@ -2063,14 +2439,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Carrie Ye"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Ceyuan Yang"
     },
     {
@@ -2144,14 +2512,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Chaoyi Huang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Charles Huang"
     },
     {
       "areas": [
@@ -2359,14 +2719,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Cleon Cheng"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Cong Huang"
     },
     {
@@ -2448,14 +2800,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Daniil Plyusov"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Danney Zeng"
     },
     {
       "areas": [
@@ -2560,14 +2904,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Di Chen"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Di Zhang"
     },
     {
       "areas": [
@@ -3143,14 +3479,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Hailee Hou"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Hailong Guo"
     },
     {
@@ -3539,14 +3867,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Hera Feng"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -3599,14 +3919,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Hongquan Gu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Hongru Hou"
     },
     {
@@ -3632,14 +3944,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Huajun Chen"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Huan Feng"
     },
     {
       "areas": [
@@ -3712,14 +4016,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Igor Gilitschenski"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Irvine Lu"
     },
     {
       "areas": [
@@ -4031,14 +4327,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Jiayi Lin"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Jiayi Song"
     },
     {
@@ -4335,14 +4623,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Josh Ying"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Juan Kaplan"
     },
     {
@@ -4559,23 +4839,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Kairus Liu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Kaiwen Luo"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Kaixuan Fan"
     },
     {
       "areas": [
@@ -4683,14 +4947,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Kieran Liu"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -4720,14 +4976,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Kyoungjin Oh"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Kyrie Lei"
     },
     {
       "areas": [
@@ -5035,14 +5283,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Logan Liu"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -5056,14 +5296,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Lu Feng"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Lucian Li"
     },
     {
       "areas": [
@@ -5128,14 +5360,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Madeeswaran Kannan"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Maeve Luo"
     },
     {
       "areas": [
@@ -5207,14 +5431,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Maxwell Yao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Mengmeng Wang"
     },
     {
@@ -5279,14 +5495,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Miles Jiang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Min Qiu"
     },
     {
@@ -5296,14 +5504,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Min Xu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Mind Lab"
     },
     {
       "areas": [
@@ -5435,14 +5635,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Mutian Hong"
-    },
-    {
-      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -5519,22 +5711,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Nolan Ho"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Nora Jiang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Oluwanifemi Bamgbose"
     },
     {
@@ -5592,14 +5768,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Peilin Li"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Peixuan Hua"
     },
     {
       "areas": [
@@ -5895,14 +6063,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Qiuyu Jin"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Qiuyue Wang"
     },
     {
@@ -5971,27 +6131,11 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Ray Li"
-    },
-    {
-      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
       "kind": "human",
       "name": "Razieh Rahimi"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Regis Ye"
     },
     {
       "areas": [
@@ -6119,14 +6263,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Ruijia Zhang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Ruilin Zhang"
     },
     {
@@ -6184,14 +6320,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Runze Li"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Runze Lv"
     },
     {
       "areas": [
@@ -6408,6 +6536,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Shilong Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Shiyang Zhang"
     },
     {
       "areas": [
@@ -6691,14 +6827,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Steven Chiang"
-    },
-    {
-      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -6752,14 +6880,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tat-Seng Chua"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Theo Li"
     },
     {
       "areas": [
@@ -6911,23 +7031,7 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Verity Niu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Vic Cao"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Vincent Wang"
+      "name": "Vin Bo"
     },
     {
       "areas": [
@@ -6976,14 +7080,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wei Wu"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Wei Zhao"
     },
     {
       "areas": [
@@ -7147,6 +7243,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenhao Li"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -7176,14 +7280,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wenjun Pan"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Wenlin Ye"
     },
     {
       "areas": [
@@ -7280,14 +7376,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xiang Cheng"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Xiang Liu"
     },
     {
       "areas": [
@@ -7667,14 +7755,6 @@
     },
     {
       "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Xinyue Zhu"
-    },
-    {
-      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -7840,14 +7920,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xuyi Yang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Ya Zhang"
     },
     {
       "areas": [
@@ -8695,14 +8767,6 @@
       ],
       "contribution_count": 1,
       "kind": "human",
-      "name": "Yuhan Zhan"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
       "name": "Yuhao Dong"
     },
     {
@@ -8728,14 +8792,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuhe Yin"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Yuhua Zhou"
     },
     {
       "areas": [
@@ -8976,14 +9032,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yuxuan Tian"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Yuyi Jiang"
     },
     {
       "areas": [
@@ -9288,14 +9336,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zhiheng Xi"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Zhihui Li"
     },
     {
       "areas": [
@@ -9634,7 +9674,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-03T17:41:44.110154+00:00",
+  "generated_at": "2026-06-03T17:45:01.666594+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -9872,6 +9912,11 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -9885,11 +9930,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -9916,6 +9956,11 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -9924,11 +9969,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -9960,6 +10000,11 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -9968,11 +10013,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10004,6 +10044,11 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10012,11 +10057,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10047,6 +10087,11 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10055,11 +10100,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10090,6 +10130,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10098,11 +10143,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10136,6 +10176,11 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10144,11 +10189,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10188,6 +10228,11 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10196,11 +10241,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10232,6 +10272,11 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10240,11 +10285,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10275,6 +10315,11 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10283,11 +10328,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10319,6 +10359,11 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10327,11 +10372,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10362,6 +10402,11 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10370,11 +10415,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10413,6 +10453,11 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10421,11 +10466,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10459,6 +10499,11 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10467,11 +10512,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -10514,6 +10554,11 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
+          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
+          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
           "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
           "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
@@ -10522,11 +10567,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "https://arxiv.org/abs/2606.02437"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
@@ -84023,7 +84063,536 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mind Lab",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vin Bo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Song Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vic Cao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaijie Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Cleon Cheng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Steven Chiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kaixuan Fan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hera Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Huan Feng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Arthur Fu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jun Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hongquan Gu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Aaron Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nolan Ho",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Mutian Hong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Hailee Hou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Peixuan Hua",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Charles Huang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Miles Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nora Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuyi Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qiuyu Jin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Fancy Kong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Andrew Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kyrie Lei",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Alexy Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lucian Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ray Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Theo Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenhao Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhihui Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Allen Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jiayi Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kairus Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Kieran Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Logan Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xiang Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Irvine Lu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maeve Luo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Runze Lv",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pony Ma",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Verity Niu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anson Qiu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Vincent Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Rio Yang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Maxwell Yao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Carrie Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Regis Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenlin Ye",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Josh Ying",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Danney Zeng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhan Zhan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Anya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Di Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ruijia Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Shiyang Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sueky Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ya Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wei Zhao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ada Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Adrian Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuhua Zhou",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinyue Zhu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Murphy Zhuang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -84038,8 +84607,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.02437 Submitted by: github-actions[bot] (Intake from human-submission issue #266.)",
-      "field": "other",
+      "description": "Parameter-efficient fine-tuning (PEFT) is usually treated as a cheaper alternative to full fine-tuning. We study a broader role: small trainable adapters as persistent local state on top of strong shared foundation models. In this framing, the base model provides shared competence while adapters carry\u2026",
+      "field": "computer science",
       "id": "PROJ-655-https-arxiv-org-abs-2606-02437",
       "keywords": [],
       "last_run_log": [
@@ -84061,8 +84630,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2606.02437",
-      "updated_at": "2026-06-03T09:39:48.658752+00:00",
+      "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters",
+      "updated_at": "2026-06-03T17:42:57.807565+00:00",
       "upstream_feedback": null
     },
     {
