@@ -47,4 +47,7 @@ ready:
 - project_id: PROJ-612-a-survey-of-large-audio-language-models
   revision_spec_path: specs/auto-revisions/PROJ-612-a-survey-of-large-audio-language-models/round-1
   queued_at: '2026-06-03T05:19:01.855323+00:00'
+- project_id: PROJ-629-macaron-a2ui-a-model-for-generative-ui-i
+  revision_spec_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-1
+  queued_at: '2026-06-03T06:29:52.149916+00:00'
 blocked: []
