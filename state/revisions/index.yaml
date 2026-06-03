@@ -62,4 +62,7 @@ ready:
 - project_id: PROJ-636-locateanything-fast-and-high-quality-vis
   revision_spec_path: specs/auto-revisions/PROJ-636-locateanything-fast-and-high-quality-vis/round-1
   queued_at: '2026-06-03T13:57:41.414248+00:00'
+- project_id: PROJ-612-a-survey-of-large-audio-language-models
+  revision_spec_path: specs/auto-revisions/PROJ-612-a-survey-of-large-audio-language-models/round-1
+  queued_at: '2026-06-03T17:00:27.186747+00:00'
 blocked: []

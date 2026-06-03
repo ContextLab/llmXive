@@ -21,13 +21,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-03T05:14:17.515913Z'
+reviewed_at: '2026-06-03T16:50:56.813181Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_statistical_analysis
 score: 0.0
-verdict: minor_revision
+verdict: major_revision_science
 ---
 
-This survey aggregates quantitative findings from numerous benchmarks, yet lacks statistical rigor in reporting these figures. In Section 5.1.2, specific performance metrics (e.g., 63.19 F1 on BRACE-Hallucination) are presented as point estimates without confidence intervals, standard deviations, or sample sizes. This obscures the reliability and variance of the underlying evaluations. Similarly, in Section 5.3.1, the claim that audio attacks achieve higher success rates than text (21.5% vs 17.0%) lacks statistical significance testing. Without p-values or power analysis, it is unclear if this difference is robust or due to random variation.
+The current revision has not adequately addressed the statistical rigor concerns raised in the previous review. The survey continues to aggregate quantitative findings from numerous benchmarks without applying necessary statistical controls, which undermines the reliability of its comparative claims.
 
-Table 3 aggregates benchmarks using heterogeneous metrics (WER, METEOR, Accuracy, LLM-as-a-Judge). The survey does not discuss how these metrics are normalized or compared, which risks invalid cross-benchmark conclusions. For a survey claiming "Systematic Investigation," the statistical synthesis of evidence must be explicit. I recommend adding a limitations subsection discussing the lack of uncertainty quantification in the cited literature and qualifying comparative claims accordingly.
+First, regarding uncertainty quantification (Item `fea777a986db`), Section 5.1.2 still reports the BRACE benchmark result as a single point estimate ("63.19 F1") without accompanying confidence intervals or standard deviations. Given the variability inherent in LALM evaluations, presenting a point estimate as an absolute truth is misleading. The authors must report the variance or confidence intervals for all benchmark metrics to allow readers to assess the stability of the reported performance.
+
+Second, comparative claims lack statistical validation (Item `c8f8eefc9f1d`). In Section 5.3.1, the text asserts that audio attacks achieve higher success rates than text (21.5% vs. 17.0%) based on JALMBench. However, no statistical significance tests (e.g., t-tests or chi-square tests) are provided to validate whether this 4.5% difference is statistically significant or due to random chance. Comparative claims in a survey must be backed by significance testing to support the conclusion that one modality is inherently more vulnerable than the other.
+
+Third, the evaluation summary table (Table `tab:audiollm_eval_summary`) continues to mix heterogeneous metrics (WER, Accuracy, LLM-as-a-Judge, ASR) without addressing comparability limitations (Item `ce52ed9fbc73`). Aggregating or comparing results across these different metric types requires normalization or a discussion of their distinct scales and interpretations. Without this, readers cannot meaningfully compare the performance of models evaluated on different benchmarks.
+
+Please revise the manuscript to include uncertainty measures, significance tests for key comparisons, and a discussion on metric heterogeneity in the evaluation section. These changes are essential to establish the scientific validity of the survey's conclusions.

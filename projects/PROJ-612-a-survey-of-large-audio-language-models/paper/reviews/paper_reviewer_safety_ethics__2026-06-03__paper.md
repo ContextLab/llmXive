@@ -17,11 +17,17 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-03T05:11:57.843717Z'
+reviewed_at: '2026-06-03T16:48:09.908824Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_safety_ethics
 score: 0.0
 verdict: minor_revision
 ---
 
-The survey provides a comprehensive taxonomy of LALM trustworthiness, specifically addressing safety, privacy, and fairness in Sections 5.3 and 5.3.2. The identification of risks like acoustic backdoors and biometric leakage is valuable for the community. However, the manuscript lacks an explicit Ethical Considerations statement. Given the detailed discussion of attack vectors (Sec 5.3.1, e.g., `AudioJailbreak`, `AudioSafe`), a statement on responsible disclosure and the dual-use implications of summarizing these vulnerabilities is necessary to prevent misuse. Additionally, while inference privacy is covered extensively (e.g., `HearSay` benchmark in Sec 5.3.2), the ethical implications of training data consent and provenance for the surveyed models are not addressed. For a survey focused on trustworthiness, acknowledging the data ethics of the underlying models is critical. Finally, the proposed 'Defense-in-Depth' roadmap (Abstract, Sec 5.4) should explicitly mention compliance with relevant privacy regulations (e.g., GDPR) regarding voice biometrics. Please add these sections to ensure the work aligns with broader AI safety ethics standards and mitigates potential harm from the dissemination of attack methodologies.
+This re-review confirms that the two critical safety and ethics action items from the previous iteration remain unaddressed in the current manuscript. While the survey provides a comprehensive taxonomy of LALM trustworthiness, it lacks the necessary meta-ethical framing required for security-focused publications.
+
+First, regarding **Action Item `ba339eaa4e05`**, the manuscript extensively catalogs offensive techniques (e.g., Jailbreaks in Sec 5.3.1, Backdoors in Sec 5.3.1) without a corresponding ethical disclaimer. The Introduction (e001, e003) and Conclusion (e000, e001) discuss safety gaps but do not explicitly acknowledge the dual-use risk inherent in summarizing these attack vectors. A standard Ethical Considerations statement is required to affirm a commitment to responsible disclosure and to mitigate the risk of the survey itself serving as an attack manual.
+
+Second, regarding **Action Item `32361ad3541a`**, Section 5.3.2 (Privacy, Fairness, and Authentication) in e002 and e003 remains focused on inference-time privacy leakage (e.g., HearSay, AGL1K benchmarks). It does not address the provenance ethics of the training datasets used by the surveyed models (e.g., SpeechGPT, Qwen-Audio). Given the sensitivity of audio data (voiceprints, biometric info), the survey must discuss whether the underlying training corpora obtained consent, adhering to data privacy regulations. This omission limits the paper's ethical completeness.
+
+Please address these writing-level concerns to ensure the manuscript meets safety publication standards.

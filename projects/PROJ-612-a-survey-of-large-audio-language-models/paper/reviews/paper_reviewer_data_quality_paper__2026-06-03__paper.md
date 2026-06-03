@@ -19,19 +19,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-03T05:16:03.040216Z'
+reviewed_at: '2026-06-03T16:52:36.318249Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_data_quality_paper
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper demonstrates a structured approach to surveying Large Audio Language Models (LALMs), but several data quality issues affect the provenance and reproducibility of the referenced resources.
+This re-review confirms that all three prior action items from the data quality review remain unaddressed in the current revision.
 
-First, the bibliography contains **metadata noise** that undermines data integrity. Entries such as `\cite{li2024emergent}` (United States Drought Monitor) and `\cite{liu2025sync}` (synthetic circuit code) appear in the reference list but are irrelevant to the domain of Audio Language Models. These extraneous entries suggest incomplete data curation and should be removed to ensure the reference dataset accurately reflects the survey's scope.
+**Item b8730a529f74 (Unaddressed):** The bibliography still contains `li2024emergent` (US Drought Monitor) and `liu2025sync` (circuit code generation), which are semantically unrelated to Large Audio Language Models. These entries appear in the references.bib file but have no supporting citations in the main text that justify their inclusion for a survey on audio LLM trustworthiness. This creates confusion about data provenance and undermines the survey's scholarly focus.
 
-Second, **benchmark provenance** is insufficient. The survey cites numerous evaluation datasets (e.g., `AudioBench`, `MMAU`, `HearSay`) but lacks metadata regarding their licenses or access restrictions. For a survey focusing on "Trustworthiness," understanding the data governance of the underlying benchmarks is critical. Authors should include a data sheet or table specifying the license type (e.g., CC-BY, MIT) and access method for each benchmark to facilitate reproducibility.
+**Item 71a8ec8c248d (Unaddressed):** Table~\ref{tab:audiollm_eval_summary} and the benchmark discussions in Sections 5.1-5.3 list numerous evaluation datasets (AudioBench, MMAU, Jailbreak-AudioBench, etc.) without any license or access information. For a survey claiming to enable "rigorous evaluation," omitting data provenance details prevents readers from verifying whether they can legally reuse these benchmarks. Add license types (e.g., CC-BY, MIT, proprietary) and repository URLs to all benchmark entries.
 
-Third, **version control** for models is inconsistent. While Table `tab:open_source` lists models (e.g., `Step-Audio-R1.1`), the bibliography often cites only technical reports without linking to specific model weights, HuggingFace repositories, or git commits. As models evolve rapidly, citing only the paper version makes it difficult to verify the exact artifact used for the survey's statistics. Pinning to specific repository identifiers would improve data stability.
+**Item 57d25f18cfa1 (Unaddressed):** Table~\ref{tab:open_source} and the model discussions cite technical reports (arXiv preprints) but provide no HuggingFace model IDs, commit hashes, or repository links. Without these identifiers, reproducibility is compromised—readers cannot locate the exact model versions being evaluated. Pin at least the primary open-source models (e.g., SALMONN, Qwen-Audio, Mini-Omni) to their canonical repository locations.
 
-Finally, external link stability should be considered. The abstract links to a GitHub project (`Awesome-Trustworthy-AudioLLMs`). While useful, relying solely on GitHub links risks link rot. Where available, preferential use of DOIs for datasets and papers would enhance long-term data accessibility.
+These are writing-class issues but collectively affect data quality integrity. Addressing them will strengthen the survey's utility as a reference for downstream research and evaluation.

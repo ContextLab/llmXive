@@ -19,19 +19,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-03T05:13:19.451827Z'
+reviewed_at: '2026-06-03T16:49:39.073526Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_scientific_evidence
 score: 0.0
-verdict: minor_revision
+verdict: major_revision_science
 ---
 
-This survey addresses a critical domain but lacks methodological rigor in its evidence synthesis, limiting the robustness of its central claims. As a survey, the primary scientific evidence is the aggregated literature, yet the selection and reporting of this evidence require stricter standards.
+This re-review confirms that the three prior action items from my initial scientific_evidence review remain unaddressed in the current revision. The manuscript continues to rely on qualitative synthesis without the methodological rigor required to substantiate its central claims about the "Offense vs Defense" asymmetry.
 
-First, the central claim regarding the "asymmetry of offense and defense" (Sec 5.3, Sec 6) relies on a qualitative assessment rather than a quantitative meta-analysis. Without a systematic review protocol (e.g., PRISMA) detailing search strings, inclusion/exclusion criteria, and a flow diagram of paper selection, there is a high risk of selection bias. The authors may be cherry-picking benchmarks that support the "offense maturity" narrative while omitting defensive studies that are harder to categorize.
+First, regarding the systematic review protocol (ID: 46465a5ef8d6), the Introduction and Evaluation sections (Sec 1, Sec 5) still lack a PRISMA flow diagram or explicit inclusion/exclusion criteria for the surveyed literature. Without this, the claim that offensive research is "mature" while defenses are "rudimentary" (Sec 4.3.1) risks selection bias, as the survey may overrepresent high-profile attack papers while undercounting defensive works.
 
-Second, several key statistical claims lack necessary context for evaluating their reliability. For instance, Section 5.3.1 states "audio attacks achieve higher success rates than text (21.5% vs 17.0%)" citing JALMBench. The text does not report the sample size (N) of these attacks, the variance across models, or confidence intervals. A difference of 4.5 percentage points may not be statistically significant without this information. Similarly, Section 5.2.1 cites "36,000 instances" for ChronosAudio, which is robust, but the claim that "some tasks dropping by over 90%" lacks specificity on which tasks and the distribution of that drop.
+Second, statistical robustness (ID: b9dc0ba8866c) remains insufficient. Section 5.3.1 reports specific attack success rates (e.g., JALMBench 21.5%, AudioJailbreak ~100%) but does not provide the sample sizes (N) or confidence intervals for these metrics. For instance, while "BiasInEar" mentions 11,200 questions (Sec 5.3.2), the jailbreak benchmarks cited in 5.3.1 lack denominator data, making it impossible to assess the variance or significance of the reported differences between audio and text attacks.
 
-Third, the reliance on future-dated citations (e.g., 2026 papers in a 2026 arXiv submission) introduces a verification challenge. While internally consistent, the scientific evidence base depends on preprints or works not yet peer-reviewed. The survey should explicitly state the peer-review status of the cited benchmarks to contextualize the evidence strength.
+Third, benchmark selection bias (ID: 1b0ce7e54c77) is not discussed. Table 1 and Table 2 list numerous benchmarks, but the text does not justify why specific datasets were selected for the trustworthiness taxonomy over others. The "Lack of Standardized Benchmarks" acknowledgment (Sec 4.3.1) admits the problem but does not mitigate the bias in the survey's own selection of evidence.
 
-Finally, the taxonomy (Sec 3) groups benchmarks into six pillars. The evidence supporting the completeness of this taxonomy is missing. A quantitative analysis of how many papers fall into each pillar would strengthen the claim that the taxonomy is representative rather than illustrative. To ensure the survey's conclusions are robust to alternative explanations (e.g., publication bias), the methodology must be transparent and the statistics contextualized.
+To proceed, the authors must document their paper selection process, provide statistical context (N, CI) for all quantitative claims, and explicitly justify their benchmark choices to ensure the evidence synthesis is robust and reproducible.

@@ -113,3 +113,161 @@ rounds:
     text: Improve paragraph cohesion in dense technical summaries (e.g., Abstract,
       Sec. 5.1). Some sentences are overly dense and reduce readability.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-03T17:00:27.160133+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: eb4c78d4949c
+    text: Remove duplicate Introduction content appearing in e000, e001, e003 with
+      inconsistent wording
+    severity: writing
+  - id: 96a073fdd499
+    text: Consolidate Evaluation section appearing in multiple locations (e000, e002)
+      into single coherent chapter
+    severity: writing
+  - id: afcfb709ddaa
+    text: Verify all 2025-2026 citations are legitimate published works, not hypothetical
+      preprints
+    severity: science
+  - id: ac56cf5917f1
+    text: Standardize table formatting across benchmark summary tables (tab:audiollm_eval_summary
+      appears twice)
+    severity: writing
+  - id: d2dea9ea2682
+    text: Resolve figure reference inconsistencies (fig:1, fig:2 referenced in text
+      but placement unclear)
+    severity: writing
+  - id: 42399c0a5c63
+    text: Remove redundant Taxonomy section that repeats Safety Challenges content
+    severity: writing
+  - id: 74db087ff50f
+    text: The bibliography remains incomplete. Critical benchmark papers cited in
+      the text (wang2025audiobench, peng2025jalmbench, luo2026chronosaudio, zhao2026halluaudiocomprehensivebenchmarkhallucination)
+      are missing from references.bib, making factual claims unverifiable.
+    severity: science
+  - id: 25eb45312679
+    text: Verify specific quantitative claims (63.19 F1 on BRACE-Hallucination in
+      Sec 5.1.2, 21.5% vs 17.0% success rates in Sec 5.3.1) match the actual content
+      of the source papers once references are added.
+    severity: science
+  - id: 0f3d9eeffe27
+    text: Ensure all citation keys follow a consistent naming convention and are fully
+      resolved in the final bibliography.
+    severity: writing
+  - id: e140aa36882d
+    text: Resolve multiple \documentclass declarations found in concatenated chunks
+      (e000 vs main block). Valid LaTeX requires a single preamble.
+    severity: writing
+  - id: 1e4bc5ea2a62
+    text: Remove duplicate section content (Introduction, Evaluation, Taxonomy) appearing
+      across chunks e000-e003 and the main block. Ensure modular \input usage.
+    severity: writing
+  - id: ac20ecfaaa33
+    text: Audit external dependencies like \includepdf for abstract.pdf. Ensure all
+      assets are version-controlled for reproducibility.
+    severity: writing
+  - id: b8730a529f74
+    text: Remove irrelevant bibliography entries (e.g., li2024emergent on US Drought
+      Monitor, liu2025sync on circuit code) that do not support the paper's data claims.
+    severity: writing
+  - id: 71a8ec8c248d
+    text: Add license/access information for all cited benchmarks (e.g., AudioBench,
+      MMAU) to clarify data provenance and reuse permissions.
+    severity: writing
+  - id: 57d25f18cfa1
+    text: Pin specific model versions to repository commits or HuggingFace IDs for
+      reproducibility, rather than citing only technical reports.
+    severity: writing
+  - id: fa9c04315c84
+    text: Resolve duplicate figure label definitions (e.g., fig:5, fig:2) appearing
+      in multiple LaTeX chunks to ensure compilation.
+    severity: writing
+  - id: 9f085379e00d
+    text: Convert raster PNG figures (e.g., audio_trust.png, safety.png) to vector
+      PDF/EPS formats to maintain legibility at print scale.
+    severity: writing
+  - id: 8d1b741e410a
+    text: Standardize image file paths in LaTeX (figure/ vs allm_survey/figure/) to
+      prevent compilation errors.
+    severity: writing
+  - id: 78c92280785e
+    text: Define all acronyms (ASR, CoT, RLHF) at first use; CoT appears in e000 Sec
+      5.1.1 before definition in e001.
+    severity: writing
+  - id: '622299607061'
+    text: Replace or explain coined terms like 'Structural Attention Dilution' and
+      'Restorative Ceiling' with plain English descriptions.
+    severity: writing
+  - id: 672903a86153
+    text: Simplify abstract jargon ('endogenous mechanisms', 'continuous acoustic
+      signal integration') to improve accessibility for non-specialists.
+    severity: writing
+  - id: ed40119f18fd
+    text: Generalize benchmark findings (e.g., ChronosAudio) to the entire LALM class
+      without qualification in Sec 5.2. Use 'many models' or 'studies suggest'.
+    severity: writing
+  - id: e9aa447408b1
+    text: Claim 'universal auditory intelligence' in Abstract/Intro as a current state
+      rather than a future goal. Current evidence shows significant hallucination/robustness
+      gaps.
+    severity: writing
+  - id: bc22319630e9
+    text: Characterize offensive research as 'mature' in Abstract. Evidence suggests
+      rapid growth but 'mature' implies stability not yet demonstrated in the field.
+    severity: writing
+  - id: ba339eaa4e05
+    text: Add an explicit Ethical Considerations statement in the Introduction or
+      Conclusion addressing the dual-use nature of summarizing attack vectors and
+      the commitment to responsible disclosure.
+    severity: writing
+  - id: 32361ad3541a
+    text: Expand the Privacy section (Sec 5.3.2) to discuss data consent and provenance
+      ethics for the training datasets of the surveyed models, not just inference-time
+      leakage.
+    severity: writing
+  - id: 46465a5ef8d6
+    text: Include a systematic review protocol (e.g., PRISMA flow) describing paper
+      selection criteria to mitigate selection bias in the 'Offense vs Defense' claim.
+    severity: science
+  - id: b9dc0ba8866c
+    text: Report sample sizes (N) and confidence intervals for key quantitative claims
+      (e.g., Sec 5.3.1 attack success rates) to assess statistical robustness.
+    severity: science
+  - id: 1b0ce7e54c77
+    text: Discuss potential benchmark selection bias; explicitly justify why specific
+      benchmarks were chosen over others for the trustworthiness taxonomy.
+    severity: science
+  - id: fea777a986db
+    text: Report confidence intervals or standard deviations for benchmark metrics
+      (e.g., 63.19 F1 in Sec 5.1.2) to quantify uncertainty rather than presenting
+      point estimates as absolute truths.
+    severity: science
+  - id: c8f8eefc9f1d
+    text: Provide statistical significance tests (p-values) for comparative claims,
+      such as the 21.5% vs 17.0% attack success rate difference in Sec 5.3.1, to validate
+      the observed gap.
+    severity: science
+  - id: ce52ed9fbc73
+    text: Address metric heterogeneity in Table 3 (e.g., mixing WER, Accuracy, LLM-as-a-Judge)
+      by discussing normalization or comparability limitations before aggregating
+      results.
+    severity: science
+  - id: b4b030d9295f
+    text: 'Major structural reordering required: ''Outlook and Conclusion'' appears
+      before ''Introduction'' in the source (e000 vs e002). Standard academic flow
+      must be restored.'
+    severity: writing
+  - id: 8f3f447669c7
+    text: 'Duplicate sections detected: ''Evaluation'', ''Endogenous Mechanisms'',
+      and ''Outlook'' are defined multiple times across chunks (e000, e002, e003).
+      Consolidate into single definitions.'
+    severity: writing
+  - id: 2f9802facfb0
+    text: Citation formatting inconsistencies found (e.g., '\cite {ouyang2022training}'
+      in e002). Standardize to '\cite{...}' without spaces.
+    severity: writing
+  - id: 1cf2a41430b7
+    text: Improve paragraph cohesion in dense technical summaries (e.g., Abstract,
+      Sec. 5.1). Some sentences are overly dense and reduce readability.
+    severity: writing
