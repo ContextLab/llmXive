@@ -1,10 +1,17 @@
 {
   "arxiv_id": "2605.28556",
   "arxiv_url": "https://arxiv.org/abs/2605.28556",
-  "title": "https://arxiv.org/abs/2605.28556",
-  "authors": [],
+  "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks",
+  "authors": [
+    "Tomer Keren",
+    "Nitay Calderon",
+    "Asaf Yehudai",
+    "Yotam Perlitz",
+    "Michal Shmueli-Scheuer",
+    "Roi Reichart"
+  ],
   "submitter": "github-actions[bot]",
-  "abstract": null,
+  "abstract": "As agent capabilities advance, existing benchmarks, such as $\u03c4^2$-Bench, are becoming increasingly saturated. Yet constructing new benchmark tasks remains complex, costly, and labor-intensive. Moreover, the standard approach, in which scenarios are first written in natural language and then mapped to tool sequences, captures only a narrow subset of the tool-use patterns agents exercise. In this paper, we address these problems by reversing the task construction process. We propose TASTE: Task Synthesis from Tool Sequence Evolution, an automatic method that generates challenging tasks with broader tool-use coverage. TASTE utilizes an Adaptive Contrastive $n$-gram model trained on LLM-judged validity signals. This enables sampling valid tool sequences that cover a vast range of tool combinations. TASTE then selects representative sequences from the pool via clustering, instantiates them into complete benchmark tasks, and refines them through iterative difficulty evolution. Using TASTE, we construct $\u03c4^c$-Bench, a challenging extension of the three domains of $\u03c4^2$-Bench. We evaluate $11$ agent/user LLM pairs and find that models nearly saturating $\u03c4^2$-Bench suffer severe performance drops on our tasks (e.g., Gemini-3-Flash falls from $0.82\\!-\\!0.94$ to $0.28\\!-\\!0.61$). Beyond increasing difficulty, our generated tasks more than double the number of unique tool combinations agents must execute. Our results suggest high scores on existing benchmarks often reflect saturation rather than robust task-solving ability. By automating the generation of difficult, high-coverage benchmarks, TASTE enables continuous, scalable evaluation of future agents.",
   "submitted_via": "llmXive dashboard, GitHub issue #268",
   "license": "arXiv Non-exclusive Distribution License",
   "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",

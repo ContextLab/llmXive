@@ -937,11 +937,11 @@
   "aggregates": {
     "active_projects": 664,
     "ai_contributors": 7,
-    "human_contributors": 1075,
+    "human_contributors": 1086,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3578,
-    "total_contributors": 1082
+    "total_contributions": 3591,
+    "total_contributors": 1093
   },
   "contributors": [
     {
@@ -1556,6 +1556,15 @@
     },
     {
       "areas": [
+        "computer science",
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Lei Zhang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
@@ -1717,6 +1726,14 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "Regis Ye"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Roi Reichart"
     },
     {
       "areas": [
@@ -2184,6 +2201,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Arman Cohan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Asaf Yehudai"
     },
     {
       "areas": [
@@ -3743,6 +3768,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Haoxiang Zhang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Haoyan Yang"
     },
     {
@@ -4643,6 +4676,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Julian McAuley"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -5032,14 +5073,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Lei Yang"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Lei Zhang"
     },
     {
       "areas": [
@@ -5487,6 +5520,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Michal Shmueli-Scheuer"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Mike Zheng Shou"
     },
     {
@@ -5711,6 +5752,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Nitay Calderon"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Oluwanifemi Bamgbose"
     },
     {
@@ -5816,6 +5865,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Peng Ye"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pengcheng Jiang"
     },
     {
       "areas": [
@@ -6075,6 +6132,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Qixin Xu"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -6152,14 +6217,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Rohan Kumar Das"
-    },
-    {
-      "areas": [
-        "computer science"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Roi Reichart"
     },
     {
       "areas": [
@@ -7000,6 +7057,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Tinghui Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Tomer Keren"
     },
     {
       "areas": [
@@ -8503,6 +8568,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yotam Perlitz"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Youliang Zhang"
     },
     {
@@ -8552,6 +8625,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yu Wu"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yu Zhang"
     },
     {
       "areas": [
@@ -9467,6 +9548,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhuofeng Li"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -9674,7 +9763,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-03T18:30:47.311265+00:00",
+  "generated_at": "2026-06-03T19:23:35.966669+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -9912,6 +10001,16 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -9925,16 +10024,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
           "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
           "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
         }
       ],
       "inputs": [
@@ -9956,6 +10045,16 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -9969,16 +10068,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10000,6 +10089,16 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10013,16 +10112,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10044,6 +10133,16 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10057,16 +10156,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10087,6 +10176,16 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10100,16 +10199,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10130,6 +10219,16 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10143,16 +10242,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10176,6 +10265,16 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10189,16 +10288,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10228,6 +10317,16 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10241,16 +10340,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10272,6 +10361,16 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10285,16 +10384,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10315,6 +10404,16 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10328,16 +10427,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10359,6 +10448,16 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10372,16 +10471,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10402,6 +10491,16 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10415,16 +10514,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10453,6 +10542,16 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10466,16 +10565,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10499,6 +10588,16 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10512,16 +10611,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -10554,6 +10643,16 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
+          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
+          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
           "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
           "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
@@ -10567,16 +10666,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
           "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "https://arxiv.org/abs/2605.28556"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "https://arxiv.org/abs/2606.00408"
         }
       ],
       "inputs": [
@@ -83828,7 +83917,64 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoxiang Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Qixin Xu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhuofeng Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Lei Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pengcheng Jiang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Julian McAuley",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -83843,8 +83989,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.00408 Submitted by: github-actions[bot] (Intake from human-submission issue #269.)",
-      "field": "other",
+      "description": "Long-horizon search agents accumulate large amounts of retrieved content across many tool calls, making context-budget efficiency increasingly important. A minimal intervention is to mask stale observations from the context as the trajectory progresses, but it remains unclear when this form of context management helps\u2026",
+      "field": "linguistics",
       "id": "PROJ-652-https-arxiv-org-abs-2606-00408",
       "keywords": [],
       "last_run_log": [
@@ -83866,8 +84012,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2606.00408",
-      "updated_at": "2026-06-03T09:39:10.168843+00:00",
+      "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism",
+      "updated_at": "2026-06-03T19:21:37.398879+00:00",
       "upstream_feedback": null
     },
     {
@@ -83890,7 +84036,56 @@
         "spec": null,
         "tasks": null
       },
-      "authors": [],
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Tomer Keren",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nitay Calderon",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Asaf Yehudai",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yotam Perlitz",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Michal Shmueli-Scheuer",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Roi Reichart",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
       "citation_summary": {
         "mismatch": 0,
         "pending": 0,
@@ -83905,8 +84100,8 @@
         "type": "pdf"
       },
       "current_stage": "paper_review",
-      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28556 Submitted by: github-actions[bot] (Intake from human-submission issue #268.)",
-      "field": "other",
+      "description": "As agent capabilities advance, existing benchmarks, such as $\u03c4^2$-Bench, are becoming increasingly saturated. Yet constructing new benchmark tasks remains complex, costly, and labor-intensive. Moreover, the standard approach, in which scenarios are first written in natural language and then mapped to tool sequences,\u2026",
+      "field": "computer science",
       "id": "PROJ-653-https-arxiv-org-abs-2605-28556",
       "keywords": [],
       "last_run_log": [
@@ -83928,8 +84123,8 @@
       "speckit_paper_dir": null,
       "speckit_research_dir": null,
       "submitter": "github-actions[bot]",
-      "title": "https://arxiv.org/abs/2605.28556",
-      "updated_at": "2026-06-03T09:39:13.023673+00:00",
+      "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks",
+      "updated_at": "2026-06-03T19:21:37.651717+00:00",
       "upstream_feedback": null
     },
     {
