@@ -146,3 +146,155 @@ rounds:
     text: Split the long sentence in the Abstract (lines 10-15) describing extensive
       experiments into two sentences to reduce cognitive load for readers.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-03T01:10:35.932827+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 2168843c4583
+    text: Clarify the 'first' claim in Abstract/Intro to account for concurrent work
+      TMD (Section 2) which also studies flow map distillation for video, distinguishing
+      the specific 'backward simulation' novelty.
+    severity: writing
+  - id: 60b85e2ab97c
+    text: Code artifacts are not provided for review. The paper claims code is released
+      at https://github.com/NVLabs/AnyFlow but no repository or implementation files
+      are available in the review package. This prevents evaluation of code quality,
+      reproducibility, and implementation fidelity to the described method.
+    severity: writing
+  - id: 368b909ec438
+    text: Explicitly state the software and model weight license (e.g., MIT, Apache
+      2.0) in the Abstract or Conclusion. Currently, the GitHub link is provided without
+      legal terms (Abstract, line 28).
+    severity: writing
+  - id: 071fead716d0
+    text: Provide a specific commit hash or version tag for the released code repository
+      to ensure reproducibility. The GitHub URL lacks a pinned version (Author info,
+      line 12).
+    severity: writing
+  - id: 4ac0e48abda2
+    text: Clarify the licensing constraints of the synthetic training data derived
+      from Wan2.1-T2V-14B. The base model's license dictates permissible use of generated
+      data (Sec 5.1, Implementation Details).
+    severity: writing
+  - id: d7c93533994a
+    text: "Replace \animategraphics dependencies with static representative frames\
+      \ in figures like fig:teaser and fig:ablation_onpolicy to ensure qualitative\
+      \ claims are visible in non-interactive PDF viewers."
+    severity: writing
+  - id: 3034422aed2d
+    text: Move the embedded table in fig:ablation_time_sampler (lines ~1050-1070)
+      to a standalone table environment to prevent numbering conflicts and improve
+      accessibility.
+    severity: writing
+  - id: e5b51fb3a659
+    text: "Add alt text metadata to all figure environments (e.g., \alttext{...})\
+      \ to support screen readers and accessibility compliance."
+    severity: writing
+  - id: bc2b0e4560dc
+    text: Verify axis labels and tick marks in quantitative charts (e.g., fig:teaser,
+      fig:ablation_interpolated_embedding) are legible at standard print resolution
+      (300 DPI) and grayscale.
+    severity: writing
+  - id: 8eda274556c4
+    text: Define "NFEs" at first use in Abstract (line 3) as "Number of Function Evaluations"
+      for non-specialists. The term still appears multiple times without definition.
+    severity: writing
+  - id: 0a005fd9fadc
+    text: Define "KV-cache", "patchify kernels", "context compression", and "teacher-forcing"
+      in Section 4.3 (AnyFlow for Causal Video Diffusion) where they appear without
+      explanation. These remain undefined in the current revision.
+    severity: writing
+  - id: ab06658d6d9e
+    text: Define "LoRA" in Section 5.1 (Implementation Details) as "Low-Rank Adaptation"
+      at first mention. The acronym appears with only a citation, no plain-text definition.
+    severity: writing
+  - id: c220e1184abb
+    text: Define acronyms "FAR" and "rCM" in text rather than relying solely on citations
+      (e.g., Abstract, Section 1, Section 2). Both remain undefined despite prior
+      flagging.
+    severity: writing
+  - id: 20dc797850df
+    text: Replace "rollout" with "sampling sequence" or "generation path" in Sections
+      1, 4, and 5 to improve accessibility. The term "rollout" still appears throughout
+      without substitution.
+    severity: writing
+  - id: 1577b5b8ba16
+    text: Simplify compound terms like "guidance-fused training", "adaptive loss reweighting",
+      and "differential derivation equation" in Section 4.1 with brief parenthetical
+      explanations. These remain unexplained technical compounds.
+    severity: writing
+  - id: cba63584ca0b
+    text: Clarify the tested range for 'any-step' claims. The Abstract and Introduction
+      assert support for 'arbitrary inference budgets,' but tables only show 4 and
+      32 NFEs. Include intermediate steps or qualify the claim.
+    severity: writing
+  - id: 52831b67ad03
+    text: Provide quantitative metrics for downstream fine-tuning. The claim about
+      continued training adaptability in sections/4_method.tex relies only on qualitative
+      figures (figures/downstream_results.tex). Add VBench scores for fine-tuned models.
+    severity: science
+  - id: 1eb883f873de
+    text: Strengthen baseline degradation evidence. The claim that consistency models
+      degrade at higher NFEs (sections/1_introduction.tex) relies on ablation tables
+      (tables/ablation_anyflow.tex). Include multi-step results for main baselines
+      (rCM, Krea) in tables/t2v_comparison.tex.
+    severity: science
+  - id: 1804ce72a685
+    text: Add a dedicated Ethics Statement section discussing potential misuse (e.g.,
+      deepfakes, disinformation) and mitigation strategies (e.g., watermarking).
+    severity: writing
+  - id: bc1a7ff8a5d4
+    text: Clarify data provenance regarding the base Wan2.1 model and synthetic dataset
+      generation to address copyright and consent concerns.
+    severity: writing
+  - id: c0a9840d7ed2
+    text: Discuss limitations of the VBench evaluation in assessing fairness, bias,
+      or safety metrics beyond quality and semantic alignment.
+    severity: writing
+  - id: dd965d3a3e0f
+    text: Specify the exact number of evaluation prompts/samples used for VBench metrics
+      to assess statistical reliability.
+    severity: science
+  - id: 1e970e0c5675
+    text: Provide error bars or variance across random seeds for key quantitative
+      results (e.g., Table 4) to support small effect sizes.
+    severity: science
+  - id: dfaa1e216ede
+    text: Clarify if baseline results taken from original papers used identical evaluation
+      protocols to the re-evaluated models to ensure fair comparison.
+    severity: science
+  - id: f9ef72563b0d
+    text: Main quantitative results (e.g., Tab. tab:t2v_comparison) report point estimates
+      without standard deviations or confidence intervals. Margins are small (e.g.,
+      84.04 vs 83.73), requiring statistical significance testing.
+    severity: science
+  - id: a17ed0288712
+    text: Evaluation protocol in Sec. 5.2 lacks details on the number of random seeds
+      or prompts used to compute VBench scores. Variance estimation requires this
+      information.
+    severity: science
+  - id: 7853de3b00cb
+    text: Multiple baseline comparisons are made across tasks and scales without addressing
+      multiple-comparisons correction or controlling for Type I error inflation.
+    severity: writing
+  - id: 0d4a660d3cb8
+    text: In Section 1, reduce repetition of the phrase 'at 4 NFEs' which appears
+      three times in close proximity within the results summary paragraph. Vary phrasing
+      to improve readability.
+    severity: writing
+  - id: 048a57ad625a
+    text: 'Fix hard line breaks in source files that split sentences or section titles
+      (e.g., ''Differential Derivation
+
+      Equation'' in Section 3, ''with
+
+      a flow map'' in Section 2).'
+    severity: writing
+  - id: 4c8f6ea91053
+    text: Split the long sentence in the Abstract (lines 10-15) describing extensive
+      experiments into two sentences to reduce cognitive load for readers.
+    severity: writing
+  - id: 50f661487821
+    text: Remove double space before 'simulation' in Table 6 caption (tables/training_cost.tex).
+    severity: writing
