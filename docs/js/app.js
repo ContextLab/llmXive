@@ -917,6 +917,23 @@
       activate(tab.dataset.tab, tab);
     }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(init); else init();
+
+    // #262: in-page anchors (the brand `<a href="#papers">` and the About
+    // page's "Browse projects" / "Find something to review" buttons, which
+    // point at `#inProgress`) only rewrote the hash — there was no
+    // `hashchange` listener, so the active tab never switched. Route every
+    // hash that names a real tab through the same `activate()` path used on
+    // load, then scroll it into view. Unknown/empty hashes are a no-op so
+    // unrelated in-page anchors (e.g. `#how-to-contribute`) keep working.
+    window.addEventListener("hashchange", () => {
+      const name = (location.hash || "").slice(1);
+      if (!name) return;
+      const tab = tabs.find(t => t.dataset.tab === name);
+      if (!tab) return;                       // not a tab anchor — leave it alone
+      if (!tab.classList.contains("active")) activate(name, tab);
+      const panel = document.querySelector('.panel[data-panel="' + name + '"]');
+      (panel || tab).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     // Recompute on font load (widths change once the web font swaps in).
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionUnderline);
 
