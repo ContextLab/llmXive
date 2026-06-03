@@ -218,6 +218,31 @@ def _make_round_hook(trail_path: Path):  # type: ignore[no-untyped-def]
     return _hook
 
 
+def _make_abort_hook(trail_path: Path):  # type: ignore[no-untyped-def]
+    """Build an engine ``on_abort`` hook that appends a CLEAN-ABORT record
+    ``{"round": idx, "aborted": reason}`` to the SAME ``trail_path`` the round hook
+    writes (FR-015 provenance).
+
+    A circuit-breaker / deadline abort otherwise propagates with NO trail (the
+    PROJ-552 plan-stage CI aborts committed nothing and looked like "did nothing");
+    this makes WHERE + WHY observable in committed state so an unattended run is
+    diagnosable. Best-effort by contract: a trail-write failure is logged and
+    swallowed — it must NEVER mask the backend abort already propagating.
+    """
+
+    def _hook(round_index: int, reason: str) -> None:
+        try:
+            record = {"round": round_index, "aborted": reason}
+            with trail_path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(record) + "\n")
+        except Exception as exc:  # provenance is best-effort — never crash/mask.
+            logger.warning(
+                "convergence abort-trail write failed for %s: %s", trail_path, exc
+            )
+
+    return _hook
+
+
 def run_stage_panel(
     *,
     stage_label: str,
@@ -250,7 +275,9 @@ def run_stage_panel(
         StagePanelKickback: panel did not converge (marker written first).
         StagePanelEscalation: engine path failed (marker written first).
     """
-    on_round = _make_round_hook(_next_trail_path(memory_dir, stage_label))
+    trail_path = _next_trail_path(memory_dir, stage_label)
+    on_round = _make_round_hook(trail_path)
+    on_abort = _make_abort_hook(trail_path)
     try:
         run_result = run_engine_for_project(
             spec=spec,
@@ -259,6 +286,7 @@ def run_stage_panel(
             repo_root=repo_root,
             constitution=constitution,
             on_round=on_round,
+            on_abort=on_abort,
         )
     except BackendUnavailable:
         # The backend's circuit breaker is OPEN: the Dartmouth endpoint is

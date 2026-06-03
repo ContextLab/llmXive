@@ -11,14 +11,16 @@ from __future__ import annotations
 import os
 import re
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from typing import TypeVar
 
 from llmxive.agents.citation_guard import (
     UNVERIFIED_MARKER_PREFIX,
     has_unverified_markers,
 )
+from llmxive.backends.base import BackendUnavailable, TransientBackendError
 from llmxive.tools.summarize import estimate_tokens, summarize
 
 from .kickback import route_kickback
@@ -35,6 +37,13 @@ from .types import (
 # A hook the caller supplies to persist a per-round inspection record + run-log entry
 # (FR-015/050/051). Signature: (round_index, concerns, responses, verdicts) -> None.
 RoundHook = Callable[[int, list[Concern], list[ConcernResponse], list[Verdict]], None]
+
+# A hook the caller supplies to record a CLEAN ABORT (the circuit breaker tripped
+# / the endpoint hung past its deadline) at the round where it happened, BEFORE the
+# exception re-propagates. Without it an aborted run leaves a SILENT zero-trail run
+# (the PROJ-552 plan-stage CI aborts looked like "did nothing"); with it the
+# committed provenance shows where + why. Signature: (round_index, reason) -> None.
+AbortHook = Callable[[int, str], None]
 
 # Default upper bound on concurrent panel-lens calls. The panel lenses are
 # independent (no cross-reviewer state), so the engine dispatches their long
@@ -262,6 +271,7 @@ def run_convergence(
     max_rounds: int | None = None,
     per_round_budget_s: float | None = None,
     on_round: RoundHook | None = None,
+    on_abort: AbortHook | None = None,
 ) -> ConvergenceResult:
     """Run the convergence cycle for one reviewable step.
 
@@ -289,6 +299,23 @@ def run_convergence(
     def _present(arts: dict[str, str]) -> dict[str, str]:
         return _maybe_reduce(arts, goal=spec.overflow_goal, model=model, budget=budget)
 
+    @contextmanager
+    def _abort_provenance(round_index: int) -> Iterator[None]:
+        """Record a CLEAN ABORT (breaker open / endpoint hung past deadline /
+        transient) at ``round_index`` via ``on_abort`` BEFORE re-raising — so the run
+        leaves observable provenance instead of a silent zero-trail abort. Best-effort:
+        a buggy ``on_abort`` can NEVER mask the real backend abort, and the exception
+        always re-propagates so the run still parks the project to resume next tick."""
+        try:
+            yield
+        except (BackendUnavailable, TransientBackendError) as exc:
+            if on_abort is not None:
+                try:
+                    on_abort(round_index, f"{type(exc).__name__}: {exc}")
+                except Exception:  # observability must never swallow the abort
+                    pass
+            raise
+
     concern_history: list[Concern] = []
     response_history: list[ConcernResponse] = []
     verdict_history: list[Verdict] = []
@@ -299,9 +326,10 @@ def run_convergence(
     # assembled identically to the serial path.
     seen = _present(artifacts)
     open_concerns: list[Concern] = []
-    r1_results = _map_reviewers(
-        panel, lambda r: r.identify(seen, constitution=const, advisory=advisory)
-    )
+    with _abort_provenance(1):
+        r1_results = _map_reviewers(
+            panel, lambda r: r.identify(seen, constitution=const, advisory=advisory)
+        )
     for concerns in r1_results:
         for c in concerns:
             open_concerns.append(c)
@@ -318,7 +346,8 @@ def run_convergence(
         if spec.reviser is None:
             break  # nothing can resolve the concerns -> kickback
         prev_artifacts = artifacts
-        new_arts, responses = spec.reviser.revise(artifacts, list(open_concerns))
+        with _abort_provenance(rounds_used + 1):
+            new_arts, responses = spec.reviser.revise(artifacts, list(open_concerns))
         artifacts = {**artifacts, **new_arts}
         response_history.extend(responses)
         seen = _present(artifacts)
@@ -381,7 +410,8 @@ def run_convergence(
         # identical to the serial path. We map over indices (not the reviewer
         # objects) so each worker reads its OWN ``own``/responses slice — no
         # shared mutable closure state across threads.
-        verdict_lists = _map_indices(len(rereviewers), _rereview_one)
+        with _abort_provenance(rounds_used + 1):
+            verdict_lists = _map_indices(len(rereviewers), _rereview_one)
 
         # FR-018 honesty: a concern the reviser left UNADDRESSED — a padded
         # ``"<missing>"`` response (the reviser call failed, or its output parsed

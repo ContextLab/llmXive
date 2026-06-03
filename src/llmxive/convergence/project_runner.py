@@ -47,7 +47,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .engine import RoundHook, run_convergence
+from .engine import AbortHook, RoundHook, run_convergence
 from .types import (
     Concern,
     ConcernResponse,
@@ -148,6 +148,7 @@ def run_engine_for_project(
     require_full_extra_inputs: bool = True,
     constitution: str | None = None,
     on_round: RoundHook | None = None,
+    on_abort: AbortHook | None = None,
 ) -> ProjectRunResult:
     """Drive the engine for one reviewable step against a REAL project tree.
 
@@ -230,7 +231,8 @@ def run_engine_for_project(
     spec.reviser = capturing
     try:
         result = run_convergence(
-            spec, artifacts, constitution=constitution, on_round=on_round
+            spec, artifacts, constitution=constitution, on_round=on_round,
+            on_abort=on_abort,
         )
     finally:
         spec.reviser = original_reviser  # restore
