@@ -126,3 +126,185 @@ rounds:
     text: "Remove space in equation '$\beta= 0.25$' in sec/appendix.tex for consistent\
       \ mathematical formatting."
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-03T11:12:21.109935+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 98cc25264bac
+    text: Add standard deviations or confidence intervals to all main experimental
+      tables (Tables 1-4) to support the reported statistical significance (p < 0.05).
+    severity: writing
+  - id: 8c3933015769
+    text: Clarify the dependency on external models (e.g., qwen3-embedding-8B, GPT-4)
+      in the Appendix to ensure reproducibility for readers without API access.
+    severity: writing
+  - id: 10c128c87bc7
+    text: Strengthen the Impact Statement to explicitly address potential user manipulation
+      risks and strategies for maintaining user autonomy.
+    severity: writing
+  - id: aa00c577c64d
+    text: Resolve minor formatting inconsistencies in tables and citations as noted
+      in prior review rounds.
+    severity: writing
+  - id: dc12fa7a8322
+    text: Appendix app:implementation lacks specific random seeds and library version
+      pinning, hindering exact reproducibility of RL training dynamics.
+    severity: science
+  - id: f68e0dd6038d
+    text: RQ-VAE training details in Appendix app:semantic are high-level; provide
+      config files or scripts for the quantization layer and codebook size.
+    severity: science
+  - id: ecbf355d4ae8
+    text: Feasibility Oracle instantiation (KG vs LLM) in Appendix app:data_process
+      needs explicit prompt templates or KG schema definitions.
+    severity: science
+  - id: 5d7074e6ead0
+    text: Specify exact dataset versions/snapshots for Steam and Amazon-Book (currently
+      generic URLs).
+    severity: writing
+  - id: 4a2b99cf395b
+    text: Correct the Steam dataset URL typo (double slash '//') in Appendix A.1.
+    severity: writing
+  - id: c10a0fa78383
+    text: Declare license for released code/data and specify GPT-4 model version used
+      for data construction.
+    severity: writing
+  - id: 7aca98db48fe
+    text: Add explicit alt-text tags to all \includegraphics commands for accessibility
+      compliance (ICML guidelines).
+    severity: writing
+  - id: da688bcfe609
+    text: Verify Figure 5 (epoch_length.pdf) color gradient is distinguishable in
+      grayscale; add line styles or patterns.
+    severity: writing
+  - id: 59962762e1bc
+    text: Ensure Figure 9 (prompt_knowledge.pdf) text is legible at 1-column print
+      scale; increase font size or simplify.
+    severity: writing
+  - id: 5d15969c559b
+    text: Expand all acronyms (SASRec, LoRA, DPO, A2C, MLP, EOS) at first use to improve
+      accessibility for non-specialist readers.
+    severity: writing
+  - id: 6fa6c779d7b4
+    text: Replace 'Feasibility Oracle' with 'Feasibility Checker' and 'physically
+      coherent' with 'semantically coherent' for clarity.
+    severity: writing
+  - id: 5622555ff72d
+    text: Add brief intuitive explanations for dense mathematical terms like 'gradient
+      flow dynamics' in theoretical sections.
+    severity: writing
+  - id: 8a9b0c1d2e3f
+    text: Expand the acronym 'GRPO' (Group Policy Optimization) at first use in Section
+      3.2 of sec/method.tex.
+    severity: writing
+  - id: 4f5e6d7c8b9a
+    text: Define 'k-core' filters in sec/appendix.tex (Section 3.2) for readers unfamiliar
+      with graph preprocessing terminology.
+    severity: writing
+  - id: 8288d234388d
+    text: Clarify the claim that RL 'maintains path feasibility' on Steam where CTR
+      drops from 0.7453 to 0.5625 (Table 7, Section 5.2.3). This contradicts the claim
+      of 'maintaining' without qualification.
+    severity: writing
+  - id: d927dbda7cfb
+    text: Include Coherence metrics in the ablation study (Table 5, Section 5.2.1)
+      to logically confirm whether SRC prevents path quality degradation beyond just
+      IoI/CTR/IoR.
+    severity: science
+  - id: 1f3942bd585f
+    text: Correct the numerical claims in Appendix Section 'Performance Superiority
+      Across Diverse Metrics' which cite Steam IoR as 1300-1500 and CTR/Coherence
+      as 0.89/0.95, contradicting Table 1 (Steam IoR 340.18; MovieLens CTR 0.8543/Coherence
+      0.8422). This constitutes an unsupported over-claim of performance.
+    severity: writing
+  - id: 7d76af866cb5
+    text: Qualify the theoretical claims regarding Theorem 1. The proof assumes a
+      simplified homogeneous stopping model, but the implementation uses semantic
+      IDs and complex reward structures. Explicitly state that the theorem provides
+      intuition rather than a rigorous guarantee for the full system to avoid overgeneralization.
+    severity: science
+  - id: ba8e858fc085
+    text: "The Impact Statement (sec/Impact_statement.tex) is too vague regarding\
+      \ ethical risks. Proactive recommendation systems have inherent manipulation\
+      \ potential\u2014users may not consent to having their preferences actively\
+      \ shifted. Expand this section to discuss specific safeguards (e.g., user transparency,\
+      \ opt-out mechanisms, or disclosure of platform goals) and potential misuse\
+      \ scenarios beyond generic 'positive user experience' claims."
+    severity: writing
+  - id: 9ce387c0e0e2
+    text: The paper describes using GPT-4 for item profile generation (sec/appendix.tex,
+      Section app:semantic) but does not address data privacy implications of sending
+      potentially sensitive item metadata to third-party LLM APIs. Include a discussion
+      of data handling policies, whether any user data was transmitted, and compliance
+      with relevant privacy regulations.
+    severity: writing
+  - id: 27114ff2400d
+    text: No discussion of how the system prevents harmful guidance (e.g., steering
+      users toward addictive content, financial products, or politically sensitive
+      items). The 'Feasibility Oracle' only checks semantic coherence, not content
+      safety. Recommend adding a section on content safety filters or ethical constraints
+      on target items.
+    severity: science
+  - id: 12ae6ee150cf
+    text: Specify statistical significance testing methodology (test type, seeds)
+      for tables with (*) markers.
+    severity: science
+  - id: 1a991d8d4ac2
+    text: Clarify baseline fairness regarding model capacity (2M vs 8B params) and
+      compute budget.
+    severity: science
+  - id: a8a5b3848865
+    text: Provide exact prompts for Feasibility Oracle to ensure reproducibility and
+      check for target leakage.
+    severity: science
+  - id: 254b6815bc2a
+    text: "Report mean \xB1 standard deviation for all performance metrics in Tables\
+      \ 1, 2, 5, and 6 to verify significance claims."
+    severity: science
+  - id: 4ad31390dbe8
+    text: Apply multiple comparisons correction (e.g., Bonferroni) for tests across
+      datasets and metrics, or justify unadjusted p-values.
+    severity: writing
+  - id: 2fce6f631652
+    text: Explicitly confirm random seed consistency across all baseline methods to
+      ensure valid paired comparisons.
+    severity: writing
+  - id: 3cf64c9be4c8
+    text: Remove spaces from LaTeX labels in sec/exp.tex (e.g., tab:overall comparison,
+      tab:gru4rec evaluator) to ensure robust cross-referencing.
+    severity: writing
+  - id: 84802af825ae
+    text: Standardize equation references to 'Eq.' throughout the manuscript; currently
+      'Formula' is used inconsistently in sec/appendix.tex (lines ~650, ~680).
+    severity: writing
+  - id: 10f8230dbd8b
+    text: Add non-breaking space (tilde) to 'Section \ref{sec:analysis}' in sec/intro.tex
+      to prevent line-break issues.
+    severity: writing
+  - id: 9a4f3950b6a3
+    text: Unify citation commands; use \cite or \citet consistently rather than mixing
+      them (e.g., sec/exp.tex).
+    severity: writing
+  - id: c8a67c19d7e2
+    text: 'Prior item 22792f582f22 NOT addressed: ''semantic ID'' capitalization remains
+      inconsistent. ''Semantic ID'' appears in sec/appendix.tex (line ~245: ''assign
+      a unique 4th code for items that share the same first three codewords... This
+      results in a unique Semantic ID of length K=4'') while ''semantic IDs'' appears
+      elsewhere. Standardize to lowercase throughout.'
+    severity: writing
+  - id: 7642eab051fc
+    text: 'Prior item a6336f800842 NOT addressed: Missing article ''the'' before ''Adagrad
+      optimizer'' in sec/appendix.tex (line ~247: ''We use Adagrad optimizer with
+      a learning rate of 0.001''). Should read ''We use the Adagrad optimizer''.'
+    severity: writing
+  - id: 1d23f6f310f3
+    text: 'Prior item 36e87b40a14e NOT addressed: Space in equation remains in sec/appendix.tex
+      (line ~246: ''$\beta= 0.25$''). Remove space after equals sign for consistent
+      formatting (''$\beta=0.25$'').'
+    severity: writing
+  - id: 7b19040ea37b
+    text: 'NEW ISSUE: Typo in sec/intro.tex (contribution item 1): ''Proactivate Recommendation
+      System'' should be ''Proactive Recommendation System''. This appears to be a
+      spelling error not present in prior review.'
+    severity: writing

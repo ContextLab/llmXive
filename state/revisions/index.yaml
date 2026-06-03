@@ -56,4 +56,7 @@ ready:
 - project_id: PROJ-580-https-arxiv-org-abs-2605-15141
   revision_spec_path: specs/auto-revisions/PROJ-580-https-arxiv-org-abs-2605-15141/round-1
   queued_at: '2026-06-03T10:21:49.958946+00:00'
+- project_id: PROJ-640-https-arxiv-org-abs-2605-28293
+  revision_spec_path: specs/auto-revisions/PROJ-640-https-arxiv-org-abs-2605-28293/round-1
+  queued_at: '2026-06-03T11:12:21.135147+00:00'
 blocked: []
