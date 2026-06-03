@@ -1,0 +1,176 @@
+project_id: PROJ-580-https-arxiv-org-abs-2605-15141
+arxiv_id: '2605.15141'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-03T10:21:49.939978+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 5f2bfda74913
+    text: Correct the typo 'Casual ODE' to 'Causal ODE' in Section 3.1 (last paragraph).
+    severity: writing
+  - id: 5f67d54ec24f
+    text: Remove unused bibliography entries (e.g., langley00, mitchell80) to ensure
+      the reference list contains only cited works.
+    severity: writing
+  - id: de326efd7fc6
+    text: Citation `zhu2026causal` is missing from main.bib but cited throughout (e.g.,
+      Sec 1, 3). Add entry to support claims about Causal Forcing.
+    severity: writing
+  - id: 13b3d66e0fa3
+    text: Citation `li2026cameras` (PRoPE) is missing from main.bib but cited in Sec
+      3.3. Add entry to support application claims.
+    severity: writing
+  - id: a83b1dae4ef9
+    text: Citations `nan2024openvid` and `yang2025towards` are missing from main.bib
+      but cited in Sec 4.1. Add entries to support dataset/method claims.
+    severity: writing
+  - id: cc9f44b7a625
+    text: Code artifacts (training scripts, model definitions, evaluation code) are
+      not accessible for review. The paper mentions GitHub links but no code is provided
+      in the submission package. A proper code quality review requires direct access
+      to the implementation to assess modularity, test coverage, and reproducibility.
+    severity: writing
+  - id: 1f65a4b3a686
+    text: Implementation details in Section 4.1 are incomplete for reproducibility.
+      Key hyperparameters (learning rate, weight decay, optimizer type, gradient clipping
+      thresholds) are not specified. Training scripts should be made available to
+      verify the claimed 4x speedup and 80K dataset processing pipeline.
+    severity: writing
+  - id: 59084078c107
+    text: No information about dependency management (requirements.txt, conda environment,
+      Docker container) is provided. For reproducibility from scratch, specify exact
+      versions of PyTorch, Diffusers, and other critical dependencies used in the
+      distillation pipeline.
+    severity: writing
+  - id: 3ac331e6eede
+    text: No explicit license specified for code or released datasets. Add license
+      declaration (e.g., MIT, Apache 2.0) in project pages (https://github.com/thu-ml/Causal-Forcing,
+      https://github.com/shengshu-ai/minWM) and manuscript.
+    severity: writing
+  - id: 7dab50c61428
+    text: Dataset provenance lacks version control details. OpenVid (80K videos) and
+      VidProm should include version tags, commit hashes, or download URLs with checksums
+      for reproducibility.
+    severity: writing
+  - id: 02489eb069e8
+    text: 'External GitHub links in Abstract and Conclusion should include archived
+      versions (e.g., Zenodo DOI) to prevent link rot. Current links: https://github.com/thu-ml/Causal-Forcing,
+      https://github.com/shengshu-ai/minWM.'
+    severity: writing
+  - id: 608f5ec1d491
+    text: Base model Wan2.1-1.3B citation (wan2025wan) lacks explicit version/tag
+      information. Include model checkpoint hash or release version for reproducibility.
+    severity: writing
+  - id: 15dd3bd5dca0
+    text: Add accessibility metadata (alt text) to all figures to ensure compliance
+      with modern publication standards for visually impaired readers.
+    severity: writing
+  - id: 8ccbba6221df
+    text: Increase font size in subcaptions for Figs. 3 and 5 (causal-cd, dmd-is-worse-than-cd)
+      currently set to \footnotesize, which may be illegible at print scale.
+    severity: writing
+  - id: d0d2488c89cc
+    text: Verify axis labels and legend clarity in performance plots (Figs. 3, 5)
+      to ensure they are self-explanatory without relying solely on the main caption.
+    severity: writing
+  - id: 700258f69ad7
+    text: Define all acronyms (DMD, MSE, KL, EMA, VAE, KV cache, ASD, PRoPE) at first
+      use.
+    severity: writing
+  - id: ce9c201da542
+    text: Simplify dense phrases like 'AR-conditional flow map' and 'frame-level injectivity'
+      for broader accessibility.
+    severity: writing
+  - id: 52fadacb0b56
+    text: Replace 'SOTA' with 'state-of-the-art' and add context for 'Genie3'.
+    severity: writing
+  - id: 225290e5f931
+    text: Add a dedicated Broader Impacts or Ethics Statement section. Discuss potential
+      misuse scenarios (e.g., deepfakes, impersonation) given the claim of 'real-time
+      interactive video generation' (Section 1, Abstract). Propose mitigation strategies
+      such as watermarking or usage policies.
+    severity: writing
+  - id: da7da4823ba0
+    text: Clarify data privacy and consent for the OpenVid and VidProm datasets used
+      in training (Section 4.1). Confirm whether individuals appearing in these videos
+      provided consent, and describe any anonymization or filtering processes applied
+      to protect privacy.
+    severity: writing
+  - id: 3a351ed1ef4f
+    text: Address safety considerations for the 'action-conditioned world model generation'
+      extension (Section 3.3). Discuss potential risks if this technology is deployed
+      in physical or interactive environments where generated content could influence
+      real-world actions.
+    severity: writing
+  - id: 213f1f06e5dc
+    text: Report standard deviations or confidence intervals for VBench and VisionReward
+      metrics across multiple random seeds, as video generation metrics exhibit high
+      variance (Sec 4.1, Table 1).
+    severity: science
+  - id: ab70d352be9f
+    text: Normalize latency and throughput comparisons against baselines measured
+      on H100 (Causal Forcing, Self Forcing) to account for hardware differences,
+      or provide a theoretical scaling factor (Sec 4.1, Table 1).
+    severity: science
+  - id: c5ca7343470d
+    text: Justify the 100-prompt evaluation sample size for statistical significance,
+      or increase the sample size to reduce sampling error in performance claims (Sec
+      4.1).
+    severity: science
+  - id: 621cd3373bb3
+    text: Report standard deviation or confidence intervals for VBench and VisionReward
+      scores in Table 1 and Table 2 to support the statistical significance of small
+      performance differences (e.g., 0.1 point gains).
+    severity: science
+  - id: 99aa3d2d76d0
+    text: Clarify the number of random seeds used for training and evaluation. If
+      single-seed, explicitly acknowledge the limitation regarding result reproducibility
+      in Section 4.1.
+    severity: writing
+  - id: 5103f67853cd
+    text: Address the multiple-comparisons problem in the ablation study (Table 2,
+      15 comparisons) by applying a correction method or discussing the risk of Type
+      I errors.
+    severity: writing
+  - id: 4ef7f4715e2d
+    text: Normalize latency measurements to account for hardware differences (A800
+      vs H100) or provide theoretical scaling factors to validate the 50% reduction
+      claim in Section 4.1.
+    severity: science
+  - id: ccddb9890b03
+    text: 'Syntax error in Tables/performance_comparison.tex: Remove the `\\` command
+      immediately following `\end{tabular}`. This command is invalid outside a tabular
+      environment and may cause compilation errors or formatting issues.'
+    severity: writing
+  - id: 976ecb070b98
+    text: 'Filename typo in Figures_tex/performance_comparison.tex: The command `\includegraphics{Figures/comparision_fig.pdf}`
+      contains a spelling error (''comparision'' vs ''comparison''). Verify the actual
+      file name and correct the path for consistency.'
+    severity: writing
+  - id: 5d39467821ac
+    text: 'Formatting hygiene: The subsection title in src/3-Method.tex (''Further
+      Discussion: Whether Causal Score Distillation Yields Strong Initialization'')
+      is lengthy and informal. Consider changing to a `\subsubsection` or rephrasing
+      for standard academic tone.'
+    severity: writing
+  - id: b6ba05420736
+    text: In Section 3.1, Paragraph 3, correct the typo 'Casual ODE initialization'
+      to 'Causal ODE initialization'.
+    severity: writing
+  - id: 80155c5cf433
+    text: In Section 4.2, Paragraph 4, fix the grammatical error 'which is we discuss'
+      to 'which we discuss'.
+    severity: writing
+  - id: 9d6200800f29
+    text: In Section 5, remove the extra space before the period in '50\% .'.
+    severity: writing
+  - id: 9b9da4fc68cb
+    text: Standardize metric abbreviations in Tables 1 and 2 (e.g., 'Dynamic.' vs
+      'Dynamic Degree', 'Vision.' vs 'VisionReward') to match the text definitions.
+    severity: writing
+  - id: 618f4d0b9fa6
+    text: Ensure consistency in number formatting (e.g., '11{,}600' in text vs '11600'
+      in Table 2) and subject-verb agreement ('curation ... costs' vs 'cost').
+    severity: writing
