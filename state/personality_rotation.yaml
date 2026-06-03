@@ -1,11 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-06-03T01:54:44.409728+00:00'
-last_outcome: committed
+last_used: linus-pauling
+last_used_at: '2026-06-03T03:08:27.065067+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-24T17:23:52.447370+00:00'
-  ended_at: '2026-05-24T17:49:01.775071+00:00'
-  outcome: model_error
 - slug: freeman-dyson
   started_at: '2026-05-24T17:49:01.775071+00:00'
   ended_at: '2026-05-24T18:21:19.393212+00:00'
@@ -1211,3 +1207,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/john-von-neumann-simulated__2026-06-03__research.md
+- slug: linus-pauling
+  started_at: '2026-06-03T01:54:44.409728+00:00'
+  ended_at: '2026-06-03T03:08:27.065067+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
