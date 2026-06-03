@@ -1,0 +1,115 @@
+project_id: PROJ-612-a-survey-of-large-audio-language-models
+arxiv_id: '2605.20266'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-03T05:19:01.843075+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 686abe5716bc
+    text: The bibliography is incomplete; critical benchmark and attack papers cited
+      in the text (e.g., wang2025audiobench, peng2025jalmbench, luo2026chronosaudio)
+      are missing from references.bib, making factual claims unverifiable.
+    severity: science
+  - id: 74a0dd8b1242
+    text: Verify specific quantitative claims (e.g., 63.19 F1 on BRACE-Hallucination
+      in Sec 5.1.2, 21.5% vs 17.0% success rates in Sec 5.3.1) match the actual content
+      of the source papers once references are added.
+    severity: science
+  - id: da8455da1bc9
+    text: Ensure all citation keys (e.g., zhao2026halluaudiocomprehensivebenchmarkhallucination)
+      follow a consistent naming convention and are fully resolved in the final bibliography.
+    severity: writing
+  - id: b8730a529f74
+    text: Remove irrelevant bibliography entries (e.g., li2024emergent on US Drought
+      Monitor, liu2025sync on circuit code) that do not support the paper's data claims.
+    severity: writing
+  - id: 71a8ec8c248d
+    text: Add license/access information for all cited benchmarks (e.g., AudioBench,
+      MMAU) to clarify data provenance and reuse permissions.
+    severity: writing
+  - id: 57d25f18cfa1
+    text: Pin specific model versions to repository commits or HuggingFace IDs for
+      reproducibility, rather than citing only technical reports.
+    severity: writing
+  - id: 78c92280785e
+    text: Define all acronyms (ASR, CoT, RLHF) at first use; CoT appears in e000 Sec
+      5.1.1 before definition in e001.
+    severity: writing
+  - id: '622299607061'
+    text: Replace or explain coined terms like 'Structural Attention Dilution' and
+      'Restorative Ceiling' with plain English descriptions.
+    severity: writing
+  - id: 672903a86153
+    text: Simplify abstract jargon ('endogenous mechanisms', 'continuous acoustic
+      signal integration') to improve accessibility for non-specialists.
+    severity: writing
+  - id: ed40119f18fd
+    text: Generalize benchmark findings (e.g., ChronosAudio) to the entire LALM class
+      without qualification in Sec 5.2. Use 'many models' or 'studies suggest'.
+    severity: writing
+  - id: e9aa447408b1
+    text: Claim 'universal auditory intelligence' in Abstract/Intro as a current state
+      rather than a future goal. Current evidence shows significant hallucination/robustness
+      gaps.
+    severity: writing
+  - id: bc22319630e9
+    text: Characterize offensive research as 'mature' in Abstract. Evidence suggests
+      rapid growth but 'mature' implies stability not yet demonstrated in the field.
+    severity: writing
+  - id: ba339eaa4e05
+    text: Add an explicit Ethical Considerations statement in the Introduction or
+      Conclusion addressing the dual-use nature of summarizing attack vectors and
+      the commitment to responsible disclosure.
+    severity: writing
+  - id: 32361ad3541a
+    text: Expand the Privacy section (Sec 5.3.2) to discuss data consent and provenance
+      ethics for the training datasets of the surveyed models, not just inference-time
+      leakage.
+    severity: writing
+  - id: 46465a5ef8d6
+    text: Include a systematic review protocol (e.g., PRISMA flow) describing paper
+      selection criteria to mitigate selection bias in the 'Offense vs Defense' claim.
+    severity: science
+  - id: b9dc0ba8866c
+    text: Report sample sizes (N) and confidence intervals for key quantitative claims
+      (e.g., Sec 5.3.1 attack success rates) to assess statistical robustness.
+    severity: science
+  - id: 1b0ce7e54c77
+    text: Discuss potential benchmark selection bias; explicitly justify why specific
+      benchmarks were chosen over others for the trustworthiness taxonomy.
+    severity: science
+  - id: fea777a986db
+    text: Report confidence intervals or standard deviations for benchmark metrics
+      (e.g., 63.19 F1 in Sec 5.1.2) to quantify uncertainty rather than presenting
+      point estimates as absolute truths.
+    severity: science
+  - id: c8f8eefc9f1d
+    text: Provide statistical significance tests (p-values) for comparative claims,
+      such as the 21.5% vs 17.0% attack success rate difference in Sec 5.3.1, to validate
+      the observed gap.
+    severity: science
+  - id: ce52ed9fbc73
+    text: Address metric heterogeneity in Table 3 (e.g., mixing WER, Accuracy, LLM-as-a-Judge)
+      by discussing normalization or comparability limitations before aggregating
+      results.
+    severity: science
+  - id: b4b030d9295f
+    text: 'Major structural reordering required: ''Outlook and Conclusion'' appears
+      before ''Introduction'' in the source (e000 vs e002). Standard academic flow
+      must be restored.'
+    severity: writing
+  - id: 8f3f447669c7
+    text: 'Duplicate sections detected: ''Evaluation'', ''Endogenous Mechanisms'',
+      and ''Outlook'' are defined multiple times across chunks (e000, e002, e003).
+      Consolidate into single definitions.'
+    severity: writing
+  - id: 2f9802facfb0
+    text: Citation formatting inconsistencies found (e.g., '\cite {ouyang2022training}'
+      in e002). Standardize to '\cite{...}' without spaces.
+    severity: writing
+  - id: 1cf2a41430b7
+    text: Improve paragraph cohesion in dense technical summaries (e.g., Abstract,
+      Sec. 5.1). Some sentences are overly dense and reduce readability.
+    severity: writing
