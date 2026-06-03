@@ -68,4 +68,7 @@ ready:
 - project_id: PROJ-651-grepseek-training-search-agents-for-dire
   revision_spec_path: specs/auto-revisions/PROJ-651-grepseek-training-search-agents-for-dire/round-1
   queued_at: '2026-06-03T19:50:35.904049+00:00'
+- project_id: PROJ-649-trust-region-behavior-blending-for-on-po
+  revision_spec_path: specs/auto-revisions/PROJ-649-trust-region-behavior-blending-for-on-po/round-1
+  queued_at: '2026-06-03T22:10:01.112485+00:00'
 blocked: []
