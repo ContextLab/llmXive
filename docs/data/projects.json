@@ -9593,7 +9593,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-03T11:16:46.255697+00:00",
+  "generated_at": "2026-06-03T11:22:17.370158+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -83492,7 +83492,7 @@
         "data": null,
         "idea": "projects/PROJ-652-https-arxiv-org-abs-2606-00408/idea/https-arxiv-org-abs-2606-00408.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/source/main.tex",
         "paper_spec": null,
@@ -83514,10 +83514,10 @@
       },
       "created_at": "2026-06-03T09:39:09.761986+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/source/main.tex",
-        "repo_path": "projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.00408 Submitted by: github-actions[bot] (Intake from human-submission issue #269.)",
@@ -83554,7 +83554,7 @@
         "data": null,
         "idea": "projects/PROJ-653-https-arxiv-org-abs-2605-28556/idea/https-arxiv-org-abs-2605-28556.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-653-https-arxiv-org-abs-2605-28556/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -83576,10 +83576,10 @@
       },
       "created_at": "2026-06-03T09:39:12.754832+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556/idea/https-arxiv-org-abs-2605-28556.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556/idea/https-arxiv-org-abs-2605-28556.md",
-        "repo_path": "projects/PROJ-653-https-arxiv-org-abs-2605-28556/idea/https-arxiv-org-abs-2605-28556.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-653-https-arxiv-org-abs-2605-28556/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.28556 Submitted by: github-actions[bot] (Intake from human-submission issue #268.)",
@@ -83616,7 +83616,7 @@
         "data": null,
         "idea": "projects/PROJ-654-https-arxiv-org-abs-2605-29707/idea/https-arxiv-org-abs-2605-29707.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-654-https-arxiv-org-abs-2605-29707/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -83638,10 +83638,10 @@
       },
       "created_at": "2026-06-03T09:39:30.418835+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707/idea/https-arxiv-org-abs-2605-29707.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707/idea/https-arxiv-org-abs-2605-29707.md",
-        "repo_path": "projects/PROJ-654-https-arxiv-org-abs-2605-29707/idea/https-arxiv-org-abs-2605-29707.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-654-https-arxiv-org-abs-2605-29707/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.29707 Submitted by: github-actions[bot] (Intake from human-submission issue #267.)",
@@ -83740,7 +83740,7 @@
         "data": null,
         "idea": "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/idea/crafter-a-multi-agent-harness-for-editab.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -83835,10 +83835,10 @@
       },
       "created_at": "2026-06-03T09:39:51.159679+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/idea/crafter-a-multi-agent-harness-for-editab.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/idea/crafter-a-multi-agent-harness-for-editab.md",
-        "repo_path": "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/idea/crafter-a-multi-agent-harness-for-editab.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Scientific figures are among the most effective means of communicating complex research ideas, yet producing publication-quality illustrations remains one of the most labor-intensive parts of paper preparation. Existing automated systems each target a single figure type under text-only input, leaving the diversity of\u2026",
