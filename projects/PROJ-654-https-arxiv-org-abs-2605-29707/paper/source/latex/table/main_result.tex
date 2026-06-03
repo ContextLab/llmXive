@@ -1,0 +1,289 @@
+\begin{table*}[t]
+    \caption{
+    Decoding speedup over vanilla autoregressive decoding and average acceptance length ($\tau$) on Qwen3 models with a maximum of 2048 generated tokens. 
+    Parenthesized values indicate the draft tree size for EAGLE-3 and DART, and the draft block size for DFlash and \method. 
+    The average is computed over all listed benchmarks. 
+    For EAGLE-3, DFlash, and DART, we use the publicly released checkpoints listed in Table~\ref{tab:baseline_checkpoints}.
+    }
+    \label{tab:main-results}
+    \resizebox{\linewidth}{!}{
+        \scriptsize
+        \centering
+        \setlength{\tabcolsep}{1.2pt}
+        \begin{tabular}{c l @{\hspace{1.0em}} cc cc cc @{\hspace{1.0em}} cc cc cc @{\hspace{1.0em}} cc cc @{\hspace{1.0em}} cc}
+            \toprule
+            \multirow{2}[2]{*}{Model} & \multirow{2}[2]{*}{\quad Method} 
+            & \multicolumn{6}{c@{\hspace{1.0em}}}{\sc{Math}} 
+            & \multicolumn{6}{c@{\hspace{1.0em}}}{\sc{Code}} 
+            & \multicolumn{4}{c@{\hspace{1.0em}}}{\sc{Chat}}
+            & \multicolumn{2}{c}{\sc{Overall}} \\
+            \cmidrule(lr){3-8}
+            \cmidrule(lr){9-14}
+            \cmidrule(lr){15-18}
+            \cmidrule(lr){19-20}
+            & & \multicolumn{2}{c}{GSM8K} 
+            & \multicolumn{2}{c}{MATH-500} 
+            & \multicolumn{2}{c@{\hspace{1.0em}}}{AIME25} 
+            & \multicolumn{2}{c}{HumanEval} 
+            & \multicolumn{2}{c}{MBPP} 
+            & \multicolumn{2}{c@{\hspace{1.0em}}}{LCB} 
+            & \multicolumn{2}{c}{MT-Bench}
+            & \multicolumn{2}{c@{\hspace{1.0em}}}{Alpaca}
+            & \multicolumn{2}{c}{\textit{Avg.}} \\
+            \midrule
+
+            \multicolumn{2}{c}{Temperature = 0} 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$
+            & \tabsmall Speedup & \tabsmall $\tau$
+            & \tabsmall Speedup & \tabsmall $\tau$  \\
+            
+            \midrule
+            \multirow{5}{*}{Qwen3-4B}
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(16)}}
+            & 2.24$\times$ & 3.32 
+            & 2.10$\times$ & 3.11 
+            & 2.08$\times$ & 3.10 
+            & 2.09$\times$ & 3.09 
+            & 2.02$\times$ & 2.99 
+            & 1.95$\times$ & 2.93 
+            & 1.95$\times$ & 2.94 
+            & 1.87$\times$ & 2.83
+            & 2.04$\times$ & 3.04 \\
+
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(60)}} 
+            & 2.57$\times$ & 3.83 
+            & 2.40$\times$ & 3.59 
+            & 2.36$\times$ & 3.53 
+            & 2.36$\times$ & 3.53 
+            & 2.30$\times$ & 3.44 
+            & 2.19$\times$ & 3.31 
+            & 2.25$\times$ & 3.41 
+            & 2.14$\times$ & 3.29
+            & 2.32$\times$ & 3.49 \\
+
+            & \mbox{DART~\tabsmall\secondarycolor{(60)}}
+            & 2.16$\times$ & 2.65 
+            & 2.20$\times$ & 2.63 
+            & 2.13$\times$ & 2.59 
+            & 2.48$\times$ & 2.99 
+            & 2.47$\times$ & 3.01 
+            & 2.23$\times$ & 2.76 
+            & 2.19$\times$ & 2.69 
+            & 2.16$\times$ & 2.78
+            & 2.25$\times$ & 2.76 \\
+
+            & \mbox{DFlash~\tabsmall\secondarycolor{(16)}}
+            & 5.18$\times$ & 6.51 
+            & 6.10$\times$ & 7.79 
+            & 5.87$\times$ & 7.47 
+            & 5.23$\times$ & 6.63 
+            & 4.77$\times$ & 6.12 
+            & \textbf{5.48$\times$} & \textbf{7.15} 
+            & 2.72$\times$ & 4.12 
+            & 2.21$\times$ & 3.12
+            & 4.70$\times$ & 6.11 \\
+
+            & \mbox{\method~\tabsmall\secondarycolor{(16)}}
+            & \textbf{8.02$\times$} & \textbf{10.12} 
+            & \textbf{7.14$\times$} & \textbf{9.01} 
+            & \textbf{5.97$\times$} & \textbf{7.49} 
+            & \textbf{5.66$\times$} & \textbf{7.02} 
+            & \textbf{5.59$\times$} & \textbf{7.11} 
+            & 5.33$\times$ & 6.86 
+            & \textbf{3.28$\times$} & \textbf{5.12} 
+            & \textbf{2.80$\times$} & \textbf{3.88}
+            & \textbf{5.47$\times$} & \textbf{7.08} \\
+
+            \midrule
+            \multirow{5}{*}{Qwen3-8B}
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(16)}}
+            & 2.21$\times$ & 3.27 
+            & 2.09$\times$ & 3.10 
+            & 2.07$\times$ & 3.07 
+            & 2.17$\times$ & 3.21 
+            & 1.93$\times$ & 2.86 
+            & 1.80$\times$ & 2.95 
+            & 1.82$\times$ & 2.75 
+            & 1.67$\times$ & 2.53
+            & 1.97$\times$ & 2.97 \\
+
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(60)}} 
+            & 2.56$\times$ & 3.80 
+            & 2.42$\times$ & 3.61 
+            & 2.41$\times$ & 3.59 
+            & 2.50$\times$ & 3.74 
+            & 2.22$\times$ & 3.31 
+            & 2.03$\times$ & 3.12 
+            & 2.07$\times$ & 3.17 
+            & 1.88$\times$ & 2.90
+            & 2.26$\times$ & 3.41 \\
+
+            & \mbox{DART~\tabsmall\secondarycolor{(60)}}
+            & 2.28$\times$ & 2.71 
+            & 2.29$\times$ & 2.70 
+            & 2.11$\times$ & 2.59 
+            & 2.52$\times$ & 2.95 
+            & 2.39$\times$ & 2.98 
+            & 2.24$\times$ & 2.78 
+            & 2.27$\times$ & 3.03 
+            & 2.21$\times$ & 2.84
+            & 2.29$\times$ & 2.82 \\
+
+            & \mbox{DFlash~\tabsmall\secondarycolor{(16)}}
+            & 5.21$\times$ & 6.59 
+            & 6.18$\times$ & 7.87 
+            & 5.67$\times$ & 7.13 
+            & 5.21$\times$ & 6.52 
+            & 4.71$\times$ & 5.98 
+            & \textbf{5.37$\times$} & \textbf{7.12} 
+            & 2.73$\times$ & 4.18 
+            & 2.23$\times$ & 3.10
+            & 4.66$\times$ & 6.06 \\
+
+            & \mbox{\method~\tabsmall\secondarycolor{(16)}}
+            & \textbf{7.92$\times$} & \textbf{10.03} 
+            & \textbf{7.38$\times$} & \textbf{9.43} 
+            & \textbf{5.85$\times$} & \textbf{7.41} 
+            & \textbf{5.89$\times$} & \textbf{7.39} 
+            & \textbf{5.53$\times$} & \textbf{7.04} 
+            & 5.27$\times$ & 7.04 
+            & \textbf{3.29$\times$} & \textbf{5.18} 
+            & \textbf{2.78$\times$} & \textbf{3.87}
+            & \textbf{5.49$\times$} & \textbf{7.17} \\
+
+            \midrule
+            \multicolumn{2}{c}{Temperature = 1} 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$ 
+            & \tabsmall Speedup & \tabsmall $\tau$
+            & \tabsmall Speedup & \tabsmall $\tau$
+            & \tabsmall Speedup & \tabsmall $\tau$  \\
+            
+            \midrule
+            \multirow{5}{*}{Qwen3-4B}
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(16)}}
+            & 2.18$\times$ & 3.26 
+            & 2.00$\times$ & 3.00 
+            & 1.86$\times$ & 2.80 
+            & 2.02$\times$ & 3.04 
+            & 1.97$\times$ & 2.95 
+            & 1.87$\times$ & 2.83 
+            & 1.90$\times$ & 2.91 
+            & 1.78$\times$ & 2.72
+            & 1.95$\times$ & 2.94 \\
+
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(60)}} 
+            & 2.44$\times$ & 3.77 
+            & 2.28$\times$ & 3.51 
+            & 2.08$\times$ & 3.10 
+            & 2.09$\times$ & 3.09 
+            & 2.19$\times$ & 3.38 
+            & 2.05$\times$ & 3.19 
+            & 2.11$\times$ & 3.33 
+            & 2.02$\times$ & 3.17
+            & 2.16$\times$ & 3.32 \\
+
+            & \mbox{DART~\tabsmall\secondarycolor{(60)}}
+            & 2.19$\times$ & 2.65 
+            & 2.20$\times$ & 2.63 
+            & 2.13$\times$ & 2.59 
+            & 2.48$\times$ & 2.99 
+            & 2.46$\times$ & 3.01 
+            & 2.23$\times$ & 2.76 
+            & 2.19$\times$ & 2.69 
+            & 2.16$\times$ & 2.78
+            & 2.26$\times$ & 2.76 \\
+
+            & \mbox{DFlash~\tabsmall\secondarycolor{(16)}}
+            & 4.66$\times$ & 5.98 
+            & 5.02$\times$ & 6.58 
+            & \textbf{3.79$\times$} & \textbf{5.05} 
+            & 4.73$\times$ & 5.96 
+            & 4.44$\times$ & 5.67 
+            & 4.76$\times$ & 6.38 
+            & 2.62$\times$ & 3.97 
+            & 2.18$\times$ & 3.03
+            & 4.03$\times$ & 5.33 \\
+
+            & \mbox{\method~\tabsmall\secondarycolor{(16)}}
+            & \textbf{6.79$\times$} & \textbf{8.61} 
+            & \textbf{5.67$\times$} & \textbf{7.35} 
+            & 3.75$\times$ & 4.83 
+            & \textbf{5.02$\times$} & \textbf{6.30} 
+            & \textbf{4.96$\times$} & \textbf{6.36} 
+            & \textbf{5.04$\times$} & \textbf{6.45} 
+            & \textbf{3.02$\times$} & \textbf{4.56} 
+            & \textbf{2.59$\times$} & \textbf{3.52}
+            & \textbf{4.61$\times$} & \textbf{6.00} \\
+
+            \midrule
+            \multirow{5}{*}{Qwen3-8B}
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(16)}}
+            & 2.18$\times$ & 3.26 
+            & 1.96$\times$ & 3.00 
+            & 1.86$\times$ & 2.80 
+            & 2.05$\times$ & 3.09 
+            & 1.97$\times$ & 2.95 
+            & 1.90$\times$ & 2.93 
+            & 1.91$\times$ & 2.91 
+            & 1.78$\times$ & 2.83
+            & 1.95$\times$ & 2.97 \\
+
+            & \mbox{EAGLE-3~\tabsmall\secondarycolor{(60)}} 
+            & 2.40$\times$ & 3.70 
+            & 2.23$\times$ & 3.44 
+            & 2.05$\times$ & 3.17 
+            & 2.32$\times$ & 3.58 
+            & 2.11$\times$ & 3.24 
+            & 1.90$\times$ & 2.95 
+            & 1.91$\times$ & 3.02 
+            & 1.78$\times$ & 2.81
+            & 2.09$\times$ & 3.24 \\
+
+            & \mbox{DART~\tabsmall\secondarycolor{(60)}}
+            & 2.25$\times$ & 2.71 
+            & 2.25$\times$ & 2.70 
+            & 2.13$\times$ & 2.59 
+            & 2.45$\times$ & 2.95 
+            & 2.45$\times$ & 2.98 
+            & 2.25$\times$ & 2.78 
+            & 2.24$\times$ & 2.73 
+            & 2.18$\times$ & 2.84
+            & 2.28$\times$ & 2.79 \\
+
+            & \mbox{DFlash~\tabsmall\secondarycolor{(16)}}
+            & 4.71$\times$ & 6.00 
+            & 5.00$\times$ & 6.50 
+            & 3.72$\times$ & 4.77 
+            & 4.34$\times$ & 5.44 
+            & 4.14$\times$ & 5.23 
+            & 5.04$\times$ & \textbf{6.73} 
+            & 2.55$\times$ & 3.87 
+            & 2.16$\times$ & 2.93
+            & 3.96$\times$ & 5.18 \\
+
+            & \mbox{\method~\tabsmall\secondarycolor{(16)}}
+            & \textbf{6.47$\times$} & \textbf{8.34} 
+            & \textbf{5.40$\times$} & \textbf{7.20} 
+            & \textbf{3.78$\times$} & \textbf{4.92} 
+            & \textbf{4.75$\times$} & \textbf{5.98} 
+            & \textbf{4.73$\times$} & \textbf{6.02} 
+            & \textbf{5.06$\times$} & 6.72 
+            & \textbf{2.94$\times$} & \textbf{4.61} 
+            & \textbf{2.52$\times$} & \textbf{3.46}
+            & \textbf{4.46$\times$} & \textbf{5.91} \\
+
+            \bottomrule
+        \end{tabular}
+    }
+\end{table*}

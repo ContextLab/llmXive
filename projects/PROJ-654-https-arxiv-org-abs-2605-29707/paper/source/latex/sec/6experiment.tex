@@ -1,0 +1,74 @@
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.95\linewidth]{latex/figure/parallel_backbone_loss_final.pdf}
+%     \caption{
+%     Parallel backbone loss during training. 
+%     The green curve denotes training with the base-anchored curriculum, while the purple curve denotes direct final-logit training without the curriculum. 
+%     Without the curriculum, the parallel backbone collapses and remains at a high loss, whereas the proposed curriculum stabilizes the backbone and drives the base loss down.
+%     }
+%     \label{fig:base_collapse}
+% \end{figure}
+
+\label{sec:experiments}
+\subsection{Experimental Setup}
+
+\paragraph{Models and Evaluations.}
+We evaluate Domino on Qwen3-4B, and Qwen3-8B \citep{qwen2025qwen3}. Following the evaluation protocol of DFlash \citep{chen2026dflash}, we consider tasks from three categories: math reasoning, code generation, and open-ended dialogue. For math reasoning, we evaluate on GSM8K \citep{cobbe2021training}, MATH \citep{hendrycks2021measuring}, and AIME25 \citep{maa2025aime}; for code generation, we use HumanEval \citep{chen2021evaluating}, MBPP \citep{austin2021program}, and LiveCodeBench \citep{jain2024livecodebench}; for dialogue, we evaluate on MT-Bench \citep{zheng2023judging} and Alpaca \citep{taori2023alpaca}. For each task, we report the average acceptance length \(\tau\) and the end-to-end decoding speedup over the autoregressive baseline.
+
+\paragraph{Training Data.}
+We train the draft modules on \texttt{mlabonne/open-perfectblend}\footnote{\url{https://huggingface.co/datasets/mlabonne/open-perfectblend}}, a instruction-tuning dataset with 1.42M samples covering chat, math, code, and general instruction-following tasks. We regenerate all responses using the corresponding target model rather than using the original dataset responses. Additional training details are provided in Appendix~\ref{app:training_details}.
+
+\paragraph{Baselines.}
+We compare Domino with vanilla autoregressive decoding and representative speculative decoding baselines, including EAGLE-3 \citep{li2025eagle3}, DFlash \citep{chen2026dflash}, DART \citep{liu2026dart}, and FR-Spec \citep{zhao2025fr}. EAGLE-3 represents autoregressive drafting; DFlash and DART represent parallel drafting methods that reduce repeated per-token draft computation; and FR-Spec represents vocabulary-efficient speculative decoding by reducing full-vocabulary LM-head projection cost.  
+
+\paragraph{Implementation Details.}
+For Domino, we use a draft block size of 16 for all target models and a 5-layer parallel draft backbone. The hidden dimension of the GRU causal encoder is set to 1024, and the hidden dimension of the low-rank correction head is set to 256. Unless otherwise specified, all experiments are conducted on NVIDIA A100-SXM4-80GB GPUs. 
+
+\subsection{Main Results}
+
+\paragraph{Low-concurrency case.}
+Table~\ref{tab:main-results} reports the end-to-end speedup and average acceptance length on Qwen3 models under the Transformers backend. Domino consistently outperforms autoregressive drafting methods such as EAGLE-3, as well as parallel drafting baselines including DART and DFlash. Compared with DFlash, Domino further improves the average speedup from \(4.70\times\) to \(5.47\times\) on Qwen3-4B and from \(4.66\times\) to \(5.49\times\) on Qwen3-8B under greedy decoding (\(T=0\)). Similar gains hold under sampling decoding (\(T=1\)), where the average speedup increases from \(4.03\times\) to \(4.61\times\) on Qwen3-4B and from \(3.96\times\) to \(4.46\times\) on Qwen3-8B. These results show that causal correction improves draft quality with little additional overhead, leading to a higher end-to-end speedup.
+\paragraph{High-concurrency case.}
+We further evaluate serving throughput under different concurrency levels using SGLang. As shown in Table~\ref{tab:high-concurrency-tps}, Domino achieves higher throughput than EAGLE-3 and DFlash on both Qwen3-4B and Qwen3-8B. The gains indicate that the improved draft quality of Domino can be effectively translated into practical serving throughput, while maintaining the low-overhead advantage of block-parallel drafting.
+
+
+\subsection{Ablation}
+\label{ablation}
+We conduct ablation studies to understand the source of Domino's improvement. 
+Specifically, we examine whether the gain comes from differences in training data, the proposed training strategy, and the lightweight Domino head. 
+Unless otherwise specified, all ablation experiments are conducted on Qwen3-8B with greedy decoding. 
+The draft models are trained on ShareGPT, and evaluations are performed on NVIDIA A100 GPUs.
+\subsubsection{Training Data}
+\input{latex/table/high_concurrency}
+To isolate the impact of model architecture, we train all baselines on identical data. During evaluation, we apply greedy decoding with a fixed 16-token drafting budget across all methods.
+
+Table~\ref{tab:same-data-abl} shows a clear trade-off between acceptance length and drafting overhead. EAGLE-3 achieves strong acceptance lengths, e.g., \(5.01\) on GSM8K, but its throughput is limited by sequential drafting. DFlash has lower acceptance lengths, e.g., \(3.90\) on GSM8K and \(3.78\) on HumanEval, but obtains higher throughput by using parallel drafting. Domino achieves a better balance: it reaches comparable acceptance lengths to autoregressive methods while maintaining low drafting overhead, resulting in the best throughput on almost all tasks and concurrency levels. This confirms that the gain comes from the proposed design rather than training-data differences.
+
+\subsubsection{Training Strategy}
+\label{sec: abl_training}
+\begin{figure}[t]
+    
+    \centering
+    \includegraphics[width=\columnwidth]{latex/figure/training_strategy_ablation.pdf}
+    \caption{
+    Left: parallel backbone loss with and without the base-anchored curriculum. 
+    Right: average acceptance length under TTT, TF, and TF+Curr. 
+    TTT denotes training-time testing, TF denotes teacher forcing, and Curr denotes the base-anchored curriculum. 
+    The gray dashed line denotes the DFlash reference.
+    }
+    \label{fig:training_strategy}
+    \vspace{-2mm}
+\end{figure}
+
+We ablate the training strategy for the causal correction branch in Figure~\ref{fig:training_strategy}. Compared with training-time test (TTT), teacher forcing improves the average acceptance length from \(3.80\) to \(3.96\). This supports our motivation that the causal encoder should be trained on ground-truth prefixes rather than noisy self-generated prefixes, since only draft positions whose previous tokens have been accepted can contribute to the final acceptance length.
+
+However, direct teacher forcing alone is not sufficient. As discussed in Section~\ref{sec:training}, clean ground-truth prefixes can allow the correction branch to shortcut the parallel backbone, causing the base logits to collapse. This is reflected in Figure~\ref{fig:training_strategy}, where direct final-logit training keeps the parallel backbone loss high. The base-anchored curriculum mitigates this issue by first strengthening the base logits and then gradually shifting optimization toward the final logits. As a result, TF+Curriculum further improves the average acceptance length from \(3.96\) to \(4.19\). These results validate both parts of our training strategy: teacher forcing provides a more useful learning signal for causal correction, while the base-anchored curriculum prevents backbone collapse and improves the final draft quality.
+\input{latex/table/same_data_abl}
+
+\subsubsection{Effect of Domino Head}
+
+We ablate the Domino head by evaluating the same model with the causal correction branch disabled or enabled. As shown in Table~\ref{tab:domino_head_avg}, enabling the Domino head improves the average acceptance length from \(3.49\) to \(4.19\) and the average speedup from \(2.84\times\) to \(3.31\times\). This confirms that lightweight prefix-dependent correction is the key source of the improvement over the parallel backbone alone.
+
+\input{latex/table/domino_effect_avg}
+
+ 

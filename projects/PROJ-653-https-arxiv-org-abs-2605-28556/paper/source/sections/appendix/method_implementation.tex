@@ -1,0 +1,144 @@
+\section{Implementation Details}
+\label{app:method_implementation}
+
+This appendix documents the end-to-end pipeline of TASTE (Section~\ref{sec:method}), as executed to produce \ourbenchmark. The description is domain-agnostic: the only domain-specific resources are environment definition (policy document, tool specification, DB schema) and the set of original tasks.
+
+All three stages are executed as separate processes that communicate via artifacts; each stage's output is the following stage's input. Unless stated otherwise, every LLM call uses Gemini-$3$-flash with default LiteLLM\footnote{\url{https://www.litellm.ai/}} settings; ablations over the model choice are reported in the Results section (Section~\ref{sec:results}).
+
+\subsection{Stage 1: Tool Sequence Sampling with an Adaptive Contrastive $n$-gram Model}
+\label{app:n-gram}
+
+Algorithm~\ref{alg:ngram-training} summarizes the procedure described below.
+
+\paragraph{Model.}
+The sampler instantiates the Adaptive Contrastive $n$-gram model of Section~\ref{sub:n_gram} with $n{=}3$ (trigram), Dirichlet smoothing $\lambda_0 = 0.1$, and negative-evidence weight $\lambda_{\text{neg}} = 1$. Positive and negative count tables, $C^+$ and $C^-$, are initially empty. The available tokens set is the environment's tool identifiers; two special tokens, \textsc{bos} and \textsc{eos}, are reserved for padding and termination and are never emitted by the sampler.
+
+\paragraph{Temperature schedule.}
+The temperature schedule is instantiated as an exponential decay
+\[
+  T(k) \;=\; 1 + (T_0 - 1)\,\exp\!\bigl(-k / \tau_{\text{decay}}\bigr),
+\]
+with $T_0 = 3.0$ and $\tau_{\text{decay}} = 1500$. The iteration counter $k$ advances once per generation attempt.
+
+\paragraph{Length sampling.}
+Candidate sequence lengths are drawn from a skew-normal distribution with location~$7$, scale~$5$, and skewness~$2.0$; samples are hard-clipped to the integer range $[1, 15]$ and rounded to the nearest integer.
+
+\paragraph{Generation.}
+A candidate action sequence is produced by prepending two \textsc{bos} tokens to the empty sequence, then sampling tokens autoregressively from $P(t_i \mid \text{ctx}_i)$ until the length $L$ drawn above is reached;
+
+\paragraph{Plausibility validator.}
+Every candidate is evaluated by the plausibility validator: an LLM prompted with the domain-specific validation template (Box~\ref{box:validate-action-sequence}). The prompt is templated with the candidate sequence and the domain environment. The validator determines whether the candidate sequence is valid and produces problematic indices if it is not.
+
+\paragraph{Ingestion.}
+Sequences judged plausible are ingested into $C^+$: every $n$-gram window extracted from the \textsc{bos}-padded sequence is incremented. Sequences judged implausible are ingested into $C^-$: only windows whose final token index appears in problematic indices are incremented.  Uniqueness is enforced by tuple-equality deduplication. Duplicate sequences are skipped without contributing to either table; the iteration counter~$k$ still advances.
+
+\paragraph{Seed initialization.}
+Before the main loop, the gold tool sequence of the domain's original tasks are each evaluated by the plausibility validator and ingested according to its verdict.
+
+\paragraph{Training loop.}
+The loop runs for a total of $3{,}000$ generation attempts. The output of Stage~1 is the trained sampler with its final count tables.
+
+\subsection{Stage 2: Clustering and Selection}
+\label{app:clustering}
+
+Algorithm~\ref{alg:clustering} summarizes the procedure described below.
+
+\paragraph{Pool generation.}
+A pool of $2{,}000$ unique tool sequences is drawn from the trained sampler. Sampling uses a fixed temperature $T_{\text{pool}} = 1.5$ and the same skew-normal length distribution as in Stage~1.
+
+\paragraph{Weighted edit distance.}
+Pairwise distances between sequences use a standard Levenshtein recurrence with insertion and deletion cost $1$ and a hand-set tiered substitution cost:
+\[
+  d_{\text{sub}}(a, b) \;=\;
+  \begin{cases}
+    0 & \text{if } a = b, \\
+    0.33 & \text{if } \text{type}(a) = \text{type}(b) \text{ and } \text{group}(a) = \text{group}(b), \\
+    0.66 & \text{if } \text{type}(a) = \text{type}(b) \text{ and } \text{group}(a) \neq \text{group}(b), \\
+    1.00 & \text{if } \text{type}(a) \neq \text{type}(b).
+  \end{cases}
+\]
+The \emph{type} of a tool is one of \textsc{read}, \textsc{write}, \textsc{generic}, as declared in the tool specification; \textsc{generic} tools are treated as \textsc{read} for the type comparison only. The \emph{group} of a tool is the prefix of the tool name up to the first underscore (e.g., the group of \texttt{search\_direct\_flight} is \texttt{search}). 
+
+Figure~\ref{fig:cluster-distances} (Appendix~\ref{app:wed-qualitative}) gives a qualitative illustration of how this metric behaves on real airline-domain sequences. For three clusters drawn from the validated $k=50$ medoid set with visibly distinct user-service intents (book a new reservation; modify reservation flights; cancel a reservation with a refund certificate), Figure~\ref{fig:cluster-distances}(a) shows that within-cluster distances stay between $1.0$ and $3.98$, while the inter-medoid matrix in Figure~\ref{fig:cluster-distances}(b) reports a smallest between-medoid distance of $5.31$ -- so the cluster boundaries align with semantic intent, and cosmetic variants (read reordering, optional same-group write substitutions) are absorbed into the same cluster.
+
+\paragraph{$K$-medoids.}
+The number of clusters $K$ is set to the number of seed tasks in the domain ($50$ for airline; $114$ for retail and telecom). Medoids are initialized via the $k$-medoids\texttt{++} scheme: the first medoid is drawn uniformly at random from the pool, and each subsequent medoid is drawn with probability proportional to the squared distance from the pool point to its nearest existing medoid. A PAM-style update loop then alternates an assignment step (each point is assigned to its nearest medoid) with an update step (each medoid is replaced by the cluster member that minimizes total intra-cluster distance). The loop terminates when the medoid set stabilizes between consecutive iterations, with a hard cap of $100$ iterations.
+
+\paragraph{Medoid validation and replacement.}
+Each medoid is validated by the same plausibility validator used in Stage~1. When a medoid is judged implausible, a replacement is searched among the other members of its cluster in order of increasing distance to the original medoid. If no member of the cluster is judged plausible, the cluster is marked \emph{unusable} for this round.
+
+\paragraph{Re-clustering of unusable clusters.}
+At the start of each re-clustering round, every medoid that has been accepted in a previous round is frozen as an immovable center. A fresh pool of sequences is drawn from the sampler under the same settings as the initial pool. Constrained $k$-medoids is then run with the frozen centers fixed and $k'$ free centers (one per unusable cluster) selected from the new pool; the constraint is algorithmic rather than penalty-based: frozen indices never participate in the medoid-update step, but they remain in the nearest-medoid assignment. Newly selected free medoids are validated as above; unusable clusters remaining after three rounds are dropped, and the benchmark size is reduced accordingly.
+
+\paragraph{Output.}
+The stage emits, for each plausible cluster, the medoid sequence.
+
+\subsection{Stage 3: Task Generation and Evolution}
+\label{app:task-generation}
+
+Each plausible medoid $\bar{\sigma}$ from Stage~2 is instantiated as a base task $x=(s_0, u, \sigma^\star)$ following Section~\ref{sub:task_generation}: two LLM calls produce the task, which is then screened by a multi-step validity pipeline with a feedback-driven repair loop. The validated base task is then evolved into an adversarial variant by a three-step pipeline with its own validity check. Algorithm~\ref{alg:task-generation} summarizes the procedure described below.
+
+\paragraph{Base task generation: scenario construction.}
+The first LLM call (Box~\ref{box:create-user-task}) constructs a coherent real-world scenario that motivates the tool sequence $\bar{\sigma}$, inventing concrete entities and producing a verbose, step-by-step user instruction $u$.
+
+\paragraph{Base task generation: database initialization.}
+The second LLM call (Box~\ref{box:generate-db-init}) produces the database entities required to execute $\bar{\sigma}$. These entities are merged into the domain's base environment state to form the task's initial state $s_0$.
+
+\paragraph{Validity checks.}
+Following Section~\ref{sub:task_generation}, the generated task is evaluated by a pipeline combining rule-based and simulation-based checks; the pipeline short-circuits on the first failure.
+\begin{enumerate}
+  \item \textbf{(Rule)} Arguments fully specified.
+  \item \textbf{(Rule)} Referenced entities exist in $s_0$.
+  \item \textbf{(Rule)} $s_0$ conforms to the domain schema.
+  \item \textbf{(Rule)} Gold tool-call sequence succeeds.
+  \item \textbf{(LLM)} Policy coherence review. An LLM reviews the task instructions against the policy (Box~\ref{box:task-coherence-review}).
+  \item \textbf{(Simulation)} Verifier agent. Described below.
+\end{enumerate}
+
+\paragraph{Verifier agent.}
+The verifier agent of Section~\ref{sub:task_generation} is built on \taubench's \texttt{LLMGTAgent} workflow, which primes an LLM with the full list of gold tool calls (``action hints'') before running the task in \taubench's standard simulator. Running the simulation with fully-specified hints might be too easy: the agent can transcribe the tool calls into the conversation without engaging with the scenario, yields a degenerate solvability check. Running it with no hints is too hard: a competent agent may fail a perfectly valid task because the task itself is difficult. We therefore deviate from the base implementation in two places, designed to leave enough scaffolding for the task to be solvable while forcing the agent to ground each decision in the conversation.
+
+We modify the hint list in two ways: First, we shuffle the order of the gold tool sequences. Second, for a gold tool call with  $|\text{kwargs}|$ arguments, we randomly select $\lceil p \cdot |\text{kwargs}|\rceil$ arguments to drop, with $p=0.3$. We modify the instructions to the agent accordingly. A task passes if the hinted-simulation yield a reward of $1.0$.
+
+\paragraph{Feedback-driven repair and cluster replacement.}
+When any validity check fails, the pipeline invokes a repair mechanism that feeds the failing step's error back to an LLM, which attempts to patch the offending part of the task or database. Tasks that cannot be repaired are regenerated from scratch; if repeated attempts fail, the medoid is replaced by another candidate from its cluster (Section~\ref{sub:clustering}).
+
+\paragraph{Task evolution: strategy analysis.}
+Each validated base task is then evolved into a harder variant. The first evolution LLM call (Box~\ref{box:adv-strategy}) examines each \textsc{write} action and selects global techniques from the catalog described below that shape the conversation as a whole, defines conditional branches describing how the user reacts to different agent responses, and lists decoy entities to be constructed in the environment-perturbation step.
+
+\paragraph{Adversarial pattern catalog.}
+\label{app:adversarial-patterns}
+We define a catalog of adversarial patterns, each targeting a distinct failure mode of tool-using agents. We divide the catalog into three main categories, each holding a few applicable patterns. The strategy phase selects a pattern per write action, based on the specific action and database context.
+\begin{enumerate}
+    \item \textbf{DB-grounded misdirection.} The user leads the agent towards plausible but wrong argument values. A careful agent catches these by looking things up in the DB. e.g., Decoy entity - where a similar-but-wrong entity exists in the DB that plausibly matches the user's vague description, with subtle disqualifier.
+    \item \textbf{Policy Enforcement.} The user pushes the agent toward actions that policy forbids, or beyond what the task requires. e.g., Eligibility Pressure - where a user demands an action that policy forbids, such as ineligible refund.
+    \item \textbf{Conversational adversity.} The user controls the flow of information to stress-test the agent's patience and robustness. e.g., Information withholding.
+\end{enumerate}
+
+\paragraph{Task evolution: environment perturbation.}
+A second LLM call materializes the designed techniques into concrete database records, which are merged into $s_0$ additively.
+
+\paragraph{Task evolution: scenario rewriting.}
+A third LLM call (Box~\ref{box:adv-scenario}) rewrites the user instruction $u$ to deploy the adversarial techniques from the strategy step and exploit the decoys from the environment-perturbation step, while keeping $\bar{\sigma}$ and its gold arguments unchanged.
+
+\paragraph{Evolved-task validation and graduated fallback.}
+The evolved task passes through the validation pipeline mentioned above; Rule-based steps are skipped, as $\bar{\sigma}$, its arguments, and the environment outside the decoys are preserved by construction. Failures at any evolution step trigger a feedback-driven retry with the failing step's error surfaced to the LLM. If full adversarial evolution still fails, the graduated fallback described below applies: a \emph{lite} rewrite is attempted without strategy analysis or decoys, and if it also fails the original base task is retained unchanged.
+
+\paragraph{Graduated fallback.}
+\label{app:graduated-fallback}
+When full adversarial evolution fails validation after multiple retry attempts, the pipeline applies a \emph{lite} fallback: a simplified evolution that adds only mild adversarial elements --- without strategy analysis. If the lite version also fails, the original base task is retained unchanged. This graduated approach maximizes the fraction of tasks that receive some level of difficulty enhancement while ensuring that the final task set is always complete.
+
+\paragraph{Output.}
+The stage emits a set of tasks conforming to the $\tau^2$-bench task schema, one per cluster, each in its evolved form.
+
+\subsection{Consolidated Hyperparameter Table}
+\label{app:impl-hparams}
+Table~\ref{tab:hparams} reports the hyperparameters used in the reported runs; values are constant across domains unless noted. Table~\ref{tab:model-identifiers} lists the exact API identifiers behind every model name used in the paper.
+\input{assets/tables/hyperparameters}
+\input{assets/tables/model_identifiers}
+
+\subsection{Pseudo-codes}
+\label{app:pseudo-codes}
+\input{assets/psuedo-code/ngram_training}
+\input{assets/psuedo-code/clustering}
+\input{assets/psuedo-code/task_generation}

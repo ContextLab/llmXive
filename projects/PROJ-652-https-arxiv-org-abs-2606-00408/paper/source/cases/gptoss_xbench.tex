@@ -1,0 +1,182 @@
+\subsection{Case: xBench-DeepSearch --- GPT-OSS-120B}
+
+Harmony-encoded gpt-oss-120b on the xbench-DeepSearch benchmark with observation masking context management. This case is interesting precisely because the model nails the puzzle very quickly (a four-hop Chinese-history question: artifact $\to$ recorded year $\to$ Tang chancellor who died that year $\to$ his number of sons) but then spends the bulk of the trajectory in a sustained citation-gathering grind to ground each fact with an exact line-numbered source --- exactly the regime where observation masking CM earns its keep, archiving older browser results so the model can keep re-opening alternative provenance sources without context overflow.
+
+\begin{custombox}[title=xbench-DeepSearch]
+
+\textbf{Question:} 有一个被剪做鞋样的历史文物，对研究唐代均田制起到了重要的作用，这个文物中记载的年份，有一位唐朝的一代名相去世，请问这位名相有几个儿子？
+
+\vspace{1em}
+
+\textbf{Answer:} 4个儿子
+\end{custombox}
+
+\begin{casebox}{successbg}{successframe}{GPT-OSS-120B, qid 38 --- CM observation masking, judged CORRECT}
+
+\textbf{Turn 1:}
+
+\textbf{Reasoning Content:} We need to understand: There's a historical artifact (cut out as a shoe pattern) which contributed to the study of the Tang Dynasty equal-field system (均田制). In that artifact, a recorded year includes the death of a Tang dynasty famous prime minister (名相), who (the prime minister) died in that year.
+[prevent verbose visualization, we omit 639 chars here]
+I recall a well-known wooden tablet (木牍) carved in the shape of a shoe used to record equal-field registers; known as "鞋子木牍". There is an artifact discovered in the "Mogao Grottoes" about Tang equal-field registration.
+
+One such artifact is the "中书省坐骑案"? Not.
+
+We should search.
+
+\vspace{0.3em}
+\begin{itemize}[nosep, leftmargin=*, label={}]
+    \item \textbf{Tool:} \texttt{browser.search}
+    \item \textbf{Tool Call:}
+    \vspace{-0.5em}
+    \begin{toolcall}{successbg}
+{"query": "(*@剪做鞋样 文物 均田制@*)", "topn": 10, "source": "news"}
+    \end{toolcall}
+    \vspace{-0.5em}
+    \item \textbf{Result:}
+    \vspace{-0.5em}
+    \begin{casecode}{successbg}
+[0] (*@剪做鞋样 文物 均田制@*) (web-search://ts=1778282108498621081)
+**viewing lines [0 - 34] of 34**
+
+L0: 
+L1: URL: web-search://ts=1778282108498621081
+L2: \# Search Results
+L3: 
+L4:   * (*@【0†https://www.cls.cn/detail/2044267】@*)
+L5:  Title: (*@国产开源模型强势追击！DeepSeek与OpenAI最新模型实测对决. 
+L6: 第4题是：有一个被剪做鞋样的历史文物，对研究唐代均田制起到了重要的作用，这个文物中记载的年份，有一位唐朝的一代名相去世，请问这位名相有几个儿子？@*)
+...
+    \end{casecode}
+    \item \textbf{After CM auto-archive, the agent's later context replaced this result with:}
+    \vspace{-0.5em}
+    \begin{casecode}{successbg}
+[Auto-archived at round 4 | tool=browser.search | args: query='(*@剪做鞋样 文物 均田制@*)', topn=10, source='news']
+    \end{casecode}
+\end{itemize}
+\vspace{1em}
+
+\textbf{Turn 2:}
+
+\textbf{Reasoning Content:} Result 0 is a page from cls.cn detailing the question. Let's open.
+
+\vspace{0.3em}
+\begin{itemize}[nosep, leftmargin=*, label={}]
+    \item \textbf{Tool:} \texttt{browser.open}
+    \item \textbf{Tool Call:}
+    \vspace{-0.5em}
+    \begin{toolcall}{successbg}
+{"cursor": 0, "id": 0}
+    \end{toolcall}
+    \vspace{-0.5em}
+    \item \textbf{Result:}
+    \vspace{-0.5em}
+    \begin{casecode}{successbg}
+[1] (*@国产开源模型强势追击！DeepSeek与OpenAI最新模型实测对决@*) (https://www.cls.cn/detail/2044267)
+**viewing lines [0 - 24] of 29**
+
+L0: 
+L1: URL: https://www.cls.cn/detail/2044267
+L2: (*@国产开源模型强势追击！DeepSeek与OpenAI最新模型实测对决 《科创板日报》5月29日讯 DeepSeek昨晚通过微信交流群通知，其DeepSeek @*)
+    \end{casecode}
+    \begin{casecode}{successbg}
+L3: (*@R1模型完成小版本升级，并在今日凌晨开源了最新版本模型DeepSeek-R1-0528。 代码测试平台Live 
+L4: CodeBench中显示，DeepSeek-R1-0528性能可以媲美OpenAI最新的o3（High）模型。 
+L5: 小K今日以一名普通用户的身份，参考AI基准测试xbench的例题，在DeepSeek和OpenAI官网分别对它们最新的R1模型和o3模型进行了对比测试。@*)
+...
+    \end{casecode}
+    \item \textbf{After CM auto-archive, the agent's later context replaced this result with:}
+    \vspace{-0.5em}
+    \begin{casecode}{successbg}
+[Auto-archived at round 5 | tool=browser.open | args: cursor=0, id=0]
+    \end{casecode}
+\end{itemize}
+\vspace{1em}
+
+\textbf{Turn 3:}
+
+\textbf{Reasoning Content:} We have the exact answer inside this article: According to it, the artifact is "赵怀满夏田契" (Zhao Huaiman summer field contract?) signed in Zhen Guan 17 (643 CE). The death of the person is "魏徵" (Wei Zheng), a famous prime minister (Tang's one-generation famous chancellor). It says Wei Zheng had four sons: Wei Shuyu, Wei Shuwan, Wei Shulin, Wei Shuyu (two Shuyu? Actually we need to parse). It says "魏叔玉、魏叔琬、魏叔麟、魏叔瑜". That's four.
+
+Thus the answer: 4 sons.
+
+We need to verify details of Wei Zheng and his children, to be sure.
+
+Thus we need to find reliable sources about Wei Zheng's sons. (But the answer is probably 4). Let's search.
+
+\vspace{0.3em}
+\begin{itemize}[nosep, leftmargin=*, label={}]
+    \item \textbf{Tool:} \texttt{browser.search}
+    \item \textbf{Tool Call:}
+    \vspace{-0.5em}
+    \begin{toolcall}{successbg}
+{"query": "(*@魏徵 四子", "topn": 10, "source": "news"}
+    \end{toolcall}
+    \vspace{-0.5em}
+    \item \textbf{Result:}
+    \vspace{-0.5em}
+    \begin{casecode}{successbg}
+[2] (*@魏徵 四子 (web-search://ts=1778282114215957938)
+**viewing lines [0 - 30] of 30**
+
+L0: 
+L1: URL: web-search://ts=1778282114215957938
+L2: \# Search Results
+L3:
+L4:   * (*@【0†https://zh.wikipedia.org/wiki/\%E9\%AD\%8F\%E5\%BE\%B5】@*)
+L5:  Title: (*@魏徵- 維基百科，自由的百科全書. 魏 徵 （ ㄓㄥ ）（580年—643年1月17日），字玄成，相州內縣（今河南省安陽市）人
+L6: 郡下曲陽縣（今河北省沧州市），隋唐政治家，思想家，文學家和史學家，曾任谏議 ...@*)
+...
+    \end{casecode}
+\end{itemize}
+\vspace{1em}
+
+\textbf{Turn 4 -- 7 (condensed):}
+
+\textbf{What the model is doing in this stretch:} \emph{The model jumps straight to the Wikipedia page for Wei Zheng and runs a couple of in-page \texttt{browser.find} calls looking for the sons list (searching `{四子}', then `{子}', scrolling), before the next detailed turn surfaces the exact line listing the four sons.}
+
+\vspace{1em}
+
+\textbf{Turn 8:}
+
+\textbf{Reasoning Content:} The page includes child line. It says "子 魏叔玉 魏叔瑜 魏叔琬 魏叔麟" - that's four sons. So we can cite that.
+
+Now the artifact: "被剪做鞋样的历史文物" - let's search.
+
+\vspace{0.3em}
+\begin{itemize}[nosep, leftmargin=*, label={}]
+    \item \textbf{Tool:} \texttt{browser.search}
+    \item \textbf{Tool Call:}
+    \vspace{-0.5em}
+    \begin{toolcall}{successbg}
+{"query": "(*@剪成鞋样 文物 均田制@*)", "topn": 10, "source": "news"}
+    \end{toolcall}
+    \vspace{-0.5em}
+    \item \textbf{Result:}
+    \vspace{-0.5em}
+    \begin{casecode}{successbg}
+[7] (*@剪成鞋样 文物 均田制@*) (web-search://ts=1778282117889133416)
+**viewing lines [0 - 38] of 38**
+
+L0: 
+L1: URL: web-search://ts=1778282117889133416
+L2: # Search Results
+L3: 
+L4:   * (*@【0†https://agent.minimax.io/share/279900773572693】@*)
+L5:  Title: (*@有一个被剪做鞋样的历史文物,对研究唐代均田制起到了重要的作用 .... 
+L6: 本任务成功地研究了一件被剪裁成鞋样的唐代文物。通过多轮网络搜索和信息提取，确认了该文物为《唐西州高昌县上安西都护府牒稿》，出土于吐鲁番阿斯塔那古墓群。通过考证@*) 
+...
+    \end{casecode}
+\end{itemize}
+\vspace{1em}
+
+\textbf{Turn 9 -- 64 (condensed):}
+
+\textbf{What the model is doing in this stretch:} \emph{From here the model already has everything it needs to answer the puzzle: the artifact is the {赵怀满夏田契} (Zhao Huaiman summer field contract); its recorded year is {贞观十七年} (643 CE); the famous Tang chancellor who died that year is {魏徵}; and his four sons are {魏叔玉}, {魏叔瑜}, {魏叔琬}, {魏叔麟}. Yet the model then spends the next fifty-odd rounds in a sustained citation-gathering grind: hammering Baidu Baike entries for both {魏徵} and the contract, the China National Museum page for the artifact, an AI-generated `U{深搜}' page that turns out to be untrustworthy, {古诗文} sources, and the Wikipedia page again, all while repeatedly running \texttt{browser.find} for `{卒于}', `{公元643}', `{魏叔}', `{四子}' to pin down exact line numbers for the inline \texttt{\textbackslash{}cite}-style citations (\texttt{(*@【48†L2-L5】@*)}, \texttt{(*@【59†L7-L9】@*)}, \texttt{(*@【60†L1-L2】@*)}) the final answer requires. This long provenance grind is exactly the regime where observation masking CM earns its keep: \textbf{62 browser results get auto-archived} across the run (see the head-round mask preview above for what one such archive event looks like in the agent's later context), keeping the working context bounded so the model can keep re-opening alternative candidate sources without overflowing.}
+
+\vspace{1em}
+
+\textbf{Final Answer:} Explanation: (*@这件被裁成鞋样的文物是“赵怀满夏田契”，其记载的时间是贞观十七年（公元643年）【48†L2-L5】。同一年唐代著名宰相魏徵去世，史料记载其逝于贞观十七年（643年）【60†L1-L2】。《百度百科》列出魏徵的子女为长子魏叔玉、次子魏叔瑜、第三子魏叔琬、第四子魏叔麟，共四名儿子【59†L7-L9】。因此，这位名相有 **四个儿子**。@*)
+
+Exact Answer: 四个
+
+Confidence: 98\%
+\end{casebox}

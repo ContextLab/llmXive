@@ -1,0 +1,146 @@
+\begin{thebibliography}{28}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{An et~al.(2026)An, Bai, Liu, Li, and Barsoum}]{an2026pard}
+Zihao An, Huajun Bai, Ziqiong Liu, Dong Li, and Emad Barsoum. 2026.
+\newblock Pard: Accelerating llm inference with low-cost parallel draft model adaptation.
+\newblock In \emph{International Conference on Learning Representations}.
+
+\bibitem[{Ankner et~al.(2024)Ankner, Parthasarathy, Nrusimha, Rinard, Ragan-Kelley, and Brandon}]{ankner2024hydra}
+Zachary Ankner, Rishab Parthasarathy, Aniruddha Nrusimha, Christopher Rinard, Jonathan Ragan-Kelley, and William Brandon. 2024.
+\newblock Hydra: Sequentially-dependent draft heads for medusa decoding.
+\newblock \emph{arXiv preprint arXiv:2402.05109}.
+
+\bibitem[{Austin et~al.(2021)Austin, Odena, Nye, Bosma, Michalewski, Dohan, Jiang, Cai, Terry, Le, and Sutton}]{austin2021program}
+Jacob Austin, Augustus Odena, Maxwell Nye, Maarten Bosma, Henryk Michalewski, David Dohan, Ellen Jiang, Carrie Cai, Michael Terry, Quoc Le, and Charles Sutton. 2021.
+\newblock Program synthesis with large language models.
+\newblock \emph{arXiv preprint arXiv:2108.07732}.
+
+\bibitem[{Cai et~al.(2024)Cai, Li, Geng, Peng, Lee, Chen, and Dao}]{cai2024medusa}
+Tianle Cai, Yuhong Li, Zhengyang Geng, Hongwu Peng, Jason~D. Lee, Deming Chen, and Tri Dao. 2024.
+\newblock Medusa: Simple {LLM} inference acceleration framework with multiple decoding heads.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, pages 5209--5235. PMLR.
+
+\bibitem[{Chen et~al.(2023)Chen, Borgeaud, Irving, Lespiau, Sifre, and Jumper}]{chen2023accelerating}
+Charlie Chen, Sebastian Borgeaud, Geoffrey Irving, Jean-Baptiste Lespiau, Laurent Sifre, and John Jumper. 2023.
+\newblock Accelerating large language model decoding with speculative sampling.
+\newblock \emph{arXiv preprint arXiv:2302.01318}.
+
+\bibitem[{Chen et~al.(2026)Chen, Liang, and Liu}]{chen2026dflash}
+Jian Chen, Yesheng Liang, and Zhijian Liu. 2026.
+\newblock Dflash: Block diffusion for flash speculative decoding.
+\newblock \emph{arXiv preprint arXiv:2602.06036}.
+
+\bibitem[{Chen et~al.(2021)Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards, Burda, Joseph, Brockman, Ray, Puri, Krueger, Petrov, Khlaaf, Sastry, Mishkin, Chan, Gray, Ryder, Pavlov, Power, Kaiser, Bavarian, Winter, Tillet, Such, Cummings, Plappert, Chantzis, Barnes, Herbert-Voss, Guss, Nichol, Paino, Tezak, Tang, Babuschkin, Balaji, Jain, Saunders, Hesse, Carr, Leike, Achiam, Misra, Morikawa, Radford, Knight, Brundage, Murati, Mayer, Welinder, McGrew, Amodei, McCandlish, Sutskever, and Zaremba}]{chen2021evaluating}
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de~Oliveira Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg Brockman, Alex Ray, Raul Puri, Gretchen Krueger, Michael Petrov, Heidy Khlaaf, Girish Sastry, Pamela Mishkin, Brooke Chan, Scott Gray, and 39 others. 2021.
+\newblock Evaluating large language models trained on code.
+\newblock \emph{arXiv preprint arXiv:2107.03374}.
+
+\bibitem[{Cho et~al.(2014)Cho, van Merri{\"e}nboer, Gulcehre, Bahdanau, Bougares, Schwenk, and Bengio}]{cho2014learning}
+Kyunghyun Cho, Bart van Merri{\"e}nboer, Caglar Gulcehre, Dzmitry Bahdanau, Fethi Bougares, Holger Schwenk, and Yoshua Bengio. 2014.
+\newblock Learning phrase representations using rnn encoder--decoder for statistical machine translation.
+\newblock In \emph{Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing}, pages 1724--1734.
+
+\bibitem[{Christopher et~al.(2025)Christopher, Bartoldson, Ben-Nun, Cardei, Kailkhura, and Fioretto}]{christopher2025speculative}
+Jacob~K Christopher, Brian~R Bartoldson, Tal Ben-Nun, Michael Cardei, Bhavya Kailkhura, and Ferdinando Fioretto. 2025.
+\newblock Speculative diffusion decoding: Accelerating language generation through diffusion.
+\newblock In \emph{Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)}, pages 12042--12059.
+
+\bibitem[{Cobbe et~al.(2021)Cobbe, Kosaraju, Bavarian, Chen, Jun, Kaiser, Plappert, Tworek, Hilton, Nakano, Hesse, and Schulman}]{cobbe2021training}
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, Christopher Hesse, and John Schulman. 2021.
+\newblock Training verifiers to solve math word problems.
+\newblock \emph{arXiv preprint arXiv:2110.14168}.
+
+\bibitem[{Hendrycks et~al.(2021)Hendrycks, Burns, Kadavath, Arora, Basart, Tang, Song, and Steinhardt}]{hendrycks2021measuring}
+Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and Jacob Steinhardt. 2021.
+\newblock Measuring mathematical problem solving with the math dataset.
+\newblock \emph{arXiv preprint arXiv:2103.03874}.
+
+\bibitem[{Husz{\'a}r(2015)}]{huszar2015not}
+Ferenc Husz{\'a}r. 2015.
+\newblock How (not) to train your generative model: Scheduled sampling, likelihood, adversary?
+\newblock \emph{arXiv preprint arXiv:1511.05101}.
+
+\bibitem[{Jain et~al.(2024)Jain, Han, Gu, Li, Yan, Zhang, Wang, Solar-Lezama, Sen, and Stoica}]{jain2024livecodebench}
+Naman Jain, King Han, Alex Gu, Wen-Ding Li, Fanjia Yan, Tianjun Zhang, Sida Wang, Armando Solar-Lezama, Koushik Sen, and Ion Stoica. 2024.
+\newblock Livecodebench: Holistic and contamination free evaluation of large language models for code.
+\newblock \emph{arXiv preprint arXiv:2403.07974}.
+
+\bibitem[{Leviathan et~al.(2023)Leviathan, Kalman, and Matias}]{leviathan2023fast}
+Yaniv Leviathan, Matan Kalman, and Yossi Matias. 2023.
+\newblock Fast inference from transformers via speculative decoding.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine Learning}, volume 202 of \emph{Proceedings of Machine Learning Research}, pages 19274--19286. PMLR.
+
+\bibitem[{Li et~al.(2025{\natexlab{a}})Li, Fu, Fang, Zhao, Tang, Yuan, and Wang}]{li2025diffuspec}
+Guanghao Li, Zhihui Fu, Min Fang, Qibin Zhao, Ming Tang, Chun Yuan, and Jun Wang. 2025{\natexlab{a}}.
+\newblock Diffuspec: Unlocking diffusion language models for speculative decoding.
+\newblock \emph{arXiv preprint arXiv:2510.02358}.
+
+\bibitem[{Li et~al.(2024{\natexlab{a}})Li, Wei, Zhang, and Zhang}]{li2024eagle2}
+Yuhui Li, Fangyun Wei, Chao Zhang, and Hongyang Zhang. 2024{\natexlab{a}}.
+\newblock \href {https://doi.org/10.18653/v1/2024.emnlp-main.422} {{EAGLE}-2: Faster inference of language models with dynamic draft trees}.
+\newblock In \emph{Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing}, pages 7421--7432. Association for Computational Linguistics.
+
+\bibitem[{Li et~al.(2024{\natexlab{b}})Li, Wei, Zhang, and Zhang}]{li2024eagle}
+Yuhui Li, Fangyun Wei, Chao Zhang, and Hongyang Zhang. 2024{\natexlab{b}}.
+\newblock {EAGLE}: Speculative sampling requires rethinking feature uncertainty.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, pages 28935--28948. PMLR.
+
+\bibitem[{Li et~al.(2025{\natexlab{b}})Li, Wei, Zhang, and Zhang}]{li2025eagle3}
+Yuhui Li, Fangyun Wei, Chao Zhang, and Hongyang Zhang. 2025{\natexlab{b}}.
+\newblock {EAGLE}-3: Scaling up inference acceleration of large language models via training-time test.
+\newblock In \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[{Liu et~al.(2026)Liu, Li, Zhao, Gao, Zhou, Zhang, Wang, Dou, Zhong, and Tian}]{liu2026dart}
+Fuliang Liu, Xue Li, Ketai Zhao, Yinxi Gao, Ziyan Zhou, Zhonghui Zhang, Zhibin Wang, Wanchun Dou, Sheng Zhong, and Chen Tian. 2026.
+\newblock Dart: Diffusion-inspired speculative decoding for fast llm inference.
+\newblock \emph{arXiv preprint arXiv:2601.19278}.
+
+\bibitem[{{Mathematical Association of America}(2025)}]{maa2025aime}
+{Mathematical Association of America}. 2025.
+\newblock American invitational mathematics examination 2025.
+\newblock American Mathematics Competitions.
+\newblock AIME 2025 problems.
+
+\bibitem[{Miao et~al.(2023)Miao, Oliaro, Zhang, Cheng, Wang, Zhang, Wong, Zhu, Yang, Shi et~al.}]{miao2023specinfer}
+Xupeng Miao, Gabriele Oliaro, Zhihao Zhang, Xinhao Cheng, Zeyu Wang, Zhengxin Zhang, Rae Ying~Yee Wong, Alan Zhu, Lijie Yang, Xiaoxiang Shi, and 1 others. 2023.
+\newblock Specinfer: Accelerating generative large language model serving with tree-based speculative inference and verification.
+\newblock \emph{arXiv preprint arXiv:2305.09781}.
+
+\bibitem[{{Qwen Team}(2025)}]{qwen2025qwen3}
+{Qwen Team}. 2025.
+\newblock Qwen3 technical report.
+\newblock \emph{arXiv preprint arXiv:2505.09388}.
+
+\bibitem[{Singh et~al.(2025)Singh, Fry, Perelman, Tart, Ganesh, El-Kishky, McLaughlin, Low, Ostrow, Ananthram et~al.}]{singh2025openai}
+Aaditya Singh, Adam Fry, Adam Perelman, Adam Tart, Adi Ganesh, Ahmed El-Kishky, Aidan McLaughlin, Aiden Low, AJ~Ostrow, Akhila Ananthram, and 1 others. 2025.
+\newblock Openai gpt-5 system card.
+\newblock \emph{arXiv preprint arXiv:2601.03267}.
+
+\bibitem[{Taori et~al.(2023)Taori, Gulrajani, Zhang, Dubois, Li, Guestrin, Liang, and Hashimoto}]{taori2023alpaca}
+Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li, Carlos Guestrin, Percy Liang, and Tatsunori~B. Hashimoto. 2023.
+\newblock Alpaca: A strong, replicable instruction-following model.
+\newblock \emph{Stanford Center for Research on Foundation Models}.
+\newblock Https://crfm.stanford.edu/2023/03/13/alpaca.html.
+
+\bibitem[{Williams et~al.(2026)Williams, Kwon, Li, Kouris, and Venieris}]{williams2026speculative}
+Miles Williams, Young~D Kwon, Rui Li, Alexandros Kouris, and Stylianos~I Venieris. 2026.
+\newblock Speculative decoding with a speculative vocabulary.
+\newblock \emph{arXiv preprint arXiv:2602.13836}.
+
+\bibitem[{Yan et~al.(2025)Yan, Zhu, Jiang, Wang, Chen, Zhang, Liao, Cui, Zhang, Song et~al.}]{yan2025scaling}
+Siyuan Yan, Mo~Zhu, Guo-qing Jiang, Jianfei Wang, Jiaxing Chen, Wentai Zhang, Xiang Liao, Xiao Cui, Chen Zhang, Zhuoran Song, and 1 others. 2025.
+\newblock Scaling laws for speculative decoding.
+\newblock \emph{arXiv preprint arXiv:2505.07858}.
+
+\bibitem[{Zhao et~al.(2025)Zhao, Pan, Han, Zhang, Ao, Huang, Zhang, Zhao, Li, Zhou et~al.}]{zhao2025fr}
+Weilin Zhao, Tengyu Pan, Xu~Han, Yudi Zhang, Sun Ao, Yuxiang Huang, Kaihuo Zhang, Weilun Zhao, Yuxuan Li, Jie Zhou, and 1 others. 2025.
+\newblock Fr-spec: Accelerating large-vocabulary language models via frequency-ranked speculative sampling.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 3909--3921.
+
+\bibitem[{Zheng et~al.(2023)Zheng, Chiang, Sheng, Zhuang, Wu, Zhuang, Lin, Li, Li, Xing, Zhang, Gonzalez, and Stoica}]{zheng2023judging}
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi~Lin, Zhuohan Li, Dacheng Li, Eric~P. Xing, Hao Zhang, Joseph~E. Gonzalez, and Ion Stoica. 2023.
+\newblock Judging llm-as-a-judge with mt-bench and chatbot arena.
+\newblock In \emph{Advances in Neural Information Processing Systems}.
+
+\end{thebibliography}

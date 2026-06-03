@@ -1,0 +1,30 @@
+\begin{figure}[tb]
+\centering
+
+  % 1. Qwen Tokens
+  \begin{minipage}[b]{0.24\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/cm_delta_tokens_qwen35b.png}
+  \end{minipage}\hfill
+  % 2. Qwen Turns
+  \begin{minipage}[b]{0.24\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/cm_delta_turns_qwen35b.png}
+  \end{minipage}\hfill
+  % 3. GPT-OSS Tokens
+  \begin{minipage}[b]{0.24\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/cm_delta_tokens_gptoss120b.png}
+  \end{minipage}\hfill
+  % 4. GPT-OSS Turns
+  \begin{minipage}[b]{0.24\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/cm_delta_turns_gptoss120b.png}
+  \end{minipage}
+\vspace{-0.75em}
+\caption{
+Comparison of per-query change in rolling input tokens and additional turns induced by CM on BrowseComp-Plus. From left to right: Qwen3.5-35B+AgentIR (tokens, turns) and GPT-OSS-120B+AgentIR (tokens, turns).
+}
+\vspace{-1.5em}
+\label{fig:tradeoff}
+\end{figure}

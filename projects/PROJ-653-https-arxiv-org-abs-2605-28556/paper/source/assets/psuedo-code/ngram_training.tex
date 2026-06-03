@@ -1,0 +1,32 @@
+\begin{algorithm}[h]
+\caption{Adaptive contrastive $n$-gram training (Section~\ref{sub:n_gram}).}
+\label{alg:ngram-training}
+\small
+\begin{algorithmic}[1]
+
+\Require seed sequences $\mathcal{\sigma}_{\text{seed}}$, validator $V$, length dist.\ $L$, temperature $T(\cdot)$, iterations $K_{\text{iter}}$
+\State $C^+, C^- \op{=} \emptyset$
+
+\For{$\bar\sigma \in \mathcal{X}_{\text{seed}}$} \Comment{Initialize with seed tasks}
+    \State $v, P \op{=} V(\bar\sigma)$
+    \If{$v \op{==} \text{plausible}$}
+        \State $C^+ \op{+=} \fn{ngrams}(\bar\sigma)$
+    \Else
+        \State $C^- \op{+=} \fn{ngrams}(\bar\sigma, P)$
+    \EndIf
+\EndFor
+\For{$k \op{=} 1 \dots K_{\text{iter}}$} \Comment{Training loop}
+    \State $\ell \op{\sim} L$
+    \State $\bar\sigma \op{=} \fn{sample}(C^+, C^-, \ell, T(k))$
+    \If{$\bar\sigma \op{\in} C^+\cup C^-$} \State \kw{continue} \EndIf
+    \State $v, P \op{=} V(\bar\sigma)$
+    \If{$v \op{==} \text{plausible}$}
+        \State $C^+ \op{+=} \fn{ngrams}(\bar\sigma)$
+    \Else
+        \State $C^- \op{+=} \fn{ngrams}(\bar\sigma, P)$
+    \EndIf
+\EndFor
+\State \kw{return} $C^+, C^-$
+
+\end{algorithmic}
+\end{algorithm}

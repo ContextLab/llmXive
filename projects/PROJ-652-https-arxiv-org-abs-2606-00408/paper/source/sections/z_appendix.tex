@@ -1,0 +1,392 @@
+\section{More Related Work}
+\label{app:related-work}
+
+\paragraph{Long-horizon Agentic Interaction.}
+Recent LLM-based agents are increasingly expected to solve complex tasks through extended interaction rather than single-turn generation. Representative settings include deep literature surveys~\citep{du2025dsbench}, computer-use tasks~\citep{xie2024osworld,team2026cocoabench}, autonomous software engineering~\citep{jain2025livecodebench,deng2025swepro}, and multimodal interleaved tool use with adaptive self-refinement~\citep{wang2025openhands,zhang2026thinkinstroke}. Across these domains, the agent must maintain a coherent task state over dozens or hundreds of turns, revise its plan based on environmental feedback, and coordinate intermediate observations with later decisions. This long-horizon interaction turns the context window into a working memory for the agent: it stores not only the user task and the model's reasoning, but also tool outputs, error messages, intermediate artifacts, and previously observed environmental states. As the interaction horizon grows, this accumulated history becomes more expensive to process and more difficult for the backbone model to use reliably, making context management a central systems problem for long-horizon agents.
+
+\paragraph{Deep Agentic Search.}
+Deep agentic search is a central instance of long-horizon interaction, where agents repeatedly issue search, reading, and localization actions to gather external evidence before answering complex questions. Early systems instantiate this paradigm with search as the primary external tool~\citep{jin2025searchr1,li2025searcho1,chen2025ReSearch,li2025agentflow}, while more recent deep-research agents extend it into structured tool-calling loops that interleave query formulation, page opening, evidence localization, and answer synthesis. Benchmarks such as BrowseComp~\citep{wei2025browsecomp}, BrowseComp-Plus~\citep{chen2025browsecompplus}, GAIA~\citep{mialon2024gaia}, xBench-DeepSearch~\citep{chen2025xbench}, HLE~\citep{phan2025hle}, and BrowseComp-ZH~\citep{zhou2025browsecompzh} further expose the need for multi-hop exploration and sustained evidence aggregation. Agentic search also amplifies the context burden: each retrieval step appends snippets, opened pages, localized spans, and tool feedback to the trajectory. The resulting context is often dominated by environment observations rather than the model's own reasoning, which makes the agent vulnerable to context dilution and long-context failures such as lost-in-the-middle behavior~\citep{liu2024lost}. Our work focuses on this setting and asks when stale search observations should remain visible to the model, and when they can be masked without harming downstream evidence use.
+
+\paragraph{Context Management for Autonomous Agents.}
+Commercial tools often rely on boundary pruning. For example, DeepSeek-V3.2~\citep{liu2025deepseekv32} uses a \textit{discard-all} stale-observation policy, Claude Code~\citep{anthropic2024claudecode} uses trajectory compaction, and Kimi Researcher~\citep{moonshot2025kimi_researcher} preserves only the most recent tool results upon overflow. Similarly, GLM-5~\citep{zeng2026glm5} evicts intermediate reasoning traces after specific milestones, and AgentSwing~\citep{feng2026agentswing} routes among multiple context management policies. These static methods reduce context length but may permanently remove long-range dependencies. Post-generation trajectory retrieval methods~\citep{lee2026parallelaggreg,zhou2026l2retrieve} instead bypass immediate eviction by retrospectively parsing or re-searching for critical evidence from completed execution traces. Dynamic and progressive methods such as AgentFold~\citep{ye2025agentfold} and ReSum~\citep{wu2025resum} add online compression, but introduce additional costs: AgentFold relies on non-native tool-calling loops, while ReSum performs step-by-step rolling summarization that increases intermediate computation and can reduce KV-cache reuse.
+
+
+\section{Evaluation Details}
+\label{app:eval}
+
+\subsection{Benchmarks}
+\label{app:eval_datasets}
+We provide a detailed introduction to the benchmarks used in our experiments, covering both \textit{offline} and \textit{live-web} deep research benchmarks:
+
+
+\begin{itemize}[leftmargin=1em]
+    \item \textbf{BrowseComp-Plus}~\citep{chen2025browsecompplus} is a closed-web benchmark designed for controlled evaluation of deep research agents. Unlike prior setups that rely on live web APIs, it employs a fixed, carefully curated corpus with human-verified supporting documents and mined hard negatives, enabling fair and transparent experimentation. The benchmark consists of complex deep research questions, derived from a subset of BrowseComp~\citep{wei2025browsecomp} queries, that require retrieving and synthesizing evidence from multiple documents within the corpus, making it well-suited for assessing deep retrieval and multi-hop reasoning capabilities. We use the officially released corpus together with its BM25 and Qwen3-Embedding-8B FAISS index to construct an offline search engine, eliminating reliance on live web access. We evaluate on the full set of 830 examples.
+
+    \item \textbf{BrowseComp-ZH}~\citep{zhou2025browsecompzh} is a Chinese deep web browsing benchmark inspired by BrowseComp. It targets the linguistic, structural, and retrieval challenges of the Chinese web, where information is often distributed across fragmented platforms and requires multi-hop search and cross-source reconciliation. The benchmark consists of 289 complex questions spanning 11 domains, each reverse-engineered from a short, objective, and verifiable answer to ensure answer uniqueness and ease of automatic evaluation. We evaluate on the full set of 289 examples.
+
+    \item \textbf{GAIA}~\citep{mialon2024gaia} is a benchmark designed to evaluate general AI assistants on real-world tasks that require reasoning, web browsing, and tool use. The benchmark consists of questions that are conceptually simple for humans but challenging for current AI systems, often requiring multiple reasoning and retrieval steps to obtain the final answer. Following prior work~\citep{team2025tongyideepresearch, miromind2025mirothinker}, we evaluate on the text-only subset of the dataset (103 examples).
+
+    \item \textbf{xbench-DeepSearch}~\citep{chen2025xbench} is an open-web benchmark targeting deep research scenarios that require sustained multi-turn information seeking. It evaluates models on their ability to decompose complex research questions, iteratively gather evidence from the web, and synthesize coherent, well-grounded responses. We evaluate on the full set of {100} examples. 
+\end{itemize}
+
+\subsection{Retrievers}
+\label{app:retrievers}
+
+\begin{itemize}[leftmargin=1em]\item \textbf{BM25}~\citep{robertson1994bm25}: a classical sparse method based on lexical matching and term frequency weighting. It is used as the standard sparse-retrieval baseline in IR ranking and as one of the two retrievers for retrieval agents on BrowseComp‑Plus.
+
+\item \textbf{Qwen3-Embedding-8B}~\citep{zhang2025qwen3embedder}: an open-weight embedding model from the Qwen3 family. It serves as the primary dense retriever for retrieval agent baselines on BrowseComp-Plus.
+
+\item \textbf{AgentIR-4B}~\citep{chen2026agentir}: an agentic-tuned retriever that introduces a reasoning-aware retrieval paradigm for DeepResearch agents. Unlike conventional retrievers that process queries in isolation, AgentIR explicitly incorporates the agent's internal reasoning traces by jointly embedding them alongside the search query. This enables the retriever to leverage the rich intent and contextual information expressed during the agent's multi-turn problem-solving process. Trained on synthetic trajectories generated via deep research data synthesis. We use their released index on BrowseComp-Plus and add the agent's current turn's reasoning into the search query, as it reported the best performance configuration.
+
+\end{itemize}
+
+\subsection{Compared Baselines}
+\label{app:baselines}
+
+\begin{itemize}[leftmargin=1em]
+
+\item \textbf{Qwen3.5/3.6 Series}~\citep{qwen35blog,qwen36-35} is a family of open-weight foundation models developed by Alibaba Cloud, built on a hybrid architecture combining Gated Delta Networks (linear attention) with sparse mixture-of-experts routing. The flagship models emphasize agentic capability, multimodal understanding, and broad multilingual coverage (201 languages and dialects), and a long input context window with up to 1M input tokens. We evaluate representative Qwen3.5 \& 3.6 models with parallel browser-tool access as competitive open-weight baselines for deep research.
+
+\item \textbf{GPT-OSS Series}~\citep{agarwal2025gptoss} is OpenAI's open-weight reasoning model family, including GPT-OSS-120B and GPT-OSS-20B with 128K input context window. These models are designed for agentic workflows with strong instruction following, adjustable reasoning effort, and tool use such as web search and code execution. We evaluate GPT-OSS models with the same browser-tool interface.
+
+\item \textbf{DeepSeek-V4}~\citep{deepseekai2026deepseekv4} is DeepSeek's latest next-generation open-weight mixture-of-experts model family with 1M input context window, including Pro and Flash variants with long-context support and agent-oriented post-training. It is designed for long-horizon tool-use workloads, with efficient attention mechanisms and dedicated tool-call formatting to support extended agent trajectories. We evaluate DeepSeek-V4 with parallel browser-tool access as a strong open-weight baseline for deep research tasks.
+
+\item \textbf{OpenResearcher-30B-A3B}~\citep{li2026openresearcher} is an open long-horizon deep-research model trained with a fully open trajectory-synthesis pipeline. It is built on Nemotron-3-Nano-30B-A3B~\citep{blakeman2025nemotron3nano}, a hybrid Mamba-Transformer Mixture-of-Experts base model with approximately 31.6 billion total parameters and 3.2 billion activated parameters per token, and a 1M input context window. We evaluate OpenResearcher directly with parallel browser-tool access as a specialized open-weight agentic-search baseline.
+
+
+\end{itemize}
+
+
+\section{Experiment Settings}
+\label{app:exp-setting}
+
+\paragraph{Model serving.}
+All backbone models are deployed on a server with eight NVIDIA H100 GPUs. We use tensor parallelism according to model size: 4B and 9B models are served with TP=1; 20B, 30B, and 35B models are served with TP=2; the 120B model is served with TP=4; and DeepSeek-V4-Flash-Max is served with TP=8. This allocation keeps the inference environment consistent across model families while allowing larger models to fit within the available GPU memory.
+
+\paragraph{Tool-call formatting.}
+During evaluation, each model is prompted with its own native chat and tool-calling template. We do not force all models into a shared synthetic tool format. Instead, tool specifications and observations are injected through the corresponding model-specific template whenever available. This choice avoids penalizing models for template mismatch and better reflects their intended deployment setting.
+
+\paragraph{Generation configuration.}
+Unless otherwise specified, all models are evaluated with a maximum generation length of 8192 output tokens per turn and a sampling temperature of 1.0. We keep these decoding hyperparameters fixed across model--retriever configurations so that differences in performance primarily reflect the interaction among backbone capability, retrieval quality, and context management strategy rather than decoding-specific tuning. A default search call \texttt{top-k} is 15, and the default \texttt{open} lines is 50. 
+
+\paragraph{Human Audit Evaluation.}
+Furthermore, to ensure evaluation reliability, we randomly sampled 15\% of the LLM-judged experimental results for human verification, achieving an agreement rate of over 99.9\% between human annotators and the LLM judge.
+
+\section{Regression Probe: Experimental Setup}
+\label{app:probe}
+
+\subsection{BrowseComp-Plus traces and labels}
+\label{app:probe-data}
+
+For the gold-document probe we use the released BrowseComp-Plus trajectories
+for five model--retriever settings:
+\begin{itemize}
+    \item \textbf{GPT-OSS-120B+AgentIR}.
+    \item \textbf{Qwen3.5-4B+AgentIR}.
+    \item \textbf{Qwen3.5-9B+Qwen3-Emb-8B}.
+    \item \textbf{DS-V4-Flash-Max+AgentIR}.
+    \item \textbf{Qwen3.5-4B+BM25}.
+\end{itemize}
+All probe features and SNR targets are computed
+only from the No-CM trajectory. Gold URLs are loaded from the BrowseComp-Plus qrels using the same exact-match URL normalization as the recall evaluator.
+
+\subsection{Prefix sampling}
+\label{app:probe-prefix}
+
+Each No-CM trajectory is parsed into tool-observation turns. For a trajectory
+with $T$ turns, we sample at most $K=8$ prefixes. If $T \le K$, all
+prefixes are kept; otherwise, $K-1$ prefixes are sampled uniformly from the
+first $T-1$ turns and the final prefix is always retained. This produces roughly
+$6.5$k prefix examples per 830-query configuration, while ensuring that every
+trajectory contributes its final evidence state.
+
+\subsection{Input features}
+\label{app:probe-features}
+
+The probe intentionally uses simple trace-shape features rather than model
+hidden states. For each sampled prefix, the feature vector contains:
+\begin{itemize}
+    \item \textbf{Current turn}: normalized prefix position.
+    \item \textbf{Log-cumulated URL number}, \textbf{Log-new URL number}: cumulative and
+    turn-local URL counts after log transform.
+    \item \textbf{Log-cumulated URL tokens}, \textbf{Log-cumulated turn observation tokens}:
+    cumulative and turn-local observation input length after log transform.
+    \item \textbf{URL growth rate}: new URLs in this turn divided by cumulative unique URLs.
+    \item \textbf{Search call}, \textbf{Open call}: binary
+    indicators for whether this tool call is a \textbf{search} page versus \textbf{open} page.
+    \item \textbf{Final URL budget}, \textbf{Log-level turns}: final
+    trajectory-level URL budget and turn count after log transform.
+\end{itemize}
+
+\subsection{Regression model and two-dimensional projection}
+\label{app:probe-model}
+
+The SNR probe is trained separately for each model--retriever configuration. We
+standardize features, expand them with second-degree polynomial interactions,
+and fit ridge regression with cross-validated regularization
+$\alpha \in \{10^{-4}, \ldots, 10^{4}\}$. Evaluation uses grouped folds by
+query ID, so prefixes from the same query never appear in both train and test
+folds. Predictions are clipped to $[0,1]$.
+
+For visualization, we convert each prefix to a two-dimensional point:
+\[
+\begin{aligned}
+x_{q,t} &= \mathrm{PCA}_1(\mathrm{standardize}(\phi_{q,t})),\\
+z_{q,t} &=
+\frac{\hat y_{q,t}-\min(\hat y)}
+     {\max(\hat y)-\min(\hat y)}.
+\end{aligned}
+\]
+The vertical coordinate $z_{q,t}$ is the full min--max normalized fitted SNR. We verify that the first principal component strongly correlates with trace scale, with dominant positive loadings on cumulative turns and log observation characters, thereby serving as a robust unsupervised proxy for input complexity.
+
+\subsection{AUC computation}
+\label{app:probe-auc}
+
+The scatter-plot AUC is not the SNR-regression objective. It is a post-hoc
+separability score computed only after the SNR regressor has produced the
+two displayed coordinates $(x_{q,t}, z_{q,t})$. For each binary label
+$b_{q,t}$, we train a balanced logistic-regression probe on
+$[x_{q,t}, z_{q,t}]^\top$ under query-grouped cross validation, so prefixes
+from the same query never appear in both the train and held-out split.
+
+For each valid held-out fold $k$, let $r_i$ be the predicted positive-class
+probability from this logistic probe. We compute the standard Mann--Whitney
+ROC-AUC within that fold and report the macro-average across valid folds:
+\[
+    \mathrm{AUC}
+    =
+    \frac{1}{|\mathcal{K}_{\mathrm{valid}}|}
+    \sum_{k \in \mathcal{K}_{\mathrm{valid}}}
+    \frac{1}{|\mathcal{P}_k|\,|\mathcal{N}_k|}
+    \sum_{p \in \mathcal{P}_k}
+    \sum_{n \in \mathcal{N}_k}
+    \left[
+        \mathbf{1}(r_p > r_n)
+        + \frac{1}{2}\mathbf{1}(r_p = r_n)
+    \right].
+\]
+Here $\mathcal{P}_k$ and $\mathcal{N}_k$ are the positive and negative examples inside the held-out fold $k$. Thus, the reported AUC measures the linear separability of the plotted two-dimensional representation, not the quality of the SNR fit itself.
+
+We use two labels. For \textbf{CM rescue}, positives are
+No-CM-wrong $\rightarrow$ CM-correct queries. In BrowseComp-Plus, negatives are all
+non-rescued prefixes; in the xBench live-web proxy plots, degraded trajectories are filtered out and negatives are unchanged prefixes. 
+
+\subsection{Live-web xBench proxy}
+\label{app:probe-liveweb}
+
+xBench live-web traces do not have BrowseComp-Plus-style gold-document qrels, so we
+are not able to report a true gold-doc SNR there. Instead, we use a weaker citation
+proxy. Let $C_q$ be the set of browser line IDs cited by the final No-CM answer
+and $L_{q,t}$ the cumulative browser lines observed by prefix $t$. The proxy
+target is
+\[
+    p_{q,t}
+    =
+    \frac{|L_{q,t} \cap C_q|}{\max(|L_{q,t}|, 1)}.
+\]
+% This is an answer-citation density measure, not an evidence-correctness measure. It can increase with later trace turns: the numerator is zero until the eventually cited page or line appears, and it can jump when the final answer's cited evidence is opened late. Thus, an upward live-web proxy curve does not contradict the BrowseComp-Plus decay pattern; it reflects when answer-cited evidence becomes observable in the No-CM trace, not necessarily a decline in noise. As a sanity check, we also compute a random-line baseline by sampling the same number of browser lines as $|C_q|$ from each trajectory.
+
+For the xBench comparison, we use the same grouped regression and two-dimensional
+separability procedure applied to the proxy target $p_{q,t}$.
+
+
+
+\section{Attention Analysis: Experimental Setup}
+\label{app:attn-setup}
+
+To characterize how an agent allocates attention across its interaction history, we instrument an inference engine to record per-layer query/key tensors during the forward pass over an entire trajectory, then aggregate the resulting attention weights by interaction turn and by role. Figure~\ref{fig:attention-maps} (main text) and the analyses in Section~\S\ref{exp:attention_dynamics} are produced with the procedure below.
+
+\subsection{Models and trajectories}
+\label{app:attn-models}
+
+We analyze publicly released BrowseComp-Plus \citep{chen2025browsecompplus} trajectories from three browsing-agent settings, each combining a base model and an information-retrieval backend:
+\begin{itemize}
+    \item \textbf{4B-BM25}: {Qwen3.5-4B} with BM25 retrieval and parallel tool calls.
+    \item \textbf{9B-AgentIR}: {Qwen3.5-9B} with the AgentIR~\citep{chen2026agentir} and parallel tool calls.
+    \item \textbf{3.6-35B-AgentIR}: {Qwen3.6-35B-A3B} with AgentIR and parallel tool calls.
+\end{itemize}
+
+All three models share the same hybrid block layout: every fourth transformer layer is a standard full-attention layer (Gated Attention), the remaining three are gated linear-attention (DeltaNet) layers. The full-attention layer indices are therefore $\ell \in \{3, 7, 11, \dots\}$. Concretely we hook $L = 8$ full-attention layers in the 32-layer 4B and 9B models, and $L = 10$ in the 40-layer 35B model. Each full-attention layer has $H = 16$ query heads and head dimension $d = 256$; the KV-head count varies by model (4 for 4B/9B, 2 for 35B) but is irrelevant to the analysis after softmax.
+
+For each setting we randomly sample the same 150 trajectories, reusing this list across settings makes the cross-model comparison like-for-like.
+
+\subsection{Capturing query/key tensors with hooked vLLM}
+\label{app:attn-capture}
+
+We run each trajectory through vLLM \citep{kwon2023efficient} with a custom worker that registers a forward hook~\citep{ko2026vllmhookv0plugin} on every full-attention module. The hook records the inputs to \texttt{self\_attn.attn} at every token position (\texttt{all\_tokens} mode), so a single chunked-prefill pass yields, per hooked layer $\ell$, the full query and key tensors
+\[
+\mathbf{Q}_\ell \in \mathbb{R}^{N \times H d}, \qquad \mathbf{K}_\ell \in \mathbb{R}^{N \times G d},
+\]
+where $N$ is the rendered prompt length (after \texttt{tokenizer.apply\_chat\_template}) and $G$ is the per-layer KV-head count. Causal masking guarantees that $(\mathbf{Q}_\ell, \mathbf{K}_\ell)$ at any position $i$ are independent of tokens $j > i$, so the same single pass supports attention computation at every reasoning-start token.
+
+For the 35B-A3B run we use tensor parallelism with $\text{TP} = 2$ to fit the model on two H100 GPUs; each rank dumps its head-shard of $(\mathbf{Q}_\ell, \mathbf{K}_\ell)$ and we concatenate the two shards along the head axis offline.
+
+\subsection{Per-turn attention scores}
+\label{app:attn-aggregation}
+
+We parse the rendered prompt into character ranges by matching the chat-template tokens (\texttt{<|im\_start|>}, \texttt{<think>}, \texttt{</think>}, \texttt{<tool\_response>}, etc.) and label each range with one of five roles: \textit{system}, \textit{user}, \textit{reasoning} (\verb|<think>...</think>| blocks), \textit{tool call}, and \textit{observation}. Adjacent role-labelled segments are grouped into \emph{interaction turns}: each turn is a reasoning span together with the tool-call/observation pair that follows it; the first turn additionally subsumes the leading system and user segments.
+
+Let $t_r$ be the token position of the first token after the $r$-th \verb|<think>| tag. We compute the attention weight from the query at $t_r$ to every preceding token $j$ as the layer- and head-averaged softmax:
+\[
+\small
+\begin{aligned}
+A_{t_r, j}
+&= \frac{1}{L H}
+\sum_{\ell=1}^{L}\sum_{h=1}^{H}
+\operatorname{softmax}_{j}\!\left(
+\frac{
+  \mathbf{Q}_\ell^{(h)}[t_r]
+  \cdot
+  \mathbf{K}_\ell^{(h)}[j]
+}{\sqrt{d}}
+\right), \\
+&\qquad\qquad\qquad\qquad\qquad\qquad\qquad j \in [0, t_r].
+\end{aligned}
+\]
+For every (turn, role) pair $(k, \rho)$ we then sum $A_{t_r, j}$ over the tokens $j$ that belong to a segment of role $\rho$ inside interaction turn $k$. This yields, per reasoning step $r$, a matrix $S^{(r)}_{k, \rho}$ of attention going to past turn $k$ in role $\rho$.
+
+\subsection{Per-trajectory heatmap}
+\label{app:attn-heatmap}
+
+For a single trajectory of $T$ interaction turns we form two $T \times T$ matrices:
+\[
+R_{ij} = S^{(i)}_{j,\, \mathrm{reasoning}},
+\qquad
+O_{ij} = S^{(i)}_{j,\, \mathrm{observation}},
+\]
+both supported on $j \le i$ by causality. The figure renders $R$ in the lower-left triangle (blue colormap) and $O^{\top}$ in the upper-right triangle (orange colormap), so that each off-diagonal cell $(i, j)$ shows attention from one role only. The diagonal is masked white; we exclude self-attention when setting the color limits because the current reasoning step's attention to its own tokens dominates the off-diagonal values we want to visualize. The example shown is a 50-turn 9B-AgentIR trajectory.
+
+\subsection{Aggregated decay curves}
+\label{app:attn-decay}
+
+We aggregate across the 150 selected trajectories per setting. For each reasoning step in a trajectory with $T_r$ reasoning-bearing past turns, let $d$ index past turns from most recent ($d = 1$) to oldest ($d = T_r$); we compute a length-normalized relative position
+\[
+\operatorname{rel\_pos}(d) = \frac{d - 1}{T_r - 1} \in [0, 1],
+\]
+and assign each past-turn observation to one of $B = 20$ equal-width bins on $[0, 1]$. We restrict aggregation to reasoning steps with at least $T_r \ge 5$ past turns so that the binning is meaningful.
+
+The right panel reports, per bin and per role:
+\begin{itemize}
+    \item \textbf{Mean attention weight} (left $y$-axis, lines): the per-bin mean of role-specific past-turn attention.
+    \item \textbf{Cumulative attention share} (right $y$-axis, bars): the running sum over bins of (per-bin total attention going to role $\rho$) / (number of reasoning steps in the pool), i.e.\ the fraction of the per-step attention budget that role $\rho$ has accumulated by relative position $\le \tau$. The cumulative curve saturates below 100\% because system, user, and current-self attention also consume part of each step's softmax mass.
+\end{itemize}
+
+\paragraph{Aggregation sample sizes.} 4B-BM25 contributes $\sim$5{,}400 reasoning steps ($\sim$124k past-turn observations), 9B-AgentIR $\sim$3{,}300 steps ($\sim$64k observations), and 3.6-35B-AgentIR $\sim$2{,}700 steps ($\sim$52k observations).
+
+\newpage
+\section{Prompt Templates}
+\label{app:prompts}
+
+\subsection{System Prompt}
+\label{app:system_prompt}
+\input{prompts/system-prompt}
+
+\subsection{User Prompt}
+\label{app:user_prompt}
+\input{prompts/user-prompt}
+
+\subsection{Tool Prompts}
+\label{app:tool_prompts}
+\input{prompts/tool-prompts}
+
+\subsection{Parallel Tool-Call Instruction}
+\label{app:parallel_instruction}
+\input{prompts/parallel-instruction}
+
+\subsection{LLM-as-Judge Prompt}
+\label{app:judge_prompt}
+\input{prompts/judge-prompt}
+
+\section{More Experiment Results}
+\subsection{Main Result Analysis}
+\label{app:main-results}
+\paragraph{Three regimes from one table.}
+Reading the BrowseComp-Plus panel of Table~\ref{tab:main} block-by-block
+recovers the non-monotonic pattern that Figure~\ref{fig:teaser} (Left) sketches.
+Under the sparse {BM25} retriever, the gain from masking forms a
+near-constant low plateau---$+6.3$, $+6.6$, $+6.2$ for Qwen3.5-4B,
+Qwen3.5-9B and GPT-OSS-20B---even though these backbones span very different
+capabilities. The absolute accuracy ceiling is pinned below $39\%$ because
+recall never exceeds $0.54$: there is too little relevant signal in the
+context for masking to amplify, and the retriever, not the model, sets the
+headroom. We call this the \emph{retriever-bottleneck} regime.
+Moving to stronger retrievers, the gain spikes wherever a capable retriever
+surfaces signal that the model cannot itself separate from noise. The peak
+in our sweep is Qwen3.5-35B-A3B+AgentIR at $+11.7$, with Qwen3.5-4B +
+AgentIR ($+10.8$), GPT-OSS-20B+AgentIR ($+10.0$) and Qwen3.5-9B + Qwen3-Emb-8B
+($+9.6$) close behind. These are exactly the cells where recall has climbed
+into the high $0.7$--$0.9$ range, while No-CM accuracy still sits in the
+$45$--$65\%$ band: the retriever has done its job, and the model has not.
+We call this the \emph{mismatch} regime.
+Finally, once No-CM accuracy crosses $\sim 70\%$, the gain collapses:
+$+2.6$ for OpenResearcher-30B-A3B, $+3.7$ for Qwen3.6-35B-A3B, $+0.1$ for
+GPT-OSS-120B, $+3.8$ for DS-V4-Flash-Max, and $-1.1$ for
+Tongyi-DeepResearch. A reader already capable of filtering its own
+self-generated context gains little from an external filter, and on rare
+trajectories masking removes content the model would have used---the
+\emph{model-saturated} regime.
+ 
+\paragraph{Mismatch, not size, selects the regime.}
+The cleanest evidence that the regime is governed by a retriever--model
+\emph{mismatch} rather than scale comes from configurations that hold scale
+roughly fixed. Qwen3.5-35B-A3B and Qwen3.6-35B-A3B share architecture and
+parameter count and differ only in the training recipe, yet the former sits in the mismatch regime ($+11.7$), and the latter is already saturated ($+3.7$).
+The two specialized agentic backbones tell the same story at $\sim 30$B
+scale: OpenResearcher-30B-A3B gains $+2.6$ while Tongyi-DeepResearch is net
+harmed at $-1.1$, despite reaching the highest No-CM accuracy and recall
+($80.7\%$, $0.93$) in the table. What separates the regimes is not how big
+a model is, but how well its training has prepared it to localize selectively
+within noisy retrieved context---a property we examine directly in
+\S\ref{exp:openloc}.
+ 
+\paragraph{Masking buys recall with extra tool calls, not fewer.}
+The ``$\Delta$ calls/q'' column documents a side-effect worth stating
+plainly: \emph{masking lengthens trajectories rather than shortening them}.
+Every populated cell incurs additional tool calls under CM, ranging from
+$20.3$ for Qwen3.5-9B+AgentIR to $91.6$ for GPT-OSS-20B+Qwen3-Emb-8B. These
+extra calls are how masked trajectories reach the higher recall reported in
+column three: with stale observations cleared from the context, the agent
+re-queries and re-reads, recovering the signal it would otherwise have buried.
+Crucially, the extra calls are spent in \emph{every} regime, including the
+saturated one, where they do not pay off---GPT-OSS-120B spends $68.7$
+additional calls per query to move accuracy by $+0.1$. The cost of masking
+is therefore borne uniformly while its benefit is regime-dependent, a
+trade-off we decompose at the trajectory level in \S\ref{exp:trade-off}.
+ 
+\paragraph{The regime boundary is set by base accuracy, and transfers
+across benchmarks.}
+The right panel of Table~\ref{tab:main} repeats the model-axis sweep on
+three further benchmarks and reproduces the same ordering: the weaker
+Qwen backbones sit in the mismatch regime (Qwen3.5-9B gains $+4.8$ on
+GAIA-text, $+7.0$ on xBench, and Qwen3.5-4B gains $+3.4$ on BrowseComp-ZH),
+while the strongest backbone DS-V4-Flash-Max is saturated everywhere
+($+0.0$, $+1.0$, $+0.0$). Two observations sharpen the picture rather than
+complicate it. First, GPT-OSS-120B, saturated on BrowseComp-Plus ($+0.1$),
+\emph{gains} $+8.0$ on xBench but is \emph{harmed} $-4.8$ on GAIA-text. This
+is not a contradiction but a confirmation: which regime a configuration
+falls into is determined by its base accuracy on the task at hand
+($70.0\%$ on xBench places 120B back in the mismatch band, while a higher
+GAIA base accuracy pushes it into over-pruning), not by the model in
+isolation. Second, GPT-OSS-120B's $-4.8$ on GAIA-text is the largest
+negative effect we observe and echoes Tongyi-DeepResearch's $-1.1$ on BrowseComp-Plus:
+when masking is applied to an already-capable reader, it can actively strip
+useful signal. We return to these failure trajectories in
+\S\ref{exp:attention_dynamics}.
+ 
+\paragraph{Why 4B gains less on GAIA than on BrowseComp-Plus.}
+One asymmetry deserves comment. Qwen3.5-4B, which gains $+6$--$+11$ across
+all BrowseComp-Plus retrievers, gains only $+1.9$ on GAIA-text. GAIA-text
+uses live web retrieval rather than the fixed offline corpus of BrowseComp-Plus, so the context the 4B model accumulates is both noisier and harder to act on; with recall effectively bounded by an unconstrained web, the configuration behaves like the retriever-bottleneck regime---there is signal to surface, but a 4B reader cannot exploit it even once masking clears the noise. The regime view predicts exactly this: weak retrieval quality and weak reader capability both push a configuration toward the low-gain ends of the map.
+
+\newpage
+\section{Case Study}
+\label{app:case-study}
+\input{cases/case_qwen_parallel_example}
+\newpage
+\input{cases/tongyi_parallel_search}
+\newpage
+\input{cases/gptoss_xbench}
+\newpage
+\input{cases/cm_regression}
+\newpage
+\input{cases/cm_improve}

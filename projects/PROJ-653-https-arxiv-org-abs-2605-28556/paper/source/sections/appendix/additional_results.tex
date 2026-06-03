@@ -1,0 +1,30 @@
+\section{Additional Results}
+\label{app:additional-results}
+
+\paragraph{Coverage Desiderata.}
+\label{app:sequence-metrics-full}
+\input{assets/tables/sequence_metrics_goldsim}
+Table~\ref{tab:sequence-metrics-goldsim} extends the results presented in Figure~\ref{fig:coverage_fig} to the full set of sequence-level statistics: average length (mean number of tool calls per sequence); write/read balance (ratio of write tools to read and generic tools); within-cluster weighted edit distance (\emph{WED intra} - mean pairwise distance over all sequence pairs in the cluster, indicating intra-set diversity); Shannon entropy at \mbox{$n=1\ldots4$} (n-gram occurrences are tallied with a sliding window, normalised to a probability distribution, then $H_n=-\sum_g p(g)\log_2 p(g)$) together with their vocabulary-normalised mean ($H_n/(n\log_2|V|)$ averaged   over $n$, in $[0,1]$, allowing comparison across cells with different tool vocabularies); the count of unique $n$-grams at $n=2\ldots6$ (compositional richness); and the mean type-token ratio (unique $n$-grams divided by total $n$-grams positions, averaged over $n=2\ldots6$; higher means less repetition). The reported numbers compare against \emph{GoldSim}; how we extract it is explained in the following paragraph.
+
+\paragraph{The GoldSim simulation set.}
+The \emph{GoldSim} columns aggregate agent behaviour into one representative tool sequence per task. Concretely, for a given (domain, task-set) cell we proceed as follows:
+\begin{enumerate}
+    \item \textbf{Run pool.} For every task $i$, gather the union of all simulation runs, pooled across agent, user simulator, and trial $k$. Filter unsuccessful runs (reward$=0.0$).
+    \item \textbf{Sequence extraction.} For each run we read the agent's tool calls in turn order and concatenate their identifiers into one ordered tool sequence ($\bar\sigma$).
+    \item \textbf{Per-task pick.} If more then a single candidate exist, we pick the candidate of \emph{minimal length}. The intuition is that the shortest successful trajectory is the cleanest evidence of a working solution path.
+    \item \textbf{Gold fallback.} If no candidate exists for task $i$ ---  we use the task's gold tool sequence ($\bar\sigma^\star$). This keeps the per-cell sequence count equal to the cell's task count and avoids selection bias against hard tasks.
+\end{enumerate}
+
+\paragraph{Difficulty Desiderata.}
+\label{app:difficulty-desiderata}
+\input{assets/figures/difficulty_desiderata/difficulty_desiderata_fig}
+Figure~\ref{fig:difficulty-desiderata} validates the two structural axes we use to control task difficulty. Splitting tasks by per-task golden-sequence length produces a $13$--$20$\,pp accuracy gap between short and long buckets across all three domains. Splitting by per-task write-ratio produces a $16$--$31$\,pp gap between read-heavy and write-heavy buckets in airline and retail. Telecom is excluded from the write-ratio panel because its evaluation criteria encode only write actions, so per-task write-ratio collapses to $1.0$ for every task. These results indicate that compositional length and write-heaviness act as genuine difficulty knobs rather than descriptive labels, supporting their use as control axes when sampling harder tasks.
+
+\paragraph{Tool-Usage Distributions Across Domains.}
+\label{app:tool-use-dist}
+Figure~\ref{fig:diversity-combined} reports complementary diversity views across the three \taubench domains. Each plot the per-tool relative frequency of the \tbv\xspace against \ourbenchmark; the latter spreads usage more evenly across the tool vocabulary, raising the normalised entropy ($H$ = Shannon entropy / $\log_2 |\text{tools}|$) reported in each legend.
+\input{assets/figures/tool_diversity/diversity_combined_tex}
+
+\paragraph{Qualitative Comparison: Weighted vs.\ Regular Edit Distance.}
+\label{app:wed-qualitative}
+Figure~\ref{fig:cluster-distances} (Appendix~\ref{app:examples}) contrasts $k$-medoids clustering on airline trajectories under our weighted edit distance (WED) and the unweighted edit distance (ED). Under WED \textbf{(a)}, the three medoids correspond to clear, distinct user-service intents -- \emph{search/book/update}, \emph{demand a refund}, and \emph{book and update} -- and each medoid's nearest neighbors stay close to it semantically: they share the medoid's overall intent and only differ in surface-level details. Under ED \textbf{(b)}, the medoids themselves remain interpretable, but the nearest neighbors drift away from the medoid's intent, mixing in unrelated tool subsequences. Figure \textbf{(c)} makes the same point quantitatively: under WED the inter-medoid distances ($3.66$--$4.66$) are larger than the intra-cluster neighbor distances visible, whereas under ED inter- and intra-cluster scales are closer, reflecting weaker cluster separation. Together, these examples illustrate why we use WED rather than plain edit distance for the clustering step in Section~\ref{sub:clustering}: the type-aware substitution costs translate into clusters whose members are semantically coherent, not just superficially similar.

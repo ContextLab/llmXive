@@ -1,0 +1,34 @@
+\begin{algorithm}[h]
+\caption{Clustering and medoid validation (Section~\ref{sub:clustering}).}
+\label{alg:clustering}
+\small
+\begin{algorithmic}[1]
+
+\Require trained $C^{\pm}$, validator $V$, target $K$, pool $N$, length dist.\ $L$, temp. $T_{\text{pool}}$, distance $d_w$, rounds $R_{\max}$
+\State $\mathcal{M}_{\text{valid}} \op{=} \emptyset$
+\For{$r \op{=} 1 \dots R_{\max}$}
+    \State $\mathcal{P} \op{=} \emptyset$
+    \While{$|\mathcal{P}| \op{<} N$} \Comment{Pool generation}
+        \State $\ell \op{\sim} L$
+        \State $\bar\sigma \op{=} \fn{sample}(C^+, C^-, \ell, T_{\text{pool}})$
+        \If{$\bar\sigma \op{\notin} \mathcal{P}$}
+            \State $\mathcal{P}.\fn{add}(\bar\sigma)$
+        \EndIf
+    \EndWhile
+    \State $\{(\mathcal{C}_j, m_j)\}_{j=1}^{K} \op{=} \fn{k\_medoids}(\mathcal{P}, K, d_w, \fn{frozen}\op{=}\mathcal{M}_{\text{valid}})$ \Comment{Clustering}
+    \For{$j \op{=} 1 \dots K$}
+        \If{$m_j \op{\in} \mathcal{M}_{\text{valid}}$} \State \kw{continue} \EndIf
+        \State $\mathcal{C}_j \op{=} \fn{sorted}(\mathcal{C}_j, \fn{key}\op{=} d_w(\cdot, m_j))$
+        \For{$\bar\sigma \op{\in} \mathcal{C}_j$} \Comment{Medoids validation}
+            \If{$V(\bar\sigma) \op{==} \text{plausible}$}
+                \State $\mathcal{M}_{\text{valid}}.\fn{add}(\bar\sigma)$
+                \State \kw{break}
+            \EndIf
+        \EndFor
+    \EndFor
+    \If{$|\mathcal{M}_{\text{valid}}| \op{==} K$} \State \kw{break} \EndIf
+\EndFor
+\State \kw{return} $\mathcal{M}_{\text{valid}}$
+
+\end{algorithmic}
+\end{algorithm}

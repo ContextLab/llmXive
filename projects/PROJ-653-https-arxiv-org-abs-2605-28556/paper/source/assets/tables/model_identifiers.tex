@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{Mapping between model names used throughout the paper and the exact API identifiers used for generation and evaluation. PPT (price per task) reports the average cost in USD of running one task with the given model.}
+\label{tab:model-identifiers}
+\small
+\setlength{\tabcolsep}{6pt}
+\vspace{2mm}
+\begin{tabular}{@{}lllr@{}}
+\toprule
+Name in paper & Provider & API identifier & PPT (\$) \\
+\midrule
+Gemini-3-Flash    & Google     & \texttt{gemini-3-flash-001}        & 0.077 \\
+Gemini-2.5-Flash  & Google     & \texttt{gemini-2.5-flash-001}      & 0.036 \\
+GPT-5.2           & OpenAI     & \texttt{gpt-5.2-2025-12-11}        & 0.091 \\
+Claude-Sonnet-4.6 & Anthropic  & \texttt{claude-4-6-sonnet-20260217} & 0.490 \\
+DeepSeek-3.1      & DeepSeek   & \texttt{deepseek/deepseek-chat-v3.1} & 0.034 \\
+Qwen-32B          & Alibaba    & \texttt{qwen/qwen-3-32b-instruct}  & 0.020 \\
+\bottomrule
+\end{tabular}
+\end{table}

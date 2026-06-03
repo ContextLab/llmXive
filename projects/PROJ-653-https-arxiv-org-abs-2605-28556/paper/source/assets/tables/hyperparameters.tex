@@ -1,0 +1,44 @@
+\begin{table}[H]
+\centering
+\caption{Hyperparameters used in the reported runs.}
+\label{tab:hparams}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Hyperparameter & Value \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Stage 1: Sampler}} \\
+$n$-gram order $n$                        & $3$ \\
+Dirichlet smoothing $\lambda_0$           & $0.1$ \\
+Neg.-evidence weight $\lambda_{\text{neg}}$ & $1.0$ \\
+Initial temperature $T_0$                 & $3.0$ \\
+Temp.\ decay $\tau_{\text{decay}}$        & $1500$ \\
+Length dist.\ (loc, scale, $\alpha$)      & skew-normal $(7, 5, 2.0)$ \\
+Length clip                               & $[1, 15]$ \\
+Training steps                            & $3000$ \\
+\bottomrule
+\end{tabular}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Hyperparameter & Value \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Stage 2: Clustering and Selection}} \\
+Pool size $N$                             & $2000$ \\
+Pool temperature $T_{\text{pool}}$        & $1.5$ \\
+$K$-medoids max iterations                & $100$ \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Stage 3: Task Gen.\ \& Evolution}} \\
+Verifier-agent redaction $p$                & $0.3$ \\
+Verifier-agent simulation attempts          & $2$ \\
+Lite fallback retries                     & $3$ \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}

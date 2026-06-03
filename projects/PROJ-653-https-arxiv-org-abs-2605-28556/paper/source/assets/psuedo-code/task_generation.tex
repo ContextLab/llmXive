@@ -1,0 +1,53 @@
+\begin{algorithm}[h]
+\caption{Base task generation and evolution (Section~\ref{sub:task_generation}).}
+\label{alg:task-generation}
+\small
+\begin{algorithmic}[1]
+
+\Require validated medoids $\mathcal{M}_{\text{valid}}$, task validator $V$, rounds $R^b_{\max}$, rounds $R^e_{\max}$, rounds $R^l_{\max}$
+\State $\mathcal{X} \op{=} \emptyset$
+\For{$\bar\sigma \op{\in} \mathcal{M}_{\text{valid}}$}
+    \State $\text{valid\_base} = \kw{False}$
+    \For{$r \op{=} 1 \dots R^b_{\max}$} \Comment{Construct base task}
+        \State $u, \sigma^\star \op{=} \fn{llm\_scenario}(\bar\sigma)$
+        \State $s_0 \op{=} \fn{llm\_init\_db}(\bar\sigma, u)$
+        \State $x_{\text{base}} \op{=} (s_0, u, \sigma^\star)$
+        \If{$V(x_{\text{base}}) \op{==} \text{pass}$} \Comment{Base task is valid}
+        \State $\text{valid\_base} \op{=} \kw{True} $ 
+        \State \kw{break}
+        \EndIf
+    \EndFor
+    \If{$\text{valid\_base} \op{==} \kw{False}$}
+    \State $\fn{mark\_base\_generation\_failed}(\bar\sigma)$ \Comment{Mark medoid for later re-clustering}
+    \State \kw{continue}
+    \EndIf
+    \Statex
+    \State $\text{evolved} \op{=} \kw{False}, \text{lite} \op{=} \kw{False}$
+    \For{$r \op{=} 1 \dots R^e_{\max}$} \Comment{Evolve task}
+        \State $x_{\text{evolved}} = \fn{evolve\_with\_llm}(x_{\text{base}}, \kw{mode} \op{=} \text{full})$
+        \If{$V(x_{\text{evolved}}) \op{==} \text{pass}$}
+            \State $\text{evolved} \op{=} \kw{True}$
+            \State \kw{break}
+        \EndIf
+    \EndFor
+    \If{$\text{evolved}$}
+        \State $\mathcal{X}.\fn{add}(x_{\text{evolved}})$
+        \State \kw{continue}
+    \EndIf
+    \For{$r \op{=} 1 \dots R^l_{\max}$} \Comment{Evolve failed, try lite evolvement}
+        \State $x_{\text{lite}} = \fn{evolve\_with\_llm}(x_{\text{base}}, \kw{mode}\op{=}\text{lite})$
+        \If{$V(x_{\text{lite}}) \op{==} \text{pass}$}
+            \State $\text{lite} = \kw{True}$
+            \State \kw{break}
+        \EndIf
+    \EndFor
+    \If{$\text{lite}$}
+        \State $\mathcal{X}.\fn{add}(x_{\text{lite}})$
+        \State \kw{continue}
+    \EndIf
+    \State $\mathcal{X}.\fn{add}(x_{\text{base}})$ \Comment{lite failed, keep base task}
+\EndFor
+\State \kw{return} $\mathcal{X}$
+
+\end{algorithmic}
+\end{algorithm}

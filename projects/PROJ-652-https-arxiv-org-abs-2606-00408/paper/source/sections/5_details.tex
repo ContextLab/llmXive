@@ -1,0 +1,214 @@
+% =====================================================
+% Section: Research Findings - Main Results: The Regime Map
+% Revised layout: Acc merged as "xx^\dagger / xx" (dagger = w/ CM),
+% Recall as 0.xx (no %), tool calls column relabeled to "Δ calls/q",
+% Right side fully expanded (BCP-zh shown), one footnote only.
+% =====================================================
+
+\section{Main Results}
+\label{sec:regime}
+\label{sec:results}
+\input{tables/main-table}
+\paragraph{Three regimes.}
+Table~\ref{tab:main} (Left) traces the same non-monotonic curve sketched in
+Figure~\ref{fig:teaser}, organized into three regimes on BrowseComp-Plus.
+\emph{(i) Retriever bottleneck.} Under BM25, recall never exceeds $0.55$ and
+the gain from masking stays on a low plateau ($+6.2$ to $+6.6$) regardless of
+backbone because there is too little answer-supporting evidence in the context for masking to amplify. The retriever, not the model, caps accuracy.
+\emph{(ii) CM optimum.} The peak gain, $+11.7$ for Qwen3.5-35B-A3B+AgentIR, arises exactly where a strong retriever (recall $0.88$) is paired
+with a model whose No-CM accuracy is still moderate ($62.9\%$): the retriever
+has surfaced answer-supporting evidence, but the model cannot yet filter it from the surrounding noise.
+\emph{(iii) Model-saturated.} Once No-CM accuracy passes $70\%$, the gain
+collapses, bottoming at $-1.1$ for Tongyi-DeepResearch-30B-A3B, which posts the
+highest No-CM accuracy and recall in the table ($80.7\%$, $0.93$) yet is
+\emph{harmed} by masking. Moreover, tool calls surge when these strong models are run with CM (GPT-OSS-120B, $+$68.7 per query; DeepSeek-V4-Flash-Max, $+$57.7 per query). When the model is already capable of filtering its own
+context and the retriever's recall is extremely high, together with a high signal-to-noise ratio on some trajectories (\S~\ref{exp:regression-probe}), it gains little from an external filter. We provide a detailed analysis in Appendix~\S\ref{app:main-results} and case studies in Appendix~\S\ref{app:case-study}.
+ 
+\paragraph{Mismatch, not size.}
+Scale alone does not select the regime. With the best retriever AgentIR, Qwen3.5- and Qwen3.6-35B-A3B share the same architecture and parameter count but sit in different regimes ($+11.7$ pts vs.\ $+3.7$ pts). The gap reflects attention dynamics due to training inherence, a property we examine directly from the perspective of localization behavior in \S\ref{exp:openloc}. 
+
+\paragraph{Live web amplifies the collapse.}
+Table~\ref{tab:main} (Right) reproduces the trend across live-web benchmarks and makes the collapse sharper still. The clearest case is GPT-OSS-120B: saturated on
+BrowseComp-Plus ($+0.1$ pts), it is \emph{harmed} by $-4.8$ pts on GAIA, the
+largest negative effect we observe. With live-web retrieval, the context is
+noisier and less controllable, so masking a capable reader more readily
+removes the signal it would otherwise have used. The same model gains $+8.0$ pts on xBench, where its lower No-CM accuracy ($70.0\%$) places it back in the middle band, confirming that what is operative varies with the task at hand, not model identity in isolation.
+
+\section{Research Findings}
+\label{sec:findings}
+\subsection{The Trade-Off: Where Comes the Gain and What Does it Cost?}
+\label{exp:trade-off}
+\input{tables/tradeoff}
+
+A net $\Delta\text{Acc.}$ does not show which queries masking fixes and
+which it breaks. We therefore compare the query-level transition groups in (Figure~\ref{fig:tradeoff}), and contrast the highest-gain configuration (Qwen3.5-35B-A3B, $+11.7$ pts) with a saturated one (GPT-OSS-120B, $+0.1$ pts). The vertical axis reports the change
+in \emph{rolling input tokens} and \emph{turns} in each configuration, the sum of input context lengths over all turns in a trajectory. This measures the total input cost of masking, not just the final context size.
+Two patterns emerge, consistent with the uniform increase in $\Delta\text{calls/q.}$ shown in Table~\ref{tab:main}. First, masking's benefits are token-efficient, whereas its failures are costly. While fixed queries (\textit{wrong$\rightarrow$correct}) consume \emph{fewer} rolling tokens due to a leaner convergence context, broken queries \textit{correct$\rightarrow$wrong}) demand \emph{significantly more} tokens and inference turns because pruning forces the agent to re-search and re-open pages. Masking's token growth, therefore, is driven almost exclusively by these broken trajectories. Second, the two configurations differ in their counts: fixes outnumber breaks roughly $3{:}1$ for Qwen3.5-35B, but only about $1{:}1$ for GPT-OSS-120B, where gains and losses cancel. The \textit{saturated} is thus not one where masking does nothing, but one where it helps and harms equally. Notably, while GPT-OSS-120B yields a much smaller performance gain from CM compared to Qwen3.5-35B-A3B, its delta turn discrepancy between the fixed and broken query groups remains considerably less pronounced.
+
+\subsection{Regression Probe: CM Helps When Signal is Sparse}
+\label{exp:regression-probe}
+\input{tables/probe}
+The transition analysis above is strictly retrospective, demonstrating CM's impact on query-level state shifts. We next ask whether the \emph{unmasked} trajectory itself contains enough structure to identify the cases that CM will rescue. By doing so, we aim to ex ante predict the conditions under which CM provides positive utility. This allows us to map how heterogeneous model--retriever configurations manifest distinct behavioral signatures in their trajectories, ultimately providing an explanation for the divergent performance gains observed across different regimes.
+
+We build the diagnostic representation in two steps. First, for every No-CM trajectory, we sample tool-observation prefixes and compute an evidence-density
+target from the observed pages. Let $G_q$ be the gold-document set for query $q$, and let $U_{q,t}$ be the set of unique pages observed by prefix $t$. The prefix-level signal-to-noise ratio is
+\[
+    y_{q,t}
+    \;=\;
+    \frac{|U_{q,t} \cap G_q|}
+         {|U_{q,t} \setminus G_q| + 1}.
+\]
+This proxy is high when gold evidence condenses within the trajectory, and low when the prefix is dominated by non-gold noisy observations. We fit $y_{q,t}$ from No-CM prefix features only, and use the fitted value $\widehat{y}_{q,t}$ as a denoised evidence-density coordinate. CM traces are used only afterward to assign the query-level rescue labels. Appendix~\S\ref{app:probe} provides the comprehensive experimental setup.
+
+The curve plot (Figure~\ref{fig:probe}, left) is therefore a sanity check on this coordinate: the fitted curves track the observed evidence density while preserving large configuration-level differences. AgentIR runs start with a clearer evidence prefix and dilute as more pages accumulate; BM25 stays low throughout, indicating that the retriever is already the bottleneck.
+
+The actual rescue probe is evaluated in the two-dimensional diagnostic scatter plots in Figure~\ref{fig:teaser} (Right) and Figure~\ref{fig:probe}.
+The horizontal axis is the first principal component of standardized No-CM prefix features, sign-aligned so larger values indicate higher \emph{input complexity}; the vertical axis is the min--max normalized fitted SNR. A balanced linear probe is then trained on these two coordinates to distinguish CM-rescued prefixes from non-rescued prefixes, and the reported AUC measures this rescue separability. \emph{Model-saturated} configurations are often more separable: GPT-OSS-120B+AgentIR has a high CM-rescue AUC ($0.74$) but nearly zero net gain
+($+0.1$), and DS-V4-Flash-Max+AgentIR is similarly separable (AUC $0.80$) with only moderate gain ($+3.9$ pts). In these regimes, CM fixes a recognizable
+high-complexity, low-SNR subset, but the subset is small or cancelled by harms. In contrast, high-gain settings such as Qwen3.5-4B+AgentIR ($+10.8$ pts) and Qwen3.5-9B+Qwen3-Emb-8B ($+9.5$ pts) have only partially separable AUC. Their gains are not confined to an isolated failure corner; instead, CM improves a diffuse spectrum of borderline trajectories. Finally, Qwen3.5-4B+BM25 has both weak rescue separability
+(AUC $0.54$) and a very low fitted SNR, consistent with the retriever limiting the recoverable signal before CM can help.
+
+To verify the generalizability of these behavioral traces, we repeat this visualization on xBench live-web benchmarks, where gold documents are unavailable. Here, we instantiate an \emph{answer-citation proxy} for the SNR: browser lines explicitly cited in the final No-CM answer constitute the proxy signal, whereas uncited observed lines represent proxy noise. While this metric evaluates whether the eventual evidence was surfaced early in the prefix rather than certifying absolute factual correctness, it provides a consistent diagnostic signature. On xBench, {Qwen3.5-9B} and {DeepSeek-V4-Flash-Max} mirror this regime-dependent pattern, manifesting similar rescue separabilities (AUC $\approx 0.70$--$0.71$) yet divergent accuracy gains ($+7.0\%$ versus $+2.0\%$) as DeepSeek model already has a higher proxy SNR rate. This reinforces our core thesis: rescue separability is merely a diagnostic symptom; the net utility of context management is ultimately bound by the baseline capacity and the rescue--harm equilibrium of the underlying system.
+
+
+
+\subsection{Why Does Masking Work? Attention and Behaviour Evidence}
+\label{exp:why}
+
+\subsubsection{Attention Evidence: Reasoning over Observations}
+\label{exp:attention_dynamics}
+
+To explain why progressive observation masking often preserves accuracy, we measure attention from two complementary views: a single trajectory (Figure~\ref{fig:attention-maps}, Left) and the aggregate over No-CM trajectories (Figure~\ref{fig:attention-maps}, Right) of three models on
+BrowseComp-Plus. We measure
+layer-averaged attention at the first token of each reasoning step,
+decomposing past content by relative position and by respective \textit{reasoning} and \textit{observation} steps. The setup details are in
+Appendix~\ref{app:attn-setup}.
+\input{tables/attn}
+
+
+\paragraph{Reasoning, not observations, carries attention mass.}
+
+Although observation tokens vastly outnumber reasoning tokens (Figure~\ref{fig1:pie_main}, Right), reasoning absorbs the bulk of the attention mass. Summed over all past turns, self-generated reasoning captures 53.7\% of the per-step attention budget against only 25.6\% for tool observations (Figure~\ref{fig:attention-maps}, Right, rightmost cumulative
+bars).
+The two roles also differ in \emph{where} that mass sits. Observation attention is front-loaded, reaching 65\% of its total within the most recent $10\%$ of past turns and 80\% by the midpoint; reasoning is far more diffuse, at only 68\% by the midpoint and still climbing toward the oldest turns.
+The model treats observations as transient inputs to be consumed once and reasoning as a durable working context.
+
+\paragraph{Attention concentrates at the edges.} 
+The aggregate view also reveals \emph{where} that attention falls. Both roles peak on the most recent past turn ($\sim$10\%), observations collapse to 1.7\% one turn earlier, and stay pinned near 0.7\% thereafter. However, reasoning rebounds on the oldest turns to about 4\%, producing an asymmetric U-shape. The model attends primarily to recent reasoning, partially revisits the earliest reasoning, and largely ignores everything in between. Because we aggregate over entire reasoning and observation segments rather than individual tokens, this rebound is unlikely to be a token-level attention
+sink~\citep{xiao2024streamingllm}. It reflects a genuine re-reading of the initial plan and query decomposition. Past observations, by contrast, command almost no attention beyond the most recent turn. \textbf{Observation masking exactly targets the content that the model has largely stopped reading: stale observations in the middle of the trajectory.}
+
+The pattern also predicts \emph{where} this style compaction helps most. Across the three settings overlaid in Figure~\ref{fig:attention-maps} (Right), 9B-AgentIR carries the strongest reasoning attention over the trajectory and registers the largest CM gain (Table~\ref{tab:main}). 3.6-35B-AgentIR shows the opposite signature: its observation attention is the highest of the three on the most recent past turn, which CM preserves rather than masks. Removing older observations therefore leaves the content it actually attends to largely untouched, and its CM gain is correspondingly smaller. The more a model allocates its usable context budget to mid-trajectory reasoning rather than to the latest observation, the more it benefits from observation masking.
+
+% \paragraph{Implications for what staleness means.}
+% This decomposition gives a mechanistic reading of staleness that does not 
+% depend on any downstream metric. From the model's own attention budget, an 
+% observation is effectively stale two turns after it is produced: the 
+% attention mass it commands at that point ($\sim$1\%) is comparable to the 
+% mass on observations from twenty turns ago. Whatever information the 
+% observation carried has either been absorbed into the next reasoning step 
+% or has been dropped---it is no longer being re-read. 
+
+% This reframes observation masking. Masking does not deprive the model of 
+% content it was using; it removes tokens the model has already stopped 
+% attending to and reclaims the corresponding context budget. The cost of 
+% masking is therefore not the loss of attention-mass on stale observations 
+% (there is almost none to lose), but the loss of \emph{optionality}---the 
+% ability to re-read an earlier observation if a later turn demands it. 
+% Section~\ref{sec:regime_map} shows that this trade-off resolves in 
+% masking's favor across most retriever-model regimes, and 
+% Section~\ref{sec:serial_position} shows that the agent's own re-reading 
+% behavior rarely exercises that optionality on middle-trajectory pages 
+% anyway.
+
+% \paragraph{A note on attention sinks.}
+% The small uptick at the oldest position visible for \texttt{reasoning} 
+% (right panel) is consistent with the standard attention-sink 
+% phenomenon~\citep{xiao2024streamingllm}: a small fraction of attention is 
+% reserved for the earliest tokens regardless of semantic relevance. Notably, 
+% the sink is absent for \texttt{tool\_result}, indicating it is anchored to 
+% the system/user prefix rather than to early observations. We do not pursue 
+% this further, but it suggests that masking strategies leaving the 
+% \emph{prefix} intact (as ours does) preserve whatever benefit the sink 
+% provides.
+
+
+\subsubsection{Where Do Agents Re-open?}
+\label{exp:openloc}
+\begin{wrapfigure}{r}{0.46\linewidth} %
+  \centering
+  \vspace{-1.5em} 
+  \includegraphics[width=\linewidth]{fig/open-cursor.png}
+  \vspace{-2em} % 
+  \caption{
+  \textbf{Agents reopen middle pages much less often.} Relative positions of \texttt{open} targets in the current page pool; CM sharpens this U-shaped pattern.
+  }
+  \vspace{-2em} % 
+  \label{fig:open-cursor}
+\end{wrapfigure}
+The trade-off analysis shows that masking helps when it clears noise the model would not have used, but why is clearing stale observations the appropriate intervention? 
+By comparing the agent's tool-use behavior before and after applying CM, we uncover a deeper behavioral alignment. 
+Figure~\ref{fig:open-cursor} plots the relative distance of the targeted page for each \texttt{open} call, where $0$ marks the latest page and $1$ marks the earliest in the page pool. 
+
+Across all settings, the baseline distribution is sharply \textbf{bimodal}: agents overwhelmingly re-open either the page they just retrieved or the very first page of the trajectory, while the middle of the pool is accessed much less often. 
+Crucially, activating CM \textbf{amplifies this bimodal behavior}: the larger the CM performance gains, the higher the post-CM frequency of re-opening the first page. 
+This suggests that CM works by structurally forcing weaker models to align with stronger models in anchoring their attention back to the initial context/reasoning, even if this manifests as an active re-seeking of missing information. 
+% Meanwhile, because the vast majority of middle pages are rarely browsed again, masking this massive "stale" zone remains highly viable, compressing non-essential context without disrupting the agent's core operational focus.
+
+\paragraph{What staleness means.}
+Together, the two analyses define staleness without any downstream metric: a middle-trajectory observation receives limited attention and is rarely reopened. Masking such content reclaims context budget the model had already abandoned, at the cost of optional re-reading behavior that the agent rarely exercises. This explains why masking stale observations helps in most cases, while still inducing failures when the optional evidence is needed.
+
+\subsection{Ablation Studies}
+\label{exp:ablation}
+
+\begin{wraptable}{r}{0.48\linewidth} %
+\centering
+\small
+\setlength{\tabcolsep}{4pt} % 
+\vspace{-1.2em} %
+\begin{tabular}{l ccc}
+\toprule
+Model & Ours & No Error & Blurred Title \\
+\midrule
+Qwen3.5-4B & 18.60\% & 22.61\% & 20.75\% \\
+Qwen3.5-9B & 20.41\% & 24.56\% & 26.24\% \\
+\bottomrule
+\end{tabular}
+\vspace{-0.5em} % 
+\caption{
+\textbf{Scaffold design ablations} (AgentIR, BrowseComp-Plus 100 samples). Each cell is \texttt{open} error rate with CM. \textbf{Ours} uses error retention and absolute-URL rendering; \textbf{No Error} masks tool-call errors along with stale observations; \textbf{Blurred Title} replaces exact URLs with page titles that the agent must resolve. 
+}
+\vspace{-1em} % 
+\label{tab:ablation-scaffold}
+\end{wraptable}
+ 
+% ---------------------------------------------------------------
+\paragraph{Absolute URLs and error retention reduce tool-call errors.}
+Table~\ref{tab:ablation-scaffold} ablates two scaffold designs by their \texttt{open} error rate under CM. Removing error retention---masking tool-call errors along with stale observations---raises the error rate from $18.6\%$ to $22.6\%$ on 4B and from $20.4\%$ to $24.6\%$ on 9B, as the agent loses the feedback it needs to recover from a malformed call. Replacing exact URLs with blurred page titles, which forces the agent to infer the target, raises it to $20.8\%$ and $26.2\%$
+respectively, confirming that exact URLs offload addressing work the model would otherwise spend reconstructing. The effect is largest on Qwen3.5-9B, indicating that even a stronger reader, who makes more errors to begin with, benefits from a more legible interface.
+
+ 
+% ---------------------------------------------------------------
+% \paragraph{Live-web search degradation simulation.}
+% To test how CM's dynamics work on the live web search engine, we inject
+% random documents from the local Wikipedia corpus~\citet{jin2025searchr1} adopted as noise into the Serper results, then recover by widening the retrieval depth (top-$k{+}n$) and sampling back to the original budget. Table~\ref{tab:ablation-degraded} shows a 
+ 
+% \begin{table}[t]
+% \centering
+% \small
+% \begin{tabular}{l cc}
+% \toprule
+% Degraded Serper & CM & No-CM \\
+% \midrule
+% default top-$k$              & 55.3 & 50.5 \\
+% \quad $+10$, sample back     & {--} & {--} \\
+% \quad $+20$, sample back     & {--} & {--} \\
+% \quad $+40$, sample back     & -- & {--} \\
+% \bottomrule
+% \end{tabular}
+% \caption{
+% \textbf{Masking under degraded retrieval} (GAIA, Qwen3.5-9B). Accuracy (\%)
+% as random-document noise is injected into Serper and recovered by widening
+% retrieval depth before sampling back to budget.
+% }
+% \label{tab:ablation-degraded}
+% \end{table}

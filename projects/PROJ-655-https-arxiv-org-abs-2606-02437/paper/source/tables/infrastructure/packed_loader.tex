@@ -1,0 +1,30 @@
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Packed MoE LoRA loading reduces cold-load overhead by removing tensor fanout. The byte-size change is small; the speedup comes from replacing many tiny tensor objects with a compact serving representation.}
+\label{tab:mint-packed-loader}
+\fittowidth{%
+\begin{tabular}{@{}M{4.8cm}M{2.4cm}M{2.4cm}M{3.6cm}@{}}
+\toprule
+\apphead Metric & Original & Packed & Effect \\
+\midrule
+\appgroup{4}{Adapter-file shape}
+\appkey{File size} & 110.75 MB & 105.58 MB & 1.05$\times$ smaller \\
+\addlinespace[2pt]
+\appkey{Tensor objects} & 37{,}248 & 672 & 55.4$\times$ fewer \\
+\appgroup{4}{Cold-load slice}
+\appkey{Read tensors} & 0.3669\,s & 0.0067\,s & 54.8$\times$ faster \\
+\addlinespace[2pt]
+\appkey{Build loader objects} & 0.7540\,s & 0.0256\,s & 29.5$\times$ faster \\
+\appgroup{4}{Live engine loading}
+\appkey{$N{=}4$ live load} & 1.363\,s & 0.156\,s & 8.7$\times$ faster \\
+\addlinespace[2pt]
+\appkey{$N{=}8$ live load} & 1.361\,s & 0.159\,s & 8.6$\times$ faster \\
+\addlinespace[2pt]
+\appkey{$N{=}16$ live load} & 1.388\,s & 0.164\,s & 8.5$\times$ faster \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

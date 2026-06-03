@@ -1,0 +1,41 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "neurips_2026.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/prompts/adversarial_scenario.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/prompts/adversarial_strategy.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/prompts/create_user_task.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/prompts/generate_db_initialization.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/prompts/task_coherence_review.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/prompts/validate_action_sequence.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "cite.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

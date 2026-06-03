@@ -1,0 +1,32 @@
+% \begin{figure*}[t]
+%   \centering
+%   \begin{minipage}[b]{0.67\linewidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{fig/attn_map2.png}
+%   \end{minipage}\hfill
+%   \begin{minipage}[b]{0.32\linewidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{fig/open-cursor.png}
+%   \end{minipage}
+%   \vspace{-0.5em}
+%   \caption{
+%   \textbf{Masking the middle is relatively safe because the model does not attend to it extensively or reopen it often.}
+%   \textbf{Left:} Attention in a single trajectory, separated into \textit{reasoning} tokens (blue, left-bottom) and \textit{observation} tokens (orange, upper-right).
+%   \textbf{Middle:} Attention-weight distributions aggregated by relative position across input contexts of different lengths.
+%   \textbf{Right:} Relative positions of \texttt{open} targets in the current page pool. Agents concentrate on both ends and reopen middle pages much less often; CM sharpens this U-shaped pattern.
+%   }
+%   \label{fig:why-masking}
+%   \vspace{-1em}
+% \end{figure*}
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=\linewidth]{fig/attn_map2.png}
+  \vspace{-2em}
+  \caption{
+  \textbf{Masking stale observations is relatively safe because the model does not attend to it extensively.}
+  \textbf{Left:} Attention in a single trajectory, separated into \textit{reasoning} tokens (blue, left-bottom) and \textit{observation} tokens (orange, upper-right).
+  \textbf{Middle:} Attention-weight distributions aggregated by relative position across input contexts of different lengths. The cumulative attention share bars are the mean share at each step of the three models.
+  }
+  \label{fig:attention-maps}
+  \vspace{-1em}
+\end{figure}

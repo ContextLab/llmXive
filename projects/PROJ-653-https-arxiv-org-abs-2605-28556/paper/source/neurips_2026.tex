@@ -1,0 +1,241 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+\PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+% \usepackage{neurips_2026}
+\usepackage[preprint]{neurips_2026}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+ % if you want to opt-in for a de-anomymized submission (not recommended, but OK):
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+% \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{siunitx}        % decimal-aligned numeric (S) columns
+\usepackage{multirow}       % multi-row cells
+\usepackage{caption}        % caption font/skip control
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[dvipsnames,table]{xcolor}   % colors + \rowcolor / \columncolor
+\usepackage{adjustbox}
+
+% \usepackage[nonatbib]{neurips_2026}
+
+\sisetup{
+  detect-weight=true,
+  detect-family=true,
+  table-format=1.2,
+  table-number-alignment=center,
+  input-symbols={--},
+}
+% \usepackage{natbib}
+% \bibliographystyle{plainnat}
+
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage{xspace}
+% Pseudo-python styling for algorithms
+\definecolor{keywordcolor}{RGB}{255, 102, 0}   % Orange for keywords
+\definecolor{functioncolor}{RGB}{0, 102, 204}  % Blue for function names
+\definecolor{operatorcolor}{RGB}{128, 0, 128}  % Purple for operators
+\newcommand{\kw}[1]{\textbf{#1}}
+\newcommand{\fn}[1]{\textcolor{functioncolor}{\text{#1}}}
+\newcommand{\op}[1]{\mathrel{\textcolor{operatorcolor}{#1}}}
+\algrenewcommand{\algorithmicfor}{\kw{for}}
+\algrenewcommand{\algorithmicif}{\kw{if}}
+\algrenewcommand{\algorithmicthen}{\kw{:}}
+\algrenewcommand{\algorithmicelse}{\kw{else}}
+\algrenewcommand{\algorithmicreturn}{\kw{return}}
+\algrenewcommand{\algorithmicwhile}{\kw{while}}
+\algrenewcommand{\algorithmicdo}{\kw{:}}
+\algrenewcommand{\algorithmicrepeat}{\kw{repeat}}
+\algrenewcommand{\algorithmicuntil}{\kw{until}}
+\usepackage{listings}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  frame=single,
+  framerule=0.3pt,
+  xleftmargin=0.5em,
+  xrightmargin=0.5em,
+  aboveskip=0.5em,
+  belowskip=0.5em,
+  showstringspaces=false,
+  extendedchars=true,
+  literate={—}{{---}}1 {→}{{$\to$}}1 {×}{{$\times$}}1
+}
+
+\usepackage[skins]{tcolorbox}
+\tcbuselibrary{breakable,listings}
+
+\newcommand\old[1]{\textcolor{gray}{[BEFORE: #1]}}
+\newcommand\yp[1]{\textcolor{teal}{[YP: #1]}}
+\newcommand\ay[1]{\textcolor{blue}{[AY: #1]}}    
+\newcommand\ms[1]{\textcolor{red}{[MS: #1]}}    
+
+% \promptlisting{color}{title}{file}{label}
+\newtcbinputlisting[auto counter, number within=section]{\promptlisting}[4]{%
+  enhanced,
+  breakable,
+  listing only,
+  listing file={#3},
+  label={#4},
+  listing options={
+    basicstyle=\scriptsize\ttfamily,
+    breaklines=true,
+    breakatwhitespace=true,
+    columns=flexible,
+    keepspaces=true,
+    showstringspaces=false,
+    extendedchars=true,
+    literate={—}{{---}}1 {→}{{$\to$}}1 {×}{{$\times$}}1,
+    frame=none
+  },
+  colback=#1!5!white,
+  colframe=#1!75!black,
+  coltitle=white,
+  fonttitle=\bfseries\small,
+  title=Box~\thetcbcounter: #2,
+  boxsep=2pt,
+  left=4pt, right=4pt, top=2pt, bottom=2pt,
+}
+
+\newcommand{\passk}{pass\textasciicircum k\xspace}
+\newcommand{\passone}{pass\textasciicircum 1\xspace}
+\newcommand{\passthree}{pass\textasciicircum 3\xspace}
+
+\newcommand{\ourbenchmark}{$\tau^{c}$-Bench\xspace}
+\newcommand{\taubenchorig}{$\tau$-Bench\xspace}
+\newcommand{\taubench}{$\tau^2$-Bench\xspace}
+\newcommand{\taubenchverified}{$\tau$-Bench-Verified\space}
+\newcommand{\tbv}{$\tau$BV\xspace}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+\title{A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{
+  Tomer Keren \\
+  Faculty of Data and Decision Science\\
+  Technion\\
+  \texttt{tkeren@campus.technion.ac.il} 
+  \And
+  Nitay Calderon \\
+  Faculty of Data and Decision Science\\
+  Technion\\
+  \texttt{nitay@campus.technion.ac.il} 
+  \And
+  Asaf Yehudai \\
+  IBM Research \\
+  \texttt{Asaf.Yehudai@ibm.com} 
+  \And
+  Yotam Perlitz \\
+  IBM Research \\
+  \texttt{yotam.perlitz@ibm.com} 
+  \And
+  Michal Shmueli-Scheuer \\
+  IBM Research \\
+  \texttt{shmueli@il.ibm.com} 
+  \And
+  Roi Reichart \\
+  Faculty of Data and Decision Science\\
+  Technion\\
+  \texttt{roiri@technion.ac.il} 
+}
+\begin{comment}
+\author{%
+Tomer Keren\textsuperscript{1} \quad
+Nitay Calderon\textsuperscript{1} \quad
+Asaf Yehudai\textsuperscript{2}
+\\
+Yotam Perlitz\textsuperscript{2} \quad
+Michal Shmueli-Scheuer\textsuperscript{2} \quad
+Roi Reichert\textsuperscript{1}
+\\[0.5em]
+\textsuperscript{1}Faculty of Data and Decision Science, Technion
+\quad
+\textsuperscript{2}IBM Research
+\\
+\texttt{\{tkeren,nitay\}@campus.technion.ac.il, roiri@technion.ac.il}
+\\
+\texttt{\{Asaf.Yehudai,yotam.perlitz\}@ibm.com, shmueli@il.ibm.com}
+}
+\end{comment}
+\begin{document}
+% 
+\maketitle
+\input{sections/0_abstract}
+\input{sections/1_introduction}
+\input{sections/2_evaluation}
+\input{sections/3_method}
+\input{sections/4_experiments}
+\input{sections/5_results}
+\input{sections/6_related_work}
+\input{sections/7_conclusions}
+
+\begin{ack}
+This research was conducted in collaboration with the Technion and IBM Research. The work was supported by the IBM-Technion Research collaboration.
+\end{ack}
+
+\bibliographystyle{unsrtnat}
+\bibliography{cite.bib} % Your .bib file
+\newpage
+\input{sections/appendix/main}
+\input{checklist.tex}
+
+\end{document}

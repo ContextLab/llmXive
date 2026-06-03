@@ -1,0 +1,86 @@
+\begin{table}[t]
+\caption{Same-data comparison on Qwen3-8B under greedy decoding. All draft models are trained on ShareGPT with the same 16-token drafting budget. FR-Spec uses a 32K frequency-ranked vocabulary subset from ShareGPT. Baseline reports TPS; other methods report speedup over the baseline.}
+\label{tab:same-data-abl}
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.95}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l cccccc c}
+\toprule
+\multirow{2}[2]{*}{Method} 
+& \multicolumn{6}{c}{Concurrency} 
+& \multirow{2}[2]{*}{\textit{Avg.} $\tau$} \\
+\cmidrule(lr){2-7}
+& 1 & 2 & 4 & 8 & 16 & 32 &  \\
+\midrule
+
+\multicolumn{8}{l}{\textbf{GSM8K}} \\
+\midrule
+Baseline (TPS)
+& 92 & 184 & 360 & 655 & 1143 & 1713 & -- \\
+
+EAGLE-3
+& 2.35$\times$ & 2.15$\times$ & 1.90$\times$ & 1.77$\times$ & 1.30$\times$ & 0.97$\times$
+& 5.01 \\
+
+FR-Spec
+& 2.77$\times$ & 2.52$\times$ & 2.36$\times$ & 2.09$\times$ & 1.53$\times$ & 1.16$\times$
+& 4.79 \\
+
+DFlash
+& 2.68$\times$ & 2.40$\times$ & 2.30$\times$ & 1.95$\times$ & 1.49$\times$ & 1.09$\times$
+& 3.90 \\
+
+\textbf{\textsc{Domino}}
+& \textbf{3.01$\times$} & \textbf{2.70$\times$} & \textbf{2.61$\times$} & \textbf{2.18$\times$} & \textbf{1.68$\times$} & \textbf{1.24$\times$}
+& 4.65 \\
+
+\midrule
+\multicolumn{8}{l}{\textbf{HumanEval}} \\
+\midrule
+Baseline (TPS)
+& 92 & 183 & 355 & 667 & 1211 & 2036 & -- \\
+
+EAGLE-3
+& 2.27$\times$ & 2.13$\times$ & 2.00$\times$ & 1.74$\times$ & 1.27$\times$ & 0.87$\times$
+& 4.84 \\
+
+FR-Spec
+& 2.67$\times$ & 2.43$\times$ & 2.30$\times$ & 2.03$\times$ & 1.50$\times$ & 1.02$\times$
+& 4.54 \\
+
+DFlash
+& 2.58$\times$ & 2.43$\times$ & 2.32$\times$ & 2.05$\times$ & 1.47$\times$ & 1.00$\times$
+& 3.78 \\
+
+\textbf{\textsc{Domino}}
+& \textbf{2.82$\times$} & \textbf{2.64$\times$} & \textbf{2.52$\times$} & \textbf{2.23$\times$} & \textbf{1.63$\times$} & \textbf{1.12$\times$}
+& 4.35 \\
+
+\midrule
+\multicolumn{8}{l}{\textbf{LiveCodeBench}} \\
+\midrule
+Baseline (TPS)
+& 91 & 175 & 283 & 569 & 744 & 1140 & -- \\
+
+EAGLE-3
+& 1.99$\times$ & 1.84$\times$ & 1.81$\times$ & 1.41$\times$ & 1.30$\times$ & 0.92$\times$
+& 4.38 \\
+
+FR-Spec
+& 2.36$\times$ & 2.18$\times$ & 2.17$\times$ & 1.64$\times$ & 1.51$\times$ & 1.10$\times$
+& 4.21 \\
+
+DFlash
+& 2.36$\times$ & 2.15$\times$ & 2.16$\times$ & 1.56$\times$ & 1.56$\times$ & 1.10$\times$
+& 3.66 \\
+
+\textbf{\textsc{Domino}}
+& \textbf{2.55$\times$} & \textbf{2.33$\times$} & \textbf{2.44$\times$} & \textbf{1.75$\times$} & \textbf{1.60$\times$} & \textbf{1.17$\times$}
+& 4.24 \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}

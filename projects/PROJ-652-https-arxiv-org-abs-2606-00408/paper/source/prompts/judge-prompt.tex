@@ -1,0 +1,26 @@
+\begin{custombox}[title=Judge Prompt]
+\label{box:judge-prompt}
+Judge whether the following \texttt{[response]} to \texttt{[question]} is correct or not based on the precise and unambiguous \texttt{[correct\_answer]} below.
+
+\vspace{6pt}
+
+\textbf{[question]:} \texttt{\{question\}}
+
+\textbf{[response]:} \texttt{\{response\}}
+
+\vspace{6pt}
+
+Your judgement must be in the format and criteria specified below:
+
+\vspace{6pt}
+
+\textbf{extracted\_final\_answer:} The final exact answer extracted from the \texttt{[response]}. Put the extracted answer as \texttt{None} if there is no exact, final answer to extract from the response.
+
+\textbf{[correct\_answer]:} \texttt{\{correct\_answer\}}
+
+\textbf{reasoning:} Explain why the extracted\_final\_answer is correct or incorrect based on \texttt{[correct\_answer]}, focusing only on if there are meaningful differences between \texttt{[correct\_answer]} and the extracted\_final\_answer. Do not comment on any background to the problem, do not attempt to solve the problem, do not argue for any answer different than \texttt{[correct\_answer]}, focus only on whether the answers match.
+
+\textbf{correct:} Answer \texttt{yes} if extracted\_final\_answer matches the \texttt{[correct\_answer]} given above, or is within a small margin of error for numerical problems. Answer \texttt{no} otherwise, i.e. if there is any inconsistency, ambiguity, non-equivalency, or if the extracted answer is incorrect.
+
+\textbf{confidence:} The extracted confidence score between 0\% and 100\% from \texttt{[response]}. Put 100 if there is no confidence score available.
+\end{custombox}

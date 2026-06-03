@@ -1,0 +1,40 @@
+\section{Introduction}
+
+Modern search agents resolve complex queries by iteratively executing search, browsing, and localization actions over extended horizons
+~\citep{openai_dr,gemini_dr,anthropic2025claude_research,moonshot2025kimi_researcher,grok_ds,perplexity_dr}. Each turn cumulatively appends retrieved snippets, page contents, tool errors, and intermediate reasoning to the context trajectory.
+By termination, the context often reaches tens of thousands of tokens and is dominated by environment observations. This poses a core operational question for deployment: as the retrieval context grows, whether old observations should remain visible, or instead be masked or dropped entirely.
+
+
+Context management (CM) addresses this question at test time by pruning, summarizing, or compressing the accumulated trajectory~\citep{wu2025resum,ye2025agentfold}.
+Among these methods, observation masking (i.e., replacing old tool outputs with placeholders while retaining the surrounding reasoning and tool-call structure) is especially lightweight and has been widely adopted in deployed agent systems~\citep{anthropic2024claudecode,jetbrain_code_cm,langchain_cm,li2026dci}.
+However, masking's impact on performance is non-trivial in agentic search. While the agent might directly extract critical downstream evidence from an old observation, it may also have already condensed these findings into its active reasoning, or it can actively retrieve the information again via the tool interface. Therefore, the actual effect depends entirely on the dynamic interaction among the model, retriever, and scaffold, rather than a simple trade-off with context length.
+
+
+This dynamic interaction scales in complexity with the co-evolution of agentic search architectures and their underlying backbones. 
+Early systems such as Search-R1~\citep{jin2025searchr1} and Search-o1~\citep{li2025searcho1} build on basic ReAct-style reasoning-acting loops~\citep{yao2022react}. 
+In contrast, recent deep research systems formalize these loops into highly structured tool calls~\citep{zheng2025deepresearcher,miromind2025mirothinker}, and increasingly train the backbone on extensive environment-feedback trajectories~\citep{cao2026qwen3nextcoder,zhang2025rlm}. 
+This trend suggests that sufficiently capable backbones may naturally internalize the ability to ignore noisy or stale observations, potentially making test-time CM redundant in certain regimes.
+At the same time, retrieval at scale injects low signal-to-noise content, and even strong models suffer from lost-in-the-middle and context-dilution effects~\citep{liu2024lost}, suggesting that masking may remain useful in others. 
+While existing work successfully utilizes CM-style interventions as isolated, performance-boosting add-ons for specific configurations, there is a distinct lack of systematic study mapping how the utility of this tool scales across different regimes, or explaining why its gains vanish.
+
+To bridge this gap, we study a central empirical question:
+
+\begin{center}
+    \vspace{-0.5em}
+    \textit{When does masking stale observations help search agents, and why?}
+    \vspace{-0.5em}
+\end{center}
+
+
+To answer this question, we vary two factors, the backbone \textbf{model} and the \textbf{retriever}, while keeping the scaffold, masking rule, prompts, and evaluation protocol fixed.
+The models span from 4B to 284B parameters, and the retrievers range from sparse BM25 to dense retrievers specialized for agentic search.
+% We evaluate these settings on both offline and live-web agentic search benchmarks.
+% All experiments use the same parallel-tool-call scaffold, whose no-CM accuracy already exceeds previously reported results for the same model--retriever pair by 10--13 absolute points.
+% Consequently, the measured CM gains reflect genuine improvements over a highly optimized baseline, rather than inflated artifacts.
+We evaluate these configurations across both offline benchmarks with varying retrievers and live-web agentic search environments. 
+All experiments are deployed on a unified parallel-tool-call scaffold that establishes a highly competitive baseline. Consequently, the measured CM trajectories and gains reflect genuine system behaviors, rather than inflated artifacts.
+
+Our analysis yields three findings: 
+\textbf{First}, we establish a quantitative regime map (Figure~\ref{fig:teaser}) showing that CM gains are non-monotonically modulated by the system's baseline proficiency. Across our offline suite, this variance maps into a retriever bottleneck plateau ($+$6--7 pts), a CM sweet spot ($+$11.7 pts), and a model-saturated collapse ($\leq$0 pts); this right-hand collapse resonates in live-web environments.
+\textbf{Second}, we trace the operational intuition of CM to a convergence of attention and tool-use behaviors. Mechanistically, empirical attention weights allocated to observations are significantly lower than those to reasoning, decaying sharply outside recent turns. Meanwhile, both reasoning attention and active page-opening behaviors exhibit a striking U-shaped pattern, concentrated heavily at the trajectory's periphery while abandoning the middle. This convergence explains why CM provides an effective shortcut by removing this neglected middle noise, yet backfires once advanced models evolve past these constraints.
+\textbf{Third}, our regression probes reveal that further optimizing the input context's signal-to-noise ratio when context becomes more complex is the true bottleneck for advanced agents. Unlike context masking, which risks evicting critical evidence when models saturate, boosting retriever quality fundamentally improves the upper bound of actionable signal. Future engineering should therefore pivot from aggressive heuristic pruning toward high-fidelity retrieval.

@@ -1,0 +1,85 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=Latex,line cap=round,line join=round,font=\footnotesize\sffamily]
+  \tikzset{
+    panel/.style={draw=mindlabfg, very thick, rounded corners=1.4mm, fill=white},
+    softpanel/.style={draw=mindlabfg, very thick, rounded corners=1.4mm, fill=mindlabblue!10},
+    stage/.style={draw=mindlabfg, very thick, rounded corners=1.4mm, fill=white},
+    box/.style={
+      draw=mindlabfg, thick, rounded corners=0.8mm, fill=white, align=center,
+      inner sep=2pt, minimum width=1.55cm, minimum height=0.55cm,
+      font=\footnotesize\sffamily
+    },
+    boxblue/.style={box, fill=mindlabbluepale!55},
+    boxaccent/.style={box, fill=mindlabblue!22},
+    boxsoft/.style={box, fill=mindlabfg!7},
+    op/.style={
+      draw=mindlabfg, thick, rounded corners=0.8mm, fill=mindlabblue!16, align=center,
+      inner sep=2pt, minimum width=1.60cm, minimum height=1.30cm,
+      text width=1.45cm, font=\footnotesize\sffamily
+    },
+    bigarrow/.style={->, line width=0.9pt, draw=mindlabfg, shorten >=2pt, shorten <=2pt},
+    softarrow/.style={->, semithick, draw=mindlabfg!55, dashed, shorten >=2pt, shorten <=2pt},
+    flowarrow/.style={->, line width=0.9pt, draw=mindlabfg, shorten >=3pt, shorten <=3pt},
+    title/.style={font=\bfseries\footnotesize\sffamily, text=mindlabfg, align=center, fill=white, inner sep=2pt},
+    stagetitle/.style={font=\bfseries\footnotesize\sffamily, text=mindlabfg, align=center, fill=white, inner sep=2pt},
+    figtitle/.style={font=\bfseries\small\sffamily, text=mindlabfg, align=center},
+    elabel/.style={font=\scriptsize\sffamily, text=mindlabfg, align=center, fill=white, inner sep=1.2pt},
+    plainlabel/.style={font=\scriptsize\sffamily, text=mindlabfg!72, align=center, inner sep=0pt}
+  }
+
+  \path[use as bounding box] (-0.20,-3.45) rectangle (16.20,3.50);
+  \node[figtitle] at (8.00,3.10) {Context Distillation: writing context gains into parameters};
+
+  % Stage panels share top y = 2.20 and bottom y = -2.10
+  % Column anchors (panel centers):
+  %   S1 x=2.20  S2 x=6.55  S3 x=11.30  R x=14.95
+  \def\Stop{2.20}
+  \def\Sbot{-2.10}
+
+  \node[stage] (s1) at (2.20,0.05)  [minimum width=3.30cm, minimum height=4.30cm] {};
+  \node[stage] (s2) at (6.55,0.05)  [minimum width=4.20cm, minimum height=4.30cm] {};
+  \node[stage] (s3) at (11.30,0.05) [minimum width=4.20cm, minimum height=4.30cm] {};
+  \node[stage] (sR) at (14.95,0.05) [minimum width=1.70cm, minimum height=4.30cm] {};
+
+  \node[stagetitle] at (2.20,2.05)  {Step 1\\Query-only rollout};
+  \node[stagetitle] at (6.55,2.05)  {Step 2\\Context scoring \& rewards};
+  \node[stagetitle] at (11.30,2.05) {Step 3\\RL-style parameter update};
+  \node[stagetitle] at (14.95,2.05) {Result};
+
+  % Stage 1 internals: aligned column at x=2.20, rows y=0.85,-0.10,-1.05
+  \node[boxaccent] (q1)    at (2.20,0.85)  {Query};
+  \node[boxblue]   (th1)   at (2.20,-0.10) {$\theta_t$};
+  \node[boxsoft]   (out1)  at (2.20,-1.05) {Output};
+  \draw[flowarrow] (q1.south) -- (th1.north);
+  \draw[flowarrow] (th1.south) -- (out1.north);
+
+  % Stage 2: inputs column x=5.45, op column x=7.65
+  \node[boxaccent] (q2)   at (5.45,0.85)  {Query};
+  \node[boxblue]   (ctx2) at (5.45,-0.10) {Context};
+  \node[boxsoft]   (out2) at (5.45,-1.05) {Output};
+  \node[op]        (rm)   at (7.65,-0.10) {Reward /\\scoring\\function};
+  \draw[flowarrow] (q2.east)  -- (q2.east -| rm.west);
+  \draw[flowarrow] (ctx2.east) -- (rm.west);
+  \draw[flowarrow] (out2.east) -- (out2.east -| rm.west);
+
+  % Stage 3: inputs column x=10.20, op column x=12.40
+  \node[boxaccent] (q3)   at (10.20,0.85)  {Query};
+  \node[boxblue]   (th3)  at (10.20,-0.10) {$\theta_t$};
+  \node[boxsoft]   (rew3) at (10.20,-1.05) {$\{r_i\}$};
+  \node[op]        (opt)  at (12.40,-0.10) {Optimizer /\\update\\function};
+  \draw[flowarrow] (q3.east)  -- (q3.east -| opt.west);
+  \draw[flowarrow] (th3.east) -- (opt.west);
+  \draw[flowarrow] (rew3.east) -- (rew3.east -| opt.west);
+
+  % Result
+  \node[boxaccent] (thN) at (14.95,-0.10) [minimum width=1.30cm] {$\theta_{t+1}$};
+  \node[plainlabel] at (14.95,-1.00) {distilled\\knowledge};
+
+  % Stage-to-stage arrows (horizontal, between panels)
+  \draw[bigarrow] (s1.east) -- (s2.west);
+  \draw[bigarrow] (s2.east) -- (s3.west);
+  \draw[bigarrow] (s3.east) -- (sR.west);
+
+  % Carry-over: only one curve, from reward fn down/over to {r_i} input of stage 3.
+  \draw[softarrow] (rm.south) .. controls (7.65,-2.85) and (10.20,-2.85) .. (rew3.south);
+  \node[elabel, text=mindlabfg!75] at (8.92,-2.95) {token rewards $\{r_1,\dots,r_n\}$};
+\end{tikzpicture}

@@ -1,0 +1,16 @@
+\section{Prompts}
+\label{app:prompts}
+
+This appendix contains the prompt templates used in each pipeline stage, reproduced verbatim from the running implementation. All prompts are domain-agnostic: the same template is used across the airline, retail, and telecom domains, with the domain environment (policy document, tool specification, schema) supplied through the templated placeholders. Placeholders of the form \texttt{\{name\}} are substituted with the corresponding runtime value described in Appendix~\ref{app:method_implementation}; the double braces \texttt{\{\{} and \texttt{\}\}} are Python format-string escapes that render as single braces in the text sent to the LLM and are otherwise passed through unchanged.
+
+\promptlisting{RoyalBlue}{Prompt for \texttt{validate\_action\_sequence}}{assets/prompts/validate_action_sequence.txt}{box:validate-action-sequence}
+
+\promptlisting{ForestGreen}{Prompt for \texttt{create\_user\_task}}{assets/prompts/create_user_task.txt}{box:create-user-task}
+
+\promptlisting{ForestGreen}{Prompt for \texttt{generate\_db\_initialization}}{assets/prompts/generate_db_initialization.txt}{box:generate-db-init}
+
+\promptlisting{ForestGreen}{Prompt for \texttt{task\_coherence\_review}}{assets/prompts/task_coherence_review.txt}{box:task-coherence-review}
+
+\promptlisting{Plum}{Prompt for \texttt{adversarial\_strategy}}{assets/prompts/adversarial_strategy.txt}{box:adv-strategy}
+
+\promptlisting{Plum}{Prompt for \texttt{adversarial\_scenario}}{assets/prompts/adversarial_scenario.txt}{box:adv-scenario}

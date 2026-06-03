@@ -1,0 +1,27 @@
+\begin{table}[ht]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.20}
+\caption{Policy-population serving separates addressability from live residency.}
+\label{tab:mint-serving-bounds}
+\fittowidth{%
+\begin{tabular}{@{}M{2.6cm}M{5.6cm}M{5.2cm}@{}}
+\toprule
+\apphead Resource tier & Evidence or bound & Interpretation \\
+\midrule
+\appkey{Addressable catalog}     & Built and audited a $10^6$-entry packed adapter catalog; serving experiments select bounded working sets from it. & Catalog size is an addressability scale, not simultaneous GPU residency. \\
+\addlinespace[2pt]
+\appkey{CPU adapter cache}       & 369 loaded adapters at a 512-adapter hotset; 550 loaded adapters under 2048-adapter weak-locality pressure. & Local CPU memory absorbs recurring traffic before requests touch shared storage. \\
+\addlinespace[2pt]
+\appkey{GPU batch slots}         & 64 distinct adapters in the tested same-batch window. & Batch execution has the smallest adapter-diversity window. \\
+\addlinespace[2pt]
+\appkey{Cold loading}            & 16 distinct cache misses form a 1.375--23.267\,s load staircase. & Different missing policies must be admitted as explicit service work. \\
+\addlinespace[2pt]
+\appkey{Packed MoE LoRA loading} & 37,248 tensor objects reduced to 672; live loading becomes 8.5--8.7$\times$ faster. & Representation controls cold-load overhead even when adapter bytes are modest. \\
+\addlinespace[2pt]
+\appkey{Readiness gate} & Newly registered adapters become user-visible only after activation/prewarm. & Registration and serving readiness are separate lifecycle states. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

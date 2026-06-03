@@ -1,0 +1,33 @@
+\begin{table}[tbp]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+    \caption{Main benchmark results comparing different memory mechanisms on Qwen3-4B-Instruct. All values report the task-specific metrics. For the final average score, HotpotQA is counted using Exact Match~(EM).}
+    \label{tab:delta-mem-baseline}
+    \fittowidth{%
+    \begin{tabular}{@{}cccccccccccccccc@{}}
+    \toprule
+    \multirow{2}{*}{\appkey{Model}} & \multirow{2}{*}{IFEval} & \multicolumn{2}{c}{HotpotQA} & \multirow{2}{*}{GPQA-D} & \multicolumn{5}{c}{Memory Agent Bench} & \multicolumn{5}{c}{LoCoMo} & \multirow{2}{*}{Avg.} \\
+    \cmidrule(lr){3-4} \cmidrule(lr){6-10} \cmidrule(lr){11-15}
+    & & EM & F1 & & Avg. & AR & TTL & LRU & SF & Avg. & Multi & Temp & Open & Single \\
+    \midrule
+    \appkey{Qwen3-4B-Instruct} & 81.89 & 42.35 & 56.00 & 39.39 & 29.54 & 35.30 & 26.14 & \textbf{47.08} & 14.37 & 40.79 & 38.39 & 32.89 & 10.77 & 48.05 & 46.79 \\
+    \appgroup{16}{Textual Memory}
+    \quad + BM25 RAG     & -- & 40.35 & 52.83 & -- & 24.49 & 32.20 & 9.74 & 37.86 & 15.00 & 36.68 & 38.12 & 20.34 & 9.99  & 45.47 & 44.56 \\
+    \quad + LLMLingua-2  & -- & 36.93 & 50.03 & -- & 15.63 & 21.45 & 1.43 & 38.45 & 8.62  & 40.98 & 39.07 & 30.13 & 10.98 & 49.19 & 42.96 \\
+    \quad + MemoryBank   & -- & --    & --    & -- & 17.65 & 22.65 & 7.67 & 36.36 & 9.88  & 38.14 & 37.88 & 21.76 & 13.35 & 47.31 & 43.88 \\
+    \appgroup{16}{Parametric Memory}
+    \quad + Context2LoRA & 76.71 & 37.85 & 50.88 & 29.29 & 32.53 & 40.00 & 29.86 & 25.15 & \textbf{17.75} & 48.11 & 37.95 & 34.99 & 16.75 & \textbf{60.11} & 44.90 \\
+    \quad + MemGen       & 39.37 & 5.36  & 16.27 & 38.89 & 29.61 & 34.85 & 28.45 & 44.30 & 14.38 & 40.05 & 32.93 & 33.30 & 12.67 & 48.13 & 30.66 \\
+    \appgroup{16}{Outside-channel Memory}
+    \quad + MLP Memory   & 24.95 & 10.94 & 25.83 & 22.73 & 28.80 & 35.35 & 26.00 & 31.19 & 14.38 & 26.85 & 32.87 & 16.72 & 8.81  & 30.75 & 22.85 \\
+    \midrule
+    \appgroup{16}{$\delta$-Mem}
+    \quad + $\delta$-Mem~(SSW) & 81.70 & 49.22 & 63.43 & \textbf{41.41} & 37.84 & 41.50 & \textbf{50.50} & 43.02 & 16.50 & 47.05 & 41.00 & 36.48 & 14.08 & 56.88 & 51.44 \\
+    \quad + $\delta$-Mem~(TSW) & \textbf{82.99} & \textbf{49.41} & \textbf{63.66} & 40.40 & 36.48 & 42.45 & 40.64 & 46.08 & 15.88 & 46.53 & 42.14 & 37.20 & 13.35 & 55.36 & \textbf{51.66} \\
+    \quad + $\delta$-Mem~(MSW) & 81.52 & 46.86 & 60.47 & 37.37 & \textbf{38.85} & \textbf{44.40} & 47.29 & 41.55 & 17.00 & \textbf{49.12} & \textbf{42.57} & \textbf{39.31} & \textbf{18.12} & 58.59 & 50.74 \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}

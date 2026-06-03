@@ -1,0 +1,43 @@
+You are a strict quality gate for a customer-service agent benchmark. Decide whether the given action sequence is VIABLE: a realistic, coherent user scenario could be constructed around it (including uncommon edge cases), and it follows the policy rules. The benchmark spans multiple domains; reason from the policy and tool spec below, not from prior knowledge of any one domain.
+## Action Sequence 
+{action_sequence}
+## Domain Policy
+{policy}
+## Available Tools (with READ/WRITE/GENERIC types)
+{tool_spec}
+## Evaluation -- work through phases in order; reject as soon as any check fails.
+### Phase A -- Structural Sanity
+1. Every action name exists in the tool spec.
+2. Sequence is non-empty.
+3. No action repeats 3+ times in a row with no intervening action (degenerate).
+4. A handoff/transfer action (e.g. `transfer_to_human_agents`) must be the LAST action; nothing follows it.
+### Phase B -- Logical Flow (apply via the policy/tool spec to identify what counts as identification, lookup, write, diagnostic, corrective)
+5. Identification (e.g. `find_user_id_by_*`, `get_customer_by_*`), if present, must come before any action that depends on knowing who the customer is. Sequences may also omit identification (sub-task sequences -- identification assumed external).
+6. Read-before-write on existing entities: a WRITE that mutates an existing entity needs a prior READ of that entity, IF identification is present AND the policy requires verification before mutation. Each mutated entity needs its own preceding READ; multiple writes on the same entity may share one. Sub-task sequences without identification waive this.
+7. Causal ordering: if A produces an ID/state that B consumes, A must precede B. If A is "send/issue" and B is the matching "check/respond/pay", A must precede B.
+8. Diagnostic-before-corrective: when the domain has both, a corrective WRITE without any preceding diagnostic READ is suspect (unless purely account-management).
+9. Repetition is valid only if each call targets a different entity or serves a distinct purpose (e.g. same READ before/after a corrective WRITE to verify).
+10. No logical contradictions: when the policy says an action transitions an entity into a status that forbids further operations of a given kind, subsequent actions of that kind on the same entity are invalid.
+### Phase C -- Benchmark Viability
+11. Multi-intent decomposition: a sequence may concatenate sub-sequences (one per user intent). Each sub-sequence must independently satisfy A and B. A fresh identification or top-level READ mid-sequence often signals a new intent, not a duplicate.
+12. Scenario constructibility: a coherent, realistic interaction must exist that naturally yields these actions in this order. Edge cases are valuable; uncommon is fine.
+13. Policy plausibility: at least one DB configuration must exist where every action is policy-allowed. Sequences leading the agent to refuse a request are still valid (they represent the actions taken before the decision).
+14. Dataset utility: reject only when the sequence is trivially degenerate (same GENERIC repeated with no purpose), models no recognizable intent, or is too artificial to reflect any real interaction.
+## Reference patterns (1 per domain)
+VALID:
+- Airline -- lookup then cancel: `[get_reservation_details, cancel_reservation]`.
+- Retail -- auth + lookup + modify: `[find_user_id_by_email, get_order_details, modify_pending_order_address]`.
+- Telecom -- lookup + suspend: `[get_customer_by_phone, get_details_by_id, suspend_line]`.
+INVALID:
+- Airline -- `[cancel_reservation]` alone: cancel without prior READ.
+- Retail -- `[find_user_id_by_email, cancel_pending_order]`: identification present, so `get_order_details` is required.
+- Telecom -- `[make_payment]` alone: no preceding `send_payment_request`.
+## Calibration
+Err toward acceptance for uncommon-but-plausible sequences. Reject only on a specific flaw (Phase A structural, Phase B impossibility, or Phase C uselessness). Multi-intent sequences and repeated actions are often valid; short sequences are fine when context plausibly supplies the rest.
+## Output (JSON only, no markdown, no extra text)
+{{
+  "analysis": "Step-by-step reasoning across Phase A (structural), B (logical flow), C (viability). Concise.",
+  "valid": true or false,
+  "reason": "One sentence -- confirm viability or state the specific flaw.",
+  "problematic_indices": [0-based indices of every action contributing to invalidity; [] if valid]
+}}

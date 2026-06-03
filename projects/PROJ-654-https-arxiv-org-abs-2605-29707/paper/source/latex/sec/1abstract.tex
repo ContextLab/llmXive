@@ -1,0 +1,13 @@
+
+Speculative decoding accelerates LLM inference by drafting multiple tokens and verifying them in parallel with the target model. However, its practical speedup is constrained by the trade-off between draft quality and drafting cost: autoregressive drafters model causal dependencies among draft tokens but incur sequential overhead, while parallel drafters reduce drafting cost but weaken intra-block dependency modeling. In this paper, we propose Domino, a speculative decoding framework that decouples causal dependency modeling from expensive autoregressive draft execution. Domino first uses a parallel draft backbone to produce preliminary draft distributions for the entire block, and then applies a lightweight Domino head to refine them with prefix-dependent causal information. To stabilize teacher-forced causal encoding, we further introduce a base-anchored training curriculum that first strengthens the parallel backbone and then gradually shifts optimization toward the causally corrected final distribution. Experiments on Qwen3 models show that Domino achieves up to \(5.49\times\) end-to-end speedup under the Transformers backend and up to \(5.8\times\) throughput speedup under SGLang serving. 
+\begin{center}
+\vspace{-0.5em}
+{\small
+\textbf{Links:} \ 
+\href{https://github.com/jianuo-huang/Domino}{\textcolor{linkpink}{Code}}
+\ (GitHub) \ \textnormal{\textbar }\ 
+\href{https://huggingface.co/collections/Huang2020/domino}{\textcolor{linkpink}{Models}}
+\ \textnormal{(Hugging Face)}
+}
+\vspace{-0.5em}
+\end{center}

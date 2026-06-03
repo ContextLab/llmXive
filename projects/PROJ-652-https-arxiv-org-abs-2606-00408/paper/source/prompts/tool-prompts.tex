@@ -1,0 +1,57 @@
+\begin{custombox}[title=Tool Prompt: Search]
+\label{box:tool-search}
+\textbf{Name:} \texttt{browser.search}
+
+\vspace{4pt}
+
+\textbf{Description.}
+Searches for information related to \texttt{query} and displays \texttt{topn} results.
+
+\vspace{4pt}
+
+\textbf{Parameters.}
+\begin{itemize}[leftmargin=5pt, itemsep=0pt, parsep=0pt]
+    \item \texttt{query} (string, required): the search query.
+    \item \texttt{topn} (integer, optional, default 10): number of results to display.
+\end{itemize}
+\end{custombox}
+
+\begin{custombox}[title=Tool Prompt: Open]
+\label{box:tool-open}
+\textbf{Name:} \texttt{browser.open}
+
+\vspace{4pt}
+
+\textbf{Description.}
+Opens the link \texttt{id} from the page indicated by \texttt{cursor}, starting at line number \texttt{loc} and showing \texttt{num\_lines} lines. Valid link ids are displayed as \texttt{\cnli\{id\}\textdagger.*\cnri}. If \texttt{cursor} is not provided, the most recent page is implied. If \texttt{id} is a string, it is treated as a fully qualified URL associated with \texttt{source}. Calling this function without \texttt{id} scrolls to a new location of an opened page.
+
+\vspace{4pt}
+
+\textbf{Parameters.}
+\begin{itemize}[leftmargin=5pt, itemsep=0pt, parsep=0pt]
+\item \texttt{id} (number or string, optional, default -1): link id from the current page or a fully qualified URL.
+\item \texttt{cursor} (integer, optional, default 0): page cursor to operate on.
+\item \texttt{loc} (integer, optional, default -1): starting line number.
+\item \texttt{num\_lines} (integer, optional, default -1): number of lines to display.
+\item \texttt{view\_source} (boolean, optional, default false): whether to view page source.
+\item \texttt{source} (string, optional): the source identifier, e.g., \texttt{web}.
+\end{itemize}
+\end{custombox}
+
+\begin{custombox}[title=Tool Prompt: Find]
+\label{box:tool-find}
+\textbf{Name:} \texttt{browser.find}
+
+\vspace{4pt}
+
+\textbf{Description.}
+Finds exact matches of \texttt{pattern} in the current page, or the page given by \texttt{cursor}.
+
+\vspace{4pt}
+
+\textbf{Parameters.}
+\begin{itemize}[leftmargin=5pt, itemsep=0pt, parsep=0pt]
+\item \texttt{pattern} (string, required): the exact text pattern to search for.
+\item \texttt{cursor} (integer, optional, default -1): page cursor to search in.
+\end{itemize}
+\end{custombox}

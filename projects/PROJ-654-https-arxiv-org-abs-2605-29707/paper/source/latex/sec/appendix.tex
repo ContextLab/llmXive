@@ -1,0 +1,65 @@
+\subsection{Training Details}
+\label{app:training_details}
+
+For both Qwen3-4B and Qwen3-8B, we train the \method draft module while keeping the target model frozen. We use the regenerated PerfectBlend data described in Section~\ref{sec:experiments}. Input sequences are truncated to a maximum length of 3072 tokens, and the draft block size is set to 16.
+
+Unless otherwise specified, all draft modules are trained for 3 epochs on 8 NVIDIA A100-SXM4-80GB GPUs. We use a per-GPU batch size of 2, resulting in a global batch size of 16 without gradient accumulation. We optimize the model with AdamW using a learning rate of \(6\times 10^{-4}\), zero weight decay, gradient clipping with a maximum norm of 1.0, and a cosine learning-rate schedule with a warmup ratio of 0.04. Training is conducted in bfloat16 precision with FSDP and gradient sharding.
+
+\begin{table}[H]
+\centering
+\caption{Baseline draft model checkpoints used in our experiments.}
+\label{tab:baseline_checkpoints}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcc}
+\toprule
+\textbf{Method} & \textbf{Qwen3-4B} & \textbf{Qwen3-8B} \\
+\midrule
+EAGLE-3 
+& \texttt{Angslim/Qwen3-4B\_eagle3} 
+& \texttt{Angslim/Qwen3-8B\_eagle3} \\
+
+DART 
+& \texttt{fvliang/qwen4b-dart} 
+& \texttt{fvliang/qwen8b-dart} \\
+
+DFlash 
+& \texttt{z-lab/Qwen3-4B-DFlash-b16} 
+& \texttt{z-lab/Qwen3-8B-DFlash-b16} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{
+Full benchmark-level results for the Domino head ablation. The same trained model is evaluated with the causal correction branch disabled or enabled.
+}
+\label{tab:domino_head_full}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\multirow{2}{*}{Benchmark} 
+& \multicolumn{2}{c}{w/o Domino Head} 
+& \multicolumn{2}{c}{w/ Domino Head} \\
+\cmidrule(lr){2-3}
+\cmidrule(lr){4-5}
+& Accept Length & Speedup 
+& Accept Length & Speedup \\
+\midrule
+GSM8K         & 3.82 & 3.17$\times$ & \textbf{4.80} & \textbf{3.84}$\times$ \\
+MATH-500      & 3.76 & 3.08$\times$ & \textbf{4.66} & \textbf{3.74}$\times$ \\
+AIME25        & 3.68 & 3.03$\times$ & \textbf{4.29} & \textbf{3.47}$\times$ \\
+HumanEval     & 3.69 & 3.04$\times$ & \textbf{4.35} & \textbf{3.51}$\times$ \\
+MBPP          & 3.30 & 2.70$\times$ & \textbf{3.94} & \textbf{3.16}$\times$ \\
+LiveCodeBench & 3.36 & 2.64$\times$ & \textbf{3.92} & \textbf{2.98}$\times$ \\
+MT-Bench      & 2.84 & 2.21$\times$ & \textbf{3.39} & \textbf{2.46}$\times$ \\
+\midrule
+Avg.          & 3.49 & 2.84$\times$ & \textbf{4.19} & \textbf{3.31}$\times$ \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-2mm}
+\end{table}

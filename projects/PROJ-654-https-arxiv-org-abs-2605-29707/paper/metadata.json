@@ -1,0 +1,51 @@
+{
+  "arxiv_id": "2605.29707",
+  "arxiv_url": "https://arxiv.org/abs/2605.29707",
+  "title": "https://arxiv.org/abs/2605.29707",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #267",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/jianuo-huang/Domino"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "latex/acl_latex.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_latex.bbl",
+    "acl_natbib.bst",
+    "acl.sty",
+    "anthology.bib",
+    "custom.bib",
+    "formatting.md",
+    "latex",
+    "latex/acl_latex.tex",
+    "latex/acl_lualatex.tex",
+    "latex/figure",
+    "latex/figure/domino_overhead.pdf",
+    "latex/figure/domino_pipefigure.pdf",
+    "latex/figure/speedup.pdf",
+    "latex/figure/training_strategy_ablation.pdf",
+    "latex/sec",
+    "latex/sec/1abstract.tex",
+    "latex/sec/2introduction.tex",
+    "latex/sec/3related_work.tex",
+    "latex/sec/4Preliminaries.tex",
+    "latex/sec/5method.tex",
+    "latex/sec/6experiment.tex",
+    "latex/sec/7conclusion.tex",
+    "latex/sec/appendix.tex",
+    "latex/table",
+    "latex/table/domino_effect_avg.tex",
+    "latex/table/high_concurrency.tex",
+    "latex/table/main_result.tex",
+    "latex/table/same_data_abl.tex",
+    "README",
+    "README.md"
+  ]
+}

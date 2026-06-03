@@ -1,0 +1,1170 @@
+\section{Scale Down: The Operating Regime of Efficient Adaptation}\label{sec:scale-down}
+
+If Scale Up gives PEFT its leverage, Scale Down decides whether that leverage can be exercised widely enough to sustain persistent personal model instances. The goal is to identify the smallest reliable unit of persistent learning: a local adaptive state that is expressive yet stable, cheap to update and store, and practical to serve across many instances at once.
+
+How small can this adaptive state become before it stops learning reliably? The answer is a regime, not a fixed threshold. Under standard recipes, middle-rank adapters already learn dependably across seeds. Extremely low-rank adapters are different: they reach the same best-case performance, but they do not reach it reliably, and closing that reliability gap still depends on better initialization, tighter variance control, and transferable hyperparameters. This leads to a deliberately limited claim. The smaller an adapter can become while staying stable, the cheaper it is to train, store, and serve the many instances a personal-model population requires.
+
+This section develops Scale Down in two movements. \Cref{subsec:inside-lora} stays within the standard LoRA setting, in which the adaptive state is a static low-rank update, and examines three coupled questions: how far rank can be reduced before across-seed reliability collapses, how RL-native initialization can rescue the tiny-adapter regime, and how learning-rate recipes can transfer across ranks so that adapter populations do not require per-instance tuning. \Cref{subsec:beyond-lora} then looks beyond static LoRA and asks whether the adaptive unit can itself be redesigned as a compact, writable state that accumulates interaction history, taking $\delta$-mem and related stateful adapters as the representative case. Together, the two movements extend Scale Down from parameter reduction to adaptive-state design.
+
+
+\subsection{Inside LoRA: Finding the Efficient Operating Regime}\label{subsec:inside-lora}
+
+LoRA provides the clearest laboratory for studying efficient adaptation because it exposes the central tradeoff directly: how much learning can survive as the trainable surface becomes extremely small. The design space is not only about low rank in the abstract, but about the joint control of expressive capacity, optimization stability, and operational simplicity. The three subsections below form a progression. Rank reduction asks how small the adaptive state can become before the across-seed mean collapses, even when the best run remains competitive. Initialization asks how such tiny adapters can be made reliable rather than merely occasionally lucky under RL optimization. Hyperparameter reuse asks whether the resulting recipe can be reused across the large populations of adapters that personal-model deployment requires.
+
+
+\subsubsection{Rank Reduction Under Minimal Parameters}\label{subsubsec:rank-reduction}
+
+A central question in PEFT is whether useful learning survives under extreme rank reduction. From this perspective, LoRA rank is not simply a monotonic capacity knob. It defines an adaptation regime: how small can the adaptive state become before the across-seed mean degrades, even though the best run remains competitive with much larger adapters?
+
+\begin{figure}[tbp]
+\centering
+\begin{subfigure}[t]{0.33\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_overview_gain_curve.pdf}
+\caption{Mean gain by rank.}
+\label{fig:rank-overview-gain}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.33\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_overview_heatmap.pdf}
+\caption{Rank--batch gain map.}
+\label{fig:rank-overview-heatmap}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.33\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_overview_efficiency.pdf}
+\caption{Token efficiency.}
+\label{fig:rank-overview-efficiency}
+\end{subfigure}
+\caption{Rank-sweep overview. The Qwen$3$-$8$B PPO sweep separates LoRA rank into low-rank research frontier, middle-rank deployment default, and high-rank cost-warning regimes rather than a monotonic capacity curve.}
+\label{fig:rank-sweep-overview}
+\end{figure}
+
+A Qwen$3$-$8$B PPO sweep provides the main evidence for this question. The sweep contains $216$ runs across nine LoRA ranks, four batch sizes, and six seeds per configuration, using a fixed $500$-step PPO schedule on a mixed mathematics corpus with verifiable rewards. As summarized in \Cref{fig:rank-sweep-overview}, the resulting behavior separates into three distinct regions rather than a single monotonic scaling law.
+
+\begin{figure}[tbp]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_middle_curve.pdf}
+\caption{Middle-rank peak.}
+\label{fig:rank-middle-curve}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_middle_batch.pdf}
+\caption{Batch behavior at ranks $16$ and $32$.}
+\label{fig:rank-middle-batch}
+\end{subfigure}
+
+\medskip
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_low_rank_batch.pdf}
+\caption{Batch sensitivity at ranks $1$--$4$.}
+\label{fig:rank-low-batch}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_low_rank_seed.pdf}
+\caption{Seed-level spread at ranks $1$--$4$.}
+\label{fig:rank-low-seed}
+\end{subfigure}
+\caption{Middle- and low-rank operating regions. \textbf{(a, b)} Ranks $16$ and $32$ provide the strongest practical balance of mean gain and downside risk under the observed PPO recipe. \textbf{(c, d)} Ranks $1$--$4$ still carry positive reinforcement-learning signal, but rank $1$ becomes sharply batch- and seed-sensitive.}
+\label{fig:rank-region-detail}
+\end{figure}
+
+Ranks $16$ and $32$ form the strongest practical region under the current recipe. They achieve the highest mean gains, maintain relatively low downside risk, and provide strong token efficiency. \Cref{fig:rank-region-detail}~(a, b) isolates this middle-rank band across batch sizes, making it the current deployment default.
+
+The more important implication, however, appears at the low-rank end of the curve. Ranks $1$ to $4$ do not behave like a uniformly failed region. Their best-seed runs are close to those at ranks $16$ and $32$, while their across-seed means dip and their seed-to-seed spread widens. As shown in \Cref{fig:rank-region-detail}~(c, d), extremely small adapters can already carry the same level of reinforcement-learning signal that larger adapters reach, but current training recipes cannot access that signal consistently across seeds.
+
+This distinction substantially changes the interpretation of low-rank PEFT. If the low-rank region were uniformly weak across seeds, the natural conclusion would be that the adapter is simply too small for the task. Instead, the sweep suggests that low rank is under-optimized rather than under-capacity. The best run at rank $1$ already matches the best runs at ranks $16$ and $32$; what collapses at low rank is reliability across seeds, not the height of the attainable ceiling. The dominant failure mode is therefore not insufficient expressivity but insufficient stability, which is the problem the next subsubsection takes up.
+
+\begin{figure}[tbp]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_mean_best.pdf}
+    \caption{Mean--best separation. The best-seed frontier is nearly flat across ranks, while the across-seed mean degrades at low rank, indicating that the limitation is reliability rather than capacity.}
+    \label{fig:rank-mean-best}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_high_cost.pdf}
+    \caption{High-rank opportunity cost. Beyond the middle-rank region, adapter footprint increases while the observed performance frontier flattens.}
+    \label{fig:rank-high-cost}
+\end{subfigure}
+
+\medskip
+\begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_batch_cost.pdf}
+    \caption{Batch size as a budget variable. Larger batches slightly raise average gain, but they also increase token consumption under the fixed-step PPO schedule.}
+    \label{fig:rank-batch-cost}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_seed_reliability.pdf}
+    \caption{Seed-level reliability. Cheaper adapter configurations make seed-heavy evaluation feasible, which is necessary for separating stable operating regimes from lucky runs.}
+    \label{fig:rank-seed-reliability}
+\end{subfigure}
+\caption{Reliability and cost structure of the rank sweep. Mean--best separation and high-rank opportunity cost characterize where added rank stops paying off, while batch-cost and seed-reliability views show why cheaper adapters enable the seed-heavy evaluation that low-rank reliability requires.}
+\label{fig:rank-reliability-cost}
+\end{figure}
+
+% \begin{figure}[tbp]
+% \centering
+% \includegraphics[width=0.76\textwidth]{figures/scale_down/rank_reduction_mean_best.pdf}
+% \caption{Mean--best separation. Low-rank adapters can occasionally reach strong runs even when their mean behavior remains weak, making reliability a recipe problem as much as a capacity problem.}
+% \label{fig:rank-mean-best}
+% \end{figure}
+
+This interpretation rests on a careful reading of mean versus best-run performance. Mean score measures whether a configuration is dependable across seeds, while best score measures whether the regime can ever reach a strong solution under the current recipe. \Cref{fig:rank-mean-best} shows that the best-seed frontier remains nearly flat across ranks $1$ through $32$, while the across-seed mean drops at low rank. Strong best runs with weak mean runs indicate an optimization and initialization bottleneck rather than a hard capacity limit, and motivate spending the next subsubsection on RL-native initialization rather than on simply raising rank.
+
+% \begin{figure}[tbp]
+% \centering
+% \includegraphics[width=0.72\textwidth]{figures/scale_down/rank_reduction_high_cost.pdf}
+% \caption{High-rank opportunity cost. Beyond the middle-rank region, adapter footprint increases while the observed performance frontier flattens.}
+% \label{fig:rank-high-cost}
+% \end{figure}
+
+The high-rank region exposes the opposite problem. Increasing rank from the middle region to $64$, $128$, or $256$ inflates trainable parameters, optimizer state, checkpoint size, and memory pressure, but does not extend the observed best-run frontier in the sweep. \Cref{fig:rank-high-cost} makes this tradeoff explicit: beyond the middle-rank region, larger adapters add footprint without raising the ceiling. Under a fixed research or deployment budget, unnecessary rank displaces more useful expenditures such as additional seeds, broader ablations, tighter variance control, reward debugging, and rank-specific optimization.
+
+% \begin{figure}[tbp]
+% \centering
+% \includegraphics[width=0.76\textwidth]{figures/scale_down/rank_reduction_batch_cost.pdf}
+% \caption{Batch size as a budget variable. Larger batches slightly raise average gain, but they also increase token consumption under the fixed-step PPO schedule.}
+% \label{fig:rank-batch-cost}
+% \end{figure}
+
+Batch size must be interpreted as part of the same budgeted adaptation regime. Because the sweep fixes PPO steps rather than total training tokens, larger batches directly increase token consumption. \Cref{fig:rank-batch-cost} shows that larger batches slightly improve average gain, but at sharply higher token cost and with increased downside risk. Batch size is therefore not a pure optimization knob, but part of the broader score--cost tradeoff.
+
+
+The resulting scale-down lesson is reflexive. Smaller adapters matter not only because they reduce the cost of one trained model, but because they reduce the cost of searching for better recipes. Tiny adapters whose best runs are already competitive but whose means are unreliable require exactly the kind of repeated experimentation that cheaper adapters enable: seed-heavy evaluation, stronger initialization, cleaner schedules, tighter KL control, and rank-specific hyperparameters. \Cref{fig:rank-seed-reliability} illustrates this feedback loop. Cheaper runs make broader evidence collection possible, and broader evidence collection is what turns lucky low-rank runs into reliable ones.
+
+
+% \begin{figure}[tbp]
+% \centering
+% \includegraphics[width=0.74\textwidth]{figures/scale_down/rank_reduction_seed_reliability.pdf}
+% \caption{Seed-level reliability. Cheaper adapter configurations make seed-heavy evaluation feasible, which is necessary for separating stable operating regimes from lucky runs.}
+% \label{fig:rank-seed-reliability}
+% \end{figure}
+
+For a population of personal models, this distinction becomes system-level. A reduction in rank may appear modest for a single adapter, but it compounds across repeated updates, optimizer states, checkpoints, serving-time adapter loads, and the millions of persistent model instances that share a common prior. The objective is not to claim that rank $1$ is already sufficient. It is to identify a path along which the per-instance adaptive boundary can become smaller without becoming brittle, so that the population as a whole stays close to the ``share 99.5\%, differ in 0.5\%'' regime that makes personal models economically feasible.
+
+
+
+\Cref{fig:rank-tiny-adapter} reframes this objective explicitly. The low-rank frontier should be evaluated not only by maximum single-run score, but also by whether useful learning signal can be made reliable under minimal trainable state and token budget. Under the current evidence, ranks $16$ to $32$ remain the practical default, ranks $1$ to $4$ define the research frontier where best-run gains are already there but mean reliability is not, and ranks above $64$ warn against treating larger adapters as the default direction of progress. Rank reduction is therefore an operating-regime problem in which expressivity, optimization, variance, and budget must be solved together rather than independently. The most immediate lever is the initialization geometry of the few directions a tiny adapter does have, which the next subsubsection addresses directly.
+
+
+% \input{tables/scale_down/rank_regimes.tex}
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_tiny_efficiency.pdf}
+\caption{Minimal footprint versus gain.}
+\label{fig:rank-tiny-efficiency}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/rank_reduction_tiny_budget.pdf}
+\caption{Low-rank token efficiency.}
+\label{fig:rank-tiny-budget}
+\end{subfigure}
+\caption{Tiny-adapter objective. The low-rank research target is not maximum single-run score alone, but stable learning signal under minimal trainable state and token budget.}
+\label{fig:rank-tiny-adapter}
+\end{figure}
+
+% \begin{figure}[tbp]
+% \centering
+% \includegraphics[width=0.84\textwidth]{figures/scale_down/rank_reduction_operating_regime.pdf}
+% \caption{Rank reduction as an operating-regime problem. Expressivity, variance control, optimization, and budget must be solved together rather than optimized as independent knobs.}
+% \label{fig:rank-operating-regime}
+% \end{figure}
+
+\subsubsection{RL-Native Initialization for Stability}
+\label{subsubsec:initialization}
+
+The rank-sweep results (\Cref{fig:rank-overview-efficiency} (b)) above show that extremely small adapters are not uniformly useless, but
+they are fragile. This fragility is most visible at rank \(r=1\). A rank-one LoRA adapter has only
+one adaptive direction per weight matrix. If this direction is poorly chosen, the adapter cannot
+redistribute learning across alternative components. Standard LoRA initializes this direction
+randomly, which is often sufficient at moderate ranks, but becomes unreliable when the adaptive
+subspace collapses to a single dimension. The natural question is therefore not only how small
+the rank can be, but how the few available directions should be initialized.
+
+A natural first attempt is to use the geometry of the pretrained weight matrix. If the adapter has
+only one or a few directions, those directions should not be wasted on arbitrary random axes.
+The pretrained matrix already contains a spectral structure, and its singular vectors provide
+candidate directions that may be more meaningful than random Gaussian rows. From this
+perspective, geometry-aware initialization is an attractive way to rescue the rank-one regime:
+Instead of increasing the rank, we try to make the available direction more useful.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/scale_down/dapo_1p5b_real_training_reward_curves_mindlab.pdf}
+\caption{Training reward curves for DAPO 1.5B. PiSSA, MiLoRA, and LoRA are compared over 500 training steps using the same reward metric.}
+\label{fig:pissa_milora}
+\end{figure}
+
+However, a recent study \citep{yin2025evaluatingparameterefficientmethods} shows that existing SVD-based LoRA initializations cannot be transferred
+from supervised fine-tuning to reinforcement learning naively. PiSSA \citep{meng2025pissa} initializes adapters using
+the principal singular directions, while MiLoRA\citep{wang2025milora} uses the minor singular directions. Both methods
+use pretrained spectral information and can be effective in supervised fine-tuning, where dense
+token-level supervision rewards fast convergence. In RL with verifiable rewards, however, these
+same methods may underperform standard LoRA and exhibit training collapse. We replicate this phenomenon as shown in \Cref{fig:pissa_milora}.
+
+% The issue is not simply
+% that they use geometry. Rather, they combine subspace selection with singular-value scaling,
+% which can make early updates too aggressive for RL's local policy-improvement regime. By using cosine learning rate decay, we observe 
+
+ % We train DeepSeek-R1-Distill-Qwen-1.5B with DAPO on the DAPO-Math-17k dataset for 500 steps using a constant learning rate of $1 \times      
+ %  10^{-5}$, with per-device batch size 4, gradient accumulation steps 8 (effective batch size 32), and 8 rollout generations per prompt. We    
+ %  compare three PEFT adapters applied to all attention and MLP projection layers (${$\texttt{q, k, v, o, up, down, gate_proj}$}$): LoRA        
+ %  ($r{=}16$, $\alpha{=}32$), PiSSA ($r{=}32$, $\alpha{=}64$), and MiLoRA ($r{=}32$, $\alpha{=}64$). 
+
+
+This motivates an RL-native initialization criterion. A useful initialization should expose a
+meaningful low-dimensional learning direction, but it should not make the first policy updates
+too large. In supervised fine-tuning, initialization mainly affects convergence speed. The loss is
+dense, token-level, and anchored to fixed target sequences, so structured initializations can be
+useful because the optimizer receives many reliable gradient steps. In RL with verifiable rewards,
+the optimization geometry is more restrictive. The model learns from sampled responses, and
+practical objectives rely on token-level surrogates around the rollout policy. These surrogates
+remain meaningful only when the updated policy stays close to the policy that generated the
+samples. KL penalties, clipping, and trust-region mechanisms therefore do more than regularize:
+they define the local region in which RL updates are trustworthy.
+
+The reason is easiest to see from the sequence-level objective. The RLVR objective can be
+written as \(J(\theta)=\mathbb{E}_{x\sim\mathcal{D},\,y\sim\pi_\theta(\cdot\mid x)}[R(x,y)]\),
+where \(R(x,y)\in\{0,1\}\) is assigned to a complete response. Since
+\(\pi_\theta(y\mid x)=\prod_{t=1}^{T}\pi_\theta(y_t\mid x,y_{<t})\), the REINFORCE
+gradient \citep{williams1992reinforce} distributes the sequence reward across token positions:
+\[
+    \nabla_\theta J(\theta)
+    =
+    \mathbb{E}_{y\sim\pi_\theta}
+    \biggl[
+        R(x,y)
+        \sum_{t=1}^{T}
+        \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})
+    \biggr].
+\]
+In deployed RL systems, responses are often sampled from an inference-side rollout policy
+\(\mu\), while updates are computed for \(\pi_\theta\). This gives the importance-sampled form
+\[
+    \nabla_\theta J(\theta)
+    =
+    \mathbb{E}_{y\sim\mu}
+    \biggl[
+        R(x,y)
+        \frac{\pi_\theta(y\mid x)}{\mu(y\mid x)}
+        \sum_{t=1}^{T}
+        \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})
+    \biggr].
+\]
+The sequence-level importance weight decomposes as
+\[
+    \frac{\pi_\theta(y\mid x)}{\mu(y\mid x)}
+    =
+    \prod_{t=1}^{T}
+    \frac{\pi_\theta(y_t\mid x,y_{<t})}
+         {\mu(y_t\mid x,y_{<t})}
+    =
+    \prod_{t=1}^{T}r_t
+    =
+    \prod_{t=1}^{T}(1+\delta_t),
+\]
+where \(\delta_t=r_t-1\). This product is exponentially unstable: if \(T=512\) and each
+\(r_t=1.01\), the sequence weight is approximately \(1.01^{512}\approx163\). Practical
+token-level surrogates therefore depend on the first-order Taylor expansion
+\[
+    \prod_{t=1}^{T}(1+\delta_t)
+    =
+    1+\sum_{t=1}^{T}\delta_t
+    +
+    O(\delta^2),
+\]
+which is accurate only when the rollout and updated policies remain close. Dropping higher-order
+terms gives the approximate token-level objective \citep{zheng2025stabilizingrl}
+\[
+    \nabla_\theta J(\theta)
+    \approx
+    \mathbb{E}_{y\sim\mu}
+    \biggl[
+        R(x,y)
+        \sum_{t=1}^{T}
+        w_t
+        \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})
+    \biggr],
+    \qquad
+    w_t=
+    \frac{\pi_\theta(y_t\mid x,y_{<t})}
+         {\mu(y_t\mid x,y_{<t})}.
+\]
+
+This approximation explains why RL fine-tuning is sensitive to early policy movement. To second
+order, the KL divergence between the updated and current policies satisfies \citep{zhu2025pathtakenrlvrprovably}
+
+\[
+    D_{\mathrm{KL}}
+    \bigl(
+        \pi_{\theta+\Delta\theta}
+        \,\|\,
+        \pi_\theta
+    \bigr)
+    \approx
+    \frac{1}{2}
+    \Delta\theta^\top F\Delta\theta,
+    \qquad
+    F=
+    \mathbb{E}
+    \bigl[
+        \nabla_\theta\log\pi_\theta
+        \nabla_\theta\log\pi_\theta^\top
+    \bigr].
+\]
+If one update satisfies
+\(D_{\mathrm{KL}}(\pi_{\theta^+}\,\|\,\pi_\theta)\le K\) and
+\(F(\theta)\succeq mI\) on the update subspace, then a block update obeys
+\[
+    \|\Delta W\|_F
+    \le
+    \sqrt{\frac{2K}{m}}
+    \bigl(1+o(1)\bigr).
+\]
+This creates a KL leash introduced by \citep{zhu2025pathtakenrlvrprovably}: a policy-space trust region induces a weight-space movement budget.
+RLVR must therefore make progress through small, controlled steps rather than large jumps.
+Initialization does not merely choose where optimization starts, but biases the direction of the
+entire trajectory inside this narrow local region. A bad initialization can push the optimizer
+toward directions where small parameter movements create large policy drift, causing the
+first-order approximation above to break down.
+
+This is why SVD-scaled initializations are risky in the tiny-adapter regime. At rank \(r=1\), a
+geometry-aware direction is valuable, but singular-value amplification can consume the KL
+budget before useful learning stabilizes. The design target is therefore not geometry alone, but
+controlled geometry: keep a meaningful pretrained direction while removing the scaling that
+makes the early update overly aggressive \citep{zhang2026geometry}.
+
+
+
+We instantiate this idea with \textbf{OLoRA-tail}. Let $ W_0 = U\Sigma V^\top$
+be the singular value decomposition of a pretrained weight matrix, and let \(U_{-r}\) and
+\(V_{-r}\) denote the left and right singular vectors associated with the smallest \(r\) singular
+values. OLoRA-tail initializes
+\[
+    B_0 = U_{-r},
+    \qquad
+    A_0 = V_{-r}^{\top}.
+\]
+
+OLoRA-tail differs from MiLoRA in the detail that matters most for RL stability. MiLoRA uses
+\[
+    B_0 = U_{-r}\Sigma_{-r}^{1/2},
+    \qquad
+    A_0 = \Sigma_{-r}^{1/2}V_{-r}^{\top},
+\]
+which injects singular-value scaling into both LoRA factors. OLoRA-tail keeps the same gentle tail
+subspace but removes this scaling. Thus, it preserves pretrained geometry while avoiding the
+extra singular value scaling that can destabilize RL. 
+
+\begin{figure}[t]                         \centering                         \includegraphics[width=\linewidth]{figures/scale_down/olora_vs_olora_tail_reward_kl.pdf}                       \caption{
+          Training reward (left) and KL divergence from the reference model (right, log scale)                                
+          for OLoRA and OLoRA-tail on DeepSeek-R1-Distill-Qwen-1.5B trained with DAPO.
+          OLoRA collapses around step 100, with reward dropping to $-1.0$ and KL divergence
+          exploding to ${\sim}8$, while OLoRA-tail remains stable throughout 500 steps.
+      }
+      \label{fig:olora_vs_olora_tail}
+  \end{figure}
+
+ Although both OLoRA \citep{buyukakyuz2024oloraorthonormallowrankadaptation} and OLoRA-tail apply orthogonal initialization to the adapter matrices,
+  they differ in {which} singular subspace is used.
+  OLoRA initializes adapters from the principal singular vectors of the pre-trained weights,
+  whereas OLoRA-tail initializes from the minor singular vectors.
+  As shown in \Cref{fig:olora_vs_olora_tail}, OLoRA undergoes training collapse under the
+  DAPO objective: its reward deteriorates sharply after step 100 and its KL divergence from the
+  reference model grows by several orders of magnitude, eventually saturating near $8$.
+  We attribute this instability to the fact that the principal subspace captures the dominant
+  directions of the pre-trained representation, and perturbing these directions through on-policy
+  RL updates induces large distributional shifts that the DAPO clipping mechanism cannot
+  fully contain.
+  By contrast, the minor subspace spans directions that are comparatively inert in the
+  pre-trained model, providing a safer optimization landscape: the adapter updates remain
+  orthogonal to the most sensitive weight directions, keeping KL divergence near zero and
+  training stable throughout.
+  Based on this observation, we adopt OLoRA-tail for
+  all subsequent scale-down experiments.
+
+ We train DeepSeek-R1-Distill-Qwen-1.5B with DAPO on the DAPO-Math-17k dataset for 500 steps, using a constant learning rate 
+  of $1\times10^{-5}$ and an effective batch size of 32. Both LoRA and OLoRA-tail are applied to all attention and MLP        
+  projection layers with rank $r{=}16$ and scaling factor $\alpha{=}32$. We evaluate LoRA and OLoRA-tail on six mathematical reasoning benchmarks using                  
+DeepSeek-R1-Distill-Qwen-1.5B trained with DAPO. As shown in \Cref{fig:lora_vs_olora_minor}, OLoRA-tail achieves a higher average accuracy of $58.3 \%$  compared to LoRA's $56.3\%$, demonstrating that a better geometric initialization can provide an advantage. 
+
+\begin{figure}[tbp]                  
+      \centering                   \includegraphics[width=0.62\linewidth]{figures/scale_down/lora_vs_olora_tail_bar.pdf}            
+      \caption{   
+          Comparison of LoRA and OLoRA-tail on mathematical reasoning benchmarks. OLoRA-tail consistently matches or outperforms LoRA,
+   achieving a higher average accuracy ($58.3\%$ vs.\ $56.3\%$).
+      }
+      \label{fig:lora_vs_olora_minor}
+  \end{figure}
+
+Having established that OLoRA-tail's minor-subspace initialization yields consistent gains over standard LoRA at rank       
+  $r{=}16$, a natural question is whether this geometric advantage persists as we push the adapter to its most extreme
+  compression. Rank-one adaptation represents the smallest possible trainable footprint—a single outer-product update per     
+  weight matrix, yet it is notoriously sensitive to initialization: with only one direction available, a poor choice of
+  singular vector can permanently misalign the adapter with the task signal. The stability benefits we observed at rank 16    
+  suggest that anchoring the adapter in the minor subspace may be precisely what is needed to make rank-one adaptation viable.
+   This gives a clean scale-down test: can a better one-dimensional geometry make rank-one adaptation usable without
+  increasing the trainable parameter budget?
+
+We evaluate OLoRA-tail at the extreme compression of rank $r{=}1$ across two model
+  scales: Qwen3-8B and Qwen3-30B-A3B-Instruct, under the same experimental settings in Section \Cref{subsubsec:rank-reduction}
+
+
+\begin{figure}[t]
+      \centering
+      \includegraphics[width=0.9\linewidth]{figures/scale_down/rank1_8b_30b_results.pdf}
+      \caption{
+          Rank-1 OLoRA-tail versus LoRA on Qwen3-8B and Qwen3-30B-A3B-Instruct trained
+          with DAPO.
+          \textbf{Left}: $\Delta$Pass@1 over the base model across batch sizes on Qwen3-8B;
+          OLoRA-tail maintains a consistent gain of ${\sim}{+}20\%$ regardless of batch size,
+          while LoRA degrades from $+15\%$ at bs16 to $-18\%$ at bs128.
+          \textbf{Right}: Average pass rate on Qwen3-30B-A3B-Instruct;
+          OLoRA-tail ($35.5\%$) surpasses LoRA ($24.0\%$) by $11.5$ percentage points.
+          Error bars show standard deviation across 6 random seeds.
+      }
+      \label{fig:rank1_8b_30b}
+  \end{figure}
+  As shown in \Cref{fig:rank1_8b_30b}, the results demonstrate that this distinction
+  is substantial.
+  On Qwen3-8B, OLoRA-tail delivers a consistent ${\sim}{+}20\%$ gain over the base model
+  across all batch sizes, while standard LoRA degrades sharply with increasing batch size:
+  from $+15\%$ at bs16 to $-18\%$ at bs128, with collapse risk reaching $67\%$.
+  The geometric advantage of minor-subspace initialization does not merely narrow the
+  performance gap, but it eliminates the sensitivity to batch size entirely.
+  On Qwen3-30B-A3B-Instruct, OLoRA-tail achieves an average pass rate of
+  $35.5\%{\pm}1.6\%$, surpassing the LoRA baseline of $24.0\%$ by $11.5$ percentage
+  points ($+48\%$ relative).
+
+  These results refine the interpretation of rank.
+  Rank determines the number of available directions, but initialization determines whether
+  those directions are usable.
+  In the tiny-adapter regime, adding rank is one way to increase the probability of finding
+  a useful direction. Choosing the direction geometrically is another, and our results show
+  it can be strictly more parameter-efficient.
+  OLoRA-tail improves the adapter's usable capacity without increasing trainable weights,
+  optimizer state, checkpoint size, or serving-time footprint, which is precisely the
+  scale-down property that matters for sustaining large populations of personal models.
+  The practical implication is not that every task should use $r{=}1$, but that the lower
+  boundary of viable adaptation can be pushed further when initialization is designed for
+  the KL-constrained, on-policy operating regime of RL fine-tuning.
+
+% Our experiments therefore evaluate OLoRA-tail as a rank-one rescue mechanism. The baseline
+% rank-one LoRA setting tests whether a random one-dimensional adapter can learn reliably. The
+% OLoRA-tail setting keeps the same rank and the same trainable-parameter budget, but replaces
+% the random initialization with a tail-orthonormal direction from the pretrained weight geometry.
+% Any gain therefore cannot be attributed to larger capacity. It reflects a better operating direction
+% under the same minimal adapter footprint.
+
+% We conduct a batch size sweep on Qwen3-8B with OLoRA-tail at rank $r{=}1$, varying the                                      
+%   training batch size across $\{16, 32, 64, 128\}$.                                                                           
+%   The adapter is applied to the query and value projection layers                                                             
+%   ($\{\texttt{q\_proj}, \texttt{v\_proj}\}$) with $\alpha{=}16$ and
+%   $\texttt{freeze\_lora\_A}{=}\texttt{True}$.                                                                                 
+%   All runs use DAPO with a cosine learning rate of $2{\times}10^{-5}$ (minimum ratio $0.25$,
+%   10 warmup steps), weight decay $0.01$, clip ratios $[0.2,\ 0.28]$, and entropy
+%   coefficient $0.01$.
+%   Maximum prompt and response lengths are set to 512 and 256 tokens respectively.
+%   For each batch size, we train for up to 200 steps and select the checkpoint with the
+%   highest overall pass@1 on a 1{,}330-sample evaluation set, averaged over 6 random seeds.
+%   The best checkpoint per configuration achieves: bs16 at step 170 (overall pass@1
+%   $= 0.215$, GSM8K $= 0.773$), bs32 at step 200 ($0.206$, $0.741$), bs64 at step 80
+%   ($0.211$, $0.757$), and bs128 at step 40 ($0.182$, $0.653$).
+%   Across all batch size configurations, OLoRA-tail consistently outperforms standard LoRA
+%   at rank $r{=}1$, demonstrating the robustness of minor-subspace initialization to
+%   training hyperparameter choices.
+
+
+
+% \subsubsection{RL-Native Initialization for Stability}\label{subsubsec:initialization}
+
+% The rank-sweep results above show that extremely small adapters are not uniformly useless, but
+% they are fragile. This fragility is most visible at rank \(r=1\). A rank-one LoRA adapter has only
+% one adaptive direction per weight matrix. If this direction is poorly chosen, the adapter cannot
+% redistribute learning across alternative components. Standard LoRA initializes this direction
+% randomly, which is often sufficient at moderate ranks, but becomes unreliable when the adaptive
+% subspace collapses to a single dimension. The natural question is therefore not only how small
+% the rank can be, but how the few available directions should be initialized.
+
+% This motivates an RL-native initialization criterion. In supervised fine-tuning, initialization
+% mainly affects convergence speed. The loss is dense, token-level, and anchored to fixed target
+% sequences, so structured initializations can be useful because the optimizer receives many
+% reliable gradient steps. In RL with verifiable rewards, the optimization geometry is more
+% restrictive. The model learns from sampled responses, and practical objectives rely on
+% token-level surrogates around the rollout policy. These surrogates remain meaningful only when
+% the updated policy stays close to the policy that generated the samples. KL penalties, clipping,
+% and trust-region mechanisms are therefore not merely regularizers; they define the local region
+% in which RL updates are trustworthy. 
+
+% The reason is easiest to see from the sequence-level objective. The RLVR objective can be
+% written as \(J(\theta)=\mathbb{E}_{x\sim\mathcal{D},\,y\sim\pi_\theta(\cdot\mid x)}[R(x,y)]\),
+% where \(R(x,y)\in\{0,1\}\) is assigned to a complete response. Since
+% \(\pi_\theta(y\mid x)=\prod_{t=1}^{T}\pi_\theta(y_t\mid x,y_{<t})\), the REINFORCE
+% gradient \citep{williams1992reinforce} distributes the sequence reward across token positions:
+% \[
+%     \nabla_\theta J(\theta)
+%     =
+%     \mathbb{E}_{y\sim\pi_\theta}
+%     \biggl[
+%         R(x,y)
+%         \sum_{t=1}^{T}
+%         \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})
+%     \biggr].
+% \]
+% In deployed RL systems, responses are often sampled from an inference-side rollout policy
+% \(\mu\), while updates are computed for \(\pi_\theta\). This gives the importance-sampled
+% form
+% \[
+%     \nabla_\theta J(\theta)
+%     =
+%     \mathbb{E}_{y\sim\mu}
+%     \biggl[
+%         R(x,y)
+%         \frac{\pi_\theta(y\mid x)}{\mu(y\mid x)}
+%         \sum_{t=1}^{T}
+%         \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})
+%     \biggr].
+% \]
+% The sequence-level importance weight decomposes as
+% \[\frac{\pi_\theta(y\mid x)}{\mu(y\mid x)}
+%     =
+%     \prod_{t=1}^{T}
+%     \frac{\pi_\theta(y_t\mid x,y_{<t})}
+%          {\mu(y_t\mid x,y_{<t})} =
+%     \prod_{t=1}^{T} r_t
+%     =
+%     \prod_{t=1}^{T} (1+\delta_t),
+% \]
+% where \(\delta_t=r_t-1\). This product is exponentially unstable: if \(T=512\) and each
+% \(r_t=1.01\), the sequence weight is approximately \(1.01^{512}\approx163\). Practical
+% token-level surrogates therefore depend on the first-order Taylor expansion
+% \[
+%     \prod_{t=1}^{T}(1+\delta_t)
+%     =
+%     1+\sum_{t=1}^{T}\delta_t
+%     +
+%     O(\delta^2),
+% \]
+% which is accurate only when the rollout and updated policies remain close. Dropping higher-order
+% terms gives the approximate token-level objective
+% \[
+%     \nabla_\theta J(\theta)
+%     \approx
+%     \mathbb{E}_{y\sim\mu}
+%     \biggl[
+%         R(x,y)
+%         \sum_{t=1}^{T}
+%         w_t
+%         \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})
+%     \biggr],
+%     \qquad
+%     w_t=
+%     \frac{\pi_\theta(y_t\mid x,y_{<t})}
+%          {\mu(y_t\mid x,y_{<t})}.
+% \]
+
+% This approximation explains why RL fine-tuning is sensitive to early policy movement. To
+% second order, the KL divergence between the updated and current policies satisfies
+% \[
+%     D_{\mathrm{KL}}
+%     \bigl(
+%         \pi_{\theta+\Delta\theta}
+%         \,\|\, 
+%         \pi_\theta
+%     \bigr)
+%     \approx
+%     \frac{1}{2}
+%     \Delta\theta^\top
+%     F
+%     \Delta\theta,
+%     \qquad
+%     F=
+%     \mathbb{E}
+%     \bigl[
+%         \nabla_\theta\log\pi_\theta
+%         \nabla_\theta\log\pi_\theta^\top
+%     \bigr].
+% \]
+% If one update satisfies
+% \(D_{\mathrm{KL}}(\pi_{\theta^+}\,\|\,\pi_\theta)\le K\) and
+% \(F(\theta)\succeq mI\) on the update subspace, then a block update obeys
+% \[
+%     \|\Delta W\|_F
+%     \le
+%     \sqrt{\frac{2K}{m}}
+%     \bigl(1+o(1)\bigr).
+% \]
+% This creates a KL leash: a policy-space trust region induces a weight-space movement budget.
+% RLVR must therefore make progress through small, controlled steps rather than large jumps.
+% Initialization does not merely choose where optimization starts, but biases the direction of the
+% entire trajectory inside this narrow local region. A bad initialization can push the optimizer
+% toward directions where small parameter movements create large policy drift, causing the
+% first-order approximation above to break down.
+
+
+
+% This produces a simple design tension. A useful initialization should expose a meaningful
+% low-dimensional learning direction, but it should not make the first updates too aggressive in
+% policy space. SVD-based LoRA initializations illustrate both sides of this tension. PiSSA and
+% MiLoRA use the spectral structure of the pretrained weight matrix and therefore give the
+% adapter a strong geometric prior. However, they also include singular-value scaling. In RL, this can amplify early updates, increase KL drift, and destabilize
+% training. The first article makes   this distinction explicit: the failure is not caused by spectral
+% geometry alone, but by the combination of subspace choice and singular value.
+
+% This distinction is exactly what we need for Scale Down. Instead of adopting the full
+% SVD-scaled initialization used by MiLoRA, we use the controlled tail-orthonormal variant,
+% which we refer to as \textbf{OLoRA-tail}. Let
+% \[
+%     W_0 = U\Sigma V^\top
+% \]
+% be the singular value decomposition of a pretrained weight matrix, and let \(V_{-r}\) denote the
+% right singular vectors associated with the smallest \(r\) singular values. OLoRA-tail initializes
+% \[
+%     B_0 = U_{-r},\qquad A_0 = V_{-r}^{\top}.
+% \]
+% For \(r=1\), this means that the adapter begins from a single orthonormal tail direction of the
+% pretrained weight matrix.
+
+% OLoRA-tail differs from MiLoRA in the one detail that matters most for RL stability. MiLoRA
+% uses
+% \[
+%     B_0 = U_{-r}\Sigma_{-r}^{1/2},\qquad
+%     A_0 = \Sigma_{-r}^{1/2}V_{-r}^{\top},
+% \]
+% which injects singular-value scaling into both LoRA factors. OLoRA-tail keeps the same tail
+% subspace but removes this scaling. This gives us a clean
+% scale-down test: can a better one-dimensional geometry make rank-one adaptation usable
+% without adding any trainable parameters?
+
+% The reason this matters is that at very low rank, initialization and capacity are almost
+% inseparable. At rank \(r=16\) or \(r=32\), random LoRA can rely on many directions, and the
+% optimizer may gradually discover useful combinations. At rank \(r=1\), there is no such
+% redundancy. The initial row of \(A_0\) defines the only input-side direction through which the
+% adapter can learn at the beginning of training. A random direction may miss the stable
+% low-curvature region needed for RL improvement. A singular-value-scaled direction may move
+% too aggressively and violate the KL leash. OLoRA-tail targets the middle ground: it uses
+% pretrained-weight geometry, but keeps the update orthonormal and conservative.
+
+% Our experiments therefore evaluate OLoRA-tail as a rank-one rescue mechanism. The baseline
+% rank-one LoRA setting tests whether a random one-dimensional adapter can learn reliably. The
+% OLoRA-tail setting keeps the same rank and the same trainable-parameter budget, but replaces
+% the random \(A_0\) with a tail-orthonormal direction from the pretrained weight geometry. Any
+% gain therefore cannot be attributed to larger capacity. It reflects a better operating direction
+% under the same minimal adapter footprint.
+
+% The results show that this distinction is substantial. Under the extreme \(r=1\) budget,
+% OLoRA-tail improves markedly over standard rank-one LoRA, indicating that the low-rank
+% failure observed in the rank sweep is not merely a hard capacity limit. More importantly, in the
+% 30B setting, the \(r=1\) OLoRA-tail adapter surpasses naive LoRA with \(r=8\). This is the
+% central scale-down result: a carefully chosen single direction can outperform a larger random
+% adaptive subspace.
+
+% This finding refines the interpretation of rank. Rank determines the number of available
+% directions, but initialization determines whether those directions are usable. In the tiny-adapter
+% regime, adding rank is one way to increase the probability of finding a useful direction; choosing
+% the direction geometrically is another. OLoRA-tail shows that the second path can be more
+% parameter-efficient. It improves the adapter's usable capacity without increasing trainable
+% weights, optimizer state, checkpoint size, or serving-time adapter footprint.
+
+% For personal models, this is precisely the kind of scale-down mechanism that matters. A
+% rank-one adapter is only valuable if it can be made reliable. OLoRA-tail suggests that reliability
+% can come not only from more parameters, but from better geometry under the same parameter
+% budget. The practical goal is therefore not to claim that every task should use \(r=1\), but to
+% show that the boundary of viable adaptation can be pushed downward when initialization is
+% designed for RL's local, KL-constrained operating regime.
+
+% % \subsubsection{RL-Native Initialization for Stability}\label{subsubsec:initialization}
+
+% % The rank-sweep results above suggest that the lowest-rank region should not be dismissed as
+% % empty capacity. Instead, it should be understood as an unstable operating regime. At rank
+% % \(r=1\), standard LoRA exposes the most extreme version of this problem: the adapter is allowed
+% % to learn through only one direction per adapted matrix. If this direction is poorly conditioned,
+% % misaligned with useful policy improvement, or too sensitive in policy space, the adapter has
+% % almost no internal redundancy to recover. The failure of rank-one LoRA is therefore not only a
+% % capacity failure. It is also an initialization failure.
+
+% % This observation motivates an RL-native view of initialization. In supervised fine-tuning,
+% % initialization mainly affects convergence speed. The objective is cross-entropy against fixed
+% % target sequences, the gradient signal is dense, and the optimizer can often exploit structured
+% % initializations to move rapidly toward a lower supervised loss. In RL with verifiable rewards,
+% % the situation is different. The objective is sequence-level reward, but practical algorithms
+% % optimize token-level surrogate objectives around a rollout policy. These surrogates remain
+% % valid only when the updated policy stays close to the policy that generated the samples. KL
+% % penalties, clipping, and trust-region methods are therefore not incidental implementation
+% % details; they define the local operating region in which RL learning remains meaningful.
+
+% % This creates what we call a KL leash. If the Fisher information is bounded on the update
+% % subspace, a bound on policy KL also implies a bound on the effective size of the weight update.
+% % RL fine-tuning must therefore make progress through small, controlled movements rather than
+% % large jumps. Initialization does not merely choose the starting point of optimization. It chooses
+% % the local coordinate system through which the first policy movements are expressed. In a tiny
+% % adapter, especially at \(r=1\), this coordinate system is almost the entire adaptive interface.
+
+% % This explains why initialization strategies that are effective in SFT do not automatically transfer
+% % to RL. SVD-informed LoRA variants such as PiSSA and MiLoRA were designed to exploit the
+% % spectral structure of pretrained weights. PiSSA initializes along the principal singular subspace,
+% % while MiLoRA uses the minor singular subspace. In SFT, such geometry can accelerate
+% % optimization. In RL, however, the same acceleration can become hazardous: a strong spectral
+% % bias can concentrate updates into a narrow set of directions, amplify early movement, increase
+% % KL drift, and break the local approximation on which the token-level surrogate relies.
+
+% % The evidence in the first article supports this interpretation. PiSSA and MiLoRA, despite their
+% % SFT motivation, can underperform standard LoRA and show training instability under RLVR.
+% % The paper identifies two coupled causes: subspace geometry shapes the optimization trajectory,
+% % and singular-value scaling further amplifies update magnitude. In its experiments, both PiSSA
+% % and MiLoRA exhibit larger gradient norms and higher PPO KL than standard LoRA, while
+% % orthonormal variants maintain lower KL trajectories and stronger final performance
+% % \citep{anonymous2026orthonormal}. This is precisely the failure mode that matters for Scale
+% % Down: when the adapter is very small, an aggressive initialization does not simply make learning
+% % faster; it can consume the entire KL budget before useful learning stabilizes.
+
+% % A more suitable initialization for RL should therefore satisfy two requirements. First, it should
+% % preserve a useful geometry so that the low-rank adapter does not waste its limited directions.
+% % Second, it should avoid singular-value amplification so that the first updates remain controlled.
+% % This motivates geometry-informed orthonormal initialization. The adapter starts with
+% % \(B_0=0\), as in standard LoRA, but initializes \(A_0\) using an orthonormal basis. When the
+% % basis is chosen from pretrained-weight geometry, the method preserves useful subspace
+% % information without inheriting the singular-value scaling that destabilizes PiSSA and MiLoRA.
+% % The uploaded paper formalizes this idea by showing that, under standard LoRA-style
+% % \(B_0=0\), row-orthonormal \(A_0\) minimizes the approximation gap between LoRA and full
+% % fine-tuning and bounds the first-step update norm relative to the full-gradient update
+% % \citep{anonymous2026orthonormal}.
+
+% % This point is especially important at rank one. With \(r=1\), the adapter cannot average over
+% % many learned directions. The single row of \(A_0\) determines the only input direction through
+% % which \(B\) can receive gradients at the beginning of training. A random Gaussian direction may
+% % be sufficient when many ranks are available, because bad directions can be compensated by
+% % other components. At \(r=1\), however, the initialization either opens a useful local path or
+% % forces the optimizer to spend its limited update budget correcting the path itself. Geometry
+% % quality therefore becomes a substitute for rank capacity.
+
+% % Building on this view, we re-evaluate extremely low-rank adapters with our proposed
+% % \textbf{Geometry-Informed Orthonormal Initialization}. The results show that the low-rank
+% % frontier is substantially more promising than standard rank-one LoRA suggests. In particular,
+% % at \(r=1\), the proposed initialization improves performance markedly over the naive baseline,
+% % indicating that the previous failure of rank-one adaptation was not caused solely by insufficient
+% % parameter count. Rather, standard LoRA failed to expose a stable and useful one-dimensional
+% % learning direction.
+
+% % We further test whether this effect persists at larger model scale. On the 30B model, the
+% % \(r=1\) adapter with Geometry-Informed Orthonormal Initialization achieves a higher mean gain
+% % than the naive rank-one baseline and, more importantly, outperforms standard naive LoRA with
+% % \(r=8\). This result changes the interpretation of rank capacity. It suggests that, in the minimal
+% % parameter regime, the geometry of the learning direction can matter more than the number of
+% % directions. A well-chosen rank-one adapter can be more useful than a higher-rank adapter whose
+% % initial directions are poorly matched to the RL operating regime.
+
+% % The scale-down implication is direct. Initialization is not a cosmetic detail for low-rank RL; it
+% % is part of the operating regime itself. For moderate ranks, a poor initialization may be absorbed
+% % by redundant capacity. For tiny ranks, it determines whether the adapter can learn at all. A
+% % geometry-informed orthonormal initialization effectively increases the usable capacity of the
+% % same parameter budget: it does not add trainable weights, but it makes the available weights
+% % more stable, better conditioned, and more compatible with the KL-constrained dynamics of RL.
+% % For personal models, this is exactly the kind of improvement that matters. The goal is not only
+% % to make one adapter smaller, but to make millions of small adapters reliable enough to train,
+% % store, update, and serve.
+% % % \subsubsection{RL-Native Initialization for Stability}\label{subsubsec:initialization}
+
+% % % Initialization strategies that work in supervised fine-tuning do not automatically transfer to RL. In supervised fine-tuning, the objective is cross-entropy against fixed target sequences, so the gradient signal is dense, relatively low variance, and not constrained by an explicit trust region around the rollout policy. The optimizer can exploit structured initializations because it has many reliable gradient steps and freedom to move as far as the supervised loss demands.
+
+% % % RL with verifiable rewards operates under different dynamics. The true objective is expected sequence-level reward, but practical LLM RL algorithms use token-level surrogate objectives. Responses are sampled from a rollout policy in an inference engine, while updates are computed in a training engine. Exact sequence-level importance sampling would require a product of per-token probability ratios, which becomes exponentially unstable over long sequences. Practical methods therefore rely on a first-order approximation in which per-token ratios remain close to one. KL penalties, clipping, trust regions, TRPO \citep{schulman2017trpo}, and PPO \citep{schulman2017ppo} all serve the same purpose: keep the updated policy close enough to the rollout policy that the surrogate remains meaningful.
+
+% % % % The RLVR objective can be written as an expected sequence-level reward,
+% % % % \begin{equation}
+% % % % J(\theta)=\mathbb{E}_{x\sim\mathcal{D},\,y\sim\pi_\theta(\cdot|x)}[R(x,y)],
+% % % % \end{equation}
+% % % % where $R(x,y)\in\{0,1\}$ is assigned to a complete response. Because
+% % % % \begin{equation}
+% % % % \pi_\theta(y|x)=\prod_{t=1}^{T}\pi_\theta(y_t|x,y_{<t}),
+% % % % \end{equation}
+% % % % the REINFORCE gradient \citep{williams1992reinforce} distributes the sequence reward across all token positions:
+% % % % \begin{equation}
+% % % % \nabla_\theta J(\theta)=\mathbb{E}_{y\sim\pi_\theta}\!\left[R(x,y)\sum_{t=1}^{T}\nabla_\theta\log\pi_\theta(y_t|x,y_{<t})\right].
+% % % % \end{equation}
+% % % % In deployed RL systems, however, responses are often sampled from an inference-side rollout policy $\mu$ while updates are computed for $\pi_\theta$, giving the importance-sampled form
+% % % % \begin{equation}
+% % % % \nabla_\theta J(\theta)=\mathbb{E}_{y\sim\mu}\!\left[R(x,y)\frac{\pi_\theta(y|x)}{\mu(y|x)}\sum_{t=1}^{T}\nabla_\theta\log\pi_\theta(y_t|x,y_{<t})\right].
+% % % % \end{equation}
+% % % % The sequence-level importance weight decomposes as
+% % % % \begin{equation}
+% % % % \frac{\pi_\theta(y|x)}{\mu(y|x)}=\prod_{t=1}^{T}\frac{\pi_\theta(y_t|x,y_{<t})}{\mu(y_t|x,y_{<t})}=\prod_{t=1}^{T}r_t=\prod_{t=1}^{T}(1+\delta_t),
+% % % % \end{equation}
+% % % % where $\delta_t=r_t-1$. This product is exponentially unstable: if $T=512$ and each $r_t=1.01$, the sequence weight is about $1.01^{512}\approx163$. The token-level surrogate used in practice depends on the first-order Taylor expansion
+% % % % \begin{equation}
+% % % % \prod_{t=1}^{T}(1+\delta_t)\approx1+\sum_{t=1}^{T}\delta_t+O(\delta^2),
+% % % % \end{equation}
+% % % % which is valid only when the rollout and updated policies remain close. Dropping higher-order terms gives the approximate token-level objective
+% % % % \begin{equation}
+% % % % \nabla_\theta J(\theta)\approx\mathbb{E}_{y\sim\mu}\!\left[R(x,y)\sum_{t=1}^{T}w_t\nabla_\theta\log\pi_\theta(y_t|x,y_{<t})\right],
+% % % % \end{equation}
+% % % % with $w_t=\pi_\theta(y_t|x,y_{<t})/\mu(y_t|x,y_{<t})$. To second order, the KL between updated and current policies satisfies
+% % % % \begin{equation}
+% % % % D_{\mathrm{KL}}(\pi_{\theta+\Delta\theta}\|\pi_\theta)\approx\frac{1}{2}\Delta\theta^\top F\Delta\theta,
+% % % % \end{equation}
+% % % % where $F=\mathbb{E}[\nabla_\theta\log\pi_\theta^\top\nabla_\theta\log\pi_\theta]$ is the Fisher information matrix. If one step satisfies $D_{\mathrm{KL}}(\pi_{\theta^+}\|\pi_\theta)\le K$ and $F(\theta)\succeq mI$ on the update subspace, then a block update obeys
+% % % % \begin{equation}
+% % % % \|\Delta W\|_F\le\sqrt{\frac{2K}{m}}(1+o(1)).
+% % % % \end{equation}
+% % % This creates a KL leash. If the Fisher information is bounded on the update subspace, a bound on KL implies a bound on the size of a weight update. RLVR must therefore make progress through small, controlled steps rather than large jumps. Initialization does not merely choose where optimization starts, but it biases the direction of the entire trajectory inside a narrow local region. A bad initialization can push the optimizer toward directions where small parameter movements create large policy drift, causing the first-order approximation to break down.
+
+% % % SVD-informed LoRA methods designed for SFT illustrate the problem. PiSSA uses the principal singular subspace of the pretrained weight matrix \citep{meng2025pissa}, while MiLoRA uses a minor singular subspace \citep{wang2025milora}. Both methods give the optimizer a strong spectral preference from the first step. In SFT, such geometry can accelerate convergence. In RL, the same spectral shortcut can become a source of off-policiness: spectral inductive bias leads to faster early updates, larger gradients and KL drift, breakdown of the first-order surrogate approximation, and then instability or collapse.
+
+% % % The reported mitigation results support this mechanism. Learning-rate decay can reduce the risk by calming the optimizer: in the experiments, cosine decay delayed and reduced late-stage collapse and largely recovered MiLoRA's behavior. PiSSA remained harder to rescue, indicating that its principal-subspace bias pushes RL toward a more dangerous direction from the start. The lesson is not that SVD is intrinsically bad, but that initialization and schedule interact through policy-space sensitivity.
+
+% % % The geometric intuition is that the safe local region around the rollout policy is more like an ellipse than a sphere. Equal-sized parameter updates can have different policy consequences depending on direction. Along some directions, the policy can move relatively far while keeping KL controlled; along others, even a modest movement produces a sharp departure. The issue is therefore not only update magnitude, but spectral risk.
+
+% % % Wavelet-based orthonormal initialization offers a gentler alternative. It uses an orthonormal wavelet basis to initialize the LoRA $A$ factor while initializing $B$ to zero, giving structure without amplifying principal singular directions of the pretrained weight matrix. This model-agnostic geometry avoids SVD precomputation, gives balanced and well-conditioned directions, and is more compatible with local trust-region-style RL optimization. The reported results show Wavelet-LoRA remaining competitive with vanilla LoRA, achieving slightly higher reward and faster convergence while keeping KL lower and smoother later in training. For RL fine-tuning, the best initialization is therefore not the one that moves fastest at the beginning, but the one that stays stable long enough to keep improving.
+
+% % % The RL-specific danger can be stated more formally. Policy-gradient methods optimize an expectation over trajectories sampled from a policy. In large language models, practical implementations approximate that objective through token-level ratios, KL penalties, clipping, and value or reward estimates. These approximations assume that the updated policy remains close to the rollout policy. If an initialization makes the first steps too directional or too large in policy space, the approximation breaks before learning has stabilized.
+
+
+
+% % % The initialization lesson is aligned with the rank lesson. Tiny adapters have less room to absorb unstable geometry, so they need initialization and schedules designed for local, safe policy motion. A method that adds no parameters but improves stability effectively increases the usable capacity of a low-rank adapter. In a population of personal models, such stability is more valuable than a faster start on one benchmark.
+
+% % % Building upon the experimental framework in Figure 12, we re-evaluate the performance of extremely low-rank adapters by introducing our proposed \textbf{Geometry-Informed Orthonormal Initialization}. The empirical results demonstrate that this initialization scheme exhibits remarkable resilience under severe parameter constraints. Most notably, at a rank of 1 ($r=1$), the model's performance improves substantially compared to the baseline configuration.
+
+% % % To further validate the scalability and generalization capabilities of this approach in large-parameter regimes, we conducted a comparative analysis of the mean gain on a 30B model across different configurations. The findings reveal that an $r=1$ adapter employing our initialization not only yields a significant numerical increase over the baseline, but crucially, it outperforms a standard Naive LoRA configuration with a rank of 8 ($r=8$). 
+
+% % % This observation is particularly illuminating: it empirically substantiates that in operating regimes with minimal parameter budgets, the geometric quality of the initialization---rather than the rank capacity itself---is the primary determinant of the adapter's expressive power. This capability to match or exceed higher-rank performance with a fraction of the footprint provides strong theoretical and empirical justification for the stable deployment of million personal models under strictly constrained inference resources.
+
+% % % \begin{figure}[tbp]
+% % % \centering
+% % % \includegraphics[width=0.9\textwidth]{figures/scale_down/fast-and-stable-initialization-navigating-lora-weights-svd-catalyzed-off-policiness-in-rl_figure_01.png}
+% % % \caption{SVD-informed initialization can make LoRA RL aggressive early by imposing a strong spectral bias on the update direction.}\label{fig:init-svd-bias}
+% % % \end{figure}
+% % % \begin{figure}[tbp]
+% % % \centering
+% % % \includegraphics[width=0.9\textwidth]{figures/scale_down/fast-and-stable-initialization-navigating-lora-weights-svd-catalyzed-off-policiness-in-rl_figure_02.png}
+% % % \caption{In RL, spectral geometry interacts with the KL leash and can catalyze off-policiness rather than merely accelerate supervised convergence.}\label{fig:init-kl-leash}
+% % % \end{figure}
+% % % \begin{figure}[tbp]
+% % % \centering
+% % % \includegraphics[width=0.9\textwidth]{figures/scale_down/fast-and-stable-initialization-navigating-lora-weights-svd-catalyzed-off-policiness-in-rl_figure_03.png}
+% % % \caption{Learning-rate decay can partially mitigate initialization-induced instability by reducing late-stage policy drift.}\label{fig:init-lr-decay}
+% % % \end{figure}
+% % % \begin{figure}[tbp]
+% % % \centering
+% % % \includegraphics[width=0.9\textwidth]{figures/scale_down/fast-and-stable-initialization-navigating-lora-weights-svd-catalyzed-off-policiness-in-rl_figure_04.png}
+% % % \caption{PiSSA and MiLoRA differ in how their spectral bias responds to decay, showing that initialization and schedule cannot be treated independently.}\label{fig:init-pissa-milora}
+% % % \end{figure}
+% % % \begin{figure}[tbp]
+% % % \centering
+% % % \includegraphics[width=0.9\textwidth]{figures/scale_down/fast-and-stable-initialization-navigating-lora-weights-svd-catalyzed-off-policiness-in-rl_figure_05.png}
+% % % \caption{Wavelet-LoRA supplies structured but gentler directions, making it more compatible with trust-region-style RL updates.}\label{fig:init-wavelet-lora}
+% % % \end{figure}
+% % % \FloatBarrier
+
+\subsubsection{Reusable Hyperparameters for Lower Training Effort}\label{subsubsec:hyperparameter-reuse}
+
+
+Hyperparameter transfer becomes a scaling bottleneck once adapters are trained at population scale. LoRA exposes at least three tightly coupled knobs: rank $r$, scale $\alpha$, and learning rate $\eta$. In practice, users often change rank because of memory, speed, or capacity constraints and then retune the learning rate independently. The more useful question, however, is not \textit{what is the best LoRA learning rate?}  but \textit{how should the learning-rate search move when rank changes?} The answer depends directly on how $\alpha$ scales with rank.
+
+LoRA commonly parameterizes the update as
+\begin{equation}
+ \Delta W = \frac{\alpha_r}{r}BA.
+\end{equation}
+Under standard initialization, $A$ is random and $B=0$, so the first effective movement comes from updating $B$. With learning rate $\eta$, the first update to $B$ scales as $\eta \alpha_r/r$, and substituting that back into $\Delta W$ yields an early-step perturbation proportional to
+\begin{equation}
+ \eta \frac{\alpha_r^2}{r}.
+\end{equation}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/scale_down/triquetra-for-lora-s-entangled-knobs-when-lora-rank-changes-how-should-learning-rate-move_figure_02.png}
+\caption{The practical summary is that learning-rate transfer depends on the chosen alpha-scaling rule.}\label{fig:triquetra-summary}
+\end{figure}
+
+Although this expression does not fully characterize AdamW dynamics, it captures the leading dependence of early update magnitude on rank and scaling convention. If $\alpha/r$ is fixed, then $\alpha_r \propto r$ and the effective update grows with rank, so higher rank should push the search toward smaller learning rates. If $\alpha$ is fixed, the effective update shrinks with rank, so higher rank does not force a smaller learning rate. If $\alpha \propto \sqrt{r}$, rank dependence cancels, yielding the simplest theoretical path to same-order learning-rate reuse.
+
+\begin{figure}[tbp]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/triquetra-for-lora-s-entangled-knobs-when-lora-rank-changes-how-should-learning-rate-move_figure_04.png}
+\caption{Rank-by-learning-rate heatmaps show how the good region moves under different alpha rules.}\label{fig:triquetra-agnews-heatmap}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/triquetra-for-lora-s-entangled-knobs-when-lora-rank-changes-how-should-learning-rate-move_figure_05.png}
+\caption{Curves separate best-point reuse from the quality of transferred settings.}\label{fig:triquetra-agnews-curves}
+\end{subfigure}
+\caption{AG News learning-rate transfer across ranks. Heatmaps locate the good learning-rate region, while curves distinguish best-point reuse from transfer quality under each alpha rule.}\label{fig:triquetra-agnews}
+\end{figure}
+
+Empirical sweeps show the same split. On AG News \citep{zhang2015charcnn} with DistilBERT \citep{sanh2020distilbert}, ranks 2 through 256 were tested under constant $\alpha=32$, fixed $\alpha/r=1$, and $\alpha \propto \sqrt{r}$ with $\alpha/\sqrt{r}=8$. Fixed $\alpha/r$ shifted the good learning-rate region downward as rank increased. Constant $\alpha$ produced a flatter best-learning-rate location and was easiest to tune in that simple cross-rank setting. The square-root rule preserved same-order reuse in line with the early-training proxy, though constant $\alpha$ was slightly flatter in that particular experiment.
+
+A harder Qwen3-4B MATH transfer setting \citep{yang2025qwen3,hendrycks2021math} makes the transfer problem more consequential. The useful region collapses into a very small learning-rate range, and the scaling rules diverge at high rank. Constant $\alpha$ keeps the best point flat, but it is not the strongest rule overall. Fixed $\alpha/r$ can perform well at low rank, especially with aggressive ratios, but deteriorates quickly as rank grows. The square-root rule is the most balanced: it preserves best-point reuse and delivers stronger high-rank behavior. This distinction matters because best-point reuse and transfer quality are not identical. A rule can keep the same nominal best learning rate while producing weaker performance when reused across ranks.
+
+For population-scale PEFT, the practical object is not one magic learning rate but a reusable band. Fixed $\alpha/r$ pushes the band downward with rank, constant $\alpha$ often keeps it flatter, and $\alpha \propto \sqrt{r}$ preserves same-order reuse while remaining stronger in the harder reasoning setting. A world with millions of adapters is impossible if every new adapter requires a full hyperparameter sweep. Reusable bands and rank-stable parameterizations are therefore not conveniences. They are prerequisites for adapter populations.
+
+The square-root scaling rule was proposed by rsLoRA \citep{kalajdzievski2023rslora} as a theoretical fix for the rank-dependent update magnitude in standard LoRA. Triquetra's contribution is not to introduce this rule, but to validate it empirically in the harder RL fine-tuning setting and to show that the choice of alpha rule has practical consequences for transfer quality, not just for theoretical update magnitude. On simple classification tasks, constant $\alpha$ can be equally flat; on harder reasoning tasks such as Qwen3-4B MATH, the square-root rule is more robust when the reusable band is narrow and transfer quality matters.
+
+\begin{figure}[tbp]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/triquetra-for-lora-s-entangled-knobs-when-lora-rank-changes-how-should-learning-rate-move_figure_06.png}
+\caption{Heatmaps show that harder reasoning settings make the reusable band narrower and more consequential.}\label{fig:triquetra-qwen-heatmap}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/scale_down/triquetra-for-lora-s-entangled-knobs-when-lora-rank-changes-how-should-learning-rate-move_figure_07.png}
+\caption{Curves motivate square-root alpha scaling as a practical path to same-order learning-rate reuse.}\label{fig:triquetra-qwen-curves}
+\end{subfigure}
+\caption{Qwen3-4B MATH learning-rate transfer across ranks. The reusable band is narrow, and the square-root alpha rule preserves same-order reuse while remaining stronger at high rank.}\label{fig:triquetra-qwen}
+\end{figure}
+
+Hyperparameter transfer is a hidden cost of PEFT because many recipes are under-specified. One implementation may keep alpha fixed, another may keep alpha divided by rank fixed, and a third may scale alpha with the square root of rank. Two runs can therefore share the same apparent learning rate and rank while having very different early update magnitudes. Without recording the scaling convention, the recipe is not portable across papers, codebases, model families, or serving platforms.
+
+For personal models, this under-specification becomes a platform problem. A service that trains thousands or millions of adapters cannot ask each user or product team to rediscover the correct learning-rate band. It needs configuration laws that predict how a safe band moves when rank changes for cost reasons, when model size changes for prior reasons, or when task difficulty changes. The Triquetra framing supplies the beginning of such a law, complementing broader hyperparameter-transfer work \citep{yang2022tensorprograms}: track the joint effect of rank, alpha, and learning rate on the first effective weight movement, then validate the resulting transfer rule empirically.
+
+The square-root rule is especially interesting because it makes theoretical and operational goals coincide. The early-step proxy becomes rank-invariant, so the same-order learning-rate band can be reused. The empirical results suggest that this is not always the flattest rule on simple tasks, but it is robust in the harder reasoning setting where transfer quality matters. This is precisely the regime personal-model infrastructure must handle: not one easy benchmark, but many heterogeneous learning problems under limited tuning budgets.
+
+Triquetra also changes how adapter configuration should be documented. A rank number without alpha and learning rate is incomplete, an alpha rule without a transfer policy is incomplete, and a learning-rate recommendation without rank context is not portable. A population of adapters needs configuration laws, not just configuration values. This is why Scale Down includes training-effort efficiency, not only parameter efficiency.
+
+
+% \begin{figure}[tbp]
+% \centering
+% \includegraphics[width=0.9\textwidth]{figures/scale_down/triquetra-for-lora-s-entangled-knobs-when-lora-rank-changes-how-should-learning-rate-move_figure_03.png}
+% \caption{Early-step theory surfaces explain why $\eta\alpha_r^2/r$ is a useful proxy for cross-rank transfer.}\label{fig:triquetra-theory}
+% \end{figure}
+
+
+
+\subsection{Beyond LoRA: Toward a Spectrum of Adapters}\label{subsec:beyond-lora}
+
+The preceding sections study Scale Down within the standard LoRA setting: the adaptive state is a static low-rank parameter update, and the main question is how small this update can become while remaining expressive, stable, and reusable. This view is essential, but it does not exhaust the design space of efficient adaptation. Complementary lines of work enlarge the static-LoRA setting in other directions, including hierarchical or layer-wise rank allocation \citep{zhou2025rankadaptor,zhou2026lara}, intra- and inter-layer parameter sharing \citep{zhou2025bslora}, joint optimization of LoRA rank with mixed-precision quantization \citep{zhou2025balancing,zhou2026autoqra}, and combined low-rank plus sparsity compression \citep{zhou2025largecompression}. The remainder of this section pursues a different question: if PEFT is to support persistent personal models, the adaptive unit must not only be small after training; it must also be writable, reusable, and capable of changing with interaction history. Scale Down therefore extends from parameter reduction to state design: how compact, stable, and dynamic can the local adaptive state become?
+
+\paragraph{From static adapters to writable local state.}
+Ordinary LoRA stores adaptation directly in low-rank weights. Once trained, the same parameter update is applied regardless of the model's previous interactions. This is suitable for task or domain specialization, but it is less suitable for personal models that must accumulate preferences, corrections, task progress, and long-term behavioral patterns over time. A broader adapter view treats PEFT as an interface between a frozen shared backbone and a local adaptive state. The important design question is then not only how many trainable parameters the adapter introduces, but also what kind of state it maintains, how that state is updated, and how it influences inference.
+
+\paragraph{A representative stateful adapter: $\delta$-mem.}
+A concrete example of this direction is $\delta$-mem~\citep{lei2026deltamem}, which augments a frozen full-attention Transformer with a compact online associative-memory state. Unlike ordinary LoRA, whose low-rank update is fixed after training, $\delta$-mem maintains a state that evolves as tokens are processed. At each position, the model reads from the previous memory state, uses the readout to generate low-rank corrections to the backbone attention computation, and then writes the current information back into memory through a delta-rule update, as illustrated in \Cref{fig:delta-mem-arch}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/scale_down/delta-mem-arch.pdf}
+    \caption{Overview of $\delta$-mem. A compact online memory state is read to produce history-dependent low-rank corrections to the frozen attention computation, and is then updated with current key--value information through delta-rule learning.}
+    \label{fig:delta-mem-arch}
+\end{figure}
+
+Concretely, $\delta$-mem maintains a low-dimensional state
+\[
+    \mathbf S_t \in \mathbb{R}^{r\times r},
+\]
+which stores key--value associations in the adapter space. Given a memory key $\mathbf k_t^m$ and value $\mathbf v_t^m$, the update can be written as
+\[
+    \mathbf S_t
+    =
+    \mathrm{Diag}(\boldsymbol\lambda_t)\mathbf S_{t-1}
+    +
+    \mathrm{Diag}(\boldsymbol\beta_t)
+    \left(
+    \mathbf v_t^m-\mathbf S_{t-1}\mathbf k_t^m
+    \right)
+    (\mathbf k_t^m)^\top .
+\]
+Here $\boldsymbol\lambda_t$ controls retention and $\boldsymbol\beta_t$ controls write strength. The important point is that the state writes the prediction residual rather than simply accumulating all new information. Already predictable associations induce small updates, while novel or mispredicted associations modify the state. In this sense, $\delta$-mem preserves the low-rank steering interface of LoRA, but replaces a static parameter patch with a history-conditioned correction.
+
+\paragraph{Writing granularity as part of the adaptive state.}
+The $\delta$-mem design also shows that the adaptive unit is not defined only by parameter count. It studies different writing granularities: token-level writing preserves fine-grained local information, sequence-level writing reduces redundant token noise, and multi-state writing separates information across several parallel states to reduce interference. For Scale Down, the lesson is that two adapters with similar trainable budgets can behave very differently depending on when they write, what they write, and how their state is organized.
+
+\paragraph{Evidence for compact dynamic memory.}
+\input{tables/scale_down/delta-mem_baseline}
+
+The empirical results in \Cref{tab:delta-mem-baseline} support this adaptive-state view. On a Qwen3-4B-Instruct backbone, the best $\delta$-mem variant improves the average score from $46.79\%$ to $51.66\%$, while outperforming static or textual memory baselines such as Context2LoRA~\citep{back2026understanding,hu2021lora}. The gains are especially visible on memory-intensive benchmarks. On MemoryAgentBench~\citep{hu2025evaluating}, $\delta$-mem improves the average score from $29.54\%$ to $38.85\%$. On LoCoMo~\citep{maharana2024longmemory}, the multi-state variant reaches the strongest average score, suggesting that multiple compact states can help reduce memory interference in long-context personal-memory settings. On HotpotQA~\citep{yang2018hotpotqa}, token-level writing improves EM/F1 from $42.35\%/56.00\%$ to $49.41\%/63.66\%$. These results suggest that the online state provides useful historical signals that are not captured by static parameter patches or purely textual memory mechanisms.
+
+\paragraph{Efficiency of the stateful interface.}
+The efficiency profile is also consistent with the Scale Down argument. The token-state and sequence-state variants introduce only $4.87$M trainable parameters, about $0.12\%$ of the Qwen3-4B backbone, while the multi-state variant uses $19.47$M parameters, about $0.48\%$. These overheads are substantially smaller than heavier auxiliary-memory baselines such as MemGen and MLP Memory. Because the recurrent state has fixed size, its storage cost does not grow linearly with interaction history length. Inference is not free: each decoding step must read from and update the online state. However, this places $\delta$-mem at a useful operating point: a small recurrent computation cost is exchanged for persistent, history-dependent steering.
+
+\paragraph{Implications for PEFT scaling.}
+The broader implication is that PEFT scaling should not be equated with static rank reduction alone. In ordinary LoRA, Scale Down asks how low the rank can be while preserving task performance. In stateful adapters such as $\delta$-mem, Scale Down also asks how small a writable local state can be while still carrying useful historical information. This distinction matters for personal models. The frozen backbone supplies the shared foundation prior, the adapter parameters define the read--write interface, and the online state stores instance-specific experience. Future PEFT mechanisms may therefore combine three ingredients: a strong shared prior, a compact low-rank steering interface, and a small dynamically writable state. Their role is not merely to reduce the cost of fine-tuning, but to make local adaptive state persistent, compact, and directly coupled to the model's forward computation.
+
+
+% The preceding sections treat LoRA mainly as a static low-rank adaptation mechanism. This is the dominant form of PEFT: a frozen backbone is equipped with a small set of trainable parameters, and these parameters encode a fixed task- or domain-specific update after training. This view is useful, but it does not exhaust the design space of efficient adaptation. If PEFT is to support persistent personal models, then the adaptive unit should not only be small, it should also be writable, reusable, and capable of changing with interaction history. This motivates a broader view of adapters. Instead of treating an adapter only as a static parameter patch, we can treat it as an interface between a frozen backbone and a local adaptive state. Under this view, adapter efficiency is not only determined by how many trainable parameters are introduced, but also by what form of state the adapter maintains, how that state is updated, and how it influences the backbone during inference. This extends the Scale Down axis from parameter reduction to state design: the question is no longer only how small the low-rank update can be, but how compact, stable, and dynamic the state can become.
+
+% \paragraph{From static low-rank updates to stateful adapters.}
+% Ordinary LoRA stores adaptation directly in low-rank weights. Once trained, the effective update is fixed: the same input layer receives the same low-rank parameterization regardless of the model's previous
+% interaction history. This is suitable for domain adaptation, task adaptation, or instruction tuning, but it is less suitable for online memory. A personal model often update its behavior after each interaction: it may need to remember user preferences, task progress, tool-use conventions, correction histories, and long-term behavioral patterns. If such information is stored only in prompts or retrieval results, it remains external to the model's forward dynamics. If it is stored only in static parameters, it cannot evolve naturally with the sequence.
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.95\textwidth]{figures/scale_down/delta-mem-arch.pdf}
+%     \caption{The overview of $\delta$-mem. Given the hidden state from a frozen Transformer backbone, $\delta$-mem first projects it into a low-dimensional memory space, and reads context-relevant associative memory signals from the previous online state, and uses the signal to generate low-rank corrections to the attention computation. After the computation, the memory state is updated with the current key-value information via delta-rule learning.}
+%     \label{fig:delta-mem-arch}
+% \end{figure}
+
+% \paragraph{A representative example: \textbf{$\delta$-mem}.}
+% A concrete example of this direction is $\delta$-mem~\citep{lei2026deltamem}, which augments a frozen full-attention Transformer with a compact online state of associative memory. Unlike ordinary LoRA, whose low-rank update is static after training, $\delta$-mem maintains an online state that evolves as tokens are processed. As shown in \Cref{fig:delta-mem-arch},  at each position, the model first reads from the previous state, uses the readout to generate low-rank corrections to the backbone's attention computation, and then writes the current information back into the state through a delta-rule update.
+
+% Concretely, $\delta$-mem maintains a state:
+% \[
+%     \mathbf S_t \in \mathbb{R}^{r\times r},
+% \]
+% which stores low-dimensional key--value associations. Given a hidden state \(\mathbf x_t\), the model projects it
+% into a memory query, key, and value:
+% \[
+%     \mathbf q_t^m,\mathbf k_t^m,\mathbf v_t^m \in \mathbb{R}^r .
+% \]
+% Before writing the current token, the old memory state is queried as:
+% \[
+%     \mathbf r_t = \mathbf S_{t-1}\mathbf q_t^m .
+% \]
+% The memory signal \(\mathbf r_t\) is then mapped into low-rank corrections:
+% \[
+%     \Delta \mathbf q_t = \mathbf W_q^\Delta \mathbf r_t,
+%     \qquad
+%     \Delta \mathbf o_t = \mathbf W_o^\Delta \mathbf r_t .
+% \]
+% These corrections steer the frozen attention computation through the query and output branches:
+% \[
+%     \tilde{\mathbf q}_t
+%     =
+%     \mathbf q_t^0+\frac{\alpha}{r}\Delta \mathbf q_t,
+%     \qquad
+%     \tilde{\mathbf y}_t
+%     =
+%     \mathbf a_t+\frac{\alpha}{r}\Delta \mathbf o_t ,
+% \]
+% where $\alpha$ is a scaling factor that controls the magnitude of the low-rank correction. Although the projection matrices are fixed after training, the effective correction is history-dependent because its input comes from the evolving state \(\mathbf S_{t-1}\). In this sense, $\delta$-mem keeps the low-rank steering interface of LoRA, but replaces the static update with a state-conditioned correction.
+
+% The state is updated by a delta-rule. Given memory key and value vectors \(\mathbf k_t^m,\mathbf v_t^m\), the previous state first predicts the value associated with the current key as \(\mathbf S_{t-1}\mathbf k_t^m\). The residual between the target value and this prediction is then written back into memory:
+% \[
+%     \mathbf S_t
+%     =
+%     \mathrm{Diag}(\boldsymbol\lambda_t)\mathbf S_{t-1}
+%     +
+%     \mathrm{Diag}(\boldsymbol\beta_t)
+%     \left(
+%     \mathbf v_t^m-\mathbf S_{t-1}\mathbf k_t^m
+%     \right)
+%     (\mathbf k_t^m)^\top .
+% \]
+% Here \(\boldsymbol\beta_t\) controls the write strength and \(\boldsymbol\lambda_t\) controls retention. This update writes mainly the prediction residual, so already predictable associations induce small state changes, whereas novel or mispredicted associations correct the state online. Expanding the update gives:
+% \[
+%     \mathbf S_t
+%     =
+%     \mathrm{Diag}(\boldsymbol\lambda_t)\mathbf S_{t-1}
+%     -
+%     \mathrm{Diag}(\boldsymbol\beta_t)
+%     \mathbf S_{t-1}\mathbf k_t^m(\mathbf k_t^m)^\top
+%     +
+%     \mathrm{Diag}(\boldsymbol\beta_t)
+%     \mathbf v_t^m(\mathbf k_t^m)^\top .
+% \]
+% The first term retains previous memory, the second removes the old prediction component along the current
+% key direction, and the third writes the new value. This makes the state update closer to controlled error
+% correction than to unselective accumulation.
+
+% \paragraph{Writing granularity and state organization.}
+% The $\delta$-mem design also illustrates the granularity at which memory is written. The method studies three writing strategies. Token-State Write~(TSW) updates the state at every token, preserving fine-grained local information. Sequence-State Write~(SSW) pools hidden states within a message or segment and writes once per segment, reducing
+% redundant token-level noise. Multi-State Write~(MSW) maintains multiple parallel states and concatenate their
+% readouts, allowing different sub-states to store different types of information and reducing interference within a single memory matrix. These variants are important for the Scale Down argument because they show that the adaptive unit is not defined only by its parameter count. Two adapters can have similar trainable budgets but different memory behavior depending on how often they write, what information they write, and whether they use one state or
+% multiple states. In persistent personal models, such design choices affect whether local memory remains stable across long interactions or is overwritten by short-term noise.
+
+% \paragraph{Empirical evidence.}
+% \input{tables/scale_down/delta-mem_baseline}
+% The empirical results of $\delta$-mem provide evidence that compact stateful adapters can improve memory behavior while preserving the frozen backbone. As shown in \Cref{tab:delta-mem-baseline}, on a Qwen3-4B-Instruct backbone, the TSW variant reaches an average score of \(51.66\%\), improving over the frozen backbone score of \(46.79\%\) by \(+4.87\) points. It also outperforms the strongest non-$\delta$-mem memory baseline, Context2LoRA~\citep{hu2021lora,back2026understanding}, which obtains \(44.90\%\). The SSW and MSW variants also perform strongly, reaching \(51.44\%\) and \(50.74\%\),
+% respectively. The gains are especially clear on memory-heavy benchmarks. On MemoryAgentBench~\citep{hu2025evaluating}, $\delta$-mem improves the average score from \(29.54\%\) to \(38.85\%\), with MSW achieving the strongest result. On LoCoMo~\citep{maharana2024evaluating}, MSW
+% reaches the highest average score of \(49.12\%\) and performs best on the Multi-hop, Temporal, and Open-domain
+% subsets. On HotpotQA~\citep{yang2018hotpotqa}, TSW improves EM/F1 from \(42.35\%/56.00\%\) to \(49.41\%/63.66\%\). These results suggest that the online state can provide useful historical signals that are not captured by static parameter patches or purely textual memory mechanisms.
+% \input{tables/scale_down/delta-mem_main_tab}
+% The same trend also appears across different backbone models as shown in \Cref{tab:delta-mem-main_tab}. $\delta$-mem improves Qwen3-4B-Instruct
+% from \(46.79\%\) to \(51.66\%\), Qwen3-8B from \(47.20\%\) to \(50.86\%\), and SmolLM3-3B from \(26.08\%\) to
+% \(36.96\%\). The preferred writing strategy varies with model capacity. On the stronger Qwen3-8B backbone,
+% SSW performs best, suggesting that segment-level writing can smooth the state updates and reduce
+% token-level noise. On the smaller SmolLM3-3B backbone, MSW produces the largest improvement, suggesting
+% that multiple states can help weaker backbones reduce memory interference.
+
+% A particularly revealing test is the no-context recovery setting shown in \Cref{fig:delta-mem-context-recover.pdf}. In this setting, the original historical context is removed, and only the compressed online state is used to steer the model. Under this condition,
+% $\delta$-mem improves HotpotQA EM/F1 from \(0.08\%/8.27\%\) to \(6.48\%/15.20\%\). On LoCoMo, it improves
+% the overall average from \(3.49\%\) to \(8.05\%\). They show that the online state preserves part of the missing historical signal and can partially recover useful information even when the original context is unavailable.
+
+% \begin{figure}[tbp]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{figures/scale_down/delta-mem-context-recover.pdf}
+%     \caption{Context recovery performance on HotpotQA and LoCoMo with Qwen3-4B-Instruct as the backbone.}
+%     \label{fig:delta-mem-context-recover.pdf}
+% \end{figure}
+
+
+% \paragraph{Efficiency and parameter overhead.}
+
+% The efficiency profile of $\delta$-mem further supports the Scale Down perspective. The TSW and SSW
+% variants introduce only \(4.87\)M trainable parameters, corresponding to about \(0.12\%\) of the Qwen3-4B
+% backbone. The MSW variant, which maintains multiple states, uses \(19.47\)M trainable parameters, or about
+% \(0.48\%\) of the backbone. This is substantially smaller than heavier auxiliary-memory baselines. For
+% example, MemGen uses \(46.20\)M trainable parameters, while MLP Memory requires \(3078.00\)M parameters,
+% about \(76.40\%\) of the backbone scale.
+
+% \begin{figure}[tbp]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{figures/scale_down/delta-mem-params.pdf}
+%     \caption{Trainable parameter comparison across memory-augmented methods.}
+%     \label{fig:params}
+% \end{figure}
+
+% Inference results also suggest that the compact recurrent state adds only limited memory overhead. Since the
+% state size is fixed, its storage cost does not grow with the history length. $\delta$-mem achieves GPU memory
+% usage close to Vanilla and Context2LoRA, while being much lighter than methods that maintain or generate
+% large auxiliary memory representations. Its decoding throughput is lower than Vanilla and Context2LoRA
+% because each step requires reading from and updating the online state, but it remains faster and more stable
+% than heavier memory-generation baselines. This places stateful adapters at a useful operating point: they
+% introduce a small recurrent computation cost in exchange for persistent, history-dependent steering.
+% \begin{figure}[tbp]
+%     \centering
+%     \begin{subfigure}[t]{0.43\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/scale_down/delta-mem-tps.pdf}
+%         \caption{Decoding throughput.}
+%         \label{fig:decoding_tps}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[t]{0.48\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/scale_down/delta-mem-mem.pdf}
+%         \caption{Memory usage.}
+%         \label{fig:memory_usage}
+%     \end{subfigure}
+
+%     \caption{Inference efficiency under different prompt and decode lengths.}
+%     \label{fig:inference_efficiency}
+% \end{figure}
+
+% \paragraph{Implications for PEFT scaling.}
+% Stateful memory adapters broaden the meaning of PEFT scaling. In ordinary LoRA, Scale Down mainly asks
+% how low the rank can be while preserving task performance. In $\delta$-mem, Scale Down also asks how small a dynamically state can be while still carrying useful historical information. This changes the optimization target from static parameter efficiency to adaptive-state efficiency. This distinction matters for personal models. A personal model does not only need a parameter-efficient way to specialize once; it needs a way to accumulate local history over many interactions without modifying the shared foundation prior. Stateful adapters provide one possible answer. The frozen backbone supplies the shared prior, the adapter parameters define the read- write interface, and the online state stores instance-specific history. This makes the adapter a boundary layer between common capability and local experience. The broader lesson is that future PEFT mechanisms may increasingly combine three ingredients: a strong shared prior, a compact low-rank steering interface, and a small but dynamically writable state. Such mechanisms occupy a different point in the adapter design space from ordinary LoRA. They are still
+% parameter-efficient, but their main role is not merely to reduce the cost of fine-tuning. Their more important
+% role is to make local adaptive state persistent, compact, and directly coupled to the model's forward computation.
+
+
+
+
+% % LoRA is only one point in the broader design space of efficient adaptation. Once we take personal models seriously, the relevant question is no longer only how to train small low-rank updates, but how to design adaptive structures that can better encode memory, state, safety boundaries, and continual change. The future of PEFT likely includes more stateful, structured, and semantically meaningful adapter mechanisms. In the updated outline, Context Learning is not treated here as a generic ``new algorithm'' for scale-out; it is treated later as an efficiency mechanism for LoRA-as-memory.
+
+% % Memory-oriented adapter structures become necessary when adapters are asked to do more than short-horizon task specialization. Memex-style directions emphasize extremely small trainable parameter budgets and KV-cache-level efficiency. Delta-Mem or Delta-LoRA-style directions ask whether a compact online state can preserve useful history and potentially replace part of the explicit KV-cache burden. In this broader spectrum, the adapter is no longer just a low-rank patch on a pretrained weight matrix. It becomes a design surface for deciding what state should be parametric, what state should remain in retrieval, and what state should be updated online.
+
+% % Delta-LoRA explores whether an adapter can maintain a compact online state for long-context memory. In the current design, each attention block maintains a state
+% % \begin{equation}
+% % S_t \in \mathbb{R}^{r \times r},
+% % \end{equation}
+% % updated token by token through gated associative memory dynamics. The state is read before being updated, and the read vector conditions attention through selected $q$, $k$, $v$, and $o$ paths. The more conservative $qo$ injection path affects query formation and output residuals without directly modifying visible key/value representations.
+
+% % This makes Delta-LoRA a memory-enhancement adapter rather than a completed state-first memory architecture. Still, it opens an important direction: efficiency may come from changing what the adapter is allowed to store and update online, not only from shrinking the rank of ordinary LoRA.
+% \FloatBarrier

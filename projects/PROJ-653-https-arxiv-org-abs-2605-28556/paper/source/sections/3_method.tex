@@ -1,0 +1,63 @@
+\section{TASTE: Task Synthesis from Tool Sequence Evolution}
+\label{sec:method}
+
+We next propose TASTE, a synthetic data generation pipeline for constructing new tasks within a given environment. TASTE is designed to satisfy the three properties defined in Section~\ref{sec:benchmark_quality}, enabling fully automated task generation without costly manual curation or correction. It operates around tool sequences, and proceeds in three stages, as illustrated in Figure~\ref{fig:introfig}:
+
+\begin{enumerate}
+\item \textbf{Tool Sequence Sampling} (targets \emph{validity} and \emph{coverage}): 
+We propose a novel sampling method based on an Adaptive Contrastive $n$-gram language model, which is trained to model the distribution of plausible tool sequences. The model samples thousands of diverse candidate sequences under desired constraints, such as the distribution of sequence lengths.
+
+\item \textbf{Clustering and Selection} (targets \emph{coverage}):
+We cluster candidate tool sequences using $K$-medoids with a semantically weighted Levenshtein distance. This yields internally coherent clusters of sequences with similar procedural structure, while medoids across clusters capture structurally distinct patterns.
+
+\item \textbf{Task Generation and Evolution} (targets \emph{validity} and \emph{difficulty}): 
+Each selected sequence (medoid) is instantiated as a complete benchmark task and validated through rule-based checks and a hint-assisted verifier agent. Once a complete task is obtained, we apply difficulty evolution that progressively increases task complexity.
+\end{enumerate}
+
+\subsection{Tool Sequence Sampling with an Adaptive Contrastive $n$-gram Model}
+\label{sub:n_gram}
+
+To address \emph{coverage}, this stage produces a large and diverse pool of candidate tool sequences, from which representative sequences are later selected. We use an $n$-gram language model, in which the probability of the $i$-th tool depends only on the preceding $n{-}1$ tools. We call this model the \emph{Adaptive Contrastive $n$-gram model}, as it extends the standard $n$-gram model in two ways. \textit{Adaptive:} the $n$-gram probabilities are updated online as sequences are sampled and validated. \textit{Contrastive:} the model maintains separate count tables for $n$-grams observed in plausibly valid and implausibly valid sequences, and computes sampling probabilities from their ratio.
+
+\paragraph{Model.} Let $\text{ctx}_i=(t_{i-n+1},\ldots,t_{i-1})$ denote the context of length $n{-}1$ preceding position $i$. We maintain two $n$-gram count tables, $C^+$ and $C^-$, constructed from plausible and implausible sequences, respectively. Each table defines a conditional score over the next tool, given the context. The conditional probability of sampling the $i$-th tool given $\text{ctx}_i$ is defined via a contrastive ratio:
+\begin{equation*}
+S^{\pm}(t_i \mid \text{ctx}_i)
+=
+\frac{C^{\pm}(\text{ctx}_i,t_i)+\lambda_0}
+{\sum_{t' \in \mathcal{T}} C^{\pm}(\text{ctx}_i,t') + |\mathcal{T}|\lambda_0}, 
+\qquad 
+P(t_i \mid \text{ctx}_i) \propto 
+\Bigg(\frac{S^+(t_i \mid \text{ctx}_i)}
+{S^-(t_i \mid \text{ctx}_i)^{\lambda_{\text{neg}}}}\Bigg)^{T(k)}.
+\end{equation*}
+where $\lambda_0>0$ is a Dirichlet smoothing parameter, $\lambda_{\text{neg}}\ge 0$ controls the influence of negative evidence, and $T(k)$ is a temperature that exponentially decays over training iterations.
+
+\paragraph{Adaptive Training.} The model is trained via an iterative generate-and-validate loop that progressively refines the distribution over tool sequences. We initialize the count tables from a seed set of existing tool sequences. At each iteration, we sample candidate sequences autoregressively from the current model, generating each tool conditioned on the preceding $n{-}1$ tools. Each sampled sequence is validated by a prompted LLM, which assigns a binary plausibility label indicating whether the sequence could arise as a solution to a realistic scenario (Box~\ref{box:validate-action-sequence}). This label serves as the learning signal: $n$-grams from plausible sequences update $C^+$; those from implausible ones update $C^-$.
+
+\paragraph{Rationale.}
+Our design balances coverage and validity. We use an $n$-gram model because it is simple, scalable, and well-suited to tool sequences, where many constraints are local: the plausibility of the next tool often depends on the tools executed recently. Concretely, our sampler is a temperature-annealed log-odds between two Dirichlet-smoothed $n$-gram models over plausible and implausible sequences, trained online via LLM-judged pseudo-labels. The contrastive formulation uses both positive and negative evidence, favoring $n$-grams observed in plausible sequences while penalizing those associated with implausible ones. Negative evidence is especially useful (Figure~\ref{fig:method_analysis}) because some local patterns strongly indicate invalidity, e.g., modifying a reservation after canceling it. Adaptive online training is needed (Figure~\ref{fig:method_analysis}) because the tool-sequence space is combinatorially large and often only a small supervised set is available.
+
+\subsection{Clustering and Selection of Representative Tool Sequences}
+\label{sub:clustering}
+At this stage, we can sample candidate tool sequences at scale, enabling us to generate a large and diverse pool of $N\!\gg\!K$ candidates from the trained model, where $K$ is the target benchmark size ($N\!=\!2000, K\in\{50, 114\}$). We control sequence lengths by drawing from a configurable distribution (a skew-normal distribution with $\mu\!=\!7$, maximum length of $15$) and enforce uniqueness through resampling. From this pool, we select $K$ representative tool sequences for task generation.
+
+\paragraph{Clustering.} We use $K$-medoids clustering \citep{pam_kaufman1990, kmedoids}, which partitions the pool into $K$ clusters and selects a representative medoid from each. The algorithm minimizes the total distance between each medoid and its cluster members, so each medoid represents a group of similar candidates. The pool provides diversity; medoid selection ensures that central sequences are chosen rather than outliers.
+
+\paragraph{Distance between Tool Sequences.} Using the standard Levenshtein (edit) distance, which assigns unit cost to all operations, led to unintuitive clusters: sequences that differ in semantically important ways were often grouped together. We therefore employ a weighted variant of the Levenshtein distance, in which substitution costs depend on the semantic relationship between tools. Concretely, replacing tools that perform a similar function (e.g., \texttt{search\_direct\_flight} and \texttt{search\_onestop\_flight}) costs $0.33$; replacing tools of the same type (e.g., both \texttt{read} or both \texttt{write}) cost $0.66$; and substitutions across types, insertions, and deletions cost $1$ (Appendix~\ref{app:method_implementation}). A qualitative analysis of clusters and medoids constructed with standard and weighted error distances is provided in Appendix~\ref{app:wed-qualitative}. As shown, clusters formed under the weighted distance are more coherent, with sequences within each cluster having similar functional structure.
+
+\paragraph{Medoids Validation.} We validate medoids using the plausibility LLM validator from the $n$-gram training stage. We apply the following recovery procedure when a medoid is deemed invalid: Replace the invalid medoid with the next-closest member of the same cluster. If all members of a cluster are invalid, remove them from the pool and re-run $K$-medoids with all currently valid medoids fixed as constraints. Repeat until all $K$ medoids are valid.
+
+\subsection{Generating Tasks from Tool Sequence and Evolving the Difficulty}
+\label{sub:task_generation}
+
+Given a set of $K$ representative tool sequences, we proceed in two stages: (i) generating a verifiable and correct \emph{base task} for each sequence, and (ii) evolving the task to increase difficulty while preserving its correctness.
+
+\paragraph{Base Task Generation.} 
+Each tool sequence $\bar\sigma$ is instantiated into a complete, executable task by generating $s_0$ and $u$. This requires two LLM calls. First, the LLM constructs a coherent real-world scenario with respect to the existing environment $E$, and that motivates $\bar\sigma$, inventing concrete entities (e.g., user names, order IDs) and producing a verbose, step-by-step user instruction (Box~\ref{box:create-user-task}). Second, a follow-up call generates the database entities required to execute the task (Box~\ref{box:generate-db-init}). This process yields a \emph{base task}: an intentionally unambiguous instantiation designed to isolate task validity from difficulty (Example~\ref{fig:full-task-examples})
+
+\paragraph{Validity Checks.}
+We validate each generated task using a combination of deterministic and simulation-based checks. First, we apply deterministic rule-based checks to verify basic structural validity and ensure that the gold tool-call sequence executes successfully (e.g., that referenced entities exist in $s_0$ and that tool calls conform to the domain schema). These checks are fast and catch structural errors, but they do not ensure that the task is solvable or that the user instruction $u$ contains sufficient information. We therefore perform a simulation-based solvability check using a \emph{Verifier agent}. The agent attempts to solve $x$ through interaction with the user, while receiving partial hints derived from the gold tool-call sequence: the tool calls are shuffled, and for each call, $\lceil p \cdot |\text{kwargs}| \rceil$ arguments are removed. Since these hints are incomplete and unordered, they help guide the agent without allowing it to simply replay the solution. The agent must still infer the intended plan, recover missing arguments, and cooperate with the user; success, therefore, provides evidence that the task is solvable. If the generated task fails any check, it is regenerated; after repeated failures, the gold tool-call sequence is replaced by another candidate from the same cluster (Section~\ref{sub:clustering}). 
+
+\paragraph{Task Evolution.}
+The generated base tasks do not reflect realistic conditions: real-world user requests are ambiguous, changing over time, and sometimes adversarial, and the environment may contain confusing or misleading instances. The evolution stage transforms base tasks into harder variants while preserving the gold tool-call sequence (Figure~\ref{fig:coverage_fig}). For every base task, we proceed with the Evolution process through three LLM calls.
+\emph{Strategy analysis} examines each write action to identify opportunities for adversarial confusion, drawing from a manually curated catalog of patterns, e.g., demanding an action that the policy forbids, or the user mistakenly provides incorrect information (see Appendix~\ref{app:adversarial-patterns}). \emph{Environment perturbation} constructs decoy database records, entities similar to gold targets but with subtle disqualifying differences (e.g., a flight on the same route with no available seats), which are merged into $s_0$. \emph{Scenario rewriting} rewrites the user instruction to exploit the adversarial opportunities. Each evolved task is re-validated; if validation fails, progressively simpler evolution variants are attempted before falling back to the base task (Appendix~\ref{app:graduated-fallback}).

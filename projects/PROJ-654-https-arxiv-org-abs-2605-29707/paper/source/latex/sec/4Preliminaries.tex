@@ -1,0 +1,59 @@
+\subsection{Speculative Decoding and Speedup}
+Speculative decoding accelerates autoregressive inference by using a draft model \(M_d\) to propose multiple future tokens, which are then verified in parallel by the target model \(M_t\). At each decoding cycle, the draft model proposes \(\gamma\) candidate tokens. The target model evaluates these candidates in a single forward pass and accepts the longest valid prefix according to the standard speculative verification rule. We denote by \(\tau \in [1, \gamma+1]\) the expected number of tokens advanced per cycle, including the bonus token produced by the target model.
+
+The average per-token latency of speculative decoding can be written as
+\[
+L_{\mathrm{spec}}
+=
+\frac{T_{\mathrm{draft}} + T_{\mathrm{verify}}}{\tau},
+\]
+where \(T_{\mathrm{draft}}\) is the time spent generating draft tokens, and \(T_{\mathrm{verify}}\) is the time spent verifying them with the target model. Let \(L_{\mathrm{target}}\) denote the per-token latency of standard autoregressive decoding with the target model. The resulting speedup is
+\[
+\eta
+=
+\frac{L_{\mathrm{target}}}{L_{\mathrm{spec}}}
+=
+\frac{\tau L_{\mathrm{target}}}
+{T_{\mathrm{draft}} + T_{\mathrm{verify}}}.
+\]
+
+This expression highlights two key factors that determine the final speedup. First, increasing the acceptance length \(\tau\) allows each target-model invocation to advance more tokens. Second, reducing the draft cost \(T_{\mathrm{draft}}\) prevents the drafting stage from offsetting the benefit of parallel verification. Therefore, an effective drafter must be both accurate enough to achieve long acceptance lengths and efficient enough to keep drafting overhead low.
+
+\subsection{Autoregressive Drafting}
+
+Autoregressive drafters generate candidate tokens sequentially. Given a prefix \(x_{\le t}\), an autoregressive drafter factorizes the draft distribution as
+\[
+q_{\mathrm{AR}}(x_{t+1:t+\gamma} \mid x_{\le t})
+=
+\prod_{i=1}^{\gamma}
+q(x_{t+i} \mid x_{<t+i}),
+\]
+where \(x_{<t+i}\) includes the current prefix \(x_{\le t}\) and previously drafted tokens.
+This factorization mirrors the target model's autoregressive prediction process, where each token is conditioned on all previous tokens. As a result, autoregressive drafting can explicitly use previously drafted tokens when predicting later draft positions, leading to higher draft quality and longer acceptance length.
+
+However, this modeling advantage comes with a sequential execution cost. More concretely, for an autoregressive drafter, generating \(\gamma\) draft tokens requires \(\gamma\) draft steps, each consisting of a draft-model forward computation followed by an LM-head projection. Denoting the average latency of these two operations by \(t_{\mathrm{net}}\) and \(t_{\mathrm{head}}\), respectively, the total drafting cost can be approximated as
+\[
+T_{\mathrm{draft}}^{\mathrm{AR}}
+\approx
+\gamma \cdot
+\left(
+t_{\mathrm{net}} + t_{\mathrm{head}}
+\right).
+\]
+This cost grows approximately linearly with the speculation budget \(\gamma\), and can be further amplified when the draft model becomes deeper or the vocabulary size is large \citep{zhao2025fr,yan2025scaling}. Therefore, although autoregressive drafters often achieve high acceptance lengths, their repeated executions can offset the gain from longer accepted prefixes and limit the achievable speedup.
+
+\subsection{Parallel Drafting}
+
+Unlike autoregressive drafters that factorize the draft distribution from left to right, a parallel drafter \citep{chen2026dflash,liu2026dart} directly predicts the block-level conditional distribution
+\[
+q_{\mathrm{PAR}}(x_{t+1:t+\gamma} \mid x_{\le t}),
+\]
+thereby generating multiple draft tokens in parallel. Its drafting cost can be approximated as
+\[
+T_{\mathrm{draft}}^{\mathrm{PAR}}
+\approx
+t_{\mathrm{net}}^{\mathrm{block}} + t_{\mathrm{head}}^{\mathrm{block}},
+\]
+where \(t_{\mathrm{net}}^{\mathrm{block}}\) and \(t_{\mathrm{head}}^{\mathrm{block}}\) denote the average latency of the block-level draft-model forward pass and the corresponding LM-head projection, respectively. Unlike autoregressive drafting, they are incurred once for the whole draft block rather than repeated \(\gamma\) times, enabling better GPU utilization through parallel computation.
+
+The verification stage remains similar for both autoregressive and parallel drafters: the target model evaluates the proposed draft block in parallel and accepts the longest valid prefix. The main difference lies in draft generation. Autoregressive drafters usually achieve longer acceptance lengths because they explicitly model causal dependencies within the draft sequence, but their draft cost grows with the number of generated tokens. Parallel drafters reduce or eliminate this sequential drafting cost, but often weaken intra-block causal dependencies among draft tokens. Consequently, they may require larger draft capacity to reach acceptance length comparable to autoregressive drafters \citep{chen2026dflash}.

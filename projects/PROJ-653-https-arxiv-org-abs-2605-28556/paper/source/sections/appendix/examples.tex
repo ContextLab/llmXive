@@ -1,0 +1,33 @@
+\section{Examples}
+\label{app:examples}
+
+\paragraph{Base and Evolved Tasks.}
+\label{app:full-task-examples}
+Figure~\ref{fig:full-task-examples} shows one end-to-end task example from each of the three \taubench domains, illustrating the output of the task generation and evolution pipeline of Section~\ref{sub:task_generation}. For each task we render the gold tool-call sequence, the \emph{base} variant, and the corresponding \emph{evolved} variant stacked on a single page. The task purpose is shown above the gold tool sequence and it is shared across both variants. The comparison between variants is shown across the \emph{Known Info} and the \emph{Task Instructions}.
+
+\newcommand{\tasksamplefig}[1]{%
+  \includegraphics[width=\linewidth,height=0.92\textheight,keepaspectratio,page=#1]{assets/figures/examples/base_vs_evolve_examples.pdf}%
+}
+
+\begin{figure}[p]
+\centering
+\tasksamplefig{1}
+\caption{\textbf{(a)} airline.}
+\label{fig:full-task-examples}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\tasksamplefig{2}
+\caption[]{\textbf{(b)} retail.}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\tasksamplefig{3}
+\caption[]{\textbf{(c)} telecom.}
+\end{figure}
+
+\clearpage
+
+\input{assets/figures/clustering/cluster_sequences}

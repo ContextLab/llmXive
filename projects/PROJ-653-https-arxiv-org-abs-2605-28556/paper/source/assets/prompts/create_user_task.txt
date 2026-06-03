@@ -1,0 +1,68 @@
+You are a task designer for a customer-service agent benchmark. Create a realistic user task/scenario that naturally requires the agent (and, where applicable, the user) to execute this action sequence: {action_sequence}.
+The benchmark spans multiple domains. The current domain's tools, arguments, enums, system limits, and policy live in the policy and tool spec below; reason from them, not from prior knowledge.
+## Hard Rules
+- **Argument whitelist.** For every action, use ONLY the argument keys defined for that tool in the tool spec. Adding an extra argument causes immediate runtime failure. Enum parameters must use the listed values verbatim.
+- **System limits and dynamic IDs.** Some domains cap how many entities of a kind can be created per task or assign new IDs from a fixed pool (described in the policy/tool spec when applicable). Stay within caps -- if the sequence forces more creations than allowed, design the scenario so earlier ones are cancelled/freed first. If a later action targets a freshly-created entity, use the EXACT runtime-assigned ID prescribed by the spec.
+- **Dual-actor sequences (when the domain has them).** When the tool spec marks tools as agent vs user actor, every output action MUST include `requestor` set to `"assistant"` (agent) or `"user"` (user). User actions take empty `arguments` (`{{}}`) unless the spec defines parameters. The user reports symptoms; the agent diagnoses and instructs.
+- **Calculate format.** When `calculate` is in the sequence, write expressions with spaces around operators (`350 * 2`, not `350*2` or `700`).
+## Scenario Design
+- **Forced ordering.** The scenario must be constructed so the agent cannot complete the request without performing the actions in exactly this order. Each action is justified by a specific user behaviour at that moment; no alternative ordering would solve the task.
+- **Message boundaries.** The user must wait for the agent to confirm completion of the current request before changing intent. Each user message has ONE coherent intent. BAD: "Yes, please go ahead. Actually, I want something else." GOOD: confirm in one message, switch in a later one.
+- **Escalation.** If the sequence does NOT include a transfer/handoff action, design so the automated agent can handle the request fully (no asks for a human, no manual review). If it DOES, design so the escalation is justified.
+- **Solvability.** Every fact the agent needs is in `known_info` or derivable from the conversation. The user answers truthful when asked direct questions, has an inferable intent within reasonable turns, and (in dual-actor domains) complies with device-side instructions the agent gives.
+## Output Schema
+Produce three fields in `user_scenario.instructions`:
+1. **reason_for_call** -- the user's high-level request. Describe the SYMPTOM (not the technical cause) when the sequence is diagnostic/troubleshooting. For policy-dependent actions, include a specific policy-compliant reason.
+2. **known_info** -- info the user knows. Use the actual generated IDs for the domain's entities. Provide enough for the agent to retrieve the user's record (email/phone/name+DOB depending on what the lookup tools accept).
+3. **task_instructions** -- behavioural directives. MUST include verbatim:
+   - "Wait for the agent to confirm completion of each action before requesting the next one or changing your mind. CRITICAL: Do NOT end the conversation in the same message where you confirm or agree to an action. After you confirm an action, you MUST wait for the agent's response confirming completion before you may end the conversation. Only end the conversation AFTER the agent has explicitly confirmed ALL requested actions are done."
+   - In dual-actor domains, also: "Whenever the agent asks you about your device, always ground your responses on the results of tool calls. Never make up the results of tool calls, always ground your responses on the results of tool calls."
+   - When the sequence has policy-mandated post-action user steps (e.g. user must `make_payment` after the agent sends a request, user must reboot after a line is resumed), tell the user to perform that step and not end before the agent confirms the resulting state.
+   - For policy-dependent actions, instruct the user what reason to state.
+`description.purpose` (one short sentence) names what this task tests -- understanding intent, handling confusion, holding policy, etc. NOT "uses tool X" / "executes correct sequence". Set `relevant_policies` and `notes` to null.
+## ID and Format Generation
+Derive ID formats (prefixes, lengths, alphanumeric patterns, date/phone formats) from the tool spec parameter descriptions, the example task, and explicit policy clues. Dates in `YYYY-MM-DD` unless the spec/example shows otherwise. Generate realistic first/last names; prefer Israeli names when possible.
+## Policy Compliance
+When the sequence includes policy-dependent actions: read the policy for the conditions that allow each, choose conditions that can be set up in the DB (user attributes, entity state), and embed the valid reason explicitly in `reason_for_call`, `task_instructions`, or `known_info`. Be specific so the user does not invent unaccepted reasons. If the policy forbids the action under all conditions, do NOT generate a task where it is expected to succeed.
+Consistency: an entity ID appearing anywhere appears with the same value everywhere. Linked entities (user owns reservation/order/line, customer has bills) are consistent. Temporal/logical ordering holds (start before end, return after outbound, suspension before resume, payment request before payment).
+The user's stated intent in `task_instructions` MUST match what the expected actions actually do; never create a mismatch.
+## Pre-Submission Checklist
+1. For each action, identify the user statement/behaviour that requires it at this position.
+2. If two adjacent actions could be swapped, revise.
+3. IDs are consistent across `known_info` and arguments.
+4. Policy-dependent actions: required condition is established and a specific reason is in the user's text.
+5. User intent matches what the actions do.
+6. (Dual-actor only) Each action's `requestor` matches the tool spec actor; user actions have `{{}}` arguments unless the spec defines parameters.
+7. Argument audit: every argument key exists in the spec; enum values are verbatim.
+8. System limits respected; dynamic-pool IDs used verbatim where applicable.
+9. (`calculate` only) expressions have spaces around operators.
+## Context
+- Domain: {domain}
+- Policy: {policy}
+- Tool Spec: {tool_spec}
+- Example task: {example_task}
+- Action sequence to realize, with placeholders for arguments: {evaluation_criteria}
+## Output (JSON only -- no markdown, no explanation)
+For domains where every tool is agent-side, omit `requestor`. For dual-actor domains, every action MUST include `"requestor": "assistant"` or `"requestor": "user"`.
+{{
+    "description": {{
+        "purpose": "...",
+    }},
+    "user_scenario": {{
+        "instructions": {{
+            "task_instructions": "...",
+            "domain": "{domain}",
+            "reason_for_call": "...",
+            "known_info": "You are [Full Name].\\n[Whatever IDs the domain's lookup tools accept]\\n[Any other relevant context]",
+        }},
+    }},
+    "evaluation_criteria": {{
+        "actions": [
+            {{"action_id": "0", "name": "action_name_1", "arguments": {{...complete arguments...}}, "info": null}},
+            {{"action_id": "1", "name": "action_name_2", "arguments": {{...complete arguments...}}, "info": null}}
+        ]
+    }}
+}}
+`evaluation_criteria.actions` MUST include COMPLETE arguments for each action. Use the generated IDs consistently. User actions with no parameters MUST have `"arguments": {{}}`.
+Now create a task that fits the action sequence: {action_sequence}
+{error_context}

@@ -1,0 +1,21 @@
+\section{Conclusion}\label{sec:conclusion}
+
+\pony{The phrase ``million personal models of trillion parameters'' should not be read as a claim that each user owns and trains a separate trillion-parameter checkpoint. The intended architecture is different. A small number of strong trillion-scale base models provide shared capability, while millions of lightweight adapters provide persistent local adaptive state. The base model carries general reasoning, world knowledge, language competence, and tool-use priors. The adapter carries part of the learned consequences of repeated experience, such as memories, preferences, skills, and policies.}
+
+\pony{This architecture depends on all three scaling axes at once. Scale Up makes the shared base model worth adapting. Scale Down makes each update cheap and stable enough to repeat. Scale Out turns repeated updates into persistent populations. Removing any axis breaks the thesis. Weak base models limit what adapters can learn. Expensive adapters prevent continuous adaptation. Without multiplicity, PEFT remains a local optimization rather than a path toward population-scale personalization.}
+
+\pony{Several research problems remain open, organized by the three axes:}
+
+\begin{enumerate}
+    \item \pony{\textbf{Scale Up (RL-native PEFT theory)}: rank, scaling, initialization, KL drift, and off-policiness need a unified account that connects adapter geometry to training stability at large prior scale.}
+    \item \pony{\textbf{Scale Up (Tiny-adapter reliability)}: low-rank LoRA already shows signal on strong priors, but must become stable under seed, batch, and task variation before it can serve as a repeatable adaptation substrate.}
+    \item \pony{\textbf{Scale Down (Stateful adapter design)}: memory-oriented mechanisms such as $\delta$-mem need controlled comparisons against standard LoRA, retrieval, and full-context baselines to establish when a stateful adapter is the right representation.}
+    \item \pony{\textbf{Scale Down (Signal efficiency)}: Context Learning needs benchmarks that measure how much durable improvement is extracted from real interaction traces, and how that improvement degrades or compounds over repeated updates.}
+    \item \pony{\textbf{Scale Out (LoRA memory and skill capacity)}: the bounded capacity law for parametric memory observed on simple benchmarks needs to be extended to RL-trained, multi-task adapters, where the open question is which experience deserves to become durable adapter state and which should remain in retrieval or context.}
+    \item \pony{\textbf{Scale Out (Persistent user simulation)}: per-user adapters resolve the collapse of prompt-based personas in small populations, but it remains open whether large adapter populations can preserve heterogeneity over long-horizon interaction without drifting back to a base-model average.}
+    \item \pony{\textbf{Scale Out (Population as computation)}: aggregation gains from distinct LoRA models suggest a research object beyond per-model accuracy, namely how routing, voting, debate, and distillation across adapter populations scale with model count and adapter diversity.}
+\end{enumerate}
+
+\pony{\textbf{Limitations.} The evidence in this paper points to a direction, not a deployed system. Most experiments are run at the scale of controlled benchmarks and simulations, while large-scale empirical validation on our own personal-model deployments remains limited. The bottleneck at this point is compute capacity, not missing methodology. We believe this is the right direction, and that its claims will sharpen as more real-interaction evidence accumulates at scale.}
+
+\pony{The final view is a population architecture rather than one universal assistant with ever more context and ever more centralized control. PEFT makes it possible to scale from one shared foundation model to many persistent personal model instances: first serving individuals, then supporting user simulation, and eventually making diversity among adapted models a source of collective intelligence and creativity. That is the broader reason PEFT matters. It makes adaptation efficient, and through that efficiency it makes persistent individuality scalable.}

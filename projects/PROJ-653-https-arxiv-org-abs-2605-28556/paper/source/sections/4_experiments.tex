@@ -1,0 +1,15 @@
+\input{assets/tables/main_results_tab}
+
+\section{Experimental Setup}
+\label{sec:experiments_setup}
+
+\noindent\textbf{Datasets.} We evaluate on and extend the three \taubench domains~\citep{tau2barres}: Airline, Retail, and Telecom ($N\!=\!50/114/114$), using the \taubenchverified corrected task sets~\citep{saber2025cuadron}. Each domain models a customer-support interaction in which a simulated user issues a request and the agent operates over domain-specific tools under a defined policy. Telecom also provides tools to users. Since Telecom gold sequences encode only \emph{write} actions, we restrict gold tool sequences to only write-type tools when applying TASTE and comparing \ourbenchmark to \taubench.
+
+\smallskip\noindent\textbf{TASTE and \ourbenchmark.}
+We provide additional implementation details, including a complete description of the hyperparameters in Appendix~\ref{app:method_implementation} and Table~\ref{tab:hparams}. The prompts are described in Appendix~\ref{app:prompts}.
+We apply TASTE to each domain, using the original task counts. We train a trigram model ($n\!=\!3$) for 3,000 iterations and sample unique sequences whose lengths are drawn from a skew-normal distribution with $\mu\!=\!7, \sigma\!=\!5, \alpha\!=\!2$, clipped at a maximum length of $15$. The plausibility validator LLM is based on Gemini-3-Flash. For instantiating tasks, we also use  Gemini-3-Flash, which also serves as the hint-assisted verifier agent. For task evolution, we use Gemini-3-Pro.
+
+\smallskip\noindent\textbf{Evaluated agents.}
+We use the \taubench harness with default settings. We evaluate six agent LLMs (Gemini-3-Flash, Gemini-2.5-Flash, GPT-5.2, Qwen-32B, deepseek-3.1, Claude-Sonnet-4.6) paired with two user simulators (Gemini-3-Flash and GPT-5.2). All models use vendor-default thinking/reasoning effort settings; exact details are listed in Appendix~\ref{app:impl-hparams}. Following Section~\ref{sec:evaluation}, we report only \passone scores using final-state reward, and additionally report \passthree for Airline.
+
+\smallskip\noindent\textbf{Costs.} Stages 1 and 2 are cost-efficient, costing approximately $\$10$ per domain. Stage 3 (task generation, evolution, and verification) costs approximately $\$2.50$ per task. The total cost of generating \ourbenchmark is $\$725$. Evaluation costs vary by agent--user pair, with a total cost of $\$520$.

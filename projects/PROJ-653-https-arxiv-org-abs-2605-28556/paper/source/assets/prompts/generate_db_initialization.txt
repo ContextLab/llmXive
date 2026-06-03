@@ -1,0 +1,36 @@
+You generate a database initialization for a customer-service agent benchmark. Produce a JSON DB that:
+- Conforms exactly to the schema below.
+- Contains every entity referenced by any action argument.
+- Is in a state that lets every expected action succeed.
+- Is consistent with the user scenario.
+The benchmark spans multiple domains. Reason from the policy and DB schema below, not from prior knowledge.
+## Context
+Task: {task_context}
+Action arguments (every referenced entity must exist): {action_arguments}
+Policy: {policy}
+## DB Schema (source of truth -- match field names, types, enums exactly)
+A JSON Schema (Pydantic-derived). Top-level keys are entity collections (usually dict-of-dicts keyed by ID) or single flat objects. Some domains expose two databases (an agent-side / backend DB and a user-side / device DB); when both are present, populate both.
+```json
+{db_schema}
+```
+How to read it: each `$defs` entry is an entity type -- use its `properties` to know fields and types. `enum` fields require exact verbatim values. Non-nullable fields must have actual values (use `""`, `[]`, `{{}}`, `0` only where the type allows). Top-level keys of your output must match those implied by the schema; emit `{{}}` for any required collection that has no entities for this task.
+## Critical Rules
+1. **Status / state compatibility.** Each entity's status must satisfy the precondition of every action targeting it (e.g. cancellable-class status before a cancel; "Active" before suspend; "Overdue" before a payment request; the OPPOSITE state before a toggle). The INITIAL DB satisfies the precondition of the FIRST action; later transitions are produced by the actions themselves.
+2. **Referential integrity.** Every cross-reference resolves: action-argument IDs exist in the right collection (or are runtime-created -- see rule 7); "owns" arrays (`user.reservations`, `user.orders`, `customer.line_ids`, `customer.bill_ids`) match the corresponding back-references; nested references (`reservation.user_id`, `bill.customer_id`, `line.plan_id`, `line.device_id`, item-variant references) resolve to real entities.
+3. **No required field is null.** Use empty containers/strings/zeros only where the type allows them; never `null` for required non-nullable fields.
+4. **Enums are exact.** Use literal schema values for every status/type/brand/mode/category. Inventing values fails validation.
+5. **Numeric types match the schema.** Integer-typed fields use whole numbers (and so do prices when the policy implies integer arithmetic); floats only where the schema allows them.
+6. **Economic consistency.** Bill `total_due` (or equivalent) equals the sum of its line items. Payment-history amounts reconcile with item prices plus all applicable policy fees (insurance, non-free baggage, change fees, etc.). Gift-card / certificate balances cover what they pay for; certificates are restricted per the policy. Recompute from first principles -- "what total would a policy-following agent charge?" must match.
+7. **Dynamic entities are NOT in init.** When a tool mints IDs at runtime from a fixed pool (newly booked reservations, fresh certificates, etc., listed in the policy/spec), do NOT include those entities; the runtime creates them. If a later action references one by ID, that argument MUST use the exact runtime-assigned ID.
+8. **Dual-DB consistency (when both DBs are present).** User-DB identifiers (e.g. device phone number) match an entity on the agent side. User-DB mirrored flags (line-active, roaming-allowed, data-exceeded) reflect the backend value. The user-DB device state must MATCH the symptom the user reports; if a corrective user action toggles a setting, the initial value must be the OPPOSITE of the toggle target (otherwise the action is a no-op).
+9. **Policy-dependent setup.** When the policy requires a specific condition (membership tier, insurance flag, contract date, prior history, eligibility window) for an action to succeed, establish that condition on the targeted entity. If the policy lists alternative conditions, pick one and make it hold.
+10. **Realistic free-parameter values.** When the action sequence has free parameters (default baggage count, insurance flag, payment method choice), pick what an agent would reasonably use given (a) what the user actually says in conversation and (b) policy defaults when the user does not state otherwise. If the task expects a non-default value, the user's instructions must direct the user to state it proactively.
+## Self-Check
+Before emitting JSON, verify: every required collection is present (use `{{}}` for empties); every action-argument ID exists in the DB OR is runtime-created; every "owns" array matches its back-references; every enum value is verbatim from the schema; every required field is non-null; every initial status satisfies its action's precondition; all totals reconcile; (dual-DB) identifiers and mirrored flags agree across both sides; the device state reflects the reported symptom and corrective user actions are not no-ops.
+## Output
+JSON only, top-level keys matching the schema. Use `{{}}` for empty required collections.
+```json
+{{ ...generated DB matching the schema... }}
+```
+Now generate the database initialization:
+{error_context}

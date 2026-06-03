@@ -1,0 +1,174 @@
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{dblfloatfix}
+\usepackage{enumitem}
+\usepackage{fontawesome}
+% \usepackage{fontspec}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{inconsolata}
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym}
+\usepackage{lineno}
+\usepackage{marvosym}
+\usepackage{microtype}
+% \usepackage[protrusion=false]{microtype}
+\microtypesetup{protrusion=false, expansion=false}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage[breakable,most]{tcolorbox}
+\usepackage{textcomp}
+\usepackage{textgreek}
+\usepackage{times}
+\usepackage{titletoc}
+\usepackage{url}
+\usepackage{wasysym}
+\usepackage{wrapfig}
+\usepackage{xcolor}
+% \usepackage{xeCJK}
+\usepackage{xspace}
+\usepackage{xurl}
+
+  
+% These font selection commands work with
+% LuaLaTeX and XeLaTeX, but not pdfLaTeX.
+ % \usepackage[english,bidi=default]{babel} % English as the main language.
+% \babelfont{rm}{TeXGyreTermesX} % similar to Times
+%%% include whatever languages you need below this line
+% \babelprovide[import]{hindi}
+% \babelfont[*devanagari]{rm}{Lohit Devanagari}
+% \babelprovide[import]{arabic}
+% \babelfont[*arabic]{rm}{Noto Sans Arabic}
+
+% \newfontfamily\symbolfont{Noto Serif CJK SC}
+% % % CJK-style corner brackets (useful outside verbatim/listings)
+% \newcommand{\cnli}{{\symbolfont【}}%
+% \newcommand{\cnri}{{\symbolfont】}}%
+% \newcommand{\cnli}{【}%
+% \newcommand{\cnri}{】}%
+
+%  引入 pdfLaTeX 兼容的中文宏包
+\usepackage{CJKutf8}
+
+%  重新定义你的中文括号命令
+\newcommand{\cnli}{\begin{CJK*}{UTF8}{gbsn}【\end{CJK*}}
+\newcommand{\cnri}{\begin{CJK*}{UTF8}{gbsn}】\end{CJK*}}
+
+
+\definecolor{Dodgerblue}{RGB}{30,144,255}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\definecolor{BrickRed}{rgb}{0.8, 0.25, 0.33}
+
+\newcommand{\linkwithlogo}[3]{%
+  \raisebox{-0.35ex}{\includegraphics[height=1em]{#1}}
+\,\,{\small\url{#2}}% 
+  }
+
+\hypersetup{
+  colorlinks=true,
+  citecolor=darkblue,
+  linkcolor=darkblue,
+  urlcolor=darkblue,
+  hypertexnames=false
+}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\hx}[1]{\textcolor{Dodgerblue}{[Hx: #1]}}
+\newcommand{\qx}[1]{\textcolor{BrickRed}{[Qx: #1]}}
+
+
+\definecolor{toolcardbox}{RGB}{237, 236, 255} % Light blue background
+\definecolor{toolcardborder}{RGB}{142, 155, 217} % Purple border
+
+\definecolor{toolcardbox-af}{RGB}{240, 248, 255} % Light blue background
+\definecolor{toolcardborder-af}{RGB}{52, 52, 173} % Purple border
+\newtcolorbox{custombox}[1][]{
+    % float=!h,
+    colback=toolcardbox,
+    colframe=toolcardborder,          
+    % colbacktitle=#2!70!black,      
+    coltitle=white,                
+    arc=1pt,                       
+    boxrule=1pt,
+    fonttitle=\bfseries,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    before skip=1em,
+    after skip=1em,
+    fontupper=\small,               
+    breakable,     
+    width=1.\linewidth, 
+    #1                        
+}
+
+\newcommand{\smalltt}[1]{{\ttfamily\fontsize{8}{10}\selectfont #1}}
+
+\definecolor{failbg}{RGB}{248, 230, 234}      % Light red-gray background
+\definecolor{failframe}{RGB}{214, 95,79}    % Steel red frame
+
+\definecolor{successbg}{RGB}{239, 255, 229}   % - Mint Green
+\definecolor{successframe}{RGB}{134, 163,124}  % - Forest Green
+
+\newtcolorbox{casebox}[3]{
+    % colback=#1!20!white,             
+    % colframe=#1!85!black,    
+    colback=#1,             
+    colframe=#2,    
+    arc=1pt,
+    % colbacktitle=#1!85!black,        
+    coltitle=white,                  
+    fonttitle=\bfseries,         
+    title={#3},                    
+    boxrule=1pt,                   
+    rounded corners,   
+    breakable,
+    fontupper=\small
+}
+
+\newtcblisting{casecode}[1]{%
+  colback=#1,
+  colframe=toolcardbox,
+  arc=1pt,
+  boxrule=0pt,
+  top=-3pt, bottom=0pt,
+  left=3pt, right=3pt,
+  boxsep=0pt,
+  fontupper=\ttfamily\fontsize{8.0}{10}\selectfont,
+  breakable,
+  listing only,
+  listing options={
+    breaklines=true,
+    breakatwhitespace=false,
+    % Allow LaTeX escapes inside listings via (*@ ... @*)
+    escapeinside={(*@}{@*)},
+    basicstyle=\ttfamily\fontsize{8.0}{10}\selectfont
+  }
+}
+
+\newtcblisting{toolcall}[1]{%
+    colback=#1,
+    colframe=toolcardbox,
+    arc=1pt,
+    boxrule=0pt,
+    top=-3pt, bottom=0pt,
+    left=3pt, right=3pt,
+    boxsep=0pt,
+    listing only, 
+    breakable,
+    listing options={
+        basicstyle=\ttfamily\fontsize{8.0}{10}\selectfont,
+        breaklines=true,         
+        breakatwhitespace=false, 
+        columns=flexible,      
+        keepspaces=true,
+        % Allow LaTeX escapes inside listings via (*@ ... @*)
+        escapeinside={(*@}{@*)}
+    }
+}

@@ -1,0 +1,54 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,font=\footnotesize\sffamily]
+  \tikzstyle{actor}=[draw=mindlabfg, very thick, rounded corners=1mm, fill=white]
+  \tikzstyle{box}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=mindlabbluepale!45, align=center, inner sep=4pt]
+  \tikzstyle{store}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=white, align=center, inner sep=4pt]
+  \tikzstyle{slotbox}=[draw=mindlabfg, thick, rounded corners=0.8mm, fill=white, align=center, inner sep=3pt]
+  \tikzstyle{adapter}=[draw=mindlabfg, thick, rounded corners=1mm, align=center, minimum width=0.86cm, minimum height=0.23cm, inner sep=0pt, fill=mindlabfg!8]
+  \tikzstyle{selected}=[draw=mindlabfg, thick, rounded corners=1mm, align=center, font=\scriptsize\sffamily, minimum width=1.14cm, minimum height=0.30cm, inner sep=1.2pt, fill=mindlabblue!38]
+  \tikzstyle{arrow}=[->, very thick, draw=mindlabfg, shorten >=2pt, shorten <=2pt]
+  \tikzstyle{hot}=[->, very thick, draw=hotpath, shorten >=2pt, shorten <=2pt]
+  \tikzstyle{cold}=[->, thick, dashed, draw=coldpath, shorten >=2pt, shorten <=2pt]
+  \tikzstyle{label}=[font=\footnotesize\sffamily, align=center, fill=white, inner sep=1.5pt, text=mindlabfg]
+  \tikzstyle{smalllabel}=[font=\scriptsize\sffamily, align=center, fill=white, inner sep=1.1pt, text=mindlabfg]
+  \tikzstyle{title}=[font=\bfseries\footnotesize\sffamily, align=center, text=mindlabfg]
+  \colorlet{hotpath}{mindlabblue}
+  \colorlet{coldpath}{mindlabline}
+
+  \path[use as bounding box] (0.20,-2.42) rectangle (14.05,2.18);
+
+  \node[box, minimum width=1.92cm, minimum height=0.72cm] (map) at (2.92,0.40) {Serving map\\policy $\to r$};
+
+  \node[actor, minimum width=7.02cm, minimum height=3.70cm] (actor) at (8.53,-0.18) {};
+  \node[title] at (8.53,1.44) {vLLM sampler actor};
+
+  \node[slotbox, minimum width=1.86cm, minimum height=1.28cm] (gpu) at (6.64,0.40) {};
+  \node[smalllabel, anchor=south] at (6.64,1.09) {GPU LoRA slots};
+  \node[adapter] at (6.64,0.72) {};
+  \node[selected] (selected) at (6.64,0.40) {$L_r$};
+  \node[adapter] at (6.64,0.08) {};
+
+  \node[box, minimum width=2.10cm, minimum height=0.76cm] (infer) at (10.30,0.40)
+    {vLLM\\generation};
+  \node[store, minimum width=2.10cm, minimum height=0.78cm] (base) at (10.30,-1.35)
+    {resident\\model};
+  \node[label, anchor=west] (tokens) at (12.54,0.40) {response tokens};
+
+  \node[store, minimum width=1.86cm, minimum height=0.78cm] (warm) at (6.64,-1.35)
+    {CPU adapter\\cache};
+  \node[store, minimum width=2.50cm, minimum height=0.78cm] (catalog) at (2.63,-1.35)
+    {shared adapter\\storage};
+
+  \draw[arrow] (0.62,0.40) -- node[smalllabel, above, pos=0.42] {request} (map.west);
+  \draw[hot] (map.east) -- node[smalllabel, above, yshift=3pt, pos=0.50, text=hotpath] {hit: $L_r$ resident} (gpu.west);
+  \draw[hot] (gpu.east) -- node[smalllabel, above, yshift=3pt, pos=0.50, text=hotpath] {selected $L_r$} (infer.west);
+  \draw[arrow] (base.north) -- (infer.south);
+  \draw[arrow] (infer.east) -- (tokens.west);
+
+  \draw[cold] (catalog.east) -- node[smalllabel, above, pos=0.50, text=coldpath] {fetch $r$} (warm.west);
+  \draw[cold] (warm.north) -- node[smalllabel, right, xshift=6pt, pos=0.44, text=coldpath] {admit $L_r$} (gpu.south);
+
+  \draw[hot, -] (12.42,-1.09) -- (12.88,-1.09);
+  \node[smalllabel, anchor=west, text=hotpath] at (12.94,-1.09) {hot path};
+  \draw[cold, -, dashed] (12.42,-1.61) -- (12.88,-1.61);
+  \node[smalllabel, anchor=west, text=coldpath] at (12.94,-1.61) {cold path};
+\end{tikzpicture}

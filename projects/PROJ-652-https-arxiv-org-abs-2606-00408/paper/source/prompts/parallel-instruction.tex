@@ -1,0 +1,17 @@
+\label{box:parallel-instruction}
+The scaffold appends a model-specific parallel tool-call hint when parallel calls are enabled. A batch is treated as parallel if the model emits more than one function call in the same assistant turn, or if a single \texttt{browser.search} call contains a list of multiple queries (Tongyi DeepResearch).
+
+\begin{custombox}[title=Parallel Tool-Call Instruction]
+\textbf{Generic Instruction.}
+When several function calls are independent, issue them in parallel by outputting multiple consecutive \texttt{<tool\_call>...</tool\_call>} blocks in the same response, one function call per block.
+
+\vspace{6pt}
+
+\textbf{Qwen-Style Instruction.}
+When several function calls are independent, you may issue parallel tool calls by outputting multiple consecutive \texttt{<tool\_call>...</tool\_call>} blocks in the same assistant turn, one function call per block.
+
+\vspace{6pt}
+
+\textbf{DeepSeek-Style Instruction.}
+When several function calls are independent, issue them as multiple parallel tool calls in the same response.
+\end{custombox}

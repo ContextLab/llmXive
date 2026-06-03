@@ -1,0 +1,32 @@
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Hot-reload and readiness measurements on the MinT serving path. Admission protects old warm tenants by moving cold activation into a scheduled path; two-phase readiness exposes new adapters only after activation, so zero load time applies to ready-path user requests rather than registration time.}
+\label{tab:mint-serving-readiness}
+\fittowidth{%
+\begin{tabular}{@{}M{3.0cm}M{3.4cm}M{4.6cm}M{3.4cm}@{}}
+\toprule
+\apphead Policy & Existing warm traffic & New-adapter path & Interpretation \\
+\midrule
+\appgroup{4}{Expose before readiness}
+\appkey{Admission off}
+& post TTFT p95 24.03\,s; $>$20\,s stalls: 10
+& e2e p95 59.18\,s; user TTFT p95 22.19\,s; load p95 47.37\,s
+& Fast exposure, but cold first-touch disrupts warm tenants. \\
+\addlinespace[3pt]
+\appkey{Admission on}
+& post TTFT p95 9.71\,s; $>$20\,s stalls: 0
+& e2e p95 314.79\,s; user TTFT p95 10.68\,s; load p95 294.96\,s
+& Admission protects warm tenants, but new users wait behind activation. \\
+\addlinespace[3pt]
+\appgroup{4}{Expose after readiness}
+\appkey{Two-phase readiness}
+& post TTFT p95 9.63\,s; $>$20\,s stalls: 0
+& ready-path TTFT p95 4.60\,s; load p95 0.00\,s; prewarm span 409.04\,s
+& First user requests arrive after activation, so they do not load adapters. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

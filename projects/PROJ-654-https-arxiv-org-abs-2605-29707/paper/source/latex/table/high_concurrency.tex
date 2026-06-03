@@ -1,0 +1,145 @@
+\begin{table}[t]
+\centering
+\caption{High-concurrency throughput on Qwen3 models. Baseline rows report absolute throughput in TPS. Other entries report TPS with green subscripts indicating speedup over the corresponding baseline.}
+\label{tab:high-concurrency-tps}
+\resizebox{\columnwidth}{!}{
+\scriptsize
+\setlength{\tabcolsep}{2.0pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{l l r@{}l r@{}l r@{}l r@{}l r@{}l}
+\toprule
+\multirow{2}{*}{Task}
+& \multirow{2}{*}{Method}
+& \multicolumn{10}{c}{Concurrency} \\
+\cmidrule(lr){3-12}
+& & 2 & & 4 & & 8 & & 16 & & 32 & \\
+\midrule
+
+\multicolumn{12}{l}{\textbf{Qwen3-4B}} \\
+\midrule
+
+\multirow{5}{*}{GSM8K}
+& Baseline
+& 293 & & 557 & & 1079 & & 1884 & & 2868 & \\
+& EAGLE-3 (16)
+& 453 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.5\times}}}
+& 832 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.5\times}}}
+& 1375 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.3\times}}}
+& 1839 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.0\times}}}
+& 2170 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.8\times}}} \\
+& EAGLE-3 (60)
+& 458 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.6\times}}}
+& 683 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.2\times}}}
+& 896 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.8\times}}}
+& 1040 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.6\times}}}
+& 1133 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.4\times}}} \\
+& DFlash (16)
+& 965 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.3\times}}}
+& 1698 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.0\times}}}
+& 2738 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.5\times}}}
+& 3538 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.9\times}}}
+& 4397 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.5\times}}} \\
+& \textbf{\textsc{Domino} (16)}
+& \textbf{1256} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{4.3\times}}}
+& \textbf{2202} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{4.0\times}}}
+& \textbf{3441} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.2\times}}}
+& \textbf{4467} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.4\times}}}
+& \textbf{5509} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.9\times}}} \\
+
+\cmidrule(lr){1-12}
+
+\multirow{5}{*}{MBPP}
+& Baseline
+& 291 & & 544 & & 1002 & & 1586 & & 2300 & \\
+& EAGLE-3 (16)
+& 407 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.4\times}}}
+& 740 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.4\times}}}
+& 1186 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.2\times}}}
+& 1597 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.0\times}}}
+& 1892 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.8\times}}} \\
+& EAGLE-3 (60)
+& 414 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.4\times}}}
+& 610 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.1\times}}}
+& 793 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.8\times}}}
+& 899 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.6\times}}}
+& 987 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.4\times}}} \\
+& DFlash (16)
+& 914 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.1\times}}}
+& 1650 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.0\times}}}
+& 2501 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.5\times}}}
+& 3330 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.1\times}}}
+& 4088 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.8\times}}} \\
+& \textbf{\textsc{Domino} (16)}
+& \textbf{968} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.3\times}}}
+& \textbf{1654} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.0\times}}}
+& \textbf{2651} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.6\times}}}
+& \textbf{3422} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.2\times}}}
+& \textbf{4290} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.9\times}}} \\
+
+\midrule
+\multicolumn{12}{l}{\textbf{Qwen3-8B}} \\
+\midrule
+
+\multirow{5}{*}{GSM8K}
+& Baseline
+& 184 & & 360 & & 655 & & 1143 & & 1713 & \\
+& EAGLE-3 (16)
+& 324 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.8\times}}}
+& 598 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.7\times}}}
+& 979 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.5\times}}}
+& 1276 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.1\times}}}
+& 1398 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.8\times}}} \\
+& EAGLE-3 (60)
+& 330 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.8\times}}}
+& 482 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.3\times}}}
+& 577 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.9\times}}}
+& 624 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.5\times}}}
+& 699 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.4\times}}} \\
+& DFlash (16)
+& 672 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.7\times}}}
+& 1243 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.4\times}}}
+& 1915 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.9\times}}}
+& 2533 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.2\times}}}
+& 2801 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.6\times}}} \\
+& \textbf{\textsc{Domino} (16)}
+& \textbf{942} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{5.1\times}}}
+& \textbf{1703} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{4.7\times}}}
+& \textbf{2678} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{4.1\times}}}
+& \textbf{3379} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.0\times}}}
+& \textbf{3650} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.1\times}}} \\
+
+\cmidrule(lr){1-12}
+
+\multirow{5}{*}{MBPP}
+& Baseline
+& 183 & & 352 & & 635 & & 1076 & & 1428 & \\
+& EAGLE-3 (16)
+& 290 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.6\times}}}
+& 525 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.5\times}}}
+& 886 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.4\times}}}
+& 1180 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.1\times}}}
+& 1291 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.9\times}}} \\
+& EAGLE-3 (60)
+& 293 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.6\times}}}
+& 438 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{1.2\times}}}
+& 525 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.8\times}}}
+& 574 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.5\times}}}
+& 631 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{0.4\times}}} \\
+& DFlash (16)
+& 649 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.6\times}}}
+& 1169 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.3\times}}}
+& 1889 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.0\times}}}
+& 2487 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.3\times}}}
+& 2800 & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.0\times}}} \\
+& \textbf{\textsc{Domino} (16)}
+& \textbf{701} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.8\times}}}
+& \textbf{1256} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.6\times}}}
+& \textbf{2035} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{3.2\times}}}
+& \textbf{2727} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.5\times}}}
+& \textbf{3027} & \textcolor{green!45!black}{\scriptsize\ensuremath{_{2.1\times}}} \\
+
+\bottomrule
+\end{tabular}
+}
+\vspace{-2mm}
+\end{table}

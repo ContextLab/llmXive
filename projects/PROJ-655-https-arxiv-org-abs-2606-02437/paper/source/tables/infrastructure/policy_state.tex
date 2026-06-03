@@ -1,0 +1,25 @@
+\begin{table}[ht]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.20}
+\caption{MinT separates policy identity from temporary compute residency.}
+\label{tab:mint-policy-state}
+\fittowidth{%
+\begin{tabular}{@{}M{2.6cm}M{5.4cm}M{5.4cm}@{}}
+\toprule
+\apphead State object & What it stores & Why it matters for PEFT scaling \\
+\midrule
+\appkey{Base deployment}    & A resident dense or MoE foundation model. & Keeps the expensive shared prior loaded while many adapters change around it. \\
+\addlinespace[2pt]
+\appkey{Policy record}      & Base version, LoRA rank, target modules, checkpoints, rollout records, and exported revisions. & Makes an adapted behavior resumable, auditable, and rollbackable. \\
+\addlinespace[2pt]
+\appkey{Policy session}     & A temporary trainer restoration with adapter tensors, optimizer moments, scheduler position, gradients, and rollout metadata. & Allows time-sliced multi-LoRA training without duplicating the base model. \\
+\addlinespace[2pt]
+\appkey{Adapter revision}   & A fixed exported PEFT adapter in serving tensor layout. & Defines the behavior selected by rollout, evaluation, serving, and rollback. \\
+\addlinespace[2pt]
+\appkey{Serving residency}  & Whether an adapter is in shared storage, CPU cache, or a GPU batch slot. & Lets a large catalog remain addressable while only a bounded working set is active. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

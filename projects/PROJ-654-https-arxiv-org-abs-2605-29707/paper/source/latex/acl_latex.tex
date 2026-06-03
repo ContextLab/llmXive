@@ -1,0 +1,191 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\definecolor{linkpink}{RGB}{236, 64, 122}
+\definecolor{lightgraybg}{RGB}{238,238,238}
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{float}
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+\newcommand{\tpssp}[2]{#1{\textcolor{green!45!black}{\scriptsize$_{#2\times}$}}}
+\newcommand{\btpssp}[2]{\textbf{#1}{\textcolor{green!45!black}{\scriptsize$_{#2\times}$}}}
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{cuted}
+\usepackage{capt-of}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+\newcommand{\method}{\textsc{Domino}}  % 换成你的方法名
+\newcommand{\tabsmall}{\scriptsize}
+\newcommand{\secondarycolor}[1]{\textcolor{gray}{#1}}
+\usepackage[table]{xcolor} % 这一句会自动加载 colortbl 并支持 gray!15 这种写法
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+\author{
+\begin{tabular}{c@{\hspace{1.2em}}c@{\hspace{1.2em}}c@{\hspace{1.2em}}c}
+\textbf{Jianuo Huang}\textsuperscript{1,2*} &
+\textbf{Yaojie Zhang}\textsuperscript{1,3*} &
+\textbf{Qituan Zhang}\textsuperscript{4} \\
+\textbf{Hao Lin}\textsuperscript{2} &
+\textbf{Hanlin Xu}\textsuperscript{5} &
+\textbf{Linfeng Zhang}\textsuperscript{1\textdagger}
+\end{tabular}
+\\[0.5em]
+\textsuperscript{1}EPIC Lab, Shanghai Jiao Tong University \quad
+\textsuperscript{2}School of Software Engineering, HUST \\
+\textsuperscript{3}UESTC
+\quad
+\textsuperscript{4}Fudan University \quad
+\textsuperscript{5}Huawei
+\\[0.3em]
+\textsuperscript{*}Equal contribution. \quad
+\textsuperscript{\textdagger}Corresponding author.
+}
+
+
+
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+
+% \vspace{-50mm}
+% \begin{strip}
+%   \centering
+%   \includegraphics[width=0.98\textwidth]{latex/figure/speedup.pdf}
+%   \captionof{figure}{
+%   Speedup comparison on Qwen3-8B across representative math, code, and chat benchmarks. 
+%   \textsc{Domino} consistently outperforms EAGLE-3, DART, and DFlash.
+%   }
+%   \label{fig:domino_intro}
+%   \vspace{-4mm}
+% \end{strip}
+
+\begin{abstract}
+\input{latex/sec/1abstract}
+\end{abstract}
+\vspace{-4mm}
+\section{Introduction}
+\input{latex/sec/2introduction}
+\section{Related Work}
+\input{latex/sec/3related_work}
+\section{Preliminaries}
+\input{latex/sec/4Preliminaries}
+\section{Methodology}
+
+\input{latex/sec/5method}
+\input{latex/table/main_result}
+\section{Experiments}
+\input{latex/sec/6experiment}
+
+\section{Conclusion}
+\input{latex/sec/7conclusion}
+\section{Limitations}
+This work focuses on inference acceleration rather than reducing the cost of model training or finetuning.
+Our current implementation is mainly adapted to SGLang, and its compatibility with other serving frameworks remains to be systematically evaluated.
+Moreover, the practical speedup can vary across hardware platforms due to differences in memory bandwidth, compute capability, and kernel efficiency.
+As a result, further platform-specific optimization may be needed for deployment in different environments.
+
+\newpage
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{anthology,custom}
+% Custom bibliography entries only
+\bibliography{custom}
+
+\appendix
+
+\section{Appendix}
+\label{sec:appendix}
+\input{latex/sec/appendix}
+
+
+\end{document}

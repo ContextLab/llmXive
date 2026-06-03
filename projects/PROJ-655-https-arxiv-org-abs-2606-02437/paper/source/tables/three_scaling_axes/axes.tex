@@ -1,0 +1,21 @@
+\begin{table}[tbp]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.20}
+\caption{The three scaling axes of PEFT in the latest thesis outline.}
+\label{tab:axes}
+\fittowidth{%
+\begin{tabular}{@{}M{2.6cm}M{4.6cm}M{6.4cm}@{}}
+\toprule
+\apphead Axis & Description & Function \\
+\midrule
+\appkey{Scale Up}   & Increase the capability of the shared prior. & Makes small updates high leverage by providing richer latent structure to adapt. \\
+\addlinespace[2pt]
+\appkey{Scale Down} & Reduce the marginal cost and instability of adaptation. & Makes repeated learning, storage, and serving feasible for many instances. \\
+\addlinespace[2pt]
+\appkey{Scale Out}  & Increase the number and diversity of persistent adapters. & Enables personalization, population diversity, and emergent population-level behavior. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

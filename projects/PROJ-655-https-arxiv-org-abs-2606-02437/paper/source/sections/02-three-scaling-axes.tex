@@ -1,0 +1,19 @@
+\section{The Three Scaling Axes of PEFT}\label{sec:three-axes}
+
+\pony{PEFT scales along three coupled axes because a personal model instance is both a learning problem and a systems object. Scale Up asks how strong the shared base model must be before small local updates become high leverage. Scale Down asks how small, stable, and repeatedly writable the local adaptive state can become. Scale Out asks what becomes possible when many persistent adapted instances can be trained, served, evaluated, and governed over time.}
+
+\begin{enumerate}
+    \item \pony{\textbf{Scale Up}: a stronger shared base model gives each small adapter more latent capability to redirect.}
+    \item \pony{\textbf{Scale Down}: a smaller and stabler adaptive state lowers the marginal cost of repeated learning.}
+    \item \pony{\textbf{Scale Out}: low marginal cost allows personalization to expand from isolated adapters to populations of persistent model instances.}
+\end{enumerate}
+
+\pony{The dependencies also define failure cases. Scale Up without Scale Down produces powerful priors that remain too expensive to adapt continuously. Scale Down without Scale Up produces cheap adapters with limited capability to specialize. Scale Out without both produces many weak or disposable variants rather than durable personal models. The thesis of this paper is that PEFT becomes transformative only when the three axes reinforce one another.}
+
+\pony{The axes support the three visions in sequence. For individuals, they make repeated personalization plausible: a strong base model supplies broad competence, a local adapter stores part of the learned behavioral state, and lifecycle infrastructure keeps the instance persistent. For user simulation and agent environments, they make it possible for simulated users to preserve stable preferences, goals, memories, and constraints across interactions. For collective intelligence, they make diversity among adapted policies measurable and usable through voting, routing, debate, or distillation.}
+
+\pony{Long-term memory is where the three axes meet most clearly. Context and retrieval remain essential, but a personal model also needs some learned state that persists beyond the current prompt. The adapter should not become a raw archive of the user's history. Instead, it should carry part of the behavioral consequences of repeated experience, while editable facts and documents remain in external memory. This distinction keeps the claim precise: PEFT is a mechanism for local adaptive state, not a complete memory system.}
+
+\pony{The axes also correspond to three kinds of evidence used in this manuscript. Scale Up is grounded in trillion-parameter LoRA RL and the infrastructure needed to make large priors trainable. Scale Down is grounded in LoRA rank, initialization, and hyperparameter studies that ask how little trainable state can still learn reliably. Scale Out is grounded in memory, agent, user-simulation, and aggregation settings where the number and diversity of persistent adapted instances become objects of scaling.}
+
+\input{tables/three_scaling_axes/axes.tex}

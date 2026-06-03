@@ -1,0 +1,21 @@
+\section{Conclusion}
+\label{sec:discussion}
+
+\paragraph{Context management is a regime-dependent tool, not a default.}
+Our investigation reveals that the utility of observation masking is strictly governed by the system's baseline capability. It thrives in the intermediate sweet spot where enhanced retrieval recall outpaces a model's intrinsic noise-filtering capacity. Outside this mismatched regime, masking either lacks the evidence to expose (with weak retrievers) or risks discarding critical information that capable models could otherwise exploit (with saturated models). Therefore, context management cannot be treated as an isolated, default baseline; it must be jointly calibrated with retriever recall and model capacity. Ultimately, we hope this multi-regime analytical framework paves the way for evaluating broader context management strategies, providing a holistic blueprint for the design of next-generation agentic systems.
+
+\section*{Acknowledgement} 
+We sincerely thank Dr. Kun Zhou for constructive suggestions regarding the analysis section and Dr. Caiming Xiong for critical suggestions concerning the overall narrative of the final manuscript.
+
+\section*{Limitations} 
+While our findings remain robust across benchmarks, several boundaries define this work. First, we deliberately isolate a minimal turn-based observation masking policy. As a diagnostic instrument, this leaves open whether learned, attention-guided, or semantic-adaptive policies could preserve gains from the model-retriever mismatch regime while avoiding model-saturated collapse.
+Second, our model coverage is broad but not exhaustive. Due to computation, inference, and attention analysis constraints, we evaluate open-weight backbones from 4B to 284B parameters, but omit frontier proprietary models.
+Finally, our regime framework is descriptive rather than predictive. Its replication on live-web benchmarks suggests that the pattern is not specific to BrowseComp-Plus, but future work should test whether the same boundaries hold under different scaffolds, downstream tasks like SWE code localization, and alternative retrieval interfaces.
+
+\section*{Ethical Considerations}
+The design and deployment of optimized context management for agentic search systems present several ethical considerations. 
+
+First, by enhancing the efficiency of budget-constrained models through adaptive history compression, our framework lowers the barrier for complex, long-horizon web research; while democratizing AI, this could potentially be exploited to scale the automated generation of low-quality or misleading content at a lower cost. 
+Second, context management risks inadvertently suppressing subtle but critical context—such as ethical disclaimers or edge-case safety warnings—which may cause downstream outputs to reinforce the model's inherent biases embedded within the remaining explored or self-generated context. 
+Third, it is critical to note that while our framework eliminates external context noise, it cannot mitigate intrinsic hallucinations or reasoning failures stemming from the backbone model's own architectural limitations. 
+Consequently, high benchmark performance does not equate to absolute reliability in high-stakes domains (e.g., medicine, law, or finance). Our strategies are designed to augment human-in-the-loop analysis rather than replace human oversight, and domain-specific validation remains essential.

@@ -1,0 +1,150 @@
+\pdfoutput=1
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2025_conference}
+\iclrfinalcopy
+
+\makeatletter
+\def\ps@headings{%
+  \def\@oddhead{%
+    \vbox to 0pt{%
+      \vss
+      \hbox to \textwidth{\small\scshape Preprint \hfill}% Odd  Preprint
+      \vskip 2pt
+      \hrule height 0.4pt width \textwidth% Odd  rule
+      \vskip -6pt
+    }%
+  }%
+  \def\@evenhead{%
+    \vbox to 0pt{%
+      \vss
+      \hbox to \textwidth{\small\scshape Preprint \hfill}% Even  Preprint
+      \vskip 2pt
+      \hrule height 0.4pt width \textwidth% Even  rule
+      \vskip -6pt
+    }%
+  }%
+  \def\@oddfoot{\hfil\thepage\hfil}
+  \def\@evenfoot{\hfil\thepage\hfil}
+}
+
+\def\ps@titlepage{%
+  \def\@oddhead{%
+    \vbox to 0pt{%
+      \vss
+      \hbox to \textwidth{\small\scshape Preprint \hfill}%
+      \vskip 2pt
+      \hrule height 0.4pt width \textwidth
+      \vskip -6pt
+    }%
+  }%
+  \def\@evenhead{\hfill}%
+  \def\@oddfoot{\hfil\thepage\hfil}%
+  \def\@evenfoot{\hfil\thepage\hfil}%
+}
+\makeatother
+
+\pagestyle{headings}
+
+\input{math_commands.tex}
+\input{preamble.tex}
+
+
+\title{\textbf{Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism}}
+
+
+\author{
+    \hspace{-3pt}\textbf{Haoxiang Zhang}$^{1*\natural}$, 
+    \textbf{Qixin Xu}$^{2*\natural}$, 
+    \textbf{Zhuofeng Li}$^{3\natural}$, 
+    \textbf{Lei Zhang}$^{1\natural}$ \\
+    \textbf{Pengcheng Jiang}$^{4}$, 
+    \textbf{Yu Zhang}$^{3\sharp}$, 
+    \textbf{Julian McAuley}$^{1\sharp}$ \\
+    \vspace{-1em} \\
+    $^1$UC San Diego
+    $^2$UC Berkeley
+    $^3$Texas A\&M University
+    $^4$UIUC
+    \vspace{0em} \\
+    \texttt{haz140@ucsd.edu, qixin.xu@berkeley.edu, zhuofengli@tamu.edu}
+    \vspace{-1em}
+    % \texttt{qixin\_xu@berkeley.edu} \\
+    % \texttt{\{zhuofengli, yuzhang\}@tamu.edu} \quad
+    % \texttt{pjiang6@illinois.edu}
+    % \\ 
+    % \raisebox{-0.15ex}{\includegraphics[width=0.9em]{logos/github.png}}
+    % \,\href{https://github.com/i-DeepSearch/observation-masking}{\texttt{Code}} \\
+}
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn} 
+\maketitle
+\thispagestyle{titlepage} 
+
+\begin{abstract}
+\vspace{0em}
+Long-horizon search agents accumulate large amounts of retrieved content across many tool calls, making context-budget efficiency increasingly important.
+A minimal intervention is to mask stale observations from the context as the trajectory progresses, but it remains unclear when this form of context management helps and why.
+We study observation masking through a systematic sweep over various agent backbones (4B to 284B parameters) and three retrievers on offline and live-web agentic search benchmarks.
+We find that the accuracy gain from masking follows an asymmetric inverted-U shape when plotted against the model's accuracy without context management: a plateau under weak retrievers, a peak when a strong retriever meets a mid-capacity model, and a sharp collapse when the model is saturated.
+This pattern reflects the interaction between retriever recall and the model's implicit filtering capacity, rather than either factor in isolation.
+Mechanistically, masking implements a token-for-turn trade-off: it removes observations the model has largely stopped attending to and pages the agent rarely re-opens.
+The added turns help when they convert failures into successes, but they fail when masking removes evidence the model would otherwise have used.
+We therefore reframe context management as a regime-dependent intervention and provide a holistic perspective for analyzing context use in agentic deep search. 
+We release our scaffold and trajectories here \raisebox{-0.15ex}{\includegraphics[width=0.9em]{logos/github.png}}
+    \,\href{https://github.com/i-DeepSearch/observation-masking}{\texttt{Code}} to support future research. 
+
+\renewcommand*\thefootnote{}
+\footnotetext{
+    *Equal contribution.
+    $^{\natural}$Core contributors. 
+    $^{\sharp}$Co-senior authors. 
+}
+\end{abstract}
+
+\begin{figure*}[hb]
+    \centering
+    \begin{minipage}[b]{0.53\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/teaser.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.46\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/snr_auc.png}
+    \end{minipage}
+    \vspace{-1.5em}
+    \caption{\small
+    \textbf{Left}: Observation masking exhibits three context management (CM) regimes. CM adds little in the \textit{Retriever bottleneck plateau} due to little answer-supporting evidence. CM is most efficient in the \textit{Middle} as it strips away evidence that the model cannot yet filter from noise, and collapses when \textit{Model Saturated} due to evicting crucial signals. 
+    \textbf{Right}: CM helps when the signal is sparse, and the input is complex. Each point represents a sampled No-CM input prefix. The x-axis is the first principal component over input trace features, where increasing values capture greater complexity; the y-axis is the normalized fitted SNR. Green and red dots denote CM-rescued and unchanged cases, respectively. \textit{Saturated models} exhibit more separable rescue subsets. Whereas, the \textit{retriever bottleneck} weakens the baseline signal, sharply suppressing this separability.}
+    \label{fig:teaser}
+\end{figure*}
+
+\input{sections/1_intro}
+\input{sections/2_method}
+% \input{sections/3_analysis}
+\input{sections/4_exp}
+\input{sections/5_details}
+\input{sections/3_related}
+\input{sections/6_conclusion}
+
+\bibliography{custom}
+\bibliographystyle{iclr2025_conference}
+
+\clearpage
+{
+\section*{Appendix Contents} 
+\addvspace{-6pt}            
+\startcontents[appendix]
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{3pt}
+\parsep=2pt
+\itemsep=2pt
+\printcontents[appendix]{}{1}{\addvspace{-1pt}} 
+}
+\clearpage
+\appendix
+\input{sections/z_appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{CJK*}
+\end{document}

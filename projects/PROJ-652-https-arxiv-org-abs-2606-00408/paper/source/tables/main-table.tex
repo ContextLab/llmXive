@@ -1,0 +1,91 @@
+% =====================================================
+% Main combined table -- left and right side-by-side
+% =====================================================
+\begin{table*}[t]
+\centering
+% \small
+\fontsize{8.75pt}{10pt}\selectfont
+% \fontsize{8pt}{9pt}\selectfont
+\setlength{\tabcolsep}{3pt}
+
+% ----- Left: BCP main table -----
+\begin{minipage}[t]{0.56\linewidth}
+\centering
+\renewcommand{\arraystretch}{1.04}%
+\scalebox{0.76}{
+\begin{tabular}{ll c c c c}
+\toprule
+Retriever & Model
+  & Acc. (\%)$^\uparrow$
+  & Recall$^\uparrow$
+  & $\Delta$ calls/q$^\downarrow$
+  & $\Delta$Acc.$^\uparrow$ \\
+\midrule
+\multirow{4}{*}{BM25}
+  & Qwen3.5-4B          & $29.9^\dagger$/23.6 & 0.44 & 48.8 & \cellcolor{green!31}+6.3 \\
+  & Qwen3.5-9B          & $35.5^\dagger$/28.9 & 0.49 & 32.7 & \cellcolor{green!33}+6.6 \\
+  & GPT-OSS-20B         & $38.9^\dagger$/32.7 & 0.54 & 35.9 & \cellcolor{green!31}+6.2 \\
+  & Qwen3.6-35B-A3B        & $48.2^\dagger$/45.5                  & 0.47   & 40.2   & \cellcolor{green!5.4}+2.7 \\
+\midrule
+\multirow{4}{*}{Qwen3-8B}
+  & Qwen3.5-4B          & $47.7^\dagger$/41.9 & 0.62 & 29.7 & \cellcolor{green!19}+5.8 \\
+  & Qwen3.5-9B          & $55.7^\dagger$/46.1 & 0.72 & 26.2 & \cellcolor{green!47.5}\textbf{+9.6} \\
+  & GPT-OSS-20B         & $53.7^\dagger$/48.0                  & 0.75   & 91.6   & \cellcolor{green!26}+5.7 \\
+  & Qwen3.6-35B-A3B        & $66.3^\dagger$/55.9                  & 0.86   & 35.5   & \cellcolor{green!42}\textbf{+10.4} \\
+\midrule
+\multirow{9}{*}{AgentIR-4B}
+  & Qwen3.5-4B          & $58.9^\dagger$/48.1 & 0.79 & 32.3 & \cellcolor{green!54}\textbf{+10.8} \\
+  & Qwen3.5-9B          & $63.0^\dagger$/54.9 & 0.80 & \textbf{20.3} & \cellcolor{green!44}\textbf{+8.1}  \\
+  & Qwen3.5-35B-A3B     & $74.6^\dagger$/62.9 & 0.88 & 53.5 & \cellcolor{green!58}\textbf{+11.7} \\
+  & GPT-OSS-20B         & $73.3^\dagger$/63.3 & 0.90 & 74.3 & \cellcolor{green!50}\textbf{+10.0} \\
+& OpenResearcher-30B-A3B  & $71.2^\dagger$/68.6 & 0.87 & 36.6 & \cellcolor{green!14}+2.6  \\
+  & Qwen3.6-35B-A3B     & $76.2^\dagger$/72.5 & 0.88 & 21.4 & \cellcolor{green!18}+3.7  \\
+  & GPT-OSS-120B        & $79.5^\dagger$/79.4 & 0.92 & 68.7 & \cellcolor{gray!10}+0.1  \\
+  & DS-V4-Flash-Max    & $\textbf{84.3}^\dagger$/80.5 & \textbf{0.93} & 57.7 & \cellcolor{green!19}+3.8  \\
+  & Tongyi-DeepResearch & $79.6^\dagger$/\textbf{80.7} & \textbf{0.93} & 48.3 & \cellcolor{red!11}-1.1 \\
+\bottomrule
+\end{tabular}
+}
+\end{minipage}\hfill
+% ----- Right: cross-benchmark validation -----
+\begin{minipage}[t]{0.43\linewidth}
+\centering
+\renewcommand{\arraystretch}{1.1}%
+\scalebox{0.76}{
+\begin{tabular}{l c c c}
+\toprule
+Model & Acc. (\%)$^\uparrow$ & $\Delta$ calls/q$^\downarrow$ & $\Delta$Acc.$^\uparrow$ \\
+\midrule
+\multicolumn{4}{c}{\textbf{GAIA}} \\
+\midrule
+Qwen3.5-4B      & $55.3^\dagger$/53.4                 & 16.3   & \cellcolor{green!9}+1.9 \\
+Qwen3.5-9B      & $55.3^\dagger$/50.5 & {5.1} & \cellcolor{green!24}\textbf{+4.8} \\
+GPT-OSS-120B    &  $68.0^\dagger$/72.8 & \textbf{0.0}  & \cellcolor{red!25}-4.8 \\
+DS-V4-Flash-Max & $\textbf{83.5}^\dagger$/\textbf{83.5} & {5.1} & \cellcolor{gray!10}+0.0 \\
+\midrule
+\multicolumn{4}{c}{\textbf{xBench-DeepSearch}} \\
+\midrule
+Qwen3.5-4B      & $69.0^\dagger$/66.0                   & 7.91   & \cellcolor{green!15}+3.0 \\
+Qwen3.5-9B      & $70.0^\dagger$/63.0 & \textbf{3.9} & \cellcolor{green!21}+7.0 \\
+GPT-OSS-120B    & $78.0^\dagger$/70.0 & 33.8 & \cellcolor{green!16}\textbf{+8.0} \\
+DS-V4-Flash-Max & $\textbf{90.0}^\dagger$/\textbf{89.0} & 4.5 & \cellcolor{green!5}+1.0 \\
+\midrule
+\multicolumn{4}{c}{\textbf{BrowseComp-ZH}} \\
+\midrule
+Qwen3.5-4B      & $31.8^\dagger$/28.4  & {20.1}   & \cellcolor{green!17}\textbf{+3.4} \\
+Qwen3.5-9B      & $34.3^\dagger$/31.5   & \textbf{12.4}               & \cellcolor{green!14} +2.8  \\
+GPT-OSS-120B    & $40.1^\dagger$/37.7   & 48.6   & \cellcolor{green!12}+2.4 \\
+DS-V4-Flash-Max & $\textbf{73.4}^\dagger$/\textbf{73.4}  & 30.3   & \cellcolor{gray!10} +0.0 \\
+\bottomrule
+\end{tabular}
+}
+\end{minipage}
+
+\caption{
+\textbf{The regime map of observation masking.}
+\textbf{Left:} BrowseComp-Plus results across model--retriever pairs, reporting accuracy (Acc.) with and without CM, retriever recall under CM with respect to the gold documents, the additional tool calls per query induced by CM ($\Delta$ calls/q), and the accuracy gain from CM ($\Delta$Acc.). Accuracy values marked with $^\dagger$ are evaluated with stale-observation masking; \textbf{bold} indicates $\Delta\text{Acc.} \geq 8.0$ and the best value in each remaining column. The largest $\Delta$Acc. values occur when less capable models are paired with strong retrievers, while the gains decay sharply once No-CM accuracy is sufficiently high.
+\textbf{Right:} The same $\Delta$Acc. trend evaluated on three additional benchmarks: GAIA, xBench, and BrowseComp-ZH.
+}
+    \vspace{-1em}
+\label{tab:main}
+\end{table*}

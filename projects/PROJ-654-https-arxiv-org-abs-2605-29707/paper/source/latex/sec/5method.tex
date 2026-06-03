@@ -1,0 +1,99 @@
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=1.0\linewidth]{latex/figure/domino_pipefigure.pdf}
+    \caption{
+    Overview of Domino. 
+    The parallel backbone produces hidden states for the whole draft block in one forward pass. 
+    The Domino head sequentially updates a causal state from previously sampled draft tokens and generates correction logits \(c_i\), which refine the base logits \(l_i\). 
+    Each draft token is sampled from the final logits \(l_i+c_i\).
+    }
+  \label{fig:pipe_figure}
+\end{figure*}
+
+\subsection{Architecture of Domino}
+\label{sec:model_structure}
+Figure~\ref{fig:pipe_figure} gives an overview of Domino. Our method contains two components: a parallel draft backbone and a \emph{Domino head}. The parallel draft backbone generates preliminary distributions for all positions in the draft block in a single parallel computation. The Domino head then refines these preliminary distributions by propagating causal information across draft positions.
+
+\subsubsection{Parallel Draft Backbone}
+We instantiate the parallel draft backbone with the DFlash architecture \citep{chen2026dflash}, which generates block-level draft representations from target context features and masked block inputs. Given a verified prefix \(x_{\le t}\), we use the last verified token \(x_t\) as the anchor and construct a masked draft block
+\[
+\tilde{x}_{t:t+B-1}
+=
+[x_t, \texttt{[MASK]}, \ldots, \texttt{[MASK]}],
+\]
+where the remaining \(B-1\) positions correspond to future draft tokens. The backbone takes the target-model context features \(C_t\) extracted from the verified prefix and the embeddings of the masked draft block as input, and produces block-level hidden states in one non-autoregressive forward pass:
+\[
+H_{t:t+B-1}
+=
+\mathrm{Backbone}
+\left(
+C_t,\,
+\mathrm{Embed}(\tilde{x}_{t:t+B-1})
+\right).
+\]
+The preliminary logits for future positions are computed by applying the frozen target LM head:
+\[
+L_i^{\mathrm{base}} = \mathrm{LMHead}(H_i),
+\quad i=t+1,\ldots,t+B-1,
+\]
+where \(\mathrm{LMHead}\) denotes the LM head of the target model.
+The parallel backbone produces hidden representations for the entire draft block in parallel, from which base logits are computed using the target LM head.
+
+\subsubsection{Domino Head}
+
+The Domino head injects causal information into the parallel base logits. It contains a causal encoder and a low-rank correction head.
+
+\paragraph{Causal Encoder.}
+For each draft position \(i\), we use a lightweight GRU to summarize the embeddings of preceding draft tokens \citep{cho2014learning}. Let \(E_j\) denote the token embedding at position \(j\). The causal state before predicting position \(i\) is
+\[
+S_{i-1} = \mathrm{GRU}(E_{\le i-1}),
+\]
+where \(S_{i-1} \in \mathbb{R}^{d_s}\) represents the prefix-dependent information available to position \(i\). In practice, the GRU is lightweight; in our implementation, we use a hidden dimension of 1024. This causal state allows later draft positions to receive information from earlier draft tokens without invoking a full autoregressive draft model.
+
+\paragraph{Low-Rank Correction Head.}
+Given the base representation \(H_i\) and causal state \(S_{i-1}\), the Domino head produces a logit-space residual correction through a low-rank bottleneck:
+\[
+\Delta L_i
+=
+W_2 \, \sigma\!\left(W_1 [H_i; S_{i-1}]\right),
+\]
+where \(W_1\) projects the concatenated representation into a low-rank hidden space of dimension \(r\), \(W_2\) maps the low-rank representation to the vocabulary space, and \(\sigma\) is the SiLU activation. The final draft logits are then computed as
+\[
+L_i = L_i^{\mathrm{base}} + \Delta L_i.
+\]
+In our implementation, \(r=256\). Since the correction is computed from a low-rank hidden space, it is much cheaper than repeatedly applying a full LM head in an autoregressive draft loop.
+
+We apply correction in logit space rather than hidden space. A hidden-space correction would require applying the full LM head again after each causal update, reintroducing the expensive full-head computation into the sequential branch. In contrast, our logit-space correction keeps the base LM-head computation parallel and restricts the causal branch to a low-rank residual update.
+
+\subsection{Training}
+\label{sec:training}
+We describe two training choices for Domino, each addressing a different failure mode.
+\paragraph{Teacher-Forced Causal Encoding.}
+The causal encoder consumes the preceding draft tokens within the current block. A natural choice is to feed it self-generated prefixes during training, following the training-time testing (TTT) strategy used in EAGLE-3 \citep{li2025eagle3}, which simulates multi-step draft generation during training. Instead, we use teacher forcing and feed the encoder ground-truth token embeddings.
+
+There are two reasons for this choice. First, self-generated prefixes can be noisy and often incorrect, especially early in training. Supervising the model to map such corrupted prefixes to the ground-truth next token creates an input--output mapping that does not exist in the underlying data distribution \citep{huszar2015not}. This mismatch can degrade the causal representations learned by the GRU.
+
+Second, teacher forcing is better aligned with the acceptance mechanism of speculative decoding. A draft token at position \(i\) contributes to the acceptance length only when all preceding draft tokens have already been verified as correct. Therefore, the correction at position \(i\) only matters in the accepted-prefix regime, where the preceding draft tokens match the target sequence. Training the causal encoder on ground-truth prefixes directly focuses learning on this regime; corrections conditioned on incorrect prefixes are less relevant, since those positions will be rejected by verification. We compare teacher forcing with TTT in Section~\ref{sec: abl_training}.
+
+\paragraph{Base-anchored curriculum.}
+Teacher forcing introduces another failure mode. Since the correction branch receives clean prefixes during training, directly optimizing only the final-logit loss can allow the correction branch to shortcut the parallel backbone. In this case, the base logits may become weak, and the final prediction may rely too heavily on the correction branch. As shown in Figure~\ref{fig:training_strategy}, this leads to a collapse of the parallel backbone loss, while the proposed base-anchored curriculum keeps the backbone loss decreasing steadily.
+
+To prevent this collapse, we jointly supervise the base and final logits with a time-varying weight:
+  \[
+  \mathcal{L}
+  =
+  (1-\lambda_t)\,\mathcal{L}_{\mathrm{final}}
+  +
+  \lambda_t\,\mathcal{L}_{\mathrm{base}},
+  \]
+where \(\mathcal{L}_{\mathrm{final}}\) and \(\mathcal{L}_{\mathrm{base}}\) are cross-entropy losses computed from \(L_i\) and \(L_i^{\mathrm{base}}\), respectively. We linearly anneal \(\lambda_t\) from
+\(1\) to \(0\) over the course of training, so the objective is initially anchored on the base logits---forcing the parallel backbone to learn a strong base distribution---and gradually shifts to the final
+logits as the Domino head takes over the residual correction. We ablate this curriculum against direct final-loss training in Section~\ref{sec: abl_training}.
+
+Following common practice in block-level speculative decoding \citep{chen2026dflash}, both \(\mathcal{L}_{\mathrm{base}}\) and \(\mathcal{L}_{\mathrm{final}}\) use a position-wise exponential
+decay \(w_k = \exp(-k/\gamma)\) to prioritize earlier draft positions, whose acceptance gates the rest of the block.
+  
+\subsection{Efficient Runtime Implementation}
+\label{sec:runtime_optimization}
+
+To minimize the overhead of the Domino head, we implement its correction loop with fused Triton kernels and CUDA Graphs. This reduces kernel-launch and Python-level overhead during rollout. Under the latency setting in Figure~\ref{fig:draft_overhead}, the Domino-head latency decreases from \(2.64\)ms to \(1.20\)ms.

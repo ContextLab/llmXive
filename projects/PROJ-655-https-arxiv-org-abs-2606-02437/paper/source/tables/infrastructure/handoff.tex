@@ -1,0 +1,25 @@
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Adapter-only handoff keeps the moved artifact much smaller than a merged or full checkpoint while preserving the sampling path used for evaluation. Cold first sample is the first request wall time; total sample speed includes that first request, while warm speed excludes it.}
+\label{tab:mint-handoff}
+\fittowidth{%
+\begin{tabular}{@{}M{1.8cm}M{1.6cm}M{2.3cm}M{1.8cm}M{2.4cm}M{2.0cm}M{2.5cm}@{}}
+\toprule
+\apphead Model & Path & Moved artifact & File size & Materialization or load & Cold first sample & \makecell{sample speed\\total/warm} \\
+\midrule
+\appgroup{7}{Qwen3-4B}
+\appkey{Qwen3-4B}  & Adapter & rank-32 LoRA & 252 MiB  & 0.036\,s & 4.114\,s & 15.568/15.567 tok/s \\
+\addlinespace[2pt]
+\appkey{Qwen3-4B}  & Merge   & full model   & 8.061 GB & 71.820\,s & 55.704\,s & 4.697/20.595 tok/s \\
+\addlinespace[2pt]
+\appgroup{7}{Qwen3-30B}
+\appkey{Qwen3-30B} & Adapter & rank-16 LoRA & 1.692 GB & 46.455\,s & 117.304\,s & 1.874/5.700 tok/s \\
+\addlinespace[2pt]
+\appkey{Qwen3-30B} & Merge   & full model   & 61.084 GB & 402.245\,s & 156.074\,s & 1.573/6.904 tok/s \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

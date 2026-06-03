@@ -1,0 +1,21 @@
+\begin{table}[tbp]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.20}
+\caption{Large prior plus small LoRA update can outperform full RL on a smaller model under comparable RL budgets. Values are summarized from the motivating Mind Lab trillion-parameter LoRA RL study.}
+\label{tab:prior}
+\fittowidth{%
+\begin{tabular}{@{}M{5.6cm}M{2.4cm}M{2.6cm}M{2.6cm}@{}}
+\toprule
+\apphead Model and adaptation & Trainable parameters & AIME 2025 normalized gain & GPQA Diamond normalized gain \\
+\midrule
+\appkey{DS-Distill-Qwen-1.5B}, full RL          & 1.5B  & 8.33\%  & 25.00\% \\
+\addlinespace[2pt]
+\appkey{DS-Distill-Qwen-7B}, LoRA $r{=}64$      & 0.16B & 11.31\% & 27.23\% \\
+\addlinespace[2pt]
+\appkey{DS-Distill-Qwen-32B}, LoRA $r{=}8$      & 0.07B & 20.61\% & 33.02\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

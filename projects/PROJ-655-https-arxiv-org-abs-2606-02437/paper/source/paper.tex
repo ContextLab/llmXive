@@ -1,0 +1,160 @@
+% Reorganized from Mind Lab blog draft using the Mind Lab template.
+
+\documentclass{mindlab}
+
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{placeins}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{hyperref}
+%\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage[smartEllipses]{markdown}
+\usepackage{pifont}
+\usepackage{xcolor}
+\usepackage{bbm}
+\usepackage[table]{xcolor} % For cell coloring
+\usepackage{multirow}   % For multi-row cells
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{xspace}
+
+\usepackage[most]{tcolorbox}
+\usepackage{wrapfig}
+\usepackage{multirow}
+% \usepackage{makecell}
+\usepackage{graphicx,xcolor,float}
+% \usepackage{subfigure}
+\usepackage{threeparttable}
+% \usepackage{algorithm}
+% \usepackage[noend]{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{colortbl}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{amsmath, amssymb}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{arydshln}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{makecell}
+\usepackage{float} 
+\usepackage{soul}
+\usepackage{mathtools}
+% \usepackage{subfigure}
+\usepackage{bbding}
+% \usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{tabularx}
+\usepackage{amssymb,mathrsfs,amsmath}
+% \newtheorem{theorem}{Theorem}
+\usepackage{pifont}
+\usepackage{xcolor}
+\usepackage{bbm}
+\usepackage[table]{xcolor} % For cell coloring
+\usepackage{multirow}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible}
+
+% --- MinT-style table macros ---
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\providecommand{\apphead}{\rowcolor{mindlabbluepale!45}}
+\providecommand{\appkey}[1]{{\sffamily\bfseries\color{mindlabblue}#1}}
+\providecommand{\appgroup}[2]{\addlinespace[2pt]\rowcolor{mindlabbluepale!45}\multicolumn{#1}{@{}l}{\sffamily\bfseries\color{mindlabfg}#2}\\}
+\providecommand{\cmark}{\ding{51}}
+\providecommand{\xmark}{\ding{55}}
+\providecommand{\pony}[1]{#1}
+\providecommand{\fittowidth}[1]{%
+  \sbox0{#1}%
+  \ifdim\wd0>\textwidth
+    \resizebox{\textwidth}{!}{\usebox0}%
+  \else
+    \usebox0%
+  \fi
+}
+
+\raggedbottom
+
+% Float placement: let large floats share text pages (prefer top) instead of
+% spilling onto dedicated float-only pages, which leaves big whitespace gaps.
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.82}
+\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\dblfloatpagefraction}{0.82}
+
+\begin{document}
+
+\title{On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters}
+
+\author{Mind Lab}
+\correspondence{\email{contact@mindlab.ltd}}
+\date{May 2026}
+
+\abstract{
+\pony{Parameter-efficient fine-tuning (PEFT) is usually evaluated as a cheaper alternative to full fine-tuning. This paper studies a broader possibility: whether small trainable adapters can serve as persistent local state on top of strong shared foundation models. In this view, a base model supplies common competence, while adapters may carry part of an instance-specific behavioral state, such as preferences, skills, tool habits, or memory-like updates. This framing is deliberately bounded: PEFT does not store the whole person or replace retrieval, but it may provide a compact unit of adaptive state that can be trained, evaluated, served, and composed at population scale.}
+
+\pony{We study this possibility through three coupled scaling problems that must reinforce one another. \textbf{Scale Up} asks whether a stronger shared base model makes small local updates more useful. We study large-prior LoRA reinforcement learning, routing-aware correction, and training--serving consistency at trillion-scale MoE. \textbf{Scale Down} asks how small the local adaptive state can become while still learning reliably. We analyze rank regimes, low-rank instability, RL-native initialization, hyperparameter transfer, and memory-oriented adapter designs such as $\delta$-mem. \textbf{Scale Out} asks what becomes possible when many persistent adapted instances coexist. We examine LoRA memory capacity, context-to-parameter learning, per-user adapter simulation, and diversity-based majority voting. MinT \citep{mindlab2026mint} provides one concrete infrastructure example for supporting all three axes: adapter identity, policy revision, training provenance, evaluation, and serving residency are the mechanisms that let large shared priors, small local adapters, and large adapter populations coexist.}
+
+\pony{Taken together, these results suggest that PEFT is more than a budget-conscious substitute for full fine-tuning. A personal model built on a strong shared prior can preserve continuity across repeated interaction, serve as a stable user simulator for agents that treat the user as part of their environment, and contribute to collective performance through diversity-based aggregation. The broader ambition is a world where strong foundation models support not one universal assistant, but millions of persistent personal ones.}
+}
+
+
+\maketitle
+
+\input{sections/01-introduction.tex}
+
+\input{sections/02-three-scaling-axes.tex}
+
+\input{sections/03-scale-up.tex}
+
+\input{sections/04-scale-down.tex}
+
+\input{sections/05-scale-out.tex}
+
+\input{sections/06-infrastructure.tex}
+
+\input{sections/07-conclusion.tex}
+
+\bmhead{Acknowledgements}
+
+We thank all members of Mind Lab for the discussions, experiments, engineering support, writing feedback, and project context that shaped this manuscript. Names are listed alphabetically within each group.
+
+\paragraph{Core Contributors.}
+\begin{sloppypar}
+Andrew Chen, Steven Chiang, Kyrie Lei, Kieran Liu, Pony Ma, Vincent Wang, Josh Ying, Di Zhang, Ruijia Zhang, Adrian Zhou, Yuhua Zhou.
+\end{sloppypar}
+
+\paragraph{Team.}
+\begin{sloppypar}
+Vin Bo, Song Cao, Vic Cao, Andrew Chen, Kaijie Chen, Cleon Cheng, Steven Chiang, Kaixuan Fan, Hera Feng, Huan Feng, Arthur Fu, Jun Gao, Hongquan Gu, Aaron Guan, Nolan Ho, Mutian Hong, Hailee Hou, Peixuan Hua, Charles Huang, Miles Jiang, Nora Jiang, Yuyi Jiang, Qiuyu Jin, Fancy Kong, Andrew Lei, Kyrie Lei, Alexy Li, Lucian Li, Ray Li, Theo Li, Wenhao Li, Zhihui Li, Allen Lin, Jiayi Lin, Kairus Liu, Kieran Liu, Logan Liu, Xiang Liu, Irvine Lu, Maeve Luo, Runze Lv, Pony Ma, Verity Niu, Anson Qiu, Vincent Wang, Rio Yang, Maxwell Yao, Carrie Ye, Regis Ye, Wenlin Ye, Josh Ying, Danney Zeng, Yuhan Zhan, Anya Zhang, Di Zhang, Ruijia Zhang, Shiyang Zhang, Sueky Zhang, Ya Zhang, Wei Zhao, Ada Zhou, Adrian Zhou, Yuhua Zhou, Xinyue Zhu, Murphy Zhuang.
+\end{sloppypar}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
