@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-03T16:35:35.442966+00:00'
-last_outcome: committed
+last_used: dan-rockmore
+last_used_at: '2026-06-03T18:30:42.674766+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-05-24T21:20:31.981491+00:00'
-  ended_at: '2026-05-24T21:48:27.859744+00:00'
-  outcome: abstained
-  action: abstain
 - slug: marie-curie
   started_at: '2026-05-24T21:48:27.859744+00:00'
   ended_at: '2026-05-24T22:21:44.525732+00:00'
@@ -1220,3 +1215,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/reviews/research/albert-einstein-simulated__2026-06-03__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-03T16:35:35.442966+00:00'
+  ended_at: '2026-06-03T18:30:42.674766+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment

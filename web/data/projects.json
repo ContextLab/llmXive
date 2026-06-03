@@ -9674,7 +9674,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-03T18:22:04.833466+00:00",
+  "generated_at": "2026-06-03T18:30:47.311265+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -57347,6 +57347,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 86.466644,
+          "ended_at": "2026-06-03T18:30:42.674766+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-03T18:29:16.208122+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 12686.404547,
           "ended_at": "2026-06-03T00:54:12.556047Z",
@@ -57417,14 +57425,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "triage_rejected_advanced_as_abstain",
           "started_at": "2026-05-31T18:53:20.354581+00:00"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1374.85865,
-          "ended_at": "2026-05-31T11:26:46.835250Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-05-31T11:03:51.976600Z"
         }
       ],
       "phase_group": "research_speckit",
@@ -84799,6 +84799,20 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 86.466644,
+      "ended_at": "2026-06-03T18:30:42.674766+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+      "project_stage": "clarified",
+      "started_at": "2026-06-03T18:29:16.208122+00:00"
+    },
+    {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 384.338873,
       "ended_at": "2026-06-03T17:00:27.072820Z",
@@ -90307,22 +90321,6 @@
       "project_stage": "flesh_out_complete",
       "review_path": "projects/PROJ-587-episodic-future-thinking-in-llms-impleme/reviews/research/eric-kandel-simulated__2026-05-29__research.md",
       "started_at": "2026-05-29T23:31:10.489985+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "David Krakauer (simulated)",
-      "duration_s": 45.018067,
-      "ended_at": "2026-05-29T22:57:53.531838+00:00",
-      "excerpt": "The proposal to model first-person experience in language models is genuinely ambitious, but I'd reframe the question before we proceed. What counts as 'first-person' in a system that has no biological history, no evolutionary pressure tow\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "david-krakauer",
-      "project_id": "PROJ-592-phenomenological-ai-first-person-experie",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/david-krakauer-simulated__2026-05-29__research.md",
-      "started_at": "2026-05-29T22:57:08.513771+00:00"
     }
   ],
   "schema_version": "2.0.0"
