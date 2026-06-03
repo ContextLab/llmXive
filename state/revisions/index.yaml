@@ -50,4 +50,7 @@ ready:
 - project_id: PROJ-629-macaron-a2ui-a-model-for-generative-ui-i
   revision_spec_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-1
   queued_at: '2026-06-03T06:29:52.149916+00:00'
+- project_id: PROJ-565-edit-compass-editreward-compass-a-unifie
+  revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-1
+  queued_at: '2026-06-03T08:51:02.142743+00:00'
 blocked: []

@@ -11,6 +11,7 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and
