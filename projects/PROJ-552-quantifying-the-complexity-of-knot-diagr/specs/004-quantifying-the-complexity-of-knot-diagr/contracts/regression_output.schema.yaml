@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionOutput Schema"
+description: "Schema for regression model outputs in the knot complexity analysis"
+type: "object"
+required:
+ - "model_id"
+ - "model_type"
+ - "predictors"
+ - "coefficients"
+ - "r_squared"
+ - "vif_scores"
+properties:
+ model_id:
+ type: "string"
+ description: "Unique identifier for the model"
+ model_type:
+ type: "string"
+ enum:
+ - "linear"
+ - "polynomial"
+ - "logarithmic"
+ description: "Type of regression model"
+ predictors:
+ type: "array"
+ items:
+ type: "string"
+ minItems: 1
+ description: "List of predictor variables"
+ coefficients:
+ type: "object"
+ description: "Model coefficients (key-value pairs)"
+ r_squared:
+ type: "number"
+ minimum: 0
+ maximum: 1
+ description: "R² goodness-of-fit metric"
+ aic:
+ type: "number"
+ description: "Akaike Information Criterion"
+ bic:
+ type: "number"
+ description: "Bayesian Information Criterion"
+ mae:
+ type: "number"
+ minimum: 0
+ description: "Mean Absolute Error"
+ vif_scores:
+ type: "object"
+ description: "Variance Inflation Factors for each predictor"
+ additionalProperties:
+ type: "number"
+ minimum: 1
+ training_sample_size:
+ type: "integer"
+ minimum: 1
+ description: "Number of knots in training sample"
+ validation_sample_size:
+ type: "integer"
+ minimum: 1
+ description: "Number of knots in validation sample"
+ random_seed:
+ type: "integer"
+ description: "Random seed used for sample split"
+additionalProperties: false

@@ -1,122 +1,142 @@
 # Data Model: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-## Overview
-
-This document defines the data entities and relationships for the knot complexity analysis project. All data transformations must produce new files with documented derivation per Constitution Principle III.
-
 ## Key Entities
 
 ### KnotRecord
 
-Represents a single prime knot with attributes including computed and tabulated invariants.
+Represents a single prime knot with attributes including crossing number, braid index, arc index, Seifert circle count, bridge number, alternating classification, and hyperbolic volume.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `knot_id` | string | Yes | Unique identifier (e.g., "3_1", "8_19") |
-| `crossing_number` | integer | Yes | Tabulated crossing number (minimal) |
-| `braid_index` | integer | Yes | Computed braid index |
-| `hyperbolic_volume` | float | Conditional | Hyperbolic volume (required for volume prediction analysis; null for torus/satellite) |
-| `alternating_classification` | string | Yes | "alternating", "non-alternating", or "unclassifiable" |
-| `arc_index` | integer | Conditional | Computed via Birman-Menasco method |
-| `seifert_circle_count` | integer | Conditional | Computed via Seifert's algorithm |
-| `bridge_number` | integer | Conditional | Computed via Schubert's decomposition |
-| `missing_invariant_flags` | array[string] | No | Flags for missing computable invariants |
-| `diagram_representation_type` | string | No | "braid_word", "dt_code", or "both" |
-| `source_checksum` | string | Yes | SHA-256 of source data file |
-| `computation_timestamp` | string | Yes | ISO 8601 timestamp of invariant computation |
-
-**Invariant Dependency Note**: Arc index, Seifert circle count, and bridge number have known mathematical constraints with crossing number and braid index (e.g., bridge number ≤ crossing number for most knots [UNRESOLVED-CLAIM: c_b320c94e — status=not_enough_info]). These dependencies must be acknowledged in all analysis and reporting.
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| knot_id | string | Yes | Unique identifier (e.g., "3_1", "4_1", "13_9988") |
+| crossing_number | integer | Yes | Tabulated crossing number (minimal crossing count) |
+| braid_index | integer | Yes | Braid index from algorithmic determination or tabulated value |
+| arc_index | integer | No | Computed via Birman-Menasco method; null if not computable |
+| seifert_circle_count | integer | No | Computed via Seifert's algorithm; null if not computable |
+| bridge_number | integer | No | Computed via Schubert's decomposition; null if not computable |
+| is_alternating | boolean | No | Alternating classification; null if ambiguous/missing |
+| knot_family | string | No | Knot family classification (torus, satellite, pretzel, hyperbolic, unknown); null if unknown |
+| hyperbolic_volume | float | No | Hyperbolic volume; null for torus/satellite knots (volume zero or undefined) |
+| dt_code | string | No | Dowker-Thistlethwaite code representation |
+| braid_word | string | No | Braid word representation |
+| missing_invariant_flags | array[string] | No | List of invariants that could not be computed |
+| data_source | string | Yes | Source of data (e.g., "knot_atlas") |
+| checksum | string | Yes | SHA-256 checksum of record data |
+| volume_filter_flag | boolean | No | True if excluded from volume analysis per FR-014 |
 
 ### InvariantsDataset
 
-Aggregated collection of KnotRecord entities with metadata about data source and computation timestamps.
+Aggregated collection of KnotRecord entities with computed relationships and metadata about data source and computation timestamps.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `dataset_id` | string | Unique identifier for this dataset version |
-| `knot_records` | array[KnotRecord] | Collection of individual knot records |
-| `data_source` | string | "knot_atlas" or other source |
-| `download_timestamp` | string | ISO 8601 timestamp of data download |
-| `crossing_number_range` | object | {`min`: integer, `max`: integer} |
-| `total_knots` | integer | Count of all records |
-| `alternating_count` | integer | Count of alternating knots |
-| `non_alternating_count` | integer | Count of non-alternating knots |
-| `volume_available_count` | integer | Count with valid hyperbolic volume |
-| `schema_version` | string | Data model schema version |
-| `validation_scope` | string | Scope of validation for Phase 1 (crossing number ≤10 validated, ≤13 collected) |
-| `prime_knot_counts` | object | Prime knot counts per crossing number from OEIS A002863 |
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| dataset_id | string | Unique identifier for dataset version |
+| source | string | Data source (e.g., "knot_atlas") |
+| download_timestamp | datetime | When data was downloaded |
+| total_knots | integer | Total number of knot records |
+| alternating_count | integer | Count of alternating knots |
+| non_alternating_count | integer | Count of non-alternating knots |
+| unclassifiable_count | integer | Count of knots with ambiguous classification |
+| missing_volume_count | integer | Count of knots with missing hyperbolic volume |
+| excluded_volume_count | integer | Count of knots excluded per FR-014 (torus/satellite) |
+| volume_completeness_pct | float | Percentage of knots with valid hyperbolic volume (SC-014) |
+| checksum | string | SHA-256 checksum of dataset file |
 
 ### RegressionModel
 
-Represents fitted model with attributes including model type, coefficients, and goodness-of-fit metrics.
+Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and training/validation split information.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model_id` | string | Unique identifier for this model |
-| `model_type` | string | "linear", "polynomial", or "logarithmic" |
-| `predictors` | array[string] | List of predictor variables used |
-| `target` | string | Target variable (e.g., "hyperbolic_volume") |
-| `coefficients` | object | Model coefficients with names as keys |
-| `r_squared` | float | Coefficient of determination |
-| `adjusted_r_squared` | float | Adjusted R² |
-| `aic` | float | Akaike Information Criterion |
-| `bic` | float | Bayesian Information Criterion |
-| `mae` | float | Mean Absolute Error |
-| `vif_scores` | object | Variance Inflation Factors per predictor |
-| `training_sample_size` | integer | Number of records used for fitting |
-| `validation_sample_size` | integer | Number of records in exploratory validation sample |
-| `random_seed` | integer | Seed used for validation sample split |
-| `multicollinearity_flag` | boolean | True if any VIF > 5 |
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| model_id | string | Unique identifier for model |
+| model_type | string | Type: "linear", "polynomial", "logarithmic" |
+| predictors | array[string] | List of predictor variables (e.g., ["crossing_number", "braid_index"]) |
+| coefficients | object | Model coefficients (JSON object) |
+| r_squared | float | R² goodness-of-fit metric |
+| aic | float | Akaike Information Criterion |
+| bic | float | Bayesian Information Criterion |
+| mae | float | Mean Absolute Error |
+| vif_scores | object | Variance Inflation Factors for each predictor |
+| training_sample_size | integer | Number of knots in training sample |
+| validation_sample_size | integer | Number of knots in validation sample |
+| random_seed | integer | Random seed used for sample split |
+
+### RegressionResult
+
+Extended regression output including multicollinearity flag and target variable specification.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| model_id | string | Unique identifier for model |
+| model_type | string | Type: "linear", "polynomial", "logarithmic" |
+| predictors | array[string] | List of predictor variables |
+| target | string | Target variable (hyperbolic_volume) |
+| coefficients | object | Model coefficients |
+| r_squared | float | R² goodness-of-fit metric |
+| aic | float | Akaike Information Criterion |
+| bic | float | Bayesian Information Criterion |
+| mae | float | Mean Absolute Error |
+| vif_scores | object | Variance Inflation Factors for each predictor |
+| multicollinearity_flag | boolean | True if any VIF > 5 |
+| training_sample_size | integer | Number of knots in training sample |
+| validation_sample_size | integer | Number of knots in validation sample |
+| random_seed | integer | Random seed used for sample split |
 
 ### CompositeComplexityScore
 
-Represents the weighted complexity measure with attributes including weight parameters and validation metrics.
+Represents the weighted complexity measure with attributes including weight parameters, per-knot scores, and validation correlation metrics.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `score_id` | string | Unique identifier for this score configuration |
-| `crossing_number_weight` | float | Weight for crossing number (default 0.5) |
-| `braid_index_weight` | float | Weight for braid index (default 0.5) |
-| `knot_scores` | array[object] | Per-knot scores with `knot_id` and `score` value |
-| `pearson_correlation` | float | Pearson correlation with hyperbolic volume |
-| `spearman_correlation` | float | Spearman correlation with hyperbolic volume |
-| `effect_size_r` | float | Effect size for correlation |
-| `p_value` | float | Statistical significance of correlation |
-| `validation_sample_size` | integer | Size of exploratory correlation subset |
-| `random_seed` | integer | Seed used for correlation subset split |
-
-**Theoretical Limitation Acknowledgment**: No established mathematical basis exists in knot theory literature for a linear combination of crossing number and braid index. The equal-weight default is exploratory and configurable.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| score_id | string | Unique identifier for score version |
+| crossing_weight | float | Weight for crossing number (default: 1.0) |
+| braid_weight | float | Weight for braid index (default: 1.0) |
+| per_knot_scores | object | Map of knot_id to complexity score |
+| pearson_correlation | float | Pearson correlation with hyperbolic volume |
+| spearman_correlation | float | Spearman correlation with hyperbolic volume |
+| effect_size | float | Effect size measure (r or r²) |
+| validation_sample_size | integer | Number of knots in validation sample |
+| random_seed | integer | Random seed used for sample split |
 
 ## Data Flow
 
 ```
-┌─────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│ Knot Atlas │────▶│ Raw Data │────▶│ Processed Data │
-│ (Download) │ │ (checksummed) │ │ (computed invariants)
-└─────────────────┘ └──────────────────┘ └──────────────────┘
- │
- ▼
- ┌──────────────────┐
- │ Analysis Outputs│
- │ (plots, models) │
- └──────────────────┘
+knot_atlas_raw.json (data/raw/)
+ ↓ [download_knot_atlas.py]
+knots_cleaned.csv (data/processed/)
+ ↓ [compute_invariants.py]
+ ↓ [validate_discrepancies.py → docs/reproducibility/discrepancy_notes.md] # Constitution Principle VI
+knots_with_invariants.csv (data/processed/)
+ ↓ [volume_completeness.py → docs/reproducibility/excluded_knots.md] # FR-014/SC-014
+knots_filtered_volume.csv (data/processed/)
+ ↓ [exploratory_analysis.py]
+crossing_vs_braid_alternating.png, crossing_vs_braid_nonalternating.png (data/plots/)
+ ↓ [regression_models.py]
+regression_results.json (data/processed/)
+ ↓ [statistical_tests.py]
+validation_results.json (data/processed/)
 ```
 
-## Data Hygiene Requirements
+## Data Transformations
 
-1. **Checksums**: All files under `data/` must have SHA-256 checksums recorded in `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml` `artifact_hashes` map.
-2. **No In-Place Modification**: Every transformation produces a new file with documented derivation.
-3. **PII Scan**: No commits are accepted that fail the Repository-Hygiene Agent's PII scan (Constitution Principle III).
-4. **Single Source of Truth**: All figures/statistics trace to exactly one row in `data/` and one code block (Constitution Principle IV).
+All transformations produce new files with documented derivation notes in `docs/reproducibility/derivation_notes.md`:
 
-## Validation Rules
+1. **Raw to Cleaned**: Parse Knot Atlas JSON, extract required fields, handle missing values
+2. **Cleaned to Invariants**: Compute arc index, Seifert circle count, bridge number from available diagram representations
+3. **Invariants to Discrepancy Notes**: Compare computed invariants against canonical values; document discrepancies per Constitution Principle VI
+4. **Invariants to Volume-Filtered**: Filter torus/satellite knots with zero/undefined hyperbolic volume per FR-014; document excluded knots per SC-014
+5. **Filtered to Plots**: Generate scatter plots with stratification by alternating classification
+6. **Filtered to Regression**: Fit multiple model types, compute goodness-of-fit metrics
+7. **Regression to Validation**: Construct composite complexity score, validate against exploratory validation sample
 
-| Rule | Description |
-|------|-------------|
-| `crossing_number >= 1` | Crossing number must be positive integer |
-| `braid_index <= crossing_number` | Braid index typically ≤ crossing number (known inequality) |
-| `hyperbolic_volume >= 0` OR `hyperbolic_volume` is null | Volume cannot be negative; null for torus/satellite |
-| `alternating_classification IN ["alternating", "non-alternating", "unclassifiable"]` | Classification mustbe one of three values |
-| `arc_index >= 3` | Arc index has lower bound for non-trivial knots |
-| `seifert_circle_count >= 1` | At least one Seifert circle for any knot diagram |
-| `bridge_number >= 2 (Theorem DB: 0909.1162, https://arxiv.org/abs/0909.1162)` | Bridge number has lower bound for non-trivial knots |
+## Data Quality Rules
+
+| Rule | Action on Violation |
+|------|---------------------|
+| crossing_number > 0 | Flag record, log to uncomputable_invariants.md |
+| hyperbolic_volume ≤ 0 OR null | Exclude from volume prediction analysis per FR-014, log to excluded_knots.md per SC-014 |
+| is_alternating is null | Mark as "unclassifiable", exclude from stratified analysis |
+| missing_invariant_flags contains all invariants | Record retained with flags, excluded from invariant analysis |
+| Any required field missing for crossing_number ≤10 | Flag for Phase 1 completeness validation |
+| knot_family is unknown | Retain record, mark as "unknown" for covariate modeling |
+| Volume completeness < 95% | SC-014 violation; document in validation_status.md |
