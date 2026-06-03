@@ -342,3 +342,97 @@ class TestTheoremChannelGating:
         assert result.value == "27635"
         assert ran["theorem"] is False
         assert "theorem" not in result.channels_tried
+
+
+class TestPaperChannelGating:
+    """Fix E extended to the "paper" channel (authority 5 — the LOWEST, and a
+    heavy arXiv caller). A real-fill profile showed the paper channel alone burned
+    ~229s of arXiv rate-limit backoff on a claim OEIS had already answered, because
+    it ran in the PRIMARY pass. It must be DEFERRED like theorem: run only as a
+    fallback, never paid when a higher-authority channel resolves."""
+
+    def test_paper_skipped_when_higher_authority_resolves(self, monkeypatch):
+        """A NUMERIC claim resolved by OEIS must NOT invoke the paper channel."""
+        from llmxive.fill import service
+        from llmxive.fill.channels import oeis, papers, wikipedia
+        from llmxive.fill.models import FetchedSource
+
+        oeis_src = FetchedSource(
+            channel="oeis", source_id="A002863",
+            url="https://oeis.org/A002863", title="A002863",
+            text="13 27635\n", authority=1,
+        )
+        monkeypatch.setattr(oeis, "search_and_fetch", lambda q, c, **kw: [oeis_src])
+        monkeypatch.setattr(wikipedia, "search_and_fetch", lambda q, c, **kw: [])
+
+        ran = {"paper": False}
+
+        def _paper_guard(q, c, **kw):
+            ran["paper"] = True
+            return []
+
+        monkeypatch.setattr(papers, "search_and_fetch", _paper_guard)
+
+        claim = _make_claim(
+            ClaimKind.NUMERIC,
+            "There are 27635 prime knots with 13 crossings.",
+        )
+        result = service.fill_claim(claim, backend=None, model=None, repo_root=None)
+        assert result.status == "filled"
+        assert result.value == "27635"
+        assert ran["paper"] is False
+        assert "paper" not in result.channels_tried
+
+    def test_paper_runs_as_fallback_when_primary_yields_nothing(self, monkeypatch):
+        """Behavior preserved: when NO higher-authority channel yields, the paper
+        channel IS still invoked (deferred, not removed)."""
+        from llmxive.fill import service
+        from llmxive.fill.channels import constants, oeis, papers, wikipedia
+
+        for mod in (constants, oeis, wikipedia):
+            monkeypatch.setattr(mod, "search_and_fetch", lambda q, c, **kw: [])
+
+        ran = {"paper": False}
+
+        def _paper_guard(q, c, **kw):
+            ran["paper"] = True
+            return []
+
+        monkeypatch.setattr(papers, "search_and_fetch", _paper_guard)
+
+        claim = _make_claim(
+            ClaimKind.NUMERIC,
+            "There are 27635 prime knots with 13 crossings.",
+        )
+        result = service.fill_claim(claim, backend=None, model=None, repo_root=None)
+        assert ran["paper"] is True  # fallback preserved
+        assert "paper" in result.channels_tried
+        assert result.status == "blocked"  # nothing yielded a value
+
+    def test_deferred_channels_run_in_authority_order(self, monkeypatch):
+        """For a math claim with no primary yield, the deferred channels run in
+        AUTHORITY order — theorem (4) before paper (5)."""
+        from llmxive.fill import service
+        from llmxive.fill.channels import constants, oeis, papers, theorem, wikipedia
+
+        monkeypatch.setattr(service, "_is_math_claim", lambda *a, **k: True)
+        for mod in (constants, oeis, wikipedia):
+            monkeypatch.setattr(mod, "search_and_fetch", lambda q, c, **kw: [])
+
+        order: list[str] = []
+
+        def _mk(name):
+            def _f(q, c, **kw):
+                order.append(name)
+                return []
+            return _f
+
+        monkeypatch.setattr(theorem, "search_and_fetch", _mk("theorem"))
+        monkeypatch.setattr(papers, "search_and_fetch", _mk("paper"))
+
+        claim = _make_claim(
+            ClaimKind.NUMERIC,
+            "There are 27635 prime knots with 13 crossings.",
+        )
+        service.fill_claim(claim, backend=None, model=None, repo_root=None)
+        assert order == ["theorem", "paper"]

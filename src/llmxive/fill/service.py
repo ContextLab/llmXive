@@ -281,6 +281,17 @@ def _oeis_enrich(
 _FILLABLE_KINDS = {ClaimKind.NUMERIC, ClaimKind.ENTITY_FACT, ClaimKind.MAGNITUDE, ClaimKind.RELATIONAL}
 
 
+#: The two LOWEST-authority channels (theorem=4, paper=5) are ALSO the heaviest
+#: arXiv callers. They run ONLY as a fallback — when no higher-authority channel
+#: yields a verified fill — and in authority order (theorem before paper),
+#: stopping at the first that yields. Profiling a real fill showed the paper
+#: channel alone burned ~229s of arXiv rate-limit backoff on a claim OEIS had
+#: already answered; deferring it (like theorem) is behavior-preserving because
+#: a paper/theorem source can never outrank a constants/OEIS/Wikidata/Wikipedia
+#: one in conflict.choose, so it is only ever a fallback.
+_DEFERRED_ARXIV_CHANNELS: tuple[str, ...] = ("theorem", "paper")
+
+
 def fill_claim(
     claim: Claim,
     *,
@@ -333,13 +344,15 @@ def fill_claim(
         math = _is_math_claim(claim, backend=backend, model=model, repo_root=repo_root)
         channel_names = channels_for(claim.kind, math=math)
 
-        # Gating (Fix E): "theorem" is the lowest-authority math channel and the
-        # heaviest arXiv caller.  Run the higher-authority channels first; if one
-        # of them yields a verified fill, SKIP the theorem channel entirely (no
-        # arXiv per-candidate fetches).  Authority order is encoded by
-        # channels_for(), so we simply defer "theorem" to a second pass.
-        primary_channels = [c for c in channel_names if c != "theorem"]
-        deferred_theorem = "theorem" in channel_names
+        # Gating (Fix E, extended to "paper"): "theorem" (authority 4) and
+        # "paper" (authority 5) are the lowest-authority channels AND the heaviest
+        # arXiv callers.  Run the higher-authority channels first; only if NONE of
+        # them yields a verified fill do we fall through to these deferred channels
+        # — in authority order, stopping at the first that yields — so a
+        # constants/OEIS/Wikidata/Wikipedia answer never pays the (rate-limited)
+        # arXiv cost.  Authority order is encoded by channels_for().
+        primary_channels = [c for c in channel_names if c not in _DEFERRED_ARXIV_CHANNELS]
+        deferred_channels = [c for c in _DEFERRED_ARXIV_CHANNELS if c in channel_names]
 
         def _run_channel(ch_name: str) -> list[FetchedSource]:
             fn = _get_channel(ch_name)
@@ -400,12 +413,17 @@ def fill_claim(
         # Step 5a: extract from higher-authority sources first.
         candidates = _extract_candidates(all_sources)
 
-        # Step 4b/5b: only fall through to the theorem channel if no
-        # higher-authority channel produced a verified fill.
-        if not candidates and deferred_theorem:
-            theorem_sources = _run_channel("theorem")
-            all_sources.extend(theorem_sources)
-            candidates = _extract_candidates(theorem_sources)
+        # Step 4b/5b: only fall through to the deferred low-authority arXiv
+        # channels (theorem, then paper) if NO higher-authority channel produced a
+        # verified fill. Run them in authority order and stop at the first that
+        # yields, so a claim already answered upstream never pays the arXiv cost.
+        if not candidates and deferred_channels:
+            for ch_name in deferred_channels:
+                ds = _run_channel(ch_name)
+                all_sources.extend(ds)
+                candidates = _extract_candidates(ds)
+                if candidates:
+                    break
 
         # Step 6: no candidates → blocked
         if not candidates:
