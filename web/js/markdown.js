@@ -163,15 +163,116 @@
     return md.slice(endIdx).replace(/^\n+/, "");
   }
 
+  // GFM pipe-table preprocessor. snarkdown (the vendored renderer) has NO
+  // table grammar, so GFM pipe tables pass through as literal `| a | b |`
+  // text and the CSS `<table>` rules never apply. We convert standard GFM
+  // pipe tables to real <table> HTML BEFORE snarkdown runs.
+  //
+  // A table is: a header row (`| a | b |`), a delimiter row
+  // (`|---|:--:|` — hyphen runs with optional leading/trailing `:` for
+  // alignment), and ≥1 body rows. Pipes may optionally lead/trail each row.
+  // Alignment is emitted as an `align="left|center|right"` attribute (the
+  // markdown sanitizer strips `style=`, but standard table attrs survive).
+  // Inline markdown inside a cell is rendered by running snarkdown's inline
+  // parser over the cell text and stripping the wrapping <p>; if no renderer
+  // is available the cell content is HTML-escaped plain text.
+  const _TABLE_DELIM_RE = /^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$/;
+  function _escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  // Split a `| a | b | c |` row into trimmed cell strings, honoring `\|`
+  // escapes and tolerating optional leading/trailing pipes.
+  function _splitRow(line) {
+    let s = line.trim();
+    if (s.startsWith("|")) s = s.slice(1);
+    if (s.endsWith("|") && !s.endsWith("\\|")) s = s.slice(0, -1);
+    const cells = [];
+    let cur = "";
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (ch === "\\" && s[i + 1] === "|") { cur += "|"; i++; continue; }
+      if (ch === "|") { cells.push(cur.trim()); cur = ""; continue; }
+      cur += ch;
+    }
+    cells.push(cur.trim());
+    return cells;
+  }
+  function _parseAligns(delimLine) {
+    return _splitRow(delimLine).map(spec => {
+      const left = spec.startsWith(":");
+      const right = spec.endsWith(":");
+      if (left && right) return "center";
+      if (right) return "right";
+      if (left) return "left";
+      return "";
+    });
+  }
+  function _renderCell(text, renderer) {
+    if (typeof renderer !== "function") return _escapeHtml(text);
+    // snarkdown handles inline bold/italic/code/links; strip a single
+    // wrapping <p> snarkdown never adds (it's inline-first) — but be safe.
+    let out = renderer(text);
+    out = out.replace(/^\s*<p>([\s\S]*)<\/p>\s*$/i, "$1");
+    return out;
+  }
+  function _convertTables(md, renderer) {
+    const lines = md.split("\n");
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const header = lines[i];
+      const delim = lines[i + 1];
+      const headerIsRow = header != null && header.indexOf("|") !== -1 && header.trim() !== "";
+      if (headerIsRow && delim != null && _TABLE_DELIM_RE.test(delim) && delim.indexOf("-") !== -1) {
+        const headCells = _splitRow(header);
+        const aligns = _parseAligns(delim);
+        // Delimiter column count must match header column count (GFM rule).
+        if (aligns.length === headCells.length) {
+          const body = [];
+          let j = i + 2;
+          while (j < lines.length && lines[j].indexOf("|") !== -1 && lines[j].trim() !== "") {
+            body.push(_splitRow(lines[j]));
+            j++;
+          }
+          if (body.length >= 1) {
+            const al = idx => (aligns[idx] ? ' align="' + aligns[idx] + '"' : "");
+            let html = "<table><thead><tr>";
+            headCells.forEach((c, idx) => {
+              html += "<th" + al(idx) + ">" + _renderCell(c, renderer) + "</th>";
+            });
+            html += "</tr></thead><tbody>";
+            body.forEach(row => {
+              html += "<tr>";
+              for (let k = 0; k < headCells.length; k++) {
+                const c = row[k] != null ? row[k] : "";
+                html += "<td" + al(k) + ">" + _renderCell(c, renderer) + "</td>";
+              }
+              html += "</tr>";
+            });
+            html += "</tbody></table>";
+            out.push(html);
+            i = j;
+            continue;
+          }
+        }
+      }
+      out.push(header);
+      i++;
+    }
+    return out.join("\n");
+  }
+
   function renderMarkdown(rawMd) {
     if (rawMd == null) return "";
-    const md = _stripFrontmatter(String(rawMd).replace(/\r\n/g, "\n"));
+    let md = _stripFrontmatter(String(rawMd).replace(/\r\n/g, "\n"));
     const renderer = window.snarkdown;
     if (typeof renderer !== "function") {
       // Fallback: no renderer loaded — escape and preserve line breaks.
       const esc = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       return "<pre class=\"md-fallback\">" + esc + "</pre>";
     }
+    // Convert GFM pipe tables to <table> HTML before snarkdown sees them.
+    md = _convertTables(md, renderer);
     const blocks = _splitBlocks(md);
     const html = blocks.map(b => {
       const t = b.replace(/^\n+|\n+$/g, "");
@@ -223,6 +324,6 @@
     renderMarkdownInto, fetchAndRenderMarkdownInto,
     highlightCodeBlocks,
     // Exposed for testing only — not part of the documented API.
-    _splitBlocks,
+    _splitBlocks, _convertTables,
   };
 })();
