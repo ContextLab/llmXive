@@ -93,4 +93,28 @@ def get(project_id: str, claim_id: str, *, repo_root: Path | None = None) -> Cla
     return None
 
 
-__all__ = ["get", "load", "save", "upsert"]
+def load_verified_by_subject(
+    project_id: str, *, repo_root: Path | None = None
+) -> dict[tuple[ClaimKind, str], Claim]:
+    """Frozen-store view: ``(kind, subject_key) -> the VERIFIED Claim`` (spec 020).
+
+    The single value-independent index the freeze reads (FR-009/013): a rephrased
+    or corrected mention of the same fact shares the same ``(kind, subject_key)``
+    and so maps to the one frozen VERIFIED record. Only VERIFIED records with a
+    non-empty ``subject_key`` are included (a bare-number/empty-subject claim has
+    key ``""`` and must never match anything); the first VERIFIED record for a key
+    wins (the invariant is at most one VERIFIED per key).
+    """
+    from llmxive.claims.canonical import subject_key
+
+    out: dict[tuple[ClaimKind, str], Claim] = {}
+    for c in load(project_id, repo_root=repo_root):
+        if c.status != ClaimStatus.VERIFIED:
+            continue
+        sk = subject_key(c)
+        if sk:
+            out.setdefault((c.kind, sk), c)
+    return out
+
+
+__all__ = ["get", "load", "load_verified_by_subject", "save", "upsert"]

@@ -88,10 +88,36 @@ def resolve_registered_claims(
     time is INVALIDATED and re-resolved. Every other status is re-resolved so
     transient not-enough-info failures self-heal on the next round.
     """
+    # spec 020 FR-009/011: the frozen, value-independent index. A non-VERIFIED
+    # claim whose (kind, subject_key) is already VERIFIED here adopts that frozen
+    # value WITHOUT re-resolution — closing the gap where a claim left PENDING in
+    # the registry (a prior round's transient failure / re-extraction) is
+    # re-resolved every round and waffles.
+    verified_by_subject = _claim_store.load_verified_by_subject(
+        project_id, repo_root=repo_root
+    )
+
     resolved: list[Claim] = []
     for claim in claims:
         # Reload from the registry (may be VERIFIED from a prior round).
         current = _claim_store.get(project_id, claim.claim_id, repo_root=repo_root) or claim
+
+        if current.status != ClaimStatus.VERIFIED:
+            sk = subject_key(current)
+            twin = verified_by_subject.get((current.kind, sk)) if sk else None
+            if twin is not None and twin.claim_id != current.claim_id:
+                frozen = replace(
+                    current,
+                    status=ClaimStatus.VERIFIED,
+                    resolved_value=twin.resolved_value,
+                    evidence=twin.evidence,
+                    resolver=twin.resolver,
+                    source_hash=twin.source_hash,
+                    updated_at=_now_iso(),
+                )
+                _claim_store.upsert(project_id, frozen, repo_root=repo_root)
+                resolved.append(frozen)
+                continue
 
         if current.status == ClaimStatus.VERIFIED:
             live = _live_source_hash(current, project_id, repo_root)
@@ -252,12 +278,9 @@ def process_document(
     # only skips the redundant work (and corrects a re-fabricated value for
     # free). Source-hash invalidation in resolve_registered_claims still applies,
     # so a changed underlying source re-resolves normally.
-    verified_by_subject: dict[tuple[ClaimKind, str], Claim] = {}
-    for prior in _claim_store.load(project_id, repo_root=repo_root):
-        if prior.status == ClaimStatus.VERIFIED:
-            sk = subject_key(prior)
-            if sk:
-                verified_by_subject.setdefault((prior.kind, sk), prior)
+    verified_by_subject = _claim_store.load_verified_by_subject(
+        project_id, repo_root=repo_root
+    )
     for claim in new_claims:
         if _claim_store.get(project_id, claim.claim_id, repo_root=repo_root) is not None:
             continue

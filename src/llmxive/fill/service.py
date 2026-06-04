@@ -113,21 +113,36 @@ def _is_math_claim(claim: Claim, *, backend: Any, model: str | None,
 # ---------------------------------------------------------------------------
 
 def _cache_key_parts(claim: Claim) -> tuple[str, str, str | None]:
-    """Return (source_id, fact_fingerprint, number) for grounding cache keying.
+    """Return (source_id, fact_fingerprint, None) for grounding-verdict keying.
 
-    The middle component is a rephrase-independent FACT FINGERPRINT (number +
-    sorted subject keywords from subject_query) rather than the raw canonical.
-    The convergence reviser rephrases a claim every round → a new canonical →
-    a guaranteed cache MISS under the old keying, forcing full re-resolution
-    via arXiv/OEIS each round.  Keying on the fingerprint lets rephrasings of
-    the same fact share one verdict entry, while two DIFFERENT facts (different
-    numbers or different subject) still get different keys (see
-    fact_fingerprint docstring for the no-collision argument).
+    The middle component is a rephrase-independent FACT FINGERPRINT (numbers +
+    sorted subject keywords from subject_query) rather than the raw canonical, so
+    the convergence reviser's per-round rephrasings of the same fact share one
+    verdict entry while two genuinely different facts (different numbers or
+    subject) get different keys.
+
+    spec 020 FR-012: the asserted ``resolved_value`` is DROPPED from the key (it
+    was the 3rd component). With it present, the SAME claim looked up before
+    resolution (``resolved_value=None``) and after (``resolved_value`` set) keyed
+    differently, so the verdict cached *during* resolution was never found on the
+    next round — a guaranteed miss that forced a fresh fill each round. Removing it
+    lets the pre- and post-resolution lookups of one fact share the entry.
+
+    NOTE (scoped): making two *different asserted values* of the same subject
+    ("49" vs "9,988") share a key would additionally require excluding the
+    asserted number from ``fact_fingerprint`` — which depends on
+    ``canonical._asserted_value`` reliably separating the answer from qualifier
+    numbers. That primitive ("prefer a comma-grouped token, else the first") is
+    not robust on comma-less prose, and is shared by subject_key / canonical
+    corrections / pointer rendering, so hardening it is out of scope here. The
+    *practical* waffling it would address is already eliminated by the subject-key
+    FREEZE (resolve_registered_claims adopts a VERIFIED twin without re-resolving)
+    and the git-tracked frozen store (cross-run persistence).
     """
     from llmxive.fill.subject_query import fact_fingerprint
 
     fingerprint = fact_fingerprint(claim)
-    return ("fill", fingerprint, claim.resolved_value)
+    return ("fill", fingerprint, None)
 
 
 def _load_cached(claim: Claim, *, repo_root: Path | None) -> FillResult | None:
