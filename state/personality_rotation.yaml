@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-04T23:27:38.336287+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-04T23:54:09.542529+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-25T20:56:02.911602+00:00'
-  ended_at: '2026-05-25T21:28:15.407953+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-25__paper.md
 - slug: david-krakauer
   started_at: '2026-05-25T21:28:15.407953+00:00'
   ended_at: '2026-05-25T21:56:30.158963+00:00'
@@ -1227,5 +1220,10 @@ history:
 - slug: freeman-dyson
   started_at: '2026-06-04T22:56:38.766243+00:00'
   ended_at: '2026-06-04T23:27:38.336287+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-04T23:27:38.336287+00:00'
+  ended_at: '2026-06-04T23:54:09.542529+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
