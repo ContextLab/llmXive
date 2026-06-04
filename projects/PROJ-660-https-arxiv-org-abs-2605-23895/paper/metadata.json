@@ -1,10 +1,19 @@
 {
   "arxiv_id": "2605.23895",
   "arxiv_url": "https://arxiv.org/abs/2605.23895",
-  "title": "https://arxiv.org/abs/2605.23895",
-  "authors": [],
+  "title": "From Activation to Causality: Discovery of Causal Visual Representations in the Human Brain",
+  "authors": [
+    "Yuval Golbari",
+    "Navve Wasserman",
+    "Matias Cosarinsky",
+    "Roman Beliy",
+    "Aude Oliva",
+    "Antonio Torralba",
+    "Michal Irani",
+    "Tamar Rott Shaham"
+  ],
   "submitter": "github-actions[bot]",
-  "abstract": null,
+  "abstract": "Identifying which brain regions represent a visual concept in the human brain is a central challenge in neuroscience. Existing approaches have localized coarse functional regions (e.g., faces, places) through activation maximization, identifying regions that activate strongly for a target concept relative to other concepts. Yet strong activation alone does not establish that a region represents the concept itself, as responses may instead be driven by correlated visual or semantic cues. We introduce BrainCause, an automated framework that combines generative and brain models to synthesize controlled stimuli and validate neural representations through targeted causal testing. Given a query specifying a concept of interest, our framework constructs targeted stimulus sets comprising concept images, counterfactual edits that remove the target concept while preserving other image content, and images with candidate correlated distractors. It then uses an image-to-fMRI encoding model to predict brain responses and searches for representations that respond specifically to the target concept over correlated alternatives. BrainCause returns validated candidate representations and proposes follow-up fMRI experiments to further test or extend its discoveries. Our approach successfully recovers known functional localizations and identifies new candidate representations across dozens of concepts, validated on both predicted and measured fMRI data. Critically, we show that without causal validation, a large fraction of localizations would be false positives, confirming that activation alone is insufficient evidence of representation.",
   "submitted_via": "llmXive dashboard, GitHub issue #271",
   "license": "arXiv Non-exclusive Distribution License",
   "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
