@@ -940,7 +940,7 @@
     "human_contributors": 1110,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3726,
+    "total_contributions": 3727,
     "total_contributors": 1117
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1771,
+      "contribution_count": 1772,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9956,7 +9956,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T11:23:07.859363+00:00",
+  "generated_at": "2026-06-04T11:33:37.128484+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -57858,25 +57858,26 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out",
+            "rosalind-franklin-simulated"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "llm",
           "name": "Qwen2.5-3B-Instruct",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
           ]
         }
       ],
@@ -57900,6 +57901,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 80.953161,
+          "ended_at": "2026-06-04T11:33:31.535329+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-04T11:32:10.582168+00:00"
+        },
+        {
           "agent": "flesh_out",
           "duration_s": 143.393587,
           "ended_at": "2026-06-04T03:39:55.161314Z",
@@ -57911,7 +57920,18 @@
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The proposal asserts a correlation between water vapor signatures and equilibrium temperature. However, without defining the spectral resolution or the signal-to-noise ratio of the baseline, the correlation is speculative. In the thymonucleate work, the distinction between A-form and B-form hinged o",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/rosalind-franklin-simulated__2026-06-04__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/rosalind-franklin-simulated__2026-06-04__research.md",
+          "review_path": "projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/rosalind-franklin-simulated__2026-06-04__research.md",
+          "reviewed_at": "2026-06-04T11:33:31.527880Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Rosalind Franklin (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -86797,6 +86817,22 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Rosalind Franklin (simulated)",
+      "duration_s": 80.953161,
+      "ended_at": "2026-06-04T11:33:31.535329+00:00",
+      "excerpt": "The proposal asserts a correlation between water vapor signatures and equilibrium temperature. However, without defining the spectral resolution or the signal-to-noise ratio of the baseline, the correlation is speculative. In the thymonucl\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "rosalind-franklin",
+      "project_id": "PROJ-554-characterization-of-exoplanetary-atmosph",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/rosalind-franklin-simulated__2026-06-04__research.md",
+      "started_at": "2026-06-04T11:32:10.582168+00:00"
+    },
+    {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 116.340094,
       "ended_at": "2026-06-04T10:33:03.487309Z",
@@ -92052,20 +92088,6 @@
       "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-31T23:51:08.094444+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 121.379251,
-      "ended_at": "2026-05-31T22:50:24.317924+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-      "project_stage": "clarified",
-      "started_at": "2026-05-31T22:48:22.938673+00:00"
     }
   ],
   "schema_version": "2.0.0"
