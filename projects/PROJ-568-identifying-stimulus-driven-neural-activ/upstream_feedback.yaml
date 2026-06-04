@@ -1,0 +1,147 @@
+project_id: PROJ-568-identifying-stimulus-driven-neural-activ
+arxiv_id: '2202.01933'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-04T13:37:22.669557+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 880aa81144e8
+    text: The bibliography section in e000 is truncated after ArchEtal07, leaving
+      dozens of in-text citations (e.g., Herc09, MannEtal09a, HaxbEtal11) unsupported.
+      This prevents verification of factual claims.
+    severity: writing
+  - id: 2fc4b39f848b
+    text: Specific dataset claims (e.g., n=5023 electrodes from EzzyEtal17) cannot
+      be validated without the full bibliographic entry. Ensure all cited keys have
+      corresponding bibitems.
+    severity: writing
+  - id: 3404a34fd40c
+    text: No analysis code repository or scripts provided to verify the reproducibility
+      of the methods described (e.g., HTFA, Hyperalignment in Section 2). For a code
+      quality review, artifacts enabling reproducibility from scratch are required.
+    severity: science
+  - id: 9b392ba87305
+    text: Complete the truncated bibliography in e000 (ends mid-sentence at 'navigation
+      in'). Provenance requires full citation details for all referenced works.
+    severity: science
+  - id: 9841ee07fae6
+    text: Add a Data Availability Statement specifying repositories for datasets cited
+      in figures (e.g., EzzyEtal17, OwenEtal20), including access links or DOIs.
+    severity: science
+  - id: 7d8158899362
+    text: Include dataset version numbers and license information for any external
+      data sources referenced in the methodology sections.
+    severity: science
+  - id: 604f08a7a58d
+    text: "Add alt text for all figures (e.g., \begin{figure}[alt=...] ...) to ensure\
+      \ accessibility compliance for visually impaired readers."
+    severity: writing
+  - id: 66ffcaec9c16
+    text: Specify colorblind-safe palette in figure captions or methods (e.g., Viridis,
+      ColorBrewer) for fig:spacetime and fig:electrodes which use multiple colors.
+    severity: writing
+  - id: d55b1cdb8553
+    text: Ensure axis labels and units are present in all multi-panel figures (fig:signals,
+      fig:supereeg); captions mention axes but verification requires visual inspection.
+    severity: writing
+  - id: 6e7dc8ecfb99
+    text: "Standardize figure widths across all figures (currently varies: \textwidth,\
+      \ 0.8\textwidth, 0.6\textwidth, 0.5\textwidth) for consistent print legibility."
+    severity: writing
+  - id: 9897c0f69adf
+    text: Verify permissions and attribution for all 'adapted from' figures (fig:spacetime,
+      fig:patterns, fig:geometry, fig:tfa, fig:supereeg) per journal requirements.
+    severity: writing
+  - id: f3a6ed200192
+    text: Abstract (e000/e001) lists 9+ acronyms (GLM, MVPA, RSA, etc.) without definition.
+      Define each at first use or move to body text to improve accessibility for non-specialists.
+    severity: writing
+  - id: 4a7d94632fdb
+    text: Figure e002 caption mentions 'MNI152 space' without definition. Add a brief
+      parenthetical explanation (e.g., 'standard anatomical coordinate space') for
+      non-neuroimaging readers.
+    severity: writing
+  - id: c7295e37d264
+    text: Section 2 (e002) uses 'procrustean transformation' without simplification.
+      Suggest adding 'geometric alignment' as a plain-language synonym to reduce barrier
+      to entry.
+    severity: writing
+  - id: 24b56697ed89
+    text: Add explicit statement about IRB approval and informed consent procedures
+      for all cited intracranial EEG datasets. This survey references data from 53
+      patients (n=5023 electrodes); readers need assurance ethical standards were
+      met.
+    severity: science
+  - id: 1e81764f785d
+    text: Include discussion of data privacy and de-identification procedures used
+      in the referenced studies. Patient electrode locations and neural recordings
+      could potentially be re-identified without proper safeguards.
+    severity: science
+  - id: 6546bb3d33c8
+    text: Address dual-use considerations for brain activity decoding methods discussed
+      (e.g., neural decoding, stimulus reconstruction). These techniques could have
+      applications beyond cognitive neuroscience.
+    severity: science
+  - id: 486bfd9dd1ba
+    text: The manuscript is a methodological survey without primary empirical data.
+      Consequently, the scientific evidence lens cannot evaluate internal sample sizes
+      or controls. Please explicitly clarify in the introduction that this chapter
+      reviews external evidence rather than presenting new experimental results, and
+      discuss the limitations of the cited literature's evidence strength (e.g., sample
+      sizes in referenced iEEG studies).
+    severity: science
+  - id: 28a68b6585cd
+    text: Section 2.1.2 (RSA) omits discussion of multiple-comparisons correction
+      for searchlight analyses. Without FWE or FDR control, reported spatial patterns
+      may reflect false positives.
+    severity: writing
+  - id: 5b59ba34b623
+    text: Section 2.1.1 (GLMs) describes the model form but lacks details on link
+      function selection, error distribution assumptions, or residual diagnostics
+      required for valid inference.
+    severity: writing
+  - id: c202c8d04032
+    text: Section 2.2.2 (Gaussian processes) mentions spatial blurring but does not
+      address kernel selection, hyperparameter optimization, or cross-validation procedures
+      essential for reproducibility.
+    severity: writing
+  - id: 47b1bd8f2681
+    text: Section 2.2.3 (ISC/ISFC) describes correlation computation but does not
+      specify null models or permutation testing procedures to establish statistical
+      significance against noise.
+    severity: writing
+  - id: d8106f3a84ab
+    text: 'Resolve document structure: Merge chunks e000, e001, and e002 into a single
+      valid LaTeX file with exactly one \begin{document} and \end{document} marker.'
+    severity: writing
+  - id: d22e7fdb0475
+    text: 'Complete bibliography: The bibliography in e000 is truncated at \bibitem{ArchEtal07}.
+      Ensure all cited keys (e.g., JonaKord17, HaxbEtal11) have corresponding entries.'
+    severity: writing
+  - id: 573df782a2de
+    text: 'Standardize caption formatting: Wrap long figure caption lines (e.g., fig:spacetime
+      in e000) to <=80 characters for source hygiene and version control readability.'
+    severity: writing
+  - id: eb377c1dba76
+    text: 'Remove duplicate command definitions: Consolidate \providecommand definitions
+      for \url and \doi which appear redundantly in the preamble and bibliography
+      section.'
+    severity: writing
+  - id: 3d999b435291
+    text: Correct the typo 'drug-resistent' to 'drug-resistant' in the Summary and
+      concluding remarks section.
+    severity: writing
+  - id: 206e377a43b8
+    text: Remove the repeated word 'taken' in the sentence 'taken taken as patients
+      watched' within the Hyperalignment subsection.
+    severity: writing
+  - id: dcfa4da0e65b
+    text: Replace the informal adverb 'incredibly' in the Overview section with a
+      more academic term (e.g., 'particularly' or 'significantly').
+    severity: writing
+  - id: 779d516a22a7
+    text: Reduce repetition of the word 'quality' in the Summary section (e.g., 'recording
+      quality', 'quality or fidelity').
+    severity: writing
