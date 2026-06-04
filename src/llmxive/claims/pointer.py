@@ -165,7 +165,17 @@ def _render_verified(claim: Claim) -> str:
     return _render_numeric(raw_text, resolved)
 
 
-def render(text: str, claims_by_id: dict[str, Claim]) -> tuple[str, GateReport]:
+def pointer_ids(text: str) -> list[str]:
+    """All claim ids referenced by ``{{claim:<id>}}`` pointers in ``text`` (in order)."""
+    return [m.group("id") for m in _CLAIM_POINTER_RE.finditer(text)]
+
+
+def render(
+    text: str,
+    claims_by_id: dict[str, Claim],
+    *,
+    placeholder_verified: bool = False,
+) -> tuple[str, GateReport]:
     """Substitute each ``{{claim:<id>}}`` pointer with PROSE, not a bare token.
 
     Each pointer stands in place of the claim's full ``raw_text`` sentence (the
@@ -179,6 +189,13 @@ def render(text: str, claims_by_id: dict[str, Claim]) -> tuple[str, GateReport]:
       followed by ONE inline ``[UNRESOLVED-CLAIM: ...]`` marker (the prose is
       preserved; the marker is appended, not substituted for the sentence).
 
+    spec 020 FR-007: when ``placeholder_verified=True`` (the canonical *stored*
+    form), a VERIFIED claim keeps its DURABLE ``{{claim:<id>}}`` placeholder rather
+    than baking the value into prose — so the value is never re-extractable
+    round-to-round (SC-007). The value is substituted only in the rendered VIEW
+    (:func:`render_view`) for reviewers + publish (FR-008). Non-verified claims are
+    rendered to prose + marker either way.
+
     Returns ``(rendered_text, GateReport)``.  Pure — no IO.
     """
     report = GateReport()
@@ -191,7 +208,8 @@ def render(text: str, claims_by_id: dict[str, Claim]) -> tuple[str, GateReport]:
             and claim.status == ClaimStatus.VERIFIED
             and claim.resolved_value is not None
         ):
-            return _render_verified(claim)
+            # Durable placeholder in the canonical stored form (FR-007), else bake.
+            return m.group(0) if placeholder_verified else _render_verified(claim)
         # Non-verified or unknown → preserve prose + append ONE inline marker.
         reason = (
             f"status={claim.status.value}" if claim is not None else "unknown claim"
@@ -207,9 +225,51 @@ def render(text: str, claims_by_id: dict[str, Claim]) -> tuple[str, GateReport]:
     return result, report
 
 
+def drop_orphan_pointers(text: str, known_ids: set[str]) -> str:
+    """Remove ``{{claim:<id>}}`` pointers whose id is NOT in ``known_ids`` (orphans).
+
+    spec 020 FR-007: a durable placeholder is preserved only while it has a backing
+    registered claim; an orphan pointer (from a deleted claim or hand-edited text)
+    is removed so it never renders as a spurious ``unknown claim`` marker.
+    """
+    def _sub(m: re.Match[str]) -> str:
+        return m.group(0) if m.group("id") in known_ids else ""
+
+    cleaned = _CLAIM_POINTER_RE.sub(_sub, text)
+    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
+    cleaned = re.sub(r" +([.,;:)])", r"\1", cleaned)
+    cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)  # no trailing space (idempotent fixed point)
+    return cleaned
+
+
+def render_view(text: str, claims_by_id: dict[str, Claim]) -> str:
+    """Substitute each VERIFIED ``{{claim:<id>}}`` placeholder with its value-baked prose.
+
+    spec 020 FR-008: the human/reviewer-facing + published view, rendered
+    deterministically from the frozen store at review time and for the final
+    artifact. A placeholder whose claim is missing or not VERIFIED is left as-is
+    (the canonical stored form only carries placeholders for VERIFIED claims).
+    Pure — no IO.
+    """
+    def _sub(m: re.Match[str]) -> str:
+        claim = claims_by_id.get(m.group("id"))
+        if (
+            claim is not None
+            and claim.status == ClaimStatus.VERIFIED
+            and claim.resolved_value is not None
+        ):
+            return _render_verified(claim)
+        return m.group(0)
+
+    return _CLAIM_POINTER_RE.sub(_sub, text)
+
+
 __all__ = [
     "GateReport",
+    "drop_orphan_pointers",
+    "pointer_ids",
     "render",
+    "render_view",
     "strip_claim_artifacts",
     "substitute_pointers",
     "to_pointer",

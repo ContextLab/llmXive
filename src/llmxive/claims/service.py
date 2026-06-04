@@ -21,7 +21,13 @@ from llmxive.claims.canonical import subject_key
 from llmxive.claims.extract import extract_claims
 from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.claims.pointer import GateReport, render, substitute_pointers
+from llmxive.claims.pointer import (
+    GateReport,
+    drop_orphan_pointers,
+    pointer_ids,
+    render,
+    substitute_pointers,
+)
 from llmxive.claims.resolve import resolve
 from llmxive.claims.smooth import strip_and_smooth
 from llmxive.claims.stage import is_planning_stage
@@ -247,9 +253,12 @@ def process_document(
             backend=backend, model=model, repo_root=repo_root,
         )
 
-    # Step 0: Strip prior claim-layer artifacts (markers + stray pointers) so a
-    # re-run does NOT re-extract its own output (idempotency — root causes 2/4).
-    text = strip_claim_artifacts(text)
+    # Step 0: Strip prior [UNRESOLVED-CLAIM:] markers so a re-run does NOT
+    # re-extract its own output (idempotency). spec 020 FR-007: PRESERVE durable
+    # {{claim:id}} placeholders — they carry a verified value in the canonical
+    # stored form and must survive round-to-round (so the value is never baked
+    # into prose and re-extracted as a new claim — SC-007).
+    text = strip_claim_artifacts(text, preserve_pointers=True)
 
     # Step 1: Extract claims from the document.
     try:
@@ -265,7 +274,17 @@ def process_document(
         return text, [], GateReport()
 
     if not new_claims:
-        return text, [], GateReport()
+        # No NEW claims, but the doc may carry durable {{claim:id}} placeholders
+        # from prior rounds (FR-007): keep those with a backing registered claim,
+        # drop orphans, and re-render so placeholders stay placeholders.
+        carried: dict[str, Claim] = {}
+        for cid in pointer_ids(text):
+            prior = _claim_store.get(project_id, cid, repo_root=repo_root)
+            if prior is not None:
+                carried[cid] = prior
+        text = drop_orphan_pointers(text, set(carried))
+        rendered, gate_report = render(text, carried, placeholder_verified=True)
+        return rendered, [], gate_report
 
     # Step 2: Upsert each claim into the registry (dedup by claim_id), with a
     # subject-keyed VERIFIED reuse: a reviser REPHRASE yields a NEW claim_id for
@@ -311,9 +330,25 @@ def process_document(
         repo_root=repo_root,
     )
 
-    # Step 5: Render — substitute pointers with verified values or markers.
+    # Step 5: Render — keep VERIFIED claims as DURABLE placeholders in the canonical
+    # stored form (FR-007); their value is substituted only in the rendered VIEW
+    # (render_view) at review time + publish (FR-008).
     claims_by_id = {c.claim_id: c for c in resolved_claims}
-    rendered_text, gate_report = render(text_with_pointers, claims_by_id)
+    # Include claims referenced by durable placeholders carried over from prior
+    # rounds: their prose is already a {{claim:id}} token, so they were NOT
+    # re-extracted this round; load them from the registry so render keeps them as
+    # placeholders rather than emitting an "unknown claim" marker.
+    for cid in pointer_ids(text_with_pointers):
+        if cid not in claims_by_id:
+            prior = _claim_store.get(project_id, cid, repo_root=repo_root)
+            if prior is not None:
+                claims_by_id[cid] = prior
+    # Drop orphan pointers (no backing registered claim) so they never render as a
+    # spurious "unknown claim" marker — durable placeholders (with a claim) are kept.
+    text_with_pointers = drop_orphan_pointers(text_with_pointers, set(claims_by_id))
+    rendered_text, gate_report = render(
+        text_with_pointers, claims_by_id, placeholder_verified=True
+    )
 
     # Step 6 (T035): repair citations for filled claims so the rendered text
     # cites the authoritative fill source rather than a stale paper citation.
@@ -376,6 +411,36 @@ def process_document(
     return rendered_text, resolved_claims, gate_report
 
 
+def render_artifact_view(
+    text: str, *, project_id: str, repo_root: Path
+) -> str:
+    """FR-008: the human/reviewer + published VIEW of a canonical artifact.
+
+    Substitutes verified values for the durable ``{{claim:id}}`` placeholders the
+    canonical stored form carries (FR-007), deterministically from the git-tracked
+    ``state/claims/`` frozen store (FR-013). Used at review time (the artifact shown
+    to the convergence panel) and for the final published artifact. The canonical
+    stored form is unchanged; this is a pure read-time projection. No-op when the
+    text carries no placeholders (e.g. a planning-stage artifact). Never raises.
+    """
+    from llmxive.claims.pointer import pointer_ids as _pids
+    from llmxive.claims.pointer import render_view as _render_view
+
+    try:
+        ids = set(_pids(text))
+        if not ids:
+            return text
+        by_id: dict[str, Claim] = {}
+        for cid in ids:
+            c = _claim_store.get(project_id, cid, repo_root=repo_root)
+            if c is not None:
+                by_id[cid] = c
+        return _render_view(text, by_id)
+    except Exception as exc:  # a view projection must never break a read
+        logger.warning("claims.service: render_artifact_view failed (%s)", exc)
+        return text
+
+
 def _project_dir(artifact_path: str, project_id: str, repo_root: Path) -> Path | None:
     """Locate the project directory under ``repo_root`` for ``artifact_path``.
 
@@ -433,4 +498,4 @@ def _persist_verified_facts(
         logger.warning("claims.service: verified_facts persist failed (%s)", exc)
 
 
-__all__ = ["process_document", "resolve_registered_claims"]
+__all__ = ["process_document", "render_artifact_view", "resolve_registered_claims"]

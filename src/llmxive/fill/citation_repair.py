@@ -342,19 +342,36 @@ def repair_citation(text: str, *, claim: Claim, provenance: FillProvenance) -> s
     value — unrelated prose is never touched.
     """
     value = provenance.value or (claim.resolved_value or "")
-    if not value:
-        return text
 
-    # Idempotency: if the authoritative source is already cited, stop.
-    if _already_has_authoritative(text, provenance):
-        return text
+    # spec 020 FR-007: the canonical stored form carries a durable {{claim:id}}
+    # placeholder where the value would be (the value is substituted only in the
+    # rendered view). When present it is an UNAMBIGUOUS single-occurrence anchor,
+    # so repair the adjacent citation around it directly (no value scoping needed);
+    # otherwise fall back to locating the value (legacy / rendered-view repair).
+    # The citation is metadata and is corrected in the canonical stored form
+    # exactly as before — only the anchor differs.
+    from llmxive.claims.pointer import to_pointer
 
-    # Locate the value in the text — boundary-aware and scoped to the claim's
-    # own sentence. Returns None (→ no-op) when the choice is ambiguous or no
-    # boundary-valid occurrence can be confidently attributed to the claim.
-    span = _select_scoped_span(text, value, claim)
+    placeholder = to_pointer(claim.claim_id)
+    if placeholder in text:
+        anchor = placeholder
+        if _already_has_authoritative(text, provenance):
+            return text
+        p_start = text.index(placeholder)
+        span: tuple[int, int] | None = (p_start, p_start + len(placeholder))
+    else:
+        anchor = value
+        if not anchor:
+            return text
+        # Idempotency: if the authoritative source is already cited, stop.
+        if _already_has_authoritative(text, provenance):
+            return text
+        # Locate the value in the text — boundary-aware and scoped to the claim's
+        # own sentence. Returns None (→ no-op) when the choice is ambiguous or no
+        # boundary-valid occurrence can be confidently attributed to the claim.
+        span = _select_scoped_span(text, anchor, claim)
     if span is None:
-        # Value not safely locatable — never garble unrelated prose.
+        # Anchor not safely locatable — never garble unrelated prose.
         return text
 
     val_start, val_end = span
@@ -368,7 +385,7 @@ def repair_citation(text: str, *, claim: Claim, provenance: FillProvenance) -> s
     # value position shifts by the number of chars removed before it within the
     # window. Re-select against the cleaned text, preferring the occurrence
     # nearest the original (boundary-valid) position.
-    new_span = _relocate_value(cleaned, value, val_start)
+    new_span = _relocate_value(cleaned, anchor, val_start)
     if new_span is None:
         # Shouldn't happen, but be safe
         return cleaned
