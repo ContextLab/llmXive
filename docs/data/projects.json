@@ -940,7 +940,7 @@
     "human_contributors": 1128,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3790,
+    "total_contributions": 3801,
     "total_contributors": 1135
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1817,
+      "contribution_count": 1828,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -10100,7 +10100,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T21:36:49.355597+00:00",
+  "generated_at": "2026-06-04T22:05:44.711718+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67173,25 +67173,26 @@
         "paper_tasks": null,
         "plan": null,
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-584-predictive-coding-llms-implementing-hier/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "david-krakauer-simulated",
+            "flesh_out"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
           "name": "Jeremy R. Manning",
           "roles": [
             "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "flesh_out"
           ]
         }
       ],
@@ -67215,6 +67216,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 196.163919,
+          "ended_at": "2026-06-04T22:05:39.030515+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-04T22:02:22.866596+00:00"
+        },
+        {
           "agent": "flesh_out",
           "duration_s": 207.843201,
           "ended_at": "2026-06-03T03:39:51.355449Z",
@@ -67234,7 +67243,18 @@
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The proposal to implement predictive coding in LLMs via hierarchical error minimization is a worthy attempt to bridge neuroscience and deep learning, but I'm struck by what remains unexamined: the historical lineage of predictive processing from Helmholtz through Friston to today's transformers. The",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-584-predictive-coding-llms-implementing-hier/reviews/research/david-krakauer-simulated__2026-06-04__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-584-predictive-coding-llms-implementing-hier/reviews/research/david-krakauer-simulated__2026-06-04__research.md",
+          "review_path": "projects/PROJ-584-predictive-coding-llms-implementing-hier/reviews/research/david-krakauer-simulated__2026-06-04__research.md",
+          "reviewed_at": "2026-06-04T22:05:39.022892Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "David Krakauer (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -85086,7 +85106,7 @@
       },
       "authors": [
         {
-          "contributions": 20,
+          "contributions": 36,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -85094,10 +85114,12 @@
             "paper_reviewer_claim_accuracy",
             "paper_reviewer_code_quality_paper",
             "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
             "paper_reviewer_jargon_police",
             "paper_reviewer_logical_consistency",
             "paper_reviewer_overreach",
             "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
             "paper_reviewer_statistical_analysis",
             "paper_reviewer_writing_quality"
           ]
@@ -85180,89 +85202,169 @@
       "last_run_log": [
         {
           "agent": "paper_reviewer_jargon_police",
-          "duration_s": 64.553259,
-          "ended_at": "2026-06-03T22:10:01.015147Z",
+          "duration_s": 36.870609,
+          "ended_at": "2026-06-04T21:41:34.493181Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T22:08:56.461888Z"
+          "started_at": "2026-06-04T21:40:57.622572Z"
         },
         {
           "agent": "paper_reviewer_figure_critic",
-          "duration_s": 31.180232,
-          "ended_at": "2026-06-03T22:08:56.407434Z",
+          "duration_s": 33.764706,
+          "ended_at": "2026-06-04T21:40:57.577407Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-06-03T22:08:25.227202Z"
+          "outcome": "success",
+          "started_at": "2026-06-04T21:40:23.812701Z"
         },
         {
           "agent": "paper_reviewer_text_formatting",
-          "duration_s": 24.29531,
-          "ended_at": "2026-06-03T22:08:25.171592Z",
+          "duration_s": 23.200962,
+          "ended_at": "2026-06-04T21:40:23.765273Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
-          "started_at": "2026-06-03T22:08:00.876282Z"
+          "started_at": "2026-06-04T21:40:00.564311Z"
         },
         {
           "agent": "paper_reviewer_data_quality_paper",
-          "duration_s": 49.816798,
-          "ended_at": "2026-06-03T22:08:00.822839Z",
+          "duration_s": 20.325291,
+          "ended_at": "2026-06-04T21:40:00.519034Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T22:07:11.006041Z"
+          "started_at": "2026-06-04T21:39:40.193743Z"
         },
         {
           "agent": "paper_reviewer_code_quality_paper",
-          "duration_s": 19.00511,
-          "ended_at": "2026-06-03T22:07:10.888100Z",
+          "duration_s": 28.737218,
+          "ended_at": "2026-06-04T21:39:40.148618Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T22:06:51.882990Z"
+          "started_at": "2026-06-04T21:39:11.411400Z"
         },
         {
           "agent": "paper_reviewer_statistical_analysis",
-          "duration_s": 68.978932,
-          "ended_at": "2026-06-03T22:06:51.829307Z",
+          "duration_s": 22.422123,
+          "ended_at": "2026-06-04T21:39:11.365870Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T22:05:42.850375Z"
+          "started_at": "2026-06-04T21:38:48.943747Z"
         },
         {
           "agent": "paper_reviewer_scientific_evidence",
-          "duration_s": 21.070236,
-          "ended_at": "2026-06-03T22:05:42.797087Z",
+          "duration_s": 32.584926,
+          "ended_at": "2026-06-04T21:38:48.898041Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-06-03T22:05:21.726851Z"
+          "outcome": "success",
+          "started_at": "2026-06-04T21:38:16.313115Z"
         },
         {
           "agent": "paper_reviewer_safety_ethics",
-          "duration_s": 49.689677,
-          "ended_at": "2026-06-03T22:05:21.672783Z",
+          "duration_s": 87.446891,
+          "ended_at": "2026-06-04T21:38:16.267854Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T22:04:31.983106Z"
+          "started_at": "2026-06-04T21:36:48.820963Z"
         },
         {
           "agent": "paper_reviewer_overreach",
-          "duration_s": 21.620111,
-          "ended_at": "2026-06-03T22:04:31.929412Z",
+          "duration_s": 20.801996,
+          "ended_at": "2026-06-04T21:36:48.774971Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T22:04:10.309301Z"
+          "started_at": "2026-06-04T21:36:27.972975Z"
         },
         {
           "agent": "paper_reviewer_claim_accuracy",
-          "duration_s": 49.724963,
-          "ended_at": "2026-06-03T22:04:10.256814Z",
+          "duration_s": 49.723973,
+          "ended_at": "2026-06-04T21:36:27.925884Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-03T22:03:20.531851Z"
+          "outcome": "failed",
+          "started_at": "2026-06-04T21:35:38.201911Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "None of the four jargon-related action items from the previous review have been addressed in this revision. All four concerns remain active and require attention before the paper can be accepted.\n\n1. **KL abbreviation** (ID: 1089c267cd05): The term \"KL\" appears 20+ times throughout the manuscript wi",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_jargon_police__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_jargon_police__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_jargon_police__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:41:34.327784Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on figure quality, clarity, and presentation.\n\n**Strengths:**\nThe paper includes 8 figures that cover conceptual diagrams, training curves, and diagnostic plots. Figure 1 (conceptual overview) and Figure 8 (rollout excerpts) effectively communicate the method's intuit",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_figure_critic__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_figure_critic__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_figure_critic__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:40:57.468816Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Data Quality Re-Review Assessment\n\nAll three prior action items from my previous review remain unaddressed in the current revision.\n\n### 1. OpenThoughts3-1.2M Bibliography Entry (ID: ffba846cfc8a)\nThe paper mentions sampling \"25,600 training prompts from the OpenThoughts3-1.2M corpus\" in Appendix",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_data_quality_paper__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_data_quality_paper__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_data_quality_paper__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:40:00.410100Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Re-Review Assessment: Code Quality Lens\n\n### Prior Action Items Status\n\nAll three prior action items from my previous review **remain unaddressed** in the current revision:\n\n| ID | Concern | Status |\n|---|---|---|\n| 08f17ee53ecf | No code artifacts provided | **Unaddressed** |\n| 610411823c4e | Re",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_code_quality_paper__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_code_quality_paper__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_code_quality_paper__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:39:40.039423Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Statistical Analysis Re-Review\n\nNone of the four prior action items from my previous review have been addressed in the current revision.\n\n**1. Random Seeds (ID: 2d8787e007a4)**\nAppendix A (Experimental Details, lines 275-310) lists hyperparameters but does not specify the number of random seeds u",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_statistical_analysis__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_statistical_analysis__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_statistical_analysis__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:39:11.257154Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Scientific Evidence Review\n\n### Sample Sizes and Replication\n\nThe paper uses two model-pair settings (Qwen3-1.7B\u21908B and Qwen3-0.6B\u21904B) with 25,600 training prompts from OpenThoughts3-1.2M. However, **no multiple random seeds are reported** for any main results. All benchmark scores in Table 1 are",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_scientific_evidence__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_scientific_evidence__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_scientific_evidence__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:38:48.788917Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "full_revision"
+        },
+        {
+          "excerpt": "The current revision does not adequately address the prior safety and ethics action item (ID: a7bdb6374df5). As per the re-review protocol, I have checked for the presence of the requested Safety and Ethics statement or the expansion of the Limitations section regarding dual-use implications and dat",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_safety_ethics__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_safety_ethics__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_safety_ethics__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:38:16.158924Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Re-Review Assessment: Overreach Lens\n\n### Prior Action Items Status\n\n**All three prior action items remain unaddressed in this revision:**\n\n1. **Item 6742c4a8fa13 (Unaddressed)**: Table 1 (tab:main-results-skeleton) still reports single-point averages without variance, error bars, or confidence i",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_overreach__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_overreach__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_overreach__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T21:36:48.658750Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The manuscript relies heavily on domain-specific terminology that obscures meaning for readers outside reinforcement learning (RL) and large language model (LLM) distillation. While standard for a specialized conference, the density of undefined acronyms and technical metaphors reduces accessibility",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
@@ -85372,9 +85474,9 @@
       "title": "Trust-Region Behavior Blending for On-Policy Distillation",
       "updated_at": "2026-06-02T09:29:10.725546+00:00",
       "upstream_feedback": {
-        "latest_action_item_count": 30,
+        "latest_action_item_count": 37,
         "latest_verdict_class": "science",
-        "round_count": 1,
+        "round_count": 2,
         "schema_version": 1
       }
     },
@@ -87566,6 +87668,152 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "David Krakauer (simulated)",
+      "duration_s": 196.163919,
+      "ended_at": "2026-06-04T22:05:39.030515+00:00",
+      "excerpt": "The proposal to implement predictive coding in LLMs via hierarchical error minimization is a worthy attempt to bridge neuroscience and deep learning, but I'm struck by what remains unexamined: the historical lineage of predictive processin\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "david-krakauer",
+      "project_id": "PROJ-584-predictive-coding-llms-implementing-hier",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-584-predictive-coding-llms-implementing-hier/reviews/research/david-krakauer-simulated__2026-06-04__research.md",
+      "started_at": "2026-06-04T22:02:22.866596+00:00"
+    },
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 36.870609,
+      "ended_at": "2026-06-04T21:41:34.493181Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:40:57.622572Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 33.764706,
+      "ended_at": "2026-06-04T21:40:57.577407Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:40:23.812701Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 23.200962,
+      "ended_at": "2026-06-04T21:40:23.765273Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:40:00.564311Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 20.325291,
+      "ended_at": "2026-06-04T21:40:00.519034Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:39:40.193743Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 28.737218,
+      "ended_at": "2026-06-04T21:39:40.148618Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:39:11.411400Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 22.422123,
+      "ended_at": "2026-06-04T21:39:11.365870Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:38:48.943747Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 32.584926,
+      "ended_at": "2026-06-04T21:38:48.898041Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:38:16.313115Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 87.446891,
+      "ended_at": "2026-06-04T21:38:16.267854Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:36:48.820963Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 20.801996,
+      "ended_at": "2026-06-04T21:36:48.774971Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:36:27.972975Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 49.723973,
+      "ended_at": "2026-06-04T21:36:27.925884Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:35:38.201911Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 27.983131,
+      "ended_at": "2026-06-04T21:35:38.153740Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:35:10.170609Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 29.500943,
+      "ended_at": "2026-06-04T21:35:10.121185Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:34:40.620242Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 20.515506,
+      "ended_at": "2026-06-04T21:34:40.567230Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T21:34:20.051724Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -92693,150 +92941,6 @@
       "project_id": null,
       "project_stage": "",
       "started_at": "2026-06-01T13:21:33.644622+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Albert Einstein (simulated)",
-      "duration_s": 126.058634,
-      "ended_at": "2026-06-01T11:20:38.126797+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "target_missing",
-      "personality_slug": "albert-einstein",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:18:32.068163+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 78.783645,
-      "ended_at": "2026-06-01T11:10:16.002342Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:08:57.218697Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 87.260242,
-      "ended_at": "2026-06-01T11:08:57.173003Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:07:29.912761Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 228.129207,
-      "ended_at": "2026-06-01T11:07:29.867659Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:03:41.738452Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 31.48899,
-      "ended_at": "2026-06-01T11:03:41.693324Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:03:10.204334Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 63.729838,
-      "ended_at": "2026-06-01T11:03:10.158060Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:02:06.428222Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 83.670026,
-      "ended_at": "2026-06-01T11:02:06.382184Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:00:42.712158Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 42.256068,
-      "ended_at": "2026-06-01T11:00:42.666989Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T11:00:00.410921Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 65.684486,
-      "ended_at": "2026-06-01T11:00:00.365186Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T10:58:54.680700Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 56.133332,
-      "ended_at": "2026-06-01T10:58:54.633208Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T10:57:58.499876Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 167.09858,
-      "ended_at": "2026-06-01T10:57:58.452417Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T10:55:11.353837Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 114.08777,
-      "ended_at": "2026-06-01T10:55:11.305454Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T10:53:17.217684Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 104.703916,
-      "ended_at": "2026-06-01T10:53:17.170885Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T10:51:32.466969Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 365.309868,
-      "ended_at": "2026-06-01T10:51:32.418713Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T10:45:27.108845Z"
     }
   ],
   "schema_version": "2.0.0"
