@@ -89,4 +89,7 @@ ready:
 - project_id: PROJ-565-edit-compass-editreward-compass-a-unifie
   revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-1
   queued_at: '2026-06-04T16:39:46.016797+00:00'
+- project_id: PROJ-604-https-arxiv-org-abs-2605-18739
+  revision_spec_path: specs/auto-revisions/PROJ-604-https-arxiv-org-abs-2605-18739/round-1
+  queued_at: '2026-06-04T19:12:34.204672+00:00'
 blocked: []

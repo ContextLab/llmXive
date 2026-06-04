@@ -1,0 +1,142 @@
+project_id: PROJ-604-https-arxiv-org-abs-2605-18739
+arxiv_id: '2605.18739'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-04T19:12:34.189566+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 4335f87f407e
+    text: Teaser Figure caption claims memory reduction from 35.4 GB, but Table 3
+      (tab:inference_progressive) shows 36.4 GB for BF16 baseline. Please align these
+      numbers or specify the exact configuration for the 35.4 GB figure.
+    severity: writing
+  - id: f8e911468406
+    text: Section 2.2 states NVFP4 provides 'approximately 1.8x training speedup'
+      without explicitly stating the baseline (BF16 Balanced SP). This conflicts with
+      the Abstract's 2.15x claim (vs BF16 w/ SP). Clarify the baseline to avoid confusion.
+    severity: writing
+  - id: 0b8fbbaf32af
+    text: The FPS claim (45.7 FPS) and E2E latency (36.3s for 64s video) imply different
+      real-time factors depending on output frame rate. Clarify if FPS refers to model
+      throughput or E2E system throughput to ensure accuracy.
+    severity: writing
+  - id: ea3ee48e1351
+    text: Code artifacts (repository, scripts, configs) not provided for review. Access
+      to github.com/NVlabs/LongLive is required to evaluate code quality, modularity,
+      tests, and reproducibility from scratch.
+    severity: writing
+  - id: 8bf3c15ad90c
+    text: Paper mentions custom CUDA/Triton kernels for NVFP4 but does not provide
+      kernel source or build instructions. Reproducibility of the core infrastructure
+      cannot be verified without code access.
+    severity: writing
+  - id: b6b577fbdd77
+    text: Implementation Details (Appendix E) lists hyperparameters but omits dependency
+      versions (PyTorch, DeepSpeed, CUDA). Add a requirements.txt or environment.yml
+      for reproducibility.
+    severity: writing
+  - id: 5ad768df760b
+    text: Dataset license is not specified. The Appendix describes a 120K video dataset
+      but omits usage rights, hindering reproducibility and legal compliance.
+    severity: writing
+  - id: b8e390504004
+    text: Dataset access path is unclear. Only a general project GitHub link is provided;
+      specific data download instructions or repository paths are missing.
+    severity: writing
+  - id: cf9eea9f410f
+    text: Data filtering thresholds are vague. The Appendix mentions MANIQA scoring
+      for quality control but does not report the specific threshold values used for
+      retention.
+    severity: writing
+  - id: 90c9ec5e7350
+    text: Caption schema is undefined. The text describes 'structured captions' but
+      does not provide a schema definition or example format for the annotations.
+    severity: writing
+  - id: 32ecdae931c4
+    text: Simplify the teaser figure caption (Fig. 1) by moving detailed metric comparisons
+      (e.g., 2.15x speedup) to the main text or a dedicated table to improve readability
+      at print scale.
+    severity: writing
+  - id: 685a19f7add3
+    text: Ensure internal legends and axis labels in composite figures (e.g., Fig.
+      A.1, Fig. A.5) are legible at 100% zoom; consider increasing font size for sub-figure
+      annotations.
+    severity: writing
+  - id: 3d833baf343e
+    text: Define all acronyms at first use, especially in the Abstract (e.g., NVFP4,
+      VAE, LoRA, GEMM, W4A4, KV cache).
+    severity: writing
+  - id: 5324790d7556
+    text: Reduce jargon density in the Abstract; explain 'Balanced SP' and 'loss-bearing
+      tokens' in plain English.
+    severity: writing
+  - id: 04d3bbd33a5a
+    text: Define informal abbreviations like 'OOM' (Table 1) and framework-specific
+      terms like 'FSDP', 'EMA', 'RoPE' in the Appendix.
+    severity: writing
+  - id: bad4f003a750
+    text: Teaser Figure caption states training latency is '1372.9 ms' per iteration,
+      while Table 1 lists '1372.9' in seconds. This unit mismatch creates a logical
+      contradiction between the abstract/teaser and the experimental data.
+    severity: writing
+  - id: 5820d61e7274
+    text: Introduction claims SP inference on non-Blackwell GPUs 'matches the speed
+      on Blackwell GPUs', but Appendix Table 1 shows 54.8s (H100 SP) vs 36.3s (GB200
+      NVFP4) for 64s videos. The evidence does not support the 'match' claim; it shows
+      improvement over single-GPU but not parity with Blackwell.
+    severity: writing
+  - id: b78e19ddcb6e
+    text: The '45.7 FPS' metric is defined as model throughput (ms/frame) in the Teaser,
+      but 'real-time generation' typically implies video duration vs generation time.
+      Clarify if FPS refers to model throughput or effective video generation rate
+      to ensure logical alignment with 'real-time' claims.
+    severity: writing
+  - id: 1afa26cb9d53
+    text: Clarify the role of DMD in the Abstract to avoid overclaiming a 'clean pipeline'.
+      Section 2 states DMD is used for distillation, but Abstract (Line 15-18) contrasts
+      against methods relying on DMD, implying DMD is not used. Rephrase to specify
+      DMD is only for distillation, not AR training.
+    severity: writing
+  - id: 99bb5e822075
+    text: The Broader Impacts section (Conclusion) states the infrastructure 'involves
+      no negative social implications,' which is inadequate for a video generation
+      system. Expand to explicitly discuss dual-use risks (deepfakes, misinformation)
+      and mitigation strategies.
+    severity: writing
+  - id: 53dcee6f7971
+    text: No discussion of training data provenance or consent. The dataset section
+      (Appendix) describes 120K videos but does not address whether subjects consented
+      to inclusion or if copyrighted material was used. Add data sourcing and privacy
+      considerations.
+    severity: writing
+  - id: fa805b309554
+    text: No content safety measures are described. Video generation models require
+      safeguards against harmful content generation. Include discussion of safety
+      filters or content moderation approaches in deployment.
+    severity: writing
+  - id: d77d61dcd791
+    text: Provide standard deviations for VBench scores (Tables 2, 3) to establish
+      statistical significance of quality gains.
+    severity: science
+  - id: ef5966277535
+    text: Control for resolution differences in Table 2 (1280x720 vs 832x480) to isolate
+      model performance from resolution effects.
+    severity: science
+  - id: 85eca87e8137
+    text: Quantify PTQ vs Pre-trained NVFP4 quality gap in Appendix with metrics like
+      LPIPS/FID rather than qualitative descriptions.
+    severity: science
+  - id: ecf997d27e38
+    text: Report standard deviations or confidence intervals for VBench scores in
+      Tables 2 and 3 to quantify variance across seeds.
+    severity: science
+  - id: 801dcb36a8e8
+    text: Explicitly state the number of evaluation samples (N) and inference random
+      seeds used for benchmark metrics.
+    severity: science
+  - id: 813f820d116e
+    text: Apply statistical significance tests (e.g., t-tests) to validate performance
+      claims over baselines.
+    severity: science
