@@ -1,16 +1,14 @@
-"""Spec 020 T015 — fill cache key does not depend on the resolved value (C7; FR-012).
+"""Spec 020 T015 — value-independent fill cache key (C7; FR-012, strong form).
 
-Offline. The maintainer's concrete concern: ``_cache_key_parts`` included
-``resolved_value``, so the SAME claim keyed differently before resolution
-(value=None) vs after (value set) — the verdict cached during resolution was
-never found next round, forcing a fresh fill. The key now drops ``resolved_value``
-so the pre- and post-resolution lookups of one fact share the entry, while
-rephrasings still share and distinct facts still differ.
+Offline. The fill verdict key is keyed on the value-EXCLUDED ``subject_key``, so:
+- the SAME claim keyed before resolution (value=None) and after (value set) shares
+  one entry (the verdict cached during resolution is found next round);
+- two *different asserted values* of the SAME subject ("49 …" vs "9,988 …") share
+  one entry — the cached verdict carries the subject's correct value;
+- rephrasings of the same fact share; genuinely distinct subjects still differ.
 
-(The stronger "two *different asserted values* of the same subject share a key"
-is intentionally NOT keyed here — it would need hardening the shared
-``_asserted_value`` primitive; the practical waffling is closed by the subject-key
-freeze + the git-tracked frozen store. See ``_cache_key_parts`` docstring.)
+This relies on ``pointer.asserted_value`` robustly separating the answer from
+qualifier numbers (incl. comma-less prose like "… 13 is 27635").
 """
 
 from __future__ import annotations
@@ -44,6 +42,23 @@ def test_rephrasings_of_same_fact_still_share_key() -> None:
     c1 = _claim("There are 27,635 prime knots with 13 crossings.")
     c2 = _claim("The number of prime knots at crossing number 13 is 27,635.")
     assert _cache_key_parts(c1) == _cache_key_parts(c2)
+
+
+def test_different_asserted_values_same_subject_share_key() -> None:
+    # FR-012 strong form: a wrong "49" and the correct "9,988" for the SAME subject
+    # (prime knots at 13 crossings) MUST share the cache entry — the verdict carries
+    # the subject's correct value, which then corrects either phrasing.
+    wrong = _claim("There are 49 prime knots at 13 crossings.")
+    right = _claim("There are 9,988 prime knots at 13 crossings.")
+    assert _cache_key_parts(wrong) == _cache_key_parts(right)
+
+
+def test_comma_less_answer_collides_with_grouped() -> None:
+    # The disambiguation fix: a comma-less answer ("… 13 is 27635") keys identically
+    # to the thousands-grouped phrasing of the same fact.
+    grouped = _claim("There are 27,635 prime knots at 13 crossings.")
+    commaless = _claim("The number of prime knots at crossing number 13 is 27635.")
+    assert _cache_key_parts(grouped) == _cache_key_parts(commaless)
 
 
 def test_distinct_subjects_still_differ() -> None:

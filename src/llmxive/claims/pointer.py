@@ -72,43 +72,88 @@ def _numeric_tokens(text: str) -> list[re.Match[str]]:
     return list(_NUMBER_IN_TEXT_RE.finditer(text))
 
 
-def _select_asserted_token(
-    matches: list[re.Match[str]], resolved_value: str
-) -> re.Match[str] | None:
-    """Pick the numeric token in ``raw_text`` that asserts the claimed value.
+# Copula / assignment words that immediately precede the ASSERTED value (the
+# "answer") — used to disambiguate it from a qualifier number (a crossing index,
+# a year) when the answer carries NO thousands separator. e.g. "… crossing number
+# 13 is 27635" → 27635 (not 13); "the total = 9988" → 9988.
+_COPULA_RE = re.compile(
+    r"(?:\b(?:is|are|was|were|equals?|totals?|yields?|gives?|numbers?|"
+    r"amounts?\s+to|comes?\s+to)\b|[=:])\s*$",
+    re.IGNORECASE,
+)
 
-    Disambiguation (a spec sentence often holds several numbers — a parameter,
-    a year, AND the asserted count):
-    1. If any token already equals ``resolved_value`` (digits-only), return it
-       (idempotency — the prose is already correct, render leaves it untouched).
-    2. Otherwise prefer a token written WITH a thousands separator (e.g.
-       ``27,635``) — the asserted magnitude in scientific prose conventionally
-       carries grouping, while parameters/years (``13``, ``1998``) do not.
-    3. Otherwise the FIRST numeric token.
+
+def _follows_copula(text: str, start: int) -> bool:
+    """True iff the numeric token at ``start`` is immediately preceded (allowing
+    intervening spaces) by a copula/assignment word — a strong signal that the
+    token is the ASSERTED answer rather than a qualifier."""
+    return _COPULA_RE.search(text[:start]) is not None
+
+
+def select_asserted_token(
+    text: str, *, resolved_value: str | None = None
+) -> re.Match[str] | None:
+    """Pick the numeric token in ``text`` that asserts the claimed value.
+
+    SINGLE SOURCE OF TRUTH for "which number does this text assert" — used by
+    render (the token swap), ``canonical.subject_key`` (the value-EXCLUDED
+    identity), and the fill/smooth layers. A sentence often holds several numbers
+    (a parameter/index, a year, AND the asserted count); the deterministic
+    disambiguation, in priority order:
+
+    1. A token already equal to ``resolved_value`` (digits-only) — idempotency
+       (the prose is already correct; render leaves it untouched).
+    2. A token written WITH a thousands separator (``27,635``) — the asserted
+       magnitude in scientific prose conventionally carries grouping while
+       parameters/years do not. Ordered BEFORE the copula rule so every
+       comma-grouped case is byte-identical to the historical behavior (zero
+       regression).
+    3. A token immediately FOLLOWING a copula/assignment (``is`` / ``=`` / ``:``
+       …) — the asserted answer. The fix for non-grouped answers like
+       "… crossing number 13 is 27635" (→ 27635, not the qualifier 13).
+    4. The FIRST numeric token (historical fallback).
+
+    Returns the positioned :class:`re.Match`, or ``None`` when ``text`` has no
+    numeric token.
     """
+    matches = list(_NUMBER_IN_TEXT_RE.finditer(text))
     if not matches:
         return None
-    rv_digits = _digits_only(resolved_value)
-    for m in matches:
-        if _digits_only(m.group(0)) == rv_digits and rv_digits:
-            return m
+    if resolved_value:
+        rv = _digits_only(resolved_value)
+        if rv:
+            for m in matches:
+                if _digits_only(m.group(0)) == rv:
+                    return m
     for m in matches:
         if "," in m.group(0):
             return m
+    copula_followed = [m for m in matches if _follows_copula(text, m.start())]
+    if copula_followed:
+        return copula_followed[-1]  # the last (closest to the final assertion)
     return matches[0]
+
+
+def asserted_value(text: str, *, resolved_value: str | None = None) -> str | None:
+    """The numeric token ``text`` asserts (trimmed string), or ``None``.
+
+    Thin wrapper over :func:`select_asserted_token` — the value-string form used
+    by ``canonical.subject_key`` and the fill + smooth layers (which need the
+    value, not the position)."""
+    m = select_asserted_token(text, resolved_value=resolved_value)
+    return m.group(0).strip() if m is not None else None
 
 
 def _render_numeric(raw_text: str, resolved_value: str) -> str:
     """Swap the asserted numeric token in ``raw_text`` for ``resolved_value``.
 
-    Selects the asserted token (see :func:`_select_asserted_token`). If it
+    Selects the asserted token (see :func:`select_asserted_token`). If it
     already equals ``resolved_value`` (compared digits-only so ``27,635`` vs
     ``27635`` is an equality), the prose is returned UNCHANGED (idempotency).
     Otherwise that single occurrence is replaced with ``resolved_value`` and all
     surrounding prose is preserved byte-for-byte.
     """
-    matches = _numeric_tokens(raw_text)
-    m = _select_asserted_token(matches, resolved_value)
+    m = select_asserted_token(raw_text, resolved_value=resolved_value)
     if m is None:
         return raw_text
     matched = m.group(0)
@@ -266,10 +311,12 @@ def render_view(text: str, claims_by_id: dict[str, Claim]) -> str:
 
 __all__ = [
     "GateReport",
+    "asserted_value",
     "drop_orphan_pointers",
     "pointer_ids",
     "render",
     "render_view",
+    "select_asserted_token",
     "strip_claim_artifacts",
     "substitute_pointers",
     "to_pointer",

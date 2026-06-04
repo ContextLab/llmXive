@@ -113,35 +113,28 @@ def _is_math_claim(claim: Claim, *, backend: Any, model: str | None,
 # ---------------------------------------------------------------------------
 
 def _cache_key_parts(claim: Claim) -> tuple[str, str, str | None]:
-    """Return (source_id, fact_fingerprint, None) for grounding-verdict keying.
+    """Return (source_id, value-INDEPENDENT subject key, None) for verdict keying.
 
-    The middle component is a rephrase-independent FACT FINGERPRINT (numbers +
-    sorted subject keywords from subject_query) rather than the raw canonical, so
-    the convergence reviser's per-round rephrasings of the same fact share one
-    verdict entry while two genuinely different facts (different numbers or
-    subject) get different keys.
-
-    spec 020 FR-012: the asserted ``resolved_value`` is DROPPED from the key (it
-    was the 3rd component). With it present, the SAME claim looked up before
-    resolution (``resolved_value=None``) and after (``resolved_value`` set) keyed
-    differently, so the verdict cached *during* resolution was never found on the
-    next round — a guaranteed miss that forced a fresh fill each round. Removing it
-    lets the pre- and post-resolution lookups of one fact share the entry.
-
-    NOTE (scoped): making two *different asserted values* of the same subject
-    ("49" vs "9,988") share a key would additionally require excluding the
-    asserted number from ``fact_fingerprint`` — which depends on
-    ``canonical._asserted_value`` reliably separating the answer from qualifier
-    numbers. That primitive ("prefer a comma-grouped token, else the first") is
-    not robust on comma-less prose, and is shared by subject_key / canonical
-    corrections / pointer rendering, so hardening it is out of scope here. The
-    *practical* waffling it would address is already eliminated by the subject-key
-    FREEZE (resolve_registered_claims adopts a VERIFIED twin without re-resolving)
-    and the git-tracked frozen store (cross-run persistence).
+    spec 020 FR-012 (strong form): the key MUST NOT depend on the asserted value,
+    so a PENDING phrasing ("49 prime knots at 13 crossings") and the VERIFIED
+    phrasing ("9,988 …") of the SAME fact hit the SAME verdict entry — the cached
+    verdict carries the subject's CORRECT value, which then corrects either
+    phrasing. Keys on ``subject_key`` (asserted/resolved value EXCLUDED, qualifier
+    numbers like the crossing index + subject keywords KEPT), so genuinely distinct
+    subjects (12 vs 13 crossings; different keywords) still get distinct keys. This
+    is now sound because ``pointer.asserted_value`` robustly separates the answer
+    from qualifier numbers (thousands-separated magnitude → copula-following answer
+    → first), incl. comma-less prose like "… 13 is 27635". A claim with no stable
+    subject (``subject_key == ""`` — a bare number) falls back to the value-
+    inclusive ``fact_fingerprint`` so distinct bare-number claims do not collapse
+    onto one entry. The asserted ``number`` 3rd component is dropped entirely (the
+    same claim keyed identically before and after resolution).
     """
+    from llmxive.claims.canonical import subject_key
     from llmxive.fill.subject_query import fact_fingerprint
 
-    fingerprint = fact_fingerprint(claim)
+    sk = subject_key(claim)
+    fingerprint = sk if sk else fact_fingerprint(claim)
     return ("fill", fingerprint, None)
 
 
