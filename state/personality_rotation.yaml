@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-04T08:48:12.683327+00:00'
-last_outcome: abstained
+last_used: richard-feynman
+last_used_at: '2026-06-04T10:19:54.554539+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-05-25T06:56:00.931794+00:00'
-  ended_at: '2026-05-25T08:32:13.016628+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/alan-turing-simulated__2026-05-25__research.md
 - slug: albert-einstein
   started_at: '2026-05-25T08:32:13.016628+00:00'
   ended_at: '2026-05-25T09:55:20.733065+00:00'
@@ -1218,3 +1211,10 @@ history:
   ended_at: '2026-06-04T08:48:12.683327+00:00'
   outcome: abstained
   action: abstain
+- slug: richard-feynman
+  started_at: '2026-06-04T08:48:12.683327+00:00'
+  ended_at: '2026-06-04T10:19:54.554539+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/richard-feynman-simulated__2026-06-04__research.md
