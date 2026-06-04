@@ -573,15 +573,21 @@ Pipeline run via /speckit-execute: plan→tasks→analyze (7 findings, all fixed
 - **US3 (FR-006)** — templates/skills/data-resources panel defer empirical specifics; PROJ-552
   per-project template copies synced byte-identical.
 
-**OPEN DESIGN FORK (surfaced, NOT done): FR-007/008, SC-007 — durable placeholder.**
-Making `render()` leave `{{claim:id}}` placeholders instead of baking corrected values would
-(a) conflict with the proven-good value-correction tests (test_claim_pointer asserts render
-bakes 9988; test_claim_layer_chokepoint asserts VERIFIED renders values), (b) move the SC-005
-canonical-sweep correction to a render-time view, and (c) make every stored spec.md/plan.md
-across 600+ projects carry raw tokens. The *practical* waffling is already eliminated by US1 +
-US2 (the verified value never changes). SC-007's strict "never baked into prose" form is a
-large, risky restructuring of the most load-bearing claim-layer path → recommended as a
-focused, separately-reviewed change rather than an autonomous global rewrite.
+**FR-007/008, SC-007 — durable placeholder: IMPLEMENTED** (maintainer chose "implement now").
+`render(placeholder_verified=True)` keeps a durable `{{claim:id}}` in the canonical stored form;
+`render_view`/`render_artifact_view` substitute values for the human/published view from the frozen
+store; `strip_claim_artifacts(preserve_pointers=True)` keeps placeholders; `process_document`
+carries over prior-round placeholders + drops orphans (round-trip is a fixed point — SC-007). The
+proven-good value-correction path is PRESERVED: `render()`'s default mode is unchanged (all existing
+render tests green), and citation repair re-anchors on the placeholder. Per clarification Q4
+"convergence operates on the placeholder form", the LLM panel/reviser operate on placeholders (NOT
+render_view in the engine — that would re-persist baked values); the published paper prose does NOT
+pass through `process_document`, so it never carries placeholders. The reviser self-consistency claim
+pass was also threaded with the planning stage (completing US1 in the convergence loop). Only two
+offline tests needed updating to the deliberately-changed contract (test_double_run_is_stable,
+test_fill_render_repairs_citation); the proven-good render tests were untouched. Full offline gate
+2211 passed / 0 failed. ALL 35 tasks complete.
 
 Commits: c77de3fa (plan) 4b2cf2c4 (tasks+analyze) 4a06d0cc (US1) 16e44ee9 (US2 freeze+key)
-58877524 (US3+real-call tests). Real-call sign-off: free model = qwen.qwen3.5-122b.
+58877524 (US3+real-call tests) 8cb9771e+112eeb22 (real-call fixes) 2920cf1f (durable placeholder)
+081e74f4 (reviser stage threading). Real-call sign-off: free model = qwen.qwen3.5-122b.
