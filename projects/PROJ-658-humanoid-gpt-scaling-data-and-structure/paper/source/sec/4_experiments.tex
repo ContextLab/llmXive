@@ -1,0 +1,222 @@
+\begin{figure*}[t!]
+  \centering
+  \vspace{-10pt}
+  \includegraphics[width=1.0\linewidth]{assets/real.pdf}
+  \caption{\textbf{Real-world experiments for our \methodname.} All motions illustrated are excluded from training to verify generalization capability. Our method can track diverse, complex and high-dynamic motion in a zero-shot manner.}
+  \vspace{-15pt}
+  \label{fig:real_exp}
+\end{figure*}
+
+\section{Experiments}
+\label{sec:experiments}
+
+In this section, we aim to answer the following core questions that arise from our exploration of the scaled-up humanoid motion tracker and the emergence of zero-shot generalization in \methodname:
+
+\begin{itemize}[leftmargin=0em]
+
+\vspace{5pt}
+\infobox{Scaling Law in Humanoid Tracking.} 
+\vspace{5pt}
+How does the zero-shot tracking ability of \methodname\ scale with the amount of training data and model capacity? 
+Does enlarging the motion corpus or Transformer parameters yield predictable improvements in stability and generalization?
+  
+\vspace{5pt}
+\infobox{Diversity and Balance Drives Generalization.}
+\vspace{5pt}
+How can we quantify the diversity of motion data, and how does such diversity contribute to zero-shot tracking performance? 
+
+\vspace{5pt}
+\infobox{Powerful Structure Matters.}
+\vspace{5pt}
+How does the architectural choice, such as the Transformer versus other alternatives, affect the model's ability to capture long-horizon dynamics and generalize across unseen motions?
+\end{itemize}
+
+We systematically design experiments to address these questions, analyzing scaling trends, diversity–generalization relationships, and architectural contributions to robust zero-shot humanoid tracking.
+
+\begin{table*}[t]
+  \centering
+  \caption{
+  Comparison of backbone architectures and scaling effects. 
+  Larger datasets and higher-capacity Transformers consistently improve stability 
+  and zero-shot tracking accuracy across all metrics.
+  }
+  \label{tab:sim_scaling_backbone}
+  \resizebox{1.0\linewidth}{!}{
+  \setlength{\tabcolsep}{5.5pt}
+  \footnotesize
+  \begin{tabular}{cccccccc}
+    \toprule
+    Backbone &
+    \#Train Tokens &
+    \#Model Params.(M) &
+    SR $\uparrow$ &
+    MPJPE $\downarrow$ &
+    MPJVE $\downarrow$ &
+    RootVelErr $\downarrow$ &
+    MPKPE $\downarrow$ \\
+    \midrule
+    MLP (3-layer)   & 2M  & 0.25M & 76.89 & 0.1191 & 0.6081 & 0.2304 & 100.49 \\
+    TCN (8-layer)   & 2M  & 0.65M & 81.48 & 0.0885 & 0.5716 & 0.2266 & 79.75 \\
+    \midrule
+    Humanoid-GPT-S   & 2M  & 5.7M & 83.26 & 0.0853 & 0.5492 & 0.2049  & 62.65 \\
+    Humanoid-GPT-S  & 20M  & 5.7M & 86.02 & 0.0802 & 0.5210 & 0.1868  & 46.49 \\
+    Humanoid-GPT-B  & 200M & 22.1M & 88.27 & 0.0793 & 0.5076 & 0.1820  & 44.78 \\
+    \rowcolor{linecolor1}Humanoid-GPT-B & 2B  & 22.1M & 90.43 & 0.0768 & 0.4891 & \textbf{0.1756}  & 41.49 \\
+    \rowcolor{linecolor2}Humanoid-GPT-L & 2B  & 80.4M & \textbf{92.58} & \textbf{0.0735} & \textbf{0.4820} & 0.1785  & \textbf{40.99} \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table*}
+
+
+\subsection{Experiment Settings}
+
+We evaluate our method in both simulation and real-world settings, 
+using the 29-DoF Unitree-G1 as the humanoid platform for tracking the target motion in all experiments. In simulation, we employ MuJoCo\citep{mujoco12} as the physics engine to quantitatively assess the performance of different data and model variants under controlled conditions. For real-world evaluation, we adopt an online motion-retargeting pipeline that continuously converts the motion of a MoCap actor into the G1’s joint space, which serves as the online reference trajectories for our \methodname\ to track. 
+
+\subsection{Analysis on Data Diversity}
+We first evaluate how the diversity of motion data influences the generalization ability of our tracker. We compare three datasets with an increasing amount of clips: the commonly used \textbf{AMASS}~\citep{amass19}, the extended \textbf{AMASS+LAFAN}~\citep{lafan20}, recent \textbf{PHUMA}\citep{phuma25}, and our curated large-scale dataset described in Sec.~\ref{subsec:method_data}, which aggregates AMASS, LAFAN1, MotionMillion, and PHUMA to cover a substantially broader range of human dynamics. To quantitatively measure dataset diversity in the latent space, we compute the geometric mean standard deviation (\textit{gstd}) and the logarithmic volume of the covariance ellipsoid (\textit{log-volume}) based on the HME embeddings introduced in Sec~\ref{subsec:method_data}. To ensure that the size of each dataset does not bias the diversity estimation, we uniformly sample 10{,}000 embeddings from each dataset for evaluation. Given an embedding matrix $X = [x_1, x_2, \dots, x_N]^\top \in \mathbb{R}^{N \times D}$, we compute the covariance $\Sigma$ and the two diversity indicators are then defined as
+
+\begin{equation}
+\begin{aligned}
+    \text{gstd} &= \exp\!\left( \frac{1}{D} \sum_{j=1}^{D} \log \sigma_j \right), \\
+    \text{log-volume} &= \tfrac{1}{2}\log\det(\Sigma + \epsilon I),
+\end{aligned}
+\end{equation}
+where $\sigma_j$ denotes the standard deviation of the $j$-th embedding dimension and $\epsilon$ is a small regularization term ensuring numerical stability. Higher values indicate that the dataset spans a larger and more uniformly distributed region in the latent manifold. As shown in Fig.~\ref{fig:diversity_bubble}, our curated dataset exhibits both higher embedding scale and broader latent coverage, with an approximately $4\!-\!5$ increase in log-volume compared with AMASS. This result highlights that richer motion diversity substantially expands the latent coverage of the motion manifold, providing stronger priors for robust zero-shot humanoid tracking.
+
+
+\subsection{Evaluation in Simulation}
+We first evaluate \methodname\ in the MuJoCo simulation to systematically analyze the effects of data and model scaling on zero-shot tracking performance. 
+This controlled setup allows us to precisely measure stability, fidelity, 
+and generalization across diverse motion categories before transferring to the real world.
+
+\paragraph{Setup.}
+We construct multiple training configurations by varying both the size of the motion corpus and the capacity of the Transformer backbone. 
+Specifically, we sample teachers from clusters of 10k, 50k, 100k, and 300k motion clips for data scaling, and employ Transformer models with different parameters for model scaling, resulting in \methodname-small, \methodname, \methodname-Large. Each configuration is trained with identical DAgger distillation settings to ensure fair comparison. We test all variants above in the \textbf{AMASS-test} split in \citep{amass19} following \citep{phc23}, which is an unseen subset during training.
+
+\paragraph{Compared methods.}
+We compare the following baseline policies, which represent the strongest publicly available humanoid trackers at the time of writing and are all based on MLP-style low-level controllers trained on around $6$--$9$M motion frames (see Tab.~\ref{tab:comp}):
+\begin{itemize}[leftmargin=1.0em]
+    \item \textbf{GMT}~\cite{gmt25}: A Mixture-of-Experts (MoE) tracker trained on a subset of AMASS~\cite{amass19} motions, where each expert specializes in a particular motion pattern and the gating network selects appropriate experts to maintain physically consistent whole-body tracking.
+    \item \textbf{TWIST}~\cite{twist25}: A whole-body imitation policy distilled from the TWIST teleoperation system, designed for responsive human-in-the-loop control on Unitree humanoids and trained on a large corpus of teleoperated demonstrations covering everyday and dynamic behaviors.
+    \item \textbf{Any2Track}~\cite{any2track25}: A general tracker trained on AMASS~\cite{amass19} and LAFAN1~\cite{lafan20}, which emphasizes robustness to perturbations by incorporating dynamics-adaptive control objectives and strong disturbance randomization during training.
+\end{itemize}
+For all three methods, we use the authors' released implementations and checkpoints and evaluate them under the same simulation and retargeting protocol as our Humanoid-GPT models to ensure a fair comparison.
+
+
+\paragraph{Metrics.}
+We report three quantitative metrics: \ding{182}: \textbf{Tracking Success Rate (SR)}, which measures the proportion of trajectories 
+that can be stably tracked without falling. \ding{183}: \textbf{Mean per-Joint Position Error (MPJPE)} (\textit{rad}) as the average position error of all joints. \ding{184}: \textbf{Mean per-Joint Velocity Error (MPJVE)} (\textit{rad/s}) as the average angular velocity error of all joints. \ding{185}: \textbf{Root Velocity Error (RootVelErr)} (\textit{m/s}) as the average linear velocity error of the humanoid's base, and \ding{186}: \textbf{Mean per-Keypoint Position Error (MPKPE)} (\textit{mm}) as the average error of keypoint position among the sequence.
+
+
+\begin{table*}[!t]
+  \centering
+  \caption{
+  \textbf{Real-world tracking accuracy on four unseen dancing motions.} For each motion clip, we record both the target and executed joint configurations and compute MPJPE/MPJVE over the entire sequence to evaluate tracking precision and temporal consistency. Remarkably, the real-world performance closely matches the results obtained in simulation, demonstrating that \methodname\ achieves strong zero-shot transfer and maintains high-fidelity whole-body tracking even under real-world dynamics.
+  }
+  \label{tab:real_dance}
+  \resizebox{1.0\linewidth}{!}{
+  \setlength{\tabcolsep}{6pt}
+  \scriptsize
+  \begin{tabular}{lcccccccc}
+    \toprule
+    \multirow{2}{*}{Backbone} &
+    \multicolumn{2}{c}{Can Do Can Go!} &
+    \multicolumn{2}{c}{Gokuraku Joudo} &
+    \multicolumn{2}{c}{HuoYuanJia/Fearless} &
+    \multicolumn{2}{c}{PokerFace} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+      & MPJPE ↓ & MPJVE ↓ & MPJPE ↓ & MPJVE ↓ & MPJPE ↓ & MPJVE ↓ & MPJPE ↓ & MPJVE ↓\\
+    \midrule
+    GMT~\cite{gmt25} & 0.1087 & 1.2560 & 0.1098 & 1.2865 & 0.0921 & 0.7054 & 0.0994 & 0.8217 \\
+    TWIST~\cite{twist25} & 0.1253 & 1.1637 & 0.1162 & 1.2731 & 0.1079 & 0.7821 & 0.1047 & 0.8893 \\
+    Any2Track~\cite{any2track25} & 0.1039 & 1.1828 & 0.1136 & 1.2366 & 0.0956 & 0.6410 & 0.0928 & 0.8641 \\
+    \midrule
+    Humanoid-GPT-S  & 0.1024 & 1.0572 & 0.1180 & 1.2362 & \textbf{0.0825} & 0.6209 & 0.0903 & 0.8476 \\
+    \rowcolor{linecolor2}Humanoid-GPT-B & \textbf{0.0974} & \textbf{0.9813}  &  \textbf{0.1075} & \textbf{1.2257}  & 0.0858  & \textbf{0.6158} & \textbf{0.0856} & \textbf{0.7325} \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table*}
+
+\paragraph{Results.}
+As shown in Table~\ref{tab:sim_scaling_backbone}, the Transformer-based Humanoid-GPT exhibits clear \textit{scaling laws}: enlarging both the motion corpus and the model capacity yields consistent and substantial gains in tracking accuracy and stability. The largest Humanoid-GPT-L model trained on 2B tokens achieves the best performance across nearly all metrics.
+MLP and TCN baselines also benefit from scaling but reveal two critical limitations. First, \textit{data scaling saturates}: while larger models eventually reach competitive success rates (e.g., TCN-L achieves 89.05\% at 2B tokens), the gains from 200M to 2B are marginal compared to Humanoid-GPT's continued improvement. Second, \textit{larger models overfit on small data}: when trained on only 2M tokens, MLP-L (75.25\% SR) performs worse than MLP-S (76.89\% SR), and TCN-L (79.85\% SR) underperforms TCN-S (81.48\% SR). This overfitting diminishes with more data, but the MPKPE gap remains significant—even the best baseline (TCN-L at 56.15mm) lags behind Humanoid-GPT-S (43.25mm) by 30\%. These results demonstrate that while MLP/TCN can achieve reasonable success rates with sufficient data, Transformers offer superior tracking precision and more efficient scaling.
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{assets/accurate.pdf}
+  \caption{
+  \textbf{Comparison of inference latency} among different optimization methods. Our final optimization reaches about 5 times faster than TWIST.
+  }
+  \label{fig:infer}
+  \vspace{-5pt}
+\end{figure}
+
+\subsection{Real-world Evaluation}
+
+To further validate the zero-shot generalization of \methodname, we deploy the distilled generalist tracker on the real Unitree-G1 humanoid. Using several pre-recorded dancing sequences, which are entirely unseen during training and consist of highly dynamic full-body motions involving rapid limb coordination and frequent contact transitions. Despite their difficulty, our tracker reproduces these motions in real time without any task-specific fine-tuning, demonstrating strong zero-shot transfer from simulation to the real world. Quantitative motor-sensor analysis in Table~\ref{tab:real_dance} further confirms consistent tracking stability and smooth torque regulation, showing that the physically grounded control learned in simulation effectively transfers to hardware.
+
+We also evaluate \methodname\ in an online whole-body teleoperation setting, where a live MoCap stream is continuously retargeted to the G1’s joint space. Without any additional calibration or adaptation, the tracker directly drives the physical robot to follow the actor’s movements in real time. As shown in Fig.~\ref{fig:real_exp}, the humanoid successfully imitates diverse actions like squatting, stepping, turning, leaning, and expressive arm motions, while maintaining balance and fluid transitions. These results demonstrate unprecedented zero-shot whole-body tracking in the real world, highlighting that motion knowledge distilled from simulation-trained experts and large-scale data seamlessly transfers to embodied execution.
+
+\subsection{Additional Visualization}
+In this section, we provide additional real-robot examples, as shown in Fig.~\ref{fig:show1}, including both teleoperation demonstrations and zero-shot dancing. As a powerful zero-shot tracker, Humanoid-GPT can execute a wide range of complex behaviors, such as playing basketball, collaboratively carrying boxes with a human partner, and even rolling over and standing up from the ground. We also showcase more iconic dance routines, where motions are directly captured from videos and retargeted to the G1 space; these sequences are not included in our training set.
+
+\begin{figure*}[t!]
+  \centering
+  \vspace{-5pt}
+  \includegraphics[width=1.0\linewidth]{assets/show1.pdf}
+  \caption{\textbf{Additional Real-world experiments for our Humanoid-GPT.} All motions illustrated are excluded from training to verify generalization capability. Our method can track diverse, complex and high-dynamic motion in a zero-shot manner, especially various dance motions.}
+  \vspace{-10pt}
+  \label{fig:show1}
+\end{figure*}
+
+\subsection{Engineering Optimization}
+To satisfy the strict real-time requirements of whole-body humanoid control, we carefully optimized the deployment pipeline to ensure that scaling up the model size does not compromise inference latency. During deployment, the entire model is exported to the ONNX\citep{onnxruntime24} and compiled a compute graph using TensorRT\citep{tensorrt24}. Illustrated in Fig.~\ref{fig:infer}, we also developed a C++-based streaming pipeline to further reduce the communication latency for online teleoperation. These optimizations significantly reduce both computing and memory-access costs. As a result, the final deployed controller achieves an end-to-end inference latency of under \textbf{1.5ms} on a single NVIDIA RTX 4090 GPU. This demonstrates that, despite scaling the model to a substantially larger parameter count, careful engineering and hardware-aware optimization allow the system to maintain real-time performance demanded by full-body humanoid control.
+
+
+
+\section{Scaling Laws}
+\label{sec:scaling_diversity}
+
+The main paper qualitatively demonstrates monotonic scaling trends.
+Here we provide a more formal analysis of scaling laws and quantify the relationship between dataset diversity and generalization.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{assets/data_scaling.pdf}
+    \caption{\textbf{Data Scaling up Curve on Zero-shot Performance.}}
+    \label{fig:data_scaling}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{assets/model_training.pdf}
+    \caption{\textbf{Model Scalability Comparison.}}
+    \label{fig:model_training}
+\end{figure}
+
+
+\subsection{Data Scaling Up}
+\label{subsec:data_scaling}
+
+We vary the number of training tokens $T \in \{2\text{M}, 20\text{M}, 200\text{M}, 2\text{B}\}$ using the Humanoid-GPT-B architecture.
+For each $T$, we sample a subset of the 2B-frame corpus without overlap across subsets.
+% The fitted exponents $\beta_T$ for MPJPE and MPKPE are positive, indicating clear improvement with more data.
+As shown in Fig.~\ref{fig:data_scaling}.
+We also observe that the marginal gains decrease slightly between 200M and 2B tokens, suggesting the onset of a data-limited regime for the current model capacity.
+
+\subsection{Model Scaling Ability}
+\label{subsec:model_scaling}
+
+We evaluate the scalability of our model by comparing a Transformer-B architecture with an MLP of comparable parameter size, both trained on 2B tokens, with results summarized in Fig.~\ref{fig:model_training}. We observe that the Transformer continues to improve steadily as training progresses, whereas the MLP saturates early, which demonstrates the scalability of Humanoid-GPT.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{assets/data.pdf}
+    \vspace{1pt}
+    \caption{\textbf{Data distribution visualization.}}
+    \label{fig:data}
+\end{figure}

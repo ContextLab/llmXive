@@ -1,0 +1,184 @@
+\begin{thebibliography}{10}
+
+\bibitem{abdin2024phi}
+Marah Abdin, Jyoti Aneja, Harkirat Behl, S{\'e}bastien Bubeck, Ronen Eldan, Suriya Gunasekar, Michael Harrison, Russell~J Hewett, Mojan Javaheripi, Piero Kauffmann, et~al.
+\newblock Phi-4 technical report.
+\newblock {\em arXiv preprint arXiv:2412.08905}, 2024.
+
+\bibitem{ashkboos2024quarot}
+Saleh Ashkboos, Amirkeivan Mohtashami, Maximilian~L Croci, Bo~Li, Pashmina Cameron, Martin Jaggi, Dan Alistarh, Torsten Hoefler, and James Hensman.
+\newblock Quarot: Outlier-free 4-bit inference in rotated llms.
+\newblock {\em Advances in Neural Information Processing Systems}, 37:100213--100240, 2024.
+
+\bibitem{bai2024longbench}
+Yushi Bai, Xin Lv, Jiajie Zhang, Hongchang Lyu, Jiankai Tang, Zhidian Huang, Zhengxiao Du, Xiao Liu, Aohan Zeng, Lei Hou, et~al.
+\newblock Longbench: A bilingual, multitask benchmark for long context understanding.
+\newblock In {\em Proceedings of the 62nd annual meeting of the association for computational linguistics (volume 1: Long papers)}, pages 3119--3137, 2024.
+
+\bibitem{pmlr-v267-bi25a-Forest-of-Thought}
+Zhenni Bi, Kai Han, Chuanjian Liu, Yehui Tang, and Yunhe Wang.
+\newblock Forest-of-thought: Scaling test-time compute for enhancing {LLM} reasoning.
+\newblock In Aarti Singh, Maryam Fazel, Daniel Hsu, Simon Lacoste-Julien, Felix Berkenkamp, Tegan Maharaj, Kiri Wagstaff, and Jerry Zhu, editors, {\em Proceedings of the 42nd International Conference on Machine Learning}, volume 267 of {\em Proceedings of Machine Learning Research}, pages 4253--4267. PMLR, 13--19 Jul 2025.
+
+\bibitem{cai2025pyramidkv}
+Zefan Cai, Yichi Zhang, Bofei Gao, Yuliang Liu, Yucheng Li, Tianyu Liu, Keming Lu, Wayne Xiong, Yue Dong, Junjie Hu, and Wen Xiao.
+\newblock Pyramid{KV}: Dynamic {KV} cache compression based on pyramidal information funneling.
+\newblock In {\em Second Conference on Language Modeling}, 2025.
+
+\bibitem{chee2023quip}
+Jerry Chee, Yaohui Cai, Volodymyr Kuleshov, and Christopher~M De~Sa.
+\newblock Quip: 2-bit quantization of large language models with guarantees.
+\newblock {\em Advances in neural information processing systems}, 36:4396--4429, 2023.
+
+\bibitem{chen2021evaluating_humaneval}
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique~Ponde de~Oliveira~Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg Brockman, Alex Ray, Raul Puri, Gretchen Krueger, Michael Petrov, Heidy Khlaaf, Girish Sastry, Pamela Mishkin, Brooke Chan, Scott Gray, Nick Ryder, Mikhail Pavlov, Alethea Power, Lukasz Kaiser, Mohammad Bavarian, Clemens Winter, Philippe Tillet, Felipe~Petroski Such, Dave Cummings, Matthias Plappert, Fotios Chantzis, Elizabeth Barnes, Ariel Herbert-Voss, William~Hebgen Guss, Alex Nichol, Alex Paino, Nikolas Tezak, Jie Tang, Igor Babuschkin, Suchir Balaji, Shantanu Jain, William Saunders, Christopher Hesse, Andrew~N. Carr, Jan Leike, Josh Achiam, Vedant Misra, Evan Morikawa, Alec Radford, Matthew Knight, Miles Brundage, Mira Murati, Katie Mayer, Peter Welinder, Bob McGrew, Dario Amodei, Sam McCandlish, Ilya Sutskever, and Wojciech Zaremba.
+\newblock Evaluating large language models trained on code, 2021.
+
+\bibitem{grattafiori2024llama}
+Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, et~al.
+\newblock The llama 3 herd of models.
+\newblock {\em arXiv preprint arXiv:2407.21783}, 2024.
+
+\bibitem{hooper2024kvquant}
+Coleman Hooper, Sehoon Kim, Hiva Mohammadzadeh, Michael~W Mahoney, Yakun~S Shao, Kurt Keutzer, and Amir Gholami.
+\newblock {KVQuant}: Towards 10 million context length llm inference with kv cache quantization.
+\newblock {\em Advances in Neural Information Processing Systems}, 37:1270--1303, 2024.
+
+\bibitem{kamradt2023needle}
+Greg Kamradt.
+\newblock Needle in a haystack-pressure testing llms.
+\newblock \url{https://github.com/gkamradt/LLMTest_NeedleInAHaystack}, 2023.
+
+\bibitem{kim2026kvzip}
+Jang-Hyun Kim, Jinuk Kim, Sangwoo Kwon, Jae~W. Lee, Sangdoo Yun, and Hyun~Oh Song.
+\newblock {KV}zip: Query-agnostic {KV} cache compression with context reconstruction.
+\newblock In {\em The Thirty-ninth Annual Conference on Neural Information Processing Systems}, 2025.
+
+\bibitem{kwon2023efficientvLLM}
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody~Hao Yu, Joseph~E. Gonzalez, Hao Zhang, and Ion Stoica.
+\newblock Efficient memory management for large language model serving with pagedattention.
+\newblock In {\em Proceedings of the ACM SIGOPS 29th Symposium on Operating Systems Principles}, pages 611--626, 2023.
+
+\bibitem{li2023how_line-retrieval}
+Dacheng Li, Rulin Shao, Anze Xie, Ying Sheng, Lianmin Zheng, Joseph Gonzalez, Ion Stoica, Xuezhe Ma, and Hao Zhang.
+\newblock How long can context length of open-source {LLM}s truly promise?
+\newblock In {\em NeurIPS 2023 Workshop on Instruction Tuning and Instruction Following}, 2023.
+
+\bibitem{NEURIPS2024_28ab4182_SnapKV}
+Yuhong Li, Yingbing Huang, Bowen Yang, Bharat Venkitesh, Acyr Locatelli, Hanchen Ye, Tianle Cai, Patrick Lewis, and Deming Chen.
+\newblock Snapkv: Llm knows what you are looking for before generation.
+\newblock In A.~Globerson, L.~Mackey, D.~Belgrave, A.~Fan, U.~Paquet, J.~Tomczak, and C.~Zhang, editors, {\em Advances in Neural Information Processing Systems}, volume~37, pages 22947--22970. Curran Associates, Inc., 2024.
+
+\bibitem{lightman2024lets_math500}
+Hunter Lightman, Vineet Kosaraju, Yuri Burda, Harrison Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe.
+\newblock Let's verify step by step.
+\newblock In {\em The Twelfth International Conference on Learning Representations}, 2024.
+
+\bibitem{liu2024deepseek}
+Aixin Liu, Bei Feng, Bin Wang, Bingxuan Wang, Bo~Liu, Chenggang Zhao, Chengqi Dengr, Chong Ruan, Damai Dai, Daya Guo, et~al.
+\newblock Deepseek-v2: A strong, economical, and efficient mixture-of-experts language model.
+\newblock {\em arXiv preprint arXiv:2405.04434}, 2024.
+
+\bibitem{liu2025spinquant}
+Zechun Liu, Changsheng Zhao, Igor Fedorov, Bilge Soran, Dhruv Choudhary, Raghuraman Krishnamoorthi, Vikas Chandra, Yuandong Tian, and Tijmen Blankevoort.
+\newblock Spinquant: {LLM} quantization with learned rotations.
+\newblock In {\em The Thirteenth International Conference on Learning Representations}, 2025.
+
+\bibitem{NEURIPS2023_a452a7c6_scissorhands}
+Zichang Liu, Aditya Desai, Fangshuo Liao, Weitao Wang, Victor Xie, Zhaozhuo Xu, Anastasios Kyrillidis, and Anshumali Shrivastava.
+\newblock Scissorhands: Exploiting the persistence of importance hypothesis for llm kv cache compression at test time.
+\newblock In A.~Oh, T.~Naumann, A.~Globerson, K.~Saenko, M.~Hardt, and S.~Levine, editors, {\em Advances in Neural Information Processing Systems}, volume~36, pages 52342--52364. Curran Associates, Inc., 2023.
+
+\bibitem{KIVI}
+Zirui Liu, Jiayi Yuan, Hongye Jin, Shaochen Zhong, Zhaozhuo Xu, Vladimir Braverman, Beidi Chen, and Xia Hu.
+\newblock Kivi: A tuning-free asymmetric 2bit quantization for kv cache.
+\newblock {\em Proceedings of Machine Learning Research}, 235:32332--32344, 2024.
+
+\bibitem{malinovskii2025higgs}
+Vladimir Malinovskii, Andrei Panferov, Ivan Ilin, Han Guo, Peter Richt{\'a}rik, and Dan Alistarh.
+\newblock Pushing the limits of large language model quantization via the linearity theorem.
+\newblock In {\em Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)}, pages 10857--10886, 2025.
+
+\bibitem{muennighoff2025s1}
+Niklas Muennighoff, Zitong Yang, Weijia Shi, Xiang~Lisa Li, Li~Fei-Fei, Hannaneh Hajishirzi, Luke Zettlemoyer, Percy Liang, Emmanuel Cand{\`e}s, and Tatsunori~B Hashimoto.
+\newblock s1: Simple test-time scaling.
+\newblock In {\em Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing}, pages 20275--20321, 2025.
+
+\bibitem{muller2025sinq}
+Lorenz~K M{\"u}ller, Philippe Bich, Jiawei Zhuang, Ahmet {\c{C}}elik, Luca Benfenati, and Lukas Cavigelli.
+\newblock Sinq: Sinkhorn-normalized quantization for calibration-free low-precision llm weights.
+\newblock {\em arXiv preprint arXiv:2509.22944}, 2025.
+
+\bibitem{openai2024learning}
+OpenAI.
+\newblock Learning to reason with llms, September 2024.
+\newblock Accessed: May 2026.
+
+\bibitem{shen2026thinking}
+Junhong Shen, Hao Bai, Lunjun Zhang, Yifei Zhou, Amrith Setlur, Shengbang Tong, Diego Caples, Nan Jiang, Tong Zhang, Ameet Talwalkar, and Aviral Kumar.
+\newblock Thinking vs. doing: Improving agent reasoning by scaling test-time interaction.
+\newblock In {\em The Thirty-ninth Annual Conference on Neural Information Processing Systems}, 2025.
+
+\bibitem{snell2025scaling}
+Charlie~Victor Snell, Jaehoon Lee, Kelvin Xu, and Aviral Kumar.
+\newblock Scaling {LLM} test-time compute optimally can be more effective than scaling parameters for reasoning.
+\newblock In {\em The Thirteenth International Conference on Learning Representations}, 2025.
+
+\bibitem{somvanshi2025s4_mamba}
+Shriyank Somvanshi, Md~Monzurul Islam, Mahmuda~Sultana Mimi, Sazzad Bin~Bashar Polock, Gaurab Chhetri, and Subasish Das.
+\newblock From s4 to mamba: A comprehensive survey on structured state space models.
+\newblock {\em arXiv preprint arXiv:2503.18970}, 2025.
+
+\bibitem{talmor-berant-2019-multiqa}
+Alon Talmor and Jonathan Berant.
+\newblock {M}ulti{QA}: An empirical investigation of generalization and transfer in reading comprehension.
+\newblock In Anna Korhonen, David Traum, and Llu{\'i}s M{\`a}rquez, editors, {\em Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics}, pages 4911--4921, Florence, Italy, July 2019. Association for Computational Linguistics.
+
+\bibitem{tseng2024qtip}
+Albert Tseng, Qingyao Sun, David Hou, and Christopher De~Sa.
+\newblock Qtip: Quantization with trellises and incoherence processing.
+\newblock {\em Advances in Neural Information Processing Systems}, 37:59597--59620, 2024.
+
+\bibitem{wan2025textdtexto_d2o}
+Zhongwei Wan, Xinjian Wu, Yu~Zhang, Yi~Xin, Chaofan Tao, Zhihong Zhu, Xin Wang, Siqi Luo, Jing Xiong, Longyue Wang, and Mi~Zhang.
+\newblock $\text{D2O}$: Dynamic discriminative operations for efficient long-context inference of large language models.
+\newblock In {\em The Thirteenth International Conference on Learning Representations}, 2025.
+
+\bibitem{wu2026polarquant}
+Songhao Wu, Ang Lv, xiao feng, Yufei zhang, Xun Zhang, Guojun Yin, Wei Lin, and Rui Yan.
+\newblock Polarquant: Leveraging polar transformation for key cache quantization and decoding acceleration.
+\newblock In {\em The Thirty-ninth Annual Conference on Neural Information Processing Systems}, 2025.
+
+\bibitem{xia2025kitty}
+Haojun Xia, Xiaoxia Wu, Jisen Li, Robert Wu, Junxiong Wang, Jue Wang, Chenxi Li, Aman Singhal, Alay~Dilipbhai Shah, Alpay Ariyak, et~al.
+\newblock Kitty: Accurate and efficient 2-bit kv cache quantization with dynamic channel-wise precision boost.
+\newblock {\em arXiv preprint arXiv:2511.18643}, 2025.
+
+\bibitem{yang2025qwen3technicalreport}
+An~Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chujie Zheng, Dayiheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jing Zhou, Jingren Zhou, Junyang Lin, Kai Dang, Keqin Bao, Kexin Yang, Le~Yu, Lianghao Deng, Mei Li, Mingfeng Xue, Mingze Li, Pei Zhang, Peng Wang, Qin Zhu, Rui Men, Ruize Gao, Shixuan Liu, Shuang Luo, Tianhao Li, Tianyi Tang, Wenbiao Yin, Xingzhang Ren, Xinyu Wang, Xinyu Zhang, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yinger Zhang, Yu~Wan, Yuqiong Liu, Zekun Wang, Zeyu Cui, Zhenru Zhang, Zhipeng Zhou, and Zihan Qiu.
+\newblock Qwen3 technical report, 2025.
+
+\bibitem{zandieh2026turboquant}
+Amir Zandieh, Majid Daliri, Majid Hadian, and Vahab Mirrokni.
+\newblock Turboquant: Online vector quantization with near-optimal distortion rate.
+\newblock In {\em The Fourteenth International Conference on Learning Representations}, 2026.
+
+\bibitem{aime24}
+Yifan Zhang and Team Math-AI.
+\newblock American invitational mathematics examination (aime) 2024, 2024.
+
+\bibitem{zhang2024cam}
+Yuxin Zhang, Yuxuan Du, Gen Luo, Yunshan Zhong, Zhenyu Zhang, Shiwei Liu, and Rongrong Ji.
+\newblock Cam: Cache merging for memory-efficient {LLM}s inference.
+\newblock In {\em Forty-first International Conference on Machine Learning}, 2024.
+
+\bibitem{NEURIPS2023_6ceefa7b_H2O}
+Zhenyu Zhang, Ying Sheng, Tianyi Zhou, Tianlong Chen, Lianmin Zheng, Ruisi Cai, Zhao Song, Yuandong Tian, Christopher R\'{e}, Clark Barrett, Zhangyang~"Atlas" Wang, and Beidi Chen.
+\newblock H$_2$$\text{O}$: Heavy-hitter oracle for efficient generative inference of large language models.
+\newblock In A.~Oh, T.~Naumann, A.~Globerson, K.~Saenko, M.~Hardt, and S.~Levine, editors, {\em Advances in Neural Information Processing Systems}, volume~36, pages 34661--34710. Curran Associates, Inc., 2023.
+
+\bibitem{zhou2023instructionfollowingevaluationlargelanguage_ifeval}
+Jeffrey Zhou, Tianjian Lu, Swaroop Mishra, Siddhartha Brahma, Sujoy Basu, Yi~Luan, Denny Zhou, and Le~Hou.
+\newblock Instruction-following evaluation for large language models, 2023.
+
+\end{thebibliography}

@@ -1,0 +1,79 @@
+\begin{table}[ht]
+\centering
+\setlength{\tabcolsep}{4pt}
+% \small
+\caption{\textbf{Scores on the top 50 concepts across subjects (region size 100).}
+Average activation and causal validation scores for regions of size 100 discovered separately for each subject. 
+For every subject, scores are averaged over the top 50 concepts selected by the corresponding method. 
+The four subjects shown are the NSD subjects who completed all scanning sessions. 
+Max Activation ranks voxels by average activation on generated positives; MindSimulator ranks voxels by predicted responses to CLIP-retrieved concept images; MindSimulator+ additionally filters retrieved images using VLM verification; and BrainCause ranks voxels using the combined causal score. 
+Across subjects, activation-based methods achieve the highest activation scores, while BrainCause consistently attains stronger causal scores on generated negatives, measured negatives, and counterfactual edits.}
+\vspace{+0.92cm}
+\begin{tabular}{@{}clccccc@{}}
+\toprule
+& 
+& \multicolumn{2}{c}{\textbf{Activation}}
+& \multicolumn{3}{c}{\textbf{Causal}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}
+\textbf{Subject}
+& \textbf{Method}
+& \textbf{Gen.}
+& \textbf{Meas.}
+& \textbf{Gen.}
+& \textbf{Meas.}
+& \textbf{Edits} \\
+\midrule
+
+\multirow{4}{*}{1}
+& Max Activation
+& \textbf{2.83} & 0.74 & 0.10 & 0.19 & 0.43 \\
+& MindSimulator
+& 1.96 & 1.04 & -0.49 & 0.30 & 0.26 \\
+& MindSimulator+
+& 2.20 & \textbf{1.19} & -0.21 & 0.46 & 0.43 \\
+& \emph{\textbf{BrainCause}}
+& 2.09 & 1.16 & \textbf{0.62} & \textbf{0.79} & \textbf{0.97} \\
+
+\addlinespace[2pt]
+\midrule
+
+\multirow{4}{*}{2}
+& Max Activation
+& \textbf{2.84} & 0.77 & 0.04 & 0.15 & 0.45 \\
+& MindSimulator
+& 1.89 & 0.97 & -0.51 & 0.18 & 0.21 \\
+& MindSimulator+
+& 2.22 & \textbf{1.06} & -0.27 & 0.28 & 0.38 \\
+& \emph{\textbf{BrainCause}}
+& 2.17 & 0.99 & \textbf{0.65} & \textbf{0.61} & \textbf{0.99} \\
+
+\addlinespace[2pt]
+\midrule
+
+\multirow{4}{*}{5}
+& Max Activation
+& \textbf{2.72} & 0.80 & 0.08 & 0.26 & 0.48 \\
+& MindSimulator
+& 1.95 & 1.24 & -0.39 & 0.39 & 0.23 \\
+& MindSimulator+
+& 2.12 & \textbf{1.35} & -0.34 & 0.55 & 0.39 \\
+& \emph{\textbf{BrainCause}}
+& 2.04 & 1.25 & \textbf{0.58} & \textbf{0.84} & \textbf{1.00} \\
+
+\addlinespace[2pt]
+\midrule
+
+\multirow{4}{*}{7}
+& Max Activation
+& \textbf{2.67} & 0.50 & 0.11 & 0.13 & 0.39 \\
+& MindSimulator
+& 1.76 & 0.83 & -0.37 & 0.21 & 0.21 \\
+& MindSimulator+
+& 1.97 & \textbf{0.90} & -0.22 & 0.35 & 0.31 \\
+& \emph{\textbf{BrainCause}}
+& 1.90 & 0.89 & \textbf{0.61} & \textbf{0.62} & \textbf{0.96} \\
+
+\bottomrule
+\end{tabular}
+\label{tab:scores_top50_across_subjects_region100}
+\end{table}

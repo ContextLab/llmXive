@@ -1,0 +1,204 @@
+\documentclass{article}
+\setlength{\headheight}{15.6pt}
+\usepackage{colm2024_conference}
+\usepackage{microtype}
+\usepackage[utf8]{inputenc}   % Modern LaTeX handles this by default
+\usepackage[T2A,T1]{fontenc}  % T2A supports Cyrillic
+\usepackage[russian,english]{babel}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{epstopdf}
+\usepackage{booktabs}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{arrows.meta, backgrounds, calc, positioning, matrix}
+\definecolor{clr1}{HTML}{6200EA} % Deep Neon Purple (SmolLM)
+\definecolor{clr2}{HTML}{00C853} % Vivid Green (Gemma)
+\definecolor{clr3}{HTML}{FF6D00} % Vivid Orange (Qwen)
+\definecolor{clr4}{HTML}{00B0FF} % Vivid Cyan/Blue (Pleias)
+\definecolor{clr5}{HTML}{D50000} % Vivid Red (OCC)
+\usepackage{subcaption}
+\definecolor{cOCC}{HTML}{E63946}    % Red
+\definecolor{cPleias}{HTML}{457B9D} % Steel Blue
+\definecolor{cQwen}{HTML}{2A9D8F}  % Teal
+\definecolor{cGemma}{HTML}{9B5DE5} % Purple
+\definecolor{cSmol}{HTML}{F4A261}  % Orange
+
+\definecolor{airigreenlight}{HTML}{A8E6CF}   % gold series fill
+\definecolor{airigreendark}{HTML}{7BC8A4}
+
+\usepackage{newunicodechar}
+\usepackage{wasysym} % Provides musical note symbols
+\newunicodechar{♫}{\eighthnote\eighthnote} 
+
+\tcbuselibrary{listings,breakable}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+\newtcolorbox{takeawaybox}{
+  enhanced,
+  breakable,
+  colback=black!5!white,        % very soft blue
+  colframe=black!10!white,      % soft but noticeable border
+  coltitle=black,              % high contrast title
+  fonttitle=\bfseries,
+  title={\hspace{0.5em}Takeaway},
+  boxrule=0.4pt,
+  arc=3pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  before skip=10pt,
+  after skip=10pt
+}
+\newcommand{\TikZCell}[1]{%
+  $\vcenter{\hbox{#1}}$%
+}
+
+% --- Helpers for the OCC-RAG prompt/response example (Figure~\ref{fig:trace-training-example})
+\definecolor{ptokcolor}{rgb}{0.10,0.45,0.55}    % prompt boundary tokens (teal)
+\definecolor{rtokcolor}{rgb}{0.65,0.20,0.30}    % response section tokens (wine)
+\definecolor{srccolor}{rgb}{0.40,0.20,0.55}     % source-id references (purple)
+\newcommand{\ptok}[1]{{\color{ptokcolor}\texttt{<|#1|>}}}
+\newcommand{\rtok}[1]{{\color{rtokcolor}\texttt{<|#1|>}}}
+\newcommand{\srcid}[1]{{\color{srccolor}\texttt{<|source\_id|>#1}}}
+
+% \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+% \setcounter{footnote}{0}
+\title{OCC-RAG: Optimal Cognitive Core for Faithful Question Answering}
+
+
+\author{\bf Maksim Savkin$^*$ \qquad Mikhail Goncharov$^*$ \qquad Alexander Gambashidze$^*$   \\
+    \bf Alla Chepurova$^*$ \qquad Dmitrii Tarasov$^*$ \qquad Nikita Andriianov \\
+    \bf Daria Pugacheva \qquad Vasily Konovalov$^*$ \qquad Andrey Galichin$^*$ \\
+    \bf  Ivan Oseledets$^{\dagger}$\\[0.4cm]
+    {\normalsize OCC Team}
+}
+% \footnotetext[]{$^*$Core contributors.}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\colmfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+\maketitle
+\footnotetext[1]{$^{*}$Core contributors.}
+\footnotetext[2]{$^{\dagger}$Correspondence to \texttt{ivan.oseledets@gmail.com}.}
+
+\begin{abstract}
+Recent progress in the development of language models has been defined by scale, with each generation absorbing more of the world's knowledge into its weights. However, many practical applications benefit more from robust reasoning than from extensive parametric knowledge. In this setting, task-specialized small language models (SLMs) offer a principled design choice. We introduce Optimal Cognitive Core (OCC), a family of SLMs built around this premise. As a variant of OCC, we present OCC-RAG, optimized for faithful question answering (QA) grounded in the provided context. This task directly aligns with the OCC design approach, requiring multi-hop reasoning over supplied passages while ignoring memorized knowledge. To train OCC-RAG, we implement a novel pipeline for synthesizing multi-context, multi-hop QA data at scale, producing a corpus of over three million examples targeting multi-hop reasoning, strict context faithfulness, and calibrated abstention. We release OCC-RAG-0.6B and OCC-RAG-1.7B, both mid-trained on this corpus. The models produce structured reasoning traces with source citations grounded in literal quotes from the context. Through OCC-RAG, we demonstrate that compact, task-specialized SLMs can match or exceed general-purpose models 2 -- 6$\times$ their size across multi-hop reasoning (HotpotQA, MuSiQue, TAT-QA), faithfulness (ConFiQA), and refusal (MuSiQue-Un) benchmarks.
+\end{abstract}
+
+\begin{figure*}[ht!]
+    \centering
+    % \includegraphics[width=\linewidth]{images/main.png}
+    \include{images/main}
+    \caption{Performance-efficiency trade-off across language models for faithful context QA. OCC-RAG models (0.6B and 1.7B) achieve competitive or superior performance on multi-hop reasoning, faithfulness, and refusal benchmarks compared to general-purpose models $2-6\times$ their size, demonstrating that a compact, task-specialized architecture can outperform larger models when explicitly trained for context grounding and evidence-based reasoning.}
+    \label{fig:main}
+\end{figure*}
+
+\section{Introduction}
+\input{sections/into}
+
+\section{Model Design Principles}
+\label{sec:model-design-principles}
+\input{sections/design_principles}
+
+\section{Training Data}
+% \label{sec:training-data}
+\input{sections/synth}
+
+\section{Mid-training}
+\label{sec:mid-training}
+\input{sections/midtraining}
+
+\section{Evaluation}
+\label{sec:evaluation}
+\input{appendices/radar}
+
+% \begin{figure*}[t]
+%     \centering
+%     \begin{subfigure}[t]{0.49\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{images/radar_small.pdf}
+%         \caption{OCC-RAG-0.6B vs. 1B-2B}
+%         \label{fig:radar-small}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[t]{0.49\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{images/radar_large.pdf}
+%         \caption{OCC-RAG-1.7B vs.\ 3B--4B baselines}
+%         \label{fig:radar-large}
+%     \end{subfigure}
+%     \caption{Multi-dimension general comparison of OCC-RAG vs. different models. OCC-RAG-0.6B and OCC-RAG-1.7B show balanced profile, outperforming competitors $2-3\times$ larger. For Qwen3 and SmolLM3 we report results with thinking mode on.}
+%     \label{fig:radars}
+% \end{figure*}
+
+
+\subsection{Benchmarks}
+\input{tables/benchmarks}
+
+We evaluate the models across three core dimensions summarized in Table~\ref{tab:benchmarks}: multi-hop reasoning, faithfulness, and refusal. 
+
+\paragraph{Multi-hop reasoning} To assess the core capability of a context QA model, we utilize four benchmarks spanning multiple domains: HotpotQA~\citep{hotpotqa} and MuSiQue~\citep{musique} for Wikipedia-based multi-hop QA, and TAT-QA~\citep{tat-qa} for table-grounded multi-hop QA in finance. HotpotQA and MuSiQue both pair gold-supporting sources with distractors. We fix the total number of sources supplied to 10 in these datasets. TAT-QA provides four question types, \textit{span}, \textit{multi-span}, \textit{arithmetic}, and \textit{counting}. We restrict evaluation to the first two and exclude the latter two, which conflate retrieval with numerical computation and therefore fall outside the context-grounded QA capability we aim to measure. We report \textbf{In-Accuracy (In-Acc)}, i.e., the gold answer appears as a substring of the prediction, on HotpotQA and MuSiQue. For TAT-QA, we report \textbf{F1} token-level overlap between prediction and gold answer.
+
+\paragraph{Faithfulness} Faithfulness to the provided context is evaluated using ConFiQA~\citep{bi-etal-2025-context}. ConFiQA pairs each question with a counterfactual context built from chains of Wikidata triples and comprises three subsets of increasing difficulty: \textit{QA} (a single triple with a counterfactual tail), \textit{MR} (a multi-hop chain with one counterfactual triple), and \textit{MC} (a multi-hop chain with every triple replaced). We report \textbf{In-Acc} against the counterfactual gold answer together with the \textbf{Memorization Ratio (M\textsubscript{R})}, which measures how often the model defaults to its parametric knowledge when it conflicts with the supplied context. Formally, $\text{M}_\text{R} = \text{P}_\text{o} / (\text{P}_\text{o} + \text{P}_\text{c})$, where $\text{P}_\text{o}$ is the rate at which the model produces the original (memorized) answer and $\text{P}_\text{c}$ is the rate at which it produces the counterfactual (context-grounded) answer. Lower values indicate stronger context adherence.
+
+\paragraph{Refusal} The ability of the model to decline to respond when evidence is insufficient is evaluated using MuSiQue-Un~\citep{musique}. It is the unanswerable counterpart of MuSiQue, in which the supporting passages are replaced so that no extractive answer remains in the context. We fix the number of input sources to 10. We instruct the model to output the phrase \textit{``Not enough information''} when the context does not support an answer, and report \textbf{Refusal Accuracy (R-Acc)} as the fraction of predictions that contain it.
+
+We compare against open-weight model families Qwen3, Gemma3, SmolLM3, and Pleias-RAG, taking all available checkpoints up to 32B parameters. This broad range allows us to assess whether a task-specialized SLM can close the performance gap with general-purpose models by an order of magnitude larger. For all of these models, we use sampling parameters as recommended in the corresponding technical reports. Qwen3 and SmolLM3 models support both non-thinking and thinking modes; we report both. As we discussed in previous sections, OCC-RAG generates compact reasoning traces that provide source citations with literal quotes from the context, achieving chain-of-thought-level transparency at a fraction of the cost of full thinking-mode inference.
+
+\subsection{Results}
+
+Although $2-6\times$ smaller, OCC-RAG models achieve competitive or superior performance relative to models up to 4B parameters (Figure~\ref{fig:radars}). OCC-RAG-0.6B, at just 0.6B parameters, exceeds Gemma-3-4B and SmolLM-3-3B on each dimension. OCC-RAG-1.7B further closes the gap with Qwen-3-4B in thinking mode on multi-hop reasoning while achieving the highest results on faithfulness and refusal. The gap with Pleias-RAG-1.2B, the most directly task-comparable baseline, is particularly pronounced on multi-hop reasoning benchmarks. We attribute this to the multi-hop training data that our generation pipeline provides, and which, as can be inferred from their technical report, Pleias-RAG's generation process does not include.
+
+Our final evaluation extends the comparison across the full Qwen3 and Gemma3 families up to 32B parameters (Table~\ref{tab:results}). While models at 8B and above retain a lead on multi-hop reasoning, the distance to OCC-RAG is substantially narrower than the gap these same models hold over their instruct-tuned counterparts at equivalent scale. Importantly, both OCC-RAG models achieve the best faithfulness performance across all evaluated scales, attaining the highest ConFiQA accuracy and the lowest memorization ratio. Our mid-training reduces M\textsubscript{R} from $12.7 \ (8.3)$ (Qwen3-1.7B) to $5.0$ (OCC-RAG-1.7B), demonstrating that the model has learned to prioritize the provided context over its parametric knowledge. The same pattern holds for refusal, where OCC-RAG-1.7B attains $87.2$ R-Acc, on par with models of 8B parameters or higher.
+
+\input{tables/results}
+
+\section{Conclusion}
+We presented OCC-RAG, a family of small language models designed for faithful context-grounded question answering. By combining large-scale synthetic mid-training, explicit reasoning traces, and citation-aware output formatting, OCC-RAG learns to answer only from the provided context and to abstain when evidence is insufficient. Across multi-hop reasoning, faithfulness, and refusal benchmarks, the released 0.6B and 1.7B checkpoints consistently outperform stronger baselines under 4B parameters and remain competitive with much larger models, while using substantially less compute.
+
+A key takeaway from this work is that faithfulness does not require scale alone: it can be learned through the right training curriculum and supervision format. In particular, our synthetic corpus shows that multi-hop reasoning, context grounding, and calibrated abstention can be jointly trained in small models without sacrificing efficiency. The results suggest that an ``optimal cognitive core'' is a practical alternative to ever-larger general-purpose models for applications where correctness must be tied to evidence.
+
+More broadly, OCC-RAG provides a reusable recipe for building compact QA systems that are transparent, efficient, and robust to missing or conflicting evidence. We hope this work encourages further research on structured mid-training, evidence-anchored reasoning traces, and faithful abstention in small language models.
+
+\section{Acknowledgments}
+We would like to thank Viktoriia Chekalina, Victoria Dochkina, Iana Kulichenko, Andrey Kuznetsov, Maxim Kurkin, Gleb Kuzmin, Ruslan Kostoev, Sergey Pletenev, and Valerii Ternovskii for their insightful comments.
+
+\bibliography{colm2024_conference}
+\bibliographystyle{colm2024_conference}
+
+\newpage
+\appendix
+% \section{Prompts for QA Generation}
+% \label{sec:prompt-qa}
+% \input{appendices/prompts}
+\section{OCC-RAG Prompt/Response Example}
+\label{sec:prompt-trace}
+\input{appendices/trace_prompt}
+\newpage
+% \section{Dataset Statistics}
+% \label{appendix:sec:synth-sh-analysis}
+% \input{appendices/sh_eda}
+% \input{appendices/mh_eda}
+% \newpage
+% \section{Wikipedia Cleaning}
+% \label{sec:wiki-clean}
+% \input{appendices/wiki_cleaning}
+% \newpage
+\section{Mid-training Hyperparameters}
+\label{appendix:training-hyperparameters}
+\input{appendices/training_hyperparameters}
+
+\end{document}

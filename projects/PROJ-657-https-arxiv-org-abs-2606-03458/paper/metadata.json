@@ -1,0 +1,46 @@
+{
+  "arxiv_id": "2606.03458",
+  "arxiv_url": "https://arxiv.org/abs/2606.03458",
+  "title": "https://arxiv.org/abs/2606.03458",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #274",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/huawei-csl/KVarN",
+    "https://github.com/vllm-project/vllm"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/2x2_per_token_norm_delta_p2_Qwen_Qwen3-4B_ctx32768_B128_N2_b2.pdf",
+    "figures/figure_attn.pdf",
+    "figures/kivi_mag_fraction_bars.pdf",
+    "figures/kvarn_dequant.pdf",
+    "figures/kvarn_pipeline.pdf",
+    "figures/kvarn_timing_bars.pdf",
+    "figures/niah.pdf",
+    "figures/per_token_norm_xy_Qwen_Qwen3-4B_ctx32768_B128_N2_b2.pdf",
+    "figures/pseudo_decode_edit_v6.pdf",
+    "figures/sinkh_only_l1_pooled_abs_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf",
+    "figures/sinkh_only_l1_pooled_diff_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf",
+    "figures/sinkh_only_l1_pooled_gap_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf",
+    "figures/topk_kl_bars_accumulated_v2.pdf",
+    "figures/topk_mse_bars_accumulated.pdf",
+    "main.bbl",
+    "main.tex",
+    "neurips_2026.sty",
+    "tables",
+    "tables/eviction_app.tex",
+    "tables/humaneval_appendix.tex",
+    "tables/ifeval_main.tex",
+    "tables/line_retrieval_main.tex",
+    "tables/reasoning_appendix.tex"
+  ]
+}

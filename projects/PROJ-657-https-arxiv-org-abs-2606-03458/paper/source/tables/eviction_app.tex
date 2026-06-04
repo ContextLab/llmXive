@@ -1,0 +1,38 @@
+\begin{table*}[t]
+\centering
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{Performance across context lengths (number of lines). Values are accuracy (\%). Higher is better; best results per column are highlighted. K/V denotes bits per key/value. The equivalent bits/elem reflects the effective compression ratio. UP (Uniform Precision) indicates whether all elements within a given $K$ or $V$ tensor share the same precision ($\checkmark$) or use mixed precision ($\times$).}
+\label{tab:eviction}
+\begin{tabular}{l l c c c c c c c c c}
+\toprule
+& & & & & \multicolumn{6}{c}{\textbf{Number of lines}} \\
+\cmidrule(lr){6-11}
+\textbf{Model} & \textbf{Method} 
+& \textbf{K/V}
+& \makecell{\textbf{equivalent}\\\textbf{bits/elem}}
+& \textbf{UP}
+& \textbf{100} & \textbf{200} & \textbf{300} & \textbf{400} & \textbf{500} & \textbf{600} \\
+\midrule
+
+\multirow{6}{*}{Llama-3.1-8B}
+ & \textit{FP16} & 16/16 & 16.0 & $\checkmark$
+   & \textit{100\%} & \textit{99\%} & \textit{99\%} & \textit{94\%} & \textit{93\%} & \textit{91\%} \\
+\cmidrule(lr){2-11}
+ & \others{SnapKV ($7\times$)} & \others{16/16} & \others{2.3} & \others{$\checkmark$}
+   & \others{77\%} & \others{87\%} & \others{90\%} & \others{90\%} & \others{88\%} & \others{85\%} \\
+ & \others{PyramidKV ($7\times$)} & \others{16/16} & \others{2.3} & \others{$\checkmark$}
+   & \others{61\%} & \others{88\%} & \others{87\%} & \others{88\%} & \others{88\%} & \others{87\%} \\
+ & \others{KVZip ($7\times$)} & \others{16/16} & \others{2.3} & \others{$\checkmark$}
+   & \others{80\%} & \others{92\%} & \others{86\%} & \others{88\%} & \others{89\%} & \others{86\%} \\
+ %& \others{D2O ($7\times$)} & \others{16/16} & \others{2.3} & \others{$\checkmark$}
+   %& \others{41\%} & \others{59\%} & \others{82\%} & \others{81\%} & \others{82\%} & \others{82\%} \\
+ & \textbf{\ours{\methodname (ours)}} 
+   & \ours{2/2} & \ours{2.3} & \ours{$\checkmark$}
+   & \ours{\textbf{100\%}} & \ours{\textbf{99\%}} & \ours{\textbf{96\%}} & \ours{\textbf{91\%}} & \ours{\textbf{90\%}} & \ours{\textbf{89\%}} \\
+
+\bottomrule
+\end{tabular}
+\end{threeparttable}
+\end{table*}

@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 664,
+    "active_projects": 669,
     "ai_contributors": 7,
-    "human_contributors": 1086,
+    "human_contributors": 1104,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3683,
-    "total_contributors": 1093
+    "total_contributions": 3701,
+    "total_contributors": 1111
   },
   "contributors": [
     {
@@ -2405,6 +2405,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Boyan Gao"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -2613,6 +2621,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chenghuai Lin"
+    },
+    {
+      "areas": [
         "engineering"
       ],
       "contribution_count": 1,
@@ -2786,6 +2802,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Daijiao Liu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Dairu Liu"
     },
     {
       "areas": [
@@ -3753,6 +3777,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Haoqing Wang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Haosong Peng"
     },
     {
@@ -3858,6 +3890,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Harrison F. Stropkay"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "He Wang"
     },
     {
       "areas": [
@@ -4442,6 +4482,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jihye Park"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jilong Wang"
     },
     {
       "areas": [
@@ -5146,6 +5194,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Li Xie"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Li Yi"
     },
     {
       "areas": [
@@ -6761,6 +6817,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Sikai Liang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Silei Wu"
     },
     {
@@ -7381,6 +7445,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Wenyao Zhang"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -7741,6 +7813,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xingrun Xing"
+    },
+    {
+      "areas": [
         "other"
       ],
       "contribution_count": 1,
@@ -7770,6 +7850,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xinmiao Han"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xinqiang Yu"
     },
     {
       "areas": [
@@ -7898,6 +7986,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Xuanyu Zhu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Xuchuan Chen"
     },
     {
       "areas": [
@@ -8170,6 +8266,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yefeng Shen"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yehui Tang"
     },
     {
       "areas": [
@@ -8601,6 +8705,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yu Guan"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yu Li"
     },
     {
@@ -8969,6 +9081,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yunrui Lian"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yunsheng Jiang"
     },
     {
@@ -9154,6 +9274,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Zekai Zhang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zekun Qi"
     },
     {
       "areas": [
@@ -9437,6 +9565,14 @@
     },
     {
       "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Zhikai Zhang"
+    },
+    {
+      "areas": [
         "linguistics"
       ],
       "contribution_count": 1,
@@ -9649,6 +9785,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Ziheng Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Zijian Song"
     },
     {
@@ -9764,7 +9908,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T08:48:18.181017+00:00",
+  "generated_at": "2026-06-04T09:24:13.505317+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -10002,29 +10146,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph",
-          "project_id": "PROJ-554-characterization-of-exoplanetary-atmosph",
-          "title": "Characterization of Exoplanetary Atmospheres through Advanced Spectroscopic"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
-          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
-          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
-          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
-          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-569-intern-atlas-a-methodological-evolution",
-          "project_id": "PROJ-569-intern-atlas-a-methodological-evolution",
-          "title": "Intern-Atlas: A Methodological Evolution Graph as Research Infrastructure for AI Scientists"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10046,29 +10190,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-          "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph",
-          "project_id": "PROJ-554-characterization-of-exoplanetary-atmosph",
-          "title": "Characterization of Exoplanetary Atmospheres through Advanced Spectroscopic"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-645-qwen-vla-unifying-vision-language-action",
-          "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
-          "title": "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Environments, and Robot Embodiments"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
-          "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
-          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-569-intern-atlas-a-methodological-evolution",
-          "project_id": "PROJ-569-intern-atlas-a-methodological-evolution",
-          "title": "Intern-Atlas: A Methodological Evolution Graph as Research Infrastructure for AI Scientists"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10090,29 +10234,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10134,29 +10278,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10177,29 +10321,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10220,29 +10364,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10266,29 +10410,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10318,29 +10462,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10362,29 +10506,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10405,29 +10549,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10449,29 +10593,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10492,29 +10636,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10543,29 +10687,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10589,29 +10733,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -10644,29 +10788,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-653-https-arxiv-org-abs-2605-28556",
-          "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
-          "title": "A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683",
+          "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+          "title": "https://arxiv.org/abs/2606.00683"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-652-https-arxiv-org-abs-2606-00408",
-          "project_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895",
+          "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+          "title": "https://arxiv.org/abs/2605.23895"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-655-https-arxiv-org-abs-2606-02437",
-          "project_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-          "title": "On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-659-trust-region-on-policy-distillation",
+          "project_id": "PROJ-659-trust-region-on-policy-distillation",
+          "title": "Trust Region On-Policy Distillation"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-654-https-arxiv-org-abs-2605-29707",
-          "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "project_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458",
+          "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+          "title": "https://arxiv.org/abs/2606.03458"
         }
       ],
       "inputs": [
@@ -85893,9 +86037,525 @@
       "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs",
       "updated_at": "2026-06-03T09:39:51.914435+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/idea/https-arxiv-org-abs-2606-03458.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-04T09:21:53.148575+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
+        "repo_path": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.03458 Submitted by: github-actions[bot] (Intake from human-submission issue #274.)",
+      "field": "other",
+      "id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 17.52048,
+          "ended_at": "2026-06-04T09:21:54.919101+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-04T09:21:37.398621+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2606.03458",
+      "updated_at": "2026-06-04T09:21:53.563174+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/idea/humanoid-gpt-scaling-data-and-structure.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zekun Qi",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xuchuan Chen",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Dairu Liu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chenghuai Lin",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yunrui Lian",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sikai Liang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Zhikai Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yu Guan",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jilong Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Wenyao Zhang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xinqiang Yu",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "He Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Li Yi",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-04T09:22:00.128554+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
+        "repo_path": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "We introduce Humanoid-GPT, a GPT-style Transformer with causal attention trained on a billion-scale motion corpus for whole-body control. Unlike prior shallow MLP trackers constrained by scarce data and an agility-generalization trade-off, Humanoid-GPT is pre-trained on a 2B-frame retargeted corpus that unifies all\u2026",
+      "field": "computer science",
+      "id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 7.305479,
+          "ended_at": "2026-06-04T09:22:02.224900+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-04T09:21:54.919421+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking",
+      "updated_at": "2026-06-04T09:22:00.728463+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-659-trust-region-on-policy-distillation/idea/trust-region-on-policy-distillation.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Xingrun Xing",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Haoqing Wang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Boyan Gao",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Ziheng Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yehui Tang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-04T09:22:17.540015+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
+        "repo_path": "projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "On-Policy Distillation (OPD) is a fundamental technique for efficient post-training of large language models (LLMs), with broad applications in agent learning, multi-task enhancement, and model compression. However, OPD training becomes unstable when the teacher and student distributions differ substantially, as\u2026",
+      "field": "computer science",
+      "id": "PROJ-659-trust-region-on-policy-distillation",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 16.909497,
+          "ended_at": "2026-06-04T09:22:19.134639+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-04T09:22:02.225142+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Trust Region On-Policy Distillation",
+      "updated_at": "2026-06-04T09:22:17.728943+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-04T09:22:19.827616+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
+        "repo_path": "projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.23895 Submitted by: github-actions[bot] (Intake from human-submission issue #271.)",
+      "field": "other",
+      "id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 3.412875,
+          "ended_at": "2026-06-04T09:22:22.547727+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-04T09:22:19.134852+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2605.23895",
+      "updated_at": "2026-06-04T09:22:21.030098+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-04T09:22:38.079964+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
+        "repo_path": "projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.00683 Submitted by: github-actions[bot] (Intake from human-submission issue #270.)",
+      "field": "other",
+      "id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 17.519795,
+          "ended_at": "2026-06-04T09:22:40.067763+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-04T09:22:22.547968+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2606.00683",
+      "updated_at": "2026-06-04T09:22:38.390034+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 17.519795,
+      "ended_at": "2026-06-04T09:22:40.067763+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-661-https-arxiv-org-abs-2606-00683",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T09:22:22.547968+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 3.412875,
+      "ended_at": "2026-06-04T09:22:22.547727+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T09:22:19.134852+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 16.909497,
+      "ended_at": "2026-06-04T09:22:19.134639+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-659-trust-region-on-policy-distillation",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T09:22:02.225142+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 7.305479,
+      "ended_at": "2026-06-04T09:22:02.224900+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T09:21:54.919421+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 17.52048,
+      "ended_at": "2026-06-04T09:21:54.919101+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-657-https-arxiv-org-abs-2606-03458",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T09:21:37.398621+00:00"
+    },
     {
       "action": "abstain",
       "agent": "personality",
@@ -91164,56 +91824,6 @@
       "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-05-31T13:33:02.105086+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 79.089642,
-      "ended_at": "2026-05-31T13:19:13.728043Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-31T13:17:54.638401Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 76.587693,
-      "ended_at": "2026-05-31T13:17:54.592979Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-31T13:16:38.005286Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 101.788688,
-      "ended_at": "2026-05-31T13:16:37.881459Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-31T13:14:56.092771Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 67.064252,
-      "ended_at": "2026-05-31T13:14:56.046841Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-31T13:13:48.982589Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 97.786466,
-      "ended_at": "2026-05-31T13:13:48.937593Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-05-31T13:12:11.151127Z"
     }
   ],
   "schema_version": "2.0.0"

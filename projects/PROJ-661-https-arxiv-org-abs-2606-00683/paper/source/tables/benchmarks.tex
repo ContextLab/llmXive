@@ -1,0 +1,17 @@
+\begin{table}[t!]
+\centering
+\footnotesize
+\begin{tabular}{lllrll}
+\toprule
+\textbf{Dataset} & \textbf{\# Samples} & \textbf{\# Sources} & \textbf{Task} & \textbf{Metric} \\
+\midrule
+HotpotQA~\citep{hotpotqa} & 7{,}405 & 10 & Multi-hop & In-Acc \\
+MuSiQue~\citep{musique} & 2{,}417 & 10 & Hard multi-hop & In-Acc \\
+TAT-QA~\citep{tat-qa} & 906 & 1 & Table multi-hop & F1 \\
+ConFiQA~\citep{bi-etal-2025-context} & 6{,}000$\times$3 & 1 & Faithfulness & In-Acc, M\textsubscript{R} \\
+MuSiQue-Un~\citep{musique} & 2{,}417 & 10 & Refusal & R-Acc \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation benchmarks, the number of evaluation samples and supplied sources, the task each one tests, and the metric we report. ConFiQA is evaluated on its three subsets (QA, MR, MC); on TAT-QA we keep only \textit{span} and \textit{multi-span} questions.}
+\label{tab:benchmarks}
+\end{table}

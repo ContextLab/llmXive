@@ -1,0 +1,33 @@
+\begin{table}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|ccc|cc|c}
+\toprule
+ & \multicolumn{3}{c|}{\textbf{Multi-hop Reasoning}} & \multicolumn{2}{c|}{\textbf{Faithfulness}} & \multicolumn{1}{c}{\textbf{Refusal}} \\
+\textbf{Model \textbackslash{} Benchmarks} & HotpotQA & MuSiQue & TAT-QA & \multicolumn{2}{c|}{ConFiQA} & MuSiQue-Un \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-7}
+ & In-Acc$\uparrow$ & In-Acc$\uparrow$ & F1$\uparrow$ & In-Acc$\uparrow$ & M\textsubscript{R}$\downarrow$ & R-Acc$\uparrow$ \\
+\midrule
+gemma-3-1b-it & 30.8 & 12.8 & 53.6 & 62.1 & 7.7 & 2.2 \\
+gemma-3-4b-it & 55.8 & 30.1 & 65.3 & 69.8 & 8.9 & 55.8 \\
+gemma-3-12b-it & 66.5 & 44.6 & 76.5 & 72.0 & 7.6 & 65.3 \\
+gemma-3-27b-it & 69.6 & \textbf{51.0} & 75.4 & 73.0 & 8.0 & 71.1 \\
+\midrule
+Qwen3-0.6B & 34.8 (41.8) & 13.2 (17.2) & 62.5 (66.3) & 59.7 (64.5) & 9.0 (8.2) & 6.3 (70.0) \\
+Qwen3-1.7B & 47.7 (60.9) & 20.1 (30.7) & 74.4 (74.8) & 64.8 (70.4) & 12.7 (8.3) & 54.7 (82.8) \\
+Qwen3-4B & 60.6 (67.1) & 33.1 (41.5) & \underline{76.9} (79.1) & 69.7 (74.1) & 10.3 (7.5) & 64.1 (84.0) \\
+Qwen3-8B & \underline{68.7} (70.3) & 39.3 (43.9) & 72.9 (74.5) & 75.9 (77.6) & 9.2 (6.9) & \textbf{90.7} (90.3) \\
+Qwen3-14B & 68.3 (72.2) & 38.7 (45.6) & 70.0 (74.0) & 70.4 (78.3) & 13.1 (7.4) & 67.6 (91.0) \\
+Qwen3-32B & \textbf{70.9} (71.4) & \underline{49.7} (49.3) & 75.9 (76.7) & 72.0 (75.8) & 11.5 (8.5) & 80.7 (87.0) \\
+\midrule
+SmolLM3-3B & 49.9 (56.5) & 21.5 (29.4) & 71.1 (69.7) & 58.6 (60.5) & 15.4 (13.3) & 32.1 (77.1) \\
+\midrule
+Pleias-RAG-1.2B & 48.5 & 15.0 & 8.4 & 37.3 & 25.3 & 21.9 \\
+\midrule
+OCC-RAG-0.6B & 57.6 & 36.6 & 75.0 & \underline{79.9} & \underline{5.2} & 86.9 \\
+OCC-RAG-1.7B & 60.9 & 38.2 & \textbf{81.0} & \textbf{81.4} & \textbf{5.0} & \underline{87.2} \\
+\bottomrule
+\end{tabular}}
+\caption{Main evaluation results. ConFiQA metrics are averaged across QA, MR, and MC subsets. Parentheses (if available) represent the evaluation results with thinking mode on. We highlight the best result per column as \textbf{bold}, and second-best as \textbf{underline}.}
+\label{tab:results}
+\end{table}

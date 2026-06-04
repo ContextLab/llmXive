@@ -1,0 +1,98 @@
+   % distractor series fill and draw
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}
+        \definecolor{airigreen}{HTML}{A8E6CF}
+        \definecolor{airigreendark}{HTML}{7BC8A4}        
+        \definecolor{emerald}{HTML}{50C878}
+        \definecolor{color1}{HTML}{FFEF91}
+        \definecolor{color2}{HTML}{FFA02E}
+        \begin{groupplot}[
+            group style={
+                group size=2 by 1,
+                horizontal sep=2cm,
+            },
+            width=7cm,
+            height=5cm,
+            y=1cm,
+            enlarge y limits=0.25,
+            xmin=0,
+            tick label style={font=\footnotesize},
+            tick label style={font=\scriptsize},
+            label style={font=\small},
+            title style={font=\small\bfseries},
+            axis lines*=left,
+            axis line style={black!70},
+            legend style={font=\footnotesize, draw=none, fill=none},
+        ]
+        % ================= LEFT PLOT: TOTAL TOKENS =================
+        \nextgroupplot[
+            xbar,
+            bar width=0.4cm,
+            xmode=linear,
+            title={Total tokens},
+            xlabel={Tokens},
+            xtick={0,1,2,3},
+            xticklabels={0.01B,0.1B,1B,10B},
+            xmin=0,xmax=3.8,
+            symbolic y coords={Abstain,{MH single},{MH multi},{Single-hop}},
+            ytick=data,
+            nodes near coords,
+            every node near coord/.append style={anchor=west, font=\scriptsize},
+            point meta=explicit symbolic,
+        ]
+        % Coordinates mapped to log10 scale + 2 to force bars from 0
+        \addplot[fill=airigreen, draw=airigreendark] coordinates {
+            (2.8899,{Single-hop}) [7.76B]
+            (1.3222,{MH multi}) [0.21B]
+            (1.2041,{MH single}) [0.16B]
+            (0.4624,Abstain) [0.029B]
+        };
+        % ================= RIGHT PLOT: COMPOSITION =================
+        \nextgroupplot[
+            xbar stacked,
+            bar width=0.4cm,
+            title={Composition},
+            xlabel={Share of subset tokens},
+            xtick={0,25,50,75,100},
+            xticklabels={0\%,25\%,50\%,75\%,100\%},
+            xmax=115,
+            yticklabels={},
+            nodes near coords={\ifx\pgfplotspointmeta\empty\else\pgfplotspointmeta\%\fi},
+            every node near coord/.append style={font=\tiny, text=black},
+            point meta=explicit symbolic,
+            symbolic y coords={Abstain,{MH single},{MH multi},{Single-hop}},
+            ytick=data,
+            legend style={
+                at={(-0.3,-0.25)},
+                anchor=north,
+                legend columns=3,
+            },
+        ]
+        \addplot[fill=color2] coordinates {
+            (75,{Single-hop}) [75]
+            (41,{MH multi}) [41]
+            (35,{MH single}) [35]
+            (58,Abstain) [58]
+        };
+        \addplot[fill=color1] coordinates {
+            (15,{Single-hop}) [15]
+            (31,{MH multi}) [31]
+            (25,{MH single}) [25]
+            (42,Abstain) [42]
+        };
+        \addplot[fill=airigreendark] coordinates {
+            (10,{Single-hop}) [10]
+            (28,{MH multi}) [28]
+            (40,{MH single}) [40]
+            (0,Abstain) []
+        };
+        \legend{Distractor context, Gold context, Reasoning}
+        \end{groupplot}
+    \end{tikzpicture}
+    }
+    \caption{Training-token budget by subset. Left: total Qwen3 tokens per subset on a logarithmic scale. Right: per-subset decomposition with distractor context, gold context, reasoning.}
+    \label{fig:token_budget}
+\end{figure}

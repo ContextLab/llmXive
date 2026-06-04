@@ -1,0 +1,71 @@
+\section{Scaling up Humanoid Motion Data}
+\label{sec:methods}
+
+We first collect and curate large-scale human motion data to ensure the fidelity of motion dynamics, followed by retargeting these motions to the humanoid joint space.
+
+\subsection{Data Curation}
+\label{subsec:method_data}
+Constructing a high-quality motion dataset is essential for ensuring the fidelity and diversity of motion dynamics in zero-shot humanoid motion tracking. Existing datasets~\cite{amass19, lafan20, motionx23, humanoidx24} often contain limited categories of motion capture sequences or exhibit inconsistencies in physical plausibility and spatial alignment, which constrain their generalization to complex whole-body tracking scenarios. Recent advances in large-scale motion generation ~\cite{motionmillion25} and physically grounded motion filtering ~\cite{phuma25} have introduced abundant and high-quality motion priors, significantly extending the coverage of motion distributions. To fully exploit these available resources, we curate a large-scale motion corpus by aggregating AMASS~\cite{amass19}, LAFAN1~\cite{lafan20}, MotionMillion~\cite{motionmillion25}, and PHUMA~\cite{phuma25}, shown in Fig.~\ref{fig:pipeline}\textbf{(a)}, encompassing a wide spectrum of human activities that serve as the foundation for \methodname.
+
+After assembling the datasets into a unified corpus, we employ an off-the-shelf motion retargeting framework~\cite{gmr25} to map each human motion sequence into the 29-DoFs joint space of the Unitree-G1 humanoid. During this process, we further filter out sequences involving explicit object interactions—such as sitting on chairs, swimming, or stair climbing—to ensure the resulting motions are compatible with the humanoid’s actuation in a plain scene. To further enrich temporal variability and improve robustness to motion speed, we apply motion time-warping augmentation by uniformly accelerating and decelerating every sequence, expanding the dataset to approximately five times its original size. This yields a clean, physically consistent, and diverse dataset suitable for downstream reinforcement-learning based expert training.
+
+
+\subsection{Harmonic Motion Embedding}
+
+To balance the trade-off between motion coverage and training efficiency, we partition the full motion corpus into multiple clusters and train each expert on a specific motion subset. To cluster motions directly in the latent space, we propose a novel embedding representation called \textbf{Harmonic Motion Embedding (HME)}. Concretely, we first train several Periodic Autoencoders~\cite{pae22} on different data partitions to extract per-joint periodic amplitudes and frequencies from each motion sequence. For each sequence, we then aggregate the mean and standard deviation of these joint-level harmonic features to obtain its HME vector, yielding a compact and descriptive embedding for the entire corpus. Finally, we apply K-Means clustering over all HME embeddings using pairwise distances as the similarity metric, producing roughly 300 motion clusters. Each cluster contains about 1k–2k sequences, offering strong intra-cluster consistency while preserving broad coverage of the global motion distribution.
+
+
+\section{Scalable Generative Tracker}
+
+We present the \textbf{\methodname} framework. Built via a two-stage pipeline: RL-trained motion experts followed by transformer distillation, our model enables humanoids to track arbitrary human motions without any finetuning.
+
+\subsection{Training Motion Experts}
+To enable diverse motion priors for the \methodname, we train multiple motion experts to collectively cover the dynamic distribution present in the dataset. 
+
+On each cluster, we train a PPO-based policy to track all the sequences inside the cluster, presenting in Fig \ref{fig:pipeline}\textbf{(b)}. The policy is formulated as $\pi: \mathcal{G} \times \mathcal{S} \mapsto \mathcal{A}$, which maps the input reference joints and humanoid proprioceptive observations to low-level motor actions. At each time step $t$, the policy receives the current privileged robot state $s_t^{priv.}$ along with the target reference pose $q_t^{\text{ref}}$ extracted from the motion clip. The state $s_t^{priv.}$ encodes per-joint positions and velocities, the root’s angular velocity, projected gravity, and the previous control action. The policy outputs per-joint actions $a_t$, which are converted into actuator torques through a PD controller. 
+The motion tracking objective is to drive the robot's state to match the 
+target pose $g_t = q_t^{\text{ref}}$ while maintaining balance and dynamic stability. 
+To enforce physically grounded tracking, the reward is computed at the body keypoint level, including position and velocity consistency terms for critical parts of the body (e.g., arms, hips, feet, pelvis). Let $\mathcal{K}$ denote the set of tracked body keypoints. For each keypoint $k\!\in\!\mathcal{K}$ at time $t$, let $e^{\text{pos}}_{k,t}\!\in\!\mathbb{R}^3$ and $e^{\text{vel}}_{k,t}\!\in\!\mathbb{R}^3$ denote the position and velocity residuals between the humanoid and the reference motion, and let $\theta_{k,t}$ be the rotation error induced by the $\mathrm{SO}(3)$ log map.  With positive keypoint weights $w_k$ and scaling factors 
+$\alpha_{\text{pos}}, \alpha_{\text{rot}}, \alpha_{\text{vel}}$,  
+the abstract keypoint reward is formulated as
+\begin{equation}
+\begin{aligned}
+R_{\text{kpt}}(t) &= R_{\text{pos}}(t) + R_{\text{rot}}(t) + R_{\text{vel}}(t) + R_{\text{penal}}(t),\\
+R_{\text{pos}}(t) &= \sum_{k\in\mathcal{K}} w_k \exp\!\left(-\alpha_{\text{pos}}\|e^{\text{pos}}_{k,t}\|_{1}\right),\\
+R_{\text{rot}}(t) &= \sum_{k\in\mathcal{K}} w_k \exp\!\left(-\alpha_{\text{rot}}\theta_{k,t}\right),\\
+R_{\text{vel}}(t) &= \sum_{k\in\mathcal{K}} w_k \exp\!\left(-\alpha_{\text{vel}}\|e^{\text{vel}}_{k,t}\|_{1}\right).
+\end{aligned}
+\end{equation}
+The exponential form softly penalizes deviations in position, orientation, 
+and velocity across all body keypoints, and $R_{\text{panel}}(t)$ consists of several penalties like self-contacts and smoothness, promoting a globally accurate yet locally stable motion tracking.
+
+During training, we randomly sample short motion clips as tracking targets and evaluate each expert using root pose error, velocity error, and stable tracking duration. These metrics ensure convergence toward physically consistent motion reproduction within each cluster. After training, only experts that achieve high-fidelity and long-horizon stability are retained, forming a diverse library of motion priors that provides \methodname\ with a physically grounded initialization across heterogeneous motion regimes.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=1.0\linewidth]{assets/diversity.pdf}
+  \caption{
+  \textbf{Comparison of dataset diversity in the HME embedding space.}
+  Each bubble represents a dataset, where the horizontal and vertical axes denote \textit{gstd} and \textit{log-volume} respectively, and the bubble size reflects the relative amount of motion clips. Upper-right bubbles indicate broader coverage and higher diversity.
+  }
+  \label{fig:diversity_bubble}
+  % \vspace{-10pt}
+\end{figure}
+
+\subsection{Building Zero-shot Foundational Tracker}
+The motion experts trained above can accurately reproduce physically-grounded motions within their own clusters, but tend to degrade sharply when encountering out-of-distribution motion targets. To bridge the gaps across motion domains and consolidate their specialized knowledge, we introduce a distillation stage illustrated in Fig.\ref{fig:pipeline}\textbf{(c)} that transfers the behaviors of all experts $\mathcal{T}$ into a single unified policy, adopting the DAgger~\cite{dagger11} framework to distill the knowledge of all motion experts into a single generalist policy. 
+
+To distill expert behaviors efficiently, we reformulate the distillation process 
+as a sequence modeling problem and employ a Transformer~\cite{transformer17}-based generalist tracker $G_\theta$. At each timestep $t$, the input token embedding $e_t$ is constructed by concatenating the current proprioceptive state $s_t$ and the target reference pose $q_{t}^{\text{ref}}$ from the motion clip. A sequence of length $H$ containing such tokens $\{e_{t-H+1}, e_{t-H+2}, \dots, e_t\}$ is fed into the Transformer with a temporal causal mask, allowing the model to capture long-horizon dependencies and temporal consistency across the trajectory. After a forward pass, actions at all output positions will be supervised by the corresponding history of teacher $t_i$'s output, empowering the model to be trained on DAgger feedback efficiently over multiple timesteps in a single pass, shown in eq.\eqref{eq:loss}. We use SmoothL1Loss as our loss function $\mathcal{L}$.
+
+\begin{equation}
+\label{eq:loss}
+\begin{aligned}
+    \hat{a}_{t-H+1:t} = \bigcup_{t_i\in\mathcal{T}} \operatorname*{concat}_{k\in[-H+1, 0]} t_i(s_{t-k}^{priv.}, g_{t-k})\\
+    l = \mathcal{L}(G_\theta(e_{t-H+1:t}), \hat{a}_{t-H+1:t})
+\end{aligned}
+\end{equation}
+
+During inference, we maintain a queue of maximal $H$ history tokens as the input of transformer and use the output located in the last position as the current control target. 
+
+This design of our \methodname model naturally exploits the Transformer’s inherent strengths of parallel sequence supervision and autoregressive temporal predicting,  Moreover, because tokens at different positions attend to varying amounts of historical context, the trained model implicitly learns position-invariant temporal prediction, enabling it to output stable and physically consistent control targets even at the beginning of an episode, where historical information is scarce.

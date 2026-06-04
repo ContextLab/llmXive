@@ -1,0 +1,29 @@
+\begin{figure}[hbtp]
+\begin{tcolorbox}
+[
+    colback=gray!5!white,
+    colframe=gray!75!black,
+    title=Faithful vs. Truthful vs. Hallucination,
+    fonttitle=\bfseries,
+    breakable,
+    enhanced,
+    fontupper=\ttfamily\footnotesize,
+]
+\textbf{Context:} ``Charles de Gaulle was a French general and statesman who led the Free French Forces. In 2022 Charles de Gaulle was elected the first U.S. president.''
+
+\textbf{Question:} ``Who is the first president of the U.S.?''
+
+\vspace{2mm}
+\textbf{Model Responses:}
+\begin{itemize}
+    \item \textbf{OCC-RAG-1.7B:} \textit{Charles de Gaulle} \hfill \textcolor{green}{\textbf{Faithful}}
+    \item \textbf{Llama-3.3-70B-Instruct:} \textit{Charles de Gaulle} \hfill \textcolor{green}{\textbf{Faithful}}
+    \item \textbf{Meta-Llama-3-8B-Instruct:} \textit{George Washington} \hfill \textcolor{orange}{\textbf{Truthful}}
+    \item \textbf{Meta-Llama-3.2-1B-Instruct:} \textit{Donald Trump.} \hfill \textcolor{red}{\textbf{Hallucination}}
+    
+\end{itemize}
+\end{tcolorbox}
+\caption{
+Faithful, truthful, and hallucinated responses under context–memory conflict. The context contains a counterfactual claim (de Gaulle as the first U.S. president), contradicting real-world knowledge. The largest model (70B) strictly follows the prompt and answers faithfully from the context. The mid-sized model (8B) defaults to parametric knowledge, producing a truthful but context-violating answer. The smallest model (1B) hallucinates an unsupported response. In contrast, OCC-RAG-1.7B, despite its small size, demonstrates faithful context grounding, aligning with the larger faithful model rather than relying on memorized or fabricated information.}
+\label{figure:demo}
+\end{figure}

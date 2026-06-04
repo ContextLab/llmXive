@@ -1,0 +1,244 @@
+\begin{thebibliography}{46}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Anil et~al.(2023)Anil, Borgeaud, Wu, Alayrac, Yu, Soricut, Schalkwyk, Dai, Hauth, Millican, Silver, Petrov, Johnson, Antonoglou, Schrittwieser, Glaese, Chen, Pitler, Lillicrap, Lazaridou, Firat, Molloy, Isard, Barham, Hennigan, Lee, Viola, Reynolds, Xu, Doherty, Collins, Meyer, Rutherford, Moreira, Ayoub, Goel, Tucker, Piqueras, Krikun, Barr, Savinov, Danihelka, Roelofs, White, Andreassen, von Glehn, Yagati, Kazemi, Gonzalez, Khalman, Sygnowski, and et~al.]{gemini23}
+Rohan Anil, Sebastian Borgeaud, Yonghui Wu, Jean{-}Baptiste Alayrac, Jiahui Yu, Radu Soricut, Johan Schalkwyk, Andrew~M. Dai, Anja Hauth, Katie Millican, David Silver, Slav Petrov, Melvin Johnson, Ioannis Antonoglou, Julian Schrittwieser, Amelia Glaese, Jilin Chen, Emily Pitler, Timothy~P. Lillicrap, Angeliki Lazaridou, Orhan Firat, James Molloy, Michael Isard, Paul~Ronald Barham, Tom Hennigan, Benjamin Lee, Fabio Viola, Malcolm Reynolds, Yuanzhong Xu, Ryan Doherty, Eli Collins, Clemens Meyer, Eliza Rutherford, Erica Moreira, Kareem Ayoub, Megha Goel, George Tucker, Enrique Piqueras, Maxim Krikun, Iain Barr, Nikolay Savinov, Ivo Danihelka, Becca Roelofs, Ana{\"{\i}}s White, Anders Andreassen, Tamara von Glehn, Lakshman Yagati, Mehran Kazemi, Lucas Gonzalez, Misha Khalman, Jakub Sygnowski, and et~al.
+\newblock Gemini: {A} family of highly capable multimodal models.
+\newblock \emph{CoRR}, abs/2312.11805, 2023.
+
+\bibitem[Araujo et~al.(2025)Araujo, Ze, Xu, Wu, and Liu]{gmr25}
+Joao~Pedro Araujo, Yanjie Ze, Pei Xu, Jiajun Wu, and C~Karen Liu.
+\newblock Retargeting matters: General motion retargeting for humanoid motion tracking.
+\newblock \emph{arXiv preprint arXiv:2510.02252}, 2025.
+
+\bibitem[Brown et~al.(2020)Brown, Mann, Ryder, Subbiah, Kaplan, Dhariwal, Neelakantan, Shyam, Sastry, Askell, Agarwal, Herbert{-}Voss, Krueger, Henighan, Child, Ramesh, Ziegler, Wu, Winter, Hesse, Chen, Sigler, Litwin, Gray, Chess, Clark, Berner, McCandlish, Radford, Sutskever, and Amodei]{GPT3_20}
+Tom~B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert{-}Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel~M. Ziegler, Jeffrey Wu, Clemens Winter, Christopher Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei.
+\newblock Language models are few-shot learners.
+\newblock 2020.
+
+\bibitem[Chen et~al.(2025)Chen, Ji, Cheng, Peng, Peng, and Wang]{gmt25}
+Zixuan Chen, Mazeyu Ji, Xuxin Cheng, Xuanbin Peng, Xue~Bin Peng, and Xiaolong Wang.
+\newblock Gmt: General motion tracking for humanoid whole-body control.
+\newblock \emph{arXiv preprint arXiv:2506.14770}, 2025.
+
+\bibitem[Cheng et~al.(2024)Cheng, Ji, Chen, Yang, Yang, and Wang]{exbody24}
+Xuxin Cheng, Yandong Ji, Junming Chen, Ruihan Yang, Ge~Yang, and Xiaolong Wang.
+\newblock Expressive whole-body control for humanoid robots.
+\newblock \emph{arXiv preprint arXiv:2402.16796}, 2024.
+
+\bibitem[Dallard et~al.(2023)Dallard, Benallegue, Kanehiro, and Kheddar]{synchronized23}
+Antonin Dallard, Mehdi Benallegue, Fumio Kanehiro, and Abderrahmane Kheddar.
+\newblock Synchronized human-humanoid motion imitation.
+\newblock \emph{IEEE Robotics and Automation Letters}, 8\penalty0 (7):\penalty0 4155--4162, 2023.
+
+\bibitem[Fan et~al.(2025)Fan, Lu, Dai, Yu, Xiao, Dou, Dong, Ma, and Wang]{motionmillion25}
+Ke~Fan, Shunlin Lu, Minyue Dai, Runyi Yu, Lixing Xiao, Zhiyang Dou, Junting Dong, Lizhuang Ma, and Jingbo Wang.
+\newblock Go to zero: Towards zero-shot motion generation with million-scale data.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 13336--13348, 2025.
+
+\bibitem[Fu et~al.(2024)Fu, Zhao, Wu, Wetzstein, and Finn]{humanplus24}
+Zipeng Fu, Qingqing Zhao, Qi~Wu, Gordon Wetzstein, and Chelsea Finn.
+\newblock Humanplus: Humanoid shadowing and imitation from humans.
+\newblock 270:\penalty0 2828--2844, 2024.
+
+\bibitem[Harvey et~al.(2020)Harvey, Yurick, Nowrouzezahrai, and Pal]{lafan20}
+F{\'e}lix~G Harvey, Mike Yurick, Derek Nowrouzezahrai, and Christopher Pal.
+\newblock Robust motion in-betweening.
+\newblock \emph{ACM Transactions on Graphics (TOG)}, 39\penalty0 (4):\penalty0 60--1, 2020.
+
+\bibitem[He et~al.(2024)He, Luo, He, Xiao, Zhang, Zhang, Kitani, Liu, and Shi]{omnih2o24}
+Tairan He, Zhengyi Luo, Xialin He, Wenli Xiao, Chong Zhang, Weinan Zhang, Kris Kitani, Changliu Liu, and Guanya Shi.
+\newblock Omnih2o: Universal and dexterous human-to-humanoid whole-body teleoperation and learning.
+\newblock \emph{arXiv preprint arXiv:2406.08858}, 2024.
+
+\bibitem[He et~al.(2025)He, Gao, Xiao, Zhang, Wang, Wang, Luo, He, Sobanbab, Pan, et~al.]{asap25}
+Tairan He, Jiawei Gao, Wenli Xiao, Yuanhang Zhang, Zi~Wang, Jiashun Wang, Zhengyi Luo, Guanqi He, Nikhil Sobanbab, Chaoyi Pan, et~al.
+\newblock Asap: Aligning simulation and real-world physics for learning agile humanoid whole-body skills.
+\newblock \emph{arXiv preprint arXiv:2502.01143}, 2025.
+
+\bibitem[Hurst et~al.(2024)Hurst, Lerer, Goucher, Perelman, Ramesh, Clark, Ostrow, Welihinda, Hayes, Radford, Madry, Baker{-}Whitcomb, Beutel, Borzunov, Carney, Chow, Kirillov, Nichol, Paino, Renzin, Passos, Kirillov, Christakis, Conneau, Kamali, Jabri, Moyer, Tam, Crookes, Tootoonchian, Kumar, Vallone, Karpathy, Braunstein, Cann, Codispoti, Galu, Kondrich, Tulloch, Mishchenko, Baek, Jiang, Pelisse, Woodford, Gosalia, Dhar, Pantuliano, Nayak, Oliver, Zoph, Ghorbani, Leimberger, Rossen, Sokolowsky, Wang, Zweig, Hoover, Samic, McGrew, Spero, Giertler, Cheng, Lightcap, Walkin, Quinn, Guarraci, Hsu, Kellogg, Eastman, Lugaresi, Wainwright, Bassin, Hudson, Chu, Nelson, Li, Shern, Conger, Barette, Voss, Ding, Lu, Zhang, Beaumont, Hallacy, Koch, Gibson, Kim, Choi, McLeavey, Hesse, Fischer, Winter, Czarnecki, Jarvis, Wei, Koumouzelis, and Sherburn]{GPT4o24}
+Aaron Hurst, Adam Lerer, Adam~P. Goucher, Adam Perelman, Aditya Ramesh, Aidan Clark, AJ~Ostrow, Akila Welihinda, Alan Hayes, Alec Radford, Aleksander Madry, Alex Baker{-}Whitcomb, Alex Beutel, Alex Borzunov, Alex Carney, Alex Chow, Alex Kirillov, Alex Nichol, Alex Paino, Alex Renzin, Alex~Tachard Passos, Alexander Kirillov, Alexi Christakis, Alexis Conneau, Ali Kamali, Allan Jabri, Allison Moyer, Allison Tam, Amadou Crookes, Amin Tootoonchian, Ananya Kumar, Andrea Vallone, Andrej Karpathy, Andrew Braunstein, Andrew Cann, Andrew Codispoti, Andrew Galu, Andrew Kondrich, Andrew Tulloch, Andrey Mishchenko, Angela Baek, Angela Jiang, Antoine Pelisse, Antonia Woodford, Anuj Gosalia, Arka Dhar, Ashley Pantuliano, Avi Nayak, Avital Oliver, Barret Zoph, Behrooz Ghorbani, Ben Leimberger, Ben Rossen, Ben Sokolowsky, Ben Wang, Benjamin Zweig, Beth Hoover, Blake Samic, Bob McGrew, Bobby Spero, Bogo Giertler, Bowen Cheng, Brad Lightcap, Brandon Walkin, Brendan Quinn, Brian Guarraci, Brian Hsu, Bright Kellogg, Brydon
+  Eastman, Camillo Lugaresi, Carroll~L. Wainwright, Cary Bassin, Cary Hudson, Casey Chu, Chad Nelson, Chak Li, Chan~Jun Shern, Channing Conger, Charlotte Barette, Chelsea Voss, Chen Ding, Cheng Lu, Chong Zhang, Chris Beaumont, Chris Hallacy, Chris Koch, Christian Gibson, Christina Kim, Christine Choi, Christine McLeavey, Christopher Hesse, Claudia Fischer, Clemens Winter, Coley Czarnecki, Colin Jarvis, Colin Wei, Constantin Koumouzelis, and Dane Sherburn.
+\newblock Gpt-4o system card.
+\newblock \emph{CoRR}, abs/2410.21276, 2024.
+
+\bibitem[Jaech et~al.(2024)Jaech, Kalai, Lerer, Richardson, El{-}Kishky, Low, Helyar, Madry, Beutel, Carney, Iftimie, Karpenko, Passos, Neitz, Prokofiev, Wei, Tam, Bennett, Kumar, Saraiva, Vallone, Duberstein, Kondrich, Mishchenko, Applebaum, Jiang, Nair, Zoph, Ghorbani, Rossen, Sokolowsky, Barak, McGrew, Minaiev, Hao, Baker, Houghton, McKinzie, Eastman, Lugaresi, Bassin, Hudson, Li, de~Bourcy, Voss, Shen, Zhang, Koch, Orsinger, Hesse, Fischer, Chan, Roberts, Kappler, Levy, Selsam, Dohan, Farhi, Mely, Robinson, Tsipras, Li, Oprica, Freeman, Zhang, Wong, Proehl, Cheung, Mitchell, Wallace, Ritter, Mays, Wang, Such, Raso, Leoni, Tsimpourlas, Song, von Lohmann, Sulit, Salmon, Parascandolo, Chabot, Zhao, Brockman, Leclerc, Salman, Bao, Sheng, Andrin, Bagherinezhad, Ren, Lightman, Chung, Kivlichan, O'Connell, Osband, Gilaberte, and Akkaya]{gpt_o1}
+Aaron Jaech, Adam Kalai, Adam Lerer, Adam Richardson, Ahmed El{-}Kishky, Aiden Low, Alec Helyar, Aleksander Madry, Alex Beutel, Alex Carney, Alex Iftimie, Alex Karpenko, Alex~Tachard Passos, Alexander Neitz, Alexander Prokofiev, Alexander Wei, Allison Tam, Ally Bennett, Ananya Kumar, Andre Saraiva, Andrea Vallone, Andrew Duberstein, Andrew Kondrich, Andrey Mishchenko, Andy Applebaum, Angela Jiang, Ashvin Nair, Barret Zoph, Behrooz Ghorbani, Ben Rossen, Benjamin Sokolowsky, Boaz Barak, Bob McGrew, Borys Minaiev, Botao Hao, Bowen Baker, Brandon Houghton, Brandon McKinzie, Brydon Eastman, Camillo Lugaresi, Cary Bassin, Cary Hudson, Chak~Ming Li, Charles de~Bourcy, Chelsea Voss, Chen Shen, Chong Zhang, Chris Koch, Chris Orsinger, Christopher Hesse, Claudia Fischer, Clive Chan, Dan Roberts, Daniel Kappler, Daniel Levy, Daniel Selsam, David Dohan, David Farhi, David Mely, David Robinson, Dimitris Tsipras, Doug Li, Dragos Oprica, Eben Freeman, Eddie Zhang, Edmund Wong, Elizabeth Proehl, Enoch Cheung, Eric Mitchell,
+  Eric Wallace, Erik Ritter, Evan Mays, Fan Wang, Felipe~Petroski Such, Filippo Raso, Florencia Leoni, Foivos Tsimpourlas, Francis Song, Fred von Lohmann, Freddie Sulit, Geoff Salmon, Giambattista Parascandolo, Gildas Chabot, Grace Zhao, Greg Brockman, Guillaume Leclerc, Hadi Salman, Haiming Bao, Hao Sheng, Hart Andrin, Hessam Bagherinezhad, Hongyu Ren, Hunter Lightman, Hyung~Won Chung, Ian Kivlichan, Ian O'Connell, Ian Osband, Ignasi~Clavera Gilaberte, and Ilge Akkaya.
+\newblock Openai o1 system card.
+\newblock \emph{CoRR}, abs/2412.16720, 2024.
+
+\bibitem[Ji et~al.(2024)Ji, Peng, Liu, Li, Yang, Cheng, and Wang]{exbody2_24}
+Mazeyu Ji, Xuanbin Peng, Fangchen Liu, Jialong Li, Ge~Yang, Xuxin Cheng, and Xiaolong Wang.
+\newblock Exbody2: Advanced expressive humanoid whole-body control.
+\newblock \emph{arXiv preprint arXiv:2412.13196}, 2024.
+
+\bibitem[Kirillov et~al.(2023)Kirillov, Mintun, Ravi, Mao, Rolland, Gustafson, Xiao, Whitehead, Berg, Lo, Doll{\'{a}}r, and Girshick]{SAM23}
+Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chlo{\'{e}} Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander~C. Berg, Wan{-}Yen Lo, Piotr Doll{\'{a}}r, and Ross~B. Girshick.
+\newblock Segment anything.
+\newblock In \emph{{IEEE/CVF} International Conference on Computer Vision, {ICCV} 2023, Paris, France, October 1-6, 2023}, pages 3992--4003. {IEEE}, 2023.
+
+\bibitem[Lee et~al.(2025)Lee, Kim, Park, Kim, Hwang, Lee, and Choo]{phuma25}
+Kyungmin Lee, Sibeen Kim, Minho Park, Hyunseung Kim, Dongyoon Hwang, Hojoon Lee, and Jaegul Choo.
+\newblock Phuma: Physically-grounded humanoid locomotion dataset.
+\newblock \emph{arXiv preprint arXiv:2510.26236}, 2025.
+
+\bibitem[Li et~al.(2023)Li, Wu, and Liu]{omomo23}
+Jiaman Li, Jiajun Wu, and C~Karen Liu.
+\newblock Object motion guided human motion synthesis.
+\newblock \emph{ACM Transactions on Graphics (TOG)}, 42\penalty0 (6):\penalty0 1--11, 2023.
+
+\bibitem[Li et~al.(2025)Li, Lin, Cui, Liu, Liang, Zhu, and Huang]{clone25}
+Yixuan Li, Yutang Lin, Jieming Cui, Tengyu Liu, Wei Liang, Yixin Zhu, and Siyuan Huang.
+\newblock Clone: Closed-loop whole-body humanoid teleoperation for long-horizon tasks.
+\newblock \emph{arXiv preprint arXiv:2506.08931}, 2025.
+
+\bibitem[Liao et~al.(2025)Liao, Truong, Huang, Tevet, Sreenath, and Liu]{beyondmimic25}
+Qiayuan Liao, Takara~E Truong, Xiaoyu Huang, Guy Tevet, Koushil Sreenath, and C~Karen Liu.
+\newblock Beyondmimic: From motion tracking to versatile humanoid control via guided diffusion.
+\newblock \emph{arXiv preprint arXiv:2508.08241}, 2025.
+
+\bibitem[Lin et~al.(2023)Lin, Zeng, Lu, Cai, Zhang, Wang, and Zhang]{motionx23}
+Jing Lin, Ailing Zeng, Shunlin Lu, Yuanhao Cai, Ruimao Zhang, Haoqian Wang, and Lei Zhang.
+\newblock Motion-x: A large-scale 3d expressive whole-body human motion dataset.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 25268--25280, 2023.
+
+\bibitem[Luo et~al.(2023{\natexlab{a}})Luo, Cao, Kitani, Xu, et~al.]{phc23}
+Zhengyi Luo, Jinkun Cao, Kris Kitani, Weipeng Xu, et~al.
+\newblock Perpetual humanoid control for real-time simulated avatars.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 10895--10904, 2023{\natexlab{a}}.
+
+\bibitem[Luo et~al.(2023{\natexlab{b}})Luo, Cao, Merel, Winkler, Huang, Kitani, and Xu]{uhm23}
+Zhengyi Luo, Jinkun Cao, Josh Merel, Alexander Winkler, Jing Huang, Kris Kitani, and Weipeng Xu.
+\newblock Universal humanoid motion representations for physics-based control.
+\newblock \emph{arXiv preprint arXiv:2310.04582}, 2023{\natexlab{b}}.
+
+\bibitem[Luo et~al.(2025)Luo, Yuan, Wang, Li, Chen, Casta{\~n}eda, Cao, Li, Minor, Ben, et~al.]{sonic25}
+Zhengyi Luo, Ye~Yuan, Tingwu Wang, Chenran Li, Sirui Chen, Fernando Casta{\~n}eda, Zi-Ang Cao, Jiefeng Li, David Minor, Qingwei Ben, et~al.
+\newblock Sonic: Supersizing motion tracking for natural humanoid whole-body control.
+\newblock \emph{arXiv preprint arXiv:2511.07820}, 2025.
+
+\bibitem[Mahmood et~al.(2019)Mahmood, Ghorbani, Troje, Pons-Moll, and Black]{amass19}
+Naureen Mahmood, Nima Ghorbani, Nikolaus~F Troje, Gerard Pons-Moll, and Michael~J Black.
+\newblock Amass: Archive of motion capture as surface shapes.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on computer vision}, pages 5442--5451, 2019.
+
+\bibitem[Mao et~al.(2024)Mao, Zhao, Song, Shi, Ye, Zhang, Geng, Malik, Guizilini, and Wang]{humanoidx24}
+Jiageng Mao, Siheng Zhao, Siqi Song, Tianheng Shi, Junjie Ye, Mingtong Zhang, Haoran Geng, Jitendra Malik, Vitor Guizilini, and Yue Wang.
+\newblock Learning from massive human videos for universal humanoid pose control.
+\newblock \emph{arXiv preprint arXiv:2412.14172}, 2024.
+
+\bibitem[{Microsoft Corporation}(2024)]{onnxruntime24}
+{Microsoft Corporation}.
+\newblock \emph{ONNX Runtime}, 2024.
+\newblock \url{https://onnxruntime.ai}.
+\newblock High-performance inference engine for ONNX models.
+
+\bibitem[{NVIDIA Corporation}(2024)]{tensorrt24}
+{NVIDIA Corporation}.
+\newblock \emph{NVIDIA TensorRT}, 2024.
+\newblock \url{https://developer.nvidia.com/tensorrt}.
+\newblock Version 10.0.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell, Welinder, Christiano, Leike, and Lowe]{InstructGPT22}
+Long Ouyang, Jeffrey Wu, Xu~Jiang, Diogo Almeida, Carroll~L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul~F. Christiano, Jan Leike, and Ryan Lowe.
+\newblock Training language models to follow instructions with human feedback.
+\newblock 2022.
+
+\bibitem[Qin et~al.(2023)Qin, Yang, Huang, Van~Wyk, Su, Wang, Chao, and Fox]{anyteleop23}
+Yuzhe Qin, Wei Yang, Binghao Huang, Karl Van~Wyk, Hao Su, Xiaolong Wang, Yu-Wei Chao, and Dieter Fox.
+\newblock Anyteleop: A general vision-based dexterous robot arm-hand teleoperation system.
+\newblock \emph{arXiv preprint arXiv:2307.04577}, 2023.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, Krueger, and Sutskever]{CLIP21}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, and Ilya Sutskever.
+\newblock Learning transferable visual models from natural language supervision.
+\newblock volume 139 of \emph{Proceedings of Machine Learning Research}, pages 8748--8763. {PMLR}, 2021.
+
+\bibitem[Ross et~al.(2011)Ross, Gordon, and Bagnell]{dagger11}
+St{\'e}phane Ross, Geoffrey Gordon, and Drew Bagnell.
+\newblock A reduction of imitation learning and structured prediction to no-regret online learning.
+\newblock In \emph{Proceedings of the fourteenth international conference on artificial intelligence and statistics}, pages 627--635. JMLR Workshop and Conference Proceedings, 2011.
+
+\bibitem[Roumeliotis and Tselikas(2023)]{ChatGPT22}
+Konstantinos~I. Roumeliotis and Nikolaos~D. Tselikas.
+\newblock Chatgpt and open-ai models: {A} preliminary review.
+\newblock \emph{Future Internet}, 15\penalty0 (6):\penalty0 192, 2023.
+
+\bibitem[Starke et~al.(2022)Starke, Mason, and Komura]{pae22}
+Sebastian Starke, Ian Mason, and Taku Komura.
+\newblock Deepphase: Periodic autoencoders for learning motion phase manifolds.
+\newblock \emph{ACM Transactions on Graphics (ToG)}, 41\penalty0 (4):\penalty0 1--13, 2022.
+
+\bibitem[Todorov et~al.(2012)Todorov, Erez, and Tassa]{mujoco12}
+Emanuel Todorov, Tom Erez, and Yuval Tassa.
+\newblock Mujoco: A physics engine for model-based control.
+\newblock In \emph{2012 IEEE/RSJ international conference on intelligent robots and systems}, pages 5026--5033. IEEE, 2012.
+
+\bibitem[Touvron et~al.(2023)Touvron, Lavril, Izacard, Martinet, Lachaux, Lacroix, Rozi{\`{e}}re, Goyal, Hambro, Azhar, Rodriguez, Joulin, Grave, and Lample]{LLaMA23}
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie{-}Anne Lachaux, Timoth{\'{e}}e Lacroix, Baptiste Rozi{\`{e}}re, Naman Goyal, Eric Hambro, Faisal Azhar, Aur{\'{e}}lien Rodriguez, Armand Joulin, Edouard Grave, and Guillaume Lample.
+\newblock Llama: Open and efficient foundation language models.
+\newblock \emph{CoRR}, abs/2302.13971, 2023.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin]{transformer17}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan~N. Gomez, Lukasz Kaiser, and Illia Polosukhin.
+\newblock Attention is all you need.
+\newblock In \emph{NeurIPS}, pages 5998--6008, 2017.
+
+\bibitem[Wang et~al.(2025)Wang, Yang, Zeng, Zhang, Xu, Jiang, Ding, and Lu]{BumbleBee25}
+Yuxuan Wang, Ming Yang, Weishuai Zeng, Yu~Zhang, Xinrun Xu, Haobin Jiang, Ziluo Ding, and Zongqing Lu.
+\newblock From experts to a generalist: Toward general whole-body control for humanoid robots.
+\newblock \emph{CoRR}, abs/2506.12779, 2025.
+\newblock \doi{10.48550/ARXIV.2506.12779}.
+\newblock \url{https://doi.org/10.48550/arXiv.2506.12779}.
+
+\bibitem[Wei et~al.(2022)Wei, Tay, Bommasani, Raffel, Zoph, Borgeaud, Yogatama, Bosma, Zhou, Metzler, et~al.]{emergent22}
+Jason Wei, Yi~Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, et~al.
+\newblock Emergent abilities of large language models.
+\newblock \emph{arXiv preprint arXiv:2206.07682}, 2022.
+
+\bibitem[Xie et~al.(2025)Xie, Han, Zheng, Li, Liu, Shi, Zhang, Bai, and Li]{kungfubot25}
+Weiji Xie, Jinrui Han, Jiakun Zheng, Huanyu Li, Xinzhe Liu, Jiyuan Shi, Weinan Zhang, Chenjia Bai, and Xuelong Li.
+\newblock Kungfubot: Physics-based humanoid whole-body control for learning highly-dynamic skills.
+\newblock \emph{arXiv preprint arXiv:2506.12851}, 2025.
+
+\bibitem[Yang et~al.(2025)Yang, Huang, Wu, Kanazawa, Abbeel, Sferrazza, Liu, Duan, and Shi]{omniretarget25}
+Lujie Yang, Xiaoyu Huang, Zhen Wu, Angjoo Kanazawa, Pieter Abbeel, Carmelo Sferrazza, C~Karen Liu, Rocky Duan, and Guanya Shi.
+\newblock Omniretarget: Interaction-preserving data generation for humanoid whole-body loco-manipulation and scene interaction.
+\newblock \emph{arXiv preprint arXiv:2509.26633}, 2025.
+
+\bibitem[Yin et~al.(2025)Yin, Zeng, Fan, Dai, Wang, Zhang, Tian, Wang, Pang, and Zhang]{unitracker25}
+Kangning Yin, Weishuai Zeng, Ke~Fan, Minyue Dai, Zirui Wang, Qiang Zhang, Zheng Tian, Jingbo Wang, Jiangmiao Pang, and Weinan Zhang.
+\newblock Unitracker: Learning universal whole-body motion tracker for humanoid robots.
+\newblock \emph{arXiv preprint arXiv:2507.07356}, 2025.
+
+\bibitem[Ze et~al.(2025)Ze, Chen, Ara{\~A}{\v{s}}jo, Cao, Peng, Wu, and Liu]{twist25}
+Yanjie Ze, Zixuan Chen, Jo{\~A}{\c{G}}o~Pedro Ara{\~A}{\v{s}}jo, Zi-ang Cao, Xue~Bin Peng, Jiajun Wu, and C~Karen Liu.
+\newblock Twist: Teleoperated whole-body imitation system.
+\newblock \emph{arXiv preprint arXiv:2505.02833}, 2025.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Lin, Zeng, Wu, Lu, Fu, Cai, Zhang, Wang, and Zhang]{motionx++25}
+Yuhong Zhang, Jing Lin, Ailing Zeng, Guanlin Wu, Shunlin Lu, Yurong Fu, Yuanhao Cai, Ruimao Zhang, Haoqian Wang, and Lei Zhang.
+\newblock Motion-x++: A large-scale multimodal 3d whole-body human motion dataset.
+\newblock \emph{arXiv preprint arXiv:2501.05098}, 2025{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2024)Zhang, Li, Huang, Lin, and Yi]{freemotion24}
+Zhikai Zhang, Yitang Li, Haofeng Huang, Mingxian Lin, and Li~Yi.
+\newblock Freemotion: Mocap-free human motion synthesis with multimodal large language models.
+\newblock In \emph{European Conference on Computer Vision}, pages 403--421. Springer, 2024.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Chen, Xue, Wang, Liang, Liu, Zhang, Wang, and Yi]{R2S2_25}
+Zhikai Zhang, Chao Chen, Han Xue, Jilong Wang, Sikai Liang, Yun Liu, Zongzhang Zhang, He~Wang, and Li~Yi.
+\newblock Unleashing humanoid reaching potential via real-world-ready skill space.
+\newblock \emph{arXiv preprint arXiv:2505.10918}, 2025{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{c}})Zhang, Guo, Chen, Wang, Lin, Lian, Xue, Wang, Liu, Lyu, et~al.]{any2track25}
+Zhikai Zhang, Jun Guo, Chao Chen, Jilong Wang, Chenghuai Lin, Yunrui Lian, Han Xue, Zhenrong Wang, Maoqi Liu, Jiangran Lyu, et~al.
+\newblock Track any motions under any disturbances.
+\newblock \emph{arXiv preprint arXiv:2509.13833}, 2025{\natexlab{c}}.
+
+\end{thebibliography}

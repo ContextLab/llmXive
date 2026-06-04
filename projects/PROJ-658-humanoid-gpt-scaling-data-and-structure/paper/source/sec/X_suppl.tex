@@ -1,0 +1,231 @@
+\newpage
+\clearpage
+
+\section{Summary of Contributions}
+
+\noindent\textbf{Science of Scale:}
+We are the first motion tracker with zero-shot ability trained on \textcolor{green}{\textbf{\emph{2B Frame}}} data.
+Our training set is over \textcolor{green}{\textbf{$200\times$}} larger than prior trackers.
+Scaling by two orders of magnitude requires redesigning the reward and re-tuning key hyperparameters, and it enables the first systematic evidence that video-esti data materially benefits tracking.
+
+\vspace{1.5pt}
+\noindent\textbf{Modern Structure:}
+We use a scalable causal Transformer for motion tracking. Online tracking cannot access future observations; causal modeling fits this constraint and scales better than MLP and non-causal variants.
+
+\vspace{1.5pt}
+\noindent\textbf{Balanced Diversity Matters:}
+We introduce HME \textit{Representation Learning} to apply diversity-aware, distribution-balanced sampling in motion tracking. We find that \textcolor{green}{\textbf{diversity and balance}} are both critical for a general tracker.
+
+\section{Additional Ablation Studies}
+\label{sec:ablations_pipeline}
+
+\subsection{Number of Experts and Cluster Granularity}
+\label{subsec:num_experts}
+
+We next study the effect of the number of motion experts and the granularity of clusters produced by the Harmonic Motion Embedding (HME) representation.
+We vary the number of clusters $C \in \{128, 256, 384, 512, 1024\}$ while keeping the total training corpus fixed, leading to different numbers of experts.
+For each configuration, we train a distilled Humanoid-GPT-B model on the corresponding expert set and evaluate on the AMASS test split.
+
+As indicated in Fig.~\ref{fig:ablation}, extremely coarse clustering (e.g., 128 experts) leads to experts that cover overly heterogeneous motion patterns, which harms teacher tracking fidelity.
+Overly fine granularity (e.g., 1024 experts) increases training cost with conflicting guidelines for the students.
+The configuration with roughly $C \approx 384$ experts offers the best balance between diversity, per-cluster coherence, and compute.
+
+
+\subsection{History Length of Transformer}
+Compared with MLPs, Transformers not only offer greater scalability, but more importantly provide substantially enhanced temporal modeling. MLP-based policies typically condition on only a single historical frame, whereas Transformers are inherently designed for sequence modeling. In Fig.~\ref{fig:ablation}, we present the effect of varying sequence length on model performance. All experiments use a Base-sized model with default hyperparameters under a controlled single-factor setting. As shown in the figure, performance continues to improve even with a history of 64 frames. However, due to the quadratic increase in computation with sequence length, we adopt 32 historical frames as the default setting.
+
+\subsection{Environment Number for DAgger Rollout}
+As we scaled up the training data, we found that the number of environments in DAgger also needed to increase accordingly, as shown in Fig.~\ref{fig:ablation}. We ultimately adopted 32K environments. We hypothesize that this is due to the large number of reference motions, where using too few environments may lead to overfitting and forgetting.
+
+
+
+\begin{figure*}[t!]
+  \centering
+  \includegraphics[width=1.0\linewidth]{assets/ablation.pdf}
+  % \vspace{-5pt}
+  \caption{\textbf{Ablation studies for Humanoid-GPT.}}
+  \label{fig:ablation}
+\end{figure*}
+
+
+\section{Implementation and Reproducibility Details}
+\label{sec:implementation}
+
+This section expands the method details that could not fit in the main paper.
+We include RL hyperparameters, DAgger schedules, and full compute accounting.
+
+\subsection{RL Expert Training Details}
+\label{subsec:rl_details}
+
+\paragraph{Environment and episode setup.}
+For each skill cluster, we train a PPO expert in MuJoCo using randomized episode lengths ranging from $T_{\min}$ to $T_{\max}$ frames (typically 600--1200). The control loop runs at 50~Hz, and the reference motion is downsampled to match this frequency. Episodes terminate upon detecting a fall, encountering excessive joint-limit violations, or reaching the time-out horizon. All hyperparameters and reward weights involved in PPO training are listed in Table~\ref{tab:ppo_hyperparams} and Table~\ref{tab:reward_weights}.
+
+To enhance robustness and improve generalization across diverse motion clusters, we apply a set of domain randomization strategies during training. These perturbations are injected into the MuJoCo environment at the beginning of each episode and occasionally throughout rollout generation, ensuring that the learned policy remains stable under variations in dynamics, sensing, and execution conditions. As shown in Table~\ref{tab:dr_items}, we randomize:
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Terrain properties}, including floor friction, maximum terrain height, and procedural noise parameters for terrain generation (noise scale, octaves, persistence, and lacunarity).
+
+\item \textbf{External forces}, where both the interval between force injections and the magnitude of the applied velocity perturbations are sampled from uniform distributions.
+
+\item \textbf{Physical property variations}, including DoF friction scaling, armature scaling, torso center-of-mass shifts, torso mass perturbations, and per-DoF position jittering at the beginning of each rollout.
+
+\end{itemize}
+
+These domain randomization settings are applied uniformly across all PPO expert training environments. For the DAgger stage, we use the same environment configuration and identical randomization scheme, ensuring that the aggregated demonstrations capture the full distribution of dynamic variations encountered by the expert policy.
+
+\begin{table}[t!]
+    \centering
+    \caption{\textbf{Domain Randomizations.}}
+    \label{tab:dr_items}
+    \begin{tabular}{cc}
+    \toprule
+    Item & Random range \\
+    \midrule
+    \multicolumn{2}{c}{\textbf{Terrains}} \\
+    Floor friction & $\mathcal{U}(0.3,\, 2.0)$ \\
+    Max terrain height & $0.3$ \\
+    Noise scale & $\mathcal{U}(10.0,\, 16.0)$ \\
+    Noise octaves & $\mathcal{U}(5.0,\, 8.0)$ \\
+    Noise persistence & $\mathcal{U}(0.3,\, 0.5)$ \\
+    Noise lacunarity & $\mathcal{U}(2.0,\, 4.0)$ \\
+    \midrule
+    \multicolumn{2}{c}{\textbf{External Forces}} \\
+    Interval range & $\mathcal{U}(5.0,\, 10.0)$ \\
+    Velocity magnitude range & $\mathcal{U}(0.1,\, 1.0)$ \\
+    \midrule
+    \multicolumn{2}{c}{\textbf{Physical Property Changes}} \\
+    DoF friction scaling & $\mathcal{U}(0.5,\, 2.0)$ \\
+    Armature scaling & $\mathcal{U}(1.0,\, 1.05)$ \\
+    Torso CoM position change & $\mathcal{U}(-0.15,\, 0.15)$ \\
+    Torso mass change & $\mathcal{U}(-3.0,\, 6.0)$ \\
+    Default DoF position jittering & $\mathcal{U}(-0.05,\, 0.05)$ \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\begin{table}[t!]
+    \centering
+    \caption{\textbf{Hyperparameter settings for training motion experts.}}
+    \label{tab:ppo_hyperparams}
+    \begin{tabular}{cc}
+    \toprule
+    Hyperparameter & Value \\
+    \midrule
+    Env Numbers & 32768 \\
+    Batch size & 1024 \\
+    Discount factor $\gamma$ & 0.97 \\
+    GAE parameter $\lambda$ & 0.95 \\
+    Clipping parameter $\epsilon$ & 0.2 \\
+    Policy network size & [512, 256, 128] \\
+    Critic network size & [512, 256, 128] \\
+    Learning rate & $3\times10^{-4}$ \\
+    Entropy coefficient & 0.01 \\
+    Optimizer & Adam \\
+    Training iteration per expert & 3B \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\begin{table}[t!]
+    \centering
+    \caption{\textbf{Reward weights of different terms.}}
+    \label{tab:reward_weights}
+    \begin{tabular}{cc}
+    \toprule
+    Term & Weight \\
+    \midrule
+    lowerbody keypoints $w_k$ & 1.5 \\
+    upperbody keypoints $w_k$ & 0.75 \\
+    keypoint position $\alpha_{\text{pos}}$ & 1.0 \\
+    keypoint orientation $\alpha_{\text{rot}}$ & 2.0 \\
+    keypoint linear velocity $\alpha_{\text{vel}}$ & 0.03 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[t!]
+    \centering
+    \caption{\textbf{Hyperparameter settings for DAgger BC.}}
+    \label{tab:ppo_hyperparams}
+    \begin{tabular}{cc}
+    \toprule
+    Hyperparameter & Value \\
+    \midrule
+    Env Numbers & 32768 \\
+    Batch size & 32768 \\
+    Gradient Clipping & 1.0 \\
+    Learning rate & $1\times10^{-4}$ \\
+    Num Layers & 12 \\
+    Channel dims & 256/384/768 \\
+    Optimizer & AdamW \\
+    Training iteration & 200k \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{DAgger Distillation Schedule}
+\label{subsec:dagger_details}
+
+We follow a standard DAgger loop for Behaviour Cloning (BC):
+\begin{enumerate}[leftmargin=1.5em]
+\item Initialize both the expert teacher and the student policy within the simulation environment.
+\item At iteration $i$, roll out the student policy and query the expert for the corresponding target action using the same state.
+\item Train the student to match the expert’s action, and then update the environment using the student’s executed action.
+\end{enumerate}
+
+In practice, we fix the maximal history length $H$ in Eq.~(2) to 32 and maintain history buffers for both the teacher’s actions and the student’s observations. To avoid mode collapse when some experts cover only partial behavior distributions, the batch size used for Behaviour Cloning is kept no smaller than the number of experts.
+
+
+\begin{table*}[t!]
+    \centering
+    \caption{\textbf{Approximate compute breakdown.}}
+    \label{tab:compute}
+    \footnotesize
+    \begin{tabular}{lccc}
+    
+    \toprule
+    Stage & Hardware & Total GPU hours & Fraction of total (\%) \\
+    \midrule
+    PPO experts ($\sim 384$ experts) & RTX 4090 & 12,000 & 75\% \\
+    Distillation (Humanoid-GPT-S/B/L) & H100 & 3,000 & 25\% \\
+    % Hyperparameter sweeps / ablations & Mixed &  &  \\
+    \midrule
+    \textbf{Total} & --- & \textbf{15,000} & \textbf{100}\% \\
+    \bottomrule
+    \end{tabular}
+\end{table*}
+
+\subsection{Compute Cost Breakdown}
+\label{subsec:compute_breakdown}
+
+The main paper reports a total compute budget of roughly 15,000 GPU hours. Here we detail the breakdown between expert training and Transformer distillation shown in Table~\ref{tab:compute}.
+
+We emphasize that, once trained, only the distilled Humanoid-GPT policy is required at deployment time.
+The expert library is used solely as a training-time teacher and can be discarded afterwards.
+
+\begin{figure*}[t!]
+\centering
+  \captionof{figure}{\textbf{T-SNE distribution Visualization for our dataset.}}
+  \label{fig:tsne}
+  \vspace{5pt}
+  \includegraphics[width=0.8\linewidth]{assets/feature_distribution.pdf}
+\end{figure*}
+
+\subsection{T-SNE feature distribution}
+We visualize the feature distribution via t-SNE in Fig.~\ref{fig:tsne}. Our data covers a substantially broader region than AMASS+LAFAN1.
+
+\subsection{Deployment Details and Latency Measurements}
+\label{subsec:deployment_details}
+
+For completeness, we provide the exact configuration used to obtain the latency results in Fig.~5 of the main paper:
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Inference hardware:} Single NVIDIA RTX 4090 GPU, CPU: \emph{Intel Core i9-14900KF}.
+    \item \textbf{ONNX export:} FP32 weights with CUDA.
+    \item \textbf{TensorRT optimization:} Engine built with optimized kernels for causal attention and fused MLPs.
+    \item \textbf{Control loop:} End-to-end closed-loop frequency of 50~Hz, including sensor read, inference, PD computation, and actuation commands.
+\end{itemize}
+
+The complete deployment stack will be released as configuration files and scripts, enabling reproducible real-time control on G1-like humanoids.

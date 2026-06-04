@@ -1,0 +1,85 @@
+\begin{table*}[t]
+\centering
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Performance on AIME24 and MATH500. Values are Accuracy / \# Tokens (mean $\pm$ std). Higher accuracy is better; best results per column are highlighted. K/V denotes bits per key/value. UP (Uniform Precision) indicates whether all elements within a given $K$ or $V$ tensor share the same precision ($\checkmark$) or use mixed precision ($\times$).}
+\label{tab:math_reasoning_results}
+\begin{tabular}{l l c c c c c c c}
+\toprule
+& & & & & \multicolumn{2}{c}{\textbf{AIME24}} & \multicolumn{2}{c}{\textbf{MATH500}} \\
+\cmidrule(lr){6-7} \cmidrule(lr){8-9}
+& \textbf{Method} 
+& \textbf{K/V} 
+& \textbf{bits/elem}
+& \textbf{UP}
+& \textbf{Acc. (\%)} & \textbf{\# Tokens} 
+& \textbf{Acc. (\%)} & \textbf{\# Tokens} \\
+\midrule
+
+\multirow{9}{*}{\rotatebox{90}{Qwen3-4B}}
+ & \textit{FP16} & 16/16 & 16.0 & $\checkmark$
+   & \textit{61.1\tiny$\pm$3.1} & \textit{\num{12477}\tiny$\pm$421} 
+   & \textit{82.6\tiny$\pm$0.5} & \textit{\num{3857}\tiny$\pm$23} \\
+\cmidrule(lr){2-9}
+ & \others{KIVI} & \others{2/2} & \others{2.3} & \others{$\checkmark$} 
+   & \others{55.5\tiny$\pm$6.9} & \others{\num{12794}\tiny$\pm$325} 
+   & \others{77.8\tiny$\pm$0.5} & \others{\num{3957}\tiny$\pm$7} \\
+ & \others{QuaRot} & \others{2/2} & \others{2.3} & \others{$\checkmark$} 
+   & \others{56.7\tiny$\pm$3.3} & \others{\num{12732}\tiny$\pm$194} 
+   & \others{78.9\tiny$\pm$0.1} & \others{\num{3907}\tiny$\pm$24} \\
+ & \others{KVQuant-1\%} & \others{2/2} & \others{2.4} & \others{$\times$}     
+   & \others{40.0\tiny$\pm$3.3} & \others{\num{14794}\tiny$\pm$227} 
+   & \others{67.5\tiny$\pm$1.5} & \others{\num{5021}\tiny$\pm$45} \\
+ & \others{PolarQuant} & \others{4/2} & \others{3.3} & \others{$\checkmark$} 
+   & \others{52.2\tiny$\pm$5.8} & \others{\num{13578}\tiny$\pm$361} 
+   & \others{71.1\tiny$\pm$1.6} & \others{\num{5259}\tiny$\pm$60} \\
+ & \others{TurboQuant\tnote{1}} & \others{3/3} & \others{4.6} & \others{$\checkmark$} 
+   & \others{48.9\tiny$\pm$1.9} & \others{\num{13642}\tiny$\pm$261} 
+   & \others{77.0\tiny$\pm$0.9} & \others{\num{3917}\tiny$\pm$16} \\
+& \others{Kitty} & \others{2/2} & \others{2.4} & \others{$\times$} 
+   & \others{53.3\tiny$\pm$8.8} & \others{\num{13123}\tiny$\pm$192} 
+   & \others{78.5\tiny$\pm$0.8} & \others{\num{3834}\tiny$\pm$40} \\
+ & \textbf{\ours{\methodname (ours)}} 
+                & \ours{2/2} & \ours{2.3} & \ours{$\checkmark$}
+                & \ours{\textbf{60.0}\tiny$\pm$1.1} & \ours{\num{12408}\tiny$\pm$334} 
+                & \ours{\textbf{79.2}\tiny$\pm$0.4} & \ours{\num{3925}\tiny$\pm$38} \\
+
+\midrule
+
+\multirow{9}{*}{\rotatebox{90}{Phi-4-14B}}
+ & \textit{FP16} & 16/16 & 16.0 & $\checkmark$
+   & \textit{62.2\tiny$\pm$1.6} & \textit{\num{11747}\tiny$\pm$347} 
+   & \textit{84.9}\tiny$\pm$0.9 & \textit{\num{2839}\tiny$\pm$35} \\
+\cmidrule(lr){2-9}
+ & \others{KIVI} & \others{2/2} & \others{2.3} & \others{$\checkmark$} 
+   & \others{57.8\tiny$\pm$1.9} & \others{\num{12529}\tiny$\pm$491} 
+   & \others{74.4\tiny$\pm$0.8} & \others{\num{3180}\tiny$\pm$27} \\
+ & \others{QuaRot} & \others{2/2} & \others{2.3} & \others{$\checkmark$} 
+   & \others{58.9\tiny$\pm$1.9} & \others{\num{12284}\tiny$\pm$443} 
+   & \others{77.0\tiny$\pm$0.7} & \others{\num{3029}\tiny$\pm$94} \\
+ & \others{KVQuant-1\%} & \others{2/2} & \others{2.4} & \others{$\times$}     
+   & \others{55.6\tiny$\pm$5.1} & \others{\num{13479}\tiny$\pm$302} 
+   & \others{72.3\tiny$\pm$5.1} & \others{\num{3588}\tiny$\pm$36} \\
+ & \others{PolarQuant} & \others{4/2} & \others{3.3} & \others{$\checkmark$} 
+   & \others{60.0\tiny$\pm$1.9} & \others{\num{12347}\tiny$\pm$52} 
+   & \others{75.8\tiny$\pm$1.0} & \others{\num{3023}\tiny$\pm$20} \\
+ & \others{TurboQuant\tnote{1}} & \others{3/3} & \others{4.5} & \others{$\checkmark$} 
+   & \others{52.2\tiny$\pm$5.0} & \others{\num{13059}\tiny$\pm$223} 
+   & \others{74.2\tiny$\pm$0.1} & \others{\num{3250}\tiny$\pm$55} \\
+& \others{Kitty} & \others{2/2} & \others{2.4} & \others{$\times$} 
+   & \others{55.6\tiny$\pm$11.7} & \others{\num{12226}\tiny$\pm$257} 
+   & \others{74.5\tiny$\pm$0.6} & \others{\num{3171}\tiny$\pm$74} \\
+ & \textbf{\ours{\methodname (ours)}} 
+                & \ours{2/2} & \ours{2.3} & \ours{$\checkmark$}
+                & \ours{\textbf{61.7}\tiny$\pm$1.7} & \ours{\num{11598}\tiny$\pm$235}  
+                & \ours{\textbf{84.8}\tiny$\pm$0.7} & \ours{\num{2984}\tiny$\pm$67} \\
+
+\bottomrule
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item[1]Results obtained using the vLLM implementation.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}

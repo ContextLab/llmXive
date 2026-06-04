@@ -1,0 +1,72 @@
+\begin{figure}[t]
+\centering
+
+\begin{minipage}[t]{0.50\textwidth}
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{3pt}
+
+\captionof{table}{
+\textbf{Quantitative comparison across discovery methods.}
+Average activation and causal scores for regions discovered for the top 50 concepts, averaged across four subjects. BrainCause preserves high activation while improving causality.
+}
+
+\label{tab:quant_main}
+
+\vspace{0.05cm}
+
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+& \multicolumn{2}{c}{\textbf{Activation}}
+& \multicolumn{3}{c}{\textbf{Causal}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}
+\textbf{Method}
+& \textbf{Gen.}
+& \textbf{Meas.}
+& \textbf{Gen.}
+& \textbf{Meas.}
+& \textbf{Edits} \\
+\midrule
+Max Activation
+& \textbf{2.76} & 0.70 & 0.08 & 0.18 & 0.44 \\
+MindSimulator
+& 1.89 & 1.02 & -0.44 & 0.27 & 0.23 \\
+MindSimulator+
+& 2.13 & \textbf{1.12} & -0.26 & 0.41 & 0.38 \\
+\emph{\textbf{BrainCause}}
+& 2.05 & 1.08 & \textbf{0.62} & \textbf{0.71} & \textbf{0.98} \\
+\bottomrule
+\end{tabular}
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.47\textwidth}
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{10pt}
+
+\captionof{table}{
+\textbf{BrainCause aligns with known functional regions.}
+Fraction of top-ranked voxels that fall within the expected functional regions for broad visual categories show high alignment with established functional organization.
+}
+\label{tab:known_roi_sanity}
+
+\vspace{0.05cm}
+
+\begin{tabular}{@{}lccc@{}}
+\toprule
+& \multicolumn{3}{c}{\textbf{Voxel Alignment Accuracy}} \\
+\cmidrule(l){2-4}
+\textbf{Region} & Top 100 & Top 200 & Top 500 \\
+\midrule
+Bodies & 99\% & 99\% & 97\% \\
+Faces  & 90\% & 87\% & 84\% \\
+Places & 74\% & 75\% & 74\% \\
+Words  & 99\% & 98\% & 97\% \\
+\bottomrule
+\end{tabular}
+
+\end{minipage}
+
+\end{figure}

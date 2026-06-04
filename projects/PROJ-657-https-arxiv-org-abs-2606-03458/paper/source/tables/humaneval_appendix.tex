@@ -1,0 +1,67 @@
+\begin{table*}[t]
+\centering
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{6pt}
+\caption{Performance on HumanEval. Values are Accuracy / \# Tokens (mean $\pm$ std over three runs where applicable). Higher accuracy is better; best results per column are highlighted. K/V denotes bits per key/value. UP (Uniform Precision) indicates whether all elements within a given $K$ or $V$ tensor share the same precision ($\checkmark$) or use mixed precision ($\times$).}
+\label{tab:humaneval_results}
+\begin{tabular}{l l c c c c c c}
+\toprule
+& & & & \multicolumn{2}{c}{\textbf{Qwen3-4B}} & \multicolumn{2}{c}{\textbf{Phi-4-14B}} \\
+\cmidrule(lr){5-6} \cmidrule(lr){7-8}
+\textbf{Method} 
+& \textbf{K/V} 
+& \textbf{bits/elem}
+& \textbf{UP}
+& \textbf{Accuracy (\%)} & \textbf{\# Tokens}
+& \textbf{Accuracy (\%)} & \textbf{\# Tokens} \\
+\midrule
+
+\textit{FP16} 
+& 16/16 & 16.0 & $\checkmark$
+& \textit{88.8\tiny$\pm$1.8} & \textit{\num{2764}\tiny$\pm$280}
+& \textit{88.9\tiny$\pm$1.0} & \textit{\num{3015}}\tiny$\pm$52 \\
+\cmidrule(lr){1-8}
+
+\others{KIVI}       
+& \others{2/2} & \others{2.3} & \others{$\checkmark$}
+& \others{86.4\tiny$\pm$1.3} & \others{\num{3292}\tiny$\pm$44}
+& \others{74.6\tiny$\pm$2.4} & \others{\num{4929}\tiny$\pm$211} \\
+
+\others{QuaRot}     
+& \others{2/2} & \others{2.3} & \others{$\checkmark$}
+& \others{86.3\tiny$\pm$1.9} & \others{\num{3255}\tiny$\pm$88}
+& \others{87.0\tiny$\pm$2.5} & \others{\num{3216}\tiny$\pm$8} \\
+
+\others{KVQuant-1\%}    
+& \others{2/2} & \others{2.4} & \others{$\times$}
+& \others{85.2\tiny$\pm$0.7} & \others{\num{4594}\tiny$\pm$60}
+& \others{85.6\tiny$\pm$1.3} & \others{\num{4017}\tiny$\pm$122} \\
+
+\others{PolarQuant} 
+& \others{4/2} & \others{3.3} & \others{$\checkmark$}
+& \others{80.3\tiny$\pm$2.5} & \others{\num{3811}\tiny$\pm$294}
+& \others{86.8\tiny$\pm$0.3} & \others{\num{3378}\tiny$\pm$134} \\
+
+\others{TurboQuant\tnote{1}} 
+& \others{3/3} & \others{4.6} & \others{$\checkmark$}
+& \others{86.2\tiny$\pm$1.9} & \others{\num{3269}\tiny$\pm$144}
+& \others{88.0\tiny$\pm$1.4} & \others{\num{3569}\tiny$\pm$76} \\
+
+\others{Kitty} & \others{2/2} & \others{2.4} & \others{$\times$} 
+& \others{86.8\tiny$\pm$0.9} & \others{\num{3085}\tiny$\pm$163} 
+& \others{82.7\tiny$\pm$0.7} & \others{\num{3697}\tiny$\pm$147} \\
+
+\textbf{\ours{\methodname (ours)}} 
+& \ours{2/2} & \ours{2.3} & \ours{$\checkmark$}
+& \ours{\textbf{88.4}\tiny$\pm$0.3} & \ours{\num{3192}\tiny$\pm$83}
+& \ours{\textbf{88.2}\tiny$\pm$0.4} & \ours{\num{3220}\tiny$\pm$75} \\
+
+\bottomrule
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item[1]Results obtained using the vLLM implementation.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}

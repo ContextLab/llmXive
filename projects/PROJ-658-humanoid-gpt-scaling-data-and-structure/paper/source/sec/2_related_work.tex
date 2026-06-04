@@ -1,0 +1,31 @@
+\section{Related work}
+\label{sec:related_work}
+
+\subsection{Large-scale Motion Data}
+
+Large-scale motion datasets have become essential for learning generalizable human motion tracking. Early datasets \citep{lafan20,amass19,omomo23} offered high-quality but studio-constrained motions, limiting diversity. With video-based reconstruction and large-scale synthetic generation, recent datasets greatly expand motion coverage, incorporating diverse activities, styles, and subjects with multimodal supervision \citep{motionx23, motionx++25,motionmillion25,humanoidx24}.
+More recently, \citep{phuma25} provides physically consistent motions with contact modeling, joint constraints, and reduced foot-sliding, offering stability benefits over purely kinematic sources.
+Together, these increasingly diverse and physically grounded datasets supply richer motion variety and stronger physical priors, forming key foundations for unified and robust human motion tracking systems.
+
+%-------------------------------------------------------------------------
+
+
+\begin{figure*}[t!]
+  \centering
+  \includegraphics[width=1.0\linewidth]{assets/pipeline.pdf}
+  \vspace{2pt}
+  \caption{
+   \textbf{Overview of \methodname}. 
+  The system consists of three stages: (\textbf{a}) data curation and processing, 
+  (\textbf{b}) training PPO-based motion experts on clusters with keypoint-level rewards, 
+  and (\textbf{c}) distilling all experts into a single Transformer-based generalist policy via parallel DAgger supervision. The resulting \methodname can take unseen or online retargeted motions as reference inputs and track them in a fully zero-shot manner.
+  }
+  \label{fig:pipeline}
+\end{figure*}
+
+\subsection{Learning Human Motion Tracking}
+Physics-based tracking aims to produce temporally coherent, dynamically feasible whole-body control from reference motions. Early works~\cite{phc23,uhm23,synchronized23,freemotion24} establish the paradigm of coupling imitation with contact-aware stability in simulation, while subsequent pipelines~\cite{humanplus24,omnih2o24,exbody24,exbody2_24,omniretarget25,kungfubot25,clone25,anyteleop23,twist25,R2S2_25} extend to real-world deployment on specific platforms.
+
+Recent efforts shift toward generalization. GMT~\cite{gmt25} employs Mixture-of-Experts with adaptive sampling; UniTracker~\cite{unitracker25} adopts a CVAE-based teacher-student framework---both improving coverage but remaining constrained by limited motion scale. SONIC~\cite{sonic25} scales to 100M frames with an MLP controller, yet MLP capacity saturates as data grows. HumanPlus~\cite{humanplus24} introduces a Transformer controller but trains it with standard PPO, missing the parallelism advantage inherent to Transformers.
+
+As summarized in Table~\ref{tab:comp}, existing methods either rely on curated motion sets or architectures that do not scale gracefully. \methodname~reframes tracking as GPT-style sequence modeling: we distill hundreds of RL experts into a causal Transformer trained on 2B frames, achieving strong zero-shot generalization where similarly-sized MLPs plateau.

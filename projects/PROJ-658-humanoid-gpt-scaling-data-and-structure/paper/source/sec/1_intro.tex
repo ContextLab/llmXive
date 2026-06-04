@@ -1,0 +1,55 @@
+\section{Introduction}
+\label{sec:intro}
+
+Artificial General Intelligence (AGI) for embodied agents is ultimately a \emph{generalization} problem: a humanoid should execute robust whole-body behaviors under unseen tasks, styles, and environments~\cite{ChatGPT22,GPT3_20,GPT4o24,gpt_o1}. In language and vision, the most reliable path to generalization has been \emph{scale}---larger data, larger models, and carefully designed training objectives~\cite{ChatGPT22,InstructGPT22,gemini23,gpt_o1,LLaMA23,CLIP21,SAM23}. Scaling is not only a recipe for better average performance; it often unlocks new capabilities and predictable trends~\cite{emergent22}.
+
+Humanoid motion tracking has not followed this trajectory. Current trackers are typically shallow MLPs trained on small motion corpora. Even widely used datasets~\cite{amass19,lafan20,omomo23} contain only on the order of $10^4$ trajectories (about $7.2$M frames). This mismatch in scale creates a persistent failure mode: \emph{agility and generalization trade off}. Trackers that excel on in-domain agile motions often break on unseen styles, while trackers that generalize modestly tend to underfit complex dynamics and lose sharpness in tracking. Recent results make this tension clear: BeyondMimic~\cite{beyondmimic25} and ASAP~\cite{asap25} track agile motions well but do not generalize zero-shot to unseen movements; TWIST~\cite{twist25} and UniTracker~\cite{unitracker25} generalize better but struggle on highly dynamic actions.
+
+We argue that this trade-off is not fundamental. It is a symptom of \emph{insufficient scale} and \emph{mismatched training design}. Simply adding more motion clips to the same pipeline is not enough. When the scale increases by orders of magnitude, three questions become decisive:
+\ding{182} \textbf{What data} should we train on, and how do we process the large, noisy data?
+\ding{183} \textbf{What model structure} matches the online tracking constraint and continues to improve with scale?
+\ding{184} \textbf{What training recipe} remains stable when the dataset grows from millions to billions of frames?
+
+This paper answers these questions and presents \textbf{Humanoid-GPT}, a universal, online humanoid motion tracker built around the science of scaling.
+
+
+\paragraph{Science of Scale.}
+We construct a motion corpus at a new regime for tracking. We aggregate all widely available mocap sources, including Lafan1~\cite{lafan20}, AMASS~\cite{amass19}, Motion-X++~\cite{motionx++25}, PHUMA~\cite{phuma25}, and MotionMillion~\cite{motionmillion25}, and we add a large internally captured dataset for real-world coverage. After strict filtering, segmentation, and augmentation, we obtain \textbf{2B G1-retargeted motion frames/tokens}, over \textbf{$200\times$} larger than prior tracker training sets. This scale forces changes that smaller systems can ignore: we redesign key reward components and re-tune sensitive hyperparameters to keep training stable. Crucially, we provide the first systematic evidence that \emph{video-estimated motion} can materially improve tracking when the model and the training set are scaled appropriately.
+
+\paragraph{Modern Structure for Online Tracking.}
+Motion tracking for control is inherently \emph{causal}: at test time the policy cannot access future observations. Many existing trackers still rely on non-causal modeling choices or capacity-limited MLPs. We instead adopt a \textbf{scalable Transformer} with GPT-style causal attention. The model predicts per-joint PD targets with causal temporal attention, which aligns with the deployment constraint by design. This structure also scales cleanly with data and model size, unlike shallow MLPs and non-causal variants that saturate early.
+
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Comparison of \methodname with related works.}}
+  \label{tab:comp}
+  \resizebox{1.0\linewidth}{!}{
+  \setlength{\tabcolsep}{1.5pt}
+  \scriptsize
+  \begin{tabular}{lcccc}
+    \toprule
+    \textbf{Method} & \textbf{Low-level Tracker} & \textbf{Agile} & \textbf{Zero-shot} & \textbf{\#Frames} \\
+    \midrule
+    HumanPlus~\cite{humanplus24}    & Transformer & $\times$ & $\times$ & 7.2M \\
+    OmniH2O~\cite{omnih2o24}        & MLP & $\times$ & $\times$ & 7.2M \\
+    ASAP~\cite{asap25}              & MLP & \checkmark & $\times$ & - \\
+    GMT~\cite{gmt25}                & MoE-MLP & \checkmark & $\times$ & 6.0M \\
+    UniTracker~\cite{unitracker25}  & MLP & \checkmark & $\times$ & 7.2M \\
+    BumbleBee~\cite{BumbleBee25}  & Transformer & \checkmark & $\times$ & 7.2M \\
+    TWIST~\cite{twist25}            & MLP & $\times$ & $\sim$ & 9.2M \\
+    Any2Track~\cite{any2track25}    & MLP & \checkmark & $\times$ & 9.1M \\
+    SONIC~\cite{sonic25}    & MLP & \checkmark & \checkmark & 100M \\
+    \textbf{\methodname (ours)}      & Transformer & \checkmark & \checkmark & \textbf{2.0B} \\
+    \bottomrule
+  \end{tabular}
+  }
+  \vspace{-10pt}
+\end{table}
+
+\paragraph{Balanced Diversity Matters.}
+More data does not automatically mean better generalization. In large motion corpora, common styles dominate and rare but important behaviors vanish in the long tail. We introduce \textbf{Harmonic Motion Embedding (HME)} as a representation learning tool that measures and organizes motion diversity directly from raw motion. HME enables \textbf{diversity-aware, distribution-balanced sampling} during training. Our analysis shows a simple but powerful insight: \textbf{diversity and balance are both necessary}. Diversity without balance still overfits frequent modes; balance without diversity caps capability.
+
+\paragraph{Results and scaling laws.}
+With these ingredients, Humanoid-GPT substantially improves \emph{both} agility and zero-shot generalization. We further derive a \textbf{scaling law} for humanoid motion tracking that relates performance to data scale and model capacity, offering a concrete roadmap for future general-purpose whole-body control.
+
+Compared with prior work that either applies Transformer controllers on limited motion hours~\cite{humanplus24} or scales MLP-based policies on hundreds of millions of frames~\cite{sonic25}, Humanoid-GPT is, to our knowledge, the first system that (i) distills a large library of RL motion experts into a single GPT-style tracker, (ii) trains on a curated \textbf{2B-frame} corpus, and (iii) systematically characterizes how \textbf{data scale, model scale, and diversity balance} jointly govern zero-shot agile motion tracking on real humanoid hardware.

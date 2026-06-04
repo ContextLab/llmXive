@@ -1,0 +1,41 @@
+{
+  "arxiv_id": "2605.23895",
+  "arxiv_url": "https://arxiv.org/abs/2605.23895",
+  "title": "https://arxiv.org/abs/2605.23895",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #271",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/Causal_vs_Corr.pdf",
+    "figures/Methods.pdf",
+    "figures/Overview.pdf",
+    "figures/Retreival_Statistics.pdf",
+    "figures/Stats_hist.pdf",
+    "figures/activation_comparison.pdf",
+    "figures/clusters.pdf",
+    "figures/clusters_app_1.pdf",
+    "figures/clusters_app_2.pdf",
+    "figures/concept_activations_v2.png",
+    "figures/edit_negative_comp.png",
+    "figures/negative_fail.pdf",
+    "figures/subject_comparison.pdf",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "references.bib",
+    "tables",
+    "tables/Ablation_all.tex",
+    "tables/Results_different_Rregion_Size.tex",
+    "tables/Scores_Talbe_across_subjects.tex",
+    "tables/sanity_check.tex"
+  ]
+}

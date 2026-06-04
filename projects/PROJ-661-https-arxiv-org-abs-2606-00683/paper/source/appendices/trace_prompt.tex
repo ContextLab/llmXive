@@ -1,0 +1,42 @@
+\begin{figure}[htbp]
+\begin{tcolorbox}[
+    colback=gray!5!white,
+    colframe=gray!75!black,
+    title=Prompt,
+    fonttitle=\bfseries,
+    breakable,
+    enhanced,
+    fontupper=\ttfamily\footnotesize,
+]
+\ptok{query\_start}What is the name of the unit that the main character of the series featuring Karen Hayes is a member of?\ptok{query\_end}\\
+\ptok{source\_start}\srcid{1} Karen Hayes is a fictional character on the television program ``24'' portrayed by actress Jayne Atkinson. She appeared as a recurring character in twelve episodes of the fifth season and a main cast member in eighteen episodes of the sixth season.\ptok{source\_end}\\
+\ptok{source\_start}\srcid{2} Maxwell Greevey is a fictional character played by George Dzundza on NBC's long-running police procedural and legal drama television series ``Law \& Order''. Following Dzundza's departure from the cast at the end of the first season, Greevey was written off the series with his death in the second season premiere.\ptok{source\_end}\\
+\ptok{source\_start}\srcid{3} Jack Bauer is a fictional character and the lead protagonist of the Fox television series ``24''. His character has worked in various capacities on the show, often as a member of the Counter Terrorist Unit (CTU) based in Los Angeles, and working with the FBI in Washington, D.C. during season~7.\ptok{source\_end}
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    colback=gray!5!white,
+    colframe=gray!75!black,
+    title=Response,
+    fonttitle=\bfseries,
+    breakable,
+    enhanced,
+    fontupper=\ttfamily\footnotesize,
+]
+\rtok{query\_analysis\_start}\\
+The question asks for the name of a specific unit. To find this, I need to: (1) identify the television series featuring the character Karen Hayes, (2) identify the main character of that series, and (3) determine the name of the unit that main character is a member of.\\
+\rtok{query\_analysis\_end}\\[2pt]
+\rtok{source\_analysis\_start}\\
+\srcid{1}: states that Karen Hayes is a fictional character on the television program ``24''. This identifies the series.\\
+\srcid{2}: discusses Maxwell Greevey and ``Law \& Order''; irrelevant to Karen Hayes.\\
+\srcid{3}: states that Jack Bauer is the lead protagonist of ``24'' and that he often works as a member of the Counter Terrorist Unit (CTU).\\
+\rtok{source\_analysis\_end}\\[2pt]
+\rtok{reasoning\_start}\\
+From \srcid{1}, the series featuring Karen Hayes is ``24''. From \srcid{3}, the main character of ``24'' is Jack Bauer, and Jack Bauer works as a member of the Counter Terrorist Unit (CTU). Therefore, the unit is the Counter Terrorist Unit (CTU).\\
+\rtok{reasoning\_end}\\[2pt]
+\rtok{status\_start} ANSWERABLE \rtok{status\_end}\\[2pt]
+\rtok{answer\_start} Counter Terrorist Unit (CTU) \rtok{answer\_end}
+\end{tcolorbox}
+\caption{Example of the prompt/response format used at mid-training and at evaluation. The prompt wraps the question in {\color{ptokcolor}\texttt{<|query|>}} tokens and each context passage in {\color{ptokcolor}\texttt{<|source|>}} tokens prefixed by a numeric {\color{srccolor}\texttt{<|source\_id|>}}. The response is split into five sections delimited by {\color{rtokcolor}\texttt{<|*|>}} tokens; \emph{Reasoning} composes evidence from sources 1 and 3 into a three-hop chain (Karen Hayes $\rightarrow$ ``24'' $\rightarrow$ Jack Bauer $\rightarrow$ CTU), \emph{Status} carries the discrete refusal verdict, and \emph{Answer} carries the final span. The example is taken from the multi-hop, multi-context subset of the training corpus.}
+\label{fig:trace-training-example}
+\end{figure}

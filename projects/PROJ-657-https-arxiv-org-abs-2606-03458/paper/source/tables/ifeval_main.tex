@@ -1,0 +1,72 @@
+\begin{table*}[t]
+\centering
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Performance on IFEval. Values are Prompt-Level Strict and Loose accuracy (\%). Higher is better; best results per column are highlighted. K/V denotes bits per key/value. UP (Uniform Precision) indicates whether all elements within a given $K$ or $V$ tensor share the same precision ($\checkmark$) or use mixed precision ($\times$).}
+\label{tab:ifeval_results_horizontal}
+\begin{tabular}{l c c c cc cc cc}
+\toprule
+& & & & \multicolumn{6}{c}{\textbf{Model}} \\
+\cmidrule(lr){5-10}
+\textbf{Method} & \textbf{K/V} & \textbf{bits/elem} & \textbf{UP}
+& \multicolumn{2}{c}{\textbf{Qwen3-4B}} 
+& \multicolumn{2}{c}{\textbf{Llama-3.1-8B}} 
+& \multicolumn{2}{c}{\textbf{Phi-4-14B}} \\
+\cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10}
+& & & 
+& \textbf{Strict} & \textbf{Loose} 
+& \textbf{Strict} & \textbf{Loose} 
+& \textbf{Strict} & \textbf{Loose} \\
+\midrule
+
+\textit{FP16} & 16/16 & 16.00 & $\checkmark$
+& \textit{81.0\%} & \textit{84.3\%} 
+& \textit{71.1\%} & \textit{76.8\%} 
+& \textit{63.6\%} & \textit{69.3\%} \\
+
+\midrule
+
+\others{KIVI} & \others{2/2} & \others{2.3} & \others{$\checkmark$}
+& \others{80.3\%} & \others{83.2\%} 
+& \others{70.9\%} & \others{74.5\%} 
+& \others{60.6\%} & \others{67.7\%} \\
+
+\others{Hadamard} & \others{2/2} & \others{2.3} & \others{$\checkmark$}
+& \others{79.3\%} & \others{82.8\%} 
+& \others{70.8\%} & \others{75.0\%} 
+& \others{62.6\%} & \others{68.2\%} \\
+
+\others{KVQuant-1\%} & \others{2/2} & \others{2.4} & \others{$\times$}
+& \others{76.9\%} & \others{80.8\%} 
+& \others{57.7\%} & \others{61.4\%} 
+& \others{55.1\%} & \others{61.2\%} \\
+
+\others{PolarQuant} & \others{4/2} & \others{3.3} & \others{$\checkmark$}
+& \others{79.1\%} & \others{82.6\%} 
+& \others{69.5\%} & \others{75.0\%} 
+& \others{62.5\%} & \others{68.4\%} \\
+
+\others{TurboQuant\tnote{1}} & \others{3/3} & \others{4.6} & \others{$\checkmark$}
+& \others{79.2\%} & \others{81.7\%} 
+& \others{66.5\%} & \others{71.0\%} 
+& \others{57.7\%} & \others{62.7\%} \\
+
+\others{Kitty} & \others{2/2} & \others{2.4} & \others{$\times$}
+& \others{78.0\%} & \others{81.9\%} 
+& \others{70.2\%} & \others{75.2\%} 
+& \others{63.2\%} & \others{69.0\%} \\
+
+\textbf{\ours{\methodname (ours)}} & \ours{2/2} & \ours{2.3} & \ours{$\checkmark$}
+& \ours{\textbf{80.4\%}} & \ours{\textbf{83.4\%}} 
+& \ours{\textbf{71.0\%}} & \ours{\textbf{76.5\%}} 
+& \ours{\textbf{63.4\%}} & \ours{\textbf{69.2\%}} \\
+
+\bottomrule
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item[1]Results obtained using the vLLM implementation.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}

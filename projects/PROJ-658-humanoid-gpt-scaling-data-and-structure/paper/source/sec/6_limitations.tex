@@ -1,0 +1,20 @@
+\section{Limitations}
+\label{sec:limitations}
+
+\section*{Ethical Considerations}
+
+Our work presents a general-purpose humanoid motion tracker capable of zero-shot whole-body imitation and real-time control. While we believe this has broad positive impacts—such as enabling intuitive human-robot collaboration, rapid prototyping of biomechanical controllers, and novel embodied applications—it also carries potential risks and ethical responsibilities.
+
+\paragraph{Data and Privacy.} 
+We aggregate and retarget motion data from public datasets and motion-capture actors. All human motion recordings are obtained with informed consent and have been anonymized and stripped of personal identifiers. We do not use video footage or biometric information beyond skeletal joint trajectories.
+
+\paragraph{Robot Safety.} 
+Deploying our system on the physical humanoid platform (Unitree-G1) entails real-world risks: the robot may collide with humans or the environment, suffer falls, or execute unexpected motions due to sensor failure or adversarial input. In our experiments, all human-robot interactions are conducted in a supervised laboratory setting with an emergency stop mechanism in place; future field deployment must incorporate more robust safety verification and fail-safe design.
+
+\paragraph{Misuse Potential.} 
+Advanced full-body humanoid tracking could enable unintended applications—from unwanted surveillance to automated imitation of idiosyncratic movements. We encourage the community to adopt responsible deployment guidelines, prohibit deployments without user awareness, and abide by all local laws and regulations governing robotic systems and human-robot interaction.
+
+\paragraph{Limitations in Scope.} 
+Though our system generalizes to a wide variety of motions and exhibits zero-shot behavior, it is currently tested on a single humanoid morphology in a controlled environment, and it does not handle multi-agent interactions, unstructured terrain, or adversarial use-cases. Users and downstream researchers should not assume the system as fully general or risk-free in uncontrolled settings.
+
+By including these considerations we aim to promote transparent, safe, and socially responsible research practice in humanoid robotics.

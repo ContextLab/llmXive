@@ -1,0 +1,188 @@
+
+% Define highly saturated, high-contrast neon colors
+\definecolor{clr1}{HTML}{FFD21E} % Deep Neon Purple (SmolLM)
+\definecolor{clr2}{HTML}{0053D6} % Vivid Green (Gemma)
+\definecolor{clr3}{HTML}{5F58C9} % Vivid Orange (Qwen)
+\definecolor{clr4}{HTML}{00F9D9} % Vivid Cyan/Blue (Pleias)
+\definecolor{clr5}{HTML}{0053D6} % Vivid Red (OCC)
+\definecolor{airigreen}{HTML}{01A291}
+
+\begin{figure*}[htbp]
+    \centering
+    
+    % ================= PLOT 1: SMALL MODELS =================
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+        \begin{tikzpicture}[
+            axis line/.style={line width=0.8pt, black!70},
+            grid line/.style={line width=0.5pt, black!25},
+            plot line/.style={line width=1.5pt, line cap=round, line join=round},
+            legend entry/.style={font=\footnotesize, anchor=west},
+            legend line/.style={line width=1.5pt, line cap=round, line join=round},
+            value label/.style={font=\scriptsize, fill=white, inner sep=1.2pt, text=black!70},
+            axis label/.style={font=\small\bfseries, text=black!85, align=center},
+        ]
+
+        % Define constants for the grid radius
+        \def\minR{1}
+        \def\maxR{4}
+
+        % Background Grid
+        \foreach \r in {\minR, 2, 3, \maxR} {
+            \draw[grid line] (90:\r) -- (210:\r) -- (330:\r) -- cycle;
+        }
+
+        % Axes Lines
+        \draw[axis line] (0,0) -- (90:\maxR+0.5);
+        \draw[axis line] (0,0) -- (210:\maxR+0.5);
+        \draw[axis line] (0,0) -- (330:\maxR+0.5);
+
+        % Value Labels
+        \node[value label, anchor=south east] at (90:1) {37.3};
+        \node[value label, anchor=south east] at (90:4) {79.9};
+        \node[value label, anchor=north east] at (210:1) {2.2};
+        \node[value label, anchor=north east] at (210:4) {86.9};
+        \node[value label, anchor=north west] at (330:1) {23.97};
+        \node[value label, anchor=north west] at (330:4) {56.40};
+
+        % Axis Titles (Removed $\uparrow$ arrows here)
+        \node[axis label, above] at (90:5) {Faithfulness\\In-Acc};
+        \node[axis label, below left, align=right] at (210:4.5) {Refusal};
+        \node[axis label, below right, align=left] at (330:4.5) {Multi-hop\\Reasoning};
+
+        % Plot Data
+        \draw[plot line, airigreen, solid, mark=*, mark size=2.5pt, mark options={fill=white, draw=clr5, line width=1pt}]
+            (90:4.0) -- (210:4.0) -- (330:4.0) -- cycle;
+
+        \draw[plot line, clr4, dashed, mark=square*, mark size=2.5pt, mark options={fill=white, draw=clr4, line width=1pt}]
+            (90:1.0) -- (210:1.697) -- (330:1.0) -- cycle;
+
+        % 55.3
+        \draw[plot line, clr3, solid, mark=triangle*, mark size=3pt, mark options={fill=white, draw=clr3, line width=1pt}]
+            (90:2.936) -- (210:2.859) -- (330:3.167) -- cycle;
+
+        \draw[plot line, clr5, dashdotted, mark=diamond*, mark size=3pt, mark options={fill=white, draw=clr5, line width=1pt}]
+            (90:2.746) -- (210:1.0) -- (330:1.780) -- cycle;
+
+        \draw[plot line, clr1, densely dashdotted, mark=pentagon*, mark size=3pt, mark options={fill=white, draw=clr1, line width=1pt}]
+            (90:2.5) -- (210:2.059) -- (330:3.176) -- cycle;
+
+        % Title
+        \node[font=\normalsize\bfseries, anchor=south] at (90:6.2) {OCC-RAG-0.6B vs. 1B-2B};
+
+        % Clean Legend Matrix
+        \begin{scope}[shift={(0,-3.5)}]
+            \matrix[
+                ampersand replacement=\&,
+                column sep=8pt,
+                row sep=4pt,
+                draw=none,
+                fill=none,
+                inner sep=2pt,
+                anchor=north
+            ] {
+                \draw[legend line, airigreen, solid, mark=*, mark size=2pt, mark options={fill=white, draw=airigreen, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{OCC-RAG-0.6B}; \&
+                \draw[legend line, clr4, dashed, mark=square*, mark size=2pt, mark options={fill=white, draw=clr4, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{Pleias-RAG-1.2B}; \&
+                \draw[legend line, clr3, solid, mark=triangle*, mark size=2.5pt, mark options={fill=white, draw=clr3, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{Qwen-3-1.7B}; \\
+                \draw[legend line, clr5, dashdotted, mark=diamond*, mark size=2.5pt, mark options={fill=white, draw=clr5, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{Gemma-3-1B}; \&
+                \draw[legend line, clr1, densely dashdotted, mark=pentagon*, mark size=2.5pt, mark options={fill=white, draw=clr1, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{SmolLM-3-3B}; \& \& \\
+            };
+        \end{scope}
+
+        \end{tikzpicture}%
+        }%
+    \end{minipage}%
+    \hfill
+    % ================= PLOT 2: LARGE MODELS =================
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+
+
+\begin{tikzpicture}[
+            axis line/.style={line width=0.8pt, black!70},
+            grid line/.style={line width=0.5pt, black!25},
+            plot line/.style={line width=1.5pt, line cap=round, line join=round},
+            legend entry/.style={font=\footnotesize, anchor=west},
+            legend line/.style={line width=1.5pt, line cap=round, line join=round},
+            value label/.style={font=\scriptsize, fill=white, inner sep=1.2pt, text=black!70},
+            axis label/.style={font=\small\bfseries, text=black!85, align=center},
+        ]
+
+        % Define constants for the grid radius
+        \def\minR{1}
+        \def\maxR{4}
+
+        % Background Grid
+        \foreach \r in {\minR, 2, 3, \maxR} {
+            \draw[grid line] (90:\r) -- (210:\r) -- (330:\r) -- cycle;
+        }
+
+        % Axes Lines
+        \draw[axis line] (0,0) -- (90:\maxR+0.5);
+        \draw[axis line] (0,0) -- (210:\maxR+0.5);
+        \draw[axis line] (0,0) -- (330:\maxR+0.5);
+
+        % Value Labels (Multi-hop Reasoning max updated to 62.3)
+        \node[value label, anchor=south east] at (90:1) {37.3};
+        \node[value label, anchor=south east] at (90:4) {81.4};
+        \node[value label, anchor=north east] at (210:1) {21.9};
+        \node[value label, anchor=north east] at (210:4) {87.2};
+        \node[value label, anchor=north west] at (330:1) {23.97};
+        \node[value label, anchor=north west] at (330:4) {62.3};   % new maximum
+
+        % Axis Titles
+        \node[axis label, above] at (90:5) {Faithfulness\\In-Acc};
+        \node[axis label, below left, align=right] at (210:4.5) {Refusal};
+        \node[axis label, below right, align=left] at (330:4.5) {Multi-hop\\Reasoning};
+
+        % Plot Data
+        % OCC-RAG-1.7B (Multi-hop = 60.03 → radius 3.8224)
+        \draw[plot line, airigreen, solid, mark=*, mark size=2.5pt, mark options={fill=white, draw=clr5, line width=1pt}]
+            (90:4.0) -- (210:4.0) -- (330:3.8224) -- cycle;
+
+        % Pleias-RAG-1.2B (Multi-hop = 23.97 → radius 1.0)
+        \draw[plot line, clr4, dashed, mark=square*, mark size=2.5pt, mark options={fill=white, draw=clr4, line width=1pt}]
+            (90:1.0) -- (210:1.0) -- (330:1.0) -- cycle;
+
+        % Qwen-3-4B (Multi-hop = 62.3 → radius 4.0)
+        \draw[plot line, clr3, solid, mark=triangle*, mark size=3pt, mark options={fill=white, draw=clr3, line width=1pt}]
+            (90:3.204) -- (210:2.939) -- (330:4.0) -- cycle;
+
+        % Gemma-3-4B (Multi-hop = 50.40 → radius 3.0685)
+        \draw[plot line, clr5, dashdotted, mark=diamond*, mark size=3pt, mark options={fill=white, draw=clr5, line width=1pt}]
+            (90:3.211) -- (210:2.558) -- (330:3.0685) -- cycle;
+
+        % SmolLM-3-3B (Multi-hop = 47.50 → radius 2.842)
+        \draw[plot line, clr1, densely dashdotted, mark=pentagon*, mark size=3pt, mark options={fill=white, draw=clr1, line width=1pt}]
+            (90:2.449) -- (210:1.469) -- (330:2.842) -- cycle;
+
+        % Title
+        \node[font=\normalsize\bfseries, anchor=south] at (90:6.2) {OCC-RAG-1.7B vs. 3B--4B};
+
+        % Clean Legend Matrix
+        \begin{scope}[shift={(0,-3.5)}]
+            \matrix[
+                ampersand replacement=\&,
+                column sep=8pt,
+                row sep=4pt,
+                draw=none,
+                fill=none,
+                inner sep=2pt,
+                anchor=north
+            ] {
+                \draw[legend line, airigreen, solid, mark=*, mark size=2pt, mark options={fill=white, draw=airigreen, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{OCC-RAG-1.7B}; \&
+                \draw[legend line, clr4, dashed, mark=square*, mark size=2pt, mark options={fill=white, draw=clr4, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{Pleias-RAG-1.2B}; \&
+                \draw[legend line, clr3, solid, mark=triangle*, mark size=2.5pt, mark options={fill=white, draw=clr3, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{Qwen-3-4B}; \\
+                \draw[legend line, clr5, dashdotted, mark=diamond*, mark size=2.5pt, mark options={fill=white, draw=clr5, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{Gemma-3-4B}; \&
+                \draw[legend line, clr1, densely dashdotted, mark=pentagon*, mark size=2.5pt, mark options={fill=white, draw=clr1, line width=1pt}] (0,0) -- (0.5,0); \& \node[legend entry]{SmolLM-3-3B}; \& \& \\
+            };
+        \end{scope}
+
+        \end{tikzpicture}
+                }%
+    \end{minipage}
+    \caption{Multi-dimension general comparison of OCC-RAG vs. different models. OCC-RAG-0.6B and OCC-RAG-1.7B show balanced profile, outperforming competitors $2-3\times$ larger. For Qwen3 and SmolLM3 we report results with thinking mode on.}
+    \label{fig:radars}
+\end{figure*}

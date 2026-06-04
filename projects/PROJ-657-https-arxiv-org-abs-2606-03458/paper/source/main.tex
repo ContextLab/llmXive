@@ -1,0 +1,1111 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+\usepackage[preprint]{neurips_2026}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+ % if you want to opt-in for a de-anomymized submission (not recommended, but OK):
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}  
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[table]{xcolor} % IMPORTANT: table option
+\usepackage{graphicx}
+\usepackage{subcaption} % Required for the \begin{subfigure} environment
+\usepackage{xspace}
+\usepackage{makecell}
+\usepackage{threeparttable}
+\usepackage{amsmath}
+\usepackage{wrapfig2}
+\usepackage{siunitx}
+
+
+\usepackage{algorithm}
+\makeatletter
+\let\algorithmic\undefined    % Undefine the environment loaded by icml2026
+\let\endalgorithmic\undefined % Undefine the end environment
+\makeatother
+\usepackage{algpseudocode}    % Now load the new package cleanly
+
+% \newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\definecolor{customblue}{RGB}{135,200,235}
+\newcommand{\ours}[1]{\cellcolor{customblue!30}#1}
+\newcommand{\others}[1]{\cellcolor{gray!10}#1}
+% \newcommand{\methodname}{SINQ-KV\xspace}
+\newcommand{\methodname}{KVarN\xspace}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+%\title{\methodname: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks}
+\title{\methodname: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{
+Lorenz K. Muller\thanks{Correspondence to: Lorenz K. Muller <lorenz.mueller@huawei.com>.} \\
+Huawei
+\And Philippe Bich \\
+Huawei
+\And Chiara Boretti \\
+Huawei
+\AND Hyun-Min Chang \\
+Huawei
+\And Jiawei Zhuang \\
+Huawei
+\And Lukas Cavigelli \\
+Huawei
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+% \begin{abstract}
+% Current KV-Cache compression methods excel at quantizing large, fixed prefill contexts. However, we find that they underperform in decode-heavy settings, like reasoning, due to error accumulation. In this paper, we investigate how we can better predict the reasoning accuracy impact of existing KV-Cache quantization methods, and propose a new Sinkhorn-iteration-based KV-Cache quantization method that substantially outperforms prior art in this challenging setting. We evaluate our method on various open-weight LLM families and release the code in the supplementary. 
+% \end{abstract}
+\begin{abstract}
+% Test-time scaling has emerged as a powerful strategy for unlocking unprecedented reasoning capabilities in large language models, but it introduces a memory bottleneck as the KV-Cache expands during long-horizon decoding. Still, current KV-Cache quantization methods suffer from error accumulation during continuous auto-regressive decoding, partly because standard grouped quantization fails to handle high-variance outlier channels over time. This problem is especially pronounced in decode-heavy reasoning tasks. We introduce \methodname, which augments existing KV-Cache quantizers with decoherence transformations, along with a fast Sinkhorn-inspired dual-scaling algorithm that normalizes standard deviations across both the K and V matrices. We show that temporal error accumulation can be accurately simulated using a fast `pseudo-decode' evaluation proxy, accelerating research iterations. We evaluate our method on open-weight LLMs. \methodname substantially reduces error degradation against existing baselines and establishes a new state-of-the-art for KV-Cache compression on reasoning benchmarks, including MATH500 and AIME24. Code is available in the supplementary.
+% Test-time scaling is a powerful strategy for enhancing reasoning
+% capabilities in large language models, but it becomes memory-bottlenecked as
+% the KV-cache grows during long-horizon decoding. KV-cache quantization can ameliorate this, 
+% but current methods are evaluated on prefill-like settings
+% that obscure how errors behave under autoregressive decoding. We show
+% that in this regime, quantization errors accumulate across timesteps and
+% layers, leading to an increasing gap above the non-accumulating baseline. 
+% We introduce \methodname, a calibration-free KV-cache
+% quantizer that applies a Hadamard rotation followed by a fast Sinkhorn-inspired dual-scaling normalization across both axes of the K and V
+% matrices. We find that this combination prevents outlying scaling errors in token scales 
+% and substantially reduces error accumulation against existing
+% baselines. \methodname establishes a new state-of-the-art for KV-cache quantization
+% on reasoning benchmarks, including MATH500 and AIME24, at 2-bit precision.
+% Code is available in the supplementary.
+Test-time scaling is a powerful approach to obtain better reasoning in large language models, but it becomes memory-bottlenecked during long-horizon decoding, as the KV-cache grows. KV-cache quantization can help improve this, but current methods are evaluated under prefill-like settings and errors behave differently under autoregressive decoding. We show that in the latter regime, quantization errors accumulate across timesteps, driven primarily by incorrect token scales. We introduce KVarN, a calibration-free KV-cache quantizer that applies a Hadamard rotation followed by a dual-scaling variance normalization across both axes of the $K$ and $V$ matrices. We find that this combination fixes outlying token-scale errors and substantially reduces error accumulation over existing baselines. KVarN establishes a new state-of-the-art for KV-cache quantization on generative benchmarks, including MATH500, AIME24 and HumanEval, at 2-bit precision. A vLLM implementation of the KVarN method is available at \url{https://github.com/huawei-csl/KVarN}.
+\end{abstract}
+
+\section{Introduction}
+Recently,  test-time scaling \cite{openai2024learning} has helped reasoning LLMs achieve new levels of competence in a variety of domains \cite{snell2025scaling, pmlr-v267-bi25a-Forest-of-Thought, muennighoff2025s1, shen2026thinking}. As the name implies, the premise of test-time scaling is an ever-increasing decoding length that supports this greater capability. Consequently, the efficient handling of the KV-Cache is becoming more and more relevant to achieve optimal reasoning per time trade-offs. 
+% The rise of long-context and reasoning LLMs, and the memory bottleneck of the KV-Cache.
+
+
+One avenue of attack on this memory bottleneck is KV-Cache quantization. Such methods try to assign fewer than 16 bits per element of the $K$ and $V$ matrices, often as few as 2 to 4. With effective reshaping and blocking strategies, linear methods like KIVI \cite{KIVI} can already achieve good results, and codebook-based methods like TurboQuant \cite{zandieh2026turboquant} can further improve on them. 
+% Current solutions (KIVI, TurboQuant) and their success in prefill / summarizing.
+Typical evaluation settings for these methods are large prefill problems, where a fixed, long context is quantized in parallel. Examples are Needle-in-a-Haystack (NiaH) \cite{kamradt2023needle}, MultiQA \cite{talmor-berant-2019-multiqa}, or LongBench \cite{bai2024longbench}. 
+
+However, in long-form test-time scaling scenarios, the generated token sequence needs to be compressed on-the-fly as it is produced. As we will show in this paper, this leads to the accumulation of quantization error across decoding timesteps, because standard methods fail to preserve per-token scales during quantization. %We will show that incorrectly scaled tokens lead to error accumulation over the decoding sequence.  %the successful quantization of the KV-Cache in reasoning models. 
+% Why they fail in long decoding sequences (error accumulation).
+
+One highly successful approach in weight quantization in recent years has been incoherence processing \cite{chee2023quip}, e.g., by Hadamard rotation. We elucidate that this approach alone fails for KV-Cache compression, because it does not sufficiently address token scaling. We identify dual-scaling with Sinkhorn-based variance-normalization as an effective approach to further mitigate token scaling errors. 
+
+\subsection{Contributions}
+
+\begin{itemize}
+    \item End-to-end evaluations of \underline{K}V-Cache quantization with \underline{Var}iance \underline{N}ormalization (\methodname \footnote{kvarn, noun, Swedish: the grinding apparatus for substances such as grains, seeds, spices, coffee beans, KV-Caches, etc.}) on generative benchmarks with \textbf{substantial improvement over current state-of-the-art} in AIME24, MATH500, HumanEval and IFEval.
+    \item Identifying token magnitude errors as a key driver of outlier errors.
+    \item Showing that outlier errors contribute disproportionally to end-to-end quality.
+    \item An efficient pseudo-decode evaluation method for error accumulation in KV-Cache quantization relevant for test-time scaling.
+    \item A novel KV-Cache compression method that mitigates token magnitude errors and error accumulation across timesteps called \methodname.%, using Hadamard rotation followed by dual-scaling normalization
+    
+\end{itemize}
+%Our contributions: The fast-eval proxy, the \methodname method, and reasoning results.
+
+
+
+\begin{figure}
+    \centering
+
+    \begin{subfigure}[b]{0.414\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/kivi_mag_fraction_bars.pdf}
+        \caption{}
+        \label{fig:scale:a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.57\linewidth}
+        \centering
+        %\includegraphics[width=\linewidth]{figures/sinkh_only_l1_pooled_abs_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf}
+        \includegraphics[width=\linewidth]{figures/2x2_per_token_norm_delta_p2_Qwen_Qwen3-4B_ctx32768_B128_N2_b2.pdf}
+        
+        \caption{}
+        \label{fig:scale:b}
+    \end{subfigure}
+    \hfill
+    
+    \caption{(\subref{fig:scale:a}) What fraction of the top k\% largest errors is due to magnitude rather than direction (decomposed as in Eq.~\ref{eq:decompose}). Large quantization errors in $K$ are mostly due to incorrect token scaling. To fix outlier errors, the token magnitude needs to be better preserved.  (\subref{fig:scale:b}) Difference of per-token magnitude of quantized $K$ to full-precision $K$ matrix on Qwen3-4B under different 2-bit quantization methods (KIVI \cite{KIVI}, HK: Hadamard rotated $K$, VarN(K): Variance-Normalized $K$, and \methodname: our proposed method). Variance normalization prevents the rounding process from scaling the norm of worst-case tokens; the effect synergizes with scale-error reduction by Hadamard rotation. \methodname effectively suppresses magnitude errors, which leads to better end-to-end test-time scaling.}
+    \label{fig:token-norm}
+\end{figure}
+
+%%%%%
+
+% What is KV Cache
+
+% Why Quantize it?
+
+% Issue with standard approaches: Error accumulation
+% --> bad reasoning
+
+% Our contributions
+
+\section{Preliminaries}
+
+Unless otherwise mentioned, illustrative figures use the KV-Cache of Qwen3-4B~\cite{yang2025qwen3technicalreport} ingesting wikitext-2 subsets as underlying data. Generally $K$ quantization is often considered to be more difficult than $V$ quantization\footnote{As an illustration, in Llama3.1-8B $>98\%$ of the top 5\% quantization errors under the KIVI-scheme lie in a $K$-matrix.}; we will also focus more discussion on $K$ because of this.  
+
+\subsection{Basics of KV-Cache Quantization}
+% [K is often important than V (--> illustrate on K), we quantize chunk-wise, first and last tokens are always kept at full prec.]
+Following previous KV-Cache quantization work \cite{KIVI}, we process the KV-cache in the channel dimension per-head and in the token dimension in chunks (e.g. of size 128). Consequently, the base-tile to work with is a tile of shape ($\text{head-dim}\times \text{token-chunk}$), e.g. for Llama3.1-8B in our setup a $128\times128$ tile. KIVI~\cite{KIVI} has shown that with round-to-nearest quantization, it is best to  quantize the $V$ matrix per token and the $K$ matrix per channel. E.g., the $K$  matrix is quantized to a set consisting of a low-precision matrix $K_q$, and two high-precision vectors, containing one element for each channel. One of these vectors is an offset (or zeropoint) $\vec{z}$ the other a scale $\vec{s}$. The dequantized approximation of $K$ is $K_{dq}$ obtained by
+\begin{equation}
+    K_{dq} = (K_q + \vec{z}) \odot \vec{s}. 
+\end{equation}
+
+
+\subsection{Incoherence Processing for Quantization}
+\label{sec:rotate}
+The distribution of to-be-quantized tensors can often be made more favorable by applying some simple transformations to them \cite{ashkboos2024quarot, liu2025spinquant}. Particularly useful are transformations that can be either applied cheaply on-the-fly or precomputed and absorbed into existing model weights. The Hadamard transform is fast enough for online application (with $O(N \log N)$ complexity) and can often be absorbed into adjacent weight matrices (see Fig.~\ref{fig:figure_att} in the Appendix). In the limit of large matrices, the Hadamard transform yields Gaussian-distributed outputs \cite{malinovskii2025higgs, chee2023quip, tseng2024qtip}. This is often referred to as incoherence processing. We follow the same layout as QuaRot \cite{ashkboos2024quarot}, see Fig.~\ref{fig:figure_att} in the Appendix.
+
+We find that in KV-Cache quantization, incoherence processing is helpful to equalize channel-space outliers, but insufficient on its own to manage token-wise scaling errors, see Fig.~\ref{fig:token-norm}.
+
+\subsection{Dual-Scaling in LLM Weight Quantization}
+An alternative preconditioning transform has recently become popular in LLM weight quantization: Scaling both input- and output-channel dimensions to have approximately uniform variance by way of a variance-targeted Sinkhorn-Knopp-style normalization. This normalization is helpful because it approximates calibration data from weight structure. Thereby, it improves end-to-end output quality while it paradoxically causes weight-matrix reconstruction errors to increase \cite{muller2025sinq}.
+
+We find that dual-scaling variance normalization is also helpful in KV-Cache quantization, but for unrelated reasons as there is no calibration data to approximate (see Sec. \ref{sec:sinq-kv}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/kvarn_pipeline.pdf}
+    \caption{Schematic layout of \methodname. Every token is Hadamard-rotated in the channel dimension. After one block of tokens (e.g., 128) of generation, each block is variance-normalized in token and channel dimension, denoted by VarN($\cdot$). Finally, it is quantized with round-to-nearest (RTN). We store the standard scale and zero-point of the RTN, plus a second scale. At 2.3 average bits per element even with the second scale, \methodname outperforms or matches prior methods, see e.g. Tab.~\ref{tab:ifeval_results_horizontal}.}
+    \label{fig:sinkv-pipeline}
+\end{figure}
+
+
+\subsection{Key Ideas}
+\begin{wrapfigure}{r}{0.41\textwidth} % {location: r, l, etc.}{width}
+    \vspace{-42pt}
+  \begin{center}
+    \includegraphics[width=0.36\textwidth]{figures/topk_kl_bars_accumulated_v2.pdf}
+  \end{center}
+  \caption{Replacing the 5\% worst outlier errors with high precision values improves end-to-end KL-divergence more than fixing the other 95\%, even though more MSE lies there (see Fig.~\ref{fig:outlier_MSE}).}
+  \label{fig:outlier_impact}
+  \vspace{-10pt} % Subtle tweak to reduce whitespace below the figure
+\end{wrapfigure}
+
+The central argument of this paper is:  The largest, e.g. top 5\%, errors in the KV-Cache cause most of the end-to-end degradation, smaller errors (even if they are many) are less important (see Fig.~\ref{fig:outlier_impact}). The magnitude per token is the main driver of such outlying errors (see Fig.~\ref{fig:scale:a}). \methodname fixes these magnitude errors with combined incoherence processing and dual-scaling (see Fig.~\ref{fig:scale:b}). This also mitigates error accumulation over time (see Figs.~\ref{fig:pseudo-decode} and ~\ref{fig:output_mae_vs_rtn}). In this way, \methodname achieves state-of-the-art end-to-end KV-Cache quantization in reasoning and instruction following. See Tabs.~\ref{tab:math_reasoning_results}, \ref{tab:humaneval_results} and \ref{tab:ifeval_results_horizontal}.
+
+
+\section{Methods}
+
+\subsection{Distinguishing Magnitude-based and Directional Error}
+To isolate the distinct effects of magnitude shift and directional distortion introduced by quantization, we can decompose the squared $\mathcal{L}_2$ error between the full-precision key vector, $K$, and its dequantized counterpart, $K_{dq}$. Using the geometric definition of the dot product, where $\theta$ represents the angle between $K$ and $K_{dq}$, we expand the squared error norm:
+\begin{equation}
+    \|K - K_{dq}\|^2 = \|K\|^2 - 2\|K\|\|K_{dq}\|\cos\theta + \|K_{dq}\|^2
+\end{equation}
+By adding and subtracting the cross-term $2\|K\|\|K_{dq}\|$, we can decouple the expression into two distinct components:
+\begin{align}
+    \underbrace{\|K - K_{dq}\|^2}_{E_T, \text{Total Error}} &= \left( \|K\|^2 - 2\|K\|\|K_{dq}\| + \|K_{dq}\|^2 \right) + \left( 2\|K\|\|K_{dq}\| - 2\|K\|\|K_{dq}\|\cos\theta \right) \nonumber \\
+    &= \underbrace{\left( \|K\| - \|K_{dq}\| \right)^2}_{E_M, \text{Magnitude Error}} + \underbrace{2\|K\|\|K_{dq}\|(1 - \cos\theta)}_{E_D, \text{Directional Error}}
+    \label{eq:decompose}
+\end{align}
+In this way we can decompose the total quantization error into a pure magnitude penalty and a pure directional penalty (scaled by the norms and governed by the cosine similarity). This decomposition allows us to independently analyze how $K$-magnitude inflation versus angular quantization noise impacts the attention logits.
+
+In Fig.~\ref{fig:scale:a} we use $\frac{E_M}{E_T}$, the fraction of the total error due to magnitude, to show that outlier errors are overwhelmingly caused by incorrect magnitudes.
+
+\subsection{Evaluation of KV-Cache Quantization Error Accumulation}
+\begin{figure}
+    \centering
+    \includegraphics[width=.9\linewidth]{figures/pseudo_decode_edit_v6.pdf}
+    \caption{Prior KV-Cache quantization papers address the parallel prefill scenario (red dashed arrows). We propose a `pseudo-decode' setting (green solid arrows) to better model decoding errors. We split the sequence into blocks of size b. After every block, the freshly produced $K$, $V$ are quantized before being written back to the KV-cache. Subsequent blocks access a \emph{quantized} cache, so quantization error accumulates over time. LLMs operate this way during decoding of long sequences (e.g., in test-time scaling, such as reasoning tasks). \methodname is designed to operate in this regime. }
+    \label{fig:pseudo-decode}
+\end{figure}
+\label{sec:err_acc}
+
+When the KV-Cache is quantized during decoding in deep models, a form of error accumulation occurs, see Fig.~\ref{fig:pseudo-decode} for an illustration. Namely, when the attention in transformer block $B_l$ at block-index $l$ is computed with a \emph{quantized} KV-Cache, this error influences the $K$ and $V$ matrices that the attention layer in the subsequent transformer block $B_{l+1}$ produces. So the unquantized $K$ and $V$ matrices at $B_{l+1}$ are already slightly wrong. Quantizing them introduces additional error, which in turn affects $K$ and $V$ at $B_{l+2}$ and beyond. In this way, KV-Cache quantization errors can be accumulated across layers and eventually time-steps. This problem compounds as the generated sequence gets longer.
+
+To directly measure the extent of this problem, we propose a fast decode-like LLM evaluation.  Namely, we divide our full prefill sequence into blocks of size $b$. Whenever $b$ tokens have passed through the model we are evaluating, we quantize the KV-Cache. Then, for all later tokens, we compute latent states \emph{with this quantized KV-Cache} (as would be done at decoding time). We call this the `pseudo-decode' setting. In Fig.~\ref{fig:output_mae_vs_rtn} we show this error accumulation is specifically suppressed by \methodname, which we will introduce below.
+
+\subsection{\methodname: Variance-Normalized Quantization for KV-Cache}
+\label{sec:sinq-kv}
+In KVarN, we apply two transformations to mitigate token scaling errors: First, rotate in the channel dimension with the Hadamard transform, and second, normalize with variance scaling (online) in both channel and token dimension. See Fig.~\ref{fig:sinkv-pipeline} for an overview. For the Hadamard transformation we follow the now widely-used setup of QuaRot \cite{ashkboos2024quarot}, see Fig.~\ref{fig:figure_att}. This rotates the $K$ and $V$ matrices in the channel dimension and reduces outliers there. 
+In the token dimension it would be too costly to apply a Hadamard rotation (because on decompression this rotation will have to be undone online for every token position; i.e. typically $128^2$ operations per 128 tokens per channel).  
+
+% \subsubsection{Permutations and Rotations for K and V Matrix Quantization}
+
+
+% \subsubsection{Grouped Linear Quantization}
+% % Structurally we take a similar approach to KV-Cache quantization as KIVI \cite{KIVI}. 
+% The K and V matrices are two-dimensional tensors with a channel and a token dimension whose sizes correspond to the number of latent channels and the input sequence length, respectively. Prior KV-Cache quantization papers treat each such tensor, say $K$, by reshaping (and sometimes transposing) it so that the last dimension has size $b$, the `block-size' of the method, to obtain $\hat{K}$. In linear methods, each such block is assigned a single high-precision scale (and an offset for asymmetric quantization methods). Thus, the initial matrix $K$ is transformed into the quantized matrix $q(\hat{K})$ (where $q(\cdot)$ is the quantization function) and a scale vector $\vec{s}$ (and offset vector $\vec{z}$).
+% This setting, combined with round-to-nearest (RTN) rounding, is the KIVI method \cite{KIVI}. 
+
+
+% \subsubsection{Normalization using Sinkhorn-Inspired Iteration}
+Following recent \emph{weight} quantization papers \cite{muller2025sinq}, we apply scaling factors along both dimensions of the to-be-quantized tensor; for $K$ and $V$ these are the channel and token dimensions. Prior KV-Cache quantization methods only scale one dimension. In contrast to Hadamard rotation, the additional element-wise scaling increases the dequantization overhead only by one FLOP per token per channel. The additional scaling allows us to perform the variance normalization below, which we denote by VarN() in the rest of the paper. %Note that this as a particularly light-weight `cheap on-the-fly transformation' as mentioned in Sec.~\ref{sec:rotate}. 
+
+To obtain the two scaling vectors, we iteratively normalize the column-wise and row-wise variance.
+%we run the SINQ normalization \cite{muller2025sinq}, a modified Sinkhorn-Knopp iteration whose goal is not to normalize the \emph{magnitudes} of the rows and columns of the matrix in question, but rather to normalize their \emph{standard deviations}. 
+It is not possible to work directly with the magnitude of the matrices, because they are signed and in some cases have large offsets. One cannot directly use the token-axis variance alone to normalize tokens, because this would increase the per-channel kurtosis. Iterative variance normalization can avoid this, while still normalizing per token scales. 
+This yields $K$ and $V$ matrices with normalized rows and columns. Before quantization, the variance of the token and channel dimensions of these normalized matrices are uniform. In practice, we adapt the log-domain standard-deviation-scaling implementation of SINQ \cite{muller2025sinq} to variance normalization for KV-Caches, see Appendix Sec.~\ref{sec:sinq-alg}, Alg.~\ref{alg:sinq}.
+
+ In weight quantization, normalizing the standard deviation is helpful because it approximates calibration data from weight structure (and paradoxically even causes weight-matrix reconstruction errors to increase) \cite{muller2025sinq}. In our setting, this normalization is useful because it reduces directly the matrix reconstruction error (not because of a fortuitous alignment of rounding errors and typical input data). Specifically, it decreases tail-errors that are primarily due to incorrect token scaling by directly fixing the magnitude with an additional high-precision scale, see Fig.~\ref{fig:scale:b}.
+
+% \methodname is fully calibration-free and uses uniform precision to represent the entire KV-Cache. 
+
+\subsection{Local Proxy Test: Attention Output Reconstruction}
+\begin{figure}
+    \centering
+    % Subfigure 1
+    \begin{subfigure}[b]{0.3\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sinkh_only_l1_pooled_abs_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf}
+        \caption{Average attention output reconstruction error}
+        \label{fig:sub_a}
+    \end{subfigure}
+    \hfill
+    % Subfigure 2
+    \begin{subfigure}[b]{0.3\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sinkh_only_l1_pooled_diff_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf}
+        \caption{Difference of our method to KIVI}
+        \label{fig:sub_b}
+    \end{subfigure}
+    \hfill
+    % Subfigure 3
+    \begin{subfigure}[b]{0.3\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sinkh_only_l1_pooled_gap_Qwen_Qwen3-4B_ctx32768_B64_N8_K500000.pdf} 
+        \caption{Difference between the two curves in (\subref{fig:sub_b})}
+        \label{fig:sub_c}
+    \end{subfigure}
+    \caption{Average reconstruction error after quantization across all attention layer outputs in \hbox{Qwen3-4B}. (\subref{fig:sub_a}) Our method has smaller error than KIVI at all context lengths.  As discussed in Sec.~\ref{sec:err_acc} errors accumulate over time. Prior work considers the static case (orange) here we consider the dynamic accumulation (blue) (\subref{fig:sub_b}), (\subref{fig:sub_c}) \methodname has an increasing advantage over KIVI as contexts get longer.}
+    \label{fig:output_mae_vs_rtn}
+\end{figure}
+To illustrate the impact of our method, we consider the norm of the reconstruction error for the output of the attention layer under quantized $K$ and $V$. We evaluate this both under a prefill-like condition that does not consider error-accumulation over quantization steps, and the pseudo-decode setting as given in Sec.~\ref {sec:err_acc}.
+
+In Fig.~\ref{fig:output_mae_vs_rtn} we see that compared to RTN (KIVI), the proposed \methodname achieves much lower error, and accumulates less error over time. \methodname has much lower token scale errors, see Fig.~\ref{fig:scale:b}; in the worst case, such scale errors can compound exponentially (repeated application of incorrect multipliers) and avoiding them is particularly helpful over longer contexts in accumulating regimes. 
+
+%[This is a bit weak, we need to explain clearly we normalize variance and not magnitude (because of zeropoints?)]
+
+% The structure of Hadamard-rotated K matrices is the main reason for this reduced reconstruction error. Hadamard rotation flattens channel-wise outlier structure 
+% but the residual token-wise variation already present in K persists through the rotation. Standard KV-cache quantization assigns scales along a single axis — typically per-channel grouping for the $K$ in the KIVI scheme — which addresses the dominant axis but leaves residual variation on the other axis uncompensated. In some cases, token-wise variation is catastrophically amplified by the rounding process (see Fig.~\ref{fig:token-norm}; some tokens have $3\times$ the norm they should have). The dual normalization prevents this, and does so even more effectively on pre-rotated $K$ matrices. 
+
+
+% [FIGURE: K --> H@K --> Sink(H@K)  reconstruction error]
+% [FIGURE: K --> H @ K --> Sink(H@K)  distributions + energy + quantization errors]
+
+
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Quantization Quality}
+\label{sec:quality}
+% why this selection of experiments, why NIAH in appendix.
+In this section, we consider various metrics for the quality of a KV-cache quantization. We focus here on metrics that reveal error-accumulation effects, see Section \ref{sec:err_acc}. 
+
+We evaluate on Qwen3-4B \cite{yang2025qwen3technicalreport}, Llama-3.1-8B \cite{grattafiori2024llama} and Phi-4-14B \cite{abdin2024phi} to cover a range of model sizes and families. The Qwen model natively supports reasoning, and for the Phi model, there is a reasoning variant. Llama-3.1-8B does not have a reasoning variant. We evaluate all models on line-retrieval and instruction following and the reasoning models on the reasoning benchmarks. Additional experimental details are discussed in Appendix Sec.~\ref{sec:exp_details}.
+
+%In this vein, we have relegated the commonly used Needle-in-a-Haystack task to the appendix (as we find it too easy to be informative). 
+
+\subsubsection{End-to-End Reasoning and Instruction-Following Performance}
+The target of \methodname are long-context generation tasks like reasoning, coding and instruction following. Specifically, we consider MATH500 \cite{lightman2024lets_math500}, AIME24 \cite{aime24}, HumanEval \cite{chen2021evaluating_humaneval} and IF-Eval \cite{zhou2023instructionfollowingevaluationlargelanguage_ifeval}. MATH500 is a mathematical reasoning benchmark requiring models to formulate complex derivations and output mathematical solutions.  AIME24 similarly tests competition-level mathematical capabilities. Answers typically require long-horizon chains of thought, and exact integer answers. HumanEval assesses programming proficiency by measuring a model's ability to translate natural language docstrings into functionally correct Python code. Finally, the Instruction Following Evaluation benchmark IF-Eval tests a model's ability to  adhere to formatting and content constraints. It measures reliability in executing structural directives, e.g., word-count limits or specific output templates. We report average accuracy on these benchmarks over 3 runs. \methodname achieves the best overall performance with the lowest average bits (2.3 per element of KV-Cache), see Tabs.~\ref{tab:math_reasoning_results}, \ref{tab:humaneval_results}, \ref{tab:ifeval_results_horizontal}.
+% \begin{itemize}
+%     \item MATH500
+%     \item AIME24
+%     \item IF-Eval
+% \end{itemize}
+
+\input{tables/reasoning_appendix}
+\input{tables/humaneval_appendix}
+\input{tables/ifeval_main}
+
+
+% Add this to your preamble if you haven't already:
+% \usepackage{subcaption}
+
+
+% [NOTE: we need to specifically show that we handle outliers better to match the intro]
+
+% \subsubsection{KLAQ: KL-Divergence under Accumulated Quantization-Error}
+% The next logical step beyond local per-matrix errors, are end-to-end evaluations, but localized to individual tokens. Recent work \cite{acc_is_all} has advocated using the KL-divergence relative to the baseline model as a gold standard for lossy inference acceleration methods. Hence, we measure per-token KL-divergence over time in both the prefill-like and pseudo-decode settings (see Sec.~\ref{sec:err_acc}). 
+
+\subsubsection{Line-Retrieval Accuracy}
+Because synthetic tasks, especially NiaH \cite{kamradt2023needle}, are commonly used in prior work, we add line-retrieval \cite{li2023how_line-retrieval}.
+%We find that the line-retrieval task \cite{li2023how_line-retrieval} is surprisingly good proxy for full end-to-end evaluations. 
+%We complement the end-to-end results on practical tasks with a synthetic task that allows faster evaluations. We use the line-retrieval task \cite{li2023how_line-retrieval}. 
+While similar to NiaH we find line-retrieval to be more informative. NiaH seems comparatively too easy, especially, when error accumulation across time is not taken into account.  See Appendix Sec.~\ref{sec:niah} for NiaH evaluations. We give comprehensive results on line-retrieval for various baselines and models, see Tab.~\ref{tab:kv_quant_results}. \methodname performs best overall. 
+
+\input{tables/line_retrieval_main}
+
+
+
+% \subsubsection{Correlation of Cheap Metrics to Reasoning Scores}
+% Finally, we evaluate the correlation of these various proxy metrics to gain some understanding 1) of how useful they are and 2) whether the pseudo-decode setting we introduced in Sec.~\ref{sec:err_acc} captures some of the error accumulation we care about. 
+
+\subsection{Runtime Overhead}
+In \methodname whenever a new chunk of KV-Cache is stored (e.g., every 128 tokens), it needs to be normalized with iterative variance-scaling. This raises the question: Does this online rescaling operation cause a significant overhead?
+
+To answer this question, we compare the time taken to generate 128 tokens to the time required for 8 iterations of variance-normalization in every attention layer in Qwen3-4B. The base-model is run through vLLM \cite{kwon2023efficientvLLM} at fp16. On the same hardware (a GPU with 500 TFLOP at fp16 and 1.8 TB/s memory bandwidth) the optimized vLLM token generation takes 1050 ms, while the proposed normalization takes 1.9 ms, see Fig.~\ref{fig:timing}. This is a 0.18\% measured overhead compared to standard methods like KIVI \cite{KIVI} for the quantization. For larger models the relative overhead decreases. 
+
+The dequantization operation with two scales instead of one as used in KVarN is known to cause a minor slow-down of about 1\% compared to RTN~\cite{muller2025sinq} (see Appendix Sec.~\ref{sec:kvarn_dequant}). Most prior methods have larger overhead during dequantization, e.g. for code-book look-ups or for handling mixed-precision. 
+
+% Secondly, in the same setup, we run an end-to-end vLLM measurement with Hadamard rotation and variance normalization. Also here we find a minor overhead of [TODO].
+
+% [TODO: Decode time cost]
+
+% \begin{figure}[ht]
+%     \centering
+%     % Subfigure 1
+%     \begin{subfigure}[b]{0.45\linewidth}
+%         \centering
+%         % \rule{0pt}{3cm} creates invisible height; \framebox draws the outline
+%         \framebox[\linewidth]{\rule{0pt}{3cm} Sinkhorn Plot}
+%         \caption{Sinkhorn normalization vs. end to end}
+%         \label{fig:timing_a}
+%     \end{subfigure}
+%     \hfill
+%     % Subfigure 2
+%     \begin{subfigure}[b]{0.45\linewidth}
+%         \centering
+%         \framebox[\linewidth]{\rule{0pt}{3cm} Comparison Plot}
+%         \caption{}
+%         \label{fig:timing_b}
+%     \end{subfigure}
+%     \caption{Speed measurement on GPU in the fast vLLM framework. The variance scaling Sinkhorn-normalization causes a very minor overhead.}
+%     \label{fig:timing}
+% \end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/kvarn_timing_bars.pdf}
+    \caption{Speed measurement on GPU in the fast vLLM framework. The variance-normalization causes a very minor overhead.}
+    \label{fig:timing}
+\end{figure}
+
+
+\section{Related Work}
+
+%\subsection{KV-Cache Compression}
+%In modern inference pipelines, the KV cache accelerates computation by reusing previously stored key and value tensors instead of recomputing them. However, its memory footprint increases proportionally with the context length. As applications grow in scale, this cache can rapidly become a major bottleneck during inference. To address this problem, several prior works have focused on compressing the KV cache by adopting different strategies, such as quantization, token eviction or token merging.
+\subsection{KV-Cache Quantization}
+Most closely related to our approach are works on KV cache quantization, which aim to reduce memory usage by converting full-precision keys and values to low-bit representations while preserving model performance. Early methods such as KIVI \cite{KIVI} observe that keys and values exhibit distinct statistical properties, and therefore propose treating them differently, quantizing keys per channel and values per token to better capture their variability. Building on this idea, KVQuant \cite{hooper2024kvquant} introduces non-uniform quantization combined with outlier-aware handling, retaining a small fraction of high-magnitude channels (around 1\%) in full precision to maintain accuracy.
+Other approaches like Kitty \cite{xia2025kitty} proposes a 2-bit quantization scheme augmented with channel-wise importance selection, where a subset of key channels (e.g., the top ~12\%) is stored at higher precision (4-bit). In a different direction, PolarQuant \cite{wu2026polarquant} represents keys in polar coordinates, quantizing radius and angle separately while applying more aggressive compression to values.
+
+Recently, TurboQuant \cite{zandieh2026turboquant} frames KV cache compression as a near-optimal vector quantization problem. It first applies a random rotation to the KV representations, redistributing information more uniformly across dimensions and making simple scalar quantization nearly optimal. Then it further refines the process through a lightweight residual correction based on a 1-bit quantized Johnson–Lindenstrauss transform to better preserve inner products. 
+
+Our approach builds primarily on KIVI \cite{KIVI}, where we identify the token scaling problem and address it with \methodname. We  find that MSE-optimal quantization is not optimal end-to-end, because outliers are of disproportionate importance. 
+
+
+\subsection{KV-Cache Compression with Eviction and/or Token-Merging}
+KV cache compression can be also achieved by deleting or merging tokens. Eviction operates by pruning KV cache entries from the prefill stage at token level. H2O \cite{NEURIPS2023_6ceefa7b_H2O} and Scissorhands \cite{NEURIPS2023_a452a7c6_scissorhands} use attention scores to estimate token importance, keeping entries that receive high attention from subsequent queries. SnapKV \cite{NEURIPS2024_28ab4182_SnapKV} and PyramidKV \cite{cai2025pyramidkv} refine the selection strategy by computing attention-based importance scores over KV pairs using queries from a trailing context window, incorporating future information into the eviction decision. 
+In contrast, KVZip \cite{kim2026kvzip} adopts a query-agnostic perspective by evaluating the importance of each entry based on its contribution to a reconstruction of the original context through a teacher-forced decoding task.
+
+Complementing the eviction-based approaches, token merging reduces the number of tokens by combining them into a smaller set of informative representation. Recent works, such as CaM: Cache Merging for Memory-efficient LLMs Inference \cite{zhang2024cam} applies a Bernoulli-based masking process to merge value states within the KV cache during long-sequence generation. The merging strategy applies uniformly across all layers, ignoring varying attention patterns across layers.
+D2O \cite{wan2025textdtexto_d2o} proposes a KV-cache-level merging strategy to overcome this. It dynamically allocates cache capacity across layers and adapts the merging process using an exponential moving average (EMA) threshold, reducing information loss and improving efficiency in autoregressive generation tasks.
+
+Token-merging and eviction are largely orthogonal to quantization and can be combined with it. However, for completeness we add comparisons to such methods in the Appendix, see Sec.~\ref{sec:evict}.
+
+%\subsubsection{KV-Cache Compression with Token-Merging}
+%In contrast to KV Cache compression with eviction, token merging reduces the number of tokens by combining them into a smaller set of informative representation, while retaining as much as the original information as possible. 
+%Recent works, such as CaM: Cache Merging for Memory-efficient LLMs Inference \cite{CaM} applies a Bernoulli-based masking process to merge value states within the KV cache during long-sequence generation. The merging strategy applies uniformly across all layers, ignoring the fact that attention patterns vary across layers.
+%D2O \cite{D2O} proposes a KV-cache-level merging strategy to overcome this limitation. It dynamically allocates cache capacity across layers and adapts the merging process using an exponential moving average (EMA) threshold, reducing information loss and improving efficiency in autoregressive generation tasks.
+
+\section{Conclusion}
+In this paper we have shown that under current KV-Cache quantization methods, end-to-end output degradation is driven by outlier errors that are brought about by incorrect token scaling. 
+We address this scaling with \methodname, which excels at suppressing error accumulation that occurs in long decoding tasks under KV-Cache quantization.
+With \methodname we achieve state-of-the-art quality on generative benchmarks including AIME24, MATH-500, HumanEval and IF-Eval, enabling near loss-less 2.3bit-per-element KV-Caches with a measured quantization latency overhead of $0.18\%$ over baseline.
+
+
+\bibliographystyle{plain} 
+\input{main.bbl}
+
+\newpage
+\appendix
+
+\section{Hadamard Transform Arrangement}
+The arragement of Hadamard transforms we use is similar to QuaRot \cite{ashkboos2024quarot}, see Fig.~\ref{fig:figure_att}. There are two absorbed transforms (that are merged with $W_V$ and $W_O$ respectively and do not need to be computed during inference) and two online transforms after the RoPE-embedding. The two online transforms are head-wise, i.e. seen on the full layer they are block-diagonal Hadamard transforms with a block-size equal to the head-size. The complexity of these online transforms is $O(N \log N)$, which is negligible compared to the linear layers next to them \cite{ashkboos2024quarot}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/figure_attn.pdf}
+    \caption{Arrangement of Hadamard transforms in an attention layer in our method.}
+    \label{fig:figure_att}
+\end{figure}
+
+
+\section{Full Token-Scale Distribution Error}
+
+We provide the full empirical joint distribution of per token $K$ magnitude before and after quantization in Fig.~\ref{fig:joint} using different ablations of our method. KVarN successfully contains the magnitudes to the diagonal. We see that Hadamard rotation and variance-normalization have different, complementary effects: Hadamard rotation squeezes the distribution close to the identity, but at very large and very small tokens performs much worse than variance normalization. Variance Normalization in contrast is especially effective at these extremes and in KVarN we clearly see the synergistic effect of both in \methodname.
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/per_token_norm_xy_Qwen_Qwen3-4B_ctx32768_B128_N2_b2.pdf}
+    \caption{Joint distribution of $K$ magnitude and quantized $K$ magnitude using different quantization methods. \methodname tightly controls token scales, while the baseline KIVI and ablations of our method have substantial off-diagonals.}
+    \label{fig:joint}
+\end{figure}
+
+\section{Outlier Contributions to MSE}
+In Fig.~\ref{fig:outlier_MSE} we show which error quantiles contribute how much to the total MSE of the model. This is best compared with Fig.~\ref{fig:outlier_impact}, where we show the same quantile contributions for end-to-end KL-divergence. Crucially, the 5\% largest errors cause a minority of the MSE, but a majority of the end-to-end KL-divergence. In this sense we can say that fixing outliers is disproportionally important. 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/topk_mse_bars_accumulated.pdf}
+    \caption{Plot to complement Fig.~\ref{fig:outlier_impact}. It shows much MSE remains, if we replace the largest top k\% errors with the high precision value.  Note that the top 5\% of entries contribute less to MSE than the bottom 95\%, but their end-to-end KL-divergence impact is greater than that of those bottom 95\%.}
+    \label{fig:outlier_MSE}
+\end{figure}
+
+\section{Experimental details}
+\label{sec:exp_details}
+
+\paragraph{Models.}
+We evaluate four models spanning different capability profiles and parameter scales: Qwen3-4B (\texttt{Qwen/Qwen3-4B}), Llama-3.1-8B-Instruct (\texttt{meta-llama/Llama-3.1-8B-Instruct}), Phi-4 (\texttt{microsoft/phi-4}), and Phi-4-reasoning-plus (\texttt{microsoft/Phi-4-reasoning-plus}). Qwen3-4B is evaluated on all tasks (with reasoning mode activated only for AIME 2024, MATH500 and HumanEval). \hbox{Phi-4} is used for IFEval and Line Retrieval only and Phi-4-reasoning-plus for AIME 2024, MATH-500, and HumanEval.
+
+\paragraph{Quantization.}
+All quantized runs use 2-bit KV cache compression with a fixed three-region layout: $S$ sink tokens in FP16 (preserving attention sink behavior), a 2-bit quantized body composed of groups of $G$ tokens each, and $R$ trailing tokens in FP16 corresponding to the most recently generated tokens, which have not yet accumulated enough context to form a full quantization group. We use a classical setting with $G{=}128$, $S{=}128$, $R{=}128$ throughout, except for IFEval where $S{=}32$. Methods that prescribe mixed-precision within groups, such as KVQuant~\citep{hooper2024kvquant}, PolarQuant~\citep{wu2026polarquant}, and TurboQuant~\citep{zandieh2026turboquant}, retain their original per-element precision allocation inside each group. In KVarN, auxiliary parameters (zeropoints and scales) are stored at 8-bit precision.
+
+
+\paragraph{Decoding.}
+We follow the recommended decoding parameters for each model. Qwen3-4B uses thinking mode for AIME 2024, MATH-500 and HumanEval (temp.\ 0.6, top-$p$ 0.95, top-$k$ 20) and non-thinking mode elsewhere (temp.\ 0.7, top-$p$ 0.8, top-$k$ 20). Llama-3.1-8B-Instruct uses temp.\ 0.6, top-$p$ 0.9. Phi-4 decodes greedily. Phi-4-reasoning-plus uses temp.\ 0.8, top-$p$ 0.95, top-$k$ 50 with the official model-card system prompt.
+
+\paragraph{IFEval.}
+Full \texttt{google/IFEval} benchmark~\citep{zhou2023instructionfollowingevaluationlargelanguage_ifeval} (541 prompts, \texttt{max\_new\_tokens=1280}).
+
+\paragraph{MATH-500 and AIME 2024.}
+MATH-500~\citep{lightman2024lets_math500} (500 problems, \texttt{max\_new\_tokens=8192}); answers extracted from \verb|\boxed{}|. AIME 2024~\citep{aime24} uses the 30 competition problems from \texttt{AI-MO/aimo-validation-aime}, with \texttt{max\_new\_tokens=16384} to accommodate extended chain-of-thought reasoning. Both benchmarks report Avg@3, averaged over 3 independent runs.
+
+
+\paragraph{HumanEval}
+Extended version of HumanEval~\citep{chen2021evaluating_humaneval} (164 problems, \texttt{max\_new\_tokens=16384}), graded by execution with a 30\,s timeout. We report Avg@3.
+
+\paragraph{Line Retrieval.}
+Following \cite{li2023how_line-retrieval}, we construct contexts of $L \in \{100, 200, 300, 400, 500, 600\}$ numbered lines, each holding a random 10-character alphanumeric code drawn uniformly from $\{\mathrm{A},\dots,\mathrm{Z}\} \cup \{0,\dots,9\}$. The model is asked to retrieve the code at a randomly chosen line. We use 100 samples per $L$ (\texttt{max\_new\_tokens}$=32$) and report exact-match accuracy. The prompt follows the template:
+
+\begin{quote}\small
+\texttt{Below is a list of numbered lines, each with a unique 10-character alphanumeric code.}\\
+\texttt{line 1: <$c_1$>}\\
+\texttt{line 2: <$c_2$>}\\
+\texttt{\ldots}\\[2pt]
+\texttt{What is the code on line $k$? Reply with only the 10-character code, nothing else.}
+\end{quote}
+
+The predicted answer is the last 10-character alphanumeric token found in the output.
+
+\paragraph{Needle-in-a-Haystack (NIAH).}
+We use the benchmark of \cite{kamradt2023needle} with Paul Graham essays as the haystack. The needle is inserted at depth $d \in \{0.1, \ldots, 0.9, 1\}$, where $d$ denotes the fractional position within the haystack, across context lengths spanning 10-100\% of Qwen3-4B's \num{32768}-token window (\num{3112} to \num{31129} tokens, yielding a $10{\times}10$ evaluation grid (\texttt{max\_new\_tokens=128}). The \textit{Static} setting uses the standard quantization protocol, while \textit{Accumulated} uses the pseudo-decode setting introduced in Figure~\ref{fig:pseudo-decode}. The prompt follows the template:
+
+\begin{quote}\small
+\textit{You are a helpful assistant. Read the following long passage carefully and remember its contents. I will quiz you about it at the end.}\\[2pt]
+\textit{<haystack with needle inserted at depth $d$>}\\[2pt]
+\textit{What is the best thing to do in San Francisco?}
+\end{quote}
+
+\noindent where the needle is the verbatim sentence: \emph{``The best thing to do in San Francisco is eat a sandwich and sit in Dolores Park on a sunny day''}~\citep{kamradt2023needle}. A response scores 10 if both \emph{sandwich} and \emph{Dolores} appear (case-insensitive), 5 if exactly one, and 0 otherwise.
+
+\paragraph{Baselines.}
+KVQuant~\citep{hooper2024kvquant} additionally retains 1\% of $K$ and $V$ channels in FP16. PolarQuant~\citep{wu2026polarquant} requires 4-bit precision for the key cache to yield meaningful results. TurboQuant~\citep{zandieh2026turboquant} is evaluated in a 3-bit K / 3-bit V configuration; as no official implementation is available, we use the community implementation merged into the vLLM framework~\citep{kwon2023efficientvLLM}\footnote{\url{https://github.com/vllm-project/vllm/pull/38479}}, in which the KV cache of the first and last two layers is left unquantized.
+
+\paragraph{Effective memory overhead.}
+All bits-per-element figures reported in the tables include auxiliary storage
+(scales and zero-points) in addition to the quantized values. For our method, $K$ and $V$ elements are stored at 2~bits with two FP8 scales (one of which absorbs the Sinkhorn normalisation scale into the RTN scale) and
+one FP16 zero-point per group of $G{=}128$ elements, giving $2.25$ bits/element.
+For KVQuant~\citep{hooper2024kvquant}, the original configuration applies 2-bit
+group quantization ($G{=}128$) with FP16 scale and zero-point, plus the top-1\%
+of channels retained in FP16, yielding $\approx\!2.4$ bits/element.
+For TurboQuant~\citep{zandieh2026turboquant}, the publicly available implementation leaves the KV cache of the first and last two transformer layers unquantized (FP16), making the effective overhead model-dependent; when a single figure is reported it is the average across all layers for that model.
+
+
+\section{Limitations}
+\label{sec:limitations}
+Some novel LLM architectures do not require a KV-Cache (e.g. state-space models SSMs \cite{somvanshi2025s4_mamba}). Our method is not suitable for such architectures. 
+
+Some recent models use train-time compression for the KV-Cache in the form of multi-head latent attention (MLA) \cite{liu2024deepseek}. As in other KV-Cache compression methods, it is unclear how such attention mechanisms affect quantization quality. 
+
+End-to-end evaluation on a publicly available serving framework is hindered by the fact that currently such frameworks do not support 2-bit KV-Caches.
+
+\section{Comparison with Eviction Methods}
+\label{sec:evict}
+
+In Tab.~\ref{tab:eviction}, we compare against KV cache eviction approaches such as SnapKV~\citep{NEURIPS2024_28ab4182_SnapKV}, PyramidKV~\citep{cai2025pyramidkv}, and KVZip~\citep{kim2026kvzip} on the Line Retrieval task with Llama-3.1-8B-Instruct. Unlike quantization, which compresses the KV cache uniformly across both prefill and generation, these methods apply compression only to the prompt cache and leave the generation cache untouched. This makes them orthogonal to quantization and explains why we restrict the comparison to this appendix. To match the effective memory footprint of our method ($2.3$ bits per element on average), we apply a $7\times$ compression ratio to the prompt cache.
+
+
+\input{tables/eviction_app}
+
+\section{NiaH: Needle-in-a-Haystack}
+\label{sec:niah}
+We also evaluate on the Needle-in-a-Haystack task~\citep{kamradt2023needle}. The \textit{Static} setting involves prefill only and thus no error accumulation, making the \textit{Accumulated} pseudo-decode setting (Section~\ref{sec:err_acc}) essential to assess retrieval quality under realistic decoding conditions. Further experimental details are provided in Appendix~\ref{sec:exp_details}. Crucially, the static version of NiaH that is commonly used for KV-Cache compression evaluation is clearly much easier than the accumulated version in pseudo-decode setting.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/niah.pdf}
+  \caption{Needle-in-a-Haystack on Qwen3-4B: KIVI vs. \methodname under
+  Static and Accumulated prefill. Cells are colored and hatched by
+  retrieval outcome (both keywords / one keyword / neither).}
+  \label{fig:niah}
+\end{figure*}
+
+%\section{Results with Standard Deviation}
+%\label{sec:results_std}
+%\input{tables/reasoning_appendix}
+%\input{tables/humaneval_appendix}
+
+
+\section{Variance Normalization Algorithm}
+\label{sec:sinq-alg}
+We perform the variance normalization on the $K$ and $V$ matrices using Alg.~\ref{alg:sinq}, adapted from \cite{muller2025sinq}.
+
+% \begin{algorithm}[t]
+% \small
+% \caption{A dampened Log-Space Sinkhorn-inspired Variance-Normalization. Iteratively normalize the variance of the rows and columns of the matrix to be quantized.}
+% \label{alg:sinq}
+% \begin{algorithmic}[1]
+% \Require $K$ or $V$ matrix $\mathbf{X} \in \mathbb{R}^{m \times n}$, Iterations $L$, Bits $b$, Step-Sizes $s_\text{min}, s_\text{max}$
+% \Ensure Variance-Normalized matrix $\mathbf{\hat{X}}$, Scales $\vec{s} \in \mathbb{R}^m, \vec{t} \in \mathbb{R}^n$
+
+% % Initialization
+% \State $\vec{\sigma}_{\text{row}} \gets \vec{\sigma}^{\text{row}}(\mathbf{X}) ; \quad \vec{\sigma}_{\text{col}} \gets \vec{\sigma}^{\text{col}}(\mathbf{X})$
+% \State $\tau \gets \min(\min(\vec{\sigma}_{\text{row}}), \min(\vec{\sigma}_{\text{col}}))$ \Comment{Target variance}
+% \State $\mathbf{u} \gets \vec{0}_m ; \quad \mathbf{v} \gets \vec{0}_n$ \Comment{Initialize log-scales}
+% \State $\theta^* \gets \{ \mathbf{u}, \mathbf{v} \}; \quad I_{\text{best}} \gets \infty$ \Comment{Track best solution}
+
+% \For{$l \gets 1$ to $L$}
+%     \State $\mathbf{\hat{X}} \gets (\mathbf{X} \oslash \exp(\mathbf{u})) \oslash \exp(\mathbf{v})$ \Comment{Apply current scales}
+    
+%     % Track best-so-far imbalance
+%     \State $I_{\text{curr}} \gets I(\mathbf{\hat{X}})$
+%     \If{$I_{\text{curr}} < I_{\text{best}}$}
+%         \State $I_{\text{best}} \gets I_{\text{curr}}; \quad \theta^* \gets \{ \mathbf{u}, \mathbf{v} \}$ \Comment{Snapshot best scales}
+%     \EndIf
+
+%     % Compute parallel damped updates in log-space
+%     \State $\vec{\delta}_{\text{col}} \gets \log \left( \text{clamp}(\vec{\sigma}^{\text{col}}(\mathbf{\hat{X}}) / \tau, ~s_\text{min}, ~s_\text{max}) \right)$
+%     \State $\vec{\delta}_{\text{row}} \gets \log \left( \text{clamp}(\vec{\sigma}^{\text{row}}(\mathbf{\hat{X}}) / \tau, ~s_\text{min}, ~s_\text{max}) \right)$%\footnote{the clamp function sets values in the first argument less than the second argument and greater than the third argument to those values respectively.}
+
+%     \State $\mathbf{v} \gets \mathbf{v} + \vec{\delta}_{\text{col}}$ \Comment{Update col log-scales}
+%     \State $\mathbf{u} \gets \mathbf{u} + \vec{\delta}_{\text{row}}$ \Comment{Update row log-scales}
+% \EndFor
+
+% % Final Recovery
+% \State $\vec{s}, \vec{t} \gets \exp(\mathbf{u}^*), \exp(\mathbf{v}^*)$ \Comment{Recover best linear scales}
+% \State $\mathbf{\hat{X}} \gets (\mathbf{X} \oslash \vec{s}) \oslash \vec{t}$
+
+% \State \Return $\mathbf{\hat{X}}, \vec{s}, \vec{t}$ 
+% \end{algorithmic}
+% \end{algorithm}
+
+\begin{algorithm}[t]
+\small
+\caption{VarN, Variance-Normalization by Alternating Log-Domain Dual-Scale Balancing}
+\label{alg:sinq}
+\begin{algorithmic}[1]
+\Require Batched tiles $\mathbf{T} \in \mathbb{R}^{N \times R \times C}$, Iterations $K$, Limits $c_\text{min}, c_\text{max}$
+\Ensure Balanced tiles $\mathbf{T}_{\text{bal}}$, Scales $\mathbf{S}_c \in \mathbb{R}^{N \times 1 \times C}, \mathbf{S}_r \in \mathbb{R}^{N \times R \times 1}$
+
+\Function{Imb}{$\mathbf{X}$}
+    \State $\vec{v}_c \gets \text{Var}_{\text{col}}(\mathbf{X}); \quad \vec{v}_r \gets \text{Var}_{\text{row}}(\mathbf{X})$ \Comment{Variances across dims 2 and 1}
+    \State \Return $\frac{\max(\vec{v}_c)}{\max(\min(\vec{v}_c), 10^{-8})} + \frac{\max(\vec{v}_r)}{\max(\min(\vec{v}_r), 10^{-8})}$
+\EndFunction
+\vspace{0.1cm}
+
+% Initialization
+\State $\mathbf{L}_c \gets \mathbf{0}_{N \times 1 \times C} ; \quad \mathbf{L}_r \gets \mathbf{0}_{N \times R \times 1}$ \Comment{Initialize log-scales}
+\State $\mathbf{C} \gets (\mathbf{T} \oslash \exp(\mathbf{L}_c)) \oslash \exp(\mathbf{L}_r)$ \Comment{Current normalized tiles}
+\State $I_{\text{best}} \gets \text{Imb}(\mathbf{C})$
+\State $\mathbf{S}_c^* \gets \exp(\mathbf{L}_c) ; \quad \mathbf{S}_r^* \gets \exp(\mathbf{L}_r)$ \Comment{Track best linear scales}
+
+\For{$k \gets 1$ to $K$}
+    % Column updates (alternating step 1)
+    \State $\mathbf{v}_{\text{col}} \gets \text{clamp}(\text{Var}_\text{row}(\mathbf{C}), c_\text{min}, c_\text{max})$
+    \State $\mathbf{L}_c \gets \text{clamp}(\mathbf{L}_c + 0.5 \cdot \log(\mathbf{v}_{\text{col}}), -0.3, 10.0)$
+    \State $\mathbf{C} \gets (\mathbf{T} \oslash \exp(\mathbf{L}_c)) \oslash \exp(\mathbf{L}_r)$
+    
+    % Row updates (alternating step 2)
+    \State $\mathbf{v}_{\text{row}} \gets \text{clamp}(\text{Var}_\text{col}(\mathbf{C}), c_\text{min}, c_\text{max})$
+    \State $\mathbf{L}_r \gets \text{clamp}(\mathbf{L}_r + 0.5 \cdot \log(\mathbf{v}_{\text{row}}), -0.3, 10.0)$
+    \State $\mathbf{C} \gets (\mathbf{T} \oslash \exp(\mathbf{L}_c)) \oslash \exp(\mathbf{L}_r)$
+    
+    % Check imbalance and snapshot
+    \State $I_{\text{curr}} \gets \text{Imb}(\mathbf{C})$
+    \For{$n \gets 1$ to $N$} \Comment{Batched conditional update over $N$ tiles}
+        \If{$I_{\text{curr}}[n] \leq I_{\text{best}}[n]$}
+            \State $I_{\text{best}}[n] \gets I_{\text{curr}}[n]$
+            \State $\mathbf{S}_c^*[n] \gets \exp(\mathbf{L}_c[n]) ; \quad \mathbf{S}_r^*[n] \gets \exp(\mathbf{L}_r[n])$
+        \EndIf
+    \EndFor
+\EndFor
+
+\State \Return $(\mathbf{T} \oslash \mathbf{S}_c^*) \oslash \mathbf{S}_r^*, ~ \mathbf{S}_c^*, ~ \mathbf{S}_r^*$ 
+\end{algorithmic}
+\end{algorithm}
+
+\section{KVarN Dequantization Overhead}
+\label{sec:kvarn_dequant}
+
+We measure the wall-clock cost of dequantizing a full layer of the
+quantized KV cache (16 attention heads, head dimension $128$, group size
+$128$) for context lengths $4$k-$32$k tokens. The KIVI baseline performs
+standard single-scale dequantization. KVarN additionally requires
+a per-row second scale $s_2$ from its dual scaling, which we fuse into
+the dequant kernel so that no extra HBM round-trip is incurred.
+
+Figure~\ref{fig:kvarn_dequant} reports the median time per call (multiple repeated runs) for both kernels, implemented in Triton on GPU.
+Across all context lengths the gap between KVarN and KIVI is at most
+$1.4\%$ and within measurement noise at $16$k and $32$k tokens. This
+shows that KVarN's dual scaling adds negligible runtime
+overhead over the single-scale baseline once $s_2$ is fused into the
+dequant kernel.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/kvarn_dequant}
+  \caption{Median dequantization time per call for KIVI (single scale)
+  vs.\ KVarN (dual scale, $s_2$ fused into the kernel) across context
+  lengths. Lower is better.}
+  \label{fig:kvarn_dequant}
+\end{figure}
+
+
+\section{Computational Cost of Experiments}
+\label{sec:computational_cost}
+The dominant share of compute cost is due to the experiments on MATH500, AIME24, HumanEval and IFEval. The total cost to reproduce these  are circa 50 GPU days on a GPU with 500 TFLOP at fp16 and 1.8 TB/s memory bandwidth.  
+
+
+
+
+\include{checklist}
+% \section{Furhter Results on ...}
+% \section{Ablation on \methodname ...}
+% \begin{abstract}
+%   The abstract paragraph should be indented \nicefrac{1}{2}~inch (3~picas) on both the left- and right-hand margins. Use 10~point type, with a vertical spacing (leading) of 11~points. The word \textbf{Abstract} must be centered, bold, and in point size 12. Two line spaces precede the abstract. The abstract must be limited to one paragraph.
+% \end{abstract}
+
+
+
+% \section{Submission of papers to NeurIPS 2026}
+
+
+% Please read the instructions below carefully and follow them faithfully.
+
+
+% \subsection{Style}
+
+
+% Papers to be submitted to NeurIPS 2026 must be prepared according to the
+% instructions presented here. Papers may only be up to {\bf nine} pages long, including figures. \textbf{Papers that exceed the page limit will not be reviewed (or in any other way considered) for presentation at the conference.}
+% Additional pages \emph{containing acknowledgments, references, checklist, and optional technical appendices} do not count as content pages. 
+
+
+% The margins in 2026 are the same as those in previous years.
+
+
+% Authors are required to use the NeurIPS \LaTeX{} style files obtainable at the NeurIPS website as indicated below. Please make sure you use the current files and not previous versions. Tweaking the style files may be grounds for desk rejection.
+
+
+% \subsection{Retrieval of style files}
+
+
+% The style files for NeurIPS and other conference information are available on the website at
+% \begin{center}
+%   \url{https://neurips.cc}.
+% \end{center}
+% % The file \verb+neurips_2026.pdf+ contains these instructions and illustrates the various formatting requirements your NeurIPS paper must satisfy.
+
+
+% The only supported style file for NeurIPS 2026 is \verb+neurips_2026.sty+, rewritten for \LaTeXe{}. \textbf{Previous style files for \LaTeX{} 2.09,  Microsoft Word, and RTF are no longer supported.}
+
+
+% The \LaTeX{} style file contains three optional arguments: 
+% \begin{itemize}
+% \item \verb+final+, which creates a camera-ready copy, 
+% \item \verb+preprint+, which creates a preprint for submission to, e.g., arXiv, \item \verb+nonatbib+, which will not load the \verb+natbib+ package for you in case of package clash.
+% \end{itemize}
+
+
+% \paragraph{Preprint option}
+% If you wish to post a preprint of your work online, e.g., on arXiv, using the NeurIPS style, please use the \verb+preprint+ option. This will create a nonanonymized version of your work with the text ``Preprint. Work in progress.'' in the footer. This version may be distributed as you see fit, as long as you do not say which conference it was submitted to. Please \textbf{do not} use the \verb+final+ option, which should \textbf{only} be used for papers accepted to NeurIPS.
+
+
+% At submission time, please omit the \verb+final+ and \verb+preprint+ options. This will anonymize your submission and add line numbers to aid review. Please do \emph{not} refer to these line numbers in your paper as they will be removed during generation of camera-ready copies.
+
+
+% The file \verb+neurips_2026.tex+ may be used as a ``shell'' for writing your paper. All you have to do is replace the author, title, abstract, and text of the paper with your own.
+
+
+% The formatting instructions contained in these style files are summarized in Sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
+
+
+% \section{General formatting instructions}
+% \label{gen_inst}
+
+
+% The text must be confined within a rectangle 5.5~inches (33~picas) wide and
+% 9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).  Use 10~point
+% type with a vertical spacing (leading) of 11~points.  Times New Roman is the
+% preferred typeface throughout, and will be selected for you by default.
+% Paragraphs are separated by \nicefrac{1}{2}~line space (5.5 points), with no
+% indentation.
+
+
+% The paper title should be 17~point, initial caps/lower case, bold, centered
+% between two horizontal rules. The top rule should be 4~points thick and the
+% bottom rule should be 1~point thick. Allow \nicefrac{1}{4}~inch space above and
+% below the title to rules. All pages should start at 1~inch (6~picas) from the
+% top of the page.
+
+
+% For the final version, authors' names are set in boldface, and each name is
+% centered above the corresponding address. The lead author's name is to be listed
+% first (left-most), and the co-authors' names (if different address) are set to
+% follow. If there is only one co-author, list both author and co-author side by
+% side.
+
+
+% Please pay special attention to the instructions in Section \ref{others}
+% regarding figures, tables, acknowledgments, and references.
+
+% \section{Headings: first level}
+% \label{headings}
+
+
+% All headings should be lower case (except for first word and proper nouns),
+% flush left, and bold.
+
+
+% First-level headings should be in 12-point type.
+
+
+% \subsection{Headings: second level}
+
+
+% Second-level headings should be in 10-point type.
+
+
+% \subsubsection{Headings: third level}
+
+
+% Third-level headings should be in 10-point type.
+
+
+% \paragraph{Paragraphs}
+
+
+% There is also a \verb+\paragraph+ command available, which sets the heading in
+% bold, flush left, and inline with the text, with the heading followed by 1\,em
+% of space.
+
+
+% \section{Citations, figures, tables, references}
+% \label{others}
+
+
+% These instructions apply to everyone.
+
+
+% \subsection{Citations within the text}
+
+
+% The \verb+natbib+ package will be loaded for you by default.  Citations may be
+% author/year or numeric, as long as you maintain internal consistency.  As to the
+% format of the references themselves, any style is acceptable as long as it is
+% used consistently.
+
+
+% The documentation for \verb+natbib+ may be found at
+% \begin{center}
+%   \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
+% \end{center}
+% Of note is the command \verb+\citet+, which produces citations appropriate for
+% use in inline text.  For example,
+% \begin{verbatim}
+%    \citet{hasselmo} investigated\dots
+% \end{verbatim}
+% produces
+% \begin{quote}
+%   Hasselmo, et al.\ (1995) investigated\dots
+% \end{quote}
+
+
+% If you wish to load the \verb+natbib+ package with options, you may add the
+% following before loading the \verb+neurips_2026+ package:
+% \begin{verbatim}
+%    \PassOptionsToPackage{options}{natbib}
+% \end{verbatim}
+
+
+% If \verb+natbib+ clashes with another package you load, you can add the optional
+% argument \verb+nonatbib+ when loading the style file:
+% \begin{verbatim}
+%    \usepackage[nonatbib]{neurips_2026}
+% \end{verbatim}
+
+
+% As submission is double blind, refer to your own published work in the third
+% person. That is, use ``In the previous work of Jones et al.\ [4],'' not ``In our
+% previous work [4].'' If you cite your other papers that are not widely available
+% (e.g., a journal paper under review), use anonymous author names in the
+% citation, e.g., an author of the form ``A.\ Anonymous'' and include a copy of the anonymized paper in the supplementary material.
+
+
+% \subsection{Footnotes}
+
+
+% Footnotes should be used sparingly.  If you do require a footnote, indicate
+% footnotes with a number\footnote{Sample of the first footnote.} in the
+% text. Place the footnotes at the bottom of the page on which they appear.
+% Precede the footnote with a horizontal rule of 2~inches (12~picas).
+
+
+% Note that footnotes are properly typeset \emph{after} punctuation
+% marks.\footnote{As in this example.}
+
+
+% \subsection{Figures}
+
+
+% \begin{figure}
+%   \centering
+%   \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+%   \caption{Sample figure caption. Explain what the figure shows and add a key take-away message to the caption.}
+% \end{figure}
+
+
+% All artwork must be neat, clean, and legible. Lines should be dark enough for
+%  reproduction purposes. The figure number and caption always appear after the
+% figure. Place one line space before the figure caption and one line space after
+% the figure. The figure caption should be lower case (except for the first word and proper nouns); figures are numbered consecutively.
+
+
+% You may use color figures.  However, it is best for the figure captions and the
+% paper body to be legible if the paper is printed in either black/white or in
+% color.
+
+
+% \subsection{Tables}
+
+
+% All tables must be centered, neat, clean, and legible.  The table number and
+% title always appear before the table.  See Table~\ref{sample-table}.
+
+
+% Place one line space before the table title, one line space after the
+% table title, and one line space after the table. The table title must
+% be lower case (except for the first word and proper nouns); tables are
+% numbered consecutively.
+
+
+% Note that publication-quality tables \emph{do not contain vertical rules}. We
+% strongly suggest the use of the \verb+booktabs+ package, which allows for
+% typesetting high-quality, professional tables:
+% \begin{center}
+%   \url{https://www.ctan.org/pkg/booktabs}
+% \end{center}
+% This package was used to typeset Table~\ref{sample-table}.
+
+
+% \begin{table}
+%   \caption{Sample table caption. Explain what the table shows and add a key take-away message to the caption.}
+%   \label{sample-table}
+%   \centering
+%   \begin{tabular}{lll}
+%     \toprule
+%     \multicolumn{2}{c}{Part}                   \\
+%     \cmidrule(r){1-2}
+%     Name     & Description     & Size ($\mu$m) \\
+%     \midrule
+%     Dendrite & Input terminal  & $\approx$100     \\
+%     Axon     & Output terminal & $\approx$10      \\
+%     Soma     & Cell body       & up to $10^6$  \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% \subsection{Math}
+% Note that display math in bare TeX commands will not create correct line numbers for submission. Please use LaTeX (or AMSTeX) commands for unnumbered display math. (You really shouldn't be using \$\$ anyway; see \url{https://tex.stackexchange.com/questions/503/why-is-preferable-to} and \url{https://tex.stackexchange.com/questions/40492/what-are-the-differences-between-align-equation-and-displaymath} for more information.)
+
+% \subsection{Final instructions}
+
+% Do not change any aspects of the formatting parameters in the style files.  In
+% particular, do not modify the width or length of the rectangle the text should
+% fit into, and do not change font sizes. Please note that pages should be
+% numbered.
+
+
+% \section{Preparing PDF files}
+
+
+% Please prepare submission files with paper size ``US Letter,'' and not, for
+% example, ``A4.''
+
+
+% Fonts were the main cause of problems in the past years. Your PDF file must only
+% contain Type 1 or Embedded TrueType fonts. Here are a few instructions to
+% achieve this.
+
+
+% \begin{itemize}
+
+
+% \item You should directly generate PDF files using \verb+pdflatex+.
+
+
+% \item You can check which fonts a PDF files uses.  In Acrobat Reader, select the
+%   menu Files$>$Document Properties$>$Fonts and select Show All Fonts. You can
+%   also use the program \verb+pdffonts+ which comes with \verb+xpdf+ and is
+%   available out-of-the-box on most Linux machines.
+
+
+% \item \verb+xfig+ ``patterned'' shapes are implemented with bitmap fonts.  Use
+%   "solid" shapes instead.
+
+
+% \item The \verb+\bbold+ package almost always uses bitmap fonts.  You should use
+%   the equivalent AMS Fonts:
+% \begin{verbatim}
+%    \usepackage{amsfonts}
+% \end{verbatim}
+% followed by, e.g., \verb+\mathbb{R}+, \verb+\mathbb{N}+, or \verb+\mathbb{C}+
+% for $\mathbb{R}$, $\mathbb{N}$ or $\mathbb{C}$.  You can also use the following
+% workaround for reals, natural and complex:
+% \begin{verbatim}
+%    \newcommand{\RR}{I\!\!R} %real numbers
+%    \newcommand{\Nat}{I\!\!N} %natural numbers
+%    \newcommand{\CC}{I\!\!\!\!C} %complex numbers
+% \end{verbatim}
+% Note that \verb+amsfonts+ is automatically loaded by the \verb+amssymb+ package.
+
+
+% \end{itemize}
+
+
+% If your file contains type 3 fonts or non embedded TrueType fonts, we will ask
+% you to fix it.
+
+
+% \subsection{Margins in \LaTeX{}}
+
+
+% Most of the margin problems come from figures positioned by hand using
+% \verb+\special+ or other commands. We suggest using the command
+% \verb+\includegraphics+ from the \verb+graphicx+ package. Always specify the
+% figure width as a multiple of the line width as in the example below:
+% \begin{verbatim}
+%    \usepackage[pdftex]{graphicx} ...
+%    \includegraphics[width=0.8\linewidth]{myfile.pdf}
+% \end{verbatim}
+% See Section 4.4 in the graphics bundle documentation
+% (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
+
+
+% A number of width problems arise when \LaTeX{} cannot properly hyphenate a
+% line. Please give LaTeX hyphenation hints using the \verb+\-+ command when
+% necessary.
+
+% \begin{ack}
+% Use unnumbered first level headings for the acknowledgments. All acknowledgments
+% go at the end of the paper before the list of references. Moreover, you are required to declare
+% funding (financial activities supporting the submitted work) and competing interests (related financial activities outside the submitted work).
+% More information about this disclosure can be found at: \url{https://neurips.cc/Conferences/2026/PaperInformation/FundingDisclosure}.
+
+
+% Do {\bf not} include this section in the anonymized submission, only in the final paper. You can use the \texttt{ack} environment provided in the style file to automatically hide this section in the anonymized submission.
+% \end{ack}
+
+% \section*{References}
+
+
+% References follow the acknowledgments in the camera-ready paper. Use unnumbered first-level heading for
+% the references. Any choice of citation style is acceptable as long as you are
+% consistent. It is permissible to reduce the font size to \verb+small+ (9 point)
+% when listing the references.
+% Note that the Reference section does not count towards the page limit.
+% \medskip
+
+
+% {
+% \small
+
+
+% [1] Alexander, J.A.\ \& Mozer, M.C.\ (1995) Template-based algorithms for
+% connectionist rule extraction. In G.\ Tesauro, D.S.\ Touretzky and T.K.\ Leen
+% (eds.), {\it Advances in Neural Information Processing Systems 7},
+% pp.\ 609--616. Cambridge, MA: MIT Press.
+
+
+% [2] Bower, J.M.\ \& Beeman, D.\ (1995) {\it The Book of GENESIS: Exploring
+%   Realistic Neural Models with the GEneral NEural SImulation System.}  New York:
+% TELOS/Springer--Verlag.
+
+
+% [3] Hasselmo, M.E., Schnell, E.\ \& Barkai, E.\ (1995) Dynamics of learning and
+% recall at excitatory recurrent synapses and cholinergic modulation in rat
+% hippocampal region CA3. {\it Journal of Neuroscience} {\bf 15}(7):5249-5262.
+% }
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \appendix
+
+% \section{Technical appendices and supplementary material}
+% Technical appendices with additional results, figures, graphs, and proofs may be submitted with the paper submission before the full submission deadline (see above). You can upload a ZIP file for videos or code, but do not upload a separate PDF file for the appendix. There is no page limit for the technical appendices. 
+
+% Note: Think of the appendix as ``optional reading'' for reviewers. The paper must be able to stand alone without the appendix; for example, adding critical experiments that support the main claims to an appendix is inappropriate. 
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newpage
+% \input{checklist.tex}
+
+
+\end{document}

@@ -1,0 +1,69 @@
+\begin{tikzpicture}
+\definecolor{OCCcolor}{HTML}{3B877B}
+\definecolor{QwenColor}{HTML}{5E00BD}
+\definecolor{GammaColor}{HTML}{5C75D6}   % Gemma
+\definecolor{SmolColor}{HTML}{FDDD00}
+\definecolor{fillColor}{HTML}{D8F1ED}
+\definecolor{lineColor}{HTML}{7BC8A4}
+\begin{axis}[
+    % Linear mapping: original size -> x coordinate
+    % 0->0, 0.6->1, 1->2, 2->3, 4->4, 8->5, 14->6, 27->7, 32->7.5
+    xmin=0, xmax=9,
+    title style={font=\bfseries},
+    xtick={0,1,2,3,4,5,6,7,8},
+    xticklabels={0, 0.6, 1, 2, 4, 8, 14, 27, 32, 36},
+    ymin=30, ymax=80,
+    ytick={30,40,50,60,70,80},
+    ylabel={Average score (\%)},
+    xlabel={Model size (B)},
+    axis lines=left,
+    tick label style={font=\small},
+    label style={font=\small},
+    width=12cm, height=8cm,
+    clip=false
+]
+
+% Line from (0,53) to (5,80)   [original: (0,53) to (8,80)]
+\addplot[name path = line, thick, color=lineColor, domain=0:5, samples=2]
+    {53 + (80-53)/5 * x};
+
+% Top boundary at y=80 from x=0 to x=5
+\addplot[name path = top, draw=none, domain=0:5, samples=2] {80};
+
+% Fill area between the line and the top boundary
+\addplot[fillColor] fill between[of = line and top, soft clip={domain=0:7}];
+
+% Helper macro: place image + label
+\newcommand{\addmodel}[5]{% x_mapped, y, image, label, color
+    \node[inner sep=0] at (axis cs:#1,#2) {\includegraphics[width=0.4cm,height=0.4cm]{#3}};
+    \node[font=\tiny\bfseries, anchor=west, color=#5] at (axis cs:#1+0.1,#2) {#4};
+}
+
+\newcommand{\addocc}[5]{% x_mapped, y, image, label, color
+    \node[inner sep=0] at (axis cs:#1,#2) {\includegraphics[width=0.4cm,height=0.4cm]{#3}};
+    \node[font=\tiny\bfseries, anchor=north, color=#5] at (axis cs:#1,#2+4.5) {#4};
+}
+
+% OCC models
+\addocc{1}{67.2}{images/occ.png}{OCC-RAG-0.6B}{OCCcolor}
+\addocc{2.7}{69.74}{images/occ.png}{OCC-RAG-1.7B}{OCCcolor}  % 1.7B → between 2 and 3: 2.7
+
+% Qwen models
+\addmodel{1}{51.8}{images/qwen.png}{Qwen3-0.6B}{QwenColor}
+\addmodel{2.7}{63.8}{images/qwen.png}{Qwen3-1.7B}{QwenColor}
+\addmodel{4}{69}{images/qwen.png}{Qwen3-4B}{QwenColor}
+\addmodel{5}{71.8}{images/qwen.png}{Qwen3-8B}{QwenColor}
+\addmodel{6.3}{72.2}{images/qwen.png}{Qwen3-14B}{QwenColor}
+\addmodel{7.7}{72}{images/qwen.png}{Qwen3-32B}{QwenColor}   % 32B → 7.5
+
+% SmolLM3-3B (3B → between 2 (x=3) and 4 (x=4): 3.5)
+\addmodel{3.5}{58.6}{images/hf.png}{SmolLM3-3B}{SmolColor}
+
+% Gemma models
+\addmodel{2}{32.3}{images/gemma.png}{Gemma3-1B}{GammaColor}     % 1B -> x=2
+\addmodel{4}{55.36}{images/gemma.png}{Gemma3-4B}{GammaColor}
+\addmodel{5.6667}{64.98}{images/gemma.png}{Gemma3-12B}{GammaColor} % 12B → 5 + (12-8)/(14-8)=5.6667
+\addmodel{7}{68.02}{images/gemma.png}{Gemma3-27B}{GammaColor}   % 27B -> x=7
+
+\end{axis}
+\end{tikzpicture}

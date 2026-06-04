@@ -1,0 +1,29 @@
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Hyperparameter} & \textbf{OCC-RAG-0.6B} & \textbf{OCC-RAG-1.7B} \\
+\midrule
+Base model              & Qwen3-0.6B-Base   & Qwen3-1.7B-Base   \\
+Optimizer               & AdamW             & AdamW             \\
+Peak learning rate      & $1\times10^{-4}$  & $1\times10^{-4}$  \\
+LR schedule             & cosine            & cosine            \\
+Warmup ratio            & $0.03$            & $0.03$            \\
+Weight decay            & $0.01$            & $0.01$            \\
+Mixed precision         & bf16              & bf16              \\
+Max sequence length     & $6{,}144$         & $6{,}144$         \\
+Epochs                  & $1$               & $1$               \\
+Per-device batch size   & $32$              & $16$              \\
+Number of GPUs          & $8$               & $8$               \\
+Global batch size       & $256$             & $128$             \\
+Distributed strategy    & FSDP              & FSDP              \\
+Memory-saving kernel    & Liger fused linear CE & Liger fused linear CE \\
+Total training tokens   & $9\times10^9$     & $9\times10^9$               \\
+Wall-clock training time (hours) & $17$              & $28$               \\
+GPU type                & NVIDIA H100 (80~GB) & NVIDIA H100 (80~GB)               \\
+\bottomrule
+\end{tabular}
+\caption{Mid-training hyperparameters for the released OCC-RAG checkpoints.}
+\label{tab:training-hyperparameters}
+\end{table}
