@@ -38,6 +38,7 @@ export LLMXIVE_REAL_TESTS=1
 | B4 | **Determinism across rounds** — verify in round 1, rephrase in round 2..3 (US2 §1, SC-003) | same frozen value; zero re-resolutions; cache hit by subject_key | `pytest tests/integration/test_paper_stage_freeze.py::test_rephrase_no_waffle -q` |
 | B5 | **Cross-run persistence** — re-run from a clean checkout (US2 §3, SC-004) | frozen value read from `state/claims/` with zero cold re-resolutions | `pytest tests/integration/test_paper_stage_freeze.py::test_cross_run_frozen -q` |
 | B6 | **Paper / no-regress constants + entity facts** (SC-005) | pi≈3.14159, "capital of France = Paris" still verify | `pytest tests/integration/test_paper_stage_freeze.py::test_constants_and_entities -q` |
+| B7 | **Planning / prevention** — generate a fresh planning doc (US3 §1) | Success Criteria / Technical Context carry reference anchors; the low-level detector finds zero non-citation claims (no pre-asserted specific values) | `pytest tests/integration/test_planning_doc_scope.py -q` |
 
 ## C. PROJ-552 regression (SC-006)
 

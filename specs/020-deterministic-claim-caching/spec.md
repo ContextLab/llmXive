@@ -88,7 +88,7 @@ The specify / clarify / plan / tasks agents and templates instruct the producing
 ### Functional Requirements — Part A: planning = references-only
 
 - **FR-001**: The system MUST distinguish *planning* stages (specify, clarify, plan, tasks) from *paper/research/implementation* stages when running the claim layer, via an explicit signal threaded to the claim layer (not a global, stage-blind setting).
-- **FR-002**: In a planning stage, the claim layer MUST NOT fetch, fill, ground, or verify low-level claim kinds (numeric, magnitude, relational, causal, entity-fact): no external fetch, no LLM locator call, no grounding call.
+- **FR-002**: In a planning stage, the claim layer MUST NOT fetch, fill, ground, or verify low-level claim kinds — i.e. **all non-citation kinds** (numeric, magnitude, relational, causal, entity-fact, result): no external fetch, no LLM locator call, no grounding call. (Citation is the only kind verified in planning; this makes the stage strictly references-only, consistent with US1.)
 - **FR-002a**: In a planning stage, a detected low-level claim MUST be **replaced with a higher-level statement** that preserves the surrounding intent without asserting the specific unverified value — so no unverified/false low-level value remains in the document. The replacement is produced by an **LLM rewrite**; the claim detector MUST be **re-run on the rewritten passage to confirm it contains no low-level claim**, and if any remains a **deterministic fallback** (removing the asserting clause) MUST be applied so the result is always claim-free.
 - **FR-002b**: The strip/smooth transform MUST be **idempotent/stable**: because the rewritten passage is guaranteed claim-free (FR-002a), subsequent convergence rounds detect nothing to re-process and MUST NOT rewrite it again (no new waffling). Re-running the transform on already-smoothed text MUST be a no-op.
 - **FR-002c**: The strip/smooth MUST alter ONLY the specific low-level assertion; it MUST NOT remove or modify references (citations), the research question, the method, or other non-claim content.
@@ -116,7 +116,7 @@ The specify / clarify / plan / tasks agents and templates instruct the producing
 ### Key Entities
 
 - **Claim**: a detected assertion with a kind (reference vs. low-level), a value-independent subject identity, a status (pending / verified / unresolved), a verified value, and the source identity (hash) it was verified against.
-- **Claim kind**: the taxonomy separating **reference/citation** claims (resolvability-checked) from **low-level** claims (numeric, magnitude, relational, causal, entity-fact).
+- **Claim kind**: the taxonomy separating **reference/citation** claims (resolvability-checked) from **low-level** claims (all non-citation kinds: numeric, magnitude, relational, causal, entity-fact, result).
 - **Verified store**: the persisted, frozen mapping from value-independent identity → verified value + evidence + source hash; immutable once verified; survives across runs.
 - **Placeholder**: the durable token standing in for a verified claim in the canonical document; resolved to a value only in the rendered view.
 - **Stage class**: planning (specify/clarify/tasks/plan) vs. paper/research/implementation — selects references-only-plus-strip/smooth vs. full verification.
