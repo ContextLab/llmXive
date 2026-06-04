@@ -9908,7 +9908,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T10:20:00.187937+00:00",
+  "generated_at": "2026-06-04T10:24:22.373859+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -86064,7 +86064,7 @@
         "data": null,
         "idea": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/idea/https-arxiv-org-abs-2606-03458.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
         "paper_spec": null,
@@ -86086,10 +86086,10 @@
       },
       "created_at": "2026-06-04T09:21:53.148575+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
-        "repo_path": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-657-https-arxiv-org-abs-2606-03458/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.03458 Submitted by: github-actions[bot] (Intake from human-submission issue #274.)",
@@ -86126,7 +86126,7 @@
         "data": null,
         "idea": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/idea/humanoid-gpt-scaling-data-and-structure.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/pdf/2606.03985.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
         "paper_spec": null,
@@ -86253,10 +86253,10 @@
       },
       "created_at": "2026-06-04T09:22:00.128554+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
-        "repo_path": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/pdf/2606.03985.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/pdf/2606.03985.pdf",
+        "repo_path": "projects/PROJ-658-humanoid-gpt-scaling-data-and-structure/paper/pdf/2606.03985.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "We introduce Humanoid-GPT, a GPT-style Transformer with causal attention trained on a billion-scale motion corpus for whole-body control. Unlike prior shallow MLP trackers constrained by scarce data and an agility-generalization trade-off, Humanoid-GPT is pre-trained on a 2B-frame retargeted corpus that unifies all\u2026",
@@ -86293,7 +86293,7 @@
         "data": null,
         "idea": "projects/PROJ-659-trust-region-on-policy-distillation/idea/trust-region-on-policy-distillation.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-659-trust-region-on-policy-distillation/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
         "paper_spec": null,
@@ -86356,10 +86356,10 @@
       },
       "created_at": "2026-06-04T09:22:17.540015+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
-        "repo_path": "projects/PROJ-659-trust-region-on-policy-distillation/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-659-trust-region-on-policy-distillation/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-659-trust-region-on-policy-distillation/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-659-trust-region-on-policy-distillation/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "On-Policy Distillation (OPD) is a fundamental technique for efficient post-training of large language models (LLMs), with broad applications in agent learning, multi-task enhancement, and model compression. However, OPD training becomes unstable when the teacher and student distributions differ substantially, as\u2026",
@@ -86396,7 +86396,7 @@
         "data": null,
         "idea": "projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-660-https-arxiv-org-abs-2605-23895/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -86418,10 +86418,10 @@
       },
       "created_at": "2026-06-04T09:22:19.827616+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
-        "repo_path": "projects/PROJ-660-https-arxiv-org-abs-2605-23895/idea/https-arxiv-org-abs-2605-23895.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-660-https-arxiv-org-abs-2605-23895/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-660-https-arxiv-org-abs-2605-23895/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2605.23895 Submitted by: github-actions[bot] (Intake from human-submission issue #271.)",
@@ -86458,7 +86458,7 @@
         "data": null,
         "idea": "projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-661-https-arxiv-org-abs-2606-00683/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -86480,10 +86480,10 @@
       },
       "created_at": "2026-06-04T09:22:38.079964+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
-        "repo_path": "projects/PROJ-661-https-arxiv-org-abs-2606-00683/idea/https-arxiv-org-abs-2606-00683.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-661-https-arxiv-org-abs-2606-00683/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-661-https-arxiv-org-abs-2606-00683/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.00683 Submitted by: github-actions[bot] (Intake from human-submission issue #270.)",
