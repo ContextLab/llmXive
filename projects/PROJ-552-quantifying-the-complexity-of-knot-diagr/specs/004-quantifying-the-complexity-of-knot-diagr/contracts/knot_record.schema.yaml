@@ -1,66 +1,78 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "KnotRecord Schema"
-description: "Schema for individual knot records in the knot complexity analysis dataset"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: KnotRecord
+description: "Schema for individual knot records with computed invariants (canonical version)"
+type: object
 required:
- - "knot_id"
- - "crossing_number"
- - "braid_index"
- - "data_source"
- - "checksum"
+ - knot_id
+ - crossing_number
+ - data_source
+ - checksum
+ - created_at
+ - alternating_classification
 properties:
  knot_id:
- type: "string"
- description: "Unique identifier for the knot (e.g., \"3_1\", \"4_1\")"
+ type: string
+ description: "Unique identifier (e.g., \"3_1\", \"4_1\")"
  pattern: "^[0-9]+_[0-9]+$"
  crossing_number:
- type: "integer"
- minimum: 1
- maximum: 13
- description: "Tabulated crossing number (minimal crossing count)"
+ type: integer
+ description: "Minimum number of crossings in any diagram"
+ minimum: 3
  braid_index:
- type: "integer"
+ type: integer
+ description: "Minimum number of strands in braid representation"
  minimum: 1
- description: "Braid index from algorithmic determination or tabulated value"
+ nullable: true
  arc_index:
- type: ["integer", "null"]
- minimum: 1
- description: "Computed via Birman-Menasco method; null if not computable"
+ type: integer
+ description: "Computed via Birman-Menasco algorithm"
+ nullable: true
  seifert_circle_count:
- type: ["integer", "null"]
- minimum: 1
- description: "Computed via Seifert's algorithm; null if not computable"
+ type: integer
+ description: "Computed via Seifert's algorithm"
+ nullable: true
  bridge_number:
- type: ["integer", "null"]
- minimum: 1
- description: "Computed via Schubert's decomposition; null if not computable"
- is_alternating:
- type: ["boolean", "null"]
- description: "Alternating classification; null if ambiguous/missing"
- hyperbolic_volume:
- type: ["number", "null"]
- minimum: 0
- description: "Hyperbolic volume; null for torus/satellite knots (volume zero or undefined)"
- dt_code:
- type: ["string", "null"]
- description: "Dowker-Thistlethwaite code representation"
- braid_word:
- type: ["string", "null"]
- description: "Braid word representation"
- missing_invariant_flags:
- type: "array"
- items:
- type: "string"
+ type: integer
+ description: "Computed via Schubert's bridge decomposition"
+ nullable: true
+ alternating_classification:
+ type: string
+ description: "Alternating classification status"
  enum:
- - "arc_index"
- - "seifert_circle_count"
- - "bridge_number"
+ - "alternating"
+ - "non-alternating"
+ - "unclassifiable"
+ hyperbolic_volume:
+ type: number
+ description: "Geometric volume (zero/undefined for torus/satellite)"
+ nullable: true
+ diagram_representation:
+ type: string
+ description: "DT code or braid word representation"
+ nullable: true
+ missing_invariant_flags:
+ type: array
  description: "List of invariants that could not be computed"
+ items:
+ type: string
+ default: []
  data_source:
- type: "string"
+ type: string
  description: "Source of data (e.g., \"knot_atlas\")"
+ enum:
+ - "knot_atlas"
+ - "knot_info"
+ - "computed"
  checksum:
- type: "string"
+ type: string
+ description: "SHA-256 checksum of raw record"
  pattern: "^[a-f0-9]{64}$"
- description: "SHA-256 checksum of record data"
+ created_at:
+ type: string
+ description: "Record creation timestamp"
+ format: date-time
+ missing_invariant_flags_reason:
+ type: string
+ description: "Reason for missing invariant flags if any"
+ nullable: true
 additionalProperties: false

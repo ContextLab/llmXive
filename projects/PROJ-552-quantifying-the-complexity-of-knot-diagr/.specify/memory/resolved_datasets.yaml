@@ -1,26 +1,26 @@
-resolved_at: '2026-06-02T21:28:34.451895+00:00'
+resolved_at: '2026-06-04T03:46:12.778972+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568
+  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Artificial_Intelligence-Driven_Janus_Dressing_for_Visual_Wound_Theranostics/32560554
+  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Insights_from_the_Convolution_of_Emission_Inventories_with_Flux_Footprints_from_Tall_Eddy_Covariance_Towers_at_Three_European_Cities/32560551
+  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Fractional_Moore-Gibson-Thompson_Boundary_Element_Modeling_of_a_Non-Local_Photothermal_MEMS_Bio-Resonator_on_a_Viscoelastic_Pasternak_Foundation_b_p_/32560539
+  - url: https://figshare.com/articles/thesis/_b_The_Mathematical_Structure_of_Rotational_Difficulty_in_Human_Movement_b_/32574108
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Estudo_de_caso_no_Ex_rcito_Brasileiro/32248026
+  - url: https://opal.latrobe.edu.au/articles/thesis/A_Mixed-Methods_Investigation_of_Polyculturalism_and_Polycultural_Identity_in_Super-Diverse_Australia/32441211
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568
+  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Artificial_Intelligence-Driven_Janus_Dressing_for_Visual_Wound_Theranostics/32560554
+  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Insights_from_the_Convolution_of_Emission_Inventories_with_Flux_Footprints_from_Tall_Eddy_Covariance_Towers_at_Three_European_Cities/32560551
+  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Fractional_Moore-Gibson-Thompson_Boundary_Element_Modeling_of_a_Non-Local_Photothermal_MEMS_Bio-Resonator_on_a_Viscoelastic_Pasternak_Foundation_b_p_/32560539
+  - url: https://figshare.com/articles/thesis/_b_The_Mathematical_Structure_of_Rotational_Difficulty_in_Human_Movement_b_/32574108
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Estudo_de_caso_no_Ex_rcito_Brasileiro/32248026
+  - url: https://opal.latrobe.edu.au/articles/thesis/A_Mixed-Methods_Investigation_of_Polyculturalism_and_Polycultural_Identity_in_Super-Diverse_Australia/32441211
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -52,11 +52,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5604159
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604171
+  - url: https://zenodo.org/records/5604137
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -64,15 +68,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5603470
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
@@ -126,23 +126,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568
+  - url: https://figshare.com/articles/dataset/Filtered_OTU_table_from_16S_rRNA_sequencing_of_Duttaphrynus_melanostictus_gut_microbiota/32574063
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Artificial_Intelligence-Driven_Janus_Dressing_for_Visual_Wound_Theranostics/32560554
+  - url: https://figshare.com/articles/dataset/The_dataset_contains_sample_metadata_mitochondrial_genome_sequences_phylogenetic_trees_and_species_morphology_figures_associated_with_the_published_study_/32573976
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Insights_from_the_Convolution_of_Emission_Inventories_with_Flux_Footprints_from_Tall_Eddy_Covariance_Towers_at_Three_European_Cities/32560551
+  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Fractional_Moore-Gibson-Thompson_Boundary_Element_Modeling_of_a_Non-Local_Photothermal_MEMS_Bio-Resonator_on_a_Viscoelastic_Pasternak_Foundation_b_p_/32560539
+  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Estudo_de_caso_no_Ex_rcito_Brasileiro/32248026
+  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -154,11 +154,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -166,23 +166,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20517204
+  - url: https://arxiv.org/abs/2606.03660
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20517204
+  - url: https://arxiv.org/abs/2606.03606
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20517166
+  - url: https://arxiv.org/abs/2606.02403
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20517166
+  - url: https://arxiv.org/abs/2606.01979
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20516883
+  - url: https://arxiv.org/abs/2606.00631
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -211,10 +211,6 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/iiiiii123/AVBench/d79ac5b57095871711693c55b1b94340d86a0ea8/hard_subset.json?%2Fdatasets%2Fiiiiii123%2FAVBench%2Fresolve%2Fmain%2Fhard_subset.json=&etag=%22978e5625bfdbc5f7065161f9b2488ed7b7d4bcef%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://huggingface.co/datasets/davanstrien/iiif_manuscripts_label_ge_50/resolve/main/data/train-00000-of-00005.parquet
     source: huggingface
     status: verified
@@ -227,23 +223,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Davis_Logic_V2_DULLEA-Mobile_Vector_Space_Predictive_SoC_Efficiency_Dataset/32560575
+  - url: https://huggingface.co/datasets/iitm-ddp/iiith-indic-speech/resolve/main/data/iiit-hin-data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/Filtered_OTU_table_from_16S_rRNA_sequencing_of_Duttaphrynus_melanostictus_gut_microbiota/32574063
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568
+  - url: https://figshare.com/articles/dataset/The_dataset_contains_sample_metadata_mitochondrial_genome_sequences_phylogenetic_trees_and_species_morphology_figures_associated_with_the_published_study_/32573976
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Artificial_Intelligence-Driven_Janus_Dressing_for_Visual_Wound_Theranostics/32560554
+  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Insights_from_the_Convolution_of_Emission_Inventories_with_Flux_Footprints_from_Tall_Eddy_Covariance_Towers_at_Three_European_Cities/32560551
+  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Fractional_Moore-Gibson-Thompson_Boundary_Element_Modeling_of_a_Non-Local_Photothermal_MEMS_Bio-Resonator_on_a_Viscoelastic_Pasternak_Foundation_b_p_/32560539
+  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -267,23 +267,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568/1
+  - url: https://arxiv.org/abs/math/0611569
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568
+  - url: https://arxiv.org/abs/2605.29076
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/POTV1R
+  - url: https://arxiv.org/abs/2605.25200
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/IPMRDN
+  - url: https://arxiv.org/abs/2605.11244
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/JI2FUM
+  - url: https://arxiv.org/abs/2605.05114
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -291,23 +291,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Davis_Logic_V2_DULLEA-Mobile_Vector_Space_Predictive_SoC_Efficiency_Dataset/32560575
+  - url: https://figshare.com/articles/dataset/Filtered_OTU_table_from_16S_rRNA_sequencing_of_Duttaphrynus_melanostictus_gut_microbiota/32574063
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/A_Semidefinite_Programming_Approach_to_Maximum_von_Neumann_Entropy_Experimental_Design_for_Multiresponse_Models/32560568
+  - url: https://figshare.com/articles/dataset/The_dataset_contains_sample_metadata_mitochondrial_genome_sequences_phylogenetic_trees_and_species_morphology_figures_associated_with_the_published_study_/32573976
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Artificial_Intelligence-Driven_Janus_Dressing_for_Visual_Wound_Theranostics/32560554
+  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Insights_from_the_Convolution_of_Emission_Inventories_with_Flux_Footprints_from_Tall_Eddy_Covariance_Towers_at_Three_European_Cities/32560551
+  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_fo_b_r_b_Fractional_Moore-Gibson-Thompson_Boundary_Element_Modeling_of_a_Non-Local_Photothermal_MEMS_Bio-Resonator_on_a_Viscoelastic_Pasternak_Foundation_b_p_/32560539
+  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -323,11 +323,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10384626
+  - url: https://zenodo.org/records/13213336
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13213336
+  - url: https://zenodo.org/records/10384626
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,11 +336,17 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20453648
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20438566
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionModel"
-description: "Represents fitted statistical model for predicting hyperbolic volume"
+description: "Represents fitted statistical model for predicting hyperbolic volume (internal model state - use regression_output.schema.yaml for final outputs)"
 type: "object"
 properties:
  model_id:
@@ -58,7 +58,7 @@ properties:
  minimum: 0.0
  vif_scores:
  type: "object"
- description: "Variance Inflation Factors for predictors"
+ description: "Variance Inflation Factors for predictors (reported with mathematical constraint context, not flagged as problematic)"
  additionalProperties:
  type: "number"
  minimum: 1.0

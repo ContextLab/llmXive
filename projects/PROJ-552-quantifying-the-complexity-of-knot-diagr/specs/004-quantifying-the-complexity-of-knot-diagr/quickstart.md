@@ -4,200 +4,215 @@
 
 - Python 3.11 or higher
 - pip package manager
-- Internet connectivity for downloading Knot Atlas data
-- At least 500MB disk space for data artifacts
+- Internet connectivity for downloading from Knot Atlas
+- Minimum 4GB RAM (recommended 8GB for full ≤13 crossing dataset)
+- Minimum 2GB disk space for data and outputs
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
+### Step 1: Clone and Navigate
+
 ```bash
+git clone <repository-url>
 cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
 ```
 
-2. Create and activate a virtual environment:
+### Step 2: Create Virtual Environment
+
 ```bash
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies from requirements file:
+### Step 3: Install Dependencies
+
 ```bash
 pip install -r code/requirements.txt
 ```
 
-The `requirements.txt` file at `code/` pins every Python dependency per Constitution Principle I (Reproducibility).
-
-## Quick Start Commands
-
-### Step 1: Download Knot Data
+### Step 4: Verify Installation
 
 ```bash
-python code/download/download_knot_atlas.py
+python -c "import pandas, numpy, scipy, statsmodels; print('All dependencies installed successfully')"
 ```
 
-This downloads all prime knots with crossing number ≤13 from Knot Atlas. The script implements retry logic with exponential backoff (1s → 2s → 4s →... → 60s max) and caches partial results after 3 consecutive failures.
+## Running the Pipeline
 
-**Output**: `data/raw/knot_atlas_raw.json`
-
-### Step 2: Verify Retry Logic (SC-005)
+### Phase 1: Data Download (User Story 1 - P1)
 
 ```bash
-python code/reproducibility/retry_verification.py
+python code/cli/main.py download --output data/raw/knot_atlas_download.parquet
 ```
 
-This script verifies that the retry logic with exponential backoff executes correctly on simulated API failures. Test passes if backoff intervals follow the specified pattern (1s, 2s, 4s, 8s, 16s, 32s, 60s max).
+**Expected Output**:
+- Download progress logged to console
+- File saved to data/raw/knot_atlas_download.parquet
+- Checksum recorded in data/raw/.checksums
+- Retry logic activated if API unavailable (exponential backoff: 1s → 2s → 4s →... → 60s max)
 
-**Output**: Verification log in `docs/reproducibility/retry_verification_log.md`
+**Validation**:
+- Run `python code/cli/main.py validate --input data/raw/knot_atlas_download.parquet`
+- Should report ≥95% completeness on required invariant fields for c≤10
 
-### Step 3: Compute Additional Invariants
+### Phase 2: Invariant Computation (User Story 2 - P2)
 
 ```bash
-python code/compute/compute_invariants.py
+python code/cli/main.py compute-invariants \
+ --input data/raw/knot_atlas_download.parquet \
+ --output data/processed/knots_with_invariants.parquet
 ```
 
-Computes arc index, Seifert circle count, and bridge number from available diagram representations. Records with missing invariants are flagged rather than excluded.
+**Expected Output**:
+- Arc index, Seifert circle count, bridge number computed where diagram representations available
+- Records with missing invariants flagged in missing_invariant_flags field
+- Summary report at docs/reproducibility/uncomputable_invariants.md
 
-**Output**: `data/processed/knots_with_invariants.csv`
+**Validation**:
+- Run `python code/cli/main.py validate-algorithms --input data/processed/knots_with_invariants.parquet`
+- Should report ≥95% match with KnotInfo reference values where coverage ≥10%
 
-### Step 4: Document Invariant Discrepancies (Constitution Principle VI)
+### Phase 3: Exploratory Analysis (User Story 2 - P2)
 
 ```bash
-python code/compute/validate_discrepancies.py
+python code/cli/main.py exploratory-analysis \
+ --input data/processed/knots_with_invariants.parquet \
+ --output-dir data/plots/
 ```
 
-Compares computed invariant values against canonical reference values from KnotInfo. Documents any discrepancies in `docs/reproducibility/discrepancy_notes.md` with derivation notes as required by Constitution Principle VI.
+**Expected Output**:
+- Scatter plots saved to data/plots/ with minimum resolution 1200x900 pixels
+- crossing_vs_braid_alternating.png
+- crossing_vs_braid_non_alternating.png
+- Summary statistics logged to console
 
-**Output**: Discrepancy report in `docs/reproducibility/discrepancy_notes.md`
-
-### Step 5: Verify Invariant Coverage (SC-006)
+### Phase 4: Regression Modeling (User Story 3 - P3)
 
 ```bash
-python code/reproducibility/coverage_measurement.py
+python code/cli/main.py regression \
+ --input data/processed/knots_with_invariants.parquet \
+ --models linear,polynomial,logarithmic \
+ --output-dir code/models/
 ```
 
-This script measures invariant computation coverage and verifies the ≥99% threshold for knots with computable invariants. Reports coverage statistics per invariant type.
+**Expected Output**:
+- Three model types fitted and saved to code/models/
+- VIF values computed and documented (with mathematical constraint context)
+- Residual analysis identifying deviating knot families
+- Model metrics (R², AIC/BIC, MAE) logged
+- Bonferroni-adjusted p-values for model comparison
 
-**Output**: Coverage report in `docs/reproducibility/coverage_report.md`
-
-### Step 6: Filter by Hyperbolic Volume (FR-014/SC-014)
+### Phase 5: Composite Score Validation (User Story 3 - P3)
 
 ```bash
-python code/reproducibility/volume_completeness.py
+python code/cli/main.py composite-score \
+ --input data/processed/knots_with_invariants.parquet \
+ --config config/complexity_weights.yaml \
+ --validation-split 0.2 \
+ --output-dir docs/reproducibility/
 ```
 
-Filters dataset to exclude torus/satellite knots with zero/undefined hyperbolic volume. Documents excluded knots and verifies ≥95% volume completeness threshold per SC-014.
+**Expected Output**:
+- Composite complexity scores computed with default 1:1 weights
+- Pearson and Spearman correlations reported
+- Effect sizes (r, Cohen's d) documented
+- Validation results saved to docs/reproducibility/
 
-**Output**: Filtered dataset `data/processed/knots_filtered_volume.csv` and exclusion log `docs/reproducibility/excluded_knots.md`
-
-### Step 7: Run Exploratory Analysis
+### Phase 6: Reproducibility Check (User Story 4 - P4)
 
 ```bash
-python code/analyze/exploratory_analysis.py
+python code/cli/main.py reproducibility-check \
+ --data-dir data/ \
+ --docs-dir docs/reproducibility/ \
+ --output docs/reproducibility/validation_status.md
 ```
 
-Generates scatter plots of crossing number vs. braid index stratified by alternating/non-alternating classification.
+**Expected Output**:
+- SHA-256 checksums verified for all data files
+- Derivation notes completeness validated
+- Random seed documentation verified
+- Validation status reported
+- SC-006 and SC-014 completeness percentages calculated
 
-**Output**: `data/plots/crossing_vs_braid_alternating.png`, `data/plots/crossing_vs_braid_nonalternating.png`
+## Configuration
 
-### Step 8: Fit Regression Models
+### Complexity Weights (config/complexity_weights.yaml)
 
-```bash
-python code/analyze/regression_models.py
+```yaml
+crossing_weight: 1.0
+braid_weight: 1.0
+# Note: Equal weights are exploratory; no theoretical basis for differential weighting
 ```
 
-Fits linear, polynomial, and logarithmic regression models to test relationships between crossing number, braid index, and hyperbolic volume. Includes knot family covariates.
+### Random Seeds
 
-**Output**: `data/processed/regression_results.json`
+All random seeds are pinned in code. Current seed values documented in:
+- docs/reproducibility/random_seeds.md
 
-### Step 9: Run Statistical Tests
+### Retry Configuration
 
-```bash
-python code/analyze/statistical_tests.py
-```
+Exponential backoff parameters (FR-010):
+- Initial delay: 1 second
+- Maximum delay: 60 seconds
+- Multiplier: 2
 
-Performs ANOVA testing, correlation analysis (Pearson AND Spearman), and composite complexity score validation.
+## Output Locations
 
-**Output**: `data/processed/validation_results.json`
-
-### Step 10: Verify Tie-Breaking Rules (SC-008)
-
-```bash
-python code/reproducibility/tie_breaking_validation.py
-```
-
-This script automates the validation check for tie-breaking rules as required by SC-008. Verifies that when multiple diagram representations exist, braid word is preferred over DT code, and lexicographically first DT code is selected.
-
-**Output**: Validation report in `docs/reproducibility/tie_breaking_validation_report.md`
-
-### Step 11: Verify Reproducibility
-
-```bash
-python code/reproducibility/checksums.py
-python code/reproducibility/random_seeds.py
-python code/reproducibility/reference_validator.py
-```
-
-Verifies SHA-256 checksums for all data files, confirms random seed pinning, and validates all external citations per Constitution Principle II.
-
-**Output**: Checksums recorded in `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml`
-
-## Verification
-
-Run the test suite to verify all components:
-
-```bash
-pytest tests/ -v
-```
-
-Contract tests verify schema compliance:
-```bash
-pytest tests/contract/ -v
-```
-
-Integration tests verify download pipeline and retry logic:
-```bash
-pytest tests/integration/ -v
-```
-
-Unit tests verify invariant computation, statistical tests, tie-breaking validation, and volume filtering:
-```bash
-pytest tests/unit/ -v
-```
+| Output | Location |
+|--------|----------|
+| Raw downloaded data | data/raw/knot_atlas_download.parquet |
+| Processed dataset | data/processed/knots_with_invariants.parquet |
+| Exploratory plots | data/plots/*.png |
+| Regression models | code/models/*.json |
+| Reproducibility docs | docs/reproducibility/*.md |
+| Validation status | docs/reproducibility/validation_status.md |
 
 ## Troubleshooting
 
-### Knot Atlas Unavailable
+### API Unavailable
 
-If the download fails due to API unavailability, check `data/raw/knot_atlas_partial.json` for cached partial results. The script automatically applies exponential backoff and retries.
+If Knot Atlas is unavailable, the download script will:
+1. Apply exponential backoff (1s → 2s → 4s →... → 60s max)
+2. Cache partial results after 3 consecutive failures
+3. Log retry attempts to docs/reproducibility/download_logs.md
 
-### Missing Invariants
+**Action**: Check network connectivity, verify API status, review retry logs
 
-Records with missing invariants are flagged in `docs/reproducibility/uncomputable_invariants.md`. Review this file to understand which invariants could not be computed and why.
+### Missing Invariant Data
 
-### Ambiguous Classification
+If invariants cannot be computed for certain knots:
+1. Records are flagged with missing_invariant_flags (not silently excluded)
+2. Summary report generated at docs/reproducibility/uncomputable_invariants.md
+3. SC-006 completeness percentage calculated and reported
 
-Knots with ambiguous alternating/non-alternating classification are marked as "unclassifiable" in the output dataset. The count is logged in the analysis output.
+**Action**: Review uncomputable_invariants.md to understand which invariants are missing and why
 
-### Multicollinearity Warning
+### Algorithm Validation Failure
 
-If VIF > 5 for any predictor, coefficient interpretation caveats are documented in the regression output. This is expected given that braid index ≤ crossing number for most knots.
+If algorithm validation against KnotInfo fails (<95% match):
+1. Validation results logged to docs/reproducibility/algorithm_validation.md
+2. Limitation documented with coverage constraint noted
 
-### Algorithm Computational Infeasibility
+**Action**: Review algorithm_validation.md; if coverage <10%, validation is skipped per FR-003
 
-If arc index or bridge number computation fails for >5% of the pre-computation sample, review `docs/reproducibility/validation_status.md` for fallback strategy documentation.
+### Tie-Breaking Validation Failure
 
-### Hyperbolic Volume Filtering
+If tie-breaking rules are not applied consistently:
+1. Validation script fails with non-zero exit code
+2. Error details logged to docs/reproducibility/validation_status.md
 
-If hyperbolic volume is missing or undefined for a knot, it is excluded from volume prediction analysis per FR-014. Excluded knots are documented in `docs/reproducibility/excluded_knots.md` with reason codes.
+**Action**: Re-run invariant computations before proceeding to downstream analysis
 
 ## Next Steps
 
-After completing the quickstart workflow:
+1. Review generated plots in data/plots/
+2. Examine regression model metrics in code/models/
+3. Read reproducibility documentation in docs/reproducibility/
+4. Prepare Phase 1 final report with conclusions limited to validated c≤10 data
+5. Plan Phase 2+ for multi-class exploration (torus, satellite, hyperbolic)
 
-1. Review `docs/reproducibility/derivation_notes.md` for transformation documentation
-2. Check `docs/reproducibility/discrepancy_notes.md` for Constitution Principle VI compliance
-3. Check `docs/reproducibility/excluded_knots.md` for SC-014 compliance
-4. Check `docs/reproducibility/validation_scope.md` for Phase 1 scope boundaries
-5. Examine `data/processed/validation_results.json` for correlation analysis results
-6. Review `docs/reproducibility/tie_breaking_validation_report.md` for SC-008 compliance
-7. Proceed to `tasks.md` for detailed implementation tasks
+## Support
+
+For issues or questions:
+1. Check docs/reproducibility/ for detailed logs and derivation notes
+2. Review contract tests in tests/contract/
+3. Consult spec.md for detailed requirements and acceptance criteria

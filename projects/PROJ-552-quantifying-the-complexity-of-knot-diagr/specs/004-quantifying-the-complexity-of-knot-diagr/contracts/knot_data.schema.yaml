@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotData"
-description: "Schema for a single prime knot record with computed invariants (canonical version)"
+description: "Schema for a single prime knot record with computed invariants (legacy version - use knot_record.schema.yaml for new implementations)"
 type: "object"
 required:
  - "knot_id"
@@ -26,6 +26,7 @@ properties:
  type: ["number", "null"]
  description: "Geometric volume (null for torus/satellite knots)"
  minimum: 0
+ nullable: true
  alternating_classification:
  type: "string"
  description: "Alternating classification (null if ambiguous)"
@@ -37,20 +38,25 @@ properties:
  type: ["integer", "null"]
  description: "Computed arc index (null if not computable)"
  minimum: 1
+ nullable: true
  seifert_circle_count:
  type: ["integer", "null"]
  description: "Computed Seifert circle count (null if not computable)"
  minimum: 1
+ nullable: true
  bridge_number:
  type: ["integer", "null"]
  description: "Computed bridge number (null if not computable)"
  minimum: 1
+ nullable: true
  dt_code:
  type: ["string", "null"]
  description: "Dowker‑Thistlethwaite code"
+ nullable: true
  braid_word:
  type: ["string", "null"]
  description: "Braid word representation"
+ nullable: true
  missing_invariant_flags:
  type: "array"
  description: "Flags for missing invariants"
@@ -60,6 +66,7 @@ properties:
  - "no_representation_available"
  - "algorithm_not_implemented"
  - "computation_failed"
+ default: []
  data_source:
  type: "string"
  description: "Source of data (e.g., \"Knot Atlas\")"

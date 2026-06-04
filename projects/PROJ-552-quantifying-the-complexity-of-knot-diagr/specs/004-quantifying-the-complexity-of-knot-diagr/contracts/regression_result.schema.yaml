@@ -1,90 +1,114 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "RegressionModel"
-description: "Represents fitted regression model with coefficients and goodness-of-fit metrics"
+$schema: http://json-schema.org/draft-07/schema#
+title: RegressionResult
+description: "Schema for regression model results and validation metrics (deprecated - use regression_output.schema.yaml for new implementations)"
 type: object
+required:
+ - model_id
+ - model_type
+ - predictors
+ - coefficients
+ - r_squared
+ - fitted_at
 properties:
  model_id:
  type: string
- description: "Unique identifier for this model"
- pattern: "^model_[0-9]+$"
+ description: "Unique identifier for model instance"
  model_type:
  type: string
- description: "Type of regression model fitted"
+ description: "One of: linear, polynomial, logarithmic"
  enum:
  - "linear"
  - "polynomial"
  - "logarithmic"
  predictors:
  type: array
- description: "List of predictor variables used in the model"
+ description: "List of predictor variables used"
  items:
  type: string
- enum:
- - "crossing_number"
- - "braid_index"
- - "arc_index"
- - "seifert_circle_count"
- - "bridge_number"
- target:
- type: string
- description: "Target variable being predicted"
- enum:
- - "hyperbolic_volume"
+ minItems: 1
  coefficients:
  type: object
- description: "Model coefficients with predictor names as keys"
+ description: "Model coefficients with names"
  additionalProperties:
  type: number
+ intercept:
+ type: number
+ description: "Model intercept"
  r_squared:
  type: number
- description: "Coefficient of determination (R²)"
+ description: "Coefficient of determination"
  minimum: 0
  maximum: 1
  adjusted_r_squared:
  type: number
- description: "Adjusted R² accounting for number of predictors"
- minimum: -1
- maximum: 1
+ description: "Adjusted R-squared"
+ nullable: true
  aic:
  type: number
  description: "Akaike Information Criterion"
+ nullable: true
  bic:
  type: number
  description: "Bayesian Information Criterion"
+ nullable: true
  mae:
  type: number
  description: "Mean Absolute Error"
  minimum: 0
- vif_scores:
+ nullable: true
+ vif_values:
  type: object
- description: "Variance Inflation Factors per predictor"
+ description: "Variance Inflation Factors per predictor (reported with mathematical constraint context)"
  additionalProperties:
  type: number
- minimum: 1
+ nullable: true
  training_sample_size:
  type: integer
- description: "Number of records used for model fitting"
+ description: "Number of records in training sample"
  minimum: 1
  validation_sample_size:
  type: integer
- description: "Number of records in exploratory validation sample"
+ description: "Number of records in validation sample"
  minimum: 1
+ nullable: true
  random_seed:
  type: integer
- description: "Random seed used for validation sample split"
- multicollinearity_flag:
- type: boolean
- description: "True if any VIF > 5, indicating potential multicollinearity issue"
-required:
- - model_id
- - model_type
- - predictors
- - target
- - r_squared
- - aic
- - bic
- - mae
- - training_sample_size
- - random_seed
- - multicollinearity_flag
+ description: "Seed used for sample split"
+ nullable: true
+ fitted_at:
+ type: string
+ description: "When model was fitted"
+ format: date-time
+ pearson_correlation:
+ type: number
+ description: "Pearson correlation with hyperbolic volume"
+ nullable: true
+ spearman_correlation:
+ type: number
+ description: "Spearman correlation with hyperbolic volume"
+ nullable: true
+ effect_size_r:
+ type: number
+ description: "Effect size for correlation"
+ nullable: true
+ p_value:
+ type: number
+ description: "Statistical significance p-value"
+ nullable: true
+ residuals_summary:
+ type: object
+ description: "Summary of residual analysis identifying deviating knot families"
+ nullable: true
+ properties:
+ deviating_families:
+ type: array
+ description: "List of knot families with significant deviations"
+ items:
+ type: string
+ max_residual:
+ type: number
+ description: "Maximum absolute residual value"
+ min_residual:
+ type: number
+ description: "Minimum absolute residual value"
 additionalProperties: false

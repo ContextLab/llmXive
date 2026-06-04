@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionOutput Schema"
-description: "Schema for regression model outputs in the knot complexity analysis"
+description: "Schema for regression model outputs in the knot complexity analysis (canonical output schema - use for code/models/*.json files)"
 type: "object"
 required:
  - "model_id"
@@ -46,7 +46,7 @@ properties:
  description: "Mean Absolute Error"
  vif_scores:
  type: "object"
- description: "Variance Inflation Factors for each predictor"
+ description: "Variance Inflation Factors for each predictor (reported with mathematical constraint context)"
  additionalProperties:
  type: "number"
  minimum: 1

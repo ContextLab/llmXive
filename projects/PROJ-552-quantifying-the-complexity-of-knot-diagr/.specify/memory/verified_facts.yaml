@@ -1,11 +1,26 @@
-13|crossing knot prime:
+1 13|analysi computationally crossing exploratory full impractical knot phase prime validation:
   quote: 13 9988
   source_id: A002863
   url: https://oeis.org/A002863
   value: '9988'
+49|crossing knot prime:
+  quote: 13 9988
+  source_id: A002863
+  url: https://oeis.org/A002863
+  value: '9988'
+'|algorithm circle crossing diagram minimal seifert via':
+  quote: "2 (c(D) \u2212 s(D) \u2212 |K| + 2) /B8"
+  source_id: math/0303273
+  url: https://arxiv.org/abs/math/0303273
+  value: s(D)
 '|bridge decomposition schubert via':
-  quote: "[32] Horst Schubert, \xA8Uber eine numerische Knoteninvariante , Math. Z.\
-    \ 61 (1954), 245\u2013288 (German). MR0072483"
-  source_id: '1606.03408'
-  url: https://arxiv.org/abs/1606.03408
-  value: '1954'
+  quote: In the mathematical field of knot theory, a 2-bridge knot is a knot which
+    can be regular isotoped so that the natural height function given by the z-coordinate
+    has only two maxima and two minima as critical points. Equivalently, these are
+    the knots with bridge number 2, the smallest possible bridge number for a nontrivial
+    knot. Every nontrivial knot with up to seven crossings is a 2-bridge knot. The
+    simplest knots with a bridge number of 3 have eight crossings. Of the 1,701,936
+    knots with up to sixteen crossings, 5,546 are 2-bridge knots.
+  source_id: 2-bridge knot
+  url: https://en.wikipedia.org/wiki/2-bridge_knot
+  value: '2'

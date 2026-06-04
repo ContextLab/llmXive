@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
-  "root_hash": "df17eb9f4c5254d8",
+  "root_hash": "3170f0e5a01b54e1",
   "goal": "extract every FR/SC id verbatim, every constraint, every named dataset, and the exact research question",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 5333,
-  "created_at": "2026-06-04T03:55:24.753080+00:00",
+  "created_at": "2026-06-04T05:36:05.347164+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -20,6 +20,7 @@
         "10",
         "13",
         "9988",
+        "https://en.wikipedia.org/wiki/Knot_theory",
         "11",
         "-13",
         "FR-003",
@@ -93,6 +94,8 @@
         "0218216519500020",
         "https://arxiv.org/pdf/1805.04428",
         "1805.04428",
+        "40",
+        "97",
         "FR-006",
         "-006"
       ],
@@ -191,8 +194,7 @@
         "-014",
         "0.05",
         "20%",
-        "9",
-        "988",
+        "49",
         "002863",
         "https://oeis.org/A002863",
         "2024"

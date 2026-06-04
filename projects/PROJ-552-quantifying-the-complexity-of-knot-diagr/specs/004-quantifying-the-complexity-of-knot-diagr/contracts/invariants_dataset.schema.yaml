@@ -74,22 +74,51 @@ definitions:
  properties:
  knot_id:
  type: string
+ description: "Unique identifier for the knot (e.g., \"10_123\", \"13_4567\")"
+ pattern: "^[0-9]+_[0-9]+$"
  crossing_number:
  type: integer
+ description: "Minimal crossing count"
+ minimum: 1
+ maximum: 13
  braid_index:
  type: integer
+ description: "Minimal braid representation index"
+ minimum: 1
+ nullable: true
  hyperbolic_volume:
  type: ["number", "null"]
+ description: "Geometric volume (null for torus/satellite knots)"
+ minimum: 0
+ nullable: true
  alternating_classification:
  type: string
+ description: "Alternating classification (null if ambiguous)"
  enum:
  - "alternating"
  - "non-alternating"
  - "unclassifiable"
+ arc_index:
+ type: ["integer", "null"]
+ description: "Computed arc index (null if not computable)"
+ minimum: 1
+ nullable: true
+ seifert_circle_count:
+ type: ["integer", "null"]
+ description: "Computed Seifert circle count (null if not computable)"
+ minimum: 1
+ nullable: true
+ bridge_number:
+ type: ["integer", "null"]
+ description: "Computed bridge number (null if not computable)"
+ minimum: 1
+ nullable: true
  missing_invariant_flags:
  type: array
+ description: "Flags for missing invariants"
  items:
  type: string
+ default: []
  required:
  - knot_id
  - crossing_number
