@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:14:06.173837Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-569-intern-atlas-a-methodological-evolution
-last_run_id: 1675db2a-1f46-466e-9ded-1a98214f98d8
+last_run_id: 48d44aea-d1b2-433e-a75e-9b7d6e22afd6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Intern-Atlas: A Methodological Evolution Graph as Research Infrastructure
   for AI Scientists'
-updated_at: '2026-06-03T08:07:12.450732Z'
+updated_at: '2026-06-04T03:27:28.158928Z'

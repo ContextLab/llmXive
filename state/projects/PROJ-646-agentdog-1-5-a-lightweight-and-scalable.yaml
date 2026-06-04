@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-30T08:50:54.634851Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-646-agentdog-1-5-a-lightweight-and-scalable
-last_run_id: 4729f2a1-2dfa-4543-973e-ac40fb1df603
+last_run_id: 3993ff40-56a0-4332-a27e-dd04737bb396
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent
   Safety and Security'
-updated_at: '2026-06-03T11:00:38.566656Z'
+updated_at: '2026-06-04T03:34:03.954077Z'

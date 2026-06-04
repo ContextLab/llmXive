@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-28T09:17:03.505175Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-635-evalverse-pipeline-aware-and-expert-cali
-last_run_id: 869b0074-73c1-4acb-bed1-166622c17568
+last_run_id: d827ec09-bc42-4c21-885b-9db73d97166a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional
   Cinematic Video Generation'
-updated_at: '2026-06-01T04:48:35.883620Z'
+updated_at: '2026-06-04T03:43:24.817213Z'

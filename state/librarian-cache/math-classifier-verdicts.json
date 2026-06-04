@@ -23,6 +23,10 @@
     "classified_at": "2026-05-30T03:43:36Z",
     "verdict": false
   },
+  "PROJ-554-characterization-of-exoplanetary-atmosph::1.6.0": {
+    "classified_at": "2026-06-04T03:39:12Z",
+    "verdict": false
+  },
   "PROJ-555-investigating-the-potential-benefits-of-::1.6.0": {
     "classified_at": "2026-06-03T03:30:39Z",
     "verdict": false
@@ -41,6 +45,10 @@
   },
   "PROJ-561-self-improving-llm-recursive-architectur::1.6.0": {
     "classified_at": "2026-06-02T03:34:47Z",
+    "verdict": false
+  },
+  "PROJ-569-intern-atlas-a-methodological-evolution::1.6.0": {
+    "classified_at": "2026-06-04T03:26:42Z",
     "verdict": false
   },
   "PROJ-582-socratic-transformers-dialogue-based-sel::1.6.0": {
@@ -101,6 +109,18 @@
   },
   "PROJ-603-https-arxiv-org-abs-2605-18678::1.6.0": {
     "classified_at": "2026-06-02T03:30:47Z",
+    "verdict": false
+  },
+  "PROJ-635-evalverse-pipeline-aware-and-expert-cali::1.6.0": {
+    "classified_at": "2026-06-04T03:42:21Z",
+    "verdict": false
+  },
+  "PROJ-645-qwen-vla-unifying-vision-language-action::1.6.0": {
+    "classified_at": "2026-06-04T03:36:21Z",
+    "verdict": false
+  },
+  "PROJ-646-agentdog-1-5-a-lightweight-and-scalable::1.6.0": {
+    "classified_at": "2026-06-04T03:31:19Z",
     "verdict": false
   }
 }
