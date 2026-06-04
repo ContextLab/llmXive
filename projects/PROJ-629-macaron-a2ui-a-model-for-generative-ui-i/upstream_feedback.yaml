@@ -186,3 +186,220 @@ rounds:
     text: Clarify metric scale consistency between Section 5 ($[0,1]$) and Appendix
       (1-5), and ensure numerical reporting is consistent in Section 6.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-04T07:11:31.545690+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: ae922e5e73cb
+    text: Remove the claim of training a 754B model from the abstract as no results
+      are presented for this scale in the Experiments section.
+    severity: writing
+  - id: 693bb2e39e2e
+    text: Clarify the discrepancy between the reported overall score of 75.6 in the
+      text and the 3.72 Avg. in Table 1. Define the metric scale clearly (e.g., 0-100
+      vs 1-5).
+    severity: writing
+  - id: dd73f3f23cfe
+    text: Replace or contextualize avula2022effects citation in Introduction to accurately
+      reflect its scope regarding generative UI, as it focuses on system initiative
+      in search rather than interface generation efficiency.
+    severity: writing
+  - id: d27378c8750d
+    text: Add inline citations for SGD, ESConv, and AnnoMI datasets in Section 4 where
+      the corpus sources are introduced to ensure provenance accuracy and reproducibility
+      claims.
+    severity: writing
+  - id: 434ff821cc0a
+    text: Release the full code repository (training scripts, evaluation pipeline,
+      Flutter renderer) to enable comprehensive code quality review (modularity, tests,
+      dependency hygiene).
+    severity: science
+  - id: d3312eee00e9
+    text: Include dependency files (requirements.txt, environment.yml) and a Dockerfile
+      in the repository to ensure reproducibility from scratch.
+    severity: writing
+  - id: ab867da3318d
+    text: Provide unit tests for the A2UI renderer and evaluation metrics to verify
+      the stability of the visual and language-side evaluation pipelines.
+    severity: science
+  - id: 32b020d36d3e
+    text: Add explicit license information for all source datasets (MultiWOZ, SGD,
+      ESConv, AnnoMI) to clarify the legal status of the derived corpus.
+    severity: writing
+  - id: efc3602b562d
+    text: Provide a direct download link or repository path for the constructed A2UI
+      training corpus in the metadata section, or clarify if it is not public.
+    severity: writing
+  - id: ec87ba4a30d4
+    text: Archive the A2UI v0.8 schema specification (e.g., in the GitHub repo) to
+      prevent link rot of the external URL cited in the bibliography.
+    severity: writing
+  - id: 0dd14e41c01e
+    text: Briefly discuss the 85 validation-failed samples to ensure their exclusion
+      does not introduce systematic bias against complex interaction patterns.
+    severity: science
+  - id: ec7652a1edfb
+    text: Convert Figures/pipeline.jpg to vector format (PDF/SVG) to prevent compression
+      artifacts in line art and text at print scale.
+    severity: writing
+  - id: d201de459d6a
+    text: Consolidate the four separate Appendix case example figures into a single
+      figure environment with subfigures to reduce vertical space consumption.
+    severity: writing
+  - id: ef6d4907ee68
+    text: Verify compatibility of wrapfigure environments with the mindlab template
+      to prevent text overlap or margin violations.
+    severity: writing
+  - id: 1795adc450fd
+    text: Define 'A2UI' explicitly (e.g., Agent-to-UI) at first use in Abstract/Intro.
+    severity: writing
+  - id: e72659863095
+    text: Spell out 'LoRA' (Low-Rank Adaptation) and 'VLM' (Vision-Language Model)
+      at first occurrence.
+    severity: writing
+  - id: 0d3343d55097
+    text: Replace jargon terms like 'frontier baseline', 'backbone', 'rollouts', and
+      'affordances' with plain language.
+    severity: writing
+  - id: d229b799c086
+    text: Ensure acronyms are defined in the order they appear (e.g., VLM in Appendix/prompts.tex
+      is used before definition).
+    severity: writing
+  - id: ee7fb9b8333c
+    text: Resolve the contradiction between Section 5 (Metrics) stating evaluation
+      maps to [0,1], Table 1 showing scores ~3-4, and Abstract/Section 6 text reporting
+      scores ~75.6. The current reporting makes the main claims unverifiable.
+    severity: science
+  - id: a485f252556a
+    text: Ensure numerical consistency between the Abstract, Section 6 text, and Table
+      1. If the scale is 0-100, update Table 1 and Section 5. If the scale is 0-5,
+      update Abstract and Section 6 text.
+    severity: science
+  - id: 7ea4f4405bc5
+    text: Clarify the aggregation method for the 'overall score' in Section 6. The
+      text reports 75.6 for Macaron-Venti, while Table 1 reports 3.72 Avg. Explain
+      the conversion factor or unify the scale.
+    severity: science
+  - id: f4231de3d78d
+    text: Section 6 text claims Macaron-A2UI-235B has an overall score of 3.83, but
+      Table 1 reports Macaron-A2UI-Venti (identified as the 235B model) with Avg 3.72.
+      Reconcile these values.
+    severity: science
+  - id: 75e892269aa2
+    text: Abstract claims 754B model training but experiments section only reports
+      30B and 235B results. This is a direct overclaim that cannot be verified from
+      the provided data.
+    severity: science
+  - id: dbdb89261127
+    text: 'Performance numbers are inconsistent: Section 6 states Macaron-A2UI-Grande
+      reaches 74.2 and Venti reaches 75.6, but Table 1 shows 3.66 (73.2) and 3.72
+      (74.4) respectively. Text must match tabular data.'
+    severity: writing
+  - id: b49862e9a8b4
+    text: Conclusion claims 'key step toward bringing Generative UI into real production
+      environments' without any deployment, latency, or user study evidence. This
+      is an unsupported extrapolation beyond the paper's scope.
+    severity: science
+  - id: 1f6d8b36bd60
+    text: Cross-domain robustness claims (3.82-3.84 score range across datasets) are
+      based on only 300 benchmark tasks. The sample size does not justify strong generalization
+      claims without confidence intervals or statistical testing.
+    severity: science
+  - id: 181bfa5f954a
+    text: The 99.2% renderability rate claim does not address semantic quality or
+      real-world failure modes. This metric alone cannot support the 'production-ready'
+      implication in the conclusion.
+    severity: writing
+  - id: f306e8301f46
+    text: Add a dedicated Ethics Statement section addressing the use of sensitive
+      dialogue datasets (ESConv, AnnoMI) and the release of the trained model.
+    severity: writing
+  - id: e518b167e022
+    text: Clarify data privacy safeguards, specifically whether personally identifiable
+      information (PII) was scrubbed from the source corpora before training.
+    severity: writing
+  - id: 8be2def14fbc
+    text: Discuss potential dual-use risks, such as the model providing unqualified
+      mental health advice or manipulative persuasion in emotional support scenarios.
+    severity: writing
+  - id: ee072cc49153
+    text: Benchmark sample size (300 tasks, Section 5.1) is too small to support robust
+      statistical claims. Provide power analysis or expand to at least 1,000 tasks
+      with confidence intervals on scores.
+    severity: science
+  - id: cc0de7c67258
+    text: LLM-based evaluation (L2/L3 judges, VLM judge) creates circularity risk
+      since reward function during GRPO training uses the same judge metrics (Section
+      6.1). Report human evaluation or independent third-party benchmarks.
+    severity: science
+  - id: 286b787694c6
+    text: No statistical significance testing reported for main results (Table 1,
+      Figure 2). Provide p-values or bootstrap confidence intervals for comparisons
+      against frontier baselines.
+    severity: science
+  - id: 9297a270a5bc
+    text: Training corpus constructed via LLM annotation (Section 4.2) without human
+      quality audit. Report inter-annotator agreement or human validation rate for
+      synthetic A2UI labels.
+    severity: science
+  - id: c449b7620934
+    text: "Reward weights (\u03BB1=0.2, \u03BB2=0.4, \u03BB3=0.4 in Appendix training.tex)\
+      \ are fixed without ablation. Show sensitivity analysis to demonstrate robustness\
+      \ to reward composition choices."
+    severity: science
+  - id: df4e9077868c
+    text: Report confidence intervals or standard deviations for all benchmark scores
+      (Table 1, Fig 6) to validate statistical significance of performance claims.
+    severity: science
+  - id: 48e46052f7a0
+    text: Quantify evaluation noise by reporting inter-rater reliability (e.g., Kappa)
+      or variance across multiple LLM/VLM judge seeds.
+    severity: science
+  - id: 4f9cee72e7b3
+    text: Include error bands or multiple seed averages for training reward curves
+      (Fig 6) to confirm optimization stability.
+    severity: science
+  - id: 7bca8e2f468e
+    text: Fix `minted` environment options in `Appendix/prompts.tex`. Options like
+      `bgcolor`, `breaksymbol`, and `fontsize` are invalid for the `listings` backend
+      defined in the preamble. Use `backgroundcolor`, remove `breaksymbol`, and set
+      font size via `basicstyle`.
+    severity: writing
+  - id: d86b5a6abeba
+    text: Remove commented-out draft text and Chinese notes from `Sections/1-introduction.tex`,
+      `Sections/2-relatedworks.tex`, `Sections/4-data.tex`, and `Sections/5-bench.tex`
+      to ensure a clean final manuscript.
+    severity: writing
+  - id: 908708ed041f
+    text: Remove vertical lines in `Sections/6-experiment.tex` table `tab:full_prompt_results`.
+      The `booktabs` package is loaded, which discourages vertical lines for professional
+      typography.
+    severity: writing
+  - id: 945862773f5c
+    text: Standardize spacing in `Sections/6-experiment.tex` table `tab:full_prompt_results`.
+      Ensure consistent spacing around `&` delimiters (e.g., `4.47 & 3.36` instead
+      of `4.47 &3.36`).
+    severity: writing
+  - id: 0b21d8393f89
+    text: Change table placement specifier from `[h]` to `[htbp]` in `Appendix/sec1.tex`
+      (`tab:component-catalog`) to allow better float handling by LaTeX.
+    severity: writing
+  - id: 9c43a648a51c
+    text: 'Item d729066f9d5b: Informal phrasing remains in Sections 1, 2, and 3. Section
+      1 still uses ''And we introduce A2UI-Bench'' (sentence-start ''And''), ''two-stage
+      recipe'', and ''first one''. Section 2 still has ''lots of work studies''. Section
+      3 still has ''The first one is''. Replace with formal academic equivalents.'
+    severity: writing
+  - id: 33786368b9a7
+    text: "Item 33a966b7a5d8: The citation 'Figure~\ref{fig:main_results}' in Section\
+      \ 6 references a figure label that does not exist in the manuscript. Either\
+      \ create the figure with this label or update the citation to an existing figure\
+      \ (e.g., fig:minimal_vs_full_upperbound or fig:radar)."
+    severity: writing
+  - id: 3b06b6de7775
+    text: 'Item 3b7ca89acbfe: Metric scale inconsistency persists. Section 5 states
+      language-side evaluation maps to $[0,1]$, but Appendix scoring rubrics use 0-5
+      or 1-5 scales, and Section 6 reports scores like 4.67, 3.59. Clarify which scale
+      is used where and ensure consistent numerical reporting throughout.'
+    severity: writing

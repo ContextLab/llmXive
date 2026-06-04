@@ -74,4 +74,7 @@ ready:
 - project_id: PROJ-566-mint-managed-infrastructure-for-training
   revision_spec_path: specs/auto-revisions/PROJ-566-mint-managed-infrastructure-for-training/round-1
   queued_at: '2026-06-04T01:22:07.691141+00:00'
+- project_id: PROJ-629-macaron-a2ui-a-model-for-generative-ui-i
+  revision_spec_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-1
+  queued_at: '2026-06-04T07:11:31.581069+00:00'
 blocked: []
