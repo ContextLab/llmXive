@@ -9956,7 +9956,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T15:24:20.855650+00:00",
+  "generated_at": "2026-06-04T15:42:28.375007+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -57629,6 +57629,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 88.681292,
+          "ended_at": "2026-06-04T15:42:22.586295+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-04T15:40:53.905003+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 11653.294649,
           "ended_at": "2026-06-04T06:54:31.527071Z",
@@ -57699,14 +57707,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "triage_rejected_advanced_as_abstain",
           "started_at": "2026-06-01T19:48:41.186238+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 121.379251,
-          "ended_at": "2026-05-31T22:50:24.317924+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "triage_rejected_advanced_as_abstain",
-          "started_at": "2026-05-31T22:48:22.938673+00:00"
         }
       ],
       "phase_group": "research_speckit",
@@ -86955,6 +86955,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Ada Lovelace (simulated)",
+      "duration_s": 88.681292,
+      "ended_at": "2026-06-04T15:42:22.586295+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "ada-lovelace",
+      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+      "project_stage": "clarified",
+      "started_at": "2026-06-04T15:40:53.905003+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Stephen Wolfram (simulated)",
       "duration_s": 38.366319,
       "ended_at": "2026-06-04T14:08:36.301484+00:00",
@@ -92211,20 +92225,6 @@
       "project_stage": "paper_review",
       "review_path": "projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/rosalind-franklin-simulated__2026-06-01__paper.md",
       "started_at": "2026-06-01T03:07:20.235808+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Rosalind Franklin (simulated)",
-      "duration_s": 151.82246,
-      "ended_at": "2026-06-01T01:48:59.344585+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "target_missing",
-      "personality_slug": "rosalind-franklin",
-      "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T01:46:27.522125+00:00"
     }
   ],
   "schema_version": "2.0.0"
