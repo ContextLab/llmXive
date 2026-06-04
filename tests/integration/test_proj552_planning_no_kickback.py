@@ -51,11 +51,10 @@ PROJ552_PLAN = (
 
 
 def test_proj552_planning_strips_wrong_count_and_advances(tmp_path: Path) -> None:
+    from llmxive.backends.router import make_backend
     from llmxive.claims.service import process_document
 
-    from llmxive.backends.router import make_backend
-
-    out, claims, report = process_document(
+    out, _claims, report = process_document(
         PROJ552_PLAN,
         artifact_path="projects/PROJ-552/specs/plan.md",
         project_id="PROJ-552",

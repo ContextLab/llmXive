@@ -62,7 +62,7 @@ def _backend():
 def test_lowlevel_stripped(tmp_path: Path) -> None:
     from llmxive.claims.service import process_document
 
-    out, claims, report = process_document(
+    out, _claims, report = process_document(
         PLAN_DOC,
         artifact_path="projects/PROJ-test/specs/plan.md",
         project_id="PROJ-test",
