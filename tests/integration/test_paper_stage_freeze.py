@@ -34,7 +34,7 @@ pytestmark = [
     pytest.mark.skipif(not _has_key(), reason="no Dartmouth key"),
 ]
 
-_FREE_MODEL = "qwen-2.5-72b-instruct"
+_FREE_MODEL = "qwen.qwen3.5-122b"
 
 
 def _backend():

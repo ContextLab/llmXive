@@ -38,7 +38,7 @@ pytestmark = [
     pytest.mark.skipif(not _has_key(), reason="no Dartmouth key"),
 ]
 
-_FREE_MODEL = "qwen-2.5-72b-instruct"
+_FREE_MODEL = "qwen.qwen3.5-122b"
 
 # 49 is the prime-knot count at 9 crossings, NOT 13 — a wrong low-level claim that
 # must be stripped (not verified, not kicked back) in a planning stage.
@@ -85,19 +85,23 @@ def test_fabricated_doi_blocks(tmp_path: Path) -> None:
         validate_artifact,
     )
 
+    project_id = "PROJ-999-fixture"
+    relpath = f"projects/{project_id}/specs/plan.md"
     doc = (
         "# Plan\n\nWe build on prior work (doi:10.9999/totally-fake-doi-20260604).\n"
     )
-    artifact = tmp_path / "projects" / "PROJ-test" / "specs" / "plan.md"
+    artifact = tmp_path / "projects" / project_id / "specs" / "plan.md"
     artifact.parent.mkdir(parents=True, exist_ok=True)
     artifact.write_text(doc, encoding="utf-8")
+    import hashlib
+
     validate_artifact(
-        project_id="PROJ-test",
-        artifact_path="projects/PROJ-test/specs/plan.md",
+        project_id=project_id,
+        artifact_path=relpath,
         artifact_text=doc,
-        artifact_hash="deadbeef",
+        artifact_hash=hashlib.sha256(doc.encode("utf-8")).hexdigest(),
         repo_root=tmp_path,
     )
-    assert has_blocking_citations("PROJ-test", repo_root=tmp_path), (
+    assert has_blocking_citations(project_id, repo_root=tmp_path), (
         "a fabricated DOI must still block advancement in a planning stage (FR-004)"
     )
