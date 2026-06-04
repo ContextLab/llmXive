@@ -92,4 +92,7 @@ ready:
 - project_id: PROJ-604-https-arxiv-org-abs-2605-18739
   revision_spec_path: specs/auto-revisions/PROJ-604-https-arxiv-org-abs-2605-18739/round-1
   queued_at: '2026-06-04T19:12:34.204672+00:00'
+- project_id: PROJ-649-trust-region-behavior-blending-for-on-po
+  revision_spec_path: specs/auto-revisions/PROJ-649-trust-region-behavior-blending-for-on-po/round-1
+  queued_at: '2026-06-04T21:41:34.608408+00:00'
 blocked: []
