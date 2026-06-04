@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-04T00:09:15.157033+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: john-von-neumann
+last_used_at: '2026-06-04T03:07:15.658372+00:00'
+last_outcome: committed
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-25T00:32:46.339745+00:00'
-  ended_at: '2026-05-25T01:43:17.924019+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/rosalind-franklin-simulated__2026-05-25__research.md
 - slug: stephen-wolfram
   started_at: '2026-05-25T01:43:17.924019+00:00'
   ended_at: '2026-05-25T03:07:19.101655+00:00'
@@ -1219,3 +1212,10 @@ history:
   ended_at: '2026-06-04T00:09:15.157033+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-04T00:09:15.157033+00:00'
+  ended_at: '2026-06-04T03:07:15.658372+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-06-04__research.md
