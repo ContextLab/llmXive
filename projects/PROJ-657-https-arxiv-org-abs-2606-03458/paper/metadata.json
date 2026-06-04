@@ -1,10 +1,17 @@
 {
   "arxiv_id": "2606.03458",
   "arxiv_url": "https://arxiv.org/abs/2606.03458",
-  "title": "https://arxiv.org/abs/2606.03458",
-  "authors": [],
+  "title": "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks",
+  "authors": [
+    "Lorenz K. Muller",
+    "Philippe Bich",
+    "Chiara Boretti",
+    "Hyun-Min Chang",
+    "Jiawei Zhuang",
+    "Lukas Cavigelli"
+  ],
   "submitter": "github-actions[bot]",
-  "abstract": null,
+  "abstract": "Test-time scaling is a powerful approach to obtain better reasoning in large language models, but it becomes memory-bottlenecked during long-horizon decoding, as the KV-cache grows. KV-cache quantization can help improve this, but current methods are evaluated under prefill-like settings and errors behave differently under autoregressive decoding. We show that in the latter regime, quantization errors accumulate across timesteps, driven primarily by incorrect token scales. We introduce KVarN, a calibration-free KV-cache quantizer that applies a Hadamard rotation followed by a dual-scaling variance normalization across both axes of the K and V matrices. We find that this combination fixes outlying token-scale errors and substantially reduces error accumulation over existing baselines. KVarN establishes a new state-of-theart for KV-cache quantization on generative benchmarks, including MATH500, AIME24 and HumanEval, at 2-bit precision. A vLLM implementation of the KVarN method is available at https://github.com/huawei-csl/KVarN",
   "submitted_via": "llmXive dashboard, GitHub issue #274",
   "license": "arXiv Non-exclusive Distribution License",
   "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
