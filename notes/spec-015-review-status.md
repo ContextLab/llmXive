@@ -543,3 +543,45 @@ The 3-part F-14/F-20-B design, built TDD, offline-gate green. Part A still OPEN.
 **Verification:** ruff + mypy clean. Offline gate **2140 passed** / 11 skipped / 2 deselected (baseline **2107** + 33 new; ZERO regression → SC-008; includes test_exact_count_no_regress, test_grounding_service, test_fill_extract_gate, test_claim_resolve_dispatch, test_llm_call_centralization all green). **Live real-call matrix 5/5 PASSED (54s, real Dartmouth):** Almoravid-block (SC-001), Paris-grounded (SC-004), Sydney-contradicted (SC-005), bound-preguard (SC-006), STRUCTURED-skip (SC-002/003 by construction). New tests: test_fill_channels_kind (14), test_fill_relevance (5), test_fill_extract_gate +TestAcceptGate (5), test_fill_claimkind_preguard (6), test_claim_canonical +TestSubjectKeywordsPublic (2), tests/real_call/test_semantic_substantiation (5).
 
 **The trustworthiness stack is now complete:** 016 detect → 017 fill → 018 verify-modes → **019 PROSE must be semantically substantiated (subject↔value asserted, not a coincidental digit match)**.
+
+## Spec 020 — Deterministic Claim Caching + Planning Reference-Only (IN PROGRESS) — 2026-06-04
+
+Two maintainer-identified problems: (1) claim WAFFLING (a value made→flagged→corrected→
+overwritten→re-flagged in a loop); (2) low-level claims BLOCKING planning (the PROJ-552
+"49 vs 9,988" kickback loop over a number that doesn't gate progress).
+
+Pipeline run via /speckit-execute: plan→tasks→analyze (7 findings, all fixed)→implement.
+
+**DONE + verified (offline gate 2198 passed, 0 fail; baseline was 2165 — no regression):**
+- **US1 (FR-001/002/003/004)** — planning = references-only + strip/smooth. `claims/stage.py`
+  `is_planning_stage()` (planning = spec/clarify/plan/tasks). `claims/smooth.py`
+  `strip_and_smooth()` (LLM rewrite → deterministic re-detect guard → clause-removal
+  fallback; idempotent, citations preserved). `process_document(stage_label=)` planning
+  branch: extract to FIND low-level claims, strip/smooth them, NO resolve/fill/ground/
+  marker/kickback. References still gated by the separate F-18/validate_artifact path.
+  Stage threaded via `SlashCommandAgent.claim_stage_label()` (NOT derivable from
+  slash_command_name — plan_cmd & paper_plan_cmd share "speckit.plan"). Fill-boundary
+  gate (channels_for/fill_claim stage_label) as defense-in-depth.
+- **US2 freeze (FR-009/010/011/013)** — `state/claims.load_verified_by_subject()` frozen
+  (kind, subject_key) index; `resolve_registered_claims` adopts a VERIFIED subject-twin
+  WITHOUT re-resolving (closes the PENDING-with-verified-twin re-resolution gap → no
+  re-open on transient failure). state/claims/ git-tracked (cross-run), grounding-cache
+  gitignored (within-run only).
+- **US2 cache key (FR-012, partial)** — dropped `resolved_value` from the fill verdict key
+  (the safe part). The stronger "different asserted values share a key" needs hardening the
+  shared `canonical._asserted_value` disambiguation (broad blast radius) — scoped, not done.
+- **US3 (FR-006)** — templates/skills/data-resources panel defer empirical specifics; PROJ-552
+  per-project template copies synced byte-identical.
+
+**OPEN DESIGN FORK (surfaced, NOT done): FR-007/008, SC-007 — durable placeholder.**
+Making `render()` leave `{{claim:id}}` placeholders instead of baking corrected values would
+(a) conflict with the proven-good value-correction tests (test_claim_pointer asserts render
+bakes 9988; test_claim_layer_chokepoint asserts VERIFIED renders values), (b) move the SC-005
+canonical-sweep correction to a render-time view, and (c) make every stored spec.md/plan.md
+across 600+ projects carry raw tokens. The *practical* waffling is already eliminated by US1 +
+US2 (the verified value never changes). SC-007's strict "never baked into prose" form is a
+large, risky restructuring of the most load-bearing claim-layer path → recommended as a
+focused, separately-reviewed change rather than an autonomous global rewrite.
+
+Commits: c77de3fa (plan) 4b2cf2c4 (tasks+analyze) 4a06d0cc (US1) 16e44ee9 (US2 freeze+key)
+58877524 (US3+real-call tests). Real-call sign-off: free model = qwen.qwen3.5-122b.
