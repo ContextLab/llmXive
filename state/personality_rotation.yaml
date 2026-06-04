@@ -1,11 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-04T22:56:38.766243+00:00'
-last_outcome: committed
+last_used: freeman-dyson
+last_used_at: '2026-06-04T23:27:38.336287+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-25T20:30:56.436539+00:00'
-  ended_at: '2026-05-25T20:56:02.911602+00:00'
-  outcome: model_error
 - slug: daniel-kahneman
   started_at: '2026-05-25T20:56:02.911602+00:00'
   ended_at: '2026-05-25T21:28:15.407953+00:00'
@@ -1228,3 +1224,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/eric-kandel-simulated__2026-06-04__research.md
+- slug: freeman-dyson
+  started_at: '2026-06-04T22:56:38.766243+00:00'
+  ended_at: '2026-06-04T23:27:38.336287+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
