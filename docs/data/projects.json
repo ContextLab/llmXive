@@ -10100,7 +10100,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T19:46:13.901430+00:00",
+  "generated_at": "2026-06-04T20:16:29.516492+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -80777,6 +80777,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 64.332189,
+          "ended_at": "2026-06-04T20:16:24.556989+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-04T20:15:20.224800+00:00"
+        },
+        {
           "agent": "flesh_out",
           "duration_s": 208.66538,
           "ended_at": "2026-06-04T03:43:24.814502Z",
@@ -80847,14 +80855,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-01T04:40:43.828577Z"
-        },
-        {
-          "agent": "paper_reviewer_safety_ethics",
-          "duration_s": 69.163227,
-          "ended_at": "2026-06-01T04:40:43.783099Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-01T04:39:34.619872Z"
         }
       ],
       "phase_group": "idea",
@@ -87569,6 +87569,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Daniel Kahneman (simulated)",
+      "duration_s": 64.332189,
+      "ended_at": "2026-06-04T20:16:24.556989+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "daniel-kahneman",
+      "project_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-06-04T20:15:20.224800+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Dan Rockmore (simulated)",
       "duration_s": 37.14977,
       "ended_at": "2026-06-04T19:18:43.193228+00:00",
@@ -92823,20 +92837,6 @@
       "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
       "project_stage": "paper_review",
       "started_at": "2026-06-01T10:45:27.108845Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Alan Turing (simulated)",
-      "duration_s": 72.229847,
-      "ended_at": "2026-06-01T09:19:31.945046+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "alan-turing",
-      "project_id": "PROJ-592-phenomenological-ai-first-person-experie",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-01T09:18:19.715199+00:00"
     }
   ],
   "schema_version": "2.0.0"
