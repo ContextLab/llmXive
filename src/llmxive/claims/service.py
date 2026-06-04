@@ -23,6 +23,8 @@ from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 from llmxive.claims.pointer import GateReport, render, substitute_pointers
 from llmxive.claims.resolve import resolve
+from llmxive.claims.smooth import strip_and_smooth
+from llmxive.claims.stage import is_planning_stage
 from llmxive.state import claims as _claim_store
 
 logger = logging.getLogger(__name__)
@@ -132,7 +134,7 @@ def resolve_registered_claims(
     return resolved
 
 
-def process_document(
+def _process_planning_document(
     text: str,
     *,
     artifact_path: str,
@@ -141,9 +143,70 @@ def process_document(
     model: str | None,
     repo_root: Path,
 ) -> tuple[str, list[Claim], GateReport]:
+    """Planning-stage claim handling (spec 020 Part A): references-only + strip/smooth.
+
+    In a planning stage (specify/clarify/plan/tasks) the claim layer MUST NOT
+    fetch, fill, ground, or kick back on low-level claims (FR-002/003). References
+    are verified by the separate reference path (F-18 / ``validate_artifact``) that
+    runs BEFORE this function (FR-004), so here we only:
+
+    - extract claims (to FIND any low-level assertion), and
+    - replace each detected non-citation (low-level) claim's span with a
+      higher-level statement via :func:`strip_and_smooth` (FR-002a),
+
+    returning the smoothed text with NO ``[UNRESOLVED-CLAIM:]`` marker and an
+    empty (non-blocking) GateReport. Nothing is resolved or registered — a
+    planning low-level value is neither verified nor left asserted; it is removed.
+    Never raises.
+    """
+    text = strip_claim_artifacts(text)
+    try:
+        new_claims = extract_claims(
+            text, artifact_path=artifact_path, backend=backend,
+            model=model, repo_root=repo_root,
+        )
+    except Exception as exc:
+        logger.warning("claims.service: planning extraction failed (%s); no-op", exc)
+        return text, [], GateReport()
+
+    smoothed = text
+    lowlevel = [c for c in new_claims if c.kind != ClaimKind.CITATION]
+    for claim in lowlevel:
+        span = claim.raw_text or ""
+        if not span or span not in smoothed:
+            continue
+        try:
+            replacement = strip_and_smooth(span, claim, backend=backend, model=model)
+        except Exception as exc:  # never block a planning render on smoothing
+            logger.warning("claims.service: strip/smooth failed for %s (%s)",
+                           claim.claim_id, exc)
+            continue
+        if replacement != span:
+            smoothed = smoothed.replace(span, replacement, 1)
+    # No markers, no kickback, no resolution: planning never blocks on low-level.
+    return smoothed, [], GateReport()
+
+
+def process_document(
+    text: str,
+    *,
+    artifact_path: str,
+    project_id: str,
+    backend: Any,
+    model: str | None,
+    repo_root: Path,
+    stage_label: str | None = None,
+) -> tuple[str, list[Claim], GateReport]:
     """Extract → register → substitute → resolve → render one document.
 
     Returns ``(rendered_text, claims, GateReport)``.
+
+    ``stage_label`` (spec 020 FR-001) selects the regime: a *planning* stage
+    (specify/clarify/plan/tasks — see :func:`claims.stage.is_planning_stage`)
+    verifies references only and strips/smooths low-level claims (Part A); any
+    other / ``None`` stage runs the full extract→resolve→render verification with
+    the Part-B freeze. Defaulting to ``None`` preserves the prior behavior for
+    every existing caller.
 
     Idempotency: if a claim with the same ``claim_id`` is already in the
     registry with status VERIFIED, it is reused without re-resolution.
@@ -152,6 +215,12 @@ def process_document(
 
     Never raises — on extraction failure returns ``(text, [], GateReport())``.
     """
+    if is_planning_stage(stage_label):
+        return _process_planning_document(
+            text, artifact_path=artifact_path, project_id=project_id,
+            backend=backend, model=model, repo_root=repo_root,
+        )
+
     # Step 0: Strip prior claim-layer artifacts (markers + stray pointers) so a
     # re-run does NOT re-extract its own output (idempotency — root causes 2/4).
     text = strip_claim_artifacts(text)

@@ -24,8 +24,8 @@ Single project: source at `src/llmxive/`, tests at `tests/`. Docs/templates at r
 
 **Purpose**: capture the no-regression baseline and confirm the plan's code anchors still hold.
 
-- [ ] T001 Capture the baseline offline gate: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` plus `ruff check .` and `mypy src/llmxive`; record the passing test count and clean lint/type state in the PR/commit notes (the figure to match at T032/T034).
-- [ ] T002 [P] Confirm the real-call harness is usable: verify `llmxive.credentials.load_dartmouth_key()` resolves a key and that only free models are selectable (free-only guard), so the FR-016 real-call tasks can run; record availability.
+- [X] T001 Capture the baseline offline gate: run `python -m pytest tests/contract tests/integration tests/unit -q -p no:cacheprovider --deselect tests/unit/test_audit_pdf.py::TestPdfAuditorOnLivePdfs` plus `ruff check .` and `mypy src/llmxive`; record the passing test count and clean lint/type state in the PR/commit notes (the figure to match at T032/T034).
+- [X] T002 [P] Confirm the real-call harness is usable: verify `llmxive.credentials.load_dartmouth_key()` resolves a key and that only free models are selectable (free-only guard), so the FR-016 real-call tasks can run; record availability.
 
 ---
 
@@ -33,8 +33,8 @@ Single project: source at `src/llmxive/`, tests at `tests/`. Docs/templates at r
 
 **Purpose**: the single stage-class predicate used by US1's planning branch and the fill short-circuit.
 
-- [ ] T003 Write failing unit test `tests/unit/test_stage_class.py` for the C1 contract: `is_planning_stage("spec"|"clarify"|"plan"|"tasks") is True`; `is_planning_stage("paper_plan"|"paper_tasks"|None|"unknown") is False`; `PLANNING_STAGE_LABELS` is exactly `{"spec","clarify","plan","tasks"}`.
-- [ ] T004 Implement `src/llmxive/claims/stage.py` (`PLANNING_STAGE_LABELS: frozenset[str]`, `is_planning_stage(stage_label: str | None) -> bool`) — single SSoT for the planning/full distinction (FR-001); make T003 pass.
+- [X] T003 Write failing unit test `tests/unit/test_stage_class.py` for the C1 contract: `is_planning_stage("spec"|"clarify"|"plan"|"tasks") is True`; `is_planning_stage("paper_plan"|"paper_tasks"|None|"unknown") is False`; `PLANNING_STAGE_LABELS` is exactly `{"spec","clarify","plan","tasks"}`.
+- [X] T004 Implement `src/llmxive/claims/stage.py` (`PLANNING_STAGE_LABELS: frozenset[str]`, `is_planning_stage(stage_label: str | None) -> bool`) — single SSoT for the planning/full distinction (FR-001); make T003 pass.
 
 **Checkpoint**: stage classification exists and is tested → US1 and US2 can proceed.
 
@@ -52,18 +52,18 @@ checked; a fabricated DOI still blocks; a second round leaves the smoothed passa
 
 ### Tests (write first — they must fail before impl)
 
-- [ ] T005 [P] [US1] Write `tests/unit/test_strip_smooth.py` (C3): asserts `strip_and_smooth` output is claim-free (`extract_claims` finds no low-level claim with the same `subject_key`), is idempotent (no-op on already-smoothed text — FR-002b/SC-001a), preserves an embedded citation (FR-002c), and that the **deterministic fallback** path (force the LLM rewrite to still contain the claim) removes the asserting clause and yields grammatical, claim-free text.
-- [ ] T006 [P] [US1] Write `tests/unit/test_planning_skip.py` (C2/C8): with `stage_label` planning, a low-level NUMERIC claim triggers **no** external fetch/locator/grounding call (assert the fetch entry point is not invoked) and **no** `[UNRESOLVED-CLAIM:]` marker is emitted, and the stage produces no low-level kickback (FR-002/003).
-- [ ] T007 [P] [US1] Write `tests/integration/test_planning_references_only.py` (real-call, `LLMXIVE_REAL_TESTS=1`): `test_lowlevel_stripped` (a planning doc with a wrong count → generalized, no marker, no kickback, advances) and `test_fabricated_doi_blocks` (a fabricated DOI in the same doc → reference flagged unresolvable, advancement blocked, fail-closed — FR-004/SC-002).
+- [X] T005 [P] [US1] Write `tests/unit/test_strip_smooth.py` (C3): asserts `strip_and_smooth` output is claim-free (`extract_claims` finds no low-level claim with the same `subject_key`), is idempotent (no-op on already-smoothed text — FR-002b/SC-001a), preserves an embedded citation (FR-002c), and that the **deterministic fallback** path (force the LLM rewrite to still contain the claim) removes the asserting clause and yields grammatical, claim-free text.
+- [X] T006 [P] [US1] Write `tests/unit/test_planning_skip.py` (C2/C8): with `stage_label` planning, a low-level NUMERIC claim triggers **no** external fetch/locator/grounding call (assert the fetch entry point is not invoked) and **no** `[UNRESOLVED-CLAIM:]` marker is emitted, and the stage produces no low-level kickback (FR-002/003).
+- [X] T007 [P] [US1] Write `tests/integration/test_planning_references_only.py` (real-call, `LLMXIVE_REAL_TESTS=1`): `test_lowlevel_stripped` (a planning doc with a wrong count → generalized, no marker, no kickback, advances) and `test_fabricated_doi_blocks` (a fabricated DOI in the same doc → reference flagged unresolvable, advancement blocked, fail-closed — FR-004/SC-002).
 
 ### Implementation
 
-- [ ] T008 [US1] Implement `src/llmxive/claims/smooth.py::strip_and_smooth(passage, claim, *, backend, model)` — LLM rewrite via `backends/router.py::reasoning_chat` → re-detect guard (`claims/extract.extract_claims`) → deterministic clause-removal fallback; preserves citations/RQ/method (FR-002a/b/c). Make T005 pass.
-- [ ] T009 [US1] Add `stage_label: str | None` to `SlashCommandContext` and forward it in `_validate_artifact_citations` → `process_document(..., stage_label=ctx.stage_label)` in `src/llmxive/speckit/slash_command.py` (C9).
-- [ ] T010 [US1] Add `stage_label: str | None = None` to `src/llmxive/claims/service.py::process_document`; in the planning branch (`is_planning_stage(stage_label)`) skip resolve/fill/ground + the `[UNRESOLVED-CLAIM:]` marker for low-level kinds and route each detected low-level claim through `strip_and_smooth`, replacing its span in the document; CITATION claims keep their existing path (C2; FR-002/002a/003). Make T006 pass.
-- [ ] T011 [US1] Add a `stage_label` parameter to `src/llmxive/fill/channels/__init__.py::channels_for` and short-circuit the fill gate in `src/llmxive/fill/service.py` (around L307-311) so a planning-stage low-level claim returns no channels / does no fetch (C8; defense-in-depth with T010).
-- [ ] T012 [US1] Populate `ctx.stage_label` from each speckit command's existing stage label. **First verify the actual emitted label strings** (grep each `*_cmd.py` for `stage_label=`): the specify/clarify path emits `"spec"` (and possibly `"clarify"`), `plan_cmd.py` emits `"plan"`, `tasks_cmd.py` emits `"tasks"`. Ensure **every** planning command's emitted label is a member of `PLANNING_STAGE_LABELS` (add any missing actual label, e.g. `"specify"`, to the frozenset in `claims/stage.py` so the set matches reality), and confirm `paper_plan_cmd.py`/`paper_tasks_cmd.py` emit `paper_*` (→ full verification, not planning) (FR-001/005).
-- [ ] T013 [US1] Verify+wire the reference validator path so it still runs for planning artifacts and an unresolvable citation still sets `has_blocking_citations` (`agents/reference_validator.py` unchanged behavior; confirm it is invoked independently of the low-level-claim handling). Make T007's `test_fabricated_doi_blocks` pass (FR-004).
+- [X] T008 [US1] Implement `src/llmxive/claims/smooth.py::strip_and_smooth(passage, claim, *, backend, model)` — LLM rewrite via `backends/router.py::reasoning_chat` → re-detect guard (`claims/extract.extract_claims`) → deterministic clause-removal fallback; preserves citations/RQ/method (FR-002a/b/c). Make T005 pass.
+- [X] T009 [US1] Add `stage_label: str | None` to `SlashCommandContext` and forward it in `_validate_artifact_citations` → `process_document(..., stage_label=ctx.stage_label)` in `src/llmxive/speckit/slash_command.py` (C9).
+- [X] T010 [US1] Add `stage_label: str | None = None` to `src/llmxive/claims/service.py::process_document`; in the planning branch (`is_planning_stage(stage_label)`) skip resolve/fill/ground + the `[UNRESOLVED-CLAIM:]` marker for low-level kinds and route each detected low-level claim through `strip_and_smooth`, replacing its span in the document; CITATION claims keep their existing path (C2; FR-002/002a/003). Make T006 pass.
+- [X] T011 [US1] Add a `stage_label` parameter to `src/llmxive/fill/channels/__init__.py::channels_for` and short-circuit the fill gate in `src/llmxive/fill/service.py` (around L307-311) so a planning-stage low-level claim returns no channels / does no fetch (C8; defense-in-depth with T010).
+- [X] T012 [US1] Populate `ctx.stage_label` from each speckit command's existing stage label. **First verify the actual emitted label strings** (grep each `*_cmd.py` for `stage_label=`): the specify/clarify path emits `"spec"` (and possibly `"clarify"`), `plan_cmd.py` emits `"plan"`, `tasks_cmd.py` emits `"tasks"`. Ensure **every** planning command's emitted label is a member of `PLANNING_STAGE_LABELS` (add any missing actual label, e.g. `"specify"`, to the frozenset in `claims/stage.py` so the set matches reality), and confirm `paper_plan_cmd.py`/`paper_tasks_cmd.py` emit `paper_*` (→ full verification, not planning) (FR-001/005).
+- [X] T013 [US1] Verify+wire the reference validator path so it still runs for planning artifacts and an unresolvable citation still sets `has_blocking_citations` (`agents/reference_validator.py` unchanged behavior; confirm it is invoked independently of the low-level-claim handling). Make T007's `test_fabricated_doi_blocks` pass (FR-004).
 
 **Checkpoint**: US1 independently testable — planning skips/strips low-level claims, references still gate.
 

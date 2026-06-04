@@ -41,13 +41,25 @@ def is_prose(channel: str) -> bool:
     return not is_structured(channel)
 
 
-def channels_for(kind: ClaimKind, *, math: bool) -> list[str]:
+def channels_for(
+    kind: ClaimKind, *, math: bool, stage_label: str | None = None
+) -> list[str]:
     """Return the ordered channel names to try for *kind* in v1.
 
     NUMERIC  → [constants, oeis, wikipedia, paper] (+ theorem if math-classified)
     ENTITY_FACT → [wikidata, wikipedia, paper]
     everything else → [] (deferred in v1; claim stays blocked)
+
+    Spec 020 FR-002: in a *planning* stage (specify/clarify/plan/tasks) no
+    low-level kind is fetched — returns ``[]`` so there is no external fetch /
+    locator call. This is the defense-in-depth boundary; the primary planning
+    guarantee is that ``process_document`` never reaches the fill path in a
+    planning stage at all.
     """
+    from llmxive.claims.stage import is_planning_stage
+
+    if is_planning_stage(stage_label):
+        return []
     if kind == ClaimKind.NUMERIC:
         channels = ["constants", "oeis", "wikipedia", "paper"]
         if math:

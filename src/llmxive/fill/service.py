@@ -298,11 +298,26 @@ def fill_claim(
     backend: Any = None,
     model: str | None = None,
     repo_root: Path | None = None,
+    stage_label: str | None = None,
 ) -> FillResult:
     """Orchestrate the fill pipeline for one claim.
 
     Returns a FillResult (filled or blocked).  Never raises.
+
+    Spec 020 FR-002: when ``stage_label`` is a planning stage, a low-level claim
+    is short-circuited BEFORE any external fetch (no locator/grounding call). The
+    primary planning protection is in ``claims.service.process_document`` (which
+    never reaches fill in a planning stage); this is the fill-boundary
+    defense-in-depth so any caller passing a planning stage is also protected.
     """
+    from llmxive.claims.stage import is_planning_stage
+
+    if is_planning_stage(stage_label):
+        return FillResult.blocked(
+            reason="planning stage: low-level claims are stripped, not filled (spec 020 FR-002)",
+            channels_tried=[],
+        )
+
     # Guard: only NUMERIC and ENTITY_FACT in v1
     if claim.kind not in _FILLABLE_KINDS:
         return FillResult.blocked(

@@ -40,6 +40,9 @@ class ClarifierAgent(SlashCommandAgent):
     def slash_command_name(self) -> str:
         return "speckit.clarify"
 
+    def claim_stage_label(self) -> str | None:
+        return "spec"  # spec 020 FR-001: planning → references-only + strip/smooth
+
     def _spec_path(self, ctx: SlashCommandContext) -> Path:
         # Spec-015 fix: resolve the feature dir via the project's authoritative
         # speckit_research_dir pointer so a convergence kickback

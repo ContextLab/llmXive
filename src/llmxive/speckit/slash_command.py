@@ -63,6 +63,18 @@ class SlashCommandAgent(abc.ABC):
     def slash_command_name(self) -> str:
         """e.g. 'speckit.specify', 'speckit.plan'."""
 
+    def claim_stage_label(self) -> str | None:
+        """Stage-class label for the claim layer (spec 020 FR-001).
+
+        Planning commands (specify/clarify/plan/tasks) override this to return
+        their ``stage_label`` (``"spec"``/``"plan"``/``"tasks"``) so the claim
+        layer runs references-only + strip/smooth. ``None`` (the default, used by
+        paper/research/implement commands) means FULL verification. Note this is
+        NOT derivable from :meth:`slash_command_name` — ``plan_cmd`` and
+        ``paper_plan_cmd`` share the name ``"speckit.plan"`` but differ here.
+        """
+        return None
+
     @abc.abstractmethod
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         """Invoke the slash command's bash script and return its parsed JSON."""
@@ -113,7 +125,10 @@ class SlashCommandAgent(abc.ABC):
             llm_response_text = llm_response.text
             outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
             # FR-026 point 1: validate citations on every artifact write.
-            _validate_artifact_citations(ctx, outputs)
+            # spec 020 FR-001: thread the planning/full stage class to the claim layer.
+            _validate_artifact_citations(
+                ctx, outputs, stage_label=self.claim_stage_label()
+            )
         except Exception as exc:
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
@@ -205,7 +220,7 @@ def _maybe_write_inspection(
 
 
 def _validate_artifact_citations(
-    ctx: SlashCommandContext, outputs: list[str]
+    ctx: SlashCommandContext, outputs: list[str], *, stage_label: str | None = None
 ) -> None:
     """Run the Reference-Validator over every newly-written artifact.
 
@@ -290,6 +305,7 @@ def _validate_artifact_citations(
                 backend=backend_obj,
                 model=ctx.default_model,
                 repo_root=repo,
+                stage_label=stage_label,
             )
             # Rewrite in place if the rendered output differs.
             if rendered != text:
