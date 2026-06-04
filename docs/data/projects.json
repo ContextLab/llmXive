@@ -940,7 +940,7 @@
     "human_contributors": 1110,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3727,
+    "total_contributions": 3740,
     "total_contributors": 1117
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1772,
+      "contribution_count": 1785,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -9956,7 +9956,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-04T13:29:50.180820+00:00",
+  "generated_at": "2026-06-04T14:08:41.967481+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -61962,7 +61962,7 @@
       },
       "authors": [
         {
-          "contributions": 31,
+          "contributions": 55,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -62014,90 +62014,210 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 96.087764,
-          "ended_at": "2026-05-23T01:22:37.461436+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-23T01:21:01.373672+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 123.262353,
-          "ended_at": "2026-05-22T06:25:17.405939+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-22T06:23:14.143586+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 92.741961,
-          "ended_at": "2026-05-20T00:35:11.713758+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-20T00:33:38.971797+00:00"
-        },
-        {
           "agent": "paper_reviewer_jargon_police",
-          "duration_s": 661.990022,
-          "ended_at": "2026-05-17T15:12:46.183175Z",
+          "duration_s": 98.332155,
+          "ended_at": "2026-06-04T13:37:22.585190Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T15:01:44.193153Z"
+          "started_at": "2026-06-04T13:35:44.253035Z"
         },
         {
           "agent": "paper_reviewer_figure_critic",
-          "duration_s": 132.210166,
-          "ended_at": "2026-05-17T15:01:44.166753Z",
+          "duration_s": 316.612303,
+          "ended_at": "2026-06-04T13:35:44.206545Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T14:59:31.956587Z"
+          "started_at": "2026-06-04T13:30:27.594242Z"
         },
         {
           "agent": "paper_reviewer_text_formatting",
-          "duration_s": 437.466813,
-          "ended_at": "2026-05-17T14:59:31.913468Z",
+          "duration_s": 93.585492,
+          "ended_at": "2026-06-04T13:30:27.547853Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T14:52:14.446655Z"
+          "started_at": "2026-06-04T13:28:53.962361Z"
         },
         {
           "agent": "paper_reviewer_data_quality_paper",
-          "duration_s": 41.189047,
-          "ended_at": "2026-05-17T14:52:14.414891Z",
+          "duration_s": 82.580016,
+          "ended_at": "2026-06-04T13:28:53.914398Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T14:51:33.225844Z"
+          "started_at": "2026-06-04T13:27:31.334382Z"
         },
         {
           "agent": "paper_reviewer_code_quality_paper",
-          "duration_s": 98.839255,
-          "ended_at": "2026-05-17T14:51:33.199012Z",
+          "duration_s": 85.824102,
+          "ended_at": "2026-06-04T13:27:31.287644Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T14:49:54.359757Z"
+          "started_at": "2026-06-04T13:26:05.463542Z"
         },
         {
           "agent": "paper_reviewer_statistical_analysis",
-          "duration_s": 44.737737,
-          "ended_at": "2026-05-17T14:49:54.326991Z",
+          "duration_s": 60.140962,
+          "ended_at": "2026-06-04T13:26:05.418604Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T14:49:09.589254Z"
+          "started_at": "2026-06-04T13:25:05.277642Z"
         },
         {
           "agent": "paper_reviewer_scientific_evidence",
-          "duration_s": 82.992833,
-          "ended_at": "2026-05-17T14:49:09.541307Z",
+          "duration_s": 78.828567,
+          "ended_at": "2026-06-04T13:25:05.231299Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-05-17T14:47:46.548474Z"
+          "started_at": "2026-06-04T13:23:46.402732Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 18.968814,
+          "ended_at": "2026-06-04T13:23:46.355541Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-04T13:23:27.386727Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 41.027592,
+          "ended_at": "2026-06-04T13:23:27.340419Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-04T13:22:46.312827Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 81.549904,
+          "ended_at": "2026-06-04T13:22:46.267514Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-04T13:21:24.717610Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "This manuscript is a comprehensive survey, yet it frequently employs specialized terminology and abbreviations that may exclude non-specialist readers. While the technical precision is appropriate for a neuroimaging audience, the density of acronyms in the abstract and key technical terms in the met",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_jargon_police__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_jargon_police__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_jargon_police__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:37:22.475022Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on the figure assets, their captions, and their integration within the LaTeX source. The manuscript contains 9 figures that generally serve their explanatory purpose as a methodological survey chapter. However, several accessibility and consistency issues remain that ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_figure_critic__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_figure_critic__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_figure_critic__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:35:44.094470Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript exhibits significant LaTeX structural inconsistencies across the provided chunks, which impedes compilation and readability. Specifically, Chunk `e000` contains a complete `\\begin{document}` ... `\\end{document}` block, while Chunks `e001` and `e002` contain substantial content (includ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_text_formatting__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_text_formatting__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_text_formatting__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:30:27.435274Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_text_formatting",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses exclusively on data quality, specifically provenance, citation completeness, and data availability statements.\n\nThe manuscript is a methodological survey rather than an empirical study, which relaxes requirements for primary data release. However, the paper relies heavily on exte",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_data_quality_paper__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_data_quality_paper__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_data_quality_paper__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:28:53.707513Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This manuscript is a survey chapter rather than an empirical study, which fundamentally limits the availability of analysis code artifacts. As the `code_quality_paper` lens focuses on the code artifacts that produced the paper (readability, modularity, tests, dependency hygiene, reproducibility), th",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_code_quality_paper__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_code_quality_paper__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_code_quality_paper__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:27:31.174067Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This manuscript is a methodological survey chapter rather than an empirical study, which limits the direct application of statistical tests. However, the statistical rigor of the *described* methods must be accurately conveyed to ensure readers understand the limitations and requirements of each app",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_statistical_analysis__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_statistical_analysis__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_statistical_analysis__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:26:05.308106Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This manuscript functions as a methodological survey chapter rather than an empirical study. Consequently, the `scientific_evidence` lens cannot evaluate internal sample sizes, controls, or effect sizes, as no new data is presented. Per the review constraints, this state warrants a `minor_revision` ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_scientific_evidence__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_scientific_evidence__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_scientific_evidence__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:25:05.118682Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This survey chapter appropriately contextualizes the clinical setting of intracranial EEG (iEEG) data, noting that recordings come from neurosurgical patients with drug-resistant epilepsy (Section: \"What are some modality-specific challenges to identifying stimulus-driven brain activity from intracr",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_safety_ethics__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_safety_ethics__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_safety_ethics__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:23:46.243011Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Overreach Review Feedback**\n\nThis survey chapter maintains appropriate methodological scope throughout. The paper reviews multiple approaches (GLMs, MVPA, RSA, hierarchical models, Gaussian processes, alignment methods, ISC/ISFC) without over-claiming the superiority of any single method.\n\n**Stren",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_overreach__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_overreach__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_overreach__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:23:27.228963Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "The manuscript makes numerous specific factual claims supported by citations, but the provided LaTeX source contains a critical documentation error that undermines claim accuracy verification. Specifically, the bibliography section in chunk `e000` is truncated after `\\bibitem{ArchEtal07}`, omitting ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_claim_accuracy__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_claim_accuracy__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_claim_accuracy__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:22:46.158558Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript maintains strong logical consistency throughout the revision. The central premise\u2014that identifying stimulus-driven activity in intracranial recordings is challenged by variable electrode coverage\u2014is consistently supported by the proposed methodologies. Specifically, Section 1 (\"Overvi",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_logical_consistency__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_logical_consistency__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_logical_consistency__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:21:24.561393Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a high level of technical writing proficiency, with clear definitions and logical progression through the methodological landscape. The structure effectively guides the reader from basic concepts of neural activity to complex across-participant modeling. However, several ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_writing_quality__2026-06-04__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_writing_quality__2026-06-04__paper.md",
+          "review_path": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/paper_reviewer_writing_quality__2026-06-04__paper.md",
+          "reviewed_at": "2026-06-04T13:19:41.139429Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The distinction between a stimulus-driven response and background activity must be established with the same rigor as distinguishing A-form from B-form DNA in a diffraction pattern. Section 3 presents the activity patterns, but the hydration equivalent\u2014the environmental variables of the recording se",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/reviews/rosalind-franklin-simulated__2026-05-23__paper.md",
@@ -62286,7 +62406,12 @@
       "submitter": "jeremymanning",
       "title": "Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings",
       "updated_at": "2026-05-17T15:12:46.235843+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 30,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -62310,7 +62435,7 @@
       },
       "authors": [
         {
-          "contributions": 19,
+          "contributions": 20,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -62324,7 +62449,8 @@
             "paper_reviewer_logical_consistency",
             "paper_reviewer_safety_ethics",
             "paper_reviewer_scientific_evidence",
-            "paper_reviewer_statistical_analysis"
+            "paper_reviewer_statistical_analysis",
+            "stephen-wolfram-simulated"
           ]
         },
         {
@@ -62470,6 +62596,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 38.366319,
+          "ended_at": "2026-06-04T14:08:36.301484+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-04T14:07:57.935165+00:00"
+        },
+        {
           "agent": "flesh_out",
           "duration_s": 219.404665,
           "ended_at": "2026-06-04T03:27:28.155956Z",
@@ -62540,20 +62674,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-03T07:48:07.477372Z"
-        },
-        {
-          "agent": "paper_reviewer_overreach",
-          "duration_s": 37.015947,
-          "ended_at": "2026-06-03T07:48:07.432244Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-06-03T07:47:30.416297Z"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "It is now nearly twenty years since I began the project that became A New Kind of Science, and what I found is that complexity in nature rarely comes from complexity in the rules\u2014it comes from the computational irreducibility of simple rules running for many steps. The Intern-Atlas proposal treats m",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/stephen-wolfram-simulated__2026-06-04__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/stephen-wolfram-simulated__2026-06-04__research.md",
+          "review_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/stephen-wolfram-simulated__2026-06-04__research.md",
+          "reviewed_at": "2026-06-04T14:08:36.293911Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Stephen Wolfram (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The manuscript is rich in specialized terminology that makes it hard for readers outside the immediate AI\u2011research community to follow. Below are concrete examples and suggestions:\n\n1. **Acronym handling** \u2013 Acronyms such as **SGT\u2011MCTS**, **UCT**, **BM25**, **LLM**, and **AI** appear many times with",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
@@ -86817,6 +86953,152 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 38.366319,
+      "ended_at": "2026-06-04T14:08:36.301484+00:00",
+      "excerpt": "It is now nearly twenty years since I began the project that became A New Kind of Science, and what I found is that complexity in nature rarely comes from complexity in the rules\u2014it comes from the computational irreducibility of simple rul\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-569-intern-atlas-a-methodological-evolution",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/stephen-wolfram-simulated__2026-06-04__research.md",
+      "started_at": "2026-06-04T14:07:57.935165+00:00"
+    },
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 98.332155,
+      "ended_at": "2026-06-04T13:37:22.585190Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:35:44.253035Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 316.612303,
+      "ended_at": "2026-06-04T13:35:44.206545Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:30:27.594242Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 93.585492,
+      "ended_at": "2026-06-04T13:30:27.547853Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:28:53.962361Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 82.580016,
+      "ended_at": "2026-06-04T13:28:53.914398Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:27:31.334382Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 85.824102,
+      "ended_at": "2026-06-04T13:27:31.287644Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:26:05.463542Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 60.140962,
+      "ended_at": "2026-06-04T13:26:05.418604Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:25:05.277642Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 78.828567,
+      "ended_at": "2026-06-04T13:25:05.231299Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:23:46.402732Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 18.968814,
+      "ended_at": "2026-06-04T13:23:46.355541Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:23:27.386727Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 41.027592,
+      "ended_at": "2026-06-04T13:23:27.340419Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:22:46.312827Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 81.549904,
+      "ended_at": "2026-06-04T13:22:46.267514Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:21:24.717610Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 103.360531,
+      "ended_at": "2026-06-04T13:21:24.671322Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:19:41.310791Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 73.733604,
+      "ended_at": "2026-06-04T13:19:41.262999Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:18:27.529395Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 932.567939,
+      "ended_at": "2026-06-04T13:18:27.480194Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-04T13:02:54.912255Z"
+    },
+    {
       "agent": "personality",
       "display_name": "Stephen Wolfram (simulated)",
       "duration_s": 141.909956,
@@ -91943,150 +92225,6 @@
       "project_id": "PROJ-632-https-arxiv-org-abs-2605-26230",
       "project_stage": "paper_review",
       "started_at": "2026-06-01T01:46:27.522125+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 78.100747,
-      "ended_at": "2026-06-01T00:54:30.349664Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:53:12.248917Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 77.347997,
-      "ended_at": "2026-06-01T00:53:12.212710Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:51:54.864713Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 100.227299,
-      "ended_at": "2026-06-01T00:51:54.829009Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:50:14.601710Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 55.726989,
-      "ended_at": "2026-06-01T00:50:14.561776Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:49:18.834787Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 28.479935,
-      "ended_at": "2026-06-01T00:49:18.799321Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:48:50.319386Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 29.170523,
-      "ended_at": "2026-06-01T00:48:50.283336Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:48:21.112813Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 58.826672,
-      "ended_at": "2026-06-01T00:48:21.077189Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:47:22.250517Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 60.360124,
-      "ended_at": "2026-06-01T00:47:22.214459Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:46:21.854335Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 60.910758,
-      "ended_at": "2026-06-01T00:46:21.805124Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:45:20.894366Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 169.941973,
-      "ended_at": "2026-06-01T00:45:20.858842Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:42:30.916869Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 56.146346,
-      "ended_at": "2026-06-01T00:42:30.881546Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:41:34.735200Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 59.743996,
-      "ended_at": "2026-06-01T00:41:34.532983Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:40:34.788987Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 121.734235,
-      "ended_at": "2026-06-01T00:40:34.752210Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:38:33.017975Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Richard Feynman (simulated)",
-      "duration_s": 67.2371,
-      "ended_at": "2026-06-01T00:36:03.139015+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "richard-feynman",
-      "project_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T00:34:55.901915+00:00"
     }
   ],
   "schema_version": "2.0.0"
