@@ -80,4 +80,7 @@ ready:
 - project_id: PROJ-631-https-arxiv-org-abs-2605-25604
   revision_spec_path: specs/auto-revisions/PROJ-631-https-arxiv-org-abs-2605-25604/round-1
   queued_at: '2026-06-04T07:50:30.212854+00:00'
+- project_id: PROJ-648-representation-forcing-for-bottleneck-fr
+  revision_spec_path: specs/auto-revisions/PROJ-648-representation-forcing-for-bottleneck-fr/round-1
+  queued_at: '2026-06-04T10:33:03.565698+00:00'
 blocked: []

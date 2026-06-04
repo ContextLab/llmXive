@@ -1,0 +1,130 @@
+project_id: PROJ-648-representation-forcing-for-bottleneck-fr
+arxiv_id: '2605.31604'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-04T10:33:03.550832+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 43bccdfac250
+    text: Verify all bibliography citations have correct publication dates; many references
+      show 2025-2026 dates which appear suspicious and need confirmation before publication.
+    severity: writing
+  - id: ca2d70bb6819
+    text: "Clarify the \"bottleneck-free\" claim more carefully\u2014the method still\
+      \ uses vector quantization with a codebook, which is conceptually similar to\
+      \ VAE approaches; avoid overclaiming."
+    severity: writing
+  - id: 4204db27e3e7
+    text: Provide additional verification details for GenEval and DPG-Bench benchmark
+      results, including seed information and evaluation protocol to support reproducibility
+      claims.
+    severity: writing
+  - id: cd2c6ff6b973
+    text: Confirm LaTeX compiles successfully with all figure references (teaser.pdf,
+      method.pdf, compare.pdf, demo.pdf) before final submission.
+    severity: writing
+  - id: 3cf6704a45c2
+    text: The actual code repository is not included in the submission. Please provide
+      the code files or a direct link to the repository to evaluate modularity, tests,
+      and dependency hygiene.
+    severity: writing
+  - id: db020039087e
+    text: The pseudocode in Algorithm 1 lacks specific library version requirements
+      (e.g., PyTorch version) and dependency declarations (requirements.txt) for reproducibility.
+    severity: writing
+  - id: 9fa65aef88d5
+    text: Add accessibility alt text to all \includegraphics commands for screen reader
+      compatibility.
+    severity: writing
+  - id: 7de51cc6f3a3
+    text: Expand the caption for Figure 3 (demo.pdf) to describe specific visual qualities
+      or prompts.
+    severity: writing
+  - id: b59fe11bb1a4
+    text: Remove unused figure files (method_old.pdf, rf_teaser.pdf) to ensure build
+      reproducibility.
+    severity: writing
+  - id: ff9c9cbc27ca
+    text: Define 'VAE' (Variational Autoencoder) at first use in Abstract and Introduction.
+    severity: writing
+  - id: b623cf39890b
+    text: Define 'LLM' (Large Language Model) at first use in Section 3.3.
+    severity: writing
+  - id: b70f2863c9bb
+    text: Define acronyms 'JiT', 'REPA', 'NaViT' upon first citation in Sections 3.2
+      and Appendix.
+    severity: writing
+  - id: 72bd3b9e2427
+    text: Replace 'autoregressively predict' with 'predict step-by-step' in Abstract
+      and Section 3.1.
+    severity: writing
+  - id: c2a20d403f98
+    text: Simplify 'codebook collapse' to 'codebook failure' or explain the concept
+      in Section 3.1.
+    severity: writing
+  - id: f8e3917b1aed
+    text: Define 'flow matching' and 'x-prediction' when introduced in Section 3.2.
+    severity: writing
+  - id: 67d343831a71
+    text: Clarify the claim of "fully end-to-end native multimodal learning" in the
+      Conclusion. The method relies on an understanding encoder initialized from pretrained
+      DINOv3 (Sec 4.3), meaning the representation space inherits biases rather than
+      being learned solely from raw inputs. Temper "fully end-to-end" language to
+      reflect this dependency.
+    severity: writing
+  - id: 7638f5c1aefa
+    text: 'Training data provenance lacks specificity: paper references BAGEL data
+      pipeline without clarifying whether training datasets include copyrighted content,
+      personally identifiable information, or whether consent was obtained for all
+      image-text pairs used.'
+    severity: writing
+  - id: 06a74a8db51e
+    text: Broader Impact section (appendix.tex) acknowledges dual-use risks but does
+      not describe concrete mitigation measures implemented or tested (e.g., safety
+      filters, bias evaluation across demographic groups, red-teaming for harmful
+      outputs).
+    severity: writing
+  - id: a0a2e92d1677
+    text: No discussion of bias/fairness testing for the model's outputs across demographic
+      groups, which is standard practice for image generation systems given documented
+      risks of demographic bias in generative models.
+    severity: writing
+  - id: 255b216df726
+    text: Report standard deviations or number of random seeds for all benchmark results
+      (Tables 1 & 2) to establish statistical significance of reported gains.
+    severity: science
+  - id: 806cf4f849fb
+    text: Clarify if the four generation variants (Pixel/VAE w/ & w/o RF) were trained
+      with identical random seeds to ensure fair comparison in Table 3a.
+    severity: science
+  - id: fb3898324d6e
+    text: "Report benchmark scores as mean \xB1 standard deviation over multiple random\
+      \ seeds (e.g., n=5) to quantify variance. Current single-point estimates in\
+      \ Tables 1-3 do not support statistical significance claims."
+    severity: science
+  - id: d4b89f179ea5
+    text: Include hypothesis testing (e.g., paired t-tests) for key comparisons (RF-Pixel
+      vs. VAE+RF) to validate 'outperforms' claims. Without p-values, observed differences
+      may be due to random initialization.
+    severity: science
+  - id: e6b79be4f00a
+    text: Address multiple-comparisons error when claiming 'improves 6 of 8 benchmarks'
+      (Table 2). Apply corrections (e.g., Bonferroni) or clarify if this is an exploratory
+      observation rather than a primary claim.
+    severity: science
+  - id: c340fdd0dd1d
+    text: In approach.tex (Sec. 3.2, line ~15), the sentence 'RF is not the only way
+      to incorporate visual representations into' is incomplete and cuts off mid-thought.
+      Please complete or revise this sentence.
+    severity: writing
+  - id: 15e27f4a26cf
+    text: Author affiliations in paper.tex show inconsistent line breaks (e.g., 'Yang
+      Zhao' and 'Haoqi Fan' have double newlines before their names). Standardize
+      formatting across all author entries.
+    severity: writing
+  - id: a0ab3a98852a
+    text: Several sentences throughout are overly long (e.g., introduction, lines
+      ~45-48). Consider splitting into 2-3 shorter sentences for improved readability.
+    severity: writing
