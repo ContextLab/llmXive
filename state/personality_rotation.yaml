@@ -1,11 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-04T15:42:22.586295+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-06-04T17:02:25.757914+00:00'
+last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-25T14:02:28.938881+00:00'
-  ended_at: '2026-05-25T15:34:18.084182+00:00'
-  outcome: model_error
 - slug: dan-rockmore
   started_at: '2026-05-25T15:34:18.084182+00:00'
   ended_at: '2026-05-25T16:43:03.699068+00:00'
@@ -1222,3 +1218,10 @@ history:
   ended_at: '2026-06-04T15:42:22.586295+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-04T15:42:22.586295+00:00'
+  ended_at: '2026-06-04T17:02:25.757914+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/alan-turing-simulated__2026-06-04__research.md
