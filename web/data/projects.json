@@ -940,7 +940,7 @@
     "human_contributors": 1433,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 4220,
+    "total_contributions": 4242,
     "total_contributors": 1440
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1904,
+      "contribution_count": 1926,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T16:12:08.918520+00:00",
+  "generated_at": "2026-06-05T16:50:38.157921+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -78322,12 +78322,31 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews",
         "reviews_research": "projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research",
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 23,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "albert-einstein-simulated",
+            "paper_reviewer_claim_accuracy",
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_logical_consistency",
+            "paper_reviewer_overreach",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_statistical_analysis",
+            "paper_reviewer_writing_quality"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -78351,14 +78370,6 @@
           "roles": [
             "paper_author"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
-          "roles": [
-            "albert-einstein-simulated"
-          ]
         }
       ],
       "citation_summary": {
@@ -78381,26 +78392,200 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 68.87172,
-          "ended_at": "2026-05-25T11:23:37.046443+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 317.731802,
+          "ended_at": "2026-06-05T16:21:15.435309Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-25T11:22:28.174723+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-05T16:15:57.703507Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 1.703611,
-          "ended_at": "2026-05-23T08:43:42.964639+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-23T08:43:41.261028+00:00"
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 80.475318,
+          "ended_at": "2026-06-05T16:15:57.658169Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:14:37.182851Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 21.009084,
+          "ended_at": "2026-06-05T16:14:37.135200Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-05T16:14:16.126116Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 74.962084,
+          "ended_at": "2026-06-05T16:14:16.079483Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:13:01.117399Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 24.944935,
+          "ended_at": "2026-06-05T16:13:01.071273Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:12:36.126338Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 52.066195,
+          "ended_at": "2026-06-05T16:12:36.080751Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:11:44.014556Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 78.190282,
+          "ended_at": "2026-06-05T16:11:43.968427Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:10:25.778145Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 64.639615,
+          "ended_at": "2026-06-05T16:10:25.732606Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:09:21.092991Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 138.972782,
+          "ended_at": "2026-06-05T16:09:21.047504Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:07:02.074722Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 86.577969,
+          "ended_at": "2026-06-05T16:07:02.028599Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T16:05:35.450630Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "This manuscript exhibits significant jargon density that may exclude non-specialist readers in the broader ML community. While technical precision is necessary for ICLR, several terms are unnecessarily opaque.\n\nIn the Abstract (Line 13), \"token-gradient vectors\" appears repeatedly. This compound nou",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:21:15.251027Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The figures in the manuscript effectively illustrate the DelTA methodology and empirical results. Figure 1 (Line 260) provides a clear schematic overview of the token coefficient estimation process, and its caption adequately describes the flow. This visual aid is essential for understanding the \"di",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:15:57.546783Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses on data provenance, licensing, and reproducibility of the training and evaluation artifacts. The manuscript provides a GitHub link for code (`https://github.com/RUCBM/DelTA`), which is positive, but the data documentation requires strengthening to ensure exact reproducibility.\n\nF",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:14:15.961790Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review focuses strictly on code quality aspects (readability, modularity, tests, dependency hygiene, reproducibility) of the artifacts that produced the paper.\n\n**Major Limitation:** The submission contains only the LaTeX manuscript (`iclr2026_conference.tex`), not the actual implementation cod",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:13:00.956886Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The statistical analysis demonstrates methodological soundness in test selection but requires improved reporting transparency. In Appendix `app:sig`, the authors correctly identify that full training repetitions are computationally prohibitive and opt for a one-sided Mann-Whitney U test on evaluatio",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:12:35.969916Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper presents compelling empirical results across seven mathematical benchmarks, three model scales, and code generation tasks. The ablation studies (Sections sec:own-side-main, sec:lambda-effectiveness, sec:ablation) effectively isolate the contribution of DelTA's discriminative token weightin",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:11:43.856023Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper includes a \"Broader impacts\" section that acknowledges potential dual-use risks, such as automated generation of misleading content or harmful code. This is a positive step in responsible AI reporting. However, the discussion remains somewhat generic and does not specifically address the i",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:10:25.621660Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper demonstrates strong calibration between its theoretical claims and empirical evidence, avoiding significant overreach. The central claim\u2014that RLVR updates implicitly act as linear discriminators over token-gradient vectors\u2014is presented as a \"view\" (Section 1) rather than an absolute truth,",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_overreach__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_overreach__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_overreach__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:09:20.937280Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "I have reviewed the manuscript `iclr2026_conference.tex` focusing strictly on the accuracy of factual claims, numerical reporting, and citation validity. All major quantitative claims in the Abstract and Section 5 (Experiments) are supported by the provided tables (`tabs/main_tab.tex`, `tabs/code_ta",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:07:01.917242Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "The paper demonstrates strong logical consistency between its theoretical premises, proposed methodology, and empirical conclusions.\n\n1.  **Theoretical Derivation (Section 3.1):** The derivation of the \"local discriminator view\" (Eqs. 1\u20133) logically follows from the standard first-order Taylor expan",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:05:35.293391Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a high standard of academic writing, with a clear logical flow from the abstract through the introduction, methodology, and experiments. The abstract effectively summarizes the core contribution without excessive jargon, and the introduction successfully motivates the pro",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T16:03:56.281365Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "Imagine an observer attempting to measure the 'reward' in this reinforcement loop. If the reward is defined solely by internal consistency within the model's weights, it is like a clock ticking in a room with no windows\u2014useful to the clockmaker, perhaps, but does it tell us anything about the world ",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-619-delta-discriminative-token-credit-assign/reviews/research/albert-einstein-simulated__2026-05-25__research.md",
@@ -78419,7 +78604,12 @@
       "submitter": "github-actions[bot]",
       "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards",
       "updated_at": "2026-05-23T08:43:41.917084+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 26,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -93998,6 +94188,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 317.731802,
+      "ended_at": "2026-06-05T16:21:15.435309Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:15:57.703507Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 80.475318,
+      "ended_at": "2026-06-05T16:15:57.658169Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:14:37.182851Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 21.009084,
+      "ended_at": "2026-06-05T16:14:37.135200Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:14:16.126116Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 74.962084,
+      "ended_at": "2026-06-05T16:14:16.079483Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:13:01.117399Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 24.944935,
+      "ended_at": "2026-06-05T16:13:01.071273Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:12:36.126338Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 52.066195,
+      "ended_at": "2026-06-05T16:12:36.080751Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:11:44.014556Z"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Dan Rockmore (simulated)",
@@ -94010,6 +94260,76 @@
       "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
       "project_stage": "clarified",
       "started_at": "2026-06-05T16:08:14.874681+00:00"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 78.190282,
+      "ended_at": "2026-06-05T16:11:43.968427Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:10:25.778145Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 64.639615,
+      "ended_at": "2026-06-05T16:10:25.732606Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:09:21.092991Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 138.972782,
+      "ended_at": "2026-06-05T16:09:21.047504Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:07:02.074722Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 86.577969,
+      "ended_at": "2026-06-05T16:07:02.028599Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:05:35.450630Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 98.952085,
+      "ended_at": "2026-06-05T16:05:35.404470Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:03:56.452385Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 66.201558,
+      "ended_at": "2026-06-05T16:03:56.405561Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:02:50.204003Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 40.020826,
+      "ended_at": "2026-06-05T16:02:50.156334Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-619-delta-discriminative-token-credit-assign",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T16:02:10.135508Z"
     },
     {
       "action": "comment",
@@ -99165,150 +99485,6 @@
       "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T05:19:55.438940Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 92.036622,
-      "ended_at": "2026-06-02T05:19:55.391895Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:18:23.355273Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 2742.71759,
-      "ended_at": "2026-06-02T05:18:23.308844Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T04:32:40.591254Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Marie Curie (simulated)",
-      "duration_s": 33.731747,
-      "ended_at": "2026-06-02T05:06:04.757797+00:00",
-      "excerpt": "The specification proposes to quantify knot complexity via crossing number and braid index. This is a sound approach.\n\nWe must ask: what is the standard of evidence? When we measured the activity of radium salts, we did not claim a new ele\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "marie-curie",
-      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-      "project_stage": "clarified",
-      "review_path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/marie-curie-simulated__2026-06-02__research.md",
-      "started_at": "2026-06-02T05:05:31.026050+00:00"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 174.092821,
-      "ended_at": "2026-06-02T03:42:14.887898Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-590-cortical-column-llms-implementing-canoni",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T03:39:20.795077Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 228.57265,
-      "ended_at": "2026-06-02T03:39:19.899097Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T03:35:31.326447Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 206.995679,
-      "ended_at": "2026-06-02T03:35:30.502310Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T03:32:03.506631Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 221.298836,
-      "ended_at": "2026-06-02T03:32:02.674911Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-603-https-arxiv-org-abs-2605-18678",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T03:28:21.376075Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 257.560847,
-      "ended_at": "2026-06-02T03:28:20.536462Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-560-embodied-curriculum-learning-physical-si",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T03:24:02.975615Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 59.974688,
-      "ended_at": "2026-06-02T03:08:46.948289+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-      "project_stage": "clarified",
-      "started_at": "2026-06-02T03:07:46.973601+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 114.183232,
-      "ended_at": "2026-06-02T01:52:34.711853+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-628-https-arxiv-org-abs-2605-23218",
-      "project_stage": "",
-      "started_at": "2026-06-02T01:50:40.528621+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 27.097498,
-      "ended_at": "2026-06-02T00:55:06.956135Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:54:39.858637Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 58.552084,
-      "ended_at": "2026-06-02T00:54:39.822981Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:53:41.270897Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 48.20054,
-      "ended_at": "2026-06-02T00:53:41.235270Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:52:53.034730Z"
     }
   ],
   "schema_version": "2.0.0"
