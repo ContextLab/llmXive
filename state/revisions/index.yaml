@@ -113,4 +113,7 @@ ready:
 - project_id: PROJ-619-delta-discriminative-token-credit-assign
   revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
   queued_at: '2026-06-05T16:21:15.514682+00:00'
+- project_id: PROJ-651-grepseek-training-search-agents-for-dire
+  revision_spec_path: specs/auto-revisions/PROJ-651-grepseek-training-search-agents-for-dire/round-1
+  queued_at: '2026-06-05T19:05:20.926132+00:00'
 blocked: []
