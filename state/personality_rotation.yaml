@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-05T15:02:36.495421+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-06-05T16:12:03.134170+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-26T04:52:50.174823+00:00'
-  ended_at: '2026-05-26T06:24:55.492735+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/reviews/john-von-neumann-simulated__2026-05-26__paper.md
 - slug: linus-pauling
   started_at: '2026-05-26T06:24:55.492735+00:00'
   ended_at: '2026-05-26T07:51:11.770971+00:00'
@@ -1230,5 +1223,10 @@ history:
 - slug: albert-einstein
   started_at: '2026-06-05T13:34:44.499125+00:00'
   ended_at: '2026-06-05T15:02:36.495421+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-05T15:02:36.495421+00:00'
+  ended_at: '2026-06-05T16:12:03.134170+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
