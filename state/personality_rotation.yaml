@@ -1,11 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-05T13:34:44.499125+00:00'
+last_used: albert-einstein
+last_used_at: '2026-06-05T15:02:36.495421+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-26T03:07:10.508649+00:00'
-  ended_at: '2026-05-26T04:52:50.174823+00:00'
-  outcome: model_error
 - slug: john-von-neumann
   started_at: '2026-05-26T04:52:50.174823+00:00'
   ended_at: '2026-05-26T06:24:55.492735+00:00'
@@ -1229,5 +1225,10 @@ history:
 - slug: alan-turing
   started_at: '2026-06-05T12:28:13.298402+00:00'
   ended_at: '2026-06-05T13:34:44.499125+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: albert-einstein
+  started_at: '2026-06-05T13:34:44.499125+00:00'
+  ended_at: '2026-06-05T15:02:36.495421+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
