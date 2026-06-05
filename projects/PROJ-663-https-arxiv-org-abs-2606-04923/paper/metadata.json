@@ -1,10 +1,17 @@
 {
   "arxiv_id": "2606.04923",
   "arxiv_url": "https://arxiv.org/abs/2606.04923",
-  "title": "https://arxiv.org/abs/2606.04923",
-  "authors": [],
+  "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning",
+  "authors": [
+    "Xuekang Wang",
+    "Zhuoyuan Hao",
+    "Shuo Hou",
+    "Hao Peng",
+    "Juanzi Li",
+    "Xiaozhi Wang"
+  ],
   "submitter": "github-actions[bot]",
-  "abstract": null,
+  "abstract": "Rubric-based reinforcement learning (RL) uses an LLM-as-a-Judge (LaaJ) to score model outputs according to rubrics as rewards. However, policy models may exploit latent biases in the judge, leading to reward hacking and ineffective or unsafe training outcomes. In real-world rubric-based RL, such hacking behaviors are often subtle and entangled with multiple judge biases, making them difficult to analyze, detect, and mitigate. In this paper, we introduce CHERRL, a controllable hacking environment for rubric-based RL. By injecting known biases into LaaJ, CHERRL enables stable reproduction of reward hacking, explicit observation of reward divergence, and precise identification of hacking onset. This provides a clean experimental testbed for studying the mechanisms and mitigations of reward hacking in rubric-based RL. To demonstrate its utility, we analyze different judge biases from the perspectives of discoverability and exploitability, and explore an agent-based system for automatically detecting reward hacking onset from training logs. The code and environment are publicly available at https://github.com/THUAIS-Lab/CHERRL.",
   "submitted_via": "llmXive dashboard, GitHub issue #279",
   "license": "arXiv Non-exclusive Distribution License",
   "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
