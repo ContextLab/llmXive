@@ -21,6 +21,7 @@ from llmxive.claims.canonical import subject_key
 from llmxive.claims.extract import extract_claims
 from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
+from llmxive.claims.planning_scan import strip_empirical_values
 from llmxive.claims.pointer import (
     GateReport,
     drop_orphan_pointers,
@@ -216,6 +217,14 @@ def _process_planning_document(
             continue
         if replacement != span:
             smoothed = smoothed.replace(span, replacement, 1)
+    # spec 020 GUARANTEE: the LLM extractor's recall is non-deterministic, so a
+    # final DETERMINISTIC pass removes any high-confidence empirical value (a
+    # comma-grouped count, a percentage, a timed quantity) it missed — structural
+    # numbers (versions, dates, indices, scope bounds) are preserved. Idempotent.
+    try:
+        smoothed = strip_empirical_values(smoothed)
+    except Exception as exc:  # never block a planning render on the guarantee pass
+        logger.warning("claims.service: deterministic empirical strip failed (%s)", exc)
     # No markers, no kickback, no resolution: planning never blocks on low-level.
     return smoothed, [], GateReport()
 

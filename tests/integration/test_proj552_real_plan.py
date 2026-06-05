@@ -79,15 +79,17 @@ def test_real_proj552_plan_planning_stage_no_kickback(tmp_path: Path) -> None:
     # The real file on disk is untouched (read-only).
     assert _PLAN.read_text(encoding="utf-8") == original
 
-    # Value REMOVAL (SC-001) is BEST-EFFORT, not guaranteed per-run: the planning
-    # extractor uses the PLANNING-RECALL addendum (verified deterministically in
-    # tests/unit/test_planning_recall_prompt.py), which substantially raises recall
-    # on planning scope/metadata (0 -> 6 empirical claims in the real plan). But
-    # extract_claims is an LLM call and is NON-DETERMINISTIC, so a given run may
-    # miss some/all values. Only a deterministic detector could GUARANTEE removal.
-    # This test therefore asserts the RELIABLE guarantees (anti-stall above) + that
-    # the doc is never over-stripped/mangled; whatever values ARE detected get
-    # smoothed (the strip/smooth fallback guarantees the detected value is removed).
+    # Value REMOVAL (SC-001) is now GUARANTEED: after the (non-deterministic) LLM
+    # strip/smooth, a DETERMINISTIC pass (claims/planning_scan) removes every
+    # high-confidence empirical value, so the wrong "27,635 at crossing number 13"
+    # and the other counts/percentages/durations cannot survive — regardless of
+    # what the LLM extractor recalled this run.
+    assert "27,635" not in out and "27635" not in out, (
+        f"the wrong low-level count survived the planning stage:\n{out[:1500]}"
+    )
+    assert "2,000" not in out and "95%" not in out, "an empirical value survived"
+    # …while the document is NOT over-stripped/mangled: structure, the research
+    # subject, and STRUCTURAL numbers (the crossing-number index, the project id) survive.
     assert "## " in out, "document headers were lost (over-stripping)"
-    assert "crossing number" in out, "the research subject was over-stripped"
+    assert "crossing number 13" in out, "the structural crossing-number index was over-stripped"
     assert len(out) > len(original) * 0.6, "document was massively truncated (over-strip)"
