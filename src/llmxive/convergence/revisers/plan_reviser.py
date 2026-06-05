@@ -208,6 +208,7 @@ class _AbstractPlanReviser:
             concerns=concerns,
             first_pass=_run_pass(),
             redo=_run_pass,
+            stage_label="plan",  # spec 020 FR-001: planning → references-only + strip/smooth
         )
 
     # --- internal helpers ---------------------------------------------------

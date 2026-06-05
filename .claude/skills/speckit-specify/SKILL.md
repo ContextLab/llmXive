@@ -308,9 +308,15 @@ When creating this spec from a user prompt:
 
 ### Success Criteria Guidelines
 
+A planning doc states the **research question**, **method**, and **references**,
+and defers specific empirical values (counts, dataset sizes, measured quantities,
+percentages) to the implementation/research phase. Express each success criterion
+as *what* is measured and the *reference/source* it is measured against, rather
+than a pre-asserted number.
+
 Success criteria must be:
 
-1. **Measurable**: Include specific metrics (time, percentage, count, rate)
+1. **Measurable**: Name the metric (time, rate, count, percentage) and the reference/source it is measured against; do not pre-assert the empirical value here
 2. **Technology-agnostic**: No mention of frameworks, languages, databases, or tools
 3. **User-focused**: Describe outcomes from user/business perspective, not system internals
 4. **Verifiable**: Can be tested/validated without knowing implementation details

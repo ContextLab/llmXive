@@ -39,19 +39,20 @@ import re
 from dataclasses import dataclass
 
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.claims.pointer import _digits_only, _render_numeric
+from llmxive.claims.pointer import (
+    _NUMBER_IN_TEXT_RE,
+    _digits_only,
+    _render_numeric,
+    asserted_value,
+)
 from llmxive.fill.subject_query import (
     _FINGERPRINT_STOP,
     _singularize,
     _strip_parentheticals,
 )
 
-# Numeric token AS IT APPEARS in prose (keeps thousands separators + decimal).
-# Identical grammar to claims/pointer._NUMBER_IN_TEXT_RE so the tokens we find
-# here match the tokens the prose-preserving renderer swaps.
-_NUMBER_IN_TEXT_RE = re.compile(
-    r"[-+]?\d{1,3}(?:[,_]\d{3})+(?:\.\d+)?|[-+]?\d+(?:\.\d+)?"
-)
+# Numeric token grammar + the asserted-value primitive are the single source of
+# truth in claims/pointer (imported above); this module no longer duplicates them.
 
 # Citation-introducer phrases: text from any of these onward is a CITATION tail
 # (author-year, page numbers, an OEIS A-number), NOT subject content. Cutting it
@@ -177,20 +178,13 @@ def subject_key(claim: Claim) -> str:
 
 
 def _asserted_value(text: str) -> str | None:
-    """The numeric token a mention ASSERTS (mirrors pointer._select_asserted_token).
-
-    Prefers a token written with a thousands separator (the asserted magnitude in
-    scientific prose conventionally carries grouping, while qualifiers/years do
-    not); otherwise the first numeric token. Used both to exclude the asserted
-    value from the subject key and to compare a mention's value against a fact.
-    """
-    matches: list[str] = _NUMBER_IN_TEXT_RE.findall(text)
-    if not matches:
-        return None
-    for m in matches:
-        if "," in m:
-            return m
-    return matches[0]
+    """The numeric token a mention ASSERTS — delegates to the single source of
+    truth ``pointer.asserted_value`` (thousands-separated magnitude → copula-
+    following answer → first token). Kept as a module-local name for the many
+    in-module callers (subject_key, the canonical-correction window checks, the
+    fill pre-guards). Used both to EXCLUDE the asserted value from the subject key
+    and to compare a mention's value against a fact."""
+    return asserted_value(text)
 
 
 def _parse_key(key: str) -> tuple[frozenset[str], frozenset[str]]:

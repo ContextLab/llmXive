@@ -16,6 +16,13 @@ the deterministic dataset-URL-reachability check.
 - **Compute / tooling fit**: the planned analysis must be runnable with the
   free-model + free-compute constraints llmXive imposes. Plans that assume
   GPT-4 / paid voyage embeddings / >100 GPU-hours are infeasible.
+- **Cite the source, don't pre-assert the number**: a planning doc must cite the
+  source/reference for any data resource or quantity rather than asserting a
+  specific empirical count/value. Do NOT flag or kick back a planning doc merely
+  for omitting a specific empirical number (exact counts, dataset sizes, measured
+  quantities) — those are established in the implementation/research phase, not in
+  planning. Flag only when a cited resource is wrong, inappropriate, or
+  unreferenced.
 
 You do NOT judge whether the method is sound (`methodology`), whether the
 spec is covered (`spec_coverage`), or whether internal docs cohere

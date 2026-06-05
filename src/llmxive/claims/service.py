@@ -21,8 +21,17 @@ from llmxive.claims.canonical import subject_key
 from llmxive.claims.extract import extract_claims
 from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.claims.pointer import GateReport, render, substitute_pointers
+from llmxive.claims.planning_scan import strip_empirical_values
+from llmxive.claims.pointer import (
+    GateReport,
+    drop_orphan_pointers,
+    pointer_ids,
+    render,
+    substitute_pointers,
+)
 from llmxive.claims.resolve import resolve
+from llmxive.claims.smooth import strip_and_smooth
+from llmxive.claims.stage import is_planning_stage
 from llmxive.state import claims as _claim_store
 
 logger = logging.getLogger(__name__)
@@ -86,10 +95,36 @@ def resolve_registered_claims(
     time is INVALIDATED and re-resolved. Every other status is re-resolved so
     transient not-enough-info failures self-heal on the next round.
     """
+    # spec 020 FR-009/011: the frozen, value-independent index. A non-VERIFIED
+    # claim whose (kind, subject_key) is already VERIFIED here adopts that frozen
+    # value WITHOUT re-resolution — closing the gap where a claim left PENDING in
+    # the registry (a prior round's transient failure / re-extraction) is
+    # re-resolved every round and waffles.
+    verified_by_subject = _claim_store.load_verified_by_subject(
+        project_id, repo_root=repo_root
+    )
+
     resolved: list[Claim] = []
     for claim in claims:
         # Reload from the registry (may be VERIFIED from a prior round).
         current = _claim_store.get(project_id, claim.claim_id, repo_root=repo_root) or claim
+
+        if current.status != ClaimStatus.VERIFIED:
+            sk = subject_key(current)
+            twin = verified_by_subject.get((current.kind, sk)) if sk else None
+            if twin is not None and twin.claim_id != current.claim_id:
+                frozen = replace(
+                    current,
+                    status=ClaimStatus.VERIFIED,
+                    resolved_value=twin.resolved_value,
+                    evidence=twin.evidence,
+                    resolver=twin.resolver,
+                    source_hash=twin.source_hash,
+                    updated_at=_now_iso(),
+                )
+                _claim_store.upsert(project_id, frozen, repo_root=repo_root)
+                resolved.append(frozen)
+                continue
 
         if current.status == ClaimStatus.VERIFIED:
             live = _live_source_hash(current, project_id, repo_root)
@@ -132,6 +167,68 @@ def resolve_registered_claims(
     return resolved
 
 
+def _process_planning_document(
+    text: str,
+    *,
+    artifact_path: str,
+    project_id: str,
+    backend: Any,
+    model: str | None,
+    repo_root: Path,
+    stage_label: str | None = None,
+) -> tuple[str, list[Claim], GateReport]:
+    """Planning-stage claim handling (spec 020 Part A): references-only + strip/smooth.
+
+    In a planning stage (specify/clarify/plan/tasks) the claim layer MUST NOT
+    fetch, fill, ground, or kick back on low-level claims (FR-002/003). References
+    are verified by the separate reference path (F-18 / ``validate_artifact``) that
+    runs BEFORE this function (FR-004), so here we only:
+
+    - extract claims (to FIND any low-level assertion), and
+    - replace each detected non-citation (low-level) claim's span with a
+      higher-level statement via :func:`strip_and_smooth` (FR-002a),
+
+    returning the smoothed text with NO ``[UNRESOLVED-CLAIM:]`` marker and an
+    empty (non-blocking) GateReport. Nothing is resolved or registered — a
+    planning low-level value is neither verified nor left asserted; it is removed.
+    Never raises.
+    """
+    text = strip_claim_artifacts(text)
+    try:
+        new_claims = extract_claims(
+            text, artifact_path=artifact_path, backend=backend,
+            model=model, repo_root=repo_root, stage_label=stage_label,
+        )
+    except Exception as exc:
+        logger.warning("claims.service: planning extraction failed (%s); no-op", exc)
+        return text, [], GateReport()
+
+    smoothed = text
+    lowlevel = [c for c in new_claims if c.kind != ClaimKind.CITATION]
+    for claim in lowlevel:
+        span = claim.raw_text or ""
+        if not span or span not in smoothed:
+            continue
+        try:
+            replacement = strip_and_smooth(span, claim, backend=backend, model=model)
+        except Exception as exc:  # never block a planning render on smoothing
+            logger.warning("claims.service: strip/smooth failed for %s (%s)",
+                           claim.claim_id, exc)
+            continue
+        if replacement != span:
+            smoothed = smoothed.replace(span, replacement, 1)
+    # spec 020 GUARANTEE: the LLM extractor's recall is non-deterministic, so a
+    # final DETERMINISTIC pass removes any high-confidence empirical value (a
+    # comma-grouped count, a percentage, a timed quantity) it missed — structural
+    # numbers (versions, dates, indices, scope bounds) are preserved. Idempotent.
+    try:
+        smoothed = strip_empirical_values(smoothed)
+    except Exception as exc:  # never block a planning render on the guarantee pass
+        logger.warning("claims.service: deterministic empirical strip failed (%s)", exc)
+    # No markers, no kickback, no resolution: planning never blocks on low-level.
+    return smoothed, [], GateReport()
+
+
 def process_document(
     text: str,
     *,
@@ -140,10 +237,18 @@ def process_document(
     backend: Any,
     model: str | None,
     repo_root: Path,
+    stage_label: str | None = None,
 ) -> tuple[str, list[Claim], GateReport]:
     """Extract → register → substitute → resolve → render one document.
 
     Returns ``(rendered_text, claims, GateReport)``.
+
+    ``stage_label`` (spec 020 FR-001) selects the regime: a *planning* stage
+    (specify/clarify/plan/tasks — see :func:`claims.stage.is_planning_stage`)
+    verifies references only and strips/smooths low-level claims (Part A); any
+    other / ``None`` stage runs the full extract→resolve→render verification with
+    the Part-B freeze. Defaulting to ``None`` preserves the prior behavior for
+    every existing caller.
 
     Idempotency: if a claim with the same ``claim_id`` is already in the
     registry with status VERIFIED, it is reused without re-resolution.
@@ -152,9 +257,19 @@ def process_document(
 
     Never raises — on extraction failure returns ``(text, [], GateReport())``.
     """
-    # Step 0: Strip prior claim-layer artifacts (markers + stray pointers) so a
-    # re-run does NOT re-extract its own output (idempotency — root causes 2/4).
-    text = strip_claim_artifacts(text)
+    if is_planning_stage(stage_label):
+        return _process_planning_document(
+            text, artifact_path=artifact_path, project_id=project_id,
+            backend=backend, model=model, repo_root=repo_root,
+            stage_label=stage_label,
+        )
+
+    # Step 0: Strip prior [UNRESOLVED-CLAIM:] markers so a re-run does NOT
+    # re-extract its own output (idempotency). spec 020 FR-007: PRESERVE durable
+    # {{claim:id}} placeholders — they carry a verified value in the canonical
+    # stored form and must survive round-to-round (so the value is never baked
+    # into prose and re-extracted as a new claim — SC-007).
+    text = strip_claim_artifacts(text, preserve_pointers=True)
 
     # Step 1: Extract claims from the document.
     try:
@@ -170,7 +285,17 @@ def process_document(
         return text, [], GateReport()
 
     if not new_claims:
-        return text, [], GateReport()
+        # No NEW claims, but the doc may carry durable {{claim:id}} placeholders
+        # from prior rounds (FR-007): keep those with a backing registered claim,
+        # drop orphans, and re-render so placeholders stay placeholders.
+        carried: dict[str, Claim] = {}
+        for cid in pointer_ids(text):
+            prior = _claim_store.get(project_id, cid, repo_root=repo_root)
+            if prior is not None:
+                carried[cid] = prior
+        text = drop_orphan_pointers(text, set(carried))
+        rendered, gate_report = render(text, carried, placeholder_verified=True)
+        return rendered, [], gate_report
 
     # Step 2: Upsert each claim into the registry (dedup by claim_id), with a
     # subject-keyed VERIFIED reuse: a reviser REPHRASE yields a NEW claim_id for
@@ -183,12 +308,9 @@ def process_document(
     # only skips the redundant work (and corrects a re-fabricated value for
     # free). Source-hash invalidation in resolve_registered_claims still applies,
     # so a changed underlying source re-resolves normally.
-    verified_by_subject: dict[tuple[ClaimKind, str], Claim] = {}
-    for prior in _claim_store.load(project_id, repo_root=repo_root):
-        if prior.status == ClaimStatus.VERIFIED:
-            sk = subject_key(prior)
-            if sk:
-                verified_by_subject.setdefault((prior.kind, sk), prior)
+    verified_by_subject = _claim_store.load_verified_by_subject(
+        project_id, repo_root=repo_root
+    )
     for claim in new_claims:
         if _claim_store.get(project_id, claim.claim_id, repo_root=repo_root) is not None:
             continue
@@ -219,9 +341,25 @@ def process_document(
         repo_root=repo_root,
     )
 
-    # Step 5: Render — substitute pointers with verified values or markers.
+    # Step 5: Render — keep VERIFIED claims as DURABLE placeholders in the canonical
+    # stored form (FR-007); their value is substituted only in the rendered VIEW
+    # (render_view) at review time + publish (FR-008).
     claims_by_id = {c.claim_id: c for c in resolved_claims}
-    rendered_text, gate_report = render(text_with_pointers, claims_by_id)
+    # Include claims referenced by durable placeholders carried over from prior
+    # rounds: their prose is already a {{claim:id}} token, so they were NOT
+    # re-extracted this round; load them from the registry so render keeps them as
+    # placeholders rather than emitting an "unknown claim" marker.
+    for cid in pointer_ids(text_with_pointers):
+        if cid not in claims_by_id:
+            prior = _claim_store.get(project_id, cid, repo_root=repo_root)
+            if prior is not None:
+                claims_by_id[cid] = prior
+    # Drop orphan pointers (no backing registered claim) so they never render as a
+    # spurious "unknown claim" marker — durable placeholders (with a claim) are kept.
+    text_with_pointers = drop_orphan_pointers(text_with_pointers, set(claims_by_id))
+    rendered_text, gate_report = render(
+        text_with_pointers, claims_by_id, placeholder_verified=True
+    )
 
     # Step 6 (T035): repair citations for filled claims so the rendered text
     # cites the authoritative fill source rather than a stale paper citation.
@@ -284,6 +422,36 @@ def process_document(
     return rendered_text, resolved_claims, gate_report
 
 
+def render_artifact_view(
+    text: str, *, project_id: str, repo_root: Path
+) -> str:
+    """FR-008: the human/reviewer + published VIEW of a canonical artifact.
+
+    Substitutes verified values for the durable ``{{claim:id}}`` placeholders the
+    canonical stored form carries (FR-007), deterministically from the git-tracked
+    ``state/claims/`` frozen store (FR-013). Used at review time (the artifact shown
+    to the convergence panel) and for the final published artifact. The canonical
+    stored form is unchanged; this is a pure read-time projection. No-op when the
+    text carries no placeholders (e.g. a planning-stage artifact). Never raises.
+    """
+    from llmxive.claims.pointer import pointer_ids as _pids
+    from llmxive.claims.pointer import render_view as _render_view
+
+    try:
+        ids = set(_pids(text))
+        if not ids:
+            return text
+        by_id: dict[str, Claim] = {}
+        for cid in ids:
+            c = _claim_store.get(project_id, cid, repo_root=repo_root)
+            if c is not None:
+                by_id[cid] = c
+        return _render_view(text, by_id)
+    except Exception as exc:  # a view projection must never break a read
+        logger.warning("claims.service: render_artifact_view failed (%s)", exc)
+        return text
+
+
 def _project_dir(artifact_path: str, project_id: str, repo_root: Path) -> Path | None:
     """Locate the project directory under ``repo_root`` for ``artifact_path``.
 
@@ -341,4 +509,4 @@ def _persist_verified_facts(
         logger.warning("claims.service: verified_facts persist failed (%s)", exc)
 
 
-__all__ = ["process_document", "resolve_registered_claims"]
+__all__ = ["process_document", "render_artifact_view", "resolve_registered_claims"]

@@ -19,6 +19,12 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+> **Scope note**: Planning artifacts state the research question, method, and
+> references, and defer specific empirical values (counts, dataset sizes, measured
+> quantities) to the implementation/research phase. Do not introduce or verify
+> low-level empirical numbers while clarifying — clarify what will be measured and
+> against which reference, not the number itself.
+
 ## Pre-Execution Checks
 
 **Check for extension hooks (before clarification)**:

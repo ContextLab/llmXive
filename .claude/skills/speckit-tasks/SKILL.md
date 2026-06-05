@@ -19,6 +19,12 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+> **Scope note**: Planning artifacts state the research question, method, and
+> references, and defer specific empirical values (counts, dataset sizes, measured
+> quantities) to the implementation/research phase. Tasks should describe what to
+> measure and against which reference; do not introduce or verify low-level
+> empirical numbers in the task list.
+
 ## Pre-Execution Checks
 
 **Check for extension hooks (before tasks generation)**:

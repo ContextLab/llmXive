@@ -27,6 +27,11 @@
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured
+> quantities) are deferred to the research/implementation phase. For any
+> quantity stated here, cite its source/reference rather than asserting a
+> measured value.
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*

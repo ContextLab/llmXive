@@ -109,10 +109,14 @@
 
 ### Measurable Outcomes
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: [What is measured + reference, e.g., "Task-completion time is measured against the current manual baseline"]
+- **SC-002**: [What is measured + reference, e.g., "Throughput under load is measured against the documented capacity requirement"]
+- **SC-003**: [What is measured + reference, e.g., "Primary-task success rate is measured against the prior workflow's observed rate"]
+- **SC-004**: [What is measured + reference, e.g., "Support-ticket volume for [X] is measured against the pre-change trailing average"]
 
 ## Assumptions
 

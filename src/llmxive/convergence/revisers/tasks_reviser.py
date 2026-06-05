@@ -195,6 +195,7 @@ class _AbstractTasksReviser:
             concerns=concerns,
             first_pass=_run_pass(),
             redo=_run_pass,
+            stage_label="tasks",  # spec 020 FR-001: planning → references-only + strip/smooth
         )
 
     # --- internal helpers ---------------------------------------------------

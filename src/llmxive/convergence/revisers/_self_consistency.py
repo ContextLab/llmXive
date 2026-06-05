@@ -233,6 +233,7 @@ def run_with_self_consistency(
     concerns: list[Concern],
     first_pass: tuple[dict[str, str], list[ConcernResponse]],
     redo: Callable[[str], tuple[dict[str, str], list[ConcernResponse]]],
+    stage_label: str | None = None,
 ) -> tuple[dict[str, str], list[ConcernResponse]]:
     """Wrap a reviser's first pass with FR-011's self-consistency second pass.
 
@@ -256,7 +257,7 @@ def run_with_self_consistency(
         repo_root=repo_root,
     )
     if result.ok or not result.problems:
-        return _clean_citations(updated, backend=backend, model=model, repo_root=repo_root), responses
+        return _clean_citations(updated, backend=backend, model=model, repo_root=repo_root, stage_label=stage_label), responses
 
     logger.info(
         "self-consistency flagged %d problem(s); running ONE corrective re-pass",
@@ -266,11 +267,12 @@ def run_with_self_consistency(
     # reviser failure (not a self-consistency-check failure) and must surface
     # — the engine maps it to non-convergence.
     corrected, corrected_responses = redo(corrective_instructions(result.problems))
-    return _clean_citations(corrected, backend=backend, model=model, repo_root=repo_root), corrected_responses
+    return _clean_citations(corrected, backend=backend, model=model, repo_root=repo_root, stage_label=stage_label), corrected_responses
 
 
 def _clean_citations(
-    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path
+    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path,
+    stage_label: str | None = None,
 ) -> dict[str, str]:
     """Run the citation + claim-verification guards on the reviser's final artifacts.
 
@@ -287,11 +289,15 @@ def _clean_citations(
        importer but is no longer invoked in the reviser chokepoint.
     """
     cleaned = _strip_unresolvable_citations(artifacts)
-    return _verify_claims(cleaned, backend=backend, model=model, repo_root=repo_root)
+    return _verify_claims(
+        cleaned, backend=backend, model=model, repo_root=repo_root,
+        stage_label=stage_label,
+    )
 
 
 def _verify_claims(
-    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path
+    artifacts: dict[str, str], *, backend: Any, model: str | None, repo_root: Path,
+    stage_label: str | None = None,
 ) -> dict[str, str]:
     """Spec 016 (T038/FR-002): run the claim-verification layer on the reviser's
     final artifacts each round — the EARLIEST interception, before the panel
@@ -336,6 +342,7 @@ def _verify_claims(
                 backend=backend,
                 model=model,
                 repo_root=repo_root,
+                stage_label=stage_label,
             )
         except Exception as exc:  # never block a revision on the claim layer
             logger.warning(

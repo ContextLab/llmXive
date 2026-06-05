@@ -59,6 +59,9 @@ class SpecifierAgent(SlashCommandAgent):
     def slash_command_name(self) -> str:
         return "speckit.specify"
 
+    def claim_stage_label(self) -> str | None:
+        return "spec"  # spec 020 FR-001: planning → references-only + strip/smooth
+
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         # The per-project create-new-feature.sh resolves spec dirs
         # relative to the cwd the script is invoked from. To keep all

@@ -357,6 +357,29 @@ def strip_nonclaim_sections(text: str) -> str:
     return "".join(out)
 
 
+# spec 020 — in a PLANNING stage the extractor's default recall is too low: it is
+# tuned for asserted research claims and treats a Scale/Scope or Performance-Goals
+# line ("~27,635 at crossing number 13", "≥95% completeness", "within 15 minutes")
+# as a scope note, not a check-worthy claim. This addendum raises recall for exactly
+# the values spec 020 wants OUT of planning docs, while guarding against structural
+# over-extraction.
+_PLANNING_RECALL_ADDENDUM = (
+    "\n\n# PLANNING-STAGE RECALL (this document is a spec/clarify/plan/tasks artifact)\n\n"
+    "In ADDITION to the usual check-worthy claims, ALSO extract any SPECIFIC "
+    "EMPIRICAL VALUE stated as scope, metadata, or a goal — an exact count of "
+    "things (e.g. \"27,635 prime knots at 13 crossings\"), a dataset size, a "
+    "measured quantity or duration (e.g. \"within 15 minutes\"), or a percentage "
+    "target (e.g. \"≥95% completeness\") — even when it appears in a Scale/Scope, "
+    "Performance Goals, or Constraints line rather than as a prose assertion. These "
+    "specific values belong to the implementation/research phase and MUST be "
+    "detected here. Emit each as a NUMERIC (or MAGNITUDE) claim whose text is the "
+    "verbatim sentence/line containing it.\n"
+    "Do NOT extract purely STRUCTURAL numbers: phase/section/step/version numbers, "
+    "dates, identifiers (e.g. SHA-256, a DOI), or scope BOUNDS that merely qualify "
+    "the subject (e.g. \"≤13 crossings\", \"Phase 1\", a range like \"1-10\")."
+)
+
+
 def extract_claims(
     text: str,
     *,
@@ -364,8 +387,14 @@ def extract_claims(
     backend: Any,
     model: str | None,
     repo_root: Path,
+    stage_label: str | None = None,
 ) -> list[Claim]:
     """Extract check-worthy claims from ``text`` via one LLM call.
+
+    ``stage_label`` (spec 020): in a *planning* stage the prompt is augmented with
+    :data:`_PLANNING_RECALL_ADDENDUM` so scope/metadata empirical values (counts,
+    dataset sizes, measured quantities, percentages) are also detected — they are
+    what the planning strip/smooth must remove. Non-planning stages are unchanged.
 
     Returns a list of :class:`Claim` objects with ``status=PENDING``.
     On any failure (backend error, unparseable reply, missing prompt) returns
@@ -373,6 +402,7 @@ def extract_claims(
     """
     from llmxive.agents.prompts import load_prompt
     from llmxive.backends.base import ChatMessage
+    from llmxive.claims.stage import is_planning_stage
     from llmxive.config import repo_root as _real_repo_root
 
     # Load the extraction prompt (prefer repo_root, fall back to real checkout).
@@ -404,6 +434,7 @@ def extract_claims(
                 + text
                 + "\n\n# Task\n\nExtract claims per the contract above. "
                 "Return only the YAML document."
+                + (_PLANNING_RECALL_ADDENDUM if is_planning_stage(stage_label) else "")
             ),
         ),
     ]

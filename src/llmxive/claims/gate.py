@@ -39,7 +39,7 @@ def find_unresolved_claims(text: str) -> list[str]:
     return [m.group("body").strip() for m in _UNRESOLVED_MARKER_RE.finditer(text)]
 
 
-def strip_claim_artifacts(text: str) -> str:
+def strip_claim_artifacts(text: str, *, preserve_pointers: bool = False) -> str:
     """Remove prior claim-layer artifacts so a re-run does not re-extract them.
 
     The claim layer runs once per reviser round. Without this, the markers and
@@ -52,9 +52,16 @@ def strip_claim_artifacts(text: str) -> str:
     Removes every whole ``[UNRESOLVED-CLAIM: … ]`` span (to its closing ``]``)
     and every stray ``{{claim:<id>}}`` pointer, then collapses the doubled spaces
     a removal can leave WITHIN a line (newlines preserved). PURE — no IO.
+
+    spec 020 FR-007: with ``preserve_pointers=True`` the durable ``{{claim:<id>}}``
+    placeholders that carry a verified value in the canonical stored form are KEPT
+    (only the transient ``[UNRESOLVED-CLAIM: … ]`` markers are removed), so the
+    value is never re-extractable round-to-round (SC-007). The default keeps the
+    legacy behavior (also strip pointers) for every existing caller.
     """
     cleaned = _UNRESOLVED_MARKER_RE.sub("", text)
-    cleaned = _STRAY_POINTER_RE.sub("", cleaned)
+    if not preserve_pointers:
+        cleaned = _STRAY_POINTER_RE.sub("", cleaned)
     # Collapse runs of spaces/tabs a removal leaves behind, without touching
     # newlines (so paragraph structure is preserved). Also tidy " ." → ".".
     cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)

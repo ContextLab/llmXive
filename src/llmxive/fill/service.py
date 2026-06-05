@@ -113,21 +113,29 @@ def _is_math_claim(claim: Claim, *, backend: Any, model: str | None,
 # ---------------------------------------------------------------------------
 
 def _cache_key_parts(claim: Claim) -> tuple[str, str, str | None]:
-    """Return (source_id, fact_fingerprint, number) for grounding cache keying.
+    """Return (source_id, value-INDEPENDENT subject key, None) for verdict keying.
 
-    The middle component is a rephrase-independent FACT FINGERPRINT (number +
-    sorted subject keywords from subject_query) rather than the raw canonical.
-    The convergence reviser rephrases a claim every round → a new canonical →
-    a guaranteed cache MISS under the old keying, forcing full re-resolution
-    via arXiv/OEIS each round.  Keying on the fingerprint lets rephrasings of
-    the same fact share one verdict entry, while two DIFFERENT facts (different
-    numbers or different subject) still get different keys (see
-    fact_fingerprint docstring for the no-collision argument).
+    spec 020 FR-012 (strong form): the key MUST NOT depend on the asserted value,
+    so a PENDING phrasing ("49 prime knots at 13 crossings") and the VERIFIED
+    phrasing ("9,988 …") of the SAME fact hit the SAME verdict entry — the cached
+    verdict carries the subject's CORRECT value, which then corrects either
+    phrasing. Keys on ``subject_key`` (asserted/resolved value EXCLUDED, qualifier
+    numbers like the crossing index + subject keywords KEPT), so genuinely distinct
+    subjects (12 vs 13 crossings; different keywords) still get distinct keys. This
+    is now sound because ``pointer.asserted_value`` robustly separates the answer
+    from qualifier numbers (thousands-separated magnitude → copula-following answer
+    → first), incl. comma-less prose like "… 13 is 27635". A claim with no stable
+    subject (``subject_key == ""`` — a bare number) falls back to the value-
+    inclusive ``fact_fingerprint`` so distinct bare-number claims do not collapse
+    onto one entry. The asserted ``number`` 3rd component is dropped entirely (the
+    same claim keyed identically before and after resolution).
     """
+    from llmxive.claims.canonical import subject_key
     from llmxive.fill.subject_query import fact_fingerprint
 
-    fingerprint = fact_fingerprint(claim)
-    return ("fill", fingerprint, claim.resolved_value)
+    sk = subject_key(claim)
+    fingerprint = sk if sk else fact_fingerprint(claim)
+    return ("fill", fingerprint, None)
 
 
 def _load_cached(claim: Claim, *, repo_root: Path | None) -> FillResult | None:
@@ -298,11 +306,26 @@ def fill_claim(
     backend: Any = None,
     model: str | None = None,
     repo_root: Path | None = None,
+    stage_label: str | None = None,
 ) -> FillResult:
     """Orchestrate the fill pipeline for one claim.
 
     Returns a FillResult (filled or blocked).  Never raises.
+
+    Spec 020 FR-002: when ``stage_label`` is a planning stage, a low-level claim
+    is short-circuited BEFORE any external fetch (no locator/grounding call). The
+    primary planning protection is in ``claims.service.process_document`` (which
+    never reaches fill in a planning stage); this is the fill-boundary
+    defense-in-depth so any caller passing a planning stage is also protected.
     """
+    from llmxive.claims.stage import is_planning_stage
+
+    if is_planning_stage(stage_label):
+        return FillResult.blocked(
+            reason="planning stage: low-level claims are stripped, not filled (spec 020 FR-002)",
+            channels_tried=[],
+        )
+
     # Guard: only NUMERIC and ENTITY_FACT in v1
     if claim.kind not in _FILLABLE_KINDS:
         return FillResult.blocked(
