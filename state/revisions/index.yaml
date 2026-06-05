@@ -98,4 +98,7 @@ ready:
 - project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
   revision_spec_path: specs/auto-revisions/PROJ-614-enhancing-train-free-infinite-frame-gene/round-1
   queued_at: '2026-06-05T01:41:59.701749+00:00'
+- project_id: PROJ-571-co-evolving-policy-distillation
+  revision_spec_path: specs/auto-revisions/PROJ-571-co-evolving-policy-distillation/round-1
+  queued_at: '2026-06-05T06:15:57.411184+00:00'
 blocked: []
