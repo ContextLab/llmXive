@@ -174,6 +174,7 @@ def _process_planning_document(
     backend: Any,
     model: str | None,
     repo_root: Path,
+    stage_label: str | None = None,
 ) -> tuple[str, list[Claim], GateReport]:
     """Planning-stage claim handling (spec 020 Part A): references-only + strip/smooth.
 
@@ -195,7 +196,7 @@ def _process_planning_document(
     try:
         new_claims = extract_claims(
             text, artifact_path=artifact_path, backend=backend,
-            model=model, repo_root=repo_root,
+            model=model, repo_root=repo_root, stage_label=stage_label,
         )
     except Exception as exc:
         logger.warning("claims.service: planning extraction failed (%s); no-op", exc)
@@ -251,6 +252,7 @@ def process_document(
         return _process_planning_document(
             text, artifact_path=artifact_path, project_id=project_id,
             backend=backend, model=model, repo_root=repo_root,
+            stage_label=stage_label,
         )
 
     # Step 0: Strip prior [UNRESOLVED-CLAIM:] markers so a re-run does NOT
