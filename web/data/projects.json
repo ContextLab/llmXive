@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T13:24:39.891795+00:00",
+  "generated_at": "2026-06-05T13:34:50.153609+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -89360,6 +89360,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 109.101208,
+          "ended_at": "2026-06-05T13:34:44.499125+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-05T13:32:55.397917+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 2.808785,
           "ended_at": "2026-06-03T09:39:14.770059+00:00",
@@ -93981,6 +93989,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Alan Turing (simulated)",
+      "duration_s": 109.101208,
+      "ended_at": "2026-06-05T13:34:44.499125+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "alan-turing",
+      "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:32:55.397917+00:00"
+    },
     {
       "agent": "paper_reviewer_jargon_police",
       "duration_s": 98.632623,
@@ -99271,16 +99293,6 @@
       "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T00:51:52.963709Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 74.378826,
-      "ended_at": "2026-06-02T00:51:52.928506Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:50:38.549680Z"
     }
   ],
   "schema_version": "2.0.0"
