@@ -940,7 +940,7 @@
     "human_contributors": 1128,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3802,
+    "total_contributions": 3814,
     "total_contributors": 1135
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1829,
+      "contribution_count": 1841,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -10100,7 +10100,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T01:32:13.931069+00:00",
+  "generated_at": "2026-06-05T01:46:10.854221+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74352,10 +74352,12 @@
       },
       "authors": [
         {
-          "contributions": 18,
+          "contributions": 36,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
+            "paper_reviewer",
+            "paper_reviewer_claim_accuracy",
             "paper_reviewer_code_quality_paper",
             "paper_reviewer_data_quality_paper",
             "paper_reviewer_figure_critic",
@@ -74461,89 +74463,179 @@
       "last_run_log": [
         {
           "agent": "paper_reviewer_jargon_police",
-          "duration_s": 78.783645,
-          "ended_at": "2026-06-01T11:10:16.002342Z",
+          "duration_s": 149.60919,
+          "ended_at": "2026-06-05T01:41:59.574039Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-01T11:08:57.218697Z"
+          "started_at": "2026-06-05T01:39:29.964849Z"
         },
         {
           "agent": "paper_reviewer_figure_critic",
-          "duration_s": 87.260242,
-          "ended_at": "2026-06-01T11:08:57.173003Z",
+          "duration_s": 75.202768,
+          "ended_at": "2026-06-05T01:39:29.912036Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-01T11:07:29.912761Z"
+          "started_at": "2026-06-05T01:38:14.709268Z"
         },
         {
           "agent": "paper_reviewer_text_formatting",
-          "duration_s": 228.129207,
-          "ended_at": "2026-06-01T11:07:29.867659Z",
+          "duration_s": 900.180145,
+          "ended_at": "2026-06-05T01:38:14.602094Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-01T11:03:41.738452Z"
+          "outcome": "failed",
+          "started_at": "2026-06-05T01:23:14.421949Z"
         },
         {
           "agent": "paper_reviewer_data_quality_paper",
-          "duration_s": 31.48899,
-          "ended_at": "2026-06-01T11:03:41.693324Z",
+          "duration_s": 79.929112,
+          "ended_at": "2026-06-05T01:23:14.369749Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-01T11:03:10.204334Z"
+          "started_at": "2026-06-05T01:21:54.440637Z"
         },
         {
           "agent": "paper_reviewer_code_quality_paper",
-          "duration_s": 63.729838,
-          "ended_at": "2026-06-01T11:03:10.158060Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-01T11:02:06.428222Z"
+          "duration_s": 754.113003,
+          "ended_at": "2026-06-05T01:21:54.385531Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "failed",
+          "started_at": "2026-06-05T01:09:20.272528Z"
         },
         {
           "agent": "paper_reviewer_statistical_analysis",
-          "duration_s": 83.670026,
-          "ended_at": "2026-06-01T11:02:06.382184Z",
+          "duration_s": 118.084073,
+          "ended_at": "2026-06-05T01:09:20.220111Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-01T11:00:42.712158Z"
+          "started_at": "2026-06-05T01:07:22.136038Z"
         },
         {
           "agent": "paper_reviewer_scientific_evidence",
-          "duration_s": 42.256068,
-          "ended_at": "2026-06-01T11:00:42.666989Z",
+          "duration_s": 39.420238,
+          "ended_at": "2026-06-05T01:07:22.083635Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-01T11:00:00.410921Z"
+          "started_at": "2026-06-05T01:06:42.663397Z"
         },
         {
           "agent": "paper_reviewer_safety_ethics",
-          "duration_s": 65.684486,
-          "ended_at": "2026-06-01T11:00:00.365186Z",
+          "duration_s": 71.179477,
+          "ended_at": "2026-06-05T01:06:42.610806Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-01T10:58:54.680700Z"
+          "started_at": "2026-06-05T01:05:31.431329Z"
         },
         {
           "agent": "paper_reviewer_overreach",
-          "duration_s": 56.133332,
-          "ended_at": "2026-06-01T10:58:54.633208Z",
+          "duration_s": 42.770966,
+          "ended_at": "2026-06-05T01:05:31.376019Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
-          "started_at": "2026-06-01T10:57:58.499876Z"
+          "started_at": "2026-06-05T01:04:48.605053Z"
         },
         {
           "agent": "paper_reviewer_claim_accuracy",
-          "duration_s": 167.09858,
-          "ended_at": "2026-06-01T10:57:58.452417Z",
+          "duration_s": 194.413571,
+          "ended_at": "2026-06-05T01:04:48.552892Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-06-01T10:55:11.353837Z"
+          "outcome": "success",
+          "started_at": "2026-06-05T01:01:34.139321Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "This re-review confirms that the four prior action items regarding jargon and acronym definition remain largely unaddressed in the current revision. While the technical content is sound, the manuscript continues to rely on specialized terminology without sufficient scaffolding for non-specialist rea",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:41:59.450652Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This re-review assesses the status of the three action items from the previous cycle regarding figure clarity, accessibility, and legibility. Regrettably, none of the prior concerns have been adequately addressed in the current revision of `icml26_main.tex`.\n\nRegarding **Item 1 (Fig 1 Caption)**, th",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:39:29.787957Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This re-review confirms that the four data quality action items from the previous cycle remain unaddressed in the current manuscript revision.\n\nFirst, explicit license information for VBench, NarrLV, and foundation models (VideoCrafter2, Wan2.1) is still missing. Section 5 (Experiments) and the Refe",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:23:14.246116Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The current revision fails to address the critical statistical analysis concerns raised in the prior review cycle. All three prior action items regarding statistical rigor remain unaddressed in the provided LaTeX source, undermining the validity of the empirical claims.\n\nFirst, regarding benchmark s",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:09:20.096481Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "full_revision"
+        },
+        {
+          "excerpt": "**Re-Review of Scientific Evidence \u2014 Prior Action Items Assessment**\n\nThis re-review confirms that **none of the four prior action items have been adequately addressed** in the current revision. Each item requires substantive experimental or statistical analysis that remains absent from the manuscri",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:07:21.962035Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This is a re-review of the paper `icml26_main.tex` focusing on safety and ethics compliance. Per the re-review protocol, I have assessed whether the action items from the previous review cycle have been adequately addressed.\n\n**Assessment of Prior Action Items:**\n\n1.  **Impact Statement (ID: f232d74",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:06:42.489384Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Claim Accuracy Review**\n\nThe manuscript presents a novel train-free method, MIGA, for infinite-frame video generation. Overall, the factual claims regarding numerical performance and baseline comparisons are internally consistent and supported by the provided tables. For instance, the claimed gain",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:04:48.431390Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Re-Review Summary**\n\nThis re-review confirms that the prior action items have not been fully addressed in the current revision:\n\n1. **Model Name Capitalization (ID: ba07b387eb13)**: Partially addressed. While \"VideoCrafter2\" is now consistent, \"Wan\" and \"Wan2.1\" remain inconsistent. Line 280 uses ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T00:46:33.743150Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "# Free-form review body\n\n## Strengths\n- **Novelty:** The proposed MIGA framework introduces a compelling Two-Stage Training-Inference Alignment (TTA) and Dual Consistency Enhancement (DCE) mechanism to address specific limitations in existing train-free autoregressive video generation (e.g., FIFO-Di",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T00:41:10.917508Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "**Jargon Overuse Review**\n\nThe manuscript is technically dense, which is expected for an ICML submission, but several terms create unnecessary barriers for non-specialist readers. The most frequent offender is \"latents\" (e.g., Section 3.1, Equation 1). While standard in diffusion literature, it shou",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-614-enhancing-train-free-infinite-frame-gene/paper/reviews/paper_reviewer_jargon_police__2026-06-01__paper.md",
@@ -74643,9 +74735,9 @@
       "title": "Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos",
       "updated_at": "2026-05-22T09:07:48.010834+00:00",
       "upstream_feedback": {
-        "latest_action_item_count": 29,
+        "latest_action_item_count": 35,
         "latest_verdict_class": "science",
-        "round_count": 1,
+        "round_count": 2,
         "schema_version": 1
       }
     },
@@ -83971,12 +84063,13 @@
       },
       "authors": [
         {
-          "contributions": 24,
+          "contributions": 25,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "daniel-kahneman-simulated",
             "flesh_out",
+            "john-von-neumann-simulated",
             "paper_reviewer_claim_accuracy",
             "paper_reviewer_code_quality_paper",
             "paper_reviewer_data_quality_paper",
@@ -84411,6 +84504,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 96.07356,
+          "ended_at": "2026-06-05T01:46:05.198993+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-05T01:44:29.125433+00:00"
+        },
+        {
           "agent": "flesh_out",
           "duration_s": 394.795628,
           "ended_at": "2026-06-04T03:34:03.951326Z",
@@ -84481,20 +84582,22 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-03T10:52:55.336582Z"
-        },
-        {
-          "agent": "paper_reviewer_overreach",
-          "duration_s": 74.00092,
-          "ended_at": "2026-06-03T10:52:55.291266Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-03T10:51:41.290346Z"
         }
       ],
       "phase_group": "idea",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The proposal treats the alignment problem as a minimax optimization over the agent's policy space. This is formally sound in principle. However, the definition of the adversary's strategy space is left implicit in the current draft. In a zero-sum game, the equilibrium depends critically on the const",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/reviews/john-von-neumann-simulated__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/reviews/john-von-neumann-simulated__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/reviews/john-von-neumann-simulated__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T01:46:05.191483Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "John Von Neumann (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "This review focuses exclusively on jargon overuse and accessibility for non-specialist readers. The manuscript relies heavily on technical terminology that is often undefined at first appearance, particularly in the Abstract and early sections.\n\nIn the **Abstract**, acronyms SFT (Supervised Fine-Tun",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
@@ -87703,6 +87806,152 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 96.07356,
+      "ended_at": "2026-06-05T01:46:05.198993+00:00",
+      "excerpt": "The proposal treats the alignment problem as a minimax optimization over the agent's policy space. This is formally sound in principle. However, the definition of the adversary's strategy space is left implicit in the current draft. In a z\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/reviews/john-von-neumann-simulated__2026-06-05__paper.md",
+      "started_at": "2026-06-05T01:44:29.125433+00:00"
+    },
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 149.60919,
+      "ended_at": "2026-06-05T01:41:59.574039Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:39:29.964849Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 75.202768,
+      "ended_at": "2026-06-05T01:39:29.912036Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:38:14.709268Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 900.180145,
+      "ended_at": "2026-06-05T01:38:14.602094Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:23:14.421949Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 79.929112,
+      "ended_at": "2026-06-05T01:23:14.369749Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:21:54.440637Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 754.113003,
+      "ended_at": "2026-06-05T01:21:54.385531Z",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:09:20.272528Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 118.084073,
+      "ended_at": "2026-06-05T01:09:20.220111Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:07:22.136038Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 39.420238,
+      "ended_at": "2026-06-05T01:07:22.083635Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:06:42.663397Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 71.179477,
+      "ended_at": "2026-06-05T01:06:42.610806Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:05:31.431329Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 42.770966,
+      "ended_at": "2026-06-05T01:05:31.376019Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:04:48.605053Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 194.413571,
+      "ended_at": "2026-06-05T01:04:48.552892Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T01:01:34.139321Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 900.161169,
+      "ended_at": "2026-06-05T01:01:34.080165Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T00:46:33.918996Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 322.758277,
+      "ended_at": "2026-06-05T00:46:33.866528Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T00:41:11.108251Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 80.494316,
+      "ended_at": "2026-06-05T00:41:11.053672Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-614-enhancing-train-free-infinite-frame-gene",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T00:39:50.559356Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -92843,150 +93092,6 @@
       "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
       "project_stage": "paper_review",
       "started_at": "2026-06-01T16:56:37.901017Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 85.763296,
-      "ended_at": "2026-06-01T16:56:37.847618Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T16:55:12.084322Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 61.148622,
-      "ended_at": "2026-06-01T16:55:12.028508Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T16:54:10.879886Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Albert Einstein (simulated)",
-      "duration_s": 25.320446,
-      "ended_at": "2026-06-01T15:37:17.099116+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "albert-einstein",
-      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T15:36:51.778670+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 73.359499,
-      "ended_at": "2026-06-01T14:13:05.986008Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:11:52.626509Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 86.333891,
-      "ended_at": "2026-06-01T14:11:52.580539Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:10:26.246648Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 57.708489,
-      "ended_at": "2026-06-01T14:10:26.141402Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:09:28.432913Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 49.72393,
-      "ended_at": "2026-06-01T14:09:28.387400Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:08:38.663470Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 65.182294,
-      "ended_at": "2026-06-01T14:08:38.617682Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:07:33.435388Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 56.895144,
-      "ended_at": "2026-06-01T14:07:33.389886Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:06:36.494742Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 22.780226,
-      "ended_at": "2026-06-01T14:06:36.448709Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:06:13.668483Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 33.452016,
-      "ended_at": "2026-06-01T14:06:13.623010Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:05:40.170994Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 72.200707,
-      "ended_at": "2026-06-01T14:05:40.124681Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:04:27.923974Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 80.361085,
-      "ended_at": "2026-06-01T14:04:27.878279Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:03:07.517194Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 42.152845,
-      "ended_at": "2026-06-01T14:03:07.469107Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-638-https-arxiv-org-abs-2605-28820",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T14:02:25.316262Z"
     }
   ],
   "schema_version": "2.0.0"
