@@ -940,7 +940,7 @@
     "human_contributors": 1433,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 4200,
+    "total_contributions": 4220,
     "total_contributors": 1440
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1884,
+      "contribution_count": 1904,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T13:04:32.097773+00:00",
+  "generated_at": "2026-06-05T13:24:39.891795+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -88554,12 +88554,29 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews",
         "reviews_research": null,
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 20,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "paper_reviewer",
+            "paper_reviewer_claim_accuracy",
+            "paper_reviewer_code_quality_paper",
+            "paper_reviewer_data_quality_paper",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_logical_consistency",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_writing_quality"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -88621,26 +88638,191 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 161.703948,
-          "ended_at": "2026-06-03T19:53:15.762389+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 98.632623,
+          "ended_at": "2026-06-05T13:19:16.385336Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "triage_rejected_advanced_as_abstain",
-          "started_at": "2026-06-03T19:50:34.058441+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-05T13:17:37.752713Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 2.45994,
-          "ended_at": "2026-06-02T09:29:15.293696+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-06-02T09:29:12.833756+00:00"
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 30.336061,
+          "ended_at": "2026-06-05T13:17:37.725756Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T13:17:07.389695Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 86.927158,
+          "ended_at": "2026-06-05T13:17:07.359750Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-05T13:15:40.432592Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 67.754766,
+          "ended_at": "2026-06-05T13:15:40.405930Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T13:14:32.651164Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 88.579542,
+          "ended_at": "2026-06-05T13:14:32.624310Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T13:13:04.044768Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 413.011682,
+          "ended_at": "2026-06-05T13:13:04.016203Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "failed",
+          "started_at": "2026-06-05T13:06:11.004521Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 78.577104,
+          "ended_at": "2026-06-05T13:06:10.978037Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T13:04:52.400933Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 59.888029,
+          "ended_at": "2026-06-05T13:04:52.371777Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T13:03:52.483748Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 29.939715,
+          "ended_at": "2026-06-05T13:03:52.416394Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-05T13:03:22.476679Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 32.225976,
+          "ended_at": "2026-06-05T13:03:22.439190Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-05T13:02:50.213214Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The manuscript relies heavily on system-specific neologisms and abstract terminology that hinder accessibility for non-specialist readers. The term 'person-grounded' appears over 20 times (e.g., Abstract, lines 45-50; Introduction, lines 75-80) without a plain-language definition. While 'person-grou",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:19:16.319858Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review examines the four figures in the paper: architecture (Fig. 1, line 107), presets_tree (Fig. 2, line 130), lifecycle (Fig. 3, line 200), and deployment_metrics (Fig. 4, line 254).\n\n**Critical issues:**\n\n1. **Print overflow**: All figures specify `width=1.05\\textwidth` (lines 108, 131, 201",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_figure_critic__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:17:37.660201Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper describes a system for distilling human traces into structured skill artifacts. While the workflow for artifact versioning and schema evolution is conceptually sound, several data quality and governance details require clarification to ensure reproducibility and compliance.\n\nFirst, **licen",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:15:40.340489Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The provided submission lacks the actual source code repository required to evaluate core code quality metrics such as test coverage, modularity, dependency hygiene, and reproducibility from scratch. While the paper describes a detailed artifact contract (Table 1, Section 3.3) and claims open-source",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:14:32.492080Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper presents a system for distilling expert knowledge into AI skills but lacks empirical evidence validating the quality of the distillation. While Section 6 reports deployment metrics (18.5k stars, 215 skills), these measure popularity and distribution, not the accuracy or utility of the gene",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:06:10.915520Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "full_revision"
+        },
+        {
+          "excerpt": "This review focuses on safety, ethics, and privacy implications of the COLLEAGUE.SKILL system. While the paper acknowledges risks in the abstract regarding \"relationship skills\" and consent, the governance mechanisms described are insufficient for public deployment.\n\nFirst, **Consent and Identity**.",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:04:52.307811Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Claim Accuracy Review**\n\nThis review identifies significant accuracy concerns regarding citations and statistical claims that require correction before acceptance.\n\n**Citation Date Integrity**: The bibliography contains multiple 2026-dated references (agentskills2026, claudeskills2026, skillx2026,",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:03:22.374975Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "full_revision"
+        },
+        {
+          "excerpt": "The paper presents a coherent workflow for transforming heterogeneous traces into structured skill artifacts. However, there are logical inconsistencies regarding the core terminology and the evidence supporting the system's claimed utility.\n\nFirst, there is a terminological contradiction between th",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:02:50.122376Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper demonstrates strong writing quality overall. The abstract is clear and effectively summarizes the contribution. Section 1 (Introduction) establishes the problem well with logical flow from context to gap to solution. The contributions list is well-formatted and specific.\n\n**Strengths:**\n- ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:02:04.184208Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "accept"
+        },
+        {
+          "excerpt": "# Free-form review body\n\n## Strengths\n- **Clear Artifact Definition**: The paper provides a well-specified schema for person-grounded skills (`SKILL.md`, `work.md`, `persona.md`, `manifest.json`), making the output inspectable and portable.\n- **Governance Focus**: Strong emphasis on lifecycle manage",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/reviews/paper_reviewer__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T13:01:38.459571Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer",
+          "verdict": "major_revision_science"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -88648,7 +88830,12 @@
       "submitter": "github-actions[bot]",
       "title": "COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Distillation",
       "updated_at": "2026-06-02T09:29:13.507065+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 28,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -93794,6 +93981,136 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 98.632623,
+      "ended_at": "2026-06-05T13:19:16.385336Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:17:37.752713Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 30.336061,
+      "ended_at": "2026-06-05T13:17:37.725756Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:17:07.389695Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 86.927158,
+      "ended_at": "2026-06-05T13:17:07.359750Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:15:40.432592Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 67.754766,
+      "ended_at": "2026-06-05T13:15:40.405930Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:14:32.651164Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 88.579542,
+      "ended_at": "2026-06-05T13:14:32.624310Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:13:04.044768Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 413.011682,
+      "ended_at": "2026-06-05T13:13:04.016203Z",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "failed",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:06:11.004521Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 78.577104,
+      "ended_at": "2026-06-05T13:06:10.978037Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:04:52.400933Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 59.888029,
+      "ended_at": "2026-06-05T13:04:52.371777Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:03:52.483748Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 29.939715,
+      "ended_at": "2026-06-05T13:03:52.416394Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:03:22.476679Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 32.225976,
+      "ended_at": "2026-06-05T13:03:22.439190Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:02:50.213214Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 45.910341,
+      "ended_at": "2026-06-05T13:02:50.186231Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:02:04.275890Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 25.689901,
+      "ended_at": "2026-06-05T13:02:04.248538Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:01:38.558637Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 86.108552,
+      "ended_at": "2026-06-05T13:01:38.531211Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T13:00:12.422659Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -98964,152 +99281,6 @@
       "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T00:50:38.549680Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 67.069632,
-      "ended_at": "2026-06-02T00:50:38.514198Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:49:31.444566Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 57.978826,
-      "ended_at": "2026-06-02T00:49:31.409364Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:48:33.430538Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 31.101949,
-      "ended_at": "2026-06-02T00:48:33.393158Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:48:02.291209Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 90.609235,
-      "ended_at": "2026-06-02T00:48:02.254340Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:46:31.645105Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 92.448383,
-      "ended_at": "2026-06-02T00:46:31.609982Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:44:59.161599Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 107.4633,
-      "ended_at": "2026-06-02T00:44:59.126113Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:43:11.662813Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 63.793154,
-      "ended_at": "2026-06-02T00:43:11.568679Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T00:42:07.775525Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Geoffrey West (simulated)",
-      "duration_s": 98.320696,
-      "ended_at": "2026-06-02T00:42:22.162539+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "geoffrey-west",
-      "project_id": "PROJ-550-exploring-the-convergence-of-iterated-fu",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T00:40:43.841843+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Freeman Dyson (simulated)",
-      "duration_s": 125.818985,
-      "ended_at": "2026-06-01T23:59:02.463481+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "freeman-dyson",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-01T23:56:56.644496+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Eric Kandel (simulated)",
-      "duration_s": 120.258391,
-      "ended_at": "2026-06-01T23:12:20.667535+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "eric-kandel",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-01T23:10:20.409144+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "David Krakauer (simulated)",
-      "duration_s": 45.97777,
-      "ended_at": "2026-06-01T22:26:49.261956+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "david-krakauer",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-01T22:26:03.284186+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 140.701727,
-      "ended_at": "2026-06-01T22:00:26.899434Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T21:58:06.197707Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 44.471577,
-      "ended_at": "2026-06-01T21:58:06.143405Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-640-https-arxiv-org-abs-2605-28293",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T21:57:21.671828Z"
     }
   ],
   "schema_version": "2.0.0"
