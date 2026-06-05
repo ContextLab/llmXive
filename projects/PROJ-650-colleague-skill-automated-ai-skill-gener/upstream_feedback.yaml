@@ -1,0 +1,130 @@
+project_id: PROJ-650-colleague-skill-automated-ai-skill-gener
+arxiv_id: '2605.31264'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-05T13:19:16.423303+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: d22fcd350f4f
+    text: Add empirical evaluation measuring knowledge preservation (e.g., expert-in-the-loop
+      assessment of extracted heuristics) to substantiate 'distillation' claim.
+    severity: science
+  - id: e331cbb5e732
+    text: Include quantitative comparison of task performance with vs. without skills
+      to validate utility beyond deployment metrics.
+    severity: science
+  - id: c87ae07a0a32
+    text: Reframe title/abstract if fidelity studies are omitted to align 'distillation'
+      terminology with 'artifact packaging' contribution.
+    severity: science
+  - id: b558bb75e370
+    text: Multiple citations reference 2026 publication dates (agentskills2026, claudeskills2026,
+      skillx2026, etc.) that cannot be verified. These are future dates relative to
+      submission timeline. Verify all citation dates are accurate and accessible.
+    severity: science
+  - id: 5b9a54dfc99a
+    text: Abstract claims "approximately 18.5k GitHub stars" and "more than 100k cumulative
+      gallery stars" with access date 2026-05-28. These specific numerical claims
+      require verifiable source links and cannot be from future dates.
+    severity: science
+  - id: 5dab74e7b2bb
+    text: Claims about system capabilities (e.g., "produces a versioned skill package,"
+      "can be inspected, invoked, updated through natural-language feedback") lack
+      empirical evidence. Add task-based studies or performance metrics to support
+      capability claims.
+    severity: science
+  - id: 12d5e568c647
+    text: Section 6 Application Cases states "design-oriented examples of the artifact
+      workflow, not claims of behavioral equivalence" but abstract and introduction
+      make stronger claims about skill utility without qualification. Align claim
+      strength throughout.
+    severity: writing
+  - id: cb5752571d47
+    text: Include explicit dependency versions and environment setup instructions
+      in the manuscript or repository to ensure reproducibility from scratch.
+    severity: writing
+  - id: 116063db0c30
+    text: Add a reference to the test suite or validation scripts for the artifact
+      writer to verify modularity and code quality claims.
+    severity: writing
+  - id: 85abf2cec58d
+    text: Clarify the version control strategy for the 'Correction and Update Workflow'
+      (Section 5.2) to support the rollback claims.
+    severity: writing
+  - id: b70c7ecb9838
+    text: Explicitly state the license for the code repository and generated skill
+      artifacts in Section 6 or the README.
+    severity: writing
+  - id: 3cbcbdfa336b
+    text: Provide a formal schema definition (e.g., JSON Schema) for meta.json and
+      manifest.json rather than only text description in Section 3.
+    severity: writing
+  - id: 01e920317fbd
+    text: Clarify data retention and provenance documentation for public gallery skills;
+      currently vague regarding source trace auditability.
+    severity: science
+  - id: 120eead89b17
+    text: All four figures use width=1.05\textwidth which exceeds page margins. Change
+      to width=\textwidth or width=0.95\textwidth to prevent overflow at print scale.
+    severity: writing
+  - id: e526d139b48f
+    text: Figures lack alt text or descriptive captions for accessibility. Add \begin{figure}
+      with figure description or caption text suitable for screen readers.
+    severity: writing
+  - id: a987f98b9004
+    text: Figure 4 (deployment_metrics.pdf) caption mentions counters but does not
+      specify what metrics are plotted. Add axis label descriptions in caption or
+      include figure with labeled axes.
+    severity: writing
+  - id: 9678ce1f9211
+    text: All figures use [H] placement which may cause page break issues. Consider
+      allowing float placement for better typesetting.
+    severity: writing
+  - id: 227b818401be
+    text: Replace 'person-grounded' with plain terms like 'person-based' or define
+      it clearly in the Introduction.
+    severity: writing
+  - id: 1b76f35377f7
+    text: Simplify 'artifact contract' to 'file package format' and 'deployment surface'
+      to 'public availability'.
+    severity: writing
+  - id: e8d1c0de6117
+    text: Define acronyms 'RAG', 'API', and 'JSON' at first use for broader accessibility.
+    severity: writing
+  - id: f2ecf9ddad8d
+    text: Clarify the logical tension between the title's claim of 'Expert Knowledge
+      Distillation' and Section 7's explicit disavowal of behavioral fidelity. The
+      term 'distillation' implies faithful transfer of capability, which contradicts
+      the artifact-focused contribution.
+    severity: science
+  - id: 109f4b354425
+    text: Avoid inferring system efficacy from deployment metrics (e.g., GitHub stars
+      in Abstract/Section 6). Stars indicate distribution, not logical validity of
+      the distillation mechanism or artifact quality.
+    severity: writing
+  - id: fb16d1f2cadf
+    text: Explicitly disclose IRB/ethics approval status for the public gallery data
+      collection involving 165 contributors.
+    severity: science
+  - id: bf17758dc1fb
+    text: Define technical consent verification mechanisms for 'colleague' and 'relationship'
+      presets to prevent non-consensual digital doubles.
+    severity: science
+  - id: d8b760a90200
+    text: Clarify data retention and deletion protocols for private traces (e.g.,
+      Slack, WeChat) ingested during the generation workflow.
+    severity: science
+  - id: d65a242b41d4
+    text: Add empirical validation (e.g., expert review) of generated skill accuracy
+      to support the 'distillation' claim.
+    severity: science
+  - id: 225cc154fd1d
+    text: Replace deployment metrics (stars) with task-performance or fidelity metrics
+      in evidence sections.
+    severity: science
+  - id: 5849a54a0159
+    text: Include baseline comparisons against manual skill creation to demonstrate
+      distillation utility.
+    severity: science
