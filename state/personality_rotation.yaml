@@ -1,14 +1,7 @@
 last_used: linus-pauling
-last_used_at: '2026-06-05T22:35:38.119036+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-05T23:30:40.993522+00:00'
+last_outcome: model_error
 history:
-- slug: alan-turing
-  started_at: '2026-05-26T19:18:13.643659+00:00'
-  ended_at: '2026-05-26T20:19:17.861768+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-618-bench-evaluating-proactive-personal-assi/reviews/research/alan-turing-simulated__2026-05-26__research.md
 - slug: albert-einstein
   started_at: '2026-05-26T20:19:17.861768+00:00'
   ended_at: '2026-05-26T21:06:52.960644+00:00'
@@ -1221,3 +1214,7 @@ history:
   ended_at: '2026-06-05T22:35:38.119036+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: marie-curie
+  started_at: '2026-06-05T22:35:38.119036+00:00'
+  ended_at: '2026-06-05T23:30:40.993522+00:00'
+  outcome: model_error
