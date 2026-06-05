@@ -1,0 +1,97 @@
+project_id: PROJ-609-https-arxiv-org-abs-2605-14236
+arxiv_id: '2605.14236'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-05T07:39:51.773030+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: c1a0b0b1f0e8
+    text: Code repository (https://github.com/jerecoder/IReranker) not accessible
+      for review. Provide artifact hash or include minimal code snippets in appendix
+      to verify reproducibility claims.
+    severity: science
+  - id: bed7e2c0c4de
+    text: Paper references implementation details (Mohajer algorithm, PAC+Bubble)
+      but provides no pseudocode or algorithm listings. Add Algorithm 1-2 with complexity
+      analysis for reproducibility.
+    severity: science
+  - id: d891fa08e8fd
+    text: No dependency list or environment specification (Python version, LLM API
+      details, hardware specs) provided for experimental replication.
+    severity: science
+  - id: 5792033c013e
+    text: Pin the code repository version (e.g., commit hash or tag) in the manuscript
+      to prevent link rot and ensure reproducibility.
+    severity: writing
+  - id: 4fb44347304b
+    text: Explicitly state the exact versions of datasets used (e.g., BEIR v1.0.0,
+      TREC DL2019/2020) to ensure data consistency.
+    severity: writing
+  - id: ac1420975237
+    text: Declare a software license for the code repository and any derived data
+      artifacts to ensure legal clarity.
+    severity: writing
+  - id: 0a8862916c7d
+    text: Add alt text for all figures using the graphicx alttext option or figure
+      environment to ensure accessibility compliance for screen readers.
+    severity: writing
+  - id: 3cc3966b1996
+    text: Figure 1 caption (line 290) should explicitly state x-axis units (seconds)
+      and y-axis units (NDCG@10 %) for standalone readability without referring to
+      text.
+    severity: writing
+  - id: 11871e432910
+    text: Appendix figures (lines 450-465) lack individual captions describing GPU-specific
+      results; consolidate or add per-figure captions distinguishing hardware configurations.
+    severity: writing
+  - id: f0bc9d0a3b70
+    text: Define NDCG@10 at first use in Abstract and Introduction. Currently appears
+      as 'NDCG@10' without expansion.
+    severity: writing
+  - id: d3d03eaf4912
+    text: Define BEIR (Benchmarking Information Retrieval) when first mentioned in
+      Introduction.
+    severity: writing
+  - id: 7e61a93ac78d
+    text: Expand 'CI' to 'Confidence Interval' in Table 1 caption.
+    severity: writing
+  - id: d2704c93ba64
+    text: Define BM25 (Okapi BM25) in Section 5 or Introduction.
+    severity: writing
+  - id: 49283a0a0e81
+    text: Replace 'call-constrained regime' with 'call-limited setting' in Abstract
+      for clarity.
+    severity: writing
+  - id: 30a132bd3414
+    text: Table 2 (BEIR) compares methods at different converged budgets (e.g., BubbleSort@941
+      calls vs. Mohajer@345 calls). To support the claim 'active rankers reach NDCG@10
+      comparable to QuickSort with fewer calls', please clarify if this is a fixed-budget
+      comparison or an efficiency trade-off. A fixed-budget comparison on BEIR would
+      strengthen the evidence.
+    severity: science
+  - id: 370f5dac4859
+    text: TREC DL datasets contain only ~50 queries per year. While bootstrapping
+      is used, the statistical power for generalization is limited. Please discuss
+      this limitation regarding the robustness of the significance tests (p < 0.05)
+      in the main text or limitations section.
+    severity: science
+  - id: 220aedb262b9
+    text: The randomized-direction oracle shows strong empirical gains (Table 1),
+      but the theoretical justification relies on symmetry of position bias. The flip-rate
+      table (Appendix) supports this, but explicitly stating the assumption that bias
+      is symmetric across all datasets would improve rigor.
+    severity: science
+  - id: 0e73b0fbaf17
+    text: Add 'that' after 'show' in Abstract and Introduction (lines 48, 72) for
+      grammatical precision.
+    severity: writing
+  - id: cec870057592
+    text: Remove the LaTeX comment '% Paste this in the Appendix...' from the Appendix
+      source (line 1050) to ensure source cleanliness.
+    severity: writing
+  - id: 4bf1194196b1
+    text: Rephrase 'flip the judge's choice between documents' in Introduction (line
+      76) to 'flip the preferred document' for clarity.
+    severity: writing

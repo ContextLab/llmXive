@@ -101,4 +101,7 @@ ready:
 - project_id: PROJ-571-co-evolving-policy-distillation
   revision_spec_path: specs/auto-revisions/PROJ-571-co-evolving-policy-distillation/round-1
   queued_at: '2026-06-05T06:15:57.411184+00:00'
+- project_id: PROJ-609-https-arxiv-org-abs-2605-14236
+  revision_spec_path: specs/auto-revisions/PROJ-609-https-arxiv-org-abs-2605-14236/round-1
+  queued_at: '2026-06-05T07:39:51.783918+00:00'
 blocked: []
