@@ -1,0 +1,75 @@
+name: llmXive Real-Call Tests (nightly full suite)
+
+# The per-PR gate (llmxive-real-call-tests.yml) runs only the FAST subset
+# (`-m "not slow"`) so it fits the 60-min budget. This scheduled job runs the
+# FULL real-call suite — including the heavy fetch+ground+e2e modules marked
+# `slow` (tests/real_call/conftest.py) — with a budget that fits ~95 real-LLM /
+# real-network tests. Also runnable on demand via the Actions "Run workflow"
+# button (workflow_dispatch).
+
+on:
+  schedule:
+    # 06:00 UTC daily (after the overnight pipeline cron settles).
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  real-call-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      ZENODO_API_TOKEN: ${{ secrets.ZENODO_API_TOKEN }}
+      ZENODO_SANDBOX_API_TOKEN: ${{ secrets.ZENODO_SANDBOX_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+
+      # Heavy e2e tests need a real TeX toolchain (llmxive.cls full compile via
+      # lualatex + bibtex + fontspec) — same as the per-PR gate.
+      - name: Install TeX Live (lualatex + bibtex) for paper compiles
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-luatex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-fonts-extra texlive-science \
+            texlive-bibtex-extra texlive-pictures texlive-plain-generic \
+            texlive-lang-english fonts-noto-core
+          lualatex --version | head -1
+          bibtex --version | head -1
+
+      - name: Install llmXive house fonts
+        run: |
+          mkdir -p "$HOME/.fonts"
+          cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
+          fc-cache -f >/dev/null
+          fc-list | grep -iE "fraunces|jetbrains" | head || \
+            echo "WARN: house fonts not registered (class will fall back)"
+
+      # Same fast pre-checks as the per-PR gate (fail fast, save real-LLM minutes).
+      - name: Prompt existence check
+        run: python -m llmxive.checks.prompts
+
+      - name: Spec Kit script executability check
+        run: python -m llmxive.checks.speckit_scripts
+
+      - name: Backend reachability check (Dartmouth + HF list_models())
+        run: python -m llmxive.checks.backends
+
+      - name: Contract tests
+        run: pytest tests/contract -v
+
+      # The FULL real-call suite — fast subset PLUS the `slow` heavy modules.
+      - name: Real-call tests — FULL suite (incl. slow fetch/ground/e2e)
+        run: pytest tests/real_call -v

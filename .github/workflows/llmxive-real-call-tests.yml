@@ -98,6 +98,12 @@ jobs:
       - name: Contract tests
         run: pytest tests/contract -v
 
-      # The real-call suite is the canonical Constitution III gate.
-      - name: Real-call tests (Dartmouth + HF + Spec Kit scripts + e2e)
-        run: pytest tests/real_call -v
+      # The real-call suite is the canonical Constitution III gate. The per-PR
+      # gate runs the FAST subset (connectivity + backend fallback + the
+      # reference/citation gates + personality liveness + Spec Kit scripts); the
+      # heavy fetch+ground+e2e modules are marked `slow` (tests/real_call/conftest.py)
+      # and run in the nightly full suite (llmxive-real-call-nightly.yml), because
+      # the full suite no longer fits the 60-min per-PR budget once Dartmouth is
+      # reachable (it was cancelled mid-run, while passing).
+      - name: Real-call tests — PR gate (fast subset; slow modules run nightly)
+        run: pytest tests/real_call -v -m "not slow"
