@@ -104,4 +104,7 @@ ready:
 - project_id: PROJ-609-https-arxiv-org-abs-2605-14236
   revision_spec_path: specs/auto-revisions/PROJ-609-https-arxiv-org-abs-2605-14236/round-1
   queued_at: '2026-06-05T07:39:51.783918+00:00'
+- project_id: PROJ-575-training-long-context-vision-language-mo
+  revision_spec_path: specs/auto-revisions/PROJ-575-training-long-context-vision-language-mo/round-1
+  queued_at: '2026-06-05T11:02:28.617591+00:00'
 blocked: []

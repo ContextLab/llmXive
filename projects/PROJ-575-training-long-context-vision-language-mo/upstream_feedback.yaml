@@ -1,0 +1,91 @@
+project_id: PROJ-575-training-long-context-vision-language-mo
+arxiv_id: '2605.13831'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-05T11:02:28.605686+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 3a5ed2a32796
+    text: Provide full bibliography to verify claims attributed to missing citations
+      (e.g., dynamicntk, daoflashattention, li2024llava).
+    severity: writing
+  - id: 637818ca6b77
+    text: Clarify 'maintains performance' claim at 256K/512K contexts, as absolute
+      scores drop from 57.70 to 52.52 (Table 2).
+    severity: writing
+  - id: 3b9b34a1f2dc
+    text: No training code repository or implementation artifacts provided for review.
+      The paper describes training using VeOmni framework but no actual code is accessible
+      for evaluation of reproducibility, modularity, or dependency hygiene.
+    severity: science
+  - id: 847a344a3ae0
+    text: Appendix A.2 mentions 8 H20 nodes (64 GPUs) training setup but no training
+      scripts, data preprocessing pipelines, or evaluation code are included. Code
+      should be released for full reproducibility.
+    severity: science
+  - id: 9761681d5981
+    text: Specify the license and source of the 1.5M PDF document pool (Sec 4.1).
+    severity: science
+  - id: ae7a9a693dea
+    text: Clarify handling of 3% noisy QA pairs from human verification (Appx A.3).
+    severity: science
+  - id: 97c065b3a45d
+    text: Provide data release link or reconstruction instructions for synthetic data.
+    severity: writing
+  - id: 4ebbd32ce71a
+    text: Define 'mRoPE' and 'Dynamic-NTK' at first use in Section 3 instead of relying
+      on Appendix references.
+    severity: writing
+  - id: 1b0dde26ea82
+    text: Expand 'SFT' before Section 4.3 usage; do not defer definition to Table
+      1 caption.
+    severity: writing
+  - id: a25bba557047
+    text: Spell out 'MM-NIAH' and other benchmark acronyms in the Introduction before
+      citing them.
+    severity: writing
+  - id: 6d47dd352d84
+    text: Clarify 'H20' GPU reference in Appendix for non-hardware specialists.
+    severity: writing
+  - id: 0ddd287db7df
+    text: The paper lacks a conflict of interest statement. Multiple authors are affiliated
+      with ByteDance Seed, and Seed 2.0 is used extensively for data synthesis (Sec
+      4.1-4.2). Disclose commercial relationships and potential bias from proprietary
+      model usage."
+    severity: writing
+  - id: cabcfb75efe6
+    text: Data provenance and privacy concerns are not addressed. The 1.5M document
+      pool includes academic papers, books, and manuals (Sec 4.1) but no discussion
+      of copyright licensing, personal data filtering, or how sensitive information
+      was removed from training data."
+    severity: writing
+  - id: 95940b4dbf7e
+    text: The Broader Impact section (app:broader_impact) discusses benefits but omits
+      potential misuse scenarios. Long-context VQA models could enable automated extraction
+      of sensitive information from large document collections. Add discussion of
+      dual-use risks and mitigation strategies."
+    severity: writing
+  - id: e71164a2adca
+    text: Report standard deviations across at least three seeds for all main benchmark
+      results to establish statistical significance.
+    severity: science
+  - id: 79b40fd02fa2
+    text: Clarify if 5B tokens is sufficient for 'training' vs 'SFT' given the 7B
+      parameter model size in Section 3.
+    severity: science
+  - id: 01e14b9eebbc
+    text: Validate LLM judge metrics with human evaluation on a subset of benchmarks
+      to reduce evaluation bias.
+    severity: science
+  - id: 0d22fc7db070
+    text: Report confidence intervals or standard errors for all benchmark scores
+      (e.g., MMLongBench, MM-NIAH) to quantify evaluation uncertainty, particularly
+      given LLM-based judging mentioned in Appendix.
+    severity: science
+  - id: 36d21d720665
+    text: Address multiple-comparisons inflation in ablation studies (Section 5, Appendix)
+      by correcting p-values or explicitly acknowledging hyperparameter search bias
+      when claiming optimal ratios.
+    severity: science
