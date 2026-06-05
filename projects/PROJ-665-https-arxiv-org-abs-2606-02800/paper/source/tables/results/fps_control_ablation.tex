@@ -1,0 +1,22 @@
+\begin{table}[h]
+\label{tab::fps_control}
+    \centering
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{\textbf{FPS control ablation on Cosmos3-Nano.} Scores are averaged across four FPS bands (10, 15, 24, 30). VQ is the DOVER video quality score; MF is motion fidelity (0--1); Composite $= \mathbb{E}_{\text{band}}[(\text{VQ}) \cdot \text{MF}]$. \textbf{Bold} indicates best in the column. Text Control + MRoPE FPS Modulation is the most performant control setting that demonstrates adherence to reference FPS band motion while preserving perceptual quality.}
+    \label{tab:fps_control_ablation}
+    \setlength{\tabcolsep}{8pt}
+    \renewcommand{\arraystretch}{1.25}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{l l c c c}
+        \toprule
+        \textbf{Model} & \textbf{FPS Control Setting} & \textbf{Avg.\ VQ ($\uparrow$)} & \textbf{Avg.\ MF ($\uparrow$)} & \textbf{Avg.\ Composite ($\uparrow$)} \\
+        \midrule
+        Cosmos3-Nano & Base (No Control)  & 12.89 & 0.6626 & 8.51 \\
+        Cosmos3-Nano & Text Control            & 12.99 & 0.7169 & 9.28 \\
+        Cosmos3-Nano & MRoPE FPS Modulation & \textbf{13.03} & 0.7409 & 9.63 \\
+        % \rowcolor{rowours}
+        Cosmos3-Nano & \textbf{Text Control + MRoPE FPS Modulation} & 12.84 & \textbf{0.7649} & \textbf{9.81} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

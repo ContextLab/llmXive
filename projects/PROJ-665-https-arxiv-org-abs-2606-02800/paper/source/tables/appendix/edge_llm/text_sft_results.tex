@@ -1,0 +1,42 @@
+\begin{table}[h]
+    \centering
+    \caption{
+    \textbf{Text benchmark results.} Comparing \textbf{Cosmos3-Edge} and Qwen3.5-2B across reasoning, science, instruction-following, and long-context evaluations. \textbf{Cosmos3-Edge} substantially improves mathematical and scientific reasoning capability on HMMT25 Feb and GPQA, while achieving comparable scores on IFBench and AA-LCR.
+    }
+    \label{tab:text_sft_results}
+
+    \small
+    \setlength{\tabcolsep}{8pt}
+    \renewcommand{\arraystretch}{1.15}
+
+    \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Model} &
+        \textbf{\begin{tabular}[c]{@{}c@{}}HMMT25\\ Feb\end{tabular}} &
+        \textbf{GPQA} &
+        \textbf{\begin{tabular}[c]{@{}c@{}}MMLU\\ Pro\end{tabular}} &
+        \textbf{AA-LCR} &
+        \textbf{\begin{tabular}[c]{@{}c@{}}IFBench\\ (prompt)\end{tabular}} &
+        \textbf{\begin{tabular}[c]{@{}c@{}}Scale AI\\ Multi-Challenge\end{tabular}} \\
+        \midrule
+
+        Qwen3.5-2B
+        & 22.9
+        & 51.6
+        & \textbf{66.5}
+        & \textbf{25.6}
+        & 41.3
+        & \textbf{33.7} \\
+
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Edge}
+        & \textbf{76.3}
+        & \textbf{56.4}
+        & 62.6
+        & 22.8
+        & \textbf{43.6}
+        & 28.1 \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}

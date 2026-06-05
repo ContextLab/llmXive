@@ -1,0 +1,32 @@
+\begin{tcolorbox}[
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Top-level Fields in the Image Caption Schema
+]
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}lX@{}}
+\toprule
+Field & Description \\
+\midrule
+subjects[] & Per-subject records capturing identity, appearance, spatial placement, pose, clothing, expression, and count-sensitive anatomy fields when applicable. Human or human-like subjects additionally include demographic and facial-attribute fields when visible. \\
+subject\_details & Open-ended attributes or clarifications that do not fit cleanly into a single subject slot, including free-form fine-grained facial details when useful. \\
+background\_setting & Global scene context, environment, and background elements. \\
+lighting & Illumination conditions, directionality, shadows, and notable lighting effects. \\
+aesthetics & Composition, color palette, mood, and repeated visual patterns. \\
+cinematography & Framing, camera angle, depth of field, focus behavior, and lens characteristics. \\
+style\_medium / artistic\_style & Medium, rendering style, and artistic treatment. \\
+context & High-level narrative or situational context for the scene. \\
+text\_and\_signage\_elements[] & Any visible text, its appearance, placement, category, and scene relevance. \\
+quadrant\_scan & Region-wise scan of the top-left, top-right, bottom-left, bottom-right, and absolute center. \\
+comprehensive\_t2i\_caption & A natural-language summary distilled from the structured fields. \\
+resolution / aspect\_ratio & Image size metadata used to preserve scale and layout cues. \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}

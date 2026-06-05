@@ -1,0 +1,19 @@
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Generator mid-training data mixture.} After pre-training is done, we introduce new modalities (action and transfer) in the mid-training stage with the data ratios listed below.}
+    \label{tab:midtraining_modality_mix}
+    \resizebox{0.8\linewidth}{!}{%
+    \begin{tabular}{@{}p{0.22\linewidth}p{0.58\linewidth}c@{}}
+        \toprule
+        \textbf{Training stream} & \textbf{Modes / Conditioning} & \textbf{Share} \\
+        \midrule
+        Image & T2I & 10\% \\
+        Video & T2V, I2V, V2V & 32\% \\
+        Video + Audio & T2(V+Audio), I2(V+Audio), V2(V+Audio) & 8\% \\
+        Action & Forward dynamics, inverse dynamics, policy & 25\% \\
+        General Transfer & Edge, blur, depth, and segmentation controls & 20\% \\
+        Driving Transfer & World-scenario-map controls & 5\% \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

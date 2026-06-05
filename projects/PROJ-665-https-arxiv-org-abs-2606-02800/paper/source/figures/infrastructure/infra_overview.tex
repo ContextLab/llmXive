@@ -1,0 +1,16 @@
+\begin{figure}[t]
+  \resizebox{\linewidth}{!}{\includegraphics{figures/infrastructure/tikz_infra_overview.pdf}}
+  \captionsetup{justification=raggedright, singlelinecheck=false}
+  \caption{\textbf{Overview of the Cosmos 3 infrastructure stack.}
+  The platform spans four pillars. \emph{Data Infrastructure} ingests raw
+  multimodal streams and curates them into WebDataset-format training
+  shards. \emph{Training Infrastructure} consumes those shards on NVIDIA
+  GPU clusters with efficient parallelization, data loading, and
+  checkpointing. The resulting checkpoints feed two parallel paths
+  (separated by the dashed divider): \emph{Serving Infrastructure}
+  deploys them for low-latency generation and reasoning inference, while
+  \emph{Benchmark Infrastructure} evaluates the same checkpoints against
+  standardized benchmark datasets to track regressions and enable
+  systematic validation.}
+  \label{fig:cosmos_infra_pipeline}
+\end{figure}

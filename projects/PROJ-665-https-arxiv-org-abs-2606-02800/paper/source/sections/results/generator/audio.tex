@@ -1,0 +1,33 @@
+\subsubsection{Audio Generation Evaluation}
+\label{subsec::audio_eval}
+Text-to-audiovisual generation must satisfy two requirements that are not captured by video-only benchmarks. The generated audio should contain the sound events requested by the prompt, and those events should be attributable to the correct visual sources with plausible timing. We therefore evaluate audio generation with Cosmos-SoundBench, a targeted benchmark for audio-visual prompt following and synchronization. The metric separates semantic audio-visual correctness from prompt-blind audio fidelity. A sample can contain the right sound at the right moment but still suffer from audio artifacts, or it can be acoustically clean while missing the requested event.
+
+\paragraph{Cosmos-SoundBench.}
+Cosmos-SoundBench contains 144 evaluation prompts drawn from FoleyBench~\citep{foleybench}. The prompts cover non-speech sound categories such as ambient scenes, impacts, object interactions, tools, vehicles, water, and other environmental effects. We focus on non-speech audio because these signals are especially important for Physical AI. Contact sounds reveal material and collision properties, tool sounds indicate ongoing actions, and ambient cues provide scene context that may be only partially visible.
+
+\paragraph{Audiovisual quality metric (AVQ).}
+We evaluate each generated sample with a structured MLLM-as-judge protocol. The judge sees the prompt, video, and audio only in the stages where that information is needed, keeping each judge stage focused on the intended evidence rather than unrelated cross-modal cues.
+
+\begin{enumerate}
+    \item \textit{Prompt checklist construction.} Before inspecting any generated media, an ensemble of Claude Opus~4.7, Gemini~3.1 Pro, and GPT~5.5 extracts the required foreground sounds, ambient audio conditions, and prompt-critical visual evidence. We use majority voting to fix the checklist used by downstream scoring.
+    \item \textit{Prompt-blind visual observation.} Gemini~3.1 Pro Preview describes visible entities, actions, scene context, and plausible sound sources without seeing the prompt. These observations provide evidence for source attribution and temporal alignment, rather than a standalone visual-quality score.
+    \item \textit{Semantic audiovisual scoring.} The judge evaluates whether the requested sounds are present, source-specific, dynamically appropriate, and aligned with visible or plausible actions. These checks are mapped to semantic audio correctness (\textbf{SA}), audiovisual alignment (\textbf{AVAlign}), and prompt-critical visual support (\textbf{VisualSupport}), combined as:
+    \[
+        \mathrm{SAV}=0.60\,\mathrm{SA}+0.30\,\mathrm{AVAlign}+0.10\,\mathrm{VisualSupport}.
+    \]
+    We run this stage three times and average the scores to account for judge variability.
+\end{enumerate}
+
+We additionally measure audiobox-aesthetics Production Quality (PQ) as a proxy for perceptual audio quality, as it tries to quantify sample-level clarity \& fidelity, dynamics, frequency bandwidth and spatialization~\citep{tjandra2025audioboxaesthetics}
+
+The final audiovisual quality score is:
+\[
+    \mathrm{AVQ}=0.5\,\mathrm{SAV}+0.5\,\mathrm{AQ}.
+\]
+For each model, we evaluate five random-seed generations per prompt. For Cosmos 3 models, we use Claude Opus~4.6 to rewrite SoundBench prompts into the structured generation format described in \cref{sec::gen_guide} and \cref{sec::prompt_upsampling}, matching the prompt distribution used by the generator.
+
+\input{tables/results/avq_soundbench}
+
+\input{figures/results/audio/audiovisual_alignment}
+
+\cref{tab:cosmos_soundbench_results} shows that the strongest closed-source systems retain an advantage in overall AVQ, primarily through higher perceptual audio quality. Seedance-1.5-Pro achieves the best AVQ ($7.64$) and PQ ($7.06$), followed by Veo-3.1 ($7.45$ AVQ, $6.68$ AQ). In contrast, Cosmos 3 is strongest on the semantic and alignment components that measure whether the sound matches the visual event. Cosmos3-Nano obtains the best SAV, SA, and AVAlign scores, while Cosmos3-Super achieves the best visual-support score. This pattern suggests that Cosmos 3 mid-training is effective at grounding sound events in the generated video, with remaining headroom concentrated in low-level audio fidelity. \cref{fig:av_alignment_example} demonstrates an example of strong temporal alignment between visual and acoustic events in Cosmos3-Nano generations.

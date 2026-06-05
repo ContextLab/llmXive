@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Image/Video Model Specifications.} Supported configurations for image and video modalities. Each row shows the FPS range, frame counts (video only), and image/video dimensions (w, h) for the five supported aspect ratios at each resolution.}
+\small
+\setlength{\tabcolsep}{6pt}
+\resizebox{0.9\linewidth}{!}{%
+\begin{tabular}{l cc ccccc}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Video}} & \multicolumn{5}{c}{\textbf{Dimensions (w, h) by aspect ratio for images/videos}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-8}
+\textbf{Resolution} & \textbf{FPS} & \textbf{\# frames} & \textbf{16:9} & \textbf{4:3} & \textbf{1:1} & \textbf{3:4} & \textbf{9:16} \\
+\midrule
+256p & 10--30 & 5--400 & (320, 192)  & (320, 256)  & (256, 256) & (256, 320)  & (192, 320) \\
+480p & 10--30 & 5--400 & (832, 480)  & (736, 544)  & (640, 640) & (544, 736)  & (480, 832) \\
+720p & 10--30 & 5--300 & (1280, 720) & (1104, 832) & (960, 960) & (832, 1104) & (720, 1280) \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:model-specs}
+\end{table}

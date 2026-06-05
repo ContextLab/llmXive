@@ -1,0 +1,31 @@
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Cosmos3-Nano-Policy-DROID establishes a new state of the art on RoboLab.}
+    Task success rates (\%) are reported on RoboLab-120 across language specificity levels and task difficulty levels.
+    All policies use off-the-shelf checkpoints fine-tuned on the DROID dataset.
+    \textbf{Bold} indicates the best in the column.}
+    \label{tab:action_posttraining_policy}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{@{}l|ccc|ccc|ccc|ccc@{}}
+        \toprule
+        & \multicolumn{3}{c}{\textbf{Overall}} & \multicolumn{3}{c}{\textbf{Simple}} & \multicolumn{3}{c}{\textbf{Moderate}} & \multicolumn{3}{c}{\textbf{Complex}} \\
+        \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+        \textbf{Model} & Vague & Default & Specific & Vague & Default & Specific & Vague & Default & Specific & Vague & Default & Specific \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano-Policy-DROID} & \textbf{20.6} & \textbf{36.8} & \textbf{39.7} & \textbf{23.3} & \textbf{40.6} & \textbf{42.0} & \textbf{23.3} & \textbf{35.4} & \textbf{40.3} & 4.1  & \textbf{25.3} & \textbf{29.4} \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano} (\textit{PT-init})  & 16.7 & 28.1 & 30.2 & 17.8 & 30.3 & 32.8 & 19.0 & 28.7 & 29.5 & \textbf{7.1} & 18.2 & 21.8 \\
+        \midrule
+        $\pi_{0.5}$       &  15.2 &  28.0 &  28.1 &  16.2 &  29.7 &  29.8 &  17.9 &  31.5 &  31.0 & 5.3 &  13.5 &  14.7 \\
+        DreamZero         &  14.9 &  25.7 &  23.9 &  15.0 &  26.1 &  25.8 &  19.5 &  30.0 &  26.7 & 4.1 &  14.1 &  10.6 \\
+        $\pi_{0}$-FAST    & ~~9.2 &  15.5 &  14.9 & ~~9.5 &  20.2 &  19.4 &  12.8 &  13.3 &  12.6 & 0.0 & ~~2.9 & ~~3.5 \\
+        paligemma-binning & ~~3.1 & ~~3.4 & ~~5.5 & ~~2.2 & ~~3.4 & ~~4.1 & ~~5.9 & ~~4.9 &  10.3 & 0.0 & ~~0.0 & ~~0.0 \\
+        GR00T N1.6        & ~~5.4 & ~~7.2 & ~~5.3 & ~~7.2 & ~~8.8 & ~~7.5 & ~~4.9 & ~~7.9 & ~~4.1 & 0.0 & ~~0.0 & ~~0.0 \\
+        $\pi_{0}$         & ~~2.8 & ~~5.0 & ~~3.5 & ~~2.8 & ~~7.2 & ~~5.3 & ~~3.8 & ~~3.6 & ~~2.1 & 0.0 & ~~0.0 & ~~0.0 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

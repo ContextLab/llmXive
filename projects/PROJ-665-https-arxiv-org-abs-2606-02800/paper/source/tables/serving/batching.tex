@@ -1,0 +1,27 @@
+\begin{table}[t]
+    \centering
+    \caption{
+    \textbf{Inference speedup from batching}. The \textbf{Cosmos3-Nano} and \textbf{Cosmos3-Super} are evaluated on the text-to-video (T2V) task with 189-frame outputs. We report results at 256p and 480p, using maximum admissible batch sizes of $B=6$ and $B=3$, respectively, under the 74k-token context limit. 720p is omitted, as it admits only $B=1$ within the same budget.}
+    \label{tab:cosmos3_batching}
+    \setlength{\tabcolsep}{4pt}
+    \small
+    \begin{tabular}{l|cc|cc}
+        \toprule
+        \textbf{HW Backend} &
+        \multicolumn{2}{c|}{\textbf{Cosmos3-Nano}} &
+        \multicolumn{2}{c}{\textbf{Cosmos3-Super}} \\
+        \cmidrule(lr){2-3}
+        \cmidrule(lr){4-5}
+        &
+        \textbf{T2V-256} & \textbf{T2V-480} &
+        \textbf{T2V-256} & \textbf{T2V-480} \\
+        \midrule
+        H100 80GB &
+        $8\%$ & $2\%$ &
+        $55\%$ & $5\%$ \\
+        GB200 &
+        $40\%$ & $2\%$ &
+        $9\%$ & $1\%$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}

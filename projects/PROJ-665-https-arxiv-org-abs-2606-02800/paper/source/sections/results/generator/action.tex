@@ -1,0 +1,157 @@
+\subsubsection{Action Generation Evaluation}
+\label{subsec::action_benchmarks}
+
+We evaluate whether action mid-training endows Cosmos 3 with a reusable world-action prior across domains and inference modes.
+The central question is whether unified action mid-training accelerates adaptation to a domain-specific action interface, and whether a short post-training stage can turn the shared base model into a specialized model that is competitive with or stronger than state-of-the-art domain baselines.
+\Cref{tab:action_posttraining_summary_wide} reports results on camera motion, autonomous driving, robotics, and egocentric motion domains, covering forward- and inverse-dynamics settings.
+\Cref{tab:action_posttraining_policy} reports results on robot policy settings, evaluating Cosmos 3's ability to complete language-specified tasks.
+
+\paragraph{Setup.} We compare two initialization protocols for each downstream domain. The first, pre-training initialization (\textit{PT-init}), starts from the Cosmos 3 pre-trained checkpoint, which has not been trained on action-domain data. The second, mid-training initialization (\textit{MT-init}), starts from our mid-trained checkpoint, which has seen action data spanning multiple domains and prediction modes, including forward dynamics (FD), inverse dynamics (ID), and policy. For each comparison, we use the same training recipe and keep the model size, data, and compute budget fixed. We report results for both Cosmos3-Nano and Cosmos3-Super.
+
+\paragraph{Metrics.} We report metrics for each action interface. For autonomous-vehicle inverse dynamics, relative rotation error (RRE) and relative translation error (RTE) measure frame-to-frame pose accuracy, while absolute trajectory error (ATE) measures global trajectory consistency. We also use these metrics to measure camera-following accuracy in camera-motion forward dynamics, comparing the ground-truth camera poses with the estimated camera trajectories from generated videos. For robotics and egocentric forward dynamics, PSNR measures the reconstruction quality of action-conditioned future observations. Although a plausible generative rollout need not be pixel-identical to the single recorded ground-truth future, we find that PSNR is as a useful proxy for temporal alignment, motion consistency, and reconstruction fidelity under a relatively short temporal horizon. For robotics policy, success rate measures the percentage of evaluation tasks completed successfully.
+
+\input{tables/results/action_posttraining_summary_wide}
+
+\paragraph{Autonomous vehicle (ID).} 
+We evaluate the inverse-dynamics capabilities of Cosmos 3 using an in-house driving dataset, which consists of 6-second video clips with accurate ego-vehicle trajectories at 10 FPS. 
+Under this setup, the model directly predicts the ego-trajectory from video inputs. 
+We compare our approach against two state-of-the-art general-domain baselines: VGGT~\citep{wang2025vggt} and DepthAnything3~\citep{lin2025depthanything3}. 
+As reported in~\cref{tab:action_posttraining_summary_wide}, both Cosmos3-Nano and Cosmos3-Super initialized with \textit{PT-init} outperform the baselines. 
+Applying \textit{MT-init} yields further improvements for Cosmos3-Nano. 
+Notably, our method trained with specialized driving data achieves much better metric-scale translation estimation, whereas the general-domain baselines suffer from drifting errors. 
+Overall, these results demonstrate that physical-AI-oriented video models can excel in specific embodied applications with minimal adaptation. 
+Qualitative results are visualized in~\cref{fig:av_id}.
+
+\input{figures/results/action/av_id}
+
+\paragraph{Camera motion (FD).}
+\label{sec:camera_fdm}
+Camera-conditioned video generation can serves as world simulation for many applications. 
+We task the model with predicting future frames given an initial image and a specified camera trajectory.
+To quantify camera-following accuracy, we utilize DepthAnything3~\citep{lin2025depthanything3} to estimate metric-scale camera trajectories from the generated videos and compare them against the conditioning input.
+If the generated videos are highly consistent with the conditioning trajectory, the estimated poses from the predicted sequence should closely match the input poses.
+We benchmark our approach against the bidirectional models of Lingbot-World~\citep{lingbot-world} and HY-World 1.5~\citep{hyworld2025} on an internal dataset of one hundred 5-second realistic video clips with camera motions estimated by DepthAnything3~\citep{lin2025depthanything3}. Qualitative results are reported in~\cref{fig:camera_fd}. 
+The results show that Cosmos3-Nano and Cosmos3-Super with \textit{PT-init} already provide robust camera control. 
+\textit{MT-init} improves the result further: Cosmos3-Super achieves 0.142$^\circ$ RRE, 0.026 m RTE, and 0.99 m ATE, outperforming Lingbot-World (0.299$^\circ$ RRE, 0.057 m RTE, 2.88 m ATE) and HY-World 1.5 (0.377$^\circ$ RRE, 0.042 m RTE, 1.39 m ATE) across all three metrics.
+
+\input{figures/results/action/camera_fd}
+
+\paragraph{Egocentric motion (FD).}
+\label{sec:egocentric_fdm}
+We evaluate videos from Human World Bench (HWB, see \cref{subsec::hwb}) in the forward-dynamics
+setting. We use the HWB action annotations, which include both camera ego-motion and hand motion tracking, and report the PSNR of the generated
+videos. We adapt both \textit{PT-init} and \textit{MT-init} checkpoints to the egocentric domain and compare against LOME~\citep{gao2026lome}, a recent action-conditioned video generation method specialized for egocentric hand manipulation data. 
+Although LOME is one of the closest available baselines for this setting, it performs poorly on HWB, achieving a PSNR value of 9.36dB, likely due to distribution shift between its training data and the HWB benchmark.
+In contrast, Cosmos 3 achieves substantially higher PSNR across both model scales and initialization protocols. With \textit{PT-init},
+Cosmos3-Nano reaches a PSNR value of 15.22dB and Cosmos3-Super reaches a PSNR value of 15.34dB. 
+Starting from \textit{MT-init}
+further improves the scores to PSNR values of 16.12dB for Cosmos3-Nano and 16.19dB for Cosmos3-Super. 
+These results show that \textit{MT-init} provides a consistent gain, indicating that unified action mid-training
+provides a substantially stronger starting point for egocentric forward dynamics.
+Overall, these results support the central hypothesis of unified action mid-training: co-training across robot embodiments, camera
+motion, autonomous-vehicle motion, and egocentric motion induces a transferable action-domain prior, enabling faster convergence and
+stronger downstream adaptation in the egocentric domain.
+
+\paragraph{Robotics (FD).}
+\label{sec:robot_fdm}
+Robotics forward dynamics unlocks applications such as policy evaluations with video models.
+We conduct experiments on the DROID dataset~\citep{khazatsky2024droid}, a large-scale real-robot manipulation dataset featuring diverse scenes and objects. 
+Given an initial frame and the robot end-effector action chunk of size 16, the model predicts the subsequent 16 frames.
+We post-train both the \textit{PT-init} and \textit{MT-init} checkpoints on the DROID dataset.
+We compare against Ctrl-World~\citep{guo2026ctrlworld} as our primary baseline.
+We present the qualitative results in \cref{fig:robotics_fd_qualitative} and quantitative results in~\cref{tab:action_posttraining_summary_wide}.
+As shown in \cref{tab:action_posttraining_summary_wide}, post-training from the pre-trained checkpoint already matches the baseline at Nano scale, reaching a PSNR value of 23.24dB compared with 22.99dB for Ctrl-World. 
+Post-training from the mid-trained checkpoint yields substantially stronger results, reaching PSNR values of 25.52dB with Cosmos3-Nano and 26.04dB with Cosmos3-Super. 
+These results demonstrate that Cosmos 3 is a strong and flexible backbone for forward dynamics prediction.
+\input{figures/results/action/robotics_fd}
+
+\paragraph{Robot manipulation (policy).}
+\label{sec:robot_manip_policy}
+To evaluate the policy mode, we post-train and submit our Cosmos3-Nano-Policy-DROID to the RoboLab simulation benchmark~\citep{yang2026robolab} and the RoboArena real-world benchmark~\citep{atreya2025roboarena}. 
+As shown in~\cref{tab:action_posttraining_policy} and~\cref{fig:robotarena_leaderboard}, our model achieves new state-of-the-art results on both benchmarks, demonstrating that our Cosmos3 omnimodal world models can be further post-trained into strong robot manipulation policy models.
+
+RoboLab~\citep{yang2026robolab} is a high-fidelity, robot- and policy-agnostic simulation benchmark comprising 120 language-conditioned tasks designed to evaluate task-generalist robot manipulation policies across visual, relational, and procedural competencies.
+RoboLab evaluates each task under three instruction specificity levels, across vague prompts, default prompts and specific prompts.
+This split tests robustness to language phrasing rather than a single canonical command.
+On RoboLab, our post-trained policy surpasses all prior models on task success rate by clear margins (\cref{tab:action_posttraining_policy}), including strong vision-language-action (VLA) models such as $\pi_{0.5}$~\citep{pi05} and world-action models (WAM) such as DreamZero~\citep{ye2026dreamzero},
+across all task instruction granularities and task difficulty levels.
+For example, under \textit{specific} task instructions, our policy achieves a 39.7\% average success rate across 120 tasks with 10 rollouts per task, outperforming $\pi_{0.5}$ at 28.1\% and DreamZero at 25.2\%.
+Additionally, compared with a model post-trained directly from the pre-trained checkpoint, Cosmos3-Nano (\textit{PT-init}), our final policy performs better, demonstrating the effectiveness of incorporating action-modality data from diverse sources into mid-training.
+
+\input{tables/results/action_posttraining_policy}
+\input{figures/results/action/robotpolicy}
+
+RoboArena~\citep{atreya2025roboarena} is a distributed, real-world benchmark that uses crowdsourced pairwise comparisons to evaluate and rank generalist robot policies across diverse tasks and real world environments.
+Anyone with a DROID platform can evaluate a pair of policies in any environment and on any task by conducting double-blind A/B comparisons, and the final scores are aggregated from these pairwise preferences to produce an overall rating for each policy.
+As of 2:40 p.m. on May 30, 2026, our robot manipulation policy tops the leaderboard (\cref{fig:robotarena_leaderboard}), outperforming many prior strong policy models. 
+We expect to receive more evaluations from the community, which will further validate our policy. 
+Across several tested tasks, the policy accomplishes tasks reliably and follows language instructions well.
+The policy can perform simple pick-and-place tasks, as well as long-horizon tasks requiring multiple sequential steps.
+We observe strong generalization to a variety of unseen objects and tasks.
+The policy also tolerates failures, often retrying when necessary, and remains robust to human interventions during execution.
+Some qualitative results are shown in~\cref{fig:robot_policy_example}.
+
+
+\input{figures/results/action/robotarena}
+
+\paragraph{Adaptation to new embodiments.}
+We evaluate whether \textit{MT-init} enables Cosmos3-Nano to adapt more quickly to an unseen embodiment and environment.
+We use the LIBERO-10 environment~\citep{liu2023libero} with multi-view observations from a third-person camera and a wrist camera.
+We report progress across post-training iterations by running 50 trials per validation task, giving 500 rollouts per checkpoint.
+
+As shown in \cref{tab:libero_posttraining_success_rate}, post-training rapidly improves closed-loop manipulation success rate for both initializations, but \textit{MT-init} has a clear advantage early in post-training.
+At 500 iterations, the Cosmos3-Nano \textit{MT-init} reaches 24.6\% success, while the Cosmos3-Nano \textit{PT-init} remains at 0.0\%.
+By 2000 iterations, the Cosmos3-Nano \textit{MT-init} can achieve a 97.4\% success rate.
+These results show that \textit{MT-init} enables faster adaptation to new embodiments and environments.
+
+\input{tables/results/action_libero_posttraining_success_rate}
+
+\paragraph{Action data synergy.}
+\label{app:action_data_synergy}
+Choosing which action domains to train together is a practical mixture-design problem: an added domain can provide a useful visual-action prior, but it can also dilute supervision for the target domain.
+Inspired by recent work on language-domain transfer~\citep{longpre2026atlas}, which measures how training on one language benefits or interferes with another, we build analogous transfer maps for action mid-training across ego-motion domains (Camera Motion, Autonomous Vehicle), robot manipulation domains (Google Robot, WidowX-250, Franka Panda Single, Franka Panda Dual, AgiBot), and human egocentric motion (Egocentric).
+The quantitative synergy matrices are summarized in~\Cref{fig:action_synergy_av_camera_robots} and~\Cref{fig:action_synergy_agibot}.
+We report PSNR for FD and MSE for ID.
+For policy mode, we report the minimum PSNR and MSE across 4 rollouts because the rollout distribution is multimodal.
+In each synergy matrix, an off-diagonal cell uses a 50/50 mixture of the row and column domains for 4{,}000 iterations, while a diagonal cell is the corresponding single-domain baseline at 2{,}000 iterations.
+This setup matches the per-domain training budget between single-domain and paired runs.
+Each row fixes the evaluation domain, and columns vary the single-domain or paired training setting.
+Positive deltas indicate cross-domain transfer, while negative deltas indicate interference.
+
+We summarize our key findings below:
+
+\input{figures/results/action/synergy/synergy_av_camera_robots}
+
+\begin{itemize}[leftmargin=*]
+    \item \textit{Camera motion benefits from broad action co-training.}
+    \Cref{fig:action_synergy_av_camera_robots} shows that camera motion, one of the lower-performing domains, benefits from several co-training partners rather than only from another ego-motion source.
+    AV data improves camera FD PSNR from 11.96 to 12.82 (+0.86), while robot domains also provide positive FD gains, including Google Robot (+0.79), Franka Panda Single (+0.73), and Franka Panda Dual (+0.48).
+    ID MSE also improves for every shown co-training partner in the row.
+    This suggests that camera-motion learning benefits from general action-conditioned visual priors, such as object persistence, scene geometry, and motion-correspondence cues, even when the added domain has a different embodiment.
+
+    \item \textit{Robot manipulation domains share early-training priors.}
+    The robot-domain panels in \Cref{fig:action_synergy_av_camera_robots} show broad early transfer among manipulation datasets, especially for domains with lower-performing single-domain baselines or more heterogeneous data.
+    WidowX-250 benefits strongly from Google Robot, gaining +1.39 FD PSNR and +2.29 policy PSNR, with matching improvements in ID and policy MSE.
+    Google Robot also gains from several robot co-training partners, with FD PSNR improvements up to +0.89 and policy PSNR improvements up to +1.44.
+    By contrast, the Franka Panda single-arm and dual-arm entries in this synergy study correspond to small RoboMIND Franka subsets~\citep{wu2024robomind}, with only 23 and 4 hours of data, respectively. Compared with the much larger action-data sources summarized in~\Cref{fig:action_data_distribution}, these small target domains saturate quickly under single-domain training, so adding larger co-training domains yields smaller or mixed gains on their own evaluations. However, they still provide useful transfer to other domains when used as co-trained sources.
+
+    \item \textit{Human egocentric motion helps robot adaptation.}
+    \Cref{fig:action_synergy_agibot_handpose} shows modest but consistent transfer between egocentric motion and AgiBot.
+    Egocentric data improves AgiBot FD PSNR from 23.07 to 23.20 (+0.13), while AgiBot slightly improves egocentric FD PSNR from 15.13 to 15.16 (+0.03).
+    The warmup curve in \Cref{fig:action_synergy_agibot_curve} further tests this transfer as an initialization effect: we first warm up the base PT-init checkpoint on egocentric motion and then adapt it to AgiBot, comparing against direct AgiBot adaptation from the same PT-init checkpoint.
+    Starting from the egocentric-warmed checkpoint improves AgiBot FD PSNR at every measured step, with gains of +0.94 at 5K and roughly +1.3--1.6 later in training.
+    Together, these results suggest that egocentric human action data provides a useful manipulation prior for robot adaptation, while domain-aware sampling or specialization remains important as training progresses.
+\end{itemize}
+
+\input{figures/results/action/synergy/synergy_agibot}
+
+
+\paragraph{Conclusion.}
+\label{sec:action_exp_summary}
+We show that Cosmos 3 is a strong action foundation model across diverse domains, embodiments, and inference modes.
+A single foundation model can be adapted to camera-controlled video generation, autonomous-vehicle inverse dynamics, egocentric hand forward dynamics, robot forward dynamics, and robot policy learning, while remaining competitive with or stronger than specialized domain baselines.
+The comparison between \textit{PT-init} and \textit{MT-init} further shows that unified action mid-training does more than improve isolated domains: it produces a reusable action-domain prior that accelerates convergence across downstream settings, including adaptation to a new embodiment and environment.
+This is especially notable because the evaluated domains differ substantially in embodiment and supervision format, ranging from camera and vehicle motion to articulated human hands and robot end-effectors.
+The synergy study provides evidence that action domains share transferable structure: co-training across ego-motion, robot manipulation, and egocentric motion can improve early adaptation, particularly for domains with weaker single-domain baselines.
+The additional action-specific ablations in Appendix~\ref{app:pusht_fd_id_policy_synergy} and \ref{app:robolab_video_action_consistency} reinforce the same conclusion: FD, ID, and policy objectives share useful structure under joint training, and videos predicted alongside policy actions remain aligned with simulator rollouts driven by those same actions.
+Overall, these findings support Cosmos 3 as a general-purpose world-action foundation model that can be efficiently specialized to a broad range of action generation and control tasks.

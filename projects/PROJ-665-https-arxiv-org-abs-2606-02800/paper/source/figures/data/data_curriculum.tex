@@ -1,0 +1,11 @@
+\begin{figure}[!h]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\includegraphics{figures/data/tikz_data_curriculum.pdf}}
+  \caption{\textbf{Generator data curriculum.}
+  Each row is a training mode; each column is a training stage.
+  Colored cells show the number of training samples used at that stage; gray cells (---) indicate the mode is not active.
+  The video row covers text-to-video, image-to-video, and video-to-video continuation; V2V uses clean conditioning-video prefixes and noisy future-video targets.
+  Action and video transfer data are first introduced during mid-training.
+  Mid-training yields the base \textbf{Cosmos3-Nano} and \textbf{Cosmos3-Super} models (shown between the Mid-training and Post-training columns), which then enter post-training. Post-training is conducted independently for each modality, yielding the specialized models listed on the right: \textbf{Cosmos3-Super-Text2Image}, \textbf{Cosmos3-Super-Image2Video}, and \textbf{Cosmos3-Nano-Policy-DROID}. We note that these specialized models share the exact same architecture with their corresponding mid-train models. }
+  \label{fig:data_curriculum}
+\end{figure}

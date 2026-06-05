@@ -1,0 +1,9 @@
+\section{Data}
+\label{sec::data}
+
+Training Cosmos 3 requires data for two complementary objectives: the Reasoner pathway learns to understand and reason about the world, while the Generator pathway learns to synthesize and simulate it, or act within it. Although both pathways share the same transformer and token representations, they rely on different types of training data. The Reasoner is trained on paired vision-language data, such as image-text and video-text pairs, to support tasks including question answering, spatial grounding, temporal reasoning, and action understanding. In contrast, the Generator is trained on large-scale multimodal corpora of images, videos, audio, and actions using reconstruction-based objectives rather than explicit annotations.
+
+As a result, the two pathways follow different but complementary training curricula. Both adopt a multi-stage training strategy in which the data composition evolves over time. The Reasoner begins with broad vision-language pre-training and is later specialized through supervised fine-tuning on Physical AI tasks spanning robotics, autonomous driving, and spatial intelligence. This staged curriculum first establishes strong general capabilities before progressively introducing more specialized domain knowledge. The Generator begins with large-scale image, video, and audio pre-training, then progressively incorporates additional modalities such as actions, control-conditioned transfer, and targeted synthetic data to improve specific capabilities.
+
+\input{sections/data/reasoner}
+\input{sections/data/generator}

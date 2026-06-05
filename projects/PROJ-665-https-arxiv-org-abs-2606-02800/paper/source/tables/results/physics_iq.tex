@@ -1,0 +1,62 @@
+\begin{table*}[t]
+    \centering
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{\textbf{Physics-IQ benchmark results, separated by conditioning modes}. WMReward (BoN) denotes best-of-$N$ reranking with a WMReward~\citep{yuan2026wmreward}. Higher Physics-IQ score is better. \textbf{Cosmos3-Super} achieved state-of-the-art results for both I2V and V2V, with and without using the WMReward+BoN. \textbf{Bold} indicates best in the column group and \underline{underline} indicates the second best.}
+    \label{tab:physics_iq_results}
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{subtable}{0.48\linewidth}
+        \centering
+        \caption{Image-to-Video (I2V).}
+        \label{tab:physics_iq_i2v}
+        \resizebox{\linewidth}{!}{%
+        \begin{tabular}{l | l c}
+            \toprule
+            \textbf{Model} & \textbf{Mode} & \textbf{Score ($\uparrow$)} \\
+            \midrule
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Super} & I2V + WMReward (BoN) & \textbf{48.9} \\
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Nano}  & I2V + WMReward (BoN) & 43.8 \\
+            Sora2 (Closed-sourced)                         & I2V + WMReward (BoN) & \underline{46.4} \\
+            Wan2.2-A14B (Open-sourced)                       & I2V + WMReward (BoN) & 44.4 \\
+            \midrule
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Super} & I2V                  & \textbf{43.8} \\
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Nano}  & I2V                  & 40.2 \\
+            Sora2 (Closed-sourced)                        & I2V                  & \underline{42.3} \\
+            Wan2.2-A14B (Open-sourced)                       & I2V                  & 38.3 \\
+            \bottomrule
+        \end{tabular}
+        }
+    \end{subtable}
+    \hfill
+    \begin{subtable}{0.48\linewidth}
+        \centering
+        \caption{Video-to-Video (V2V).}
+        \label{tab:physics_iq_v2v}
+        \resizebox{\linewidth}{!}{%
+        \begin{tabular}{l | l c}
+            \toprule
+            \textbf{Model} & \textbf{Mode} & \textbf{Score ($\uparrow$)} \\
+            \midrule
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Super} & V2V + WMReward (BoN) & \textbf{63.4} \\
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Nano}  & V2V + WMReward (BoN) & 57.7 \\
+            Magi-1 (Open-sourced)                       & V2V + WMReward (BoN) & \underline{62.6} \\
+            \midrule
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Super} & V2V                  & \textbf{59.7} \\
+            \rowcolor{rowours}
+            \textbf{Cosmos3-Nano}  & V2V                  & 50.2 \\
+            Magi-1 (Open-sourced)                       & V2V                  & \underline{56.0} \\
+            Video-GPT (Open-sourced)                    & V2V                  & 35.0 \\
+            VideoPoet (Closed-sourced)                     & V2V                  & 29.5 \\
+            \bottomrule
+        \end{tabular}
+        }
+    \end{subtable}
+\end{table*}

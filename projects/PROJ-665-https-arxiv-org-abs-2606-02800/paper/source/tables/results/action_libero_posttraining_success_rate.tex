@@ -1,0 +1,18 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{
+        \textbf{Fast adaptation to a new embodiment using LIBERO-10.} Closed-loop success rates for \textbf{Cosmos3-Nano} from \textit{MT-init} and \textit{PT-init}, evaluated with 500 rollouts per checkpoint. The results show that \textit{MT-init} adapts faster than \textit{PT-init}.
+    }
+    \label{tab:libero_posttraining_success_rate}
+    \begin{tabular}{@{}lrrrr@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{4}{c}{\textbf{Iteration}} \\
+        \cmidrule(lr){2-5}
+            & \textbf{500} & \textbf{1000} & \textbf{1500} & \textbf{2000} \\
+        \midrule
+        \textbf{Cosmos3-Nano} (\textit{MT-init}) & 24.6\% & 91.4\% & 95.8\% & \textbf{97.4\%} \\
+        \textbf{Cosmos3-Nano} (\textit{PT-init}) & 0.0\% & 73.8\% & 93.4\% & 95.2\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}

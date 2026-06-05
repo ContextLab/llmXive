@@ -1,0 +1,223 @@
+\section{Caption Details}
+\label{appendix:captioning_details}
+This appendix details the design of our in-house captioning models and full structured caption schemas used for image and video training data. We train our own models rather than relying on off-the-shelf VLMs to ensure maximum control over the output structure and to prevent hallucinated or missing schema fields. Instead of relying solely on free-form natural-language captions, we organize annotations as JSON objects with predefined semantic fields. This design encourages comprehensive coverage of visual details while keeping the representation consistent and interpretable. The image schema captures static scene properties, including subjects, layout, lighting, aesthetics, style, and spatial composition, while the video schema extends this representation with temporal information such as actions, state changes, transitions, camera motion, and audio cues.
+
+\subsection{Captioner Models}
+To maximize detail and spatial coverage in our image training data, we employ a quadrant-scan annotation strategy. Each image is divided into four quadrants, and the content within each quadrant---along with the center region---is described independently. This approach is highly effective for capturing multiple distinct subjects and complex layouts, which frequently occur in our dataset but are typically under-described by standard captioning methods.
+
+For video data, we introduce a second annotation pass dedicated exclusively to temporal dynamics. Because motion and state transitions are fundamental to video understanding, this secondary pass comprehensively labels temporal changes across all explicitly tracked visual attributes.
+
+For both our final image and video captioning models, we determined that LoRA fine-tuning of \mbox{Qwen3-VL-8B} provided the optimal balance between benchmark metrics and inference efficiency. For video input, we sample frames at $8$ FPS and set the generation temperature to $0.7$. We also use the default \mbox{Qwen3-VL} minimum and maximum pixel bounds, $131,072$ and $25,165,824$, respectively.
+
+
+\subsection{Image Schema}
+
+We use a structured caption representation for text-to-image training data that captures a broad range of visual attributes, including foreground subjects, scene composition, background elements, lighting, aesthetics, artistic style, camera viewpoint, and cinematographic properties. Rather than relying on dense free-form natural language, captions are represented as JSON objects with predefined semantic fields. This structured representation improves detail recall and annotation consistency while maintaining high precision.
+
+To improve spatial coverage, the captioning pipeline incorporates a quadrant-based scanning mechanism that partitions each image into four spatial quadrants together with a central region. Each region is described independently before being merged into the final caption. This design is particularly effective for images containing multiple distinct subjects, localized interactions, or complex spatial layouts that are often under-described in conventional captioning approaches.
+
+We summarize the schema by semantic category and provide a compact JSON skeleton below.
+
+\input{tables/appendix/caption/image}
+
+The number of entries in \texttt{subjects} and the contents of \texttt{subject\_details} vary according to scene complexity.
+
+\paragraph{Human and human-like attributes.}
+For human or human-like subjects, the schema may additionally include:
+\begin{itemize}
+    \item \texttt{clothing}
+    \item \texttt{expression}
+    \item \texttt{gender}
+    \item \texttt{age}
+    \item \texttt{skin\_tone\_and\_texture}
+    \item fine-grained facial attributes, such as eye shape, eye color, lip shape, hair color, wrinkles, or moles, typically represented through \texttt{appearance\_details} or \texttt{subject\_details}
+\end{itemize}
+
+\paragraph{Count-sensitive attributes.}
+If a subject corresponds to a group or cluster of similar entities, the schema may additionally include:
+\begin{itemize}
+    \item \texttt{number\_of\_subjects}
+    \item \texttt{number\_of\_arms}
+    \item \texttt{number\_of\_hands}
+    \item \texttt{number\_of\_fingers}
+    \item \texttt{number\_of\_legs}
+\end{itemize}
+
+\paragraph{Compact JSON skeleton.}
+To standardize our image annotations and prevent the omission of critical visual details, we enforce a strict, predefined JSON structure. The schema detailed below outlines the specific semantic fields---ranging from background settings to aesthetic style---used to comprehensively capture the static properties of each image.
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Compact Image-specific JSON Skeleton
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+{
+  "subjects": [
+    {
+      "description": "...",
+      "appearance_details": "...",
+      "relationship": "...",
+      "location": "...",
+      "relative_size": "...",
+      "orientation": "...",
+      "pose": "...",
+      // human or human-like only
+      "clothing": "...",
+      "expression": "...",
+      "gender": "...",
+      "age": "...",
+      "skin_tone_and_texture": "...",
+      // group- or count-sensitive attributes
+      "number_of_subjects": 0,
+      "number_of_arms": 0,
+      "number_of_hands": 0,
+      "number_of_fingers": 0,
+      "number_of_legs": 0
+    },
+    ...
+  ],
+  "background_setting": "...",
+  "lighting": {
+    "conditions": "...",
+    "direction": "...",
+    "shadows": "...",
+    "illumination_effect": "..."
+  },
+  "aesthetics": {
+    "composition": "...",
+    "color_scheme": "...",
+    "mood_atmosphere": "...",
+    "patterns": "..."
+  },
+  "cinematography": {
+    "framing": "...",
+    "camera_angle": "...",
+    "depth_of_field": "...",
+    "focus": "...",
+    "lens_focal_length": "..."
+  },
+  "style_medium": "...",
+  "artistic_style": "...",
+  "context": "...",
+  "text_and_signage_elements": [
+    {
+      "text": "...",
+      "category": "...",
+      "appearance": "...",
+      "spatial": "...",
+      "context": "..."
+    }
+  ],
+  "quadrant_scan": {
+    "top_left": "...",
+    "top_right": "...",
+    "bottom_left": "...",
+    "bottom_right": "...",
+    "absolute_center": "..."
+  },
+  "comprehensive_t2i_caption": "...",
+  "resolution": {
+    "H": xx,
+    "W": xx
+  },
+  "aspect_ratio": xx
+}
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Video Schema}
+
+The video caption schema extends the image caption schema with fields that capture temporal information. Shared static attributes, such as subjects, background, lighting, aesthetics, style, and camera viewpoint, follow the image caption schema described above. Here, we focus only on video-specific additions.
+
+The video schema explicitly records how the scene evolves over time. It captures subject-level actions and state changes, global action timelines, temporal segments, transitions between segments, camera motion, and optional audio descriptions. These fields improve the representation of motion, interactions, and temporal continuity, which are not captured by image-only captions.
+
+We summarize the video-specific schema components by semantic category and provide a compact JSON skeleton below.
+
+\input{tables/appendix/caption/video}
+
+The number of entries in \texttt{actions}, \texttt{segments}, and \texttt{transitions} varies according to the temporal complexity of the video. Short or static videos may contain only a few temporal events, while longer videos with multiple scene changes, interactions, or camera movements may require more detailed temporal segmentation.
+
+\paragraph{Video-specific fields.}
+Compared with the image schema, the video schema introduces the following additional components:
+\begin{itemize}
+    \item \texttt{action}: subject-level motion or activity.
+    \item \texttt{state\_changes}: changes in subject appearance, pose, position, or condition over time.
+    \item \texttt{camera\_motion}: temporal camera behavior, such as panning, tilting, zooming, tracking, or handheld motion.
+    \item \texttt{actions}: a time-indexed description of important events in the video.
+    \item \texttt{segments}: temporally localized descriptions of major video intervals.
+    \item \texttt{transitions}: changes between segments, shots, scenes, or subject states.
+    \item \texttt{temporal\_caption}: an overall summary of the video’s temporal progression.
+    \item \texttt{duration} and \texttt{fps}: basic video metadata.
+    \item \texttt{audio\_description}: optional description of speech, music, sound effects, or ambient audio.
+\end{itemize}
+
+\paragraph{Compact video-specific JSON skeleton.}
+While the image schema captures static scene properties, video annotations require tracking temporal dynamics over time. To avoid redundancy, we use a compact JSON skeleton for video data that intentionally omits static visual attributes covered previously. Instead, the schema detailed below focuses strictly on video-specific semantic fields, such as actions, transitions, camera motion, and audio cues.
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Compact Video-specific JSON Skeleton
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+{
+  "subjects": [
+    {
+      // fields inherited from the image schema are omitted here
+      "action": "",
+      "state_changes": ""
+    },
+    ...
+  ],
+  "cinematography": {
+    // fields inherited from the image schema are omitted here
+    "camera_motion": ""
+  },
+  "actions": [
+    {
+      "time": "",
+      "description": ""
+    },
+    ...
+  ],
+  "text_and_signage_elements": [
+    {
+      // image-level text fields are inherited from the image schema
+      "spatial_temporal": ""
+    },
+    ...
+  ],
+  "segments": [
+    {
+      "segment_index": 0,
+      "time_range": "",
+      "description": "",
+      "key_changes": "",
+      "camera": ""
+    },
+    ...
+  ],
+  "transitions": [
+    "",
+    ...
+  ],
+  "temporal_caption": "",
+  "duration": xx,
+  "fps": xx,
+  "audio_description": ""
+}
+\end{Verbatim}
+\end{tcolorbox}

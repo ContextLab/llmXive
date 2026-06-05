@@ -1,0 +1,38 @@
+\subsection{Reasoner Evaluation}
+
+\input{tables/results/reasoner_benchmark_group}
+
+Cosmos 3 Reasoner is evaluated on a total of \textbf{48} benchmarks. The results are aggregated into four categories: general, robotics, smart infrastructure, and driving. \Cref{tab:reasoner_benchmark_group} reports results for the Edge, Nano, and Super models and their comparisons to existing open-source and closed-source models. The numbers are evaluated using VLMEvalKit~\cite{duan2024vlmevalkit}, which is integrated into our benchmark infrastructure.
+
+\paragraph{General.} We select 19 benchmarks, listed below, to assess the model's general capabilities.
+\begin{itemize}
+  \item \textit{Broad visual question answering and multimodal understanding} is measured by MMBench\_DEV~\citep{liu2024mmbench}, RealWorldQA~\citep{xai2024realworldqa}, and AI2D~\citep{kembhavi2016ai2d}, which test whether the model can interpret natural images, diagrams, and real-world scenes while answering diverse semantic and compositional questions.
+  \item \textit{Spatial, grounding, and quantitative reasoning.} is evaluated by CVBench~\citep{tong2024cambrian}, BlinkSpatial, BlinkDepth~\citep{fu2024blink}, RefCOCO~\citep{yu2016refcoco}, and CountBenchQA~\citep{paiss2023countbench}, covering 2D/3D spatial relations, depth perception,
+  referring-expression localization, and object counting.
+  \item \textit{Text-rich visual understanding} is covered by DocVQA~\citep{mathew2021docvqa}, InfoVQA~\citep{mathew2022infographicvqa}, and OCRBench-v2~\citep{fu2026ocrbench}, which require reading and reasoning over documents, infographics, scene text, and structured
+  visual layouts.
+  \item \textit{Video, physical, and causal reasoning} is assessed by MVBench~\citep{li2024mvbench}, VideoPhy2~\citep{bansal2025videophy}, MVPBench~\citep{krojer2025shortcut}, and CausalVQA~\citep{foss2025causalvqa}, testing temporal event understanding, physical plausibility, and cause--effect
+  reasoning across frames.
+  \item \textit{Advanced reasoning, robustness, and instruction following} is measured by LogicVista~\citep{xiao2024logicvista}, MMMU\_Pro~\citep{yue2024mmmupro}, HallusionBench~\citep{guan2024hallusionbench}, and IFBench~\citep{pyatkin2025ifbench}, which probe visual logic, expert-level multimodal problem solving, hallucination resistance, and adherence to user instructions.
+\end{itemize}
+Together, these benchmarks provide a broad view of model's general reasoning ability across perception, localization, text recognition, temporal understanding, and reliable instruction-conditioned response generation.
+
+\paragraph{Robotics.} 
+We group 17 robotics and embodied reasoning benchmarks into several capability families.
+\begin{itemize}
+  \item \textit{Embodied commonsense and task reasoning} is measured by Embodied Reasoning, CommonSense in Cosmos Reason~\citep{azzolini2025cosmos}, ERQA~\citep{gemini2025robotics}, and Where2Place~\citep{yuan2024robopoint}, which test whether the model can reason about
+  object affordances, feasible actions,  placement decisions, and physical commonsense in embodied environments.
+  \item \textit{Spatial grounding and scene geometry} is evaluated by RefSpatial~\citep{zhou2025roborefer}, VSI-Bench~\citep{yang2024vsibench}, SparBench~\citep{zhang2025spar}, and RoboSpatialHome\citep{song2025robospatial}, covering referring-expression grounding, metric and relational
+  spatial understanding, indoor layout reasoning, free-space awareness, and robot-relevant localization.
+  \item \textit{Robotics-oriented perception and action understanding} is captured by RynnBrain~\citep{dang2026rynnbrain} and ERQA~\citep{gemini2025robotics}, which probe manipulation-relevant perception, action feasibility, trajectory reasoning, and object-centric decision making over real robot episodes.
+  And MMSIVideoBench~\citep{lin2025mmsivideobench} requires reasoning across multiple views or frames to infer object
+  correspondences, spatial relations, temporal changes, and scene-level structure. We curate HealthSurgiBench, an in-house benchmark for operating-room understanding with 23 question types. It combines rule-based scoring for structured outputs such as counts, tools, roles,
+  boxes, coordinates, time/distance estimates, ordered lists, scene graphs, and monitor text, with a local Qwen3-4B judge for six free-form answer types. The final score uses the applicable evaluator for each sample and then reports the unweighted mean across all samples.
+\end{itemize}
+Together, these benchmarks evaluate whether the model can move beyond static visual recognition toward embodied reasoning: understanding where objects are, how they relate, what actions are possible, and how spatial evidence evolves across views and time.
+
+\paragraph{Smart infrastructure.} We evaluate on \textbf{VANTAGE-Bench}~\citep{nvidia2026vantage} and \textbf{Traffic Anomaly Reasoning (TAR)}~\citep{nvidia2026tar}, covering warehouse logistics, transportation, and smart-infrastructure fixed-camera settings. VANTAGE-Bench measures semantic, spatial, temporal, and spatiotemporal understanding through event verification, VQA, referring, pointing, localization, temporal localization, dense captioning, and VLM-native single-object tracking, with $3{,}346$ assets and $35{,}027$ expert annotations, including synthetic anomaly footage. TAR, the AI City Challenge 2026 Track~3 suite, evaluates anomaly verification, temporal localization, scene description, causality, summarization, and out-of-domain generalization with heterogeneous QA, temporal IoU, and text-generation metrics.
+
+\paragraph{Driving.} We evaluate the driving capabilities with \textbf{LingoQA}~\citep{marcu2024lingoqa} and two in-house benchmarks for safety-critical driving event classification. \textbf{AVSpecialCollisionBench} measures whether the model correctly classifies each video into one of three event categories: collision, near collision, or no collision. The benchmark contains 100 videos per category and the per-category accuracy is computed. Finally, the mean accuracy across the three categories is reported as the final score. \textbf{AVSpecialStopBehaviorBench} evaluates stop-sign behavior classification across five categories: full stop, rolling stop, no stop, not relevant, and false sign. This benchmark contains 10 videos per category, and its final score is the mean of the five per-category accuracies.
+
+Cosmos 3 is competitive with open-source models on general benchmarks, while still trailing Gemini 3.1 Pro~\citep{gemini3}. Compared with Cosmos-Reason2, Cosmos 3 shows stronger general capabilities, benefiting from the additional 20\% pre-training data that increases data diversity. In the robotics, smart infrastructure, and driving domains, Cosmos 3 outperforms both open-source and closed-source models including RynnBrain~\citep{dang2026rynnbrain}, Mimo-Embodied~\citep{hao2025mimo}, and Gemma-4~\citep{gemma4modelcard}, with the exception of a small gap to Gemini 3.1 Pro in robotics. Overall, Cosmos 3 demonstrates strong domain-specific reasoning across robotics, smart infrastructure, and autonomous driving, supporting a broad range of Physical AI applications.

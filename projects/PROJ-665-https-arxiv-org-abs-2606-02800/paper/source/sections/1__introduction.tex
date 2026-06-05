@@ -1,0 +1,34 @@
+\section{Introduction}
+\label{sec::intro}
+
+Physical AI agents perceive, reason, and take actions to interact with the real world. However, training such agents directly in the real world is slow, expensive, and could be dangerous. To overcome these bottlenecks, we must construct a training facility to enable safe and scalable learning in simulated worlds, where Physical AI agents acquire two fundamentally coupled capabilities: \textit{understanding} and \textit{generation}. Understanding allows an agent to infer latent representations, semantics, and dynamics from partial observations, and generation empowers the agent to predict and simulate plausible futures, anticipating how the world evolves and how the agent should take actions in response. Prior work has largely treated these two pillars in isolation, leading to separate discriminative models for perception and reasoning, such as Vision-Language Models (VLMs); generative models for world simulation, such as Video Generation Models and Forward Dynamics Models; and action-prediction models, such as Vision-Language-Action Models (VLAs) and World-Action Models (WAMs).
+
+We argue that this paradigm separation is fundamentally limiting: understanding requires reasoning about the future evolution of the world and the consequences of actions, while generation relies on a compact, structured representation of the world and agent behaviors. Unifying them into a single scalable framework is therefore essential for Physical AI. Consider a general home robot instructed to clean a dining table after dinner. Under the current paradigm, the robot must stitch together a disjointed suite of models: a VLM to locate dishware and generate an executable plan, a VLA or WAM to generate action sequences, and a Forward Dynamics Model or ``World Model'' to simulate and evaluate future states. This fragmented architecture is suboptimal and computationally wasteful. Can we instead design a single, unified model that natively addresses all essential capabilities for Physical AI agents?
+
+We introduce Cosmos 3, a family of omnimodal world models that jointly model language, image, video, audio, and action for both understanding and generation.
+Serving as a general-purpose backbone for Physical AI, Cosmos 3 unifies a wide array of distinct model classes into a single framework (\cref{fig:overview}).
+Depending on the input-output configuration, Cosmos 3 seamlessly transitions between multiple operational modes: it can operate as a vision-language model for multimodal understanding and reasoning; a text-to-image generator, a video generator for text-to-video synthesis, image animation (image-to-video), future prediction (video-to-video), or synchronous audio-video generation; a world-action model for joint action prediction and environmental simulation.
+By unifying perception, simulation, and execution without architectural modifications, Cosmos 3 eliminates the need for fragmented, task-specific pipelines, enabling scalable learning through shared representations and joint multi-task supervision.
+
+\input{figures/introduction/cosmos3_overview}
+
+Scaling training data and environments for Physical AI agents remains a persistent bottleneck. Cosmos 3 offers a strong starting point to address this challenge in three ways: (i) synthetic data generation, (ii) task-specific specialization, and (iii) training environment (\cref{fig:cosmos_platform}).
+In the near term, Cosmos 3 synthesizes high-fidelity, diverse visual data to enhance training for Physical AI agents. We demonstrate how we can post-train Cosmos 3 into a better synthetic data generator in~\cref{sec::t2i_post_train} and~\cref{sec::i2v_post_train}.
+Since agents perceive and interact with environments through diverse embodiments and tasks, Cosmos 3 supports task- and embodiment-specific specialization on top of a shared model. As a powerful mid-training model for Physical AI, Cosmos 3 establishes a better starting point by modeling general world dynamics and action priors while remaining highly amenable to downstream adaptation. In practice, the model can be post-trained on target data for distinct applications without architectural modifications, enabling data-driven specialization that retains a common world representation thanks to its omnimodal design.
+\cref{sec::robot_policy_post_train} describes how we post-train Cosmos 3 into a highly capable world-action model on DROID.
+In the long term, Cosmos 3 is positioned to generate high-quality, complex training environments for Physical AI agents. To accelerate open research and deployment in Physical AI, we release our code, model checkpoints, curated synthetic datasets, and an evaluation benchmark under the OpenMDW-1.1 License at \href{https://github.com/nvidia/cosmos}{github.com/nvidia/cosmos} and \href{https://huggingface.co/collections/nvidia/cosmos3}{huggingface.co/collections/nvidia/cosmos3} .
+
+\input{figures/introduction/cosmos_platform}
+
+\input{tables/introduction/results_overview}
+
+We evaluate Cosmos 3 and its post-trained variants on a wide range of benchmarks, covering essential understanding and generation capabilities for Physical AI. \cref{tab:results_overview} provides a summary of our benchmark results, detailed in~\cref{sec::results}. As shown in the table, Cosmos 3 establishes a new state-of-the-art across most capabilities, being highly competitive or outperforming specialized models. 
+
+
+The technical details of Cosmos 3 are organized as follows.
+\cref{sec::model} introduces the model architecture, including encoders for all modalities, the arrangement of multimodal tokens to enable different generation modes, the Mixture-of-Transformers (MoT) backbone, multimodal position embedding, and model variants.
+\cref{sec::data} outlines the training data for the reasoner and generator training.
+\cref{sec::training} details the training recipes for reasoner and generator.
+\cref{sec::infrastructure} describes infrastructure, including data, training, serving, and evaluation.
+\cref{sec::results} presents our experimental results.
+\cref{sec::related_work} discusses related work and \cref{sec::conclusion} concludes the paper.

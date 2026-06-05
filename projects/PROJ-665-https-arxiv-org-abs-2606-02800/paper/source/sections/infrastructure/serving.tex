@@ -1,0 +1,82 @@
+\subsection{Serving Infrastructure}
+\label{subsec::serving_infrastructure}
+
+Cosmos 3 is integrated with multiple production-grade serving frameworks to support a broad range of deployment scenarios. Reasoner is supported by TensorRT-LLM~\citep{trtllm} and vLLM~\citep{vllm}, both of which provide highly optimized autoregressive decoding through paged KV-cache management, continuous batching, and fused attention kernels. Generator inference is supported by vLLM-Omni (multimodal extension of vLLM for diffusion-based generation)~\citep{vllm_omni}, which provides complementary trade-offs between peak throughput and multi-tenant scheduling efficiency. In addition to these production backends, we provide a reference implementation in native PyTorch that prioritizes readability and modifiability, serving as both a faithful specification of the inference algorithm and a starting point for downstream adaptation, research extensions, and integration into custom application pipelines.
+
+\subsubsection{Plain PyTorch}
+
+The plain PyTorch serving path executes the model and the surrounding inference procedure directly in eager-mode PyTorch---without dependence on specialized serving runtimes---and is designed to mirror the training-time computation as faithfully as possible. This path is responsible for the complete end-to-end inference workflow, comprising the stages described below:
+
+\begin{itemize}
+
+\item \textit{Input preparation.} Parses the text prompt, loads any image, video, or action conditioning, constructs the modality-specific conditioning dictionaries consumed by the model, and assembles the corresponding input tensors and metadata.
+\item \textit{Autoregressive loop.} In the Cosmos 3 Reasoner, output tokens are produced autoregressively, with each step conditioned on the previously generated tokens and on the cached key/value states of the conditioning context.
+\item \textit{Diffusion loop.} In the Cosmos 3 Generator, the PyTorch path constructs the timestep schedule, invokes the denoiser at each step, applies classifier-free guidance (CFG), updates the latent state according to the sampler, and manages the request-level control flow around the denoising process.
+\item \textit{Decoding and post-processing.} Once denoising completes, the resulting latent representation is decoded into the target modality---text, image, video, audio, or action---post-processed as required, and returned to the caller through the serving interface.
+
+\end{itemize}
+
+Because the native PyTorch backend preserves the model's original PyTorch structure, it serves as the primary target for landing new model features, sampler modifications, KV-cache and activation-cache policies, and debugging instrumentation. New capabilities are validated in this backend first and only subsequently ported to the production runtimes (TensorRT-LLM and vLLM), ensuring that the reference implementation remains the authoritative specification of the inference algorithm. The PyTorch backend exposes the following features and optimizations.
+
+\paragraph{Torch compile with CUDA graphs.}
+
+Since the PyTorch native inference path keeps request orchestration and sampling logic in Python, a major serving bottleneck is host-side kernel launch overhead during repeated denoising steps. We therefore optimize the PyTorch path using torch.compile and CUDA graph replay. CUDA graph optimization is implemented at transformer-layer granularity, capturing repeated transformer block executions. Each block is compiled with torch.compile in \texttt{reduce-overhead} mode, which allows PyTorch Inductor to lower the block and use CUDA graph replay when the block is invoked with compatible tensor shapes and memory layouts. The outer inference loop remains in ordinary PyTorch, \ie, prompt handling, timestep scheduling, sampler updates, CFG orchestration, decoding are not part of the captured graph. The graph contains the numerically heavy and frequently repeated per-layer computation, while dynamic serving logic remains outside the graph. The benefit of CUDA graphs is most visible for T2I-style generation, where shorter generation workloads and smaller kernels make CPU launch overhead a larger fraction of end-to-end latency. CUDA Graphs on T2I generation yielded 30\% to 60\% speedups on different hardware backends.
+
+\paragraph{Distributed inference.}
+
+We employ context parallelism (CP) at inference time to support generations exceeding per-GPU memory capacity constraints. We retain the Ulysses scheme~\citep{deepspeed_ulysses} used during training, ensuring consistency between the two regimes. Beyond enabling long-context inference, CP also serves as a latency-reduction mechanism by distributing the forward pass across multiple GPUs; this benefit is realized even in regimes where a single device's memory is sufficient to hold the full context, making CP a general-purpose tool for accelerating inference.
+
+In addition to context parallelism, we exploit classifier-free guidance (CFG) parallelism to further reduce end-to-end inference latency. Diffusion sampling with CFG requires, at every denoising step, two forward passes through the model---one conditioned on the input prompt and one unconditional---whose noise predictions are linearly combined to produce the guided update. Because the conditional and unconditional passes operate on independent inputs and only need to synchronize once per step to form the guided prediction, they are an ideal target for parallelization across two GPUs. In practice, we dispatch the conditional and unconditional batches concurrently, and perform a single lightweight point-to-point exchange to combine the two predictions before advancing the sampler. This nearly halves the per-step latency, and composes cleanly with context parallelism to deliver multiplicative latency reductions on multi-GPU nodes.
+
+\paragraph{Reasoner tower caching.}
+
+For tasks such as text-to-image (T2I), text-to-video (T2V), image-to-video (I2V), and video-to-video (V2V) generation, the conditioning inputs to the Reasoner tower---text prompts and, where applicable, conditioning images or videos---are fixed for the duration of the sampling trajectory. As a result, the Reasoner's outputs are invariant across diffusion steps and depend only on the conditioning, not on the current noise level or partially denoised sample. We exploit this property by computing the Reasoner forward pass once at the start of inference and caching its outputs for reuse across all subsequent denoising steps. Because the cached activations are mathematically identical to those that would be recomputed at each step, this optimization yields a substantial reduction in per-step latency without any impact on generation quality.
+
+\paragraph{Batching.}
+
+Inference throughput can be further improved by batching multiple samples into a single forward pass, amortizing per-step overheads (kernel launches, weight reads, and collective communication) across a larger volume of useful work. Our inference batcher reuses the variable-length sequence-packing mechanism developed for training: rather than padding shorter sequences to a common length---which wastes both compute and memory on padding tokens---it concatenates samples of heterogeneous shapes into a single packed tensor and supplies the corresponding cumulative sequence-length metadata to attention and other shape-sensitive operators. The user specifies one of two budgeting modes: a total token budget (the maximum number of tokens allowed within a batch) or a fixed sample count. Given the chosen budget, the batcher greedily packs incoming samples until the budget is exhausted while respecting any per-device memory constraints. This design improves GPU utilization in throughput-oriented deployments such as offline corpus generation and large-scale evaluation, but provides no benefit in latency-bound settings (\eg, robotics workloads) where a single sample must be processed in isolation; in those regimes, the batcher is configured with a sample count of one and effectively disabled.
+
+\cref{tab:cosmos3_batching} reports the inference throughput obtained by request batching on the text-to-video (T2V) task with 189-frame outputs. At 256p, batching yields throughput gains of $8\%$ to $55\%$. The benefits diminish at 480p, where each sample already provides sufficient work to saturate the GPU and leaves limited headroom for additional parallelism. At 720p, the $74{,}000$ context window admits only $B{=}1$, precluding any batching speedup.
+
+\input{tables/serving/batching}
+
+\paragraph{Generation with prompt upsampling.}
+
+Inference additionally supports a prompt-upsampling mode (see more details in \cref{sec::prompt_upsampling}) in which a short, free-form user prompt is expanded by the Reasoner into a richer, structured JSON description of the desired output (covering, for example, scene composition, subject attributes, camera and motion specifications, lighting, and style). The upsampled description is generated autoregressively by the Reasoner and is then supplied to the Generator as an additional conditioning input, alongside any image, video, or action conditioning provided by the user, to synthesize the final output. This pipeline serves two purposes: it offloads the burden of detailed prompt engineering from the end user to the model itself, consistently improving downstream generation quality, and it exercises the full omnimodal end-to-end across both Reasoner and Generator pathways within a single inference invocation---demonstrating that two pathways can be composed seamlessly to produce high-fidelity multimodal outputs from a minimal user specification.
+
+\paragraph{Throughput vs serving considerations.}
+
+Inference workloads generally optimize for one of two competing objectives: throughput or latency. Batch inference, in which a large set of outputs is generated for a fixed corpus of inputs, is typically optimized for throughput, since end-to-end wall-clock time and aggregate cost are the metrics of interest. In contrast, latency-sensitive applications such as robotics---where actions must be produced from a specific starting context with tight per-step deadlines---prioritize responsiveness, and the relevant metric is time-to-first-token (or time-to-first-action) and per-step latency. The optimizations described above target these regimes differentially: distributed inference (context parallelism and CFG parallelism) primarily reduces latency by parallelizing a single request across multiple devices, whereas batching primarily improves throughput by amortizing per-step overheads across multiple concurrent requests. The remaining optimizations---torch compile, and reasoner-output caching---benefit both regimes simultaneously.
+
+\subsubsection{Inference Frameworks for Reasoner: vLLM and TensorRT-LLM}
+
+Because the Nano and Super Reasoners are built on the Qwen3-VL~\citep{qwen3vl2025} backbone, their integration into vLLM and TensorRT-LLM reuses the upstream Qwen3-VL support already present in both frameworks. This allows us to inherit, out of the box, the optimized attention kernels, paged KV-cache management, continuous batching, and multimodal input handling that the two backends already provided for the Qwen3-VL family, requiring only minimal configuration changes to bind the Cosmos 3 model weights and tokenizer to the existing execution paths.
+
+The Edge Reasoner, in contrast, is built on a custom Nemotron backbone~\citep{nemotron3-family}, which is not natively supported in vLLM. We therefore implemented a dedicated integration that follows the vLLM model-contributor conventions. This integration is structured to be upstreamable, easing future maintenance and enabling community contributions.
+
+\subsubsection{Inference Frameworks for Generator: vLLM-Omni}
+
+Cosmos 3 Generator is integrated into vLLM-Omni to leverage its optimized serving stack for diffusion-based multimodal generation. The integration implements Cosmos 3 Generator as a first-class vLLM-Omni model and supports the full set of Generator modalities, including image, video, audio, and action-conditioned generation. It follows the model-contributor conventions and coding style of the vLLM-Omni framework, making the implementation compatible with the framework's existing scheduling, distributed execution, memory-reduction, and quantization features. 
+
+This integration is particularly important for Generator serving because diffusion-based generation requires many repeated transformer evaluations over large image, video, or multimodal token sequences. The vLLM-Omni backend therefore focuses on reducing per-step latency, lowering peak memory usage, and improving throughput while preserving generation quality. The Cosmos 3 Generator integration supports the following vLLM-Omni features:
+
+\begin{itemize}
+
+    \item \textit{Cache-DiT.} A training-free acceleration method that reuses cached transformer-block outputs across adjacent denoising steps, allowing redundant computation to be skipped with negligible impact on generation quality.
+
+    \item \textit{Ulysses context parallelism.} A context-parallel execution scheme that shards long image and video token sequences across multiple GPUs and uses all-to-all attention communication to reduce per-device memory usage and improve latency.
+
+    \item \textit{CFG-Parallel.} A parallelization strategy for classifier-free guidance that dispatches the conditional and unconditional forward passes to separate GPU ranks. The two predictions are synchronized once per denoising step to form the guided update, reducing the latency of CFG-based sampling.
+
+    \item \textit{HSDP.} A memory-efficient distributed inference mode that shards transformer weights across GPUs using FSDP2 and gathers parameters on demand during the forward pass, reducing peak GPU memory requirements for large Generator models.
+
+    \item \textit{CPU offload.} A layer-wise offloading mechanism that moves model parameters between CPU and GPU memory during inference, trading additional data-transfer overhead for substantially lower peak GPU memory usage.
+
+    \item \textit{VAE-Patch-Parallel.} A parallel VAE execution mode that partitions latent or pixel tensors into spatial tiles and encodes or decodes them across multiple ranks, reducing both per-device memory consumption and VAE latency.
+
+    \item \textit{Quantization.} A dynamic FP8 quantization path that lowers the precision of dominant compute operations to reduce inference latency and peak GPU memory usage while maintaining acceptable generation quality.
+
+
+\end{itemize}
+
+Together, these features allow Cosmos 3 Generator to scale from memory-constrained single-GPU deployments to high-throughput multi-GPU serving. Cache-DiT and quantization reduce the cost of repeated denoising computation, context parallelism and CFG-Parallel improve latency by distributing a single request across GPUs, and HSDP, CPU offload, and VAE-Patch-Parallel reduce memory pressure for large-resolution or long-duration generation tasks. Figure~\ref{fig:cosmos3_serving_latency_combined} summarizes Cosmos3 serving performance by comparing single-GPU runs on different hardware backends as well as comparing multi-GPU runs on B200s. The evaluation is done for PyTorch-OSS and vLLM-Omni frameworks. \input{figures/infrastructure/serving/cosmos3_serving_latency_combined_1x3_figure}

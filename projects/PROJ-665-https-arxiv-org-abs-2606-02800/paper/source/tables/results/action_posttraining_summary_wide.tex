@@ -1,0 +1,39 @@
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Post-training comparisons for forward and inverse dynamics across domains.} FD denotes forward dynamics and ID denotes
+  inverse dynamics. \textit{PT-init} initializes from the generic Cosmos 3 pre-trained checkpoint, while \textit{MT-init} initializes from
+  the mid-trained checkpoint. Domain-specific baselines are reported only for their corresponding application, while Cosmos 3 variants are compared across all evaluated action settings. \textbf{Bold} indicates the best in the column and
+  \underline{underline} indicates the second best.}
+  \label{tab:action_posttraining_summary_wide}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{@{}l|ccc|ccc|c|c@{}}
+        \toprule
+        & \multicolumn{3}{c|}{\textbf{Autonomous Vehicle (ID)}} & \multicolumn{3}{c|}{\textbf{Camera Motion (FD)}} & \multicolumn{1}{c|}{\textbf{Egocentric Motion (FD)}} & \textbf{Robotics (FD)} \\
+        \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-8} \cmidrule(lr){9-9}
+        \textbf{Model} & RRE ($^\circ$, $\downarrow$) & RTE (m, $\downarrow$) & ATE (m, $\downarrow$) & RRE ($^\circ$, $\downarrow$) & RTE (m, $\downarrow$) & ATE (m, $\downarrow$) & PSNR ($\uparrow$) & PSNR ($\uparrow$) \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} (\textit{MT-init}) & \underline{0.232} & \textbf{0.014} & \textbf{0.90} & \textbf{0.142} & \textbf{0.026} & \textbf{0.99} & \textbf{16.19} & \textbf{26.04} \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano} (\textit{MT-init})  & \textbf{0.211} & \textbf{0.014} & \underline{0.98} & \underline{0.147} & \underline{0.029} & \underline{1.24} & \underline{16.12} & \underline{25.52} \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} (\textit{PT-init}) & 0.284 & 0.018 & 1.32 & 0.293 & 0.036 & 1.82 & 15.34 & 22.69 \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano} (\textit{PT-init})  & 0.249 & \underline{0.017} & 1.20 & 0.172 & 0.034 & 1.61 & 15.22 & 23.24 \\
+        \midrule
+        Lingbot-World  & --    & --    & --    & 0.299 & 0.057 & 2.88 & --    & --    \\
+        HY-World1.5 & --    & --    & --    & 0.377 & 0.042 & 1.39 & --    & --    \\
+        \midrule
+        VGGT           & 0.596 & 0.768 & 23.46 & --    & --    & --   & --    & --    \\
+        DepthAnything3 & 0.312 & 0.354 & 9.29  & --    & --    & --   & --    & --    \\
+        \midrule
+        LOME       & -- & -- & -- & -- & -- & -- & 9.36 & --    \\
+        \midrule
+        Ctrl-World & -- & -- & -- & -- & -- & -- & --   & 22.99 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

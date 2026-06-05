@@ -1,0 +1,49 @@
+\begin{figure}[t]
+    \centering
+    \begin{minipage}[t]{0.5\linewidth}
+        \vspace{0pt}
+        \centering
+        \captionsetup{justification=raggedright, singlelinecheck=false}
+        \includegraphics[width=\linewidth]{figures/data/video/sdg_pretrain_umap_figure.pdf}
+        \captionof{figure}{\textbf{Joint embedding geometry of pre-train and SDG.}
+        PCA$\rightarrow$UMAP projection of 20{,}000 pre-training cluster centroids
+        (gray) and 200 randomly sampled clips from each SDG source. Each SDG source
+        forms a distinct, tightly clustered region that overlaps only narrowly with
+        the bulk pre-training distribution.}
+        \label{fig:sdg_pretrain_umap}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.43\linewidth}
+        \vspace{0pt}
+        \centering
+        \captionsetup{justification=raggedright, singlelinecheck=false}
+        \captionof{table}{\textbf{Distance from SDG to the pre-training manifold.}
+        Computed on 100K random clips per source against the 20{,}000 centroids.
+        \emph{CosSim} is the mean of $\max_j \cos(\mathbf{g}_i, \mathbf{c}_j)$.
+        \emph{MMD$^2$} is an unbiased local Maximum Mean Discrepancy
+        (RBF kernel, median-heuristic bandwidth). \emph{\#Local} is the number
+        of distinct centroids the source's neighborhood spans. All SDG sources
+        sit far from the pre-training distribution---a necessary complement rather
+        than a redundant subset.}
+
+        \vspace{1.2em}
+
+        \label{tab:sdg_pretrain_dist}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \renewcommand{\arraystretch}{1.15}
+        \begin{tabular}{lccc}
+            \toprule
+            Source & CosSim $\uparrow$ & MMD$^2$ $\downarrow$ & \#Local \\
+            \midrule
+            \textit{Pre-train (ref.)} & \textbf{0.796} & \textbf{0.005} & 19{,}934 \\
+            \midrule
+            SDG-DriveSim   & 0.667 & 0.119 & 5{,}577 \\
+            SDG-PhyxSim    & 0.589 & 0.221 & 6{,}644 \\
+            SDG-RobotSim   & 0.627 & 0.162 & 9{,}760 \\
+            SDG-SynHuman   & 0.650 & 0.191 & 4{,}975 \\
+            SDG-Warehouse  & 0.712 & 0.361 & 1{,}920 \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+\end{figure}

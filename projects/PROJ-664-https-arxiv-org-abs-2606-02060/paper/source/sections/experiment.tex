@@ -1,0 +1,97 @@
+
+\section{Experiment}
+\subsection{Experiment Settings}
+
+We evaluate \textsc{TELBench} across five contemporary model families: Qwen-series, GPT-5.4~\citep{openai2026gpt54}, DeepSeek-V3.2~\citep{deepseekai2025deepseekv32pushingfrontieropen}, Claude-Sonnet-4.5, and Gemini-2.5-Pro. We also compare four diagnostic frameworks: Bare LLM, Claude Code, Codex, and \textsc{DRIFT}. Bare LLM performs simple trajectory inspection, Codex~\citep{openai2025codex} and Claude Code~\citep{anthropic2026claudecode} are adapted as general agentic auditing baselines, and \textsc{DRIFT} is our claim-centric trajectory auditing framework. All frameworks receive the same input, consisting of the question and ordered semantic spans, and are required to output the indices of error spans. Each setting is repeated three times.
+
+\textsc{TELBench} uses verified-1K set, divided into 600 easy and 400 hard examples according to trajectory complexity and error subtlety. We report results on the full set and both difficulty splits. Evaluation metrics include first-error accuracy, macro precision, recall, F1. Error spans are treated as span-level metrics, while first-error accuracy measures detection of the earliest predicted error.
+
+
+\subsection{Main Results}
+\input{tab/main_exp}
+
+\paragraph{\textsc{DRIFT} outperforms generic auditing frameworks.}
+Table~\ref{tab:difficulty-split} and Figure~\ref{fig:performance} shows that \textsc{DRIFT} achieves the best overall F1 across all backbone models, outperforming both bare full trajectory prompting and general agentic auditing frameworks such as Codex and Claude Code. The comparison indicates that simply wrapping an LLM in a more complex agentic workflow is not sufficient for reliable trajectory diagnosis: Codex and Claude Code bring inconsistent gains and can even degrade performance for some backbones. In contrast, \textsc{DRIFT} improves both precision and recall across easy and hard splits, suggesting that its gains do not come from over-predicting suspicious spans. Instead, the claim ledger helps track consequential commitments, support seeking checks whether those commitments are grounded in trajectory evidence, and dependency tracing filters out normal exploration, tentative hypotheses, and harmless noise. This claim-centric bias makes \textsc{DRIFT} more effective at separating harmful error spans from surrounding non-error behavior.
+
+\paragraph{First-error localization remains difficult.}
+Although \textsc{DRIFT} substantially improves span-level F1, first-error accuracy remains much lower, especially on the hard split. This gap shows that identifying some erroneous regions and identifying where the error first appears are distinct diagnostic abilities. Current auditors can often detect that a trajectory has become unreliable, but still struggle to pinpoint the earliest annotated error span among long sequences of search, verification, and intermediate reasoning. \textsc{TELBench} therefore evaluates not only aggregate error span localization, but also the stricter temporal localization ability required to diagnose where first goes wrong.
+\begin{figure*}[tb!]
+  \centering
+  \includegraphics[width=1\textwidth]{figure/agenterr_6_.pdf}
+  \caption{\textbf{Overall macro-F1} on \textsc{TELBench}.}
+  \label{fig:performance}
+\end{figure*}
+
+
+\paragraph{Scaling alone is insufficient.}
+Figure~\ref{fig:further-analysis}(a) further shows that increasing model scale does not monotonically improve trajectory diagnosis. Across Qwen variants, larger models do not consistently achieve better macro F1 or first-error accuracy, and the hard split remains challenging for all scales. This suggests that the bottleneck is not only backbone capacity, but also the absence of a diagnostic structure tailored to long, noisy agent trajectories.
+
+\section{Further Analysis}
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figure/qwen_scale.pdf}
+  \vspace{-6pt}
+  \caption*{\small (a) Model-scale sensitivity.}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figure/claude_cloud_bare_drift_span_bars.pdf}
+  \vspace{-6pt}
+  \caption*{\small (b) Span-complexity sensitivity.}
+\end{minipage}
+
+\vspace{4pt}
+
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figure/f1_growth_deepseek_claude_sweet_compact_20260526.pdf}
+  \vspace{-6pt}
+  \caption*{\small (c) Module ablation.}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figure/efficiency_bubble_text_paths.pdf}
+  \vspace{-6pt}
+  \caption*{\small (d) Efficiency-performance trade-off.}
+\end{minipage}
+
+\vspace{-4pt}
+\caption{
+Further analysis of \textsc{DRIFT}. We examine robustness across model scale and span complexity, then verify that the gains come from the proposed modules and remain competitive under token cost.
+}
+\label{fig:further-analysis}
+\vspace{-8pt}
+\end{figure}
+
+\paragraph{Sensitivity to Span Complexity.}
+Figure~\ref{fig:further-analysis}(b), as span complexity increases, both Bare and DRIFT degrade, showing that longer trajectories make error span localization harder. DRIFT consistently outperforms Bare across all span buckets, suggesting that structured trajectory auditing better preserves localization ability under longer semantic contexts. The gap is especially visible in high-span trajectories, where single-pass reading is more likely to miss early or distributed errors.
+\paragraph{Ablation of modules.}
+
+
+Figure~\ref{fig:further-analysis}(c) compares four variants: bare prediction with the full trajectory, A (Claim Keeper), A+B (support checking), and the full \textsc{DRIFT} pipeline with dependency tracing. Performance improves steadily as modules are added. The largest gain comes from claim-level auditing, while support checking and dependency tracing further improve evidence grounding and span localization. This shows that \textsc{DRIFT}'s gains arise from the complementary effects of claim tracking, support auditing, and dependency-based diagnosis.
+
+
+
+\paragraph{Efficiency Analysis.}
+
+
+Overall, in Figure~\ref{fig:further-analysis}(d), DRIFT achieves a favorable efficiency-performance trade-off and mostly lies on the Pareto frontier, indicating that it improves F1 without requiring disproportionate token overhead. The only notable exception is Gemini, whose DRIFT run incurs substantially higher cost because more than half of its tokens are spent on thinking, leading to a much larger average token budget despite competitive performance.
+\paragraph{Error-type coverage: Can DRIFT detect all kinds of error?}
+
+Figure~\ref{fig:error-type-radar} reports span-level recall on the 12 most frequent error types. Bare models show uneven coverage: they recover some explicit errors, but struggle with failures that require verifying whether a claim is sufficiently supported, such as source verification, constraint semantics, unsupported commitments, and omitted constraint checks. \textsc{DRIFT} improves recall consistently across nearly all categories, with the largest gains on evidence- and constraint-related errors. This aligns with its claim-centric design: the claim ledger tracks consequential commitments, support seeking checks their evidential basis, and dependency tracing marks the spans where unsupported claims affect the answer path. The result suggests that \textsc{DRIFT} improves not only overall localization performance, but also robustness across diverse high-frequency failure modes.
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figure/error_type_radar_v6_top12_fine_global_ticks.pdf}
+  \vspace{-8pt}
+  \caption{
+  Span-level recall across frequent error types. \textsc{DRIFT} improves coverage especially on evidence- and constraint-related failures.
+  }
+  \label{fig:error-type-radar}
+  \vspace{-8pt}
+\end{figure}

@@ -1,0 +1,31 @@
+\begin{table*}[t]
+    \centering
+    \footnotesize
+    \caption{\textbf{Text-to-Image benchmark results.} UniGenBench scores are fractions of evaluation criteria satisfied; ``All (1170)'' aggregates the original 600 prompts (Orig) and 570 Physical AI prompts (Phys). PNED and GNED are character-level accuracy metrics (higher is better); CVTG-102ch tests Chinese character rendering, CVTG-500L tests English long-prompt rendering. Aesthetic v2 and HPSv3 are higher-is-better image-level metrics.$^\dagger$}
+    \label{tab:t2i_results}
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{ll|ccc|cc|cc|cc}
+        \toprule
+        & & \multicolumn{3}{c|}{\textbf{UniGenBench}} & \multicolumn{2}{c|}{\textbf{CVTG-500L}} & \multicolumn{2}{c|}{\textbf{CVTG-102ch}} & \multicolumn{2}{c}{\textbf{Image-Level Metrics}} \\
+        \cmidrule(lr){3-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+        \textbf{Model} & \textbf{Type} & \textbf{All} ($\uparrow$) & \textbf{Orig} ($\uparrow$) & \textbf{Phys} ($\uparrow$) & \textbf{GNED} ($\uparrow$) & \textbf{PNED} ($\uparrow$) & \textbf{GNED} ($\uparrow$) & \textbf{PNED} ($\uparrow$) & \textbf{Aesv2} ($\uparrow$) & \textbf{HPSv3} ($\uparrow$) \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super-Text2Image} & Open-source & \textbf{91.36} & \textbf{93.34} & \textbf{89.54} & \textbf{80.88} & \underline{89.08} & 32.02 & 41.22 & \underline{5.91} & 11.60 \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} & Open-source & 87.33 & 85.21 & 89.64 & 66.77 & 70.97 & 8.48 & 16.31 & 5.76 & 9.49 \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano} & Open-source & 84.61 & 87.32 & 82.12 & 24.23 & 26.53 & 4.63 & 9.70 & 5.76 & 8.99 \\
+        \midrule
+        Gemini 3 Pro Image & Closed-source & \underline{90.69} & \underline{92.81} & \underline{89.74} & 59.24$^\dagger$ & 71.79$^\dagger$ & 46.00 & \textbf{76.40} & 5.70 & \underline{11.78} \\
+        FLUX.2-dev         & Open-source & 87.60 & 89.77 & 85.61 & 74.71 & 84.98 & 44.33 & 68.74 & 5.75 & 11.38 \\
+        Qwen-Image-2512    & Open-source & 84.25 & 87.32 & 81.44 & \underline{79.68} & \textbf{90.86} & 46.33 & 71.26 & \textbf{5.92} & 11.03 \\
+        Hunyuan 3.0        & Open-source & 84.02 & 87.68 & 80.67 & 71.40 & 87.68 & \underline{49.05} & 71.31 & 5.90 & \textbf{11.93} \\
+        Z-Image-Turbo      & Open-source & 78.14 & 81.53 & 75.03 & 75.20 & 86.95 & \textbf{49.18} & \underline{73.32} & 5.70 & 11.36 \\
+        \bottomrule
+    \end{tabular}
+    }
+    \vspace{0.5ex}
+    \par\noindent\scriptsize $^\dagger$ Gemini 3 Pro Image has a high probability of generating case-insensitive scene text (e.g., ``Adventure'' $\rightarrow$ ``ADVENTURE''). When this error is ruled out, the CVTG-500L scores increase to GNED = 75.97 and PNED = 91.45.
+\end{table*}

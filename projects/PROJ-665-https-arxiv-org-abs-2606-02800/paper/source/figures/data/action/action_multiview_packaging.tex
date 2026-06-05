@@ -1,0 +1,47 @@
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.44\linewidth}
+        \vspace{0pt}
+        \includegraphics[width=\linewidth]{figures/data/action/multiview_droid_16164052.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.52\linewidth}
+    \begin{tcolorbox}[
+        breakable,
+        colback=black!2,
+        colframe=nvidiagreen!75!white,
+        boxrule=0.4pt,
+        arc=1pt,
+        left=4pt,
+        right=4pt,
+        top=3pt,
+        bottom=3pt,
+        title=Prompt
+    ]
+    \begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\tiny]
+    {
+      "cinematography": {
+        "framing": "This video contains concatenated views from multiple camera perspectives. The top row is from the wrist-mounted camera. The bottom row contains two horizontally concatenated third-person perspective views of the scene from opposite sides, with the robot visible."
+      },
+      "actions": [
+        {
+          "time": "0:00-0:02",
+          "description": "Remove the cans from the tray and put them on the countertop.",
+          "idle_frame": "4 out of 16."
+        }
+      ],
+      "duration": "2s",
+      "fps": 10.0,
+      "resolution": {
+        "H": 544,
+        "W": 736
+      },
+      "aspect_ratio": "4,3"
+    }
+    \end{Verbatim}
+    \end{tcolorbox}
+    \end{minipage}
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{\textbf{Multiview action prompt formatting.} When multiple viewpoints are available, we concatenate them into a single canvas and attach view-layout metadata in the structured JSON prompt so the model can associate each pixel region with its camera stream.}
+    \label{fig:action_multiview_packaging}
+\end{figure}

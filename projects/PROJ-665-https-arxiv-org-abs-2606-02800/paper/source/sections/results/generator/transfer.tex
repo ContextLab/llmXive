@@ -1,0 +1,38 @@
+\subsubsection{Transfer Generation Evaluation}
+\label{subsec::transfer_eval}
+
+\paragraph{Two-weight classifier-free guidance.}
+Video transfer is conditioned on both a structured text prompt and a control video, and the optimal balance between caption fidelity and structural adherence varies across modalities. To control these two factors independently, we use a two-weight classifier-free guidance scheme with separate weights, one for the control video and one for the text prompt.
+
+At each denoising step, we evaluate the denoiser three times---with both conditions, with the prompt only (dropping the control video), and with the control video kept but the prompt replaced by a fixed negative caption. We then combine the predictions so that the control weight extrapolates from the prompt-only prediction toward the fully conditional one (strengthening structural control), while the text weight extrapolates away from the negative-prompt prediction (strengthening caption fidelity). Exposing the two weights as separate knobs lets us tune each modality to its own quality--fidelity sweet spot, and we find this factored guidance to be more effective than the standard single-guidance formulation.
+
+\paragraph{General video transfer.}
+We evaluate video transfer on PAIBench-C~\citep{cosmos_transfer1}, a control-conditioned video-to-video benchmark covering four spatial control modalities: blur, edge, segmentation, and depth. The benchmark contains $600$ clips spanning three Physical AI domains: $200$ robotic-arm manipulation clips from AgiBot World~\citep{bu2025agibot}, $200$ driving clips from OpenDV~\citep{yang2024genad}, and $200$ egocentric everyday-life clips from Ego-Exo-4D~\citep{grauman2024egoexo4d}.
+
+For each example, the model receives a text prompt and a control video and must generate a photorealistic video that follows the control while preserving the prompted scene semantics. We report the single-control setting (exactly one modality per example) so each modality's contribution can be measured in isolation. Quality is assessed by re-extracting the relevant control signal from the generated and reference videos and comparing them in the corresponding space (blur SSIM after bilateral filtering, Canny edge F1, scale-invariant RMSE on estimated depth, mIoU on open-vocabulary segmentation masks), plus DOVER~\citep{dover} as a content-agnostic measure of perceptual realism.
+
+We compare Cosmos 3 against the Cosmos-Transfer2.5 baseline, which handles different modalities with a dedicated ControlNet~\citep{Zhang_2023_ICCV} branch per modality. Note that Cosmos 3 is instead a unified model that consumes the control video alongside the text prompt in its input sequence, natively supporting any combination of modalities without per-modality ControlNet adapters.
+
+\cref{tab:paibenchc_results} shows that, despite the collapse of four dedicated ControlNet branches into a single unified backbone, Cosmos 3 matches or surpasses Cosmos-Transfer2.5 in every modality
+through one of its two variants: Cosmos3-Nano leads on perceptual
+quality (DOVER) and segmentation, while Cosmos3-Super takes the
+geometrically demanding edge and depth tasks. All three models are effectively on par on blur SSIM, which is already saturated near the metric's upper bound. These results
+indicate that per-modality ControlNet adapters are not a
+prerequisite for strong control fidelity---a single unified
+backbone natively supports all four spatial controls and beats the
+dedicated-adapter baseline at one of its two scales on every metric.
+
+\input{tables/results/paibench-c}
+\input{figures/results/transfer/av_transfer}
+
+\paragraph{Autonomous driving.}
+PAIBench-C is complemented by an AV-specific benchmark of $486$ single-view driving clips~\citep{cosmos_predict2p5} for world-scenario-map-conditioned video transfer, called AVBench-C. The control input
+is a camera-view rendering of the driving scene that combines static map structure (lane lines, road boundaries, traffic signals, and traffic signs) with all scene objects (vehicles, pedestrians, and other agents), both stationary and moving. Given this rendered scenario together with a text prompt, the model must produce a photorealistic driving video that is consistent with both inputs. We evaluate the results with both automatic and human evaluations:
+\begin{itemize}
+\item \textit{AVBench-C automatic evaluation.} We evaluate each generation with three ground-truth-based automatic checkers. The \emph{egomotion} checker uses visual odometry to compute trajectory drift per meter travelled. The \emph{object-correspondence} checker matches scene entities to the control input, comparing dynamic actors against rendered trajectories and static structure against the projected map. The \emph{environment} checker uses a VLM judge to score prompt-level driving conditions, including weather, time of day, region, and road-surface state.
+\item \textit{AVBench-C human evaluation.} Trained annotators rate each generated video on a 1--3 scale along two axes. The \emph{video quality} axis measures overall realism, with 3 indicating realistic textures and temporally consistent agent behavior, 2 indicating mild deformities or brief temporal stutter, and 1 indicating clearly unrealistic dynamics or low-quality textures. The \emph{lane line} axis measures fidelity to the world-scenario map: annotators view the generation alongside a reference overlay of the expected road layout and assign 3 if lanes, crossings, and entities are mostly in the correct locations, 2 if a few lanes are missing but most entities are correctly placed, and 1 if most lanes or crossings are missing or entities are misplaced.
+\end{itemize}
+
+\input{tables/results/avbench-c}
+
+\cref{tab:avbenchc_transfer} shows that Cosmos 3 matches or surpasses Cosmos-Transfer2.5 on every driving-scene metric through one of its two variants. On the automatic side, ego-trajectory drift is uniformly small across all three models, and Cosmos3-Nano further leads on dynamic-object correspondence, while static structure and environment consistency are effectively on par and already saturated near the metric's upper bound. Human evaluation reinforces this picture: Cosmos3-Super and Cosmos3-Nano deliver markedly higher video quality ($2.86$ and $2.82$ vs.\ $2.59$), while lane-line fidelity is comparable across all three models (within $\pm 0.05$). Taken together, these results indicate that Cosmos 3 preserves geometric and structural fidelity while delivering visibly higher-quality driving-scene generations, beating the baseline at one of its two scales on every metric. \cref{fig:av_transfer_example} shows a qualitative example of a driving-scene video generated by Cosmos3-Nano from its corresponding control input.

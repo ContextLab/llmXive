@@ -1,0 +1,26 @@
+\begin{figure}[t]
+    \centering
+    \begin{minipage}[c]{0.65\linewidth}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/model_architecture/tikz_multiresolution_sequence_packing.pdf}}
+        %\label{fig:multiresolution_seqpacking}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[c]{0.33\linewidth}
+        \centering
+        {\scriptsize\bfseries Image--video pre-training data mixture\\ by resolution\par}
+        \vspace{4pt}
+        \resizebox{\linewidth}{!}{\includegraphics{figures/training/tikz_generator_datamix.pdf}}
+        %\label{fig:generator_datamix}
+    \end{minipage}
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{%
+        \textbf{Left:} \textbf{Multi-resolution training and sequence packing.}
+        The three resolution tiers (256p, 480p, 720p) differ in their maximum frame budget,
+        eligible source material, and rectified-flow noise-shift value; variable-length sequences
+        from different tiers are packed together to fill a fixed 74,000-token context window,
+        maximizing GPU utilization without padding.
+        \textbf{Right:} \textbf{Data mixture used in generator pre-training.} We use joint image-video training, with videos sampled $80\%$ of the time and images the remaining $20\%$. Within each split, we train at multiple resolutions: 256p, 480p, and 720p. For video batches, we additionally sample uniformly among three conditioning modes---text-to-video, image-to-video, and video-to-video. The exact data mixture is shown in the right panel.
+    }
+    \label{fig:multiresolution_seqpacking}
+\end{figure}

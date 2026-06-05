@@ -1,0 +1,19 @@
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Benefits of asynchronous checkpointing.} Compared with synchronous checkpointing at a 30-minute interval, asynchronous checkpointing reduces end-to-end training time by $4\%$ and $9\%$ for \textbf{Cosmos3-Nano} and \textbf{Cosmos3-Super}, respectively. The larger savings on \textbf{Cosmos3-Super} reflect its longer checkpoint save times.}
+    \label{tab:cosmos3_checkpointing}
+    \setlength{\tabcolsep}{6pt}
+    \small
+    \begin{tabular}{l|rcr|c}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}}
+            & \multicolumn{3}{c|}{\textbf{Checkpoint Save Time (s)}}
+            & \multirow{2}{*}{\textbf{Speedup over Synchronous}} \\
+        \cmidrule(lr){2-4}
+            & \textbf{Mean} & \textbf{Min} & \textbf{Max} & \\
+        \midrule
+        \textbf{Cosmos3-Nano}  &  72 & 43 & 250 & $4\%$ \\
+        \textbf{Cosmos3-Super} & 167 & 40 & 736 & $9\%$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}

@@ -1,0 +1,81 @@
+\newcommand{\reasonerModelHeader}[1]{\rotatebox[origin=c]{90}{\makecell[c]{\tiny #1}}}
+\newcommand{\reasonerGroupCell}[4][1]{\multirow{#2}{*}{\rotatebox[origin=c]{90}{\scalebox{#1}{\makecell[c]{\textbf{#3}\\#4 benchmarks}}}}}
+\newcommand{\reasonerAvgCell}[1]{\cellcolor{black!4}#1}
+\newcommand{\reasonerAvgLastCell}[1]{\multicolumn{1}{>{\columncolor{black!4}[\tabcolsep][0pt]}c@{}}{#1}}
+\begin{table*}[p]
+    \centering
+    \tiny
+    \caption{ \textbf{Reasoner benchmark results} for Cosmos 3 variants and comparison models across general multimodal understanding, robotics, smart-infrastructure, and autonomous-driving benchmarks. Rows report individual benchmarks or group averages, and columns report model scores. Within each separated model block, best and second-best scores per row are shown in \textbf{bold} and \underline{underlined}. $^\dagger$ denotes a closed model.
+    }
+    
+    \label{tab:reasoner_benchmark_group}
+    \setlength{\tabcolsep}{1.55pt}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{adjustbox}{width=\textwidth}
+    \begin{tabular}{@{}c l|>{\columncolor{columnours}}ccccc|>{\columncolor{columnours}}cccccc|>{\columncolor{columnours}}ccccc@{}}
+        \toprule
+        & \textbf{Benchmark} & \reasonerModelHeader{\textbf{Cosmos 3}\\\textbf{Super}} & \reasonerModelHeader{Qwen3-VL\\32B} & \reasonerModelHeader{Cosmos-Reason2\\32B} & \reasonerModelHeader{Gemma-4\\31B} & \reasonerModelHeader{Gemini 3.1\\Pro$^\dagger$} & \reasonerModelHeader{\textbf{Cosmos 3}\\\textbf{Nano}} & \reasonerModelHeader{Qwen3-VL\\8B} & \reasonerModelHeader{Cosmos-Reason2\\8B} & \reasonerModelHeader{Gemma-4\\E4B} & \reasonerModelHeader{RynnBrain\\8B} & \reasonerModelHeader{MiMo-Embodied\\7B} & \reasonerModelHeader{\textbf{Cosmos 3}\\\textbf{Edge}} & \reasonerModelHeader{Qwen3-VL\\2B} & \reasonerModelHeader{Cosmos-Reason2\\2B} & \reasonerModelHeader{Gemma-4\\E2B} & \reasonerModelHeader{RynnBrain\\2B} \\
+        \midrule
+        \reasonerGroupCell{20}{General}{19} & MMBench-Dev & 87.4 & \underline{87.8} & 86.3 & 86.7 & \textbf{93.2} & 85.1 & \underline{85.3} & 82.2 & 66.2 & \textbf{85.5} & 81.4 & 76.6 & \underline{77.2} & 73.6 & 60.2 & \textbf{81.9} \\
+        & RealWorldQA & 79.2 & \underline{80.3} & 76.1 & 71.8 & \textbf{81.8} & 72.2 & \textbf{73.2} & 68.2 & 61.0 & \underline{72.5} & 72.0 & \textbf{73.3} & \underline{67.3} & 61.4 & 57.1 & 65.9 \\
+        & CVBench & 88.0 & 86.8 & \underline{88.1} & 84.1 & \textbf{88.6} & 86.5 & 85.2 & 85.6 & 68.1 & \underline{87.5} & \textbf{87.8} & \underline{84.9} & 78.7 & 78.7 & 56.1 & \textbf{85.7} \\
+        & VideoPhy2 & \textbf{47.4} & 36.8 & \underline{43.3} & 33.1 & 28.7 & \textbf{45.6} & 28.2 & \underline{37.1} & 13.8 & 10.5 & 20.8 & \textbf{40.3} & 7.9 & \underline{12.8} & 8.4 & 7.3 \\
+        & CausalVQA & 77.0 & \underline{81.0} & 74.5 & 76.5 & \textbf{92.0} & 70.0 & \textbf{72.0} & \underline{71.5} & 38.0 & 68.5 & 63.0 & 37.0 & \textbf{57.0} & \underline{53.5} & 29.5 & 51.0 \\
+        & MVPBench & \textbf{70.3} & 58.6 & \underline{62.2} & 27.0 & 59.4 & \textbf{66.9} & 51.6 & \underline{54.2} & 32.8 & 50.1 & 43.3 & \textbf{53.3} & 43.6 & 43.7 & 31.9 & \underline{44.9} \\
+        & CountBenchQA & 89.1 & \underline{93.6} & 87.5 & 79.1 & \textbf{95.3} & 84.8 & \underline{89.5} & 79.9 & 55.4 & \textbf{90.5} & 84.6 & \textbf{89.9} & \underline{87.5} & 79.7 & 56.9 & 86.0 \\
+        & AI2D & 87.8 & 88.2 & 87.5 & \underline{88.9} & \textbf{93.8} & \underline{85.0} & 84.8 & 83.6 & 78.2 & \textbf{85.7} & 83.2 & 75.4 & \underline{76.7} & 75.4 & 73.0 & \textbf{79.8} \\
+        & DocVQA & 90.4 & \textbf{96.0} & 95.1 & 89.6 & \underline{95.8} & 94.2 & \textbf{95.6} & 94.3 & 78.1 & \underline{95.4} & 93.9 & 86.8 & \textbf{92.8} & 89.9 & 73.4 & \underline{91.8} \\
+        & InfoVQA & 82.4 & \textbf{87.6} & \underline{85.1} & 66.5 & 85.0 & 81.8 & \underline{83.4} & 79.8 & 46.1 & 81.8 & \textbf{84.2} & 60.1 & \textbf{71.7} & 65.0 & 37.8 & \underline{70.5} \\
+        & OCRBench-v2 & \textbf{66.7} & \underline{65.9} & 57.4 & 61.8 & 64.5 & \underline{60.1} & \textbf{64.1} & 56.6 & 42.4 & 58.6 & 41.2 & 43.7 & \textbf{54.2} & \underline{50.1} & 37.8 & 41.0 \\
+        & LogicVista & 55.9 & 47.9 & 46.1 & \underline{57.0} & \textbf{81.9} & \textbf{43.2} & \underline{41.8} & 37.4 & 31.5 & 40.3 & 39.6 & 34.7 & \textbf{39.4} & 34.0 & 29.5 & \underline{34.9} \\
+        & MMMU-Pro & 48.1 & 49.0 & 45.6 & \underline{70.6} & \textbf{76.7} & 41.1 & 41.1 & 38.6 & \textbf{46.9} & \underline{42.0} & 37.3 & 26.4 & \underline{32.3} & 26.9 & \textbf{39.9} & 30.3 \\
+        & MVBench & \textbf{74.5} & 72.6 & 72.5 & 64.4 & \underline{72.8} & \textbf{73.2} & 69.1 & \underline{70.1} & 48.9 & 69.5 & 56.1 & 58.2 & 60.3 & \underline{60.5} & 41.2 & \textbf{64.7} \\
+        & BlinkSpatial & 88.8 & 88.1 & 87.4 & \underline{90.9} & \textbf{92.3} & 81.8 & \textbf{87.4} & \underline{83.9} & 76.9 & 76.9 & 83.2 & 72.0 & \underline{77.6} & 75.5 & 62.9 & \textbf{79.7} \\
+        & BlinkDepth & \textbf{91.9} & 82.3 & 85.5 & \underline{87.1} & 79.8 & \textbf{92.7} & 87.1 & 87.9 & 77.4 & \underline{91.1} & 81.5 & 79.8 & 74.2 & \underline{83.1} & 70.2 & \textbf{87.9} \\
+        & RefCOCO & \underline{89.5} & \textbf{90.6} & 70.7 & 81.8 & 84.3 & \underline{84.3} & \textbf{87.3} & 81.1 & 71.5 & 75.9 & 74.3 & 80.1 & \textbf{84.5} & \underline{80.8} & 66.3 & 71.2 \\
+        & HallusionBench & 49.0 & 52.8 & 50.8 & \underline{57.8} & \textbf{64.2} & 45.3 & \textbf{50.5} & 42.0 & 42.0 & \underline{45.7} & 40.2 & 40.7 & \underline{42.6} & 28.6 & 36.0 & \textbf{45.0} \\
+        & IFBench & 37.0 & 37.0 & 28.2 & \textbf{52.3} & \underline{42.5} & 28.5 & \underline{32.0} & 26.0 & \textbf{34.2} & 22.8 & 25.8 & \underline{20.8} & 20.0 & 19.8 & \textbf{29.0} & 17.8 \\
+        \cmidrule{2-18}
+        & \reasonerAvgCell{\textbf{General Avg.}} & \underline{73.7} & \reasonerAvgCell{72.8} & 70.0 & \reasonerAvgCell{69.8} & \reasonerAvgCell{\textbf{77.5}} & \textbf{69.6} & \reasonerAvgCell{\underline{68.9}} & 66.3 & \reasonerAvgCell{53.1} & \reasonerAvgCell{65.8} & \reasonerAvgCell{62.8} & 59.7 & \reasonerAvgCell{\textbf{60.3}} & 57.5 & \reasonerAvgCell{47.2} & \reasonerAvgLastCell{\underline{59.9}} \\
+        \midrule
+        \reasonerGroupCell{18}{Robotics}{17} & Cosmos-ER & \underline{74.1} & 61.3 & \textbf{74.9} & 54.3 & 61.1 & \underline{69.7} & 56.9 & \textbf{71.2} & 44.3 & 54.9 & 55.6 & \underline{56.6} & 48.9 & \textbf{59.0} & 38.0 & 48.0 \\
+        & Cosmos-CS & \underline{66.4} & 63.4 & 65.2 & 61.1 & \textbf{69.5} & \textbf{63.9} & 58.4 & \underline{63.1} & 43.2 & 54.1 & 53.8 & \underline{51.5} & 49.7 & \textbf{54.8} & 35.3 & 49.0 \\
+        & RefSpatial & \underline{57.0} & 52.7 & 48.0 & 46.6 & \textbf{70.0} & \textbf{53.1} & \underline{47.6} & 41.1 & 24.6 & 46.6 & 41.3 & \textbf{48.4} & 27.1 & 30.7 & 16.2 & \underline{39.0} \\
+        & VSI-Bench & \textbf{60.9} & \underline{59.5} & 58.0 & 47.6 & 47.5 & 54.9 & \underline{55.1} & 52.0 & 28.4 & \textbf{63.0} & 46.7 & \underline{59.2} & 49.8 & 45.0 & 27.3 & \textbf{62.5} \\
+        & SparBench & \textbf{54.9} & 48.0 & 42.9 & 46.6 & \underline{51.5} & \textbf{54.8} & 40.1 & 38.0 & 28.5 & \underline{49.5} & 41.2 & \textbf{52.8} & 34.5 & 35.5 & 30.6 & \underline{47.8} \\
+        & RynnBrain-Area & 53.0 & 53.1 & 50.4 & \underline{58.7} & \textbf{65.4} & \underline{52.0} & 33.2 & 43.4 & 35.7 & \textbf{56.6} & 47.1 & \underline{39.1} & 24.4 & 31.9 & 31.2 & \textbf{58.1} \\
+        & RynnBrain-Spatial & 34.5 & 16.8 & \textbf{42.2} & 32.4 & \underline{36.8} & 26.1 & \underline{37.5} & 35.5 & 33.9 & \textbf{59.0} & 37.2 & 22.6 & 29.7 & \underline{33.9} & 19.7 & \textbf{55.7} \\
+        & RynnBrain-Trajectory & \underline{69.3} & 61.6 & 64.6 & 64.4 & \textbf{71.3} & \textbf{67.9} & 54.8 & \underline{64.4} & 63.5 & 61.1 & 61.1 & 58.7 & 54.7 & \textbf{61.1} & \underline{60.9} & 53.5 \\
+        & RynnBrain-Affordance & 84.6 & 84.2 & \underline{86.8} & \textbf{87.8} & \underline{86.8} & 85.1 & 82.6 & 84.6 & 84.4 & \underline{85.3} & \textbf{85.7} & 77.6 & 70.5 & \underline{80.0} & 77.0 & \textbf{90.4} \\
+        & RynnBrain-Object & 48.3 & \textbf{57.0} & 44.9 & 47.2 & \underline{51.5} & 39.8 & \underline{49.2} & 42.0 & 35.2 & \textbf{71.6} & 33.5 & 24.0 & \underline{41.2} & 30.1 & 26.7 & \textbf{70.7} \\
+        & RynnBrain-Grounding & 74.4 & \underline{77.0} & 76.7 & 72.4 & \textbf{82.8} & \underline{72.9} & 68.8 & 72.5 & 59.3 & \textbf{74.2} & 57.8 & \underline{51.6} & 33.1 & \textbf{54.3} & 31.1 & 45.5 \\
+        & MMSIBench & \textbf{41.8} & 33.0 & 31.4 & 32.3 & \underline{40.8} & 36.2 & 26.3 & 29.5 & \underline{37.6} & \textbf{38.4} & 30.1 & 32.3 & 28.5 & 28.9 & \textbf{33.7} & \underline{33.2} \\
+        & MMSIVideoBench & 26.1 & \underline{33.8} & 29.6 & 33.6 & \textbf{38.6} & 27.2 & 28.8 & 29.4 & \textbf{39.4} & 28.2 & \underline{30.0} & 24.9 & \underline{25.5} & 23.9 & \textbf{32.5} & 24.5 \\
+        & HealthSurgiBench & \underline{44.5} & 24.4 & \textbf{53.9} & 19.1 & 24.6 & \textbf{56.1} & 23.0 & \underline{46.9} & 20.7 & 23.3 & 24.0 & \textbf{62.1} & 26.0 & \underline{31.3} & 17.3 & 18.3 \\
+        & ERQA & \underline{51.2} & 46.5 & 42.8 & 47.8 & \textbf{65.2} & \textbf{46.0} & 44.0 & \underline{44.2} & 30.2 & 43.0 & 42.0 & \textbf{42.0} & 37.8 & 37.2 & 32.5 & \underline{38.8} \\
+        & RoboSpatialHome & \textbf{70.0} & \underline{65.1} & 64.3 & 63.0 & \underline{65.1} & \underline{66.3} & 64.8 & 64.5 & 42.0 & \textbf{71.4} & 66.1 & \textbf{63.4} & 44.6 & 52.0 & 36.3 & \underline{62.9} \\
+        & Where2Place & \textbf{71.0} & 56.0 & 59.0 & 52.0 & \underline{61.0} & \textbf{64.0} & 53.0 & 50.0 & 17.0 & 11.0 & \underline{58.0} & \textbf{55.0} & 32.0 & \underline{33.0} & 15.0 & 11.0 \\
+        \cmidrule{2-18}
+        & \reasonerAvgCell{\textbf{Robotics Avg.}} & \underline{57.8} & \reasonerAvgCell{52.6} & 55.0 & \reasonerAvgCell{51.0} & \reasonerAvgCell{\textbf{58.2}} & \textbf{55.1} & \reasonerAvgCell{48.5} & 51.3 & \reasonerAvgCell{39.3} & \reasonerAvgCell{\underline{52.4}} & \reasonerAvgCell{47.7} & \textbf{48.3} & \reasonerAvgCell{38.7} & 42.5 & \reasonerAvgCell{33.0} & \reasonerAvgLastCell{\underline{47.6}} \\
+        \midrule
+        \reasonerGroupCell{10}{Smart Infrastructure}{9} & VANTAGE-2DGrounding & \textbf{76.2} & \underline{72.4} & 45.7 & 45.1 & 46.9 & \textbf{75.6} & \underline{73.3} & 66.9 & 10.1 & 67.6 & 59.4 & 49.8 & \textbf{65.1} & \underline{56.3} & 5.5 & 49.2 \\
+        & VANTAGE-Astro2D & \textbf{81.5} & 76.8 & 22.6 & 68.7 & \underline{77.7} & \underline{78.3} & 69.2 & \textbf{81.1} & 58.8 & 10.5 & 57.8 & \textbf{76.7} & 56.6 & \underline{72.5} & 48.4 & 0.0 \\
+        & VANTAGE-2DPointing & 72.9 & 75.6 & 74.0 & \underline{76.8} & \textbf{85.6} & \textbf{74.8} & 68.6 & \underline{68.7} & 43.4 & 64.9 & 55.0 & \textbf{63.0} & 53.1 & 59.7 & 31.7 & \underline{60.3} \\
+        & VANTAGE-DVC & 29.5 & 29.4 & \underline{30.1} & 29.6 & \textbf{30.2} & \underline{31.4} & 29.6 & \textbf{32.5} & 14.3 & 28.4 & 2.2 & \underline{20.9} & 0.8 & \textbf{28.5} & 9.3 & 0.0 \\
+        & VANTAGE-EventVerif & \underline{71.3} & 60.0 & \textbf{73.6} & 55.2 & 67.5 & \textbf{68.9} & 59.4 & \underline{64.1} & 40.6 & 58.9 & 58.0 & \textbf{64.8} & 44.7 & \underline{55.3} & 27.6 & 41.6 \\
+        & VANTAGE-SOT & \underline{62.2} & 44.2 & 33.1 & 54.7 & \textbf{72.7} & \textbf{59.2} & 33.1 & \underline{37.7} & 16.0 & 4.8 & 9.2 & 18.7 & \textbf{29.8} & \underline{26.7} & 11.5 & 4.8 \\
+        & VANTAGE-Temporal & \textbf{51.9} & 46.8 & \underline{50.5} & 33.0 & 41.7 & \textbf{48.0} & 43.3 & \underline{47.3} & 16.9 & 20.1 & 5.9 & \textbf{39.1} & 35.2 & \underline{39.0} & 9.0 & 25.9 \\
+        & VANTAGE-VQA & 69.5 & \textbf{71.3} & 70.3 & 67.0 & \underline{71.2} & \textbf{69.0} & 66.4 & \underline{68.0} & 51.5 & 65.4 & 67.5 & \underline{64.4} & 63.9 & \textbf{64.7} & 46.2 & 62.9 \\
+        & TARBench & \textbf{48.4} & 28.1 & \underline{36.6} & 31.9 & 33.6 & \textbf{43.6} & 31.5 & 34.1 & 12.8 & \underline{34.8} & 32.6 & \underline{34.1} & 32.7 & 26.6 & 8.5 & \textbf{34.2} \\
+        \cmidrule{2-18}
+        & \reasonerAvgCell{\textbf{Smart Infra. Avg.}} & \textbf{62.6} & \reasonerAvgCell{56.1} & 48.5 & \reasonerAvgCell{51.3} & \reasonerAvgCell{\underline{58.6}} & \textbf{61.0} & \reasonerAvgCell{52.7} & \underline{55.6} & \reasonerAvgCell{29.4} & \reasonerAvgCell{39.5} & \reasonerAvgCell{38.6} & \textbf{47.9} & \reasonerAvgCell{42.4} & \underline{47.7} & \reasonerAvgCell{22.0} & \reasonerAvgLastCell{31.0} \\
+        \midrule
+        \reasonerGroupCell{4}{Driving}{3} & LingoQA & \textbf{76.8} & 66.4 & 70.0 & 57.2 & \underline{71.2} & \underline{71.4} & 68.4 & \textbf{71.6} & 24.2 & 60.4 & 70.4 & \underline{58.4} & \textbf{59.2} & 58.2 & 19.0 & 50.2 \\
+        & AVSpecialCollision & \textbf{79.3} & 37.3 & \underline{77.3} & 32.3 & 54.0 & \textbf{79.0} & 34.0 & \underline{74.0} & 33.3 & 33.7 & 37.3 & \underline{66.7} & 36.3 & \textbf{74.3} & 33.7 & 33.3 \\
+        & AVSpecialStopBehavior & \textbf{81.6} & 18.4 & \underline{69.4} & 20.4 & 16.3 & \textbf{77.5} & 36.7 & \underline{59.2} & 20.4 & 36.7 & 42.9 & \textbf{53.1} & 32.6 & 34.7 & 20.4 & \underline{36.7} \\
+        \cmidrule{2-18}
+        & \reasonerAvgCell{\textbf{Driving Avg.}} & \textbf{79.3} & \reasonerAvgCell{40.7} & \underline{72.2} & \reasonerAvgCell{36.6} & \reasonerAvgCell{47.2} & \textbf{76.0} & \reasonerAvgCell{46.4} & \underline{68.3} & \reasonerAvgCell{26.0} & \reasonerAvgCell{43.6} & \reasonerAvgCell{50.2} & \textbf{59.4} & \reasonerAvgCell{42.7} & \underline{55.7} & \reasonerAvgCell{24.4} & \reasonerAvgLastCell{40.1} \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table*}

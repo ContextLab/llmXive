@@ -1,0 +1,257 @@
+\section{Synthetic Dataset for Generator Training}
+\label{appendix:sdg_datasets}
+
+This appendix provides detailed descriptions of each synthetic data generation (SDG) dataset used in the generator mid-training, the distribution of the SDG datasets with respect to the pre-training video dataset, and a detailed ablation study with these SDG datasets in Cosmos 3 training. \Cref{tab:sdg_overview} summarizes the scale and provided modalities across the five datasets, with URL links to Hugging Face datasets; per-dataset cards follow.
+
+\input{tables/data/sdg/sdg_overview}
+
+% ---------------------------------------------------------------
+\subsection{SDG-PhyxSim}
+\label{appendix:sdg_phyxsim}
+
+\input{figures/data/video/sdg_phyxsim}
+
+\paragraph{Overview.}
+\label{appendix:sdg_phyxsim_overview}
+SDG-PhyxSim (PhysicsAI-WorldModel-Synthetic-Physical-Interaction-Scenes) is a large-scale synthetic video dataset of physically simulated
+multi-object interaction scenes, designed to expose Cosmos 3 to dense,
+ground-truthed rigid-body dynamics that are difficult to obtain from real
+video. Every simulation run is captured from four fixed camera viewpoints
+simultaneously, yielding four synchronized 5--8\,s, $1920{\times}1080$,
+30\, FPS clips per run, each paired with per-frame instance segmentation,
+lossless metric depth, and structured per-object physics annotations
+(linear velocity, angular velocity, center-of-mass displacement, cumulative
+rotation) read directly from the simulator at render time. The release
+covers ten procedurally parameterized scene families
+(\texttt{dominoes}, \texttt{ball\_mixer}, \texttt{bowling}, \texttt{billiards},
+\texttt{towers}, \texttt{wrecking\_ball}, \texttt{objects\_falling},
+\texttt{rolling\_ramp\_objects}, \texttt{rolling\_ramp\_obstruct}, and
+\texttt{obstruction}), each chosen to exercise a distinct class of physical
+phenomena---cascading impact chains, multi-body mixing, ballistic
+trajectories, constrained-pendulum dynamics, freefall and settling,
+gravity-driven rolling, mid-path deflection, object permanence, and
+concurrent multi-directional collisions.
+
+\paragraph{Simulation setup.}
+\label{appendix:sdg_phyxsim_simulation_setup}
+SDG-PhyxSim is generated with NVIDIA Isaac Sim~\citep{nvidia_isaac_sim_2026} using the PhysX rigid-body
+engine, and captured with NVIDIA Omniverse
+Replicator. Each scene is authored as a self-contained USD asset whose
+geometry, material bindings (with physical properties), initial poses,
+kinematic constraints, and randomization parameters are fully captured in a
+single \texttt{.usda} file, so any clip can be replayed exactly in Isaac Sim
+from its scene file alone. Simulation accuracy is set high---16 PhysX
+substeps per rendered frame for stable collision resolution---and a short
+warmup phase ($0.01$\,s at $0.001$\,s/step) is run before capture to settle
+objects into a quiescent initial state. Every clip is keyed by a
+\texttt{(scene\_name, scene\_hash, seed)} triple; the integer seed
+deterministically controls all randomized scene parameters (object counts,
+sizes, masses, materials, spacings, initial velocities).
+
+\paragraph{Scenes.}
+\label{appendix:sdg_phyxsim_scenes}
+The ten scene families and their target phenomena are:
+\begin{itemize}
+    \item \texttt{dominoes}: sequential momentum transfer in a curved chain,
+    \item \texttt{ball\_mixer}: persistent multi-body mixing under a rotating paddle, $8$\,s clips,
+    \item \texttt{bowling}: directed rolling impact into a pin formation,
+    \item \texttt{billiards}: elastic multi-ball collisions with spin transfer on a bumpered table,
+    \item \texttt{towers}: structural collapse of stacked block arches under a projectile,
+    \item \texttt{wrecking\_ball}: constrained pendulum dynamics and high-impulse demolition of cubes,
+    \item \texttt{objects\_falling}: freefall, impact, bounce, settling of mixed props,
+    \item \texttt{rolling\_ramp\_objects}: rolling and rotational inertia down an angled ramp,
+    \item \texttt{rolling\_ramp\_obstruct}: the ramp scene with static obstacles for mid-path deflection and object permanence,
+    and
+    \item \texttt{obstruction}: multi-directional rolling balls through a field of static pins, with ricochets and pin-occluded object permanence.
+\end{itemize}
+Per seed, ball diameter, initial velocity, paddle RPM, enclosure size, object count, material assignments, ramp angle, and obstacle layout are randomized.
+
+\paragraph{Dataset statistics.}
+\label{appendix:sdg_phyxsim_dataset_statistics}
+The SDG-PhyxSim release comprises 76{,}489 independent simulation
+runs. Most scenes produce $5$\,s ($150$-frame) clips; \texttt{ball\_mixer}
+produces $8$\,s ($240$-frame) clips. All clips are rendered at
+$1920{\times}1080$ and $30$\,fps, yielding approximately $57$\,M RGB frames.
+Each run is captured from four fixed cameras whose names vary by scene
+family---for example, \texttt{Front}, \texttt{Side}, \texttt{TopDown},
+and \texttt{Corner} for the \texttt{wrecking\_ball} scene. The release totals 1{,}529{,}752 rendered MP4 files (RGB plus
+physics-colorized variants), 346{,}147 depth videos, and
+47{,}073{,}033 per-frame segmentation PNGs, with aggregate storage of
+${\sim}14.9$\,TiB dominated by lossless depth video.
+
+\paragraph{Metadata and annotations.}
+\label{appendix:sdg_phyxsim_metadata_annotations}
+In addition to the modalities listed in~\cref{tab:sdg_overview}, every camera of every run provides:
+\begin{itemize}
+    \item \textit{Dynamic per-object physics (NPZ).} Four files per camera---linear velocity (m/s), angular velocity (deg/s), cumulative rotation (rad), and center-of-mass displacement (m)---each an (\texttt{objects}\,$\times$\,\texttt{frames}\,$\times$\,$3$) tensor indexed by segmentation color, with per-axis bounds used to normalize the physics-colorized videos.
+    \item \textit{Static per-object physics (JSON).} World gravity, and per-rigid-body mass, diagonal inertia tensor, body-frame center of mass, principal-axes quaternion, static and dynamic friction, restitution, density, and collision flag, keyed by USD prim path and segmentation color.
+    \item \textit{Physics-colorized videos.} Per-camera, per-quantity MP4s in which each object's color encodes its instantaneous physics state (red\,=\,X, green\,=\,Y, blue\,=\,Z; stationary objects gray; saturation grows with magnitude), normalized to the NPZ bounds so the same color maps to the same physical magnitude within a clip (see~\cref{fig:sdg_phyxsim_modalities}).
+    \item \textit{Scene file (USD).} The self-contained \texttt{.usda} used to produce the run, replayable exactly in Isaac Sim.
+\end{itemize}
+Metric depth is encoded as a 16-bit FFV1 MKV per camera, with the per-camera quantization ceiling $d_{\max}$ and observed range recorded in \texttt{depth\_metadata.json}, so metric depth recovers as $d = (v/65535)\,d_{\max}$ (the value $65535$ marks invalid depth). Instance segmentation PNGs ship with a color$\rightarrow$USD-prim-path mapping for cross-frame identity, and the per-frame camera JSON records intrinsics, extrinsics, FOV, elevation, and gravity orientation. All annotations are produced deterministically from the simulator and USD scene graph.
+
+% ---------------------------------------------------------------
+\subsection{SDG-RobotSim}
+\label{appendix:sdg_robotsim}
+
+\paragraph{Overview.}
+\label{appendix:sdg_robotsim_overview}
+PhysicalAI-WorldModel-Synthetic-Embodied-Robot-Scenes, abbreviated here as SDG-RobotSim, is a fully synthetic robotics video corpus for Cosmos training. It is designed to improve physical plausibility, embodiment persistence, contact understanding, long-horizon robot video modeling, and action-conditioned reasoning. The public v1.0 release contains 386{,}270 RGB MP4 clips across collision, manipulation, and humanoid motion. Rather than modeling one platform exhaustively, the release covers mobile robots, quadrupeds, humanoids, fixed-base manipulators, bimanual systems, and dexterous hand-arm embodiments. An overview of the dataset composition is shown in~\cref{fig:sdg_robotsim_dataset_overview}.
+
+\input{figures/data/video/sdg_robotsim}
+
+\paragraph{Generation pipelines.}
+\label{appendix:sdg_robotsim_generation_pipelines}
+\label{appendix:sdg_robotsim_simulation_setup}
+SDG-RobotSim is generated from USD-based simulation and rendering pipelines built around NVIDIA Isaac Sim, Omniverse, Isaac Lab, and related robot data-generation systems~\citep{nvidia_isaac_sim_2026,nvidia_gr00t_mimic_blueprint_2026}. The release combines collision clips from IsaacLab and MobilityGen~\citep{nvidia_mobilitygen_2026}, manipulation clips from DreamZero~\citep{ye2026dreamzero}, MimicGen/DexMimicGen~\citep{mandlekar2023mimicgen,jiang2025dexmimicgen}, and Simulario/DextrAH~\citep{nvidia_dextrah_2026}, and SOMA humanoid motion clips across SAGE \citep{xia2026sage} and SceneSmith scene sources. The generation loop defines physics-grounded scenarios, randomizes assets and environments, renders synchronized camera views, attaches simulator-derived metadata, and scales through distributed rendering and indexing; curation uses rule-based filters, metadata checks, duplicate motion-sequence removal, and VLM-assisted critique for visible simulation artifacts.
+
+\paragraph{Dataset statistics.}
+\label{appendix:sdg_robotsim_dataset_statistics}
+The public v1.0 release contains 386{,}270 RGB MP4 clips in 389 WebDataset shards. Motion is the largest family, with 170{,}735 SOMA clips (44.20\%); manipulation contains 110{,}115 clips (28.51\%); and collision contains 105{,}420 clips (27.29\%). By source group, the release contains 170{,}735 SOMA motion clips, 103{,}340 IsaacLab collision clips, 80{,}162 MimicGen manipulation clips, 22{,}926 DreamZero manipulation clips, 16{,}384 Simulario manipulation clips, and 2{,}080 MobilityGen clips. The SOMA subset contains 37{,}709 curated motion groups and is organized under SAGE and SceneSmith branches, each with AgiBot A3, Unitree G1, and Unitree H2 robot families.
+
+\paragraph{Metadata and annotations.}
+\label{appendix:sdg_robotsim_metadata_annotations}
+Each clip includes RGB video and release metadata covering task family, generator family, embodiment, scene identifier, task text or motion name, camera setup, frame rate, clip length, and available simulator state. Generator-specific metadata may additionally include robot pose, joint state, end-effector state, object pose, contact tags, and task success flags. Captions are generated from RGB clips and simulator metadata where available.
+
+\subsection{SDG-DriveSim}
+\label{appendix:sdg_drivesim}
+
+\paragraph{Overview.}
+\label{appendix:sdg_drivesim_overview}
+Real-world driving video is abundant but structurally biased: it oversamples nominal cruising and undersamples the safety-critical, long-tail interactions that matter most for autonomy and for stress-testing world models. SDG-DriveSim (PhysicsAI-WorldModel-Synthetic-Autonomous-Driving-Scenarios) is a large-scale synthetic video dataset of autonomous-driving scenes generated with NVIDIA Omniverse simulation platform, designed to fill this gap along two axes that real fleet data cannot easily provide. Each clip is a temporally consistent multi-camera surround capture of one ego vehicle and surrounding traffic participants, paired with per-camera VLM captions.
+
+\paragraph{Targeted long-tail coverage.} The dataset is built around scenario families that are explicitly rare or hard to capture in real data---emergency-vehicle interactions, nudging around parked obstacles, cut-ins from adjacent lanes, weather-degraded visibility, and pedestrian crossings with non-standard trajectories. Because scenarios are authored declaratively from natural-language prompts via the Scenario Agent rather than mined post-hoc from driving logs, we can produce many permutations of the same corner case at controllable density.
+
+\paragraph{Environment variation.} Each authored scenario is expanded into deterministic permutations over time of day, cloud coverage, visibility, road material, and vehicle and pedestrian asset choices. The same underlying interaction is thus observed under varied environmental conditions, helping models separate scene content from environment.
+
+\input{figures/data/video/sdg_drivesim}
+
+\paragraph{Simulation setup.}
+\label{appendix:sdg_drive_simulation_setup}
+SDG-DriveSim is generated with an agentic scenario-generation pipeline built on OpenUSD: an LLM-backed scenario agent converts a natural-language prompt into a runnable USD world configuration, which the simulator then renders and re-runs across deterministic permutations to produce a batch of clips per prompt. Each scenario instantiates a map (urban, highway, intersection, oval, or test-track), weather and time-of-day condition, camera rig, ego vehicle, and a configurable set of traffic agents and pedestrians with assigned behaviors (drive, follow trajectory, lane change, cut-in, nudge, pull over, pedestrian animation). Two camera rigs are used: a forward-biased 4-camera rig (120\textdegree~front-wide, 30\textdegree~front-tele, plus two 70\textdegree~rear-corner cameras) and a 7-camera rig extending the same set with three 200\textdegree~fisheye cameras (left, right, rear) for 360\textdegree~wraparound coverage. Each authored scenario is expanded into up to ten deterministic permutations over time of day, cloud coverage and visibility, road material, and vehicle and pedestrian asset choices.
+
+\paragraph{Dataset statistics.}
+\label{appendix:sdg_drive_dataset_statistics}
+The current SDG-DriveSim release contains 264{,}000 clips totaling
+approximately 1{,}467 hours of video, rendered at 4K (3840$\times$2160) and
+24\,fps with per-clip durations of approximately 20\,s, corresponding to
+roughly 127 million RGB frames. Clips are distributed across seven scenario families: vehicle cut-in (32.9\%),
+vehicle--pedestrian (21.1\%), vehicle lane change (12.9\%), pedestrian (12.4\%),
+vehicle weather degradation (9.2\%), vehicle nudging (8.8\%), and emergency
+vehicle (2.7\%). The release draws on
+9 unique driving maps, 10 vehicle asset categories,
+8 pedestrian assets, and 3 pedestrian animation variations,
+with one to nine traffic vehicles and pedestrians per scene.
+
+\paragraph{Metadata and annotations.}
+\label{appendix:sdg_drive_metadata_annotations}
+The dataset is partitioned by scenario category, with separate \path{video/} and \path{description/} subfolders. Each clip yields one (video, caption) pair per camera of the surround rig: H.264-encoded RGB at 24\,fps, plus a per-camera caption file containing frame rate, frame count, and a list of time-windowed natural-language captions (\texttt{t2w\_windows} entries as \texttt{(start\_frame, end\_frame, caption)}). Clip-level scene metadata records \texttt{weather}, \texttt{time\_of\_day}, \texttt{surface\_type}, and \texttt{region}.
+
+% ---------------------------------------------------------------
+\subsection{SDG-SynHuman}
+\label{appendix:sdg_synhuman}
+
+\paragraph{Overview.}
+\label{appendix:sdg_synhuman_overview}
+SDG-SynHuman (PhysicsAI-WorldModel-Synthetic-Digital-Human-Scenes) is a large-scale synthetic video dataset of digital humans rendered in diverse 3D environments, supplying the dense geometric supervision (per-frame metric depth and camera intrinsics/extrinsics) that real-world human video rarely provides. Clips are temporally consistent at 60--120\,s with 1--9 humans per scene, sampled across diverse human appearances, animations, indoor and outdoor environments, lighting conditions, and camera trajectories. Per-frame camera parameters are produced deterministically from the underlying scene graph, so camera pose can serve as both an input conditioning signal and a prediction target, supporting world model pre-training, camera-motion generalization, depth-aware learning, and human-scene interaction modeling.
+\input{figures/data/video/sdg_synhuman}
+
+\paragraph{Simulation setup.}
+\label{appendix:sdg_synhuman_simulation_setup}
+SDG-SynHuman is generated with NVIDIA's internal SDG pipeline, built on the NeMo Agent Toolkit, Omniverse, OpenUSD, and an internal orchestration backend. The pipeline converts high-level scenario specifications into structured world configurations that define the environment, lighting, digital humans, animations, camera model, camera trajectory, and requested ground-truth outputs. Each scenario instantiates one 3D environment, one lighting condition, one camera, and multiple digital humans, with each character assigned an animation sequence and scene placement.
+
+Camera behavior is controlled through a motion configuration that combines one primary camera motion, such as static, tracking, fly-through, arc/orbit, egocentric, zig-zag, or bird's-eye motion, with optional secondary motion layers such as shake, drift, breathing sway, dutch angle, zoom, crab, or tilt. Temporal remapping and velocity profiles, including ease-in-out and procedurally sampled custom curves, are used to vary motion pacing and acceleration while maintaining temporally coherent clips. Digital human selection, animation, camera behavior, and scene composition are sampled per scenario from the world configuration to produce broad variation across human appearance, motion, scene context, and camera trajectories.
+
+Environment assets include internal NVIDIA scenes, indoor scenes adapted from the SceneSmith example-scenes dataset \citep{pfaff2026scenesmith}, and outdoor city environments generated with The City Generator Blender plugin \citep{durr2026citygenerator}. During rendering, the simulator produces RGB video together with metric depth and per-frame camera calibration directly from the underlying USD scene, enabling deterministic camera and geometry supervision without manual labeling.
+
+\paragraph{Dataset statistics.}
+\label{appendix:sdg_synhuman_dataset_statistics}
+The final SDG-SynHuman release contains 236{,}937 clips totaling 5{,}841 hours of video. Clips are rendered at 1080p and 30 fps, with durations between 60 and 120 seconds and an average duration of approximately 88.8 seconds. This corresponds to roughly 631 million RGB frames, with paired metric depth frames and camera parameters generated at the same temporal resolution.
+
+The dataset spans 4{,}050 unique digital human assets, 8{,}184 unique animations, 198 indoor environments, 200 outdoor city environments, and 14 camera-motion scenarios including static, flythrough, tracking, arc, egocentric, zig-zag, bird's eye, tilt, shake, drift, breathing sway, dutch angle, zoom, and crab. Each scenario contains one 3D environment, one lighting condition, one camera trajectory, and one to nine digital humans, providing broad variation across human appearance, animation, scene context, and camera motion. The statistics of camera motion in this dataset are summarized in ~\cref{tab:synhuman_primary_motion} and ~\cref{tab:synhuman_secondary_motion}.
+
+\input{tables/data/sdg/sdg_synhuman}
+
+
+\paragraph{Metadata and annotations.}
+\label{appendix:sdg_synhuman_metadata_annotations}
+The dataset is delivered in 1{,}215 tar shards under \path{shards/}, each bundling 200 samples. Per sample (keyed by UUID): RGB as H.264 in \path{video/uuid.mp4}; FFV1 lossless 1080p depth in \path{depth/uuid.mkv} with a companion JSON recording depth range, resolution, frame rate, and dtype for metric reconstruction; per-frame camera data in \path{meta/uuid_camera.json}; scene-level metadata in \path{metas/uuid.json} (environment, lighting, agents, camera configuration, animation tasks); and asset-level metadata in \path{description/uuid.json} (spawned inventory, motion assets, placements, provenance). All annotations are generated deterministically from the USD scene graph. ~\cref{fig:synhuman_samples1} shows sample RGB and depth outputs, for both the exterior and interior views.
+
+
+
+% ---------------------------------------------------------------
+\subsection{SDG-Warehouse}
+\label{appendix:sdg_warehouse}
+
+\paragraph{Overview.}
+SDG-Warehouse (PhysicsAI-WorldModel-Synthetic-Warehouse-Operation-Scenes) is a synthetic video dataset of indoor industrial-safety events rendered in fully simulated warehouse environments. Real surveillance footage of these events is rare, hard to release at scale, and seldom carries the kind of dense ground truth that physical-AI training benefits from, so we generate it in simulation, where the event is guaranteed to happen, every parameter is controllable, and every frame is paired with deterministic per-pixel and per-object annotations. The release covers four representative scenarios---a forklift--human near-miss (23\%), a warehouse fire with worker evacuation (36\%), a forklift--shelf collision (20\%), and a warehouse box-pickup action (21\%)---totaling ${\sim}123$K clips ($\sim$412 hours of video) at $1920{\times}1080$ and $30$\,fps, with multiple synchronized camera viewpoints per simulation run.
+
+\paragraph{Common simulation infrastructure.}
+All four scenarios are built on NVIDIA Isaac Sim. Procedural scene composition---warehouse layout, shelf placement, prop variation, and per-light randomization of color temperature, intensity, exposure, and color---is handled by Isaac Sim Replicator Object (IRO). Agent and sensor population---worker spawning and behavior, forklift placement and navigation, and the camera rigs that define the dataset's multi-view viewpoints---is handled by Isaac Sim Replicator Agent (IRA). Camera placement is parametric, with height, distance, and look-down angle sampled per run, and worker assets and motions are sampled from Isaac Sim's character library to diversify human appearance and gait. Each simulation run is seeded with a unique random seed that controls all randomized variables (scene composition, lighting, agent identity and motion, camera pose, and event timing), so runs are independent and reproducible.
+
+\paragraph{Annotation schema.}
+Each camera viewpoint provides an H.264 RGB clip with synchronized per-frame annotations: metric depth (raw plus log-normalized colorized variant); instance segmentation (per-pixel IDs traceable to specific simulated objects, with a colorized variant); shaded segmentation (3D-aware rendering with normal-based shading); a Canny edge map computed on the shaded segmentation; 2D tight and loose axis-aligned bounding boxes plus 3D oriented bounding boxes for every tracked agent and prop; and per-frame camera intrinsics and extrinsics. Each annotation stream is also released as an encoded video alongside the RGB clip. Run-level structured metadata records scenario type, random seed, asset and agent inventory, event parameters (e.g., forklift dodge distance, fire ignition location, exit waypoints), and lighting randomization. \Cref{fig:sdg_warehouse_modalities} shows the modalities for one frame per scenario.
+
+\input{figures/data/video/sdg_warehouse_modalities}
+
+
+% ---------------------------------------------------------------
+\subsection{Distribution of SDG Datasets}
+\label{appendix:sdg_distribution}
+
+\input{figures/data/video/sdg_pretrain_umap}
+
+To verify that synthetic content is genuinely complementary to the pre-training corpus, we analyze its position in the Cosmos-Embed1 video embedding space relative to clusters from the pre-training distribution. \cref{fig:sdg_pretrain_umap} visualizes the joint geometry of pre-training and SDG embeddings, while~\cref{tab:sdg_pretrain_dist} quantifies the distance from each SDG source to the pre-training manifold using an in-distribution self-reference as a baseline. Together, these results show that SDG occupies long-tail regions of the embedding space that are not sufficiently covered by web-scale pre-training alone.
+
+% ---------------------------------------------------------------
+\subsection{Ablation Study: Impact of SDG Datasets}
+\label{appendix:sdg_ablation}
+
+We study how different synthetic data generation (SDG) sources affect video generation quality and domain understanding by fine-tuning our pre-trained model (Cosmos3-Nano) on each source individually and jointly. We evaluate all variants using PAIBench-G T2V benchmark~\citep{zhou2025paibench}, which reports an overall score, a perceptual Quality score, and six domain-specific sub-scores: Common Sense, AV (autonomous vehicles), Robot,
+Industry, Human, and Physics. Results are summarized in~\cref{tab:sdg_ablation}.
+
+\input{tables/results/sdg_ablation}
+
+\paragraph{Domain-specific improvements.}
+A consistent pattern across all SDG variants is that each source lifts
+\emph{different} domain-specific scores, reflecting the unique content
+distribution of each simulator.
+SDG-DriveSim yields the largest
+gain in the Robot domain ($+0.89$) and a strong Common Sense improvement
+($+0.52$), reflecting the rich structured dynamics of driving scenarios.
+SDG-RobotSim improves perceptual Quality most among all sources ($+0.26$) and
+moderately lifts the Robot score ($+0.23$). SDG-Warehouse provides broad
+positive deltas across Overall, Domain, AV ($+0.29$), and Physics ($+0.21$),
+while maintaining strong in Robot ($+0.60$). SDG-PhyxSim delivers the
+largest single-domain gain: a $+0.85$ uplift in Industry and a $+0.80$ gain in
+Robot, driven by its physics-grounded industrial and manipulation content.
+SDG-SynHuman is the standout individual source, posting the best overall score
+($79.79$) with the highest positive deltas in Domain ($+0.29$), Common Sense
+($+0.66$), AV ($+0.47$), and Robot ($+1.23$). The breadth of human-centric synthetic content appears to
+provide a strong general-purpose signal that transfers across multiple
+evaluation domains.
+
+\paragraph{Sim-to-real gap and domain trade-offs.}
+The most consistent pattern of degradation across all SDG sources is the Human
+domain score, which drops in every single variant without exception---ranging
+from $-0.38$ (SDG-SynHuman) to $-0.69$ (SDG-PhyxSim). Notably, even
+SDG-SynHuman, which is specifically built from synthetic human-centric scenes,
+fails to recover this score. This suggests that the sim-to-real gap is
+particularly pronounced for human-related visual content: current simulators do
+not yet replicate the subtle appearance, motion, and behavioral nuances of real
+humans with sufficient fidelity to benefit this evaluation domain. More broadly,
+domain-specialized sources can also degrade orthogonal categories---SDG-RobotSim
+hurts AV ($-1.03$) and Industry ($-1.22$), while SDG-PhyxSim's physics emphasis
+comes with notable AV degradation ($-1.42$)---underscoring the need to mix
+sources rather than rely on any single simulator.
+
+
+\paragraph{Combined SDG-All achieves broad and balanced gains.}
+Mixing all SDG sources (SDG-All) yields uniformly positive deltas across eight
+of nine metrics, with only Human showing a residual dip ($-0.47$), consistent
+with the sim-to-real gap observed above. It achieves the best Quality score
+($72.56$) and consistent improvements across all other domain categories,
+demonstrating that data diversity suppresses individual source biases. Based on
+these results, our final model incorporates the SDG datasets \emph{together with real, high-quality videos} during a dedicated mid-training stage. This design allows the model to absorb the domain-specific physical
+understanding encoded in synthetic data while retaining the perceptual fidelity
+and visual realism it acquired from real footage in pre-training.

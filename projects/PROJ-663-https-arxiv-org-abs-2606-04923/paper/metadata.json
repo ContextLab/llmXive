@@ -1,0 +1,48 @@
+{
+  "arxiv_id": "2606.04923",
+  "arxiv_url": "https://arxiv.org/abs/2606.04923",
+  "title": "https://arxiv.org/abs/2606.04923",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #279",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/THUAIS-Lab/CHERRL"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "acl_latex.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_latex.tex",
+    "acl_natbib.bst",
+    "acl.sty",
+    "custom.bib",
+    "figures",
+    "figures/budget_run_a_onset.png",
+    "figures/budget_run_b_onset.png",
+    "figures/budget_run_c_onset.png",
+    "figures/budget_run_d_onset.png",
+    "figures/budget_run_e_onset.png",
+    "figures/budget_run_f_onset.png",
+    "figures/case_tool_timeline.png",
+    "figures/combined_grid",
+    "figures/combined_grid/A.pdf",
+    "figures/combined_grid/B.pdf",
+    "figures/combined_grid/C.pdf",
+    "figures/combined_grid/D.pdf",
+    "figures/combined_grid/E.pdf",
+    "figures/combined_grid/F.pdf",
+    "figures/combined_grid/G.pdf",
+    "figures/combined_grid/H.pdf",
+    "figures/figure1.pdf",
+    "figures/main_figure.pdf",
+    "latex",
+    "latex/acl.sty",
+    "latex/acl_natbib.bst",
+    "latex/custom.bib"
+  ]
+}

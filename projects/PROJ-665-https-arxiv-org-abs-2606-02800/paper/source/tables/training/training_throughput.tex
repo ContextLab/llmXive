@@ -1,0 +1,16 @@
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Steady-state training throughput for Cosmos 3 dense model configurations.} TFLOPS and MFU are reported per GPU. Image and video token throughput are reported separately in millions of tokens per GPU-hour. The experiments were conducted with NVIDIA GB200 GPUs, where the Nano and Super runs took 2048 and 4096 GPUs, respectively.}
+    \label{tab:training_throughput}
+    \setlength{\tabcolsep}{5pt}
+    \resizebox{0.9\linewidth}{!}{%
+    \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Model} & \textbf{Iter (s)} & \textbf{TFLOPS} & \textbf{MFU} & \textbf{Iter/hr} & \textbf{Img Tok/hr/GPU (M)} & \textbf{Vid Tok/hr/GPU (M)} \\
+        \midrule
+        \textbf{Cosmos3-Nano}  &  7.1 & 520 & 0.23 & 507 & 4.56 & 16.23 \\
+        \textbf{Cosmos3-Super} & 19.5 & 673 & 0.30 & 185 & 1.66 &  5.91 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

@@ -1,0 +1,33 @@
+\begin{table*}[t]
+    \centering
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{\textbf{PAIBench-G and RBench results, across Text-to-Video and Image-to-Video settings.} PAIBench-G evaluates visual quality and domain-specific accuracy across six Physical AI domains while RBench evaluates task correctness and physical plausibility in embodied robotics scenarios. \textbf{Cosmos3-Super} achieves the highest overall scores on both PAIBench-G T2V and I2V among open-source models, while \textbf{Cosmos3-Nano} leads on RBench. \textbf{Bold} indicates the winner in the column and \underline{underline} indicates the second best.}
+    \label{tab:paibench_rbench_results_combined}
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{l l | ccc | ccc | c}
+        \toprule
+        & & \multicolumn{3}{c}{\textbf{PAIBench-G Text2Video ($\uparrow$)}} & \multicolumn{3}{c}{\textbf{PAIBench-G Image2Video ($\uparrow$)}} & \textbf{RBench Image2Video ($\uparrow$)} \\
+        \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule{9-9}
+        \textbf{Model} & \textbf{Type} & \textbf{Overall} & \textbf{Domain} & \textbf{Quality} & \textbf{Overall} & \textbf{Domain} & \textbf{Quality} & \textbf{Score} \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} & Open-source & \textbf{80.0} & \textbf{86.8} & \underline{73.1} & \textbf{82.8} & \underline{87.3} & \textbf{78.2} & 58.1\% \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano}  & Open-source & \underline{79.4} & \underline{85.8} & 73.0 & \underline{82.7} & 87.2 & \underline{78.1} & \underline{58.4}\% \\
+        \midrule
+        Wan2.2-A14B                   & Open-source & 78.0 & 83.2 & 72.8 & 81.3 & 85.3 & 77.3 & 50.7\% \\
+        HunyuanVideo-1.5              & Open-source & 76.5 & 80.9 & 72.0 & 81.7 & 85.9 & 77.6 & 46.0\% \\
+        Cosmos-Predict2.5-2B   & Open-source & 76.5 & 79.9 & \textbf{73.2} & 81.2 & 84.6 & 77.9 & 46.4\% \\
+        Cosmos-Predict2.5-14B  & Open-source & 76.4 & 79.5 & \textbf{73.2} & 81.1 & 84.0 & \underline{78.1} & ---  \\
+        Wan2.1-14B                    & Open-source & 76.4 & 80.1 & 72.7 & 80.2 & 83.6 & 76.8 & ---  \\
+        Wan2.2-5B                     & Open-source & 76.3 & 79.6 & 73.0 & 81.0 & 84.6 & 77.4 & ---  \\
+        \midrule
+        Veo-3.1                       & Closed-source   & 79.1 & 85.2 & 72.9 & 82.6 & \textbf{87.6} & 77.6 & 56.3\% \\
+        Seedance-1.5-Pro              & Closed-source   & 76.9 & 82.1 & 71.6 & 80.8  & 84.7  & 76.9  & \underline{58.4}\% \\
+        Wan 2.6                       & Closed-source & 78.6 & 85.2 & 72.0 & 81.9 & 85.9 & 77.8  & \textbf{60.7\%}\\
+        \bottomrule
+    \end{tabular}
+    \vspace{-0.5\baselineskip}
+\end{table*}

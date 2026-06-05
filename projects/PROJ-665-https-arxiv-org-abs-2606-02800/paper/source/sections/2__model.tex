@@ -1,0 +1,178 @@
+\section{Model Architecture}
+\label{sec::model}
+
+Cosmos 3 is capable of processing multimodal inputs and generating multimodal outputs. Beyond language, vision (image and video), and audio, Cosmos 3 treats action as a core modality, introducing a dedicated class of action tokens. These action tokens bridge the physical world with language-based reasoning and video-based world modeling, linking directly to physically grounded control signals for real-world interaction. Cosmos 3 integrates modality-specific encoders to project different modalities into a unified representation space, which is then processed by a Mixture-of-Transformers (MoT) backbone. During inference, language tokens are generated via next-token prediction, while other modalities are generated through iterative denoising.
+
+\subsection{Encoders}
+Given an input sequence of language, vision, audio, and action, the first step is to embed them into a unified representation space using modality-specific encoders. To enable the shared transformer parameters and positional embeddings to distinguish between different modalities, we add a learnable, modality-specific embedding vector to each non-language modality before feeding it into the MoT backbone.
+
+\subsubsection{Image and Video}
+We adopt two separate encoders for visual input. For visual understanding, we use a ViT encoder pre-trained with vision-language alignment. For visual generation, we use the video VAE encoder from Wan2.2-TI2V-5B~\citep{wan2025}. The ViT encoder has a $16\times16$ patch size, followed by a two-layer MLP that merges $2\times2$ tokens and projects them into the latent space of the transformer. Following Qwen3-VL~\citep{qwen3vl2025}, we also aggregate visual features from ViT via DeepStack~\citep{meng2024deepstack} and insert text–based video timestamps interleaved with video frames~\citep{chen2024timemarker}. The VAE compresses the input video temporally by $4\times$ and spatially by $32\times32$, implemented as $16\times16$ spatial compression followed by a $2\times2$ patch merge. We use a linear layer to project each VAE token into the transformer's hidden dimension before feeding the latents into the MoT backbone. The ViT encoder for understanding is jointly trained with the backbone, while the VAE encoder for generation is kept frozen during training.
+
+\subsubsection{Audio}
+For audio generation, we adopt the audio VAE architecture from~\citet{lee2024etta}. The raw stereo audio sampled at 48\,kHz is encoded with a hop size of 1920 samples, resulting in 25 tokens per second of audio. The audio VAE is frozen during training. As with the other non-text modalities, audio tokens are projected into the transformer's hidden dimension using a linear layer before entering the MoT backbone.
+
+\subsubsection{Action}
+\label{sec:action}
+We support action modeling across diverse embodiments, including autonomous vehicles, camera motion, robots, and egocentric human motion (head and hands). Since each domain exposes its own native control space---such as joint trajectories, steering commands, body poses, or camera transformations---we map them into a unified action interface that enables consistent multimodal reasoning, generation, and policy learning across domains.
+
+\paragraph{Action representations.}
+We use actions to denote causal variables that induce changes in the world state.
+Given consecutive video tokens, an action token $\acttok_{t}$ represents the transition from the previous state $\vidtok_{t{-}1}$ to the current state $\vidtok_{t}$.
+Each embodiment source is transformed into a compact representation that captures a shared underlying geometric structure across different action domains, as illustrated in~\cref{fig:action_representation}.
+At a high level, actions can include up to three components: ego poses for the agent's main observation frame, effector poses for the agent's effectors, and grasp states for the manipulation state.
+To avoid embodiment-specific controller details such as Proportional–Integral–Derivative (PID) parameters or low-level actuation interfaces, ego and effector poses are represented as pseudo-actions derived from state differences.
+For consecutive $\mathrm{SE}(3)$ poses $\mathbf{T}_{t-1}$ and $\mathbf{T}_t$, we represent motion as the relative transform $\Delta \mathbf{T}_t = \mathbf{T}_{t-1}^{-1}\mathbf{T}_t$.
+We use the 6D representation following~\citet{zhou2019continuity} and the OpenCV convention for rotations where the z-axis is along the fingers/grippers and x-axis is to the right.
+Grasp states, however, are treated differently: rather than representing temporal differences, they directly encode the current manipulation state at time t.
+
+For cameras and autonomous vehicles, actions are represented by ego poses only, without any effector poses or grasp states. For egocentric data, we use head-camera pose deltas as ego poses, wrist-pose deltas as effector poses, and fingertip positions in each wrist frame as grasp states~\citep{yang2025egovla}. For robotic data, we use head-camera pose deltas as ego poses, end-effector flange-pose deltas as effector poses~\citep{lyu2026lda}, and continuous gripper open/close values as grasp states.
+
+\input{figures/model_architecture/action/action_representation}
+
+\paragraph{Action tokenization.} Our action representation maps diverse embodiments into a shared latent action space while preserving embodiment-specific structure and semantics.
+We therefore use domain-aware input and output projection layers with separate weight matrices for each embodiment domain~\citep{zheng2026xvla}, while sharing the MoT backbone.
+For an input $\mathbf{x} \in \mathbb{R}^{d_{\text{in}}^{(k)}}$, such as an egocentric action vector concatenating the head-pose delta, left and right wrist-pose deltas, and fingertip coordinates, and domain identifier $k \in \{1, \ldots, K\}$, the input projection is:
+\begin{equation}
+    \mathbf{z} = \mathbf{W}_{\mathrm{in}}^{(k)} \mathbf{x} + \mathbf{b}_{\mathrm{in}}^{(k)}
+\end{equation}
+
+where $\mathbf{z} \in \mathbb{R}^{d_{\text{model}}}$ is the latent action token, $\mathbf{x}$ denotes the normalized action vector, and $\mathbf{W}_{\mathrm{in}}^{(k)} \in \mathbb{R}^{d_{\text{model}} \times d_{\text{in}}^{(k)}}$ and $\mathbf{b}_{\mathrm{in}}^{(k)} \in \mathbb{R}^{d_{\text{model}}}$ are the domain-specific input projection matrix and bias.
+
+To decode the tokens back to the original action space, we use a domain-specific output projection:
+\begin{equation}
+    \mathbf{x} = \mathbf{W}_{\mathrm{out}}^{(k)} \mathbf{z} + \mathbf{b}_{\mathrm{out}}^{(k)}
+\end{equation}
+where $\mathbf{W}_{\mathrm{out}}^{(k)} \in \mathbb{R}^{d_{\text{in}}^{(k)} \times d_{\text{model}}}$ and $\mathbf{b}_{\mathrm{out}}^{(k)} \in \mathbb{R}^{d_{\text{in}}^{(k)}}$ are the domain-specific output projection matrix and bias.
+All projection parameters are initialized from scratch and optimized jointly with the MoT backbone.
+We convert the predicted 6D rotation back to a $3\times3$ $\mathrm{SO}(3)$ rotation matrix using singular value decomposition (SVD).
+
+\subsection{Token Arrangement and Generation Mode}
+Cosmos 3 is a unified model that supports various modalities and tasks.
+Different tasks can be formulated as interleaved multimodal sequences, each consisting of a series of segments from different modalities. Given a task, all segments are first encoded into embeddings using the modality-specific encoders described above. Once embedded, tokens from different modalities are packed using a unified format that applies across all tasks, which we describe next.
+
+\subsubsection{Token Arrangement}
+The input token sequence consists of two subsequences: an autoregressive (AR) subsequence followed by a diffusion (DM) subsequence. 
+
+The \textbf{AR subsequence} is responsible for reasoning and understanding. It contains language tokens as well as video and image tokens embedded by the ViT encoder.
+All AR tokens are routed to a dedicated set of parameters in the transformer decoder layers.
+
+The \textbf{diffusion subsequence} follows the AR subsequence and contains video and image tokens from the VAE encoder, as well as audio and action tokens. During generation, the model iteratively denoises the noisy diffusion tokens to produce the corresponding clean tokens. Diffusion tokens are routed to a separate parameter set from that used by AR tokens, while still interacting with AR tokens through joint attention in each of the transformer decoder layers.
+
+For any given task, we apply the same format to arrange these tokens: (1) autoregressive tokens are placed before diffusion tokens; (2) within the diffusion subsequence, for each modality, clean conditioning tokens are placed before noisy diffusion tokens; and (3) within both the conditioning and diffusion subsequence, tokens are ordered by vision, audio, and action modality.
+By using this unified format, Cosmos 3 can support various generation tasks, which we detail below.
+
+
+\subsubsection{Generation Mode}
+\label{sec::generation_mode_def}
+
+Cosmos 3 supports different modalities: language, vision, audio, and action.
+We denote clean vision, audio, and action tokens as $\vidtok$, $\audiotok$, and $\acttok$, respectively, and their noisy counterparts with tildes: $\noisyvidtok$, $\noisyaudiotok$, and $\noisyacttok$.
+Given these modalities, the supported generation modes are listed as follows:
+\begin{itemize}
+    \item \textbf{Language.} For language generation, the input contains only the autoregressive subsequence, and the generation-specific diffusion parameters are not activated. Image and video inputs, if present, are embedded by the ViT encoder and placed in the autoregressive subsequence. In this setting, Cosmos 3 operates like a standard VLM.
+    \item \textbf{Text-to-Image.} In this mode, the autoregressive subsequence contains the language tokens, while the diffusion subsequence contains the noisy target image tokens embedded by the VAE encoder. The entire sequence of tokens becomes:
+    \begin{equation}
+    \mathbf{S}_{\mathrm{T2I}} = [\preseq,\; \noisyvidtok_{1}],
+    \end{equation}
+    where $\preseq \triangleq [\txttokseq, \eostok, \bovtok]$ is the AR prefix shared by all modes below ($\txttokseq$ are the language tokens; $\eostok$ and $\bovtok$ are the end-of-sentence and begin-of-generation special tokens), and $\noisyvidtok_{1}$ is the noisy image token.
+    \item \textbf{Text-to-Video (+Audio).} This mode is similar to Text-to-Image, but the diffusion subsequence contains the noisy target video tokens instead. When audio is (optionally) generated jointly, noisy audio tokens are appended after the noisy vision tokens. In summary, the packed sequence becomes:
+    \begin{equation}
+    \mathbf{S}_{\mathrm{T2V+Audio}} = [\preseq,\; \noisyvidtok_{1:N},\; \noisyaudiotok],
+    \end{equation}
+    where $N$ is the number of latent video frames.
+
+    \item \textbf{Image-to-Video/Video-to-Video (+Audio).} This mode introduces an initial conditioning image or a number of initial video frames, and the model generates the complete continuation conditioned on them and the text prompt. In the diffusion subsequence, the clean conditioning image or video tokens are followed by the noisy target video tokens:
+
+    \begin{equation}
+    \mathbf{S}_{\mathrm{V2V}} = [\preseq,\; \vidtok_{1:P},\; \noisyvidtok_{P+1:N}],
+    \end{equation}
+    where $P$ is the number of conditioning latent frames. When $P=1$, the task becomes Image-to-Video, while $P>1$ corresponds to Video-to-Video. When audio is also generated, the audio tokens are appended similarly to the Text-to-Video case.
+
+     \item \textbf{Video transfer.} In this task, the input consists of a control video (\eg, edge, or depth) together with a text description, and the model generates the corresponding RGB video. The token layout is similar to that of Video-to-Video, with the control-video tokens used as conditioning tokens and the RGB video tokens used as noisy target tokens:
+
+     \begin{equation}
+    \mathbf{S}_{\mathrm{Transfer}} = [\preseq,\; \vidtok^{\mathrm{ctrl}}_{1:N},\; \noisyvidtok_{1:N}],
+    \end{equation}
+    where $\vidtok^{\mathrm{ctrl}}_{1:N}$ are the clean VAE-encoded tokens of the control video.
+
+    \item \textbf{Action.}
+    Cosmos 3 supports three generation modes for action---forward dynamics, inverse dynamics, and joint video-action prediction (policy). For a trajectory with consecutive video tokens, each action token $\acttok_{t}$ represents the transition from $\vidtok_{t{-}1}$ to $\vidtok_{t}$.
+Forward dynamics predicts future visual states conditioned on observed context and clean action tokens, while inverse dynamics infers the action tokens that explain an observed visual transition.
+In policy mode, the model jointly predicts action and video tokens, enabling it to generate both the intervention and its expected visual consequence under the same sequence model.
+The conditional directions are summarized in~\cref{fig:action_modes}.
+
+\end{itemize}
+\input{figures/model_architecture/action/action_modes}
+
+\subsection{Mixture-of-Transformers (MoT) Architecture}
+\label{subsec::mot}
+
+Cosmos 3 adopts a \textbf{Mixture-of-Transformers (MoT)} architecture that processes a unified sequence of tokens from different modalities. At the layer level, each transformer decoder layer contains two sets of parameters: one for reasoning tasks, which processes tokens from the AR subsequence (reasoner), and one for generation tasks, which processes tokens from the diffusion subsequence (generator). Although Cosmos 3 shares similarities with unified generation models such as \cite{deng2025bagel} in its decoder-layer structure, it differs in its training strategy, positional embeddings, and overall capabilities.
+
+\input{figures/model_architecture/mot_architecture}
+
+\subsubsection{Dual-Tower Layer Structure}
+\label{sec:cosmos3_mot}
+
+A standard transformer decoder layer consists of a self-attention operation, a feed-forward network, and some normalization layers. Instead of processing all token types with the same parameters, the MoT design uses two pathways, as shown in~\cref{fig:mot_architecture}. Each pathway is a standard transformer layer with its own parameters, including layer normalization modules, attention projection matrices, and feed-forward networks. The two pathways are both initialized from the weights of a pre-trained Vision-Language Model (VLM), allowing Cosmos 3 to inherit strong language and visual reasoning capabilities while learning to generate high-fidelity videos. During both training and inference, the AR subsequence at the front is routed to the reasoner tower, while the diffusion subsequence at the back is routed to the generator tower.
+
+\subsubsection{Dual-Stream Joint Attention}
+Although the two towers use independent parameters, tokens from the diffusion subsequence interact with the AR subsequence through a dual-stream joint attention operation. Here we denote the query, key, and value vectors of the AR and diffusion subsequences as $\mathbf{Q}_\text{AR}$, $\mathbf{K}_\text{AR}$, $\mathbf{V}_\text{AR}$, $\mathbf{Q}_\text{DM}$, $\mathbf{K}_\text{DM}$, and $\mathbf{V}_\text{DM}$, respectively.
+
+\paragraph{Autoregressive subsequence attention.}
+Tokens in the AR subsequence attend only to tokens within the AR subsequence using \emph{causal self-attention}; that is, each token can attend only to preceding tokens in the same sequence. This is fully consistent with the autoregressive property inherited from the VLM backbone, allowing the model to preserve the text-generation capability of the pre-trained VLM:
+\begin{equation}
+    \mathbf{O}_\text{AR} = \operatorname{Attn}_\text{causal}\!\bigl(
+        \mathbf{Q}_\text{AR},\; \mathbf{K}_\text{AR},\; \mathbf{V}_\text{AR}
+    \bigr).
+    \label{eq::ar_attn}
+\end{equation}
+
+\paragraph{Diffusion subsequence attention.}
+Tokens in the DM subsequence use \emph{full bidirectional attention}, with the union of AR and DM tokens serving as the keys and values. This allows each diffusion token to freely attend to the text prompts from the autoregressive subsequence, as well as to all other conditional and diffusion tokens in the sequence, thereby maintaining temporal and spatial consistency:
+\begin{equation}
+    \mathbf{O}_\text{DM} = \operatorname{Attn}_\text{full}\!\bigl(
+        \mathbf{Q}_\text{DM},\;
+        [\mathbf{K}_\text{AR};\,\mathbf{K}_\text{DM}],\;
+        [\mathbf{V}_\text{AR};\,\mathbf{V}_\text{DM}]
+    \bigr),
+    \label{eq::df_attn}
+\end{equation}
+where $[\cdot \,; \cdot]$ denotes concatenation along the sequence dimension. We note that AR tokens are never updated based on DM tokens, preserving the causal integrity of the conditioning pathway.
+
+\subsection{Multimodal Position Embedding}
+Position embeddings inject temporal and spatial structure into the attention mechanism, encouraging tokens to attend more strongly to semantically and geometrically relevant tokens, often nearby in space or time. Since Cosmos 3 jointly models language, vision, audio, and action tokens within a unified attention framework, designing a position-embedding scheme that generalizes consistently across modalities is inherently challenging. Inspired by 3D Multimodal RoPE (MRoPE)~\citep{bai2025qwen3}, we design a 3D MRoPE with absolute temporal indexing to align video, audio, and action tokens along the same physical temporal axis. The original 3D MRoPE divides the hidden dimension of each attention head into temporal, height, and width components, where the temporal component records only the discrete token index. This design is sufficient for image and video understanding tasks, but it is inadequate for our setting, where video, audio, and action tokens may be generated simultaneously at different frame or sampling rates. In this case, tokens from different modalities must be aligned to an absolute physical temporal axis. We first introduce the base formulation, which follows the original 3D MRoPE design, and then describe our extensions and modifications, especially our absolute temporal modulation, which aligns the absolute temporal axis.
+
+\subsubsection{Position Index Allocation}
+\paragraph{Autoregressive tokens.} For backward compatibility with language generation and image/video understanding models, position indices for all language tokens and ViT-encoded media tokens in the AR subsequence follow the original 3D MRoPE design. For language tokens, $t = h = w$ is set to the same monotonically increasing value, reducing 3D MRoPE to standard 1D RoPE behavior. For tokens from the ViT encoder, $t$ is shared by all tokens from the same frame, while the $h$ and $w$ indices vary independently according to the spatial location of each token. The allocation of the position index in the autoregressive subsequence is identical to the 3D MRoPE design in Qwen3-VL~\citep{bai2025qwen3}.
+
+\input{figures/model_architecture/mrope_coordinate_assignment}
+
+\paragraph{Diffusion tokens.} As illustrated in~\cref{fig:mrope_coords}, video tokens vary across all three axes: $t$ advances with the temporal latent frame index, while $h$ and $w$ tile over the spatial grid $(0 \ldots H{-}1,\; 0 \ldots W{-}1)$ independently per frame. Image tokens are treated as single-frame videos and vary only in $(h, w)$. Both spatial and temporal indices are reset to zero at the start of each vision segment, so the model treats $t$, $h$, and $w$ as absolute within-video coordinates rather than positions in the global sequence. For example, in the video transfer task where the user provides a text prompt together with controlled video frames such as depth maps, both the clean control-video tokens and the noisy generated-video tokens start from the temporal offset of the last token in the autoregressive subsequence. All \textbf{audio tokens} and \textbf{action tokens} only carry temporal coordinates. The spatial indices are set to zero ($h = w = 0$). For audio tokens, the temporal index advances with each audio hop; for action tokens, the temporal index advances with each sampling step.
+
+\paragraph{Autoregressive and diffusion token margin.} In practice, we find that directly letting the diffusion tokens start from the temporal offset of the last autoregressive token leads to over-saturation and checkerboard artifacts in the initial video frames. This effect is especially pronounced in larger variants of Cosmos 3, such as the Super model. We hypothesize that this occurs because the last language token and the vision tokens from the first frame occupy adjacent temporal positions, resulting in nearly identical temporal embeddings. To address this issue, inspired by \citet{cao2025hunyuanimage}, we insert a fixed temporal gap between the autoregressive and diffusion subsequences, uniformly shifting the temporal indices of all the subsequent vision, audio, and action tokens. This creates a buffer in positional space that provides a clearer text-to-vision transition signal without requiring architectural changes or additional learnable embeddings. In all of our models, we set the gap to be $15000$.
+
+\subsubsection{Absolute Temporal Modulation}
+A single unit step along the temporal dimension may correspond to different physical time intervals across modalities or data sources. For example, when encoding videos at 60 FPS and 24 FPS, respectively, a temporal-index increment for 24-FPS video tokens corresponds to a physical time interval that is 2.5 times longer than that of 60-FPS video tokens. Similar discrepancies also arise for action and audio tokens, where different data sources may use different sampling rates. FPS modulation is designed to align tokens with different temporal resolutions onto a shared physical temporal axis by modulating the effective size of each temporal increment.
+
+We first define the temporal steps per second (TPS) to characterize the physical temporal resolution. For video tokens, TPS is given by the video frame rate divided by the temporal compression factor, which is 4 in our case due to the video VAE encoder. For audio tokens, TPS is computed as $\mathrm{TPS}_{\mathrm{audio}} = \frac{48000}{1920} \approx 25$ (48\,kHz, 1920 hop size). For action tokens, TPS is exactly the sampling frequency of the action data.
+
+We then associate a unit length along the temporal dimension with a base TPS, denoted as $\mathrm{TPS}_{\mathrm{base}}$. For tokens in a given diffusion subsequence, we compute their corresponding TPS. When the temporal index needs to be increased by one unit step, the temporal increment $\delta t$ with the modulation is computed as
+\begin{equation}
+    \delta t = \frac{\mathrm{TPS}_{\mathrm{base}}}{\mathrm{TPS}}.
+    \label{eq:fps_modulation}
+\end{equation}
+Since video constitutes the majority of our training data, and 24 FPS is the most common frame rate in our setting, we set $\mathrm{TPS}_{\mathrm{base}} = \frac{24}{4} = 6$ where $4$ is our video tokenizer's temporal compression ratio.
+
+\subsection{Model Variants}
+
+Cosmos 3 is trained at three model scales: \textbf{Edge}, \textbf{Nano}, and \textbf{Super}, spanning a wide range of computational budgets from on-device deployment to large datacenter inference. \textbf{Edge} is a 4B-parameter model built upon a dense 2B-parameter transformer, \textbf{Nano} is a 16B-parameter model built upon a dense 8B-parameter transformer, and \textbf{Super} is a 64B-parameter model built upon a dense 32B-parameter transformer. All variants are initialized from pre-trained vision-language models (VLMs) and adopt the Mixture-of-Transformers (MoT) architecture described above.~\cref{tab::model_variants} summarizes the key architectural hyperparameters for each variant. Cosmos3-Nano and Cosmos3-Super models are released in this paper. Cosmos3-Edge model will be included in a later release.
+
+\textbf{Cosmos3-Edge} uses the design of a 2B dense transformer of $28$ layers, $2048$ hidden size, $16$ attention heads, $8$ key-value heads, a head dimension of $128$, and $9216$ FFN dimension. We train the LLM from scratch using the Megatron codebase. The design of the LLM largely follows the Qwen3-1.7B architecture, with two notable differences: it removes QK normalization and uses ReLU-squared as the FFN activation, which is paired with the Edge FFN dimension reported in~\cref{tab::model_variants}.
+
+\textbf{Cosmos3-Nano} adapts the Qwen3-VL 8B~\citep{qwen3vl2025} architecture, with $36$ layers in the LLM, a hidden size of $4096$, $32$ attention heads, 8 key-value heads, a head dimension of $128$, and a FFN dimension of $12{,}288$.
+
+\textbf{Cosmos3-Super} adapts the Qwen3-VL 32B~\citep{qwen3vl2025} architecture, with $64$ layers in the LLM, a hidden size of $5120$, $64$ attention heads, $8$ key-value heads, a head dimension of $128$, and a FFN dimension of $25{,}600$.
+
+\input{tables/model_architecture/model_variants}

@@ -1,0 +1,32 @@
+\newcommand{\roth}[1]{\rotatebox[origin=l]{90}{\small #1}}
+
+\newcommand{\vraise}[1]{\raisebox{3.0em}{#1}}
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Understanding tower ablation.} We report domain and quality scores on PAIBench T2V and I2V for two variants that differ only in the pretrained model used to initialize the understanding tower while the Generator tower is trained from scratch: (1) Cosmos 3 Reasoner and (2) Qwen3-VL. Subject and background consistency are I2V-specific and not applicable to T2V. Initializing the understanding tower from the Cosmos3 Reasoner yields better domain scores on Physical AI domains than the Qwen3-VL variant.}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}ll | ccc | cccccc | cccccc | cc@{}}
+\toprule
+\multicolumn{2}{c}{} & \multicolumn{3}{c}{\textbf{Summary}} & \multicolumn{6}{c}{\textbf{Domain}} & \multicolumn{6}{c}{\textbf{Quality}} & \multicolumn{2}{c}{\textbf{I2V}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-11} \cmidrule(lr){12-17} \cmidrule(lr){18-19}
+\textbf{Bench} & \textbf{Und. tower}
+ & Overall & Domain & Quality
+ & C.S. & AV & Rob. & Ind. & Hum. & Phy.
+ & Subj. & Bg. & Motion & Aesth. & Imag. & Cons.
+ & Subj. & Bg. \\
+\midrule
+\multirow{2}{*}{T2V}
+& \cellcolor{rowours}Cosmos3 Reasoner  & \cellcolor{rowours}\textbf{74.3} & \cellcolor{rowours}\textbf{75.7} & \cellcolor{rowours}73.0          & \cellcolor{rowours}\textbf{81.2} & \cellcolor{rowours}\textbf{54.9} & \cellcolor{rowours}\textbf{71.3} & \cellcolor{rowours}\textbf{78.4} & \cellcolor{rowours}\textbf{76.2} & \cellcolor{rowours}\textbf{89.2} & \cellcolor{rowours}\textbf{96.0} & \cellcolor{rowours}\textbf{96.8} & \cellcolor{rowours}99.4          & \cellcolor{rowours}\textbf{55.2} & \cellcolor{rowours}71.4          & \cellcolor{rowours}\textbf{19.1} & \cellcolor{rowours}--            & \cellcolor{rowours}--            \\
+& Qwen-3 VL & 73.3          & 73.7          & \textbf{73.0} & 80.5          & 52.6          & 66.5          & 77.4          & 74.0          & 88.7          & 95.8          & 96.6          & \textbf{99.4} & 55.0          & \textbf{72.2} & 19.0          & --            & --            \\
+\midrule
+\multirow{2}{*}{I2V}
+& \cellcolor{rowours}Cosmos3 Reasoner  & \cellcolor{rowours}\textbf{79.4} & \cellcolor{rowours}\textbf{80.8} & \cellcolor{rowours}\textbf{78.1} & \cellcolor{rowours}89.0          & \cellcolor{rowours}59.4          & \cellcolor{rowours}\textbf{77.0} & \cellcolor{rowours}\textbf{84.8} & \cellcolor{rowours}\textbf{79.3} & \cellcolor{rowours}\textbf{91.6} & \cellcolor{rowours}\textbf{92.4} & \cellcolor{rowours}\textbf{94.7} & \cellcolor{rowours}99.4          & \cellcolor{rowours}\textbf{53.2} & \cellcolor{rowours}68.7          & \cellcolor{rowours}\textbf{20.2} & \cellcolor{rowours}\textbf{98.0} & \cellcolor{rowours}\textbf{98.0} \\
+& Qwen-3 VL & 79.0          & 80.0          & 78.0          & \textbf{89.7} & \textbf{59.8} & 74.0          & 84.0          & 78.3          & 91.4          & 92.0          & 94.5          & \textbf{99.4} & 53.1          & \textbf{69.3} & 20.1          & 97.9          & 97.9          \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab::ablation-understanding-tower}
+\end{table}

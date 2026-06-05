@@ -1,0 +1,45 @@
+\begin{table}[tb!]
+\centering
+\caption{Token consumption on the main benchmark. Prompt and completion tokens are summed over all trajectories. Avg. denotes average total tokens per trajectory.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.06}
+\resizebox{0.6\columnwidth}{!}{%
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Model} & \textbf{Method} & \textbf{Prompt} & \textbf{Completion} & \textbf{Avg.} \\
+\midrule
+DeepSeek-V3.2 & Bare & 5,569,782 & 79,480 & 5,649 \\
+DeepSeek-V3.2 & Codex & 12,327,974 & 194,502 & 12,522 \\
+DeepSeek-V3.2 & Claude Code & 27,485,517 & 620,830 & 28,106 \\
+\rowcolor{oursblue}
+DeepSeek-V3.2 & \textsc{DRIFT} & 16,950,426 & 861,475 & 17,812 \\
+\midrule
+GPT-5.4 & Bare & 5,912,241 & 76,063 & 5,988 \\
+GPT-5.4 & Codex & 11,052,241 & 83,816 & 11,136 \\
+GPT-5.4 & Claude Code & 17,998,009 & 578,129 & 18,576 \\
+\rowcolor{oursblue}
+GPT-5.4 & \textsc{DRIFT} & 16,352,335 & 1,300,775 & 17,653 \\
+\midrule
+Gemini-2.5-Pro & Bare & 8,106,948 & 3,074,795 & 11,182 \\
+Gemini-2.5-Pro & Codex & 13,806,700 & 5,158,793 & 18,965 \\
+Gemini-2.5-Pro & Claude Code & 19,154,184 & 5,918,027 & 25,072 \\
+\rowcolor{oursblue}
+Gemini-2.5-Pro & \textsc{DRIFT} & 18,672,368 & 34,370,710 & 53,043 \\
+\midrule
+Claude-Sonnet-4.6 & Bare & 14,153,744 & 110,533 & 14,307 \\
+Claude-Sonnet-4.6 & Codex & 26,347,527 & 155,221 & 26,503 \\
+Claude-Sonnet-4.6 & Claude Code & 40,433,306 & 602,831 & 41,036 \\
+\rowcolor{oursblue}
+Claude-Sonnet-4.6 & \textsc{DRIFT} & 20,302,960 & 2,339,670 & 22,643 \\
+\bottomrule
+\end{tabular}%
+}
+
+\label{tab:token-consumption}
+\end{table}
+
+
+
+As shown in Table~\ref{tab:token-consumption}, different agent frameworks introduce substantially different token overheads across the same benchmark. The table reports the total prompt and completion tokens accumulated over all trajectories, together with the average total tokens per trajectory.
+

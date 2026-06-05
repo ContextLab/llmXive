@@ -1,0 +1,105 @@
+\section{Related Work}
+\label{sec::related_work}
+
+Recent advances in Physical AI have been driven by progress in several previously distinct research areas, including world models, multimodal understanding, video generation, action modeling, audio-visual generation, and omnimodal foundation models. While each of these directions has independently contributed important capabilities for perception, reasoning, simulation, and control, Physical AI systems ultimately require these capabilities to operate together within a unified framework. In this section, we review the literature most relevant to Cosmos 3, focusing on prior work in world simulation, multimodal reasoning, generative modeling, and embodied intelligence. We highlight how these research threads have evolved toward increasingly unified representations of the physical world and discuss how Cosmos 3 extends this trajectory by jointly modeling language, image, video, audio, and action for both understanding and generation within a single omnimodal world model.
+
+\subsection{World Models for Physical AI}
+World models describe how the world evolves and how an agent's actions change future observations.
+A useful distinction is between predictive latent world models, which learn compact internal dynamics for planning and control, and generative world models, which expose predicted futures as inspectable multimodal simulations.
+
+Predictive latent world models learn compact hidden states whose value is that they make planning and control cheaper: a controller can search or optimize in a representation that abstracts away pixel-level detail.
+Early latent-dynamics systems such as World Models \citep{ha2018world}, Embed-to-Control \citep{watter2015embed}, PlaNet \citep{hafner2018planet}, and Dreamer \citep{hafner2019dream} showed that compact predictive states can support control and planning from pixels.
+More recent JEPA-style models shift prediction from pixels to latent abstractions that are better aligned with perception, forecasting, and planning \citep{lecun2022path,assran2023ijepa,bardes2024vjepa,assran2025v,leworldmodel}.
+These approaches establish internal dynamics modeling as a core ingredient of intelligent agents, but they are usually optimized for compact prediction or downstream control rather than high-fidelity multimodal simulation.
+
+Generative world models make simulation itself the modeling interface: the model predicts possible future observations as images, videos, audio, or other grounded tokens.
+By exposing the predicted future directly, they make errors in geometry, contact, timing, and sound observable rather than only inferred from a task loss.
+Sora \citep{sora} made this view prominent for video generation and implicit world simulation \citep{he2025pre}.
+The Cosmos world model series develops this direction directly for Physical AI \citep{cosmos_predict2,cosmos_predict2p5,cosmos_transfer1,cosmos_v1}.
+Other domain-specific systems study manipulation, driving, and embodied navigation and interaction \citep{wang2023drivedreamer,zhao2025drivedreamer,liang2024dreamitate,jang2025dreamgen,ren2025cosmos,robodreamer,gao2026dreamdojo}.
+Recent interactive systems extend the same direction toward controllable environments and agent-facing rollout interfaces \citep{bruce2024genie,genie2,genie3,gaia1,unisim,worldlabs2025marble,bahmani2025lyra,shen2026lyra2,waymo_world_model,li2025wonderplay,wang2025embodiedgen}.
+Cosmos 3 builds on this direction but treats world modeling as a problem of both understanding and generation rather than as video synthesis alone: its reasoner tower interprets multimodal context and infers structured world state, while its generator tower synthesizes future image, video, audio, and action tokens from that context.
+This lets one framework connect scene understanding, future synthesis, action inference, and multimodal rollout, so a generated trajectory can be conditioned on text, observations, actions, and audio rather than on prompts alone.
+
+\subsection{Multimodal Understanding and Embodied Reasoning}
+Multimodal understanding models provide the perception and reasoning layer needed for physical intelligence.
+Flamingo \citep{alayrac2022flamingo} and BLIP-2 \citep{li2023blip2} helped establish the modern pattern of coupling large language models with visual inputs, while LLaVA \citep{liu2023visual,llavaonevision} made instruction-tuned open vision-language assistants broadly influential \citep{zhu2023minigpt4}.
+Recent model families improve scale, grounding, temporal reasoning, OCR, and instruction following across images and videos \citep{chen2024internvl,wang2025internvl35,dai2024nvlm,bai2023qwen,qwen3vl2025,qwen2p5vl,deitke2024molmo,kosmos2,you2024ferret,zhang2024ferret,mm1,zhang2025mm1,tschannen2025siglip,xiao2024unified,beyer2024versatile,steiner2024family}.
+GPT-4o \citep{openai2024gpt4o} reflects the move toward omnimodal interaction.
+These capabilities make vision-language models useful front-ends for embodied systems, but physical intelligence needs more than recognition over isolated images or clips.
+It requires temporally persistent state, spatial grounding tied to objects and agents, affordance reasoning over possible interactions, and task-progress tracking as conditions change.
+This shifts the unit of reasoning from a caption or answer to a maintained, actionable scene estimate.
+
+For Physical AI, the relevant challenge is therefore not only visual question answering, but maintaining grounded scene state while reasoning about space, time, affordance, object state, and task progress.
+Cosmos-Reason1 \citep{azzolini2025cosmos} addresses this setting through physical common sense and embodied chain-of-thought reasoning.
+Related robotics and egocentric work stresses spatial grounding, embodied planning, and human-object or robot-object interaction reasoning, using both model development and task-oriented benchmarks \citep{sermanet2024robovqa,HoloAssist2023,chen2025robo2vlm,yang2025magma,chen2024spatialvlm,song2025robospatial,zhou2025roborefer,yang2025embodiedbench}.
+Despite this progress, most understanding models remain primarily discriminative or language-output systems: they can describe scenes, answer questions, or infer next-step intent, but they usually do not generate future observations or executable actions in the same representation space.
+Cosmos 3 addresses this separation by allowing structured multimodal understanding to condition world generation directly.
+
+\subsection{Video Generation and Visual World Simulation}
+Video generation has progressed from short text-to-video clips to high-resolution, temporally coherent, instruction-following synthesis.
+Early diffusion and transformer systems established the basic recipe for text-conditioned video \citep{ho2022video,singer2022makeavideo,ho2022imagen,villegas2022phenaki,blattmann2023stablevideo,bartal2024lumiere,hacohen2024ltx,videopoet,emuvideo,yang2024cogvideox,opensora2,mochi1,waver}.
+Sora \citep{sora,sora2}, Movie Gen \citep{polyak2024movie}, and Veo 3 \citep{veo3,veo31} reflect the recent shift toward long-horizon realism, stronger prompt adherence, and higher-fidelity visual dynamics \citep{kong2024hunyuanvideo,wan2025,gao2025seedance,arkhipkin2025kandinsky}.
+Industrial systems have also made controllability, creator workflows, and API deployment central parts of the video-generation landscape \citep{gen3,runway_gen4,kling,kling2,dreammachine,ray2,minimax,hailuo02,pika,firefly_video,nova_reel}.
+
+The resulting landscape largely frames progress around perceptual video generation: plausible frames, smooth motion, and outputs that match textual or visual conditions.
+Work on video world simulation and physical-consistency evaluation shows why these objectives are necessary for world modeling, but not sufficient for Physical AI \citep{he2025pre,bansal2024videophy,guo2025t2vphysbench,motamed2025generative}.
+World simulation imposes a stronger contract: rollouts must preserve object identity and permanence, respect temporal causality, expose controllable factors such as actions or camera motion, and remain consistent when the same scene is queried under different interventions.
+For an agent, a video is useful only if changes can be traced back to state, actions, and contacts; otherwise realism does not imply a reliable simulator.
+The gap is especially visible under repeated prompting or closed-loop use, where small inconsistencies compound into incorrect downstream decisions.
+Simulation-oriented systems must therefore couple synthesis with grounded state and intervention semantics.
+Against this backdrop, Cosmos 3 places video inside a broader world modeling framework.
+Video is not only an output modality, but also an input for reasoning, an observation stream for action inference, and a state trajectory coupled with actions and control.
+
+\subsection{Action Modeling, VLAs, and World-Action Models}
+Actions provide the causal link between agents and changing world states, and prior work is commonly organized into three settings: forward dynamics predicts future observations from state and action histories; inverse dynamics infers the action behind an observed transition; and policy mode maps observations, goals, and instructions directly to actions.
+This taxonomy spans heterogeneous action spaces, from robot joint commands and vehicle controls to camera, human body, and egocentric wearer motion, each with different units, rates, and causal scopes.
+
+Forward dynamics models are most explicit when the action is treated as a condition on future observations.
+In driving, GAIA-1 \citep{gaia1}, DriveDreamer \citep{wang2023drivedreamer,zhao2025drivedreamer}, and Cosmos-Drive-Dreams \citep{ren2025cosmos} illustrate how future scenes can be generated under ego-motion, trajectories, or other controls.
+In robotics and camera-controlled generation, related systems explore action-conditioned manipulation videos, robot-aware simulators, camera trajectories, depth, segmentation, and 3D-consistent controls \citep{liang2024dreamitate,jang2025dreamgen,robodreamer,zhu2024irasim,hma,gao2026dreamdojo,he2024cameractrl,wang2024motionctrl,xu2024camco,ren2025gen3c}.
+These systems show that generative models can learn useful action-conditioned priors, but many are specialized to a particular domain, action space, or embodiment.
+
+In practice, inverse dynamics often asks which action explains an observed transition.
+VPT \citep{baker2022vpt} studies action labeling from video, and later work extends this idea through imitation from observation, latent action discovery, and learning from videos without explicit action annotations \citep{zhang2022learningdrive,torabi2018bco,yang2019iddm,pavse2019ridm,schmidt2023lapo,ye2024latentaction,latent_action_wild}.
+Large embodied datasets such as Open X-Embodiment \citep{vuong2023open} and DROID \citep{khazatsky2024droid} provide the data substrate for learning across embodiments, tasks, viewpoints, and manipulation regimes \citep{walke2023bridgedata,liu2023libero,nasiriany2024robocasa,contributors2024agibotworldrepo,bu2025agibot,grauman2024egoexo4d,li2023behavior1k}.
+
+Policy-mode systems predict actions from observations, goals, and instructions.
+RT-1/RT-2 \citep{brohan2022rt,brohan2023rt}, PaLM-E \citep{driess2023palme}, OpenVLA \citep{kim2024openvla}, $\pi_0$ \citep{black2024pi0}, Gemini Robotics \citep{gemini2025robotics,gemini_robotics15}, and GR00T N1 \citep{bjorck2025gr00t} trace the progression from vision-language policies to general robot foundation models \citep{roboflamingo,octo2024,pi05,liu2024rdt,zhou2025chatvla,zheng2026xvla,yang2025egovla,shi2025hi,lee2025molmoact,gr1,gr2}.
+Related embodied-agent systems use language or vision-language models for spatial value maps, action reasoning, and interaction-aware planning \citep{voxposer,zawalski2024ecot,yang2025magma}.
+World-action models bring policy learning closer to world modeling by using video dynamics and action representations as priors \citep{li2025uva,ye2026dreamzero,univla,rynnvla,world_action_survey,acwmphys}.
+Cosmos 3 treats forward dynamics, inverse dynamics, and policy mode as conditioning patterns of one multimodal sequence model over video, audio, text, and action tokens.
+
+\subsection{Audio and Audio-Visual Generation}
+Audio is an important part of physical-world modeling because many events are defined not only by how they look, but also by how they sound.
+AudioLDM 2 \citep{audioldm2}, AudioCraft \citep{audiocraft}, and MusicGen \citep{musicgen} are representative of the rapid progress in text-conditioned audio and music generation, with later systems extending the space toward speech, sound effects, and creator-facing products \citep{voicebox,audiobox,stableaudioopen,lee2024etta,suno,udio,elevenlabs_sfx}.
+These models improve the acoustic realism of generated media, but physical-world simulation also requires synchronizing sound with visible dynamics.
+
+Audio-visual learning studies whether sound and vision correspond to the same event, source, or motion.
+Classical threads include cross-modal correspondence, source separation, synchronization, and speech-lip alignment, while Diff-Foley \citep{luo2023difffoley} and related video-to-audio systems focus on generating sounds that follow visible dynamics \citep{owens2018audiovisual,zhao2018sound,ephrat2018looking,chung2016out,prajwal2020wav2lip,comunita2023syncfusion,zhang2024foleycrafter,ren2024stav2a,gramaccioni2024stablev2a,mmaudio,klingfoley}.
+Talking-head, human-animation, and joint audio-video generators further connect speech, body motion, scene dynamics, and sound, including synchronized audio-visual media generation in Movie Gen \citep{polyak2024movie} and Veo 3 \citep{veo3,vasa1,emo,hallo,omnihuman,xing2024seeing,ruan2022mmdiffusion,wang2024avdit,liu2024syncflow,li2025threemdit,hacohen2026ltx2,liu2025javisditt}.
+For physical simulation, the timing is as important as the identity of the sound: a collision should produce an impact at the contact frame, footsteps should match gait and surface, and a tool or engine should change sound when its visible state changes.
+Speech similarly needs mouth motion, speaker identity, and turn-taking to remain aligned, while alarms, motors, scraping, and other environmental sounds can provide causal evidence for events that are partly occluded.
+For Physical AI, audio should be modeled as synchronized evidence about events, contacts, speech, tools, engines, and environments rather than as post-hoc decoration.
+Cosmos 3 treats audio as another modality in the same world modeling interface, enabling joint video-audio generation, video-conditioned audio generation, and audio-conditioned video generation.
+
+\subsection{Omnimodels for Understanding and Generation}
+A growing line of work studies omnimodels that combine multimodal understanding and generation in a single framework.
+It is useful to separate this goal from two neighboring families.
+Vision-language models (VLMs) usually map multimodal inputs to text, while media generators map prompts or conditions to generated images, video, or audio.
+Omnimodels aim to support both directions in one framework, so perception, language, and synthesis can share representations instead of being connected only by external pipelines.
+
+Unified-IO 2 \citep{lu2023unifiedio2} and Chameleon \citep{chameleon2024} study unified multimodal modeling, while GPT-4o \citep{openai2024gpt4o} and Gemini \citep{gemini2,gemini3} show how frontier systems are moving toward native multimodal input and output.
+Other unified or any-to-any systems explore different mixtures of text, image, audio, video, and discrete tokenization or diffusion interfaces, with Qwen-Omni \citep{xu2025qwen3omni,qwen35omni} representing a recent omnimodal family \citep{tang2023codi,wu2023nextgpt,anygpt,seedx,fourm,xie2024showo,chen2025januspro,emu3}.
+
+Within this broader omnimodal family, recent MoT-style work is especially relevant because it asks how one model can share sequence-level context while reserving specialized capacity for different modalities or functions.
+Transfusion \citep{zhou2024transfusion} connects this thread to one-transformer training over mixed-modality sequences by combining next-token prediction for text with diffusion-based image generation.
+Mixture-of-Transformers \citep{liang2024mot} makes the specialization pattern explicit for multimodal foundation models, with related work adapting pre-trained language models for multimodal generation and studying asymmetric bridges between heterogeneous understanding and generation experts \citep{shi2025lmfusion,wang2025hbridge}.
+BAGEL \citep{deng2025bagel} extends this direction to unified multimodal pre-training for both understanding and generation with a decoder-only architecture trained on large-scale interleaved multimodal data.
+Recent embodied extensions make the same architectural question physical by specializing pathways for scene understanding, visual foresight, latent action, and control in VLA and world-action models \citep{lv2025f1,cai2026internvlaa1,shou2026halo,bi2025motus,motubrain2026,li2026causalworld,tencent2026hyembodied}.
+
+Taken together, these omnimodels show that understanding and generation can be handled within shared multimodal frameworks rather than by separate systems.
+However, existing work still emphasizes text-image modeling or general multimodal media generation, with less focus on physical-world dynamics, action-conditioned generation, inverse dynamics, and embodied control.
+Cosmos 3 extends the omnimodal idea to Physical AI by pairing an autoregressive reasoner tower for multimodal understanding with a diffusion generator tower conditioned on the reasoner's representations.
+This interface supports video/text-to-text understanding, text/video-to-video generation, audio-video generation, and world-action modeling for action understanding and prediction.
+Cosmos 3 is not only multimodal but also omni-functional: the same model can interpret the world, simulate how it evolves, infer the actions behind observed changes, and generate future observations and actions.

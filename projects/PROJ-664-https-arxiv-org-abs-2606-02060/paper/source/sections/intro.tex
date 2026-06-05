@@ -1,0 +1,57 @@
+% \section{Introduction}
+% \textbf{Motivation}
+
+% LLM agents are increasingly deployed as long-horizon problem solvers rather than single-turn responders.
+% Modern agents search the web, inspect evidence, call tools, delegate subtasks, revise plans, and synthesize intermediate findings before producing a final answer.
+% As a result, an agent run is best understood as a trajectory of decisions and observations, not merely as an input-output pair.
+
+% \textbf{Gap}
+
+% Existing agent benchmarks mostly evaluate final-answer correctness.
+% Final-answer accuracy is useful for leaderboard comparison, but it provides little diagnostic signal.
+% When an agent fails, we often do not know whether the error came from task misunderstanding, retrieval drift, evidence misuse, unsupported synthesis, or premature finalization.
+% Raw trajectories contain this information, but they are long, heterogeneous, and difficult to inspect directly.
+
+% \textbf{Key Idea}
+
+% We study agent failures at the span level.
+% A semantic span groups low-level actions into a coherent functional segment, such as searching, grounding evidence, comparing candidates, or finalizing an answer.
+% This representation bridges the gap between overly fine-grained raw logs and overly coarse final-answer labels.
+% It enables process-level error localization: identifying which spans are harmful and where the earliest supported error appears.
+
+% \textbf{What We Do}
+
+% We run multiple agent frameworks and model backbones on challenging benchmarks to collect a large corpus of real agent trajectories.
+% We convert raw trajectories into ordered semantic spans and annotate span-level errors.
+% Based on this corpus, we construct TELBench, a benchmark for trajectory error-span localization.
+% We then evaluate diagnostic agents, including a bare LLM baseline, DRIFT-lite, and DRIFT.
+
+% \textbf{Contributions}
+
+% We introduce a large-scale trajectory corpus from two framewrok across three model families on three DR benchmarks.
+% We construct TELBench, a process-level benchmark that asks models to identify harmful error spans from raw ordered trajectory spans.
+% We propose DRIFT, an adaptive diagnostic agent.
+
+
+\section{Introduction}
+
+A deep-research trajectory is better viewed as a recorded decision process than as a single input-output computation~\citep{deshpande2025trailtracereasoningagentic, yao2023reactsynergizingreasoningacting}. It gradually forms claims about entities, constraints, sources, intermediate candidates, and final conclusions, and later spans often reuse earlier claims as if they were established facts. Its log records not only external actions, but also the evolution of commitments: which claims are introduced, what evidence supports them, and where they are later reused~\citep{qin2023toolllm, Kim2025BeyondTF}.
+
+The difficulty is that the harmful step is often not the visibly wrong final answer, but an earlier commitment that later spans inherit without revalidation~\citep{ICLR2024_aca97732,zhang2025agentcausestaskfailures}. Evaluation based on final answers can tell us whether an agent succeeded, but not which part of the trajectory made the result unreliable~\citep{chen2026seeingelephantbenchmarkfailure, NEURIPS2023_cd86a305}. Raw logs contain the needed evidence, but they are long, heterogeneous, and framework-specific. Directly asking an LLM to find errors in the full trajectory is also unstable: it may mistake benign exploration for an error, over-focus on the final answer, or miss an early unsupported commitment that later shapes the solution. The key diagnostic question is therefore not only which span appears wrong, but which unsupported claim first became consequential and which later spans rely on it.
+
+To study this problem, we represent agent trajectories as ordered semantic spans. Semantic spans provide an analysis unit that is coarser than raw events but still precise enough to localize the first harmful commitment. We collect 2,790 real agent trajectories from two agent frameworks, three backbone models, and three challenging deep-research benchmarks, convert them into semantic spans, and annotate harmful errors through dual human annotation and review~\citep{dligach-palmer-2011-reducing, artstein-poesio-2008-survey}. Based on these annotations, we construct \textsc{TELBench}, a benchmark for span-level trajectory error localization~\citep{tyen-etal-2024-llms}. Given only the question and ordered raw span texts, a model must identify error and non-error spans such as benign exploration or noise.
+
+We further propose \textsc{DRIFT}, a claim-centric multi-agent auditing framework for trajectory error localization. Rather than scoring spans independently, \textsc{DRIFT} audits the claims that an agent forms and uses throughout the trajectory~\citep{thorne-etal-2018-fever}. A Claim Keeper reads the full trajectory and maintains a claim ledger, recording when each claim is introduced, when it becomes consequential, and which later spans depend on it. A Support Seeker checks whether key claims are directly supported, weakly supported, missing support, or contradicted by trajectory evidence. Specialist Auditors then perform skill-routed checks for entity, constraint, evidence, retrieval, compute, and process claims~\citep{NEURIPS2023_cd86a305}. Finally, a Dependency Tracer backtraces unsupported or conflicting claims to distinguish errors and non-errors.
+
+Our contributions are threefold:
+\begin{itemize}
+    \item \textbf{A large-scale trajectory corpus.}
+    We collect and annotate 2,790 real deep-research agent trajectories across multiple frameworks, models, and benchmarks, providing span-level analysis.
+
+    \item \textbf{A process-level localization benchmark.}
+    We introduce \textsc{TELBench}, a benchmark that evaluates whether models can localize harmful error spans from ordered trajectory evidence.
+
+    \item \textbf{A claim-centric auditing framework.}
+    We propose \textsc{DRIFT}, an auditing agent that reasons over claim support and dependency structure, outperforming direct full-context LLM prompting on trajectory error localization.
+\end{itemize}
+\input{tab/related_work}

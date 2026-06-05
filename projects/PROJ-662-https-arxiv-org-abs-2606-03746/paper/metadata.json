@@ -1,0 +1,33 @@
+{
+  "arxiv_id": "2606.03746",
+  "arxiv_url": "https://arxiv.org/abs/2606.03746",
+  "title": "https://arxiv.org/abs/2606.03746",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #280",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "colm2024_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "colm2024_conference.bib",
+    "colm2024_conference.bst",
+    "colm2024_conference.sty",
+    "colm2024_conference.tex",
+    "fancyhdr.sty",
+    "figure",
+    "figure/edit_ratio_comparsion.pdf",
+    "figure/observation.pdf",
+    "figure/teaser.pdf",
+    "figure/training_data_ablate.pdf",
+    "logo",
+    "logo/logo.pdf",
+    "logo/qwen-logo.pdf",
+    "natbib.sty"
+  ]
+}

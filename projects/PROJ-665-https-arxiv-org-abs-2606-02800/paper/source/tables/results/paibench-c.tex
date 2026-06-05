@@ -1,0 +1,20 @@
+\begin{table}[t]
+    \centering
+    \captionsetup{justification=justified, singlelinecheck=false}
+    \caption{\textbf{PAIBench-C single-control results.} Each generation is conditioned on one of four control modalities (depth, segmentation, blur, or edge) and scored by the corresponding ground-truth-based metric: \textbf{Depth si-RMSE}, the scale-invariant root-mean-squared error between predicted and reference depth; \textbf{Seg.\ mIoU}, the mean intersection-over-union between predicted and reference segmentation masks; \textbf{Blur SSIM}, the structural similarity between predicted and reference blur maps; and \textbf{Edge F1}, the F1 score between predicted and reference edge maps. \textbf{DOVER} is a no-reference perceptual video-quality score, averaged across the four per-modality generations. Depth si-RMSE: lower is better; DOVER, Seg.\ mIoU, Blur SSIM, and Edge F1: higher is better. \textbf{Bold} indicates the best result per column.}
+    \label{tab:paibenchc_results}
+    \setlength{\tabcolsep}{6pt}
+    \resizebox{0.8\linewidth}{!}{%
+    \begin{tabular}{l|ccccc}
+        \toprule
+        \textbf{Model} & \textbf{DOVER} $\uparrow$ & \textbf{Seg.\ mIoU} $\uparrow$ & \textbf{Blur SSIM} $\uparrow$ & \textbf{Edge F1} $\uparrow$ & \textbf{Depth si-RMSE} $\downarrow$ \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} & 10.14 & 0.71 & \textbf{0.91} & \textbf{0.50} & \textbf{0.58} \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano} & \textbf{10.39} & \textbf{0.72} & \textbf{0.91} & 0.49 & 0.62 \\
+        Cosmos-Transfer2.5 & 9.49 & 0.68 & 0.90 & 0.45 & {0.68} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

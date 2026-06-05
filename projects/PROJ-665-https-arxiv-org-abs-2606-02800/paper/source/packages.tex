@@ -1,0 +1,79 @@
+\usepackage[authoryear,round]{natbib}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+
+\usepackage{parskip}        % no paragraph indents
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage[dvipsnames]{xcolor} % more color names
+\usepackage{graphicx}
+\usepackage{animate}        % for 360 video in teaser
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{adjustbox}
+\usepackage{setspace}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,shapes.geometric,arrows, decorations.pathreplacing, backgrounds}
+\usepackage{amsmath,amsfonts,bm, bbm,leftindex}
+\usepackage{multirow}
+\usepackage{comment}
+\usepackage{gensymb}
+\usepackage{lipsum}
+\usetikzlibrary{arrows.meta, positioning, fit}
+\usepackage[para]{threeparttable}
+\usetikzlibrary{tikzmark}
+\usepackage{tasks}
+
+\captionsetup{justification=raggedright, singlelinecheck=false}
+
+\usepackage[most]{tcolorbox}
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{dashrule}
+\usepackage{nicematrix}
+
+\usepackage{multicol}
+
+\newenvironment{multicoltextblock}{%
+    \hspace{16pt} % Add an overall left margin
+    \begin{minipage}[t]{\dimexpr\textwidth-16pt\relax} % Adjust width to account for the margin
+}{%
+    \end{minipage}%
+    \unskip\ignorespacesafterend % Clean up trailing spaces
+}
+
+\newenvironment{multicoltextblockhalf}{%
+    \hspace{4pt} % Add an overall left margin
+    \begin{minipage}[t]{\dimexpr\textwidth/2-16pt\relax} % Adjust width to account for the margin
+}{%
+    \end{minipage}%
+    \unskip\ignorespacesafterend % Clean up trailing spaces
+}
+
+\newcommand{\prompttext}[1]{\textbf{#1}}
+\newcommand{\prompt}[1]{\textsf{#1}}
+
+\newcommand{\FIGREF}[1]{Fig.~\ref{#1}} % Fig. or 
+\newcommand{\checkthis}[1]{\textcolor{darkred}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\plus}[1]{\textcolor{ForestGreen}{(+#1)}}
+\newcommand{\std}[2]{#1$_{\small \pm #2}$}
+
+\makeatletter
+\renewcommand{\paragraph}{%
+  \@startsection{paragraph}{4}{\z@}%
+    {1\baselineskip \@plus .2\baselineskip}% space before
+    {-0.4em}% run-in: small horizontal gap after the heading
+    {\normalfont\normalsize\bfseries}%
+}
+\makeatother

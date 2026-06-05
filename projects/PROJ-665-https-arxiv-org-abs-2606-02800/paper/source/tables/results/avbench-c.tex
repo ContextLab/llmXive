@@ -1,0 +1,22 @@
+\begin{table}[t]
+    \centering
+    \captionsetup{justification=justified, singlelinecheck=false}
+    \caption{\textbf{AVBench-C evaluation scores}. We report both automatic and human evaluation results. \textit{Auto scores} are computed by three ground-truth-based checkers: \textbf{Ego drift} (lower is better), the visual-odometry trajectory drift; \textbf{Dyn.\ Obj.} and \textbf{Static Obj.} (higher is better), how closely scene entities match the control input; and \textbf{Environment} (higher is better), a VLM-judge score for prompt-level driving conditions. \textit{Human scores} are 1--3 ratings from trained annotators along two axes: \textbf{Video quality}, which measures overall realism (textures, agent behavior, and temporal consistency), and \textbf{Lane line}, which measures fidelity to the world-scenario map (correct placement of lanes, crossings, and entities). Higher is better for both human metrics. \textbf{Bold} indicates the best result per column.}
+    \label{tab:avbenchc_transfer}
+    \setlength{\tabcolsep}{6pt}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{l|cccc|cc}
+        \toprule
+        & \multicolumn{4}{c}{\textbf{Automatic evaluation}} & \multicolumn{2}{c}{\textbf{Human evaluation}} \\
+        \cmidrule(lr){2-5} \cmidrule(lr){6-7}
+        \textbf{Model} & \textbf{Ego drift} $\downarrow$ & \textbf{Dyn.\ Obj.} $\uparrow$ & \textbf{Static Obj.} $\uparrow$ & \textbf{Environment} $\uparrow$ & \textbf{Video quality} $\uparrow$ & \textbf{Lane line} $\uparrow$ \\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} & \textbf{0.003} & 0.64 & 0.41 & \textbf{0.90} & \textbf{2.86} & 2.45 \\
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Nano}  & \textbf{0.003} & \textbf{0.67} & 0.41 & \textbf{0.90} & 2.82 & \textbf{2.50} \\
+        Cosmos-Transfer2.5-AV-Singleview & 0.008 & 0.62 & \textbf{0.42} & \textbf{0.90} & 2.59 & 2.47 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

@@ -1,0 +1,39 @@
+\begin{table*}[t]
+  \centering
+  \captionsetup{justification=raggedright, singlelinecheck=false}
+  \caption{\textbf{Human evaluation results on Cosmos HUE and Human World Bench (HWB).} Cosmos HUE evaluates broad Physical AI video generation quality via atomic binary verification
+across four dimensions; HWB evaluates realistic human motion under task-level instructions via instruction-following and physics pass rates. \emph{Ground Truth} scores real videos
+paired with the same prompts and serves as an upper reference for Cosmos-HUE. \textbf{Cosmos3-Super} achieves the highest HUE T2V score and the highest HWB score among open-source models. Full
+per-dimension HUE leaderboards in Appendix~\ref{sec::cosmos_hue_bench}. \textbf{Bold} indicates the best in the column; \underline{underline} indicates the second best.}
+  \label{tab::human_eval_results}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.15}
+  \resizebox{0.85\linewidth}{!}{%
+  \begin{tabular}{l l | cc|c}
+      \toprule
+      & & \multicolumn{2}{c}{\textbf{Cosmos HUE}} & \textbf{Human World Bench} \\
+  \cmidrule(lr){3-4} \cmidrule(lr){5-5}
+      \textbf{Model} & \textbf{Type} & \textbf{Text-to-Video ($\uparrow$)} & \textbf{Image-to-Video ($\uparrow$)} & \textbf{Image-to-Video ($\uparrow$)} \\
+      \midrule
+      \rowcolor{black!8}
+      \emph{Ground Truth}              & ---          &    93.6       &   94.4        &    ---    \\
+      \midrule
+      \rowcolor{rowours}
+      \textbf{Cosmos3-Super}    & Open-sourced & 89.3  &       \underline{89.6}          & \textbf{71.9} \\
+      \rowcolor{rowours}
+      \textbf{Cosmos3-Nano}     & Open-sourced & 87.6          & 88.6          & 66.9 \\
+      \midrule
+      Wan2.2-A14B                      & Open-sourced &  88.2         &  88.4         & 60.7 \\
+      HunyuanVideo-1.5                 & Open-sourced &  86.5         &  85.6         & 54.7 \\
+      Wan2.1-14B                       & Open-sourced &  84.0         &  83.9         & 33.1 \\
+      Wan2.2-5B                        & Open-sourced &  80.8         &  80.4         & 25.4 \\
+      Cosmos-Predict2.5-14B     & Open-sourced &  82.1         &    83.0       & 38.7 \\
+      Cosmos-Predict2.5-2B      & Open-sourced &     81.8      &   82.6        & 32.8 \\
+      \midrule
+      Veo-3.1                          & Closed-sourced   &   \textbf{91.3}       & \textbf{89.7}  & \underline{67.8} \\
+      Seedance-1.5-Pro                 & Closed-sourced   &    \underline{90.0}       & 87.6          &  ---     \\
+      \bottomrule
+  \end{tabular}
+  }
+\end{table*}

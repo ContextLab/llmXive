@@ -1,0 +1,169 @@
+\begin{table*}[tb!]
+\centering
+\small
+\caption{Easy/hard split results. All numbers are percentages. P, R, and F1 are macro-averaged; FEA denotes first-error accuracy. Superscripts show absolute improvements over the bare baseline.}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llcccccccccc}
+\toprule
+\multirow{2}{*}{Model} & \multirow{2}{*}{Method}
+& \multicolumn{4}{c}{Easy}
+& \multicolumn{4}{c}{Hard}
+& \multicolumn{2}{c}{Overall} \\
+\cmidrule(lr){3-6}
+\cmidrule(lr){7-10}
+\cmidrule(lr){11-12}
+& & P & R & F1 & FEA
+& P & R & F1 & FEA
+& F1 & FEA \\
+\midrule
+DeepSeek-V3.2 & Bare
+& 33.53 & 22.68 & 25.89 & 16.00
+& 39.19 & 11.49 & 17.31 & 1.75
+& 22.46 & 10.30 \\
+
+
+DeepSeek-V3.2 & Codex
+& 16.67\drop{16.86} & 11.88\drop{10.80} & 12.99\drop{12.90} & 8.33\drop{7.67}
+& 20.95\drop{18.24} & 7.69\drop{3.80} & 10.64\drop{6.67} & 3.50\gain{1.75}
+& 12.05\drop{10.41} & 6.40\drop{3.90} \\
+
+
+DeepSeek-V3.2 & Claude Code
+& 28.95\drop{4.58} & 20.26\drop{2.42} & 22.53\drop{3.36} & 14.67\drop{1.33}
+& 33.48\drop{5.71} & 11.85\gain{0.36} & 16.61\drop{0.70} & 2.75\gain{1.00}
+& 20.16\drop{2.30} & 9.90\drop{0.40} \\
+
+
+
+\rowcolor{oursblue}
+DeepSeek-V3.2 & \textsc{DRIFT} (ours)
+& \textbf{65.58}\gain{32.05} & \textbf{58.86}\gain{36.18} & \textbf{57.81}\gain{31.92} & \textbf{34.50}\gain{18.50}
+& \textbf{67.96}\gain{28.77} & \textbf{31.37}\gain{19.88} & \textbf{39.57}\gain{22.26} & \textbf{7.50}\gain{5.75}
+& \textbf{50.51}\gain{28.05} & \textbf{23.70}\gain{13.40} \\
+
+% \midrule
+
+% Qwen3-235B-A22B & Bare
+% & 31.63 & 27.67 & 27.58 & 14.67
+% & 36.69 & 16.16 & 21.51 & 5.75
+% & 25.15 & 11.10 \\
+
+% Qwen3-235B-A22B & Codex
+% & 28.10\drop{3.53} & 26.04\drop{1.63} & 25.02\drop{2.56} & 12.50\drop{2.17}
+% & 37.73\gain{1.04} & 15.93\drop{0.23} & 21.49\drop{0.02} & 6.75\gain{1.00}
+% & 23.61\drop{1.54} & 10.20\drop{0.90} \\
+
+% Qwen3-235B-A22B & Claude Code
+% & 16.53\drop{15.10} & 15.61\drop{12.06} & 14.96\drop{12.62} & 9.00\drop{5.67}
+% & 29.92\drop{6.77} & 13.33\drop{2.83} & 17.71\drop{3.80} & 5.75
+% & 16.06\drop{9.09} & 7.70\drop{3.40} \\
+
+
+
+% \rowcolor{oursblue}
+% Qwen3-235B-A22B & \textsc{DRIFT} (ours)
+% & 31.63 & \textbf{31.43}\gain{3.76} & \textbf{29.05}\gain{1.47} & 14.50\drop{0.17}
+% & \textbf{42.66}\gain{5.97} & \textbf{21.02}\gain{4.86} & \textbf{26.54}\gain{5.03} & \textbf{10.50}\gain{4.75}
+% & \textbf{28.05}\gain{2.90} & \textbf{12.90}\gain{1.80} \\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\midrule
+
+
+GPT-5.4 & Bare
+& 43.38 & 34.00 & 36.12 & 21.50
+& 53.02 & 23.46 & 30.66 & 5.00
+& 33.93 & 14.90 \\
+
+
+GPT-5.4 & Codex
+& 42.15\drop{1.23} & 35.19\gain{1.19} & 36.01\drop{0.11} & 22.00\gain{0.50}
+& 52.05\drop{0.97} & 25.73\gain{2.27} & 32.19\gain{1.53} & 6.00\gain{1.00}
+& 34.48\gain{0.55} & 15.60\gain{0.70} \\
+
+
+GPT-5.4 & Claude Code
+& 46.04\gain{2.66} & 39.78\gain{5.78} & 40.04\gain{3.92} & 24.33\gain{2.83}
+& 54.52\gain{1.50} & 27.76\gain{4.30} & 34.08\gain{3.42} & \textbf{7.25}\gain{2.25}
+& 37.66\gain{3.73} & 17.50\gain{2.60} \\
+
+
+
+\rowcolor{oursblue}
+GPT-5.4 & \textsc{DRIFT} (ours)
+& \textbf{64.19}\gain{20.81} & \textbf{63.33}\gain{29.33} & \textbf{58.45}\gain{22.33} & \textbf{29.83}\gain{8.33}
+& \textbf{69.14}\gain{16.12} & \textbf{35.59}\gain{12.13} & \textbf{43.51}\gain{12.85} & \textbf{7.25}\gain{2.25}
+& \textbf{52.48}\gain{18.55} & \textbf{20.80}\gain{5.90} \\
+
+\midrule
+Claude-Sonnet-4.6 & Bare
+& 29.78 & 21.99 & 24.01 & 15.67
+& 38.56 & 12.97 & 18.71 & 4.75
+& 21.89 & 11.30 \\
+
+
+Claude-Sonnet-4.6 & Codex
+& 32.12\gain{2.34} & 24.76\gain{2.77} & 26.35\gain{2.34} & 16.67\gain{1.00}
+& 42.76\gain{4.20} & 15.16\gain{2.19} & 21.32\gain{2.61} & 4.75
+& 24.34\gain{2.45} & 11.90\gain{0.60} \\
+
+
+
+Claude-Sonnet-4.6 & Claude Code
+& 40.22\gain{10.44} & 30.06\gain{8.07} & 32.71\gain{8.70} & 20.83\gain{5.16}
+& 49.81\gain{11.25} & 18.09\gain{5.12} & 25.35\gain{6.64} & 6.00\gain{1.25}
+& 29.77\gain{7.88} & 14.90\gain{3.60} \\
+
+\rowcolor{oursblue}
+Claude-Sonnet-4.6 & DRIFT (ours)
+& \textbf{63.00}\gain{33.22} & \textbf{67.31}\gain{45.32} & \textbf{60.00}\gain{35.99} & \textbf{32.17}\gain{16.50}
+& \textbf{68.39}\gain{29.83} & \textbf{41.16}\gain{28.19} & \textbf{47.28}\gain{28.57} & \textbf{12.00}\gain{7.25}
+& \textbf{54.91}\gain{33.02} & \textbf{24.10}\gain{12.80} \\
+
+\midrule
+Gemini-2.5-Pro & Bare
+& 38.59 & 33.12 & 33.39 & 20.50
+& 44.61 & 22.55 & 27.44 & 8.50
+& 31.01 & 15.70 \\
+
+Gemini-2.5-Pro & Codex
+& 38.83\gain{0.24} & 39.19\gain{6.07} & 36.16\gain{2.77} & 19.17\drop{1.33}
+& 48.88\gain{4.27} & 27.90\gain{0.46} & 33.23\gain{5.79} & \textbf{10.50}\gain{2.00}
+& 34.99\gain{3.98} & 15.70\\
+
+
+
+Gemini-2.5-Pro & Claude Code
+& 34.86\drop{3.73} & 33.47\gain{0.35} & 31.48\drop{1.91} & 18.00\drop{2.50}
+& 40.03\drop{4.58} & 20.56\drop{1.99} & 25.36\drop{2.08} & 8.50
+& 29.03\drop{1.98} & 14.20\drop{1.5} \\
+
+\rowcolor{oursblue}
+Gemini-2.5-Pro & DRIFT (ours)
+& \textbf{56.62}\gain{18.03} & \textbf{58.06}\gain{24.94} & \textbf{52.94}\gain{19.55} & \textbf{27.17}\gain{6.67}
+& \textbf{63.81}\gain{19.20} & \textbf{35.02}\gain{12.47} & \textbf{41.62}\gain{14.18} & 9.00\gain{0.50}
+& \textbf{48.41}\gain{17.40} & \textbf{19.90}\gain{4.20} \\
+
+
+
+
+\bottomrule
+\end{tabular}
+}
+
+\label{tab:difficulty-split}
+\end{table*}

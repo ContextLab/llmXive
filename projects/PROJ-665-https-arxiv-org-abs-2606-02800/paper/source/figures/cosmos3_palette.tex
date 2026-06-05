@@ -1,0 +1,225 @@
+% =====================================================================
+%  cosmos3_palette.tex — Cosmos-3 paper figure colour palette.
+%  ─────────────────────────────────────────────────────────────────
+%  Requires xcolor (loaded automatically by tikz/pgf).
+%
+%  IMPORTANT — every non-comment line below ends with `%` so this file
+%  is safe to \input inside a horizontal box (e.g. \resizebox{...}{!}{...}).
+%  Without those `%`s, each newline would tokenise into a space and
+%  leak into the surrounding hbox, padding the figure horizontally.
+% =====================================================================
+%
+%% ── 1. Six base colours ───────────────────────────────────────────
+%%
+%% Hex values below are the *exact* RGB triples xcolor produces (verified
+%% by pixel-sampling a rendered PDF swatch — not back-computed from the
+%% mixing formula). Useful to copy-paste into matplotlib / Inkscape /
+%% Figma if a collaborator is drawing outside LaTeX.
+%%
+%% Note: xcolor's `violet` is (0.5, 0, 0.5) → #800080 (a saturated
+%% purple). It is NOT the CSS `violet` (#EE82EE) nor "electric violet"
+%% (#7F00FF) — three different colours share that English name.
+%%
+%%   Hue name      Role in the MoT architecture figure              ≈ hex
+%%   ------------  ----------------------------------------------- --------
+%%   c3OceanBlue   AR-vision tokens, ViT encoder                    #0077B6
+%%   c3Blue        AR text tokens, AR LayerNorm / MLP, AR arrows    #0000FF
+%%   c3Violet      Action tokens, action encoder                    #800080
+%%   c3Rust        Diffusion-vision tokens, VAE encoder             #E58019
+%%   c3Orange      Diffusion LN / MLP, generator-tower panel        #FF8000
+%%   c3Sage        Audio tokens, audio encoder                      #66A05F
+%%
+%%   For neutral elements (special tokens, axis arrows, mask grid,
+%%   shared-attention slab, ×L bracket) just use xcolor's built-in
+%%   `gray` and `black` with !N modifiers, e.g. fill=gray!16, draw=gray!55.
+\definecolor{c3OceanBlue}{HTML}{0077B6}%
+\colorlet  {c3Blue}   {blue}%
+\colorlet  {c3Violet} {violet}%
+\colorlet  {c3Orange} {orange}%
+\colorlet  {c3Rust}   {orange!60!brown}%                       browner orange
+\colorlet  {c3Sage}   {teal!70!green!70!yellow!50!gray}%       muted olive sage
+%
+%% ── 2. Pre-mixed variants for every base colour ───────────────────
+%%
+%%   Six standard variants are pre-baked for every base C:
+%%
+%%     c3{C}Pale    = C!4!white      panel / tower background tint
+%%     c3{C}Light   = C!8            extra-pale fill (encoder boxes)
+%%     c3{C}Fill    = C!12           standard fill (LN / MLP / blocks)
+%%     c3{C}Tok     = C!22           saturated fill (tokens / pills)
+%%     c3{C}Soft    = C!50!gray      muted "supporting" outline
+%%     c3{C}Dark    = C!50!black     strong outline / arrow / dark text
+%%
+%%   So a typical "blue token" pairing is:
+%%       \node[fill=c3BlueTok, draw=c3BlueDark] {…};
+%%   and a typical "blue encoder" pairing is:
+%%       \node[fill=c3BlueLight, draw=c3BlueSoft, text=c3BlueDark] {…};
+%%
+%%   Need a one-off mix that isn't pre-baked?  Use the !N syntax inline:
+%%       fill=c3OceanBlue!30!white!85!gray
+\providecommand{\cThreeVariants}[1]{%
+  \colorlet{c3#1Pale} {c3#1!4!white}%
+  \colorlet{c3#1Light}{c3#1!8}%
+  \colorlet{c3#1Fill} {c3#1!12}%
+  \colorlet{c3#1Tok}  {c3#1!22}%
+  \colorlet{c3#1Soft} {c3#1!50!gray}%
+  \colorlet{c3#1Dark} {c3#1!50!black}%
+}%
+\cThreeVariants{Blue}%
+\cThreeVariants{OceanBlue}%
+\cThreeVariants{Violet}%
+\cThreeVariants{Orange}%
+\cThreeVariants{Rust}%
+\cThreeVariants{Sage}%
+%
+%% ── 3. Named hue families (semantic palette) ──────────────────────
+%%
+%% A higher-level naming layer that pairs each light fill with the dark
+%% boundary/text colour the MoT figure uses. Useful as a quick lookup
+%% for collaborators who think in terms of "audio is Lilac, action is
+%% Mint" rather than in mixing recipes.
+%%
+%% Each pair has the form:
+%%     c3{Name}Fill   light tint (box fill)
+%%     c3{Name}Dark   saturated colour (border / text)
+%%
+%% Hex values verified by pixel-sampling the rendered MoT PDF (post
+%% action↔audio swap, see tikz_mot_architecture.tex).
+%%
+%%   Name      Fill recipe          ≈ hex     Dark recipe                ≈ hex     Where in MoT
+%%   --------  -------------------  --------  -------------------------  --------  -----------------------------
+%%   Sky       c3OceanBlue!18       #D2E7F2   c3OceanBlue!60!black       #00476D   AR-vision tokens
+%%   Lavender  c3Blue!12            #E0E0FF   c3Blue!45!black            #000073   AR-text tokens
+%%   Mint      c3Sage!25            #D9E7D7   c3Sage!60!black            #3D6039   Action tokens
+%%   Lilac     c3Violet!22          #E3C7E3   c3Violet!60!black          #4C004D   Audio tokens
+%%   Peach     c3Orange!12          #FFF0E0   c3Orange!78!black          #C76300   DM LN / MLP fill + DM-subseq label
+%%   Birch     c3Orange!4!white     #FFFAF5   c3Rust!70!black            #A15911   DM panel background + vid-token border
+%%   Gray      gray!16              #ECECEC   black!70                   #4D4D4D   Special tokens (EOS / BOG)
+%%   Rose      (literal hex)        #F2DADA   (literal hex)              #7A2E2E   Supplementary accent (not in MoT)
+%%
+\colorlet  {c3SkyFill}      {c3OceanBlue!18}%
+\colorlet  {c3SkyDark}      {c3OceanBlue!60!black}%
+\colorlet  {c3LavenderFill} {c3Blue!12}%
+\colorlet  {c3LavenderDark} {c3Blue!45!black}%
+\colorlet  {c3MintFill}     {c3Sage!25}%
+\colorlet  {c3MintDark}     {c3Sage!60!black}%
+\colorlet  {c3LilacFill}    {c3Violet!22}%
+\colorlet  {c3LilacDark}    {c3Violet!60!black}%
+\colorlet  {c3PeachFill}    {c3Orange!12}%
+\colorlet  {c3PeachDark}    {c3Orange!78!black}%
+\colorlet  {c3BirchFill}    {c3Orange!4!white}%
+\colorlet  {c3BirchDark}    {c3Rust!70!black}%
+\colorlet  {c3GrayFill}     {gray!16}%
+\colorlet  {c3GrayDark}     {black!70}%
+\definecolor{c3RoseFill}{HTML}{F2DADA}%
+\definecolor{c3RoseDark}{HTML}{7A2E2E}%
+%
+%% ── 4. Optional parametric shorthand macros ───────────────────────
+%%
+%%   If you'd rather not memorise the 36 variant names, these macros
+%%   take a base-colour NAME and return the right mix:
+%%
+%%       fill=\cTok{c3Blue}        ≡ fill=c3Blue!22  (same as c3BlueTok)
+%%       draw=\cBorder{c3Blue}     ≡ draw=c3Blue!50!black (same as c3BlueDark)
+%%       text=\cBorder{c3OceanBlue}≡ text=c3OceanBlue!50!black
+%%
+%%   The named variants above are usually preferred (more readable,
+%%   no macro-expansion gotchas inside \edef), but these are handy
+%%   when you're writing a parametric TikZ style.
+\providecommand{\cPale}  [1]{#1!4!white}%
+\providecommand{\cLight} [1]{#1!8}%
+\providecommand{\cFill}  [1]{#1!12}%
+\providecommand{\cTok}   [1]{#1!22}%
+\providecommand{\cSoft}  [1]{#1!50!gray}%
+\providecommand{\cBorder}[1]{#1!50!black}%
+%
+%% ── 5. Extended qualitative palette (11 hues) ─────────────────────
+%%
+%% Eleven distinguishable hues for charts that need more categories
+%% than the MoT-role hues offer (e.g. multi-slice pies, stacked bars,
+%% category legends). Hues are spaced ~30° around the colour wheel
+%% and derived from existing cosmos3 base colours wherever possible,
+%% so they share family with the rest of the figure set. Three are
+%% defined by hex because the cosmos3 base has no equivalent
+%% (saturated coral red, magenta-pink, earthy brown); their luminance
+%% is tuned to sit alongside the base hues without screaming.
+%%
+%% Adjacency check: every pair is clearly distinguishable.
+%%   • c3Olive (#B3D030, lime ~70°) vs c3Sage (#66A05F, green ~115°)
+%%     — different hue and luminance, no green-on-green clash.
+%%   • c3Teal (#2E898F, ~180°) vs c3OceanBlue (#0077B6, ~200°)
+%%     — close on the wheel but Teal is greener, Ocean is bluer.
+%%   • c3Coral (#C95B5B) vs c3Berry (#B04060) vs c3Violet (#800080)
+%%     — three reds/pinks/purples, each clearly its own hue.
+%%   • c3Cocoa (#8C5523) vs c3Rust (#E58019)
+%%     — same hue family, but Cocoa is much darker / lower saturation,
+%%       reads as "brown" rather than "rust".
+%%
+%%   #   Name         Recipe                          ≈ hex     Slot
+%%   --  -----------  -----------------------------   --------  --------------
+%%   1   c3Coral      HTML C95B5B                     #C95B5B   ~0°  red
+%%   2   c3Rust       base                            #E58019   ~30° orange
+%%   3   c3Gold       c3Orange!55!yellow              #FFB900   ~45° gold
+%%   4   c3Olive      c3Sage!50!yellow                #B3D030   ~70° lime
+%%   5   c3Sage       base                            #66A05F   ~115° green
+%%   6   c3Teal       c3OceanBlue!55!c3Sage           #2E898F   ~180° teal
+%%   7   c3OceanBlue  base                            #0077B6   ~200° blue
+%%   8   c3Indigo     c3Blue!65!c3Violet              #2D00D3   ~250° indigo
+%%   9   c3Violet     base                            #800080   ~300° violet
+%%   10  c3Berry      HTML B04060                     #B04060   ~335° magenta-pink
+%%   11  c3Cocoa      HTML 8C5523                     #8C5523   earthy brown
+%%
+%% Use them in chart order (1→11) for monotonic categorical scales,
+%% or pick subsets that visit each colour-wheel sector once. A clean
+%% 7-slice pick is e.g. {c3OceanBlue, c3Teal, c3Sage, c3Gold, c3Rust,
+%% c3Coral, c3Violet}.
+\definecolor{c3Coral} {HTML}{C95B5B}%
+\colorlet  {c3Gold}   {c3Orange!55!yellow}%
+\colorlet  {c3Olive}  {c3Sage!50!yellow}%
+\colorlet  {c3Teal}   {c3OceanBlue!55!c3Sage}%
+\colorlet  {c3Indigo} {c3Blue!65!c3Violet}%
+\definecolor{c3Berry} {HTML}{B04060}%
+\definecolor{c3Cocoa} {HTML}{8C5523}%
+%
+%% ── 6. Softened chart variants (Tableau-style) ────────────────────
+%%
+%% The Section-5 hues are full-saturation — fine for the MoT hero plot,
+%% but they overpower the page when used as solid fills in a multi-slice
+%% pie or stacked bar. This section provides pre-softened versions for
+%% chart use: each hue is mixed ~20% toward gray and slightly lightened,
+%% bringing the saturation/lightness into Tableau-10 territory while
+%% staying in the cosmos3 hue family.
+%%
+%% Names use prefix `c3Cat` (categorical). Hex values are computed from
+%% the recipes shown.
+%%
+%%   #   Name           Recipe                                    ≈ hex
+%%   --  -----------    ------------------------------------      --------
+%%   1   c3CatCoral     HTML C36868 (lighter coral)               #C36868
+%%   2   c3CatRust      c3Rust!82!gray!97                         #D48431
+%%   3   c3CatGold      c3Gold!78!gray!95                         #E4B027
+%%   4   c3CatOlive     c3Olive!85!gray!97                        #AEC641
+%%   5   c3CatSage      c3Sage!92!gray!97                         #6DA166
+%%   6   c3CatTeal      c3Teal!82!gray!95                         #468D92
+%%   7   c3CatBlue      c3OceanBlue!80!gray!95                    #2580AF
+%%   8   c3CatIndigo    c3Indigo!50!gray!92                       #674FAD
+%%   9   c3CatViolet    HTML 9C73A2 (soft mauve, c3Violet doesn't
+%%                      desaturate well via gray-mixing alone)    #9C73A2
+%%   10  c3CatBerry     c3Berry!85!gray!95                        #AD526D
+%%   11  c3CatCocoa     c3Cocoa!90!gray!97                        #8E5E32
+%%
+%% Use these for any solid-fill categorical chart. Saturated Section-5
+%% versions are still available if you need a punchy accent (e.g. one
+%% highlighted slice in an otherwise-muted pie).
+\definecolor{c3CatCoral} {HTML}{C36868}%
+\colorlet  {c3CatRust}   {c3Rust!82!gray!97}%
+\colorlet  {c3CatGold}   {c3Gold!78!gray!95}%
+\colorlet  {c3CatOlive}  {c3Olive!85!gray!97}%
+\colorlet  {c3CatSage}   {c3Sage!92!gray!97}%
+\colorlet  {c3CatTeal}   {c3Teal!82!gray!95}%
+\colorlet  {c3CatBlue}   {c3OceanBlue!80!gray!95}%
+\colorlet  {c3CatIndigo} {c3Indigo!50!gray!92}%
+\definecolor{c3CatViolet}{HTML}{9C73A2}%
+\colorlet  {c3CatBerry}  {c3Berry!85!gray!95}%
+\colorlet  {c3CatCocoa}  {c3Cocoa!90!gray!97}%
+\endinput

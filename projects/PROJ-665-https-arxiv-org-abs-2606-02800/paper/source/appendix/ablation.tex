@@ -1,0 +1,71 @@
+\section{Additional Ablation Study}
+\label{appendix:training_ablations}
+
+While the main experiments demonstrate the effectiveness of Cosmos 3 across a wide range of understanding and generation tasks, they do not fully isolate the contributions of individual design choices. To better understand the factors underlying the model's capabilities, we conduct a series of ablation studies examining key architectural, data, and training decisions. These studies investigate how the Reasoner and Generator interact within the Mixture-of-Transformers framework, the impact of multimodal training signals such as audio and action data, the effectiveness of temporal conditioning mechanisms, and the transferability of learned world and action representations across domains. Together, these analyses provide deeper insight into the design principles that enable Cosmos 3 to function as a unified omnimodal world model for Physical AI.s
+
+\subsection{How the Reasoner Benefits the Generator}
+In this study, we investigate how the Reasoner benefits the Generator model. We train two models using the Cosmos3-Nano architecture: one with Qwen3-VL-8B as the understanding tower, and the other with our Cosmos3-Nano Reasoner. In both cases, the Generator tower is trained from scratch. For this ablation, we restrict training to 256p and 480p resolutions with clip lengths of 0–200 frames, and set the sequence length to 25K. Following our large-scale run, we use joint image–video training. Both models are trained for 90K iterations on 256 GPUs. We report PAIBench scores for both below.
+
+\input{tables/appendix/training_ablations/understanding_tower}
+
+As shown in Table~\ref{tab::ablation-understanding-tower}, replacing Qwen3-VL-8B with our Cosmos3-Nano Reasoner in the understanding tower yields consistent improvements in domain scores, particularly in Physical AI domains. On T2V, the Reasoner improves the overall Domain score from 73.7 to 75.7, with the largest gains concentrated in physically-grounded categories: Robot (+4.8, 66.5 → 71.3), Physics (+0.5, 88.7 → 89.2), AV (+2.3, 52.6 → 54.9), and Industry (+1.0, 77.4 → 78.4). A similar pattern holds on I2V, where the Domain score rises from 80.0 to 80.8, driven by gains in Common sense (+0.7), Industry (+0.8), Human (+1.0), and Physics (+0.2). These results suggest that the reasoner provides better embeddings for Physical AI domains for generator to learn. The quality scores for both models are comparable.
+
+\subsection{Choice of FPS Control}
+
+We study two complementary mechanisms for conditioning generation on a target frame rate: (i) MRoPE FPS modulation, which scales the temporal axis of the unified 3D MRoPE by the target FPS, and (ii) Text Control, which injects the target duration and FPS as natural-language text inside the structured JSON caption. For this ablation, we
+restrict training to 256p and 480p resolutions with clip lengths of 0–200 frames, and set the sequence length
+to 25K. Following our large-scale run, we use joint image–video training. We train 4 models for 130K iterations on 128 GPUs each, varying only whether each mechanism is active: Base (no control), Text Control (text only), MRoPE FPS Modulation (MRoPE only), and Text Control + MRoPE FPS Modulation (both). We curate an evaluation set with known source duration and FPS, $\sim$100 videos each of 10, 15, 24, 30 FPS ($\pm$2 FPS tolerance). We use the structured captions of these evaluation set videos as prompts and generate samples across 3 seeds per prompt at 480p (16:9) resolution. We produce a 5 s clip for each prompt.
+
+We score each clip on Video Quality (VQ; DOVER perceptual quality score~\citep{dover}) and Dynamic Degree (DD; motion presence on a 0--1 scale~\citep{huang2023vbench}). From the three-seed DD scores per prompt ($p$), we compute a normalized motion control (MC) term
+\begin{equation}
+    \text{MC} = \mathbb{E}_{p}\!\left[\frac{\text{var}_p}{\text{var}_p + \text{mean}_p^2}\right],
+\end{equation}
+MC indicates the robustness of the control mechanism, \ie, the degree of variability per prompt for each control setting. We combine these into a Motion Fidelity score
+\begin{equation}
+    \text{MF} = (1 - |\text{DD} - \text{DD}_{\text{ref}}|)\,(1 - \text{MC}),
+\end{equation}
+where $\text{DD}_{\text{ref}}$ is the per-band mean DD over the real-video reference set. The final Composite Score is the product of Video Quality and Motion Fidelity, reflecting adherence to motion magnitude without impacting the perceptual quality of generated videos. This is computed as $\mathbb{E}_{\text{FPS-band}}\!\left[(\text{VQ}) \cdot \text{MF}\right]$, computed per FPS band and then averaged across bands.
+
+\cref{tab:fps_control_ablation} reports averages across the four FPS bands. Both mechanisms improve over Base individually; MRoPE FPS modulation alone yields a larger gain than the Text Control ($+1.12$ vs.\ $+0.77$ in composite). Combining the two produces the best composite score ($+1.30$ over Base). VQ stays within a 0.2-point window across all four settings, indicating that the gains are concentrated in motion fidelity rather than video perceptual quality, \ie, the controls primarily improve temporal behavior. Based on these results, we adopt the Text Control + MRoPE FPS Modulation configuration for Cosmos 3 Generator.
+
+\input{tables/results/fps_control_ablation}
+
+\subsection{Audio Data in Pre-Training}
+
+We investigate the impact of including audio during continued pre-training on video metrics. Starting from the same pre-trained checkpoint, we train two Cosmos3-Nano variants on our pre-training dataset: one with video-only data and one with joint video-audio data. These ablations are run for 20k iterations on 128 GPUs. We restrict training to 256p and 480p resolutions.
+
+\input{tables/appendix/training_ablations/audio_pretraining}
+
+The results in~\cref{tab::ablation-audio-pretraining} show that continued training without audio leads to a drop in both T2V and I2V scores, suggesting that joint video-audio pre-training does not degrade video generation quality and may provide a modest benefit even when evaluated purely on video-centric metrics.
+
+\subsection{Synergy Between Action Modes}
+\label{app:pusht_fd_id_policy_synergy}
+As described in \cref{sec::generation_mode_def} and summarized in \cref{fig:action_modes}, Cosmos 3 supports three action generation modes: forward dynamics (FD), inverse dynamics (ID), and joint video-action prediction (policy).
+We ablate whether a single joint action model can share useful structure across these modes.
+We use the PushT dataset and Cosmos3-Edge for this experiment.
+The model is trained for three single-mode action checkpoints for 2K steps each against one joint FD/ID/policy checkpoint trained for 6K steps, so that each mode is trained for the same amount of optimization steps.
+We report the PSNR for FD and MSE for ID.
+For policy mode, we report the policy coverage ratio of the T block and target region aggregated across 50 different initializations, with 10 rollouts from each starting point.
+The results are summarized in \cref{tab:pusht_fd_id_policy_open_loop}.
+
+\input{tables/results/action_pusht_synergy_open_loop}
+
+The joint FD/ID/policy checkpoint improves the action-side metrics while preserving comparable forward-dynamics quality.
+Compared with the single-mode checkpoints, ID MSE decreases from $1.11 \times 10^{-3}$ to $3.09 \times 10^{-4}$, a 72\% relative reduction, and policy coverage increases from 74.1\% to 77.3\%.
+FD PSNR decreases from 27.13 to 26.22, indicating a modest tradeoff in reconstruction fidelity.
+Overall, the joint checkpoint provides the best policy coverage and ID accuracy under the same per-mode optimization budget, suggesting that the action modes share useful structure even though FD quality benefits slightly from single-mode specialization.
+
+\FloatBarrier
+
+\subsection{Video-Action Consistency}
+\label{app:robolab_video_action_consistency}
+In addition to the closed-loop success rate reported in \cref{sec:robot_manip_policy}, we evaluate how well the video and action streams jointly predicted by Cosmos3-Nano-Policy-DROID remain aligned on RoboLab. 
+Cosmos3-Nano-Policy-DROID is trained only on DROID, so RoboLab provides a held-out environment for testing this video-action consistency.
+For each predicted action chunk, we execute the same chunk in the RoboLab simulator and compute PSNR between the model-predicted video and the resulting simulator rollout, then aggregate the scores across action chunks for the left and wrist camera views.
+The left third-person view achieves 23.19\,dB, comparable to the PSNR levels achieved by our robotics forward-dynamics models on DROID (\cref{tab:action_posttraining_summary_wide}).
+The wrist (eye-in-hand) view is more challenging because the camera moves with the end-effector and the model must infer newly revealed content; nevertheless, it reaches 17.33\,dB. 
+These results indicate strong consistency between the predicted actions and predicted videos.
+\Cref{fig:robolab_video_action_consistency} visualizes this consistency: the predicted frames closely match the corresponding frames from simulator rollouts initialized from the same state.
+
+\input{figures/results/action/consistency/robolab_video_action_consistency}
+\FloatBarrier

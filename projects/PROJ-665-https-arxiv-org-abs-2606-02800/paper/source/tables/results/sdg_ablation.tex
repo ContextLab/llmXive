@@ -1,0 +1,99 @@
+\newcommand{\dpos}[1]{\,{\scriptsize\textcolor{green!50!black}{$+$#1}}}
+\newcommand{\dneg}[1]{\,{\scriptsize\textcolor{red!70!black}{$-$#1}}}
+\newcommand{\dzer}{\,{\scriptsize\textcolor{gray}{$\pm$0.00}}}
+
+\begin{table}[t]
+\centering
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\caption{\textbf{Ablation study on synthetic data generation (SDG) datasets, evaluated
+on PAIBench-G T2V~\citep{zhou2025paibench}}. Each model is fine-tuned from the same pre-trained baseline
+with data from one SDG source; SDG-All mixes all five sources. \textbf{Bold}
+denotes improvement over the baseline; \underline{underline} marks the best
+score in each column. Colored deltas show change relative to the baseline
+(\textcolor{green!50!black}{green} = improvement,
+\textcolor{red!70!black}{red} = degradation).}
+\label{tab:sdg_ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccc}
+\toprule
+\textbf{Model} &
+\textbf{Overall} &
+\textbf{Domain} &
+\textbf{Quality} &
+\textbf{Comm.\ Sense} &
+\textbf{AV} &
+\textbf{Robot} &
+\textbf{Industry} &
+\textbf{Human} &
+\textbf{Physics} \\
+\midrule
+Baseline (pre-train)
+  & 79.67\dzer & 86.87\dzer & 72.46\dzer
+  & 91.89\dzer & 70.86\dzer & 87.37\dzer
+  & 88.66\dzer & \underline{85.46}\dzer & 94.58\dzer \\
+\midrule
++~SDG-DriveSim
+  & \textbf{79.76}\dpos{0.09}
+  & \textbf{86.97}\dpos{0.10}
+  & \textbf{72.55}\dpos{0.09}
+  & \textbf{92.41}\dpos{0.52}
+  & 70.48\dneg{0.38}
+  & \textbf{88.26}\dpos{0.89}
+  & \textbf{88.92}\dpos{0.26}
+  & 84.91\dneg{0.55}
+  & 94.58\dzer \\
++~SDG-RobotSim
+  & 79.66\dneg{0.01}
+  & 86.60\dneg{0.27}
+  & \underline{\textbf{72.72}}\dpos{0.26}
+  & \textbf{92.22}\dpos{0.33}
+  & 69.83\dneg{1.03}
+  & \textbf{87.60}\dpos{0.23}
+  & 87.44\dneg{1.22}
+  & 84.99\dneg{0.47}
+  & 94.50\dneg{0.08} \\
++~SDG-Warehouse
+  & \textbf{79.74}\dpos{0.07}
+  & \textbf{87.00}\dpos{0.13}
+  & \textbf{72.48}\dpos{0.02}
+  & \textbf{92.34}\dpos{0.45}
+  & \textbf{71.15}\dpos{0.29}
+  & \textbf{87.97}\dpos{0.60}
+  & 88.63\dneg{0.03}
+  & 85.01\dneg{0.45}
+  & \underline{\textbf{94.79}}\dpos{0.21} \\
++~SDG-PhyxSim
+  & 79.62\dneg{0.05}
+  & 86.68\dneg{0.19}
+  & \textbf{72.56}\dpos{0.10}
+  & 91.57\dneg{0.32}
+  & 69.44\dneg{1.42}
+  & \textbf{88.17}\dpos{0.80}
+  & \underline{\textbf{89.51}}\dpos{0.85}
+  & 84.77\dneg{0.69}
+  & \textbf{94.72}\dpos{0.14} \\
++~SDG-SynHuman
+  & \underline{\textbf{79.79}}\dpos{0.12}
+  & \underline{\textbf{87.16}}\dpos{0.29}
+  & 72.41\dneg{0.05}
+  & \underline{\textbf{92.55}}\dpos{0.66}
+  & \underline{\textbf{71.33}}\dpos{0.47}
+  & \underline{\textbf{88.60}}\dpos{1.23}
+  & 88.51\dneg{0.15}
+  & 85.08\dneg{0.38}
+  & 94.56\dneg{0.02} \\
+\midrule
++~SDG-All
+  & \textbf{79.77}\dpos{0.10}
+  & \textbf{86.97}\dpos{0.10}
+  & \underline{\textbf{72.56}}\dpos{0.10}
+  & \textbf{92.40}\dpos{0.51}
+  & \textbf{71.19}\dpos{0.33}
+  & \textbf{87.68}\dpos{0.31}
+  & \textbf{88.79}\dpos{0.13}
+  & 84.99\dneg{0.47}
+  & \textbf{94.67}\dpos{0.09} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

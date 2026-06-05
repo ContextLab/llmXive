@@ -1,0 +1,16 @@
+\begin{figure}[t]
+    \centering
+    \resizebox{0.95\linewidth}{!}{\includegraphics{figures/model_architecture/tikz_mot_architecture.pdf}}
+    \caption{
+        \textbf{Mixture-of-Transformers (MoT) architecture of Cosmos 3.} \textbf{Left:} a single transformer operates on one token sequence comprising the autoregressive (\textcolor{blue!65!black}{\textbf{AR}}) and diffusion (\textcolor{orange!75!black}{\textbf{DM}}) subsequences: AR carries discrete text tokens and, optionally, ViT-encoded vision tokens, ending with \texttt{<EOS>} and a begin-of-generation token \texttt{<BOG>}, while DM carries continuous tokens from their respective encoders, noise-perturbed during training. Here we visualize all input tokens as noisy for simplicity; for generation modes such as image-to-video or video transfer, clean conditioning tokens precede the noisy targets within DM; see \cref{sec::generation_mode_def}. 
+        Within each transformer block, AR tokens and DM tokens are processed by independent LayerNorms and MLPs (all co-initialized from a pre-trained VLM) and meet only at a shared self-attention operator. Let $\mathbf{Q}$, $\mathbf{K}$, and $\mathbf{V}$ be query, key, and value vectors in attention, where the subscript indicates which tower it is in. 
+        $\mathbf{Q}_{\mathrm{AR}}$ attends causally over
+        $\mathbf{K}_{\mathrm{AR}}, \mathbf{V}_{\mathrm{AR}}$ only, while
+        $\mathbf{Q}_{\mathrm{DM}}$ attends bidirectionally over the concatenated
+        $[\mathbf{K}_{\mathrm{AR}};\mathbf{K}_{\mathrm{DM}}]$ and
+        $[\mathbf{V}_{\mathrm{AR}};\mathbf{V}_{\mathrm{DM}}]$. 
+        In this way, diffusion is conditioned on the AR context, while AR remains autoregressively self-contained. Outputs are next-token predictions for
+        Reasoner and denoised tokens for Generator (trained in practice with a flow-matching objective predicting velocity; we show the clean target here for clarity). \textbf{Right:} the attention mask, causal for AR and full for diffusion.
+    }
+    \label{fig:mot_architecture}
+\end{figure}

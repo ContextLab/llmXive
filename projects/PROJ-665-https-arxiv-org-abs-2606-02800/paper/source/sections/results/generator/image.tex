@@ -1,0 +1,32 @@
+\subsubsection{Image Generation Evaluation}
+\label{subsec::image_eval}
+
+\par \noindent
+We evaluate Cosmos 3 image generation as single-frame visual generation, focusing on four complementary axes: broad semantic prompt following, exact scene-text rendering, human-preference alignment, and visual aesthetics.
+UniGenBench is the primary prompt-following metric because it exposes failures at the testpoint level. We enhance UniGenBench by adding a Physical-AI subset.
+CVTG isolates a frequent failure mode of image generators---misspelled, omitted, blurred, or duplicated scene text---through OCR-based GNED and PNED scores.
+HPSv3 and LAION aesthetic complement those targeted checks by measuring overall human preference and visual appeal, giving a more actionable view of T2I quality than any single aggregate score.
+For all benchmarks, we use Claude-Opus-4.7 as a prompt rewriter to convert evaluation text prompts into a structured format described in \cref{sec::gen_guide} and \cref{sec::prompt_upsampling}, ensuring they match the training prompt style preferred by the generator. The instructions template can be found in Appendix~\ref{appendix:sft_t2i_upsampler_prompt}. We generate and compare all models at 1024x1024 resolution. For open-source models, we follow the recommended hyper-parameters and negative prompts provided in their documentation. Qualitative examples can also be found in \cref{fig:sft_t2i_demo}.
+
+\input{figures/results/sft_t2i/sft_t2i_demo}
+
+\paragraph{UniGenBench.} UniGenBench~\citep{wang2025unigenbench} is a unified semantic evaluation benchmark for text-to-image generation.
+It comprises 600 prompts spanning 5 main themes and 20 subthemes, each assessed across 10 primary and 27 sub-evaluation criteria using an MLLM-as-Judge framework.
+To better assess the capabilities of Cosmos 3 in Physical AI scenarios, we augment the benchmark with 570 additional prompts (UniGenBench-Phys) targeting photorealistic physical-world scenes.
+These prompts cover six physical-world sub-domains: (a) robotics and industrial, (b) physical signage and text, (c) autonomous driving, (d) construction sites, (e) fluid dynamics, and (f) medical/clinical.
+Gemini 3.1 Pro evaluates each generated image against each testpoint with binary pass/fail decisions; the primary score is mean testpoint accuracy, reported for the full 1{,}170-prompt (\ie "All") with additional breakdowns over original and physics subsets (\ie "Orig" and "Phys").
+
+\paragraph{CVTG.} CVTG~\citep{du2025textcrafter} (Complex Visual Text Generation) evaluates a model's ability to accurately render text in visually complex scenes. This capability is particularly important for real-world environments, where signage, labels, and instructional text must be legible and correctly spelled. Generated images are first processed by an OCR system to extract visible text regions, and the predicted strings are then matched to the target strings using Hungarian matching based on normalized edit distance (\ie NED).
+
+We evaluate on two prompt sets:
+(a) \textit{CVTG-500L}, an English-focused subset of 500 prompts randomly sampled from CVTG-2K while preserving comparable coverage of the number of text regions. We further upsample each short prompt into a long, dense description to better reflect the requirements of modern world-model generation.
+(b) \textit{CVTG-102ch}, a Chinese-focused set of 102 prompts designed to evaluate accurate Chinese character rendering. These prompts are drawn from both common and physically grounded domains, including public spaces, outdoor and scenic environments, digital displays, and other real-world settings.
+
+\textbf{HPSv3.} HPSv3~\citep{ma2025hpsv3} evaluates prompt-aware text-to-image quality with a learned human-preference reward model. It is built on HPDv3, a preference dataset spanning both synthetic and real images across a wide range of quality levels. HPSv3 adopts a VLM-based architecture trained with an uncertainty-aware ranking loss, producing a prompt-aware score that reflects human judgments of semantic alignment, realism, and aesthetic quality. We directly apply HPSv3 on Cosmos 3 results to obtain this complementary human-preference metric.
+
+\textbf{Aesthetic V2.} Aesthetic V2~\citep{laionaesthetics} measures prompt-independent visual appeal using the LAION aesthetic predictor. The predictor estimates how much people would like an image on a 1--10 scale, using a lightweight model trained on top of CLIP image embeddings. Unlike HPSv3, this score does not condition on the input prompt and therefore does not directly measure instruction following or semantic alignment. We use it as a standalone image-quality signal to capture general visual attractiveness and composition quality.
+
+\input{tables/results/score_t2i}
+
+\input{figures/results/sft_t2i/sft_t2i}
+\paragraph{Artificial Analysis Text-to-Image Leaderboard.} To evaluate Cosmos 3 under real-world scenarios, we submitted our specialized T2I model, Cosmos3-Super-Text2Image, alongside an agentic harness, to the Artificial Analysis Text-to-Image leaderboard for crowdsourced public voting. The model ranked \#1 among all open-weight models and \#4 among all models (open $+$ closed). For more details on the submission, please see Appendix ~\ref{appendix:t2i_agentic_upsampling}.

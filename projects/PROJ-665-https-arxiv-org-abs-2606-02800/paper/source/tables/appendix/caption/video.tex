@@ -1,0 +1,26 @@
+\begin{tcolorbox}[
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Additional Top-level Fields in the Video Caption Schema
+]
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}lX@{}}
+\toprule
+Field & Description \\
+\midrule
+actions[] & Key visual actions in chronological order. \\
+segments & Distinct temporal segments by shot, scene, or meaningful change within the video. \\
+transitions & Notable transitions between segments or temporal changes in the video. \\
+temporal\_caption & Dense description of all temporal changes in the video. \\
+resolution / aspect\_ratio / duration / fps & Video metadata. \\
+audio\_description & Description of the audio content in the video. \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}

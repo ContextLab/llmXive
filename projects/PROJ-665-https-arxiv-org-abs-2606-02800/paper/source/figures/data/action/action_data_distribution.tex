@@ -1,0 +1,39 @@
+\begin{figure}[h]
+    \centering
+    \begin{minipage}[t]{0.48\linewidth}
+        \vspace{0pt}
+        \centering
+        \resizebox{\linewidth}{!}{\includegraphics{figures/data/action/tikz_action_data_distribution.pdf}}
+        \captionof{figure}{\textbf{Action data distribution.} Hours are aggregated over the four main action-data pillars in the final curated action mid-training set, which contains $8.4$M episodes and $61.3$K hours.}
+        \label{fig:action_data_distribution}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\linewidth}
+        \vspace{0pt}
+        \centering
+        \captionof{table}{\textbf{Robotics data breakdown.} Grouped by robot embodiment.}
+        \label{tab:robotics_breakdown}
+        \scriptsize
+        \setlength{\tabcolsep}{1pt}
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabular}{@{}llrrr@{}}
+            \toprule
+            \textbf{Embodiment} & \textbf{Data source} & \textbf{Tasks} & \textbf{Episodes} & \textbf{Hours} \\
+            \midrule
+            AgiBot & \cite{bu2025agibot} & 338 & 239.4K & 4.37K \\
+            \cmidrule{1-5}
+            Franka Panda & \begin{tabular}[t]{@{}l@{}}\cite{wu2024robomind};\\ \cite{khazatsky2024droid}\end{tabular} & 67.5K & 76.3K & 442 \\
+            \cmidrule{1-5}
+            Google Robot & \cite{brohan2022rt} & 599 & 87.2K & 351 \\
+            \cmidrule{1-5}
+            WidowX-250 & \cite{walke2023bridgedata} & 21.8K & 50.4K & 100.1 \\
+            \cmidrule{1-5}
+            UMI & \begin{tabular}[t]{@{}l@{}}\cite{lin2024data}; \cite{ha2024umilegs};\\ \cite{liu2024maniwav}; \cite{chi2024umi};\\ \cite{liu2025vitamin}; \cite{wu2024fastumi}\end{tabular} & 43 & 38.3K & 67 \\
+            \cmidrule{1-5}
+            UR & \cite{wu2024robomind} & 114 & 25.0K & 35 \\
+            \midrule
+            Total & -- & 90.4K & 516.7K & 5.36K \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+\end{figure}

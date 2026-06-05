@@ -1,0 +1,16 @@
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figures/infrastructure/serving/cosmos3_serving_latency_combined_1x3.pdf}\\[-0.2em]
+    \vspace{0.5em}
+    \makebox[0.98\textwidth]{\makebox[0.90\textwidth]{%
+        \footnotesize
+        \hspace*{0.4em}\makebox[0.30\textwidth][c]{\shortstack[c]{(a) Nano T2V, 1-GPU\\H100 NVL/B200 backend latency}}\hfill
+        \hspace*{0.4em}\makebox[0.30\textwidth][c]{\shortstack[c]{(b) Nano T2I, 1-GPU\\H100 NVL/B200 backend latency}}\hfill
+        \hspace*{2.6em}\makebox[0.30\textwidth][c]{\shortstack[c]{(c) T2V on B200, 1--8 GPUs\\Nano/Super scaling}}\hspace*{-2.6em}%
+    }}
+    \caption{\textbf{Cosmos 3 serving performance.}
+    (a) Cosmos3-Nano 720p T2V 1-GPU latency on H100 NVL and B200, to observe performance on different hardware backends.
+    (b) Cosmos3-Nano 720p T2I 1-GPU latency on H100 NVL and B200, to observe performance on different hardware backends.
+    (c) 720p T2V latency scaling on B200 from 1 to 8 GPUs for Cosmos3-Nano and Cosmos3-Super. Lower is better throughout.}
+    \label{fig:cosmos3_serving_latency_combined}
+\end{figure}

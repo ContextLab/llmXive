@@ -1,0 +1,500 @@
+\section{Default Prompts and Prompt Upsampling Templates for Generator}
+This appendix provides the prompt upsampler instruction templates and  full negative prompts used at inference time for Cosmos 3 Generator under different conditions. We specify the upsampler in each subsection and the corresponding use case. The sampling configurations that accompany these templates are summarized in ~\cref{tab:sampling_configs}.
+
+\subsection{Upsampler Prompt Template for Cosmos 3 Reasoner}
+\label{appendix:upsampler_prompt_template}
+
+The following snippet shows the instruction template used to invoke the Cosmos 3 Reasoner as a prompt upsampler, converting user prompts into the structured JSON schema expected by the Cosmos 3 Generator at inference time (see \cref{sec::prompt_upsampling} for details).
+
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Abridged Canonical Prompt-Template Examples
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+T2V user message:
+<instructions>
+Prompt upsampler for a text-to-video model. Produce exactly one fenced JSON
+object that fully populates the template and satisfies all constraints.
+</instructions>
+<video_description>{description}</video_description>
+<task_constraints>
+1. Write scene_imagination first.
+2. Write temporal_caption second as the timestamped M:SS playback timeline.
+3. Write audio_description third, aligned with the visual beats when possible.
+4. Copy exactly: duration="0:06", fps=24, aspect_ratio="1,1",
+   resolution={"W":640,"H":640}.
+5. Keep all timed fields within duration and mutually consistent.
+6. Preserve the user's described subjects, actions, props, and setting.
+</task_constraints>
+<output_json_template>
+{"scene_imagination":"...", "temporal_caption":"...", "audio_description":"...",
+ "subjects":[...], "background_setting":"...", "lighting":{...},
+ "aesthetics":{...}, "cinematography":{...}, "style_medium":"...",
+ "artistic_style":"...", "context":"...", "actions":[...],
+ "text_and_signage_elements":[...], "segments":[...], "transitions":[...],
+ "resolution":"Per task constraints", "aspect_ratio":"Per task constraints",
+ "duration":"Per task constraints", "fps":"Per task constraints"}
+</output_json_template>
+
+T2I user message:
+<instructions>
+Prompt upsampler for a text-to-image model. Produce exactly one fenced JSON
+object that fully populates the template and satisfies all constraints.
+</instructions>
+<image_description>{description}</image_description>
+<task_constraints>
+1. Write scene_imagination first.
+2. Write comprehensive_t2i_caption second as a dense 80-200 word image prompt.
+3. Copy exactly: aspect_ratio="1,1", resolution={"W":960,"H":960}.
+4. Keep subjects, background, lighting, aesthetics, and camera fields consistent.
+5. Populate subject_details with 2-5 image-specific attributes.
+</task_constraints>
+<output_json_template>
+{"scene_imagination":"...", "comprehensive_t2i_caption":"...",
+ "subjects":[...], "subject_details":{...}, "background_setting":"...",
+ "lighting":{...}, "aesthetics":{...}, "cinematography":{...},
+ "style_medium":"...", "artistic_style":"...", "context":"...",
+ "text_and_signage_elements":[...], "quadrant_scan":{...},
+ "resolution":"Per task constraints",
+ "aspect_ratio":"Per task constraints"}
+</output_json_template>
+
+I2V user message, with attached starting frame:
+<instructions>
+Prompt upsampler for an image-to-video model. Treat the attached starting frame
+as definitive visual ground truth and the text as temporal/action intent.
+</instructions>
+<video_description>{description}</video_description>
+<task_constraints>
+1. Write scene_imagination first, anchoring visual facts to the image and
+   temporal facts to the description.
+2. Copy exactly: duration="0:20", fps=20, aspect_ratio="9,16",
+   resolution={"W":480,"H":832}.
+3. Use only M:SS timing and keep all timed fields within duration.
+4. Ensure the first segment and earliest actions match the image at t=0.
+5. Preserve concrete facts from both the image and the description.
+</task_constraints>
+<output_json_template>
+{"scene_imagination":"...", "temporal_caption":"...", "audio_description":"...",
+ "subjects":[...], "background_setting":"...", "lighting":{...},
+ "aesthetics":{...}, "cinematography":{...}, "style_medium":"...",
+ "artistic_style":"...", "context":"...", "actions":[...],
+ "text_and_signage_elements":[...], "segments":[...], "transitions":[...],
+ "resolution":"Per task constraints", "aspect_ratio":"Per task constraints",
+ "duration":"Per task constraints", "fps":"Per task constraints"}
+</output_json_template>
+
+V2V user message, with attached conditioning video:
+<instructions>
+Prompt upsampler for a video-to-video continuation model. Treat the attached
+conditioning video as definitive visual and temporal ground truth for the
+observed prefix, and the text as future/action intent.
+</instructions>
+<video_description>{description}</video_description>
+<task_constraints>
+1. Write scene_imagination first, summarizing the conditioning video's state,
+   subjects, motion history, and final visible configuration.
+2. Write temporal_caption second as the future M:SS playback timeline after the
+   conditioning video, preserving continuity with the observed prefix.
+3. Write audio_description third, aligned with visible future events when possible.
+4. Copy exactly: duration="0:05", fps=24, aspect_ratio="16,9",
+   resolution={"W":1280,"H":720}.
+5. Preserve concrete facts from the conditioning video and the description.
+</task_constraints>
+<output_json_template>
+{"scene_imagination":"...", "temporal_caption":"...", "audio_description":"...",
+ "subjects":[...], "background_setting":"...", "lighting":{...},
+ "aesthetics":{...}, "cinematography":{...}, "style_medium":"...",
+ "artistic_style":"...", "context":"...", "actions":[...],
+ "text_and_signage_elements":[...], "segments":[...], "transitions":[...],
+ "resolution":"Per task constraints", "aspect_ratio":"Per task constraints",
+ "duration":"Per task constraints", "fps":"Per task constraints"}
+</output_json_template>
+\end{Verbatim}
+\end{tcolorbox}
+
+
+
+\subsection{Upsampler Prompt Template for Cosmos3-Super-Text2Image}
+\label{appendix:sft_t2i_upsampler_prompt}
+
+We use the following instruction template to produce upsampled JSON prompts for post-trained Cosmos3-Super-Text2Image. See ~\ref{sec::t2i_post_train} for more details.
+
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=\textbf{Cosmos3-Super-Text2Image} Prompt Upsampler Template,
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+Given the user's natural-language request below, generate a dense structured JSON that fully describes the image to be produced. The JSON must strictly follow the template provided after the request, including every top-level key and every nested sub-field.
+
+The output is always DENSE. Even when the request is brief, you must infer plausible, scene-consistent details for every field. Do not leave fields empty merely because the request did not mention them - the purpose of this task is to upsample a sparse request into a rich, complete annotation. Be creative but stay grounded: your additions must be physically plausible and internally consistent with the request.
+
+Requirements:
+- For every visual field, write rich, specific content inferred from the request's scene, subjects, mood, and context.
+- Empty values ("", 0, [], {}) are permitted ONLY for truly inapplicable fields:
+    * Human-only subject fields (clothing, expression, gender, age, skin_tone_and_texture, facial_features, number_of_arms, number_of_legs, number_of_hands, number_of_fingers) when the subject is non-human.
+    * text_and_signage_elements = [] when no visible text or signage is present.
+    * aesthetics.patterns = "" when there are no notable repeating patterns.
+    * subject_details = {} when no image-specific structured attributes apply.
+- Do not add keys beyond the template. Do not omit keys required by the template.
+
+Return only the JSON object wrapped in a ```json code fence.
+
+USER VISUAL REQUEST:
+{caption_dense}
+
+Lists (subjects, text_and_signage_elements) may contain zero or more items of the shape shown. All top-level keys must always be present in the output; fill unused fields with "", 0, {}, or [] as appropriate.
+
+{
+  "subjects": [
+    {
+      "description": "full visual description of the subject",
+      "appearance_details": "additional visual details (accessories, texture, distinguishing features)",
+      "relationship": "how this subject relates to others or to the scene",
+      "location": "where in frame (e.g., 'Center foreground', 'Top right')",
+      "relative_size": "size within frame",
+      "orientation": "direction subject faces relative to camera",
+      "pose": "body position and posture",
+      "clothing": "clothing and accessories; '' if non-human or N/A",
+      "expression": "facial expression; '' if non-human or N/A",
+      "gender": "one of 'Male', 'Female', 'Unknown', 'N/A'",
+      "age": "age category",
+      "skin_tone_and_texture": "skin tone description; '' if non-human",
+      "facial_features": "notable facial features, including eye shape/color, hair color/style, lip shape, wrinkles, moles, scars, freckles, facial hair, and other visible fine-grained facial attributes; '' if non-human or not visible",
+      "number_of_subjects": "int; total in this subject group, 0 if N/A",
+      "number_of_arms": "int; 2 for humans, 0 if non-human",
+      "number_of_legs": "int; 2 for humans, 0 if non-human",
+      "number_of_hands": "int; 2 for humans, 0 if non-human",
+      "number_of_fingers": "int; 10 for humans, 0 if non-human"
+    }
+  ],
+  "subject_details": {
+    "key_name_1": "free-form image-specific attribute (keys vary by image content; {} if N/A)"
+  },
+  "background_setting": "full prose description of the environment and setting",
+  "lighting": {
+    "conditions": "type and quality of light",
+    "direction": "where light comes from; 'None' for flat digital images",
+    "shadows": "shadow description; 'None' for flat digital images",
+    "illumination_effect": "overall effect of the lighting"
+  },
+  "aesthetics": {
+    "composition": "framing and compositional choices",
+    "color_scheme": "dominant colors and palette",
+    "mood_atmosphere": "emotional atmosphere in short phrases",
+    "patterns": "notable repeating visual patterns; 'None' if none"
+  },
+  "cinematography": {
+    "framing": "shot type",
+    "camera_angle": "angle (e.g., 'Eye-level', 'Low angle', 'High angle')",
+    "depth_of_field": "'Shallow', 'Deep', 'Uniform focus', or 'N/A'",
+    "focus": "what is in sharp focus",
+    "lens_focal_length": "descriptive focal length"
+  },
+  "style_medium": "visual medium (e.g., 'Photography', 'Digital presentation slide', 'Screenshot')",
+  "artistic_style": "genre or approach",
+  "context": "scene context or use case (brief)",
+  "text_and_signage_elements": [
+    {
+      "text": "the visible text content",
+      "category": "one of 'physical_in_scene', 'ui_text', 'body_text', 'scene_sign', 'logo', 'label'",
+      "appearance": "font, color, size, style",
+      "spatial": "position in image",
+      "context": "purpose or meaning of the text"
+    }
+  ],
+  "quadrant_scan": {
+    "top_left": "description of what appears in the top-left region",
+    "top_right": "description of what appears in the top-right region",
+    "bottom_left": "description of what appears in the bottom-left region",
+    "bottom_right": "description of what appears in the bottom-right region",
+    "absolute_center": "description of what appears at the center"
+  },
+  "comprehensive_t2i_caption": "a comprehensive, full-scene natural-language prose description of the image"
+}
+\end{Verbatim}
+\end{tcolorbox}
+
+
+\subsection{Upsampler Prompt Template for Cosmos3-Super-Image2Video}
+\label{appendix:sft_i2v_upsampler_prompt}
+
+The following snippet shows the instruction template used with Claude Opus 4.7 to produce upsampled JSON prompts and per-sample contextual negative prompts for the post-trained Cosmos3-Super-Image2Video model (see \cref{sec::i2v_post_train} and \cref{sec::gen_guide} for more details).
+
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=\textbf{Cosmos3-Super-Image2Video} Prompt Upsampler Template,
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+You are an expert prompt engineer for an image-to-video generative model. You are given a STARTING FRAME image (the first frame of the video) and a USER INSTRUCTION describing the desired motion or changes to animate. Your task is to produce a dense, cinematic video description that the model will use to generate the full video, together with a customized negative prompt.
+
+Complete this task in two phases.
+
+---
+### PHASE 1: VIDEO DESCRIPTION
+Write a dense, narrative caption inside `<final_prompt>` XML tags, formatted as a JSON object using this exact template:
+
+<final_prompt>{"temporal_caption": "..."}</final_prompt>
+
+Rules for the caption:
+- The provided image is the exact starting frame - all described motion must be consistent with the starting frame.
+- Opening: Establish the scene — subjects, environment, lighting — describing what is directly visible in the starting frame accurately and faithfully, noting essential elements that the motion will directly involve, the subject's orientation (e.g., "facing away", "in three-quarter profile"), and any implied ongoing motion (e.g., a cyclist leaning into a curve, water already splashing) so the video continues smoothly. Phrase it naturally as a scene description (do not say "in the starting frame", "initially shown", or similar meta-references).
+- Motion: Describe the changes and actions in chronological order. Flow naturally from one action to the next. Advance time using natural conjunctions (e.g., "while," "as," "and").
+- Physical Accuracy: All motion must obey gravity and reflect realistic material behavior (e.g., cloth ripples, water splashes, rigid objects resist deformation).
+- Cause-and-effect: Always describe causes before their effects. Reflections, shadows, and secondary effects cannot appear on their own — the source object must first enter the frame or move into the relevant position before any reflection or shadow is described. E.g., a person must walk to the water's edge before their reflection appears on the surface; an object must strike the water before a splash erupts.
+- Object Permanence: Every subject must persist throughout or have a clear reason for entering or exiting. When a new subject not present in the starting frame is introduced (e.g., an opposing team, an arriving vehicle), briefly describe their appearance (e.g., uniform color, vehicle type and color) so the generator can render them consistently, and describe a logical way for them to come into the frame (e.g., entering from a specific side of the frame, walking in through a door, or emerging from behind an existing object) rather than having them appear out of nowhere.
+- Taboo Phrases: NEVER refer to the video medium itself. Avoid "the video shows...", "the scene...", "the clip...", "the frame...", "the camera shows...", "we see...".
+- Perspective: Describe human body sides from the subject's own perspective (e.g., "her right hand" = the subject's right hand) to avoid ambiguity. This applies whenever a body part enters or moves in the frame: always specify whether it is the left or right (e.g., "his right hand reaches in from the lower edge"), never a bare "a hand enters the frame".
+- Pronouns: Use singular pronouns ("he", "she", "him", "her", "it") or a singular noun phrase ("the person", "the rider", "the child") for single subjects. Never use "they"/"them"/"their" to refer to one person, as this can cause the model to render multiple subjects.
+- Spatial Phrasing: Use spatial relationships for motion (e.g., "enters from the left", "rises above the horizon") rather than camera-centric descriptions.
+- Camera: Include camera motion only if specified in the instruction; otherwise describe from a static viewpoint. Keep any described camera movement subtle and gradual — do not exaggerate altitude loss, tilt angle, or speed beyond what is minimally implied by the instruction. Do not use the word "transition" when describing camera motion.
+- Cinematography Terms: When the instruction references a lens, camera, or filming technique (e.g., "probe lens", "macro lens", "fisheye", "drone shot", "GoPro"), treat it as a cinematographic style describing how the footage is captured — never as a physical object visible in the scene. Mention the style (e.g., for a probe lens: extreme close shot; for a fisheye lens: extreme wide angle fisheye view) rather than mentioning the lens or camera apparatus itself.
+- Timelapse: If the instruction implies timelapse, explicitly use the word "timelapse" in the caption and avoid exaggerating its effects.
+- Cuts & Montages: Always describe a single continuous shot with no hard cuts unless the user instruction explicitly used words like "cut", "hard cut", "jump cut", "shot change", or "montage". When multiple shots are requested without specifying an exact number, describe at most 3 shots, and dedicate the majority of the description to the opening action before any cut. Never use phrases like "the first shot", "the opening shot", or number shots as "first", "second", etc. — simply describe the action directly.
+- Tone: Neutral, objective, descriptive. No opinions, value judgments, or inferred emotions unless physically observable.
+- Length & Format: Write exactly ONE coherent paragraph of 5-8 sentences. No bullet points or lists.
+
+USER INSTRUCTION:
+"{description}"
+
+---
+### PHASE 2: NEGATIVE PROMPT
+Using your final video description from Phase 1, create a customized negative prompt.
+
+HOW IT WORKS:
+A negative prompt describes exactly what a bad video looks like. Use declarative statements (e.g., "blurry faces"). Never use negative instructions like "avoid" or "do not".
+
+---
+DEFAULT NEGATIVE PROMPT:
+The video captures a series of frames showing macroblocking artifacts, chromatic aberration, high-frequency noise, and rolling shutter distortion. It includes static with no motion, motion blur, over-saturation, shaky footage, low resolution, grainy texture, pixelated images, poorly lit areas, underexposed and overexposed scenes, poor color balance, washed out colors, choppy sequences, jerky movements, low frame rate, bit-depth compression artifacts, color banding, unnatural transitions, outdated special effects, fake elements, unconvincing visuals, poorly edited content, jump cuts, hard cut, visual noise, and flickering. It features moiré patterns, edge halos, and temporal aliasing. Furthermore, the content defies common sense, generating illogical scenarios, nonsensical entities, absurd character behaviors, and conceptual paradoxes that violate basic human reasoning and everyday reality. The video looks like a surreal or glitchy hallucination. Overall, the video is of poor quality.
+---
+
+INSTRUCTIONS:
+Delete any words from the default negative prompt that contradict your intended video. Keep most of the original wording and structure intact, and do not add new items. Examples:
+* If you want scene cuts/montages -> REMOVE "jump cuts" and "hard cut".
+* If you want a motionless/static scene -> REMOVE "static with no motion".
+* If you want fantasy, sci-fi, or surrealism -> REMOVE "defies common sense", "illogical scenarios", "nonsensical entities", "surreal", and related logic-violation terms.
+* If the scene has flickering light -> REMOVE "flickering".
+* If it is a night-time timelapse -> REMOVE "motion blur".
+
+Output only the final negative prompt as a single paragraph, wrapped in <negative_prompt> tags. Do not output any explanation or preamble.
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Prompt Prefix for Video Transfer}
+\label{appendix:generator_transfer_prompt_prefix}
+For video transfer tasks, we prefix the user caption with a system prompt that instructs the model to condition generation on visual control signals. Specifically, the following system prompt is prepended via the chat template before the user-provided caption during both training and inference:
+
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Cosmos 3 Base Generator Video-to-Video Transfer Prompt Prefix
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+You are a helpful assistant that generates images or videos following the user's instructions and control signals (edge maps, blur, depth, or segmentation).
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{Prompt Template for Action Generation}
+\label{appendix:action_upsampler_prompt}
+For action-related tasks, the model accepts a natural-language description of the intended behavior. The metadata information related to the action and video is populated in the JSON format. This format follows the same structured-caption convention used for video generation, while exposing action-specific fields for camera framing, temporal extent, conditioning frame rate, output resolution, and aspect ratio. The resulting prompt has the following form:
+
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Action Generation JSON Prompt Template
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+{
+  "cinematography": {
+    "framing": "<viewpoint description>"
+  },
+  "actions": [
+    {
+      "time": "0:00-<end time>",
+      "description": "<action caption as a sentence>",
+      "idle_frame": "<idle frames out of total frames>"
+    }
+  ],
+  "duration": "<integer seconds>s",
+  "fps": <conditioning fps>,
+  "resolution": {"H": <height>, "W": <width>},
+  "aspect_ratio": "<width,height>"
+}
+\end{Verbatim}
+\end{tcolorbox}
+
+The \texttt{cinematography.framing} field is filled to describe the input or output viewpoints, covering first-person, third-person, wrist-mounted, or concatenated camera views.
+The action entry spans the full generated clip, with the end time rounded from the measured duration; the top-level \texttt{duration} is truncated to integer seconds to remain consistent with the video JSON-caption format.
+Aspect ratios are mapped from a fixed set of generator resolutions.
+The optional \texttt{idle\_frame} field indicates how many frames contain no action (idle frames).
+We omit idle-frame metadata for inverse-dynamics samples as action prediction should strictly follow the video instead of user preferences.
+\cref{fig:action_multiview_packaging} shows a multiview example in which the concatenated camera layout is encoded directly in the JSON prompt. We use Claude-Opus-4.6 for prompt upsampling.
+
+\input{figures/data/action/action_multiview_packaging}
+
+\subsection{Cosmos 3 Generator Negative Prompt}
+\label{appendix:generator_negative_prompt}
+
+We use the following negative prompt for the base Cosmos3-Nano and Cosmos3-Super generators.
+
+\begin{tcolorbox}[
+    breakable,
+    colback=black!2,
+    colframe=nvidiagreen!75!white,
+    boxrule=0.4pt,
+    arc=1pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    title=Cosmos 3 Base Generator Negative Prompt,
+]
+\begin{Verbatim}[breaklines=true,breakanywhere=true,fontsize=\scriptsize]
+"subjects": [
+  {
+    "description": "Blurry, poorly defined subjects with inconsistent shapes and unrealistic proportions.",
+    "appearance_details": "Distorted features, visible compression artifacts, muddy textures lacking fine detail, color bleeding between elements, and unnatural skin tones or surface textures that appear artificial or computer-generated.",
+    "relationship": "Subjects appear disconnected from the environment, floating or improperly grounded in the scene without proper occlusion or spatial coherence.",
+    "location": "Subjects are poorly placed within the frame, appearing at awkward positions that violate basic compositional rules.",
+    "relative_size": "Inconsistent scale relationships between subjects and the environment, with objects appearing too large or too small relative to their surroundings.",
+    "orientation": "Unnatural orientations that defy physics and spatial logic.",
+    "pose": "Stiff, mannequin-like poses with unnatural joint angles and impossible limb positions that look computer-generated.",
+    "action": "Incoherent motion with visible frame-to-frame discontinuities. Movement appears as a slideshow rather than smooth animation. Limbs and appendages pop between positions without interpolation.",
+    "state_changes": "Visual state transitions are abrupt and jarring. Colors shift without motivation. Surface textures flicker between different materials randomly. Outlines shimmer and vibrate.",
+    "clothing": "Clothing appears painted on with no sense of material weight or drape. Fabric textures are flat and repeat visibly.",
+    "expression": "Frozen, uncanny valley expressions or expressions that change abruptly without natural transition.",
+    "gender": "",
+    "age": "",
+    "skin_tone_and_texture": "Waxy, plastic-looking skin with visible artifacts and inconsistent texture resolution across the frame.",
+    "facial_features": "Asymmetric facial features, extra fingers or limbs, teeth that appear blurry or malformed.",
+    "number_of_subjects": 0,
+    "number_of_arms": 0,
+    "number_of_legs": 0
+  },
+  {
+    "description": "Extremely low-quality subjects with visible rendering artifacts, broken mesh geometry, and completely unrealistic proportions throughout.",
+    "appearance_details": "Distorted features, visible compression artifacts, muddy textures lacking fine detail, color bleeding between elements, and unnatural skin tones or surface textures that appear artificial or computer-generated.",
+    "relationship": "Subjects appear disconnected from the environment, floating or improperly grounded in the scene without proper occlusion or spatial coherence.",
+    "location": "Subjects are poorly placed within the frame, appearing at awkward positions that violate basic compositional rules.",
+    "relative_size": "Inconsistent scale relationships between subjects and the environment, with objects appearing too large or too small relative to their surroundings.",
+    "orientation": "Unnatural orientations that defy physics and spatial logic.",
+    "pose": "Stiff, mannequin-like poses with unnatural joint angles and impossible limb positions that look computer-generated.",
+    "action": "Incoherent motion with visible frame-to-frame discontinuities. Movement appears as a slideshow rather than smooth animation. Limbs and appendages pop between positions without interpolation.",
+    "state_changes": "Visual state transitions are abrupt and jarring. Colors shift without motivation. Surface textures flicker between different materials randomly. Outlines shimmer and vibrate.",
+    "clothing": "Clothing appears painted on with no sense of material weight or drape. Fabric textures are flat and repeat visibly.",
+    "expression": "Frozen, uncanny valley expressions or expressions that change abruptly without natural transition.",
+    "gender": "",
+    "age": "",
+    "skin_tone_and_texture": "Waxy, plastic-looking skin with visible artifacts and inconsistent texture resolution across the frame.",
+    "facial_features": "Asymmetric facial features, extra fingers or limbs, teeth that appear blurry or malformed.",
+    "number_of_subjects": 0,
+    "number_of_arms": 0,
+    "number_of_legs": 0
+  },
+  {
+    "description": "Poorly generated subjects exhibiting all hallmarks of failed neural rendering -- flickering edges, inconsistent depth, and uncanny spatial relationships.",
+    "appearance_details": "Distorted features, visible compression artifacts, muddy textures lacking fine detail, color bleeding between elements, and unnatural skin tones or surface textures that appear artificial or computer-generated.",
+    "relationship": "Subjects appear disconnected from the environment, floating or improperly grounded in the scene without proper occlusion or spatial coherence.",
+    "location": "Subjects are poorly placed within the frame, appearing at awkward positions that violate basic compositional rules.",
+    "relative_size": "Inconsistent scale relationships between subjects and the environment, with objects appearing too large or too small relative to their surroundings.",
+    "orientation": "Unnatural orientations that defy physics and spatial logic.",
+    "pose": "Stiff, mannequin-like poses with unnatural joint angles and impossible limb positions that look computer-generated.",
+    "action": "Incoherent motion with visible frame-to-frame discontinuities. Movement appears as a slideshow rather than smooth animation. Limbs and appendages pop between positions without interpolation.",
+    "state_changes": "Visual state transitions are abrupt and jarring. Colors shift without motivation. Surface textures flicker between different materials randomly. Outlines shimmer and vibrate.",
+    "clothing": "Clothing appears painted on with no sense of material weight or drape. Fabric textures are flat and repeat visibly.",
+    "expression": "Frozen, uncanny valley expressions or expressions that change abruptly without natural transition.",
+    "gender": "",
+    "age": "",
+    "skin_tone_and_texture": "Waxy, plastic-looking skin with visible artifacts and inconsistent texture resolution across the frame.",
+    "facial_features": "Asymmetric facial features, extra fingers or limbs, teeth that appear blurry or malformed.",
+    "number_of_subjects": 0,
+    "number_of_arms": 0,
+    "number_of_legs": 0
+  }
+],
+"background_setting": "A poorly rendered, flat background with visible seams, repeated textures, and inconsistent depth cues. The environment lacks volumetric depth and appears as a painted backdrop rather than a three-dimensional space. Vegetation looks like flat cutouts with no volumetric depth. The background appears to have been composited from multiple source materials at different resolutions, creating visible seams and edge artifacts where elements meet. Textures swim and shift across surfaces in a way that breaks the illusion of solidity -- patterns drift laterally rather than staying anchored to the geometry they belong to. Background elements flicker in and out of existence between frames, particularly at the edges of the field of view. The rendering resolution is visibly lower for distant elements, creating a jarring transition between near and far objects. Cloud textures repeat obviously in the sky with visible tiling. Water surfaces lack proper reflection and refraction, appearing as flat animated textures. Fog and atmospheric effects pop in and out rather than smoothly transitioning. Trees and vegetation exhibit obvious LOD (level-of-detail) switching. Building facades have inconsistent window spacing and pattern repetition. The overall scene feels like a poorly assembled collage of individually rendered elements rather than a coherent whole.",
+"lighting": {
+  "conditions": "Harsh, flat lighting with no natural variation. The scene appears uniformly lit as if by a single overhead fluorescent light, removing all sense of depth and atmosphere.",
+  "direction": "Inconsistent light sources -- shadows point in multiple contradictory directions, breaking physical plausibility.",
+  "shadows": "Hard-edged, unrealistic shadows that pop in and out of existence between frames. Some objects cast no shadows while others have impossibly dark ones that don't animate smoothly with the object's motion. Shadow edges exhibit visible staircase aliasing artifacts. Shadow maps appear to have been rendered at extremely low resolution, creating blocky patterns. Self-shadowing on characters shows visible peter-panning artifacts where shadows detach from their source. Contact shadows between objects and the ground appear and disappear as objects move slightly. Shadow color is pure black with no ambient contribution, creating an unnaturally harsh contrast that flattens the image. Multiple shadow cascades have visible boundaries where resolution changes. The shadow rendering appears to be temporally unstable -- even static objects have shadows that shimmer and crawl frame to frame, breaking the illusion of a stable light source.",
+  "illumination_effect": "No bounce light, no ambient occlusion, no subtle color interactions between surfaces. The scene looks like a poorly lit 3D render from the early 2000s."
+},
+"aesthetics": {
+  "composition": "Cluttered, poorly framed composition with no clear focal point. Important elements are cut off by the frame edges. The rule of thirds is completely ignored, leading to an unbalanced and visually unpleasant arrangement.",
+  "color_scheme": "Oversaturated, garish colors that clash violently. Color banding is visible in gradient areas. The overall palette feels artificial and digitally processed rather than natural.",
+  "mood_atmosphere": "Unsettling, uncanny atmosphere that fails to evoke any intended emotional response. The scene feels lifeless and sterile despite attempting to portray dynamic action.",
+  "patterns": "Visible tiling artifacts in textures, moir\u00e9 patterns, and aliasing on edges."
+},
+"cinematography": {
+  "camera_motion": "Extremely shaky, unstable camera with visible rolling shutter artifacts. The motion is jerky and discontinuous, causing motion sickness and making the scene impossible to follow.",
+  "framing": "Poorly framed shots that cut off important elements and include unnecessary empty space.",
+  "camera_angle": "Awkward, disorienting camera angles that provide no useful spatial information about the scene. The camera path exhibits visible mathematical artifacts suggesting simple interpolation between keyframes rather than natural camera operation. Camera motion is completely disconnected from the scene content -- panning away from action, dollying during dialogue, and shaking during still moments. The camera appears to pass through solid objects occasionally. Zoom is applied digitally rather than optically, revealing progressively worse resolution. Camera motion exhibits non-physical acceleration profiles -- instant starts and stops rather than smooth ease-in/ease-out. Rolling shutter simulation is applied inconsistently, present in some frames but not others. The camera occasionally exhibits impossible motion like teleporting between positions. Virtual camera stabilization creates an uncanny floating sensation disconnected from any physical camera rig.",
+  "depth_of_field": "Uniform focus throughout, creating a flat, documentary-like appearance with no cinematic depth separation.",
+  "focus": "Soft, out-of-focus imagery with visible chromatic aberration and lens distortion that was not corrected in post-processing.",
+  "lens_focal_length": "Inappropriate focal length causing barrel distortion and unnatural perspective compression."
+},
+"style_medium": "Low quality compressed digital video with visible encoding artifacts",
+"artistic_style": "Amateur, unpolished with inconsistent visual style",
+"context": "A poorly produced video with numerous technical and artistic flaws that detract from any intended narrative or visual impact.",
+"actions": [
+  {
+    "time": "0:00-0:08",
+    "description": "Subjects attempt to move but their motion is jerky, temporally inconsistent, and physically implausible. Background elements flicker and shift between frames."
+  }
+],
+"text_and_signage_elements": [],
+"segments": [
+  {
+    "segment_index": 0,
+    "time_range": "0:00-0:08",
+    "description": "A single continuous shot suffering from severe temporal inconsistencies -- subjects that morph and deform between frames, backgrounds that shift and wobble, and rendering quality that fluctuates visibly over time. Motion blur is applied incorrectly, smearing in directions that don't match actual movement. Frame-to-frame coherence breaks down with individual pixels changing color randomly in flat areas. Texture detail level fluctuates between frames as if the rendering budget varied shot to shot. Color grading drifts over the duration with no creative motivation. Noise patterns change between frames in ways that draw attention rather than being invisible. Overall visual quality degrades progressively from start to finish.",
+    "key_changes": "No meaningful progression or narrative development. Visual quality degrades over time.",
+    "camera": "Unstable, poorly controlled camera work with visible mathematical interpolation artifacts."
+  }
+],
+"transitions": [],
+"temporal_caption": "The scene opens at 0.0 seconds with a poorly rendered establishing shot that immediately reveals low production quality. At 1.0 seconds, subjects begin to move but their motion is jerky and inconsistent, with limbs bending at unnatural angles and objects clipping through each other. From 2.0 to 4.0 seconds, the camera shakes violently while the scene exhibits visible compression artifacts, color banding in the sky, and flickering in the shadows. Between 4.0 and 6.0 seconds, temporal coherence breaks down as elements appear and disappear between frames, textures swim and morph unnaturally, and the lighting shifts abruptly without physical cause. In the final 2 seconds, the overall visual quality deteriorates further with increasing noise, blur, and a general loss of spatial coherence that makes the scene nearly unwatchable. Additionally, the frame rate appears inconsistent with visible judder and stuttering throughout. Color temperature shifts randomly between warm and cool tones with no motivation. The encode quality degrades in complex regions showing macro-blocking and mosquito noise around moving edges. Temporal noise patterns are spatially correlated, creating swimming artifacts on flat surfaces.",
+"audio_description": "",
+"physical_realism": "No adherence to physical laws. Objects defy gravity, pass through solid surfaces, and change mass and momentum without cause. Fluid dynamics, cloth simulation, and rigid body physics are all fundamentally broken. Furthermore, conservation of energy is violated as objects gain or lose kinetic energy spontaneously. Elastic collisions produce inelastic results and vice versa. Surface friction is inconsistent -- objects slide on rough surfaces while sticking to smooth ones. Air resistance appears to affect only some objects while others move through the atmosphere unimpeded."
+}
+\end{Verbatim}
+\end{tcolorbox}

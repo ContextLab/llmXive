@@ -1,0 +1,102 @@
+\documentclass[10pt,logo,copyright]{nvidiatechreport}
+\linespread{1.15}
+
+\input{packages}
+\input{common}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{pifont}
+\usepackage{diagbox}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\usepackage[nameinlink]{cleveref}
+\crefname{equation}{Eq.}{Eqs.}
+\crefname{figure}{Fig.}{Figs.}
+\crefname{section}{Sec.}{Sec.}
+\crefname{appendix}{App.}{App.}
+\crefname{table}{Tab.}{Tabs.}
+\crefname{algorithm}{Algo}{Algo}
+\crefname{thm}{Thm}{Thm}
+\Crefname{thm}{Thm}{Thm}
+\crefname{prop}{Prop}{Prop}
+
+\definecolor{darkred}{rgb}{0.7, 0.0, 0.0}
+\definecolor{rowours}{HTML}{E8F4E0}
+\definecolor{columnours}{HTML}{E8F4E0}
+
+\newcommand{\crefnames}[3]{%
+  \@for\next:=#1\do{%
+    \expandafter\crefname\expandafter{\next}{#2}{#3}%
+  }%
+}
+
+\title{Cosmos 3: Omnimodal World Models for Physical AI}
+
+\author{NVIDIA\footnote{Contributors and acknowledgments are listed in Appendix~\ref{sec::contributors}.}}
+
+\input{sections/0__abstract}
+
+\begin{document}
+\maketitle
+\abscontent
+
+\input{sections/0__model_table}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{sections/1__introduction}
+\input{sections/2__model}
+\input{sections/3__data}
+\input{sections/4__training}
+\input{sections/5__infrastructure}
+\input{sections/6__results}
+\input{sections/7__related_work}
+\input{sections/8__conclusion}
+
+\clearpage
+\appendix
+
+\input{appendix/json_caption}
+\input{appendix/generator_prompts}
+\input{appendix/agentic_upsampling}
+\input{appendix/sdg_datasets}
+\input{appendix/edge_llm_training}
+\input{appendix/ablation}
+\input{appendix/hue}
+\input{appendix/contributors}
+
+\clearpage
+\begingroup
+\raggedright
+\sloppy
+\makeatletter
+\renewcommand{\bibsection}{%
+  \par\noindent{\headingfont\refname}\par\vspace{5pt}%
+}
+\setlength{\bibhang}{0pt}
+\renewcommand\@bibsetup[1]{%
+  \setlength{\leftmargin}{0pt}%
+  \setlength{\itemindent}{0pt}%
+  \setlength{\labelwidth}{0pt}%
+  \setlength{\labelsep}{0pt}%
+  \setlength{\listparindent}{0pt}%
+  \setlength{\itemsep}{\bibsep}%
+  \setlength{\parsep}{\z@}%
+}
+\makeatother
+\setlength{\emergencystretch}{3em}
+\Urlmuskip=0mu plus 1mu\relax
+\bibliographystyle{plainnat}
+\bibliography{main}
+\endgroup
+
+\end{document}

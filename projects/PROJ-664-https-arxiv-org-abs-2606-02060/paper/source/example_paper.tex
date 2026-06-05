@@ -1,0 +1,462 @@
+% !TeX program = xelatex
+\documentclass{article}
+% \pdfminorversion=7
+
+\usepackage{fancyhdr}
+\usepackage{iftex}
+
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else
+  % XeLaTeX/LuaLaTeX: no inputenc/fontenc/fontspec here.
+\fi
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2024
+
+
+% ready for submission
+% \usepackage{neurips_2024}
+
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+\usepackage{report}
+
+\usepackage{array}
+\usepackage{booktabs}
+
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage[most]{tcolorbox}
+
+% \newtcbox{\tagbox}[1][]{%
+%   on line,
+%   boxrule=0.35pt,
+%   arc=2pt,
+%   boxsep=0pt,
+%   left=4pt,right=4pt,top=1.2pt,bottom=1.2pt,
+%   colframe=black!18,
+%   coltext=black,
+%   fontupper=\scriptsize\sffamily,
+%   #1
+% }
+
+% ---- Case display boxes (formatted text) ----
+\newtcolorbox{casebox}[2][]{%  <--- 这里从 newtcblisting 改为 newtcolorbox
+  enhanced,
+  breakable,
+  colback=gray!2,
+  colframe=black!18,
+  boxrule=0.4pt,
+  arc=2pt,
+  left=4pt,right=4pt,top=2pt,bottom=2pt,
+  fonttitle=\bfseries\small,
+  title={#2},
+  % listing engine=verbatim, <--- 这行必须删掉
+  % listing only,            <--- 这行必须删掉，否则不能渲染 \textbf
+  #1
+}
+
+
+
+% Domain tags (muted)
+\newcommand{\dMath}{\tagbox[colback=orange!14]{Math}}
+\newcommand{\dCode}{\tagbox[colback=blue!10]{Code}}
+\newcommand{\dReason}{\tagbox[colback=gray!12]{Reasoning}}
+\newcommand{\dMM}{\tagbox[colback=violet!10]{Multimodal}}
+\newcommand{\dMAS}{\tagbox[colback=lime!14]{Multi-agent}}
+\newcommand{\dObs}{\tagbox[colback=teal!10]{Trace/Obs}}
+
+% Modality tags (split)
+\newcommand{\mText}{\tagbox[colback=gray!10]{Text}}
+\newcommand{\mImage}{\tagbox[colback=violet!8]{Image}}
+\newcommand{\mTrace}{\tagbox[colback=teal!8]{Trace}}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{6pt}
+
+\newcolumntype{C}{>{\centering\arraybackslash}X} % centered X column for tabularx
+
+\newcommand{\tagsep}{\nobreak\hspace{3pt}}
+
+
+
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2025} with \usepackage[nohyperref]{icml2025} above.
+% \usepackage{hyperref}
+
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_2024}
+
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2024}
+\usepackage{pifont}
+\usepackage{soul}
+\RequirePackage{natbib}
+\usepackage{makecell}
+\usepackage{graphicx} 
+% \usepackage[utf8]{inputenc} % allow utf-8 input
+% \usepackage[T1]{fontenc}
+% \usepackage{lmodern}
+% \usepackage{amsmath}  % If not already included, to handle math formatting.
+
+
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{fancyhdr}       % custom headers and footers
+\newcommand{\footerfont}{\normalfont}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+% \usepackage{microtype}      % microtypography
+% \usepackage[svgnames]{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{pifont}
+\usepackage{multirow}
+\definecolor{darkmagenta}{rgb}{0.56, 0.0, 1.0}
+\definecolor{softyellow}{rgb}{1.0, 0.92, 0.3} % richer, warmer yellow
+\definecolor{LightAquamarine}{rgb}{0.75, 1.0, 0.8} % soft aqua green
+\definecolor{FireBrick}{RGB}{178,34,34}
+\definecolor{MediumPurple}{RGB}{147,112,219}
+
+\definecolor{uclablue}{rgb}{0.15, 0.45, 0.68}
+\hypersetup{
+    breaklinks,
+    colorlinks=true,
+    citecolor={darkmagenta},
+    linkcolor={uclablue},
+    urlcolor={uclablue}
+}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{placeins}
+\usepackage{lipsum} % 用于生成示例文字
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+
+
+\usepackage{utfsym}
+\usepackage{fontawesome}
+\usepackage{xspace}
+\usepackage{enumitem}
+\usepackage{multirow} 
+\tcbuselibrary{breakable}
+\usepackage{enumitem}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+% \usepackage{xcolor}
+\usepackage{transparent}
+
+
+\definecolor{njuPurple}{RGB}{220,205,230}     % 南大紫（深）
+\definecolor{njuPurpleLight}{RGB}{250,245,252}   % 极浅的紫色背景（接近白）
+
+\newtcolorbox{abstractbox}{
+    colback=njuPurpleLight,   % 浅紫色背景
+    colframe=njuPurple,       % 深紫色边框
+    boxrule=1pt,              % 边框粗细
+    arc=4mm,                  % 圆角
+    left=8pt,                 % 左边距
+    right=8pt,                % 右边距
+    top=8pt,                  % 上边距
+    bottom=8pt,               % 下边距
+    opacityback=0.95
+}
+
+
+\usepackage{listings}
+% preamble
+\usepackage[table]{xcolor}
+\definecolor{oursblue}{HTML}{EAF3FF}
+\definecolor{gainMint}{HTML}{DDF6E6}
+\definecolor{dropPink}{HTML}{F8DCDC}
+
+\newcommand{\drop}[1]{%
+  \textsuperscript{\scriptsize\setlength{\fboxsep}{0.4pt}\colorbox{dropPink}{\textcolor{black}{$\downarrow$#1}}}%
+}
+
+\newcommand{\gain}[1]{%
+  \textsuperscript{\scriptsize\setlength{\fboxsep}{0.4pt}\colorbox{gainMint}{\textcolor{black}{$\uparrow$#1}}}%
+}
+
+\newcommand{\tagbox}[2]{%
+  \tcbox[
+    on line,
+    box align=base,
+    boxsep=0pt,
+    left=2.6pt,
+    right=2.6pt,
+    top=0.5pt,
+    bottom=0.5pt,
+    arc=2pt,
+    outer arc=2pt,
+    boxrule=0.35pt,
+    colback=#1,
+    colframe=#1!65!black,
+    coltext=black,
+    fontupper=\scriptsize\bfseries
+  ]{#2}%
+}
+
+\definecolor{tagStep}{RGB}{226,245,238}
+\definecolor{tagPRM}{RGB}{232,235,255}
+\definecolor{tagTrace}{RGB}{226,245,226}
+\definecolor{tagType}{RGB}{255,226,226}
+\definecolor{tagModal}{RGB}{225,245,255}
+\definecolor{tagError}{RGB}{255,226,226}
+\definecolor{tagRoot}{RGB}{255,238,210}
+\definecolor{tagDep}{RGB}{240,235,255}
+\definecolor{tagOurs}{RGB}{242,240,255}
+\definecolor{tagSection}{RGB}{206,245,238}
+
+
+
+
+\tcbuselibrary{listings,breakable,skins}
+
+\lstdefinestyle{promptstyle}{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\newtcblisting{promptbox}[2][]{
+  title={#2},
+  colback=white,
+  colframe=black,
+  boxrule=0.8pt,
+  arc=1pt,
+  outer arc=1pt,
+  left=1.0em,
+  right=1.0em,
+  top=0.8em,
+  bottom=0.8em,
+  fonttitle=\bfseries,
+  listing only,
+  listing style=promptstyle,
+  breakable,
+  enhanced,
+  #1
+}
+
+
+\lstdefinestyle{casestyle}{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+
+
+
+\newtcblisting{casetbox}[2][]{
+  title={#2},
+  colback=white,
+  colframe=black,
+  boxrule=0.8pt,
+  arc=1pt,
+  outer arc=1pt,
+  left=1.0em,
+  right=1.0em,
+  top=0.8em,
+  bottom=0.8em,
+  fonttitle=\bfseries,
+  listing only,
+  listing style=promptstyle,
+  breakable,
+  enhanced,
+  #1
+}
+
+
+% ---- 需要的包 ----
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{makecell}
+
+\tcbuselibrary{skins, breakable}
+
+% ---- 颜色（粉色 + 绿色）----
+\definecolor{caseframe}{RGB}{55, 55, 55}
+\definecolor{casebg}{RGB}{245, 245, 245}
+
+% 极淡粉色
+\definecolor{errbg}{RGB}{255, 248, 252}
+\definecolor{errframe}{RGB}{245, 180, 210}
+
+
+
+% % Domain tags
+% \newcommand{\dMath}{\tagbox[colback=orange!14]{Math}}
+% \newcommand{\dCode}{\tagbox[colback=blue!10]{Code}}
+% \newcommand{\dReason}{\tagbox[colback=gray!12]{Reasoning}}
+% \newcommand{\dMM}{\tagbox[colback=violet!10]{Multimodal}}
+% \newcommand{\dMAS}{\tagbox[colback=lime!14]{Multi-agent}}
+% \newcommand{\dObs}{\tagbox[colback=teal!10]{Trace/Obs}}
+
+% % Modality tags
+% \newcommand{\mText}{\tagbox[colback=gray!10]{Text}}
+% \newcommand{\mImage}{\tagbox[colback=violet!8]{Image}}
+% \newcommand{\mTrace}{\tagbox[colback=teal!8]{Trace}}
+
+% \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+% \newcolumntype{C}{>{\centering\arraybackslash}X}
+% \renewcommand{\arraystretch}{1.18}
+% \setlength{\tabcolsep}{6pt}
+% \newcommand{\tagsep}{\nobreak\hspace{3pt}}
+
+
+
+
+
+
+
+
+
+
+
+% 薄荷绿
+\definecolor{normbg}{RGB}{235, 250, 242}
+\definecolor{normframe}{RGB}{95, 180, 140}
+% ---- 外层 case study 框 ----
+\newtcolorbox{trajcase}[1]{
+  enhanced, breakable,
+  colframe=caseframe, colback=casebg,
+  boxrule=0.6pt, arc=2pt,
+  fonttitle=\bfseries\small,
+  title={#1},
+  top=4pt, bottom=4pt, left=4pt, right=4pt,
+}
+
+% ---- 正常 span ----
+\newtcolorbox{normalspan}[1]{
+  enhanced, breakable,
+  colframe=normframe, colback=normbg,
+  boxrule=0.4pt, arc=1.5pt,
+  fonttitle=\bfseries\footnotesize,
+  title={#1},
+  top=3pt, bottom=3pt, left=3pt, right=3pt,
+  before skip=4pt, after skip=4pt,
+}
+
+% ---- 错误 span ----
+\newtcolorbox{errorspan}[2]{
+  enhanced, breakable,
+  colframe=errframe, colback=errbg,
+  boxrule=0.4pt, arc=1.5pt,
+  fonttitle=\bfseries\footnotesize,
+  title={#1 \normalfont\itshape\footnotesize(#2)},
+  top=3pt, bottom=3pt, left=3pt, right=3pt,
+  before skip=4pt, after skip=4pt,
+}
+
+\newcommand{\spanrow}[3]{%
+  \noindent
+  \begin{tabularx}{\linewidth}{@{}p{0.12\linewidth}X@{}}
+  \texttt{#1} & \textbf{#2} #3
+  \end{tabularx}
+  \vspace{0.45em}
+}
+
+\newcommand{\spanrowerror}[3]{%
+  \noindent
+  \begin{tabularx}{\linewidth}{@{}p{0.12\linewidth}X@{}}
+  \texttt{#1} &
+  \begin{errorspan}
+  \textbf{#2} #3
+  \end{errorspan}
+  \end{tabularx}
+  \vspace{0.45em}
+}
+
+
+\title{Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories}
+
+
+
+\author{
+Jiaming Wang$^{1*}$,
+Ziteng Feng$^{1*}$,
+Jiangtao Wu$^{1}$,
+Ruihao Li$^{1}$,
+Qianqian Xie$^{1}$,\\
+\vspace{1mm}
+Yuxiang Ren$^{1}$, 
+He Zhu$^{1}$,
+Xueming Han$^{2}$,
+Fanyu Meng$^{2}$,
+Junlan Feng$^{2}$,
+Jiaheng Liu$^{1,\dagger}$\\
+\vspace{4mm}
+% --- 单位信息 ---
+{\small $^1$ \textbf{NJU-LINK Team, Nanjing University}} \quad
+{\small $^2$  \textbf{JIUTIAN Research}}  
+% \quad
+% {\small $^3$  \textbf{OPPO AI Agent Team}}
+\\
+\vspace{2mm}
+\texttt{jiaming\_wang@smail.nju.edu.cn}
+\quad\quad\quad
+\texttt{liujiaheng@nju.edu.cn} \\
+}
+
+\begin{document}
+\maketitle
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[1]{Equal Contribution.}
+\footnotetext[2]{Corresponding Author.}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+\input{sections/abs}
+\input{sections/intro}
+\input{sections/related_work}
+\input{sections/traj_collection}
+
+\input{sections/method}
+
+
+\input{sections/experiment}
+\input{sections/conclusion}
+
+\bibliographystyle{unsrtnat}
+\bibliography{example_paper}
+\appendix
+\input{sections/appendix}
+
+\end{document}
+
+

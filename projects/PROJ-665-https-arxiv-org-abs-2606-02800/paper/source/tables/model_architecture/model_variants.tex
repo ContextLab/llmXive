@@ -1,0 +1,19 @@
+\begin{table}[H]
+\centering
+\caption{
+\textbf{Cosmos 3 MoT model variants.}
+All models share the dual-tower MoT architecture. ``LLM Layers'' refers to the number of transformer decoder layers; each layer carries independent parameter sets for the reasoner and generator towers. \textbf{Edge} uses a dense 2B parameter transformer trained from scratch, while \textbf{Nano} and \textbf{Super} are initialized from pre-trained Qwen3-VL weights.}
+\label{tab::model_variants}
+\small
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Variant} & \textbf{LLM Layers} & \textbf{Hidden Dim}
+    & \textbf{Attn Heads} & \textbf{KV Heads} & \textbf{Head Dim}
+    & \textbf{FFN Dim} \\
+\midrule
+Cosmos3-Edge &  28 & 2,048 & 16 & 8 & 128 & 9,216 \\
+Cosmos3-Nano &  36 & 4,096 & 32 & 8 & 128 & 12,288 \\
+Cosmos3-Super &  64 & 5,120 & 64 & 8 & 128 & 25,600 \\
+\bottomrule
+\end{tabular}
+\end{table}

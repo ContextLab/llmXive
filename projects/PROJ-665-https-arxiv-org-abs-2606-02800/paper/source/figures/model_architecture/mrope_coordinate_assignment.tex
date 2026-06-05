@@ -1,0 +1,6 @@
+\begin{figure}[t]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/model_architecture/tikz_mrope_coordinate_assignment.pdf}}
+    \caption{\textbf{Illustrative coordinate assignment under 3D MRoPE.} \textbf{Left:} A packed token sequence containing language, video (two frames, $2\times2$ spatial grid each), audio, and action tokens. Each token receives a $(t, h, w)$ triplet. Language tokens use $t=h=w$; video tokens vary on all three axes; action and audio tokens use temporal coordinates only ($h=w=0$). A modality offset $k$ separates the text and vision temporal ranges. \textbf{Right:} FPS modulation maps frame indices to scaled temporal positions so that equal real-world durations occupy equal position ranges at 16, 24, and 30 FPS, where 24 FPS is our base frame-per-second.}
+    \label{fig:mrope_coords}
+\end{figure}

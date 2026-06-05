@@ -1,0 +1,26 @@
+\begin{table}[h]
+\centering
+\caption{\textbf{Effect of introducing audio data during pre-training.} We report PAIBench T2V and I2V scores after continued pre-training of two generator variants that differ only in whether audio is used during training. The video data is shared across both experiments.}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}ll | ccc | cccccc | cccccc | cc@{}}
+\toprule
+\multicolumn{2}{c}{} & \multicolumn{3}{c}{\textbf{Summary}} & \multicolumn{6}{c}{\textbf{Domain}} & \multicolumn{6}{c}{\textbf{Quality}} & \multicolumn{2}{c}{\textbf{I2V}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-11} \cmidrule(lr){12-17} \cmidrule(lr){18-19}
+\textbf{Bench} & \textbf{Variant}
+ & Overall & Domain & Quality
+ & C.S. & AV & Rob. & Ind. & Hum. & Phy.
+ & Subj. & Bg. & Motion & Aesth. & Imag. & Cons.
+ & Subj. & Bg. \\
+\midrule
+\multirow{2}{*}{T2V} & Without Audio  & 78.6 & 83.8 & \textbf{73.4} & 90.7 & 64.7 & 81.9 & 84.4 & 82.7 & \textbf{94.8} & \textbf{95.9} & \textbf{97.1} & \textbf{99.5} & \textbf{57.3} & \textbf{70.6} & 19.8 & -- & -- \\
+ & \cellcolor{rowours}With Audio  & \cellcolor{rowours}\textbf{79.1} & \cellcolor{rowours}\textbf{85.0} & \cellcolor{rowours}73.2 & \cellcolor{rowours}\textbf{91.5} & \cellcolor{rowours}\textbf{67.9} & \cellcolor{rowours}\textbf{83.8} & \cellcolor{rowours}\textbf{86.1} & \cellcolor{rowours}\textbf{83.7} & \cellcolor{rowours}93.8 & \cellcolor{rowours}95.5 & \cellcolor{rowours}96.9 & \cellcolor{rowours}\textbf{99.5} & \cellcolor{rowours}57.1 & \cellcolor{rowours}70.2 & \cellcolor{rowours}\textbf{19.9} & \cellcolor{rowours}-- & \cellcolor{rowours}-- \\
+\midrule
+\multirow{2}{*}{I2V} & Without Audio  & 81.7 & 85.1 & \textbf{78.4} & 93.2 & 67.5 & 82.0 & 86.0 & 83.2 & \textbf{95.1} & \textbf{93.3} & \textbf{95.1} & \textbf{99.5} & \textbf{55.0} & 67.6 & \textbf{20.4} & \textbf{98.4} & \textbf{98.3} \\
+ & \cellcolor{rowours}With Audio  & \cellcolor{rowours}\textbf{82.2} & \cellcolor{rowours}\textbf{85.9} & \cellcolor{rowours}\textbf{78.4} & \cellcolor{rowours}\textbf{93.6} & \cellcolor{rowours}\textbf{68.6} & \cellcolor{rowours}\textbf{84.2} & \cellcolor{rowours}\textbf{86.5} & \cellcolor{rowours}\textbf{84.3} & \cellcolor{rowours}94.8 & \cellcolor{rowours}92.9 & \cellcolor{rowours}94.9 & \cellcolor{rowours}99.4 & \cellcolor{rowours}\textbf{55.0} & \cellcolor{rowours}\textbf{67.9} & \cellcolor{rowours}\textbf{20.4} & \cellcolor{rowours}98.2 & \cellcolor{rowours}98.2 \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab::ablation-audio-pretraining}
+\end{table}

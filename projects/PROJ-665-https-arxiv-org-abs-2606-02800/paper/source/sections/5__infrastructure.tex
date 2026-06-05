@@ -1,0 +1,16 @@
+\section{Infrastructure}
+\label{sec::infrastructure}
+
+In this section, we describe the integrated infrastructure stack designed to support the end-to-end lifecycle of Cosmos 3. As illustrated in~\cref{fig:cosmos_infra_pipeline}, the platform unified 4 core pillars:
+\begin{itemize}
+    \item \textit{Data engineering.} Ingests raw multimodal data and transforms it into curated datasets in the WebDataset format, optimized for scalable, distributed training.
+    \item \textit{Large-scale training.} Maximizes NVIDIA GPU cluster utilization through highly efficient parallelization strategies, optimized data loading, rapid checkpointing, and collective communication primitives.
+    \item \textit{Model serving.} Enables efficient, low-latency deployment and inference execution across both generative and reasoning workloads.
+    \item \textit{Benchmarking \& validation.} Provides a unified evaluation framework to assess model capabilities across diverse tasks, enabling automated regression tracking and systematic model comparison.
+\end{itemize}
+
+\input{figures/infrastructure/infra_overview}
+\input{sections/infrastructure/data}
+\input{sections/infrastructure/training}
+\input{sections/infrastructure/serving}
+\input{sections/infrastructure/benchmarks}

@@ -1,0 +1,35 @@
+\begin{figure}[htbp]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{2pt}
+    \renewcommand{\arraystretch}{0}
+    \begin{tabular}{@{}c@{\hspace{2pt}}*{5}{c}@{}}
+        & RGB & Depth & Segmentation & Shaded Segmentation & Edges \\[2pt]
+        \rotatebox{90}{Near-miss}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/scenario_nearmiss.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/nearmiss_depth.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/nearmiss_segmentation.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/nearmiss_shaded_seg.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/nearmiss_edges.jpg} \\[3pt]
+        \rotatebox{90}{Fire}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/scenario_fire.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/fire_depth.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/fire_segmentation.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/fire_shaded_seg.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/fire_edges.jpg} \\[3pt]
+        \rotatebox{90}{Collision}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/scenario_collision.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/collision_depth.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/collision_segmentation.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/collision_shaded_seg.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/collision_edges.jpg} \\[3pt]
+        \rotatebox{90}{Box pickup}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/scenario_box_pickup.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/box_pickup_depth.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/box_pickup_segmentation.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/box_pickup_shaded_seg.jpg}
+            & \includegraphics[width=0.17\textwidth]{assets/sdg_warehouse/box_pickup_edges.jpg} \\
+    \end{tabular}
+    \caption{\textbf{SDG-Warehouse dataset.} Sample view of the four scenarios and the annotations (RGB clips, metric depth, instance segmentation, shaded segmentation, and Canny edge).}
+    \label{fig:sdg_warehouse_modalities}
+\end{figure}

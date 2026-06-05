@@ -1,0 +1,16 @@
+\begin{table}[h]
+\centering
+\caption{\textbf{PushT action-mode synergy.} We compare single-mode FD, ID, and policy checkpoints trained for 2K steps each against one joint FD/ID/policy checkpoint trained for 6K steps. Lower is better for ID MSE; higher is better for FD PSNR and policy coverage. \textbf{Bold} indicates the better value in each column.}
+\label{tab:pusht_fd_id_policy_open_loop}
+\small
+\setlength{\tabcolsep}{7pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Training setting} & \textbf{FD PSNR $\uparrow$} & \textbf{ID MSE $\downarrow$} & \textbf{Policy Coverage $\uparrow$} \\
+\midrule
+2K single-mode & \textbf{27.13} & $1.11 \times 10^{-3}$ & 74.1\% \\
+6K joint FD/ID/policy & 26.22 & $\boldsymbol{3.09 \times 10^{-4}}$ & \textbf{77.3\%} \\
+\bottomrule
+\end{tabular}
+\end{table}

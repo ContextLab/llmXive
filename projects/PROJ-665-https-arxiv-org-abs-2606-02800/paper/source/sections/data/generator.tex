@@ -1,0 +1,10 @@
+\subsection{Generator Data}
+\label{subsec::data_generator}
+
+Our Generator training follows a progressive multi-stage curriculum that introduces new modalities incrementally over the course of training, starting with images, videos, and audio during pre-training, and later incorporating actions and interleaved multimodal content during mid-training. Cosmos 3 is positioned as a good starting point for various Physical AI applications. To show its capabilities, we take the mid-trained checkpoints Cosmos3-Nano and Cosmos3-Super and post-train them to produce domain experts using specialized post-training datasets, including Cosmos3-Super-Text2Image, Cosmos3-Super-Image2Video, and Cosmos3-Nano-Policy-DROID. These models share the same architecture as their corresponding mid-trained models. \cref{fig:data_curriculum} summarizes the Generator training curriculum across modalities and stages.
+
+\input{figures/data/data_curriculum}
+
+\input{sections/data/image_and_video}
+\input{sections/data/audio}
+\input{sections/data/action}

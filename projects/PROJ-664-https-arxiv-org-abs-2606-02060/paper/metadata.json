@@ -1,0 +1,53 @@
+{
+  "arxiv_id": "2606.02060",
+  "arxiv_url": "https://arxiv.org/abs/2606.02060",
+  "title": "https://arxiv.org/abs/2606.02060",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #278",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/NJU-LINK/DRIFT"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "example_paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "example_paper.bib",
+    "example_paper.tex",
+    "figure",
+    "figure/annotation_ui_screenshot.png",
+    "figure/efficiency_bubble_text_paths.pdf",
+    "figure/error_type_radar_v6_top12_fine_global_ticks.pdf",
+    "figure/claude_cloud_bare_drift_span_bars.pdf",
+    "figure/datapipe.pdf",
+    "figure/agenterr_6_.pdf",
+    "figure/qwen_scale.pdf",
+    "figure/f1_growth_deepseek_claude_sweet_compact_20260526.pdf",
+    "figure/appendix_effort_stats_by_bench.pdf",
+    "figure/appendix_error_burden_basics.pdf",
+    "figure/2agenterr.pdf",
+    "figure/appendix_stage_normalized_error_rate.pdf",
+    "figure/njulinkv6.jpg",
+    "figure/appendix_ablation_prf_four_models_pastel_20260526.pdf",
+    "figure/agenterr_1_.pdf",
+    "report.sty",
+    "sections",
+    "sections/method.tex",
+    "sections/intro.tex",
+    "sections/abs.tex",
+    "sections/conclusion.tex",
+    "sections/related_work.tex",
+    "sections/traj_collection.tex",
+    "sections/experiment.tex",
+    "sections/appendix.tex",
+    "tab",
+    "tab/main_exp.tex",
+    "tab/related_work.tex",
+    "tab/token_consume.tex"
+  ]
+}

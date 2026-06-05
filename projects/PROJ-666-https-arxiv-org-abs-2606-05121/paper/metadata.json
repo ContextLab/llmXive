@@ -1,0 +1,38 @@
+{
+  "arxiv_id": "2606.05121",
+  "arxiv_url": "https://arxiv.org/abs/2606.05121",
+  "title": "https://arxiv.org/abs/2606.05121",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #276",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "fig",
+    "fig/category_distribution.pdf",
+    "fig/cross_task_continuity.pdf",
+    "fig/dataset.png",
+    "fig/fig3_cross_task_heatmaps.pdf",
+    "fig/figure-casestudy.pdf",
+    "fig/figure1-overview-newname.pdf",
+    "fig/figure4-inference-newname.pdf",
+    "fig/figure7_replica.pdf",
+    "fig/final.pdf",
+    "fig/huggingface.png",
+    "fig/logo.png",
+    "fig/new_main_newnane.pdf",
+    "fig/scenario1_home-4.pdf",
+    "fig/scenario2_office-2.pdf",
+    "fig/soundfkow.pdf",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "ref.bib"
+  ]
+}

@@ -1,0 +1,34 @@
+\begin{table*}[t]
+    \centering
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{\textbf{Cosmos-SoundBench Audiovisual Quality.}
+    We report the overall Audiovisual Quality (AVQ), Semantic Audiovisual quality (SAV), its sub-scores defined in~\cref{subsec::audio_eval}, and audiobox-aesthetics Production Quality (PQ).
+    \textbf{Bold} marks the best score in each column and \underline{underline} marks the second best.
+    Seedance-1.5-Pro achieves the highest AVQ through stronger PQ, while Cosmos 3 achieves the strongest semantic audio-visual grounding and alignment.}
+    \label{tab:cosmos_soundbench_results}
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{l l | cccccc}
+        \toprule
+        & & \multicolumn{6}{c}{\textbf{SoundBench Audiovisual Quality ($\uparrow$)}} \\
+        \cmidrule(lr){3-8}
+        \textbf{Model} & \textbf{Type} & \textbf{AVQ} & \textbf{SAV} & \textbf{SA} & \textbf{AVAlign} & \textbf{Visual Sup.} & \textbf{PQ}\\
+        \midrule
+        \rowcolor{rowours}
+        \textbf{Cosmos3-Super} & Open-sourced & 7.31 & \underline{8.34} & \underline{8.30} &
+  \underline{8.14} & \textbf{9.18} & 6.28 \\
+          \rowcolor{rowours}
+          \textbf{Cosmos3-Nano} & Open-sourced & 7.34 & \textbf{8.35} & \textbf{8.33} &
+  \textbf{8.16} & \underline{9.10} & 6.32 \\
+          \midrule
+          LTX-2.3 & Open-sourced & 7.10 & 7.80 & 7.86 & 7.58 & 8.12 & 6.39\\
+          \midrule
+          Seedance-1.5-Pro & Closed-sourced & \textbf{7.64} & 8.21 & 8.22 & 8.06 & 8.61  & \textbf{7.06} \\
+          Veo-3.1 & Closed-sourced & \underline{7.45} & 8.21 & 8.21 & 8.01 & 8.85 & 6.68 \\
+          LTX-2.3 Pro & Closed-sourced & 7.32 & 7.93 & 7.96 & 7.74 & 8.35 & \underline{6.70} \\
+          Wan2.6 & Closed-sourced & 7.23 & 7.90 & 7.99 & 7.54 & 8.45 & 6.55 \\
+          Sora 2 & Closed-sourced & 6.90 & 7.94 & 7.97 & 7.70 & 8.49 & 5.85 \\
+        \bottomrule
+    \end{tabular}
+\end{table*}

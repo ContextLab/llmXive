@@ -1,0 +1,16 @@
+\input{figures/cosmos3_palette}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.58719\linewidth]{figures/infrastructure/aoti_compile_figure.pdf}
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\caption{\textbf{Sharded AOT compilation of the Wan2.2 tokenizer.} The $45$ static-shape graphs
+arising from $\{3\text{ resolutions}\} \times \{5\text{ aspect ratios}\} \times
+\{3\text{ tokenizer call modes}\}$ are partitioned across ranks; each
+rank performs compilation on its assigned graph(s), writes the compiled
+artifact to a shared filesystem, and loads the full set of artifacts
+before training begins. Warm-up time drops from $\sim\!15$\,min (serial) to
+$<\!1$\,min (sharded).}
+\label{fig:aoti_sharded_compile}
+\vspace{-0.5\baselineskip}
+\end{figure}

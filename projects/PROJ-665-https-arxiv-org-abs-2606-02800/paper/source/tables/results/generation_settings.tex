@@ -1,0 +1,27 @@
+\begin{table*}[hb]
+    \centering
+    \captionsetup{justification=raggedright, singlelinecheck=false}
+    \caption{\textbf{Default sampling configurations and negative prompts for each generator and generation modality.} We summarize the generation settings for different Cosmos 3 Generator modes. Negative prompts are provided in full for each setting in the Appendix; ``Null'' indicates that the null string was the best-performing variant.}
+    \label{tab:sampling_configs}
+    \setlength{\tabcolsep}{8pt}
+    \renewcommand{\arraystretch}{1.25}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l l l l}
+        \toprule
+         & \textbf{Generation Modality} & \textbf{Sampling Hyperparameters} & \textbf{Negative Prompt} \\
+        \midrule
+        \textbf{Cosmos3-Nano}             & Audio-Visual   & steps=50, guidance=6, shift=10, full-range CFG            & Appendix~\ref{appendix:generator_negative_prompt} \\
+        \textbf{Cosmos3-Super}            & Audio-Visual   & steps=50, guidance=6, shift=10, full-range CFG            & Appendix~\ref{appendix:generator_negative_prompt} \\
+        \textbf{Cosmos3-Super-Text2Image}        & Visual   & steps=50, guidance=4, shift=3, full-range CFG             & Null \\
+        \textbf{Cosmos3-Super-Image2Video}        & Visual   & steps=50, guidance=6, shift=5, full-range CFG & Appendix~\ref{appendix:sft_i2v_upsampler_prompt} \\
+        \midrule
+        \textbf{Cosmos3-Nano}             & Forward/Inverse Dynamics   & steps=50, guidance=1, shift=5, full-range CFG                            & Null \\
+        \textbf{Cosmos3-Super}            & Forward/Inverse Dynamics   & steps=50, guidance=1, shift=5, full-range CFG                             & Null \\
+        \textbf{Cosmos3-Nano-Policy-DROID} & Policy & steps=4, guidance=3, shift=5, full-range CFG & Null \\
+        \midrule
+        \textbf{Cosmos3-Nano}             & Transfer & steps=50, guidance=3, control guidance=1.5,  shift=10                           & Appendix~\ref{appendix:generator_negative_prompt} \\
+        \textbf{Cosmos3-Super}            & Transfer & steps=50, guidance=3, control guidance=1.5, shift=10                           & Appendix~\ref{appendix:generator_negative_prompt} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table*}

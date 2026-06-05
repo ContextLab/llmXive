@@ -1,0 +1,27 @@
+\begin{figure}[t]
+    \centering
+    \captionsetup[subfigure]{font=small,skip=3pt,justification=centering,singlelinecheck=false}
+
+    \begin{subfigure}[t]{0.43\linewidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+            \includegraphics{figures/results/action/synergy/synergy_agibot_handpose_tikz.pdf}%
+        }
+        \caption{Synergy between AgiBot and Egocentric motion.}
+        \label{fig:action_synergy_agibot_handpose}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.53\linewidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+            \includegraphics{figures/results/action/synergy/agibot_handpose_curve_tikz.pdf}%
+        }
+        \caption{AgiBot benefits from Egocentric warmup.}
+        \label{fig:action_synergy_agibot_curve}
+    \end{subfigure}
+
+    \caption{\textbf{Egocentric motion as a robot-adaptation prior.}
+    (a) The matrix measures pairwise transfer between AgiBot robot manipulation and Egocentric motion. (b)
+    The curve compares AgiBot adaptation from an Egocentric-warmed checkpoint against direct adaptation from the \textit{PT-init} checkpoint.}
+    \label{fig:action_synergy_agibot}
+\end{figure}

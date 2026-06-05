@@ -1,0 +1,19 @@
+\begin{table}[h]
+\centering
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\caption{\textbf{Overview of SDG datasets}. RGB, depth, instance segmentation (Seg), bounding boxes (BBox), physics state (Phys), camera parameters (Cam), and captions (Cap) indicate whether the modality is provided. ``part.'' denotes partial coverage (subset of clips or specific generators only).}
+\label{tab:sdg_overview}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrlccccccc}
+\toprule
+Dataset & Clips & Resolution / FPS & RGB & Depth & Seg & BBox & Phys & Cam & Cap \\
+\midrule
+\href{https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Physical-Interaction-Scenes}{SDG-PhyxSim}   & 76{,}489  & $1920{\times}1080$ / 30 & \checkmark & \checkmark & \checkmark & ---        & \checkmark & \checkmark & \checkmark \\
+\href{https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Embodied-Robot-Scenes}{SDG-RobotSim}  & 208{,}022 & varies                  & \checkmark & part.      & part.      & ---        & part.      & \checkmark & \checkmark \\
+\href{https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Autonomous-Driving-Scenarios}{SDG-DriveSim}  & 264{,}000 & $3840{\times}2160$ / 24 & \checkmark & ---        & ---        & ---        & ---        & ---        & \checkmark \\
+\href{https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Digital-Human-Scenes}{SDG-SynHuman}  & 236{,}937 & $1920{\times}1080$ / 30 & \checkmark & \checkmark & ---        & ---        & ---        & \checkmark & ---        \\
+\href{https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Warehouse-Operations-Scenes}{SDG-Warehouse} & 122{,}952 & $1920{\times}1080$ / 30 & \checkmark & \checkmark & \checkmark & \checkmark & ---        & \checkmark & ---        \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,92 @@
+\input{figures/cosmos3_palette}
+
+\newcommand{\packedbox}[1]{%
+  \tikz[baseline=(b.base)]{%
+    \node[
+      draw=c3MintDark,
+      fill=c3MintFill,
+      text=c3MintDark,
+      rounded corners=1.5pt,
+      line width=0.7pt,
+      minimum width=0.85cm,
+      minimum height=0.48cm,
+      inner xsep=4pt,
+      inner ysep=2pt
+    ] (b) {$\mathtt{x}_{#1}^{*}$};%
+  }%
+}
+
+\newcommand{\skippedbox}[1]{%
+  \tikz[baseline=(b.base)]{%
+    \node[
+      draw=c3RoseDark,
+      fill=c3RoseFill,
+      text=c3RoseDark,
+      rounded corners=1.5pt,
+      line width=0.7pt,
+      minimum width=0.85cm,
+      minimum height=0.48cm,
+      inner xsep=4pt,
+      inner ysep=2pt
+    ] (b) {$\mathtt{x}_{#1}$};%
+  }%
+}
+
+\newcommand{\boxgap}{\hspace{0.08cm}}
+
+\begin{figure}[t]
+\centering
+\begin{adjustbox}{max width=0.98\linewidth}
+\begin{tabular}{@{}p{4.4cm}p{6.9cm}p{4.1cm}p{7.0cm}@{}}
+\textbf{step} &
+\textbf{packed (in output\_batch)} &
+\textbf{skipped (set aside)} &
+\textbf{state} \\
+\midrule
+
+\texttt{fetch x1 (fits)}
+& \packedbox{1}
+&
+& $\mathrm{cur}=\tau(x_1)$ \\[0.65em]
+
+\texttt{fetch x2 (fits)}
+& \packedbox{1}\boxgap\packedbox{2}
+&
+& $\mathrm{cur}=\tau(x_1)+\tau(x_2)$ \\[0.65em]
+
+\texttt{fetch x3 (overflow)}
+& \packedbox{1}\boxgap\packedbox{2}
+& \skippedbox{3}
+& $\mathrm{skipped}\leftarrow\{x_3\},\quad \mathrm{lookahead}=1$ \\[0.65em]
+
+\texttt{fetch x4 (fits)}
+& \packedbox{1}\boxgap\packedbox{2}\boxgap\packedbox{4}
+& \skippedbox{3}
+& $\mathrm{cur}\mathrel{+}= \tau(x_4)$ \\[0.65em]
+
+\texttt{fetch x5 (overflow)}
+& \packedbox{1}\boxgap\packedbox{2}\boxgap\packedbox{4}
+& \skippedbox{3}\boxgap\skippedbox{5}
+& $\mathrm{lookahead}=2$ \\[0.65em]
+
+\texttt{fetch x6 (fits, last)}
+& \packedbox{1}\boxgap\packedbox{2}\boxgap\packedbox{4}\boxgap\packedbox{6}
+& \skippedbox{3}\boxgap\skippedbox{5}
+& \texttt{batch done} \\[0.65em]
+
+\texttt{end of iter t}
+& \packedbox{1}\boxgap\packedbox{2}\boxgap\packedbox{4}\boxgap\packedbox{6}
+& \skippedbox{3}\boxgap\skippedbox{5}
+& \texttt{push reversed(skipped)} $\rightarrow$
+  \texttt{head: [x3, x5, x7, x8, ...]} \\[0.25em]
+
+\multicolumn{4}{@{}l}{%
+  \textcolor{c3MintDark}{\footnotesize $^{*}$ fits in $\mathbb{T}_{\max}$ budget}
+}
+\end{tabular}
+\end{adjustbox}
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\caption{\textbf{Look-ahead packing in the JointDataLoader.}
+The loader greedily scans samples from the selected stream and packs those that fit within the remaining token budget into the current mini-batch (Mint). Samples that exceed the budget are temporarily set aside in a lookaside buffer (Rose), allowing later smaller samples to fill the remaining capacity. At the end of the iteration, skipped samples are returned to the head of the stream buffer in their original arrival order, reducing padding while preserving stream order across iterations.}
+\label{fig:lookahead_dataloader}
+\end{figure}

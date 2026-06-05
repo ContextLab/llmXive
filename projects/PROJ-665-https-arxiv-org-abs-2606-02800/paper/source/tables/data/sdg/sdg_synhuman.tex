@@ -1,0 +1,44 @@
+\begin{table}[t]
+\centering
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\caption{\textbf{Primary camera-motion distribution in SDG-SynHuman.} Share of 190{,}670 scenes across seven primary types; each scene has exactly one primary camera motion type. See \cref{tab:synhuman_secondary_motion} for overlapping secondary camera-motion types.}
+\label{tab:synhuman_primary_motion}
+\small
+\begin{tabular}{p{0.16\linewidth}ccp{0.48\linewidth}}
+\toprule
+Motion Type & \# scenes & Percentage & Description \\
+\midrule
+static     & 71{,}006  & 29.97\%  & Camera remains fixed in position and orientation throughout the sequence. \\
+egocentric & 33{,}070  & 13.96\%  & Camera behaves as the viewpoint of a character or agent. \\
+tracking   & 36{,}978  & 15.61\%  & Camera follows a subject while maintaining framing. \\
+flythrough & 36{,}852  & 15.55\%  & Camera travels forward through the scene along a path. \\
+arc        & 37{,}166  & 15.69\%  & Camera moves in a curved arc around a target. \\
+zigzag     & 15{,}294  &  6.45\%  & Camera advances with alternating lateral motion. \\
+birdseye   &  6{,}571  &  2.77\%  & Top-down overhead camera perspective. \\
+\midrule
+Total      & 190{,}670 & 100.00\% & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+ 
+\begin{table}[t]
+\centering
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\caption{\textbf{Secondary camera-motion activity durations in SDG-SynHuman.} Secondary motions are compositional layers that may overlap temporally, therefore reported durations are independent per-motion totals rather than shares of a fixed duration budget.}
+\label{tab:synhuman_secondary_motion}
+\small
+\begin{tabular}{p{0.18\linewidth}cp{0.55\linewidth}}
+\toprule
+Motion Type & Active Time (hours) & Description \\
+\midrule
+breathing   & 1{,}221.77 & Gentle breathing-like motion to mimic human respiration. \\
+drift       & 1{,}211.96 & Slow subtle positional motion over time. \\
+dutch\_angle & 1{,}205.72 & Rotation around the forward axis producing a tilted horizon. \\
+shake       & 1{,}197.87 & Rapid positional and rotational handheld jitter. \\
+sway        & 1{,}191.28 & Pendulum-like oscillatory motion with horizon rocking. \\
+zoom        & 1{,}184.09 & Forward/backward motion without lens-property changes. \\
+crab        &   373.72   & Lateral translation while maintaining viewing direction. \\
+tilt        &   195.33   & Up/down rotational motion around the horizontal axis. \\
+\bottomrule
+\end{tabular}
+\end{table}

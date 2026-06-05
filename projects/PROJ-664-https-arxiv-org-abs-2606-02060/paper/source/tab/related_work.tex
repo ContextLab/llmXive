@@ -1,0 +1,85 @@
+% 放在related work那一章节作为与其他工作的对比
+\begin{table*}[htbp]
+\centering
+\small
+\caption{
+Comparison with process-level reasoning and agent trace error localization benchmarks. For \textsc{TELBench}, items are reported as trajectories / spans. Avg. Len. denotes the average number of reasoning steps, trace steps, or spans per item when such statistics are publicly available. \textsc{TELBench} targets deep-research agent trajectories with span-level error labels, earliest harmful span localization, and dependency-aware error propagation.
+}
+\setlength{\tabcolsep}{5.0pt}
+\renewcommand{\arraystretch}{1.08}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{}lllclc@{}}
+\toprule
+\textbf{Benchmark} &
+\textbf{Task} &
+\textbf{Items} &
+\textbf{Trace Type} &
+\textbf{Avg. Len.} &
+\textbf{Eval. Dimensions} \\
+\midrule
+
+%~\citep{zheng-etal-2025-processbench}
+ProcessBench &
+Process Error ID &
+3,400 &
+Math CoT &
+7.56 steps &
+\tagbox{tagStep}{Step Err.} \tagbox{tagPRM}{PRM} \\
+
+%~\citep{song2025prmbenchfinegrainedchallengingbenchmark}
+PRMBench &
+PRM Diagnosis &
+6,216 &
+Reasoning Path &
+13.43 steps &
+\tagbox{tagPRM}{PRM} \tagbox{tagType}{Type} \\
+
+%~\citep{he2025largelanguagemodelsdetect}
+DeltaBench &
+Long-CoT Error ID &
+1,236 &
+Long CoT &
+-- &
+\tagbox{tagSection}{Section Err.} \\
+
+%~\citep{wang2025visualprm}
+VisualProcessBench &
+Multimodal PRM &
+2,866 &
+VLM CoT &
+9.40 steps &
+\tagbox{tagPRM}{PRM} \tagbox{tagModal}{Multi-modal} \\
+
+%~\citep{fan2026agentprocessbenchdiagnosingsteplevelprocess}
+AgentProcessBench &
+Agent Process Eval. &
+1,000 &
+Tool Agent Trace &
+8.51 steps &
+\tagbox{tagStep}{Step Err.} \tagbox{tagTrace}{Trace Diag.} \\
+
+%~\citep{deshpande2025trailtracereasoningagentic}
+TRAIL &
+Agent Issue Loc. &
+148 &
+Agent Trace &
+-- &
+\tagbox{tagTrace}{Trace Diag.} \\
+
+\midrule
+
+\rowcolor{tagOurs}
+\textbf{\textsc{TELBench} (Ours)} &
+\textbf{DR Error Loc.} &
+\textbf{1,000} &
+\textbf{DR Agent Trace} &
+\textbf{11.95 spans} &
+\tagbox{tagError}{Span Err.}
+\tagbox{tagRoot}{First Err.} \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:related-error-localization}
+\end{table*}
