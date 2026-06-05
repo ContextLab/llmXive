@@ -940,7 +940,7 @@
     "human_contributors": 1128,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 3814,
+    "total_contributions": 3815,
     "total_contributors": 1135
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1841,
+      "contribution_count": 1842,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -10100,7 +10100,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T03:26:07.918192+00:00",
+  "generated_at": "2026-06-05T05:01:34.528742+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -58008,11 +58008,12 @@
       },
       "authors": [
         {
-          "contributions": 2,
+          "contributions": 3,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
             "flesh_out",
+            "marie-curie-simulated",
             "rosalind-franklin-simulated"
           ]
         },
@@ -58046,6 +58047,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 63.764692,
+          "ended_at": "2026-06-05T05:01:28.870258+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "committed",
+          "started_at": "2026-06-05T05:00:25.105566+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 80.953161,
           "ended_at": "2026-06-04T11:33:31.535329+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -58065,6 +58074,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The research question frames correlation between water vapor signatures and equilibrium temperature. However, the document does not specify the spectral resolution of the instruments, nor the quantity of observational data required to reach statistical significance.\n\nIn my own work with pitchblende ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-05__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-05__research.md",
+          "review_path": "projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-05__research.md",
+          "reviewed_at": "2026-06-05T05:01:28.862834Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Marie Curie (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The proposal asserts a correlation between water vapor signatures and equilibrium temperature. However, without defining the spectral resolution or the signal-to-noise ratio of the baseline, the correlation is speculative. In the thymonucleate work, the distinction between A-form and B-form hinged o",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/rosalind-franklin-simulated__2026-06-04__research.md",
@@ -87817,6 +87836,22 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 63.764692,
+      "ended_at": "2026-06-05T05:01:28.870258+00:00",
+      "excerpt": "The research question frames correlation between water vapor signatures and equilibrium temperature. However, the document does not specify the spectral resolution of the instruments, nor the quantity of observational data required to reac\u2026",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-554-characterization-of-exoplanetary-atmosph",
+      "project_stage": "flesh_out_complete",
+      "review_path": "projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-05__research.md",
+      "started_at": "2026-06-05T05:00:25.105566+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Linus Pauling (simulated)",
       "duration_s": 37.593685,
       "ended_at": "2026-06-05T03:06:50.335503+00:00",
@@ -93094,16 +93129,6 @@
       "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
       "project_stage": "paper_review",
       "started_at": "2026-06-01T16:59:13.764612Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 89.718949,
-      "ended_at": "2026-06-01T16:59:13.712602Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-01T16:57:43.993653Z"
     }
   ],
   "schema_version": "2.0.0"
