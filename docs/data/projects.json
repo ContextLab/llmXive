@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T17:40:04.408566+00:00",
+  "generated_at": "2026-06-05T18:11:22.727719+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -70073,6 +70073,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 85.084412,
+          "ended_at": "2026-06-05T18:11:16.815906+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-05T18:09:51.731494+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 82.701526,
           "ended_at": "2026-06-05T09:48:18.685584+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -70142,14 +70150,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "committed",
           "started_at": "2026-05-18T21:53:31.487649+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 94.609264,
-          "ended_at": "2026-05-18T15:47:29.387002+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-18T15:45:54.777738+00:00"
         }
       ],
       "phase_group": "idea",
@@ -94198,6 +94198,20 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "David Krakauer (simulated)",
+      "duration_s": 85.084412,
+      "ended_at": "2026-06-05T18:11:16.815906+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "david-krakauer",
+      "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-06-05T18:09:51.731494+00:00"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Daniel Kahneman (simulated)",
       "duration_s": 26.856104,
       "ended_at": "2026-06-05T17:17:33.284140+00:00",
@@ -99487,16 +99501,6 @@
       "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T05:23:50.341339Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 170.050255,
-      "ended_at": "2026-06-02T05:23:50.295653Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:21:00.245398Z"
     }
   ],
   "schema_version": "2.0.0"
