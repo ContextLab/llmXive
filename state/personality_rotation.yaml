@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-05T20:12:07.597580+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-05T21:05:38.387975+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-26T14:29:19.336795+00:00'
-  ended_at: '2026-05-26T15:50:04.924832+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/rosalind-franklin-simulated__2026-05-26__research.md
 - slug: stephen-wolfram
   started_at: '2026-05-26T15:50:04.924832+00:00'
   ended_at: '2026-05-26T18:19:06.064894+00:00'
@@ -1225,5 +1218,10 @@ history:
 - slug: freeman-dyson
   started_at: '2026-06-05T19:11:31.169207+00:00'
   ended_at: '2026-06-05T20:12:07.597580+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-05T20:12:07.597580+00:00'
+  ended_at: '2026-06-05T21:05:38.387975+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
