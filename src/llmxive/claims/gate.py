@@ -62,6 +62,12 @@ def strip_claim_artifacts(text: str, *, preserve_pointers: bool = False) -> str:
     cleaned = _UNRESOLVED_MARKER_RE.sub("", text)
     if not preserve_pointers:
         cleaned = _STRAY_POINTER_RE.sub("", cleaned)
+    if cleaned == text:
+        # Nothing was removed → do NOT disturb intentional whitespace. The
+        # collapse below exists only to tidy the doubled spaces a removal leaves;
+        # running it unconditionally mangled aligned content (directory trees,
+        # ASCII tables) in clean docs. With no removal, return text byte-for-byte.
+        return text
     # Collapse runs of spaces/tabs a removal leaves behind, without touching
     # newlines (so paragraph structure is preserved). Also tidy " ." → ".".
     cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
