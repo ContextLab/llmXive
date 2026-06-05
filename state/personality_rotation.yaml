@@ -1,11 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-05T06:37:42.907630+00:00'
+last_used: rosalind-franklin
+last_used_at: '2026-06-05T08:22:57.173994+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-25T23:25:30.276218+00:00'
-  ended_at: '2026-05-25T23:51:31.479768+00:00'
-  outcome: model_error
 - slug: freeman-dyson
   started_at: '2026-05-25T23:51:31.479768+00:00'
   ended_at: '2026-05-26T00:32:18.352285+00:00'
@@ -1231,3 +1227,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/richard-feynman-simulated__2026-06-05__research.md
+- slug: rosalind-franklin
+  started_at: '2026-06-05T06:37:42.907630+00:00'
+  ended_at: '2026-06-05T08:22:57.173994+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/rosalind-franklin-simulated__2026-06-05__research.md
