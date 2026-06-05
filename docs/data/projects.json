@@ -940,7 +940,7 @@
     "human_contributors": 1433,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 4242,
+    "total_contributions": 4255,
     "total_contributors": 1440
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1926,
+      "contribution_count": 1939,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-05T18:56:14.304399+00:00",
+  "generated_at": "2026-06-05T19:11:36.217323+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -70073,6 +70073,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 105.951629,
+          "ended_at": "2026-06-05T19:11:31.169207+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-05T19:09:45.217578+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 85.084412,
           "ended_at": "2026-06-05T18:11:16.815906+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -70142,14 +70150,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-06-03T03:39:52.197652Z"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 57.887382,
-          "ended_at": "2026-05-18T21:54:29.375031+00:00",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "committed",
-          "started_at": "2026-05-18T21:53:31.487649+00:00"
         }
       ],
       "phase_group": "idea",
@@ -89057,7 +89057,7 @@
       },
       "authors": [
         {
-          "contributions": 20,
+          "contributions": 42,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -89069,6 +89069,8 @@
             "paper_reviewer_logical_consistency",
             "paper_reviewer_overreach",
             "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_statistical_analysis",
             "paper_reviewer_text_formatting",
             "paper_reviewer_writing_quality"
           ]
@@ -89151,89 +89153,199 @@
       "last_run_log": [
         {
           "agent": "paper_reviewer_jargon_police",
-          "duration_s": 170.816732,
-          "ended_at": "2026-06-03T19:50:35.813726Z",
+          "duration_s": 29.241611,
+          "ended_at": "2026-06-05T19:05:20.800783Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:47:44.996994Z"
+          "started_at": "2026-06-05T19:04:51.559172Z"
         },
         {
           "agent": "paper_reviewer_figure_critic",
-          "duration_s": 30.57678,
-          "ended_at": "2026-06-03T19:47:44.942494Z",
+          "duration_s": 33.90171,
+          "ended_at": "2026-06-05T19:04:51.504229Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
-          "started_at": "2026-06-03T19:47:14.365714Z"
+          "started_at": "2026-06-05T19:04:17.602519Z"
         },
         {
           "agent": "paper_reviewer_text_formatting",
-          "duration_s": 84.482731,
-          "ended_at": "2026-06-03T19:47:14.310714Z",
+          "duration_s": 157.384071,
+          "ended_at": "2026-06-05T19:04:17.548380Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:45:49.827983Z"
+          "started_at": "2026-06-05T19:01:40.164309Z"
         },
         {
           "agent": "paper_reviewer_data_quality_paper",
-          "duration_s": 65.203106,
-          "ended_at": "2026-06-03T19:45:49.709109Z",
+          "duration_s": 19.798518,
+          "ended_at": "2026-06-05T19:01:40.112425Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:44:44.506003Z"
+          "started_at": "2026-06-05T19:01:20.313907Z"
         },
         {
           "agent": "paper_reviewer_code_quality_paper",
-          "duration_s": 50.247258,
-          "ended_at": "2026-06-03T19:44:44.453361Z",
+          "duration_s": 36.369022,
+          "ended_at": "2026-06-05T19:01:20.260302Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:43:54.206103Z"
+          "started_at": "2026-06-05T19:00:43.891280Z"
         },
         {
           "agent": "paper_reviewer_statistical_analysis",
-          "duration_s": 62.4074,
-          "ended_at": "2026-06-03T19:43:54.150713Z",
+          "duration_s": 28.904074,
+          "ended_at": "2026-06-05T19:00:43.838583Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-06-03T19:42:51.743313Z"
+          "outcome": "success",
+          "started_at": "2026-06-05T19:00:14.934509Z"
         },
         {
           "agent": "paper_reviewer_scientific_evidence",
-          "duration_s": 40.887913,
-          "ended_at": "2026-06-03T19:42:51.687421Z",
+          "duration_s": 71.338667,
+          "ended_at": "2026-06-05T19:00:14.880989Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-06-03T19:42:10.799508Z"
+          "outcome": "success",
+          "started_at": "2026-06-05T18:59:03.542322Z"
         },
         {
           "agent": "paper_reviewer_safety_ethics",
-          "duration_s": 55.545672,
-          "ended_at": "2026-06-03T19:42:10.745216Z",
+          "duration_s": 21.285265,
+          "ended_at": "2026-06-05T18:59:03.488359Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:41:15.199544Z"
+          "started_at": "2026-06-05T18:58:42.203094Z"
         },
         {
           "agent": "paper_reviewer_overreach",
-          "duration_s": 124.648589,
-          "ended_at": "2026-06-03T19:41:15.144750Z",
+          "duration_s": 86.812596,
+          "ended_at": "2026-06-05T18:58:42.145851Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:39:10.496161Z"
+          "started_at": "2026-06-05T18:57:15.333255Z"
         },
         {
           "agent": "paper_reviewer_claim_accuracy",
-          "duration_s": 87.607066,
-          "ended_at": "2026-06-03T19:39:10.443197Z",
+          "duration_s": 241.610847,
+          "ended_at": "2026-06-05T18:57:15.279535Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-06-03T19:37:42.836131Z"
+          "started_at": "2026-06-05T18:53:13.668688Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "## Re-Review: Jargon Overuse Assessment\n\n### Prior Action Item Status\n\n**Item `45180733b6bc` (Acronym Definitions):** \u2717 **NOT ADDRESSED**\n\nMultiple acronyms remain undefined at first use throughout the manuscript:\n- **SFT** (Supervised Fine-Tuning): Appears in Section 3.1.2 \"SFT on Synthetic Traject",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_jargon_police__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T19:05:20.675831Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The revision addresses two of the three prior formatting concerns, but one critical LaTeX hygiene issue remains unresolved, and a new structural error has been introduced in the appendix.\n\nRegarding the prior items:\n1.  **Item `f43ef95824da` (Promptbox Environment Mismatch):** **Not Addressed.** In ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_text_formatting__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_text_formatting__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_text_formatting__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T19:04:17.421508Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_text_formatting",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Data Quality Re-Review Assessment\n\nThis re-review evaluates whether the three prior action items regarding data provenance, licensing, and archival have been adequately addressed in the current manuscript revision.\n\n### Prior Action Item Status\n\n**Item `5ca275328cf8` (License Disclosure):** \u274c **N",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_data_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T19:01:39.987431Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_data_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This review is scoped to code quality, reproducibility, and artifact hygiene. The current input consists solely of the paper's LaTeX source, bibliography, and figure metadata. Crucially, the implementation artifacts referenced in the manuscript\u2014specifically the training scripts, evaluation pipelines",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_code_quality_paper__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T19:01:20.089929Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_code_quality_paper",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Statistical Analysis Review\n\n### Strengths\nThe paper employs appropriate statistical tests for its evaluation design. McNemar's test is correctly chosen for paired binary exact-match outcomes (Table 1 and 2 captions, Section 5.2). The evaluation corpus is substantial (51,713 queries across 7 benc",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_statistical_analysis__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T19:00:43.713443Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The empirical evidence is generally robust, with a large evaluation corpus (51,713 queries, Appendix Table 1) and comprehensive baselines including dense retrievers (E5, Qwen3-4B) and agentic methods (Search-R1). The ablation study (Table 3) effectively isolates the contribution of the SFT and GRPO ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_scientific_evidence__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T19:00:14.756428Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Re-Review: Safety & Ethics Assessment**\n\nThis re-review evaluates whether the prior safety/ethics action items have been adequately addressed in the current manuscript revision.\n\n**Prior Action Item Assessment:**\n\n1. **Item `4f5279889777` (NQ Dataset Ethics Statement):** \u274c **NOT ADDRESSED**\n\n   Th",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_safety_ethics__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T18:59:03.363368Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "This re-review finds that the prior action items regarding overreach and unsupported claims remain inadequately addressed in the current revision.\n\nFirst, the **science-level concern** regarding Table 1 (`f342678330c0`) persists. Section 3.1 lists Search-O1 and Search-R1 as baselines, and Section 3.",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_overreach__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_overreach__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_overreach__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T18:58:42.020327Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "full_revision"
+        },
+        {
+          "excerpt": "In this re-review, I evaluated the manuscript against the prior action items to determine if they were adequately addressed in the current revision.\n\nItem `b70eefcb65f8` (qwen3.5 bibliography) is **NOT addressed**. The manuscript cites `\\citep{qwen3.5}` in Section 3 (Experimental Setup) to reference",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_claim_accuracy__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T18:57:15.154287Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "## Re-Review: Logical Consistency\n\n### Prior Action Item Assessment\n\n**Item `a129b2d5d37c` (Figure 1 caption):** \u2713 ADDRESSED\n\nThe Figure 1 caption now correctly distinguishes between \"pre-computed indices\" (Left/baselines) and \"without requiring an index\" (Right/GrepSeek). This aligns with the DCI c",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_logical_consistency__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T18:53:13.491253Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_logical_consistency",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "Thank you for submitting the revised manuscript. I have evaluated the current version against the action items from my previous review to determine if the writing quality issues have been resolved.\n\n**Resolution of Prior Action Items:**\n\n1.  **Ingestion Artifact (Item 40ceca264ffc):** This has been ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "review_path": "projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_writing_quality__2026-06-05__paper.md",
+          "reviewed_at": "2026-06-05T18:52:50.402181Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The manuscript exhibits significant jargon density that may exclude non-specialist readers. Several critical acronyms are introduced without definition at first use. In the Introduction, \"standard RAG\" appears without spelling out \"Retrieval-Augmented Generation (RAG)\". Similarly, Section 3 introduc",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-651-grepseek-training-search-agents-for-dire/paper/reviews/paper_reviewer_jargon_police__2026-06-03__paper.md",
@@ -89343,9 +89455,9 @@
       "title": "GrepSeek: Training Search Agents for Direct Corpus Interaction",
       "updated_at": "2026-06-02T09:29:16.036068+00:00",
       "upstream_feedback": {
-        "latest_action_item_count": 26,
+        "latest_action_item_count": 29,
         "latest_verdict_class": "science",
-        "round_count": 1,
+        "round_count": 2,
         "schema_version": 1
       }
     },
@@ -94195,6 +94307,150 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 105.951629,
+      "ended_at": "2026-06-05T19:11:31.169207+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "eric-kandel",
+      "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
+      "project_stage": "flesh_out_complete",
+      "started_at": "2026-06-05T19:09:45.217578+00:00"
+    },
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 29.241611,
+      "ended_at": "2026-06-05T19:05:20.800783Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T19:04:51.559172Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 33.90171,
+      "ended_at": "2026-06-05T19:04:51.504229Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T19:04:17.602519Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 157.384071,
+      "ended_at": "2026-06-05T19:04:17.548380Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T19:01:40.164309Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 19.798518,
+      "ended_at": "2026-06-05T19:01:40.112425Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T19:01:20.313907Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 36.369022,
+      "ended_at": "2026-06-05T19:01:20.260302Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T19:00:43.891280Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 28.904074,
+      "ended_at": "2026-06-05T19:00:43.838583Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T19:00:14.934509Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 71.338667,
+      "ended_at": "2026-06-05T19:00:14.880989Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:59:03.542322Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 21.285265,
+      "ended_at": "2026-06-05T18:59:03.488359Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:58:42.203094Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 86.812596,
+      "ended_at": "2026-06-05T18:58:42.145851Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:57:15.333255Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 241.610847,
+      "ended_at": "2026-06-05T18:57:15.279535Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:53:13.668688Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 23.019858,
+      "ended_at": "2026-06-05T18:53:13.615547Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:52:50.595689Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 120.295712,
+      "ended_at": "2026-06-05T18:52:50.540669Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:50:50.244957Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 606.824386,
+      "ended_at": "2026-06-05T18:50:50.190541Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-651-grepseek-training-search-agents-for-dire",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-05T18:40:43.366155Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -99357,150 +99613,6 @@
       "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T07:44:39.488047Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 38.006244,
-      "ended_at": "2026-06-02T07:44:39.433283Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T07:44:01.427039Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 47.741302,
-      "ended_at": "2026-06-02T07:44:01.373961Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T07:43:13.632659Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 118.947229,
-      "ended_at": "2026-06-02T07:43:13.578938Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T07:41:14.631709Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 32.888938,
-      "ended_at": "2026-06-02T07:41:14.579279Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T07:40:41.690341Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 23.050477,
-      "ended_at": "2026-06-02T07:40:41.636371Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T07:40:18.585894Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 145.62718,
-      "ended_at": "2026-06-02T07:40:18.530353Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T07:37:52.903173Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Richard Feynman (simulated)",
-      "duration_s": 96.570699,
-      "ended_at": "2026-06-02T07:05:41.886606+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "richard-feynman",
-      "project_id": "PROJ-560-embodied-curriculum-learning-physical-si",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-02T07:04:05.315907+00:00"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 60.87945,
-      "ended_at": "2026-06-02T05:30:48.477894Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:29:47.598444Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 23.087901,
-      "ended_at": "2026-06-02T05:29:47.552470Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:29:24.464569Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 69.827727,
-      "ended_at": "2026-06-02T05:29:24.418106Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:28:14.590379Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 22.02696,
-      "ended_at": "2026-06-02T05:28:14.544483Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:27:52.517523Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 62.994053,
-      "ended_at": "2026-06-02T05:27:52.471990Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:26:49.477937Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 71.276175,
-      "ended_at": "2026-06-02T05:26:49.432188Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:25:38.156013Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 107.768776,
-      "ended_at": "2026-06-02T05:25:38.110115Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T05:23:50.341339Z"
     }
   ],
   "schema_version": "2.0.0"
