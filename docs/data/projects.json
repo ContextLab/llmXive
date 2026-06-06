@@ -12653,7 +12653,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T09:46:03.310553+00:00",
+  "generated_at": "2026-06-06T09:49:23.023236+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -94969,7 +94969,7 @@
         "data": null,
         "idea": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/idea/https-arxiv-org-abs-2606-05259.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
         "paper_spec": null,
@@ -95040,10 +95040,10 @@
       },
       "created_at": "2026-06-06T08:55:06.303752+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
-        "repo_path": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "We introduce VideoKR, the first large-scale training corpus specifically designed to strengthen knowledge- and reasoning-intensive video understanding. It comprises 315K video reasoning examples over 145K newly collected, CC-licensed, expert-domain videos. We develop a human-in-the-loop, skill-oriented example\u2026",
@@ -95080,7 +95080,7 @@
         "data": null,
         "idea": "projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -95102,10 +95102,10 @@
       },
       "created_at": "2026-06-06T08:55:08.265560+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
-        "repo_path": "projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.05622 Submitted by: github-actions[bot] (Intake from human-submission issue #286.)",
@@ -95142,7 +95142,7 @@
         "data": null,
         "idea": "projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-669-tide-proactive-multi-problem-discovery-v/paper/pdf/2606.04743.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -95197,10 +95197,10 @@
       },
       "created_at": "2026-06-06T08:55:10.060891+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
-        "repo_path": "projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v/paper/pdf/2606.04743.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v/paper/pdf/2606.04743.pdf",
+        "repo_path": "projects/PROJ-669-tide-proactive-multi-problem-discovery-v/paper/pdf/2606.04743.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Agents are widely deployed as assistants over documents, tools, and code. However, they typically act only on explicit user requests, which surface only the problems the user has noticed, while many other important problems coexist, hidden in plain sight, within the broader user context, with their total number\u2026",
@@ -95237,7 +95237,7 @@
         "data": null,
         "idea": "projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/pdf/main-llmxive.pdf",
         "paper_plan": null,
         "paper_source": null,
         "paper_spec": null,
@@ -95308,10 +95308,10 @@
       },
       "created_at": "2026-06-06T08:55:11.980247+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
-        "repo_path": "projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
-        "type": "markdown"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/pdf/main-llmxive.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/pdf/main-llmxive.pdf",
+        "repo_path": "projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/pdf/main-llmxive.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Role-playing language agents (RPLAs) should play characters whose values and behavior evolve as the story progresses, not maintain a fixed persona. Existing benchmarks measure factual recall at a given chapter, not whether responses align with the character's psychological trajectory, especially in scenarios the\u2026",
@@ -95348,7 +95348,7 @@
         "data": null,
         "idea": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/idea/code2lora-hypernetwork-generated-adapter.md",
         "paper_figures": null,
-        "paper_pdf": null,
+        "paper_pdf": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/2606.06492.pdf",
         "paper_plan": null,
         "paper_source": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
         "paper_spec": null,
@@ -95403,10 +95403,10 @@
       },
       "created_at": "2026-06-06T08:55:13.787130+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
-        "repo_path": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
-        "type": "latex"
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/2606.06492.pdf",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/2606.06492.pdf",
+        "repo_path": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/2606.06492.pdf",
+        "type": "pdf"
       },
       "current_stage": "paper_review",
       "description": "Code language models need repository-level context to resolve imports, APIs, and project conventions. Existing methods inject this knowledge as long inputs (retrieved through RAG or dependency analysis) or through per-repository fine-tuning and LoRA -- costly at repository scale and brittle to evolving codebases. We\u2026",
