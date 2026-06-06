@@ -940,7 +940,7 @@
     "human_contributors": 1454,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 4330,
+    "total_contributions": 4346,
     "total_contributors": 1461
   },
   "contributors": [
@@ -965,7 +965,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1981,
+      "contribution_count": 1995,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -998,7 +998,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 127,
+      "contribution_count": 129,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -12711,7 +12711,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T10:54:43.378420+00:00",
+  "generated_at": "2026-06-06T11:33:20.285012+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -84269,12 +84269,34 @@
         "paper_supplement_source": null,
         "paper_tasks": null,
         "plan": null,
-        "reviews_paper": null,
+        "reviews_paper": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews",
         "reviews_research": null,
         "spec": null,
         "tasks": null
       },
       "authors": [
+        {
+          "contributions": 14,
+          "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "paper_reviewer_claim_accuracy",
+            "paper_reviewer_figure_critic",
+            "paper_reviewer_jargon_police",
+            "paper_reviewer_overreach",
+            "paper_reviewer_safety_ethics",
+            "paper_reviewer_scientific_evidence",
+            "paper_reviewer_writing_quality"
+          ]
+        },
+        {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "paper_reviewer_statistical_analysis"
+          ]
+        },
         {
           "contributions": 1,
           "kind": "human",
@@ -84400,34 +84422,171 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "personality",
-          "duration_s": 25.320446,
-          "ended_at": "2026-06-01T15:37:17.099116+00:00",
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 115.163294,
+          "ended_at": "2026-06-06T11:23:11.994138Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "triage_rejected_advanced_as_abstain",
-          "started_at": "2026-06-01T15:36:51.778670+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-06T11:21:16.830844Z"
         },
         {
-          "agent": "personality",
-          "duration_s": 61.710875,
-          "ended_at": "2026-05-31T14:33:54.956418+00:00",
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 89.093256,
+          "ended_at": "2026-06-06T11:21:16.777372Z",
           "model": "qwen.qwen3.5-122b",
-          "outcome": "triage_rejected_advanced_as_abstain",
-          "started_at": "2026-05-31T14:32:53.245543+00:00"
+          "outcome": "success",
+          "started_at": "2026-06-06T11:19:47.684116Z"
         },
         {
-          "agent": "submission_intake",
-          "duration_s": 4.387527,
-          "ended_at": "2026-05-28T09:16:59.611320+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-28T09:16:55.223793+00:00"
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 285.313327,
+          "ended_at": "2026-06-06T11:19:47.631048Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T11:15:02.317721Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 900.215655,
+          "ended_at": "2026-06-06T11:15:02.205261Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T11:00:01.989606Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 900.206933,
+          "ended_at": "2026-06-06T11:00:01.936376Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T10:45:01.729443Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 388.243891,
+          "ended_at": "2026-06-06T10:45:01.675094Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-06-06T10:38:33.431203Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 97.423946,
+          "ended_at": "2026-06-06T10:38:33.377413Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-06T10:36:55.953467Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 63.401965,
+          "ended_at": "2026-06-06T10:36:55.899788Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-06T10:35:52.497823Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 103.715036,
+          "ended_at": "2026-06-06T10:35:52.444104Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-06T10:34:08.729068Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 82.44684,
+          "ended_at": "2026-06-06T10:34:08.674822Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-06-06T10:32:46.227982Z"
         }
       ],
       "phase_group": "paper_review",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The manuscript presents a dense technical vocabulary typical of computer vision research, but several acronyms and specialized terms appear without immediate definition, potentially excluding readers from adjacent fields like robotics or general machine learning. In the **Abstract**, the term \"cross",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_jargon_police__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_jargon_police__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_jargon_police__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T11:23:11.867962Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_jargon_police",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript presents a comprehensive suite of figures to visualize benchmark statistics and model performance. However, several technical issues regarding figure quality and presentation require correction.\n\nFirst, regarding **legibility and format**, multiple critical result figures are submitte",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_figure_critic__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_figure_critic__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_figure_critic__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T11:21:16.652329Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_figure_critic",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript introduces **SpatialBench**, a comprehensive benchmark covering 19 datasets, 546 scenes, and 41 model variants across six methodological paradigms. While the benchmark\u2019s breadth is impressive, the statistical treatment of the reported results is insufficient for rigorous scientific co",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_statistical_analysis__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_statistical_analysis__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_statistical_analysis__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T10:45:01.550811Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_statistical_analysis",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The scientific evidence supporting the benchmark's breadth (546 scenes, 19 datasets) is strong, providing a robust foundation for the claim that current models lack all-round capabilities. However, evidence regarding the specific superiority of the proposed **DA-Next** model requires clarification t",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_scientific_evidence__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_scientific_evidence__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_scientific_evidence__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T10:38:33.249748Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_scientific_evidence",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Safety and Ethics Review**\n\nThis benchmark paper aggregates 19 public datasets (including real-world imagery from ScanNet++, KITTI, Waymo, Aria Digital Twin, etc.) to evaluate spatial foundation models. From a safety and ethics perspective, several concerns require attention before publication:\n\n*",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_safety_ethics__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_safety_ethics__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_safety_ethics__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T10:36:55.771992Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_safety_ethics",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The paper presents a comprehensive benchmark but occasionally extrapolates findings beyond the specific experimental scope. The primary concern is the framing of the evaluation as testing whether models are an \"All-Round Player\" (Title, `secs/intro.tex`). While the benchmark aggregates 19 datasets, ",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_overreach__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_overreach__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_overreach__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T10:35:52.316440Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_overreach",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "**Claim Accuracy Review**\n\n**1. Citation Verification Concerns**\n\nThe bibliography contains numerous papers with publication years 2025-2026 (e.g., `wang2025cut3r`, `xie2026scal3r`, `zhang2026loger`, `chen2026lingbotmap`). Given the arXiv ID format (2605.27367 = May 2026), these represent future-dat",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_claim_accuracy__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_claim_accuracy__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_claim_accuracy__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T10:34:08.544196Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_claim_accuracy",
+          "verdict": "minor_revision"
+        },
+        {
+          "excerpt": "The manuscript demonstrates a clear structure and logical flow, effectively communicating the benchmark's design and results. The Introduction (`secs/intro.tex`) clearly outlines the motivation and contributions. However, several sections rely on sentence fragments that, while common in technical no",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_writing_quality__2026-06-06__paper.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_writing_quality__2026-06-06__paper.md",
+          "review_path": "projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/reviews/paper_reviewer_writing_quality__2026-06-06__paper.md",
+          "reviewed_at": "2026-06-06T10:23:57.090563Z",
+          "reviewer_kind": "paper",
+          "reviewer_name": "paper_reviewer_writing_quality",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -84435,7 +84594,12 @@
       "submitter": "github-actions[bot]",
       "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?",
       "updated_at": "2026-05-28T15:10:09.239350+00:00",
-      "upstream_feedback": null
+      "upstream_feedback": {
+        "latest_action_item_count": 28,
+        "latest_verdict_class": "science",
+        "round_count": 1,
+        "schema_version": 1
+      }
     },
     {
       "artifact_links": {
@@ -91790,6 +91954,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 71.376613,
+          "ended_at": "2026-06-06T11:33:14.393734+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-06T11:32:03.017121+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 90.797978,
           "ended_at": "2026-06-04T18:18:11.392767+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -95604,6 +95776,80 @@
     {
       "action": "comment",
       "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 71.376613,
+      "ended_at": "2026-06-06T11:33:14.393734+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-660-https-arxiv-org-abs-2605-23895",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T11:32:03.017121+00:00"
+    },
+    {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 115.163294,
+      "ended_at": "2026-06-06T11:23:11.994138Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T11:21:16.830844Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 89.093256,
+      "ended_at": "2026-06-06T11:21:16.777372Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T11:19:47.684116Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 285.313327,
+      "ended_at": "2026-06-06T11:19:47.631048Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T11:15:02.317721Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 900.215655,
+      "ended_at": "2026-06-06T11:15:02.205261Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T11:00:01.989606Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 900.206933,
+      "ended_at": "2026-06-06T11:00:01.936376Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:45:01.729443Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 388.243891,
+      "ended_at": "2026-06-06T10:45:01.675094Z",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:38:33.431203Z"
+    },
+    {
+      "action": "comment",
+      "agent": "personality",
       "display_name": "Alan Turing (simulated)",
       "duration_s": 98.258335,
       "ended_at": "2026-06-06T10:40:24.763843+00:00",
@@ -95614,6 +95860,76 @@
       "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
       "project_stage": "paper_review",
       "started_at": "2026-06-06T10:38:46.505508+00:00"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 97.423946,
+      "ended_at": "2026-06-06T10:38:33.377413Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:36:55.953467Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 63.401965,
+      "ended_at": "2026-06-06T10:36:55.899788Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:35:52.497823Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 103.715036,
+      "ended_at": "2026-06-06T10:35:52.444104Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:34:08.729068Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 82.44684,
+      "ended_at": "2026-06-06T10:34:08.674822Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:32:46.227982Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 528.885862,
+      "ended_at": "2026-06-06T10:32:46.174226Z",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:23:57.288364Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 139.655362,
+      "ended_at": "2026-06-06T10:23:57.234719Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T10:21:37.579357Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 2299.438948,
+      "ended_at": "2026-06-06T10:21:37.523417Z",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T09:43:18.084469Z"
     },
     {
       "action": "comment",
@@ -100759,156 +101075,6 @@
       "project_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
       "project_stage": "flesh_out_complete",
       "started_at": "2026-06-03T04:32:53.778475Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 231.162771,
-      "ended_at": "2026-06-03T03:47:25.841858Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-03T03:43:34.679087Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 221.589024,
-      "ended_at": "2026-06-03T03:43:33.786676Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-03T03:39:52.197652Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 207.843201,
-      "ended_at": "2026-06-03T03:39:51.355449Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-584-predictive-coding-llms-implementing-hier",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-03T03:36:23.512248Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 254.63521,
-      "ended_at": "2026-06-03T03:36:22.667734Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-583-astrocyte-inspired-meta-learning-glial-m",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-03T03:32:08.032524Z"
-    },
-    {
-      "agent": "flesh_out",
-      "duration_s": 276.624632,
-      "ended_at": "2026-06-03T03:32:07.186412Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-03T03:27:30.561780Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Linus Pauling (simulated)",
-      "duration_s": 49.09155,
-      "ended_at": "2026-06-03T03:08:27.065067+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "linus-pauling",
-      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
-      "project_stage": "flesh_out_complete",
-      "started_at": "2026-06-03T03:07:37.973517+00:00"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "John von Neumann (simulated)",
-      "duration_s": 35.520598,
-      "ended_at": "2026-06-03T01:54:44.409728+00:00",
-      "excerpt": "The binding problem is not new to artificial intelligence\u2014it is the oldest question in the philosophy of mind, reframed for a new substrate. What I find of interest in the present proposal is the attempt to map gamma-band (40Hz) synchroniz\u2026",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "john-von-neumann",
-      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
-      "project_stage": "flesh_out_complete",
-      "review_path": "projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/john-von-neumann-simulated__2026-06-03__research.md",
-      "started_at": "2026-06-03T01:54:08.889130+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 26.283443,
-      "ended_at": "2026-06-03T01:10:35.825813Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:10:09.542370Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 98.624178,
-      "ended_at": "2026-06-03T01:10:09.489685Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:08:30.865507Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 75.27752,
-      "ended_at": "2026-06-03T01:08:30.809458Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:07:15.531938Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 66.390663,
-      "ended_at": "2026-06-03T01:07:15.479774Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:06:09.089111Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 20.702696,
-      "ended_at": "2026-06-03T01:06:08.980571Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:05:48.277875Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 24.358542,
-      "ended_at": "2026-06-03T01:05:48.224715Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:05:23.866173Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 91.72194,
-      "ended_at": "2026-06-03T01:05:23.814350Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:03:52.092410Z"
     }
   ],
   "schema_version": "2.0.0"
