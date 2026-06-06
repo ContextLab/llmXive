@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-06T23:23:14.542229+00:00'
+last_used: david-krakauer
+last_used_at: '2026-06-06T23:53:25.849231+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: eric-kandel
-  started_at: '2026-05-28T02:20:55.732697+00:00'
-  ended_at: '2026-05-28T03:48:55.777547+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/eric-kandel-simulated__2026-05-28__research.md
 - slug: freeman-dyson
   started_at: '2026-05-28T03:48:55.777547+00:00'
   ended_at: '2026-05-28T05:26:44.163050+00:00'
@@ -1189,5 +1182,10 @@ history:
 - slug: daniel-kahneman
   started_at: '2026-06-06T22:50:32.386757+00:00'
   ended_at: '2026-06-06T23:23:14.542229+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-06T23:23:14.542229+00:00'
+  ended_at: '2026-06-06T23:53:25.849231+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
