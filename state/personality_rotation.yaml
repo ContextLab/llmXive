@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-06T21:24:05.616321+00:00'
+last_used: alan-turing
+last_used_at: '2026-06-06T21:51:32.720915+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-27T23:01:31.015882+00:00'
-  ended_at: '2026-05-27T23:37:53.753029+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-549-exploring-the-distribution-of-smooth-num/reviews/research/_held/dan-rockmore-simulated__2026-05-27__research.md
 - slug: dan-rockmore
   started_at: '2026-05-27T23:37:53.753029+00:00'
   ended_at: '2026-05-28T00:32:24.740488+00:00'
@@ -1195,5 +1188,10 @@ history:
 - slug: ada-lovelace
   started_at: '2026-06-06T20:36:55.545847+00:00'
   ended_at: '2026-06-06T21:24:05.616321+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: alan-turing
+  started_at: '2026-06-06T21:24:05.616321+00:00'
+  ended_at: '2026-06-06T21:51:32.720915+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
