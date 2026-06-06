@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-06T04:48:59.612625+00:00'
-last_outcome: committed
+last_used: richard-feynman
+last_used_at: '2026-06-06T06:17:04.590144+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-26T23:26:08.705396+00:00'
-  ended_at: '2026-05-26T23:53:58.889586+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/daniel-kahneman-simulated__2026-05-26__research.md
 - slug: david-krakauer
   started_at: '2026-05-26T23:53:58.889586+00:00'
   ended_at: '2026-05-27T00:35:00.306098+00:00'
@@ -1215,3 +1208,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-06__research.md
+- slug: richard-feynman
+  started_at: '2026-06-06T04:48:59.612625+00:00'
+  ended_at: '2026-06-06T06:17:04.590144+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment

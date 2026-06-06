@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T05:43:29.848369+00:00",
+  "generated_at": "2026-06-06T06:17:09.492940+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -90074,6 +90074,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 258.796873,
+          "ended_at": "2026-06-06T06:17:04.590144+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-06T06:12:45.793271+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 26.856104,
           "ended_at": "2026-06-05T17:17:33.284140+00:00",
           "model": "qwen.qwen3.5-122b",
@@ -94726,6 +94734,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Richard Feynman (simulated)",
+      "duration_s": 258.796873,
+      "ended_at": "2026-06-06T06:17:04.590144+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "richard-feynman",
+      "project_id": "PROJ-653-https-arxiv-org-abs-2605-28556",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T06:12:45.793271+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -100012,16 +100034,6 @@
       "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T20:19:43.774834Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 69.531671,
-      "ended_at": "2026-06-02T20:19:43.739339Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T20:18:34.207668Z"
     }
   ],
   "schema_version": "2.0.0"
