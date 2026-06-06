@@ -1,11 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-06T14:34:18.180829+00:00'
+last_used: david-krakauer
+last_used_at: '2026-06-06T15:29:15.117902+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-05-27T09:49:03.564233+00:00'
-  ended_at: '2026-05-27T11:11:52.537520+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-05-27T11:11:52.537520+00:00'
   ended_at: '2026-05-27T12:36:55.491786+00:00'
@@ -1199,5 +1195,10 @@ history:
 - slug: daniel-kahneman
   started_at: '2026-06-06T12:26:58.476129+00:00'
   ended_at: '2026-06-06T14:34:18.180829+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-06T14:34:18.180829+00:00'
+  ended_at: '2026-06-06T15:29:15.117902+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
