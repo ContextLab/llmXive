@@ -12541,7 +12541,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T00:44:59.144375+00:00",
+  "generated_at": "2026-06-06T01:18:15.133429+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -72878,12 +72878,84 @@
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "submission_intake",
-          "duration_s": 27.215272,
-          "ended_at": "2026-05-19T09:10:59.190524+00:00",
-          "model": "",
-          "outcome": "committed",
-          "started_at": "2026-05-19T09:10:31.975252+00:00"
+          "agent": "paper_reviewer_jargon_police",
+          "duration_s": 70.944831,
+          "ended_at": "2026-06-06T01:03:01.964714Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T01:01:51.019883Z"
+        },
+        {
+          "agent": "paper_reviewer_figure_critic",
+          "duration_s": 70.711327,
+          "ended_at": "2026-06-06T01:01:50.964303Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T01:00:40.252976Z"
+        },
+        {
+          "agent": "paper_reviewer_text_formatting",
+          "duration_s": 532.070392,
+          "ended_at": "2026-06-06T01:00:40.194930Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:51:48.124538Z"
+        },
+        {
+          "agent": "paper_reviewer_data_quality_paper",
+          "duration_s": 71.046214,
+          "ended_at": "2026-06-06T00:51:48.068941Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:50:37.022727Z"
+        },
+        {
+          "agent": "paper_reviewer_code_quality_paper",
+          "duration_s": 70.943479,
+          "ended_at": "2026-06-06T00:50:36.966163Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:49:26.022684Z"
+        },
+        {
+          "agent": "paper_reviewer_statistical_analysis",
+          "duration_s": 70.945833,
+          "ended_at": "2026-06-06T00:49:25.966610Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:48:15.020777Z"
+        },
+        {
+          "agent": "paper_reviewer_scientific_evidence",
+          "duration_s": 70.663006,
+          "ended_at": "2026-06-06T00:48:14.964951Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:47:04.301945Z"
+        },
+        {
+          "agent": "paper_reviewer_safety_ethics",
+          "duration_s": 71.220465,
+          "ended_at": "2026-06-06T00:47:04.244766Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:45:53.024301Z"
+        },
+        {
+          "agent": "paper_reviewer_overreach",
+          "duration_s": 191.944741,
+          "ended_at": "2026-06-06T00:45:52.967092Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:42:41.022351Z"
+        },
+        {
+          "agent": "paper_reviewer_claim_accuracy",
+          "duration_s": 70.663247,
+          "ended_at": "2026-06-06T00:42:40.965656Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-06-06T00:41:30.302409Z"
         }
       ],
       "phase_group": "paper_review",
@@ -94508,6 +94580,136 @@
   ],
   "recent_activity": [
     {
+      "agent": "paper_reviewer_jargon_police",
+      "duration_s": 70.944831,
+      "ended_at": "2026-06-06T01:03:01.964714Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T01:01:51.019883Z"
+    },
+    {
+      "agent": "paper_reviewer_figure_critic",
+      "duration_s": 70.711327,
+      "ended_at": "2026-06-06T01:01:50.964303Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T01:00:40.252976Z"
+    },
+    {
+      "agent": "paper_reviewer_text_formatting",
+      "duration_s": 532.070392,
+      "ended_at": "2026-06-06T01:00:40.194930Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:51:48.124538Z"
+    },
+    {
+      "agent": "paper_reviewer_data_quality_paper",
+      "duration_s": 71.046214,
+      "ended_at": "2026-06-06T00:51:48.068941Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:50:37.022727Z"
+    },
+    {
+      "agent": "paper_reviewer_code_quality_paper",
+      "duration_s": 70.943479,
+      "ended_at": "2026-06-06T00:50:36.966163Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:49:26.022684Z"
+    },
+    {
+      "agent": "paper_reviewer_statistical_analysis",
+      "duration_s": 70.945833,
+      "ended_at": "2026-06-06T00:49:25.966610Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:48:15.020777Z"
+    },
+    {
+      "agent": "paper_reviewer_scientific_evidence",
+      "duration_s": 70.663006,
+      "ended_at": "2026-06-06T00:48:14.964951Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:47:04.301945Z"
+    },
+    {
+      "agent": "paper_reviewer_safety_ethics",
+      "duration_s": 71.220465,
+      "ended_at": "2026-06-06T00:47:04.244766Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:45:53.024301Z"
+    },
+    {
+      "agent": "paper_reviewer_overreach",
+      "duration_s": 191.944741,
+      "ended_at": "2026-06-06T00:45:52.967092Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:42:41.022351Z"
+    },
+    {
+      "agent": "paper_reviewer_claim_accuracy",
+      "duration_s": 70.663247,
+      "ended_at": "2026-06-06T00:42:40.965656Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:41:30.302409Z"
+    },
+    {
+      "agent": "paper_reviewer_logical_consistency",
+      "duration_s": 71.122395,
+      "ended_at": "2026-06-06T00:41:30.245557Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:40:19.123162Z"
+    },
+    {
+      "agent": "paper_reviewer_writing_quality",
+      "duration_s": 71.045314,
+      "ended_at": "2026-06-06T00:40:19.066327Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:39:08.021013Z"
+    },
+    {
+      "agent": "paper_reviewer",
+      "duration_s": 62.307939,
+      "ended_at": "2026-06-06T00:39:07.964594Z",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-597-https-arxiv-org-abs-2605-11739",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T00:38:05.656655Z"
+    },
+    {
       "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 73.553785,
@@ -99681,140 +99883,6 @@
       "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
       "project_stage": "paper_review",
       "started_at": "2026-06-02T13:46:53.612178Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 57.201794,
-      "ended_at": "2026-06-02T13:46:53.575239Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T13:45:56.373445Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 177.911059,
-      "ended_at": "2026-06-02T13:45:56.338252Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T13:42:58.427193Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 180.874082,
-      "ended_at": "2026-06-02T13:42:58.391823Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T13:39:57.517741Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 1536.448574,
-      "ended_at": "2026-06-02T13:39:57.481797Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T13:14:21.033223Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Stephen Wolfram (simulated)",
-      "duration_s": 101.686923,
-      "ended_at": "2026-06-02T12:21:35.953243+00:00",
-      "model": "qwen.qwen3.5-122b",
-      "model_kind": "personality_simulator",
-      "outcome": "triage_rejected_advanced_as_abstain",
-      "personality_slug": "stephen-wolfram",
-      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-      "project_stage": "clarified",
-      "started_at": "2026-06-02T12:19:54.266320+00:00"
-    },
-    {
-      "agent": "paper_reviewer_jargon_police",
-      "duration_s": 72.615862,
-      "ended_at": "2026-06-02T11:20:56.862939Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:19:44.247077Z"
-    },
-    {
-      "agent": "paper_reviewer_figure_critic",
-      "duration_s": 89.323743,
-      "ended_at": "2026-06-02T11:19:44.202199Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:18:14.878456Z"
-    },
-    {
-      "agent": "paper_reviewer_text_formatting",
-      "duration_s": 23.931697,
-      "ended_at": "2026-06-02T11:18:14.833524Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:17:50.901827Z"
-    },
-    {
-      "agent": "paper_reviewer_data_quality_paper",
-      "duration_s": 48.373896,
-      "ended_at": "2026-06-02T11:17:50.857066Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:17:02.483170Z"
-    },
-    {
-      "agent": "paper_reviewer_code_quality_paper",
-      "duration_s": 53.252305,
-      "ended_at": "2026-06-02T11:17:02.437976Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:16:09.185671Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 81.038876,
-      "ended_at": "2026-06-02T11:16:09.140641Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:14:48.101765Z"
-    },
-    {
-      "agent": "paper_reviewer_scientific_evidence",
-      "duration_s": 75.759341,
-      "ended_at": "2026-06-02T11:14:48.056720Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:13:32.297379Z"
-    },
-    {
-      "agent": "paper_reviewer_safety_ethics",
-      "duration_s": 51.624433,
-      "ended_at": "2026-06-02T11:13:32.251754Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-02T11:12:40.627321Z"
     }
   ],
   "schema_version": "2.0.0"
