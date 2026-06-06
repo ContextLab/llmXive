@@ -1,11 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-06T19:34:30.638481+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: rosalind-franklin
+last_used_at: '2026-06-06T20:01:32.443270+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-05-27T20:17:16.296328+00:00'
-  ended_at: '2026-05-27T21:11:05.538512+00:00'
-  outcome: model_error
 - slug: alan-turing
   started_at: '2026-05-27T21:11:05.538512+00:00'
   ended_at: '2026-05-27T22:10:47.126628+00:00'
@@ -1198,3 +1194,10 @@ history:
   ended_at: '2026-06-06T19:34:30.638481+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-06T19:34:30.638481+00:00'
+  ended_at: '2026-06-06T20:01:32.443270+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/rosalind-franklin-simulated__2026-06-06__research.md
