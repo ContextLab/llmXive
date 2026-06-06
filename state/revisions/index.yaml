@@ -137,4 +137,7 @@ ready:
 - project_id: PROJ-626-skillopt-executive-strategy-for-self-evo
   revision_spec_path: specs/auto-revisions/PROJ-626-skillopt-executive-strategy-for-self-evo/round-1
   queued_at: '2026-06-06T18:49:48.975046+00:00'
+- project_id: PROJ-638-https-arxiv-org-abs-2605-28820
+  revision_spec_path: specs/auto-revisions/PROJ-638-https-arxiv-org-abs-2605-28820/round-1
+  queued_at: '2026-06-06T21:35:24.656903+00:00'
 blocked: []
