@@ -1,0 +1,16 @@
+\input{ft_tex/f2}
+\section{Related Work}
+
+\paragraph{Video Understanding Datasets.}
+Recent video understanding benchmarks have expanded their scope to evaluate a broader range of multimodal and reasoning capabilities~\cite{Wu2024STARAB, Zhou2024MLVUBM, videmme, mmvu, scivideobench, li2024videovistaversatilebenchmarkvideo, liu2026videoreasonbenchmllmsperformvisioncentric, xu2025expvidbenchmarkexperimentvideo}.
+General-purpose benchmarks such as Video-MME~\cite{videmme}, MVBench~\cite{mvbench}, VSI-Bench~\cite{vsibench}, and VideoVista~\cite{li2024videovistaversatilebenchmarkvideo} assess perceptual skills, spatiotemporal comprehension, and cross-modal reasoning, providing a solid foundation for evaluating video understanding.
+Building on this trend, a growing set of knowledge-, science-, and reasoning-intensive evaluation benchmarks focuses on deeper, domain-aware reasoning that goes beyond surface-level video perception~\cite{xu2025expvidbenchmarkexperimentvideo, liu2026videoreasonbenchmllmsperformvisioncentric}.
+For instance, MMVU~\cite{mmvu} requires models to reason over specialized-domain videos and apply relevant domain knowledge; VideoMMMU~\cite{videommmu} and Video-MMLU~\cite{song2025video} target expert-level understanding of subject-specific lecture videos; and SciVideoBench~\cite{scivideobench} evaluates advanced reasoning over scientific videos.
+
+\paragraph{Post-training for Video Understanding.}
+Current reasoning models are typically trained through a two-stage post-training pipeline that combines SFT and RL~\cite{guo2025deepseek, team2025kimi, yang2025qwen3, li2025perceptionreasonthinkplan}.
+To enhance video reasoning capabilities, the SFT stage is usually initialized on video reasoning datasets that include explicit chain-of-thought annotations, temporal cues, and spatial grounding signals, helping the model form more structured and interpretable reasoning patterns~\cite{videoglamm,videostar,longvitu,feng2025onethinker,wang2025video}.
+In the RL phase, recent work has concentrated on adapting reinforcement learning with verifiable rewards (RLVR) to video reasoning, exploring complex reward engineering that emphasizes spatial understanding~\cite{spacer,Tang2025VideoSR}, temporal dynamics~\cite{timer1, TVGR1, videor1, zhao2025videoperceiver}, or integrated spatiotemporal relationships~\cite{Open-o3, Tang2025VideoR4RT}.
+Despite these advances, most post-training approaches still build on repurposed video understanding datasets that target basic perception: as shown in \Cref{tab:data-compare}, existing open-source corpora largely rely on short videos from datasets released years ago, and synthesis-based efforts~\cite{Zhang2024LLaVAVideoVI, videoespresso} typically depend on a single model, which can introduce systematic biases.
+We address this need by open-sourcing \ours: every video is newly collected, depicts expert-domain scenarios, and is released under CC licenses, and we adopt a human-in-the-loop, skill-oriented example generation framework to ensure the difficulty, diversity, and reliability of the data.
+Our experiments show that, under a standard SFT$\rightarrow$GRPO pipeline, models post-trained on \ours already outperform prior post-training approaches, suggesting that better data remains crucial.

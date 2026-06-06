@@ -1,0 +1,83 @@
+\begin{figure*}[!t]
+\centering
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50,
+                  boxrule=0.5pt, arc=2mm,
+                  left=4pt, right=4pt, top=3pt, bottom=3pt]
+\small
+\textbf{Inference Prompt (Code).}
+
+\medskip
+\textbf{Role definition.} You are a proactive code-maintenance agent whose goal is to surface issues in a Python software repository. Your task is to find and identify (without prior prompting) distinct issues worth reporting in the codebase, and recommend a resolution for each by producing a unified diff patch.
+
+\medskip
+\textbf{Bug pattern templates definition.} The following templates describe bug patterns observed in past, solved examples from other repositories. They are a partial library of known bug shapes, not an exhaustive catalog of every issue this codebase may contain. Report two kinds of issues:
+\begin{enumerate}[topsep=0pt, itemsep=0ex, parsep=0pt, left=14pt]
+   \item Issues that match one of the templates below. Set \texttt{used\_template\_id} to the template id and explain the match in \texttt{why\_matched}.
+   \item Issues that do not fit any template but are still genuine bugs grounded in the code. Leave \texttt{used\_template\_id} as \texttt{""}.
+\end{enumerate}
+Both kinds count equally.
+
+\medskip
+\textbf{Bottleneck definition.} An issue is a problem in this codebase that a user, maintainer, or contributor would reasonably report. Each issue must
+\begin{itemize}[topsep=0pt, itemsep=0ex, parsep=0pt, left=12pt]
+   \item be resolvable by editing one or more of the provided Python functions;
+   \item point to specific function(s) and a specific change;
+   \item be supported by concrete evidence drawn from the code itself;
+   \item be distinct from other issues in the list (do not split one bug across multiple entries).
+\end{itemize}
+
+\medskip
+\textbf{Previously found bottlenecks} (included only after the first iteration). Report only new issues distinct from those already returned, covering both template-matched and template-novel kinds. If no new issues remain, return an empty JSON object \texttt{\{\}}.
+
+\medskip
+\textbf{Task execution.}
+\begin{enumerate}[topsep=0pt, itemsep=0ex, parsep=0pt, left=14pt]
+   \item Analysis: examine all provided functions to understand what each one is supposed to do.
+   \item Issue identification: identify problems matching the issue definition, skipping any already reported.
+   \item Patch generation: produce a unified diff patch resolving each identified issue.
+   \item Response generation: provide analysis and patches in the specified JSON format.
+\end{enumerate}
+
+\medskip
+\textbf{Output format.}
+\begin{verbatim}
+{
+  "bottlenecks": [
+    {
+      "used_template_id":   "TID_X" or "",
+      "used_template_name": "..."   or "",
+      "why_matched": "Which observations in the functions satisfy
+                      the matched template's evidence_flow, citing
+                      specific function IDs and lines. Use \"\"
+                      if no template applies.",
+      "retrieved_documents": ["func_id_1", "func_id_2", ...],
+      "bottleneck": "Natural-language description, citing concrete
+                     code evidence and qualnames.",
+      "action": {
+        "patch": "<unified diff text fixing the issue,
+                  starting with `diff --git a/<path> b/<path>`>"
+      }
+    }
+  ]
+}
+\end{verbatim}
+
+\medskip
+\textbf{Context shown to the model:}
+\begin{verbatim}
+Repository: {repo}
+
+Bug Pattern Templates:
+[{template_id}] {template_name}
+  Pattern: {pattern}
+  Evidence flow:
+    - {step_1}
+    - {step_2}
+    ...
+
+Functions: {data_sources}
+\end{verbatim}
+\end{tcolorbox}
+\caption{Per-iteration inference prompt for the code setting. At each iteration the model receives the repository name, current template pool, candidate Python functions, and the bottlenecks already returned in previous iterations; it returns new bottlenecks (template-matched or template-novel) with unified-diff patches, or an empty object to terminate.}
+\label{fig:prompt_inference_code}
+\end{figure*}

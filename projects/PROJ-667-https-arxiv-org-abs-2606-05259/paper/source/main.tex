@@ -1,0 +1,189 @@
+
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} %
+
+\usepackage{hyperref}
+
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[accepted]{icml2026}
+
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+\usepackage{color}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{tabu}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+
+\usepackage{graphicx} 
+\usepackage{float}
+\usepackage{subcaption} 
+\usepackage{amssymb}
+
+\usepackage{hyperref}
+\usepackage{tablefootnote}
+\usepackage{xspace}
+
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{algorithm}
+
+\usepackage{arydshln}
+
+\usepackage{amssymb}
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor{green!35!black}{\ding{51}}}
+\newcommand{\xmark}{\ding{55}}%
+\usepackage{enumitem}
+\usepackage{bm}
+
+\usepackage{cuted}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\usepackage{etoc}
+
+\usepackage{fontawesome5}
+
+\usepackage{caption}
+\usepackage{array}
+\usepackage{tocloft}
+\usepackage{makecell}
+
+\usepackage{fancyhdr}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\eg}{\hbox{\emph{e.g.,}}\xspace}
+\newcommand{\ie}{\hbox{\emph{i.e.,}}\xspace}
+
+\newcommand{\data}{VideoKR\xspace}
+\newcommand{\eval}{VideoKR-Eval\xspace}
+\newcommand{\sftdata}{VideoKR-SFT-201K\xspace}
+\newcommand{\rldata}{VideoKR-RL-114K\xspace}
+\newcommand{\ours}{VideoKR\xspace}
+\newcommand{\vr}{\textsc{VidR}\xspace}
+\newcommand{\kv}{\textsc{KnowVid}\xspace}
+\newcommand{\kvr}{\textsc{KnowVidR}\xspace}
+\newcommand{\numknow}{63,745\xspace}
+\newcommand{\numknowuse}{38,241\xspace}
+\newcommand{\nexample}{315,537\xspace}
+\newcommand{\numvideo}{145,559\xspace}
+\newcommand{\assign}[1]{\textcolor{purple}{\bf\small [TODO: #1]}}
+\newcommand{\yilun}[1]{\textcolor{blue}{\bf\small [Yilun: #1]}}
+
+\newcommand{\hflogo}{\raisebox{-0.15em}{\includegraphics[height=1em]{figures/hf_logo.pdf}}}
+\newcommand{\ghlogo}{\faGithub}
+
+\newcommand{\std}[1]{\ensuremath{_{\textcolor{gray}{\scriptscriptstyle \pm {#1}}}}}
+\newcommand{\low}[1]{\ensuremath{_{\textcolor{red}{\scriptscriptstyle -{#1}}}}}
+\newcommand{\high}[1]{\ensuremath{_{\textcolor{blue}{\scriptscriptstyle +{#1}}}}}
+
+\definecolor{Blue20}{RGB}{91,155,213}
+\definecolor{DeepBlue}{RGB}{0,51,128}
+
+\icmltitlerunning{\ours: Towards Knowledge- and Reasoning-Intensive Video Understanding}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{\ours: Towards Knowledge- and Reasoning-Intensive Video Understanding}
+
+
+
+  \icmlsetsymbol{equal}{*}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Lin Fu}{zju,equal}
+    \icmlauthor{Zheyuan Yang}{tongji,equal}
+    \icmlauthor{Yang Wang}{zju}
+    \icmlauthor{Tingyu Song}{ucas}
+    \icmlauthor{Arman Cohan}{yale}
+    \icmlauthor{Yilun Zhao}{yale}
+  \end{icmlauthorlist}
+
+    \icmlaffiliation{zju}{Zhejiang University, Hangzhou, Zhejiang, China}
+    \icmlaffiliation{tongji}{Tongji University, Shanghai, China}
+    \icmlaffiliation{ucas}{University of Chinese Academy of Sciences, Beijing, China}
+    \icmlaffiliation{yale}{Yale University, New Haven, CT, USA}    
+    \icmlcorrespondingauthor{Yilun Zhao}{yilun.zhao@yale.edu}
+    
+    
+  \icmlkeywords{Machine Learning, ICML}
+
+  \vskip 0.1in
+  \begin{center}
+  \begin{tabular}{cl@{\hspace{2em}}cl}
+  \hflogo & \href{https://huggingface.co/collections/minuzero/videokr}{VideoKR} &
+  \ghlogo & \href{https://github.com/Fu-Fu-Fu-Fu/VideoKR}{VideoKR}
+  \end{tabular}
+  \end{center}
+
+  \vskip 0.3in
+]
+
+
+
+\printAffiliationsAndNotice{\icmlEqualContribution}
+
+
+
+
+\begin{abstract}
+\input{main/0-abstract}    
+\end{abstract}
+
+\input{ft_tex/f1}
+\input{main/1-intro}
+\input{main/2-related_work}
+\input{main/3-dataset}
+\input{main/5-exp}
+\input{main/5-1-analysis-new}
+\input{main/6-conclusion}
+
+\bibliography{main}
+\bibliographystyle{icml2026}
+
+\newpage
+\appendix
+
+
+
+\onecolumn
+
+
+\input{appendix/1-data}
+\input{appendix/1-1-post-training}
+\input{appendix/2-exp}
+
+\end{document}

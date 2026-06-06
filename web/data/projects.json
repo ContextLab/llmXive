@@ -935,13 +935,13 @@
     }
   ],
   "aggregates": {
-    "active_projects": 674,
+    "active_projects": 679,
     "ai_contributors": 7,
-    "human_contributors": 1433,
+    "human_contributors": 1443,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 4299,
-    "total_contributors": 1440
+    "total_contributions": 4313,
+    "total_contributors": 1450
   },
   "contributors": [
     {
@@ -1115,6 +1115,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Minki Kang"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 3,
@@ -1162,6 +1170,14 @@
       "contribution_count": 3,
       "kind": "human",
       "name": "Sueky Zhang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 3,
+      "kind": "human",
+      "name": "Sung Ju Hwang"
     },
     {
       "areas": [
@@ -1556,6 +1572,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Jinheon Baek"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
@@ -1770,14 +1794,6 @@
     },
     {
       "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 2,
-      "kind": "human",
-      "name": "Minki Kang"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
@@ -1932,19 +1948,19 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 2,
+      "kind": "human",
+      "name": "Soyeong Jeong"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 2,
       "kind": "human",
       "name": "Steven Chiang"
-    },
-    {
-      "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 2,
-      "kind": "human",
-      "name": "Sung Ju Hwang"
     },
     {
       "areas": [
@@ -3043,6 +3059,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Ceyuan Yang"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Chaewon Heo"
     },
     {
       "areas": [
@@ -5742,14 +5766,6 @@
     },
     {
       "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Jinheon Baek"
-    },
-    {
-      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -5851,6 +5867,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Jon Allen"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Jongwon Lim"
     },
     {
       "areas": [
@@ -6571,6 +6595,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Lidong Bing"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Liliana Hotsko"
     },
     {
       "areas": [
@@ -7342,6 +7374,14 @@
     },
     {
       "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Nalim Kim"
+    },
+    {
+      "areas": [
         "computer science"
       ],
       "contribution_count": 1,
@@ -7643,6 +7683,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Penghao Wu"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Pengyu Nie"
     },
     {
       "areas": [
@@ -8362,6 +8410,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Sangjun Song"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Sangwoo Park"
     },
     {
@@ -8963,14 +9019,6 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Sophia Huang"
-    },
-    {
-      "areas": [
-        "linguistics"
-      ],
-      "contribution_count": 1,
-      "kind": "human",
-      "name": "Soyeong Jeong"
     },
     {
       "areas": [
@@ -9779,6 +9827,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Wojciech Rymer"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Woojung Song"
     },
     {
       "areas": [
@@ -11034,6 +11090,14 @@
       ],
       "contribution_count": 1,
       "kind": "human",
+      "name": "Yinxi Li"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
       "name": "Yiran Peng"
     },
     {
@@ -11107,6 +11171,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yogesh Balaji"
+    },
+    {
+      "areas": [
+        "linguistics"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yohan Jo"
     },
     {
       "areas": [
@@ -11667,6 +11739,14 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "Yunsheng Jiang"
+    },
+    {
+      "areas": [
+        "computer science"
+      ],
+      "contribution_count": 1,
+      "kind": "human",
+      "name": "Yuntian Deng"
     },
     {
       "areas": [
@@ -12541,7 +12621,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T08:54:21.082175+00:00",
+  "generated_at": "2026-06-06T08:59:31.818434+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -12779,29 +12859,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -12823,29 +12903,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -12867,29 +12947,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -12911,29 +12991,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -12954,29 +13034,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -12997,29 +13077,29 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13043,29 +13123,29 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13095,29 +13175,29 @@
       "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13139,29 +13219,29 @@
       "description": "A research-accepted project gets a second Spec Kit scaffold \u2014 for the paper that reports the work.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13182,29 +13262,29 @@
       "description": "The paper's specification: which sections, which figures, which claims, what evidence each rests on.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13226,29 +13306,29 @@
       "description": "The paper plan and contracts (clarify + plan for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13269,29 +13349,29 @@
       "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13320,29 +13400,29 @@
       "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13366,29 +13446,29 @@
       "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -13421,29 +13501,29 @@
       "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-666-https-arxiv-org-abs-2606-05121",
-          "project_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-          "title": "Audio Interaction Model"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-665-https-arxiv-org-abs-2606-02800",
-          "project_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-          "title": "Cosmos 3: Omnimodal World Models for Physical AI"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s",
+          "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+          "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-664-https-arxiv-org-abs-2606-02060",
-          "project_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-663-https-arxiv-org-abs-2606-04923",
-          "project_id": "PROJ-663-https-arxiv-org-abs-2606-04923",
-          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622",
+          "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+          "title": "https://arxiv.org/abs/2606.05622"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-662-https-arxiv-org-abs-2606-03746",
-          "project_id": "PROJ-662-https-arxiv-org-abs-2606-03746",
-          "title": "Qwen-Image-Flash: Beyond Objective Design"
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259",
+          "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+          "title": "https://arxiv.org/abs/2606.05259"
         }
       ],
       "inputs": [
@@ -94849,9 +94929,494 @@
       "title": "Audio Interaction Model",
       "updated_at": "2026-06-05T11:08:46.452113+00:00",
       "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/idea/https-arxiv-org-abs-2606-05259.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-06T08:55:06.303752+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
+        "repo_path": "projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.05259 Submitted by: github-actions[bot] (Intake from human-submission issue #287.)",
+      "field": "other",
+      "id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 2.248531,
+          "ended_at": "2026-06-06T08:55:07.753451+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-06T08:55:05.504920+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2606.05259",
+      "updated_at": "2026-06-06T08:55:06.553602+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-06T08:55:08.265560+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
+        "repo_path": "projects/PROJ-668-https-arxiv-org-abs-2606-05622/idea/https-arxiv-org-abs-2606-05622.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "A paper was submitted via the website for consideration / review. Source URL: https://arxiv.org/abs/2606.05622 Submitted by: github-actions[bot] (Intake from human-submission issue #286.)",
+      "field": "other",
+      "id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 1.841875,
+          "ended_at": "2026-06-06T08:55:09.595634+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-06T08:55:07.753759+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "https://arxiv.org/abs/2606.05622",
+      "updated_at": "2026-06-06T08:55:08.402027+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Soyeong Jeong",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jinheon Baek",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Minki Kang",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sung Ju Hwang",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-06T08:55:10.060891+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
+        "repo_path": "projects/PROJ-669-tide-proactive-multi-problem-discovery-v/idea/tide-proactive-multi-problem-discovery-v.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Agents are widely deployed as assistants over documents, tools, and code. However, they typically act only on explicit user requests, which surface only the problems the user has noticed, while many other important problems coexist, hidden in plain sight, within the broader user context, with their total number\u2026",
+      "field": "linguistics",
+      "id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 1.886826,
+          "ended_at": "2026-06-06T08:55:11.482710+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-06T08:55:09.595884+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration",
+      "updated_at": "2026-06-06T08:55:10.217350+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": null,
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Woojung Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Nalim Kim",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Sangjun Song",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Chaewon Heo",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Jongwon Lim",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yohan Jo",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-06T08:55:11.980247+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
+        "repo_path": "projects/PROJ-670-arcane-do-role-playing-language-agents-s/idea/arcane-do-role-playing-language-agents-s.md",
+        "type": "markdown"
+      },
+      "current_stage": "paper_review",
+      "description": "Role-playing language agents (RPLAs) should play characters whose values and behavior evolve as the story progresses, not maintain a fixed persona. Existing benchmarks measure factual recall at a given chapter, not whether responses align with the character's psychological trajectory, especially in scenarios the\u2026",
+      "field": "linguistics",
+      "id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 1.841762,
+          "ended_at": "2026-06-06T08:55:13.324726+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-06T08:55:11.482964+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?",
+      "updated_at": "2026-06-06T08:55:12.106864+00:00",
+      "upstream_feedback": null
+    },
+    {
+      "artifact_links": {
+        "citations": null,
+        "code": null,
+        "data": null,
+        "idea": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/idea/code2lora-hypernetwork-generated-adapter.md",
+        "paper_figures": null,
+        "paper_pdf": null,
+        "paper_plan": null,
+        "paper_source": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
+        "paper_spec": null,
+        "paper_supplement": null,
+        "paper_supplement_source": null,
+        "paper_tasks": null,
+        "plan": null,
+        "reviews_paper": null,
+        "reviews_research": null,
+        "spec": null,
+        "tasks": null
+      },
+      "authors": [
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Liliana Hotsko",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yinxi Li",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Yuntian Deng",
+          "roles": [
+            "paper_author"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "human",
+          "name": "Pengyu Nie",
+          "roles": [
+            "paper_author"
+          ]
+        }
+      ],
+      "citation_summary": {
+        "mismatch": 0,
+        "pending": 0,
+        "unreachable": 0,
+        "verified": 0
+      },
+      "created_at": "2026-06-06T08:55:13.787130+00:00",
+      "current_artifact": {
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
+        "repo_path": "projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/source/main.tex",
+        "type": "latex"
+      },
+      "current_stage": "paper_review",
+      "description": "Code language models need repository-level context to resolve imports, APIs, and project conventions. Existing methods inject this knowledge as long inputs (retrieved through RAG or dependency analysis) or through per-repository fine-tuning and LoRA -- costly at repository scale and brittle to evolving codebases. We\u2026",
+      "field": "computer science",
+      "id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+      "keywords": [],
+      "last_run_log": [
+        {
+          "agent": "submission_intake",
+          "duration_s": 1.761218,
+          "ended_at": "2026-06-06T08:55:15.086184+00:00",
+          "model": "",
+          "outcome": "committed",
+          "started_at": "2026-06-06T08:55:13.324966+00:00"
+        }
+      ],
+      "phase_group": "paper_review",
+      "points_paper_total": 0.0,
+      "points_research_total": 0.0,
+      "reviews": [],
+      "revision_history": [],
+      "revision_spec_path": null,
+      "speckit_paper_dir": null,
+      "speckit_research_dir": null,
+      "submitter": "github-actions[bot]",
+      "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution",
+      "updated_at": "2026-06-06T08:55:13.875466+00:00",
+      "upstream_feedback": null
     }
   ],
   "recent_activity": [
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 1.761218,
+      "ended_at": "2026-06-06T08:55:15.086184+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T08:55:13.324966+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 1.841762,
+      "ended_at": "2026-06-06T08:55:13.324726+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T08:55:11.482964+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 1.886826,
+      "ended_at": "2026-06-06T08:55:11.482710+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-669-tide-proactive-multi-problem-discovery-v",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T08:55:09.595884+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 1.841875,
+      "ended_at": "2026-06-06T08:55:09.595634+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-668-https-arxiv-org-abs-2606-05622",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T08:55:07.753759+00:00"
+    },
+    {
+      "action": "filed-paper",
+      "agent": "submission_intake",
+      "duration_s": 2.248531,
+      "ended_at": "2026-06-06T08:55:07.753451+00:00",
+      "model": "",
+      "model_kind": "deterministic_router",
+      "outcome": "committed",
+      "project_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T08:55:05.504920+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -100092,56 +100657,6 @@
       "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
       "project_stage": "paper_review",
       "started_at": "2026-06-03T01:02:47.567016Z"
-    },
-    {
-      "agent": "paper_reviewer_claim_accuracy",
-      "duration_s": 93.562877,
-      "ended_at": "2026-06-03T01:02:47.511887Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:01:13.949010Z"
-    },
-    {
-      "agent": "paper_reviewer_logical_consistency",
-      "duration_s": 98.918818,
-      "ended_at": "2026-06-03T01:01:13.896434Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T00:59:34.977616Z"
-    },
-    {
-      "agent": "paper_reviewer_writing_quality",
-      "duration_s": 118.523505,
-      "ended_at": "2026-06-03T00:59:34.925406Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T00:57:36.401901Z"
-    },
-    {
-      "agent": "paper_reviewer",
-      "duration_s": 74.801767,
-      "ended_at": "2026-06-03T00:57:36.344400Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T00:56:21.542633Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 12686.404547,
-      "ended_at": "2026-06-03T00:54:12.556047Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-      "project_stage": "clarified",
-      "started_at": "2026-06-02T21:22:46.151500Z"
     }
   ],
   "schema_version": "2.0.0"

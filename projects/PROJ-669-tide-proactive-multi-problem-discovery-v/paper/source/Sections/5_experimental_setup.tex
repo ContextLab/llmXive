@@ -1,0 +1,35 @@
+\section{Experimental Setup}
+\label{sec:experimental_setup}
+We evaluate \textsc{TIDE} on the multi-problem discovery task formalized in Section~\ref{sec:preliminaries}, whose goal is to surface multiple coexisting problems from a context $\mathcal{D}$ alone. Below, we describe our datasets, methods, evaluation metrics, and implementation details.
+
+\subsection{Datasets}
+We consider two real-world settings that share the underlying multi-problem structure, a personal workspace and a software repository; for each, we construct an evaluation split by extending existing data sources, since no existing benchmark directly targets multi-problem discovery from context.
+
+\paragraph{Personal Workspace}
+In this setting, each instance is the digital workspace of an individual user, consisting of a profile that captures the role, working style, current priorities, pain points, and relationships of that user, together with the workspace artifacts (documents, emails, and calendar entries) that constitute the context $\mathcal{D}$. Each problem is typically grounded in multiple workspace artifacts, so identifying it requires the agent to piece together evidence across several documents, emails, and calendar entries rather than reading it off any single artifact. The remaining artifacts in $\mathcal{D}$ act as distractors that look plausibly related to ongoing projects, relationships, and work, but are not implicated in any actual problem. A resolution takes the form of an action drawn from a predefined action set (such as sending an email, scheduling a meeting, sharing a document, or escalating to a manager), together with the parameters required to execute it (e.g., the recipients, subject, and body of an outgoing email). To instantiate this setting at scale, we adopt the data construction pipeline of~\citet{probe} and produce $150$ problems across $30$ multi-problem workspaces, with $4$--$6$ problems and $88$--$113$ candidate artifacts per workspace.
+
+\paragraph{Software Repository}
+In this setting, each instance is a snapshot of a real-world open-source software repository at a commit where multiple unresolved bugs coexist and fixing them requires producing patches to multiple functions across the codebase. Each problem corresponds to an issue filed by a real GitHub user against the repository, and its gold resolution is the code patch from the pull request that fixed the issue. The context $\mathcal{D}$ is the set of candidate functions parsed from the snapshot; only a subset of these contains the coexisting bugs, while the rest are distractor functions that appear at the same snapshot but are not implicated in any bug. To instantiate this setting, we collect GitHub issues from Python repositories in \textsc{SWE-bench}~\cite{SWE-bench} and \textsc{TestExplora}~\cite{TestExplora}, and group same-repository issues at a common anchor commit at which the buggy functions of every grouped issue are unfixed; keeping only groups with at least two coexisting bugs spanning at least two buggy functions yields $146$ problems across $20$ multi-bug test instances drawn from $11$ projects, with $2$--$41$ problems and $6$--$646$ candidate functions per instance.
+
+\subsection{Methods}
+We compare the following methods, all of which use the same backbone LLM (supporting the long-context) and operate over the same context $\mathcal{D}$, with the full $\mathcal{D}$ placed directly in the context window:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\textsc{Single-Agent:}} Generates multiple problem predictions in a single LLM pass over $\mathcal{D}$.
+    \item \textbf{\textsc{Multi-Agent:}} Runs multiple independent LLM agents in parallel over $\mathcal{D}$, matched in number to the rounds used by our iterative discovery.
+    \item \textbf{\textsc{TIDE}} (Ours): Combines iterative discovery with thought templates, conditioning each round on the cumulative discovery state.
+\end{itemize}
+
+\input{Tables/tab_main}
+
+\subsection{Evaluation Metrics}
+Since each instance contains multiple gold problems and the model surfaces multiple predictions, our metrics score individual gold-prediction pairs and aggregate them into instance-level scores.
+
+\paragraph{Scoring Components}
+Each matched (gold, prediction) pair is scored along three components: \textit{retrieval}, \textit{identification}, and \textit{resolution}. Specifically, retrieval is measured by the overlap between the predicted and gold-annotated evidence IDs, while identification and resolution are scored by an LLM judge~\cite{geval} on a Likert-style rubric against the gold problem description and the gold reference action, respectively (See Appendix~\ref{appen:prompts}).
+
+\paragraph{Coverage and F1}
+To aggregate per-pair scores into instance-level metrics, we use retrieval as the matching score and pair each gold problem with its best-scoring prediction, as well as each prediction with its best-scoring gold. The coverage of a component is then the matched score averaged over all gold problems, capturing how well the agent discovers each of the hidden problems. In addition to this, the F1 of a component is the harmonic mean of this coverage and the analogous matched score averaged over all predictions. Notably, when multiple predictions match the same gold, only the one with the highest retrieval score is credited when averaging over predictions, while the rest contribute zero, penalizing extraneous predictions. Both metrics are macro-averaged across instances.
+
+\subsection{Implementation Details}
+We instantiate the agent with each of four LLMs that support long-context: GPT-5 mini~\cite{openai2025gpt5}, Claude Sonnet 4.5~\cite{anthropic2025sonnet45}, Gemini 3.5 Flash~\cite{google2026gemini35flash}, and Qwen 3.6 Flash~\cite{qwen2026qwen36}. The LLM judge is fixed to GPT-5 mini. Thought templates are constructed by each LLM on its own from a held-out set of solved training cases (disjoint from the test split), yielding $40$ templates for the personal-workspace setting and $108$ templates for the software-repository setting. For iterative discovery, we set $T=10$ rounds for the personal-workspace setting and $T=3$ for the software-repository setting; in both cases, we condition each round on the cumulative state $\hat{\mathcal{P}}^{(t-1)}$ and terminate early when a round returns an empty batch.

@@ -1,0 +1,25 @@
+\begin{table*}[h]
+    \centering
+    \caption{The eligible models at each \ours construction pipeline step. ``-'' indicates the model is not optimized for the modality required at that step; ``\xmark'' indicates the model fails human validation for that step.}
+    \label{tab:model_qualification}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccccccc}
+        \toprule
+        \textbf{Pipeline Stage} & \textbf{Modality} & \textbf{GPT-5.2} & \textbf{GPT-5-mini} & \textbf{Claude-4.5-Sonnet} & \textbf{Gemini-3-Flash} & \textbf{DeepSeek-V3.2} & \textbf{Qwen3-VL-235B-A22B} & \textbf{GLM-4.6V} \\
+        \midrule
+        \multicolumn{9}{l}{\textit{\textbf{§3.1 Domain Knowledge Bank Construction}}} \\
+        Lecture $\to$ Knowledge Point & Text & \cmark & \cmark & \cmark & \cmark & \cmark & -- & -- \\
+        \midrule
+        \multicolumn{9}{l}{\textit{\textbf{§3.2 Knowledge-Driven Video Collection}}} \\
+        Scenario Generation & Text & \cmark & \cmark & \cmark & \cmark & \xmark & -- & -- \\
+        Search Keyword Generation & Text & \cmark & \cmark & \cmark & \cmark & \cmark & -- & -- \\
+        Metadata Relevance Judge & Text & \cmark & \xmark & \cmark & \xmark & \xmark & -- & -- \\
+        Visual Relevance Judge & Vision & \cmark & \xmark & \xmark & \cmark & -- & \xmark & \xmark \\
+        \midrule
+        \multicolumn{9}{l}{\textit{\textbf{§3.3 Skill-Oriented Example Generation}}} \\
+        Example Generation & Vision & \cmark & \xmark & \cmark & \cmark & -- & \xmark & \xmark \\
+        CoT Rationale Validation & Vision & \cmark & \xmark & \cmark & \cmark & -- & \xmark & \xmark \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table*}

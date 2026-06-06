@@ -1,0 +1,56 @@
+\section{\ours Data Construction}
+\subsection{Domain Knowledge Bank Construction} \label{app:data-knowledge}
+\input{table/subject_list}
+Based on a manual review of undergraduate curricula from leading universities worldwide, we identified 82 representative subjects spanning four major disciplines. Table~\ref{tab:complete-subject-grid} organizes these subjects across Natural Sciences, Healthcare, Humanities and Social Sciences, and Engineering, forming the top-level index of our four-layer knowledge base of subject, course, lecture, and knowledge point, and enabling broad cross-domain coverage and balanced sampling.
+
+\clearpage
+
+\subsection{Annotator Information} \label{app:data-annotator}
+\input{table/annotater}
+
+\clearpage
+
+\subsection{\ours Data Example} \label{app:data-example}
+\input{ft_tex/data1}
+\input{ft_tex/data2}
+\input{ft_tex/data3}
+\input{ft_tex/data4}
+
+\clearpage
+
+
+
+
+\clearpage
+
+
+\subsection{Human-Validated Model Selection Protocol}
+\label{app:qualified-model}
+
+To ensure that the \ours corpus is constructed with the highest possible quality while maximizing data diversity, we implemented a rigorous, human-in-the-loop qualification protocol for all foundation models used in our pipeline. Instead of relying on a single model (which risks imprinting specific model biases), we maintain a dynamic pool of eligible models for each synthesis stage. This section details the qualification methodology and the resulting model assignments.
+
+
+We evaluate seven frontier models for potential inclusion in each pipeline step: GPT-5.2, GPT-5-mini, Claude-4.5-Sonnet, Gemini-3-Flash, DeepSeek-V3.2, Qwen3-VL-235B-A22B, and GLM-4.6V.
+For every pipeline stage defined in \S\ref{sec:31}--\S\ref{sec:data-quality}, we conducted a controlled pilot study by sampling 100 representative input instances. Domain experts evaluated the model outputs against strict criteria, distinguishing between hard compliance failures (\eg JSON format violations) and soft content failures (\eg hallucinations or weak reasoning). A model was deemed eligible for a specific stage only if its total error rate $\leq$ 3\%.
+\autoref{tab:model_qualification} shows the human-validated models for each pipeline step.
+
+\input{table/eligible-model}
+
+
+
+\subsection{Data Contamination Mitigation}\label{app:data-contamination}
+For \emph{Near-Duplicate Video Filtering}, we uniformly sample both benchmark and \ours videos at $1$ fps using \texttt{ffmpeg} and compute $64$-bit perceptual hashes per frame. We partition each training video into overlapping $20$-second windows with a $1$-second stride and build an index over window-level hash sequences to enable scalable retrieval. 
+For each benchmark video, we retrieve the top-$10$ candidate training windows and verify them by aligned-frame Hamming distance; we flag an overlap when the best $20$-second window has at least $70\%$ of frames with distance $\le 30$, and remove any matched training video. 
+
+\section{\eval Benchmark}
+\subsection{Detailed Statistics of \eval}
+\label{app:benchmark-stat}
+
+As shown in \autoref{tab:benchmark-stats}, we construct \eval from three source benchmarks: VideoMMMU, MMVU, and SciVideoBench. We first perform multi-model single-frame probing and retain only original examples that are judged to require continuous video understanding by all three probing models. This yields 1,254 retained original examples. For the remaining filtered videos, domain experts re-annotate new visually grounded QA examples, contributing 746 additional examples. The final benchmark comprises 2,000 high-quality examples designed to require genuine video-level understanding and knowledge-intensive reasoning.
+
+\input{table/benchmark-stat}
+
+
+
+
+

@@ -1,0 +1,60 @@
+\begin{table*}[t!]
+\small
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l l cc cc cc cc cc cc >{\columncolor{gray!10}}c}
+\toprule
+& & \multicolumn{6}{c}{\textbf{Workspace}} & \multicolumn{6}{c}{\textbf{Repository}} & \multicolumn{1}{c}{} \\
+\cmidrule(lr){3-8} \cmidrule(lr){9-14}
+& & \multicolumn{2}{c}{\textbf{Retrieval}} & \multicolumn{2}{c}{\textbf{Identification}} & \multicolumn{2}{c}{\textbf{Resolution}}
+  & \multicolumn{2}{c}{\textbf{Retrieval}} & \multicolumn{2}{c}{\textbf{Identification}} & \multicolumn{2}{c}{\textbf{Resolution}} & \multicolumn{1}{c}{} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12} \cmidrule(lr){13-14}
+& \textbf{Methods}
+  & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1}
+  & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1}
+  & \multicolumn{1}{c}{\textbf{Avg.}} \\
+\midrule
+\midrule
+% ================= GPT =================
+\multirow{3}{*}{\rotatebox{90}{\textbf{GPT}}}
+& \textbf{\textsc{Single-Agent}}  & 47.60 & 54.32 & 47.85 & 54.63 & 49.67 & 56.14 & 8.66 & 10.34 & 11.15 & 12.92 & 12.19 & 13.27 & 31.56 \\
+& \textbf{\textsc{Multi-Agent}}  & 32.15 & 45.41 & 27.24 & 38.85 & 29.64 & 41.85 & 10.11 & 12.66 & 10.19 & 12.77 & 9.89 & 12.39 & 23.59 \\
+& \textbf{\textsc{TIDE} (Ours)}  & \textbf{69.06} & \textbf{70.46} & \textbf{67.64} & \textbf{68.76} & \textbf{76.08} & \textbf{77.32} & \textbf{16.82} & \textbf{18.61} & \textbf{17.29} & \textbf{19.73} & \textbf{15.52} & \textbf{17.39} & \textbf{44.56} \\
+
+\midrule
+\midrule
+
+% ================= Gemini =================
+\multirow{3}{*}{\rotatebox{90}{\textbf{Gemini}}}
+& \textbf{\textsc{Single-Agent}}  & 50.01 & 61.48 & 42.99 & 52.95 & 35.95 & 44.31 & 13.08 & 17.20 & 13.34 & 16.90 & 15.08 & 18.71 & 31.83 \\
+& \textbf{\textsc{Multi-Agent}}  & 46.10 & 58.54 & 38.98 & 49.95 & 32.44 & 41.54 & 14.75 & 18.51 & 14.71 & 17.72 & 15.32 & 18.89 & 30.62 \\
+& \textbf{\textsc{TIDE} (Ours)}  & \textbf{83.84} & \textbf{84.91} & \textbf{70.11} & \textbf{71.05} & \textbf{54.37} & \textbf{55.08} & \textbf{22.55} & \textbf{25.14} & \textbf{21.93} & \textbf{24.22} & \textbf{24.32} & \textbf{26.98} & \textbf{47.04} \\
+
+\midrule
+\midrule
+
+% ================= Claude =================
+\multirow{3}{*}{\rotatebox{90}{\textbf{Claude}}}
+& \textbf{\textsc{Single-Agent}}  & 13.82 & 30.73 & 13.53 & 25.74 & 17.69 & 22.00 & 12.85 & 16.09 & 9.86 & 12.18 & 9.84 & 12.34 & 16.39 \\
+& \textbf{\textsc{Multi-Agent}}  & 21.60 & 43.33 & 18.04 & 36.04 & 23.99 & 31.04 & 9.37 & 13.36 & 7.96 & 11.18 & 8.88 & 11.01 & 19.65 \\
+& \textbf{\textsc{TIDE} (Ours)}  & \textbf{32.01} & \textbf{55.51} & \textbf{35.77} & \textbf{62.44} & \textbf{46.49} & \textbf{54.88} & \textbf{19.99} & \textbf{22.70} & \textbf{14.50} & \textbf{16.50} & \textbf{15.79} & \textbf{17.76} & \textbf{32.86} \\
+
+\midrule
+\midrule
+
+% ================= Qwen =================
+\multirow{3}{*}{\rotatebox{90}{\textbf{Qwen}}}
+& \textbf{\textsc{Single-Agent}}  & 30.46 & 42.05 & 32.44 & 44.67 & 28.60 & 37.60 & 5.60 & 6.83 & 5.34 & 6.62 & 4.84 & 5.76 & 20.90 \\
+& \textbf{\textsc{Multi-Agent}}  & 39.34 & 52.12 & 31.04 & 42.27 & 26.21 & 35.37 & 5.00 & 6.72 & 6.58 & 7.50 & 5.83 & 6.50 & 22.04 \\
+& \textbf{\textsc{TIDE} (Ours)}  & \textbf{52.39} & \textbf{60.21} & \textbf{50.50} & \textbf{58.13} & \textbf{41.87} & \textbf{48.06} & \textbf{9.94} & \textbf{11.33} & \textbf{6.87} & \textbf{8.07} & \textbf{8.47} & \textbf{9.70} & \textbf{30.46} \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-0.075in}
+\caption{Main results on the two evaluation settings: Personal Workspace and Software Repository.
+For each sub-task, we report Coverage (Cov.) and F1 over three independent runs; the best per-LLM results are in \textbf{bold}.}
+\label{tab:main}
+\vspace{-0.1in}
+\end{table*}

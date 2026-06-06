@@ -1,0 +1,175 @@
+
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \resizebox{0.98\linewidth}{!}{%
+            \begin{tikzpicture}
+                \begin{axis}[
+                    trim axis left,
+                    trim axis right,
+                    outer sep=0pt,
+                    width=2\linewidth,
+                    height=2\linewidth,
+                    xtick      ={1,2,3,4},
+                    xticklabels={16,32,64,128},
+                    xmin=0.5, xmax=4.5,
+                    axis x line*=bottom,
+                    axis y line*=left,
+                    ymin=55, ymax=70,
+                    ymajorgrids,
+                    grid style={dotted,gray!45},
+                    tick label style={font=\large},
+                    label style={font=\large},
+                    every axis plot/.append style={very thick},
+                    legend pos=north west,
+                    legend cell align=left,
+                    legend style={
+                        font=\large,
+                        draw=none,
+                        nodes={inner sep=1pt}
+                    },
+                    xlabel={Input Frames},
+                    xlabel style={font=\large, yshift=2pt},
+                ]
+
+                \addplot+[
+                    Blue20,
+                    mark=*,
+                    mark options={fill=Blue20},
+                    point meta=explicit symbolic,
+                    nodes near coords,
+                    every node near coord/.style={
+                        font=\large,
+                        text=black,
+                        anchor=north,
+                        yshift=-2pt
+                    }
+                ]
+                coordinates {
+                    (1, 59.1)  [59.1]
+                    (2, 61.8)  [61.8]
+                    (3, 62.8)  [62.8]
+                    (4, 64.1)  [64.1]
+                };
+                \addlegendentry{Qwen2.5-VL-7B}
+
+                \addplot+[
+                    DeepBlue,
+                    dashed,
+                    mark=*,
+                    mark options={fill=DeepBlue},
+                    point meta=explicit symbolic,
+                    nodes near coords,
+                    every node near coord/.style={
+                        font=\large,
+                        text=black,
+                        anchor=south,
+                        yshift=2pt
+                    }
+                ]
+                coordinates {
+                    (1, 60.1)  [60.1]
+                    (2, 62.2)  [62.2]
+                    (3, 63.8)  [63.8]
+                    (4, 65.5)  [65.5]
+                };
+                \addlegendentry{Qwen2.5-VL-7B (SFT+RL)}
+
+                \end{axis}
+            \end{tikzpicture}%
+        }
+        \caption{\scriptsize General Reasoning}
+        \label{fig:left_plot}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \resizebox{0.98\linewidth}{!}{%
+            \begin{tikzpicture}
+                \begin{axis}[
+                    trim axis left,
+                    trim axis right,
+                    outer sep=0pt,
+                    width=2\linewidth,
+                    height=2\linewidth,
+                    xtick      ={1,2,3,4},
+                    xticklabels={16,32,64,128},
+                    xmin=0.5, xmax=4.5,
+                    axis x line*=bottom,
+                    axis y line*=left,
+                    ymin=30, ymax=55,
+                    ymajorgrids,
+                    grid style={dotted,gray!45},
+                    tick label style={font=\large},
+                    label style={font=\large},
+                    every axis plot/.append style={very thick},
+                    legend pos=north west,
+                    legend cell align=left,
+                    legend style={
+                        font=\large,
+                        draw=none,
+                        nodes={inner sep=1pt}
+                    },
+                    xlabel={Input Frames},
+                    xlabel style={font=\large, yshift=2pt},
+                ]
+
+                \addplot+[
+                    Blue20,
+                    mark=*,
+                    mark options={fill=Blue20},
+                    point meta=explicit symbolic,
+                    nodes near coords,
+                    every node near coord/.style={
+                        font=\large,
+                        text=black,
+                        anchor=south,
+                        yshift=2pt
+                    }
+                ]
+                coordinates {
+                    (1, 38.8)  [38.8]
+                    (2, 40.5)  [40.5]
+                    (3, 41.0)  [41.0]
+                    (4, 41.9)  [41.9]
+                };
+                \addlegendentry{Qwen2.5-VL-7B}
+
+                \addplot+[
+                    DeepBlue,
+                    dashed,
+                    mark=*,
+                    mark options={fill=DeepBlue},
+                    point meta=explicit symbolic,
+                    nodes near coords,
+                    every node near coord/.style={
+                        font=\large,
+                        text=black,
+                        anchor=south,
+                        yshift=2pt
+                    }
+                ]
+                coordinates {
+                    (1, 44.2)  [44.2]
+                    (2, 44.3)  [44.3]
+                    (3, 45.8)  [45.8]
+                    (4, 46.6)  [46.6]
+                };
+                \addlegendentry{Qwen2.5-VL-7B (SFT+RL)}
+
+                \end{axis}
+            \end{tikzpicture}%
+        }
+        \caption{\scriptsize Knowledge-intensive Reasoning}
+        \label{fig:right_plot}
+    \end{subfigure}
+    
+    \caption{
+    Inference-time frame scaling results on general and knowledge-intensive video reasoning benchmarks. 
+    The figure shows category-wise average accuracies for Qwen2.5-VL-7B-Instruct and its VideoKR post-trained variant (SFT+RL) under different input frame budgets. 
+    Appendix~\ref{app:frame} provides the full per-benchmark results for post-trained Qwen2.5-VL-7B-Instruct and Qwen3-VL-8B-Instruct models.
+    }
+    \label{fig:frame-scale}
+\end{figure}

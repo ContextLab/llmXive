@@ -1,0 +1,73 @@
+\begin{table*}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+\small
+\begin{tabular}{@{}p{0.09\linewidth} p{0.21\linewidth} p{0.31\linewidth} p{0.33\linewidth}@{}}
+\toprule
+& \textbf{Retrieval} & \textbf{Identification} & \textbf{Resolution} \\
+\midrule
+\multicolumn{4}{@{}p{\linewidth}@{}}{\cellcolor{gray!10}\textbf{Workspace.}\ A corporate community-impact manager's workspace; the volunteer-tracking platform double-counts Mar 8 \textit{Community Build Day} check-ins, and the vendor's fix is blocked behind a pending IT Security access approval ahead of the Mar 20 senior leadership briefing.} \\
+\midrule
+\textbf{Gold}
+& 5 supporting documents: the Mar 12 vendor support ticket from Emily Zhang, the Mar 13 AccessHub access-review request AR-2025-4411, the duplicated VolunteerHub records for the Mar 8 \textit{Community Build Day}, the Mar 20 senior-leadership pre-read deck, and the coordination thread on the data freeze.
+& VolunteerHub double-counts Mar 8 check-ins because of a sync conflict between SSO and the manual check-in override, so reported volunteer hours are inflated; the vendor patch is staged but cannot deploy until IT Security signs off on AR-2025-4411, and uncorrected figures would land in the Mar 20 senior-leadership briefing.
+& \texttt{escalate\_to\_manager} to David Chen, summarizing the duplication, the gating AccessHub ticket, the Mar 17 data freeze, and the Mar 20 readout so he can unblock IT Security in time for the vendor patch.
+\\
+\midrule
+\textbf{\textsc{Single-Agent}}
+& \textcolor{red!70!black}{$\times$}\ \textbf{0 of 5} gold documents (returns only a procurement-intake stall on the Apr 10 Showcase facility rider and a calendar double-booking, neither touching the VolunteerHub problem).
+& \textcolor{red!70!black}{$\times$}\ Surfaces an unrelated facility-rider procurement intake that has been sitting unassigned since Feb 28; the VolunteerHub data-integrity issue is not surfaced at all.
+& \textcolor{red!70!black}{$\times$}\ \texttt{send\_email} to the procurement intake about the facility rider; the action does not target David Chen, the AccessHub ticket, or the Mar 20 metrics deadline.
+\\
+\midrule
+\textbf{\textsc{TIDE} (Ours)}
+& \textcolor{green!50!black}{$\checkmark$}\ \textbf{5 of 5} gold documents, no spurious documents. (iteration 3)
+& \textcolor{green!50!black}{$\checkmark$}\ Names the VolunteerHub Mar 8 duplication, ties it to the AccessHub ticket AR-2025-4411 stalled in Security, and links the chain to the Mar 20 senior-leadership briefing.
+& \textcolor{green!50!black}{$\checkmark$}\ \texttt{escalate\_to\_manager} to David Chen with a sharp summary of the inflation, the gating Security approval, the Mar 18 vendor deployment window, and the Mar 20 readout.
+\\
+\midrule
+\multicolumn{4}{@{}p{\linewidth}@{}}{\cellcolor{blue!4}\footnotesize \textbf{\textsc{TIDE} template used:}\ \texttt{[TID\_11]\ Unblocking high-stakes deliverable under SME communication lag.} \emph{Pattern:} A time-bounded executive deliverable depends on a corrected artifact whose fix is staged but gated behind a slower internal approval or SME response; escalating up the manager chain unblocks the gating step in time for the deliverable.} \\
+\bottomrule
+\end{tabular}
+\vspace{-0.05in}
+\caption{Case study from the personal-workspace setting (a corporate community-impact manager whose volunteer-tracking platform double-counts \textit{Community Build Day} check-ins ahead of a senior-leadership briefing). Rows are the three methods (Gold, \textsc{Single-Agent}, \textsc{TIDE}) and columns are the three sub-tasks (retrieval, identification, resolution). \textcolor{green!50!black}{$\checkmark$} marks a sub-task the method handles correctly; \textcolor{red!70!black}{$\times$} marks a wrong or missing one. The shaded row at the bottom shows the thought template that \textsc{TIDE} retrieved for this prediction.}
+\label{tab:case_study_workspace}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+\small
+\begin{tabular}{@{}p{0.09\linewidth} p{0.21\linewidth} p{0.31\linewidth} p{0.33\linewidth}@{}}
+\toprule
+& \textbf{Retrieval} & \textbf{Identification} & \textbf{Resolution} \\
+\midrule
+\multicolumn{4}{@{}p{\linewidth}@{}}{\cellcolor{gray!10}\textbf{Repository.}\ \textit{mlxtend} issue \#393, a multi-function bug in \texttt{mlxtend/\allowbreak evaluate/\allowbreak mcnemar.py}: the paired helpers \texttt{mcnemar\_table} and \texttt{mcnemar\_tables} both populate the 2$\times$2 contingency table with swapped off-diagonal assignments, so a fix has to land in both constructors consistently.} \\
+\midrule
+\textbf{Gold}
+& 2 gold buggy functions in \texttt{mlxtend/\allowbreak evaluate/\allowbreak mcnemar.py}: \texttt{mcnemar\_table} and \texttt{mcnemar\_tables}, both of which build the McNemar contingency table.
+& Each constructor computes \texttt{minus\_true\allowbreak{} = m1\_vs\_true\allowbreak{} - m2\_vs\_true} and then assigns \texttt{tb[1, 0]\allowbreak{} = sum(minus\_true\allowbreak{} == 1)} and \texttt{tb[0, 1]\allowbreak{} = sum(minus\_true\allowbreak{} == -1)}; per the docstrings, \texttt{tb[0, 1]} should hold the model-1-correct/model-2-wrong count, so the off-diagonals are mirrored in both builders and must be swapped in step.
+& Patch \texttt{mcnemar\_table} and \texttt{mcnemar\_tables} together so that \texttt{tb[0, 1]} receives \texttt{sum(minus\_true == 1)} and \texttt{tb[1, 0]} receives \texttt{sum(minus\_true == -1)} in both constructors.
+\\
+\midrule
+\textbf{\textsc{Single-Agent}}
+& \textcolor{red!70!black}{$\times$}\ Retrieves the paired constructors as \textbf{two separate bottlenecks}, one containing only \texttt{mcnemar\_table} and the other only \texttt{mcnemar\_tables}, treating them as unrelated bugs at isolated sites.
+& \textcolor{red!70!black}{$\times$}\ Each isolated prediction names the swap correctly inside its own function, but the shared cross-function pattern, that the same mirrored assignment lives in two paired helpers and must be fixed in step, is not surfaced.
+& \textcolor{red!70!black}{$\times$}\ Emits two independent patches as if the bugs were unrelated; the edits happen to be locally correct but the coupling is not represented as a single fix.
+\\
+\midrule
+\textbf{\textsc{TIDE} (Ours)}
+& \textcolor{green!50!black}{$\checkmark$}\ Retrieves \textbf{both} \texttt{mcnemar\_table} and \texttt{mcnemar\_tables} inside a single bottleneck, recovering the full multi-function fix site.
+& \textcolor{green!50!black}{$\checkmark$}\ Identifies the shared swap in both constructors, ties \texttt{tb[1, 0]} and \texttt{tb[0, 1]} back to the documented McNemar layout, and frames the two functions as a coupled fix rather than two coincidences.
+& \textcolor{green!50!black}{$\checkmark$}\ Emits one coordinated patch that swaps the off-diagonal assignments in both \texttt{mcnemar\_table} and \texttt{mcnemar\_tables} so the contingency table matches the documented layout.
+\\
+\midrule
+\multicolumn{4}{@{}p{\linewidth}@{}}{\cellcolor{blue!4}\footnotesize \textbf{\textsc{TIDE} template used:}\ \texttt{[TID\_47]\ Mirrored Index Assignment Across Paired Constructors.} \emph{Pattern:} Two sibling factory functions build the same fixed-shape container (matrix cell, dict slot, record field) for related inputs; both compute a discriminator and assign it to the same index positions, but the index ordering on the assignment is inverted relative to the documented layout. The failure is silent at the call site and only surfaces in a downstream consumer that reads the container under the documented contract.} \\
+\bottomrule
+\end{tabular}
+\vspace{-0.05in}
+\caption{Case study from the software-repository setting (\textit{mlxtend}, a multi-function bug in the McNemar contingency-table constructors). Rows are the three methods (Gold, \textsc{Single-Agent}, \textsc{TIDE}) and columns are the three sub-tasks (retrieval, identification, resolution). \textcolor{green!50!black}{$\checkmark$} marks a sub-task the method handles correctly; \textcolor{red!70!black}{$\times$} marks a wrong or missing one. The shaded row at the bottom shows the thought template that \textsc{TIDE} retrieved for this prediction.}
+\label{tab:case_study_repo}
+\end{table*}

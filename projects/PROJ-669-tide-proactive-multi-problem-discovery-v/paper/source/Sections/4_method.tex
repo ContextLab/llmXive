@@ -1,0 +1,59 @@
+\section{Method}
+
+Our method is motivated by three observations:
+(1) the hidden problems within a given context are typically multiple in unknown number, and the most salient ones systematically overshadow subtler ones, so single-shot prediction leaves most problems undiscovered;
+(2) generic prompting offers no reusable prior on how contextual signals become evidence for a particular class of problem, leading predictions to drift toward generic or speculative claims; and
+(3) such patterns recur across instances and can be distilled from previously solved cases for reuse.
+Guided by these observations, we first formalize the task (Section~\ref{sec:preliminaries}) and then describe our framework, \textsc{TIDE} (\textbf{T}emplate-guided \textbf{I}terative \textbf{D}iscovery and r\textbf{E}solution), which couples iterative discovery for broader coverage with thought templates for sharper fidelity (Section~\ref{sec:method_main}).
+
+\subsection{Preliminaries: Hidden-Problem~Discovery~from~Context}
+\label{sec:preliminaries}
+
+\paragraph{Task Formulation}
+We consider an agent operating over a collection of documents $\mathcal{D}$, broadly the digital artifacts available to the agent (e.g., emails and documents in a personal workspace, or functions in source code from a software repository). Within $\mathcal{D}$ there exists a latent set of \emph{hidden problems}, formalized as follows:
+\[
+\mathcal{P}^{\star} = \{p_1^{\star}, p_2^{\star}, \dots, p_n^{\star}\},
+\]
+where none of which is articulated as an explicit user request and whose cardinality $n$ is not known in advance. The objective is to produce a predicted set $\hat{\mathcal{P}}$ that approximates $\mathcal{P}^{\star}$, where each prediction takes the form of a triple $\hat{p} = (b, \hat{\mathcal{D}}, a)$ comprising a natural-language description $b$ of the candidate problem, a supporting subset $\hat{\mathcal{D}} \subseteq \mathcal{D}$ that grounds the prediction in evidence, and a concrete action $a$ that proposes a resolution. Solution quality therefore turns on two complementary axes: the \textit{coverage} over hidden problems in $\mathcal{P}^{\star}$, and the per-prediction \textit{fidelity}, with $b$ correctly describing the problem, $\hat{\mathcal{D}}$ providing valid grounding, and $a$ proposing an effective resolution.
+
+\paragraph{Single-Shot Discovery}
+Given this task, a natural baseline is to prompt a large language model to produce all problems in a single pass:
+\[
+\hat{\mathcal{P}} = \texttt{LLM}(\mathcal{D}).
+\]
+Yet, this formulation has two failure modes that correspond to the quality axes above: salient problems overshadow subtler ones, capping coverage; without any prior on what kinds of evidence patterns indicate a problem, predictions tend to drift toward generic or speculative claims, eroding fidelity.
+
+\subsection{Template-Guided Iterative Discovery}
+\label{sec:method_main}
+
+To address these failure modes of single-shot discovery, we propose \textsc{TIDE} that couples two complementary components: \textit{thought templates}, reusable schemas distilled from previously solved cases that sharpen per-prediction fidelity, and \textit{iterative discovery}, which applies these templates over multiple rounds while conditioning on the cumulative state, broadening coverage over coexisting problems.
+
+\paragraph{Thought Templates}
+Rather than having the agent infer evidence patterns from scratch, we distill such patterns from prior cases into reusable discovery schemas, which we call thought templates. Specifically, each template specifies (i) a \emph{name} that labels a recurring class of hidden problem, (ii) a \emph{pattern} stating the structural form of that class, and (iii) an \emph{evidence flow}, an ordered sequence of contextual signals to attend to and how they should be connected to infer instances of that class.
+
+Formally, let $\mathcal{T} = \{t_1, t_2, \dots, t_m\}$ denote the template set, where each template is a tuple:
+\begin{equation}
+t_i = (\text{name}_i,\ \text{pattern}_i,\ \text{evidence flow}_i).
+\label{eq:template}
+\end{equation}
+Templates are constructed once from a collection of solved cases (in training instances) and held fixed at inference. To be more specific, for each solved case $\langle \mathcal{D}_{\texttt{train}}, p_{\texttt{train}}, r_{\texttt{train}} \rangle$ comprising the relevant document collection, the previously discovered problem, and a reference resolution (e.g., a patch in the software-repository setting), we prompt an LLM to abstract away instance-specific details and emit a template in the structured form of Equation~\ref{eq:template}:
+$
+t_i = \texttt{LLM}(\mathcal{D}_{\texttt{train}}, p_{\texttt{train}}, r_{\texttt{train}}).
+$
+At inference, the full set $\mathcal{T}$ is supplied to the agent as a library of discovery schemas, so that each prediction can be anchored in a recognizable problem class rather than inferred from scratch. An illustrative template from the workspace setting is below.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, boxrule=0.5pt, arc=2mm, left=4pt, right=4pt, top=3pt, bottom=3pt]
+\noindent\textbf{Workspace Template:} Conflicting Source-of-Truth Blocks Sign-off Under Deadline\\[2pt]
+\emph{Pattern:} A shared source artifact exists in conflicting versions across channels, and an imminent deadline blocks sign-off until one is made authoritative.\\
+\emph{Evidence flow:} (i) locate the deliverable and its cited source; (ii) find conflicting copies across channels and confirm a material discrepancy; (iii) tie the conflict to a time-bounded review and the owner who can resolve it.
+\end{tcolorbox}
+
+\paragraph{Iterative Discovery and Resolution}
+However, it is worth noting that even when equipped with such a template library, prompting the agent to produce all discoveries at once still concentrates its capacity on the most salient cases, leaving the subtler ones uncovered. To address this, we instead let the agent surface predictions over multiple rounds, with each round explicitly conditioned on what has already been found, so that subsequent rounds are pushed beyond the cumulative discovery state.
+
+Formally, let $\hat{\mathcal{P}}^{(t)}$ denote the cumulative prediction state after round $t$, initialized as $\hat{\mathcal{P}}^{(0)} = \emptyset$. In round $t$, the agent generates a small batch of up to $k$ new candidate predictions in the triple form $(b, \hat{\mathcal{D}}, a)$ defined in Section~\ref{sec:preliminaries}, conditioned on the document collection $\mathcal{D}$, the template set $\mathcal{T}$, and the previous state $\hat{\mathcal{P}}^{(t-1)}$, formalized as follows:
+\begin{equation}
+\Delta \hat{\mathcal{P}}^{(t)} = \texttt{LLM}\!\left(\mathcal{D}, \mathcal{T}, \hat{\mathcal{P}}^{(t-1)}, k\right).
+\label{eq:iterative_discovery}
+\end{equation}
+The state is then updated as $\hat{\mathcal{P}}^{(t)} = \hat{\mathcal{P}}^{(t-1)} \cup \Delta \hat{\mathcal{P}}^{(t)}$, and the loop terminates after $T$ rounds or earlier if a round returns empty, with the final output returned as $\hat{\mathcal{P}} = \hat{\mathcal{P}}^{(T)}$. We note that, by coupling identification with retrieval and a proposed action inside each per-prediction step, every round emits an actionable plan that simultaneously identifies, grounds, and addresses each surfaced problem, rather than treating these as separate downstream stages.

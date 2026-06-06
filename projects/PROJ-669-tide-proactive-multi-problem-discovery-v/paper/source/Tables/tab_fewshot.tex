@@ -1,0 +1,26 @@
+\begin{table}[t!]
+\small
+\centering
+\renewcommand{\arraystretch}{1.05}
+\renewcommand{\tabcolsep}{1.5mm}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l cc cc cc}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Retrieval}}
+ & \multicolumn{2}{c}{\textbf{Identification}}
+ & \multicolumn{2}{c}{\textbf{Resolution}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\textbf{Method} & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1} \\
+\midrule
+\midrule
+\textbf{\textsc{Single-Agent}}   & 8.66  & 10.34 & 11.15 & 12.92 & 12.19 & 13.27 \\
+\textbf{\textsc{Iter. + Demos}}  & 10.40 & 11.43 & 11.09 & 12.80 & 12.71 & 12.80 \\
+\textbf{\textsc{TIDE} (Ours)}    & \textbf{16.82} & \textbf{18.61} & \textbf{17.29} & \textbf{19.73} & \textbf{15.52} & \textbf{17.39} \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-0.05in}
+\caption{Results on the Repository setting with GPT using raw few-shot demonstrations (\textsc{Iter. + Demos}).}
+\label{tab:fewshot}
+\vspace{-0.15in}
+\end{table}

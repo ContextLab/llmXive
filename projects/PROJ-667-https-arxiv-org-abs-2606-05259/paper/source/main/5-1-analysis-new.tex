@@ -1,0 +1,37 @@
+
+\subsection{Analysis of Inference-Time Frame Scaling}
+\label{sec:6.2}
+
+To analyze how input frame count affects performance, we evaluate our post-trained model, which was trained with 128 frames, under varying numbers of frames at inference. Specifically, we test 16, 32, 64, and 128 frames while keeping all other inference settings fixed. As shown in \autoref{fig:frame-scale}, increasing the number of input frames consistently improves performance for both the base model and our post-trained model. For example, on general video reasoning benchmarks, Qwen2.5-VL-7B (SFT+RL) improves from 60.1\% at 16 frames to 65.5\% at 128 frames. On knowledge-intensive video reasoning benchmarks, it further improves from 44.2\% to 46.6\%. These results suggest that our model benefits from richer visual and temporal evidence at inference time, and that the gains from \ours remain consistent across different frame budgets.
+
+In the following subsections, we conduct controlled SFT and RL ablations on \ours to provide insights for future work. Unless otherwise specified, all experiments use Qwen2.5-VL-7B-Instruct as the base model and are trained and evaluated with 128 input frames.
+
+\subsection{Ablations on \sftdata}
+\label{sec:6.3}
+Using \sftdata, we ablate two design choices, the skill composition of the training examples and the use of CoT supervision, to quantify their individual contributions.
+
+\vspace{-8pt}
+\paragraph{Skill-Oriented Data Composition.}
+To assess the contribution of each skill component, we fine-tune models on cumulative subsets of our skill-oriented data. Specifically, we construct three 80K-example variants from \sftdata: (1) \vr only; (2) a balanced mixture of \vr and \kv (1:1); and (3) a randomly sampled subset from the full \sftdata (\ie \vr+\kv+\kvr, we reuse examples in the previous ablation). We fine-tune Qwen2.5-VL-7B-Instruct on each variant for one epoch with a batch size of 16.
+We observe that incorporating all three skill components yields the best knowledge-intensive performance: training on \vr alone obtains 41.4\% on knowledge-intensive benchmarks. Adding Knowledge-Enhanced Perception (\vr+\kv) gives 41.3\%, while incorporating Knowledge-Intensive Reasoning (\vr+\kv+\kvr) further improves performance to 42.4\%. The same trend holds on \eval, where accuracy rises monotonically from 35.3 (\vr) to 35.9 (\vr+\kv) to 36.8 (\vr+\kv+\kvr). These results indicate that combining domain knowledge and complex reasoning supervision is crucial.
+
+\input{table/ablation-lite}
+\vspace{-8pt}
+
+\paragraph{CoT vs. Direct Output.}
+To validate the necessity of explicit CoT rationales in SFT, we randomly sample 80K examples from \sftdata and create two variants: one with CoT rationales and one without. We fine-tune Qwen2.5-VL-7B-Instruct on each variant for one epoch with a batch size of 16.
+As illustrated in \autoref{tab:ablation_lite_clean}, the CoT-trained model improves over the Direct Output baseline on knowledge-intensive reasoning, lifting the average from 39.4\% to 42.4\% (a 3.0-point gain),
+underscoring the importance of high-quality CoT supervision for advanced knowledge-intensive video reasoning.
+
+\subsection{\ours vs Prior Post-Training Corpus}\label{sec:6.4}
+We next conduct a comprehensive comparison of \ours with prior open-source post-training corpora,
+under both \textbf{SFT} and \textbf{zero-RL} settings.
+For SFT, we randomly sample 80K examples from each SFT corpus and fine-tune Qwen2.5-VL-7B-Instruct on each variant for one epoch with a batch size of 16. For zero-RL, we randomly sample 50K QA examples from each RL corpus and train Qwen2.5-VL-7B-Instruct on each variant for one epoch with a batch size of 16; we exclude non-QA tasks since they require task-specific reward functions that cannot be unified under our standard GRPO training pipeline.
+
+\vspace{-8pt}
+\paragraph{Main Findings.} As illustrated in \autoref{tab:ablation_lite_clean}, under SFT, the model trained on the \ours-SFT subset reaches a 42.4 knowledge-intensive average and is the only corpus to surpass the base model (41.9), whereas prior corpora such as Video-R1 and VideoRFT lower it to 36.2 and 38.4, respectively. Under zero-RL, \ours with \rldata achieves the strongest gain (43.0, +1.1 over the base model, ahead of the next-best VideoAuto-R1 at 42.7), indicating that high-quality data is key to maximizing post-training benefits for advanced video reasoning.
+
+\input{table/qwen_results}
+\vspace{-8pt}
+\paragraph{Training-Data Difficulty Analysis.}
+To diagnose why prior corpora provide limited improvements relative to \ours, we analyze training-data difficulty with respect to the base models. Concretely, we randomly sample 3,000 video QA examples from each corpus and measure the zero-shot accuracy of Qwen2.5-VL-7B and Qwen3-VL-8B in the 128-frame setting. As shown in \autoref{tab:qwen-results}, all evaluated models attain high accuracy on prior corpora (\eg Qwen3-VL-8B scores between 49.1\% and 57.1\%), suggesting these datasets are effectively saturated for current frontier base models and thus offer weak learning signals. In contrast, accuracy on \ours remains lower (42.3\% for the same model), indicating a more challenging distribution that better supports continued capability gains during post-training.

@@ -1,0 +1,67 @@
+\section{Experiment Setup}
+In this section, we discuss the experiment setup for post-training on \ours and the subsequent model evaluation.
+
+
+\input{table/main-results}
+\subsection{Post-Training on \data} 
+Recent post-training work for video reasoning emphasizes sophisticated RL variants and reward engineering. In contrast, we aim to isolate a different, and arguably more fundamental, bottleneck: \emph{whether data design is the primary limiting factor for knowledge and reasoning intensive video understanding.} Accordingly, we deliberately adopt a standard, widely used SFT$\rightarrow$GRPO pipeline as a controlled scaffold, ensuring that algorithmic complexity does not become a confounder and that observed gains can be attributed more cleanly to the training data. 
+
+Specifically, we use Qwen2.5-VL-7B-Instruct and Qwen3-VL-8B-Instruct as base models to assess whether \data yields consistent gains under various architectural designs and pretraining priors.
+For SFT, we fine-tune each base model on \sftdata for one epoch. Starting from the resulting SFT checkpoint, we then run GRPO on \rldata for one epoch. 
+For Qwen3-VL-8B-Instruct, we also conduct Zero-RL training by directly running GRPO on \rldata for one epoch.
+We set batch size as 32 for both SFT and GRPO. 
+For the GRPO accuracy reward, we follow prior video reasoning work~\cite{videor1, videorft} and use ROUGE for open-ended QAs and Exact Match for multiple-choice QAs.
+The maximum video token number is 4,096, and the maximum number of frames is 128. The training hyperparameters and details are provided in Appendix~\ref{app:exp-details}.
+
+
+
+
+
+
+
+\subsection{Evaluation Setup}\label{sec:reproduce-analysis}
+We next describe our evaluation benchmarks and the standardized protocol for fair, reproducible model comparisons.
+
+\vspace{-8pt}
+\paragraph{Evaluation Benchmarks.}
+We evaluate models on seven benchmarks
+grouped into two categories: 
+(1) \emph{General Video Reasoning}, including Video-MME~\cite{videmme}, MVBench~\cite{mvbench} and LongVideoBench~\cite{wu2024longvideobench}, which measure broad video understanding; and (2) \emph{Knowledge-intensive Video Reasoning}, including VideoMMMU~\cite{videommmu}, MMVU~\cite{mmvu},  SciVideoBench~\cite{scivideobench}, and \eval, which focus on domain-specific, expert-level reasoning. 
+
+\vspace{-8pt}
+\paragraph{Reproducibility Challenges in Prior Post-Training Work.}
+We observe substantial cross-paper inconsistencies in reported results, particularly for base models used as post-training starting points. Based on careful follow-up experiments, we attribute these discrepancies primarily to prompt misalignment: base models are sometimes evaluated under prompt conditions that are misaligned with their intended inference mode. For example, Qwen2.5-VL-Instruct is not a ``reasoning'' model, yet some papers evaluate it with elaborate self-reflection and forced reasoning-trace instructions designed for post-trained `reasoning'' variants.
+
+\vspace{-8pt}
+\paragraph{Standardizing Evaluation for Fair Model Comparisons.}
+To ensure fair and reproducible comparisons, for each model, we use the official prompt released by the original paper whenever available; otherwise, we adopt the default prompt templates from LMMs-Eval~\cite{lmms_eval}. For input frames, we follow the model-recommended inference configuration whenever it is specified by the model release. 
+We run each model three times with independent sampling and report the mean.
+All evaluations are performed using the LMMs-Eval framework~\cite{lmms_eval}.
+Full evaluation details (\eg model prompts and inference parameters) are provided in Appendix~\ref{app:model-config}.
+
+
+
+
+
+
+\section{Experiment Results and Analysis}\label{sec:6}
+We next discuss our main findings and ablation analysis.
+\subsection{Main Results}
+Table~\ref{tab:benchmarks} presents the main experimental results. 
+Post-training on \data consistently improves Qwen2.5-VL-7B-Instruct across all evaluated benchmarks, and yields clear gains for Qwen3-VL-8B-Instruct especially on knowledge-intensive video reasoning benchmarks.
+The gains are most pronounced on knowledge-intensive tasks: SFT followed by RL on \ours raises the knowledge-intensive average of Qwen2.5-VL-7B from 41.9 to 46.6 (+4.7) and of Qwen3-VL-8B from 48.5 to 51.5 (+3.0), with the largest per-dataset improvements on MMVU and \eval (\eg +4.8 and +8.5 points for Qwen2.5-VL-7B).
+Notably, the post-trained Qwen3-VL-8B attains the best knowledge-intensive average among 7/8B-scale models (51.5, versus 50.0 for the strongest competing model, Qwen3-VL-8B-Thinking).
+These results underscore the value of our training data, which tightly integrates domain knowledge, visual grounding, and structured reasoning.
+Starting from an SFT-initialized model, subsequent RL training consistently delivers higher performance than the SFT-only baseline, highlighting that combining SFT with RL is important for fully leveraging the strengths of \ours data.
+Moreover, the RL-only variant also generally outperforms the SFT-only model, indicating that RL alone can induce stronger generalizable reasoning abilities.
+
+\subsection{Case Study}
+To better understand how post-training on \ours changes model behavior, we randomly sample 100 examples from \eval and compare outputs from different models. Our case study shows that the post-trained Qwen3-VL-8B model can integrate visual evidence with relevant domain knowledge to perform complex reasoning. It also exhibits ``aha-moment'' reasoning patterns indicative of deeper understanding. Examples are shown in Appendix~\ref{app:case}.
+
+
+\input{table/frame_scaling}
+
+
+
+
+

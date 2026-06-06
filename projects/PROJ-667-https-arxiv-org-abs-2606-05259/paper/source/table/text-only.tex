@@ -1,0 +1,18 @@
+\begin{table}[!t]
+    \centering
+    \caption{Single-frame answerability rates across existing benchmarks. A QA example is classified as single-frame-solvable for a model only if the model answers it correctly in all three independent trials using only the question, answer options, and one randomly sampled video frame.}
+    \label{tab:text_only_probing}
+    \setlength{\tabcolsep}{2pt}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccc}
+        \toprule[1pt]
+        \multirow{2}{*}{\textbf{Model}} & \textbf{VidMMMU} & \textbf{MMVU} & \textbf{SciVidBench} & \textbf{\eval} \\
+& (900) & (1,000) & (1,000) & \textbf{(ours)} (2,000) \\
+        \midrule
+        Claude-4.5-Sonnet & 35.3 & 41.3 &  21.8 & 9.5\\
+        Qwen3-VL-235B-A22B & 39.3 & 45.2 & 13.2 & 10.1\\
+        GPT-5.2 & 38.3 & 49.7 &  23.0 & 10.7\\
+        \bottomrule[1pt]
+    \end{tabular}
+    }
+\end{table}

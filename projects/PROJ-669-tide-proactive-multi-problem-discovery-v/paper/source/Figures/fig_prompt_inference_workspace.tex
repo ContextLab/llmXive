@@ -1,0 +1,78 @@
+\begin{figure*}[!t]
+\centering
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50,
+                  boxrule=0.5pt, arc=2mm,
+                  left=4pt, right=4pt, top=3pt, bottom=3pt]
+\small
+\textbf{Inference Prompt (Workspace).}
+
+\medskip
+\textbf{Role definition.} You are a proactive agent whose goal is to serve a user, about whom you will receive information in the ``World Model'' section. You will be provided personal context about the user, their relationships, their organizational roles and structures, their personal pain points and priorities, and the actions they are able to take. Your task is to find and identify (without prior prompting) a singular bottleneck in their lives, and recommend a resolution by selecting one of the pre-specified actions. The bottleneck must be identified by analyzing the provided documents, emails, and calendar events.
+
+\medskip
+\textbf{Thought templates definition.} The following reasoning templates describe common bottleneck patterns. Use these as guides when analyzing documents: match observed situations to relevant templates to select the right action and fill parameters correctly. Not every template will be relevant.
+
+\medskip
+\textbf{Bottleneck definition.} A bottleneck is a concerning issue that
+\begin{itemize}[topsep=0pt, itemsep=0ex, parsep=0pt, left=12pt]
+   \item represents an important pattern or situation requiring attention (based on the World Model);
+   \item is directly resolvable through one of the provided user actions;
+   \item would be flagged by a competent assistant as needing intervention;
+   \item is directly indicated within a document or set of documents in the datastore.
+\end{itemize}
+
+\medskip
+\textbf{Previously found bottlenecks} (included only after the first iteration). The following bottlenecks have already been identified in previous iterations. Do not repeat these; find only a new bottleneck that is different from those listed. If no more new bottlenecks remain, return an empty JSON object \texttt{\{\}}.
+
+\medskip
+\textbf{Task execution.}
+\begin{enumerate}[topsep=0pt, itemsep=0ex, parsep=0pt, left=14pt]
+   \item Analysis: examine all provided documents, emails, and calendar events to understand the user's current situation.
+   \item Pattern recognition: identify concerning patterns that match the bottleneck definition.
+   \item Action selection: choose the most appropriate action from the available actions list.
+   \item Response generation: provide the analysis and recommendation in the specified JSON format.
+\end{enumerate}
+
+\medskip
+\textbf{Output format.}
+\begin{verbatim}
+{
+  "bottlenecks": [
+    {
+      "used_template_id":   "TID_X",
+      "used_template_name": "...",
+      "why_matched": "Which observations in the documents satisfy
+                      the matched template's pattern, with doc IDs.",
+      "retrieved_documents": ["doc_id_1", "doc_id_2", ...],
+      "bottleneck": "Natural-language description of the issue.",
+      "action": {
+        "function_name": "action_function_name",
+        "parameters":    {"parameter_name1": "value1", ...}
+      }
+    }
+  ]
+}
+\end{verbatim}
+The \texttt{bottlenecks} array contains exactly one identified bottleneck per iteration.
+
+\medskip
+\textbf{Context shown to the model:}
+\begin{verbatim}
+Persona:     {persona}
+World Model: {world_model}
+
+Bottleneck Pattern Templates:
+[{template_id}] {template_name}
+  Pattern: {pattern}
+  Evidence flow:
+    - {step_1}
+    - {step_2}
+    ...
+
+Documents:         {data_sources}
+Available Actions: {available_actions}
+\end{verbatim}
+\end{tcolorbox}
+\caption{Per-iteration inference prompt for the workspace setting. At each iteration the model receives the persona, world model, retrieved documents, available action library, current template pool, and the bottlenecks already returned in previous iterations; it returns one new bottleneck and the chosen action, or an empty object to terminate.}
+\label{fig:prompt_inference_workspace}
+\end{figure*}

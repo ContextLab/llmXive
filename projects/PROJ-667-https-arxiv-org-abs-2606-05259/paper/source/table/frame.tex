@@ -1,0 +1,57 @@
+\begin{table*}[h]
+\centering
+\caption{
+Detailed accuracy on general and knowledge-intensive video reasoning benchmarks for post-trained models across different input frames.
+}
+
+\label{tab:frame}
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand\arraystretch{1.1}
+
+\resizebox{\linewidth}{!}{%
+\footnotesize
+\definecolor{avggray}{gray}{0.93}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{G}[1]{>{\arraybackslash\columncolor{avggray}}p{#1}}
+\begin{tabular}{
+l %
+c %
+c %
+C{1.1cm} C{1.1cm} C{1.7cm} G{1.1cm} %
+C{1.1cm} C{1.1cm} C{1.1cm} C{1.5cm} G{1.1cm} %
+}
+\toprule[1pt]
+& & & \multicolumn{4}{c}{\textbf{General Video Reasoning}} & \multicolumn{5}{c}{\textbf{Knowledge-Intensive Video Reasoning}} \\
+\cmidrule(lr){4-7} \cmidrule(lr){8-12}
+\textbf{Model} & \textbf{Release} & \textbf{Frames}
+& \adjustbox{angle=45,origin=c}{\textbf{Video-MME}}
+& \adjustbox{angle=45,origin=c}{\textbf{MVBench}}
+& \adjustbox{angle=45,origin=c}{\textbf{LongVideoBench}}
+& \textbf{Average}
+& \adjustbox{angle=45,origin=c}{\textbf{VideoMMMU}}
+& \adjustbox{angle=45,origin=c}{\textbf{MMVU}}
+& \adjustbox{angle=45,origin=c}{\textbf{SciVideoBench}}
+& \adjustbox{angle=45,origin=c}{\textbf{VideoKR-Eval}}
+& \textbf{Average} \\
+\midrule[0.7pt]
+
+\multicolumn{12}{l}{\textbf{Post-trained Qwen2.5-VL-7B-Instruct}} \\
+\noalign{\vskip 0.5ex}
+\quad VideoKR (SFT+RL) & 2026-05 & 16 & 56.6 & 66.6 & 57.0 & 60.1 & \textbf{52.6} & 59.2 & 27.3 & 37.7 & 44.2 \\
+\quad VideoKR (SFT+RL) & 2026-05 & 32 & 60.1 & 68.2 & 58.2 & 62.2 & 51.2 & 58.9 & 27.4 & 39.8 & 44.3 \\
+\quad VideoKR (SFT+RL) & 2026-05 & 64 & 64.0 & 68.6 & 58.9 & 63.8 & \textbf{52.6} & \textbf{60.6} & 29.8 & 40.0 & 45.8 \\
+\quad VideoKR (SFT+RL) & 2026-05 & 128 & \textbf{66.4} & \textbf{68.9} & \textbf{61.3} & \textbf{65.5} & 52.2 & 60.5 & \textbf{32.5} & \textbf{41.2} & \textbf{46.6} \\
+
+\midrule
+
+\multicolumn{12}{l}{\textbf{Post-trained Qwen3-VL-8B-Instruct}} \\
+\noalign{\vskip 0.5ex}
+\quad VideoKR (SFT+RL) & 2026-05 & 16 & 57.2 & 65.5 & 54.7 & 59.1 & 60.2 & 63.8 & 29.3 & 40.5 & 48.5 \\
+\quad VideoKR (SFT+RL) & 2026-05 & 32 & 61.7 & 65.7 & 56.6 & 61.3 & 60.7 & 64.7 & 30.7 & 42.3 & 49.6 \\
+\quad VideoKR (SFT+RL) & 2026-05 & 64 & 63.9 & 66.2 & 57.9 & 62.7 & 62.1 & 63.8 & 31.5 & 44.6 & 50.5 \\
+\quad VideoKR (SFT+RL) & 2026-05 & 128 & \textbf{67.8} & \textbf{67.0} & \textbf{61.5} & \textbf{65.4} & \textbf{63.0} & \textbf{64.8} & \textbf{32.8} & \textbf{45.3} & \textbf{51.5} \\
+
+\bottomrule[1pt]
+\end{tabular}
+}
+\end{table*}

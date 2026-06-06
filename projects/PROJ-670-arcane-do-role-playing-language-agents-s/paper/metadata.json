@@ -1,0 +1,39 @@
+{
+  "arxiv_id": "2606.05553",
+  "arxiv_url": "https://arxiv.org/abs/2606.05553",
+  "title": "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?",
+  "authors": [
+    "Woojung Song",
+    "Nalim Kim",
+    "Sangjun Song",
+    "Chaewon Heo",
+    "Jongwon Lim",
+    "Yohan Jo"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Role-playing language agents (RPLAs) should play characters whose values and behavior evolve as the story progresses, not maintain a fixed persona. Existing benchmarks measure factual recall at a given chapter, not whether responses align with the character's psychological trajectory, especially in scenarios the source text never explores. We introduce ArcANE (Arc-Aware Narrative Evaluation), an automatically constructed benchmark spanning 17 novels and 80 principal characters. A Character Arc segments the narrative into phases along a psychological axis, and each probe poses the same scenario across phases, spanning both situations within the source text and situations beyond it. Across six models and six context modes, conditioning on the Character Arc tops every other context strategy on every model, and the gap is largest on scenarios outside the source text where retrieval has nothing to find. We further fine-tune open-weight models on the same data to obtain ArcANE-8B/32B, which widen the Arc advantage even more on scenarios outside the source text.",
+  "submitted_via": "llmXive dashboard, GitHub issue #284",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "acl_latex.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_latex.tex",
+    "acl_natbib.bst",
+    "acl.sty",
+    "custom.bib",
+    "figures",
+    "figures/axis_type.jpeg",
+    "figures/added_models.pdf",
+    "figures/figure_pipeline_final.pdf",
+    "figures/main_figure_final.pdf",
+    "figures/annotation_llm_judge.jpeg",
+    "figures/leakage_bars.pdf",
+    "figures/annotation_page_axis.jpeg",
+    "figures/per_character_lift.pdf"
+  ]
+}
