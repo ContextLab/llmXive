@@ -1,11 +1,7 @@
 last_used: linus-pauling
-last_used_at: '2026-06-05T23:54:52.201337+00:00'
+last_used_at: '2026-06-06T01:42:45.081419+00:00'
 last_outcome: model_error
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-26T21:06:52.960644+00:00'
-  ended_at: '2026-05-26T22:02:53.497755+00:00'
-  outcome: model_error
 - slug: dan-rockmore
   started_at: '2026-05-26T22:02:53.497755+00:00'
   ended_at: '2026-05-26T22:55:39.327570+00:00'
@@ -1214,4 +1210,8 @@ history:
 - slug: marie-curie
   started_at: '2026-06-05T23:30:40.993522+00:00'
   ended_at: '2026-06-05T23:54:52.201337+00:00'
+  outcome: model_error
+- slug: marie-curie
+  started_at: '2026-06-05T23:54:52.201337+00:00'
+  ended_at: '2026-06-06T01:42:45.081419+00:00'
   outcome: model_error
