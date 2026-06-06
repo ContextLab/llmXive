@@ -12621,7 +12621,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T09:32:17.306231+00:00",
+  "generated_at": "2026-06-06T09:41:57.538415+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -95334,6 +95334,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 32.235968,
+          "ended_at": "2026-06-06T09:41:52.479588+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-06T09:41:20.243620+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 1.761218,
           "ended_at": "2026-06-06T08:55:15.086184+00:00",
@@ -95357,6 +95365,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Ada Lovelace (simulated)",
+      "duration_s": 32.235968,
+      "ended_at": "2026-06-06T09:41:52.479588+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "ada-lovelace",
+      "project_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T09:41:20.243620+00:00"
+    },
     {
       "action": "filed-paper",
       "agent": "submission_intake",
@@ -100647,16 +100669,6 @@
       "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
       "project_stage": "paper_review",
       "started_at": "2026-06-03T01:03:27.528987Z"
-    },
-    {
-      "agent": "paper_reviewer_overreach",
-      "duration_s": 39.906064,
-      "ended_at": "2026-06-03T01:03:27.473080Z",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T01:02:47.567016Z"
     }
   ],
   "schema_version": "2.0.0"

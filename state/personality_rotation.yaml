@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-06T08:54:15.170613+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-06-06T09:41:52.479588+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: eric-kandel
-  started_at: '2026-05-27T01:43:05.797602+00:00'
-  ended_at: '2026-05-27T03:06:05.377080+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/eric-kandel-simulated__2026-05-27__research.md
 - slug: freeman-dyson
   started_at: '2026-05-27T03:06:05.377080+00:00'
   ended_at: '2026-05-27T05:01:31.709517+00:00'
@@ -1209,5 +1202,10 @@ history:
 - slug: stephen-wolfram
   started_at: '2026-06-06T07:34:06.823720+00:00'
   ended_at: '2026-06-06T08:54:15.170613+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: ada-lovelace
+  started_at: '2026-06-06T08:54:15.170613+00:00'
+  ended_at: '2026-06-06T09:41:52.479588+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
