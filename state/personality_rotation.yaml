@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-06T11:33:14.393734+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-06-06T12:26:58.476129+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-27T06:38:22.376144+00:00'
-  ended_at: '2026-05-27T08:20:42.396384+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/john-von-neumann-simulated__2026-05-27__research.md
 - slug: linus-pauling
   started_at: '2026-05-27T08:20:42.396384+00:00'
   ended_at: '2026-05-27T09:49:03.564233+00:00'
@@ -1203,5 +1196,10 @@ history:
 - slug: albert-einstein
   started_at: '2026-06-06T10:40:24.763843+00:00'
   ended_at: '2026-06-06T11:33:14.393734+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-06T11:33:14.393734+00:00'
+  ended_at: '2026-06-06T12:26:58.476129+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
