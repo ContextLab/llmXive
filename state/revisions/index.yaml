@@ -131,4 +131,7 @@ ready:
 - project_id: PROJ-566-mint-managed-infrastructure-for-training
   revision_spec_path: specs/auto-revisions/PROJ-566-mint-managed-infrastructure-for-training/round-1
   queued_at: '2026-06-06T13:06:47.633044+00:00'
+- project_id: PROJ-637-https-arxiv-org-abs-2605-28814
+  revision_spec_path: specs/auto-revisions/PROJ-637-https-arxiv-org-abs-2605-28814/round-1
+  queued_at: '2026-06-06T15:49:55.200741+00:00'
 blocked: []
