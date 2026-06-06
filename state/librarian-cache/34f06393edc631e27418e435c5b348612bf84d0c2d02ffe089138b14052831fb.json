@@ -1,0 +1,532 @@
+{
+  "fetched_at": "2026-06-06T13:59:34Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages",
+      "target_n": 5
+    },
+    "duration_seconds": 309.425,
+    "ended_at": "2026-06-06T13:59:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Abandoned JavaScript packages"
+        ],
+        [
+          2,
+          "Stale NPM library usage"
+        ],
+        [
+          3,
+          "Open source software maintenance health"
+        ],
+        [
+          4,
+          "Third-party dependency security risks"
+        ],
+        [
+          5,
+          "Orphaned packages in package registries"
+        ],
+        [
+          6,
+          "Empirical study of NPM ecosystem sustainability"
+        ],
+        [
+          7,
+          "Characterization of outdated software dependencies"
+        ],
+        [
+          8,
+          "JavaScript package maintenance indicators"
+        ],
+        [
+          9,
+          "Software supply chain vulnerability analysis"
+        ],
+        [
+          10,
+          "Transitive dependency deprecation patterns"
+        ],
+        [
+          11,
+          "Open source project abandonment detection"
+        ],
+        [
+          12,
+          "Node.js package ecosystem health metrics"
+        ],
+        [
+          13,
+          "Quantifying technical debt in open source libraries"
+        ],
+        [
+          14,
+          "Prevalence of deprecated libraries in web development"
+        ],
+        [
+          15,
+          "Risk assessment of inactive software components"
+        ],
+        [
+          16,
+          "NPM package lifecycle analysis"
+        ],
+        [
+          17,
+          "Dependency update strategies for stale packages"
+        ],
+        [
+          18,
+          "Sustainability of open source software supply chains"
+        ],
+        [
+          19,
+          "Identification of unmaintained modules in JavaScript"
+        ],
+        [
+          20,
+          "Correlation between package popularity and maintenance status"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Abandoned JavaScript packages": 5,
+        "Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "orphaned abandoned stale packages",
+      "NPM JavaScript package ecosystem",
+      "software supply chain dependency risk",
+      "package adoption prevalence metrics",
+      "software aging dependency decay"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1710.00446"
+      ]
+    },
+    "per_query_hit_count": {
+      "Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages computer science": 3,
+      "NPM JavaScript package ecosystem": 2,
+      "orphaned abandoned stale packages": 3,
+      "package adoption prevalence metrics": 3,
+      "software aging dependency decay": 3,
+      "software supply chain dependency risk": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1709.04638",
+          "rationale": "This paper focuses on the prevalence and impact of \"micro-packages\" (defined by size and scope) rather than \"unmaintained dependencies\" (defined by maintenance status/lifecycle), representing distinct constructs within the NPM domain that do not satisfy the inclusion criteria for measuring the specific variables of interest.",
+          "title": "On the Impact of Micro-Packages: An Empirical Study of the npm JavaScript Ecosystem"
+        },
+        {
+          "primary_pointer": "1212.2341",
+          "rationale": "The paper focuses on JavaScript language semantics and design traps rather than the empirical prevalence of unmaintained dependencies in the NPM ecosystem, failing to measure the relevant variables (dependency maintenance status) or mechanisms (ecosystem health). It represents a distinct construct (language design) sharing only domain keywords (JavaScript/Security) without addressing the specific phenomenon of package maintenance.",
+          "title": "Semantics and Security Issues in JavaScript"
+        },
+        {
+          "primary_pointer": "1802.08391",
+          "rationale": "This paper measures README content themes rather than dependency maintenance status, failing to address the specific variable (unmaintained dependencies) central to the user's research question. It falls under the rejection rule for distinct constructs sharing only domain keywords (JavaScript/NPM packages) without measuring the relevant mechanism or outcome.",
+          "title": "An Empirical Study on README contents for JavaScript Packages"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-06T13:54:25Z",
+    "term_input": {
+      "normalized": "analyzing the prevalence of unmaintained dependencies in popular npm packages computer science",
+      "raw": "Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The npm (Node Package Manager) ecosystem is the most important package manager for JavaScript development with millions of users. Consequently, a plethora of earlier work investigated how vulnerability reporting, patch propagation, and in general detection as well as resolution of security issues in such ecosystems can be facilitated. However, understanding the ground reality of security-related issue reporting by users (and bots) in npm-along with the associated challenges has been relatively less explored at scale.\n  In this work, we bridge this gap by collecting 10,907,467 issues reported across GitHub repositories of 45,466 diverse npm packages. We found that the tags associated with these issues indicate the existence of only 0.13% security-related issues. However, our approach of manual analysis followed by developing high accuracy machine learning models identify 1,617,738 security-related issues which are not tagged as security-related (14.8% of all issues) as well as 4,461,934 comments made on these issues. We found that the bots which are in wide use today might not be sufficient for either detecting or offering assistance. Furthermore, our analysis of user-developer interaction data hints that many user-reported security issues might not be addressed by developers-they are not tagged as security-related issues and might be closed without valid justification. Consequently, a correlation analysis hints that the developers quickly handle security issues with known solutions (e.g., corresponding to CVE). However, security issues without such known solutions (even with reproducible code) might not be resolved. Our findings offer actionable insights for improving security management in open-source ecosystems, highlighting the need for smarter tools and better collaboration. The data and code for this work is available at https://doi.org/10.5281/zenodo.15614029",
+          "claimed_authors": [
+            "Rajdeep Ghosh",
+            "Shiladitya De",
+            "Mainack Mondal"
+          ],
+          "claimed_title": "\"I wasn't sure if this is indeed a security risk\": Data-driven Understanding of Security Issue Reporting in GitHub Repositories of Open Source npm Packages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.07728"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='\"I wasn\\'t sure if this is indeed a security risk\": Data-driven Understanding of Security Issue Reporting in GitHub Repositories of Open Source npm Packages')",
+        "failed_at": "2026-06-06T13:56:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-06T13:56:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems often leverage on open source software libraries to reuse functionalities. Such libraries are readily available through software package managers like npm for JavaScript. Due to the huge amount of packages available in such package distributions, developers often decide to rely on or contribute to a software package based on its popularity. Moreover, it is a common practice for researchers to depend on popularity metrics for data sampling and choosing the right candidates for their studies. However, the meaning of popularity is relative and can be defined and measured in a diversity of ways, that might produce different outcomes even when considered for the same studies. In this paper, we show evidence of how different is the meaning of popularity in software engineering research. Moreover, we empirically analyse the relationship between different software popularity measures. As a case study, for a large dataset of 175k npm packages, we computed and extracted 9 different popularity metrics from three open source tracking systems: libraries.io, npmjs.com and GitHub. We found that indeed popularity can be measured with different unrelated metrics, each metric can be defined within a specific context. This indicates a need for a generic framework that would use a portfolio of popularity metrics drawing from different concepts.",
+          "claimed_authors": [
+            "Ahmed Zerouali",
+            "Tom Mens",
+            "Gregorio Robles",
+            "Jesus M. Gonzalez-Barahona"
+          ],
+          "claimed_title": "On the Diversity of Software Package Popularity Metrics: An Empirical Study of npm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.04217"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='On the Diversity of Software Package Popularity Metrics: An Empirical Study of npm')",
+        "failed_at": "2026-06-06T13:56:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Web annotation has been receiving increased attention recently with the organization of the Open Annotation Collaboration and new tools for open annotation, such as Hypothes.is. We investigate the prevalence of orphaned annotations, where neither the live Web page nor an archived copy of the Web page contains the text that had previously been annotated in the Hypothes.is annotation system (containing 20,953 highlighted text annotations). We found that about 22% of highlighted text annotations can no longer be attached to their live Web pages. Unfortunately, only about 12% of these annotations can be reattached using the holdings of current public web archives, leaving the remaining 88% of these annotations orphaned. For those annotations that are still attached, 53% are in danger of becoming orphans if the live Web page changes. This points to the need for archiving the target of an annotation at the time the annotation is created.",
+          "claimed_authors": [
+            "Mohamed Aturban",
+            "Michael L. Nelson",
+            "Michele C. Weigle"
+          ],
+          "claimed_title": "Quantifying Orphaned Annotations in Hypothes.is",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1512.06195"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Quantifying Orphaned Annotations in Hypothes.is')",
+        "failed_at": "2026-06-06T13:56:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stochastic gradient MCMC (SG-MCMC) has played an important role in large-scale Bayesian learning, with well-developed theoretical convergence properties. In such applications of SG-MCMC, it is becoming increasingly popular to employ distributed systems, where stochastic gradients are computed based on some outdated parameters, yielding what are termed stale gradients. While stale gradients could be directly used in SG-MCMC, their impact on convergence properties has not been well studied. In this paper we develop theory to show that while the bias and MSE of an SG-MCMC algorithm depend on the staleness of stochastic gradients, its estimation variance (relative to the expected estimate, based on a prescribed number of samples) is independent of it. In a simple Bayesian distributed system with SG-MCMC, where stale gradients are computed asynchronously by a set of workers, our theory indicates a linear speedup on the decrease of estimation variance w.r.t. the number of workers. Experiments on synthetic data and deep neural networks validate our theory, demonstrating the effectiveness and scalability of SG-MCMC with stale gradients.",
+          "claimed_authors": [
+            "Changyou Chen",
+            "Nan Ding",
+            "Chunyuan Li",
+            "Yizhe Zhang",
+            "Lawrence Carin"
+          ],
+          "claimed_title": "Stochastic Gradient MCMC with Stale Gradients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.06664"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Stochastic Gradient MCMC with Stale Gradients')",
+        "failed_at": "2026-06-06T13:56:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pull Requests (PRs) that are neither progressed nor resolved clutter the list of PRs, making it difficult for the maintainers to manage and prioritize unresolved PRs. To automatically track, follow up, and close such inactive PRs, Stale bot was introduced by GitHub. Despite its increasing adoption, there are ongoing debates on whether using Stale bot alleviates or exacerbates the problem of inactive PRs. To better understand if and how Stale bot helps projects in their pull-based development workflow, we perform an empirical study of 20 large and popular open-source projects. We find that Stale bot can help deal with a backlog of unresolved PRs as the projects closed more PRs within the first few months of adoption. Moreover, Stale bot can help improve the efficiency of the PR review process as the projects reviewed PRs that ended up merged and resolved PRs that ended up closed faster after the adoption. However, Stale bot can also negatively affect the contributors as the projects experienced a considerable decrease in their number of active contributors after the adoption. Therefore, relying solely on Stale bot to deal with inactive PRs may lead to decreased community engagement and an increased probability of contributor abandonment.",
+          "claimed_authors": [
+            "SayedHassan Khatoonabadi",
+            "Diego Elias Costa",
+            "Suhaib Mujahid",
+            "Emad Shihab"
+          ],
+          "claimed_title": "Understanding the Helpfulness of Stale Bot for Pull-based Development: An Empirical Study of 20 Large Open-Source Projects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18150"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Understanding the Helpfulness of Stale Bot for Pull-based Development: An Empirical Study of 20 Large Open-Source Projects')",
+        "failed_at": "2026-06-06T13:56:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software ecosystems have had a tremendous impact on computing and society, capturing the attention of businesses, researchers, and policy makers alike. Massive ecosystems like the JavaScript node package manager (npm) is evidence of how packages are readily available for use by software projects. Due to its high-dimension and complex properties, software ecosystem analysis has been limited. In this paper, we leverage topological methods in visualize the high-dimensional datasets from a software ecosystem. Topological Data Analysis (TDA) is an emerging technique to analyze high-dimensional datasets, which enables us to study the shape of data. We generate the npm software ecosystem topology to uncover insights and extract patterns of existing libraries by studying its localities. Our real-world example reveals many interesting insights and patterns that describes the shape of a software ecosystem.",
+          "claimed_authors": [
+            "Nuttapon Lertwittayatrai",
+            "Raula Gaikovina Kula",
+            "Saya Onoue",
+            "Hideaki Hata",
+            "Arnon Rungsawang",
+            "Pattara Leelaprute",
+            "Kenichi Matsumoto"
+          ],
+          "claimed_title": "Extracting Insights from the Topology of the JavaScript Package Ecosystem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.00446"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Extracting Insights from the Topology of the JavaScript Package Ecosystem')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper systematizes knowledge about secure software supply chain patterns. It identifies four stages of a software supply chain attack and proposes three security properties crucial for a secured supply chain: transparency, validity, and separation. The paper describes current security approaches and maps them to the proposed security properties, including research ideas and case studies of supply chains in practice. It discusses the strengths and weaknesses of current approaches relative to known attacks and details the various security frameworks put out to ensure the security of the software supply chain. Finally, the paper highlights potential gaps in actor and operation-centered supply chain security techniques",
+          "claimed_authors": [
+            "Chinenye Okafor",
+            "Taylor R. Schorlemmer",
+            "Santiago Torres-Arias",
+            "James C. Davis"
+          ],
+          "claimed_title": "SoK: Analysis of Software Supply Chain Security by Establishing Secure Design Properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10109"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='SoK: Analysis of Software Supply Chain Security by Establishing Secure Design Properties')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While consolidation strategies form the backbone of many supply chain optimisation problems, exploitation of multi-tier material relationships through consolidation remains an understudied area, despite being a prominent feature of industries that produce complex made-to-order products. In this paper, we propose an optimisation framework for exploiting multi-to-multi relationship between tiers of a supply chain. The resulting formulation is flexible such that quantity discounts, inventory holding, and transport costs can be included. The framework introduces a new trade-off between tiers, leading to cost reductions in one tier but increased costs in the other, which helps to reduce the overall procurement cost in the supply chain. A mixed integer linear programming model is developed and tested with a range of small to large-scale test problems from aerospace manufacturing. Our comparison to benchmark results shows that there is indeed a cost trade-off between two tiers, and that its reduction can be achieved using a holistic approach to reconfiguration. Costs are decreased when second tier fixed ordering costs and the number of machining options increase. Consolidation results in reduced inventory holding costs in all scenarios. Several secondary effects such as simplified supplier selection may also be observed.",
+          "claimed_authors": [
+            "Vinod Kumar Chauhan",
+            "Muhannad Alomari",
+            "James Arney",
+            "Ajith Kumar Parlikad",
+            "Alexandra Brintrup"
+          ],
+          "claimed_title": "Exploitation of material consolidation trade-offs in multi-tier complex supply networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.11479"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Exploitation of material consolidation trade-offs in multi-tier complex supply networks')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java projects frequently rely on package managers such as Maven to manage complex webs of external dependencies. While these tools streamline development, they also introduce subtle risks to the software supply chain. In this paper, we present Maven-Hijack, a novel attack that exploits the order in which Maven packages dependencies and the way the Java Virtual Machine resolves classes at runtime. By injecting a malicious class with the same fully qualified name as a legitimate one into a dependency that is packaged earlier, an attacker can silently override core application behavior without modifying the main codebase or library names. We demonstrate the real-world feasibility of this attack by compromising the Corona-Warn-App, a widely used open-source COVID-19 contact tracing system, and gaining control over its database connection logic. We evaluate three mitigation strategies, such as sealed JARs, Java Modules, and the Maven Enforcer plugin. Our results show that, while Java Modules offer strong protection, the Maven Enforcer plugin with duplicate class detection provides the most practical and effective defense for current Java projects. These findings highlight the urgent need for improved safeguards in Java's build and dependency management processes to prevent stealthy supply chain attacks.",
+          "claimed_authors": [
+            "Frank Reyes",
+            "Federico Bono",
+            "Aman Sharma",
+            "Benoit Baudry",
+            "Martin Monperrus"
+          ],
+          "claimed_title": "Maven-Hijack: Software Supply Chain Attack Exploiting Packaging Order",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.18760"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Maven-Hijack: Software Supply Chain Attack Exploiting Packaging Order')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CARTAN is an easy-to-use symbolic, tensor component package based on the popular Mathematica program. CARTAN makes use of the powerful formalism of rigid frames, and can return results both in this frame and in the coordinate basis. CARTAN has predefined functions for computation of tensors such as Riemann, Ricci, Einstein, Weyl, as well as other tensors and invariants. CARTAN works for spaces with curvature and/or torsion with any constant signature and for any number of dimensions. A free copy of CARTAN 1.01 for Unix with the installation program is contained in the file CARTAN.FILES.uu. The documentation is found in CARTAN.DOC.uu. The program has built-in Help functions.",
+          "claimed_authors": [
+            "Harald H. Soleng"
+          ],
+          "claimed_title": "CARTAN: A Mathematica package for tensor computations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "gr-qc/9502035"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='CARTAN: A Mathematica package for tensor computations')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evidence suggests that analyzing the presence/absence of taxonomic features can offer a compelling alternative to differential abundance analysis in microbiome studies. However, standard approaches to differential prevalence analysis face challenges with boundary cases and multiple testing. To address these limitations, we developed DiPPER (Differential Prevalence via Probabilistic Estimation in R), a method based on Bayesian hierarchical modeling. We benchmarked our method against existing differential prevalence methods, along with two differential abundance tools, using publicly available data from 57 human gut microbiome studies. We observed considerable variation in performance across the evaluated methods. Importantly, DiPPER demonstrated high sensitivity to detect potentially differentially prevalent features while maintaining a well-calibrated family-wise error rate under the global null hypothesis. Most notably, it outperformed the alternatives in the replication of findings across independent studies. Furthermore, DiPPER provides differential prevalence estimates and uncertainty intervals that are inherently adjusted for multiple testing.",
+          "claimed_authors": [
+            "Juho Pelto",
+            "Kari Auranen",
+            "Janne V. Kujala",
+            "Leo Lahti"
+          ],
+          "claimed_title": "DiPPER: A Bayesian approach to differential prevalence analysis with applications in microbiome studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.05938"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='DiPPER: A Bayesian approach to differential prevalence analysis with applications in microbiome studies')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today many organizations aspire to adopt agile processes in hope of overcoming some of the difficulties they are facing with their current software development process. There is no structured framework for the agile adoption process. This paper presents a 3-Stage process framework that assists organization and guides organizations through their agile adoption efforts. The Process Framework has been received significantly positive feedback from experts and leaders in agile adoption industry.",
+          "claimed_authors": [
+            "Ahmed Sidky",
+            "James Arthur"
+          ],
+          "claimed_title": "Agile Adoption Process Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0612092"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Agile Adoption Process Framework')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatically generated software, especially code produced by Large Language Models (LLMs), is increasingly adopted to accelerate development and reduce manual effort. However, little is known about the long-term reliability of such systems under sustained execution. In this paper, we experimentally investigate the phenomenon of software aging in applications generated by LLM-based tools. Using the Bolt platform and standardized prompts from Baxbench, we generated four service-oriented applications and subjected them to 50-hour load tests. Resource usage, response time, and throughput were continuously monitored to detect degradation patterns. The results reveal significant evidence of software aging, including progressive memory growth, increased response time, and performance instability across all applications. Statistical analyzes confirm these trends and highlight variability in the severity of aging according to the type of application. Our findings show the need to consider aging in automatically generated software and provide a foundation for future studies on mitigation strategies and long-term reliability evaluation.",
+          "claimed_authors": [
+            "César Santos",
+            "Ermeson Andrade",
+            "Roberto Natella"
+          ],
+          "claimed_title": "Investigating Software Aging in LLM-Generated Software Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.24188"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Investigating Software Aging in LLM-Generated Software Systems')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dependency management in modern software development poses many challenges for developers who wish to stay up to date with the latest features and fixes whilst ensuring backwards compatibility. Project maintainers have opted for varied, and sometimes conflicting, approaches for maintaining their dependencies. Opting for unsuitable approaches can introduce bugs and vulnerabilities into the project, introduce breaking changes, cause extraneous installations, and reduce dependency understandability, making it harder for others to contribute effectively. In this paper, we empirically examine evidence of recurring dependency management issues (dependency smells). We look at the commit data for a dataset of 1,146 active JavaScript repositories to catalog, quantify and understand dependency smells. Through a series of surveys with practitioners, we identify and quantify seven dependency smells with varying degrees of popularity and investigate why they are introduced throughout project history. Our findings indicate that dependency smells are prevalent in JavaScript projects with two or more distinct smells appearing in 80% of the projects, but they generally infect a minority of a project's dependencies. Our observations show that the number of dependency smells tend to increase over time. Practitioners agree that dependency smells bring about many problems including security threats, bugs, dependency breakage, runtime errors, and other maintenance issues. These smells are generally introduced as developers react to dependency misbehaviour and the shortcomings of the npm ecosystem.",
+          "claimed_authors": [
+            "Abbas Javan Jafari",
+            "Diego Elias Costa",
+            "Rabe Abdalkareem",
+            "Emad Shihab",
+            "Nikolaos Tsantalis"
+          ],
+          "claimed_title": "Dependency Smells in JavaScript Projects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14573"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='Dependency Smells in JavaScript Projects')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study and development of software able to show the effect of aging of faces is one of the tasks of face recognition technologies. Some software solutions are used for investigations, some others to show the effects of drugs on healthy appearance, however some other applications can be proposed for the analysis of visual arts. Here we use a freely available software, which is providing interesting results, for the comparison of ancient marble busts. An analysis of Augustus busts is proposed.",
+          "claimed_authors": [
+            "Amelia Carolina Sparavigna"
+          ],
+          "claimed_title": "A software for aging faces applied to ancient marble busts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.1022"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages co', candidate_title='A software for aging faces applied to ancient marble busts')",
+        "failed_at": "2026-06-06T13:56:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ben Swierzy",
+            "Marc Ohm",
+            "Michael Meier"
+          ],
+          "title": "Insecure Ingredients? Exploring Dependency Update Patterns of Bundled JavaScript Packages on the Web",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.15447",
+        "summary": "Reusable software components, typically distributed as packages, are a central paradigm of modern software development. The JavaScript ecosystem serves as a prime example, offering millions of packages with their use being promoted as idiomatic. However, download statistics on npm raise security concerns as they indicate a high popularity of vulnerable package versions while their real prevalence on production websites remains unknown. Package version detection mechanisms fill this gap by extracting utilized packages and versions from observed artifacts on the web. Prior research focuses on mechanisms for either hand-selected popular packages in bundles or for single-file resources utilizing the global namespace. This does not allow for a thorough analysis of modern web applications' dependency update behavior at scale. In this work, we improve upon this by presenting Aletheia, a package-agnostic method which dissects JavaScript bundles to identify package versions through algorithms originating from the field of plagiarism detection. We show that this method clearly outperforms the existing approaches in practical settings. Furthermore, we crawl the Tranco top 100,000 domains to reveal that 5% - 20% of domains update their dependencies within 16 weeks. Surprisingly, from a longitudinal perspective, bundled packages are updated significantly faster than their CDN-included counterparts, with consequently up to 10 times fewer known vulnerable package versions included. Still, we observe indicators that few widespread vendors seem to be a major driving force behind timely updates, implying that quantitative measures are not painting a complete picture.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.15447",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:56:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nuttapon Lertwittayatrai",
+            "Raula Gaikovina Kula",
+            "Saya Onoue",
+            "Hideaki Hata",
+            "Arnon Rungsawang",
+            "Pattara Leelaprute",
+            "Kenichi Matsumoto"
+          ],
+          "title": "Extracting Insights from the Topology of the JavaScript Package Ecosystem",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1710.00446",
+        "summary": "Software ecosystems have had a tremendous impact on computing and society, capturing the attention of businesses, researchers, and policy makers alike. Massive ecosystems like the JavaScript node package manager (npm) is evidence of how packages are readily available for use by software projects. Due to its high-dimension and complex properties, software ecosystem analysis has been limited. In this paper, we leverage topological methods in visualize the high-dimensional datasets from a software ecosystem. Topological Data Analysis (TDA) is an emerging technique to analyze high-dimensional datasets, which enables us to study the shape of data. We generate the npm software ecosystem topology to uncover insights and extract patterns of existing libraries by studying its localities. Our real-world example reveals many interesting insights and patterns that describes the shape of a software ecosystem.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1710.00446",
+          "http_status": 200,
+          "pdf_sample_score": 0.2118,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:56:26Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "analyzing the prevalence of unmaintained dependencies in popular npm packages computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

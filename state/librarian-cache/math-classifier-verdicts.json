@@ -122,5 +122,17 @@
   "PROJ-646-agentdog-1-5-a-lightweight-and-scalable::1.6.0": {
     "classified_at": "2026-06-04T03:31:19Z",
     "verdict": false
+  },
+  "PROJ-672-the-impact-of-bounded-confidence-on-opin::1.6.0": {
+    "classified_at": "2026-06-06T13:49:43Z",
+    "verdict": false
+  },
+  "PROJ-673-analyzing-the-prevalence-of-unmaintained::1.6.0": {
+    "classified_at": "2026-06-06T13:56:03Z",
+    "verdict": false
+  },
+  "PROJ-674-gc-content-and-thermal-stability-of-arch::1.6.0": {
+    "classified_at": "2026-06-06T13:43:08Z",
+    "verdict": false
   }
 }
