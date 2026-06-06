@@ -12721,7 +12721,7 @@
       "name": "Zuhao Yang"
     }
   ],
-  "generated_at": "2026-06-06T16:46:39.801552+00:00",
+  "generated_at": "2026-06-06T16:54:42.825221+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -92040,6 +92040,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 110.141413,
+          "ended_at": "2026-06-06T16:54:36.927961+00:00",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "triage_rejected_advanced_as_abstain",
+          "started_at": "2026-06-06T16:52:46.786548+00:00"
+        },
+        {
           "agent": "submission_intake",
           "duration_s": 7.305479,
           "ended_at": "2026-06-04T09:22:02.224900+00:00",
@@ -96343,6 +96351,20 @@
     }
   ],
   "recent_activity": [
+    {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Geoffrey West (simulated)",
+      "duration_s": 110.141413,
+      "ended_at": "2026-06-06T16:54:36.927961+00:00",
+      "model": "qwen.qwen3.5-122b",
+      "model_kind": "personality_simulator",
+      "outcome": "triage_rejected_advanced_as_abstain",
+      "personality_slug": "geoffrey-west",
+      "project_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
+      "project_stage": "paper_review",
+      "started_at": "2026-06-06T16:52:46.786548+00:00"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -101649,16 +101671,6 @@
       "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
       "project_stage": "paper_review",
       "started_at": "2026-06-03T06:24:12.201065Z"
-    },
-    {
-      "agent": "paper_reviewer_statistical_analysis",
-      "duration_s": 24.772739,
-      "ended_at": "2026-06-03T06:24:12.146537Z",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-      "project_stage": "paper_review",
-      "started_at": "2026-06-03T06:23:47.373798Z"
     }
   ],
   "schema_version": "2.0.0"
