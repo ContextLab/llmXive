@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-07T15:32:36.303512+00:00'
-last_outcome: librarian_held
+last_used: dan-rockmore
+last_used_at: '2026-06-07T16:02:59.413393+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-28T21:17:12.047563+00:00'
-  ended_at: '2026-05-28T22:10:15.770859+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md
 - slug: david-krakauer
   started_at: '2026-05-28T22:10:15.770859+00:00'
   ended_at: '2026-05-28T23:00:36.113028+00:00'
@@ -1182,3 +1175,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/_held/dan-rockmore-simulated__2026-06-07__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-07T15:32:36.303512+00:00'
+  ended_at: '2026-06-07T16:02:59.413393+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
