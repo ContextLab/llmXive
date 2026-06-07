@@ -164,3 +164,185 @@ rounds:
     text: Standardize terminology for 'branch loading' (e.g., 'Direct load' vs 'direct
       loading') across paper/experiments.tex and paper/methods.tex.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-07T00:56:19.171427+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 5756bba1f698
+    text: Verify all citation dates and ensure no future-dated references (several
+      2025-2026 entries require confirmation)
+    severity: writing
+  - id: 9a45d4937879
+    text: Clarify the 'first to introduce' claim with more specific positioning against
+      existing multimodal skill literature
+    severity: writing
+  - id: ff2b5a588bdc
+    text: Correct Abstract claim regarding text-only performance; Table 2 shows GLM-5V
+      macOSWorld Overall is tied (51.75%) and Productivity is worse for MMSkills.
+    severity: writing
+  - id: fa9ff904aeb9
+    text: Align model version names in text with bibliography entries (e.g., GLM-5V
+      vs GLM-4.5V, Kimi-K2.6 vs K2.5).
+    severity: writing
+  - id: 3621ec20f51d
+    text: Nuance 'first to introduce' claim in Introduction given related work on
+      multimodal skills (e.g., Mirage-1).
+    severity: writing
+  - id: fd8cf4eec48b
+    text: The code repository link is present in metadata but external access cannot
+      be verified. Ensure the repository at https://github.com/DeepExperience/MMSkills
+      contains the full implementation corresponding to Algorithm 1 (app:branch-loaded-algorithm)
+      and is publicly accessible.
+    severity: writing
+  - id: fa0d19c3a183
+    text: Appendix app:experiment-details lacks specific hyperparameters for the Generator
+      pipeline (e.g., clustering parameters, embedding dimensions, meta-skill configurations).
+      Add a table or section listing these to ensure reproducibility from scratch.
+    severity: science
+  - id: f36768a9f831
+    text: Dependency hygiene cannot be verified. Include a requirements.txt or environment.yml
+      in the code repository and cite it in the Appendix (e.g., app:experiment-details).
+    severity: science
+  - id: 06c3225509c9
+    text: Specify the license for the generated MMSkills dataset on HuggingFace to
+      ensure legal reuse and downstream compliance.
+    severity: science
+  - id: 0449179f4ec8
+    text: Cite specific version commits or release tags for benchmark datasets (e.g.,
+      OSWorld, OpenCUA) to enable exact replication.
+    severity: science
+  - id: 2670f3d420f2
+    text: Archive external project links (GitHub, Website) via a persistent service
+      like Zenodo to mitigate link rot and preserve artifact availability.
+    severity: writing
+  - id: 2a1e10fc3698
+    text: Add accessibility alt text for all figures (e.g., using the alttext package
+      or figure captions) to ensure screen reader compatibility, as none are present
+      in the LaTeX source.
+    severity: writing
+  - id: 73cb5819390f
+    text: Verify font legibility within the generated PDF figures (especially Figs
+      3, 4, and Appendix Prompt Examples) at print scale, as the code relies on external
+      PDFs without inline font size control.
+    severity: writing
+  - id: d941b8f8ec6f
+    text: Reduce height of Appendix interaction case figures (lines 1650-1680) from
+      0.88\textheight to avoid page overflow and improve readability in standard print
+      layouts.
+    severity: writing
+  - id: db20ee041129
+    text: Define 'LLM' as 'Large Language Model' at first use in Introduction. Currently
+      appears as 'LLM agents' without expansion.
+    severity: writing
+  - id: 91016a68955d
+    text: Replace 'degenerate package' (Methods, Eq. 5 area) with 'simplified version'
+      or 'special case' to reduce mathematical jargon for general readers.
+    severity: writing
+  - id: 63cb811a1301
+    text: Clarify 'privileged state' (Appendix, Experiment Details) with 'complete
+      state information' to avoid RL-specific jargon.
+    severity: writing
+  - id: 28754144674b
+    text: Define 'VAB' explicitly when first introducing 'VAB-Minecraft' in Experiments.
+      Currently only 'VisualAgentBench' is written but the acronym is not formally
+      defined.
+    severity: writing
+  - id: 5d547ec9a023
+    text: Simplify 'model-internal priors' (Abstract, Introduction, Conclusion) to
+      'built-in knowledge' or 'internal knowledge' for broader accessibility.
+    severity: writing
+  - id: 02bcf06c45dc
+    text: Add explicit definition for 'branch loading' at first use in Introduction,
+      as this coined term may be unfamiliar to non-specialist readers.
+    severity: writing
+  - id: 8c922caa5804
+    text: Replace 'state-conditioned procedure' with 'procedure that depends on current
+      state' or similar plain-language alternative on first occurrence.
+    severity: writing
+  - id: 14f18930953b
+    text: Correct the claim in Section 3.2 regarding GLM-5V performance on macOSWorld.
+      Table 2 shows identical Overall scores (51.75%) for Text-only and MMSkills,
+      contradicting the text stating MMSkills improve GLM-5V on this benchmark.
+    severity: science
+  - id: 02a497f70a76
+    text: Qualify the novelty claim in Contributions (Intro) regarding 'first to introduce
+      multimodal skill package' given citations to Mirage-1 and XSkill.
+    severity: writing
+  - id: c2e6a6b7a2bb
+    text: Add statistical significance tests (e.g., t-tests, confidence intervals)
+      to Table 1 and 2 results to support claims of 'significant gains'.
+    severity: science
+  - id: 8996dcce7d2f
+    text: Clarify that 'avoiding over-anchoring' is an inference from ablation results
+      rather than a directly measured phenomenon in Section 3.4.
+    severity: writing
+  - id: c87528c4a57e
+    text: 'Qualify the ''consistently improve'' claim in Abstract/Intro given GLM-5V
+      Mail performance drop (Table 1: 40.00 vs 53.33 No-skill).'
+    severity: writing
+  - id: 7a97dabefb83
+    text: Explicitly describe the data privacy filtering process applied to source
+      trajectory screenshots to ensure no PII or sensitive credentials were included
+      in the skill library.
+    severity: writing
+  - id: 7df31a5131ff
+    text: Expand the Broader Impact section to include concrete dual-use mitigation
+      strategies, such as sandboxing or permission layers, rather than high-level
+      risk statements.
+    severity: writing
+  - id: 9bdfec0d600d
+    text: Add statistical significance testing (e.g., bootstrap confidence intervals
+      or paired t-tests) for all main performance tables to confirm gains are not
+      due to random variance.
+    severity: science
+  - id: d3416e42cd2d
+    text: Report multi-seed results (e.g., 3-5 seeds) with standard error bars to
+      address the high variance observed in baseline performance (e.g., GLM-5V Text-only
+      drop in Table 1).
+    severity: science
+  - id: a7600e6c8c22
+    text: Provide an explicit audit or similarity analysis confirming no task overlap
+      between OpenCUA source trajectories and OSWorld/macOSWorld evaluation tasks
+      to rule out data leakage.
+    severity: science
+  - id: 16d5477a6b62
+    text: Report standard errors or 95% confidence intervals for all success rate
+      metrics in Tables 1 and 2 to quantify uncertainty.
+    severity: science
+  - id: d71a9a046a43
+    text: Apply multiple-comparison correction (e.g., Bonferroni or FDR) across the
+      6 models and 4 benchmarks tested, or justify its omission.
+    severity: science
+  - id: 13ca6fe7ab8a
+    text: Provide sample sizes (N) for each cell in result tables and include error
+      bars in ablation figures (Figure 2).
+    severity: science
+  - id: 245b7c0a52d3
+    text: The redundant \newcommand{\mfield} in the body of main-llmxive.tex (line
+      350, Methods section) remains. Remove it to prevent compilation conflict with
+      the preamble shim definition (line 100).
+    severity: writing
+  - id: d2f6abe9c61d
+    text: "The commented-out TODO note %\\review{\u6362\u6210 item \u7684\u5206\u70B9\
+      \u5F62\u5F0F} in paper/introduction.tex (line 215) is still present. Remove\
+      \ all review/commented TODO notes before final submission."
+    severity: writing
+  - id: 131b80826d1d
+    text: The \renewcommand{\mmskillhl} color changes in paper/experiments.tex remain
+      unscoped globally. Wrap in local groups {\renewcommand{...}} or use \definecolor
+      locally to avoid unintended side effects on subsequent tables.
+    severity: writing
+  - id: 06dbe4ba928b
+    text: 'Fix the typo in author affiliations in mmskills_arxiv.tex (line 204): ''TongUniversity''
+      should be ''Tong University''.'
+    severity: writing
+  - id: b0ac44e077cd
+    text: Standardize terminology for 'branch loading' across paper/experiments.tex
+      and paper/methods.tex. 'Direct load' in experiments.tex section RQ2 is inconsistent
+      with the 'branch loading' terminology used throughout the manuscript.
+    severity: writing
+  - id: 33310da11118
+    text: "Remove the leftover LaTeX comment %\\review{\u6362\u6210 item\u7684\u5206\
+      \u70B9\u5F62\u5F0F} in paper/introduction.tex (line 37) to ensure source cleanliness."
+    severity: writing
