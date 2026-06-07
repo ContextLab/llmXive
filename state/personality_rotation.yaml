@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-06-07T17:58:29.007119+00:00'
-last_outcome: librarian_held
+last_used: eric-kandel
+last_used_at: '2026-06-07T18:27:44.509129+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-29T01:42:13.630175+00:00'
-  ended_at: '2026-05-29T03:06:53.758850+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-29__research.md
 - slug: geoffrey-west
   started_at: '2026-05-29T03:06:53.758850+00:00'
   ended_at: '2026-05-29T04:59:56.754434+00:00'
@@ -1178,3 +1171,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-660-https-arxiv-org-abs-2605-23895/reviews/research/_held/eric-kandel-simulated__2026-06-07__research.md
+- slug: eric-kandel
+  started_at: '2026-06-07T17:58:29.007119+00:00'
+  ended_at: '2026-06-07T18:27:44.509129+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
