@@ -1,0 +1,385 @@
+{
+  "fetched_at": "2026-06-07T09:19:19Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions",
+      "target_n": 5
+    },
+    "duration_seconds": 209.93,
+    "ended_at": "2026-06-07T09:19:19Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Born equation solvation energy calculation"
+        ],
+        [
+          2,
+          "Experimental ionic hydration free energy"
+        ],
+        [
+          3,
+          "Absolute single ion solvation energies"
+        ],
+        [
+          4,
+          "Continuum electrostatic solvation models"
+        ],
+        [
+          5,
+          "Born radius effective ionic radius correlation"
+        ],
+        [
+          6,
+          "Validation of Born model for small ions"
+        ],
+        [
+          7,
+          "Thermodynamics of ion solvation in water"
+        ],
+        [
+          8,
+          "Solvation free energy dielectric continuum"
+        ],
+        [
+          9,
+          "Experimental hydration enthalpy of alkali ions"
+        ],
+        [
+          10,
+          "Limitations of Born solvation theory"
+        ],
+        [
+          11,
+          "Single ion absolute hydration energy determination"
+        ],
+        [
+          12,
+          "Macroscopic dielectric theory microscopic ions"
+        ],
+        [
+          13,
+          "Ionic solvation energy deviation from Born model"
+        ],
+        [
+          14,
+          "Electrostatic contribution to ion solvation"
+        ],
+        [
+          15,
+          "Solvation energy of halide and alkali ions"
+        ],
+        [
+          16,
+          "Born model accuracy in aqueous solution"
+        ],
+        [
+          17,
+          "Effective Born radius parameterization"
+        ],
+        [
+          18,
+          "Continuum solvent model ion interactions"
+        ],
+        [
+          19,
+          "Experimental vs theoretical solvation thermodynamics"
+        ],
+        [
+          20,
+          "Hydration energy prediction methods comparison"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Born equation solvation energy calculation": 2,
+        "Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Born equation hydration free energy discrepancy",
+      "alkali halide experimental solvation energy",
+      "implicit solvent model dielectric continuum",
+      "solvation free energy absolute error",
+      "Born radius dielectric saturation correction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1702.05203"
+      ]
+    },
+    "per_query_hit_count": {
+      "Born equation hydration free energy discrepancy": 3,
+      "Born radius dielectric saturation correction": 1,
+      "Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions chemistry": 3,
+      "alkali halide experimental solvation energy": 2,
+      "implicit solvent model dielectric continuum": 3,
+      "solvation free energy absolute error": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "0809.2008",
+          "rationale": "This paper is off-domain entirely, focusing on dielectric loss in solid ferroelectric thin films rather than the solvation energies of ions in solution. It represents a distinct construct sharing only homonym keywords (dielectric) without addressing the user's specific mechanism or variables.",
+          "title": "Modeling of the evolution of dielectric loss with processing temperature in ferroelectric and dielectric thin oxide films"
+        },
+        {
+          "primary_pointer": "1209.0303",
+          "rationale": "This paper studies solvation structure measurement via surface force apparatus/AFM force curves on sample surfaces, which is a distinct construct from the user's question about Born Model predictions for experimental solvation energies of small ions in bulk solution. The paper does not address the Born model, small ion solvation energies, or the theoretical-experimental comparison framework the user is investigating.",
+          "title": "A method for calculating solvation structure on a sample surface from a force curve between a probe and the sample: One-dimensional version"
+        },
+        {
+          "primary_pointer": "astro-ph/0510346",
+          "rationale": "This paper is in the field of astrophysics/cosmology (Dark Energy Survey, galaxy clusters, gravitational lensing), whereas the user's question concerns physical chemistry (Born Model, solvation energies of ions). This falls under the \"Off-domain entirely\" rejection rule.",
+          "title": "The Dark Energy Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-07T09:15:49Z",
+    "term_input": {
+      "normalized": "comparing born model predictions with experimental solvation energies of small ions chemistry",
+      "raw": "Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent surface force apparatus (SFA) and atomic force microscopy (AFM) can measure force curves between a probe and a sample surface in solvent. The force curve is thought as the solvation structure in some articles, because its shape is generally oscilltive and pitch of the oscillation is about the same as diameter of the solvent. However, it is not the solvation structure. It is only the force between the probe and the sample surface. Therefore, this brief paper presents a method for calculating the solvation structure from the force curve. The method is constructed by using integral equation theory, a statistical mechanics of liquid (Ornstein-Zernike equation coupled by hypernetted-chain closure). This method is considered to be important for elucidation of the solvation structure on a sample surface.",
+          "claimed_authors": [
+            "Ken-ichi Amano"
+          ],
+          "claimed_title": "A method for calculating solvation structure on a sample surface from a force curve between a probe and the sample: One-dimensional version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1209.0303"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='A method for calculating solvation structure on a sample surface from a force curve between a probe and the sample: One-dimensional version')",
+        "failed_at": "2026-06-07T09:17:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Confined hydration and conformational flexibility are some of the challenges encountered for the rational design of selective antagonists of G-protein coupled receptors. We present a set of C3-substituted (-)-stepholidine derivatives as potent binders of the dopamine D3 receptor. The compounds are characterized biochemically, as well as by computer modeling using a novel molecular dynamics-based alchemical binding free energy approach which incorporates the effect of the displacement of enclosed water molecules from the binding site. The free energy of displacement of specific hydration sites is obtained using the Hydration Site Analysis method with explicit solvation. This work underscores the critical role of confined hydration and conformational reorganization in the molecular recognition mechanism of dopamine receptors and illustrates the potential of binding free energy models to represent these key phenomena.",
+          "claimed_authors": [
+            "Rajat Kumar Pal",
+            "Steve Ramsey",
+            "Satishkumar Gadhiya",
+            "Pierpaolo Cordone",
+            "Lauren Wickstrom",
+            "Wayne W. Harding",
+            "Tom Kurtzman",
+            "Emilio Gallicchio"
+          ],
+          "claimed_title": "Inclusion of Enclosed Hydration Effects in the Binding Free Energy Estimation of Dopamine D3 Receptor Complexes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.11058"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='Inclusion of Enclosed Hydration Effects in the Binding Free Energy Estimation of Dopamine D3 Receptor Complexes')",
+        "failed_at": "2026-06-07T09:17:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-07T09:17:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An `ab initio' molecular dynamics simulation of a Na+ ion in aqueous solution is presented and discussed. The calculation treats a Na+ ion and 32 water molecules with periodic boundary conditions on a cubic volume determined by an estimate of zero partial molar volume for this solute in water at normal density and at a temperature of 344+/-24 K. Analysis of the last half of the 12 ps trajectory shows 4.6 water molecules occupying the inner hydration shell of the Na+ ion on average, with 5 being the most probable occupancy. The self-diffusion coefficient observed for the Na+ is 1.0 x 10$^{-5}$ cm$^2$/s. The quasi-chemical theory of solutions provides the framework for two more calculations. First a complementary calculation, based on electronic structure results for ion-water clusters and a dielectric continuum model of outer sphere hydration contributions, predicts an average hydration shell occupancy of 4.0. This underestimate is attributed to the harmonic approximation for the clusters in conjunction with the approximate dielectric continuum model treatment of outer sphere contributions. Finally, a maximum entropy fitting of inner sphere occupancies that leads to insensitive composite free energy approximations suggests a value in the neighborhood of -68 kcal/mol for the hydration free energy of Na+ (aq) under these conditions with no contribution supplied for packing or van der Waals interactions.",
+          "claimed_authors": [
+            "Susan B. Rempe",
+            "Lawrence R. Pratt"
+          ],
+          "claimed_title": "The hydration number of Na+ in liquid water",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "physics/0006026"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='The hydration number of Na+ in liquid water')",
+        "failed_at": "2026-06-07T09:17:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider long-wave phonon-polaritons and longitudinal optical phonons in alkali-halide ionic crystals. The model of point charges that are polarized in the self-consistent electromagnetic field in a dielectric environment is used. The standard dispersion laws for both branches of phonon-polaritons and longitudinal optical phonons are obtained. The transversal optical phonon frequency is found from the electrostatic equilibrium condition. It is proved by comparison with tabular data that the found frequency coincides with the ion plasma frequency multiplied on the relation $\\sqrt{(\\varepsilon_{\\infty}+2)/(3(\\varepsilon_0-\\varepsilon_\\infty))},$ where $\\varepsilon_{\\infty}$ and $\\varepsilon_0$ are the high-frequency dielectric constant and the static one respectively.",
+          "claimed_authors": [
+            "Anton Stupka"
+          ],
+          "claimed_title": "Optical vibrations in alkali halide crystals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.08107"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='Optical vibrations in alkali halide crystals')",
+        "failed_at": "2026-06-07T09:17:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-07T09:17:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidence is provided that a class of materials with dielectric constants greater than 100,000, herein called super dielectric materials (SDM), can be generated readily from common, inexpensive materials.",
+          "claimed_authors": [
+            "Sam Fromille",
+            "Jonathan Phillips"
+          ],
+          "claimed_title": "Super Dielectric Materials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1403.6862"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='Super Dielectric Materials')",
+        "failed_at": "2026-06-07T09:17:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dynamic dielectric and mechanical responses of the microcomposites of the ferroelastic-dielectric type were studied in this paper. The mechanical inclusions-matrix interactions have influence on the mechanical moduli of the composite. We have studied a mechanical response of the composite which consists of the material M and of the other material I in which dispersion of mechanic moduli of particles is present. The inclusions of the dielectric material in the ferroelastic matrix has the effect on the dielectric response of the microcomposite. We have found conditions for which the inclusions have the effect of enhancement of the dielectric response. Results of low frequency dielectric constant and dielectric loss in orthorhombic $ Al_{2}(WO_{4})_{3}$ show for polycrystalline material, where voids play the role of the dielectric material, their linear increasing dependence on increasing hydrostatic pressure p. These facts are qualitatively explained within our theory.",
+          "claimed_authors": [
+            "O. Hudak",
+            "W. Schranz",
+            "M. Hudak"
+          ],
+          "claimed_title": "Mechanical and dielectric response of microcomposites of the type: ferroelastic-dielectric",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cond-mat/0604590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='Mechanical and dielectric response of microcomposites of the type: ferroelastic-dielectric')",
+        "failed_at": "2026-06-07T09:17:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Currently, the study of systems confined within various materials, such as graphene and graphene oxide, for diverse applications such as water desalination, metal separation from water, battery cells, and high-efficiency capacitors, is very common. Among these systems, water is a prominent subject of investigation. Understanding the impact of the number of molecules and the optimal cutoff radius is essential in order to determine the parameters. This study investigates the dielectric properties of H2O in relation to both the number of molecules and the cutoff radius within the simulation cell. We employ the flexible water model FBA/$ε$, known for its improved accuracy in reproducing water properties across various thermodynamic states. We range from 60 to 1372 molecules and use cutoff radius from 6 nm to 1.2 nm, encompassing a wide range of calculations to assess their impact on the simulation results, including critical properties like the dielectric constant, density, and phase change enthalpy.",
+          "claimed_authors": [
+            "Raúl Fuentes-Azcatl"
+          ],
+          "claimed_title": "Dielectric Properties of Water: A Molecular Dynamics Study on the Effects of Molecule Count and Cutoff Radius",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.14729"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Comparing Born Model Predictions with Experimental Solvation Energies of Small I', candidate_title='Dielectric Properties of Water: A Molecular Dynamics Study on the Effects of Molecule Count and Cutoff Radius')",
+        "failed_at": "2026-06-07T09:17:21Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. Hildebrandt",
+            "O. Kohlbacher",
+            "R. Blossey",
+            "H. -P. Lenhof"
+          ],
+          "title": "Using nonlocal electrostatics for solvation free energy computations: ions and small molecules",
+          "venue": "arXiv",
+          "year": 2002
+        },
+        "primary_pointer": "physics/0212074",
+        "summary": "Solvation free energy is an important quantity in Computational Chemistry with a variety of applications, especially in drug discovery and design. The accurate prediction of solvation free energies of small molecules in water is still a largely unsolved problem, which is mainly due to the complex nature of the water-solute interactions. In this letter we develop a scheme for the determination of the electrostatic contribution to the solvation free energy of charged molecules based on nonlocal electrostatics involving a minimal parameter set which in particular allows to introduce atomic radii in a consistent way. We test our approach on simple ions and small molecules for which both experimental results and other theoretical descriptions are available for quantitative comparison. We conclude that our approach is both physically transparent and quantitatively reliable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/physics/0212074",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:17:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Timothy T. Duignan",
+            "Marcel D. Baer",
+            "Gregory K. Schenter",
+            "Christopher J. Mundy"
+          ],
+          "title": "Electrostatic solvation free energies of charged hard spheres using molecular dynamics with density functional theory interactions",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1702.05203",
+        "summary": "Determining the solvation free energies of single ions in water is one of the most fundamental problems in physical chemistry and yet many unresolved questions remain. In particular, the ability to decompose the solvation free energy into simple and intuitive contributions will have important implications for models of electrolyte solution. Here, we provide definitions of the various types of single ion solvation free energies based on different simulation protocols. We calculate solvation free energies of charged hard spheres using density functional theory interaction potentials with molecular dynamics simulation (DFT-MD) and isolate the effects of charge and cavitation, comparing to the Born (linear response) model. We show that using uncorrected Ewald summation leads to unphysical values for the single ion solvation free energy and that charging free energies for cations are approximately linear as a function of charge but that there is a small non-linearity for small anions. The charge hydration asymmetry (CHA) for hard spheres, determined with quantum mechanics, is much larger than for the analogous real ions. This suggests that real ions, particularly anions, are significantly more complex than simple charged hard spheres, a commonly employed representation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1702.05203",
+          "http_status": 200,
+          "pdf_sample_score": 0.2378,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:17:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "comparing born model predictions with experimental solvation energies of small ions chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

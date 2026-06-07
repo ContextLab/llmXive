@@ -51,6 +51,10 @@
     "classified_at": "2026-06-04T03:26:42Z",
     "verdict": false
   },
+  "PROJ-573-https-arxiv-org-abs-2604-27351::1.6.0": {
+    "classified_at": "2026-06-07T09:21:23Z",
+    "verdict": false
+  },
   "PROJ-582-socratic-transformers-dialogue-based-sel::1.6.0": {
     "classified_at": "2026-05-30T03:33:41Z",
     "verdict": false
@@ -133,6 +137,14 @@
   },
   "PROJ-674-gc-content-and-thermal-stability-of-arch::1.6.0": {
     "classified_at": "2026-06-06T13:43:08Z",
+    "verdict": false
+  },
+  "PROJ-675-comparing-born-model-predictions-with-ex::1.6.0": {
+    "classified_at": "2026-06-07T09:17:20Z",
+    "verdict": false
+  },
+  "PROJ-676-quantifying-the-effect-of-disorder-on-el::1.6.0": {
+    "classified_at": "2026-06-07T09:26:55Z",
     "verdict": false
   }
 }
