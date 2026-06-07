@@ -1,0 +1,124 @@
+project_id: PROJ-652-https-arxiv-org-abs-2606-00408
+arxiv_id: '2606.00408'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-07T21:48:10.629217+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: bd936910a7e5
+    text: Verify all citations against the bibliography verification status in state/citations/.
+    severity: writing
+  - id: a2e018f3a8db
+    text: Ensure full LaTeX source is provided to verify compilation and figure references.
+    severity: writing
+  - id: 6840024300a8
+    text: Include source code repository contents (scripts, configs, tests) in the
+      review package to enable modularity and reproducibility assessment.
+    severity: science
+  - id: ee27c4cff48d
+    text: Add explicit license declaration for released code and trajectories in the
+      Abstract or Appendix.
+    severity: writing
+  - id: 260d0c81a26d
+    text: Include specific version tags or commit hashes for the released artifacts
+      to ensure reproducibility.
+    severity: writing
+  - id: 5d1f072d5977
+    text: Replace or supplement external web URLs in the bibliography with persistent
+      identifiers (DOIs) to mitigate link rot.
+    severity: writing
+  - id: ddc18636b915
+    text: Define acronyms SNR, PCA, AUC, and LLM-as-Judge at first use in main text
+      or captions.
+    severity: writing
+  - id: 85eebb5132de
+    text: Replace 'trajectory' with 'search history' and 'backbone' with 'model' for
+      broader accessibility.
+    severity: writing
+  - id: f0b2267d2f9f
+    text: Simplify 'Regime Map' to 'Performance Phases' and 'Scaffold' to 'Framework'
+      to reduce field-specific density.
+    severity: writing
+  - id: 23ab73a4fec8
+    text: Explain 'token-for-turn trade-off' in plain language in the abstract or
+      introduction.
+    severity: writing
+  - id: 912f9fc471cd
+    text: Clarify the definition of 'middle observations' in the masking mechanism
+      (Eq 2 vs Section 6.1). The paper masks 'earlier' observations (turns 1 to t-K),
+      which includes both 'first' and 'middle' trajectory pages. However, Section
+      6.1 claims masking targets 'neglected middle observations' while Fig 3 notes
+      agents re-open 'first pages'. This creates ambiguity about whether 'first' pages
+      are also masked and how this relates to the 'Collapse' regime.
+    severity: writing
+  - id: 60db9f39f199
+    text: Align the qualitative description in Figure 1 caption ('CM adds little')
+      with the quantitative data in Section 5 ('+6.2 to +6.6 pts'). A 6-point gain
+      is substantial relative to the baseline, and 'little' may understate the 'plateau'
+      regime's benefit compared to the 'Middle' regime (+11.7 pts).
+    severity: writing
+  - id: 9b31075ba683
+    text: Ensure the 'Signal-to-Noise Ratio bottleneck' claim (Section 6.2) is clearly
+      linked to the 'Regime Map' (Section 5). The text states SNR optimization is
+      the bottleneck, yet masking (an SNR optimizer) fails in the Saturated regime.
+      Clarify that SNR optimization is beneficial *only* when the model's filtering
+      capacity is insufficient (Middle regime), rather than being a universal bottleneck.
+    severity: science
+  - id: 68a5033a63ca
+    text: Section 5.2.1 claims masking works 'mechanistically' due to attention dynamics.
+      Evidence is limited to 3 model settings (4B-35B). Soften to 'correlates with'
+      or 'suggests' to avoid over-extrapolation to 284B models.
+    severity: science
+  - id: 6b1a1bc0229e
+    text: Section 6 reports precise gains (e.g., +11.7 pts) without error bars or
+      significance tests. Add confidence intervals to prevent over-stating precision
+      of stochastic agent results.
+    severity: science
+  - id: fdcc2e0df6c0
+    text: Abstract claims a 'holistic perspective' on context use. Scope is limited
+      to observation masking on search. Reframe as 'empirical framework for observation
+      masking' to match actual contribution.
+    severity: writing
+  - id: ab119acfcd72
+    text: Include explicit IRB/ethics approval statement for the 'Human Audit' described
+      in Appendix Experiment Settings. Clarify if fully automated or if human consent
+      was obtained.
+    severity: writing
+  - id: d60fc37d070c
+    text: Expand the 'Ethical Considerations' section to propose specific mitigations
+      for the acknowledged risk that masking could suppress safety warnings in deployed
+      agents.
+    severity: writing
+  - id: 661f24fd252c
+    text: Verify that case studies involving personal news (e.g., suicide, breakups)
+      do not inadvertently expose private PII beyond what is necessary for the research
+      context.
+    severity: writing
+  - id: 85b2eeeff205
+    text: 'Fix figure label naming inconsistency: labels use mixed conventions (fig1:masking,
+      fig1:pie_main vs fig:teaser, fig:probe). Standardize to fig: prefix throughout
+      for consistency.'
+    severity: writing
+  - id: 31310c2f560c
+    text: "Correct heading hierarchy: 'Related Work' section appears before 'Experiment\
+      \ Setup' (Section 5) but lacks section number. Reorder to follow standard flow\
+      \ (Intro\u2192Method\u2192Related\u2192Experiment\u2192Results) or assign proper\
+      \ numbering."
+    severity: writing
+  - id: 21630ae986d2
+    text: 'Complete truncated figure caption in e002: ''Comparison of per-query change
+      in rol'' is incomplete (cut off mid-word). Verify figure file and caption text
+      match.'
+    severity: writing
+  - id: 7bf5dc7163e2
+    text: 'Remove duplicate bibliography entries: ''gpt5mini'' appears twice with
+      conflicting author information (DeepSeekAI vs OpenAI). Deduplicate and verify
+      correct entry.'
+    severity: writing
+  - id: bd1f1df5aad3
+    text: "Standardize vertical spacing in figure environments: inconsistent \vspace\
+      \ values (-1.5em, -2em, -2.75em) without clear rationale. Consider consistent\
+      \ spacing policy for visual coherence."
+    severity: writing

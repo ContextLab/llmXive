@@ -167,4 +167,7 @@ ready:
 - project_id: PROJ-661-https-arxiv-org-abs-2606-00683
   revision_spec_path: specs/auto-revisions/PROJ-661-https-arxiv-org-abs-2606-00683/round-1
   queued_at: '2026-06-07T18:45:03.736613+00:00'
+- project_id: PROJ-652-https-arxiv-org-abs-2606-00408
+  revision_spec_path: specs/auto-revisions/PROJ-652-https-arxiv-org-abs-2606-00408/round-1
+  queued_at: '2026-06-07T21:48:10.644915+00:00'
 blocked: []
