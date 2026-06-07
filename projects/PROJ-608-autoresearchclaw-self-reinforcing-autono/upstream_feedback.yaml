@@ -1,0 +1,143 @@
+project_id: PROJ-608-autoresearchclaw-self-reinforcing-autono
+arxiv_id: '2605.20025'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-07T04:54:27.123193+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 426e2d0b2b7f
+    text: Ingest the full code repository (AutoResearchClaw) including source code,
+      Dockerfiles, and CI configurations to enable modularity and dependency hygiene
+      review.
+    severity: science
+  - id: c4553af7e48b
+    text: Provide the test suite (unit/integration tests) referenced in the paper
+      (e.g., prompt parity test suite) to verify reproducibility claims.
+    severity: science
+  - id: 53029e96a935
+    text: Include requirements.txt or environment.yml files to validate dependency
+      hygiene and sandbox security model implementation.
+    severity: science
+  - id: 1cd6207a882c
+    text: Clarify the arXiv submission metadata; ID 2605.20025 implies a May 2026
+      date which conflicts with current review context.
+    severity: writing
+  - id: 0d69b29b4171
+    text: Explicitly state the license for ARC-Bench artifacts (topics.yaml, rubrics/)
+      to ensure reproducibility.
+    severity: writing
+  - id: df579a047402
+    text: Add schema versioning to the stage contract definitions in Appendix app:stages
+      to prevent API drift.
+    severity: writing
+  - id: 2c42246ad6ba
+    text: Provide DOIs or stable snapshots for cited arXiv preprints to mitigate link
+      rot risks.
+    severity: writing
+  - id: f6f1213c5155
+    text: Define 'HITL' (Human-in-the-Loop) before its first use in the Abstract;
+      currently it is only defined in Section 1.
+    severity: writing
+  - id: ed9e6b08b730
+    text: Expand 'LLM' to 'Large Language Model' in the first sentence of the Introduction
+      for broader accessibility.
+    severity: writing
+  - id: b249c659335f
+    text: Replace internal system jargon like 'Beast Mode' (Appendix A, Table 1 footnote)
+      with descriptive functional terms.
+    severity: writing
+  - id: 29ca1ff7c258
+    text: Define domain-specific acronyms (e.g., ECE, SHD, AIPW, BSM, UV) at first
+      use in Appendix A for non-specialist readers.
+    severity: writing
+  - id: 23a0d74eca4a
+    text: Temper the title claim 'Self-Reinforcing' given Appendix~\ref{app:agent_count}
+      shows evolution yields only moderate reliability gains (-0.48 quality) compared
+      to debate/self-healing.
+    severity: writing
+  - id: 595b66d745f3
+    text: Clarify whether cross-domain success (Table~\ref{tab:scidomain}) stems from
+      research capability or software stack installation (Sec~\ref{sec:scidomain}
+      admits baselines fail on stack installation).
+    severity: science
+  - id: aa1724d4e08c
+    text: Acknowledge LLM judge style bias (Appendix~\ref{app:judge-issues}) more
+      prominently in the main text when citing the 54.7% performance gain.
+    severity: science
+  - id: e1b06a09a8e1
+    text: Explicitly detail dual-use mitigation strategies for sensitive scientific
+      domains (e.g., systems biology) beyond code sandboxing, as the system can automate
+      protocol design.
+    severity: science
+  - id: a589fc1976f0
+    text: Clarify the IRB status of the 'scripted interventions' in the HITL ablation
+      to confirm they do not constitute human-subject research requiring approval.
+    severity: writing
+  - id: 7e8a734864f8
+    text: Strengthen the mitigation for 'submission flooding' risks by proposing technical
+      enforcement (e.g., metadata tags) rather than relying solely on voluntary disclosure.
+    severity: writing
+  - id: 246a4df3f48e
+    text: Report confidence intervals or statistical significance (e.g., paired t-test)
+      for the 25-topic benchmark results in Table tab:arcbench-aggregate to validate
+      the 54.7% improvement claim.
+    severity: science
+  - id: 4d5c51887520
+    text: Clarify that the HITL ablation uses scripted interventions, not live researchers,
+      and adjust claims about 'Human-AI Collaboration' to reflect this limitation
+      in the main text.
+    severity: science
+  - id: bef8c0d842c0
+    text: Address the 'Style bias' limitation noted in Appendix Judge and Rubric Issues
+      (lines ~230-240) regarding the LLM judge's potential preference for the system's
+      output style over scientific substance.
+    severity: science
+  - id: 91f79e19ef31
+    text: Report confidence intervals for all mean scores in Tables 3-6. The 54.7%
+      improvement claim lacks uncertainty quantification.
+    severity: science
+  - id: ba2d2e57638e
+    text: "Apply multiple-comparisons correction (e.g., Bonferroni or FDR) for the\
+      \ 25\xD74 framework comparisons and 7-mode HITL ablation."
+    severity: science
+  - id: 3dbc579e5cd7
+    text: Provide inter-rater reliability metrics (Cohen's kappa or ICC) for the dual-agent
+      judge system, not just disagreement thresholds.
+    severity: science
+  - id: 36e7a17e4f89
+    text: The best-of-3 rerun protocol inflates performance estimates. Report single-run
+      baselines and adjust p-values for selection bias.
+    severity: science
+  - id: d5953ff738ac
+    text: The p=0.003 for debate contribution lacks test statistic, degrees of freedom,
+      or effect size. Specify the statistical test used.
+    severity: science
+  - id: 0e75d038a870
+    text: Standardize float placement specifiers (replace [h] with [htbp]) to ensure
+      consistent figure/table positioning across compilation runs.
+    severity: writing
+  - id: 6a0d3348eb19
+    text: Review manual \vspace adjustments (e.g., -0.3em around sections); consider
+      relying on class defaults to improve layout robustness.
+    severity: writing
+  - id: a8500f55805d
+    text: Unify table environments for full-width tables (prefer tabularx over tabular*
+      to avoid overfull hbox warnings).
+    severity: writing
+  - id: 8acd3bd807b5
+    text: Verify \beginappendix and \affiliation commands against fairmeta class documentation
+      to ensure no custom hacks are required.
+    severity: writing
+  - id: c48225770dcc
+    text: Fix typo 'generatio' to 'generation' in sections/experiment.tex (Section
+      3.3).
+    severity: writing
+  - id: 4c4167dd09fc
+    text: Standardize spelling of 'organized' vs 'organised' across the document.
+    severity: writing
+  - id: 472f98dc20cd
+    text: Improve phrasing in sections/appendix.tex (e.g., 'manifested in' to 'shown
+      in', '4/5 step-by-step pass' to '4/5 step-by-step runs passed').
+    severity: writing
