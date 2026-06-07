@@ -1,0 +1,182 @@
+project_id: PROJ-606-https-arxiv-org-abs-2605-18747
+arxiv_id: '2605.18747'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-07T10:33:05.569350+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: e636cebd4caf
+    text: Remove `(... omitted ...)` placeholders from tables in the LaTeX source
+      to ensure the final PDF renders complete data and compiles without warnings.
+    severity: writing
+  - id: 92733eb3c97d
+    text: Add a brief subsection or appendix describing the literature search protocol
+      (keywords, databases, inclusion criteria) to establish survey rigor.
+    severity: writing
+  - id: ce309b45c473
+    text: Verify all `\cite` keys in the `.tex` source match the `reference.bib` entries
+      to prevent compilation warnings.
+    severity: writing
+  - id: fed2321f6b06
+    text: 'Resolve citation key mismatch for ''AutoHarness'': text uses ''lou2026autoharnessimprovingllmagents''
+      (e001) but bib defines ''lou2026autoharness''. Ensure consistency across all
+      sections.'
+    severity: writing
+  - id: db940a731cb4
+    text: Verify unsupported detail 'codex-1 (an o3 derivative)' in e003. The cited
+      bib entry 'codex2025' title does not support this specific claim.
+    severity: writing
+  - id: 7ecaae875b38
+    text: Confirm specific statistics (e.g., '75-84% convergence', '16.9% autonomous
+      resolution') are explicitly supported by the full bibliography entries for 'QualityFlow'
+      and 'LingmaAgent'.
+    severity: science
+  - id: bd030a1d28e6
+    text: 'Clarify duplicate 16.9% statistic in e002: appears for both ''LingmaAgent''
+      (issues) and ''MLE-bench'' (competitions). Verify if this is a copy-paste error
+      or distinct data point.'
+    severity: writing
+  - id: 6455a3c645f8
+    text: The LaTeX source contains truncation markers (e.g., '... 19 rows omitted
+      ...') in tables (e000, e004, e005). Complete the full table content to ensure
+      the artifact is buildable and reproducible.
+    severity: writing
+  - id: 57a90730a0bd
+    text: The bibliography file (reference.bib) is truncated in the input. Ensure
+      all cited keys have complete entries to prevent compilation errors and missing
+      references.
+    severity: writing
+  - id: 6fdaebb8f487
+    text: The LaTeX structure is fragmented (e000 ends with \end{document}, e001 starts
+      with \midrule). Modularize the document using \input commands for sections to
+      improve maintainability and avoid structural inconsistencies.
+    severity: writing
+  - id: f39cd4edafd1
+    text: No build script (Makefile or CI configuration) is provided to verify reproducibility.
+      Add a build configuration to automate compilation and check for warnings.
+    severity: writing
+  - id: 81178920e8dd
+    text: External URL citations (OpenAI, Anthropic, Cursor blogs) lack archive links
+      or DOIs; add permanent archival references to prevent link rot per survey best
+      practices.
+    severity: writing
+  - id: 3234ce451285
+    text: Bibliography contains multiple citations with future dates (2025-2026);
+      verify all arXiv preprint dates and ensure version numbers are specified for
+      surveyed tools/frameworks.
+    severity: writing
+  - id: 251644e22891
+    text: No license information provided for surveyed tools/datasets; add a table
+      or appendix summarizing licensing terms for reproducibility and legal compliance.
+    severity: writing
+  - id: 16e5c4e62ad8
+    text: GitHub repository link (https://github.com/YennNing/Awesome-Code-as-Agent-Harness-Papers)
+      should be accompanied by a DOI or Zenodo archive for permanent reference.
+    severity: writing
+  - id: 24746ae6b6d8
+    text: Add accessibility alt text to all figure environments to ensure compliance
+      with modern publication standards.
+    severity: writing
+  - id: 5adff5b7fb44
+    text: Consolidate or distinctly differentiate the 'roadmap' figures (e.g., fig:roadmap_sec2,
+      fig:roadmap_sec3) to avoid redundancy.
+    severity: writing
+  - id: 42839bebd385
+    text: Verify colorblind safety for all custom color definitions (e.g., TinaCrimson
+      vs Crimson) used in figure visualizations.
+    severity: writing
+  - id: bbac50c34167
+    text: Ensure font legibility in figures scaled to 0.8\linewidth, particularly
+      for dense taxonomies like fig:taxonomy.
+    severity: writing
+  - id: 025ba9f8b9f7
+    text: Clarify the logical boundary between 'Code for Acting' (Sec 2.2) and 'Tool
+      Use' (Sec 3.3) to reduce taxonomic redundancy in agent-environment interactions.
+    severity: science
+  - id: cc0970698b2c
+    text: The LaTeX source contains duplicate section definitions (e.g., 'Harness
+      Interface' in e000 and e005; 'Scaling the Harness' in e002 and e006), creating
+      structural logical contradictions in the document flow.
+    severity: writing
+  - id: 5d1cd7611254
+    text: The contribution box still claims to 'formalize' code as agent harness (e000,
+      e003). However, the paper provides a conceptual definition rather than a mathematical
+      formalism (e.g., axioms, tuples). Use 'conceptualize' or 'define' to avoid overclaiming
+      rigor.
+    severity: writing
+  - id: d01fb1f65c3c
+    text: "In \xA75.1 (e003), the claim that systems like Copilot 'rely on a lightweight\
+      \ IDE harness' still conflates inline-completion studies with the paper's definition\
+      \ of agent harness (sandboxes, execution). Clarify if these studies support\
+      \ the specific 'agent harness' definition or adjust the claim."
+    severity: science
+  - id: 813d8fbcde73
+    text: Add a dedicated 'Ethical Considerations' section addressing dual-use risks
+      (e.g., automated malware, vulnerability exploitation) beyond technical governance.
+    severity: writing
+  - id: 7d7f4606d034
+    text: Include a formal Conflict of Interest statement given the mix of industry
+      (OpenAI, Anthropic, Microsoft) and academic authors.
+    severity: writing
+  - id: ef9a100915ca
+    text: Expand Section 5.1.4 to explicitly reference biosecurity and chemical safety
+      protocols for self-driving labs synthesizing compounds.
+    severity: science
+  - id: 61d8c436797a
+    text: Add a table categorizing evidence sources (peer-reviewed, preprint, tech
+      report, blog) to clarify reliability of performance claims.
+    severity: science
+  - id: ae9fde6b0846
+    text: Include explicit caveats on the reproducibility and verification of proprietary
+      system evaluations (e.g., Claude Code, Codex).
+    severity: science
+  - id: 4d8fe91e438f
+    text: Expand discussion on benchmark metric comparability when aggregating results
+      across SWE-bench, AgentBench, and proprietary evals.
+    severity: science
+  - id: d7efe80bce2e
+    text: "Survey lacks statistical rigor section. While citing percentages (16.9%,\
+      \ 43.3% in \xA7Emerging Fields), no confidence intervals or sample sizes provided\
+      \ for benchmark claims. Consider adding uncertainty quantification for reported\
+      \ metrics from cited work."
+    severity: science
+  - id: 64d5c54b618b
+    text: "Multi-agent convergence claims (98%+ precision in QualityFlow, \xA74.2.1)\
+      \ lack statistical significance testing. Recommend reporting variance, n-samples,\
+      \ or bootstrapped confidence intervals for any comparative performance claims."
+    severity: science
+  - id: 4d098849d6a3
+    text: No reproducibility statement for any empirical claims. While this is a survey,
+      cited benchmark results should include links to original evaluation code/data
+      where available for verification.
+    severity: science
+  - id: 175f35c3cd53
+    text: 'Resolve duplicate LaTeX document structures: e000 and e003 both define
+      \documentclass and \begin{document}, causing compilation failure.'
+    severity: writing
+  - id: e898dc5ff0e9
+    text: Remove placeholder text from tables (e.g., '(... 19 rows omitted ...)' in
+      e000, e004) before final submission.
+    severity: writing
+  - id: 7eba625bcded
+    text: 'Standardize citation commands: mix of \cite and \citep observed across
+      sections; unify to single style.'
+    severity: writing
+  - id: c188fde21205
+    text: 'Fix table fragmentation: e001 starts with \midrule, implying a split table
+      from e000; ensure continuous table environments.'
+    severity: writing
+  - id: 1f1dcfa3db7e
+    text: Consolidate multiple LaTeX drafts (e000, e003) into a single file with consistent
+      class and section ordering.
+    severity: writing
+  - id: 50f24be00d24
+    text: Complete the sentence fragment in Section 2 (e005) ending with 'compiles
+      generated programs into'.
+    severity: writing
+  - id: 2bb2d171c1eb
+    text: Standardize citation keys (e.g., replace placeholders like linearplan1 with
+      valid BibTeX entries).
+    severity: writing
