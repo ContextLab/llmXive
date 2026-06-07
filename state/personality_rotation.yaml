@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-07T21:55:48.184961+00:00'
-last_outcome: committed
+last_used: rosalind-franklin
+last_used_at: '2026-06-07T22:24:53.573899+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-29T12:05:50.241218+00:00'
-  ended_at: '2026-05-29T13:38:09.000543+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-632-https-arxiv-org-abs-2605-26230/paper/reviews/_held/rosalind-franklin-simulated__2026-05-29__paper.md
 - slug: rosalind-franklin
   started_at: '2026-05-29T13:38:09.000543+00:00'
   ended_at: '2026-05-29T15:05:34.983041+00:00'
@@ -1173,3 +1166,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/reviews/research/richard-feynman-simulated__2026-06-07__research.md
+- slug: rosalind-franklin
+  started_at: '2026-06-07T21:55:48.184961+00:00'
+  ended_at: '2026-06-07T22:24:53.573899+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
