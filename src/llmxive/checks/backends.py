@@ -13,11 +13,32 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 
 from llmxive.agents import registry as registry_loader
 from llmxive.backends import router as backend_router
 from llmxive.backends.base import BackendError
 from llmxive.config import repo_root as _repo_root
+
+# A single transient blip from a provider's models endpoint (a momentary non-JSON
+# response, a 5xx, a reset) must NOT fail the whole real-call gate — that brittleness
+# repeatedly sank PR CI even when the backend was healthy. Retry the probe a few
+# times with backoff; a GENUINE sustained outage still fails fast (within ~6s).
+_PROBE_ATTEMPTS = 3
+_PROBE_BASE_DELAY_S = 2.0
+
+
+def _probe_models(backend: object) -> tuple[list[object] | None, Exception | None]:
+    """Call ``backend.list_models()`` with bounded retry. Returns (models, last_error)."""
+    last: Exception | None = None
+    for attempt in range(_PROBE_ATTEMPTS):
+        try:
+            return list(backend.list_models()), None  # type: ignore[attr-defined]
+        except Exception as exc:  # transient (BackendError, JSON decode, network)
+            last = exc
+            if attempt < _PROBE_ATTEMPTS - 1:
+                time.sleep(_PROBE_BASE_DELAY_S * (attempt + 1))
+    return None, last
 
 
 def main() -> int:
@@ -43,16 +64,21 @@ def main() -> int:
 
         try:
             backend = backend_router.make_backend(name)
-            models = backend.list_models()
-            if not models:
-                warnings.append(f"{name}: list_models() returned empty list")
-                continue
-            print(f"backends-check: {name} OK ({len(models)} models reachable)")
         except BackendError as exc:
-            if name == "dartmouth":
-                failures.append(f"{name} unreachable: {exc}")
-            else:
-                warnings.append(f"{name} unreachable: {exc}")
+            (failures if name == "dartmouth" else warnings).append(
+                f"{name} unreachable: {exc}"
+            )
+            continue
+
+        models, err = _probe_models(backend)
+        if err is not None:
+            msg = f"{name} unreachable after {_PROBE_ATTEMPTS} attempts: {err}"
+            (failures if name == "dartmouth" else warnings).append(msg)
+            continue
+        if not models:
+            warnings.append(f"{name}: list_models() returned empty list")
+            continue
+        print(f"backends-check: {name} OK ({len(models)} models reachable)")
 
     for w in warnings:
         print(f"backends-check: WARN: {w}", file=sys.stderr)
