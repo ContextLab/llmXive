@@ -1,0 +1,199 @@
+project_id: PROJ-661-https-arxiv-org-abs-2606-00683
+arxiv_id: '2606.00683'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-07T18:45:03.720242+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 39bb6750e45e
+    text: Several citations are missing from the bibliography (e.g., \citep{pleias},
+      \citep{qwen3}, \citep{li-etal-2024-teaching}). Add the corresponding bibliography
+      entries or replace the citations with existing references.
+    severity: writing
+  - id: 22b09e7cb44e
+    text: "The claim that OCC\u2011RAG\u20111.7B closes the gap with Qwen\u20113\u2011\
+      4B in *thinking mode* on multi\u2011hop reasoning is not supported by Table\u202F\
+      5, where Qwen\u20113\u20114B (thinking) achieves 67.1\u202FIn\u2011Acc versus\
+      \ OCC\u2011RAG\u20111.7B\u2019s 60.9. Re\u2011phrase or remove this overstated\
+      \ claim."
+    severity: writing
+  - id: 8fe5e69242bd
+    text: "The abstract and introduction assert that the synthetic corpus contains\
+      \ \u201Cover three million examples\u201D; the detailed statistics (Section\u202F\
+      4.3) report 3.25\u202FM total, which is consistent, but the breakdown does not\
+      \ sum exactly (2.78\u202FM + 262\u202Fk + 165\u202Fk + 43\u202Fk \u2248 3.25\u202F\
+      M). Clarify the rounding and ensure the numbers match the claimed total."
+    severity: writing
+  - id: d01864980dd6
+    text: "The statement that OCC\u2011RAG\u20110.6B \u201Cexceeds Gemma\u20113\u2011\
+      4B and SmolLM\u20113\u20113B on each dimension\u201D is correct per Table\u202F\
+      5, but the manuscript should explicitly reference the table rows to avoid ambiguity."
+    severity: writing
+  - id: 2073211761db
+    text: "In the evaluation description, the phrase \u201C2\u202F\u2013\u202F6\xD7\
+      \ larger\u201D is used broadly. While OCC\u2011RAG\u20111.7B matches Qwen\u2011\
+      3\u20114B on HotpotQA, it falls short on MuSiQue and TAT\u2011QA. Adjust the\
+      \ wording to reflect that OCC\u2011RAG matches or exceeds some, but not all,\
+      \ larger baselines."
+    severity: writing
+  - id: d09ae66323c5
+    text: "Provide a concrete definition of \u201Cthinking mode\u201D for the reader,\
+      \ and cite the source where this mode is described for Qwen3 and SmolLM3 models."
+    severity: writing
+  - id: a29f0d7517a9
+    text: "Verify that all performance numbers quoted in the text (e.g., memorization\
+      \ reduction from 12.7\u202F\u2192\u202F5.0, refusal accuracy 87.2) exactly match\
+      \ the values in Table\u202F5, and add a note if any rounding was applied."
+    severity: writing
+  - id: 49f2be8d00ef
+    text: Release the actual code repository (training scripts, data pipeline, evaluation
+      harness) to ensure reproducibility from scratch. Currently, only LaTeX descriptions
+      are available.
+    severity: science
+  - id: 162248599afe
+    text: "Provide configuration files (e.g., YAML/JSON) for hyperparameters and distributed\
+      \ training settings referenced in Appendix~\ref{appendix:training-hyperparameters}."
+    severity: science
+  - id: 641dab0b5357
+    text: Specify the exact Wikipedia dump date/version used for corpus construction
+      to ensure reproducibility and content stability.
+    severity: writing
+  - id: 44b29bb7f9b6
+    text: Clarify the license and public release status of the 3.25M synthetic training
+      corpus to enable independent verification.
+    severity: science
+  - id: f31b1dfa1ad4
+    text: Provide specific version tags or commit hashes for the Qwen3 base models
+      to ensure exact reproducibility of the mid-training.
+    severity: writing
+  - id: 3b4e3eaf1ac6
+    text: Include license information for evaluation datasets (HotpotQA, MuSiQue,
+      ConFiQA) in the benchmark description.
+    severity: writing
+  - id: 02b87812b022
+    text: Figure~\ref{fig:radars} is referenced in Section 5 but the file `appendices/radar.tex`
+      is commented out (line 124). Uncomment to include the figure.
+    severity: writing
+  - id: d81b4df12c10
+    text: In `images/main.tex`, the x-axis (Model size) uses a non-linear mapping
+      (0.6->1, 1->2) but appears visually linear. Clarify scaling or use categorical
+      ticks.
+    severity: writing
+  - id: bb09e69980a8
+    text: In `sections/synth.tex` (Figure~\ref{fig:token_budget}), the left plot x-axis
+      labels (0.01B, 0.1B...) correspond to log indices (0, 1, 2, 3). Explicitly label
+      as log-scale or adjust ticks.
+    severity: writing
+  - id: 78945c99c9dd
+    text: Color definitions in `appendices/radar.tex` (e.g., clr1=FFD21E) conflict
+      with main preamble (clr1=6200EA). Unify hex codes to ensure visual consistency
+      if the figure is included.
+    severity: writing
+  - id: b7ff98182d09
+    text: Rename `images/youtu_noemoji.pdf` to a descriptive filename (e.g., `occ-output-structure.pdf`)
+      for professionalism and clarity.
+    severity: writing
+  - id: 5dd665e3f3d0
+    text: Remove `\resizebox` in `appendices/radar.tex` (Figure~\ref{fig:radars})
+      to maintain consistent font sizing across the document.
+    severity: writing
+  - id: 7da837749dfb
+    text: Define acronyms FSDP, CE, and technical terms bf16, RDF, SPARQL at first
+      use.
+    severity: writing
+  - id: 04f27393af05
+    text: Replace 'parametric knowledge' with 'pre-trained memory' for broader accessibility.
+    severity: writing
+  - id: d4833ff30d7f
+    text: Simplify 'ontological constraints' and 'topological properties' in Section
+      4.1.
+    severity: writing
+  - id: 775fa02551b9
+    text: Correct the claim in the Results section that OCC-RAG-1.7B achieves the
+      'highest results on refusal,' as Table results.tex shows Qwen3-8B (90.7%) outperforms
+      OCC-RAG-1.7B (87.2%).
+    severity: science
+  - id: e8b904936279
+    text: Verify and correct numerical comparisons in the Introduction (e.g., ConFiQA
+      gap of 9.5 points vs Table 15.1 points; M_R of 8.2 vs Table 9.0) to align with
+      Table results.tex or explicitly specify 'thinking mode' baselines.
+    severity: science
+  - id: 139be0dfe1d9
+    text: Ensure all comparative claims explicitly state whether baselines are in
+      base or thinking mode to prevent logical gaps between stated subjects and cited
+      values.
+    severity: writing
+  - id: 50d2b99e119c
+    text: Abstract claims OCC-RAG models 'match or exceed' general-purpose models
+      2-6x their size across all benchmarks. Table 1 shows OCC-RAG-0.6B loses to Qwen3-4B
+      on HotpotQA (57.6 vs 60.6) and TAT-QA (75.0 vs 76.9). Revise to reflect partial
+      superiority.
+    severity: writing
+  - id: 1dfe9bb503e9
+    text: Introduction states OCC-RAG-0.6B exceeds Qwen3-1.7B by '9.5 points on ConFiQA'.
+      Table 1 shows a 15.1 point gap (79.9 vs 64.8). This numerical inconsistency
+      undermines claim precision. Verify and correct.
+    severity: science
+  - id: 51d31aa6c524
+    text: Claim of 'financial reasoning' capability relies on TAT-QA subset excluding
+      arithmetic/counting questions (Section 5.1). This limits generalizability. Qualify
+      the claim or include full benchmark results.
+    severity: writing
+  - id: 93506d0f4ce7
+    text: Results attribute gains to 'internalizing the process' of reasoning (Section
+      4) without mechanistic evidence (e.g., probing, attention analysis). This extrapolates
+      beyond empirical data. Soften to 'training on structured traces improves performance'.
+    severity: writing
+  - id: 32c6e698a38e
+    text: Add a dedicated paragraph discussing the risk of 'faithful' misinformation
+      propagation. As shown in tables/demo.tex, the model will output false claims
+      if the context supports them. Explain how this risk is mitigated in deployment.
+    severity: writing
+  - id: 8c38e823b237
+    text: Specify the license and acceptable use policy for the released OCC-RAG checkpoints.
+      Explicitly state if the models are restricted from use in disinformation campaigns
+      or high-stakes decision-making.
+    severity: writing
+  - id: 2a94ae610a12
+    text: Acknowledge limitations regarding adversarial robustness. The paper does
+      not evaluate performance against context injection attacks (prompt injection
+      via retrieved documents), which is a critical safety gap for RAG systems.
+    severity: writing
+  - id: abf33782681b
+    text: Remove duplicate \usepackage{booktabs} declaration in colm2024_conference.tex
+      (lines 15-16).
+    severity: writing
+  - id: e45a81fe5aff
+    text: Standardize citation commands to \citep throughout the manuscript; \cite
+      is used inconsistently in sections/into.tex (line 28).
+    severity: writing
+  - id: 83561b3fe77b
+    text: Consolidate color definitions (clr1-clr5) to avoid redefinition warnings
+      between colm2024_conference.tex and appendices/radar.tex.
+    severity: writing
+  - id: 9ac185d579d7
+    text: 'Unify label naming conventions (e.g., use fig: prefix for all figures);
+      tables/demo.tex uses \label{figure:demo} while others use \label{fig:...}.'
+    severity: writing
+  - id: 656081b8d810
+    text: Remove duplicate \usepackage{booktabs} in colm2024_conference.tex (lines
+      12, 14).
+    severity: writing
+  - id: 63f9bf39e7ba
+    text: Standardize "Context QA" capitalization in sections/into.tex (use lowercase
+      after first definition).
+    severity: writing
+  - id: 029428e80981
+    text: Fix parallel structure in sections/synth.tex pipeline list (e.g., "ingesting
+      and chunking pages").
+    severity: writing
+  - id: ae493143485f
+    text: Clarify "Parentheses (if available)" in tables/results.tex caption to specify
+      thinking mode.
+    severity: writing
+  - id: ea6af7e780f1
+    text: Resolve color variable inconsistency for OCC-RAG in appendices/radar.tex
+      (clr5 vs airigreen).
+    severity: writing
