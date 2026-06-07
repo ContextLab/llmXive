@@ -1,14 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-06-07T06:55:13.141216+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: marie-curie
+last_used_at: '2026-06-07T08:13:42.785175+00:00'
+last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-05-28T11:12:53.890977+00:00'
-  ended_at: '2026-05-28T12:47:01.045506+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/reviews/research/marie-curie-simulated__2026-05-28__research.md
 - slug: richard-feynman
   started_at: '2026-05-28T12:47:01.045506+00:00'
   ended_at: '2026-05-28T14:17:15.912421+00:00'
@@ -1186,3 +1179,10 @@ history:
   ended_at: '2026-06-07T06:55:13.141216+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: marie-curie
+  started_at: '2026-06-07T06:55:13.141216+00:00'
+  ended_at: '2026-06-07T08:13:42.785175+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-07__research.md
