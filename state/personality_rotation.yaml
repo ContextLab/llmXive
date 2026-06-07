@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-06-06T23:53:25.849231+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: eric-kandel
+last_used_at: '2026-06-07T00:36:30.308213+00:00'
+last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-28T03:48:55.777547+00:00'
-  ended_at: '2026-05-28T05:26:44.163050+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/freeman-dyson-simulated__2026-05-28__research.md
 - slug: geoffrey-west
   started_at: '2026-05-28T05:26:44.163050+00:00'
   ended_at: '2026-05-28T06:49:03.986787+00:00'
@@ -1189,3 +1182,10 @@ history:
   ended_at: '2026-06-06T23:53:25.849231+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: eric-kandel
+  started_at: '2026-06-06T23:53:25.849231+00:00'
+  ended_at: '2026-06-07T00:36:30.308213+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/eric-kandel-simulated__2026-06-07__research.md
