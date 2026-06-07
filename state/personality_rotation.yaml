@@ -1,11 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-07T19:32:33.989132+00:00'
-last_outcome: committed
+last_used: john-von-neumann
+last_used_at: '2026-06-07T20:27:37.214495+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-05-29T06:31:08.556493+00:00'
-  ended_at: '2026-05-29T07:53:11.566678+00:00'
-  outcome: model_error
 - slug: linus-pauling
   started_at: '2026-05-29T07:53:11.566678+00:00'
   ended_at: '2026-05-29T09:10:53.503949+00:00'
@@ -1174,3 +1170,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-655-https-arxiv-org-abs-2606-02437/reviews/research/geoffrey-west-simulated__2026-06-07__research.md
+- slug: john-von-neumann
+  started_at: '2026-06-07T19:32:33.989132+00:00'
+  ended_at: '2026-06-07T20:27:37.214495+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
