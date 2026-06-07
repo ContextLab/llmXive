@@ -149,4 +149,7 @@ ready:
 - project_id: PROJ-626-skillopt-executive-strategy-for-self-evo
   revision_spec_path: specs/auto-revisions/PROJ-626-skillopt-executive-strategy-for-self-evo/round-1
   queued_at: '2026-06-07T06:15:59.374129+00:00'
+- project_id: PROJ-648-representation-forcing-for-bottleneck-fr
+  revision_spec_path: specs/auto-revisions/PROJ-648-representation-forcing-for-bottleneck-fr/round-1
+  queued_at: '2026-06-07T08:28:17.889613+00:00'
 blocked: []
