@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-07T18:27:44.509129+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-06-07T18:58:57.832042+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-29T03:06:53.758850+00:00'
-  ended_at: '2026-05-29T04:59:56.754434+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/reviews/geoffrey-west-simulated__2026-05-29__paper.md
 - slug: john-von-neumann
   started_at: '2026-05-29T04:59:56.754434+00:00'
   ended_at: '2026-05-29T06:31:08.556493+00:00'
@@ -1174,5 +1167,10 @@ history:
 - slug: eric-kandel
   started_at: '2026-06-07T17:58:29.007119+00:00'
   ended_at: '2026-06-07T18:27:44.509129+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-07T18:27:44.509129+00:00'
+  ended_at: '2026-06-07T18:58:57.832042+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
