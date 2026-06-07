@@ -120,3 +120,155 @@ rounds:
   - id: c7d69b1230d0
     text: Replace 'To better reveal' with 'To better assess' in Section 5.1 for precision.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-07T13:23:17.886584+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 323b14e45b63
+    text: Verify all arXiv citations and replace future-dated references (2025-2026)
+      with stable, verifiable versions or add notes explaining their status
+    severity: writing
+  - id: cd607ba0ba8f
+    text: Clarify model version references (Qwen3 does not exist as of current date);
+      use existing Qwen2.5 or add disclaimer about hypothetical models
+    severity: writing
+  - id: edb06be1dbfe
+    text: Improve statistical reporting transparency by reporting variance/std across
+      evaluation runs beyond the Mann-Whitney U test p-values
+    severity: writing
+  - id: 6fb04f41e0e8
+    text: "Add a proper citation for the Brumo25 benchmark used in the experimental\
+      \ evaluation (Section\u202F3.1)."
+    severity: writing
+  - id: 21db0162cc8a
+    text: "Provide a citation or reference for the `math-verify` tool used to compute\
+      \ binary verifiable rewards (Section\u202F6)."
+    severity: writing
+  - id: ef12f7555888
+    text: Code repository not accessible for direct review; paper mentions GitHub
+      URL but no code artifacts provided in this submission. For proper code quality
+      review, access to the implementation is required.
+    severity: writing
+  - id: fd804ccf358f
+    text: No test files, CI configuration, or dependency specifications (requirements.txt,
+      pyproject.toml) included in the submission. These are essential for reproducibility
+      from scratch.
+    severity: writing
+  - id: d54bf44c2a3d
+    text: Appendix D (DelTA Implementation Details) describes algorithm steps but
+      lacks pseudocode or reference implementation snippets that would aid independent
+      verification.
+    severity: writing
+  - id: 23495fee1560
+    text: Training hyperparameters are documented (Table~\ref{tab:RL-hyper-parameters}),
+      but seed values, random state handling, and exact library versions are not specified,
+      limiting reproducibility.
+    severity: writing
+  - id: fd9982d827c1
+    text: Add specific download URLs or version tags for DeepMath-103K to enable exact
+      training data reproduction.
+    severity: writing
+  - id: 712c3c229585
+    text: Include persistent URLs or DOIs for all benchmark citations (e.g., AIME24,
+      AIME25) to prevent link rot.
+    severity: writing
+  - id: 3218ff3e9c6a
+    text: Explicitly state the license types for all datasets used, rather than a
+      generic statement in Appendix app:hyp.
+    severity: writing
+  - id: 374efb40fade
+    text: Replace \captionof usage in multi-panel figures (e.g., Section 5.2, Figures
+      3-4 around lines 780-800) with standard \subcaption environments for consistent
+      numbering and accessibility.
+    severity: writing
+  - id: 954b69fe88f1
+    text: Add explicit units to axis labels or captions for all plots (e.g., 'Entropy
+      (bits)', 'Reward (0-1)') to ensure scientific precision.
+    severity: writing
+  - id: 2cdd41995376
+    text: Optimize 'figs/token_c/*.pdf' file sizes; current sizes (~1.1-1.2MB) suggest
+      rasterization. Re-export as vector graphics for print legibility.
+    severity: writing
+  - id: 3ab388688df5
+    text: Consider adding explicit alt text or descriptive captions for complex diagrams
+      (e.g., Figure 1, Line 260) to improve accessibility compliance.
+    severity: writing
+  - id: cb33a4c71d42
+    text: Replace 'token-gradient vectors' with 'token gradients' throughout (e.g.,
+      Abstract, Line 13) to reduce compound noun density.
+    severity: writing
+  - id: d1cb23ff58a4
+    text: Define 'LM-head' explicitly as 'language model head' on first use in Appendix
+      (Line 1050) for non-specialist clarity.
+    severity: writing
+  - id: ff14e4de9a14
+    text: Simplify 'entropy-regularized assignment problem' (Line 230) to 'score calculation
+      using entropy' to improve accessibility.
+    severity: writing
+  - id: f7185d3c219b
+    text: Replace 'stop-gradient token coefficients' (Line 260) with 'fixed token
+      weights' to avoid implementation-specific jargon in main text.
+    severity: writing
+  - id: 9123da0516d7
+    text: Define 'GAE' (Generalized Advantage Estimation) when first used in SAPO
+      hyperparameter table (Appendix) or text, as 'Gae Gamma' and 'Gae Lam' appear
+      without context.
+    severity: writing
+  - id: 537a57eda482
+    text: Define 'CoT' (Chain of Thought) before using the abbreviation in Appendix
+      (Line 1650, 'long-CoT RL training').
+    severity: writing
+  - id: aa0093a979ad
+    text: Define 'SGLang' in Table 1 (Line 1200) as it is an external inference engine
+      not defined elsewhere.
+    severity: writing
+  - id: ba31ec14efa7
+    text: Strengthen the Broader Impacts section to explicitly analyze the safety
+      risks associated with improved code generation capabilities, beyond generic
+      dual-use statements.
+    severity: writing
+  - id: d14be9888ea2
+    text: Clarify in the Limitations section that safety alignment or adversarial
+      testing was not evaluated, to prevent inference that the improved models are
+      safe for deployment.
+    severity: writing
+  - id: 88b23d5f48db
+    text: Clarify whether method-specific hyperparameters for SAPO/FIPO are intrinsic
+      or tuned, as Section sec:exp_s claims 'same hyperparameters' but app:baseline-details
+      lists unique settings.
+    severity: science
+  - id: fc735678231d
+    text: Explicitly acknowledge the limitation of single-training-seed results in
+      the Limitations section, noting that RL training variance is not captured by
+      evaluation-run-level significance tests.
+    severity: science
+  - id: 96965ef4434c
+    text: Provide statistical significance tests for code generation and OOD results
+      (Tables tab:code_tab, tab:ood_tab) or explicitly state they are not evaluated
+      to avoid overclaiming robustness.
+    severity: science
+  - id: 5ab5bf356cf7
+    text: Report exact p-values and effect sizes (e.g., rank-biserial correlation)
+      for the Mann-Whitney U tests in Appendix app:sig to ensure reproducibility.
+    severity: writing
+  - id: 36adfe34e8b0
+    text: Include standard deviations or 95% confidence intervals in Table tab:results_main
+      to visualize evaluation variance across the 16 runs.
+    severity: writing
+  - id: 674db1646b05
+    text: Explicitly state in the Limitations section that significance tests reflect
+      evaluation sampling variance, not training seed variance, given the single-seed
+      training protocol.
+    severity: science
+  - id: d98ced1e1f8a
+    text: 'Inconsistent benchmark naming: ''Brumo 25'' in Section 5.1 vs ''Brumo25''
+      in Table 1.'
+    severity: writing
+  - id: 7126822222a0
+    text: Remove unprofessional comments from LaTeX source, e.g., '% good luck!!!!!!'
+      (line 67).
+    severity: writing
+  - id: c7d69b1230d0
+    text: Replace 'To better reveal' with 'To better assess' in Section 5.1 for precision.
+    severity: writing

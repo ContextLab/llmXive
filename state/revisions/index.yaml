@@ -158,4 +158,7 @@ ready:
 - project_id: PROJ-580-https-arxiv-org-abs-2605-15141
   revision_spec_path: specs/auto-revisions/PROJ-580-https-arxiv-org-abs-2605-15141/round-1
   queued_at: '2026-06-07T12:48:51.330444+00:00'
+- project_id: PROJ-619-delta-discriminative-token-credit-assign
+  revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
+  queued_at: '2026-06-07T13:23:17.907777+00:00'
 blocked: []
