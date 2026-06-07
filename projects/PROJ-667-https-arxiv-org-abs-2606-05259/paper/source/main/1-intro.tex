@@ -1,0 +1,35 @@
+\input{table/data_comparison}
+\section{Introduction}
+\label{sec:intro}
+Multimodal foundation models for video understanding have achieved rapid progress in recent years, driven by architectural advances~\cite{shu2025video, zohar2025apollo, ren2025vamba, li2024unimoescalingunifiedmultimodal, 11353361}, large-scale pretraining~\cite{Zhang2025VideoLLaMA3F, Wang2025InternVideo25EV, Qwen2.5-VL, chen2025eagle}, and sophisticated post-training strategies~\cite{videor1, Open-o3, videorft, videochatr1, li2025veripocultivatinglongreasoning}. However,  current models still face significant limitations when transitioning from surface-level video perception to video reasoning tasks that demand domain knowledge and multi-step inference~\cite{mmvu, videommmu, scivideobench, song2025video}.
+A key bottleneck lies in the nature of the training corpora used to develop these models. 
+
+Existing large-scale video datasets are predominantly constructed for perceptual objectives such as action recognition, event localization, and short-range temporal understanding~\cite{videor1, videorft, Open-o3, TVGR1, scaling}. Their content is heavily skewed toward everyday activities, with limited coverage of specialized domains and little support for knowledge- and reasoning-intensive video understanding.
+Consequently, models trained on current corpora often struggle with tasks requiring multi-hop inference, scientifically grounded explanations, or interpretation of events governed by non-observable principles, limiting their reliability in real-world applications that demand accurate, domain-aware reasoning.
+
+To bridge this gap, we open-source \data, the first large-scale training corpus targeted for knowledge- and reasoning-intensive video understanding. 
+We collect 145K CC-licensed videos across 82 professional subjects using a \emph{knowledge-driven} collection protocol that targets real-world manifestations of domain knowledge.
+To transform these raw videos into effective video reasoning training data, we design a \emph{skill-oriented QA generation} framework that decomposes knowledge- and reasoning-intensive video understanding into three complementary capabilities: \emph{basic video reasoning}, \emph{knowledge-enhanced video perception}, and \emph{knowledge-intensive video reasoning}. For each video, the framework generates challenging QA examples tailored to each skill category, each paired with a high-quality CoT rationale.
+We apply rigorous quality control with human-expert involvement, yielding a high-quality supervised fine-tuning corpus, \sftdata, and a reinforcement learning corpus, \rldata.
+In addition, through a manual audit of existing knowledge-intensive video reasoning benchmarks, we find that many examples are solvable with little video understanding. To address these issues, we construct a new evaluation benchmark, \eval.
+
+
+
+
+
+
+
+
+
+We adopt a standard SFT$\rightarrow$GRPO pipeline to isolate data design as the primary bottleneck and attribute performance gains more cleanly to \ours. We further establish a standardized evaluation framework to enable fair, reproducible model comparisons. Experiments show that even without sophisticated post-training algorithmic design, base models (\ie Qwen2.5-VL-7B-Instruct and Qwen3-VL-8B-Instruct) post-trained on \ours already outperform prior post-training approaches.
+To inform how \ours can advance future work in video reasoning, we conduct comprehensive ablations that disentangle its key contributors, including the effect of CoT supervision, the impact of skill-based data composition, and controlled SFT and RL studies that compare \ours against prior post-training corpora.
+
+We summarize our main contributions as follows:
+
+\begin{itemize} [leftmargin=*, itemsep=-0.15ex, topsep=-0.2ex]
+\item We open-source \data, the first large-scale training corpus designed for knowledge- and reasoning-intensive video understanding. We apply rigorous quality control to ensure consistently high-quality training data (\S\ref{sec:data}).
+\item We construct \eval, a new evaluation benchmark that mitigates single-frame answerability in prior benchmarks through multi-model single-frame probing and expert re-annotation of filtered videos (\S\ref{sec:eval-data}).
+\item We establish a standardized evaluation framework to ensure fair and reproducible model comparisons (\S\ref{sec:reproduce-analysis}). 
+\item Models post-trained on \ours achieve the best knowledge-intensive performance among similar-sized models, while remaining competitive on general video benchmarks (\S\ref{sec:6}).
+\item We conduct comprehensive ablations to isolate the contributions of \ours, including the effectiveness of CoT supervision, the impact of skill-based data composition, comparisons against prior post-training corpora, yielding actionable insights for future work (\S\ref{sec:6.3} to \S\ref{sec:6.4}).
+\end{itemize}

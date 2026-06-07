@@ -1,0 +1,77 @@
+\begin{table*}[!t]
+\centering
+\caption{
+Benchmark results across general and knowledge-intensive video reasoning. Models are grouped into (i) \emph{Other Models} and (ii) methods built on Qwen2.5-VL-7B-Instruct or Qwen3-VL-8B-Instruct (with the indicated input Frames). Within each group for (ii), the best score is \textbf{bold} and the second-best is \underline{underlined}.
+}
+
+\label{tab:benchmarks}
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand\arraystretch{1.1}
+
+\resizebox{\linewidth}{!}{%
+\footnotesize
+\definecolor{avggray}{gray}{0.93}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{G}[1]{>{\arraybackslash\columncolor{avggray}}p{#1}}
+\begin{tabular}{
+l %
+c %
+c %
+C{1.1cm} C{1.1cm} C{1.7cm} G{1.1cm} %
+C{1.1cm} C{1.1cm} C{1.1cm} C{1.5cm} G{1.1cm} %
+}
+\toprule[1pt]
+& & & \multicolumn{4}{c}{\textbf{General Video Reasoning}} & \multicolumn{5}{c}{\textbf{Knowledge-Intensive Video Reasoning}} \\
+\cmidrule(lr){4-7} \cmidrule(lr){8-12}
+\textbf{Model} & \textbf{Release} & \textbf{Frames}
+& \adjustbox{angle=45,origin=c}{\textbf{Video-MME}}
+& \adjustbox{angle=45,origin=c}{\textbf{MVBench}}
+& \adjustbox{angle=45,origin=c}{\textbf{LongVideoBench}}
+& \textbf{Average}
+& \adjustbox{angle=45,origin=c}{\textbf{VideoMMMU}}
+& \adjustbox{angle=45,origin=c}{\textbf{MMVU}}
+& \adjustbox{angle=45,origin=c}{\textbf{SciVideoBench}}
+& \adjustbox{angle=45,origin=c}{\textbf{VideoKR-Eval}}
+& \textbf{Average} \\
+\midrule[0.7pt]
+\multicolumn{12}{c}{\textbf{\textit{Closed-source models}}} \\
+\noalign{\vskip 0.5ex}
+GPT-5.4 & 2026-03 & 64 & 86.0 & 78.3 & 76.7 & 80.3 & 87.1 & 82.0 & 52.9 & 63.2 & 71.3 \\
+Gemini 3 Pro & 2025-11 & 64 & 87.7 & 74.1 & 77.4 & 79.7 & 87.6 & 77.5 & 50.4 & 60.3 & 69.0 \\
+Claude Opus 4.5 & 2025-11 & 64 & 81.4 & 67.2 & 67.2 & 71.9 & 84.4 & 77.3 & 48.6 & 56.3 & 66.7 \\
+\midrule
+\multicolumn{12}{c}{\textbf{\textit{Other Models}}} \\
+Qwen3-VL-32B-Thinking & 2025-10 & 128 & 72.9 & 71.7 & 63.8 & 69.5 & 69.6 & 67.8 & 42.1 & 50.2 & 57.4 \\
+Qwen3-VL-32B-Instruct & 2025-10 & 128 & 74.4 & 72.6 & 65.5 & 70.8 & 72.0 & 68.2 & 39.7 & 45.0 & 56.2 \\
+Qwen2.5-VL-72B & 2025-02 & 128 & 72.8 & 67.4 & 63.2 & 67.8 & 67.0 & 65.1 & 38.9 & 42.6 & 53.4 \\
+InternVL3.5-8B & 2025-08 & 128 & 65.5 & 73.3 & 61.0 & 66.6 & 57.2 & 54.0 & 24.5 & 35.4 & 42.8 \\
+LLaVA-OneVision-7B & 2024-08 & 32 & 59.0 & 58.1 & 56.5 & 57.9 & 36.2 & 43.1 & 16.2 & 23.5 & 29.8 \\
+LLaVA-NeXT-Video-34B & 2024-07 & 32 & 51.0 & 48.0 & 49.9 & 49.6 & 19.1 & 39.4 & 16.0 & 18.8 & 23.3 \\
+LLaVA-NeXT-Video-7B & 2024-07 & 32 & 32.0 & 38.1 & 38.9 & 36.3 & 21.8 & 28.1 & 10.9 & 14.7 & 18.9 \\
+\midrule \midrule
+\multicolumn{12}{c}{\textbf{\textit{Qwen2.5-VL-7B-Instruct or Qwen3-VL-8B-Instruct as Base Models}}} \\
+\noalign{\vskip 0.5ex}
+
+Qwen2.5-VL-7B-Instruct & 2025-02 & 16 & 57.1 & 65.0 & 55.2 & 59.1 & 48.4 & 52.5 & 23.1 & \underline{31.3} & 38.8 \\
+\quad Video-R1 & 2025-03 & 16 & \textbf{59.7} & \underline{65.5} & \underline{55.3} & \textbf{60.2}\high{1.1} & \underline{51.1} & 53.3 & \underline{26.6} & 28.9 & 40.0\high{1.2} \\
+\quad VideoRFT & 2025-05 & 16 & \underline{57.6} & 61.7 & 53.6 & 57.6\low{1.5} & \underline{51.1} & \underline{53.6} & 26.3 & 29.8 & \underline{40.2}\high{1.4} \\
+\quad \textbf{VideoKR (SFT + RL)} & 2026-05 & 16 & 56.6 & \textbf{66.6} & \textbf{57.0} & \underline{60.1}\high{1.0} & \textbf{52.6} & \textbf{59.2} & \textbf{27.3} & \textbf{37.7} & \textbf{44.2}\high{5.4} \\
+
+\noalign{\vskip 0.5ex}\hdashline\noalign{\vskip 0.5ex}
+
+Qwen2.5-VL-7B-Instruct & 2025-02 & 128 & 65.1 & 66.3 & \underline{60.9} & 64.1 & 51.1 & \underline{55.7} & 28.1 & 32.7 & 41.9 \\
+\quad VideoAuto-R1 & 2026-01 & 128 & \textbf{66.8} & \textbf{70.2} & 59.7 & \textbf{65.6}\high{1.5} & \underline{52.1} & \underline{55.7} & \textbf{32.7} & \underline{36.5} & \underline{44.3}\high{2.4} \\
+\quad \textbf{VideoKR (SFT + RL)} & 2026-05 & 128 & \underline{66.4} & \underline{68.9} & \textbf{61.3} & \underline{65.5}\high{1.4} & \textbf{52.2} & \textbf{60.5} & \underline{32.5} & \textbf{41.2} & \textbf{46.6}\high{4.7} \\
+
+\midrule
+Qwen3-VL-8B-Instruct & 2025-10 & 128 & \underline{68.2} & 67.9 & \textbf{61.6} & \textbf{65.9} & 61.8 & 59.6 & \underline{33.4} & 39.0 & 48.5 \\
+\quad OneThinker & 2025-12 & 128 & 65.8 & \textbf{69.3} & 61.4 & \underline{65.5}\low{0.4} & 62.9 & 61.6 & \textbf{33.8} & 38.3 & 49.2\high{0.7} \\
+\quad VideoAuto-R1 & 2026-01 & 128 & \textbf{68.7} & \underline{68.8} & 58.8 & 65.4\low{0.5} & \underline{63.1} & 59.6 & 32.7 & 43.8 & 49.8\high{1.3} \\
+\quad Qwen3-VL-8B-Thinking & 2025-10 & 128 & 67.6 & 68.0 & 60.0 & 65.2\low{0.7} & \textbf{64.9} & 60.5 & 33.0 & 41.5 & 50.0\high{1.5} \\
+\quad \textbf{VideoKR (SFT)} & 2026-05 & 128 & 64.8 & 63.6 & 58.5 & 62.3\low{3.6} & 61.7 & 63.0 & 28.3 & 43.6 & 49.2\high{0.7} \\
+\quad \textbf{VideoKR (zero RL)} & 2026-05 & 128 & 67.4 & 65.5 & 60.0 & 64.3\low{1.6} & 61.9 & \underline{63.5} & 32.5 & \underline{44.6} & \underline{50.6}\high{2.1} \\
+\quad \textbf{VideoKR (SFT + RL)} & 2026-05 & 128 & 67.8 & 67.0 & \underline{61.5} & 65.4\low{0.5} & 63.0 & \textbf{64.8} & 32.8 & \textbf{45.3} & \textbf{51.5}\high{3.0} \\
+\bottomrule[1pt]
+\end{tabular}
+}
+\end{table*}

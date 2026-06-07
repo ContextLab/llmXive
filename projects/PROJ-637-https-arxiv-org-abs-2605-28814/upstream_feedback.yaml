@@ -1,0 +1,167 @@
+project_id: PROJ-637-https-arxiv-org-abs-2605-28814
+arxiv_id: '2605.28814'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-06T15:49:55.182378+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: c2d20432c8e5
+    text: Complete the truncated 'gemma3' entry in ref.bib and ensure all citations
+      are fully listed.
+    severity: writing
+  - id: 21bb4263384f
+    text: 'Provide state/citations/PROJ-637-https-arxiv-org-abs-2605-28814.yaml with
+      verification_status: verified for all references.'
+    severity: writing
+  - id: cccf1b90a2f2
+    text: Verify prior review content integrity (freeman-dyson-simulated review appears
+      unrelated to paper content).
+    severity: writing
+  - id: 8275443f8291
+    text: Multiple citation keys used in the text (e.g., skydiscover, openevolve,
+      gepa, musique, maxrl, selftaught, wu2025inference) are missing from the provided
+      ref.bib. This prevents verification of claims regarding baseline data provenance
+      (Section 4.2, Table 2) and related work (Section 1). Add these entries to ref.bib
+      to support the factual claims.
+    severity: writing
+  - id: 0a384a504686
+    text: Supplementary material must include a requirements.txt or Dockerfile to
+      ensure reproducibility of the experimental environment (e.g., vLLM, FAISS versions).
+    severity: writing
+  - id: 4f1447719bd9
+    text: Clarify the exact commit hash or version of the GitHub repository linked
+      in the Abstract, as the public URL may change.
+    severity: writing
+  - id: 7db0eb15395f
+    text: "Appendix Section 5 (Prompts) is helpful, but ensure the Python snippets\
+      \ in verify_code (Appendix \ref{app:prompts:backward}) are validated for syntax\
+      \ and dependencies."
+    severity: writing
+  - id: e374e8c83430
+    text: Explicitly state the license terms for the Knights-and-Knaves and MuSiQue
+      datasets used in training and validation.
+    severity: writing
+  - id: 4acb3970c8bd
+    text: Clarify data split integrity in Appendix A.2 to ensure the 'solvable split'
+      for training does not leak validation information.
+    severity: science
+  - id: 78da07a452b4
+    text: Document API dependency risks for the Open Problem Solving benchmark (GPT-5)
+      to address reproducibility constraints.
+    severity: writing
+  - id: 5b17f4717f33
+    text: Add alt text for all figures to ensure accessibility compliance (missing
+      in LaTeX source for fig:teaser, fig:forward, fig:kk, fig:kk_abl, fig:case).
+    severity: writing
+  - id: 3bae699b4a49
+    text: Verify axis labels include units on all plots (fig:kk, fig:kk_abl, tab:cost_posttraining,
+      tab:cost_inference); currently unverifiable from LaTeX source alone.
+    severity: writing
+  - id: 22fa474fc243
+    text: Ensure color choices (green!60!black, red!70!black) are colorblind-safe;
+      recommend adding patterns or shapes as secondary encodings.
+    severity: writing
+  - id: 5c5af3d8697f
+    text: Define acronyms RLVR, SFT, EMA, and OOD at first use. RLVR appears in Intro
+      without definition. SFT appears in Appendix without definition. EMA appears
+      in Fig 2 caption without definition. OOD appears in Keywords but not text.
+    severity: writing
+  - id: ec52ba98becb
+    text: Replace or gloss heavy mathematical jargon in Theoretical Motivations (Appendix).
+      Terms like 'filtration', 'martingale difference sequence', and 'Doob martingale'
+      exclude non-specialist readers.
+    severity: writing
+  - id: 1e86bb319754
+    text: Clarify biological metaphors in Method section. 'Translocation' and 'evolution
+      operators' need plain English equivalents or clearer definitions for general
+      AI audiences.
+    severity: writing
+  - id: e87e33d159e7
+    text: Clarify whether 'answer reweighting' is an integral component of BES or
+      an external MaxRL technique. The Method section defines BES as a search algorithm
+      agnostic to training, but the Ablation study treats reweighting as a BES component.
+      Explicitly distinguish 'BES Search' from 'BES + Training Tricks' to ensure logical
+      consistency between definition and experimental claims.
+    severity: writing
+  - id: 2bbbd447c111
+    text: Align the title 'Self-Improving Language Models' with the inclusion of inference-time
+      experiments. While the abstract clarifies both post-training and inference,
+      the title suggests model weight updates. Consider refining the title or explicitly
+      stating that 'self-improvement' encompasses inference-time search refinement
+      to avoid semantic inconsistency.
+    severity: writing
+  - id: 5d64986d8ca8
+    text: Temper theoretical claims in Abstract and Section 3 to reflect that assumptions
+      (e.g., sub-goal independence) are not empirically validated on the models used.
+    severity: science
+  - id: b95399fd677c
+    text: Revise cost analysis claims in Section 4.3; characterize the ~40% API cost
+      increase more accurately rather than as 'modest'.
+    severity: writing
+  - id: 3202067920a9
+    text: Table 2 relies on external baseline results from SkyDiscover (Section 4.2).
+      To establish scientific control, re-run baselines in the same environment or
+      provide variance estimates acknowledging environmental confounds.
+    severity: science
+  - id: e00af43ecdfd
+    text: "Table 1 reports accuracy without standard deviations across seeds. Add\
+      \ error bars or report mean\xB1std over multiple independent training runs to\
+      \ assess statistical significance."
+    severity: science
+  - id: ddfeec160f3b
+    text: Inference benchmarks (Table 2) report only 3 runs. Justify this sample size
+      or increase replication to ensure reported means are stable against stochastic
+      search variance.
+    severity: writing
+  - id: a97df04d9085
+    text: Add standard deviations and confidence intervals to Table 2 (Multi-Hop Reasoning)
+      to quantify variance across seeds.
+    severity: science
+  - id: 344ccfa3e424
+    text: Increase the number of random seeds for Open Problem Solving benchmarks
+      from 3 to at least 5 for robust statistical inference.
+    severity: science
+  - id: f1741f241ef4
+    text: Perform statistical significance testing (e.g., t-tests) to validate claims
+      of outperformance over baselines.
+    severity: science
+  - id: 573e45a395ae
+    text: 'Reorder main sections: ''Related Work'' (sections/rw.tex) is currently
+      included after ''Experiments'' (line 102 in neurips_2026.tex). Standard NeurIPS
+      convention places Related Work immediately after Introduction.'
+    severity: writing
+  - id: b347b752a7dc
+    text: 'Remove duplicate package loading: ''xcolor'' is loaded at line 82 and again
+      at line 129 in neurips_2026.tex. Keep only one instance to avoid compilation
+      warnings.'
+    severity: writing
+  - id: 4a212af98d8e
+    text: 'Resolve duplicate section titles: ''Theoretical Motivations'' appears in
+      both main body (theory.tex) and Appendix (appendix.tex, line 305). Rename the
+      Appendix section to ''Additional Theory'' for clarity in the Table of Contents.'
+    severity: writing
+  - id: 8b02ff5fc9e5
+    text: "Replace \resizebox on tables: Tables tab:multihop (exp.tex, line 135) and\
+      \ tab:ops (exp.tex, line 176) use \resizebox which distorts typography. Use\
+      \ tabularx width settings instead."
+    severity: writing
+  - id: 9a737a50303f
+    text: "Fix theorem statement formatting: In appendix.tex (lines 428, 525), the\
+      \ period is inside the \textbf{} command (e.g., \textbf{.}). Move the period\
+      \ outside the bold scope for standard punctuation."
+    severity: writing
+  - id: 8665acb3427b
+    text: In sections/rw.tex, the section header 'Self-Improvement for LLM and Agent'
+      uses singular nouns where plural is standard for the field. Please change to
+      'LLMs and Agents'.
+    severity: writing
+  - id: 5e6cb1b9b66f
+    text: In sections/method.tex, the phrase 'every several forward search steps'
+      is awkward. Replace with 'every few forward search steps' for better flow.
+    severity: writing
+  - id: 05dab288d242
+    text: In sections/intro.tex, ensure consistent pluralization of 'agentic systems'
+      and 'models' throughout the text to avoid singular/plural mismatch.
+    severity: writing

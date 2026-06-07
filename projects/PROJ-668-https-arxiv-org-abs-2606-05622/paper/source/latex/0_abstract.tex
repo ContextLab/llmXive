@@ -1,0 +1,22 @@
+\begin{abstract}
+
+% ============== Motivation ================
+Planning for real-world problems by language models often involves both world and user constraints, which may not be fully specified upfront and are progressively disclosed through interaction. 
+% ============== Gap ================
+However, existing benchmarks still underexplore adaptive planning under such progressively revealed dual constraints.
+% ============== Lead-in ================
+% \zhenhailong{before this we should motivate a bit more on: (1) why progressive disclosure of constraints is a realistic/important setting.}
+To address this gap, we introduce \BENCH{}, a dynamic interactive benchmark for evaluating whether Large Language Model (LLM) agents can adaptively plan and re-plan under progressively revealed world and user constraints.
+% ============== Design ================
+\bench{} is built on 307 household tasks, with a scalable constraint construction pipeline that augments each task with dual constraints.
+At runtime, agents interact with the environment in a multi-turn protocol where hidden constraints are revealed only when the agent proposes a plan that violates them, requiring iterative plan revision under accumulating feedback. 
+This makes planning challenging, as agents must infer and track constraints from feedback while re-planning effectively.
+% ============== Findings ================
+Experiments on ten leading LLMs show that adaptive planning under dual constraints remains challenging, with the best model reaching only 67.75\% accuracy.
+We further observe that performance degrades as more constraints accumulate, with user constraints posing a particularly large challenge and failures often stemming from weaker physical grounding and reduced effectiveness.
+% \xiusi{These findings seem too intuitive to me. Are there more insightful/interesting findings? That'll make it more catchy and stimulate the reviewers' interest. }
+% ============== Significance ================
+These results establish \bench{} as a testbed for dual-constrained interactive planning and highlight the challenge of reliable adaptation to dynamically revealed constraints in LLM agents. 
+% \footnote{Code at \url{https://github.com/JiayuJeff/RobustnessBench}.}
+\end{abstract}
+

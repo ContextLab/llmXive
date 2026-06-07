@@ -1,0 +1,118 @@
+\section{\data Training Corpus Construction}\label{sec:data}
+This section describes the \ours data construction process, with an overview of the pipeline shown in \autoref{fig:figure2}.
+Because our goal is large-scale corpus synthesis, exhaustive manual construction is infeasible. However, model based generation can introduce systematic artifacts. We therefore adopt a quality-controlled, semi-automated pipeline: whenever a step involves model outputs, it is audited and validated by human experts (detailed in Section~\ref{sec:data-quality}). We engage 34 domain experts, each with graduate-level background in the relevant discipline (see Appendix~\ref{app:data-annotator} for annotator biographies), to enforce quality criteria throughout the process.
+
+\subsection{Domain Knowledge Bank Construction}
+\label{sec:31}
+To achieve comprehensive coverage of domain-related videos, we begin by constructing a \emph{Domain Knowledge Bank}, where each entry represents a \emph{knowledge point} consisting of a term and its corresponding definition. 
+The authors manually reviewed undergraduate curricula from top universities worldwide and identified 82 representative subjects distributed across four major disciplines: Natural Sciences, Healthcare, Humanities and Social Sciences, and Engineering. The complete subject list is provided in Appendix~\ref{app:data-knowledge}.
+To ensure systematic and fine-grained representation of domain knowledge within each discipline, we adopt a hierarchical knowledge organization framework with four layers: \textit{Subject} $\rightarrow$ \textit{Course} $\rightarrow$ \textit{Lecture} $\rightarrow$ \textit{Knowledge Point}.
+Specifically, for each subject, we ask expert annotators to provide a list of 4 to 8 core undergraduate courses consistent with standard academic programs. For each selected course, annotators compile a structured syllabus based on well-established curricula from top universities, outlining major lecture topics and learning objectives. Then for each lecture, we prompt LLMs (see Section~\ref{sec:data-quality} for our expert-involved procedure to select and validate the models used here and in subsequent steps) to identify several key knowledge points, each paired with a term and a paragraph-length definition.
+We collect a total of \numknow knowledge points.
+
+\subsection{Knowledge-Driven Video Collection}
+Building upon the constructed domain knowledge bank, we then collect a large-scale video corpus, outlined below.
+
+\vspace{-8pt}
+\paragraph{Knowledge-based Video Scenario Generation.} In practice, directly using knowledge point terms (\eg ``Newton’s Second Law'') as search queries often yields lecture recordings or purely instructional materials.
+While informative, such videos often lack the diversity and situational richness found in real-world contexts where the knowledge is implicitly applied. To obtain more authentic and engaging content, we first ask LLMs to generate 1–3 short scenarios that describe realistic situations involving each knowledge point. For example, instead of searching ``Newton’s Second Law'', a generated scenario might be ``a rocket launching into the sky'', which inherently reflects Newton’s Second Law.
+These scenarios are then transformed into semantically relevant search keywords, helping retrieve videos that embody the knowledge rather than merely explain it.
+
+\vspace{-8pt}
+\paragraph{Scenario-Guided Video Search and Filtering.}
+For each generated search keyword, we employ the YouTube Data API\footnote{\href{https://developers.google.com/youtube/v3/docs}{https://developers.google.com/youtube/v3/docs}.} to retrieve metadata (\eg titles, descriptions, and durations) for the top-$10$ candidate videos. 
+We restrict the search to videos released under CC licenses to ensure legal reusability,
+a critical aspect that has been ambiguous in prior training corpora. 
+For each candidate video, we instruct models to evaluate its relevance to the expected knowledge point and scenario based on the textual metadata. 
+Videos exceeding 30 minutes are excluded, as long-context video understanding falls beyond the scope of this work. 
+For the remaining candidates, we download the videos and prompt MLLMs to perform a secondary relevance assessment using visual content to confirm alignment with the intended knowledge context.
+To remove potentially harmful or sensitive content, we randomly sample four frames from each video and run Azure AI's image moderation APIs\footnote{\href{https://learn.microsoft.com/azure/ai-services/content-safety/quickstart-image}{https://learn.microsoft.com/en-us/azure/ai-services/content-safety/quickstart-image}.} to filter out unsafe videos.
+We collect 146,567 CC-licensed videos.
+
+
+\subsection{Skill-Oriented Example Generation}\label{sec:3.3}
+For each video,
+we generate multiple QA examples.
+Following recent video post-training work~\cite{videor1, Open-o3}, we adopt \emph{multi-choice} and \emph{open-ended} QA formats, as they offer verifiable supervision suitable for RLVR. To enable scalable and high-quality data creation, we design a skill-based example generation pipeline:
+
+\vspace{-8pt}
+\paragraph{Core Skill Categorization.}
+As illustrated in \autoref{fig:fig1}, three complementary dimensions, \ie \emph{perception}, \emph{knowledge}, and \emph{reasoning}, are essential for knowledge- and reasoning-intensive video understanding. Accordingly, we define three core skills that guide the example generation process:
+(1) \underline{\emph{Basic Video Reasoning}} (\vr), which involves direct comprehension of events observable from the visual sequence, such as tracking actions, spatial relations, or temporal order, without relying on external domain knowledge.
+(2) \underline{\emph{Knowledge-enhanced Video Perception}} (\kv), where visual perception is enriched by explicit domain knowledge. The model must align observed visual cues with relevant concepts across both spatial and temporal dimensions, for example, recognizing laboratory apparatus such as a ``burette'' or ``condenser'' and understanding their roles in a sequence of chemical procedures.
+(3) \underline{\emph{Knowledge-Intensive Video Reasoning}} (\kvr), which focuses on integrating visual understanding with domain knowledge to perform sophisticated, multi-hop inference, \eg estimating the quantity of chemical product formed from observed reactant amounts, or inferring a patient’s likely diagnosis by interpreting symptoms and medical procedures depicted in a clinical video.
+
+\vspace{-8pt}
+\paragraph{Seed Examples Curation By Human Experts.}
+To ensure the quality and domain accuracy of the generated examples, we engage expert annotators to curate a seed set of examples for every core skill defined above.
+For each core skill, the annotators select representative knowledge points and their corresponding collected videos, then construct \emph{question–answer} pairs accompanied by detailed, step-by-step \emph{reasoning processes} that clearly articulate how visual evidence, domain knowledge, and logical inference jointly lead to the final answer.
+Each annotated example then undergoes a manual review by the authors to verify the accuracy of the QA content and reasoning process. 
+In total, 150 examples are created for each skill within every discipline, resulting in 1,800 high-quality, expert-curated seed examples. 
+To improve reliability, each example is independently reviewed by a second annotator;
+74 examples are revised in this stage.
+
+\vspace{-8pt}
+\paragraph{Example Generation.}
+Building on the expert-curated seed set, we use frontier MLLMs to scale up example creation in a controlled, skill-aware manner.
+For each video, the model generates two examples per skill, producing six examples in total through six independent generation rounds (one per example).
+During each round, the model is provided with (1) video frames uniformly sampled at 0.2 fps with timestamps, (2) three randomly sampled human-curated examples from the same discipline and skill category, and (3) the knowledge point and associated subjects when targeting the \kv or \kvr skills. 
+The model is instructed to emulate the seed examples in QA formulation and reasoning process generation, while maintaining fidelity to the video’s unique visual content and knowledge context.
+
+
+
+
+
+\vspace{-8pt}
+\paragraph{Example Validation and Filtering.}
+To mitigate generation errors and reasoning bias, we adopt three complementary strategies:
+(1) \underline{\emph{Self-Consistency Verification}}: The model is re-prompted with the generated question and corresponding video frames to produce a detailed, step-by-step answer. An example is retained only if the re-derived answer matches the original, and the reasoning process from this verification step is used as the final reasoning trace.
+(2) \underline{\emph{Video Dependency Filtering}}: To ensure that each example in \data genuinely requires visual understanding rather than relying on textual cues or shortcut reasoning, we instruct InternVL3.5-38B and Qwen3-VL-32B-Instruct to answer the question using only the text and four randomly sampled video frames. If both models successfully predict the correct answer under this limited setting, the example is removed from the dataset. Notably, this filter is stricter than what existing \emph{evaluation} benchmarks use, which commonly rely on text-only~\cite{videmme, di2024grounded} or single-frame~\cite{saravanan2025velociti, Plizzari2025OmniaDE} settings.
+(3) \underline{\emph{CoT Rationale Validation:}} To mitigate systematic generator bias in the reasoning traces, we use an independent strong MLLM as a verifier: given the question, reasoning trace, and videos, it checks that each key step is supported by observable evidence or standard domain knowledge, and that the reasoning decisively distinguishes the chosen answer from plausible alternatives. We discard examples with critical unsupported steps.
+
+
+\subsection{\data Data Quality Control}
+\label{sec:data-quality}
+Beyond the automated example validation and filtering described above, we further strengthen \data through pipeline-level quality control and contamination mitigation.
+
+\vspace{-8pt}
+\paragraph{Human-Validated Model Selection for Each Pipeline Step.}
+As summarized in \Cref{tab:data-compare}, prior work on video reasoning corpus construction typically relies on a single model throughout the pipeline. This design can introduce model specific artifacts.
+To improve synthesis diversity and avoid overcommitting to any single model’s biases, we use a pool of seven frontier models (\ie GPT-5.2, GPT-5-mini, Claude-4.5-Sonnet, Gemini-3-Flash, DeepSeek-V3.2, Qwen3-VL-235B-A22B, and GLM-4.6V).
+However, our pipeline is difficulty stratified: lightweight steps such as metadata relevance screening can be handled reliably by multiple models, whereas demanding stages such as QA example generation and verification are reliable only for a subset of models.
+We therefore introduce a human validated model selection protocol to determine stage eligibility: For each candidate model and each pipeline step, we sample 100 instances from that step’s real inputs and ask domain expert annotators to assess the model outputs and label errors. A model is eligible for a step only if its error rate falls below a predefined threshold.
+We provide details of this process and the human-validated models for each step in Appendix~\ref{app:qualified-model}. During large-scale synthesis, for each instance at a given step, we randomly select one qualified model from the pool.
+
+\vspace{-8pt}
+\paragraph{Data Contamination Mitigation.}
+To prevent evaluation leakage, we traverse all video benchmarks supported by LMMs-Eval~\cite{lmms_eval} and apply a two-stage decontamination protocol over the videos in \ours:
+(1) \underline{\emph{YouTube-ID Filtering}}: When a benchmark (\eg MMVU) provides YouTube video IDs, we directly filter out any training video whose YouTube ID matches an evaluation video ID, resulting in 131 videos removed.
+(2) \underline{\emph{Near-Duplicate Video Filtering}}: 
+We also perform duplicate detection using frame level perceptual hashing and windowed sequence matching, resulting in 877 videos removed. We detail the process in Appendix~\ref{app:data-contamination}.
+
+\vspace{-8pt}
+\paragraph{Manual Quality Assessment.} 
+To further assess the end-to-end quality of the finalized corpus and quantify residual noise, we randomly sample 800 examples from \sftdata and ask ten expert annotators, who previously participated in seed-example curation, to evaluate them end to end. Of the sampled items, 52 questions are flagged as potentially non visual solvable. For reasoning traces, annotators identify 32 errors. Among these, 17 cases change the final answer, while 15 cases preserve the correct answer but rely on unsupported domain claims or fail to ground key steps in the relevant video evidence. These error rates are comparable to the error levels observed during human expert seed example curation (\S\ref{sec:3.3}) and are therefore acceptable.
+
+\subsection{\sftdata \& \rldata} 
+We then randomly partition the generated \nexample examples into two subsets while preserving video-level grouping, resulting in \sftdata for supervised fine-tuning and \rldata for RLVR training.
+For \sftdata, each example retains its validated CoT rationale as the supervision target, whereas \rldata keeps only the question and verifiable answer, since RLVR optimizes against the verifiable answer while the policy model generates its own reasoning during training.
+\autoref{fig:figure2} presents the key data statistics.
+Randomly-sampled examples from \ours are shown in Appendix~\ref{app:data-example}.
+
+\section{\eval Evaluation Benchmark}\label{sec:eval-data}
+We next discuss the motivation and build of \eval.
+
+\subsection{Limitations of Existing Benchmarks}
+\input{table/text-only}
+We observe that existing knowledge-intensive video reasoning benchmarks (\eg VideoMMMU, MMVU, and SciVideoBench) contain a substantial fraction of examples that can be answered without continuous video understanding. We quantify this issue through single-frame probing: each model is given only the question, answer options, and one randomly sampled frame from the video, and each example is evaluated in three independent trials. As shown in \autoref{tab:text_only_probing}, frontier models achieve surprisingly high single-frame answerability rates on existing benchmarks (\eg $>$35\% on MMVU and VideoMMMU).
+
+\subsection{\eval Benchmark Construction}
+We construct \textbf{\eval} from VideoMMMU, MMVU, and SciVideoBench by retaining 1,254 original examples that require continuous video understanding under multi-model single-frame probing, and augmenting them with 746 expert-reannotated examples from filtered videos.
+
+\vspace{-8pt}
+\paragraph{Multi-Model Single-Frame Filtering.}
+For each example in VideoMMMU, MMVU, and SciVideoBench, we run single-frame probing with three frontier models: Qwen3-VL-235B-A22B, Claude-4.5-Sonnet, and GPT-5.2. Each model receives only the question, answer options, and one randomly sampled frame from the video, and is evaluated with three independent trials. For each model, an example is considered single-frame-solvable if the model answers it correctly in all three trials; otherwise, it is treated as requiring continuous video understanding for that model. We retain only the intersection of examples judged as requiring continuous video understanding by all three models, yielding 1,254 original examples.
+\vspace{-8pt}
+\paragraph{Expert Re-annotation of Filtered Videos.}
+For examples outside this intersection, we discard the original QA pairs and ask domain experts to re-annotate new QA examples using the corresponding videos. Annotators are required to write questions grounded in clearly observable video evidence, requiring relevant domain knowledge, and paired with uniquely determined ground truth answers. This process yields 746 expert-reannotated examples. Together with the 1,254 retained original examples, \eval contains 2,000 examples.
+Detailed statistics for \eval are provided in Appendix~\ref{app:benchmark-stat}.

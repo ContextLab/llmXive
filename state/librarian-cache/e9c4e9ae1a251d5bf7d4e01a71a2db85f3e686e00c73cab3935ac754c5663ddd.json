@@ -1,0 +1,628 @@
+{
+  "fetched_at": "2026-06-06T13:47:05Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "GC Content and Thermal Stability of Archaeal tRNA Stems",
+      "target_n": 5
+    },
+    "duration_seconds": 348.162,
+    "ended_at": "2026-06-06T13:47:05Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Guanine-cytosine ratio in archaeal tRNA thermostability"
+        ],
+        [
+          2,
+          "Thermodynamic stability of tRNA secondary structures in hyperthermophiles"
+        ],
+        [
+          3,
+          "RNA melting temperature adaptation in Archaea"
+        ],
+        [
+          4,
+          "Nucleotide composition and heat resistance of transfer RNA"
+        ],
+        [
+          5,
+          "tRNA acceptor stem stability in thermophilic organisms"
+        ],
+        [
+          6,
+          "GC pairs contribution to RNA duplex stability in extremophiles"
+        ],
+        [
+          7,
+          "Evolutionary adaptation of tRNA structure to high temperatures"
+        ],
+        [
+          8,
+          "Hyperthermophile tRNA secondary structure stability"
+        ],
+        [
+          9,
+          "Base pairing strength and thermal resilience of archaeal RNA"
+        ],
+        [
+          10,
+          "Correlation between GC content and Tm in archaeal nucleic acids"
+        ],
+        [
+          11,
+          "Structural stability of cloverleaf tRNA models in thermophiles"
+        ],
+        [
+          12,
+          "RNA thermodynamics in extreme environments"
+        ],
+        [
+          13,
+          "Thermal denaturation of archaeal transfer RNA molecules"
+        ],
+        [
+          14,
+          "G-C stacking interactions in high-temperature RNA structures"
+        ],
+        [
+          15,
+          "tRNA thermostability mechanisms in Archaea"
+        ],
+        [
+          16,
+          "Comparative analysis of tRNA stability across thermophilic domains"
+        ],
+        [
+          17,
+          "Influence of nucleotide bias on RNA folding stability in Archaea"
+        ],
+        [
+          18,
+          "High-temperature RNA structure preservation in extremophiles"
+        ],
+        [
+          19,
+          "Biochemical properties of archaeal tRNA under thermal stress"
+        ],
+        [
+          20,
+          "Sequence-structure relationships in thermophilic tRNA"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "GC Content and Thermal Stability of Archaeal tRNA Stems biology": 0,
+        "Guanine-cytosine ratio in archaeal tRNA thermostability": 4,
+        "Thermodynamic stability of tRNA secondary structures in hyperthermophiles": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "base composition melting temperature tRNA",
+      "hyperthermophile archaeal tRNA secondary structure",
+      "RNA folding thermodynamics base stacking",
+      "tRNA thermostability denaturation temperature",
+      "thermophilic adaptation evolutionary pressure RNA"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "q-bio/0404030"
+      ]
+    },
+    "per_query_hit_count": {
+      "GC Content and Thermal Stability of Archaeal tRNA Stems biology": 3,
+      "RNA folding thermodynamics base stacking": 3,
+      "base composition melting temperature tRNA": 3,
+      "hyperthermophile archaeal tRNA secondary structure": 2,
+      "tRNA thermostability denaturation temperature": 2,
+      "thermophilic adaptation evolutionary pressure RNA": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "q-bio/0506020",
+          "rationale": "The paper investigates tRNA identity elements for synthetase recognition, which is a distinct biological construct from the user's specific focus on GC content and thermal stability mechanisms. While both share the domain of Archaeal tRNA, the paper does not measure the independent or dependent variables (GC content, stability) required for the user's literature review.",
+          "title": "Identity Elements of Archaeal tRNA"
+        },
+        {
+          "primary_pointer": "2008.01781",
+          "rationale": "This paper should be rejected because it is off-domain entirely: it studies GC content limits under neutral evolution in the human genome, whereas the user's question concerns the biophysical relationship between GC content and thermal stability specifically in Archaeal tRNA stems. While they share the keyword \"GC Content,\" the biological organism (Human vs. Archaea), molecular structure (Genome vs. tRNA stems), and mechanism (evolutionary dynamics vs. thermal stability) are distinct constructs.",
+          "title": "Revisiting the Neutral Dynamics Derived Limiting Guanine-Cytosine Content Using the Human De Novo Point Mutation Data"
+        },
+        {
+          "primary_pointer": "q-bio/0411015",
+          "rationale": "The paper studies large‑scale GC% oscillations in human chromosome 21 and does not address archaeal tRNA stems, their GC content, or thermal stability, thus it lacks any of the accepted relevance categories (a‑f).",
+          "title": "An Unusual 500,000 Bases Long Oscillation of Guanine and Cytosine Content in Human Chromosome 21"
+        },
+        {
+          "primary_pointer": "q-bio/0411017",
+          "rationale": "The paper studies statistical fluctuations of GC content in mouse genomic DNA, which is a distinct construct and off-domain from the user's question regarding the biophysical thermal stability of Archaeal tRNA stems; it shares only the keyword \"GC content\" without addressing the relevant mechanism, organism, or molecular structure.",
+          "title": "Spectral Analysis of Guanine and Cytosine Fluctuations of Mouse Genomic DNA"
+        },
+        {
+          "primary_pointer": "q-bio/0404030",
+          "rationale": "This paper focuses on bacterial phylogeny and horizontal gene transfer in Proteobacteria rather than the biophysical relationship between GC content and thermal stability in Archaeal tRNA stems. It fails to measure the user's variables (GC content, thermal stability) or study the specified domain (Archaea), constituting a distinct construct sharing only the general keyword \"tRNA\".",
+          "title": "Comparison of tRNA and rRNA Phylogenies in Proteobacteria: Implications for the Frequency of Horizontal Gene Transfer"
+        },
+        {
+          "primary_pointer": "1312.0948",
+          "rationale": "This paper focuses on translation accuracy mechanisms and intramolecular oscillations rather than the thermodynamic relationship between GC content and structural thermal stability, and it does not specify Archaeal populations. It represents a distinct construct sharing only homonym keywords (tRNA, stability) without measuring the user's specific variables or domain.",
+          "title": "Accuracy of translation on ribosome could be provided by a resonance of intramolecular oscillations in tRNA molecules"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-06T13:41:17Z",
+    "term_input": {
+      "normalized": "gc content and thermal stability of archaeal trna stems biology",
+      "raw": "GC Content and Thermal Stability of Archaeal tRNA Stems biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Features unique to a transfer-RNA are recognized by the corresponding tRNA-synthetase. Keeping this in view we isolate the discriminating features of all archaeal tRNA. These are our identity elements. Further, we investigate tRNA-characteristics that delineate the different orders of archaea.",
+          "claimed_authors": [
+            "Bibekanand Mallick",
+            "Jayprokas Chakrabarti",
+            "Satyabrata Sahoo",
+            "Zhumur Ghosh",
+            "Smarajit Das"
+          ],
+          "claimed_title": "Identity Elements of Archaeal tRNA",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "q-bio/0506020"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Identity Elements of Archaeal tRNA')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symmetries play a major role in physics, in particular since the work by E. Noether and H. Weyl in the first half of last century. Herein, we briefly review their role by recalling how symmetry changes allow to conceptually move from classical to relativistic and quantum physics. We then introduce our ongoing theoretical analysis in biology and show that symmetries play a radically different role in this discipline, when compared to those in current physics. By this comparison, we stress that symmetries must be understood in relation to conservation and stability properties, as represented in the theories. We posit that the dynamics of biological organisms, in their various levels of organization, are not \"just\" processes, but permanent (extended, in our terminology) critical transitions and, thus, symmetry changes. Within the limits of a relative structural stability (or interval of viability), variability is at the core of these transitions.",
+          "claimed_authors": [
+            "Giuseppe Longo",
+            "Maël Montévil"
+          ],
+          "claimed_title": "From Physics to Biology by Extending Criticality and Symmetry Breakings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.1833"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='From Physics to Biology by Extending Criticality and Symmetry Breakings')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The melting-like transition in sodium clusters Na_N, with N=55, 92, and 142 is studied by using constant-energy molecular dynamics simulations. An orbital-free version of the Car-Parrinello technique is used which scales linearly with system size allowing investigation of the thermal behaviour of large clusters. The ground state isomer of Na_142 (an uncomplete three-shell icosahedron) melts in two steps: the first one (at approx. 240 K) is characterized by the high mobility of the atoms located on the cluster surface; the second, homogeneous melting (at approx. 270 K), involves diffusive motion of all the atoms across the cluster. For the case of Na_92, the icosahedral structure has a larger number of surface vacancies, and melts in two well separated steps, surface melting at approx. 130 K and homogeneous melting at approx. 240 K. Na_55, a complete two-shell icosahedron, melts in a single stage at approx. 190 K. Our results on homogeneous melting for Na_142 and Na_92 are in excellent agreement with recent experimental determinations of melting temperatures and latent heats. However, the experimentally observed enhancement of the melting temperature around N=55 is not reproduced by the calculations.",
+          "claimed_authors": [
+            "Andres Aguado",
+            "Jose M. Lopez",
+            "Julio A. Alonso",
+            "M. J. Stott"
+          ],
+          "claimed_title": "Melting in large sodium clusters: An orbital-free molecular dynamics study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "physics/9911042"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Melting in large sodium clusters: An orbital-free molecular dynamics study')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is suggested that at the melting temperature the thermal phonon vibration is in self-resonance with the lattice vibration of the surface atomic/molecular layer. This self resonance occurs at a well defined temperature and triggers the detachment of the atomic/molecular sheet or platelets from the surface of the crystal. Thermodynamic data of five substances is used to test this hypothesis. The calculated average phonon vibrational wavelengths are equal with or harmonics of the d-spacing of the atomic/molecular sheets. The proposed model is able to explain all of the features of melting.",
+          "claimed_authors": [
+            "Jozsef Garai"
+          ],
+          "claimed_title": "Melting of crystalline solids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cond-mat/0206425"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Melting of crystalline solids')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the present letter we use holographic methods to show that a very intense magnetic field lowers the temperature at which the mesons melt and decreases the mass gap of the spectrum along with their masses. Consequently, there is a range of temperatures for which mesons can be melted by applying a magnetic field instead of increasing the temperature. We term this effect Magnetic Meson Melting (MMM), and we are able to observe it by constructing a configuration that makes it possible to apply gauge/gravity methods to study fundamental degrees of freedom in a quark-gluon plasma subject to a magnetic field as intense as that expected in high energy collisions. This is achieved by the confection of a ten-dimensional background that is dual to the magnetized plasma and nonetheless permits the embedding of D7-branes in it. For such a background to exist, a scalar field has to be present and hence a scalar operator of dimension 2 appears in the gauge theory. We present here the details of the background and of the embedding of flavor D7-branes in it. Since our results are obtained from the gravity dual of the gauge theory, the analysis is also interesting from the gravitational perspective.",
+          "claimed_authors": [
+            "Daniel Ávila",
+            "Leonardo Patiño"
+          ],
+          "claimed_title": "Melting holographic mesons by applying a magnetic field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.05976"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Melting holographic mesons by applying a magnetic field')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The periodic transference of nucleotide strings in bacterial and archaeal complete genomes is investigated by using the metric representation and the recurrence plot method. The generated periodic correlation structures exhibit four kinds of fundamental transferring characteristics: a single increasing period, several increasing periods, an increasing quasi-period and almost noincreasing period. The mechanism of the periodic transference is further analyzed by determining all long periodic nucleotide strings in the bacterial and archaeal complete genomes and is explained as follows: both the repetition of basic periodic nucleotide strings and the transference of non-periodic nucleotide strings would form the periodic correlation structures with approximately the same increasing periods.",
+          "claimed_authors": [
+            "Zuo-Bing Wu"
+          ],
+          "claimed_title": "Periodic correlation structures in bacterial and archaeal complete genomes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.7102"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Periodic correlation structures in bacterial and archaeal complete genomes')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We showed in this paper that similarity network can be used as an powerful tools to study the relationship of tRNA genes. We constructed a network of 3719 tRNA gene sequences using simplest alignment and studied its topology, degree distribution and clustering coefficient. It is found that the behavior of the network shift from fluctuated distribution to scale-free distribution when the similarity degree of the tRNA gene sequences increase. tRNA gene sequences with the same anticodon identity are more self-organized than the tRNA gene sequences with different anticodon identities and form local clusters in the network. An interesting finding in our studied is some vertices of the local cluster have a high connection with other local clusters, the probable reason is given. Moreover, a network constructed by the same number of random tRNA sequences is used to make comparisons. The relationships between properties of the tRNA similarity network and the characters of tRNA evolutionary history are discussed.",
+          "claimed_authors": [
+            "Fangping Wei",
+            "Sheng Li",
+            "Hongru Ma"
+          ],
+          "claimed_title": "Network of tRNA Gene Sequences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0410023"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Network of tRNA Gene Sequences')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "RNA is a fundamental class of biomolecules that mediate a large variety of molecular processes within the cell. Computational algorithms can be of great help in the understanding of RNA structure-function relationship. One of the main challenges in this field is the development of structure-prediction algorithms, which aim at the prediction of the three-dimensional (3D) native fold from the sole knowledge of the sequence. In a recent paper, we have introduced a scoring function for RNA structure prediction. Here, we analyze in detail the performance of the method, we underline strengths and shortcomings, and we discuss the results with respect to state-of-the-art techniques. These observations provide a starting point for improving current methodologies, thus paving the way to the advances of more accurate approaches for RNA 3D structure prediction.",
+          "claimed_authors": [
+            "Sandro Bottaro",
+            "Francesco Di Palma",
+            "Giovanni Bussi"
+          ],
+          "claimed_title": "Towards de novo RNA 3D structure prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.05667"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Towards de novo RNA 3D structure prediction')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many attempts have been made to resolve in time the folding of model proteins in computer simulations. Different computational approaches have emerged. Some of these approaches suffer from the insensitivity to the geometrical properties of the proteins (lattice models), while others are computationally heavy (traditional MD).\n  Results: We use a recently-proposed approach of Zhou and Karplus to study the folding of the protein model based on the discrete time molecular dynamics algorithm. We show that this algorithm resolves with respect to time the folding --- unfolding transition. In addition, we demonstrate the ability to study the coreof the model protein.\n  Conclusion: The algorithm along with the model of inter-residue interactions can serve as a tool to study the thermodynamics and kinetics of protein models.",
+          "claimed_authors": [
+            "Nikolay V. Dokholyan",
+            "Sergey V. Buldyrev",
+            "H. Eugene Stanley",
+            "Eugene I. Shakhnovich"
+          ],
+          "claimed_title": "Discrete molecular dynamics studies of the folding of a protein-like model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "cond-mat/9812291"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Discrete molecular dynamics studies of the folding of a protein-like model')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the secondary structure of RNA is a core challenge in computational biology, essential for understanding molecular function and designing novel therapeutics. The field has evolved from foundational but accuracy-limited thermodynamic approaches to a new data-driven paradigm dominated by machine learning and deep learning. These models learn folding patterns directly from data, leading to significant performance gains. This review surveys the modern landscape of these methods, covering single-sequence, evolutionary-based, and hybrid models that blend machine learning with biophysics. A central theme is the field's \"generalization crisis,\" where powerful models were found to fail on new RNA families, prompting a community-wide shift to stricter, homology-aware benchmarking. In response to the underlying challenge of data scarcity, RNA foundation models have emerged, learning from massive, unlabeled sequence corpora to improve generalization. Finally, we look ahead to the next set of major hurdles-including the accurate prediction of complex motifs like pseudoknots, scaling to kilobase-length transcripts, incorporating the chemical diversity of modified nucleotides, and shifting the prediction target from static structures to the dynamic ensembles that better capture biological function. We also highlight the need for a standardized, prospective benchmarking system to ensure unbiased validation and accelerate progress.",
+          "claimed_authors": [
+            "Giuseppe Sacco",
+            "Giovanni Bussi",
+            "Guido Sanguinetti"
+          ],
+          "claimed_title": "Machine Learning for RNA Secondary Structure Prediction: a review of current methods and challenges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.02622"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Machine Learning for RNA Secondary Structure Prediction: a review of current methods and challenges')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we report direct measurement of large low frequency temperature fluctuations in double stranded (ds) DNA when it undergoes thermal denaturation transition. The fluctuation, which occurs only in the temperature range where the denaturation occurs, is several orders more than the expected equilibrium fluctuation. It is absent in single stranded (ss) DNA of the same sequence. The fluctuation at a given temperature also depends on the wait time and vanishes in a scale of few hours. It is suggested that the large fluctuation occurs due to coexisting denaturated and closed base pairs that are in dynamic equilibrium due to transition through a potential barrier in the scale of 25-30k_{B}T_{0}(T_{0}=300K).",
+          "claimed_authors": [
+            "K. S. Nagapriya",
+            "A. K. Raychaudhuri",
+            "Dipankar Chatterji"
+          ],
+          "claimed_title": "Direct observation of large temperature fluctuations during DNA thermal denaturation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0501116"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Direct observation of large temperature fluctuations during DNA thermal denaturation')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent theoretical predictions on DNA mechanical separation induced by pulling forces are numerically tested within a model in which self-avoidance for DNA strands is fully taken into account. DNA strands are described by interacting pairs of self avoiding walks (SAW) which are pulled apart by a force applied at the two extremities. The whole phase diagram is spanned by extensive Monte Carlo (MC) simulations and the existence of a low temperature denaturation is confirmed. The basic features of the phase diagram and the re-entrant phase boundary are also obtained with a simple heuristic argument based on an energy-entropy estimate.",
+          "claimed_authors": [
+            "Enzo Orlandini",
+            "Somendra M. Bhattacharjee",
+            "Davide Marenduzzo",
+            "Amos Maritan",
+            "Flavio Seno"
+          ],
+          "claimed_title": "Mechanical denaturation of DNA: existence of a low temperature denaturation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "cond-mat/0109521"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Mechanical denaturation of DNA: existence of a low temperature denaturation')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposing an Evolutionary Algorithm that is used to evolve robot controllers to variable conditions is necessary to obtain solutions which are robust and can cross the reality gap. However, we do not yet have methods for analyzing and understanding the impact of the varying morphological conditions which impact the evolutionary process, and therefore for choosing suitable variation ranges. By morphological conditions, we refer to the starting state of the robot, and to variations in its sensor readings during operation due to noise. In this article, we introduce a method that permits us to measure the impact of these morphological variations and we analyze the relation between the amplitude of variations, the modality with which they are introduced, and the performance and robustness of evolving agents. Our results demonstrate that (i) the evolutionary algorithm can tolerate morphological variations which have a very high impact, (ii) variations affecting the actions of the agent are tolerated much better than variations affecting the initial state of the agent or of the environment, and (iii) improving the accuracy of the fitness measure through multiple evaluations is not always useful. Moreover, our results show that morphological variations permit generating solutions which perform better both in varying and non-varying conditions.",
+          "claimed_authors": [
+            "Jonata Tyska Carvalho",
+            "Stefano Nolfi"
+          ],
+          "claimed_title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02809"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data-efficient image classification is a challenging task that aims to solve image classification using small training data. Neural network-based deep learning methods are effective for image classification, but they typically require large-scale training data and have major limitations such as requiring expertise to design network architectures and having poor interpretability. Evolutionary deep learning is a recent hot topic that combines evolutionary computation with deep learning. However, most evolutionary deep learning methods focus on evolving architectures of neural networks, which still suffer from limitations such as poor interpretability. To address this, this paper proposes a new genetic programming-based evolutionary deep learning approach to data-efficient image classification. The new approach can automatically evolve variable-length models using many important operators from both image and classification domains. It can learn different types of image features from colour or gray-scale images, and construct effective and diverse ensembles for image classification. A flexible multi-layer representation enables the new approach to automatically construct shallow or deep models/trees for different tasks and perform effective transformations on the input data via multiple internal nodes. The new approach is applied to solve five image classification tasks with different training set sizes. The results show that it achieves better performance in most cases than deep learning methods for data-efficient image classification. A deep analysis shows that the new approach has good convergence and evolves models with high interpretability, different lengths/sizes/shapes, and good transferability.",
+          "claimed_authors": [
+            "Ying Bi",
+            "Bing Xue",
+            "Mengjie Zhang"
+          ],
+          "claimed_title": "Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.13233"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='GC Content and Thermal Stability of Archaeal tRNA Stems biology', candidate_title='Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification')",
+        "failed_at": "2026-06-06T13:43:08Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bibekanand Mallick",
+            "Jayprokas Chakrabarti",
+            "Satyabrata Sahoo",
+            "Zhumur Ghosh",
+            "Smarajit Das"
+          ],
+          "title": "Identity Elements of Archaeal tRNA",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2005
+        },
+        "primary_pointer": "q-bio/0506020",
+        "summary": "Features unique to a transfer-RNA are recognized by the corresponding tRNA-synthetase. Keeping this in view we isolate the discriminating features of all archaeal tRNA. These are our identity elements. Further, we investigate tRNA-characteristics that delineate the different orders of archaea.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/q-bio/0506020",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:43:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wentian Li",
+            "Yannis Almirantis",
+            "Astero Provata"
+          ],
+          "title": "Revisiting the Neutral Dynamics Derived Limiting Guanine-Cytosine Content Using the Human De Novo Point Mutation Data",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.01781",
+        "summary": "We revisit the topic of human genome guanine-cytosine content under neutral evolution. For this study, the de novo mutation data within human is used to estimate mutational rate instead of using base substitution data between related species. We then define a new measure of mutation bias which separate the de novo mutation counts from the background guanine-cytosine content itself, making comparison between different datasets easier. We derive a new formula for calculating limiting guanine-cytosine content by separating CpG-involved mutational events as an independent variable. Using the formula when CpG-involved mutations are considered, the guanine-cytosine content drops less severely in the limit of neutral dynamics. We provide evidence, under certain assumptions, that an isochore-like structure might remain as a limiting configuration of the neutral mutational dynamics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.01781",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:43:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wentian Li",
+            "Dirk Holste"
+          ],
+          "title": "An Unusual 500,000 Bases Long Oscillation of Guanine and Cytosine Content in Human Chromosome 21",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "q-bio/0411015",
+        "summary": "An oscillation with a period of around 500 kb in guanine and cytosine content (GC%) is observed in the DNA sequence of human chromosome 21. This oscillation is localized in the rightmost one-eighth region of the chromosome, from 43.5 Mb to 46.5 Mb. Five cycles of oscillation are observed in this region with six GC-rich peaks and five GC-poor valleys. The GC-poor valleys comprise regions with low density of CpG islands and, alternating between the two DNA strands, low gene density regions. Consequently, the long-range oscillation of GC% result in spacing patterns of both CpG island density, and to a lesser extent, gene densities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/q-bio/0411015",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:43:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wentian Li",
+            "Dirk Holste"
+          ],
+          "title": "Spectral Analysis of Guanine and Cytosine Fluctuations of Mouse Genomic DNA",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "q-bio/0411017",
+        "summary": "We study global fluctuations of the guanine and cytosine base content (GC%) in mouse genomic DNA using spectral analyses. Power spectra S(f) of GC% fluctuations in all nineteen autosomal and two sex chromosomes are observed to have the universal functional form S(f) \\sim 1/f^alpha (alpha \\approx 1) over several orders of magnitude in the frequency range 10^-7< f < 10^-5 cycle/base, corresponding to long-ranging GC% correlations at distances between 100 kb and 10 Mb. S(f) for higher frequencies (f > 10^-5 cycle/base) shows a flattened power-law function with alpha < 1 across all twenty-one chromosomes. The substitution of about 38% interspersed repeats does not affect the functional form of S(f), indicating that these are not predominantly responsible for the long-ranged multi-scale GC% fluctuations in mammalian genomes. Several biological implications of the large-scale GC% fluctuation are discussed, including neutral evolutionary history by DNA duplication, chromosomal bands, spatial distribution of transcription units (genes), replication timing, and recombination hot spots.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/q-bio/0411017",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:43:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bin Tang",
+            "Philippe Boisvert",
+            "Paul G. Higgs"
+          ],
+          "title": "Comparison of tRNA and rRNA Phylogenies in Proteobacteria: Implications for the Frequency of Horizontal Gene Transfer",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "q-bio/0404030",
+        "summary": "The current picture of bacterial evolution is based largely on studies of 16S rRNA. However, this is just one gene. It is known that horizontal gene transfer can occur between bacterial species, although the frequency and implications of this are not fully understood. If horizontal transfer were frequent, there would be no single evolutionary tree for bacteria because each gene would follow a different tree. We carried out phylogenetic analyses of rRNA and tRNA genes from Proteobacteria (a diverse group for which many complete genome sequences are available) using RNA-specific phylogenetic methods that account for the conservation of the secondary structure. We compared trees for 16S rRNA and 23S rRNA with those derived from concatenated alignments of 29 tRNA genes that are found in all the genomes studied. The tRNA genes are scattered throughout the genomes, and would not follow the same evolutionary history if horizontal transfer were frequent. Nevertheless, the tRNA tree is consistent with the rRNA tree in most respects. Minor differences can almost all be attributed to uncertainty or unreliability of the phylogenetic method. We therefore conclude that tRNA genes give a coherent picture of the phylogeny of the organisms, and that horizontal transfer of tRNAs is too rare to obscure the signal of the organismal tree. Some tRNA genes are not present in all the genomes. We discuss possible explanations for the observed patterns of presence and absence of genes: these involve gene deletion, gene duplication, and mutations in the tRNA anticodons.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/q-bio/0404030",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:43:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Denis Semyonov"
+          ],
+          "title": "Accuracy of translation on ribosome could be provided by a resonance of intramolecular oscillations in tRNA molecules",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1312.0948",
+        "summary": "X-ray data indicate that complexes of ribosomes with cognate and near cognate tRNAs are very similar structurally, and this was the ground for a suggestion that the ribosome discriminates correct codon-anticodon pair because of its higher stability. Here an alternative explanation of kinetic proofreading is suggested, and intramolecular oscillations in tRNAs play a keystone role in it. Resonance of the oscillations allows the cognate codon-anticodon pair to be conserved due to fast energy transfer to other part of the tRNA molecule. This mechanism can potentially discriminate correct pair from an incorrect one even if they have similar stabilities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1312.0948",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-06T13:43:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "gc content and thermal stability of archaeal trna stems biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

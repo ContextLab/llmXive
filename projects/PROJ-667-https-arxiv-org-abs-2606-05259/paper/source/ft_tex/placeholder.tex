@@ -1,0 +1,34 @@
+\footnotesize
+\renewcommand\arraystretch{1.15}
+\resizebox{\textwidth}{!}{%
+\addtolength{\tabcolsep}{-0.2em}
+\begin{tabular}{lrr}
+\toprule[1pt]
+\textbf{Feature} & \textbf{SFT-201K} & \textbf{RL-114K} \\
+\midrule
+\# Examples & 201{,}156 & 114{,}381 \\
+\noalign{\vskip 0.5ex}\hdashline\noalign{\vskip 0.5ex}
+\quad \# Multi-choice & 99{,}843 & 54{,}461 \\
+\quad Question Length & 30.6 & 31.7 \\
+\quad \# Open-ended & 101{,}313 & 59{,}920 \\
+\quad Question Length & 11.6 & 13.1 \\
+\noalign{\vskip 0.5ex}\hdashline\noalign{\vskip 0.5ex}
+\quad \% \vr & 43.48\% & 35.66\% \\
+\quad \% \kv & 33.02\% & 33.38\% \\
+\quad \% \kvr & 23.49\% & 30.96\%\\ 
+
+\midrule
+\# Knowledge Points & 20{,}372 & 12{,}446 \\
+\midrule
+\# Videos & 85{,}934 & 59{,}625 \\
+\noalign{\vskip 0.5ex}\hdashline\noalign{\vskip 0.5ex}
+\quad Avg Length (second) & 339.0 & 351.6 \\
+\noalign{\vskip 0.5ex}\hdashline\noalign{\vskip 0.5ex}
+\quad 25s - 5min & 57.61\% & 55.16\% \\
+\quad 5min - 10min & 25.35\% & 26.61\% \\
+\quad 10min - 30min & 17.04\% & 18.23\% \\
+\midrule
+CoT Rationale Length & 196.9 & -- \\
+\bottomrule[1pt]
+\end{tabular}
+}

@@ -1,0 +1,20 @@
+
+\begin{table*}[h]
+    \centering
+    \small
+    \caption{Detailed statistics for the VideoKR-Eval benchmark construction. We retain original examples that are judged to require continuous video understanding by all three single-frame probing models, and add expert-reannotated examples for the filtered videos.}
+    \label{tab:benchmark-stats}
+    \begin{tabular}{lccccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Source Benchmark}} & \multirow{2}{*}{\textbf{Candidate Count}} & \multicolumn{3}{c}{\textbf{VideoKR-Eval Composition}} & \multirow{2}{*}{\textbf{Final Count}} \\
+        \cmidrule(lr){3-5}
+         & & \textbf{Filtered} & \textbf{Retained Original} & \textbf{Expert-Reannotated} & \\
+        \midrule
+        MMVU & 1,000 & 639 & 361 & 398 & 759 \\
+        VideoMMMU & 900 & 560 & 340 & 241 & 581 \\
+        SciVideoBench & 1,000 & 447 & 553 & 107 & 660 \\
+        \midrule
+        \textbf{Total} & \textbf{2,900} & \textbf{1,646} & \textbf{1,254} & \textbf{746} & \textbf{2,000} \\
+        \bottomrule
+    \end{tabular}
+\end{table*}

@@ -1,0 +1,144 @@
+project_id: PROJ-634-https-arxiv-org-abs-2605-27367
+arxiv_id: '2605.27367'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-06T11:23:12.067509+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 50e7907410ba
+    text: Multiple citations reference papers dated 2025-2026 (e.g., wang2025cut3r,
+      xie2026scal3r, zhang2026loger, chen2026lingbotmap). The arXiv ID 2605.27367
+      suggests May 2026, a future date. Verify these are legitimate preprints and
+      not fabricated citations.
+    severity: science
+  - id: 24ed499777ed
+    text: 'Abstract claims 19 datasets, 546 scenes, 41 models across 6 paradigms.
+      Verify these counts match the actual tables (tab:datasets_summary, tab:main_leaderboard_filtered).
+      Scene counts may differ across density regimes (Single: 179, Sparse: 129, Medium:
+      129, Dense: 109).'
+    severity: science
+  - id: 6d48e8487cec
+    text: "Introduction claims +47%/+59% depth improvement and +3.1%/+5.5% pose improvement\
+      \ for DA-Next vs DA3-Giant on sparse/medium inputs. Verify these percentages\
+      \ match Tab. 5 (sparse: 0.095\u21920.050 AbsRel, medium: 0.086\u21920.035 AbsRel)\
+      \ and pose metrics in the tables."
+    severity: science
+  - id: 75e847141a7a
+    text: 'Table references need verification: Tab. 1 (benchmark_summary.tex) shows
+      19 datasets but some entries are truncated. Ensure all cited datasets (e.g.,
+      Lingbot-Depth, RoboTwin, Xperience) have complete results in the per-dataset
+      tables.'
+    severity: writing
+  - id: 146390fad62e
+    text: Convert raster PNG plots (e.g., averagedataset.png, geobench_p*.png) to
+      vector PDF format to ensure axis labels and text remain legible at print resolution.
+    severity: writing
+  - id: d4c53c2e2a04
+    text: 'Fix LaTeX caption syntax error in Fig.~\ref{Fig.corelation_average}: remove
+      ''\\'' before ''(N)'' to prevent compilation warnings or formatting issues.'
+    severity: writing
+  - id: 583639eb3879
+    text: Consolidate the four regime-specific correlation figures (averagedataset,
+      sparse, medium, dense) into a single multi-panel figure to reduce redundancy
+      and save space.
+    severity: writing
+  - id: 8d6288e5d50f
+    text: Define acronyms 'OOD' (Out-of-Distribution) and 'GT' (Ground Truth) explicitly
+      at first use in the Abstract or Introduction to aid non-specialist readers.
+    severity: writing
+  - id: 84f3de11ebc4
+    text: Expand 'SfM', 'SLAM', 'TTT', and 'SE(3)' upon first mention in 'Benchmark
+      Design' and 'Model Architecture' sections to clarify technical scope.
+    severity: writing
+  - id: 43536750149b
+    text: Replace 'deterministic, cross-paradigm benchmark' with 'consistent, multi-method
+      benchmark' in the Abstract to reduce unnecessary jargon density.
+    severity: writing
+  - id: 1bd0ace2e7ad
+    text: Clarify 'intrinsics' and 'extrinsics' in the 'Data Collection' section (e.g.,
+      'camera internal/external parameters') for broader accessibility.
+    severity: writing
+  - id: b6bf1e949527
+    text: Temper the title and conclusion claims regarding 'All-Round Player' to explicitly
+      reflect the geometric scope (depth, pose, reconstruction) rather than broader
+      spatial intelligence.
+    severity: writing
+  - id: db1176812104
+    text: Qualify the 'Data quality outweighs data volume' claim to acknowledge architectural
+      confounds between DA3 and other evaluated models, avoiding universal generalization.
+    severity: science
+  - id: 66c9ddc58402
+    text: Explicitly link the 'Bounded-memory enables scaling' finding to the H200
+      hardware constraints in the main text, not just the limitations appendix.
+    severity: writing
+  - id: 4b1a687b67d6
+    text: 'Add a Data Ethics and Privacy subsection addressing: (1) consent mechanisms
+      for datasets containing human subjects (e.g., ScanNet++, Aria, Waymo); (2) privacy
+      protections applied to real-world imagery; (3) license compliance across all
+      19 aggregated datasets. Table tab:dataset_profile_summary_cited shows licenses
+      but lacks privacy discussion.'
+    severity: writing
+  - id: e13eabcdb338
+    text: Include a Dual-Use Considerations paragraph in the Limitations section (appendix/limitation.tex)
+      acknowledging potential misuse of spatial foundation models for surveillance,
+      autonomous weapons, or other harmful applications. This is standard practice
+      for computer vision papers with deployment implications.
+    severity: writing
+  - id: a722fda7567d
+    text: "Add a Safety Considerations statement addressing deployment in safety-critical\
+      \ applications (autonomous vehicles, robotics). The paper evaluates camera pose,\
+      \ depth, and trajectory estimation\u2014metrics directly relevant to safety-critical\
+      \ systems. Current text (secs/limitation.tex) only discusses evaluation cost\
+      \ and memory constraints."
+    severity: writing
+  - id: 63d72bc73269
+    text: Report scene-level variance (std dev) for key metrics in main tables (e.g.,
+      Tab:main_leaderboard_filtered) to assess robustness beyond point estimates.
+    severity: science
+  - id: 25b04ac8e9e4
+    text: Clarify data overlap between DA-Next training sets (Tab:training_datasets)
+      and benchmark evaluation sets (Tab:datasets_summary) to rule out data leakage
+      on Ego/Wrist views.
+    severity: science
+  - id: 59804c266daf
+    text: Justify hyperparameter consistency across paradigms; TTT methods may require
+      specific tuning not captured by 'recommended configurations' (Appendix:limit).
+    severity: science
+  - id: 459582ee323c
+    text: Provide measures of variability (e.g., standard deviation, confidence intervals)
+      for all reported quantitative metrics (AbsRel, AUC@30, ATE, etc.) across scenes
+      and datasets to convey statistical uncertainty.
+    severity: science
+  - id: 7195a034d5b9
+    text: "When comparing models, perform appropriate statistical significance tests\
+      \ (e.g., paired t\u2011test or Wilcoxon signed\u2011rank test) and report p\u2011\
+      values to substantiate claims of superiority."
+    severity: science
+  - id: f44b860b842c
+    text: "Apply a multiple\u2011comparisons correction (e.g., Bonferroni, Holm\u2011\
+      Bonferroni, or Benjamini\u2011Hochberg FDR) to control family\u2011wise error\
+      \ rate given the large number of model\u2011dataset comparisons."
+    severity: science
+  - id: 5c35b7ebad23
+    text: Document random seeds, evaluation order, and any stochastic components of
+      the evaluation pipeline to ensure full reproducibility of the reported numbers.
+    severity: writing
+  - id: ad94a5fdb378
+    text: "Include a brief statistical analysis section describing the methodology\
+      \ for aggregating per\u2011scene results (e.g., mean vs. median) and justification\
+      \ for the chosen aggregation strategy."
+    severity: writing
+  - id: 812bd80ef42a
+    text: Resolve sentence fragments in secs/benchmark.tex (lines 45-50) and secs/danext.tex
+      (lines 20-30) by adding subjects or verbs.
+    severity: writing
+  - id: 9fdb178a9231
+    text: Replace LaTeX escape character \& with 'and' in running text (e.g., secs/benchmark.tex,
+      line 65) for typographic correctness.
+    severity: writing
+  - id: f0f7551dd6fb
+    text: Unify verb tense usage throughout the manuscript; ensure present tense for
+      paper content and past tense for experimental actions.
+    severity: writing

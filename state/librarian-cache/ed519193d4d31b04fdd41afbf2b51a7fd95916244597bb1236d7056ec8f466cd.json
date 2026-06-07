@@ -1,0 +1,443 @@
+{
+  "fetched_at": "2026-06-07T09:24:30Z",
+  "field": "other",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "other",
+      "idea_body_excerpt": "Heterogeneous Scientific Foundation Model Collaboration",
+      "target_n": 5
+    },
+    "duration_seconds": 287.902,
+    "ended_at": "2026-06-07T09:24:30Z",
+    "expansion": null,
+    "extracted_queries": [
+      "domain-specific pre-trained models multi-agent cooperation",
+      "federated learning protein materials chemistry benchmarks",
+      "model merging heterogeneous adapters scientific tasks",
+      "collaborative benchmark evaluation domain generalization",
+      "gradient alignment knowledge distillation foundation models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.01784"
+      ]
+    },
+    "per_query_hit_count": {
+      "Heterogeneous Scientific Foundation Model Collaboration other": 3,
+      "collaborative benchmark evaluation domain generalization": 3,
+      "domain-specific pre-trained models multi-agent cooperation": 3,
+      "federated learning protein materials chemistry benchmarks": 3,
+      "gradient alignment knowledge distillation foundation models": 3,
+      "model merging heterogeneous adapters scientific tasks": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1904.03187",
+          "rationale": "This paper is off-domain entirely, focusing on astrophysics instrumentation and gravitational wave observation plans rather than AI foundation models or heterogeneous model collaboration. The shared keyword \"Collaboration\" refers to a physics consortium (LSC) rather than the AI/ML mechanism or research topic implied by \"Scientific Foundation Model.\"",
+          "title": "Gravitational wave astronomy with LIGO and similar detectors in the next decade"
+        },
+        {
+          "primary_pointer": "2205.11181",
+          "rationale": "This paper addresses scientific workflow runtime estimation and task scheduling on heterogeneous computing clusters, which is a computational infrastructure problem. While it shares keywords like \"scientific\" and \"heterogeneous,\" these refer to fundamentally different constructs than the user's question about foundation model collaboration—meeting the rejection criterion for distinct constructs sharing only homonym keywords.",
+          "title": "Lotaru: Locally Estimating Runtimes of Scientific Workflow Tasks in Heterogeneous Clusters"
+        },
+        {
+          "primary_pointer": "2304.01973",
+          "rationale": "The paper focuses on Domain Generalization baselines in standard computer vision, which is a distinct construct from the user's query regarding Scientific Foundation Models and Collaboration. It falls under the rejection rule for distinct constructs sharing only homonym keywords, as it lacks a measurable connection to the specific domain or mechanism requested.",
+          "title": "ERM++: An Improved Baseline for Domain Generalization"
+        },
+        {
+          "primary_pointer": "2512.03307",
+          "rationale": "This paper focuses on adversarial robustness for tabular foundation models, which is a distinct research construct from the user's query regarding collaboration in heterogeneous scientific foundation models. It fails to meet inclusion criteria as it shares only the homonym keyword \"Foundation Model\" without addressing the specific mechanism (collaboration) or domain (heterogeneous scientific data) variables.",
+          "title": "Robust Tabular Foundation Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-07T09:19:42Z",
+    "term_input": {
+      "normalized": "heterogeneous scientific foundation model collaboration other",
+      "raw": "Heterogeneous Scientific Foundation Model Collaboration other"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+          "claimed_authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06333"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Horizontal Federated learning (FL) handles multi-client data that share the same set of features, and vertical FL trains a better predictor that combine all the features from different clients. This paper targets solving vertical FL in an asynchronous fashion, and develops a simple FL method. The new method allows each client to run stochastic gradient algorithms without coordination with other clients, so it is suitable for intermittent connectivity of clients. This method further uses a new technique of perturbed local embedding to ensure data privacy and improve communication efficiency. Theoretically, we present the convergence rate and privacy level of our method for strongly convex, nonconvex and even nonsmooth objectives separately. Empirically, we apply our method to FL on various image and healthcare datasets. The results compare favorably to centralized and synchronous FL methods.",
+          "claimed_authors": [
+            "Tianyi Chen",
+            "Xiao Jin",
+            "Yuejiao Sun",
+            "Wotao Yin"
+          ],
+          "claimed_title": "VAFL: a Method of Vertical Asynchronous Federated Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06081"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='VAFL: a Method of Vertical Asynchronous Federated Learning')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Federated learning has become increasingly important for modern machine learning, especially for data privacy-sensitive scenarios. Existing federated learning mostly adopts the central server-based architecture or centralized architecture. However, in many social network scenarios, centralized federated learning is not applicable (e.g., a central agent or server connecting all users may not exist, or the communication cost to the central server is not affordable). In this paper, we consider a generic setting: 1) the central server may not exist, and 2) the social network is unidirectional or of single-sided trust (i.e., user A trusts user B but user B may not trust user A). We propose a central server free federated learning algorithm, named Online Push-Sum (OPS) method, to handle this challenging but generic scenario. A rigorous regret analysis is also provided, which shows very interesting results on how users can benefit from communication with trusted users in the federated learning scenario. This work builds upon the fundamental algorithm framework and theoretical guarantees for federated learning in the generic social network scenario.",
+          "claimed_authors": [
+            "Chaoyang He",
+            "Conghui Tan",
+            "Hanlin Tang",
+            "Shuang Qiu",
+            "Ji Liu"
+          ],
+          "claimed_title": "Central Server Free Federated Learning over Single-sided Trust Social Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.04956"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='Central Server Free Federated Learning over Single-sided Trust Social Networks')",
+        "failed_at": "2026-06-07T09:21:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While we pay attention to the latest advances in clinical natural language processing (NLP), we can notice some resistance in the clinical and translational research community to adopt NLP models due to limited transparency, interpretability, and usability. In this study, we proposed an open natural language processing development framework. We evaluated it through the implementation of NLP algorithms for the National COVID Cohort Collaborative (N3C). Based on the interests in information extraction from COVID-19 related clinical notes, our work includes 1) an open data annotation process using COVID-19 signs and symptoms as the use case, 2) a community-driven ruleset composing platform, and 3) a synthetic text data generation workflow to generate texts for information extraction tasks without involving human subjects. The corpora were derived from texts from three different institutions (Mayo Clinic, University of Kentucky, University of Minnesota). The gold standard annotations were tested with a single institution's (Mayo) ruleset. This resulted in performances of 0.876, 0.706, and 0.694 in F-scores for Mayo, Minnesota, and Kentucky test datasets, respectively. The study as a consortium effort of the N3C NLP subgroup demonstrates the feasibility of creating a federated NLP algorithm development and benchmarking platform to enhance multi-institution clinical NLP study and adoption. Although we use COVID-19 as a use case in this effort, our framework is general enough to be applied to other domains of interest in clinical NLP.",
+          "claimed_authors": [
+            "Sijia Liu",
+            "Andrew Wen",
+            "Liwei Wang",
+            "Huan He",
+            "Sunyang Fu",
+            "Robert Miller",
+            "Andrew Williams",
+            "Daniel Harris",
+            "Ramakanth Kavuluru",
+            "Mei Liu",
+            "Noor Abu-el-rub",
+            "Dalton Schutte",
+            "Rui Zhang",
+            "Masoud Rouhizadeh",
+            "John D. Osborne",
+            "Yongqun He",
+            "Umit Topaloglu",
+            "Stephanie S Hong",
+            "Joel H Saltz",
+            "Thomas Schaffter",
+            "Emily Pfaff",
+            "Christopher G. Chute",
+            "Tim Duong",
+            "Melissa A. Haendel",
+            "Rafael Fuentes",
+            "Peter Szolovits",
+            "Hua Xu",
+            "Hongfang Liu",
+            "National COVID Cohort Collaborative",
+            "Natural Language Processing",
+            " Subgroup",
+            "National COVID Cohort Collaborative"
+          ],
+          "claimed_title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10780"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)')",
+        "failed_at": "2026-06-07T09:21:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-06-07T09:21:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-06-07T09:21:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+          "claimed_authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Heterogeneous Scientific Foundation Model Collaboration other', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-06-07T09:21:27Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xin He",
+            "Junxi Shen",
+            "Zhenheng Tang",
+            "Xiaowen Chu",
+            "Bo Li",
+            "Ivor W. Tsang",
+            "Yew-Soon Ong"
+          ],
+          "title": "RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.01784",
+        "summary": "Model merging via Mixture-of-Experts (MoE) has emerged as a scalable solution for consolidating multiple task-specific models into a unified sparse architecture, where each expert is derived from a model fine-tuned on a distinct task. While effective for multi-task integration, this paradigm introduces a critical yet underexplored challenge: how to attribute and protect the intellectual property (IP) of individual experts after merging. We propose RouteMark, a framework for IP protection in merged MoE models through the design of expert routing fingerprints. Our key insight is that task-specific experts exhibit stable and distinctive routing behaviors under probing inputs. To capture these patterns, we construct expert-level fingerprints using two complementary statistics: the Routing Score Fingerprint (RSF), quantifying the intensity of expert activation, and the Routing Preference Fingerprint (RPF), characterizing the input distribution that preferentially activates each expert. These fingerprints are reproducible, task-discriminative, and lightweight to construct. For attribution and tampering detection, we introduce a similarity-based matching algorithm that compares expert fingerprints between a suspect and a reference (victim) model. Extensive experiments across diverse tasks and CLIP-based MoE architectures show that RouteMark consistently yields high similarity for reused experts and clear separation from unrelated ones. Moreover, it remains robust against both structural tampering (expert replacement, addition, deletion) and parametric tampering (fine-tuning, pruning, permutation), outperforming weight- and activation-based baseliness. Our work lays the foundation for RouteMark as a practical and broadly applicable framework for IP verification in MoE-based model merging.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.01784",
+          "http_status": 200,
+          "pdf_sample_score": 0.2949,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:21:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "heterogeneous scientific foundation model collaboration other",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,20 @@
+\begin{table}[!t]
+\centering
+\caption{Accuracy of Qwen2.5/3-VL models
+on 3,000 randomly sampled QA examples from various post-training corpora.} 
+\renewcommand\arraystretch{1.15}
+\addtolength{\tabcolsep}{-0.45em}
+\label{tab:qwen-results}
+\small
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} & \textbf{Video-R1} & \textbf{VideoRFT} & \textbf{OneThinker} & \textbf{VidAuto-R1} & \textbf{\ours} \\
+\midrule
+2.5-VL-7B-Inst. & 55.3 & 47.8 & 45.8 & 57.1 & 39.2 \\ 
+3-VL-8B-Inst.   & 57.1 & 51.1 & 49.1 & 54.5 & 42.3 \\ 
+3-VL-8B-Think   & 59.0 & 52.3 & 49.3 & 54.3 & 43.5 \\ 
+\bottomrule
+\end{tabular}
+}
+\end{table}

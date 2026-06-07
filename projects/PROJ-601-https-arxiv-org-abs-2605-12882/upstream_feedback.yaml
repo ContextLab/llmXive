@@ -1,0 +1,170 @@
+project_id: PROJ-601-https-arxiv-org-abs-2605-12882
+arxiv_id: '2605.12882'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-05T21:47:07.730147+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: a5bb3f15bc51
+    text: Model version names (e.g., GPT-5.4, Gemini-3.1-Pro-Preview, Qwen3-VL-235B-A22B-A22B)
+      appear to reference non-existent or future versions. Verify all model names
+      against official releases or clarify these are preview/internal versions. This
+      affects the reproducibility and credibility of experimental results.
+    severity: science
+  - id: 3b835870367c
+    text: Multiple citations reference papers from 2025-2026 (e.g., keer2026med, zhao2026retrieval,
+      wang2026mineru2, zhang2026docdancer). While arXiv preprints may be upcoming,
+      verify these papers actually exist or are in press. At minimum, clarify their
+      status (preprint, submitted, in press).
+    severity: writing
+  - id: d4814b1f7c35
+    text: "Section 4.1 claims SAA = 1_{(Ans. \u2265 4 \u2227 (Rel. \u2265 4 \u2228\
+      \ Rec. \u2265 0.6))}. However, Table 1 shows Rel. and Ans. scores normalized\
+      \ to 0-100 scale (multiplied by 20). The metric definition should be consistent\
+      \ with the actual scoring used in experiments."
+    severity: science
+  - id: 4d952f7d6b82
+    text: Claims about "Qwen3-VL-235B-A22B" being used as the primary judge (Section
+      4.2) should be verified against the model's actual capabilities for evaluation
+      tasks. LLM judges may introduce bias; the Friedman test results in Appendix
+      should be more prominently discussed in the main text.
+    severity: writing
+  - id: 90ec2a3c18db
+    text: Table 1 reports Gemini-3.1-Pro-Preview achieving 76.0 SAA overall, but the
+      caption states "All scores are normalized to a 100-point scale". SAA is defined
+      as binary (0 or 1) in Section 4.1. Clarify whether SAA is reported as percentage
+      (0-100) or average score (0-1) to avoid confusion.
+    severity: writing
+  - id: a7ba7106d417
+    text: Code repository not accessible for review. Paper references https://github.com/opendatalab/CiteVQA
+      but implementation code is not provided in review inputs. Cannot evaluate reproducibility,
+      modularity, test coverage, or dependency hygiene without actual source code.
+    severity: writing
+  - id: 9ae5cf692d02
+    text: Appendix should include a `requirements.txt` or `environment.yml` file listing
+      all dependencies (MinerU2.5, MLLM APIs, evaluation frameworks) with version
+      pins for reproducibility.
+    severity: writing
+  - id: a3e9c2155deb
+    text: Pipeline scripts described in Section 3 lack code-level documentation. Consider
+      adding a `scripts/` directory structure summary (e.g., `data_collection.py`,
+      `qa_generation.py`, `evaluation.py`) with docstrings in the appendix.
+    severity: writing
+  - id: 0d9e8bf5776b
+    text: Figure 1c (Performance) overlaps significantly with Table 1 (Main Results).
+      Consider removing Fig 1c or replacing it with a visualization that highlights
+      the 'Attribution Hallucination' gap (Ans. vs SAA) specifically, rather than
+      repeating the full table data.
+    severity: writing
+  - id: f5164afe9b85
+    text: Radar charts in Fig 5 (citevqa_ability_radar.pdf) and Appendix Fig (citevqa_domain_radar.pdf)
+      are difficult to read with multiple models. Suggest switching to grouped bar
+      charts or heatmaps for better comparison of SAA scores across question types.
+    severity: writing
+  - id: 50c101f5c8a7
+    text: Figure 3 (pdf_statistics.pdf) and Figure 4 (question_statistics.pdf) lack
+      explicit axis labels for units (e.g., 'Count', '%', 'Pages'). Ensure all axes
+      are clearly labeled for print legibility.
+    severity: writing
+  - id: 6745a71357aa
+    text: Case study figures (Simple_Case.pdf, Case_Study1.pdf, Case_Study2.pdf) have
+      small text in crops. Verify legibility at standard print scale (e.g., 10pt font
+      equivalent). Add arrows or bounding boxes to explicitly highlight cited regions.
+    severity: writing
+  - id: 00df9bc44ba8
+    text: Files 'shlab.png' and 'OpenDataLab_blue_no_words.pdf' are listed in the
+      figures directory but not referenced in the LaTeX source. Remove unused assets
+      to reduce repository clutter.
+    severity: writing
+  - id: 5ea0d86cd128
+    text: Caption for Figure 7 (Simple_Case.pdf) is generic ('A Typical Example.').
+      Expand to describe the specific failure mode illustrated (e.g., 'Qwen3-VL-235B
+      answers correctly but cites blank regions').
+    severity: writing
+  - id: feab0c7fdc84
+    text: Define all acronyms at first use (IoU, RAG, SFT, CoT, LLM, VQA, QA). Currently
+      used without definition in Section 4.1 and Appendix.
+    severity: writing
+  - id: f22368cde61f
+    text: Replace dense jargon in evaluation metrics section (Section 4.1). Terms
+      like "Traceability Metrics," "element-level bounding-box citations," and "masking
+      ablation" need plain-language alternatives or definitions.
+    severity: writing
+  - id: 380a5e3ea5e2
+    text: "Simplify technical terms in Appendix sections (e.g., \"bijective function\"\
+      \ \u2192 \"one-to-one mapping,\" \"semantic truncation\" \u2192 \"meaning loss,\"\
+      \ \"heterogeneous data\" \u2192 \"mixed data types\")."
+    severity: writing
+  - id: 96fc4756c2e8
+    text: SAA metric definition contradicts its textual description. Section 4.1 formula
+      allows SAA=1 if Rel>=4 even if Rec<0.6 (spatially incorrect region). Text claims
+      'cited region are both correct'. This logical gap invalidates the 'Strict' claim.
+    severity: science
+  - id: 41d9bc6f2917
+    text: 'Inconsistent document counts: Section 3.1/Table 3 state 711 documents;
+      Appendix A states 707 PDFs. This discrepancy undermines data integrity claims.'
+    severity: writing
+  - id: 8ae6c97f7a07
+    text: 'Potential circularity in ground-truth creation: Ablation pipeline uses
+      MLLMs (e.g., Qwen3-VL) to define crucial evidence, yet Qwen3-VL models are evaluated
+      on the benchmark. Clarify to ensure evaluation validity.'
+    severity: science
+  - id: 0797277bac16
+    text: Explicitly state IRB approval or exemption status for human expert evaluation
+      described in Appendix 'Details of Expert Evaluation'.
+    severity: writing
+  - id: 6bc26de57319
+    text: Clarify if Personally Identifiable Information (PII) scrubbing was performed
+      on Common Crawl documents prior to benchmark construction.
+    severity: writing
+  - id: e16b6109c00a
+    text: Provide a direct URL or contact method for the copyright takedown process
+      mentioned in Appendix 'Ethical Consideration'.
+    severity: writing
+  - id: 242296d2384b
+    text: The comparison of model tiers (Table 1) is confounded by input resolution
+      differences (Native API vs. downscaled screenshots). Re-run experiments with
+      matched resolution or provide statistical analysis isolating this variable.
+    severity: science
+  - id: 44c1bd9e4108
+    text: Report confidence intervals or statistical significance tests for SAA scores
+      across models. Point estimates without variance metrics (given Temp=1.0) do
+      not support claims of superiority.
+    severity: science
+  - id: 054af410b3dc
+    text: Justify the sampling temperature of 1.0 for evaluation. Standard benchmarks
+      typically use greedy decoding to minimize stochasticity in performance measurement.
+    severity: science
+  - id: 591006ab0b4d
+    text: Compute 95% confidence intervals for all metrics in Table 2 (SAA, Recall,
+      etc.) using bootstrap or analytical methods given N=1897. Perform pairwise significance
+      testing (e.g., bootstrap t-test) for top model comparisons to substantiate 'best'
+      claims.
+    severity: science
+  - id: aa5450bd8869
+    text: Address multiple-comparisons handling when highlighting 'best' and 'second-best'
+      across 20 models. Explicitly state if corrections (e.g., Bonferroni, FDR) were
+      applied to avoid false positives in ranking.
+    severity: science
+  - id: c1e41bff1993
+    text: Fix typo 'Evluation' to 'Evaluation' in Appendix Prompt Templates (Prompt
+      for Annotation Evluation).
+    severity: writing
+  - id: 3b450b85e28b
+    text: Fix typo 'prefect' to 'perfect' in Appendix Prompt for Evaluating Answer
+      Correctness.
+    severity: writing
+  - id: f2d77e1177a7
+    text: Correct grammar 'aim' to 'aims' in Appendix Limitations & Potential Negative
+      Impacts.
+    severity: writing
+  - id: cf9082f81dea
+    text: 'Resolve data inconsistency: Section 3.1/Table 1 states 711 documents, Appendix
+      Ethics states 707.'
+    severity: writing
+  - id: 23255a00d652
+    text: Add colon after 'Strict Attributed Accuracy (SAA)' in Section 4.1 Evaluation
+      Metrics definition list.
+    severity: writing

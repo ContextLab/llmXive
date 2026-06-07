@@ -1,0 +1,70 @@
+%% Headline numbers used across abstract, introduction, results, conclusion.
+%% Update here only; \UseMacro{key} reads them everywhere else.
+
+%% Cross-Repo (CR Test) EM (%, static snapshot)
+\DefMacro{cr-em-pretrained}{45.7}
+\DefMacro{cr-em-rag}{39.7}
+\DefMacro{cr-em-drc}{48.2}
+\DefMacro{cr-em-fft}{51.4}
+\DefMacro{cr-em-fft-rag}{53.9}
+\DefMacro{cr-em-delta-codelorastatic}{9.9}
+\DefMacro{cr-em-slora}{47.4}
+\DefMacro{cr-em-textlora}{45.8}
+\DefMacro{cr-em-codelorastatic}{63.8}
+
+%% In-Repo (IR Test) EM (%, static snapshot)
+\DefMacro{ir-em-pretrained}{46.8}
+\DefMacro{ir-em-plora}{64.0}
+\DefMacro{ir-em-codelorastatic}{66.2}
+
+%% Commit-derived (CR Test) EM (%)
+\DefMacro{cd-cr-em-pretrained}{31.5}
+\DefMacro{cd-cr-em-slora}{55.1}
+\DefMacro{cd-cr-em-codelorastatic}{55.7}
+\DefMacro{cd-cr-em-codeloraevo}{60.3}
+\DefMacro{cd-cr-em-delta-codeloraevo}{5.2}
+
+%% Commit-derived (IR Test) EM (%)
+\DefMacro{cd-ir-em-slora}{61.3}
+\DefMacro{cd-ir-em-codelorastatic}{60.6}
+\DefMacro{cd-ir-em-codeloraevo}{64.5}
+
+%% Post-cutoff OOD EM (%)
+\DefMacro{ood-em-pretrained}{44.6}
+\DefMacro{ood-em-textlora}{60.4}
+\DefMacro{ood-em-slora}{72.3}
+\DefMacro{ood-em-codelorastatic}{72.2}
+\DefMacro{ood-em-codeloraevo}{74.1}
+
+%% Dataset sizes
+\DefMacro{num-repos-total}{604}
+\DefMacro{num-repos-in-dist}{512}
+\DefMacro{num-repos-train}{409}
+\DefMacro{num-repos-cr-test}{52}
+\DefMacro{num-repos-ood}{92}
+
+%% Static-track counts (single-anchor snapshot per repository; no cap).
+\DefMacro{num-static-qnas}{62{,}294}
+\DefMacro{num-static-qnas-short}{62K}
+\DefMacro{num-static-train}{39{,}612}
+\DefMacro{num-static-train-short}{40K}
+\DefMacro{num-static-val}{11{,}046}
+\DefMacro{num-static-val-short}{11K}
+\DefMacro{num-static-test}{11{,}636}
+\DefMacro{num-static-test-short}{12K}
+
+%% Evolution-track counts: every number reflects what is actually consumed at
+%% training/testing time after the per-commit 8-cap (training rows on disk,
+%% eval rows enforced by --qnas-per-commit-limit 8 in every V2 evaluator).
+%% Raw pre-filter / pre-cap counts are kept separate for the appendix narrative.
+\DefMacro{num-commit-qnas}{399{,}649}
+\DefMacro{num-commit-qnas-short}{0.40M}
+\DefMacro{num-commit-train}{215{,}129}
+\DefMacro{num-commit-train-short}{215K}
+\DefMacro{num-commit-val}{97{,}727}
+\DefMacro{num-commit-val-short}{98K}
+\DefMacro{num-commit-test}{86{,}793}
+\DefMacro{num-commit-test-short}{87K}
+%% Repository token counts (non-test source; Qwen2.5-Coder-1.5B tokenizer; Table~\ref{tab:token_stats})
+\DefMacro{repo-tok-mean}{285K}
+\DefMacro{repo-tok-max}{3.0M}

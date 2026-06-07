@@ -1,364 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-05T16:12:03.134170+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-06-07T18:58:57.832042+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-05-26T06:24:55.492735+00:00'
-  ended_at: '2026-05-26T07:51:11.770971+00:00'
-  outcome: abstained
-  action: abstain
-- slug: marie-curie
-  started_at: '2026-05-26T07:51:11.770971+00:00'
-  ended_at: '2026-05-26T09:08:12.649585+00:00'
-  outcome: model_error
-- slug: marie-curie
-  started_at: '2026-05-26T09:08:12.649585+00:00'
-  ended_at: '2026-05-26T13:31:48.845116+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-26__research.md
-- slug: richard-feynman
-  started_at: '2026-05-26T13:31:48.845116+00:00'
-  ended_at: '2026-05-26T14:29:19.336795+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-26__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-26T14:29:19.336795+00:00'
-  ended_at: '2026-05-26T15:50:04.924832+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/rosalind-franklin-simulated__2026-05-26__research.md
-- slug: stephen-wolfram
-  started_at: '2026-05-26T15:50:04.924832+00:00'
-  ended_at: '2026-05-26T18:19:06.064894+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/stephen-wolfram-simulated__2026-05-26__research.md
-- slug: ada-lovelace
-  started_at: '2026-05-26T18:19:06.064894+00:00'
-  ended_at: '2026-05-26T19:18:13.643659+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/ada-lovelace-simulated__2026-05-26__research.md
-- slug: alan-turing
-  started_at: '2026-05-26T19:18:13.643659+00:00'
-  ended_at: '2026-05-26T20:19:17.861768+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-618-bench-evaluating-proactive-personal-assi/reviews/research/alan-turing-simulated__2026-05-26__research.md
-- slug: albert-einstein
-  started_at: '2026-05-26T20:19:17.861768+00:00'
-  ended_at: '2026-05-26T21:06:52.960644+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/albert-einstein-simulated__2026-05-26__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-26T21:06:52.960644+00:00'
-  ended_at: '2026-05-26T22:02:53.497755+00:00'
-  outcome: model_error
-- slug: dan-rockmore
-  started_at: '2026-05-26T22:02:53.497755+00:00'
-  ended_at: '2026-05-26T22:55:39.327570+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/dan-rockmore-simulated__2026-05-26__research.md
-- slug: daniel-kahneman
-  started_at: '2026-05-26T22:55:39.327570+00:00'
-  ended_at: '2026-05-26T23:26:08.705396+00:00'
-  outcome: model_error
-- slug: daniel-kahneman
-  started_at: '2026-05-26T23:26:08.705396+00:00'
-  ended_at: '2026-05-26T23:53:58.889586+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/daniel-kahneman-simulated__2026-05-26__research.md
-- slug: david-krakauer
-  started_at: '2026-05-26T23:53:58.889586+00:00'
-  ended_at: '2026-05-27T00:35:00.306098+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/_held/david-krakauer-simulated__2026-05-27__research.md
-- slug: david-krakauer
-  started_at: '2026-05-27T00:35:00.306098+00:00'
-  ended_at: '2026-05-27T01:43:05.797602+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/david-krakauer-simulated__2026-05-27__research.md
-- slug: eric-kandel
-  started_at: '2026-05-27T01:43:05.797602+00:00'
-  ended_at: '2026-05-27T03:06:05.377080+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/eric-kandel-simulated__2026-05-27__research.md
-- slug: freeman-dyson
-  started_at: '2026-05-27T03:06:05.377080+00:00'
-  ended_at: '2026-05-27T05:01:31.709517+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/freeman-dyson-simulated__2026-05-27__research.md
-- slug: geoffrey-west
-  started_at: '2026-05-27T05:01:31.709517+00:00'
-  ended_at: '2026-05-27T06:38:22.376144+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/reviews/geoffrey-west-simulated__2026-05-27__paper.md
-- slug: john-von-neumann
-  started_at: '2026-05-27T06:38:22.376144+00:00'
-  ended_at: '2026-05-27T08:20:42.396384+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/john-von-neumann-simulated__2026-05-27__research.md
-- slug: linus-pauling
-  started_at: '2026-05-27T08:20:42.396384+00:00'
-  ended_at: '2026-05-27T09:49:03.564233+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/linus-pauling-simulated__2026-05-27__research.md
-- slug: marie-curie
-  started_at: '2026-05-27T09:49:03.564233+00:00'
-  ended_at: '2026-05-27T11:11:52.537520+00:00'
-  outcome: model_error
-- slug: marie-curie
-  started_at: '2026-05-27T11:11:52.537520+00:00'
-  ended_at: '2026-05-27T12:36:55.491786+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/marie-curie-simulated__2026-05-27__research.md
-- slug: richard-feynman
-  started_at: '2026-05-27T12:36:55.491786+00:00'
-  ended_at: '2026-05-27T14:09:39.494762+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-05-27__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-27T14:09:39.494762+00:00'
-  ended_at: '2026-05-27T15:48:30.967776+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/reviews/rosalind-franklin-simulated__2026-05-27__paper.md
-- slug: stephen-wolfram
-  started_at: '2026-05-27T15:48:30.967776+00:00'
-  ended_at: '2026-05-27T17:05:28.077535+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/stephen-wolfram-simulated__2026-05-27__research.md
-- slug: ada-lovelace
-  started_at: '2026-05-27T17:05:28.077535+00:00'
-  ended_at: '2026-05-27T18:19:33.251416+00:00'
-  outcome: model_error
-- slug: ada-lovelace
-  started_at: '2026-05-27T18:19:33.251416+00:00'
-  ended_at: '2026-05-27T19:20:03.376904+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/ada-lovelace-simulated__2026-05-27__research.md
-- slug: alan-turing
-  started_at: '2026-05-27T19:20:03.376904+00:00'
-  ended_at: '2026-05-27T20:17:16.296328+00:00'
-  outcome: model_error
-- slug: alan-turing
-  started_at: '2026-05-27T20:17:16.296328+00:00'
-  ended_at: '2026-05-27T21:11:05.538512+00:00'
-  outcome: model_error
-- slug: alan-turing
-  started_at: '2026-05-27T21:11:05.538512+00:00'
-  ended_at: '2026-05-27T22:10:47.126628+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/alan-turing-simulated__2026-05-27__research.md
-- slug: albert-einstein
-  started_at: '2026-05-27T22:10:47.126628+00:00'
-  ended_at: '2026-05-27T23:01:31.015882+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-27__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-27T23:01:31.015882+00:00'
-  ended_at: '2026-05-27T23:37:53.753029+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-549-exploring-the-distribution-of-smooth-num/reviews/research/_held/dan-rockmore-simulated__2026-05-27__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-27T23:37:53.753029+00:00'
-  ended_at: '2026-05-28T00:32:24.740488+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-549-exploring-the-distribution-of-smooth-num/reviews/research/dan-rockmore-simulated__2026-05-28__research.md
-- slug: daniel-kahneman
-  started_at: '2026-05-28T00:32:24.740488+00:00'
-  ended_at: '2026-05-28T01:21:32.918272+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md
-- slug: david-krakauer
-  started_at: '2026-05-28T01:21:32.918272+00:00'
-  ended_at: '2026-05-28T02:20:55.732697+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/reviews/research/david-krakauer-simulated__2026-05-28__research.md
-- slug: eric-kandel
-  started_at: '2026-05-28T02:20:55.732697+00:00'
-  ended_at: '2026-05-28T03:48:55.777547+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-589-dream-state-learning-implementing-rem-li/reviews/research/eric-kandel-simulated__2026-05-28__research.md
-- slug: freeman-dyson
-  started_at: '2026-05-28T03:48:55.777547+00:00'
-  ended_at: '2026-05-28T05:26:44.163050+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/freeman-dyson-simulated__2026-05-28__research.md
-- slug: geoffrey-west
-  started_at: '2026-05-28T05:26:44.163050+00:00'
-  ended_at: '2026-05-28T06:49:03.986787+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/geoffrey-west-simulated__2026-05-28__paper.md
-- slug: john-von-neumann
-  started_at: '2026-05-28T06:49:03.986787+00:00'
-  ended_at: '2026-05-28T08:20:20.741500+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/john-von-neumann-simulated__2026-05-28__research.md
-- slug: linus-pauling
-  started_at: '2026-05-28T08:20:20.741500+00:00'
-  ended_at: '2026-05-28T09:49:00.844143+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/linus-pauling-simulated__2026-05-28__research.md
-- slug: marie-curie
-  started_at: '2026-05-28T09:49:00.844143+00:00'
-  ended_at: '2026-05-28T11:12:53.890977+00:00'
-  outcome: model_error
-- slug: marie-curie
-  started_at: '2026-05-28T11:12:53.890977+00:00'
-  ended_at: '2026-05-28T12:47:01.045506+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/reviews/research/marie-curie-simulated__2026-05-28__research.md
-- slug: richard-feynman
-  started_at: '2026-05-28T12:47:01.045506+00:00'
-  ended_at: '2026-05-28T14:17:15.912421+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/richard-feynman-simulated__2026-05-28__research.md
-- slug: rosalind-franklin
-  started_at: '2026-05-28T14:17:15.912421+00:00'
-  ended_at: '2026-05-28T15:49:49.472315+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/reviews/rosalind-franklin-simulated__2026-05-28__paper.md
-- slug: stephen-wolfram
-  started_at: '2026-05-28T15:49:49.472315+00:00'
-  ended_at: '2026-05-28T17:17:24.636474+00:00'
-  outcome: abstained
-  action: abstain
-- slug: ada-lovelace
-  started_at: '2026-05-28T17:17:24.636474+00:00'
-  ended_at: '2026-05-28T18:29:03.094759+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/reviews/ada-lovelace-simulated__2026-05-28__paper.md
-- slug: alan-turing
-  started_at: '2026-05-28T18:29:03.094759+00:00'
-  ended_at: '2026-05-28T19:26:29.456407+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/alan-turing-simulated__2026-05-28__research.md
-- slug: albert-einstein
-  started_at: '2026-05-28T19:26:29.456407+00:00'
-  ended_at: '2026-05-28T20:19:33.272776+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-28__research.md
-- slug: dan-rockmore
-  started_at: '2026-05-28T20:19:33.272776+00:00'
-  ended_at: '2026-05-28T21:17:12.047563+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/reviews/dan-rockmore-simulated__2026-05-28__paper.md
-- slug: daniel-kahneman
-  started_at: '2026-05-28T21:17:12.047563+00:00'
-  ended_at: '2026-05-28T22:10:15.770859+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-05-28__paper.md
-- slug: david-krakauer
-  started_at: '2026-05-28T22:10:15.770859+00:00'
-  ended_at: '2026-05-28T23:00:36.113028+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/david-krakauer-simulated__2026-05-28__paper.md
-- slug: eric-kandel
-  started_at: '2026-05-28T23:00:36.113028+00:00'
-  ended_at: '2026-05-29T00:37:58.027414+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/eric-kandel-simulated__2026-05-29__research.md
-- slug: freeman-dyson
-  started_at: '2026-05-29T00:37:58.027414+00:00'
-  ended_at: '2026-05-29T01:42:13.630175+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/_held/freeman-dyson-simulated__2026-05-29__paper.md
-- slug: freeman-dyson
-  started_at: '2026-05-29T01:42:13.630175+00:00'
-  ended_at: '2026-05-29T03:06:53.758850+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/freeman-dyson-simulated__2026-05-29__research.md
-- slug: geoffrey-west
-  started_at: '2026-05-29T03:06:53.758850+00:00'
-  ended_at: '2026-05-29T04:59:56.754434+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/reviews/geoffrey-west-simulated__2026-05-29__paper.md
 - slug: john-von-neumann
   started_at: '2026-05-29T04:59:56.754434+00:00'
   ended_at: '2026-05-29T06:31:08.556493+00:00'
@@ -1228,5 +871,306 @@ history:
 - slug: dan-rockmore
   started_at: '2026-06-05T15:02:36.495421+00:00'
   ended_at: '2026-06-05T16:12:03.134170+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-05T16:12:03.134170+00:00'
+  ended_at: '2026-06-05T17:17:33.284140+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-05T17:17:33.284140+00:00'
+  ended_at: '2026-06-05T18:11:16.815906+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-05T18:11:16.815906+00:00'
+  ended_at: '2026-06-05T19:11:31.169207+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-05T19:11:31.169207+00:00'
+  ended_at: '2026-06-05T20:12:07.597580+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-05T20:12:07.597580+00:00'
+  ended_at: '2026-06-05T21:05:38.387975+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-05T21:05:38.387975+00:00'
+  ended_at: '2026-06-05T22:01:57.242263+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: linus-pauling
+  started_at: '2026-06-05T22:01:57.242263+00:00'
+  ended_at: '2026-06-05T22:35:38.119036+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: marie-curie
+  started_at: '2026-06-05T22:35:38.119036+00:00'
+  ended_at: '2026-06-05T23:30:40.993522+00:00'
+  outcome: model_error
+- slug: marie-curie
+  started_at: '2026-06-05T23:30:40.993522+00:00'
+  ended_at: '2026-06-05T23:54:52.201337+00:00'
+  outcome: model_error
+- slug: marie-curie
+  started_at: '2026-06-05T23:54:52.201337+00:00'
+  ended_at: '2026-06-06T01:42:45.081419+00:00'
+  outcome: model_error
+- slug: marie-curie
+  started_at: '2026-06-06T01:42:45.081419+00:00'
+  ended_at: '2026-06-06T03:06:02.200032+00:00'
+  outcome: model_error
+- slug: marie-curie
+  started_at: '2026-06-06T03:06:02.200032+00:00'
+  ended_at: '2026-06-06T04:48:59.612625+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-06__research.md
+- slug: richard-feynman
+  started_at: '2026-06-06T04:48:59.612625+00:00'
+  ended_at: '2026-06-06T06:17:04.590144+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-06T06:17:04.590144+00:00'
+  ended_at: '2026-06-06T07:34:06.823720+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/reviews/rosalind-franklin-simulated__2026-06-06__paper.md
+- slug: stephen-wolfram
+  started_at: '2026-06-06T07:34:06.823720+00:00'
+  ended_at: '2026-06-06T08:54:15.170613+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: ada-lovelace
+  started_at: '2026-06-06T08:54:15.170613+00:00'
+  ended_at: '2026-06-06T09:41:52.479588+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: alan-turing
+  started_at: '2026-06-06T09:41:52.479588+00:00'
+  ended_at: '2026-06-06T10:40:24.763843+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: albert-einstein
+  started_at: '2026-06-06T10:40:24.763843+00:00'
+  ended_at: '2026-06-06T11:33:14.393734+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-06T11:33:14.393734+00:00'
+  ended_at: '2026-06-06T12:26:58.476129+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-06T12:26:58.476129+00:00'
+  ended_at: '2026-06-06T14:34:18.180829+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-06T14:34:18.180829+00:00'
+  ended_at: '2026-06-06T15:29:15.117902+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-06T15:29:15.117902+00:00'
+  ended_at: '2026-06-06T15:58:38.450403+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-06T15:58:38.450403+00:00'
+  ended_at: '2026-06-06T16:26:25.661509+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-06T16:26:25.661509+00:00'
+  ended_at: '2026-06-06T16:54:36.927961+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-06T16:54:36.927961+00:00'
+  ended_at: '2026-06-06T17:54:26.764916+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: linus-pauling
+  started_at: '2026-06-06T17:54:26.764916+00:00'
+  ended_at: '2026-06-06T18:27:55.451431+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/linus-pauling-simulated__2026-06-06__research.md
+- slug: marie-curie
+  started_at: '2026-06-06T18:27:55.451431+00:00'
+  ended_at: '2026-06-06T18:59:03.698929+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/marie-curie-simulated__2026-06-06__research.md
+- slug: richard-feynman
+  started_at: '2026-06-06T18:59:03.698929+00:00'
+  ended_at: '2026-06-06T19:34:30.638481+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-06T19:34:30.638481+00:00'
+  ended_at: '2026-06-06T20:01:32.443270+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/rosalind-franklin-simulated__2026-06-06__research.md
+- slug: stephen-wolfram
+  started_at: '2026-06-06T20:01:32.443270+00:00'
+  ended_at: '2026-06-06T20:36:55.545847+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: ada-lovelace
+  started_at: '2026-06-06T20:36:55.545847+00:00'
+  ended_at: '2026-06-06T21:24:05.616321+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: alan-turing
+  started_at: '2026-06-06T21:24:05.616321+00:00'
+  ended_at: '2026-06-06T21:51:32.720915+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: albert-einstein
+  started_at: '2026-06-06T21:51:32.720915+00:00'
+  ended_at: '2026-06-06T22:23:53.339088+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-660-https-arxiv-org-abs-2605-23895/reviews/research/albert-einstein-simulated__2026-06-06__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-06T22:23:53.339088+00:00'
+  ended_at: '2026-06-06T22:50:32.386757+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-06T22:50:32.386757+00:00'
+  ended_at: '2026-06-06T23:23:14.542229+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-06T23:23:14.542229+00:00'
+  ended_at: '2026-06-06T23:53:25.849231+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-06T23:53:25.849231+00:00'
+  ended_at: '2026-06-07T00:36:30.308213+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/eric-kandel-simulated__2026-06-07__research.md
+- slug: freeman-dyson
+  started_at: '2026-06-07T00:36:30.308213+00:00'
+  ended_at: '2026-06-07T01:46:14.041014+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-07T01:46:14.041014+00:00'
+  ended_at: '2026-06-07T03:07:40.433005+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-07T03:07:40.433005+00:00'
+  ended_at: '2026-06-07T05:04:54.928167+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-06-07__research.md
+- slug: linus-pauling
+  started_at: '2026-06-07T05:04:54.928167+00:00'
+  ended_at: '2026-06-07T06:55:13.141216+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: marie-curie
+  started_at: '2026-06-07T06:55:13.141216+00:00'
+  ended_at: '2026-06-07T08:13:42.785175+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-07__research.md
+- slug: richard-feynman
+  started_at: '2026-06-07T08:13:42.785175+00:00'
+  ended_at: '2026-06-07T09:39:41.283336+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-07T09:39:41.283336+00:00'
+  ended_at: '2026-06-07T10:45:49.723196+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-675-comparing-born-model-predictions-with-ex/reviews/research/rosalind-franklin-simulated__2026-06-07__research.md
+- slug: stephen-wolfram
+  started_at: '2026-06-07T10:45:49.723196+00:00'
+  ended_at: '2026-06-07T11:35:03.927190+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/reviews/research/stephen-wolfram-simulated__2026-06-07__research.md
+- slug: ada-lovelace
+  started_at: '2026-06-07T11:35:03.927190+00:00'
+  ended_at: '2026-06-07T12:33:28.093356+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: alan-turing
+  started_at: '2026-06-07T12:33:28.093356+00:00'
+  ended_at: '2026-06-07T13:34:26.257108+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-670-arcane-do-role-playing-language-agents-s/reviews/research/alan-turing-simulated__2026-06-07__research.md
+- slug: albert-einstein
+  started_at: '2026-06-07T13:34:26.257108+00:00'
+  ended_at: '2026-06-07T14:37:56.816099+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-07T14:37:56.816099+00:00'
+  ended_at: '2026-06-07T15:32:36.303512+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-569-intern-atlas-a-methodological-evolution/reviews/research/_held/dan-rockmore-simulated__2026-06-07__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-07T15:32:36.303512+00:00'
+  ended_at: '2026-06-07T16:02:59.413393+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-07T16:02:59.413393+00:00'
+  ended_at: '2026-06-07T16:40:49.954025+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: david-krakauer
+  started_at: '2026-06-07T16:40:49.954025+00:00'
+  ended_at: '2026-06-07T17:31:32.616728+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/reviews/research/david-krakauer-simulated__2026-06-07__research.md
+- slug: eric-kandel
+  started_at: '2026-06-07T17:31:32.616728+00:00'
+  ended_at: '2026-06-07T17:58:29.007119+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-660-https-arxiv-org-abs-2605-23895/reviews/research/_held/eric-kandel-simulated__2026-06-07__research.md
+- slug: eric-kandel
+  started_at: '2026-06-07T17:58:29.007119+00:00'
+  ended_at: '2026-06-07T18:27:44.509129+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-07T18:27:44.509129+00:00'
+  ended_at: '2026-06-07T18:58:57.832042+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment

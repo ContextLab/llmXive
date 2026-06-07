@@ -1,0 +1,60 @@
+\begin{figure*}[!t]
+\centering
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50,
+                  boxrule=0.5pt, arc=2mm,
+                  left=4pt, right=4pt, top=3pt, bottom=3pt]
+\small
+\textbf{Template Construction Prompt (Code).}
+
+You extract reusable, repo-agnostic bug patterns from solved code-bug examples.
+
+The gold patch defines correct behavior: the pre-patch code is the bug shape, the post-patch code is the fix shape, and the diff encodes the intent.
+
+\medskip
+\textbf{Solved example shown to the model:}
+\begin{verbatim}
+Repository: {repo}
+
+Issue / Bug Report:
+{bottleneck_description}
+
+Buggy Function(s):
+### {func.qualname} (file: {func.path})
+```python
+{func.content}
+```
+...
+
+Gold Patch (the fix):
+```diff
+{patch}
+```
+\end{verbatim}
+
+\medskip
+\textbf{Rules:}
+\begin{enumerate}[topsep=0pt, itemsep=0ex, parsep=0pt, left=14pt]
+  \item \textbf{Pattern and evidence\_flow: abstract}. Replace specific identifiers with role descriptors. Both fields must transfer to a different Python codebase carrying the same \emph{structural} bug.
+  \item \textbf{Code-centric detection}: each step in \texttt{evidence\_flow} must reference observable code signals visible in the \emph{buggy code alone}. The gold patch is a reference for understanding the bug, but \texttt{evidence\_flow} must work without seeing the patch.
+  \item \textbf{One pattern per template}.
+  \item \textbf{Broad applicability}: pattern and evidence\_flow must describe a bug shape that could plausibly appear in multiple scenarios (e.g., parsers, serializers, validators, builders, schedulers). Aim for patterns where at least three different bug scenarios outside this example would still match.
+\end{enumerate}
+
+\medskip
+\textbf{Output format:}
+\begin{verbatim}
+{
+  "template_name": "Short descriptive name (abstract)",
+  "pattern":       "Abstract: what shape of code carries the bug
+                    and what input/condition triggers it.",
+  "evidence_flow": ["Abstract: what to check first when scanning
+                     a function for this pattern",
+                    "Abstract: what to check next", ...]
+}
+\end{verbatim}
+
+\textbf{Instruction constraint:} respond with the JSON object only.
+\end{tcolorbox}
+\caption{Template construction prompt for the code setting. Given one solved bug-fix example, the model returns a reusable bug-pattern template added to the template pool $\mathcal{T}$. Only \texttt{pattern} and \texttt{evidence\_flow} are exposed to the agent at inference.}
+\label{fig:prompt_template_construction_code}
+\end{figure*}

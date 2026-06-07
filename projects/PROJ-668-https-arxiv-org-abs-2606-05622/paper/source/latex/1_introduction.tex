@@ -1,0 +1,97 @@
+\section{Introduction}
+\label{sec:intro}
+
+
+
+
+Large Language Model (LLM) agents have achieved remarkable success in real-world interactive tasks, including writing complex code~\citep{claudecode,code2math}, operating computers~\citep{UI-TARS,UI-TARS-2}, and supporting scientific discovery~\citep{DR-Tulu,Deep-Research-Agents}.
+While these applications differ in domain, they share a common structure: agent capability depends on sustained interaction throughout task execution~\citep{ReAct,park2023generativeagentsinteractivesimulacra}.
+This interaction typically unfolds along two closely linked dimensions: \textbf{interaction with users}, through which agents infer goals and preferences, and \textbf{interaction with the external world}, where they gather information and take actions via tools and interfaces~\citep{xi2023risepotentiallargelanguage,Wang_2024}.
+Because such interaction is inherently multi-step, it usually requires \textbf{planning}~\citep{huang2024understandingplanningllmagents}: agents must anticipate future outcomes~\citep{current-agent-fail-wm-as-tool} and dynamically adapt their actions as interaction unfolds~\citep{costbench} across both their engagement with users and the external world.
+Planning therefore naturally spans both dimensions, reflecting the dual structure of agent interaction. 
+% \xiusi{Add figure 1 as a motivating figure to distinguish the roles of user and external world.}
+
+However, real-world planning is rarely unconstrained. Because interaction has a dual structure, agents must handle \textbf{dual constraints} from both the user and the world: user constraints such as preferences and priorities, and world constraints such as tool availability and resource limitations.
+Existing benchmarks typically consider only one side of this problem, focusing on either user constraints~\citep{UserBench,opentom,URS-dataset} or world constraints~\citep{appworld,tau-2-bench,PlanBench}, leaving their joint handling largely unexplored.
+This raises our central research question: \textbf{can LLM agents plan effectively under both user and world constraints?} 
+In practice, this problem is further complicated by two key challenges:
+(1) \textbf{Progressive constraint disclosure}: constraints are often implicit rather than specified upfront, requiring agents to uncover them incrementally through proactive exploration.
+(2) \textbf{Large action and solution spaces}: real-world tasks involve vast spaces of possible actions and solutions, making performance harder to measure. % ~\citep{newell1972human}
+These challenges call for a rigorous benchmark that evaluates whether agents can adaptively plan under dual constraints that are progressively revealed in open-ended planning settings.
+
+\begin{table*}[!t]
+% \vspace{-10mm}
+\centering
+\resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccccccc}
+    \toprule
+    \textbf{Benchmark} 
+    & \textbf{\makecell{Iterative\\Re-planning}} 
+    & \textbf{\makecell{User\\Interaction}}
+    & \textbf{\makecell{World\\Interaction}}
+    & \textbf{\makecell{Dual\\Constraint}} 
+    & \textbf{\makecell{Progressive\\Disclosure}}
+    & \textbf{\makecell{Open-Ended\\ Evaluation}} 
+    & \textbf{\makecell{Scalable\\Constraints}} \\
+    \midrule
+    % Benchmarks rows go here
+    \textit{CostBench}~\citep{costbench} & \gmark & \xmark & \cmark & \gmark & \xmark & \xmark & \gmark
+    \\
+    \textit{FlowBench}~\citep{FlowBench} & \gmark & \cmark & \cmark & \gmark & \gmark & \xmark & \xmark
+    \\ % \gmark for Progressive Disclosure: user preference are progressively disclosed, but env constraints are not (workflows are upfront)
+    % \xmark for open evaluation: rely on workflow and ground-truth sessions
+    % \gmark for dual constraints: The workflow itself is predefined, and users only make demands within this framework. So if you mean "user constraint" you mean: "User can define a set of constraints by himself, and agent must satisfy two independent sets of constraints, workflow and user." FlowBench does not support this design.
+    \textit{NaturalPlan}~\citep{NATURAL-PLAN} & \xmark & \xmark & \xmark & \cmark & \xmark & \gmark & \cmark
+    \\ % \xmark for Dynamic State, User Interaction, World Interaction, Progressive Disclosure: Static QA task, not agentic task.
+    \textit{PrefEval}~\citep{PrefEval} & \xmark & \cmark & \xmark & \xmark & \xmark & \gmark & \cmark
+    \\ % \xmark for Progressive Disclosure: "Preference revelation" occurs solely during the dataset construction phase, not during the actual benchmark execution. When the benchmark is run, the model's input consists of a pre-constructed, complete dialogue history that already incorporates the pre-designed preference revelation process. From the model's perspective, the context is effectively "frozen"; no new preferences suddenly emerge during runtime.
+    \textit{RealPref}~\citep{RealPref} & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark
+    \\ % Only user prefs. \xmark for the initial four: During the training and building phases, the dataset consists of multi-turn conversations (with multiple turns per session). However, during the evaluation phase, the agent does not engage in actual multi-turn dialogue; instead, it simply receives a conversation history and responds to a standalone test query.
+    \textit{UserBench}~\citep{UserBench} & \xmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark
+    \\ % \xmark for Dynamic State: It possesses a certain degree of dynamism, yet it is not event-driven. UserBench supports "search failure simulation"—meaning that search results can be corrupted by noise according to a configured probability—to simulate real-world network or tool errors. However, this constitutes pre-configured, controlled noise, rather than unexpected events generated randomly at runtime.
+    % \xmark for Dual Constraint: Only cost-effectiveness for world constraints, that doesn't count.
+    \textit{PersonaMem-v2}~\citep{PersonaMem-v2} & \xmark & \cmark & \xmark & \xmark & \cmark & \cmark & \cmark
+    \\ % No world constraint
+    $\tau$-Bench~\citep{tau-bench} & \xmark & \cmark & \cmark & \gmark & \gmark & \gmark & \xmark
+    \\ 
+    % \gmark on Progressive Disclosure: the policy is known from the beginning to the agent, only the user prefs needs to be inferred from runtime.
+    % \gmark on open evaluation: action space and solution space is not inifinite.
+    % \gmark for dual constraints: domain policy are provided upfront
+    \textit{$\tau^2$-Bench}~\citep{tau-2-bench} & \xmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark
+    \\ % \xmark for open eval: has strict process and outcome check for eval
+    % \xmark on dual constraint: no user preference
+    % \cmark for Progressive Disclosure: environment state is progressively disclosed through user's mouth
+    \textit{TravelPlanner}~\citep{TravelPlanner} & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark & \cmark
+    \\ % \xmark for open eval: has strict process and outcome check for eval
+    % \xmark on dual constraint: no user preference
+    % \cmark for Progressive Disclosure: environment state is progressively disclosed through user's mouthwi
+    \midrule
+    \textit{\BENCH{} \textbf{(Ours)}} & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark
+    \\
+    \bottomrule
+    \end{tabular}
+}
+\vspace{-1.5mm}
+\caption{Comparison of \bench{} with prior related benchmarks across seven key properties. For each benchmark, the table reports whether each trait is fully (\cmark), partially (\gmark), or not (\xmark) addressed. 
+Detailed explanations are provided in Appendix~\ref{app:traits-exp}.}
+\label{tab:comparison-table}
+\vspace{-0.2in}
+\end{table*}
+
+To this end, we introduce \BENCH{}, a dynamic and interactive benchmark evaluating LLM's adaptive planning ability under world and user constraints. 
+% \bench{} is rooted in the household domain, where both user preferences and environmental constraints arise naturally in everyday scenarios~\citep{VirtualHome}.
+We build \bench{} on top of the MacGyver dataset~\citep{MacGyver}, starting from a curated subset of 307 household-domain instances.
+Using a scalable automated pipeline, we augment each task with world constraints that capture environmental limitations and user constraints that capture grounded personal preferences.
+This setup allows any solution that satisfies these constraints, while preserving a large and effectively unbounded action space.
+During evaluation, constraints are withheld at the outset and disclosed progressively when the agent proposes violating actions, forcing the agent to iteratively and adaptively re-plan in response to newly revealed constraints.
+
+We evaluate ten leading open-source and proprietary LLMs on \bench{} and find that even the strongest model achieves only 67.75\% accuracy, while open-weight models typically remain at or below 30\%.
+Moreover, planning quality becomes harder to sustain as progressively disclosed constraints accumulate along a trajectory, and deteriorates further as the overall constraint burden increases.
+These challenges are not easily alleviated by explicit constraint tracking or rubric-based feedback, and are particularly severe when user constraints account for a large share of the difficulty.
+Further analysis suggests that, under accumulated dual constraints, planning failures are often marked by reduced goal effectiveness and weaker physical plausibility.
+Overall, \bench{} lays a foundation for future research on adaptive planning agents, motivating the development of models that can dynamically plan, adapt, and revise under real-world dual constraints.
+% \vspace{-0.2in}
+% Additionally, when the agent cannot directly access the environment, the user becomes the only source from which the agent can obtain feedback~\citep{}. 
+% In such cases, users often exhibit a crucial characteristic: progressive information disclosure~\citep{UserBench}.
+
+

@@ -1,0 +1,35 @@
+\clearpage
+\section{Experiment Setup}
+\subsection{Post-Training Details}\label{app:exp-details}
+\paragraph{GRPO Reward Design.}
+We employ GRPO~\cite{shao2024deepseekmath} as our reinforcement learning algorithm. Following the standard RLVR-style reward formulation, the total reward is defined as $R = 0.1 \cdot R_f + 0.9 \cdot R_a$, where $R_f$ and $R_a$ denote the \textit{format} and \textit{accuracy} rewards, respectively. Specifically, $R_f$ is set to $1.0$ if the model output strictly satisfies the required format: \texttt{<think>\ldots</think><answer>\ldots</answer>}. For the accuracy reward $R_a$, we adopt the ROUGE metric for open-ended QA, while employing Exact Match (EM) for multiple-choice tasks.
+
+\paragraph{Training Details.} \label{app:train-details}
+We train all models on up to 8 NVIDIA A800 GPUs (80 GB). 
+For SFT, we use a learning rate of $1\times10^{-5}$, while for RL we use a learning rate of $5\times10^{-6}$. 
+Both stages are optimized with AdamW, and the maximum response length is set to 2,048 tokens. 
+For GRPO rollout generation, we set the rollout size $G$ to 8 and use a temperature of 1.0 to encourage exploration. 
+The KL penalty coefficient $\beta$ is set to 0.01. 
+Supervised fine-tuning is implemented with LLaMA-Factory~\cite{zheng2024llamafactoryunifiedefficientfinetuning}, while reinforcement learning is implemented with verl~\cite{verl}.
+
+\subsection{Evaluation Setup}
+\label{app:model-config}
+To ensure fair and reproducible comparisons, we standardize the inference configuration for all evaluations by setting the temperature to $0.1$. The maximum response token is set to 8,192 tokens.
+
+\input{ft_tex/prompt}
+
+\clearpage
+\section{Experiment Results and Analysis}
+\subsection{Performance with Different Frames}\label{app:frame}
+\input{table/frame}
+
+\clearpage
+\subsection{Ablation Studies}\label{app:ablation}
+\input{table/ablation-studies}
+
+
+\clearpage
+\subsection{Case Study}\label{app:case}
+\input{ft_tex/case2}
+\input{ft_tex/case3}
+\input{ft_tex/case4}

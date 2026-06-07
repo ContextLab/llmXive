@@ -119,3 +119,137 @@ rounds:
     text: Integrate the standalone paragraph in Section 3.2 (e000) following Table
       1 into the main text to improve paragraph cohesion.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-05T19:05:20.903971+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: bbf20850dc3c
+    text: Remove duplicate \end{document} tag found in chunk e000 to ensure LaTeX
+      compilation.
+    severity: writing
+  - id: 18f6dd4a9e63
+    text: 'Populate state/citations/<PROJ-ID>.yaml with verification_status: verified
+      for all cited references.'
+    severity: writing
+  - id: d51f3561f924
+    text: Verify existence of future-dated citations (2025/2026) or update to confirmed
+      preprint versions.
+    severity: writing
+  - id: b70eefcb65f8
+    text: Add missing bibliography entry for 'qwen3.5' to verify the backbone model
+      (Section 3).
+    severity: writing
+  - id: 00827c892f5b
+    text: Clarify the source of the 2018 Wikipedia dump; Karpukhin et al. (2020) describes
+      the method, not the dataset.
+    severity: writing
+  - id: f1a2b3c4d5e6
+    text: Add missing bibliography entries for '188994' and 'NAVARRO2003423' cited
+      in Section 5 (Related Work).
+    severity: writing
+  - id: 841b31d55d1d
+    text: Code artifacts (implementation scripts, configs, tests) are not included
+      in the review package. Please provide the GitHub repository contents or supplementary
+      zip to evaluate reproducibility and modularity.
+    severity: science
+  - id: 5ca275328cf8
+    text: Explicitly state data licenses for Wikipedia (CC-BY-SA) and QA benchmarks
+      (e.g., NQ non-commercial) in Section 4.1 and Appendix A.
+    severity: writing
+  - id: 52ce1309fab2
+    text: Specify exact Wikipedia snapshot revision ID or date (e.g., 2018-01-01)
+      instead of generic '2018 dump' in Section 4.1.
+    severity: writing
+  - id: e06387772c18
+    text: Archive code and dataset URLs (e.g., GitHub, HuggingFace) via Zenodo or
+      similar and include persistent DOIs to prevent link rot.
+    severity: writing
+  - id: 45180733b6bc
+    text: Define all acronyms (SFT, RL, RAG, QA, FSDP, PPO, KL, RAM, I/O) at first
+      use in the main text or abstract.
+    severity: writing
+  - id: 37a145048df9
+    text: Simplify dense technical phrases (e.g., 'semantics-preserving sharded-parallel
+      execution engine' to 'parallel execution engine that preserves meaning').
+    severity: writing
+  - id: 53c5f256c3b2
+    text: Clarify the 'Direct RL is unstable' motivation by providing variance data
+      or reframing to 'performance degradation without initialization'. The current
+      footnote only cites VRAM/RAM OOM failures, which is a resource constraint issue
+      rather than RL training instability.
+    severity: science
+  - id: f342678330c0
+    text: Table 1 claims comparison against 'RL-optimized retrievers' (Search-O1/R1)
+      in text but omits them from the table, leaving the claim unsupported by primary
+      evidence.
+    severity: science
+  - id: cfe43d2a3cbd
+    text: Clarify the '14GB RAM' memory footprint claim. It appears to refer only
+      to the corpus, while baseline figures (70GB/221GB) likely include indices or
+      models. This comparison is misleading regarding efficiency.
+    severity: writing
+  - id: fbc75625a9ba
+    text: The abstract claims 'strongest overall token-level F1', but the model only
+      wins 4/7 datasets. Ensure the micro-average justification is explicit or temper
+      the 'overall' claim.
+    severity: writing
+  - id: 4f5279889777
+    text: Add a dedicated Ethics Statement or Broader Impact section addressing the
+      use of the Natural Questions (NQ) dataset, specifically confirming compliance
+      with anonymization protocols and terms of use for real user search queries.
+    severity: writing
+  - id: 063865f4b67a
+    text: Include a discussion on the safety implications of training models to generate
+      executable shell commands, particularly regarding potential dual-use risks if
+      deployed on private or sensitive corpora outside the controlled Wikipedia environment.
+    severity: writing
+  - id: a6fed3b5b032
+    text: Specify the statistical test used for F1 significance (McNemar is for binary
+      EM).
+    severity: science
+  - id: 1a22e32d7127
+    text: Clarify train/test split for NQ/HotpotQA to rule out overfitting on evaluation
+      sets.
+    severity: science
+  - id: fd73aeb5d69b
+    text: Control for hardware/shard configuration in latency comparisons to ensure
+      fair baselines.
+    severity: science
+  - id: d85b8152e000
+    text: Report confidence intervals or standard deviations for all F1/EM scores
+      across multiple independent runs. Current tables show point estimates only (e.g.,
+      Table 1 F1 scores like 0.5223, 0.7673) without uncertainty measures.
+    severity: science
+  - id: 0186ae9a4e50
+    text: Clarify multiple-comparisons correction methodology. Bonferroni is mentioned
+      for EM ablation (Table 2 caption) but not for main F1 results (Table 1). Testing
+      across 7 datasets with 4+ methods inflates Type I error risk.
+    severity: science
+  - id: eeb13e696586
+    text: Add error bands to training dynamics figure (Figure 4). Curves showing mean
+      reward, response length, and search queries over 200 GRPO steps lack variance
+      visualization.
+    severity: writing
+  - id: 9550b991affa
+    text: Document random seeds, number of independent runs, and stratification strategy
+      for the 10k-sample cold-start dataset generation. This affects reproducibility
+      of SFT initialization results.
+    severity: science
+  - id: f43ef95824da
+    text: Fix environment mismatch in e001 where \begin{promptbox} is closed with
+      \end{figure*} without a matching \begin{figure*}. Ensure consistent use of figure
+      environments for prompt boxes.
+    severity: writing
+  - id: a1b2c3d4e5f6
+    text: Fix environment mismatch in e002 where \end{sftbox} appears without a matching
+      \begin{sftbox}. Content belongs to ex:sft-actress which was closed in e001.
+    severity: writing
+  - id: fa120a04d1e8
+    text: Ensure the custom environment '\sftbox' is properly opened and closed; the
+      closing tag appears in e002 without a matching opening tag in the provided stream.
+    severity: writing
+  - id: dbb6f49b8949
+    text: Integrate the standalone paragraph in Section 3.2 (e000) following Table
+      1 into the main text to improve paragraph cohesion.
+    severity: writing

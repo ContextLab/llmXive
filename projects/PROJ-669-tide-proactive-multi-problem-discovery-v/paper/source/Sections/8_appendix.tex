@@ -1,0 +1,18 @@
+\clearpage
+\appendix
+
+\input{Tables/tab_case_study}
+
+\section{Prompts}
+\label{appen:prompts}
+
+We list the four prompts used end-to-end in our pipeline: template construction (Figures~\ref{fig:prompt_template_construction_workspace} and~\ref{fig:prompt_template_construction_code}) and per-iteration inference (Figures~\ref{fig:prompt_inference_workspace} and~\ref{fig:prompt_inference_code}), each instantiated separately for the workspace and code settings. Placeholders in \texttt{\{curly braces\}} are filled at runtime; the \emph{previously found bottlenecks} block is omitted at iteration~1 and re-injected on subsequent iterations.
+
+\input{Figures/fig_prompt_template_construction_workspace}
+\clearpage
+\input{Figures/fig_prompt_template_construction_code}
+\clearpage
+\input{Figures/fig_prompt_inference_workspace}
+\clearpage
+\input{Figures/fig_prompt_inference_code}
+\clearpage

@@ -1,0 +1,40 @@
+\newsavebox{\transferbox}
+\savebox{\transferbox}{%
+    \small
+    \renewcommand{\arraystretch}{1.05}
+    \renewcommand{\tabcolsep}{1.5mm}
+    \resizebox{0.53\textwidth}{!}{%
+    \begin{tabular}{l l cc cc cc}
+    \toprule
+     &
+      & \multicolumn{2}{c}{\textbf{Retrieval}}
+      & \multicolumn{2}{c}{\textbf{Identification}}
+      & \multicolumn{2}{c}{\textbf{Resolution}} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+    \textbf{Inference} & \textbf{Templates} & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1} & \textbf{Cov.} & \textbf{F1} \\
+    \midrule
+    \midrule
+    \multirow{2}{*}{\textbf{GPT}}
+      & GPT    & 16.82 & 12.12 & 17.29 & 11.81 & 15.52 & 11.31 \\
+      & Gemini & 16.30 & 11.60 & 15.31 & 10.03 & 18.36 & 12.38 \\
+    \noalign{\vskip 0.25ex}\cdashline{1-8}\noalign{\vskip 0.75ex}
+    \multirow{2}{*}{\textbf{Gemini}}
+      & Gemini & 21.47 & 17.69 & 20.63 & 17.05 & 23.22 & 19.23 \\
+      & GPT    & 24.03 & 19.03 & 22.84 & 17.86 & 24.70 & 19.19 \\
+    \bottomrule
+    \end{tabular}
+    }%
+}
+\begin{figure*}[t]
+    \centering
+    \begin{minipage}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,height=\dimexpr\ht\transferbox+\dp\transferbox\relax,keepaspectratio]{Figure_srcs/template_frequency_gpt_vs_gem.png}
+        \captionof{figure}{Per-run template citation frequency.}\label{fig:template_frequency_gpt_vs_gem}
+    \end{minipage}\hfill
+    \begin{minipage}[b]{0.53\linewidth}
+        \centering
+        \usebox{\transferbox}
+        \captionof{table}{Template transferability on the Repository setting.}\label{tab:transfer}
+    \end{minipage}
+\end{figure*}

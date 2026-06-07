@@ -1,0 +1,581 @@
+{
+  "fetched_at": "2026-06-07T09:31:00Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Quantifying the Effect of Disorder on Electronic Transport in 1D Chains",
+      "target_n": 5
+    },
+    "duration_seconds": 363.286,
+    "ended_at": "2026-06-07T09:31:00Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Anderson localization in one-dimensional systems"
+        ],
+        [
+          2,
+          "Electronic conductance in disordered tight-binding chains"
+        ],
+        [
+          3,
+          "Localization length calculation in 1D quantum wires"
+        ],
+        [
+          4,
+          "Landauer formula for disordered 1D conductors"
+        ],
+        [
+          5,
+          "Transfer matrix method for quantum transport"
+        ],
+        [
+          6,
+          "Scaling theory of localization in 1D"
+        ],
+        [
+          7,
+          "Quantum interference effects in disordered chains"
+        ],
+        [
+          8,
+          "Off-diagonal disorder in one-dimensional lattices"
+        ],
+        [
+          9,
+          "Correlated disorder effects on electron transport"
+        ],
+        [
+          10,
+          "Mesoscopic conductance fluctuations 1D"
+        ],
+        [
+          11,
+          "Tight-binding model with random potential"
+        ],
+        [
+          12,
+          "Transmission coefficient statistics in disordered wires"
+        ],
+        [
+          13,
+          "Weak localization in quasi-one-dimensional systems"
+        ],
+        [
+          14,
+          "Quantum diffusion in 1D disordered media"
+        ],
+        [
+          15,
+          "Anderson model numerical simulations"
+        ],
+        [
+          16,
+          "Dephasing effects on 1D localization"
+        ],
+        [
+          17,
+          "Nanowire electronic transport disorder"
+        ],
+        [
+          18,
+          "Kubo formula for disordered systems"
+        ],
+        [
+          19,
+          "Quasi-periodic potentials in 1D transport"
+        ],
+        [
+          20,
+          "Conductivity of disordered polymer chains"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Anderson localization in one-dimensional systems": 5,
+        "Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Anderson localization 1D random potential",
+      "quantum wire nanowire disorder transport",
+      "Lyapunov exponent transmission coefficient",
+      "Conductance scaling localization length",
+      "Quantum interference backscattering phase coherence"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1501.05465"
+      ]
+    },
+    "per_query_hit_count": {
+      "Anderson localization 1D random potential": 3,
+      "Conductance scaling localization length": 3,
+      "Lyapunov exponent transmission coefficient": 3,
+      "Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics": 3,
+      "Quantum interference backscattering phase coherence": 3,
+      "quantum wire nanowire disorder transport": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1102.3346",
+          "rationale": "The paper investigates disorder effects in a 3D bulk Heusler alloy (Fe2VAl), whereas the user's question is specific to 1D chain physics; in electronic transport, dimensionality fundamentally alters the underlying mechanism of disorder effects (e.g., inevitable localization in 1D versus mobility edges in 3D), making this an off-domain mismatch for a canonical literature review on 1D systems.",
+          "title": "Electronic and thermoelectric properties of Fe2VAl: The role of defects and disorder"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-07T09:24:56Z",
+    "term_input": {
+      "normalized": "quantifying the effect of disorder on electronic transport in 1d chains physics",
+      "raw": "Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-06-07T09:26:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-06-07T09:26:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The supersymmetry method for study of disordered systems is shortly reviewed. The discussion starts with a historical introduction followed by an explanation of the idea of using Grassmann anticommuting variables for investigating disordered metals. After that the nonlinear supermatrix $σ$-model is derived. Solution of several problems obtained with the help of the $σ$-model is presented. This includes the problem of the level statistics in small metal grains, localization in wires and films, and Anderson metal-insulator transition. Calculational schemes developed for studying these problems form the basis of subsequent applications of the supersymmetry approach.",
+          "claimed_authors": [
+            "K. B. Efetov"
+          ],
+          "claimed_title": "Anderson localization and Supersymmetry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2632"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Anderson localization and Supersymmetry')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Mott and the Anderson routes to localization have long been recognized as the two basic processes that can drive the metal-insulator transition (MIT). Theories separately describing each of these mechanisms were discussed long ago, but an accepted approach that can include both has remained elusive. The lack of any obvious static symmetry distinguishing the metal from the insulator poses another fundamental problem, since an appropriate static order parameter cannot be easily found. More recent work, however, has revisited the original arguments of Anderson and Mott, which stressed that the key diference between the metal end the insulator lies in the dynamics of the electron. This physical picture has suggested that the \"typical\" (geometrically averaged) escape rate from a given lattice site should be regarded as the proper dynamical order parameter for the MIT, one that can naturally describe both the Anderson and the Mott mechanism for localization. This article provides an overview of the recent results obtained from the corresponding Typical-Medium Theory, which provided new insight into the the two-fluid character of the Mott-Anderson transition.",
+          "claimed_authors": [
+            "V. Dobrosavljevic"
+          ],
+          "claimed_title": "Typical-Medium Theory of Mott-Anderson Localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.3215"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Typical-Medium Theory of Mott-Anderson Localization')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the conductance threshold of clean nearly straight quantum wires in the magnetic field. As a quantitative example we solve exactly the scattering problem for two-electrons in a wire with planar geometry and a weak bulge. From the scattering matrix we determine conductance via the Landauer-Buettiker formalism. The conductance anomalies found near 0.25(2e^2/h) and 0.75(2e^2/h) are related to a singlet resonance and a triplet resonance, respectively, and survive to temperatures of a few degrees. With increasing in-plane magnetic field the conductance exhibits a plateau at e^2/h, consistent with recent experiments.",
+          "claimed_authors": [
+            "T. Rejec",
+            "A. Ramsak",
+            "J. H. Jefferson"
+          ],
+          "claimed_title": "Conductance anomalies in quantum wires",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "cond-mat/0008271"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Conductance anomalies in quantum wires')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This tutorial article gives an introduction to the methods needed to treat interacting electrons in a quantum wire with a single occupied band. Since one-dimensional Fermions cannot be described in terms of noninteracting quasiparticles, the Tomonaga-Luttinger model is presented in some detail with an emphasis on transport properties. To achieve a self-contained presentation, the Bosonization technique for one-dimensional Fermions is developed, accentuating features relevant for nonequilibrium systems. The screening of an impurity in the wire is discussed, and the insight gained on the electrostatics of a quantum wire is used to describe the coupling to Fermi-liquid reservoirs. These parts of the article should be readily accessible to students with a background in quantum mechanics including second quantization. To illustrate the usefulness of the methods presented, the current-voltage relation is determined exactly for a spin-polarized quantum wire with a particular value of the interaction parameter. This part requires familiarity with path integral techniques and connects with the current literature.",
+          "claimed_authors": [
+            "Hermann Grabert"
+          ],
+          "claimed_title": "Transport in Single Channel Quantum Wires",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "cond-mat/0107175"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Transport in Single Channel Quantum Wires')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate time complexities of finite difference methods for solving the multiscale transport equation with quantum algorithms. We find that the time complexities of both the classical treatment and quantum treatment for a standard explicit scheme scale as $\\mathcal{O}(1/\\varepsilon)$, where $\\varepsilon$ is the small scaling parameter, while the complexities for the even-odd parity based Asymptotic-Preserving (AP) scheme do not depend on $\\varepsilon$. This indicates that it is still of great importance to use AP (and probably other efficient multiscale) schemes for multiscale problems in quantum computing when solving multiscale transport or kinetic equations.",
+          "claimed_authors": [
+            "He Xiaoyang",
+            "Jin Shi",
+            "Yu Yue"
+          ],
+          "claimed_title": "Time complexity analysis of quantum difference methods for the multiscale transport equations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.06593"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Time complexity analysis of quantum difference methods for the multiscale transport equations')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays the Lyapunov exponents and Lyapunov dimension have become so widespread and common that they are often used without references to the rigorous definitions or pioneering works. It may lead to a confusion since there are at least two well-known definitions, which are used in computations: the upper bounds of the exponential growth rate of the norms of linearized system solutions (Lyapunov characteristic exponents, LCEs) and the upper bounds of the exponential growth rate of the singular values of the fundamental matrix of linearized system (Lyapunov exponents, LEs). In this work the relation between Lyapunov exponents and Lyapunov characteristic exponents is discussed. The invariance of Lyapunov exponents for regular and irregular linearizations under the change of coordinates is demonstrated.",
+          "claimed_authors": [
+            "N. V. Kuznetsov",
+            "T. A. Alexeeva",
+            "G. A. Leonov"
+          ],
+          "claimed_title": "Invariance of Lyapunov exponents and Lyapunov dimension for regular and irregular linearizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.2016"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Invariance of Lyapunov exponents and Lyapunov dimension for regular and irregular linearizations')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give a new definition for a Lyapunov exponent (called new Lyapunov exponent) associated to a continuous map. Our first result states that these new exponents coincide with the usual Lyapunov exponents if the map is differentiable. Then, we apply this concept to prove that there exists a C0-dense subset of the set of the area-preserving homeomorphisms defined in a compact, connected and boundaryless surface such that any element inside this residual subset has zero new Lyapunov exponents for Lebesgue almost every point. Finally, we prove that the function that associates an area-preserving homeomorphism, equipped with the C0-topology, to the integral (with respect to area) of its top new Lyapunov exponent over the whole surface cannot be upper-semicontinuous.",
+          "claimed_authors": [
+            "Mario Bessa",
+            "Cesar Silva"
+          ],
+          "claimed_title": "Dense area-preserving homeomorphisms have zero Lyapunov exponents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.0641"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Dense area-preserving homeomorphisms have zero Lyapunov exponents')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given a discrete-time random dynamical system represented by a cocycle of non-singular measurable maps, we may obtain information on dynamical quantities by studying the cocycle of Perron-Frobenius operators associated to the maps. Of particular interest is the second-largest Lyapunov exponent, $λ_2$, which can tell us about mixing rates and decay of correlations in the system. We prove a generalized Perron-Frobenius theorem for cocycles of bounded linear operators on Banach spaces that preserve and occasionally contract a cone; this theorem shows that the top Oseledets space for the cocycle is one-dimensional, and there is an readily computed lower bound for the gap between the largest Lyapunov exponent $λ_1$ and $λ_2$ (that is, an upper bound for $λ_2$ which is strictly less than $λ_1$). We then apply this theorem to the case of cocycles of Perron-Frobenius operators arising from a parametrized family of maps to obtain an upper bound on $λ_2$; to the best of our knowledge, this is the first time $λ_2$ has been upper-bounded for a family of maps. To do this, we utilize a new balanced Lasota-Yorke inequality. We also examine random perturbations of a fixed map with two invariant densities and show that as the perturbation is scaled back down to the unperturbed map, $λ_2$ is asymptotically linear in the scale parameter. Our estimates are sharp, in the sense that there is a sequence of scaled perturbations of the fixed map that are all Markov, such that $λ_2$ is asymptotic to $-2$ times the scale parameter.",
+          "claimed_authors": [
+            "Joseph Horan"
+          ],
+          "claimed_title": "Asymptotics for the second-largest Lyapunov exponent for some Perron-Frobenius operator cocycles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.12112"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Asymptotics for the second-largest Lyapunov exponent for some Perron-Frobenius operator cocycles')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The conductance G of an interacting nano-wire containing an impurity and coupled to non-interacting semi-infinite leads is studied using a functional renormalization group method. We obtain results for microscopic lattice models without any further idealizations. For an interaction which is turned on smoothly at the contacts we show that one-parameter scaling of G holds. If abrupt contacts are included we find power-law suppression of G with an exponent which is twice as large as the one obtained for smooth contacts and no one-parameter scaling. Our results show excellent agreement with the analytically known scaling function at Luttinger liquid parameter K=1/2 and numerical density-matrix renormalization group data.",
+          "claimed_authors": [
+            "V. Meden",
+            "S. Andergassen",
+            "W. Metzner",
+            "U. Schollwoeck",
+            "K. Schoenhammer"
+          ],
+          "claimed_title": "Scaling of the conductance in a quantum wire",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "cond-mat/0303460"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Scaling of the conductance in a quantum wire')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reconfigurable intelligent surfaces (RISs) have the potential to significantly enhance the performance of integrated sensing and communication (ISAC) systems, particularly in line-of-sight (LoS) blockage scenarios. However, as larger RISs are integrated into ISAC systems, mutual coupling (MC) effects between RIS elements become more pronounced, leading to a substantial degradation in performance, especially for localization applications. In this paper, we first conduct a misspecified and standard Cramér-Rao bound analysis to quantify the impact of MC on localization performance, demonstrating severe degradations in accuracy, especially when MC is ignored. Building on this, we propose a novel joint user equipment localization and RIS MC parameter estimation (JLMC) method in near-field wireless systems. Our two-stage MC-aware approach outperforms classical methods that neglect MC, significantly improving localization accuracy and overall system performance. Simulation results validate the effectiveness and advantages of the proposed method in realistic scenarios.",
+          "claimed_authors": [
+            "Alireza Fadakar",
+            "Musa Furkan Keskin",
+            "Hui Chen",
+            "Henk Wymeersch",
+            "Andreas F. Molisch"
+          ],
+          "claimed_title": "Near-Field RIS-Assisted Localization Under Mutual Coupling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.14055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Near-Field RIS-Assisted Localization Under Mutual Coupling')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Second order correlations reveal quantum beats from a coherent ground-state superposition on the undriven mode of a two-mode cavity QED system. Continuous drive induces decoherence due to Rayleigh scattering. We control this with feedback and explore postselection techniques to extract specific behavior.",
+          "claimed_authors": [
+            "Andres D. Cimmarusti",
+            "Burkley D. Patterson",
+            "Luis A. Orozco",
+            "Wanderson M. Pimenta",
+            "Pablo Barberis-Blostein",
+            "Howard J. Carmichael"
+          ],
+          "claimed_title": "Ground State Quantum Coherences: from Quantum Beats to Strong Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.3218"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Ground State Quantum Coherences: from Quantum Beats to Strong Control')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The relations between quantum coherence and quantum interference are discussed. A general method for generation of quantum coherence through interference-induced state selection is introduced and then applied to `simple' atomic systems under two-photon transitions, with applications in quantum optics and laser cooling.",
+          "claimed_authors": [
+            "Jean Claude Garreau"
+          ],
+          "claimed_title": "Quantum coherence generated by interference-induced state selectiveness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "quant-ph/0109107"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Quantum coherence generated by interference-induced state selectiveness')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss the connection between quantum interference effects in optical beams and radiation fields emitted from atomic systems. We illustrate this connection by a study of the first- and second-order correlation functions of optical fields and atomic dipole moments. We explore the role of correlations between the emitting systems and present examples of practical methods to implement two systems with non-orthogonal dipole moments. We also derive general conditions for quantum interference in a two-atom system and for a control of spontaneous emission. The relation between population trapping and dark states is also discussed. Moreover, we present quantum dressed-atom models of cancellation of spontaneous emission, amplification on dark transitions, fluorescence quenching and coherent population trapping.",
+          "claimed_authors": [
+            "Z. Ficek",
+            "S. Swain"
+          ],
+          "claimed_title": "Quantum interference in optical fields and atomic radiation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "quant-ph/0109100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Effect of Disorder on Electronic Transport in 1D Chains physics', candidate_title='Quantum interference in optical fields and atomic radiation')",
+        "failed_at": "2026-06-07T09:26:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michelle C. Anderson",
+            "Chern Chuang"
+          ],
+          "title": "Transfer tensor analysis of localization in the Anderson and Aubry-André-Harper models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.21374",
+        "summary": "We use the transfer tensor method to analyze localization and transport in simple disordered systems, specifically the Anderson and Aubry-André-Harper models. Emphasis is placed on the memory effects that emerge when ensemble-averaging over disorder, even when individual trajectories are strictly Markovian. We find that transfer tensor memory effects arise to remove fictitious terms that would correspond to redrawing static disorder at each time step, which would create a temporally uncorrelated dynamic disorder. Our results show that while eternal memory is a necessary condition for localization, it is not sufficient. We determine that signatures of localization and transport can be found within the transfer tensors themselves by defining a metric called \"outgoing-pseudoflux\". This work establishes connections between theoretical research on dynamical maps and Markovianity and localization phenomena in physically realizable model systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.21374",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:26:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kartikeya Arora",
+            "Rajeev Singh",
+            "Pavan Hosur"
+          ],
+          "title": "Suppression of one-dimensional weak localization by band asymmetry",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.13816",
+        "summary": "We investigate disorder-induced localization in metals that break time-reversal and inversion symmetries through their energy dispersion, $ε_{k}\\neqε_{-k}$, but lack Berry phases. In the perturbative regime of disorder, we show that weak localization is suppressed due to a mismatch of the Fermi velocities of left and right movers. To substantiate this analytical result, we perform quench numerics on chains shorter than the Anderson localization length -- the latter computed and verified to be finite using the recursive Green's function method -- and find a sharp rise in the saturation value of the participation ratio due to band asymmetry, indicating a tendency to delocalize. Interestingly, for weak disorder strength $η$, we see a better fit to the scaling behavior $ξ\\propto1/η^{2}$ for asymmetric bands than conventional symmetric ones.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.13816",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:26:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "K. B. Efetov"
+          ],
+          "title": "Anderson localization and Supersymmetry",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1002.2632",
+        "summary": "The supersymmetry method for study of disordered systems is shortly reviewed. The discussion starts with a historical introduction followed by an explanation of the idea of using Grassmann anticommuting variables for investigating disordered metals. After that the nonlinear supermatrix $σ$-model is derived. Solution of several problems obtained with the help of the $σ$-model is presented. This includes the problem of the level statistics in small metal grains, localization in wires and films, and Anderson metal-insulator transition. Calculational schemes developed for studying these problems form the basis of subsequent applications of the supersymmetry approach.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1002.2632",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:27:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "V. Dobrosavljevic"
+          ],
+          "title": "Typical-Medium Theory of Mott-Anderson Localization",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1003.3215",
+        "summary": "The Mott and the Anderson routes to localization have long been recognized as the two basic processes that can drive the metal-insulator transition (MIT). Theories separately describing each of these mechanisms were discussed long ago, but an accepted approach that can include both has remained elusive. The lack of any obvious static symmetry distinguishing the metal from the insulator poses another fundamental problem, since an appropriate static order parameter cannot be easily found. More recent work, however, has revisited the original arguments of Anderson and Mott, which stressed that the key diference between the metal end the insulator lies in the dynamics of the electron. This physical picture has suggested that the \"typical\" (geometrically averaged) escape rate from a given lattice site should be regarded as the proper dynamical order parameter for the MIT, one that can naturally describe both the Anderson and the Mott mechanism for localization. This article provides an overview of the recent results obtained from the corresponding Typical-Medium Theory, which provided new insight into the the two-fluid character of the Mott-Anderson transition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1003.3215",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:27:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Johann Kroha"
+          ],
+          "title": "Diagrammatic self-consistent theory of Anderson localization for the tight-binding model",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1501.05465",
+        "summary": "A self-consistent theory of the frequency dependent diffusion coefficient for the Anderson localization problem is presented within the tight-binding model of non-interacting electrons on a lattice with randomly distributed on-site energy levels. The theory uses a diagrammatic expansion in terms of (extended) Bloch states and is found to be equivalent to the expansion in terms of (localized) Wannier states which was derived earlier by Kroha, Kopp and Wölfle. No adjustable parameters enter the theory. The localization length is calculated in 1, 2 and 3 dimensions as well as the frequency dependent conductivity and the phase diagram of localization in 3 dimensions for various types of disorder distributions. The validity of a universal scaling function of the length dependent conductance derived from this theory is discussed in the strong coupling region. Quantitative agreement with results from numerical diagonalization of finite systems demonstrates that the self-consistent treatment of cooperon contributions is sufficient to explain the phase diagram of localization and suggests that the system may be well described by a one-parameter scaling theory in certain regions of the phase diagram, if one is not too close to the transition point.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1501.05465",
+          "http_status": 200,
+          "pdf_sample_score": 0.2174,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:27:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "K. A. Snyder",
+            "T. R. Kirkpatrick"
+          ],
+          "title": "The influence of Anderson localization on the mode decay of excited nonlinear systems",
+          "venue": "arXiv",
+          "year": 1999
+        },
+        "primary_pointer": "cond-mat/9908157",
+        "summary": "A one-dimensional system of masses with nearest-neighbor interactions and periodic boundary conditions is used to study mode decay and ergodicity in nonlinear, disordered systems. The system is given an initial periodic displacement, and the total system energy within a specific frequency channel is measured as a function of time. Results indicate that the rate of mode decay at early times increases when impurities are added. However, for long times the rate of mode decay decreases with increasing impurity mass and impurity concentration. This behavior at long times can be explained by Anderson localization effects and the nonergodic response of the system.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/9908157",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-07T09:27:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the effect of disorder on electronic transport in 1d chains physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

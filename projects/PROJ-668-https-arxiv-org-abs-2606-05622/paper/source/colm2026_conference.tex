@@ -1,0 +1,217 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage[preprint]{colm2026_conference}
+
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+% NOTE: including geometry package
+% The geometery package modifies some page properties when used. This can dramatically change the page margins, leading to severe template violation, and potential desk rejection. If the package is required, it can be used with the "pass" flag to skip the default page modifications, as in the following line:
+% \usepackage[pass]{geometry}
+
+\usepackage{lineno}
+
+% =========== customized ============
+\usepackage[many,most,skins,theorems]{tcolorbox}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{cleveref}
+\usepackage{wrapfig}
+
+\usepackage{enumitem}
+\newenvironment{itemize*}%
+ {\leftmargini=20pt\begin{itemize}%
+  \setlength{\itemsep}{3pt}%
+  \setlength{\parskip}{0pt}%
+  }%
+ {\end{itemize}} 
+\newenvironment{enumerate*}%
+ {\begin{enumerate}%
+  \setlength{\itemsep}{0pt}%
+  \setlength{\parskip}{0pt}}%
+ {\end{enumerate}}
+
+ 
+% =========== takeaway ============
+\usepackage{xcolor}
+\tcbuselibrary{skins,breakable}
+\definecolor{rqBlueBg}{HTML}{EAF4FF}
+
+\tcbset{
+  aibox/.style={
+    width=\linewidth,
+    top=7pt,
+    bottom=2pt,
+    colback=rqBlueBg,
+    colframe=black,
+    colbacktitle=black,
+    enhanced,
+    center,
+    attach boxed title to top left={yshift=-0.1in,xshift=0.15in},
+    boxed title style={boxrule=0pt,colframe=white},
+  }
+}
+
+\newcounter{takeaway}
+\newtcolorbox{takeaway}[1][]{
+  aibox,
+  title={\refstepcounter{takeaway}Takeaway \thetakeaway},
+  #1
+}
+
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor[rgb]{0.0, 0.6, 0.0}{\ding{51}}} % Muted dark green
+\newcommand{\xmark}{\textcolor[rgb]{0.7, 0.0, 0.0}{\ding{55}}} % Muted dark red
+\newcommand{\gmark}{\textcolor[rgb]{1,0.647,0}{\ding{51}}}
+
+\NewDocumentCommand{\jiayu}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{jiayu}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\qing}
+{ mO{} }{\textcolor{brown}{\textsuperscript{\textit{qing}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\cheng}
+{ mO{} }{\textcolor{orange}{\textsuperscript{\textit{cheng}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\xiusi}
+{ mO{} }{\textcolor{cyan}{\textsuperscript{\textit{xiusi}}\textsf{\textbf{\small[#1]}}}}
+
+\NewDocumentCommand{\zhenhailong}
+{ mO{} }{\textcolor{purple}{\textsuperscript{\textit{zhenhailong}}\textsf{\textbf{\small[#1]}}}}
+
+\newcommand{\bx}[1]{{\color{teal}{$^\textbf{bingxuan}$[#1]}}}
+
+\definecolor{mypurple}{RGB}{128,0,128}
+\newcommand{\jt}[1]{{\color{mypurple}{$^\textbf{jiateng}$[#1]}}}
+
+\title{AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Agents under World and User Constraints}
+% \xiusi{This title is neither clear or sharp. Consider something like AdaPlanBench: Evaluating LLM Planning with Progressive User-Environment Constraint Disclosure}
+% \zhenhailong{AdaPlanBench: Evaluating Adaptive Planning under Progressive Constraint Disclosure}
+
+% Authors must not appear in the submitted version. This should be be taken care of automatically as long as you are using the "submission" option for the colm2026_conference package. But it's on the authors to verify. Non-anonymous submissions will be rejected without review.
+
+% If your paper is ultimately accepted, the option {\tt{final}} should be set  for the {\tt {\textbackslash}usepackage[submission]\{colm2026\_conference\}} command for the camera ready version. The {\tt submission} options is the default, and is to be used for all submissions during the review process. It also turns on the line numbers. If you wish to submit a preprint, the option {\tt preprint} should be used.
+
+\author{
+\noindent Jiayu Liu,
+Cheng Qian,
+Zhenhailong Wang,
+Bingxuan Li,
+Jiateng Liu,
+Heng Wang, \\
+\bfseries\ Jeonghwan Kim,
+Yumeng Wang, 
+Xiusi Chen, 
+Yi R. (May) Fung,
+Heng Ji \\ \\
+University of Illinois Urbana-Champaign \\
+% \textsuperscript{$2$}The Hong Kong University of Science and Technology \\
+% \textsuperscript{$3$}Tsinghua University
+}
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\newcommand{\BENCH}[1]{\textbf{AdaPlanBench}}
+\newcommand{\bench}[1]{AdaPlanBench}
+
+\begin{document}
+
+\ifcolmsubmission
+\linenumbers
+\fi
+
+\maketitle
+
+
+%%%%%%%%%%%%%%%% Links %%%%%%%%%%%%%%%%
+\vspace{-0.3in}
+\begin{center}
+\small
+
+\newcommand{\logoh}{1.35em}
+
+\href{https://github.com/JiayuJeff/AdaPlanBench}{
+\raisebox{-0.2\height}{\includegraphics[height=\logoh]{figures/github-logo.png}}
+\hspace{0.35em}{\textbf{Code}}
+}
+\quad
+\href{https://huggingface.co/datasets/JiayuJeff/AdaPlanBench}{
+\raisebox{-0.2\height}{\includegraphics[height=\logoh]{figures/hf-logo.png}}
+\hspace{0.35em}{\textbf{Dataset}}
+}
+% \quad
+% \href{}{
+% \raisebox{-0.2\height}{\includegraphics[height=\logoh]{sections/icons/hf-logo.png}}
+% \hspace{0.35em}\textcolor{darkestnavy}{\textbf{Models}}
+% }
+
+\end{center}
+% \vspace{-2mm}
+
+
+\input{latex/0_abstract}
+\input{latex/1_introduction}
+\input{latex/2_related_work}
+\input{latex/3_benchmark}
+\input{latex/4_experiment}
+\input{latex/5_analysis}
+\input{latex/6_conclusion}
+
+
+\section{Limitations}
+
+\paragraph{Limited Domain Coverage.}
+AdaPlanBench is currently instantiated in the household domain, which provides a natural setting where user preferences and world constraints interact. This choice offers a controlled and realistic testbed for studying adaptive planning, but some domain specific phenomena from settings such as travel, office workflows, or robotics may not yet be covered. We partially mitigate this limitation by focusing on general benchmark properties, including dual constraints, progressive disclosure, and open ended evaluation, which are not unique to household tasks. Future work can instantiate the same framework in additional domains to test how well the findings transfer.
+
+\paragraph{Potential Bias in LLM-based Evaluation.}
+Our evaluation relies on LLM judges for constraint checking and rubric scoring, which may introduce model-specific preferences or systematic bias. Although this setup enables scalable evaluation, it is still not equivalent to fully manual assessment. We partially mitigate this risk in two ways: first, we use multiple judges and aggregate their rubric scores to reduce the bias from a certain judge model; second, human annotation shows high consistency with the rubric-based LLM judgments. 
+
+\paragraph{Text-only Evaluation Setting}
+AdaPlanBench evaluates adaptive planning in a text-only interaction setting, without visual perception, embodied execution, or direct contact with real environments. This means the benchmark does not capture the full difficulty of real-world agent deployment, especially when perception and action grounding are tightly coupled. At the same time, this is a deliberate trade-off: by removing perception errors and low-level control noise, the benchmark more cleanly isolates adaptive planning abilities under progressively disclosed constraints. Future work can combine our setting with embodied or multimodal environments to study planning under more realistic scenarios.
+
+\paragraph{Simplified Constraint Modeling.}
+Our constraint construction adopts object-based world constraints and attribute-based user constraints, which improves clarity and verifiability but cannot fully capture the fine-grained, compositional, and sometimes ambiguous nature of real-world constraints. In particular, real user preferences are often softer, vaguer, and harder to canonicalize than the current benchmark format allows. We partially mitigate this issue by using multi-planner sampling and aggregation to ensure constraint diversity. Nevertheless, the resulting constraint space remains a simplified approximation of real-world planning requirements.
+
+\section*{Ethics statement}
+
+\paragraph{Offensive Content Elimination.} 
+Our benchmark focuses on the household domain and a subset of data is manually validated to ensure the dataset is free of offensive material. Consequently, we are confident that it poses no risk of negative societal impact.
+
+\paragraph{Licenses.} 
+Our code will be released under the MIT license to allow unrestricted research use. The \bench{} will be distributed under a Creative Commons (CC) license, providing free access for the academic community. Our use of existing models and tools is strictly consistent with their original licenses and intended research purposes. We take full responsibility for any potential rights violations or licensing issues, and all resources comply with their respective terms of use while supporting research purposes.
+
+\paragraph{Models.} 
+All open-source models were hosted and executed locally using the vLLM library~\citep{vllm}, while all closed-source models were accessed through their respective official APIs. 
+For reproducibility, the experimental settings are detailed in Section~\ref{app:model-setup}.
+
+
+\paragraph{Data Annotations.}
+
+All data annotation was performed by PhD-level researchers with relevant expertise, ensuring that the process was conducted responsibly and in accordance with ethical standards.
+
+
+\bibliography{colm2026_conference}
+\bibliographystyle{colm2026_conference}
+
+\input{latex/10_Appendix}
+
+\end{document}

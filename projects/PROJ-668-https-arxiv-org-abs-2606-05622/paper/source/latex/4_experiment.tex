@@ -1,0 +1,112 @@
+\section{Experiment}
+\label{sec:experiment}
+
+\subsection{Experiment Setup}
+\label{sec:experiment-setup}
+
+\paragraph{Models.}
+We evaluate proprietary and open-source models to ensure a balanced and comprehensive assessment of current LLM capabilities. 
+Proprietary models include GPT~\citep{gpt}, DeepSeek~\citep{deepseek2026v4preview}, and Gemini~\citep{gemini31pro}; while open-source models include Qwen3~\citep{qwen3technicalreport}, and Llama3~\citep{grattafiori2024llama3herdmodels}. 
+We manually validate the reliability of both $M_{\mathrm{chk}}$ used in data construction and the runtime judge models, as detailed in Appendix~\ref{app:model_choise}.
+
+
+\paragraph{Metrics.}
+\textbf{(1) Acc.} (Accuracy, \%):
+The percentage of valid queries whose final-turn plan satisfies all world and user constraints and passes the rubric threshold on all dimensions. 
+Queries that terminate due to early stopping or reaching the maximum turn budget are counted as failures.
+\textbf{(2) VPR} (Valid Plan Rate, \%):
+The percentage of valid queries that terminate with a constraint-satisfying plan rather than in early stopping or max-turn stopping.
+\textbf{(3) Avg Turns}:
+The average number of interaction turns per instance.
+\textbf{(4) AWRV} (Average World Repeated Violations):
+The average number of repeated violations of disclosed world constraints per query.
+\textbf{(5) AURV} (Average User Repeated Violations):
+The average number of repeated violations of disclosed user constraints per query.
+\textbf{(6) ATWC} (Average Triggered World Constraints):
+The query-level ratio of triggered world constraints to interaction turns, averaged across queries.
+\textbf{(7) ATUC} (Average Triggered User Constraints):
+The query-level ratio of triggered user constraints to interaction turns, averaged across queries.
+Detailed metric implementations are provided in Appendix~\ref{app:metrics}.
+% \jiayu{(1) consider turns AWRV and AURV into per turn. (2) not triggered world constraints per turn. It is the all triggered world constraints divided by turn number. (3) Add metric detailed formula in Appendix.}
+% \bx{consider do both turn level and trajectory level, report separately}
+We discuss and provide prompts used in evaluation in Appendix~\ref{app:prompt-details} and Table~\ref{tab:all-prompts-router}. 
+
+\begin{table*}[t]
+% \vspace{-0.4in}
+\centering
+% \small
+% \setlength{\tabcolsep}{2pt}
+\setlength{\extrarowheight}{2pt}
+\resizebox{\linewidth}{!}{
+\begin{tabular}
+% {l@{\hspace{6mm}}c@{\hspace{6mm}}c@{\hspace{6mm}}c@{\hspace{6mm}}c@{\hspace{6mm}}c@{\hspace{6mm}}c@{\hspace{6mm}}c}
+{lccccccc}
+\toprule
+\multirow{2}{*}{Model} & \multicolumn{3}{c}{Outcome} & \multicolumn{2}{c}{Constraint Failure} & \multicolumn{2}{c}{Constraint Elicitation} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+ & Acc. (\%) $\uparrow$ & VPR (\%) $\uparrow$ & Avg Turns & AWRV $\downarrow$ & AURV $\downarrow$ & ATWC & ATUC \\
+\midrule
+Qwen3-8B & 14.38 & 82.35 & 4.493 & 0.242 & 0.614 & 0.608 & 1.888 \\
+Qwen3-14B & 17.26 & 73.62 & 4.785 & 0.296 & 0.821 & 0.668 & 2.042 \\
+Qwen3-32B & 17.92 & 80.13 & 5.010 & 0.150 & 0.645 & 0.609 & 2.082 \\
+Llama-3.3-70B-Instruct & 29.32 & 83.71 & 4.619 & \underline{0.114} & 0.537 & 0.668 & 1.830 \\
+DeepSeek-v4-Flash & 35.53 & 76.97 & 6.385 & 0.464 & 0.895 & 0.977 & 2.657 \\
+Gemini-3-Flash & 43.32 & \underline{90.23} & 5.824 & \textbf{0.065} & 0.391 & 0.756 & 2.442 \\
+Gemini-3.1-Pro & 34.53 & \textbf{91.21} & 5.651 & 0.124 & \underline{0.251} & 0.769 & 2.236 \\
+GPT-5 & \textbf{67.75} & 89.58 & 6.212 & 0.199 & \textbf{0.195} & \underline{1.191} & \underline{3.269} \\
+GPT-5-Mini & \underline{61.89} & 85.34 & 5.886 & 0.322 & 0.322 & \textbf{1.318} & \textbf{3.391} \\
+GPT-5-Nano & 42.35 & 67.75 & 5.541 & 0.971 & 0.355 & 1.089 & 2.468 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-0.1in}
+\caption{\BENCH{} evaluation results under $\mathcal{E}_{mid}$. 
+Scores in \textbf{bold} and \underline{underline} indicate the best and second-best performance, respectively.
+Avg Turns is averaged over all instances, including early-stopped trajectories. We highlight the top two ATWC and ATUC values for comparison, although higher is not always better. Confidence intervals are in Appendix~\ref{app:CI}.}
+\label{tab:main_table_2}
+\vspace{-0.2in}
+\end{table*}
+
+
+
+
+\subsection{Results}
+
+\paragraph{Current LLM Agents are still far from effective under dynamic dual constraints.}
+The main results indicate that planning under progressively disclosed dual constraints remains challenging for all evaluated models. 
+Even \textit{GPT-5}, the best-performing model, reaches only 67.75\% accuracy. 
+% \xiusi{How do we define ``good'' or ``bad'' in our sense? Whether performance is good or bad should be relative instead of absolute. Has any human eval been done so that we have a sense of what number we should compare to?} 
+Another strong model, \textit{Gemini-3.1-Pro}, scores only around 35\%, while most models fall below 45\%. 
+Open-weight models perform particularly poorly, typically around 30\% or lower. 
+Although most models maintain a valid-plan ratio above 70\%, they still frequently violate already disclosed constraints. 
+Additionally, averaged across the 10 evaluated models, each query contains 0.295 repeated violations of disclosed world constraints and 0.503 repeated violations of disclosed user constraints.
+As a result, 17.91\% of queries terminate early in average because the model violates disclosed constraints two consecutive times without triggering any new constraint. 
+Together, these results indicate that progressively disclosed dual constraints remain a substantial challenge for current models, affecting both consistent constraint adherence and overall plan quality.
+
+\paragraph{High valid-plan rates do not necessarily translate into final task success.}
+A high valid plan ratio (VPR) does not guarantee strong end-task accuracy. 
+For example, both \textit{Gemini-3.1-Pro} and \textit{Gemini-3-Flash} achieve relatively high VPRs, exceeding 90\%, yet their accuracies remain below 45\%. 
+This pattern is further supported by their relatively low AWRV and AURV, suggesting that these models are reasonably effective at tracking disclosed constraints and avoiding repeated violations. 
+However, despite maintaining executable plans and showing relatively strong constraint-tracking behavior, they still often fail to reach correct final solutions. 
+This pattern suggests that relatively strong constraint tracking alone is insufficient to ensure strong final performance under progressive disclosure.
+
+\paragraph{Better final performance is associated with stronger proactive constraint exploration.}
+The results also suggest that stronger end-task performance is associated with stronger proactive exploration during interaction.
+The highest-accuracy models, \textit{GPT-5} and \textit{GPT-5-Mini}, also exhibit the highest ATWC and ATUC values.
+Across models, accuracy is strongly correlated with both metrics, with correlation coefficients of 0.898 for ATWC and 0.919 for ATUC.
+One possible explanation is that higher ATWC and ATUC may reflect a greater capacity to generate more diverse plan revisions after blocking feedback, enabling the agent to propose new candidate plans under the currently disclosed constraints.
+
+\paragraph{Conventional notions of model strength do not reliably predict adaptive planning capability.}
+A final striking pattern is that models conventionally considered stronger do not always perform better in this setting. 
+\textit{GPT-5-Mini} achieves accuracy comparable to \textit{GPT-5}, while \textit{Gemini-3-Flash} even surpasses \textit{Gemini-3.1-Pro}, despite the latter achieving the best VPR.
+Among the open-weight Qwen3 models, \textit{Qwen3-8B}, \textit{Qwen3-14B}, and \textit{Qwen3-32B} perform similarly, with all three remaining at comparably low accuracy levels despite their substantial differences in scale.
+This suggests that the capabilities required by our benchmark are not well captured by standard notions of model strength. 
+More broadly, simple scaling in model size or general-purpose capability does not appear sufficient to deliver models' adaptiveness under progressively disclosed dual constraints.
+We further provide error analysis in Section~\ref{sec:error-analysis}. 
+% \xiusi{May be better to also suggest some potential solutions? For example, build data and train model, etc.}
+
+
+
+
+
+
