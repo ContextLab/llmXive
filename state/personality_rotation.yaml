@@ -1,11 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-06-07T05:04:54.928167+00:00'
-last_outcome: committed
+last_used: linus-pauling
+last_used_at: '2026-06-07T06:55:13.141216+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-05-28T09:49:00.844143+00:00'
-  ended_at: '2026-05-28T11:12:53.890977+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-05-28T11:12:53.890977+00:00'
   ended_at: '2026-05-28T12:47:01.045506+00:00'
@@ -1185,3 +1181,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-585-dendritic-computation-in-transformers-be/reviews/research/john-von-neumann-simulated__2026-06-07__research.md
+- slug: linus-pauling
+  started_at: '2026-06-07T05:04:54.928167+00:00'
+  ended_at: '2026-06-07T06:55:13.141216+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
