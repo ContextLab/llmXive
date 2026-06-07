@@ -1,0 +1,135 @@
+project_id: PROJ-574-eva-bench-a-new-end-to-end-framework-for
+arxiv_id: '2605.13841'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-07T17:01:03.132460+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 29d5fc6fde79
+    text: Paper claims open-source release but no code repository is accessible during
+      review. Add working links to the actual implementation repository with version
+      tags matching the paper submission date for reproducibility verification.
+    severity: writing
+  - id: 95753ce12db1
+    text: Methodology describes log processing and metric calculations but lacks implementation-level
+      detail. Include pseudocode or reference specific module paths (e.g., 'metrics/turn_taking.py')
+      to enable independent verification of scoring logic.
+    severity: writing
+  - id: 16ef891a13ad
+    text: Framework claims 'automated simulator validation' and 'regeneration on failure'
+      but provides no test suite or validation script paths. Document test infrastructure
+      location and coverage metrics for reproducibility.
+    severity: writing
+  - id: '615814674414'
+    text: The Abstract states the data is released under an 'open-source license'
+      but does not specify which one (e.g., MIT, Apache 2.0). This ambiguity prevents
+      users from understanding usage rights and compliance requirements.
+    severity: writing
+  - id: 1b0be1d70a9c
+    text: There is no dataset version number (e.g., v1.0) or persistent DOI (e.g.,
+      Zenodo) cited for the benchmark data. Relying solely on GitHub/HuggingFace links
+      risks link rot and makes reproducibility across time difficult.
+    severity: science
+  - id: 027b59b91398
+    text: While log file schemas (JSON/JSONL) are described in Section 'Log Processing',
+      the schema for the scenario data (user goals, personas, ground truth) is only
+      described textually. A formal schema definition or sample file reference should
+      be added to Appendix~\ref{app:data}.
+    severity: writing
+  - id: 595466f53419
+    text: Add shape/pattern differentiation to perturbation bar charts (e.g., fig:perturbation-eva-a-pass-pooled)
+      for grayscale accessibility.
+    severity: writing
+  - id: 3b66a70aeb33
+    text: Insert \\alttext for all \\begin{figure} environments to support screen
+      readers and meet accessibility standards.
+    severity: writing
+  - id: 0ca7e60b2744
+    text: Verify all plotted figures (e.g., fig:threshold_sensitivity) are vector
+      graphics to ensure print legibility at 300 DPI.
+    severity: writing
+  - id: 9ce1107a4280
+    text: Define acronyms IAA, REML, ANOVA, SLA, MFA, AD, IRROPS, and VAD at first
+      use.
+    severity: writing
+  - id: e384e738df46
+    text: Replace 'validation-gated' and 'bot-to-bot' with plainer alternatives like
+      'validation-controlled' and 'agent-to-agent'.
+    severity: writing
+  - id: 202b84099d7f
+    text: Simplify statistical terminology (e.g., 'percentile bootstrap CI') for broader
+      readability.
+    severity: writing
+  - id: 64205eb2492c
+    text: Verify the '0.23 gap' claim in Appendix A.4 (Turn-Taking threshold justification)
+      against Turn-Taking Mean scores in Table accuracy-experience-tables (Section
+      5.2), which show a larger gap (~0.38) between S2S and Cascade systems.
+    severity: science
+  - id: f667bbd54530
+    text: Clarify the magnitude of perturbation effects in Section 5.2 ('Turn-taking
+      most sensitive (81% degradation)') to ensure alignment with the Abstract's claim
+      ('mean Delta up to 0.314'), as 81% degradation implies a larger score drop than
+      0.314 if interpreted as a metric delta.
+    severity: writing
+  - id: 1d33b0cd7465
+    text: Temper the absolute novelty claim in the Abstract ('no existing benchmark
+      jointly addresses...') to acknowledge partial overlaps with prior work like
+      tau-Voice or FDB-v3 regarding simulation or audio realism.
+    severity: writing
+  - id: 9b25f3054aa3
+    text: Restrict generalizations about 'Voice Agents' in the Introduction and Abstract
+      to 'Enterprise Task-Oriented Voice Agents' given the 213 scenarios are strictly
+      domain-specific (Airline, HR, ITSM).
+    severity: writing
+  - id: 5186b48e167e
+    text: Clarify that EVA-A/EVA-X thresholds (e.g., Turn-Taking >= 0.8) are benchmark-specific
+      baselines rather than universal standards for voice agent quality, to avoid
+      overclaiming normative validity.
+    severity: science
+  - id: 6f24cbb745e8
+    text: Add a Data Availability statement explicitly confirming that all released
+      synthetic scenarios have been scrubbed of PII (e.g., phone numbers, employee
+      IDs) to prevent privacy leakage under the open-source license.
+    severity: writing
+  - id: 0f9fa270fbad
+    text: Include a Dual-Use statement addressing the potential misuse of the 9 adversarial
+      ITSM scenarios (Section "Enterprise ITSM Workflows") for training agents to
+      bypass safety guardrails.
+    severity: writing
+  - id: 08fb81144cfb
+    text: Disclose funding sources and potential Conflicts of Interest, particularly
+      given the framework is hosted on the ServiceNow GitHub organization while evaluating
+      competitors (OpenAI, Google, ElevenLabs).
+    severity: writing
+  - id: 7c4792162a89
+    text: The correlation claim between transcription accuracy and task completion
+      (r=0.93, p=0.002) is based on only 7 systems (N=7). This sample size is insufficient
+      for robust Pearson correlation inference. Please provide confidence intervals
+      for the correlation coefficient or qualify the claim as preliminary.
+    severity: science
+  - id: '619832153797'
+    text: The 12.0% simulator regeneration rate indicates non-trivial instability
+      in the user simulator. Clarify whether variance from 'valid' but potentially
+      drifted simulator behavior is fully captured in the reported 'Trial' variance
+      component in the LMM analysis (Table LMM).
+    severity: science
+  - id: 66ea7009b040
+    text: The perturbation suite is limited to French accent and coffee noise. While
+      the robustness findings are valid for these conditions, explicitly acknowledge
+      that generalizability to other accents or acoustic environments is an assumption
+      not tested by the current data.
+    severity: writing
+  - id: cc2989ebd78b
+    text: Convert sentence fragments in Section 4 (Experiments & Empirical Analysis)
+      into complete sentences to improve readability.
+    severity: writing
+  - id: d17f83d23912
+    text: Fix missing verbs in Appendix text (e.g., 'transcription accuracy and task
+      completion tightly coupled').
+    severity: writing
+  - id: dde8edb529e2
+    text: Ensure consistent formatting of metric names throughout the document (e.g.,
+      EVA-A vs EVA-A).
+    severity: writing

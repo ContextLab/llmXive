@@ -161,4 +161,7 @@ ready:
 - project_id: PROJ-619-delta-discriminative-token-credit-assign
   revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
   queued_at: '2026-06-07T13:23:17.907777+00:00'
+- project_id: PROJ-574-eva-bench-a-new-end-to-end-framework-for
+  revision_spec_path: specs/auto-revisions/PROJ-574-eva-bench-a-new-end-to-end-framework-for/round-1
+  queued_at: '2026-06-07T17:01:03.149280+00:00'
 blocked: []
