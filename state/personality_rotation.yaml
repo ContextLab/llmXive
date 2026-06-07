@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-07T09:39:41.283336+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: rosalind-franklin
+last_used_at: '2026-06-07T10:45:49.723196+00:00'
+last_outcome: committed
 history:
-- slug: rosalind-franklin
-  started_at: '2026-05-28T14:17:15.912421+00:00'
-  ended_at: '2026-05-28T15:49:49.472315+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/reviews/rosalind-franklin-simulated__2026-05-28__paper.md
 - slug: stephen-wolfram
   started_at: '2026-05-28T15:49:49.472315+00:00'
   ended_at: '2026-05-28T17:17:24.636474+00:00'
@@ -1184,3 +1177,10 @@ history:
   ended_at: '2026-06-07T09:39:41.283336+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-07T09:39:41.283336+00:00'
+  ended_at: '2026-06-07T10:45:49.723196+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-675-comparing-born-model-predictions-with-ex/reviews/research/rosalind-franklin-simulated__2026-06-07__research.md
