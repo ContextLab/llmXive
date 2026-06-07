@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-07T18:58:57.832042+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: geoffrey-west
+last_used_at: '2026-06-07T19:32:33.989132+00:00'
+last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-29T04:59:56.754434+00:00'
-  ended_at: '2026-05-29T06:31:08.556493+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-626-skillopt-executive-strategy-for-self-evo/paper/reviews/john-von-neumann-simulated__2026-05-29__paper.md
 - slug: linus-pauling
   started_at: '2026-05-29T06:31:08.556493+00:00'
   ended_at: '2026-05-29T07:53:11.566678+00:00'
@@ -1174,3 +1167,10 @@ history:
   ended_at: '2026-06-07T18:58:57.832042+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-07T18:58:57.832042+00:00'
+  ended_at: '2026-06-07T19:32:33.989132+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-655-https-arxiv-org-abs-2606-02437/reviews/research/geoffrey-west-simulated__2026-06-07__research.md
