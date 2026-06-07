@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-07T12:33:28.093356+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-06-07T13:34:26.257108+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-05-28T18:29:03.094759+00:00'
-  ended_at: '2026-05-28T19:26:29.456407+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/alan-turing-simulated__2026-05-28__research.md
 - slug: albert-einstein
   started_at: '2026-05-28T19:26:29.456407+00:00'
   ended_at: '2026-05-28T20:19:33.272776+00:00'
@@ -1184,3 +1177,10 @@ history:
   ended_at: '2026-06-07T12:33:28.093356+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-07T12:33:28.093356+00:00'
+  ended_at: '2026-06-07T13:34:26.257108+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-670-arcane-do-role-playing-language-agents-s/reviews/research/alan-turing-simulated__2026-06-07__research.md
