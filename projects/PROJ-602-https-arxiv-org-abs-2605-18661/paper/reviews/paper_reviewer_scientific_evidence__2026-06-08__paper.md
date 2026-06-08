@@ -22,6 +22,10 @@ action_items:
   text: "Replication concerns not addressed\u2014several cited works (AI Scientist,\
     \ FARS) report single-run outcomes without variance estimates. Flag systems where\
     \ results lack reproducibility documentation or independent verification."
+- id: e65635b62887
+  severity: science
+  text: Cost-quality tradeoff claims (sec:e2e_systems) rely on N<10 systems. Statistical
+    robustness is low; add confidence intervals or acknowledge small-sample limitation.
 artifact_hash: 406e68578ff634bb909200355e48bd438ba9dc41c31d75ef24170dcb14dc58cd
 artifact_path: projects/PROJ-602-https-arxiv-org-abs-2605-18661/paper/metadata.json
 backend: dartmouth
@@ -29,23 +33,11 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-08T05:11:16.259824Z'
+reviewed_at: '2026-06-08T19:31:52.932640Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_scientific_evidence
 score: 0.0
 verdict: minor_revision
 ---
 
-This survey paper synthesizes evidence from numerous sources rather than generating original experimental data, which fundamentally limits traditional scientific evidence review. However, several evidence-quality concerns warrant attention:
-
-**Sample Size Transparency**: Critical quantitative claims cite specific numbers without reporting underlying sample sizes. For example, the idea execution gap (Δ=-1.98 vs -0.63, [si2025gap]) and LLM review misclassification rate (95.8%, [llmreviewer2025]) lack N values, confidence intervals, or power calculations. Without these, readers cannot assess whether findings are robust or potentially driven by small samples.
-
-**Benchmark Validity**: The paper aggregates results across many benchmarks (SWE-bench, IdeaBench, PaperBench, etc.) but doesn't critically evaluate whether these benchmarks suffer from contamination, temporal invalidity, or narrow domain coverage. Several cited systems may have been trained on test-set materials, inflating reported performance.
-
-**Alternative Explanations**: Key findings (e.g., AI review leniency, idea degradation after execution) are presented primarily through the lens of AI limitations. Plausible confounding factors—selection bias in reviewed papers, publication bias favoring successful AI results, or task mismatch between benchmarks and real research—receive minimal discussion.
-
-**Replication Gap**: Several cited end-to-end systems (AI Scientist, FARS, CycleResearcher) report point estimates without variance, control conditions, or independent verification. The paper should flag which findings have been independently replicated versus those that remain single-study observations.
-
-**Statistical Rigor**: Some claims use p-values or correlation coefficients (e.g., ρ=-0.29 novelty-impact correlation, [hindsight2026]) without reporting multiple-comparison corrections or effect size magnitudes. For a survey paper, this is acceptable but could be strengthened with explicit uncertainty quantification.
-
-The paper's evidence synthesis is comprehensive but would benefit from more critical evaluation of underlying study quality, explicit acknowledgment of evidence limitations, and clearer distinction between well-replicated findings versus single-study observations.
+The survey synthesizes external evidence but must ensure robustness of cited metrics. In sec:ideation, the ideation-execution gap (Δ=-1.98) is cited from si2025gap, but the text does not report the N of ideas evaluated, limiting reproducibility assessment. Similarly, in sec:peer_review, the 95.8% misclassification rate for rejected papers (llmreviewer2025) is presented without confidence intervals. Regarding benchmark validity (Item a6bd4cad9619), sec:eval_challenges acknowledges contamination risks generally but fails to audit specific benchmarks like SWE-bench or IdeaBench for known leakage or temporal staleness, which is critical given the rapid iteration of test sets. For alternative explanations (Item f028a6f5097a), the discussion of AI review leniency focuses on model weakness rather than selection bias in the review pool, leaving a key confounder unaddressed. Replication flags (Item 99dc5edab1b5) are missing from the main narrative despite the TODO comments in the LaTeX suggesting awareness. Finally, a new concern arises from the cost-quality analysis in sec:e2e_systems. The claim that higher cost does not guarantee quality is derived from a very small sample of systems (N < 10). This introduces high variance and potential overfitting. Please acknowledge the small-N limitation or provide variance estimates for these aggregated metrics. As a survey, the scientific weight rests on the precision of these synthesized claims.

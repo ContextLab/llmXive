@@ -19,23 +19,17 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-08T05:15:33.675746Z'
+reviewed_at: '2026-06-08T19:33:23.506439Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_data_quality_paper
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper provides a comprehensive taxonomy of AI research tools, but the data quality of the referenced resources requires improvement for reproducibility and long-term utility. In the Appendix tables (e.g., `tab:appendix_s1`, `tab:appendix_s3`), columns for `GitHub`, `Link`, and `Venue` are present, but critical metadata such as software **license** and **dataset version** are absent. For instance, `tab:appendix_s1` lists `IdeaBench` and `SWE-bench` but does not specify their usage licenses (e.g., MIT, CC-BY, Apache 2.0). This omission prevents downstream users from understanding legal constraints on reusing these benchmarks or tools.
+All three prior data quality action items remain unaddressed in this revision. First, the License column is still missing from all appendix tables (tab:appendix_s1 through tab:appendix_s8 in sections e002-e003). The tables catalog 30+ tools and datasets across the research lifecycle, yet provide no information about usage rights, licensing terms, or redistribution permissions. This is critical for practitioners who may wish to reuse these resources in their own work.
 
-Furthermore, the reliance on dynamic external links poses a significant link rot risk. While the authors maintain a project page (`https://worldbench.github.io/awesome-ai-auto-research`), the hundreds of third-party GitHub URLs (e.g., `https://github.com/SakanaAI/AI-Scientist` in `tab:appendix_e2e`) are not archived. Best practice for survey papers involves providing DOIs or Zenodo archives for code repositories to ensure long-term accessibility independent of platform availability. The current `2026` dates in citations (e.g., `arXiv'26`) suggest a future cutoff; if these are preprints, their stability is higher, but final publication versions should be linked once available.
+Second, mutable GitHub URLs persist throughout the bibliography and appendix tables. Examples include https://github.com/princeton-nlp/SWE-bench (tab:benchmarks, e000), https://github.com/Just-Curieous/Curie (tab:appendix_s1, e002), and https://github.com/guestrin-lab/deepscholar-bench (tab:appendix_s2, e002). These direct GitHub links are subject to repository deletion, renaming, or content changes, creating link rot risk for a survey paper intended as a stable reference. Archived versions via Zenodo, DOI, or a dedicated project index would provide citation stability.
 
-Version control is also inconsistent. Some entries mention versions (e.g., `SWE-bench_Verified`), while others list only the year (e.g., `arXiv'24`). Without specific commit hashes or dataset release versions, it is difficult to reproduce the exact state of the tools evaluated. Additionally, missing data in tables is denoted by `-` (e.g., `tab:appendix_s1`, row 7), which is acceptable but should be explicitly defined in a footnote to distinguish between "not available" and "not applicable" to avoid confusion.
+Third, dataset and tool versions are not specified for most benchmarks. In tab:benchmarks (e000) and the appendix inventory tables, entries like "SWE-bench" (2024), "EXP-Bench" (2026), and "IdeaBench" (2024) lack version identifiers (e.g., v1.0, commit hash, snapshot date). Without version information, reproducibility is impossible—readers cannot know which exact dataset split or code version produced the reported results. This is especially critical for benchmarks that may have undergone updates since publication.
 
-To improve data quality, the authors should:
-1. Add a `License` column to the appendix tables for all listed tools and datasets.
-2. Replace mutable GitHub URLs with archived versions (Zenodo/DOI) where possible, or link to the project page as a central stable index.
-3. Specify dataset/tool versions (e.g., v1.0, commit hash) for all benchmarks to enable reproducibility.
-4. Clarify the meaning of `-` in tables with a footnote.
-
-These changes will ensure the survey remains a reliable, reproducible reference as the field evolves and links potentially decay.
+These three issues are fundamental to data provenance, reproducibility, and long-term usability of the survey's resource catalog. They should be resolved before acceptance.

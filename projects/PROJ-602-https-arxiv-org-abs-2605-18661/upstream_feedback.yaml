@@ -125,3 +125,158 @@ rounds:
     text: "Add clearer transitions between phase sections (Creation \u2192 Writing\
       \ \u2192 Validation \u2192 Dissemination) to improve flow."
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-08T19:38:50.265965+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 29f575b47317
+    text: Regenerate figures e2e_arch, cost_quality, automation_paradox, and three_layer
+      as marked by TODO comments; verify cost/quality data points and update ICLR
+      acceptance threshold to 5.69
+    severity: writing
+  - id: 79c55ad02a56
+    text: Verify all benchmark statistics (e.g., 89% review improvement, 95.8% misclassification
+      rate, 25% commitment unfulfillment) with original sources or add uncertainty
+      markers
+    severity: writing
+  - id: 3ef60d7f96e9
+    text: Complete or remove commented-out figures (review_bias, rebuttal_flow, e2e_arch,
+      cost_quality, automation_paradox, three_layer) before final submission
+    severity: writing
+  - id: 8816a52d37ea
+    text: Several key statistics cite non-academic sources (e.g., blog URL for FARS
+      token counts/paper rate). Replace with formal technical reports or peer-reviewed
+      publications where possible to strengthen claim validity.
+    severity: writing
+  - id: e599f4ee4ce4
+    text: "Many critical numerical claims rely on future-dated sources (2025\u2013\
+      2026) that cannot be independently verified by readers at present. Add a disclaimer\
+      \ clarifying the provisional nature of these preprint/blog-sourced metrics."
+    severity: writing
+  - id: 19f5c33e2de7
+    text: "Verify specific numerical claims (e.g., $15/paper, \u0394=\u22121.98, 95.8%\
+      \ misclassification) against the cited source content to ensure no rounding\
+      \ errors or misattributions occurred during manuscript preparation."
+    severity: science
+  - id: df1ae2f2430f
+    text: 'Code artifacts (scripts, dependencies, tests) required for code quality
+      review are not present in the submission package. Only LaTeX source and figures
+      were provided. This item remains unaddressed from prior review (id: ab299abf1cc4).'
+    severity: writing
+  - id: f29d449beaa9
+    text: Add a License column to all appendix tables (e.g., tab:appendix_s1) to specify
+      usage rights for tools and datasets.
+    severity: writing
+  - id: ded46566c806
+    text: Replace mutable GitHub URLs with archived versions (Zenodo/DOI) or link
+      to a stable project index to prevent link rot.
+    severity: writing
+  - id: 5d2e597c6bb7
+    text: Specify dataset/tool versions (e.g., v1.0, commit hash) for all benchmarks
+      to enable reproducibility.
+    severity: writing
+  - id: 5a07f1aa9d36
+    text: Referenced figures (e.g., writing_quality_landscape.pdf, review_bias.pdf)
+      are missing from the project assets but cited in commented-out LaTeX blocks.
+      Either include the assets or remove the references to avoid broken compilation
+      and unsupported visual claims.
+    severity: writing
+  - id: 207641bd0ad2
+    text: Stage icons (s1_ideation.png, etc.) are rendered at 0.12\columnwidth in
+      \stagecard. This is approximately 1.5cm wide, risking illegibility at print
+      scale. Increase width to 0.2\columnwidth or use vector graphics.
+    severity: writing
+  - id: 09caa5834298
+    text: No alt text attributes are provided for \includegraphics commands. Add alt
+      text or use the accessibility package to ensure compliance with accessibility
+      standards for screen readers.
+    severity: writing
+  - id: 8988aacccd86
+    text: Add explicit dual-use risk assessment for chemistry/biology systems (MOOSE-Chem,
+      BioPlanner, CRISPR-GPT). Current discussion in Sec 5.4.6 mentions cross-domain
+      risks but lacks concrete safety protocols or biosecurity guardrails for autonomous
+      experimentation in sensitive domains.
+    severity: science
+  - id: add8ea9ea223
+    text: Clarify accountability framework for AI-generated research claims. Section
+      5.5.5 discusses governance but does not specify who bears responsibility (authors,
+      institutions, tool developers) when AI-generated experiments produce erroneous
+      or harmful results.
+    severity: writing
+  - id: 640623b73c11
+    text: Add data privacy and consent considerations for research involving human
+      subjects or sensitive data. The paper does not address IRB/IACUC requirements
+      or data protection when AI systems process research participant information.
+    severity: writing
+  - id: 883d5824713c
+    text: Strengthen discussion of AI-assisted peer review manipulation risks (Sec
+      5.3.1). While prompt injection is noted, the paper should explicitly recommend
+      disclosure requirements and audit mechanisms for venues using AI in review workflows.
+    severity: science
+  - id: 646eb4a414c7
+    text: "Many quantitative claims lack sample size disclosure (e.g., \u0394=-1.98\
+      \ vs -0.63 for idea execution gap [si2025gap], 95.8% misclassification rate\
+      \ [llmreviewer2025]). Report N, confidence intervals, or effect sizes where\
+      \ available to enable robustness assessment."
+    severity: science
+  - id: a6bd4cad9619
+    text: Survey aggregates findings across heterogeneous benchmarks (SWE-bench, IdeaBench,
+      etc.) without discussing benchmark contamination risks or temporal validity.
+      Add critical evaluation of whether cited benchmarks have known contamination
+      or outdated test sets.
+    severity: science
+  - id: f028a6f5097a
+    text: Alternative explanations for key patterns are underexplored (e.g., AI review
+      leniency could reflect selection bias in what papers get reviewed, not just
+      LLM weakness). Include discussion of plausible confounding factors for major
+      claims.
+    severity: science
+  - id: 99dc5edab1b5
+    text: "Replication concerns not addressed\u2014several cited works (AI Scientist,\
+      \ FARS) report single-run outcomes without variance estimates. Flag systems\
+      \ where results lack reproducibility documentation or independent verification."
+    severity: science
+  - id: e65635b62887
+    text: Cost-quality tradeoff claims (sec:e2e_systems) rely on N<10 systems. Statistical
+      robustness is low; add confidence intervals or acknowledge small-sample limitation.
+    severity: science
+  - id: 0d31f7483f43
+    text: Clarify that all reported statistics are secondary citations from external
+      studies, not primary analysis conducted by authors.
+    severity: writing
+  - id: 9e2667bcedd1
+    text: Include confidence intervals or sample sizes for key aggregated metrics
+      (e.g., 17.5% AI modification, 89% improvement) where source data permits.
+    severity: science
+  - id: b7e94fbbd59f
+    text: In e000, \label{tab:method_summary} and \label{tab:benchmarks} are placed
+      before \caption. Move \label after \caption to ensure correct cross-reference
+      numbering.
+    severity: writing
+  - id: bb51e5dd5e3d
+    text: In e003, tables tab:appendix_s6, tab:appendix_s7, and tab:appendix_e2e contain
+      lines like '(... X rows omitted ...)' without column separators (&). This will
+      cause LaTeX compilation errors. Use \multicolumn{8}{@{}l}{...} to span columns.
+    severity: writing
+  - id: 1aed79acd041
+    text: In e001 and e002, several figures (e.g., fig:review_bias, fig:e2e_arch)
+      are commented out but retain \label commands. If these figures are not in the
+      final PDF, remove the \label to prevent broken references if they are cited
+      elsewhere.
+    severity: writing
+  - id: ad30838ae380
+    text: Simplify dense multi-clause sentences in Introduction (e.g., the AI Scientist/FARS/ARIS
+      sentence spanning three research systems) by splitting into 2-3 sentences. This
+      item (3be25408c238) remains unaddressed.
+    severity: writing
+  - id: 81d3ecbf5fe9
+    text: Break long paragraphs in Cross-Cutting Insights (Sec. 6) into shorter units
+      for better readability; verify all paragraphs now stay under 10 sentences. This
+      item (f6730c16ca0d) requires verification as full section not visible in chunks.
+    severity: writing
+  - id: 608d9637aa8e
+    text: Add clearer transition sentences between Phase 2 (Writing) and Phase 3 (Validation)
+      sections; current transitions exist but lack explicit connective language explaining
+      the logical flow between phases.
+    severity: writing

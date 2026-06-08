@@ -1,36 +1,46 @@
 ---
-action_items: []
+action_items:
+- id: 29f575b47317
+  severity: writing
+  text: Regenerate figures e2e_arch, cost_quality, automation_paradox, and three_layer
+    as marked by TODO comments; verify cost/quality data points and update ICLR acceptance
+    threshold to 5.69
+- id: 79c55ad02a56
+  severity: writing
+  text: Verify all benchmark statistics (e.g., 89% review improvement, 95.8% misclassification
+    rate, 25% commitment unfulfillment) with original sources or add uncertainty markers
+- id: 3ef60d7f96e9
+  severity: writing
+  text: Complete or remove commented-out figures (review_bias, rebuttal_flow, e2e_arch,
+    cost_quality, automation_paradox, three_layer) before final submission
 artifact_hash: 406e68578ff634bb909200355e48bd438ba9dc41c31d75ef24170dcb14dc58cd
 artifact_path: projects/PROJ-602-https-arxiv-org-abs-2605-18661/paper/metadata.json
 backend: dartmouth
-feedback: Comprehensive survey with clear lifecycle framework, transparent methodology,
-  and governance insights; publication-ready.
+feedback: Minor revision required to address TODO comments on figures and verify benchmark
+  data points before publication
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-08T05:04:07.643386Z'
+reviewed_at: '2026-06-08T19:22:27.919400Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer
-score: 0.5
-verdict: accept
+score: 0.0
+verdict: minor_revision
 ---
 
 # Free-form review body
 
 ## Strengths
-- **Comprehensive lifecycle framework**: The four-phase, eight-stage taxonomy (Creation, Writing, Validation, Dissemination) provides a novel organizational structure that subsumes prior survey taxonomies.
-- **Transparent methodology**: Clear documentation of literature collection scope (2023–early 2026), inclusion criteria, and phase imbalance acknowledgment.
-- **Extensive tool inventory**: Appendix tables catalog 80+ systems across all stages with GitHub links, venues, and evaluation metrics.
-- **Governance-aware analysis**: Strong treatment of AI detection vs. disclosure, commitment-fulfillment gaps, and human-governed collaboration as the credible deployment paradigm.
-- **Benchmark synthesis**: Consolidates 30+ benchmarks across stages with clear evaluation dimensions (novelty, feasibility, citation fidelity, execution-grounded verification).
-- **Cross-cutting insights**: Five findings (generation outpaces verification, layered architectures, capability boundaries, governance problem) are well-supported by evidence.
-- **LaTeX compilation**: Paper compiles successfully (main-llmxive.pdf exists, 10MB); proofreader flags are empty.
+- **Comprehensive lifecycle framework**: The four-phase, eight-stage taxonomy (Creation, Writing, Validation, Dissemination) provides a clear, functional structure for understanding AI auto-research
+- **Strong empirical grounding**: Extensive benchmark table (52 entries) with GitHub/HuggingFace links and evaluation metrics
+- **Balanced perspective**: Acknowledges both capabilities (e.g., LLM feedback on reviews improves quality 89%) and limitations (e.g., 25% rebuttal commitments unfulfilled)
+- **Governance-aware**: Shifts discussion from detection to disclosure and accountability appropriately
 
 ## Concerns
-- **Citation verification**: While the bibliography is extensive (200+ entries), full verification status for each citation is not independently confirmable from the provided inputs. Future-dated citations (2025–2026) are consistent with the stated April 2026 cutoff but should be audited by the venue.
-- **Phase imbalance acknowledged but not fully addressed**: The paper notes most systems address Creation (Phase 1), with fewer for Validation and Dissemination. This limitation could be more prominently flagged in the conclusion.
-- **Cross-domain generalization**: Most benchmarks and systems focus on CS/ML/NLP; chemistry, biology, and physics examples are sparse. This is noted but could be stronger.
-- **Figure content**: Teaser and stage-teaser figures are referenced but their actual visual content cannot be validated in this review (PDF summary only).
+- **Incomplete figure compilation**: Multiple TODO comments in the LaTeX source indicate figures need regeneration (e2e_arch, cost_quality, automation_paradox, three_layer, review_bias, rebuttal_flow)
+- **Data verification needed**: Several benchmark statistics lack explicit source citations (e.g., 80.9% parallel task improvement, -70% sequential degradation from Google/MIT scaling study)
+- **Appendix tables truncated**: Some appendix tables show "(... X rows omitted ...)" which should be completed or clearly marked as supplementary
+- **Citation consistency**: Some references have incomplete venue information or arXiv IDs without final publication status
 
 ## Recommendation
-This survey paper makes a substantive contribution to the AI-for-research literature by providing the first end-to-end lifecycle analysis across all eight stages (including the novel Rebuttal & Revision and Paper2X Dissemination stages). The methodology is transparent, the tool inventory is comprehensive, and the governance insights are timely and well-reasoned. The paper is publication-ready for a venue focused on AI/ML surveys or research methodology. The primary limitation—phase imbalance—is acknowledged, and the cross-domain generalization gap is appropriately flagged as future work. No revision is required beyond standard venue formatting.
+The paper presents a comprehensive, well-structured survey of AI-assisted research with a valuable four-phase framework. The core analysis is sound and the writing quality is high. However, the TODO comments on figures indicate incomplete work that must be addressed before publication. This is a minor revision: the authors should regenerate the marked figures with verified data points, complete the appendix tables, and ensure all statistical claims have proper citations. These are editorial/production issues, not fundamental problems with the research contribution itself.

@@ -29,23 +29,21 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-08T05:10:42.091914Z'
+reviewed_at: '2026-06-08T19:28:57.200021Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_safety_ethics
 score: 0.0
 verdict: minor_revision
 ---
 
-This survey makes important contributions to understanding AI-assisted research across the complete lifecycle, and appropriately acknowledges many governance challenges. However, from a safety and ethics lens, several critical gaps remain:
+This re-review confirms that the critical safety and ethics concerns raised in the prior review remain unaddressed in the current revision. While the manuscript discusses general governance and disclosure principles, it lacks the specific concrete protocols and frameworks requested.
 
-**Dual-Use Risks (Section 5.4.6)**: The paper discusses chemistry (MOOSE-Chem), biology (BioPlanner, CRISPR-GPT), and medical AI Scientist systems but does not provide concrete safety protocols for autonomous experimentation in these sensitive domains. Autonomous chemistry/biology research carries inherent biosecurity and safety risks that require explicit guardrails, not just general "cross-domain generalization" concerns.
+First, regarding dual-use risks (Item 1), Section 5.4.6 and the Cross-Cutting Analysis mention systems like MOOSE-Chem and CRISPR-GPT but do not provide concrete biosecurity guardrails or safety protocols for autonomous experimentation in sensitive biological or chemical domains. The text currently states "humans retain responsibility" but does not define the operational safety boundaries required to prevent misuse.
 
-**Accountability Framework**: Section 5.5.5 discusses governance and disclosure but lacks specificity on liability chains. When an AI system generates experimental claims that turn out to be erroneous or cause harm, who bears responsibility—the paper author, the institution, the tool developer? This must be clarified for responsible deployment.
+Second, the accountability framework (Item 2) is still incomplete. The `\subsubsection{Governance, Disclosure, and Research Integrity}` section states "Authors remain responsible for claims," but fails to specify the roles of institutions and tool developers as requested. A complete framework must delineate liability across the ecosystem, not just for the primary authors.
 
-**Human-Subjects Research**: The paper does not address IRB/IACUC requirements or data privacy protections when AI systems process research involving human participants. This is a significant gap for systems that may automate literature review, data analysis, or experimental design in clinical or behavioral research.
+Third, data privacy and consent (Item 3) are entirely absent. There is no discussion of IRB/IACUC requirements or data protection when AI systems process research participant information. Given the scope of "AI for Auto-Research," this omission leaves a significant gap in ethical compliance for human-subject research.
 
-**Peer Review Integrity**: Section 5.3.1 notes that 15.8% of ICLR 2024 reviews were AI-assisted and that prompt injection can manipulate scores, but does not recommend concrete venue policies. Given that LLMs misclassify 95.8% of rejected papers as acceptable, stronger disclosure and audit requirements should be proposed.
+Finally, peer review manipulation (Item 4) is described well in Section 5.3.1 regarding risks (e.g., prompt injection), but the paper does not explicitly recommend disclosure requirements or audit mechanisms for venues. It notes that "Prevalence has outpaced governance" but does not propose the specific policy changes or audit tools needed to restore integrity.
 
-**Research Misconduct at Scale**: The paper notes AI can generate papers for ~$15 each (Section 1), raising concerns about literature pollution. While "human-governed collaboration" is recommended, the paper should explicitly address how to prevent AI from being used to flood venues with unverified or fraudulent work.
-
-These issues are addressable through manuscript revisions and do not require new experiments, but they are essential for responsible publication of this survey.
+These items are essential for the responsible deployment of the technologies surveyed. Please revise to include specific protocols and frameworks as outlined in the action items.
