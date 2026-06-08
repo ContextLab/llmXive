@@ -1,0 +1,103 @@
+project_id: PROJ-620-perception-or-prejudice-can-mllms-go-bey
+arxiv_id: '2605.22109'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-08T11:01:01.031535+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 63684f697091
+    text: Verify and update all bibliography entries marked [PLEASE-VERIFY] or [TBD]
+      in references.bib with complete, accurate citation details (title, authors,
+      venue, year) to satisfy the acceptance criterion for verified references.
+    severity: writing
+  - id: 17b7aecc1a0b
+    text: Code artifacts (evaluation scripts, annotation pipeline, config files) are
+      not included in the review input, preventing assessment of reproducibility,
+      modularity, and test coverage.
+    severity: science
+  - id: 9f7b1c51deef
+    text: Add accessibility alt-text attributes to all figure environments to comply
+      with modern conference standards for screen readers.
+    severity: writing
+  - id: 9593c6b6aa3f
+    text: Review color palette in Figure 5 (radarv3.pdf) and Figure 6 (prg_archetypesv2.pdf)
+      for colorblind accessibility; Red/Green distinctions (openc/humanc) may be indistinguishable
+      to deuteranopes.
+    severity: writing
+  - id: 022581bde093
+    text: Resolve redundancy between Figure 1 (pipelinev4.png) and Figure 3 (agentv5b.png).
+      Both depict the annotation pipeline; consolidate to save space or differentiate
+      content clearly.
+    severity: writing
+  - id: 95dbc52fe5dc
+    text: Define 'CV' (Coefficient of Variation) at first use in Section 5.3 (Line
+      269) to aid non-statisticians.
+    severity: writing
+  - id: 050fbc0c79fe
+    text: Replace informal shorthand 'bbox' with 'bounding box' in Section 3.1 (Line
+      333) and Appendix.
+    severity: writing
+  - id: 965007845b2b
+    text: Define 'pp' (percentage points) when first used in Section 5.2 (Line 477).
+    severity: writing
+  - id: 37ad26ebf9e2
+    text: Expand 'ASR' to 'automatic speech recognition (ASR)' upon first mention
+      in Section 3.3 (Line 463).
+    severity: writing
+  - id: 982a6081bc12
+    text: "The Prejudice Rate (PR) is defined as Pr[r3=0 | r1=1] where r3 comes from\
+      \ T3 MCQs. This does not directly measure whether a specific T1 rating was grounded\
+      \ in the model's actual evidence\u2014it measures separate MCQ performance.\
+      \ The claim '51% of correct ratings are ungrounded' requires clarification or\
+      \ a revised metric that links T1 and T3 on the same sample."
+    severity: science
+  - id: e8c12b03c4f4
+    text: "The HR (Holistic-Grounding Rate) is a product of three binary outcomes,\
+      \ which mathematically amplifies variance. The paper claims HR is 'highly discriminatory'\
+      \ due to CV\u22480.93, but this is partly an artifact of multiplying probabilities.\
+      \ Either normalize HR or provide a baseline comparison showing it exceeds what\
+      \ would be expected from independent task performance."
+    severity: science
+  - id: 405327bf8043
+    text: The 'Reasoning-capable MLLMs dominate' finding (Appendix Table) is explicitly
+      marked as observational and confounded (different sizes, families, generations).
+      Yet the abstract and conclusion present this as a finding without qualification.
+      Either reframe as correlational pattern or remove causal language.
+    severity: writing
+  - id: 3013d8917269
+    text: "The T3 vs T1/T2 closed-vs-open gap comparison (\u0394_T3 = -26.6pp vs \u0394\
+      _T1 = -5.6pp) uses different scales (6-option MCQ vs 5-level ordinal). Report\
+      \ normalized gaps (e.g., relative to chance) to make the comparison logically\
+      \ valid."
+    severity: science
+  - id: e112cc84234f
+    text: The AI-as-Judge for T2 shows +1.0 point self-preference for GPT-family models
+      (Table A.12), yet GPT-4o-mini is the primary judge. This circularity should
+      be acknowledged in the main text with sensitivity analysis showing whether it
+      affects the HR ranking.
+    severity: science
+  - id: cef8ce5ea2d2
+    text: Explicitly state IRB/ethics committee approval status for the 24 human annotators
+      involved in Stage 1 and Stage 5 of the pipeline (Appendix \ref{app:human}).
+    severity: writing
+  - id: bb7d57584347
+    text: Clarify the consent scope of the source ChaLearn V2 data regarding personality
+      inference and ensure the new annotation layer does not exceed original consent
+      terms.
+    severity: writing
+  - id: 0697d5f6500d
+    text: Strengthen the limitation statement in Appendix \ref{app:ethics} to explicitly
+      prohibit using the benchmark for high-stakes decision-making (e.g., hiring)
+      without regulatory approval.
+    severity: writing
+  - id: 2b3faa972803
+    text: Add statistical significance tests (e.g. bootstrap confidence intervals)
+      for the central 'Prejudice Gap' (51% PR) and the Closed-Open T3 gap (-26.6%)
+      to quantify uncertainty.
+    severity: science
+  - id: 2f6f71faf752
+    text: Report confidence intervals for the PR/HR metrics across the 27 models to
+      assess the stability of the failure-mode rates beyond point estimates.
+    severity: science
