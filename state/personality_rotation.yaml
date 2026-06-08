@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-08T00:40:52.183692+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-06-08T03:08:22.954370+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: albert-einstein
-  started_at: '2026-05-29T19:23:31.443422+00:00'
-  ended_at: '2026-05-29T20:18:55.644547+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-594-quantum-cognition-in-llms-superposition/reviews/research/albert-einstein-simulated__2026-05-29__research.md
 - slug: dan-rockmore
   started_at: '2026-05-29T20:18:55.644547+00:00'
   ended_at: '2026-05-29T21:14:55.235869+00:00'
@@ -1163,5 +1156,10 @@ history:
 - slug: albert-einstein
   started_at: '2026-06-07T23:51:59.372223+00:00'
   ended_at: '2026-06-08T00:40:52.183692+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-08T00:40:52.183692+00:00'
+  ended_at: '2026-06-08T03:08:22.954370+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
