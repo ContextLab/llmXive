@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-08T11:19:08.590526+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-08T12:54:43.034840+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-29T23:32:28.665334+00:00'
-  ended_at: '2026-05-30T00:00:46.984738+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/reviews/freeman-dyson-simulated__2026-05-30__paper.md
 - slug: geoffrey-west
   started_at: '2026-05-30T00:00:46.984738+00:00'
   ended_at: '2026-05-30T01:03:42.524324+00:00'
@@ -1155,5 +1148,10 @@ history:
 - slug: freeman-dyson
   started_at: '2026-06-08T09:08:45.065846+00:00'
   ended_at: '2026-06-08T11:19:08.590526+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-08T11:19:08.590526+00:00'
+  ended_at: '2026-06-08T12:54:43.034840+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
