@@ -191,4 +191,7 @@ ready:
 - project_id: PROJ-602-https-arxiv-org-abs-2605-18661
   revision_spec_path: specs/auto-revisions/PROJ-602-https-arxiv-org-abs-2605-18661/round-1
   queued_at: '2026-06-08T19:38:50.287613+00:00'
+- project_id: PROJ-648-representation-forcing-for-bottleneck-fr
+  revision_spec_path: specs/auto-revisions/PROJ-648-representation-forcing-for-bottleneck-fr/round-1
+  queued_at: '2026-06-08T22:06:40.067786+00:00'
 blocked: []
