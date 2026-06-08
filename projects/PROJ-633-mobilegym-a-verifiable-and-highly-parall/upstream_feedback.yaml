@@ -1,0 +1,149 @@
+project_id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
+arxiv_id: '2605.26114'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-08T01:00:45.621609+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 9abb0d60cd4d
+    text: "Provide a brief description of how the memory\u2011per\u2011instance (\u2248\
+      400\u202FMB) and cold\u2011start time (\u22483\u202Fs) measurements were obtained\
+      \ (hardware, OS, browser version, profiling tool). This will let readers assess\
+      \ the scalability claim against reproducible baselines."
+    severity: writing
+  - id: de23eb87a581
+    text: "Clarify whether the deterministic state\u2011based judges cover all possible\
+      \ task outcomes (e.g., edge\u2011case UI states, asynchronous network callbacks).\
+      \ If there are known limitations, cite them explicitly to avoid over\u2011stating\
+      \ the \u2018verifiable outcome signals\u2019 claim."
+    severity: science
+  - id: 8408b7227c5a
+    text: "In Table\u202F1, the rows for AndroidWorld, AndroidLab, and MobileWorld\
+      \ list memory and disk footprints with a \u2018\u2265\u2019 sign. Cite the exact\
+      \ source (e.g., the original papers\u2019 system specifications) for these numbers\
+      \ to ensure the comparison is accurate."
+    severity: writing
+  - id: 0260a189e3c0
+    text: The actual code repository (simulator source, tests, dependencies) is not
+      provided in the review package. Direct assessment of code quality (modularity,
+      test coverage, dependency hygiene) is impossible. Please ensure the code is
+      accessible via the cited project page or included in the artifact bundle for
+      future reviews.
+    severity: writing
+  - id: a63bb4fc17b7
+    text: "The paper describes the simulator architecture well (\xA7\ref{sec:system:design})\
+      \ but does not document the testing strategy for the simulator itself (e.g.,\
+      \ unit tests for the state model, integration tests for navigation FSM). Add\
+      \ a section or appendix detailing test coverage and CI/CD pipelines to support\
+      \ reproducibility claims."
+    severity: writing
+  - id: 40c669cbaabc
+    text: Explicitly state the software and data license (e.g., MIT, Apache 2.0) in
+      the Introduction or Project Page section to ensure legal reproducibility.
+    severity: writing
+  - id: '466885944008'
+    text: Include a Datasheet for the Benchmark (following Gebru et al. standards)
+      detailing synthetic data generation parameters, potential biases, and demographic
+      representation.
+    severity: writing
+  - id: ab3509243c38
+    text: Provide a persistent archive link (e.g., Zenodo DOI) for the code and benchmark
+      data alongside the GitHub/Project URL to prevent link rot.
+    severity: writing
+  - id: 286c9fe9d9a6
+    text: Define all acronyms at first use (e.g., RL, VLM, adb, SOTA, SFT, PPO, KL,
+      DAPO, vLLM, OOD, HMR, AOSP) to ensure accessibility for non-specialist readers.
+    severity: writing
+  - id: 2a5eeef90d77
+    text: Simplify the reward function explanation in Appendix D; the current density
+      of mathematical notation and undefined terms (e.g., indicator functions) may
+      exclude readers from adjacent fields.
+    severity: writing
+  - id: 42a8e215afbd
+    text: Clarify that the 95.1% Sim-to-Real gain retention is conditional on tasks
+      where simulation training was effective (selected subset), not a general transfer
+      property.
+    severity: science
+  - id: 4cafcde0e894
+    text: Soften the claim that VLM judges are 'intrinsically unreliable' to 'non-deterministic'
+      or similar, as 10.2% error rate supports noise but not total unreliability.
+    severity: writing
+  - id: d5e18ca66548
+    text: Add explicit discussion on safety/refusal testing for high-risk tasks (e.g.,
+      payments in Table 12). Currently, capability is measured without assessing if
+      agents refuse harmful instructions, creating a dual-use risk.
+    severity: writing
+  - id: 83cb595764af
+    text: "Disclose IRB approval or compensation details for human annotators involved\
+      \ in the manual audit of 118 real-device trajectories (Appendix \xA7\ref{app:vlm-audit}).\
+      \ Human labor ethics compliance is missing."
+    severity: writing
+  - id: ffdcb84ec84c
+    text: "Expand the 'Broader Uses' or Discussion section to address safeguards for\
+      \ deploying trained agents on real devices, given the 95.1% Sim-to-Real transfer\
+      \ of policy gains (\xA7\ref{sec:exp:sim2real})."
+    severity: writing
+  - id: ca51964f5ea2
+    text: Clarify the generalization scope of the Sim-to-Real gain (95.1% on 59 tasks).
+      The 189 Stable-fail tasks were not run on real devices; explicitly state if
+      the 95.1% figure applies only to the signal subset or is extrapolated.
+    severity: science
+  - id: 3ef1974d612c
+    text: Report variance across training seeds for the GRPO study. The +12.8pt gain
+      is from a single 10-step run; multiple seeds would strengthen the evidence for
+      online RL efficacy.
+    severity: science
+  - id: a381d78d1192
+    text: Discuss potential bias in VLM judge errors (10.2% misjudgment). If errors
+      are non-random (e.g., higher on hard tasks), the real-device SR estimates may
+      be biased.
+    severity: science
+  - id: a008c8efcb5f
+    text: Report 95% confidence intervals for Success Rates in Table 1 (Section 5.1)
+      to account for unequal trial counts (n=1 vs n=4).
+    severity: science
+  - id: f651135e03fe
+    text: Clarify the selection bias in the Sim-to-Real evaluation (Section 5.2) where
+      the 59-task subset is defined by simulation improvement.
+    severity: science
+  - id: 6fe48c33ce51
+    text: Provide confidence intervals for the 95.1% retained gain metric or justify
+      the point estimate without uncertainty bounds.
+    severity: science
+  - id: 206ed9579b6f
+    text: Address multiple-comparison issues when claiming L4 frontier discrimination
+      across 9 models (Table 1).
+    severity: writing
+  - id: 519d731968d5
+    text: 'Heading hierarchy error: \subsection{Standardized App-layer architecture}
+      appears under \section{Experiments} but should be under \section{The \sys{}
+      Platform}. Move to correct parent section (around line 450-500).'
+    severity: writing
+  - id: f8fb0f621fb7
+    text: 'Corrupted text in \subsection{Efficiency Analysis}: ''256 parallel instances
+      on one server used $$ system shade'' contains unescaped $$ and appears incomplete.
+      Fix or complete this content.'
+    severity: writing
+  - id: '244421761369'
+    text: 'HTML/code mixed into LaTeX: ''Open Book'' followed by ''</button>'' appears
+      in \subsection{Standardized App-layer architecture}. Remove non-LaTeX content.'
+    severity: writing
+  - id: 35013f2f06ff
+    text: 'Inconsistent table formatting: Multiple tables use \resizebox{\textwidth}{!}
+      which causes font size inconsistencies. Consider using \small or consistent
+      sizing across all tables.'
+    severity: writing
+  - id: 218ffda436fa
+    text: Fix the broken text/LaTeX in Appendix C where 'used $$ system shade...'
+      appears. This disrupts the flow and looks like a formatting error.
+    severity: writing
+  - id: f851ba525a6c
+    text: 'Correct the grammar in Section 5.2: ''would be costly and manual state
+      restoration'' should be ''would be costly and require manual state restoration''.'
+    severity: writing
+  - id: 6db120fc7ab0
+    text: Break down the long sentence in Section 2 (Related Work) regarding programmatic
+      queries to improve readability.
+    severity: writing

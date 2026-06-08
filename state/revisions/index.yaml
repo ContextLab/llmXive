@@ -170,4 +170,7 @@ ready:
 - project_id: PROJ-652-https-arxiv-org-abs-2606-00408
   revision_spec_path: specs/auto-revisions/PROJ-652-https-arxiv-org-abs-2606-00408/round-1
   queued_at: '2026-06-07T21:48:10.644915+00:00'
+- project_id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
+  revision_spec_path: specs/auto-revisions/PROJ-633-mobilegym-a-verifiable-and-highly-parall/round-1
+  queued_at: '2026-06-08T01:00:45.638145+00:00'
 blocked: []
