@@ -1,11 +1,7 @@
 last_used: geoffrey-west
-last_used_at: '2026-06-08T12:54:43.034840+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-08T14:28:32.450624+00:00'
+last_outcome: malformed_response
 history:
-- slug: geoffrey-west
-  started_at: '2026-05-30T00:00:46.984738+00:00'
-  ended_at: '2026-05-30T01:03:42.524324+00:00'
-  outcome: malformed_response
 - slug: geoffrey-west
   started_at: '2026-05-30T01:03:42.524324+00:00'
   ended_at: '2026-05-30T01:46:05.753215+00:00'
@@ -1155,3 +1151,7 @@ history:
   ended_at: '2026-06-08T12:54:43.034840+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-08T12:54:43.034840+00:00'
+  ended_at: '2026-06-08T14:28:32.450624+00:00'
+  outcome: malformed_response
