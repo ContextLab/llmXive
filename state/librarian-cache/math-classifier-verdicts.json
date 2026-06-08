@@ -115,6 +115,10 @@
     "classified_at": "2026-06-02T03:30:47Z",
     "verdict": false
   },
+  "PROJ-612-a-survey-of-large-audio-language-models::1.6.0": {
+    "classified_at": "2026-06-08T16:44:19Z",
+    "verdict": false
+  },
   "PROJ-635-evalverse-pipeline-aware-and-expert-cali::1.6.0": {
     "classified_at": "2026-06-04T03:42:21Z",
     "verdict": false
@@ -145,6 +149,14 @@
   },
   "PROJ-676-quantifying-the-effect-of-disorder-on-el::1.6.0": {
     "classified_at": "2026-06-07T09:26:55Z",
+    "verdict": false
+  },
+  "PROJ-677-impact-of-cache-line-padding-on-false-sh::1.6.0": {
+    "classified_at": "2026-06-08T16:32:46Z",
+    "verdict": false
+  },
+  "PROJ-678-comparative-analysis-of-molecular-finger::1.6.0": {
+    "classified_at": "2026-06-08T16:37:46Z",
     "verdict": false
   }
 }

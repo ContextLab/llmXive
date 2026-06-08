@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-08T16:30:01.052140Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-677-impact-of-cache-line-padding-on-false-sh
+last_run_id: ef8c25d3-dbf1-45d2-b80d-a0c3e1a429f3
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Impact of Cache Line Padding on False Sharing in Concurrent Counters
+updated_at: '2026-06-08T16:36:05.556645Z'

@@ -1,0 +1,477 @@
+{
+  "fetched_at": "2026-06-08T16:41:59Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction",
+      "target_n": 5
+    },
+    "duration_seconds": 353.455,
+    "ended_at": "2026-06-08T16:41:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "QSAR modeling for pesticide toxicity"
+        ],
+        [
+          2,
+          "In silico toxicity prediction of pesticides"
+        ],
+        [
+          3,
+          "Chemical descriptors for agrochemical hazard assessment"
+        ],
+        [
+          4,
+          "Structure-activity relationship pesticide toxicity"
+        ],
+        [
+          5,
+          "Quantitative structure-toxicity relationship"
+        ],
+        [
+          6,
+          "Molecular representation learning for toxicology"
+        ],
+        [
+          7,
+          "Benchmarking molecular descriptors for toxicity"
+        ],
+        [
+          8,
+          "ECFP fingerprints for environmental toxicology"
+        ],
+        [
+          9,
+          "Machine learning pesticide toxicity classification"
+        ],
+        [
+          10,
+          "Computational cheminformatics for agrochemical safety"
+        ],
+        [
+          11,
+          "ADMET prediction for pesticides"
+        ],
+        [
+          12,
+          "Xenobiotic toxicity prediction models"
+        ],
+        [
+          13,
+          "Substructure fingerprints for chemical hazard"
+        ],
+        [
+          14,
+          "Predictive toxicology using chemical fingerprints"
+        ],
+        [
+          15,
+          "Environmental risk assessment computational models"
+        ],
+        [
+          16,
+          "Morgan descriptors for toxicological profiling"
+        ],
+        [
+          17,
+          "Agrochemical property prediction using fingerprints"
+        ],
+        [
+          18,
+          "Chemical similarity analysis for toxicity estimation"
+        ],
+        [
+          19,
+          "Virtual screening for pesticide toxicity"
+        ],
+        [
+          20,
+          "Multi-fingerprint ensemble models for toxicity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction chemistry": 0,
+        "QSAR modeling for pesticide toxicity": 1
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "molecular fingerprints ECFP Morgan descriptors",
+      "pesticide toxicity datasets Tox21 ToxCast",
+      "chemical representation learning QSAR benchmark",
+      "AUC ROC RMSE toxicity prediction",
+      "structure activity relationship chemical substructure"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2501.14469"
+      ]
+    },
+    "per_query_hit_count": {
+      "AUC ROC RMSE toxicity prediction": 2,
+      "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction chemistry": 3,
+      "chemical representation learning QSAR benchmark": 3,
+      "molecular fingerprints ECFP Morgan descriptors": 2,
+      "pesticide toxicity datasets Tox21 ToxCast": 2,
+      "structure activity relationship chemical substructure": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-08T16:36:06Z",
+    "term_input": {
+      "normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
+      "raw": "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-06-08T16:37:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-06-08T16:37:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The outstanding multidisciplinary applicability of nanomaterials has paved the path for the rapid advancement of nanoscience during the last few decades. Such technological progress subsequently results in an inevitable environmental exposure of nanomaterials. Presently, nanomaterials are employed in an extensive range of commercial products. Safe and sustainable incorporation of nanomaterials in industrial products requires a profound and comprehensive understanding of their potential toxicity. Among different nanomaterials, carbon nanomaterials marked its notable superiority toward the development of state-of-the-art nanotechnology due to the significant contribution of each of the carbon allotropes with varied dimensionality. The zero-dimensional fullerene, one-dimensional carbon nanotube, and two-dimensional graphene possess an exclusive combination of distinctive properties that are utilized in most of the nanotechnology-based products nowadays. However, potential risk factors are associated with the production and the use of carbon nanomaterials. Consequently, the number of studies regarding the assessment of the toxicity of these nanomaterials has increased rapidly in the past decade. This chapter will summarize the recent scientific efforts on the toxicity evaluation of different carbon nanomaterials.",
+          "claimed_authors": [
+            "Arpita Adhikari",
+            "Joydip Sengupta"
+          ],
+          "claimed_title": "Toxicity of Carbon Nanomaterials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13918"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Toxicity of Carbon Nanomaterials')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the learning of quantitative structure activity relationships (QSARs) as a case-study of meta-learning. This application area is of the highest societal importance, as it is a key step in the development of new medicines. The standard QSAR learning problem is: given a target (usually a protein) and a set of chemical compounds (small molecules) with associated bioactivities (e.g. inhibition of the target), learn a predictive mapping from molecular representation to activity. Although almost every type of machine learning method has been applied to QSAR learning there is no agreed single best way of learning QSARs, and therefore the problem area is well-suited to meta-learning. We first carried out the most comprehensive ever comparison of machine learning methods for QSAR learning: 18 regression methods, 6 molecular representations, applied to more than 2,700 QSAR problems. (These results have been made publicly available on OpenML and represent a valuable resource for testing novel meta-learning methods.) We then investigated the utility of algorithm selection for QSAR problems. We found that this meta-learning approach outperformed the best individual QSAR learning method (random forests using a molecular fingerprint representation) by up to 13%, on average. We conclude that meta-learning outperforms base-learning methods for QSAR learning, and as this investigation is one of the most extensive ever comparisons of base and meta-learning methods ever made, it provides evidence for the general effectiveness of meta-learning over base-learning.",
+          "claimed_authors": [
+            "Ivan Olier",
+            "Noureddin Sadawi",
+            "G. Richard Bickerton",
+            "Joaquin Vanschoren",
+            "Crina Grosan",
+            "Larisa Soldatova",
+            "Ross D. King"
+          ],
+          "claimed_title": "Meta-QSAR: a large-scale application of meta-learning to drug design and discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.03854"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Meta-QSAR: a large-scale application of meta-learning to drug design and discovery')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessment of risk prediction models has primarily utilized measures of discrimination, the ROC curve AUC and C-statistic. These derive from the risk distributions of patients and nonpatients, which in turn are derived from a population risk distribution. As greater dispersion of the population risk distribution produces greater separation of patient and nonpatient risks (discrimination), its parameters can be used as alternatives to the ROC curve AUC and C-statistic. Here continuous probability distributions are employed to develop insight into the relationship between their parameters and the ROC curve AUC and C-statistic derived from them.\n  The ROC curve AUC and C-statistic are shown to have a straight-line relationship with the SD for uniform, half-sine, and symmetric triangular probability distributions, with slight differences in the slope: AUC approx 1/2+0.28 SD/(mean(1-mean)). This also characterizes the beta distribution over the same range of SD's. But at larger beta distribution SD's the plot of AUC versus SD deviates downward from this straight-line relationship, approaching the ROC curve AUC and SD of a perfect model (AUC=1, SD= $\\sqrt{\\rm mean(1-mean)}$).\n  A simpler and more intuitive discrimination metric is the coefficient of discrimination, the difference between the mean risk in patients and nonpatients. This is SD2/(mean(1-mean)), which is also the same for any distribution. Since estimating parameters or metrics discards information, the population risk distribution should always be presented. As the ROC curve AUC and C-statistic are functions of this distribution's parameters, the parameters represent simpler, intuitive alternatives to these discrimination metrics. Among discrimination metrics, the coefficient of discrimination provides a simple, intuitive alternative to the ROC curve AUC and C-statistic.",
+          "claimed_authors": [
+            "Ralph H. Stern"
+          ],
+          "claimed_title": "Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.08559"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In analysis of binary outcomes, the receiver operator characteristic (ROC) curve is heavily used to show the performance of a model or algorithm. The ROC curve is informative about the performance over a series of thresholds and can be summarized by the area under the curve (AUC), a single number. When a predictor is categorical, the ROC curve has one less than number of categories as potential thresholds; when the predictor is binary there is only one threshold. As the AUC may be used in decision-making processes on determining the best model, it important to discuss how it agrees with the intuition from the ROC curve. We discuss how the interpolation of the curve between thresholds with binary predictors can largely change the AUC. Overall, we show using a linear interpolation from the ROC curve with binary predictors corresponds to the estimated AUC, which is most commonly done in software, which we believe can lead to misleading results. We compare R, Python, Stata, and SAS software implementations. We recommend using reporting the interpolation used and discuss the merit of using the step function interpolator, also referred to as the \"pessimistic\" approach by Fawcett (2006).",
+          "claimed_authors": [
+            "John Muschelli"
+          ],
+          "claimed_title": "ROC and AUC with a Binary Predictor: a Potentially Misleading Metric",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.04881"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='ROC and AUC with a Binary Predictor: a Potentially Misleading Metric')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper has two goals:\n  It presents basic ideas, notions, and methods for reduction of reaction kinetics models: quasi-steady-state, quasi-equilibrium, slow invariant manifolds, and limiting steps.\n  It describes briefly the current state of the art and some latest achievements in the broad area of model reduction in chemical and biochemical kinetics, including new results in methods of invariant manifolds, computation singular perturbation, bottleneck methods, asymptotology, tropical equilibration, and reaction mechanism skeletonisation.",
+          "claimed_authors": [
+            "A. N. Gorban"
+          ],
+          "claimed_title": "Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.05745"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The origin of a chemical reaction between two reactant atoms is associated to the activation energy, with the assumption that, high-energy collisions between these atoms, are the ones that overcome the activation energy. Here, we (i) show that a stronger attractive van der Waals (vdW) and electron-ion Coulomb interactions between two polarized atoms are responsible to initiate a chemical reaction, either before or after the collision. We derive this stronger vdW attraction formula exactly using the quasi one-dimensional Drude model within the ionization energy theory and the energy-level spacing renormalization group method. Along the way, we (ii) expose the precise physical mechanism responsible for the existence of a stronger vdW interaction for both long and short distances, and also show how to technically avoid the electron-electron Coulomb repulsion between polarized electrons from these two reactant atoms. Finally, we properly and correctly associate the existence of this stronger attraction to Ramachandran's 'normal limits' (distance shorter than what is allowed by the standard vdW bond) between chemically nonbonded atoms.",
+          "claimed_authors": [
+            "Andrew Das Arulsamy"
+          ],
+          "claimed_title": "Chemical Reaction due to Stronger Ramachandran Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.3412"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Chemical Reaction due to Stronger Ramachandran Interaction')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chemical structure elucidation is a serious bottleneck in analytical chemistry today. We address the problem of identifying an unknown chemical threat given its mass spectrum and its chemical formula, a task which might take well trained chemists several days to complete. Given a chemical formula, there could be over a million possible candidate structures. We take a data driven approach to rank these structures by using neural networks to predict the presence of substructures given the mass spectrum, and matching these substructures to the candidate structures. Empirically, we evaluate our approach on a data set of chemical agents built for unknown chemical threat identification. We show that our substructure classifiers can attain over 90% micro F1-score, and we can find the correct structure among the top 20 candidates in 88% and 71% of test cases for two compound classes.",
+          "claimed_authors": [
+            "Jing Lim",
+            "Joshua Wong",
+            "Minn Xuan Wong",
+            "Lee Han Eric Tan",
+            "Hai Leong Chieu",
+            "Davin Choo",
+            "Neng Kai Nigel Neo"
+          ],
+          "claimed_title": "Chemical Structure Elucidation from Mass Spectrometry by Matching Substructures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.07886"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Chemical Structure Elucidation from Mass Spectrometry by Matching Substructures')",
+        "failed_at": "2026-06-08T16:37:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Taehan Kim",
+            "Wonduk Seo"
+          ],
+          "title": "Pesti-Gen: Unleashing a Generative Molecule Approach for Toxicity Aware Pesticide Design",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.14469",
+        "summary": "Global climate change has reduced crop resilience and pesticide efficacy, making reliance on synthetic pesticides inevitable, even though their widespread use poses significant health and environmental risks. While these pesticides remain a key tool in pest management, previous machine-learning applications in pesticide and agriculture have focused on classification or regression, leaving the fundamental challenge of generating new molecular structures or designing novel candidates unaddressed. In this paper, we propose Pesti-Gen, a novel generative model based on variational auto-encoders, designed to create pesticide candidates with optimized properties for the first time. Specifically, Pesti-Gen leverages a two-stage learning process: an initial pre-training phase that captures a generalized chemical structure representation, followed by a fine-tuning stage that incorporates toxicity-specific information. The model simultaneously optimizes over multiple toxicity metrics, such as (1) livestock toxicity and (2) aqua toxicity to generate environmentally friendly pesticide candidates. Notably, Pesti-Gen achieves approximately 68\\% structural validity in generating new molecular structures, demonstrating the model's effectiveness in producing optimized and feasible pesticide candidates, thereby providing a new way for safer and more sustainable pest management solutions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.14469",
+          "http_status": 200,
+          "pdf_sample_score": 0.2246,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:37:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ali Al-Lawati",
+            "Jason Lucas",
+            "Zhiwei Zhang",
+            "Prasenjit Mitra",
+            "Suhang Wang"
+          ],
+          "title": "Graph-based Molecular In-context Learning Grounded on Morgan Fingerprints",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.05414",
+        "summary": "In-context learning (ICL) effectively conditions large language models (LLMs) for molecular tasks, such as property prediction and molecule captioning, by embedding carefully selected demonstration examples into the input prompt. This approach avoids the computational overhead of extensive pertaining and fine-tuning. However, current prompt retrieval methods for molecular tasks have relied on molecule feature similarity, such as Morgan fingerprints, which do not adequately capture the global molecular and atom-binding relationships. As a result, these methods fail to represent the full complexity of molecular structures during inference. Moreover, small-to-medium-sized LLMs, which offer simpler deployment requirements in specialized systems, have remained largely unexplored in the molecular ICL literature. To address these gaps, we propose a self-supervised learning technique, GAMIC (Graph-Aligned Molecular In-Context learning, which aligns global molecular structures, represented by graph neural networks (GNNs), with textual captions (descriptions) while leveraging local feature similarity through Morgan fingerprints. In addition, we introduce a Maximum Marginal Relevance (MMR) based diversity heuristic during retrieval to optimize input prompt demonstration samples. Our experimental findings using diverse benchmark datasets show GAMIC outperforms simple Morgan-based ICL retrieval methods across all tasks by up to 45%.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.05414",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:37:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James H. Notwell",
+            "Michael W. Wood"
+          ],
+          "title": "ADMET property prediction through combinations of molecular fingerprints",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.00174",
+        "summary": "While investigating methods to predict small molecule potencies, we found random forests or support vector machines paired with extended-connectivity fingerprints (ECFP) consistently outperformed recently developed methods. A detailed investigation into regression algorithms and molecular fingerprints revealed gradient-boosted decision trees, particularly CatBoost, in conjunction with a combination of ECFP, Avalon, and ErG fingerprints, as well as 200 molecular properties, to be most effective. Incorporating a graph neural network fingerprint further enhanced performance. We successfully validated our model across 22 Therapeutics Data Commons ADMET benchmarks. Our findings underscore the significance of richer molecular representations for accurate property prediction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.00174",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:37:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mikhail Zaslavskiy",
+            "Simon Jégou",
+            "Eric W. Tramel",
+            "Gilles Wainrib"
+          ],
+          "title": "ToxicBlend: Virtual Screening of Toxic Compounds with Ensemble Predictors",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1806.04449",
+        "summary": "Timely assessment of compound toxicity is one of the biggest challenges facing the pharmaceutical industry today. A significant proportion of compounds identified as potential leads are ultimately discarded due to the toxicity they induce. In this paper, we propose a novel machine learning approach for the prediction of molecular activity on ToxCast targets. We combine extreme gradient boosting with fully-connected and graph-convolutional neural network architectures trained on QSAR physical molecular property descriptors, PubChem molecular fingerprints, and SMILES sequences. Our ensemble predictor leverages the strengths of each individual technique, significantly outperforming existing state-of-the art models on the ToxCast and Tox21 toxicity-prediction datasets. We provide free access to molecule toxicity prediction using our model at http://www.owkin.com/toxicblend.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1806.04449",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:37:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

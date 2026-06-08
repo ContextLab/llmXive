@@ -1,0 +1,636 @@
+{
+  "fetched_at": "2026-06-08T16:35:41Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Impact of Cache Line Padding on False Sharing in Concurrent Counters",
+      "target_n": 5
+    },
+    "duration_seconds": 275.565,
+    "ended_at": "2026-06-08T16:35:41Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "False sharing mitigation strategies"
+        ],
+        [
+          2,
+          "Cache line alignment for concurrent variables"
+        ],
+        [
+          3,
+          "Memory padding to prevent cache conflicts"
+        ],
+        [
+          4,
+          "Lock-free counter performance analysis"
+        ],
+        [
+          5,
+          "Multicore cache coherence overhead"
+        ],
+        [
+          6,
+          "Cache line granularity and thread contention"
+        ],
+        [
+          7,
+          "Shared memory false sharing reduction"
+        ],
+        [
+          8,
+          "Atomic operation scalability bottlenecks"
+        ],
+        [
+          9,
+          "Cache line eviction in parallel workloads"
+        ],
+        [
+          10,
+          "Memory alignment for thread-safe counters"
+        ],
+        [
+          11,
+          "Inter-core cache interference patterns"
+        ],
+        [
+          12,
+          "False sharing detection in concurrent code"
+        ],
+        [
+          13,
+          "Padding bytes for cache line isolation"
+        ],
+        [
+          14,
+          "High-performance concurrent data structures"
+        ],
+        [
+          15,
+          "Hardware cache line size implications"
+        ],
+        [
+          16,
+          "Thread contention on shared memory locations"
+        ],
+        [
+          17,
+          "Cache oblivious concurrent algorithms"
+        ],
+        [
+          18,
+          "Memory barrier effects on counter performance"
+        ],
+        [
+          19,
+          "Scalable parallel counter implementations"
+        ],
+        [
+          20,
+          "Cache coherence protocol performance impact"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cache line alignment for concurrent variables": 0,
+        "False sharing mitigation strategies": 1,
+        "Impact of Cache Line Padding on False Sharing in Concurrent Counters computer science": 0,
+        "Lock-free counter performance analysis": 2,
+        "Memory padding to prevent cache conflicts": 1,
+        "Multicore cache coherence overhead": 1
+      },
+      "total_queries_issued": 5
+    },
+    "extracted_queries": [
+      "cache coherence misses memory alignment optimization",
+      "lock-free counters atomic increment operations",
+      "L2 cache misses bus bandwidth utilization",
+      "throughput scalability speedup parallel benchmarks",
+      "cache line size MESI protocol invalidation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.15183"
+      ]
+    },
+    "per_query_hit_count": {
+      "Impact of Cache Line Padding on False Sharing in Concurrent Counters computer science": 3,
+      "L2 cache misses bus bandwidth utilization": 2,
+      "cache coherence misses memory alignment optimization": 3,
+      "cache line size MESI protocol invalidation": 3,
+      "lock-free counters atomic increment operations": 3,
+      "throughput scalability speedup parallel benchmarks": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2303.00445",
+          "rationale": "The paper is off-domain entirely, focusing on quantum error mitigation and quantum chemistry rather than classical computer architecture topics like cache line padding, false sharing, and concurrency. It shares no mechanisms, variables, or empirical populations relevant to the user's research question.",
+          "title": "Benchmarking Noisy Intermediate Scale Quantum Error Mitigation Strategies for Ground State Preparation of the HCl Molecule"
+        },
+        {
+          "primary_pointer": "2510.03680",
+          "rationale": "This paper addresses \"padding\" in the context of NLP token sequences for diffusion models, whereas the user's question concerns cache line alignment to prevent false sharing in concurrent systems; this is a distinct construct sharing only a homonym keyword (\"padding\") and belongs to an entirely different domain (Deep Learning vs. Computer Systems/Architecture).",
+          "title": "Rainbow Padding: Mitigating Early Termination in Instruction-Tuned Diffusion LLMs"
+        },
+        {
+          "primary_pointer": "2511.09410",
+          "rationale": "The paper focuses on memory reclamation and coordination overhead in lock-free queues, which is a distinct mechanism from cache line padding and false sharing in concurrent counters. It does not measure or analyze the specific performance bottleneck (false sharing) or data structure (counters) required for the user's literature review.",
+          "title": "No Cords Attached: Coordination-Free Concurrent Lock-Free Queues"
+        },
+        {
+          "primary_pointer": "1401.6100",
+          "rationale": "The paper studies lock‑free vs lock‑based messaging performance and does not investigate cache‑line padding, false sharing, or concurrent counters, so it lacks any of the required mechanisms or variables for the user's question.",
+          "title": "Performance Impact of Lock-Free Algorithms on Multicore Communication APIs"
+        },
+        {
+          "primary_pointer": "2603.15183",
+          "rationale": "This paper applies cache coherence protocol concepts (MESI) to LLM multi-agent artifact synchronization rather than studying cache line padding effects on false sharing in concurrent counters. While it shares terminology with the cache coherence domain, it does not measure the same mechanism, variables, or empirical population as the user's question—it falls under the \"distinct construct sharing only homonym keywords\" rejection rule since the underlying research problem is fundamentally differen",
+          "title": "Token Coherence: Adapting MESI Cache Protocols to Minimize Synchronization Overhead in Multi-Agent LLM Systems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-08T16:31:05Z",
+    "term_input": {
+      "normalized": "impact of cache line padding on false sharing in concurrent counters computer science",
+      "raw": "Impact of Cache Line Padding on False Sharing in Concurrent Counters computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-image (T2I) diffusion models rely on encoded prompts to guide the image generation process. Typically, these prompts are extended to a fixed length by adding padding tokens before text encoding. Despite being a default practice, the influence of padding tokens on the image generation process has not been investigated. In this work, we conduct the first in-depth analysis of the role padding tokens play in T2I models. We develop two causal techniques to analyze how information is encoded in the representation of tokens across different components of the T2I pipeline. Using these techniques, we investigate when and how padding tokens impact the image generation process. Our findings reveal three distinct scenarios: padding tokens may affect the model's output during text encoding, during the diffusion process, or be effectively ignored. Moreover, we identify key relationships between these scenarios and the model's architecture (cross or self-attention) and its training process (frozen or trained text encoder). These insights contribute to a deeper understanding of the mechanisms of padding tokens, potentially informing future model design and training practices in T2I systems.",
+          "claimed_authors": [
+            "Michael Toker",
+            "Ido Galil",
+            "Hadas Orgad",
+            "Rinon Gal",
+            "Yoad Tewel",
+            "Gal Chechik",
+            "Yonatan Belinkov"
+          ],
+          "claimed_title": "Padding Tone: A Mechanistic Analysis of Padding Tokens in T2I Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.06751"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Padding Tone: A Mechanistic Analysis of Padding Tokens in T2I Models')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Disaggregating memory from compute offers the opportunity to better utilize stranded memory in cloud data centers. It is important to cache data in the compute nodes and maintain cache coherence across multiple compute nodes. However, the limited computing power on disaggregated memory servers makes traditional cache coherence protocols suboptimal, particularly in the case of stranded memory. This paper introduces SELCC; a Shared-Exclusive Latch Cache Coherence protocol that maintains cache coherence without imposing any computational burden on the remote memory side. It aligns the state machine of the shared-exclusive latch protocol with the MSI protocol , thereby ensuring both atomicity of data access and cache coherence with sequential consistency. SELCC embeds cache-ownership metadata directly into the RDMA latch word, enabling efficient cache ownership management via RDMA atomic operations. SELCC can serve as an abstraction layer over disaggregated memory with APIs that resemble main-memory accesses. A concurrent B-tree and three transaction concurrency control algorithms are realized using SELCC's abstraction layer. Experimental results show that SELCC significantly outperforms Remote-Procedure-Call-based protocols for cache coherence under limited remote computing power. Applications on SELCC achieve comparable or superior performance over disaggregated memory compared to competitors.",
+          "claimed_authors": [
+            "Ruihong Wang",
+            "Jianguo Wang",
+            "Walid G. Aref"
+          ],
+          "claimed_title": "Cache Coherence Over Disaggregated Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02088"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Cache Coherence Over Disaggregated Memory')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, researchers have explored use of non-volatile devices such as STT-RAM (spin torque transfer RAM) for designing on-chip caches, since they provide high density and consume low leakage power. A common limitation of all non-volatile devices is their limited write endurance. Further, since existing cache management policies are write-variation unaware, excessive writes to a few blocks may lead to a quick failure of the whole cache. We propose an architectural technique for wear-leveling of non-volatile last level caches (LLCs). Our technique uses cache-coloring approach which adds a software-controlled mapping layer between groups of physical pages and cache sets. Periodically the mapping is altered to ensure that write-traffic can be spread uniformly to different sets of the cache to achieve wear-leveling. Simulations performed with an x86-64 simulator and SPEC2006 benchmarks show that our technique reduces the worst-case writes to cache blocks and thus improves the cache lifetime by 4.07X.",
+          "claimed_authors": [
+            "Sparsh Mittal"
+          ],
+          "claimed_title": "Using Cache-coloring to Mitigate Inter-set Write Variation in Non-volatile Caches",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.8494"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Using Cache-coloring to Mitigate Inter-set Write Variation in Non-volatile Caches')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The queue is conceptually one of the simplest data structures-a basic FIFO container. However, ensuring correctness in the presence of concurrency makes existing lock-free implementations significantly more complex than their original form. Coordination mechanisms introduced to prevent hazards such as ABA, use-after-free, and unsafe reclamation often dominate the design, overshadowing the queue itself. Many schemes compromise strict FIFO ordering, unbounded capacity, or lock-free progress to mask coordination overheads. Yet the true source of complexity lies in the pursuit of infinite protection against reclamation hazards--theoretically sound but impractical and costly. This pursuit not only drives unnecessary complexity but also creates a protection paradox where excessive protection reduces system resilience rather than improving it. While such costs may be tolerable in conventional workloads, the AI era has shifted the paradigm: training and inference pipelines involve hundreds to thousands of concurrent threads per node, and at this scale, protection and coordination overheads dominate, often far heavier than the basic queue operations themselves.\n  This paper introduces Cyclic Memory Protection (CMP), a coordination-free queue that preserves strict FIFO semantics, unbounded capacity, and lock-free progress while restoring simplicity. CMP reclaims the strict FIFO that other approaches sacrificed through bounded protection windows that provide practical reclamation guarantees. We prove strict FIFO and safety via linearizability and bounded reclamation analysis, and show experimentally that CMP outperforms state-of-the-art lock-free queues by up to 1.72-4x under high contention while maintaining scalability to hundreds of threads. Our work demonstrates that highly concurrent queues can return to their fundamental simplicity without weakening queue semantics.",
+          "claimed_authors": [
+            "Yusuf Motiwala"
+          ],
+          "claimed_title": "No Cords Attached: Coordination-Free Concurrent Lock-Free Queues",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.09410"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='No Cords Attached: Coordination-Free Concurrent Lock-Free Queues')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report the rapid accelerated thermalisation of Potassium 39 K atoms loaded in a magnetic trap, in the presence of a single dipole trap beam. More than an order of magnitude reduction in the thermalisation time, to less than a second, is observed with the focused off- resonant beam occupying only 0.01% of the volume of the magnetic trap. The cold atoms are loaded from a Magneto-Optical Trap(MOT) of 39 K that has gone through a compressed MOT and sub-Doppler cooling stage. The atoms are prepared in the magnetically stretched |F = 2, mF = 2> state prior to loading into the hybrid trap. We also report a direct loading of 39 K atoms, prepared in the state |F = 1>, into a single beam dipole trap.",
+          "claimed_authors": [
+            "Dipankar Nath",
+            "R Kollengode Easwaran",
+            "G. Rajalakshmi",
+            "C. S. Unnikrishnan"
+          ],
+          "claimed_title": "Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.2313"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The subject of this review are atom traps based on optical dipole forces in laser fields, along with their unique features as storage devices at ultralow energies. The basic physics of the dipole interaction is discussed, and the experimental background of dipole trapping experiments is explained. Specific trapping schemes and experiments are presented, where the wide range of applications of dipole traps is explored considering particular examples.",
+          "claimed_authors": [
+            "Rudolf Grimm",
+            "Matthias Weidemüller",
+            "Yurii B. Ovchinnikov"
+          ],
+          "claimed_title": "Optical dipole traps for neutral atoms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "physics/9902072"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Optical dipole traps for neutral atoms')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we compare two analytical models for evaluation of cache coherence overhead of a shared bus multiprocessor with private caches. The models are based on a closed queuing network with different service disciplines. We find that the priority discipline can be used as a lower-level bound. Some numerical results are shown graphically.",
+          "claimed_authors": [
+            "Angel Vassilev Nikolov",
+            "Lerato Lerato"
+          ],
+          "claimed_title": "Comparison of the Performance of Two Service Disciplines for a Shared Bus Multiprocessor with Private Caches",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3560"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Comparison of the Performance of Two Service Disciplines for a Shared Bus Multiprocessor with Private Caches')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern commercial-off-the-shelf (COTS) multicore processors have advanced memory hierarchies that enhance memory-level parallelism (MLP), which is crucial for high performance. To support high MLP, shared last-level caches (LLCs) are divided into multiple banks, allowing parallel access. However, uneven distribution of cache requests from the cores, especially when requests from multiple cores are concentrated on a single bank, can result in significant contention affecting all cores that access the cache. Such cache bank contention can even be maliciously induced -- known as cache bank-aware denial-of-service (DoS) attacks -- in order to jeopardize the system's timing predictability.\n  In this paper, we propose a per-bank bandwidth regulation approach for multi-banked shared LLC based multicore real-time systems. By regulating bandwidth on a per-bank basis, the approach aims to prevent unnecessary throttling of cache accesses to non-contended banks, thus improving overall performance (throughput) without compromising isolation benefits of throttling. We implement our approach on a RISC-V system-on-chip (SoC) platform using FireSim and evaluate extensively using both synthetic and real-world workloads. Our evaluation results show that the proposed per-bank regulation approach effectively protects real-time tasks from co-running cache bank-aware DoS attacks, and offers up to a 3.66$\\times$ performance improvement for the throttled benign best-effort tasks compared to prior bank-oblivious bandwidth throttling approaches.",
+          "claimed_authors": [
+            "Connor Sullivan",
+            "Alex Manley",
+            "Mohammad Alian",
+            "Heechul Yun"
+          ],
+          "claimed_title": "Per-Bank Bandwidth Regulation of Shared Last-Level Cache for Real-Time Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.14003"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Per-Bank Bandwidth Regulation of Shared Last-Level Cache for Real-Time Systems')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The main goal in many fields in the empirical sciences is to discover causal relationships among a set of variables from observational data. PC algorithm is one of the promising solutions to learn underlying causal structure by performing a number of conditional independence tests. In this paper, we propose a novel GPU-based parallel algorithm, called cuPC, to execute an order-independent version of PC. The proposed solution has two variants, cuPC-E and cuPC-S, which parallelize PC in two different ways for multivariate normal distribution. Experimental results show the scalability of the proposed algorithms with respect to the number of variables, the number of samples, and different graph densities. For instance, in one of the most challenging datasets, the runtime is reduced from more than 11 hours to about 4 seconds. On average, cuPC-E and cuPC-S achieve 500 X and 1300 X speedup, respectively, compared to serial implementation on CPU. The source code of cuPC is available online [1].",
+          "claimed_authors": [
+            "Behrooz Zarebavani",
+            "Foad Jafarinejad",
+            "Matin Hashemi",
+            "Saber Salehkaleybar"
+          ],
+          "claimed_title": "cuPC: CUDA-based Parallel PC Algorithm for Causal Structure Learning on GPU",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.08491"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='cuPC: CUDA-based Parallel PC Algorithm for Causal Structure Learning on GPU')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the paper, a parallel Tabu Search algorithm for the Resource Constrained Project Scheduling Problem is proposed. To deal with this NP-hard combinatorial problem many optimizations have been performed. For example, a resource evaluation algorithm is selected by a heuristic and an effective Tabu List was designed. In addition to that, a capacity-indexed resource evaluation algorithm was proposed and the GPU (Graphics Processing Unit) version uses a homogeneous model to reduce the required communication bandwidth. According to the experiments, the GPU version outperforms the optimized parallel CPU version with respect to the computational time and the quality of solutions. In comparison with other existing heuristics, the proposed solution often gives better quality solutions.",
+          "claimed_authors": [
+            "Libor Bukata",
+            "Premysl Sucha",
+            "Zdenek Hanzalek"
+          ],
+          "claimed_title": "Solving the Resource Constrained Project Scheduling Problem Using the Parallel Tabu Search Designed for the CUDA Platform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.04556"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Solving the Resource Constrained Project Scheduling Problem Using the Parallel Tabu Search Designed for the CUDA Platform')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Chunks and Tasks, a parallel programming model built on abstractions for both data and work. The application programmer specifies how data and work can be split into smaller pieces, chunks and tasks, respectively. The Chunks and Tasks library maps the chunks and tasks to physical resources. In this way we seek to combine user friendliness with high performance. An application programmer can express a parallel algorithm using a few simple building blocks, defining data and work objects and their relationships. No explicit communication calls are needed; the distribution of both work and data is handled by the Chunks and Tasks library. This makes efficient implementation of complex applications that require dynamic distribution of work and data easier. At the same time, Chunks and Tasks imposes restrictions on data access and task dependencies that facilitates the development of high performance parallel back ends. We discuss the fundamental abstractions underlying the programming model, as well as performance and fault resilience considerations. We also present a pilot C++ library implementation for clusters of multicore machines and demonstrate its performance for sparse blocked matrix-matrix multiplication.",
+          "claimed_authors": [
+            "Emanuel H. Rubensson",
+            "Elias Rudberg"
+          ],
+          "claimed_title": "Chunks and Tasks: a programming model for parallelization of dynamic algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.7427"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Chunks and Tasks: a programming model for parallelization of dynamic algorithms')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As wildfires in the United States are becoming more frequent and severe, mitigating wildfire ignition risk from power line faults is an increasingly crucial effort. Long-term ignition prevention strategies, especially converting overhead lines to underground cables, are expensive. Thus, it is important to prioritize upgrades on lines that will reduce wildfire ignition risk the most. However, since so many factors contribute to ignition risk, it is difficult to quantify the wildfire risk associated with power lines. This paper examines how various risk definitions based on historical wildfire risk maps can be used to inform transmission upgrade planning. These risk metrics are evaluated using an optimization model that determines which overhead lines should be undergrounded such that the total wildfire risk in the network is minimized. The risk assignment and upgrade selection are tested on both a synthetic network and the actual transmission lines in California.",
+          "claimed_authors": [
+            "Sofia Taylor",
+            "Line A. Roald"
+          ],
+          "claimed_title": "A Framework for Risk Assessment and Optimal Line Upgrade Selection to Mitigate Wildfire Risk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.07348"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='A Framework for Risk Assessment and Optimal Line Upgrade Selection to Mitigate Wildfire Risk')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electric power infrastructure has ignited several of the most destructive wildfires in recent history. Preemptive power shutoffs are an effective tool to mitigate the risk of ignitions from power lines, but at the same time can cause widespread power outages. This work proposes a mathematical optimization problem to help utilities decide where and when to implement these shutoffs, as well as how to most efficiently restore power once the wildfire risk is lower. Specifically, our model co-optimizes the power shutoff (considering both wildfire risk reduction and power outages) as well as the post-event restoration efforts given constraints related to inspection and energization of lines, and is implemented as a rolling horizon optimization problem that is resolved whenever new forecasts of load and wildfire risk become available. We demonstrate our method on the IEEE RTS-GMLC test case using real wildfire risk data and forecasts from US Geological Survey, and investigate the sensitivity of the results to the forecast quality, decision horizon and system restoration budget. The software implementation is available in the open source software package PowerModelsWildfire.jl.",
+          "claimed_authors": [
+            "Noah Rhodes",
+            "Line Roald"
+          ],
+          "claimed_title": "Co-optimization of power line shutoff and restoration under high wildfire ignition risk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.02507"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Co-optimization of power line shutoff and restoration under high wildfire ignition risk')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-agent LLM orchestration incurs synchronization costs scaling as O(n x S x |D|) in agents, steps, and artifact size under naive broadcast -- a regime I term broadcast-induced triply-multiplicative overhead. I argue this pathology is a structural residue of full-state rebroadcast, not an inherent property of multi-agent coordination.\n  The central claim: synchronization cost explosion in LLM multi-agent systems maps with formal precision onto the cache coherence problem in shared-memory multiprocessors, and MESI-protocol invalidation transfers to artifact synchronization under minimal structural modification.\n  I construct the Artifact Coherence System (ACS) and prove the Token Coherence Theorem: lazy invalidation attenuates cost by at least S/(n + W(d_i)) when S > n + W(d_i), converting O(n x S x |D|) to O((n + W) x |D|). A TLA+-verified protocol enforces single-writer safety, monotonic versioning, and bounded staleness across ~2,400 explored states.\n  Simulation across four workload configurations yields token savings of 95.0% +/- 1.3% at V=0.05, 92.3% +/- 1.4% at V=0.10, 88.3% +/- 1.5% at V=0.25, and 84.2% +/- 1.3% at V=0.50 -- each exceeding the theorem's conservative lower bounds. Savings of ~81% persist at V=0.9, contrary to the predicted collapse threshold.\n  Contributions: (1) formal MESI-to-artifact state mapping; (2) Token Coherence Theorem as savings lower bound; (3) TLA+-verified protocol with three proven invariants; (4) characterization of conditional artifact access semantics resolving the always-read objection; (5) reference Python implementation integrating with LangGraph, CrewAI, and AutoGen via thin adapter layers.",
+          "claimed_authors": [
+            "Vladyslav Parakhin"
+          ],
+          "claimed_title": "Token Coherence: Adapting MESI Cache Protocols to Minimize Synchronization Overhead in Multi-Agent LLM Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.15183"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Impact of Cache Line Padding on False Sharing in Concurrent Counters computer sc', candidate_title='Token Coherence: Adapting MESI Cache Protocols to Minimize Synchronization Overhead in Multi-Agent LLM Systems')",
+        "failed_at": "2026-06-08T16:32:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tim Weaving",
+            "Alexis Ralli",
+            "William M. Kirby",
+            "Peter J. Love",
+            "Sauro Succi",
+            "Peter V. Coveney"
+          ],
+          "title": "Benchmarking Noisy Intermediate Scale Quantum Error Mitigation Strategies for Ground State Preparation of the HCl Molecule",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.00445",
+        "summary": "Due to numerous limitations including restrictive qubit topologies, short coherence times and prohibitively high noise floors, few quantum chemistry experiments performed on existing noisy intermediate-scale quantum hardware have achieved the high bar of chemical precision, namely energy errors to within 1.6 mHa of full configuration interaction. To have any hope of doing so, we must layer contemporary resource reduction techniques with best-in-class error mitigation methods; in particular, we combine the techniques of qubit tapering and the contextual subspace variational quantum eigensolver with several error mitigation strategies comprised of measurement-error mitigation, symmetry verification, zero-noise extrapolation and dual-state purification. We benchmark these strategies across a suite of eight 27-qubit IBM Falcon series quantum processors, taking preparation of the HCl molecule's ground state as our testbed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.00445",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:33:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bumjun Kim",
+            "Dongjae Jeon",
+            "Dueun Kim",
+            "Wonje Jeung",
+            "Albert No"
+          ],
+          "title": "Rainbow Padding: Mitigating Early Termination in Instruction-Tuned Diffusion LLMs",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.03680",
+        "summary": "Diffusion large language models (dLLMs) have emerged as a promising alternative to autoregressive models, offering flexible generation orders and strong performance on complex reasoning tasks. However, instruction-tuned dLLMs exhibit a critical vulnerability we term \\texttt{<eos>} overflow: as allocated sequence length increases, responses paradoxically become shorter, collapsing into early termination or degenerating into streams of \\texttt{<eos>} tokens. Although noticed in practice, this issue has not been systematically analyzed. We trace its root cause to the dual role of \\texttt{<eos>} as both termination and padding, which concentrates probability mass on \\texttt{<eos>} at later positions and propagates backward to trigger early termination. To address this, we introduce Rainbow Padding, a simple remedy that replaces repeated \\texttt{<eos>} placeholders with a repeating cycle of distinct padding tokens, distributing probability mass and breaking \\texttt{<eos>} dominance. Experiments show that Rainbow Padding substantially improves length robustness and output quality, with as few as seven padding tokens sufficient to prevent early termination. Moreover, the method integrates efficiently into existing instruction-tuned models: LoRA fine-tuning for a single epoch on minimal data yields significant improvements, making this solution highly practical. The code is publicly available at https://github.com/quasar529/rainbow-padding.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.03680",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:33:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yusuf Motiwala"
+          ],
+          "title": "No Cords Attached: Coordination-Free Concurrent Lock-Free Queues",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.09410",
+        "summary": "The queue is conceptually one of the simplest data structures-a basic FIFO container. However, ensuring correctness in the presence of concurrency makes existing lock-free implementations significantly more complex than their original form. Coordination mechanisms introduced to prevent hazards such as ABA, use-after-free, and unsafe reclamation often dominate the design, overshadowing the queue itself. Many schemes compromise strict FIFO ordering, unbounded capacity, or lock-free progress to mask coordination overheads. Yet the true source of complexity lies in the pursuit of infinite protection against reclamation hazards--theoretically sound but impractical and costly. This pursuit not only drives unnecessary complexity but also creates a protection paradox where excessive protection reduces system resilience rather than improving it. While such costs may be tolerable in conventional workloads, the AI era has shifted the paradigm: training and inference pipelines involve hundreds to thousands of concurrent threads per node, and at this scale, protection and coordination overheads dominate, often far heavier than the basic queue operations themselves.\n  This paper introduces Cyclic Memory Protection (CMP), a coordination-free queue that preserves strict FIFO semantics, unbounded capacity, and lock-free progress while restoring simplicity. CMP reclaims the strict FIFO that other approaches sacrificed through bounded protection windows that provide practical reclamation guarantees. We prove strict FIFO and safety via linearizability and bounded reclamation analysis, and show experimentally that CMP outperforms state-of-the-art lock-free queues by up to 1.72-4x under high contention while maintaining scalability to hundreds of threads. Our work demonstrates that highly concurrent queues can return to their fundamental simplicity without weakening queue semantics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.09410",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:33:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "K. Eric Harper",
+            "Thijmen de Gooijer"
+          ],
+          "title": "Performance Impact of Lock-Free Algorithms on Multicore Communication APIs",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1401.6100",
+        "summary": "Data race conditions in multi-tasking software applications are prevented by serializing access to shared memory resources, ensuring data consistency and deterministic behavior. Traditionally tasks acquire and release locks to synchronize operations on shared memory. Unfortunately, lock management can add significant processing overhead especially for multicore deployments where tasks on different cores convoy in queues waiting to acquire a lock. Implementing more than one lock introduces the risk of deadlock and using spinlocks constrains which cores a task can run on. The better alternative is to eliminate locks and validate that real-time properties are met, which is not directly considered in many embedded applications. Removing the locks is non-trivial and packaging lock-free algorithms for developers reduces the possibility of concurrency defects. This paper details how a multicore communication API implementation is enhanced to support lock-free messaging and the impact this has on data exchange latency between tasks. Throughput and latency are compared on Windows and Linux between lock-based and lock-free implementations for data exchange of messages, packets, and scalars. A model of the lock-free exchange predicts performance at the system architecture level and provides a stop criterion for the refactoring. The results show that migration from single to multicore hardware architectures degrades lock-based performance, and increases lock-free performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1401.6100",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:33:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vladyslav Parakhin"
+          ],
+          "title": "Token Coherence: Adapting MESI Cache Protocols to Minimize Synchronization Overhead in Multi-Agent LLM Systems",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.15183",
+        "summary": "Multi-agent LLM orchestration incurs synchronization costs scaling as O(n x S x |D|) in agents, steps, and artifact size under naive broadcast -- a regime I term broadcast-induced triply-multiplicative overhead. I argue this pathology is a structural residue of full-state rebroadcast, not an inherent property of multi-agent coordination.\n  The central claim: synchronization cost explosion in LLM multi-agent systems maps with formal precision onto the cache coherence problem in shared-memory multiprocessors, and MESI-protocol invalidation transfers to artifact synchronization under minimal structural modification.\n  I construct the Artifact Coherence System (ACS) and prove the Token Coherence Theorem: lazy invalidation attenuates cost by at least S/(n + W(d_i)) when S > n + W(d_i), converting O(n x S x |D|) to O((n + W) x |D|). A TLA+-verified protocol enforces single-writer safety, monotonic versioning, and bounded staleness across ~2,400 explored states.\n  Simulation across four workload configurations yields token savings of 95.0% +/- 1.3% at V=0.05, 92.3% +/- 1.4% at V=0.10, 88.3% +/- 1.5% at V=0.25, and 84.2% +/- 1.3% at V=0.50 -- each exceeding the theorem's conservative lower bounds. Savings of ~81% persist at V=0.9, contrary to the predicted collapse threshold.\n  Contributions: (1) formal MESI-to-artifact state mapping; (2) Token Coherence Theorem as savings lower bound; (3) TLA+-verified protocol with three proven invariants; (4) characterization of conditional artifact access semantics resolving the always-read objection; (5) reference Python implementation integrating with LangGraph, CrewAI, and AutoGen via thin adapter layers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.15183",
+          "http_status": 200,
+          "pdf_sample_score": 0.2333,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-08T16:33:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "impact of cache line padding on false sharing in concurrent counters computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
