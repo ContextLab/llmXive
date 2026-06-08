@@ -1,0 +1,99 @@
+project_id: PROJ-611-https-arxiv-org-abs-2605-11609
+arxiv_id: '2605.11609'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-08T15:31:52.231218+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: a5a3860136c4
+    text: Explicitly state the licenses for all training datasets (DAPO-Math-17k,
+      AIME, HMMT, MinervaMath) in Section 4. Current citations lack license terms
+      (e.g., CC-BY, MIT) required for open-source reproducibility.
+    severity: writing
+  - id: d053eb548f24
+    text: Add a specific git commit hash or release tag to the GitHub link (Section
+      1) to ensure code and data artifacts are version-locked. WandB runs should be
+      archived or made public-permanent.
+    severity: writing
+  - id: 97f5b8e78522
+    text: Include a data schema definition for the 'privileged context' (c) in Appendix
+      B. Specify field types (e.g., JSONL keys) for the verified solution and feedback
+      string to enable exact data reconstruction.
+    severity: writing
+  - id: cba824a5abfa
+    text: Conclusion (Sec 6) claims 'sign reversal carrying most of the gain' but
+      Qwen3-8B ablation (Table ablation_qn_table) shows 'rev. KL' (30.6 Avg) matches
+      SD (30.6 Avg), implying JSD shape is the primary driver on that model. Clarify
+      this nuance to avoid over-attribution.
+    severity: writing
+  - id: f963997650ac
+    text: Claim of 'naturally bounded advantage' (Sec 3.2) is imprecise; Lemma 1(iii)
+      shows bounds apply only to the deliberation side (positive advantage), while
+      negative advantages are unbounded. Refine phrasing to reflect one-sided bounding.
+    severity: writing
+  - id: cc526304f582
+    text: Report the 'first-reach step' explicitly in Table 1 or main text to substantiate
+      the '10x speedup' claim, as only peak accuracy steps are currently visible (e.g.,
+      Qwen3-4B peak step 100 vs. claimed 10x speedup implies step 20).
+    severity: science
+  - id: 0a885d3951f1
+    text: Qualify the Abstract's claim of 'naturally bounded advantage' to reflect
+      the asymmetric nature (bounded on deliberation side, linear/unbounded on shortcut
+      side) described in Section 3.2.
+    severity: writing
+  - id: e1e67cab9264
+    text: Expand the Broader Impacts discussion (Appendix app:impacts) to include
+      specific potential misuse scenarios (e.g., automated vulnerability discovery,
+      adversarial prompt generation) enabled by improved reasoning, and detail mitigation
+      strategies or safety alignment steps taken alongside the capability improvements.
+    severity: writing
+  - id: d63d7603e2cd
+    text: Report standard deviations over multiple training seeds in Table 1 (main_table.tex)
+      to quantify variance in accuracy estimates.
+    severity: science
+  - id: aabf9c3baeb4
+    text: Perform statistical significance tests (e.g., bootstrap or paired t-tests)
+      for the main accuracy comparisons between AntiSD and GRPO in Section 4.1.
+    severity: science
+  - id: 6ff1d4c5781d
+    text: Clarify the number of evaluation seeds used for avg@32 metrics and ensure
+      benchmark variance (AIME size) is acknowledged as a limitation.
+    severity: writing
+  - id: ebff1d7d9c42
+    text: "Break up several overly long sentences (e.g., the opening sentence of the\
+      \ abstract and the paragraph starting with \u201COn-policy self-distillation\
+      \ answers this in the affirmative\u201D) into shorter, clearer statements."
+    severity: writing
+  - id: a2f1fd2a19ef
+    text: "Introduce and define all abbreviations on first use (e.g., \u201CGRPO\u201D\
+      , \u201CRLVR\u201D, \u201COPD\u201D, \u201CPRM\u201D, \u201CJSD\u201D) to aid\
+      \ readability for non\u2011expert readers."
+    severity: writing
+  - id: 80dd4f1d6a6a
+    text: "Standardize punctuation around mathematical symbols and percentages (e.g.,\
+      \ use \u201C2\u201310\xD7 fewer steps\u201D instead of \u201C$2$ to $10\times$\
+      \ fewer training steps\u201D)."
+    severity: writing
+  - id: 488afc998a6f
+    text: "Revise figure captions for consistency and completeness (e.g., specify\
+      \ what \u201Croot\u201D refers to in Fig.\u202F1(a) and ensure all sub\u2011\
+      figures are referenced in the main text)."
+    severity: writing
+  - id: e721680542da
+    text: "Ensure uniform spacing after LaTeX commands and before punctuation (e.g.,\
+      \ replace \u201C\textbf{(a)}~An oracle\u2011conditioned teacher\u2026\u201D\
+      \ with \u201C\textbf{(a)}\u202FAn oracle\u2011conditioned teacher\u2026\u201D\
+      )."
+    severity: writing
+  - id: b2efbd8fd4f8
+    text: "Check for minor typographical errors such as missing articles or prepositions\
+      \ (e.g., change \u201Cthe teacher reward splits tokens into two informative\
+      \ regimes\u201D to \u201Cthe teacher\u2019s reward splits tokens into two informative\
+      \ regimes\u201D)."
+    severity: writing
+  - id: 4cd7c93c476a
+    text: "Add a brief explanatory sentence when first introducing the entropy\u2011\
+      triggered gate to clarify its purpose for readers unfamiliar with gating mechanisms."
+    severity: writing

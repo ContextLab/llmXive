@@ -182,4 +182,7 @@ ready:
 - project_id: PROJ-620-perception-or-prejudice-can-mllms-go-bey
   revision_spec_path: specs/auto-revisions/PROJ-620-perception-or-prejudice-can-mllms-go-bey/round-1
   queued_at: '2026-06-08T11:01:01.042581+00:00'
+- project_id: PROJ-611-https-arxiv-org-abs-2605-11609
+  revision_spec_path: specs/auto-revisions/PROJ-611-https-arxiv-org-abs-2605-11609/round-1
+  queued_at: '2026-06-08T15:31:52.243723+00:00'
 blocked: []
