@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-06-08T07:08:43.041552+00:00'
-last_outcome: committed
+last_used: eric-kandel
+last_used_at: '2026-06-08T09:08:45.065846+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: david-krakauer
-  started_at: '2026-05-29T22:08:44.976916+00:00'
-  ended_at: '2026-05-29T22:57:53.531838+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/david-krakauer-simulated__2026-05-29__research.md
 - slug: eric-kandel
   started_at: '2026-05-29T22:57:53.531838+00:00'
   ended_at: '2026-05-29T23:32:28.665334+00:00'
@@ -1161,3 +1154,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/reviews/research/david-krakauer-simulated__2026-06-08__research.md
+- slug: eric-kandel
+  started_at: '2026-06-08T07:08:43.041552+00:00'
+  ended_at: '2026-06-08T09:08:45.065846+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
