@@ -197,4 +197,7 @@ ready:
 - project_id: PROJ-661-https-arxiv-org-abs-2606-00683
   revision_spec_path: specs/auto-revisions/PROJ-661-https-arxiv-org-abs-2606-00683/round-1
   queued_at: '2026-06-09T00:47:04.995599+00:00'
+- project_id: PROJ-644-omniretrieval-unified-retrieval-across-h
+  revision_spec_path: specs/auto-revisions/PROJ-644-omniretrieval-unified-retrieval-across-h/round-1
+  queued_at: '2026-06-09T04:40:30.316991+00:00'
 blocked: []
