@@ -1,0 +1,38 @@
+\begin{table*}[t]
+  \caption{\textbf{Main results.} Accuracy (\%) on AI2-THOR (in-domain) and different-environment (out-of-domain) benchmarks. PT reports the average across input settings (EgoDir/Path/PathArr for AI2-THOR; Real/Real+Arr for different environments). Text CoT generates a textual chain-of-thought before answering. IPT (Imaginative Perception Token) generates an intermediate image before answering. For our models, accuracy reports the \textbf{maximum} between answer-only and free-generation inference. Best per group in \textbf{bold}.}
+  \vspace{-1em}
+  \centering
+  \setlength{\tabcolsep}{13pt}
+  % \resizebox{\columnwidth}{!}{
+  \begin{tabular}{l ccc cc}
+    \toprule
+    & \multicolumn{3}{c}{\textbf{AI2-THOR}} & \multicolumn{2}{c}{\textbf{Different Env.}} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-6}
+    \textbf{Model}
+      & PET & \footnotesize PT & MVC
+      & \footnotesize PET & \footnotesize PT \\
+    \midrule
+    \multicolumn{6}{l}{\emph{VQA Models}} \\
+    GPT-5            & \textbf{79.8} & \textbf{60.2} & 53.5 & \textbf{69.3} & \textbf{80.9} \\
+    GPT-5.2          & 45.5 & 32.9 & 44.2 & 54.0 & 63.0 \\
+    Gemini 2.5 Flash & 51.0 & 41.5 & 30.8 & 66.3 & 71.4 \\
+    Gemini 3 Flash   & 55.0 & 42.3 & \textbf{56.9} & 51.3 & 83.2 \\
+    InternVL3.5-8B   & 51.5 & 35.8 & 44.6 & 47.7 & 47.4 \\
+    Qwen2.5-VL-7B   & 50.7 & 37.3 & 38.8 & 54.3 & 44.8 \\
+    Qwen3-VL-8B     & 52.0 & 35.9 & 43.8 & 46.7 & 64.1 \\
+    \midrule
+    \multicolumn{6}{l}{\emph{Unified Models}} \\
+    Janus-Pro-7B     & 51.8 & 33.5 & 33.1 & 44.7 & 35.3 \\
+    Chameleon 7B     & 34.3 & 16.3 & 5.4 & 47.3 & 24.5 \\
+    \midrule
+    \multicolumn{6}{l}{\emph{Ours (fine-tuned BAGEL)}} \\
+    Bagel (base)              & 40.3 & 29.9 & 35.4 & 62.7 & 42.7 \\
+    Bagel (label-only)        & 97.5 & 65.7 & 63.9 & 82.0 & 54.7 \\
+    + Text CoT                 & 83.1 & 49.7 & 62.3 & 70.3 & 52.2 \\
+    + IPT                       & 96.8 & 49.0 & \textbf{67.3} & 87.0 & 57.5 \\
+    + Mixed Training            & \textbf{97.8} & \textbf{66.7} & 62.3 & \textbf{87.7} & \textbf{58.6} \\
+    \bottomrule
+  \end{tabular}
+  % }
+  \label{tab:main_results}
+\end{table*}

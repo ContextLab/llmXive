@@ -1,0 +1,32 @@
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{data1.pdf}
+    \caption{\textbf{Overview of the three spatial imagination tasks.} The left columns show training examples with ground-truth imaginative perception; the right columns show evaluation examples.}
+    \label{fig:data}
+\end{figure*}
+\vspace{-2em}
+\section{Introduction}
+\label{sec:intro}
+
+
+
+
+
+% % Vision Language Models (VLMs) have achieved strong performance on many vision–language tasks, including visual question answering and image captioning~\cite{huang2025framesvqa,antol2015vqa,liu2025capability,yang2025bacon,chen2015cococaptions,deitke2025molmo,clark2026molmo2,bai2025qwen3vl}. However, 
+
+Spatial reasoning still still remains a persistent challenge for vision-language models (VLMs)~\cite{deitke2025molmo,clark2026molmo2,bai2025qwen3vl}. Many spatial questions require reasoning about how objects relate within a three-dimensional environment, how these relationships change under viewpoint transformations, or how information from multiple partial observations should be integrated into a coherent scene representation~\cite{yin2025mindcube, kamath2023whatsup} for vision-language models (VLMs)~\cite{deitke2025molmo,clark2026molmo2,bai2025qwen3vl}. While current models can often recognize objects and attributes, they frequently struggle when reasoning requires manipulating spatial structure, such as predicting how a scene would appear from another viewpoint~\cite{li2025viewspatialbench, ma20253dsrbench} or aggregating information across multiple views~\cite{yang2025mmsibench}.
+
+A key reason for this difficulty is that many spatial reasoning problems cannot be solved by analyzing the input alone. Instead, they require constructing a spatial representation that is not directly observed. Humans naturally address such problems through imagination: when asked what lies to the left after moving to a new position, or how many objects exist in a room seen from several viewpoints, we mentally simulate the scene from unseen perspectives or integrate partial observations into a unified spatial map~\cite{yang2025thinkinginspace,yin2025mindcube,zhang2026theoryofspace}. In other words, spatial reasoning often depends on imagining missing spatial structure that proceed despite incomplete observations.
+
+Existing approaches provide only partial solutions. Recent work teaches models to generate intermediate visual thoughts alongside language~\cite{gu2025thinkmorph, li2025mvot, hu2024visualsketchpad}, while others introduce structured perceptual intermediates, such as depth maps or bounding boxes represented as tokens~\cite{bigverdi2024aurora, yang2025mirage, ray2025mulltokens}. Although these methods demonstrate that intermediate visual representations can support reasoning, they primarily operate over information already present in the input observation, refining visible structures or extracting perceptual attributes. However, as discussed above, many spatial reasoning problems arise precisely because the required spatial information is not directly observable, and therefore requires imagination.
+
+To address this gap, we propose \textbf{Imaginative Perceptual Tokens} for VLMs. When VLMs are trained with them, they enable intermediate reasoning steps that represent novel spatial views. Unlike standard perceptual intermediates that describe structures visible in the input, imaginative representations correspond to what the model would perceive if it were observing the input from a different spatial configuration, such as from an unseen viewpoint or after integrating multiple partial observations into one. At the same time, they are not unconstrained imagination: the predicted percept must remain consistent with the observed scene. These tokens externalize the model's prediction of what would be perceived given incomplete spatial evidence. % and help models reason over spatial structures that are not directly visible but are nevertheless implied by the observed environment.
+
+
+To study this capability, we propose three spatial reasoning tasks that fundamentally require imaginative perception. (1) Perspective Taking requires predicting how a scene would appear from a new viewpoint given a single first-person observation (“If you move to the marked position and turn left, will the chair appear on your left or right?"); (2) Path Tracing requires inferring what an agent would see along a navigation path based on a top-down view (“If you walk along the marked path, which object will you see on your side?”); Finally, (3) Multiview Counting requires integrating multiple partial observations into a top-down view to determine the number of objects present in the scene. These tasks would be made easy when correctly predicting what would be perceived in a different spatial configuration. 
+For each task we construct a dataset of approximately 20k examples each drawn from both real-world and synthetic simulated environments, with ground-truth intermediate spatial imaginations paired with final answers. Each dataset is accompanied by a human-filtered benchmark for evaluation. Together these constitute the first datasets designed explicitly to train and evaluate visually-grounded intermediate spatial reasoning in models.
+
+Empirically, we find that training with imaginative perceptual supervision can improve performance on these spatial reasoning tasks compared to answer-only supervision, and often compares favorably to textual chain-of-thought approaches. These improvements can persist even when the model does not explicitly generate intermediate images at inference time, suggesting that such supervision may help models develop stronger internal spatial representations. At the same time, we observe that the benefits vary across tasks and settings, indicating that imagination quality and task structure both play important roles.
+
+Overall, our results suggest that supervising models with intermediate perceptual predictions offers a useful direction for improving spatial reasoning, particularly in settings where the required structure is not directly observable from the input.
+

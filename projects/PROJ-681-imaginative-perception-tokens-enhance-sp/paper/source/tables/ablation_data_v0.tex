@@ -1,0 +1,33 @@
+\begin{table}[t]
+  \caption{\textbf{Does our data help on other spatial tasks?} Accuracy (\%) on benchmarks beyond our training task categories. Fine-tuning on our AI2-THOR MVC data consistently improves over Bagel (base), suggesting that the spatial reasoning learned from our datasets transfers broadly. Best per column in \textbf{bold}.}
+  \vspace{-1em}
+  \centering
+  \setlength{\tabcolsep}{4pt}
+  \small
+  \begin{tabular}{l ccc}
+    \toprule
+    \textbf{Model}
+      & \footnotesize ScanNet (200)
+      & \footnotesize MindCube (200)
+      & \footnotesize All-Angles (170) \\
+    \midrule
+    \multicolumn{4}{l}{\emph{VQA Models}} \\
+    GPT-5            & 58.5 & \textbf{67.3} & \textbf{67.9} \\
+    GPT-5.2          & 48.5 & 37.5 & 29.4 \\
+    Gemini 2.5 Flash & 48.0 & 50.3 & 37.9 \\
+    Gemini 3 Flash   & 62.5 & 56.5 & 64.2 \\
+    InternVL3.5-8B   & 53.5 & 42.1 & 54.8 \\
+    Qwen2.5-VL-7B   & \textbf{63.5} & 47.8 & 51.8 \\
+    Qwen3-VL-8B     & 62.5 & 34.5 & 42.3 \\
+    \midrule
+    \multicolumn{4}{l}{\emph{Unified Models}} \\
+    Janus-Pro-7B     & 39.5 & 42.0 & 45.0 \\
+    Chameleon 7B     & 5.5 & 25.4 & 17.7 \\
+    \midrule
+    \multicolumn{4}{l}{\emph{Ours (fine-tuned BAGEL)}} \\
+    Bagel (base)       & 40.5 & 39.5 & 40.0 \\
+    Bagel (fine-tuned) & \textbf{52.0} & \textbf{47.5} & \textbf{50.0} \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:ablation_data}
+\end{table}

@@ -1,0 +1,53 @@
+{
+  "arxiv_id": "2606.05563",
+  "arxiv_url": "https://arxiv.org/abs/2606.05563",
+  "title": "SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations",
+  "authors": [
+    "Taewon Yun",
+    "Hyeonseong Park",
+    "Jeonghwan Choi",
+    "Hayoon Park",
+    "Yeeun Choi",
+    "Hwanjun Song"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Evaluating LLM mediators remains challenging, as mediation unfolds as a real-time trajectory shaped by disputants' shifting emotions, intentions, and context. Existing testbeds rely on a few expert-authored domains, vary mainly strategic posture, and score every turn against every topic, introducing off-topic noise. We introduce SoCRATES, a benchmark for evaluating proactive LLM mediators in realistic, multi-domain testbeds. It constructs scenarios from real conflicts through an agentic pipeline across eight domains, probes five socio-cognitive adaptation axes (strategic posture, party composition, history length, emotional reactivity, and cultural identity), and scores each topic only on the turns that advance it via a topic-localized evaluator. The evaluator reaches 0.82 alignment with human experts, more than doubling a per-turn baseline. Benchmarking eight frontier LLMs, we find that even the strongest mediator closes only about a third of the unmediated consensus gap under diverse and realistic testbeds, with performance varying sharply by socio-cognitive axis, highlighting that progress lies in social adaptation to diverse conditions.",
+  "submitted_via": "llmXive dashboard, GitHub issue #292",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "0-main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "0-main.tex",
+    "1-introduction.tex",
+    "2-relatedwork.tex",
+    "3-method.tex",
+    "4-validation.tex",
+    "5-benchmark-results.tex",
+    "6-conclusion.tex",
+    "7-appendix.tex",
+    "assets",
+    "assets/plainnat.bst",
+    "colm2026_conference.bib",
+    "colm2026_conference.bst",
+    "colm2026_conference.sty",
+    "fancyhdr.sty",
+    "fiqure",
+    "fiqure/Figure_Intervention_comparison.pdf",
+    "fiqure/Figure_component.pdf",
+    "fiqure/Figure_rader_chart.pdf",
+    "fiqure/Figure_rader_simul_change.pdf",
+    "fiqure/Figure_trend_comparison.pdf",
+    "fiqure/dislab-icon-Photoroom.png",
+    "fiqure/figure_agreement_score.pdf",
+    "fiqure/figure_simulation_fidelity.pdf",
+    "fiqure/logo_2.png",
+    "fiqure/overview.pdf",
+    "math_commands.tex",
+    "natbib.sty"
+  ]
+}

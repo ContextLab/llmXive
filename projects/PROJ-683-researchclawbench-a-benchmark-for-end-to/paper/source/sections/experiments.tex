@@ -1,0 +1,168 @@
+
+\section{Experiments}
+
+\definecolor{rcbScorePurple}{HTML}{5C3A96}
+\newcommand{\ScoreCell}[2]{\cellcolor{rcbScorePurple!#1!white}#2}
+\newcommand{\BestScore}[2]{\ScoreCell{#1}{\textbf{#2}}}
+\newcommand{\SecondScore}[2]{\ScoreCell{#1}{\underline{#2}}}
+\newcommand{\DimCell}[2]{\cellcolor{rcbScorePurple!#1!white}#2}
+\newcommand{\RcbIcon}[1]{\raisebox{-0.12em}{\includegraphics[height=0.9em]{imgs/logos/#1.png}}\hspace{0.25em}}
+\newcommand{\ClaudeIcon}{\RcbIcon{anthropic}}
+\newcommand{\OpenAIIcon}{\RcbIcon{openai}}
+\newcommand{\ArisIcon}{\RcbIcon{asx}}
+\newcommand{\OpenClawIcon}{\RcbIcon{openclaw}}
+\newcommand{\NanobotIcon}{\RcbIcon{nanobot}}
+\newcommand{\EvoIcon}{\RcbIcon{evo}}
+\newcommand{\ResearchClawIcon}{\RcbIcon{researchclaw}}
+\newcommand{\GlmIcon}{\RcbIcon{glm}}
+\newcommand{\GeminiIcon}{\RcbIcon{gemini}}
+\newcommand{\DeepSeekIcon}{\RcbIcon{deepseek}}
+\newcommand{\GrokIcon}{\RcbIcon{grok}}
+\newcommand{\KimiIcon}{\RcbIcon{kimi}}
+\newcommand{\MimoIcon}{\RcbIcon{mimo}}
+\newcommand{\QwenIcon}{\RcbIcon{qwen}}
+
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Main results on ResearchClawBench.} The full score is 100; 50 indicates target-paper-level re-discovery, while scores above 50 go beyond the target paper.}
+\vspace{-0.6em}
+\label{tab:main-results}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lccccccccccc@{}}
+\toprule
+System & Overall & Astro. & Chem. & Earth & Energy & Info. & Life & Mater. & Math & Neuro. & Phys. \\
+\midrule
+\multicolumn{12}{l}{\textbf{Autonomous agents}} \\
+\ClaudeIcon Claude Code (Claude-Opus-4.6) & \BestScore{22}{21.5} & \BestScore{30}{30.2} & \BestScore{9}{9.3} & \BestScore{23}{22.7} & \ScoreCell{22}{21.7} & \BestScore{25}{25.0} & \ScoreCell{16}{15.6} & \BestScore{26}{25.5} & \BestScore{28}{27.5} & \ScoreCell{6}{5.5} & \BestScore{32}{32.3} \\
+\OpenAIIcon Codex CLI (GPT-5.4) & \SecondScore{18}{18.4} & \ScoreCell{27}{26.5} & \ScoreCell{8}{7.6} & \SecondScore{22}{22.2} & \SecondScore{23}{23.1} & \SecondScore{17}{17.0} & \ScoreCell{14}{14.4} & \ScoreCell{13}{13.0} & \SecondScore{21}{20.8} & \BestScore{9}{8.6} & \SecondScore{31}{31.1} \\
+\OpenClawIcon OpenClaw (GPT-5.4) & \ScoreCell{17}{16.6} & \SecondScore{28}{28.4} & \ScoreCell{6}{6.0} & \ScoreCell{17}{17.3} & \ScoreCell{22}{22.0} & \ScoreCell{14}{14.0} & \ScoreCell{16}{15.7} & \ScoreCell{13}{12.9} & \ScoreCell{14}{14.3} & \SecondScore{8}{8.3} & \ScoreCell{28}{27.6} \\
+\ResearchClawIcon ResearchClaw (GPT-5.4) & \ScoreCell{16}{16.3} & \ScoreCell{23}{23.1} & \SecondScore{9}{8.5} & \ScoreCell{17}{17.1} & \ScoreCell{19}{19.0} & \ScoreCell{15}{14.9} & \ScoreCell{14}{14.0} & \SecondScore{19}{19.3} & \ScoreCell{13}{12.8} & \ScoreCell{4}{4.2} & \ScoreCell{30}{30.1} \\
+\EvoIcon EvoScientist (GPT-5.4) & \ScoreCell{16}{15.5} & \ScoreCell{26}{26.0} & \ScoreCell{4}{4.4} & \ScoreCell{17}{17.0} & \BestScore{24}{24.0} & \ScoreCell{7}{7.4} & \SecondScore{16}{16.4} & \ScoreCell{14}{13.5} & \ScoreCell{14}{14.3} & \ScoreCell{5}{5.3} & \ScoreCell{26}{26.3} \\
+\ArisIcon ARIS Codex (Codex/GPT-5.4) & \ScoreCell{14}{13.6} & \ScoreCell{21}{21.3} & \ScoreCell{7}{7.4} & \ScoreCell{15}{15.1} & \ScoreCell{14}{13.6} & \ScoreCell{6}{6.0} & \BestScore{17}{16.9} & \ScoreCell{12}{12.4} & \ScoreCell{11}{11.4} & \ScoreCell{7}{6.9} & \ScoreCell{25}{24.7} \\
+\NanobotIcon Nanobot (GPT-5.4) & \ScoreCell{13}{12.8} & \ScoreCell{22}{22.3} & \ScoreCell{6}{6.2} & \ScoreCell{14}{14.3} & \ScoreCell{14}{13.5} & \ScoreCell{11}{11.1} & \ScoreCell{13}{13.0} & \ScoreCell{13}{13.0} & \ScoreCell{12}{12.1} & \ScoreCell{3}{3.3} & \ScoreCell{19}{19.4} \\
+\midrule
+\multicolumn{12}{l}{\textbf{LLMs (evaluated via ResearchHarness)}} \\
+\ClaudeIcon Claude-Opus-4.7 & \BestScore{21}{20.7} & \SecondScore{33}{32.9} & \ScoreCell{4}{4.2} & \ScoreCell{23}{22.5} & \ScoreCell{23}{23.2} & \ScoreCell{14}{13.9} & \ScoreCell{13}{12.8} & \SecondScore{24}{24.1} & \ScoreCell{19}{18.9} & \BestScore{10}{9.7} & \ScoreCell{34}{34.2} \\
+\ClaudeIcon Claude-Opus-4.6 & \SecondScore{20}{19.9} & \BestScore{35}{35.1} & \ScoreCell{7}{7.2} & \BestScore{30}{30.4} & \BestScore{26}{26.0} & \ScoreCell{13}{12.8} & \ScoreCell{13}{12.7} & \ScoreCell{20}{20.0} & \BestScore{22}{22.4} & \ScoreCell{7}{7.4} & \SecondScore{35}{35.0} \\
+\QwenIcon Qwen3.7-Max & \ScoreCell{19}{18.7} & \ScoreCell{24}{23.8} & \ScoreCell{7}{6.9} & \ScoreCell{15}{14.8} & \SecondScore{25}{25.3} & \SecondScore{22}{21.8} & \ScoreCell{10}{10.3} & \ScoreCell{24}{23.9} & \SecondScore{22}{22.3} & \ScoreCell{7}{7.0} & \BestScore{38}{38.3} \\
+\GlmIcon GLM-5.1 & \ScoreCell{18}{18.2} & \ScoreCell{30}{29.8} & \BestScore{11}{11.4} & \ScoreCell{21}{20.6} & \ScoreCell{20}{20.4} & \ScoreCell{16}{16.2} & \ScoreCell{12}{12.2} & \ScoreCell{19}{18.6} & \ScoreCell{18}{18.0} & \ScoreCell{6}{5.9} & \ScoreCell{29}{28.9} \\
+\QwenIcon Qwen3.6-Plus & \ScoreCell{18}{18.0} & \ScoreCell{31}{30.8} & \ScoreCell{8}{7.7} & \ScoreCell{17}{16.6} & \ScoreCell{21}{21.2} & \ScoreCell{18}{17.7} & \ScoreCell{12}{12.1} & \ScoreCell{20}{19.6} & \ScoreCell{19}{19.1} & \ScoreCell{5}{4.6} & \ScoreCell{31}{30.7} \\
+\KimiIcon Kimi-K2.6 & \ScoreCell{18}{18.0} & \ScoreCell{28}{27.8} & \ScoreCell{3}{3.1} & \ScoreCell{23}{22.9} & \ScoreCell{18}{18.1} & \ScoreCell{13}{12.8} & \SecondScore{14}{13.8} & \ScoreCell{22}{22.3} & \ScoreCell{20}{19.5} & \SecondScore{8}{8.4} & \ScoreCell{24}{24.0} \\
+\GeminiIcon Gemini-3.5-Flash & \ScoreCell{18}{17.9} & \ScoreCell{28}{28.1} & \ScoreCell{6}{5.5} & \SecondScore{24}{24.0} & \ScoreCell{18}{18.3} & \BestScore{24}{24.1} & \ScoreCell{13}{13.4} & \ScoreCell{20}{19.7} & \ScoreCell{22}{22.0} & \ScoreCell{2}{2.2} & \ScoreCell{27}{26.8} \\
+\DeepSeekIcon DeepSeek-V4-Pro & \ScoreCell{17}{17.1} & \ScoreCell{25}{25.2} & \ScoreCell{8}{7.5} & \ScoreCell{20}{20.1} & \ScoreCell{22}{21.8} & \ScoreCell{5}{4.6} & \ScoreCell{13}{13.3} & \BestScore{25}{24.6} & \ScoreCell{18}{17.9} & \ScoreCell{8}{7.7} & \ScoreCell{29}{28.6} \\
+\OpenAIIcon GPT-5.5 & \ScoreCell{17}{17.0} & \ScoreCell{24}{24.0} & \SecondScore{10}{10.4} & \ScoreCell{18}{18.4} & \ScoreCell{23}{22.7} & \ScoreCell{18}{17.8} & \ScoreCell{12}{11.8} & \ScoreCell{15}{14.7} & \ScoreCell{13}{13.1} & \ScoreCell{6}{6.3} & \ScoreCell{31}{30.9} \\
+\MimoIcon MiMo-V2.5 & \ScoreCell{17}{16.9} & \ScoreCell{24}{24.4} & \ScoreCell{4}{4.4} & \ScoreCell{16}{15.9} & \ScoreCell{20}{19.5} & \ScoreCell{12}{12.3} & \ScoreCell{13}{12.8} & \ScoreCell{19}{19.2} & \ScoreCell{18}{18.2} & \ScoreCell{5}{4.7} & \ScoreCell{35}{34.7} \\
+\MimoIcon MiMo-V2-Pro & \ScoreCell{15}{15.3} & \ScoreCell{22}{21.8} & \ScoreCell{6}{6.3} & \ScoreCell{20}{19.8} & \ScoreCell{13}{12.8} & \ScoreCell{9}{9.4} & \ScoreCell{13}{12.8} & \ScoreCell{21}{21.4} & \ScoreCell{14}{13.6} & \ScoreCell{6}{6.2} & \ScoreCell{26}{26.4} \\
+\OpenAIIcon GPT-5.4 & \ScoreCell{15}{15.3} & \ScoreCell{22}{22.1} & \ScoreCell{7}{6.9} & \ScoreCell{19}{18.8} & \ScoreCell{17}{17.1} & \ScoreCell{16}{15.7} & \BestScore{14}{14.2} & \ScoreCell{8}{7.7} & \ScoreCell{18}{18.3} & \ScoreCell{5}{4.9} & \ScoreCell{27}{27.1} \\
+\QwenIcon Qwen3.5-397B-A17B & \ScoreCell{14}{14.2} & \ScoreCell{17}{17.2} & \ScoreCell{8}{7.9} & \ScoreCell{18}{18.3} & \ScoreCell{19}{18.6} & \ScoreCell{6}{6.0} & \ScoreCell{11}{11.5} & \ScoreCell{18}{18.4} & \ScoreCell{14}{14.3} & \ScoreCell{4}{4.2} & \ScoreCell{26}{26.1} \\
+\KimiIcon Kimi-K2.5 & \ScoreCell{14}{14.0} & \ScoreCell{23}{23.4} & \ScoreCell{8}{7.6} & \ScoreCell{16}{16.4} & \ScoreCell{13}{13.3} & \ScoreCell{9}{9.4} & \ScoreCell{11}{11.4} & \ScoreCell{13}{13.1} & \ScoreCell{16}{16.1} & \ScoreCell{3}{3.0} & \ScoreCell{26}{26.5} \\
+\GrokIcon Grok-4.1 & \ScoreCell{14}{13.5} & \ScoreCell{29}{28.6} & \ScoreCell{3}{2.9} & \ScoreCell{15}{14.9} & \ScoreCell{11}{11.1} & \ScoreCell{12}{11.9} & \ScoreCell{13}{13.2} & \ScoreCell{9}{9.5} & \ScoreCell{12}{12.2} & \ScoreCell{5}{4.8} & \ScoreCell{26}{25.6} \\
+\GeminiIcon Gemini-3.1-Pro & \ScoreCell{13}{13.3} & \ScoreCell{19}{19.3} & \ScoreCell{8}{8.0} & \ScoreCell{14}{13.8} & \ScoreCell{12}{12.0} & \ScoreCell{7}{6.8} & \ScoreCell{9}{9.4} & \ScoreCell{11}{11.3} & \ScoreCell{15}{15.0} & \ScoreCell{2}{1.6} & \ScoreCell{30}{29.7} \\
+\GrokIcon Grok-4.3 & \ScoreCell{12}{12.4} & \ScoreCell{25}{24.7} & \ScoreCell{4}{3.5} & \ScoreCell{15}{15.1} & \ScoreCell{19}{18.8} & \ScoreCell{3}{2.5} & \ScoreCell{12}{12.5} & \ScoreCell{12}{12.3} & \ScoreCell{9}{8.5} & \ScoreCell{3}{2.6} & \ScoreCell{28}{28.2} \\
+\bottomrule
+\end{tabular}%
+}
+\endgroup
+\vspace{-0.5em}
+\end{table}
+
+\subsection{Experimental Setup}
+
+We evaluate seven agents: Claude Code~\citep{anthropic2026claudecode}, Codex CLI~\citep{openai2026codexcli}, ARIS Codex~\citep{yang2026aris,openai2026codexcli}, OpenClaw~\citep{openclaw2026github}, Nanobot~\citep{hkuds2026nanobot}, EvoScientist~\citep{lyu2026evoscientist}, and ResearchClaw~\citep{yang2026researchclaw}. We also evaluate seventeen native LLM baselines through ResearchHarness: Claude-Opus-4.6~\citep{anthropic2026claudeopus46}, Claude-Opus-4.7, DeepSeek-V4-Pro~\citep{deepseek2026v4pro}, GLM-5.1~\citep{zhipu2026glm51}, GPT-5.4~\citep{openai2026gpt54}, GPT-5.5, Gemini-3.1-Pro~\citep{google2026gemini31pro}, Gemini-3.5-Flash~\citep{google2026gemini35flash}, Grok-4.1~\citep{xai2025grok41}, Grok-4.3~\citep{xai2026grok43}, Kimi-K2.5~\citep{team2026kimi}, Kimi-K2.6~\citep{moonshot2026kimik26}, MiMo-V2-Pro~\citep{xiaomi2026mimov2pro}, MiMo-V2.5~\citep{xiaomi2026mimov25}, Qwen3.5-397B-A17B~\citep{qwen2026qwen35}, Qwen3.6-Plus~\citep{qwen2026qwen36plus}, and Qwen3.7-Max~\citep{qwen2026qwen37max}. All systems are evaluated on the 40 tasks in ResearchClawBench. After each run, GPT-5.1~\citep{openai2026gpt51} scores the final report against the rubrics.
+
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=0.90\linewidth]{imgs/exp_fig4_cost_vs_score_pareto.pdf}
+\scriptsize\textbf{(a) Cost vs. score}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=0.90\linewidth]{imgs/exp_fig4_runtime_vs_score_pareto.pdf}
+\scriptsize\textbf{(b) Runtime vs. score}
+\end{minipage}
+\caption{\textbf{Resource-score relationships} for mean task cost and runtime versus mean rubric score.}
+\label{fig:effort}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.90\textwidth]{imgs/exp_fig7_error_distribution.pdf}
+\caption{\textbf{Error type distribution.} Experiment Design Mismatch means the protocol, processing, baseline, or validation differs from the target paper; Evidence Mismatch means figures, numbers, or conclusions mismatch critical evidence; Scientific Core Missing means the core mechanism or finding is missing; Goal Misalignment means the system solves a related but non-equivalent problem; Reliability / Reporting Failure means unsupported claims, invalid evidence, or reporting failures; Execution Failure means no usable artifacts are generated.}
+\label{fig:error-distribution}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{imgs/case_study.pdf}
+\caption{\textbf{Case study for \texttt{Physics 002}.} OpenClaw recovers the most direct XEB trend but misses several rubric-critical components of the target fidelity-estimation evidence chain.}
+\label{fig:case-study}
+\end{figure}
+
+\subsection{Main Results}
+
+
+Table~\ref{tab:main-results} reports scores for autonomous agents and ResearchHarness LLMs across the ten scientific domains. Current systems remain far from reliable end-to-end re-discovery: the best autonomous agent, Claude Code, reaches only 21.5 on average, and the autonomous-agent frontier mean is only 24.6. The best LLM, Claude-Opus-4.7, reaches 20.7, with an LLM frontier mean of 26.5.
+
+Claude Code is the strongest overall agent, but it is not dominant. It wins only 14 out of 40 tasks at the task level and different agents show highly consistent task difficulty; among the 21 pairwise task-level correlations induced by the seven agents, the median is 0.79 and the range is 0.64--0.86. ResearchHarness LLMs show a similar pattern. Claude-Opus-4.7 has the highest overall mean, while different models lead in different domains: Claude-Opus-4.6 remains strongest in Astronomy, Earth, Energy, and Math; GLM-5.1 leads Chemistry; Gemini-3.5-Flash leads Information; GPT-5.4 leads Life; DeepSeek-V4-Pro leads Material; Claude-Opus-4.7 leads Neuroscience; and Qwen3.7-Max leads Physics.
+
+\subsection{Four Supplemental Dimensions}
+
+\begin{wraptable}{l}{0.58\textwidth}
+\vspace{0pt}
+\centering
+\refstepcounter{table}\label{tab:supplemental-dimensions}
+\parbox{0.97\linewidth}{\textbf{Table~\thetable:} {\small Supplemental quality dimensions. Comp., Instr., and Prof. abbreviate Comprehensiveness, Instruction Following, and Professionalism. Purple shading is normalized across all scores in this table.}}
+\vspace{0pt}
+
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}p{0.170\textwidth}*{4}{>{\centering\arraybackslash}p{0.087\textwidth}}@{}}
+\toprule
+System & Comp. & Depth & Instr. & Prof. \\
+\midrule
+\ClaudeIcon Claude Code & \DimCell{19}{44.6} & \DimCell{40}{58.0} & \DimCell{26}{49.0} & \DimCell{70}{76.4} \\
+\OpenAIIcon Codex CLI & \DimCell{25}{48.6} & \DimCell{53}{65.9} & \DimCell{29}{50.8} & \DimCell{67}{74.4} \\
+\ArisIcon ARIS Codex & \DimCell{18}{44.2} & \DimCell{45}{60.9} & \DimCell{17}{43.7} & \DimCell{63}{71.8} \\
+\OpenClawIcon OpenClaw & \DimCell{20}{45.5} & \DimCell{38}{56.4} & \DimCell{23}{47.2} & \DimCell{68}{75.0} \\
+\NanobotIcon Nanobot & \DimCell{10}{39.3} & \DimCell{27}{50.1} & \DimCell{17}{43.9} & \DimCell{62}{71.6} \\
+\EvoIcon EvoScientist & \DimCell{23}{47.1} & \DimCell{43}{59.5} & \DimCell{20}{45.6} & \DimCell{65}{73.5} \\
+\ResearchClawIcon ResearchClaw & \DimCell{23}{47.4} & \DimCell{47}{62.2} & \DimCell{32}{52.7} & \DimCell{67}{74.8} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\vspace{0pt}
+\end{wraptable}
+
+Beyond rubrics, RCBench evaluates reports along four additional dimensions: Comprehensiveness, Depth, Instruction Following, and Professionalism.
+
+Table~\ref{tab:supplemental-dimensions} reports the seven agents' scores on these four supplemental dimensions. Systems often exceed 70 on Professionalism, while the other dimensions are lower; different systems lead in Professionalism, Depth, and Instruction Following.
+
+This result shows that models remain weaker on the substantive quality of research content than on presentation quality. The four dimensions also have weak correlations with rubric score. Thus, the central challenge is not producing a polished report, but recovering rubric-critical scientific evidence.
+
+\subsection{Runtime and Cost Analysis}
+
+We further analyze the relationship between mean cost, mean runtime, and rubric score. In Figure~\ref{fig:effort}, systems closer to the upper-left region obtain higher scores with lower resource use. We use Pareto frontiers to mark the effective resource-score boundary among current systems. The efficient knee in the cost dimension is Qwen3.7-Max, while the efficient knee in the runtime dimension is OpenClaw.
+
+Overall, score appears to have only a weak positive relationship with resource investment, and this relationship is largely elevated by Claude Code, which combines a high score with high cost and long runtime. This suggests that the current tasks may not yet lie within the stable capability boundary of existing models: even when a model spends more time, the additional computation does not necessarily produce a stable improvement in the final result. As the following error analysis shows, system failures more often reflect scientific goal misalignment and experimental-protocol deviation than insufficient iterative trial-and-error.
+
+\subsection{Error Analysis}
+
+We analyze all 280 runs from the seven autonomous agents over 40 tasks and group fine-grained labels into six error types. Figure~\ref{fig:error-distribution} shows that failures concentrate on Experiment Design Mismatch, Evidence Mismatch, and Scientific Core Missing, rather than Goal Misalignment, Reliability / Reporting Failure, or Execution Failure.
+
+This distribution shows that the main problem is not that agents cannot generate reports or that execution simply fails. Instead, agents gradually depart from the target paper in protocol, key evidence, or mechanistic interpretation, such as by selecting the wrong data-processing method, baseline, validation setting, or experimental protocol.
+
+\subsection{Case Study}
+
+Figure~\ref{fig:case-study} shows OpenClaw's result on \texttt{Physics 002}. OpenClaw obtains the highest score among all autonomous agents on this task, but the score is only 27.45. The task centers on random quantum circuit sampling and asks the system to estimate fidelity from measured counts and ideal reference probabilities. The corresponding rubrics require more than a single fidelity curve: they also require multiple scaling analyses, validation, mirror-circuit inference, the gate-counting error model, and multi-estimator consistency.
+
+OpenClaw recovers the most direct part of the task: it computes counts-weighted linear XEB and recovers the trend that fidelity decreases with depth on the \(N=40\) verification subset. As a result, it receives 47/50 on the fifth rubric item and 40/50 on \(N=40\) depth scaling. However, it does not recover the full evidence chain: fixed-\(d=12\) qubit scaling lacks log-XEB and multi-metric consistency, \(N=56\) validation lacks MB regression or depth-24 mirror-circuit inference, and the gate-counting fidelity model is completely absent. This case shows that agent analysis often stops at the most direct observable trend while missing the finer verification steps and physical modeling required for target-paper-level re-discovery.

@@ -1,0 +1,96 @@
+% CVPR 2026 Paper Template; see https://github.com/cvpr-org/author-kit
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+% \usepackage{cvpr}              % To produce the CAMERA-READY version
+% \usepackage[review]{cvpr}      % To produce the REVIEW version
+\usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+\usepackage{orcidlink}
+\usepackage{multirow}
+
+\usepackage[most]{tcolorbox}
+\definecolor{takeaway}{rgb}{0.97,0.94,0.91}
+\newtcbox{\takeawaybox}{on line,
+  colback=takeaway,
+  colframe=takeaway,
+  boxrule=0pt,
+  arc=2pt,       % corner roundness
+  boxsep=1pt,    % padding
+  left=3pt,right=3pt,top=1pt,bottom=1pt
+}
+\newtcolorbox{takeawayblock}{
+  colback=takeaway,
+  colframe=takeaway,
+  boxrule=0pt,
+  arc=2pt,
+  left=2pt,right=2pt,top=2pt,bottom=2pt,
+  boxsep=0pt,
+  before skip=1pt,
+  after skip=1pt
+}
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+% \usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{*****} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2026}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language Models}
+
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{% 
+  \bf Mahtab Bigverdi$^{1,2*}$  \: \:
+  \bf Linjie Li$^{1*}$  \: \:\bf
+  Weikai Huang$^{1,2*}$  \: \: \bf
+  Yiming Liu $^{1}$ \: \:
+  Jaemin Cho $^{1,2,3}$ \: \: \\ \bf
+  Jieyu Zhang $^{1,2}$ \: \:
+  Tuhin Kundu $^{3}$ \: \:
+  Chris Dangjoo Kim $^{2}$ \: \:
+  Zelun Luo $^{4}$ \: \: \\ \bf
+  Linda G. Shapiro$^{1}$ \: \: Ranjay Krishna$^{1,2}$\\
+  $^1$University of Washington, 
+  $^2$Allen Institute for AI, $^3$Microsoft, $^4$OpenAI\\
+%   \texttt{\{mahtab,cydhsieh,ethans03,shapiro,ranjay\}@cs.washington.edu,}\\  \texttt{alanzluo@gmail.com}, \texttt{cdp0612@uw.edu}
+}
+
+
+\begin{document}
+\maketitle
+\begingroup
+\renewcommand\thefootnote{}
+\footnotetext{* Equal contribution.}
+\endgroup
+\input{sec/0_abstract}    
+\input{sec/1_intro}
+\input{sec/2-relatedworks-v2}
+\input{sec/3-data}
+% \input{sections/4-exp}
+\input{sec/4-exp-v2}
+\input{sec/5-discussions}
+% \input{sec/2_formatting}
+% \input{sec/3_finalcopy}
+\newpage
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% WARNING: do not forget to delete the supplementary pages from your submission 
+\input{sec/X_suppl}
+
+\end{document}

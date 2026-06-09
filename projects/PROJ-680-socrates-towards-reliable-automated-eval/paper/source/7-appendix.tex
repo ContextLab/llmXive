@@ -1,0 +1,947 @@
+
+\begin{table}[t]
+\scriptsize
+\centering
+\vspace{-0.4cm}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|l|l|l|l|l|}
+\specialrule{\heavyrulewidth}{1pt}{0pt}
+Type & Model & Model Checkpoint & Source & Reference \\
+\specialrule{\lightrulewidth}{0pt}{1pt}
+\multirow{6}{*}{Open-source}
+& Gemma4-26B-A4B-it 
+& \texttt{google/gemma-4-26B-A4B-it} 
+& HuggingFace 
+& \citet{google2026gemma4} \\
+
+& \makecell[l]{Qwen3-30B-A3B-Instruct} 
+& \makecell[l]{\texttt{Qwen/Qwen3-30B-A3B-Instruct-2507}} 
+& HuggingFace 
+& \citet{yang2025qwen3} \\
+
+& Solar-Pro-3 
+& \texttt{solar-pro3-260323} 
+& Upstage 
+& \citet{solarpro3_2026} \\
+
+& \makecell[l]{Nemotron-3-Super\\-120B-A12B} 
+& \makecell[l]{\texttt{nvidia/NVIDIA-Nemotron-3}\\\texttt{-Super-120B-A12B-BF16}} 
+& HuggingFace 
+& \citet{openai2025gpt5} \\
+
+& \makecell[l]{Qwen3-235B-A22B-Instruct} 
+& \makecell[l]{\texttt{Qwen/Qwen3-235B-A22B-Instruct-2507}}
+& HuggingFace 
+& \citet{yang2025qwen3} \\
+
+& DeepSeek-V3.2 
+& \texttt{deepseek-ai/DeepSeek-V3.2} 
+& HuggingFace 
+& \citet{liu2025deepseek} \\
+\specialrule{\lightrulewidth}{1pt}{0pt}
+
+\multirow{5}{*}{Proprietary}
+& Gemini-3.1-Flash-Lite 
+& \texttt{gemini-3.1-flash-lite} 
+& Google API 
+& \citet{google2026geminiflash} \\
+
+& Gemini-3.1-Pro 
+& \texttt{gemini-3.1-pro-preview} 
+& Google API 
+& \citet{google2026geminipro} \\
+
+& GPT-5.4-mini 
+& \texttt{gpt-5.4-mini-2026-03-17} 
+& OpenAI API 
+& \citet{openai2026gpt54} \\
+
+& GPT-5.4 
+& \texttt{gpt-5.4-2026-03-05} 
+& OpenAI API 
+& \citet{openai2026gpt54} \\
+
+& o4-mini-deep-research 
+& \texttt{o4-mini-deep-research-2025-06-26} 
+& OpenAI API 
+& \citet{openai2025deepresearch} \\
+\specialrule{\heavyrulewidth}{0pt}{0pt}
+\end{tabular}
+\vspace{-0.25cm}
+\captionof{table}{Backbone LLM configurations for \algname{}.}
+\vspace{-0.3cm}
+\label{tab:backbone_llm}
+\end{table}
+
+
+\section{Scientific Artifacts}
+Our experiments use publicly accessible LLMs as party, mediator, and evaluator backbones, accessed via the OpenAI and Google APIs for proprietary models and via Hugging Face checkpoints for open-weight models under their respective terms and licenses. The exact checkpoints are listed in Appendix~\ref{app:models}.
+%
+Source scenarios are synthesized from deep-research seeds (\S\ref{sec:method:construction}) and do not incorporate text from any licensed corpus, so their use is consistent with the intended use of the underlying models and poses no licensing conflict. 
+
+\section{Model Specifications}
+\label{app:models}
+
+Table~\ref{tab:backbone_llm} lists the LLM backbones used across all \algname{} experiments and pipeline stages: the \emph{Searcher} (o4-mini-deep-research) for seed collection, the \emph{Scenario Writer} (GPT-5.4) for recasting and condition-expansion rewrites, the \emph{Simulator} (party agents, DeepSeek-V3.2) for role-played negotiation, the benchmarked \emph{Mediators}, and the \emph{Evaluator} (DeepSeek-V3.2) for topic-localized scoring. The same pool also supplies the \emph{Fidelity Simulators} for the persona-fidelity validation (\S\ref{sec:validation:sim}): the mediator pool plus the two updated backbones GPT-5.4 and Gemini-3.1-Pro, which are used to isolate persona controllability from weak-simulator failure. Proprietary models are accessed via their official APIs and open-source models via Hugging Face checkpoints.
+
+
+\section{Agentic Scenario Construction Details}
+\label{app:scenario_detail}
+
+We provide the prompt details for the three stages of the scenario construction process in \S\ref{sec:method:construction}, including seed search, scenario recasting, and the party agent used in the rejection-sampling filter.
+
+\paragraph{Seed Search.}
+Table~\ref{tab:prompt-research} is the prompt issued to the o4-mini-deep-research agent for each domain, with the domain filling the query field. The agent returns a seed report covering the conflict's timeline, stakeholders, core issues, institutional tensions, and current status. Table~\ref{tab:seed-example} shows one such seed for the Healthcare domain, drawn from a publicly documented hospital-closure dispute.
+
+\paragraph{Scenario Recast.}
+Table~\ref{tab:prompt-scenario} presents the recast prompt for the GPT-5.4 scenario writer (temperature $=0$), which converts a conflict seed into a structured scenario. The prompt enforces fictional names for every real entity, at most four topics each with a small discrete option set, and diverging party stances with at least one emotionally provocative topic. Table~\ref{tab:scenario-example} shows the scenario recast from the seed in Table~\ref{tab:seed-example}; reading the two tables side by side shows that the operator-versus-regulator pairing, the four issue clusters (emergency access continuity, offset investments at receiving hospitals, workforce protections, and accountability for premature service reductions), and the asymmetry between operator financial pressure and statutory regulatory mandate carry over from the real conflict, while all identifying names, dollar figures, and dates are replaced with fictional substitutes.
+
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{6pt}
+\begin{tabularx}{\textwidth}{|l|c|X|}
+\specialrule{\heavyrulewidth}{0pt}{0pt}
+\multicolumn{1}{|c|}{Axis} & \multicolumn{1}{c|}{\# of Conditions} & \multicolumn{1}{c|}{Condition Pairings} \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+General              & 1  & Unexpanded Condition (Default) \\ 
+Strategic Posture    & 3  & Competing, Avoiding, Accommodating \\
+Party Composition    & 1  & Three-party \\
+History Length       & 1  & Extended Length ($5\times$) \\
+Emotional Reactivity & 3  & Com-Com, Com-React, React-React \\
+Cultural Identity    & 6  & US-US, CN-CN, KR-KR, US-CN, US-KR, CN-KR \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+Total                & 15 & \\
+\specialrule{\heavyrulewidth}{0pt}{0pt}
+\end{tabularx}
+\vspace{-0.2cm}
+\caption{The 15 conditions per scenario, listed by axis. The general condition is the unexpanded baseline retained from agentic scenario curation (\S\ref{sec:method:construction}), while the remaining 14 are produced by applying one socio-cognitive axis to a fresh copy of the scenario.}
+\label{tab:condition-list}
+\vspace{-0.4cm}
+\end{table*}
+
+
+
+\paragraph{Preference Weighting.}
+Table~\ref{tab:prompt-weight} is the prompt issued to the GPT-5.4 scenario writer to derive each party's preference weights $\mathcal{W}$ over topics and per-topic stances from its profile. Weights are positive integers summing to $100$, and the prompt forbids uniform distributions to ensure a clear priority ordering. The resulting weights and stances enter the party profile and are reused across all condition expansions, but the Parties axis is the only case that issues this prompt again, where the original parties keep their general condition weights and only the newly added party receives a fresh assignment.
+
+\paragraph{Party Agent.}
+Table~\ref{tab:prompt-party} is the prompt for the role-playing party agents (DeepSeek-V3.2, temperature $=0.6$) used in both the unmediated rejection-sampling simulation and all downstream conditions. On its turn, an agent emits a private inner thought followed by a public utterance; the inner thought is appended to the party's private history and is never visible to other parties or to the mediator. A simulation terminates as resolved once every party explicitly signals consensus, or as an impasse when a party emits an impasse signal or the turn budget is exhausted.
+
+
+\section{Socio-Cognitive Probing Details}
+\label{app:probing}
+
+We detail the implementation of each component described in \S\ref{sec:method:simulation} the five condition axes, and the benchmarked mediators used for social conflict resolution benchmarking.
+
+
+For each axis, we describe only the implementation mechanism and the prompt that drives it; the targeted competency and motivation are in \S\ref{sec:method:simulation}. Across the five axes plus the unexpanded baseline, every scenario is expanded into the $15$ conditions enumerated in Table~\ref{tab:condition-list}.
+
+\paragraph{Strategies.}
+We append a Thomas-Kilmann mode instruction (\emph{competing}, \emph{avoiding}, or \emph{accommodating}) to the background $\mathcal{B}$; no LLM rewrite. The three conditions differ in this instruction alone.
+
+\paragraph{Parties.}
+Using Table~\ref{tab:prompt-parties-exp}, the scenario writer revisits the real-world seed and adds one structurally distinct party with its own role, relation, and per-topic stances. Original parties and topics are carried over verbatim, so the added difficulty comes from tracking more states.
+
+\paragraph{Histories.}
+The scenario writer (Table~\ref{tab:prompt-history-exp}) prepends four dated narrative entries extracted from the seed's event sequence, with the original background appended unchanged as the final state. This expands the background to roughly five times its default length.
+
+\paragraph{Emotion Control.}
+We append a fixed reactiveness template parameterized by $r \in [0,1]$ to the party profile, contrasting volatile/escalating behavior at $r{=}1$ with calm/composed behavior at $r{=}0$; no LLM rewrite is used. For condition expansion, we use the two endpoints, composed (C, $r{=}0$) and reactive (R, $r{=}1$), forming three pairings (CC, CR, RR). Intermediate values are validated in \S\ref{sec:validation:sim}.
+
+\paragraph{Culture.}
+We anchor each party to a US, CN, or KR identity by appending to its profile a deterministic statement that summarizes the culture's 0--100 scores across the six Hofstede dimensions~\citep{hofstede2010cultures}. Pairing the three identities yields three intra-cultural and three cross-cultural conditions. All parties interact in English regardless of identity.
+%
+Each dimension ranges from 0 to 100, with higher scores indicating stronger expression of the named tendency:
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \emph{Power Distance}: low scores reflect flat, consensus-oriented decision-making, while high scores reflect acceptance of hierarchical authority and unequal power distribution.
+    \item \emph{Individualism vs.\ Collectivism}: low scores indicate in-group loyalty and collective identity, while high scores indicate personal autonomy and self-reliance.
+    \item \emph{Masculinity vs.\ Femininity}: low scores reflect cooperative, relational values, while high scores reflect competitive, performance-oriented values.
+    \item \emph{Uncertainty Avoidance}: low scores indicate tolerance for ambiguity and unstructured situations, while high scores indicate a preference for clear rules and predictability.
+    \item \emph{Long-term vs.\ Short-term Orientation}: low scores reflect adherence to tradition and short-term outcomes, while high scores reflect pragmatic, future-oriented planning.
+    \item \emph{Indulgence vs.\ Restraint}: low scores indicate norm-compliant restraint of desires, while high scores indicate free expression of needs and enjoyment.
+\end{itemize}
+%
+The US statement foregrounds individual independence and direct expression. The CN statement emphasizes relational networks, hierarchy, and long-term strategy. The KR statement shares the East Asian long-term orientation but exhibits notably higher uncertainty avoidance and a stronger preference for implicit consensus.
+
+% \paragraph{Cooldown.}
+% After an intervention, the mediator is barred from intervening for the next one party turns and the when-to-intervene decision is skipped during this window. This prevents a mediator from inflating responsiveness by speaking on nearly every turn.
+
+
+\section{Topic-Localized Evaluation Prompts}
+\label{app:evaluator_detail}
+Table~\ref{tab:prompt-eval} is the topic-localized evaluation prompt. The judge, run at temperature $0$, reads the full conversation once, identifies every turn where the topic is actively discussed or a party shifts position, and at each such turn records a $1$--$5$ agreement score together with each party's stance expressed using the topic's option labels.
+
+
+
+
+\section{Validation Details}
+\label{app:validation_detail}
+
+This appendix reports the annotation protocols used to validate two components of \algname{}: persona fidelity in simulated parties and consensus alignment in the topic-localized evaluator. We summarize recruitment, task design, and quality control for each protocol.
+
+\subsection{Simulation Fidelity Annotations}
+\label{app:simulation_validation_detail}
+We focus on persona fidelity because the remaining axes are either structural by construction or externally validated in prior work. Party composition and history length are direct structural perturbations, while strategic posture \citep{chen2026simulating, liu2025promediate} and cultural persona realization \citep{dey2025can} have been validated in prior LLM simulation studies. Other dimensions such as naturalness~\citep{liu2025promediate} and instruction adherence~\citep{vaccaro2025advancing} have likewise been studied and established in prior works.
+
+% \footnotetext[4]{We focus on persona fidelity, as other fidelity dimensions have been shown in prior work, including strategic posture and naturalness~\citep{liu2025promediate}, , and cultural alignment~\citep{dey2025can}.}
+
+
+\paragraph{Annotator Qualification and Compensation.}
+We collect persona fidelity annotations through Amazon Mechanical Turk (MTurk), restricting participation to workers with a HIT approval rate above $90\%$, at least $500$ approved HITs, and a minimum score of $90$ on a custom English-comprehension qualification test. Annotators are compensated at \$7.50 per hour, above the U.S. federal minimum wage, and no personally identifiable information is collected.
+
+\paragraph{Task Design.}
+Annotators compare two conversations generated from the same scenario, party role, opponent, and topic structure, with only the target party's reactiveness level changed. They select which dialogue better reflects a \emph{reactive} rather than \emph{composed} negotiator, ignoring topic content or persuasion success unless it directly signals emotional reactivity. For each simulator backbone, we sample $160$ A/B pairs from the reactiveness grid $\{0, 0.33, 0.66, 1\}$; across seven backbones, this yields $1{,}120$ comparisons, each labeled by three annotators. Figure~\ref{fig:fidelity-template} shows the annotation template.
+
+\paragraph{Quality Control.}
+We use majority vote over the three labels for each pair and report fidelity as the fraction of pairs where the selected dialogue matches the higher assigned reactiveness level. Inter-annotator agreement is $\alpha = 0.75$, reflecting the graded nature of emotional expression, but sufficient to distinguish simulator backbones in Table~\ref{tab:persona-reactiveness}.
+
+\subsection{Consensus Alignment Annotations}
+\label{app:evaluation_validation_detail}
+
+\paragraph{Annotator Qualification and Compensation.}
+We recruit two graduate student annotators with strong English proficiency to validate consensus scoring. They are not professional negotiators. Instead, the protocol is supervised by a researcher with a graduate degree in political science and international relations, along with academic training in negotiation and diplomacy, who reviews the rubric, calibrates examples, and resolves procedural questions. As a non-expert baseline, we additionally collect three annotations for each snippet from Amazon Mechanical Turk (MTurk) workers following the same qualification protocol used in Appendix~\ref{app:simulation_validation_detail}, including a HIT approval rate above $90\%$, at least $500$ approved HITs, and a minimum score of $90$ on a custom English comprehension qualification test. Annotators are compensated for the task, no personally identifiable information is collected, and the supervised set contains $1{,}844$ snippets from $144$ conversations. The two graduate annotators reach Krippendorff's $\alpha = 0.86$.
+
+
+\paragraph{Task Design.}
+We annotate consensus at the snippet level, since agreement is interpretable only after a position receives a response. Each snippet contains one back-and-forth exchange, the background, topics, options, and the preceding snippet. For every issue, annotators record both parties' option-level positions and assign a $1$--$5$ agreement score. If an issue is not mentioned, annotators carry forward the previous score. Figure~\ref{fig:alignment-template} shows the interface.
+
+\paragraph{Quality Control.}
+The supervised graduate annotations define the reference for evaluator validation, while the non-expert annotator is retained as a baseline. Because consensus is graded, we average the two supervised annotator scores for each topic-snippet pair rather than forcing a hard adjudicated label. We then compare \algname{}, the non-expert annotator, and a per-turn LLM-judge baseline by Pearson correlation against this supervised-annotation mean at the trajectory and outcome levels.
+
+
+\begin{wrapfigure}{r}{0.55\textwidth}
+\vspace*{-0.5cm}
+\begin{center}
+\includegraphics{fiqure/Figure_trend_comparison.pdf}
+\end{center}
+\vspace*{-0.4cm}
+{\small \hspace*{1.1cm} (a) \textsc{ProMediate}. \hspace*{1.1cm} (b) \algname{}.}
+\vspace*{-0.2cm}
+\caption{Trend comparison of consensus score trajectories for \textsc{ProMediate} and \algname{}. Bold lines show the average trajectory across dialogues, while faint lines in the background depict individual mediation trajectories, illustrating the variability across conversations.}
+\label{fig:trend}
+\vspace*{-0.2cm}
+\end{wrapfigure}
+
+
+
+\paragraph{Trend Comparison.} Aggregate correlations alone cannot reveal whether an evaluator tracks consensus over time. We therefore diagnose evaluators at the trajectory level, tracing how the consensus score changes over snippets and comparing it against expert annotations. A reliable evaluator should follow similar trends, showing upward progress as conflicts move toward resolution.
+As shown in Figure~\ref{fig:trend}, the topic-localized evaluator (\algname{}) tracks the expert's curve closely, rising from low initial values and preserving the overall shape. In contrast, ProMediate's per-turn judge produces an unstable trajectory with large fluctuations between adjacent snippets, starting too high and ending well below the expert's final score. This instability arises because the per-turn judge scores every utterance against all issues, so inactive topics contribute uninformative scores that obscure the underlying progress. The topic-localized design evaluates only issues that are active at each moment, improving both pointwise correlation with expert judgments and the consensus dynamics underlying trajectory evaluation.
+
+
+\begin{wraptable}{r!}{0.5\textwidth} 
+\vspace{-0.4cm}
+\centering
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\begin{tabular}{|L{1.7cm}|X{2cm}|X{1.9cm}|}
+\specialrule{\heavyrulewidth}{1pt}{0pt}
+Evaluator & Trajectory level & Outcome level \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\textsc{ProMediate}        & 0.423 (0.000) & 0.394 (0.000) \\
+\algname{}     & \textbf{0.785} (0.000) & \textbf{0.721} (0.000) \\
+\specialrule{\heavyrulewidth}{0pt}{1pt}
+\end{tabular}
+\vspace{-0.2cm}
+\caption{Evaluator alignment with expert judgments (Pearson $r$) using Qwen3-235B-A22B-Instruct as the backbone. Values in parentheses denote p-values.}
+\label{tab:trace-validation-other}
+\vspace{-0.4cm}
+\end{wraptable}
+
+
+
+\paragraph{Backbone Robustness.}
+To verify that the evaluator's reliability is not tied to a specific backbone, we replace DeepSeek-V3.2 with Qwen3-235B-A22B-Instruct and re-measure alignment with expert judgments. Table~\ref{tab:trace-validation-other} shows that \algname{} preserves strong alignment under this substitution, confirming that the evaluator transfers across backbones rather than relying on a single model's behavior.
+
+
+\section{Mediator Prompts}
+\label{app:mediator_detail}
+
+At every party turn, the mediator, run at temperature $0.6$, first executes the \emph{when-to-intervene} decision (Table~\ref{tab:prompt-mwhen}). If the decision is true, the \emph{how-to-intervene} generation step (Table~\ref{tab:prompt-mhow}) emits a single utterance, which is inserted before the next party speaks.
+
+
+
+\section{Additional Analysis}
+\label{app:intervention_analysis}
+
+\subsection{Intervention Analysis}
+\label{app:intervention_analysis}
+
+
+
+\begin{wraptable}{r!}{0.5\textwidth} 
+\vspace{-0.4cm}
+\centering
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{|l|l|c|c|}
+\specialrule{\heavyrulewidth}{0pt}{0pt}
+Type & Mediator & IF (\%) & FI (\%) \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\multirow{2}{*}{Prop.}
+ & Gemini-3.1-FL & 22.6 & 32.3 \\
+ & GPT-5.4-mini & 22.6 & 31.0 \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\multirow{6}{*}{\makecell[l]{Open\\Source}}
+ & DeepSeek-V3.2 & 16.1 & 42.8 \\
+ & Qwen3-235B & 20.8 & 39.5 \\
+ & Nemotron-3-120B & 14.6 & 45.6 \\
+ & Solar-Pro-3 & 32.3 & 26.9 \\
+ & Gemma-4-26B & 16.4 & 37.3 \\
+ & Qwen3-30B & 31.1 & 25.3 \\
+\specialrule{\heavyrulewidth}{0pt}{1pt}
+\end{tabular}
+\vspace{-0.1cm}
+\caption{Intervention behaviors of eight mediators. IF: Intervention Frequency, FI: First Intervention.}
+\vspace{-0.3cm}
+\label{tab:intervention-freq}
+\end{wraptable}
+
+To diagnose the gap between intervention timeliness and consensus gain, we measure two aspects of mediator behavior: Intervention Frequency (the fraction of party turns on which the mediator chooses to speak) and First Intervention (the relative turn position of the mediator's first utterance). Table~\ref{tab:intervention-freq} reports both, aggregated across all conditions. Solar-Pro-3 and Qwen3-30B intervene roughly twice as often as the top mediators and begin speaking much earlier in the conversation. This over-eager speaking inflates intervention timeliness without translating into intervention effectiveness or consensus gain, suggesting that early and frequent intervention does not substitute for substantive contribution to social conflict resolution.
+
+
+
+\subsection{Benchmark Stability Analysis}
+\label{app:stability}
+
+We test the benchmark along three axes left fixed in the main results: the evaluator backbone, the party-agent simulator backbone, and run-to-run stochasticity. 
+
+\paragraph{Evaluator Backbone Robustness.}
+\label{app:other_evaluator}
+
+
+\begin{wraptable}{r!}{0.55\textwidth} 
+\vspace{-0.4cm}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{|l|c|c|c|c|}
+\specialrule{\heavyrulewidth}{1pt}{0pt}
+Metric & DS & Qw & $\Delta$ & $\rho$ \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+Intervention Timeliness    & 79.2 & 77.2 & $-2.0$ & 0.406 \\
+Intervention Effectiveness & 21.3 & 25.2 & $+3.9$ & 0.862 \\
+Consensus Gain             & 25.9 & 26.5 & $+0.6$ & 0.786 \\
+\specialrule{\heavyrulewidth}{0pt}{1pt}
+\end{tabular}
+\vspace{-0.1cm}
+\caption{Metric values averaged across mediators under two evaluator backbones (DS = DeepSeek-V3.2, Qw = Qwen3-235B-A22B-Instruct), where $\Delta$ reports Qw $-$ DS and $\rho$ denotes the Spearman correlation computed per metric over the per-scenario pairs.}
+\label{tab:stab-evaluator}
+\vspace{-0.2cm}
+\end{wraptable}
+
+
+To check whether the mediator ranking depends on the evaluator backbone, we swap DeepSeek-V3.2 with Qwen3-235B-A22B-Instruct and re-evaluate the mediation trajectories from~\S\ref{sec:experiments} again, holding the disputant simulator fixed. Table~\ref{tab:stab-evaluator} reports the average across mediators under both evaluators. The two evaluators yield close averages, differing by only $-2.0$, $+3.9$, and $+0.6$ points across the three metrics. The mediator rankings also agree well on intervention effectiveness (Spearman $\rho = 0.862$) and consensus gain ($\rho = 0.786$). Intervention Timeliness shows weaker agreement ($\rho = 0.406$), because it depends on which turn the trajectory is sampled at and is more sensitive to the evaluator's choice of relevant turns. We note that Qwen3-235B-A22B-Instruct itself is a weaker evaluator than DeepSeek-V3.2 in our validation (Table~\ref{tab:trace-validation-other}), which likely accounts for part of this gap. Even so, the relative ordering of mediators is preserved under the alternative evaluator.
+
+
+
+
+
+
+\paragraph{Simulator Backbone Robustness.}
+\label{app:other_simulator}
+
+
+To check whether mediator adaptation across social-cognitive axes depends on the disputant simulator, we replace DeepSeek-V3.2 party agents with Qwen3-235B-A22B-Instruct. Due to the cost of simulating disputants and our limited budget, this ablation covers three mediators (Qwen3-235B, DeepSeek-V3.2, Qwen3-30B), while still spanning all $8$ situations ($600$ scenarios) used in the main experiments. 
+%
+Since this ablation includes only three representative mediators, it is not intended to support a full mediator ranking. Instead, our goal is to test whether the gaps across axes identified in \S\ref{sec:experiments:socio} persist under an alternative simulator.
+
+
+\begin{wrapfigure}{r!}{0.55\textwidth} 
+\begin{center}
+\includegraphics{fiqure/Figure_rader_simul_change.pdf}
+\end{center}
+\vspace*{-0.4cm}
+{\small \hspace*{0cm} (a) DeepSeek-V3.2. \hspace*{0.1cm} (b) Qwen3-235B. \hspace*{0.2cm} (c) Qwen3-30B.}
+\vspace*{-0.2cm}
+\caption{Mediator adaptation of three mediators under two disputant simulators (DeepSeek-V3.2, solid line; Qwen3-235B-A22B-Instruct, dashed line).}
+\label{fig:stab-simulator}
+\vspace*{-0.3cm}
+\end{wrapfigure}
+
+
+As shown in Figure~\ref{fig:stab-simulator}, absolute consensus gain values shift after the simulator swap, but both the shape of each mediator's adaptation profile and the distinctions among mediators are largely preserved. Under both simulators, the general condition remains the strongest setting, and performance drops when moving to the perturbed axes. The relative pattern across axes is preserved under the alternative simulator. Cultural adaptation shows a milder decline, whereas tracking multiple party states and using long histories show larger degradations. The three mediators also retain their characteristic profiles under the alternative simulator, rather than collapsing to a common pattern. This consistency suggests that the social and cognitive gaps measured by \algname{} reflect adaptation limits of each mediator rather than artifacts of a particular disputant simulator.
+
+
+
+
+\begin{table*}[t!]
+\centering
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{|l|l|c|c|c|}
+\specialrule{\heavyrulewidth}{1pt}{0pt}
+Type & Mediator & \makecell{Intervention\\Timeliness} & \makecell{Intervention\\Effectiveness} & Consensus Gain \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\multirow{2}{*}{\makecell[l]{Proprietary}}
+ & Gemini-3.1-FL      & $76.3 \pm 0.5$  & $21.2 \pm 1.4$ & $46.6 \pm 2.5$  \\
+ & GPT-5.4-mini       & $78.5 \pm 2.4$  & $20.8 \pm 0.3$ & $48.4 \pm 1.6$  \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\multirow{6}{*}{\makecell[l]{Open-source}}
+ & DeepSeek-V3.2      & $72.4 \pm 4.4$  & $21.4 \pm 0.4$ & $50.0 \pm 2.9$  \\
+ & Qwen3-235B         & $73.0 \pm 2.1$  & $24.1 \pm 0.4$ & $55.8 \pm 1.7$  \\
+ & Nemotron-3-120B    & $71.4 \pm 2.0$  & $13.4 \pm 3.5$ & $35.4 \pm 6.8$  \\
+ & Solar-Pro-3        & $79.6 \pm 1.0$  & $11.7 \pm 2.7$ & $24.5 \pm 5.6$  \\
+ & Gemma-4-26B        & $71.9 \pm 0.5$  & $17.1 \pm 1.8$ & $44.4 \pm 2.7$  \\
+ & Qwen3-30B          & $78.3 \pm 0.6$  & $15.4 \pm 1.1$ & $40.3 \pm 1.2$  \\
+\specialrule{\heavyrulewidth}{0pt}{1pt}
+\end{tabular}
+\vspace{-0.1cm}
+\caption{Intervention timeliness, Intervention effectiveness, and consensus gain across three independent runs on the general scenario, reported as median $\pm$ half-range.}
+\vspace{-0.3cm}
+\label{tab:stab-variance}
+\end{table*}
+
+
+
+
+\paragraph{Multi-run Robustness.}
+\label{app:run_variance}
+To estimate variance across multiple runs, we repeat the mediator phase two additional times for all 8 mediators, yielding three independent runs whose variance reflects both the mediator and the disputant simulator. Due to the cost of simulating the disputants and our limited budget, this ablation is limited to the general conditions. Table~\ref{tab:stab-variance} reports the median and half-range of each mediator across the three runs. On the consensus gain ranking, the three runs yield a Kendall's $W$ of 0.929, indicating strong agreement on the relative ordering of the eight mediators. Six of the eight mediators stay within a half-range of $\pm 3$ points across runs, and the remaining variance is concentrated in the lowest-ranked models. Overall, the mediator ranking is robust to repeated runs, confirming that our main findings reflect genuine mediator differences rather than stochastic noise.
+
+
+
+\clearpage
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Seed Search Prompt}
+\begin{userbox}
+\scriptsize
+Research real-world conflicts and disputes related to the following query, and provide a detailed conflict analysis.
+
+\smallskip
+\textbf{Query.} \textcolor{blue}{\{Query\}}
+
+\smallskip
+Search the web for notable, well-documented real-world conflicts matching this query. Pick \emph{one} specific, real conflict that would make a rich negotiation simulation, with multiple stakeholders and multiple issues.
+
+\smallskip
+\textbf{Provide.}
+\begin{enumerate}[leftmargin=*, noitemsep, topsep=2pt]
+\item \textbf{The specific conflict chosen}, named clearly.
+\item \textbf{Timeline of key events}, the major milestones and turning points.
+\item \textbf{Key stakeholders}, the main parties, roles, and interests ($3$--$5$ parties).
+\item \textbf{Core issues of disagreement}, the main points of contention.
+\item \textbf{Institutional tensions}, organizational, legal, or structural conflicts.
+\item \textbf{Current status}, where things stand now.
+\end{enumerate}
+
+\smallskip
+Be thorough and factual. Focus on structural aspects suitable for a negotiation simulation.
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for seed search.}
+\vspace{-0.3cm}
+\label{tab:prompt-research}
+\end{table*}
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Scenario Recast Prompt}
+\begin{systembox}
+\scriptsize
+You are an expert negotiation simulation designer.
+
+\smallskip
+You are given RESEARCH on a real-world conflict case. Use it for structural inspiration (power asymmetries, interdependencies, topic linkages, leverage), but use fictional names for all entities, people, places, laws, and agencies.
+
+\smallskip
+\textbf{Task.} Design a negotiation simulation scenario as a JSON object, drawing on the real-world conflict case provided by the user.
+
+\smallskip
+\textbf{Party design.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Design 2 parties inspired by the real conflict's stakeholder dynamics.
+\item \texttt{name} captures the essence of the party (e.g.\ ``Workers Federation'', ``City Government'') without real names or acronyms.
+\item \texttt{role} specifies (1) the primary objective and target outcome, (2) internal pressures or constraints, and (3) the BATNA if talks fail.
+\item \texttt{relation} states who the party aligns or clashes with and on which topics.
+\item \texttt{preferences} gives, for each topic, a 1--2 sentence stance. Different parties should hold different stances to create negotiation tension.
+\end{itemize}
+
+\smallskip
+\textbf{Topic design.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Use only the topics needed to capture the core conflict (up to 4).
+\item Provide 2 options for binary positions; more only for inherently multi-level decisions.
+\item Options must be concrete and substantively different; use specific numbers where natural.
+\item At least one topic must be emotionally provocative and fit naturally into the scenario.
+\end{itemize}
+\end{systembox}
+
+\begin{userbox}
+\scriptsize
+\textbf{Research Result.} \textcolor{blue}{\{Seed Scenario\}}
+
+\smallskip
+Return only valid JSON with the schema below, with no markdown fencing, preamble, or commentary.
+\begin{verbatim}
+{
+  "title": "string",
+  "background": "string (context, history, stakes;
+     generic names; specific amounts/timelines)",
+  "topics": [
+    {"id": "string (short code, e.g. GOV)",
+     "name": "string (full descriptive name)",
+     "description": "string (what is at stake)",
+     "options": [
+       {"label": "string (letter label)",
+        "description": "string (concrete action)"}]}
+  ],
+  "parties": [
+    {"id": "string (short code, e.g. WORK)",
+     "name": "string (full name)",
+     "role": "string (objective, constraints, BATNA)",
+     "relation": "string (ally/rival, with whom)",
+     "preferences": {
+       "TOPIC_ID": "string (1-2 sentence stance)"}}
+  ]
+}
+\end{verbatim}
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for scenario recast.}
+\vspace{-0.3cm}
+\label{tab:prompt-scenario}
+\end{table*}
+\clearpage
+
+
+\begin{table*}[p]
+\centering
+\tiny
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Conflict} & \textcolor{blue}{Mount Sinai Beth Israel} hospital downsizing and closure, New York City (\textcolor{blue}{2016}--present). \textcolor{blue}{Mount Sinai Beth Israel (MSBI)} is a roughly 700-bed acute-care hospital in Manhattan's East Village, operated by \textcolor{blue}{Mount Sinai Health System}, a \textcolor{blue}{private nonprofit} serving the Lower East Side, East Village, and Chinatown neighborhoods. \\
+\midrule
+\textbf{Timeline of key events} &
+2013: Mount Sinai Health System forms through merger with Continuum Health Partners, absorbing Beth Israel Medical Center.
+\newline
+\textcolor{blue}{2016}-05: Mount Sinai announces a \textcolor{blue}{``Downtown Transformation''} plan, an approximately \textcolor{blue}{\$500 million} investment to replace the large inpatient hospital with a smaller acute-care facility ($\sim$70 beds) at the Phillips Ambulatory Care site plus an expanded \textcolor{blue}{hub-and-spoke outpatient network} across downtown Manhattan.
+\newline
+2016--2022: Plan repeatedly delayed under regulatory and community pressure; Community Board 3, local elected officials, and patient advocacy groups raise objections about loss of inpatient psychiatry, addiction services, and 24/7 emergency care access.
+\newline
+\textcolor{blue}{2023-09}: Mount Sinai files an updated \textcolor{blue}{closure plan} with the New York State Department of Health to fully shut Beth Israel; community groups respond with Article 78 litigation and public protests.
+\newline
+2024: NY DOH holds public hearings on the revised closure application; preliminary conditions require Mount Sinai to maintain certain emergency and behavioral health services during transition. \\
+\midrule
+\textbf{Key stakeholders} &
+\textcolor{blue}{\textbf{Mount Sinai Health System (MSHS)}}: \textcolor{blue}{Private nonprofit operator}; reports persistent operating losses at Beth Israel cited at \textcolor{blue}{roughly \$150M per year}; primary objective is to complete the wind-down to stem ongoing losses; BATNA is unilateral filing subject to NY DOH closure-approval authority.
+\newline
+\textcolor{blue}{\textbf{New York State Department of Health (NY DOH)}}: \textcolor{blue}{Statewide regulator with statutory Certificate of Need authority over hospital closures}; concerned with continuity of essential services, especially behavioral health and addiction treatment for downtown Manhattan.
+\newline
+\textbf{Coalition to Save Beth Israel and Community Board 3}: Local advocacy coalition representing patients and residents; demand community benefit agreements and public accountability; pursue Article 78 litigation.
+\newline
+\textbf{1199SEIU and New York State Nurses Association (NYSNA)}: Unions representing several thousand affected clinical and support staff; demand placement guarantees within Mount Sinai's other facilities, retraining funds, and severance protections.
+\newline
+\textbf{Surrounding receiving systems (Bellevue, NYU Langone, NewYork-Presbyterian Lower Manhattan)}: Hospitals expected to absorb deflected emergency, psychiatric, and inpatient volume; seek capital support from Mount Sinai to expand capacity. \\
+\midrule
+\textbf{Core issues of disagreement} &
+\textcolor{blue}{\textbf{Continuity of emergency and behavioral health access}}: Mount Sinai favors rapid downsizing; NY DOH and community advocates demand a staged transition with continuing 24/7 emergency department capacity and crisis stabilization, citing Beth Israel's role as a primary psychiatric receiving site for downtown Manhattan.
+\newline
+\textcolor{blue}{\textbf{Offset investments at receiving hospitals}}: NY DOH conditions closure approval on Mount Sinai funding emergency-capacity expansion and EMS upgrades at Bellevue and other surrounding systems; Mount Sinai contests the scope and duration of these obligations.
+\newline
+\textcolor{blue}{\textbf{Workforce transition protections}}: Unions demand redeployment within the Mount Sinai system at equal pay, multi-year retraining funds, and enhanced severance; Mount Sinai offers severance close to statutory minima.
+\newline
+\textcolor{blue}{\textbf{Accountability for premature service reductions}}: NY DOH and community groups have documented quiet service reductions (inpatient psychiatry, addiction treatment beds, obstetrics) preceding formal approval; demands include public acknowledgment, financial penalties, and community benefit reinvestment from the resulting downtown real estate. \\
+\midrule
+\textbf{Institutional tensions} &
+NY DOH's Certificate of Need authority over closures conflicts with the operator's fiduciary autonomy to manage finances. Mount Sinai's 501(c)(3) nonprofit mission obligations and Medicaid commitments conflict with mounting operating losses. The medical-school affiliation (Icahn School of Medicine at Mount Sinai) complicates residency redistribution timelines. Local elected officials and Community Board 3 carry political weight but hold no formal closure-approval authority. Receiving hospitals operate under separate Certificate of Need processes that lag the closure timeline. \\
+\midrule
+\textbf{Current status} &
+The revised closure plan remains under NY DOH review. Beth Israel continues to operate at reduced inpatient capacity. The replacement ambulatory and acute-care site is partially operational. Active negotiation focuses on the magnitude and duration of offset investments at receiving hospitals, the scope of workforce protections, and accountability measures for documented premature reductions. \\
+\bottomrule
+\end{tabularx}
+\caption{Example deep-research seed for the Healthcare domain, returned by the Searcher for a hospital-closure query. This seed is the input the Scenario Writer recasts into the structured scenario in Table~\ref{tab:scenario-example}. \textcolor{blue}{Blue} marks elements that carry over to the recast under fictional names.}
+\label{tab:seed-example}
+\end{table*}
+
+
+\begin{table*}[t]
+\centering
+\tiny
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Title} & Downtown General Wind-Down: Regulator--Provider Bargaining Over Access, Capacity, and Accountability \\
+\midrule
+\textbf{Background} & A \textcolor{blue}{private nonprofit} system, \textcolor{blue}{Regional Health Network (RHN)}, operates \textcolor{blue}{Downtown General Hospital (DGH)} in the River District of Eastborough City. RHN reports sustained operating losses of \textcolor{blue}{\$120--\$150 million per year} at DGH since 2019, with average inpatient occupancy falling below 45\% and increasing reliance on short-stay and outpatient care. In \textcolor{blue}{2016}, RHN announced a \textcolor{blue}{\$520 million} \textcolor{blue}{``Downtown Transformation''} to pivot from a large inpatient footprint to a smaller \textcolor{blue}{hub-and-spoke outpatient network}; community groups pushed back, arguing the plan would hollow out emergency and behavioral health services. In \textcolor{blue}{September 2023}, RHN publicly signaled intent to close DGH and filed a formal \textcolor{blue}{closure plan} with\dots \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Parties}} \\
+\quad \textcolor{blue}{\texttt{RHN} (Regional Health Network)} & You are the \textcolor{blue}{private nonprofit operator} of Downtown General Hospital. Your primary objective is to complete the wind-down while shifting care to a lower-cost outpatient model, protecting system finances, and preserving your brand in the city. Constraints: sustained \textcolor{blue}{\$120--\$150 million/year losses} at DGH, bond covenant\dots \\
+\quad \textcolor{blue}{\texttt{SHOA} (State Health Oversight Agency)} & You are the \textcolor{blue}{statewide regulator charged with approving the closure} and safeguarding access to essential services. Your primary objective is to secure enforceable mitigations that maintain timely emergency and behavioral health access and protect the workforce during transition. Constraints: statutory due-process\dots \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Topics}} \\
+\quad \textcolor{blue}{\texttt{ACC} (Continuity of Emergency Access and Urgent Care Model)} & (A)~Operate a 24/7 urgent and primary care hub within 0.3 miles of the former emergency department for 5 years, co-locating a behavioral health crisis stabilization unit (6 chairs),\dots \newline (B)~Operate a 24/7 urgent care for 3 years with 6 observation bays and on-call behavioral health; performance targets include 40-minute average transfer time; \$9 million/year RHN\dots \newline (C)~Operate a 16-hour daily urgent care for 2 years, no observation bays; after-hours coverage by tele-triage and ambulance diversion to nearby hospitals; \$5 million/year RHN\dots \newline (D)~Maintain a micro-hospital at Seaport Pavilion with a licensed 30-bed unit and full-service emergency department for 3 years during transition; RHN funds \$45 million in capital\dots \\
+\addlinespace[2pt]
+\quad \textcolor{blue}{\texttt{INV} (Offset Investments to Expand Regional Emergency Capacity)} & (A)~RHN transfers \$70 million in escrowed capital to CityCare Medical Center to add 30 emergency department treatment positions, 8 fast-track bays, and retrofit 2 negative-pressure\dots \newline (B)~RHN funds \$40 million to CCMC for a 20-position expansion plus \$10 million to upgrade emergency medical services dispatch, radios, and 4 new ambulances; 5-year service covenant\dots \newline (C)~RHN establishes a \$25 million Community Access Fund for care coordination, behavioral health integration, and transport vouchers; no direct emergency department capital expansion. \newline (D)~No new investments; rely on existing regional capacity and RHN's outpatient network to handle deflected demand. \\
+\addlinespace[2pt]
+\quad \textcolor{blue}{\texttt{WORK} (Workforce Transition Protections)} & (A)~Guarantee placement within 25 miles for at least 85\% of affected full-time equivalent roles at equal or higher base pay for 24 months; \$12 million retraining fund; \$20,000\dots \newline (B)~Guarantee first-right-of-hire at RHN sites with pay protection for 12 months; severance of 3 weeks per year of service capped at 52 weeks; \$6 million retraining fund; private\dots \newline (C)~Statutory minimum severance only; \$2 million training vouchers; no redeployment guarantees; internal reporting. \\
+\addlinespace[2pt]
+\quad \textcolor{blue}{\texttt{ACCNT} (Accountability and Public Narrative About Premature Service Reductions)} & (A)~RHN's chief executive issues a public apology acknowledging anxiety and access risks caused by premature reductions; fund a \$5 million Community Stabilization Grant program\dots \newline (B)~Issue a joint statement of shared responsibility with SHOA; appoint an independent reviewer with public quarterly reports for 2 years; provide \$1 million in transport vouchers\dots \newline (C)~Adopt a no-fault, forward-looking compliance plan with internal reporting and SHOA access to records; no apology, no public audit, and no community grants. \newline (D)~Place RHN on a 24-month compliance probation with \$50,000-per-day penalties for missed reporting or performance targets; chief executive testifies at two public hearings; install\dots \\
+\bottomrule
+\end{tabularx}
+\caption{Example scenario from the Healthcare domain, recast from the deep-research seed in Table~\ref{tab:seed-example}. \textcolor{blue}{Blue} marks elements paired with the corresponding blue elements in the seed.}
+\label{tab:scenario-example}
+\end{table*}
+\clearpage
+
+
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Preference Weighting}
+\begin{systembox}
+\scriptsize
+You are an expert negotiation simulation designer.
+
+\smallskip
+You are given a SCENARIO with its title, background, issues, and parties; each party may carry persona attributes (cultural background, emotion control).
+
+\smallskip
+\textbf{Task.} For each party, generate (1) preference \texttt{weights} as positive integers summing to exactly $100$ across all issues, and (2) a 1--2 sentence \texttt{stance} per issue stating what the party wants and why.
+
+\smallskip
+\textbf{Rules.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Weights must be positive integers summing to exactly $100$; allow uneven distributions and do not spread weight evenly across issues.
+\item A party's structural position, objectives, constraints, and BATNA are the main drivers of both weights and stances.
+% \item \textcolor{blue}{\{persona\_instructions\}} maps the assigned emotion-control score and Hofstede cultural profile onto which issues a party weights higher and how its stances are framed; the same role under a different persona must yield visibly different output.
+\end{itemize}
+\end{systembox}
+
+\begin{userbox}
+\scriptsize
+\textbf{Scenario.} \textcolor{blue}{\{Background\}}
+
+\smallskip
+\textbf{Topics.} \textcolor{blue}{\{Topics\}}
+
+\smallskip
+\textbf{Parties.} \textcolor{blue}{\{Parties\}}
+
+\smallskip
+Return only valid JSON with the schema below, with no markdown fencing, preamble, or commentary.
+\begin{verbatim}
+{
+  "PARTY_ID": {
+    "weights": {"ISSUE1": int, "ISSUE2": int, ...},
+    "stances": {"ISSUE1": "wants X because Y...",
+                "ISSUE2": "prefers Z due to..."}}
+}
+\end{verbatim}
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for per-party preference weighting.}
+\vspace{-0.3cm}
+\label{tab:prompt-weight}
+\end{table*}
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Conflict Simulation: party agent (inner thought and utterance)}
+
+\begin{systembox}
+\scriptsize
+You are \textcolor{blue}{\{Name\}} (\textcolor{blue}{\{Role\}}), negotiating with \textcolor{blue}{\{Opponent\}}. Your goal is to reach the best possible outcome for yourself.
+
+\smallskip
+\textbf{Task.} Generate one internal thought ($\le$2 sentences) reflecting what is on your mind right now, then write your next spoken utterance based on that thought.
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item The thought is your private reasoning; stay grounded in your positions and prior thoughts.
+\item The utterance is your actual turn: concise speech based on your current thought and the conversation so far.
+\item Think and speak as a real person: fully embody your persona (personality, cultural background) and conflict mode.
+\item Negotiate across multiple topics; consider the overall deal, not one topic at a time.
+\item Pursue your interests without telegraphing your strategy or priorities directly.
+\item Use plain language, with no speaker labels, headers, option labels, or bullet points.
+\item Closing protocol: end with \texttt{[IMPASSE]} if no agreement is possible; write \texttt{[FINAL AGREEMENT]} only after the other party has explicitly accepted your exact terms.
+\end{itemize}
+
+\end{systembox}
+
+\begin{userbox}
+\scriptsize
+\textbf{Background.} \textcolor{blue}{\{Background\}} 
+\textcolor{blue}{\{Conflict Mode Instruction\}}
+
+\smallskip
+\textbf{Previous thoughts.} \textcolor{blue}{\{Previous Thoughts\}}
+
+\smallskip
+\textbf{Persona.} 
+\textcolor{blue}{\{Party Profile\}} 
+\textcolor{blue}{\{Persona Instruction\}}
+
+\smallskip
+\textbf{Your interests (100 pts total).} \textcolor{blue}{\{Preferences\}} Pursue high-weight topics more and flex on low-weight ones; express interests through questions and framing, not by stating priorities directly.
+
+\smallskip
+\textbf{Negotiable topics.} \textcolor{blue}{\{Topics\}}
+
+\smallskip
+\textbf{Conversation.} \textcolor{blue}{\{Conversation Log\}}
+
+\smallskip
+Respond only with JSON:
+\begin{verbatim}
+{ "thought": "your internal thought here",
+  "utterance": "your spoken utterance here" }
+\end{verbatim}
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for persona-conditioned party simulation.}
+\vspace{-0.3cm}
+\label{tab:prompt-party}
+\end{table*}
+\clearpage
+
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Parties Expansion}
+\begin{userbox}
+\scriptsize
+You are an expert negotiation simulation designer.
+
+\smallskip
+You are given (1) a \textbf{base scenario} with 2 parties and a set of issues, to preserve as the foundation, and (2) the \textbf{research} on the real-world conflict that inspired it, used to identify additional stakeholders.
+
+\smallskip
+\textbf{Task.} Expand the scenario from 2 parties to exactly \textcolor{blue}{\{Targeted Party\}} parties, preserving the original structure.
+
+\smallskip
+\textbf{Party expansion.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Keep the original 2 parties exactly as they are; only their \texttt{relation} or \texttt{preferences} may be updated to reference newly added parties.
+\item Add exactly \textcolor{blue}{\{Targeted Party\}} new part(ies) inspired by real stakeholders in the research, with structurally distinct roles, not subdivisions of existing parties.
+\item \texttt{name} captures the party's essence without real names or acronyms; \texttt{role} specifies its primary objective and target outcome, internal pressures or constraints, and BATNA; \texttt{relation} states whom it aligns or clashes with and on which issues.
+\item \texttt{preferences} gives, for each issue, a 1--2 sentence stance following from the party's role and constraints; different parties should hold different stances to create negotiation tension.
+\item Expand, do not replace, the \texttt{background} to introduce the new parties.
+\end{itemize}
+
+\smallskip
+\textbf{Issues.} Keep all original issues exactly as they are (id, name, description, options); do not modify existing issues or add new ones.
+
+\smallskip
+\textbf{Base scenario.} \textcolor{blue}{\{Recast Scenario\}}
+
+\smallskip
+\textbf{Research.} \textcolor{blue}{\{Seed Scenario\}}
+
+\smallskip
+Return only valid JSON with the same schema as the base scenario (\texttt{title}, \texttt{background}, \texttt{issues}, \texttt{parties}), with no markdown fencing, preamble, or commentary.
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for party-axis expansion.}
+\vspace{-0.3cm}
+\label{tab:prompt-parties-exp}
+\end{table*}
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Histories Expansion}
+\begin{userbox}
+\scriptsize
+You are an expert negotiation simulation designer.
+
+\smallskip
+You are given (1) a \textbf{base scenario} with 2 parties and a set of issues, (2) the \textbf{research} on the real-world conflict that inspired it, and (3) the \textbf{original background}, the current state of affairs the parties negotiate from, which must not be rewritten or replaced.
+
+\smallskip
+\textbf{Task.} Expand a series of historical entries that chronologically lead up to the original background. These entries are the pre-history, the events, decisions, and escalations that explain how and why the parties arrived at the current impasse, so that a reader finishing the last entry feels the original background is its natural, inevitable result.
+
+\smallskip
+\textbf{Rules.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Produce exactly \textcolor{blue}{\{N Events\}} history entries; the final entry must hand off directly into the original background.
+\item Use fictional, essence-capturing names for all parties; include specific numbers, dollar amounts, percentages, headcounts, dates, and durations.
+\item Do not contradict, reproduce, or summarize the original background; stop before it.
+\end{itemize}
+
+\smallskip
+\textbf{Structure.} For each key event extracted from the research, write a detailed entry headed \texttt{\#\#\# History [N]: [Title] ([Date])} followed by a rich narrative of what happened, why it mattered, and how it shifted the dynamics between parties. Entries follow chronological order: early entries cover origins and the status quo, middle entries cover triggering events and escalation, and late entries cover the final breakdown that directly sets up the original background.
+
+\smallskip
+\textbf{Base scenario.} \textcolor{blue}{\{Recast Scenario\}} \quad \textbf{Research.} \textcolor{blue}{\{Seed Scenario\}} \quad \textbf{Original background.} \textcolor{blue}{\{Original Background\}}
+
+\smallskip
+Return only the history entries with their \texttt{\#\#\# History [N]} headers, with no JSON wrapping, markdown fencing, preamble, or commentary.
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for history-axis expansion.}
+\vspace{-0.3cm}
+\label{tab:prompt-history-exp}
+\end{table*}
+\clearpage
+
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Mediator: when-to-intervene decision}
+\begin{systembox}
+\scriptsize
+You are the Mediator in a multi-party negotiation. Your role is to decide whether to send a message to the participants at this moment, based on the conversation history and scenario context.
+
+\smallskip
+\textbf{Task.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Decide whether to send a message to the participants at this moment.
+\item Stay sensitive to the social dynamics of the conversation and the participants' sentiments.
+\item Be proactive in offering help, but avoid interrupting the flow following the criteria below.
+\item Use plain language, with no turn labels, headers, option labels, or bullet points.
+\end{itemize}
+
+\smallskip
+\textbf{Engagement criteria.} Do \emph{not} engage if the conversation is flowing well, the participants are having a personal exchange, or you are unsure whether engaging is appropriate. \emph{Engage} if the conversation has stalled or drifted from the goal, there is confusion or misalignment you can resolve, emotional tension is escalating, or a participant asked a question you can help with.
+\end{systembox}
+
+\begin{userbox}
+\scriptsize
+\textbf{Background.} \textcolor{blue}{\{Scenario\}}
+
+\smallskip
+\textbf{Negotiable topics.} \textcolor{blue}{\{Topics\}}
+
+\smallskip
+\textbf{Conversation} (``Mediator'' refers to you)\textbf{.} \textcolor{blue}{\{Conversation Log\}}
+
+\smallskip
+Respond only with JSON:
+\begin{verbatim}
+{ "thought": "reasoning about whether and why to intervene", "should_engage": true/false }
+\end{verbatim}
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for mediator intervention decision.}
+\vspace{-0.3cm}
+\label{tab:prompt-mwhen}
+\end{table*}
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Mediator: how-to-intervene generation}
+\begin{systembox}
+\scriptsize
+You are the Mediator in a multi-party negotiation. Your role is to craft an intervention for the participants, based on the conversation history and scenario context.
+
+\smallskip
+\textbf{Task.}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item Send a helpful and concise utterance that assists the participants or moves the discussion forward.
+\item Stay sensitive to the social dynamics of the conversation and the participants' sentiments.
+\item Be proactive in mediating the conversation and offering helpful guidance.
+\item Use plain language, with no turn labels, headers, option labels, or bullet points.
+\end{itemize}
+\end{systembox}
+
+\begin{userbox}
+\scriptsize
+\textbf{Background.} \textcolor{blue}{\{Scenario\}}
+
+\smallskip
+\textbf{Negotiable topics.} \textcolor{blue}{\{Topics\}}
+
+\smallskip
+\textbf{Conversation} (``Mediator'' refers to you)\textbf{.} \textcolor{blue}{\{Conversation Log\}}
+
+\smallskip
+\textbf{Previous thought.} \textcolor{blue}{\{When-to-intervene Thought\}}
+
+\smallskip
+Respond only with JSON:
+\begin{verbatim}
+{ "thought": "reasoning about what to say and why", "utterance": "your spoken utterance here" }
+\end{verbatim}
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for mediator intervention generation.}
+\vspace{-0.3cm}
+\label{tab:prompt-mhow}
+\end{table*}
+\clearpage
+
+\begin{table*}[p]
+\centering
+\begin{promptbox}{Topic-localized Evaluator}
+\begin{systembox}
+\scriptsize
+You are an expert in negotiation analysis. You analyze a full conversation and score the agreement between two parties on a specific topic.
+
+\smallskip
+\textbf{Task.} Read the full conversation. Identify every turn where either party meaningfully discusses or shifts its position on this topic. For each such turn, record (1) the agreement score (1--5) based on everything said up to that turn, and (2) each party's current stance, expressed with the option label(s) above (e.g.\ ``(A)'', ``(B)''), or a brief description if it matches no option. Omit turns that do not address the topic; scores carry forward from the last relevant turn.
+\end{systembox}
+
+\begin{userbox}
+\scriptsize
+\textbf{Background.} \textcolor{blue}{\{Scenario\}}
+
+\smallskip
+\textbf{Topic to analyze.} \textcolor{blue}{\{Topic\}}
+
+\smallskip
+\textbf{Parties.} \textcolor{blue}{\{Parties\}}
+
+\smallskip
+\textbf{Conversation.} \textcolor{blue}{\{Conversation Log\}}
+
+\smallskip
+Return JSON in exactly this format:
+\begin{verbatim}
+{
+  "relevant_turns": [3, 7, 12],
+  "agreement_score": [
+    {"turn_id": 3, "reason": "brief reason",
+     "score": int,
+     "party_stances": {
+       "party_A": "short description for stance",
+       "party_B": "short description for stance"}},
+    {"turn_id": 7, "reason": "brief reason",
+     "score": int,
+     "party_stances": {
+       "party_A": "(B)", "party_B": "(C)"}}
+  ]
+}
+\end{verbatim}
+\end{userbox}
+\end{promptbox}
+\vspace{-0.25cm}
+\caption{Prompt for topic-localized evaluation.}
+\vspace{-0.3cm}
+\label{tab:prompt-eval}
+\end{table*}
+
+\clearpage
+\begin{figure*}[p]
+\centering
+\includegraphics[width=\textwidth]{fiqure/figure_simulation_fidelity.pdf}
+\vspace{-0.2cm}
+\caption{Example of annotation template for pairwise simulation fidelity evaluation.}
+\label{fig:fidelity-template}
+\vspace{-0.3cm}
+\end{figure*}
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=\textwidth]{fiqure/figure_agreement_score.pdf}
+\vspace{-0.2cm}
+\caption{Example of annotation template for consensus score evaluation.}
+\label{fig:alignment-template}
+\vspace{-0.3cm}
+\end{figure*}
+
+\clearpage

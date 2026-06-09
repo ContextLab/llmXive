@@ -1,0 +1,339 @@
+\section{Spatial Imagination: Tasks and Datasets}
+\label{sec:data}
+
+
+%We introduce three spatial reasoning tasks that share a common property: they are most naturally and reliably solved by first constructing a missing spatial representation from incomplete inputs (a single viewpoint, a top-down map, or partial views). This is a deliberate design choice: we select tasks where forming this “imagination” is the key reasoning step, mirroring how humans approach spatially grounded problems. For each task, we build a 10k–20k example dataset from real and simulated environments, pairing image / text inputs with ground-truth spatial imaginations and final answers, and we release a human-filtered benchmark for controlled, high-quality evaluation.Table~\ref{tab:dataset_stats} and Fig~\ref{fig:data} provide an overview of training data and evaluation benchmarks, respectively.
+
+We introduce three spatial reasoning tasks that require constructing a missing spatial representation from incomplete inputs (single-view, partial-view, or map inputs).
+For each task, we build a $10$k--$50$k training set with paired \emph{ground-truth spatial imaginations} (task-specific intermediate visual supervision) and final answers, and we release a human-filtered benchmark for controlled evaluation. All datasets will be released publicly; for consistency across tasks, we train our models on the AI2-THOR~\cite{kolve2017ai2} subset of each training set. 
+Table~\ref{tab:dataset_stats} and Fig~\ref{fig:data} summarize the training data and evaluation benchmarks.
+
+
+\input{tables/dataset_stats}
+% \input{tables/dataset_stats_v1}
+
+
+\subsection{Perspective Taking}
+\label{sec:perspective_taking}
+%Perspective taking \textbf{(PET)}\jc{PT or PET? or do we need abbreviation?} requires reasoning about how a scene would appear from a viewpoint that differs from the one observed:
+%Given a first-person view of an indoor scene with the current and target positions marked, along with a question about spatial relationships after the viewpoint change, the model must imagine the scene from the new perspective before answering.
+%Perspective taking (\textbf{PET}) asks how a scene would appear from a new viewpoint.
+%Given a first-person image with current/target positions marked and a spatial question about the target view, the model must infer the answer under a viewpoint change (the target view is not provided).
+%This task fundamentally requires imagination because the target view does not exist in the input: the model cannot read off the answer from the given image, but must mentally simulate the spatial transformation to determine how objects rearrange relative to the new camera pose.
+%Given a first-person view of an indoor scene with current and target positions marked, the model must answer a spatial question (\eg, ``After moving to `X' and turning left 90°, will the \{object\} be on your left or right?'') about the scene from the new viewpoint. Since the target view is never provided, the model must mentally simulate the spatial transformation rather than read off the answer directly.
+
+Given a first-person view of an indoor scene with target positions marked, the model must answer a spatial question (\eg, ``After moving to `X' and turning left 90°, will the \{object\} be on your left or right?'') about the scene from the new viewpoint. Since the target view is never provided, the model must mentally simulate the spatial transformation rather than read off the answer directly.
+
+\noindent\textbf{Sub-categories.}
+Questions span two spatial relation types across six balanced sub-categories.
+\emph{Distance change} asks whether a target object becomes closer or further after the viewpoint shift: (1)~\emph{closer} and (2)~\emph{further}.
+\emph{Relative position} asks whether the object falls to the left or right in the new view, defined by the object's lateral position before and after the transformation: (3)~\emph{left$\to$left}; (4)~\emph{left$\to$right}; (5)~\emph{right$\to$left}; (6)~\emph{right$\to$right}.
+Overall accuracy is the unweighted mean across all six sub-categories so that each spatial relationship contributes equally, preventing models from gaming the metric by over-predicting common cases.
+
+
+\noindent\textbf{Imaginative perception target.} A novel-viewpoint rendering of the scene from the target position, directly supervised against ground-truth renders from the 3D scene.
+
+\noindent\textbf{Data.}
+Synthetic data is generated from AI2-THOR~\cite{kolve2017ai2} and Habitat~\cite{habitat19iccv,szot2021habitat,puig2023habitat3} by sampling source/target camera pairs, rendering first-person views, and annotating the source view with a red ``X'' marking the target.
+Questions cover two relation types (distance change, relative position) across six balanced sub-categories.
+A \emph{mixed} training data variant additionally incorporates real-world examples from the Visual Spatial Tuning dataset~\cite{yang2025visual} (camera motion subset) as a synthetic-to-real bridge.
+The base training set contains $20{,}531$ AI2-THOR examples; the mixed variant totals $55{,}529$.
+We evaluate on held-out human-verified AI2-THOR ($238$) and Habitat ($300$) benchmarks.
+Full sub-category breakdowns and data generation details are provided in the Appendix.
+
+%We design questions spanning two spatial relation types, yielding six balanced sub-categories.
+%\emph{Distance change} asks whether a target object becomes closer or further after the viewpoint shift, producing two sub-categories based on the ground-truth answer: (1)~\emph{closer} and (2)~\emph{further}.
+%\emph{Relative position} asks whether the object falls to the left or right in the new view, producing four sub-categories defined by the object's lateral position before and after the transformation: (3)~\emph{left$\to$left}; (4)~\emph{left$\to$right}; (5)~\emph{right$\to$left}; and (6)~\emph{right$\to$right}.
+%Overall accuracy is the unweighted mean across all six sub-categories so that each spatial relationship contributes equally.
+%Each question references a target position marked with an ``X'' and a 90-degree turning direction (left or right), ensuring that answering demands mental perspective rotation rather than direct visual inspection.
+
+%\noindent\textbf{The intermediate thought} is a novel-viewpoint image, a rendering of the scene as it would appear from the target position.
+%By generating this view explicitly, the model externalizes its spatial reasoning into a visual representation that can be directly supervised with ground-truth renders from the 3D scene.
+
+%\noindent\textbf{Data curation.}
+%We generate synthetic training data from indoor 3D environments in AI2-THOR~\cite{kolve2017ai2} and Habitat~\cite{habitat19iccv, szot2021habitat, puig2023habitat3}.
+%For each example, we sample a source and target camera pose within a scene, render first-person views at both locations, and annotate the source view with a red ``X'' marking the target position.
+%Questions are generated from templates (\eg, ``After moving to `X' and turning \{direction\} 90 degrees, will the \{object\} be on your left or right?'') that programmatically determine the ground-truth spatial relationship given the viewpoint transformation, paired with binary answer choices (A/B).
+%The base training set uses AI2-THOR only ($20{,}531$ examples, balanced across all six sub-categories); a \emph{mixed} variant additionally incorporates Habitat ($19{,}998$) and real images ($15{,}000$), totaling $55{,}529$ examples.
+%We evaluate on held-out human-verified AI2-THOR ($238$) and Habitat ($300$) benchmarks.
+
+
+
+%\noindent\textbf{Real-world data.}
+%To improve real-world generalization, the \emph{mixed} training variant incorporates $15{,}000$ examples sourced from the Visual Spatial Tuning dataset~\cite{yang2025visual}, specifically its camera motion subset.
+%We repurpose examples containing multiview images by conditioning the model on the first view and camera motion to generate the second view.
+%Because no real-world 3D environment is available to programmatically render ground-truth perspective-taking pairs, this augmentation serves as an effective proxy for bridging the synthetic-to-real domain gap.
+
+
+\input{sec/3-data_pt_v0}
+
+% \subsection{Path Tracing}
+% \label{sec:path_tracing}
+
+% Path tracing \textbf{(PT)} \textbf{(PT)} requires anticipating what an agent will see from a position it has not yet reached, a core capability for navigation, exploration, and planning in embodied settings~\cite{}.
+% Given a top-down map with a marked path $1\!\rightarrow\!2$ and a designated midpoint $M_1$, the model must identify which object is visible on the left or right at $M_1$ among four choices (A/B/C/D).
+% This task requires imagination because the top-down map underdetermines first-person visibility: viewpoint height, occlusion by furniture and walls, and object scale jointly determine what is seen from ground level, and textual chain-of-thought cannot simulate these 3D relationships from a floor-plan-like input.
+
+% The intermediate thought is a \emph{sideview image}, a first-person rendering of the scene as it would appear from the queried midpoint $M_1$.
+% By generating this sideview explicitly, the model externalizes the 3D visibility reasoning that the top-down input alone cannot support.
+% Ground-truth sideviews are rendered directly from the simulator at $M_1$.
+
+% Each example is packaged into eight input variants that toggle combinations of top-down cues, egocentric direction cues, and sideview availability, enabling controlled ablations over what information the model receives.
+
+% \noindent\textbf{Data curation.}
+% \todo{Lindsey: expand data curation details}
+% We generate training data from indoor 3D environments in AI2-THOR~\cite{kolve2017ai2}, sampling feasible paths on navigation meshes balanced across room types and path lengths, rendering multi-view images at waypoints, and selecting the sideview at $M_1$ that best exposes the queried visibility using simulator metadata.
+% Following the TIFA protocol~\cite{}, we decompose quality filtering into binary yes/no visibility questions amenable to LLM-based judging, and additionally apply VQA verification checks that confirm the sideview resolves the query; GPT-4.1 serves as the vision judge with three-round majority voting.
+% The base training set contains $11{,}204$ examples; a \emph{mixed} variant additionally incorporates real-world data (\todo{Lindsey: add real-world source and counts}).
+% We evaluate on a human-filtered benchmark of $821$ samples ($4{,}388$ total across input variants).
+
+
+\subsection{Multiview Counting}
+\label{sec:multiview_counting}
+
+
+Given several first-person frames of the same environment, the model must select the correct count of a queried object (\eg, ``How many chairs are in this area?''). Since no single view reveals the full layout, and the same object often appears across multiple frames, the model must construct a unified spatial representation that resolves both occlusions and cross-view duplicates.
+
+\noindent\textbf{Imaginative perception target.} A top-down bird's-eye view (BEV) map aggregating all input views, making de-duplication explicit by mapping each object to a single spatial location. Ground-truth BEV maps are rendered from an overhead camera in the 3D scene.
+
+\noindent\textbf{Data.}
+Synthetic examples are generated via multi-camera and rotation trajectory types.
+Real-world data is sourced from MessyTable~\cite{cai2020messytable} (fixed multi-camera rig; overhead image as ground-truth BEV) and ScanNet++~\cite{yeshwanth2023scannet++} (point-cloud BEV maps converted to photorealistic overhead images via Qwen Edit~\cite{wu2025qwenimagetechnicalreport}).
+Questions are four-choice MCQ with distractors sampled near the true count.
+The base training set contains $17{,}079$ synthetic examples; the mixed variant totals $19{,}499$.
+We evaluate on a human-verified benchmark of $260$ samples.
+Details on trajectory types, BEV rendering, and distractor sampling are in the Appendix.
+
+%Multiview counting \textbf{(MVC)} requires aggregating partial observations from multiple camera viewpoints to determine how many instances of a queried object are present in a scene.
+%Given several first-person frames of the same environment and a counting question (\eg, ``How many chairs are in this area?''), the model must choose the correct count option.
+%This task requires imagination because no single view reveals the full spatial layout: objects may be occluded in some views, and, critically, the same object often appears in multiple frames.
+%Correctly counting therefore demands constructing a unified spatial representation that resolves both occlusions and cross-view duplicates, rather than simply summing per-frame detections.
+%
+%\noindent\textbf{The intermediate thought} is a \emph{top-down bird's-eye view (BEV) map} that spatially aggregates all input views into a single overhead representation.
+%By imagining this map, the model makes the de-duplication reasoning explicit: objects that appear across multiple views are mapped to a single spatial location, enabling accurate counting.
+%Ground-truth BEV maps are rendered from an overhead camera in the 3D scene.
+
+
+
+%\noindent\textbf{Data curation.}
+%We capture input views via two trajectory types: \emph{multi-camera} (fixed positions arranged around the scene) and \emph{rotation} (an agent rotating in place), testing different modes of partial observability.
+%Real-world MVC data is sourced from two datasets with complementary scene types.
+%For \textbf{MessyTable}~\cite{cai2020messytable}, each scene is captured by a fixed multi-camera rig with one overhead camera and a ring of surrounding side-view cameras.
+%The overhead camera image serves directly as the ground-truth BEV map, and object counts are obtained by de-duplicating instance identifiers across all camera views from the structured annotations.
+%Input views are sampled from the side-view cameras with angular diversity constraints.
+%For \textbf{ScanNet++}~\cite{yeshwanth2023scannet++}, we select a small set of input frames covering the scene from diverse viewpoints, render a ground-truth BEV map from the labeled point cloud via a virtual overhead camera, and derive object counts from the 3D scene annotations. To improve visual realism, the rendered point-cloud BEV maps are converted into photorealistic overhead images using Qwen Edit~\cite{wu2025qwenimagetechnicalreport}. Structural elements (\eg, walls, floors, ceilings) are excluded, and target categories are restricted to objects that appear a countable number of times and are sufficiently visible across the selected views.
+%Questions are formatted as four-choice MCQ with distractors sampled near the true count.
+%The base training set contains $17{,}079$ synthetic examples; a \emph{mixed} variant adds real-world data from MessyTable~\cite{cai2020messytable} ($1{,}880$) and ScanNet++~\cite{yeshwanth2023scannet++} ($540$), totaling $19{,}499$ examples.
+%We evaluate on a human-verified benchmark of $260$ samples covering both trajectory types.
+
+
+
+
+% 
+
+% \subsection{Out-of-Distribution Benchmarks}
+% % \label{sec:ood_benchmarks}
+
+% % To evaluate generalization beyond the training distribution, we assemble OOD benchmarks in two groups.
+
+% % \noindent\textbf{Similar tasks}: SAT~\cite{ray2025satdynamicspatialaptitude} (perspective-taking subset) and MessyTable~\cite{cai2020messytable} (multiview counting).
+
+% % \noindent\textbf{Other spatial tasks}: MindCube~\cite{yin2025mindcube} (abstract geometric spatial reasoning) and All-Angles-Bench~\cite{yeh2025seeing} (EgoHumans~\cite{khirodkar2023egohumans} subset).
+
+%To evaluate generalization beyond the training distribution, we assemble a suite of out-of-distribution (OOD) benchmarks organized into two groups.
+
+%\noindent\textbf{Similar tasks.}
+%These benchmarks test the same spatial capabilities as our training tasks but in different domains or question styles:
+%(1)~\emph{SAT}~\cite{ray2025satdynamicspatialaptitude}, a perspective-taking benchmark from which we sample the perspective-taking subset;
+%and (2)~\emph{MessyTable}~\cite{cai2020messytable}, a real-world tabletop dataset for multiview counting.
+
+%\noindent\textbf{Other spatial tasks.}
+%These benchmarks test spatial reasoning abilities beyond our task categories:
+%(1)~\emph{MindCube}~\cite{yin2025mindcube}, from which we uniformly sample abstract geometric spatial reasoning questions;
+%and (2)~\emph{All-Angles-Bench}~\cite{yeh2025seeing}, from which we use QA pairs from the EgoHumans~\cite{khirodkar2023egohumans} subset.
+
+
+\section{Method: Imaginative Perception Tokens}
+
+% \jc{rewriting}
+
+The core of our approach is to enable Multimodal Language Models (MLLMs) to externalize spatial reasoning through \textbf{Imaginative Perception Tokens}.
+Unlike standard textual chain-of-thought
+or methods outsourcing visual imagination with an external visual generation model, our method requires the model to generate a visual representation of a \textit{non-observed} spatial configuration---such as an unseen viewpoint or an integrated top-down map---as a functional prerequisite for answering a spatial query.
+
+\subsection{Problem Formalization}
+Given an input context $\mathcal{C}$ consisting of one or more observed images $\mathcal{I}_{obs} = \{I_1, \dots, I_k\}$ and a spatial language query $Q$, the goal is to predict the correct answer $A$.
+We decompose this into a two-stage generative process.
+First, the model generates \textbf{imaginative perception tokens} $\hat{I}_{imag}$, representing the implied spatial structure requested by the task (e.g., the view from a new coordinate): $P(\hat{I}_{imag} | \mathcal{I}_{obs}, Q)$
+Second, the conditioned on this imaginative perception tokens $\hat{I}_{imag}$, the model produces the final answer: $P(A | \mathcal{I}_{obs}, Q, \hat{I}_{imag})$.
+% \begin{equation}
+%     P(\hat{I}_{imag} | \mathcal{I}_{obs}, Q) \quad \text{followed by} \quad P(A | \mathcal{I}_{obs}, Q, \hat{I}_{imag})
+% \end{equation}
+
+
+\subsection{Architecture}
+We implement this approach using BAGEL~\cite{deng2025bagel}, a unified decoder-only transformer that natively supports interleaved multimodal understanding and generation.
+BAGEL employs a {Mixture-of-Transformer-Experts (MoT)} design: 
+the model utilizes two transformer experts, one optimized for multimodal understanding and another for generation.
+Both operate on the same token sequence through shared self-attention at every layer.
+Images are represented via two distinct paths. \textit{Understanding tokens} ($U$) are extracted via a SigLIP2~\cite{tschannen2025siglip} ViT encoder to capture semantic content, while \textit{Generation tokens} ($G$) are latent representations from a FLUX VAE used for high-fidelity synthesis.
+Because all tokens (text, $U$, and $G$) coexist in a single shared context window, the model maintains lossless interaction between understanding and generation modules.
+
+
+While BAGEL's standard generation tokens are typically used for open-ended text-to-image generation or editing, we repurpose this generative capacity for \textbf{spatial reasoning}. In our framework, the generation target is not a stylistic output but a precise \textbf{view imagination}---a visually grounded intermediate that represents the unobserved 3D structure of the scene.
+
+
+
+\subsection{Training and Inference}
+
+\noindent\textbf{Training Objective.}
+We optimize the framework using a multi-task loss $\mathcal{L}_{total} = \lambda_{fm} \mathcal{L}_{fm} + \lambda_{lm} \mathcal{L}_{lm}$. The model is trained to jointly produce the imaginative perception and the final answer:
+\begin{enumerate}
+    \item \textbf{Flow-Matching Loss ($\mathcal{L}_{fm}$):} For the imaginative intermediate, BAGEL adopts the \textbf{Rectified Flow} method. The model learns to predict the velocity field $v_t$ required to transform Gaussian noise into the target latent $G_{gt}$ representing the unobserved view, conditioned on the preceding context $\mathcal{C}$:
+    \begin{equation}
+        \mathcal{L}_{fm} = \mathbb{E}_{t, G_0, \mathcal{C}} \left[ \| v_t(G_t | \mathcal{C}) - (G_{gt} - G_0) \|^2 \right]
+    \end{equation}
+    \item \textbf{Language Modeling Loss ($\mathcal{L}_{lm}$):} We minimize the negative log-likelihood of the final VQA answer tokens $A$, conditioned on the observed context and the ground-truth imaginative tokens:
+    \begin{equation}
+        \mathcal{L}_{lm} = - \sum_{i=1}^{|A|} \log P(a_i | \mathcal{C}, U_{gt}, G_{gt}, a_{<i})
+    \end{equation}
+\end{enumerate}
+
+
+% \noindent\textbf{Inference and ``Thinking'' Mode.} 
+\noindent\textbf{Inference.} 
+At inference time, the model operates in one of two modes depending on the task and configuration.
+In the \textbf{text-only} mode, the model produces only a textual answer without generating any visual intermediate $A \sim P(A \mid \mathcal{C})$, serving as a baseline.
+In the \textbf{imagination} mode, the model first performs iterative denoising over VAE tokens to produce the imaginative latent:
+% \begin{equation}
+%     \hat{G}_{imag} = \int_{0}^{1} v_t(G_t \mid \mathcal{C}) \, dt
+% \end{equation}
+$\hat{G}_{imag} = \int_{0}^{1} v_t(G_t \mid \mathcal{C}) \, dt$
+The decoded image $\hat{I}_{imag}$ is immediately re-encoded and appended to the context as both ViT understanding tokens and VAE generation tokens:
+% \begin{equation}
+%     \mathcal{C}' = \left[\mathcal{C},\, \text{ViT}(\hat{I}_{imag}),\, \text{VAE}(\hat{I}_{imag})\right]
+% \end{equation}
+$\mathcal{C}' = \left[\mathcal{C},\, \text{ViT}(\hat{I}_{imag}),\, \text{VAE}(\hat{I}_{imag})\right]$
+The model then attends to its own imagination to predict the final answer $A \sim P(A \mid \mathcal{C}')$.
+
+
+
+
+
+
+% During inference, we utilize a {generalized causal attention} structure. When the model encounters a spatial query requiring imagination, it enters a ``thinking'' mode:
+
+
+
+% \begin{enumerate}
+
+%     \item \textbf{Iterative Denoising:} It denoises a set of VAE tokens to produce the imaginative latent $\hat{G}_{imag}$, which decodes to the required spatial view $\hat{I}_{imag}$ (e.g., the actual visual appearance of the room from the new angle): $\hat{G}_{imag} = \int_{0}^{1} v_t(G_t | \mathcal{C}, T) dt$.
+%     \item \textbf{Context Re-encoding:} This image is immediately re-encoded into the context, replacing noised tokens with clean counterparts and vit encoded features: $$\mathcal{C}' = [\mathcal{C}, T, \text{ViT}(\hat{I}_{imag}), \text{VAE}(\hat{I}_{imag})]$$.
+%     \item \textbf{Final Answer:} The model attends to its own ``imagination'' to predict the final answer $A$ (e.g., \textit{``The chair is now on the right''}): $A \sim P(A | \mathcal{C}')$.
+% \end{enumerate}
+
+
+
+% Generating interleaved multimodal outputs, sequences that mix text and images in 
+% a coherent reasoning chain, can be approached in several ways, each with distinct 
+% trade-offs between implementation simplicity, output quality and final accuracy.
+% \jc{why do we discuss different approaches here?}
+
+% \noindent\textbf{Autoregressive Approaches.}
+% One family of methods treats visual generation as a token prediction problem, 
+% either by quantizing images into discrete tokens~\cite{bigverdi2024aurora} 
+% or by operating over continuous visual representations~\cite{ray2025mull, yang2506machine, li2025latent, qin2025chain}. 
+% These approaches leverage the Next-Token-Prediction paradigm for both text 
+% and visual token generation, making them straightforward to integrate into existing 
+% LLM infrastructures. However, autoregressive models empirically fall short of 
+% diffusion-based counterparts in generation quality, particularly for visually 
+% complex scenes such as cluttered indoor environments with many objects, fine-grained 
+% textures, or spatially intricate layout despite less complex images like depth maps.
+
+% \noindent\textbf{Diffusion-Based and Integrated Approaches.}
+% To overcome these quality limitations, a second family of methods couples 
+% autoregressive language models with diffusion-based image generators, either 
+% as an external module or through deeper architectural integration. 
+% MetaMorph~\cite{tong2024metamorph} follows an instruction-tuning paradigm in 
+% which a vision-language backbone is fine-tuned to emit both textual responses 
+% and visual tokens that condition a separate diffusion decoder. BLIP-3o~\cite{chen2025blip3} takes a similar direction by distilling 
+% the hidden states of a flow-matching model into a compact set of visual tokens 
+% that the LLM can autoregressively predict before decoding into images, achieving 
+% strong alignment between text and image modalities. Despite these advances, 
+% some models are primarily designed for single-step generation or editing tasks 
+% and do not natively support interleaved generation, where the model 
+% must produce alternating text and image outputs as part of a coherent reasoning 
+% chain or haven't released their weights and checkpoints.
+
+% \noindent\textbf{BAGEL for Interleaved Multimodal Thinking.}
+% We build our framework on BAGEL~\cite{deng2025bagel}, an open-source unified 
+% multimodal model that natively supports interleaved generation of both text and 
+% images within a single autoregressive-diffusion framework. Unlike the approaches 
+% above, BAGEL is not designed solely as an image generation or editing model; 
+% rather, it is pretrained for interleaved text, image, and 
+% video data, endowing it with strong multimodal reasoning capabilities alongside 
+% high-fidelity visual generation. Crucially, BAGEL releases open model weights, 
+% enabling reproducible research.
+% \subsection{Architecture}
+% We implement this framework using BAGEL~\cite{deng2025bagel}, an interleaved MLLM that treats both text and images
+% % as co-equal
+% tokens in a shared context window. Architecturally, BAGEL represents each modality through a distinct set of tokens:
+
+% \begin{itemize}
+%     \item \textbf{Understanding Tokens ($U$):} Extracted via a SigLIP ViT encoder $U = \text{ViT}(I)$, providing high-level semantic features for the LLM backbone.
+%     \item \textbf{Generation Tokens ($G$):} Latent representations $G = \text{VAE}(I)$ derived from a VAE encoder. These tokens exist in the same latent space used by the model’s Flow-Matching diffusion decoder.
+% \end{itemize}
+
+% During inference, when the model predicts a specialized \texttt{<IMAGE>} trigger token in its text stream, it switches to a diffusion-based decoding head. It iteratively denoises a set of latent tokens $\hat{G}$ conditioned on all previous tokens in the context (both $U$ and $G$) via a shared self-attention mechanism.
+% % \begin{equation}
+% %     \hat{G}_{imag} \sim \text{Diffusion}(\mathcal{C}_{<t})
+% % \end{equation}
+% The resulting image $\hat{I}_{imag}$ is then immediately re-encoded into $U$ and $G$ tokens and appended back to the sequence, ensuring the model's reasoning is grounded in its own generated visual evidence.
+
+% \subsection{Training Objective}
+% We fine-tune the framework using a multi-task objective. Given a training triplet $(\mathcal{I}_{obs}, Q, I_{gt}, A)$, where $I_{gt}$ is the ground-truth visual imagination, the total loss $\mathcal{L}_{total}$ is a weighted combination of the \textbf{latent flow-matching loss} and the \textbf{autoregressive language loss}:
+% \begin{equation}
+%     \mathcal{L}_{total} = \lambda_{fm} \mathcal{L}_{fm} + \lambda_{lm} \mathcal{L}_{lm}
+% \end{equation}
+
+% \noindent\textbf{Flow-Matching for Spatial Imagination.} 
+% Let $G_{gt} = \text{VAE}(I_{gt})$. The model learns to predict the velocity field $v_t$ that transforms Gaussian noise $G_0$ into the target latent $G_{gt}$, conditioned on the observed context $\mathcal{C}$:
+% \begin{equation}
+%     \mathcal{L}_{fm} = \mathbb{E}_{t, G_0, \mathcal{C}} \left[ \| v_t(G_t | \mathcal{C}) - (G_{gt} - G_0) \|^2 \right]
+% \end{equation}
+% This ensures $\hat{I}_{imag}$ is a precise reconstruction of the unobserved geometry implied by $\mathcal{I}_{obs}$ rather than an unconstrained hallucination.
+
+% \noindent\textbf{Conditioned Language Modeling.} 
+% The second stage ensures the model can ``read'' its own generated tokens. We minimize the negative log-likelihood of the answer tokens $a_i \in A$, conditioned on both the input and the ground-truth spatial intermediate:
+% \begin{equation}
+%     \mathcal{L}_{lm} = - \sum_{i=1}^{|A|} \log P(a_i | \mathcal{C}, U_{gt}, G_{gt}, a_{<i})
+% \end{equation}
+
+
+% Architecturally, BAGEL represents each modality through a distinct set of tokens 
+% that coexist within a single shared context window. Text is handled through 
+% standard language tokens. Images are represented twice and for two 
+% different purposes: a set of understanding tokens produced by a ViT 
+% encoder~\cite{tschannen2025siglip}, and a 
+% set of generation tokens produced by a VAE encoder~\cite{labs2025flux1kontextflowmatching, flux2024}. 
+% All token types, text, understanding, and generation, attend to one another 
+% through a shared self-attention mechanism at every layer, so that each modality 
+% has direct, uncompressed access to the full context. This bottleneck-free design 
+% is what enables the model to ground generated images in arbitrarily long 
+% interleaved reasoning chains without information loss.
+
+% At inference, generating an image amounts to iteratively denoising a set of 
+% initially noisy VAE tokens, conditioned on all preceding tokens in the context 
+% window via shared attention. Once an image is generated, it is immediately 
+% re-encoded into both understanding and generation tokens and appended to the 
+% context, making its semantic and pixel-level content available to all subsequent 
+% reasoning steps. 
+
+% This architectural design makes BAGEL particularly well-suited to our setting. 
+% In our framework, the model must produce \textbf{imaginative perception tokens},
+% intermediate visual representations corresponding to spatial configurations that 
+% are not directly observed, such as an unseen viewpoint or a top-down integration 
+% of multiple partial observations. Concretely, these tokens take the form of 
+% images generated by BAGEL's diffusion pathway and inserted into the interleaved 
+% reasoning chain before the final answer is produced. 
+

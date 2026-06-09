@@ -1,0 +1,24 @@
+\section{Introduction}
+Automated scientific research~\citep{douglas2025researchers} is emerging as an important frontier in AI. Coding agents such as OpenClaw, Claude Code, and Codex CLI are increasingly marketed as tools that can ``autonomously conduct research,'' yet there is no principled way to assess whether such claims hold up under scrutiny.
+This calls for a benchmark that captures the full research process and can reliably evaluate open-ended scientific outputs.
+
+Existing benchmarks cover adjacent but incomplete settings: scientific question answering and reasoning~\citep{welbl2017crowdsourcing,rein2023gpqa}, interactive scientific environments~\citep{wang2022scienceworld,jansen2024discoveryworld}, and automated research or paper reproduction~\citep{lu2024ai,starace2025paperbench}. However, none asks AI systems to start from raw experimental data, produce complete research outputs, and evaluate them with verifiable anchors. This gap makes it difficult to objectively measure AI autonomous research capability or compare progress across systems.
+Designing such a benchmark raises several non-trivial challenges. 
+First, the task itself must be scientifically meaningful and aligned with real research scenarios. Second, scientific outputs are open-ended: a research report is difficult to assess by exact-match or simple unit tests, while LLM-as-judge evaluation can introduce bias~\citep{li2025generation}. Third, scientific research is heterogeneous in data modalities, analytical methods, and evidence standards, so narrow coverage can overfit systems to limited skills.
+
+We present ResearchClawBench (RCBench) to address these challenges. To ensure task significance, we start from real published papers: domain experts select target papers with clear scientific questions, accessible raw data, and practical research value, and convert them into executable task descriptions. To evaluate open-ended scientific outputs, we keep the target paper hidden on the evaluation side and construct expert-curated rubrics around it, decomposing expected outputs into verifiable and weighted sub-criteria. To support task diversity, RCBench spans 10 scientific domains, including Astronomy, Chemistry, Earth Science, Energy Science, Information Science, Life Science, Material Science, Mathematics, Neuroscience, and Physics, with tasks covering diagnostic analysis and metric optimization.
+
+Building on this benchmark, we systematically evaluate 7 autonomous research agents on RCBench under a unified evaluation protocol. Our scoring is anchored at 50 points: a score at this level means the system's output matches the target paper, while scores above it indicate discoveries. Results show that the strongest autonomous agent, Claude Code, averages 21.5; even when taking the best autonomous-agent result for each task, the frontier mean is only 24.6. These results indicate that current autonomous research agents remain far from reliable target-paper-level re-discovery.
+
+To enable comparison with models that lack a full agent scaffold~\citep{liu2025agent}, we introduce ResearchHarness and use it to evaluate seventeen native LLM baselines.
+Claude-Opus-4.7 averages 20.7, and the LLM frontier mean is 26.5, showing that native LLMs also struggle to complete stable end-to-end re-discovery.
+
+Through real scientific discovery tasks, end-to-end pipeline evaluation, and fine-grained rubrics, ResearchClawBench addresses a critical gap in the evaluation of autonomous scientific research.
+
+We summarize our contributions as follows:
+
+\begin{compactitem}
+\item \textbf{ResearchClawBench}: 40 real scientific discovery tasks with expert-annotated rubrics across 10 domains and diverse scenarios.
+\item \textbf{ResearchHarness}: a unified lightweight tool-use evaluation harness for LLM baselines.
+\item \textbf{Unified evaluation}: a systematic assessment of seven autonomous research agents and seventeen native LLM baselines, quantifying the gap between current AI research systems and target-paper-level re-discovery.
+\end{compactitem}

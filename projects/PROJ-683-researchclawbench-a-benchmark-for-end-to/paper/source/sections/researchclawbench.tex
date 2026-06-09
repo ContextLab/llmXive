@@ -1,0 +1,202 @@
+\section{ResearchClawBench}
+\label{sec:researchclawbench}
+
+We introduce \textbf{ResearchClawBench}. It has three core features. First, tasks are derived from scientific work and provide references and raw data. Second, tasks have research value: we prioritize work with well-defined questions, accessible data, and academic significance. Third, the benchmark builds rubrics around hidden target papers, converting open-ended outputs into verifiable signals.
+
+\subsection{Task Components}
+
+In ResearchClawBench, a task is denoted as
+
+\vspace{-1em}
+\[
+\tau = (q, \mathcal{L}, \mathcal{D}, p^\star, \mathcal{A}),
+\]
+\vspace{-1.5em}
+
+where \(q\) is the task description, \(\mathcal{L}\) is the related literature, \(\mathcal{D}\) is the raw data, \(p^\star\) is the hidden target paper, and \(\mathcal{A}\) is the evaluation artifacts constructed around the target paper. Given task \(\tau\) and executable environment \(\mathcal{E}\), the system needs to generate
+\[
+y = (\pi, o, r),
+\]
+where \(\pi\) denotes the experimental code and execution process, \(o\) denotes intermediate results, figures, and output files, and \(r\) denotes the final research report. The benchmark determines whether the system can generate high-quality research products based on \((q, \mathcal{L}, \mathcal{D})\), and whether those products reach or surpass the target paper \(p^\star\). A concrete task and its main components are shown in Table~\ref{tab:astronomy-task-example}.
+
+
+\subsection{Data Construction}
+
+RCBench does not design merely ``research-like'' tasks. Instead, it preserves the structure of real scientific tasks~\citep{zhou2023webarena} as much as possible. It is built from high-quality published papers, but the target paper is not exposed to the evaluated system, and the system must independently conduct re-discovery from the task description, related literature, and raw data. RCBench currently contains \textbf{40 tasks} across \textbf{10 scientific domains} (Table~\ref{tab:task-scenarios}).
+
+\begin{table}[h]
+\centering
+% \vspace{-0.1em}
+\caption{\textbf{A simplified task example from \texttt{Astronomy\_000}.} Details are in Appx.~\ref{sec:appendix-task-information}.}
+\vspace{-0.8em}
+\label{tab:astronomy-task-example}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\newcommand{\RcbDashedRule}{\makebox[\linewidth][s]{\leaders\hbox{\rule[0.55ex]{5pt}{0.35pt}\hskip2.5pt}\hfill\kern0pt}}
+\newcommand{\RcbSolidRule}{\noindent\rule{\linewidth}{0.45pt}\par\nointerlineskip}
+\newcommand{\RcbHeaderBlock}[1]{%
+  \RcbSolidRule
+  \begingroup\setlength{\fboxsep}{0pt}%
+  \noindent\colorbox{RcbHighlightPurple}{%
+    \parbox{\linewidth}{#1\par\vspace{-0.35ex}\RcbDashedRule\par\vspace{-0.7ex}}}%
+  \endgroup\par\nointerlineskip}
+\newcommand{\RcbHeaderTwo}[2]{%
+  \RcbHeaderBlock{%
+    \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth}>{\raggedright\arraybackslash}X@{}}
+    \textbf{#1} & \textbf{#2}
+    \end{tabularx}}}
+\newcommand{\RcbHeaderOne}[1]{%
+  \RcbHeaderBlock{%
+    \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X@{}}
+    \textbf{#1}
+    \end{tabularx}}}
+\newcommand{\RcbHeaderRubrics}{%
+  \RcbHeaderBlock{%
+    \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{0.10\linewidth}@{}}
+    \textbf{Rubrics Content} & \textbf{Weight}
+    \end{tabularx}}}
+\RcbHeaderTwo{Task ID}{Task Content}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}m{0.25\linewidth}>{\raggedright\arraybackslash}m{0.75\linewidth}@{}}
+\texttt{Astronomy\_000} &
+Constrain ultralight-boson masses and self-interaction coupling strengths with a Bayesian framework that translates black-hole superradiance into a probabilistic model over full mass/spin posteriors. \\
+\end{tabular}\par\nointerlineskip
+\RcbHeaderTwo{Input Data}{Data Description}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}m{0.25\linewidth}>{\raggedright\arraybackslash}m{0.75\linewidth}@{}}
+\texttt{IRAS\_09149-\allowbreak{}6206\_\allowbreak{}samples.\allowbreak{}dat} &
+10,000 posterior samples for the supermassive black hole IRAS 09149-6206; columns are mass \(M\,[M_\odot]\) and dimensionless spin \(a_\ast\). \\
+\rowcolor{RcbRowShade}
+\texttt{M33\_X-7\_\allowbreak{}samples.\allowbreak{}dat} &
+1,838 posterior samples for the stellar-mass black hole M33 X-7; columns are mass \(M\) and dimensionless spin \(a_\ast\). \\
+\end{tabular}\par\nointerlineskip
+\RcbHeaderOne{Papers}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X@{}}
+\emph{Getting More Out of Black Hole Superradiance: A Statistically Rigorous Approach to Ultralight Boson Constraints}. (Target)\\
+\rowcolor{RcbRowShade}
+\emph{Exploring the String Axiverse with Precision Black Hole Physics}. \\
+\emph{The Spectrum of the Axion Dark Sector, Cosmological Observable and Black Hole Superradiance Constraints}. \\
+\rowcolor{RcbRowShade}
+\emph{Black Hole Mergers and the QCD Axion at Advanced LIGO}. \\
+\emph{Superradiant Instabilities in Astrophysical Systems}. \\
+\end{tabularx}\par\nointerlineskip
+\RcbHeaderRubrics
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{0.10\linewidth}@{}}
+Correctly ingest posterior samples and summarize the mass/spin posteriors used as observational constraints. &
+0.20 \\
+\rowcolor{RcbRowShade}
+Produce the M33 X-7 exclusion curve by integrating posterior samples over the superradiance-excluded region (95\% threshold). &
+0.30 \\
+Use the exclusion curve to derive upper limits on the boson self-interaction coupling across the relevant mass range. &
+0.50 \\
+\end{tabularx}\par\nointerlineskip
+\RcbSolidRule
+\endgroup
+\end{table}
+
+Task construction is performed by domain experts as illustrated in Figure~\ref{fig:data-construction}. Experts screen papers with clear questions, accessible data, and high research value. Here, research value includes scientific, economic, ecological, medical, and other dimensions, with the goal of ensuring that the benchmark evaluates problems that are themselves worth studying. Experts then extract the core question and rewrite it into an executable task description. They then organize related literature and raw data, construct rubrics from key target-paper artifacts, and package the materials into standardized tasks. Finally, experts cross-check tasks, fix issues, and filter unsuitable samples.
+
+
+
+
+\subsection{Evaluation Harness for LLM baselines: ResearchHarness}
+
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Task scenarios in RCBench.}}
+\vspace{-0.8em}
+\label{tab:task-scenarios}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Domain} & \textbf{Task scenarios} \\
+\midrule
+\rowcolor{RcbRowShade}
+Astronomy &
+Cosmological and black-hole inference: dark-sector constraints, \(H_0\) estimation, and gravitational-wave catalogs. \\
+Chemistry &
+Molecular modeling: property prediction, biomolecular structure/docking, and electrostatic interatomic potentials. \\
+\rowcolor{RcbRowShade}
+Earth &
+Climate and Earth-system analysis: glacier mass, weather modification, coastal risk, and global forecasting. \\
+Energy &
+Energy-system modeling: battery parameters, dispatch, green-hydrogen costs, and campus energy data. \\
+\rowcolor{RcbRowShade}
+Information &
+AI/information tasks: multimodal modeling, fine-grained perception, scientific-calculation scoring, and intrusion detection. \\
+Life &
+Biomedical and biosequence analysis: hydrogels, neoantigen vaccines, protein-complex search, and nanopore signals. \\
+\rowcolor{RcbRowShade}
+Material &
+AI materials discovery: altermagnets, multimodal property modeling, atomistic models, and polymer inverse design. \\
+Math &
+Algorithmic reasoning: tracking, accelerated optimization, multi-agent path finding, and geometry proving. \\
+\rowcolor{RcbRowShade}
+Neuroscience &
+Neural analysis: behavior classification, connectome-constrained models, EM proofreading, and single-cell trajectories. \\
+Physics &
+Condensed-matter and quantum physics: nanocluster theory, superconductivity, quantum sampling, and Floquet states. \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\end{table}
+
+ResearchHarness is a lightweight tool-using harness that enables native LLMs to participate in ResearchClawBench. By keeping the scaffold small, ResearchHarness makes the evaluation closer to the model's own capability and easier to extend. The harness follows a concise ReAct-style loop and obtains tool-use capability through OpenAI-compatible APIs and native tool calling.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{imgs/data_construction.pdf}
+\caption{\textbf{Data construction of RCBench.} Experts select target papers, extract questions, collect literature and raw data, build rubrics and evaluation artifacts, package standardized tasks, and conduct cross-expert validation.}
+\label{fig:data-construction}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1\textwidth]{imgs/from_new_discovery_to_rediscovery.pdf}
+\caption{\textbf{Schematic illustration of the metric design from re-discovery to discovery.}}
+\label{fig:new-to-rediscovery}
+\end{figure}
+
+As shown in Table~\ref{tab:researchharness-tools}, ResearchHarness provides three tool categories. Web tools support search and web access, with search via the Serper API and webpage fetching via Jina Reader. Local file tools support workspace operations, including discovering files, reading text, inspecting images, and extracting PDF through MinerU~\cite{wang2024mineru}. Local execution tools support computation and debugging through one-shot shell commands and persistent terminal workflows for longer local analyses during benchmark runs.
+
+\begin{table}[!tbp]
+\centering
+\caption{\textbf{ResearchHarness tool surface.} Tools are grouped into web and retrieval, files, and execution.}
+\label{tab:researchharness-tools}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}m{0.15\linewidth}>{\raggedright\arraybackslash}m{0.38\linewidth}>{\raggedright\arraybackslash}m{0.41\linewidth}@{}}
+\toprule
+\textbf{Category} & \textbf{Tools} & \textbf{Typical use} \\
+\midrule
+\rowcolor{RcbRowShade}
+Web and retrieval &
+\texttt{WebSearch}, \texttt{Scholar\allowbreak{}Search}, \texttt{WebFetch} &
+Search the web, search scholarly sources, and fetch webpage content for grounded tasks. \\
+Local files &
+\texttt{Glob}, \texttt{Grep}, \texttt{Read}, \texttt{ReadPDF}, \texttt{ReadImage}, \texttt{Write}, \texttt{Edit} &
+Discover files, inspect text/PDF/image content, and create or modify workspace artifacts. \\
+\rowcolor{RcbRowShade}
+Local execution &
+\texttt{Bash}, \texttt{Terminal\allowbreak{}Start}, \texttt{Terminal\allowbreak{}Write}, \texttt{Terminal\allowbreak{}Read}, \texttt{Terminal\allowbreak{}Interrupt}, \texttt{Terminal\allowbreak{}Kill} &
+Run one-shot commands or manage persistent terminal sessions for longer local workflows. \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+ResearchHarness also supports automatic context compaction for long multi-step tasks. When the message history approaches the input budget, ResearchHarness summarizes the accumulated interaction history into compact memory and continues the run with that memory; the default compaction trigger is 128k tokens.
+
+
+\subsection{Evaluation Metric: From Re-Discovery to Discovery}
+
+RCBench's evaluation metric is based on expert-constructed rubrics, which verify whether the final report and generated artifacts recover key scientific content from the target paper. Each rubric item is constructed around a concrete scientific artifact in the hidden target paper. Rubric items are divided into two types, \texttt{text} and \texttt{image}, which evaluate textual scientific content and multimodal figure evidence, respectively. Each item contains specific criteria extracted from the target paper's key contributions, technical keywords that the judge needs to verify, and a weight reflecting its importance. During evaluation, the judge selects the appropriate evaluation mode according to the item's content and type, and scores the model output using these rubric signals.
+
+This re-discovery-oriented evaluation measures whether a system recovers target content, but the ultimate goal is genuine \textbf{discovery}: systems should identify unknown phenomena, regularities, explanations, or methods from available evidence. Under the same rubric framework, we set 50 rather than 100 as the re-discovery boundary. Scores below 50 are below target-paper level, 50 means the model recovered the target result, and scores above 50 indicate discoveries beyond existing work. As shown in Figure~\ref{fig:new-to-rediscovery}, ResearchClawBench tasks mainly involve two evaluation types: target optimization and diagnostic analysis. The former rewards stronger quantitative results, while the latter rewards more complete explanations, clearer mechanisms, or new insights. With this design, ResearchClawBench evaluates whether models achieve re-discovery and move toward discovery in the same scoring space.

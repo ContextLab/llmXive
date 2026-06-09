@@ -1,0 +1,228 @@
+\documentclass{article}
+
+% COLM style
+\usepackage[submission]{colm2026_conference}
+
+% Encoding and fonts
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{inconsolata}
+
+% Korean
+\usepackage{kotex}
+
+% Math
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{latexsym}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{colortbl}
+\usepackage{arydshln}
+\usepackage{wrapfig} % preamble에 추가
+
+
+% Figures and floats
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{cuted}
+
+% Colors
+\usepackage{xcolor}
+\usepackage{color}
+
+% Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+
+% Text utilities
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{comment}
+\usepackage{soul}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{lineno}
+\usepackage{pifont}
+
+% Custom math commands
+\input{math_commands.tex}
+
+% Hyperlinks
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage[capitalize]{cleveref}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={blue},
+    citecolor={blue},
+    urlcolor={blue}
+}
+
+% Commands
+\newcommand{\algname}{\textsc{SoCRATES}}
+
+\definecolor{absgray}{RGB}{242,243,245}
+\definecolor{metablue}{RGB}{0,102,204}
+
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
+\newcommand{\pmark}{\textcolor{orange!80!black}{\ding{115}}}
+
+\definecolor{tim}{HTML}{C0504D}
+\definecolor{eff}{HTML}{6BAE5A}
+\definecolor{cgn}{HTML}{4F81BD}
+
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{X}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+
+% Boxes
+\newtcolorbox{promptbox}[1]{
+    breakable,
+    colback=white,
+    colframe=black!70,
+    fonttitle=\scriptsize\bfseries,
+    title=#1,
+    toprule=1.5pt,
+    bottomrule=0.5pt,
+    left=3pt,
+    right=3pt,
+    top=3pt,
+    bottom=3pt,
+}
+
+\newtcolorbox{systembox}{
+    breakable,
+    colback=white,
+    colframe=black!40,
+    leftrule=3pt,
+    rightrule=0.4pt,
+    toprule=0.4pt,
+    bottomrule=0.4pt,
+    fontupper=\scriptsize,
+    title={\scriptsize\textbf{System}},
+    left=3pt,
+    right=3pt,
+    top=2pt,
+    bottom=2pt,
+    before skip=2pt,
+    after skip=2pt,
+}
+
+\newtcolorbox{userbox}{
+    breakable,
+    colback=white,
+    colframe=black!20,
+    leftrule=3pt,
+    rightrule=0.4pt,
+    toprule=0.4pt,
+    bottomrule=0.4pt,
+    fontupper=\scriptsize,
+    title={\scriptsize\textbf{User}},
+    left=3pt,
+    right=3pt,
+    top=2pt,
+    bottom=2pt,
+    before skip=2pt,
+    after skip=2pt,
+}
+
+% Custom abstract page
+\newcommand{\customabstractpage}{
+\begin{tcolorbox}[
+    enhanced,
+    colback=absgray,
+    colframe=absgray,
+    boxrule=0pt,
+    arc=8pt,
+    left=3mm,
+    right=3mm,
+    top=3mm,
+    bottom=3mm
+]
+
+\newcommand{\titlelogo}{\raisebox{-0.25\height}{\includegraphics[height=1.5em]{fiqure/logo_2.png}}}
+
+{\Large\bfseries
+\titlelogo \algname{}: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations
+\par}
+
+
+
+\author{Taewon Yun, Hyeonseong Park, Jeonghwan Choi, Hayoon Park, Yeeun Choi, Hwanjun Song\thanks{Corresponding Author.}\\
+Korea Advanced Institute of Science and Technology\\
+\texttt{\{ytaewon0415, songhwanjun\}@kaist.ac.kr}}
+
+
+\vspace{3mm}
+
+Taewon Yun$^{1}$, Hyeonseong Park$^{1}$, Jeonghwan Choi$^{1}$, Hayoon Park$^{1}$, Yeeun Choi$^{2}$, \\
+Hwanjun Song$^{1}$\par
+
+\vspace{1mm}
+
+$^{1}$KAIST, $^{2}$Chungnam National University\par
+
+\vspace{4mm}
+
+\noindent
+Evaluating LLM mediators remains challenging, as mediation unfolds as a real-time trajectory shaped by disputants' shifting emotions, intentions, and context. Existing testbeds rely on a few expert-authored domains, vary mainly strategic posture, and score every turn against every topic, introducing off-topic noise. We introduce \algname{}, a benchmark for evaluating proactive LLM mediators in realistic, multi-domain testbeds. It constructs scenarios from real conflicts through an agentic pipeline across eight domains, probes five socio-cognitive adaptation axes (strategic posture, party composition, history length, emotional reactivity, and cultural identity), and scores each topic only on the turns that advance it via a topic-localized evaluator. The evaluator reaches 0.82 alignment with human experts, more than doubling a per-turn baseline. Benchmarking eight frontier LLMs, we find that even the strongest mediator closes only about a third of the unmediated consensus gap under diverse and realistic testbeds, with performance varying sharply by socio-cognitive axis, highlighting that progress lies in social adaptation to diverse conditions.
+\vspace{4mm}
+
+
+
+\noindent
+\begin{minipage}[t]{0.65\textwidth}
+{\small
+\textbf{Date:} June 3, 2026 \par
+\textbf{Correspondence:} Hwanjun Song at {\color{metablue}\href{mailto:songhwanjun@kaist.ac.kr}{songhwanjun@kaist.ac.kr}} \par
+\textbf{First Author:} Taewon Yun at {\color{metablue}\href{mailto:ytaewon0415@kaist.ac.kr}{ytaewon0415@kaist.ac.kr}} \par
+\textbf{Project Page:}{ \color{metablue}\url{https://disl-lab.github.io/SoCRATES}}
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.27\textwidth}
+\vspace*{-0.1cm}
+\raggedleft
+\includegraphics[width=1.0\linewidth]{fiqure/dislab-icon-Photoroom.png}
+\end{minipage}
+
+\end{tcolorbox}
+}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\vspace*{-1.3cm}
+\customabstractpage
+
+\input{1-introduction}
+\input{2-relatedwork}
+\input{3-method}
+\input{4-validation}
+\input{5-benchmark-results}
+\input{6-conclusion}
+
+
+\clearpage
+\bibliographystyle{assets/plainnat}
+\bibliography{colm2026_conference}
+
+\clearpage
+\appendix
+\input{7-appendix}
+
+
+\end{document}

@@ -1,0 +1,33 @@
+
+
+\begin{table}[t]
+  \caption{\textbf{Dataset and benchmark statistics.} All experiments use the AI2-THOR subset for training; additional data sources are released for future research. $\dagger$: human-verified subset.}
+  \vspace{-1em}
+  \centering
+  \resizebox{\columnwidth}{!}{
+    \begin{tabular}{l l l}
+    \toprule
+    \textbf{Task} &  \\
+    \midrule
+    \multirow{4}{*}{\textbf{Perspective Taking}}
+      & Source (samples) & AI2-THOR (20,531) + Habitat (19,998) + Real images (15,000) \\
+      & Train            & 55,529 \\
+      & Eval             & AI2-THOR$^\dagger$ (238), Habitat$^\dagger$ (300) \\
+      & IPT Format & Novel-viewpoint image \\
+    \midrule
+    \multirow{4}{*}{\textbf{Path Tracing}}
+      & Source (samples) & AI2-THOR (11,204) \\
+      & Train            & 11,204 \\
+      & Eval             & AI2-THOR$^\dagger$ (329), Real$^\dagger$ (332) \\
+      & IPT Format & Sideview image \\
+    \midrule
+    \multirow{4}{*}{\textbf{Multiview Counting}}
+      & Source (samples) & AI2-THOR (17,079) + MessyTable (1,880) + ScanNet (540) \\
+      & Train            & 19,499 \\
+      & Eval             & AI2-THOR$^\dagger$ (260) \\
+      & IPT Format & Top-down BEV map \\
+    \bottomrule
+    \end{tabular}
+  }
+  \label{tab:dataset_stats}
+\end{table}

@@ -1,0 +1,57 @@
+\section{Related Work}
+\subsection{Scientific Capability and Scientific Task Benchmarks}
+Existing evaluations of AI scientific capability include scientific question answering, high-difficulty scientific reasoning, and domain-specific scientific benchmarks. SciQ~\citep{welbl2017crowdsourcing}, GPQA~\citep{rein2023gpqa}, MMLU~\citep{wang2024mmlu}, and Humanity's Last Exam~\citep{phan2025humanity} mainly use question-answering, exam-style, or expert-level problems to measure scientific knowledge, factual understanding, and static reasoning. SciBench~\citep{wang2023scibench} further targets university-level mathematics, physics, and chemistry problems. ATLAS~\citep{liu2025atlas} extends this line toward high-difficulty, multidisciplinary frontier scientific reasoning. Domain-specific benchmarks~\citep{anjum2025domain} are also growing: PHYSICS evaluates open-ended university-level physics reasoning; ChemBench~\citep{walker2010chembench} and ChemLLMBench~\citep{guo2023can} focus on chemical knowledge, reaction understanding, molecular representation, and safety; EarthSE~\citep{xu2025earthse} builds a multi-level evaluation for Earth science from foundational knowledge to open-ended exploration; and MSEarth~\citep{zhao2025msearth} uses high-quality scientific publications for graduate-level Earth science assessment. These benchmarks are useful for scientific knowledge and domain reasoning, but they do not cover the full research loop required by autonomous scientific agents.
+
+From the perspective of RCBench, these benchmarks remain centered on local scientific tasks, such as answering scientific questions, interpreting figures, retrieving database entries, or solving short domain-specific problems. Even when tasks are grounded in scientific contexts, they usually do not require a system to conduct literature review, process raw data, design and execute experiments, generate figures, and write a research report around the same open scientific question. They therefore evaluate scientific knowledge, domain reasoning, multimodal understanding, and other research subskills, but cannot determine whether AI systems can complete an independent scientific process that reaches discovery-level outcomes.
+
+\subsection{Research-Agent Benchmarks and Autonomous Research Systems}
+Compared with static scientific benchmarks, another line of work evaluates agents in dynamic research-like settings, including scientific coding, paper reproduction, and autonomous scientific discovery. SciCode~\citep{tian2024scicode} evaluates code generation for realistic scientific problems, while SciDataCopilot~\citep{rao2026scidatacopilot} focuses on agentic preparation of raw scientific data for discovery workflows. MLAgentBench~\citep{huang2023mlagentbench} places language agents in machine learning experimentation workflows and evaluates file operations, code execution, and feedback-driven iteration. MLE-bench~\citep{chan2025mle} further uses Kaggle competitions to evaluate end-to-end machine learning engineering, and MLGym~\citep{nathani2025mlgym} organizes machine learning research as a gym-style environment emphasizing experimental iteration, result analysis, and strategy adjustment. In paper reproduction, PaperBench~\citep{starace2025paperbench} requires agents to implement methods and run experiments given a target paper, and evaluates whether reproduced experiments, results, and writing artifacts align with the original paper through hierarchical rubrics. CORE-Bench~\citep{siegel2024core} evaluates computational reproducibility from provided paper code and data, while ReproduceBench~\citep{zhao2025autoreproduce} studies automatic generation of executable experiment code from papers and their context. At the scientific-discovery level, ScienceWorld~\citep{wang2022scienceworld} and DiscoveryWorld~\citep{jansen2024discoveryworld} place scientific tasks in interactive environments, requiring agents to act, observe, form hypotheses, design experiments, and analyze results in grounded text environments or virtual scientific worlds. ScienceAgentBench~\citep{chen2025scienceagentbench} extracts data-driven scientific discovery tasks from peer-reviewed papers, making evaluation closer to data-analysis workflows in real papers. SGI-Bench~\citep{xu2025probing} probes scientific general intelligence through scientist-aligned workflows spanning research, idea generation, experimentation, and analysis. AIRS-Bench~\citep{lupidi2026airs} and MLR-Bench~\citep{chen2026mlr} target open-ended AI research or the full research lifecycle, further evaluating problem formulation, experimental progress, and result synthesis in open research settings. These works move scientific evaluation from static answers toward environment-based interaction. Beyond benchmarks, system-level efforts such as The AI Scientist~\citep{lu2024ai}, AI Co-Scientist~\citep{gottweis2025towards}, AI-Researcher~\citep{tang2025ai}, and InternAgent-1.5~\citep{feng2026internagent15unifiedagenticframework} show the potential of LLM agents in automated paper generation, scientist-in-the-loop hypothesis evolution, long-horizon autonomous scientific discovery, and autonomous AI research.
+
+\begin{center}
+\begingroup
+\definecolor{rcbCheckGreen}{RGB}{37,150,94}
+\definecolor{rcbCrossRed}{RGB}{196,70,70}
+\definecolor{rcbPartialYellow}{RGB}{214,170,64}
+\newcommand{\cmark}{\textcolor{rcbCheckGreen}{\(\checkmark\)}}
+\newcommand{\xmark}{\textcolor{rcbCrossRed}{\(\times\)}}
+\newcommand{\pmark}{\textcolor{rcbPartialYellow}{\(\triangle\)}}
+\newcommand{\dgood}[1]{\textcolor{rcbCheckGreen}{\textbf{#1}}}
+\newcommand{\dpart}[1]{\textcolor{rcbPartialYellow}{\textbf{#1}}}
+\newcommand{\dnarrow}[1]{\textcolor{rcbCrossRed}{\textbf{#1}}}
+\refstepcounter{table}\label{tab:benchmark-comparison}
+\TableCaption{Comparison between ResearchClawBench and existing scientific or research-agent benchmarks. We compare grounding in real papers, raw data, executable interaction, end-to-end reports, broad domains, and open research scope; the Domains column reports the number of broad disciplinary fields rather than task themes or ML subareas. Green \cmark indicates yes, yellow \pmark partial support, and red \xmark means no.}
+
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabularx}{\textwidth}{@{\hspace{\tabcolsep}}>{\raggedright\arraybackslash}p{0.34\textwidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{\hspace{\tabcolsep}}}
+\toprule
+\textbf{Benchmark} & \textbf{Papers} & \textbf{Data} & \textbf{Exec.} & \textbf{Report} & \textbf{Domains} & \textbf{Scope} \\
+\midrule
+\rowcolor{RcbRowShade}
+SciQ / GPQA / HLE & \xmark & \xmark & \xmark & \xmark & \dnarrow{4}/\dnarrow{3}/\dpart{8} & \xmark \\
+ScienceWorld & \xmark & \xmark & \cmark & \xmark & \dnarrow{3} & \pmark \\
+\rowcolor{RcbRowShade}
+DiscoveryWorld & \xmark & \xmark & \cmark & \pmark & \dpart{5} & \pmark \\
+SciCode & \pmark & \pmark & \pmark & \xmark & \dpart{6} & \xmark \\
+\rowcolor{RcbRowShade}
+ScienceAgentBench & \cmark & \cmark & \cmark & \xmark & \dnarrow{4} & \pmark \\
+MLAgentBench / MLE-bench & \xmark & \cmark & \cmark & \xmark & \dnarrow{1}/\dnarrow{1} & \xmark \\
+\rowcolor{RcbRowShade}
+PaperBench & \cmark & \pmark & \cmark & \pmark & \dnarrow{1} & \pmark \\
+MLGym / AIRS-Bench / MLR-Bench & \pmark & \pmark & \cmark & \pmark & \dnarrow{1}/\dnarrow{1}/\dnarrow{1} & \cmark \\
+\specialrule{0.45pt}{0pt}{0pt}
+\rowcolor{RcbHighlightPurple}
+\textbf{ResearchClawBench} & \cmark & \cmark & \cmark & \cmark & \dgood{10} & \cmark \\
+\specialrule{0.45pt}{0pt}{0pt}
+\end{tabularx}
+\endgroup
+\end{center}
+
+These works share RCBench's motivation of evaluating end-to-end scientific discovery in realistic research settings, but important gaps remain. ScienceWorld and DiscoveryWorld abstract real tasks into simulated worlds. SciCode, ScienceAgentBench, and SciDataCopilot focus more on local capabilities such as scientific coding, data analysis, or data preparation. MLE-bench, MLGym, and MLAgentBench are concentrated in machine learning settings, where scientific domains and evidence types remain limited. PaperBench, CORE-Bench, and AutoReproduce/ReproduceBench all focus on paper reproduction or computational reproducibility, but their central goal is reproduction around already given or exposed papers and code. SGI-Bench, AIRS-Bench, and MLR-Bench target scientist-aligned workflows, open-ended AI research, or the full research lifecycle, but their main scenarios still emphasize workflow-capability measurement or AI/ML research, leaving a gap to broader natural-science tasks, data modalities, and evidence standards. System-level agents such as The AI Scientist, AI Co-Scientist, AI-Researcher, and InternAgent-1.5 further motivate the need for a system-agnostic benchmark that can compare different autonomous research systems. In contrast, RCBench builds real research tasks from high-quality scientific papers, requires models to perform re-discovery under a hidden-target setting, and directly evaluates end-to-end autonomous scientific discovery while preserving room for future discovery-oriented studies across broader scientific domains and data types.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{imgs/overall_framework.pdf}
+\caption{\textbf{Overall framework of ResearchClawBench.} Real papers, related literature, and raw data are converted into executable research task packages; agents and ResearchHarness LLMs interact with the same research gym, and their outputs are evaluated against rubric-critical scientific artifacts and supplemental quality dimensions.}
+\label{fig:overall-framework}
+\end{figure}

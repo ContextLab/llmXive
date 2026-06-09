@@ -1,0 +1,384 @@
+
+% 여기 부분 인사이트는 실험의 핵신 두 인사이트로 수정해주세요 지금꺼는 맞지않을수있음
+
+
+
+
+%%%%% 리뷰했을때 바로 나올 말 1) 왜 시뮬레이터 하나만 했냐, 걍 여러개로도 해봐라, 2) evaluator 여러개 해봐라 3) 시뮬레이션 1번이 충분하곘냐 4) seed 시나리오을 변환했을떄 퀄리티 어떻게 할거냐
+
+
+
+% - mediation 이 social 의 한 종류다 (첫줄) -> emerging하고 있다.
+% - socio가 이런거 요구한다
+% - AI 가 하려면 capa가 요구하고는데, 이러한게 unexplored 하고 중요성이 올라가고 있다. 중요한 Perspective가 있다
+
+
+% 제가 대체로 읽으면서 빈번하게 발생하는 문제는 다음과 같습니다.
+
+% 많은 논문들이 결국 “To-Do List” 수준에 머무르는 경우가 많습니다. 논문은 단순히 무엇을 했는지를 나열하는 technical report가 아닙니다. 왜 이 문제가 중요한지, 왜 이러한 방법을 선택했는지, 왜 실험을 이런 방식으로 설계했는지, 그리고 그 결과가 어떤 의미를 가지는지를 모두 설명해야 합니다. 또한 이러한 모든 요소는 introduction에서 주장하는 핵심 메시지와 자연스럽게 연결되어야 합니다. 중요한 것은 본인이 납득하는 것이 아니라, 아무 배경지식이 없는 사람이 읽더라도 설득력 있게 이해할 수 있도록 작성하는 것입니다.
+% Notation과 수식 설계가 부적절한 경우가 많습니다. Notation과 equation은 글로 설명하기 어려운 아이디어를 효율적으로 전달하기 위해 존재하는 것입니다. 그런데 단순히 분량을 채우기 위해 사용하거나, 오히려 이해를 방해하는 방향으로 작성되는 경우가 많습니다. 그런 경우에는 차라리 쓰지 않는 것이 낫습니다. 좋은 notation은 모든 것을 디테일하게 표현하는 것이 아니라, 핵심 아이디어를 추상화하여 독자의 이해를 돕는 데 목적이 있습니다. 이론 연구가 아니라면 unnecessarily complicated하게 작성할 필요는 없습니다.
+% 그림은 단순히 내용이 들어가 있다고 해서 좋은 figure가 되는 것이 아닙니다. 시각적인 완성도 또한 매우 중요합니다. 차트와 테이블도 마찬가지입니다. 하나의 figure에 너무 많은 내용을 넣으면 오히려 전달력이 떨어집니다. 논문은 전체적인 구조와 흐름이 있으며, figure 역시 그 구조에 맞게 적절히 배치되어야 합니다. Figure 안의 폰트 크기, spacing, alignment, 공간 활용 등은 논문에 얼마나 많은 고민과 노력이 들어갔는지를 보여주는 중요한 요소입니다.
+% 마지막으로, 여러분은 단순히 engineer가 아니라 scientist를 목표로 하는 학위 과정 학생들입니다. 단순히 연구를 수행하는 것 자체보다 더 중요한 것은, 그 연구를 얼마나 설득력 있고 완결성 있게 논문으로 풀어낼 수 있는가입니다. 연구를 수행하는 것 자체는 많은 engineer들도 할 수 있습니다. 하지만 자신의 아이디어와 결과를 논리적으로 정리하고, 독자를 설득할 수 있는 형태로 완성하는 능력은 scientist를 구분짓는 중요한 역량 중 하나입니다. 이 부분이 오히려 더 중요할 수 있다는 점을 반드시 인지할 필요가 있습니다.
+
+
+
+% 1차 AI 리뷰 (Claude, accept)
+% 1차 AI 리뷰 (GPT, accept)
+% 1차 Ai 전문 리뷰어 (미완성해서 점수가 낮게 나옴)
+
+
+% 아직 5/22 (금) 미팅 이후 인트로 반영을 안했습니다! (method하고 그림 서술 꽤 바꾸어두었습니다)
+% 1문단LLM 사람의 어시스턴트로서 활동하기 때문에 이게 더 중요하다 math나 이런거보다 더 중요한 task다 강조하기
+% 2문단
+% Gap 1) 다양한 도메인의 갈등 시나리오를 구현하는게 어려워서 이전 연구는 Expert Human craft에 의존하게 됨 (정부 DB 혹은 교육자료 구매로 시나리오를 구함) -> 저자가 대충 짠 KODIS 및 Casino는 96.5%가 갈등이 발생하지않는 케이스, 82%는 갈등이 발생하지않는 케이스 
+%Gap 2) Simulation으로 테스트하는 것으로 바뀌었으나 실제 Realstic한 측면을 반영하지않고 있음 (Underexplored가 맞는 듯함) (어떠한 걸 앞으로 테스트베드에 넣어아야할까에 대한 것도 밝혀지지않은듯) 
+% Gap 3) Automatic Eval도 여기에서 이야기하고 다음 문단에서 간결하게
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+% version 2
+Social conflict imposes heavy societal costs, yet skilled human mediators remain scarce \citep{tessler2024habermas,ma2025towards}. This has motivated efforts to deploy LLMs as automated mediators. Yet despite frontier models reaching near-expert performance on olympiad and research-level mathematics \citep{dekoninck2026matharena}, LLM mediators close only a modest fraction of the unmediated consensus gap \citep{liu2025promediate} and collapse under the variations real conflicts exhibit \citep{shapira2024clever,wu2026social}. \emph{Closing this gap is less bottlenecked by modeling than by evaluation}, since mediation has no single correct answer and must be judged on a real-time trajectory shaped by disputants' shifting emotions, intentions, and evolving context.
+
+Building such an evaluation framework poses three challenges. First, scenario coverage does not scale, as real disputes carry privacy and legal sensitivity that confine existing testbeds to a few expert-authored domains, such as bargaining \citep{hale2025kodis} and legal disputes \citep{chen2026simulating}. Second, real-world complexity must be reproduced along multiple independent axes, since conflicts vary along disputants' emotion, culture, and history \citep{rakshit2025emotionally,guo2025conflict}, yet prior testbeds vary only strategic posture \citep{liu2025promediate,chen2026simulating}, conflating these axes and obscuring which one a mediator fails on. Third, evaluation must be both trajectory-aware and noise-resilient, since mediation quality emerges across turns rather than at an end state, yet protocols like ProMediate score every topic at every turn with an LLM judge \citep{liu2025promediate}, letting off-topic content distort scores and compound errors along the trajectory.
+
+Prior work has advanced each challenge under inherent trade-offs \citep{tessler2024habermas,hale2025kodis,chen2026simulating,liu2025promediate}, trading realism for scalability, scalability for interactivity, or interactivity for reliability. We contend that mediation evaluation requires a unified leap, namely an automated pipeline that scales scenario coverage across diverse real conflicts, varies socio-cognitive axes independently to localize where mediators fail, and scores trajectories reliably end-to-end.
+
+We thus realize this leap in \algname{} (\underline{So}cial \underline{C}onflict \underline{R}esolution \underline{A}rena with \underline{T}opic-localized \underline{E}valuation for \underline{S}ocial Cognition), illustrated in Figure \ref{fig:overview}. \algname{} addresses the three challenges through three stages, curating real-grounded scenarios, probing them along socio-cognitive axes, and evaluating trajectories topic-by-topic.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[height=3.5cm]{fiqure/overview.pdf}
+\vspace{-0.2cm}
+\caption{Overview of \algname{}: agentic scenario curation grounds scenarios in a real conflict, socio-cognitive probing expands scenarios along five axes to expose where mediators fails, and topic-localized evaluation scores each trajectory with three metrics to quantify the mediator's contribution.}
+\label{fig:overview}
+\vspace{-0.3cm}
+\end{figure*}
+
+
+\smallskip\smallskip
+\noindent\textbf{Agentic Scenario Curation.} \algname{} treats scenario construction itself as an \emph{agentic process} that scales without human authoring. A three-stage pipeline orchestrates LLM agents that \emph{(i) search} the web for real public disputes across eight conflict domains, including transactional, healthcare, business, and legal, \emph{(ii) recast} each retrieved case into a structured scenario, and \emph{(iii) filter} the pool through rejection sampling, retaining only hard scenarios that fail to resolve in unmediated simulation.
+
+\smallskip\smallskip
+\noindent\textbf{Socio-Cognitive Probing.} \algname{} uses these curated scenarios as the simulation testbed and probes mediator behavior across five socio-cognitive axes, restructured from prior literature on mediator competencies \citep{susskind1999consensus,bowling2000bringing,lebaron2003bridging} to expose where each mediator fails. We vary \emph{(i) strategic posture} (e.g., competing vs. accommodating) to probe strategic adaptation, \emph{(ii) party composition} (two- vs. three-disputant) to probe multi-state tracking, \emph{(iii) history length} (short vs. extended background) to probe long-context understanding, \emph{(iv) emotional reactivity} (composed vs. reactive) to probe emotional regulation, and \emph{(v) cultural identity} (different cultural profiles) to probe cultural adaptation. As axes are applied independently rather than stacked, any shift in mediator performance is attributable to a single axis, yielding per-axis diagnostics of mediator competence.
+
+\smallskip\smallskip
+\noindent\textbf{Topic-Localized Evaluation.} To enable real-time, multi-faceted scoring of mediator trajectories, \algname{} introduces a \emph{topic-localized} evaluator that, for each topic, scores agreement only at the turns that actively move it and carries scores forward otherwise. The evaluator supports three complementary metrics: \emph{(i) consensus gain} measures the mediator's overall contribution to closing the unmediated agreement gap, \emph{(ii) intervention timeliness} measures when the mediator acts relative to escalation, and \emph{(iii) intervention effectiveness} measures how much each intervention shifts consensus. Validated against two expert annotators on 1,844 dialogue snippets, our evaluator correlates with experts at a Pearson coefficient of $0.82$ on the trajectory and $0.80$ at the outcome level, more than doubling both ProMediate's per-turn evaluator \citep{liu2025promediate} and a non-expert baseline.
+% (Krippendorff's $\alpha=0.86$)
+
+Our main contributions are: (1) \algname{}, a unified, automated evaluation framework for proactive LLM mediation that integrates agentic scenario curation, socio-cognitive probing, and topic-localized evaluation in a single pipeline; (2) a topic-localized evaluator that scores mediator trajectories along three real-time metrics and exhibits high correlation with expert judgments; (3) a comprehensive benchmark of eight proprietary and open-source LLM mediators across diverse conflict domains and socio-cognitive axes; and (4)  we find that the strongest mediator closes only roughly a third of the unmediated consensus gap under diverse and realistic testbeds, and that gains vary sharply by socio-cognitive axis, with strong mediation adapting its intervention strategy to socio-cognitive demands.
+
+
+% %
+% (4) two key findings, namely that no mediator is consistently strong across axes and that strong mediation reshapes intervention timing to each axis's cognitive demand rather than scaling up uniformly.
+
+
+
+
+% 여기에 공간 보고 나중에 좀 간단히 벤치마크로서 어떠한 인사이트와 시사점을 보여줄 수 있는지 2-3줄 정도 쓰는 것 고려하기
+
+%Our main contributions are:
+%(1) we introduce \algname{}, a benchmark for proactive social conflict resolution with scenarios built by an automatic deep-research pipeline across eight domains;
+%(2) we expand every scenario along five socio-cognitive axes spanning context and persona, revealing that no LLM mediator is consistently strong;
+%(3) we propose a topic-localized evaluator that scores each topic only at the turns that move it, reaching over $83\%$ agreement with experts while surpassing indiscriminate per-turn scoring;
+%and (4) we benchmark eight LLM mediators across domains and socio-cognitive axes, finding that effective mediation hinges on adapting intervention to the variations.
+
+
+
+%%%%%%%%
+
+
+
+% Ver 8 (교수님 수정전)
+
+
+% Social conflict resolution is a compelling application of LLMs, as it incurs heavy societal costs, yet skilled mediators remain scarce~\citep{tessler2024habermas, ma2025towards}.
+% %
+% Yet whether LLMs can acquire this competence remains underexplored, since mediation, unlike math or coding with fixed solutions, requires adapting to disputants as the conflict history grows.
+% %
+% This rests on social cognition, the ability to infer others' states and strategies and respond in kind. However, such capability in LLMs collapses under shifts in parties' diverse attributes or dynamic context~\citep{shapira2024clever, wu2026social}, motivating its study in mediation.
+
+% % 초기에는 Human으로 dynamic을 재현하려했고 걍 끝나고 공통점 찾는거로 끝났다.
+% To reproduce such dynamic and diverse testbeds, early works recruit 4–5K human participants, with LLMs then identifying common ground from the resulting conflicts~\citep{hale2025kodis, tessler2024habermas}, yet this human-driven setup scales poorly.
+% % AI로 이제는 human을 재현하는거로 대체했다.
+% To address this, \citet{chen2026simulating} simulates conflicts with role-playing LLMs from human-written scenarios.
+% % 근데도 AI로 재현하려는데, 걍 일이 끝나고 중재하는 문제가 있으니 when and how to 를 평가하는 testbed가 아니였다 (mediation은 다이나믹하게 계속 adapt하고 해야하는데 post는 여전히 dynamic하지않아 의미가 ㅇ벗다)
+% Yet these testbeds pre-generate full conflict and mediate post hoc, leaving unevaluated how mediators adapt to an ongoing conflict.
+% %
+% In parallel, \textsc{ProMediate}~\citep{liu2025promediate} introduces a proactive LLM mediator that decides, from the onset of a conflict, when and how to intervene. From the resulting trajectory, it measures whether the mediator intervenes at the right moments such as emotional escalation or impasse, and whether it coordinates topics under dispute.
+
+
+% % 아래를 2문단에 넣고 싶었으나 너무 길어서 문단 분리하고 나중에 합쳐보기
+% Despite these advances, three gaps remain toward dynamic and diverse testbeds.
+% %
+% \textbf{First}, hand-crafted scenario confines testbeds to a few domains such as bargaining, legal disputes \citep{tan2024robots, chen2026simulating}. As curating conflict cases for each domain is labor-intensive, they leave robustness across diverse domains untested. 
+% %
+% \textbf{Second}, existing testbeds vary only the strategic position, holding other context and speaker attributes fixed \citep{liu2025promediate,chen2026simulating}, an idealization that real conflicts violate. Yet conflicts turn on the parties' emotional states, cultural backgrounds, and evolving context~\citep{rakshit2025emotionally, guo2025conflict}, leaving the mediator's social cognition to adapt untested. 
+% %
+% \textbf{Third}, they score every topic at every turn with an LLM judge, exposing each score to noise from the others. An off-topic turn distorts unrelated topics' scores, as the judge is swayed by irrelevant content~\citep{ye2025justice}. Such noise compounds along the evaluation, where errors accumulate~\citep{liu2025promediate}, making reliable scoring difficult.
+
+
+% In this paper, we introduce \algname{} (\textbf{So}cial \textbf{C}onflict \textbf{R}esolution \textbf{A}rena with \textbf{T}opic-localized \textbf{E}valuation for \textbf{S}ocial Cognition) in Figure~\ref{fig:overview}, an LLM mediator benchmark for proactive social conflict resolution across diverse domains and socio-cognitive axes, with reliable trajectory scoring.
+% %
+% To broaden domain coverage beyond hand-crafted cases, \algname{} automatically constructs its scenarios from real conflict cases gathered by an LLM deep-research~\citep{openai2025deepresearch} across eight domains.
+% %
+% This pipeline reformats each case into a structured scenario template\footnotemark[1] recording the conflict history, party profiles, topics, and preferences, keeping only those prone to runaway escalation.
+% %
+% Each scenario runs as paired simulations under identical conditions, one unmediated and one with an LLM mediator that decides when and how to intervene. The consensus gap between the two trajectories isolates each mediator's contribution as the conflict unfolds.
+
+
+% In this paper, we introduce \algname{} (\textbf{So}cial \textbf{C}onflict \textbf{R}esolution \textbf{A}rena with \textbf{T}opic-localized \textbf{E}valuation for \textbf{S}ocial Cognition) in Figure~\ref{fig:overview}, an LLM mediator benchmark for proactive social conflict resolution across diverse domains and socio-cognitive axes, with reliable trajectory scoring.
+% %
+% To broaden domain coverage, \algname{} grounds every scenario in a real conflict through an agentic construction.
+% %
+% Specifically, LLM agents retrieve conflict cases via agentic research across eight domains, and recast each case into a structured scenario template\footnotemark[1] that records the conflict history, party profiles, topics, and preferences. Each scenario is then validated by simulation, retaining only conflicts that cannot resolve on their own. Resolved cases are replaced via new search, ensuring every scenario in \algname{} genuinely requires intervention.
+
+
+% %%% susskind1999consensus 인용 확인하기. 북이라서 인용 해도 되나 (인용수 2300회 되긴함)
+% To probe comprehensive socio-cognitive demands, \algname{} expands every scenario conditioned on five axes drawn from core mediator competencies~\citep{susskind1999consensus, bowling2000bringing, lebaron2003bridging}. 
+% %
+% The \emph{context} group raises the social cognition load by perturbing the conflict's strategies, parties, and histories, targeting three competencies: (i) strategic adaptation, adjusting one's approach as parties vary in assertiveness and cooperativeness; (ii) multi-state tracking, identifying stakeholders and managing coalitions as disputants scale; and (iii) long-context understanding, tracking information under longer histories.
+% %
+% The \emph{persona} group probes attunement by varying the disputants along their emotions and cultural backgrounds\footnotemark[2], targeting two competencies: (iv) emotional regulation, self-regulation and affective empathy across emotionally reactive personas; and (v) cultural adaptation, intercultural competence beyond surface customs and religion.
+% Each scenario runs as paired simulations under identical conditions, one unmediated and one with an mediator, where the consensus gap between the two trajectories isolates mediator's contribution. 
+% %
+% \algname{} thereby reveals the distinct socio-cognitive challenges LLM mediators face, with performance dropping unevenly across competencies.
+
+% For reliable trajectory evaluation, \algname{} introduces a topic-localized evaluator. For each topic, the evaluator identifies in a single pass the turns that move it toward or away from consensus, and updates the topic's consensus score only at those turns, rather than scoring every turn against every topic with an LLM judge. Restricting each topic to these turns removes the off-topic content that distracts the judge. Our evaluator thus reaches over 83\% agreement with expert annotations, outperforming indiscriminate per-turn scoring.
+
+% \footnotetext[1]{We follow the widely adopted social conflict simulation format by Harvard Law School’s Program on Negotiation.} 
+
+% \footnotetext[2]{We adopt Hofstede's cultural values~\citep{hofstede2010cultures} (\emph{e.g.}, uncertainty avoidance, individualism) as cultural background, since they shape conflict-handling~\citep{caputo2019relationship} and underlie surface customs and religion~\citep{guo2025conflict}.}
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%
+
+% 1. 확장가능한 -> Agentic 한 Search
+% Automatic 시나리오 강조
+% (Diversity)
+
+% 2. 시뮬레이션 side 강조
+% - 3가지 요소 : 배제되었다.
+% - Arificial하다
+% (Realstic)
+
+% 3. Evaluation side 강조
+% - Topic-wise하지않은 방식이다. 
+% (Trust하게 할 수 있다 -> 컨트리뷰션밝힐때 우리가 높다.)
+
+% Ver 7
+
+% Recent efforts have begun to evaluate LLM mediators through conflict simulation, where LLMs play out human-written scenarios across diverse identities~\citep{liu2025promediate, chen2026simulating}. Early works let a conflict escalate to completion and then apply post-hoc mediation~\citep{tessler2024habermas, chen2026simulating}, while more recent works simulate mediators that act within the unfolding interaction, deciding turn by turn when to step in and which strategy to deploy~\citep{liu2025promediate, hale2025ai}. However, existing testbeds remain limited in three key aspects. \emph{First}, scenarios are seeded from a handful of expert-written cases confined to narrow domains such as bargaining and legal disputes~\citep{hale2025ai, chen2026simulating}, leaving it unclear whether observed mediator behavior reflects general social competence or a domain-tuned heuristic. \emph{Second}, simulated disputants vary only in strategic position while the surrounding context is held fixed~\citep{liu2025promediate, chen2026simulating}, so the dialogues never exercise the dynamic social cognition that mediation actually requires. \emph{Third}, reliable trajectory-level evaluation remains unresolved: prior approaches update each topic's consensus score at every turn regardless of relevance~\citep{liu2025promediate}, so off-topic content perturbs the score and compounds across later turns.
+
+% In this paper, we propose \algname{}, a benchmark framework for proactive social conflict mediation that probes five socio-cognitive abilities and scores mediators reliably over the full trajectory. \algname{} constructs real-world-grounded scenarios, simulates each as paired mediated and unmediated dialogues, and evaluates the mediator turn by turn. In contrast to prior benchmarks, \algname{} is the first to jointly stress strategy, emotion, culture, multi-party state, and long-context dynamics within a single mediation testbed. Rather than reusing a fixed set of expert-written cases, \algname{} builds scenarios through an agentic deep-research pipeline that gathers real-world conflict cases from public reporting and case studies across eight domains, spanning intra-organizational, business-to-business, healthcare, legal, public-policy, environmental, international, and transactional bargaining disputes. Each case is reformatted into a simulation-ready specification\footnotemark[1], and only cases prone to escalation are retained. Each scenario then runs as paired multi-turn dialogues under identical conditions, one unmediated and one with an LLM mediator that decides turn by turn when and how to intervene, and the consensus gap between the two trajectories isolates the mediator's contribution. 
+
+% To probe social cognition comprehensively, \algname{} expands every scenario along five axes organized into two groups, yielding 15 condition settings. The \emph{scenario} group raises the cognitive load of the conflict itself, targeting strategic adaptation by sweeping each party's posture across Thomas--Kilmann conflict modes~\citep{thomas2008thomas}, multi-party state tracking by scaling the disputant count, and long-context understanding by stretching the conflict history. The \emph{persona} group varies disputant identity, targeting emotion regulation through party-level emotional reactivity and cultural adaptation by anchoring each party to Korean, American, or Chinese identities, probing intercultural competence beyond surface customs and religion across Hofstede configurations~\citep{hofstede2010cultures}.
+
+% To recover reliable trajectory-level evaluation, \algname{} introduces a topic-wise evaluator that, for each topic, gathers only the turns relevant to it and scores them together in a single pass, rather than folding every turn into every topic. Each run is then scored along three complementary metrics that together benchmark a mediator's competence. Consensus Gain captures the overall outcome through the headroom-normalized agreement improvement over the matched no-mediator baseline, Intervention Latency captures when the mediator intervenes by tracking how promptly it responds once agreement drops, and Intervention Gain captures how effective each intervention is through the per-intervention five-turn lift.
+
+% \footnotetext[1]{We follow the widely adopted social conflict simulation format grounded in the Harvard negotiation framework~\citep{fisher1981getting}.}
+
+% Using \algname{}, we benchmark eight LLM mediators spanning two proprietary and six open-source models from 26B to 685B parameters, over $4{,}800$ mediation runs across eight domains.
+
+% Our main contributions are fourfold: (1) we introduce \algname{}, a benchmark for proactive social conflict mediation built on an agentic deep-research pipeline that automatically constructs diverse, real-world-grounded scenarios across eight domains; (2) we present a dynamic simulation that varies disputants' strategies, emotions, and cultural identities through persona-controlled LLMs, jointly probing the five socio-cognitive abilities a mediator must exercise; (3) we propose a topic-wise evaluator that gathers each topic's relevant turns and scores them in a single pass, yielding trajectory-level assessment markedly more reliable and cheaper than per-turn judging; and (4) we benchmark eight LLM mediators across families and domains, exposing where current models succeed and fail at deciding when and how to intervene.
+
+% % Ver 6
+% Social conflict resolution is a compelling application of large language models (LLMs), as disputes are costly to resolve and skilled mediation remains scarce relative to demand~\citep{tessler2024habermas, ma2025towards}. Unlike the fixed solution under math or coding, mediation demands dynamic social intelligence that adapts to a conflict's accumulating history, the disputants' relationships and strategic positions, and the cultural and emotional currents shaping each exchange~\citep{liu2025promediate}. Yet existing benchmarks  mainly target deterministic tasks with fixed solutions, offering limited coverage of these context-dependent social reasoning~\citep{shapira2024clever, wu2026social} that mediation requires.
+
+% Capturing such dynamic intelligence calls for an equally dynamic testbed. Recruiting human disputants is costly and hard to scale, so recent work turns to LLM-based conflict simulation, where LLMs play out human-written scenarios to produce realistic disputes across diverse identities~\citep{liu2025promediate, chen2026simulating}.
+% %
+% Early work uses such simulations to let a conflict escalate to completion, then proposes a post mediation to find common ground~\citep{tessler2024habermas, chen2026simulating}. Recent works instead study mediators that act within the unfolding interaction, deciding when to step in and which strategy to deploy at each turn~\citep{liu2025promediate, hale2025ai}. This shifts evaluation from static transcripts to full trajectories, where mediators must forestall escalation as it emerges rather than diagnose it after the fact.
+
+% Despite this progress, existing testbeds remain far from real-world mediation in three key aspects.
+% %
+% \textbf{First}, simulations are typically seeded from human expert-written scenarios~\citep{hale2025ai, chen2026simulating}, covering only a narrow range of domains such as bargaining and legal disputes. As a result, many forms of social conflict remain untested.
+% %
+% \textbf{Second}, no benchmark comprehensively probes the socio-cognitive demands of proactive mediation. Real mediation requires tracking how conflicts evolve under changing situations, emotions, cultural contexts, interpersonal histories, and multi-party dynamics. Existing testbeds \citep{liu2025promediate, chen2026simulating}, however, mainly vary strategic positions while keeping these social factors largely fixed.
+% %
+% \textbf{Third}, reliable trajectory-level evaluation remains an open problem, as per-turn scoring accumulates noise as topics grow. Previous work \citep{liu2025promediate} introduces a topic-wise consensus score updated every turn for evaluation. Yet because updates apply indiscriminately, off-topic and irrelevant content contaminates each topic's score \citep{}, propagating errors across the trajectory and distorting assessment.
+
+
+
+% % Move 4
+% To address these limitations, we introduce \algname{}, a benchmark for proactive social conflict mediation that probes five social-cognition abilities with reliable trajectory-level scoring.
+% %
+% \algname{} proceeds in three steps, constructing scenarios, simulating mediated and unmediated dialogues, and evaluating the mediator over the full trajectory.
+
+% Rather than reusing a fixed set of expert-written cases, \algname{} constructs scenarios through an agentic deep-research pipeline.
+% %
+% The pipeline gathers real-world conflict cases from public reporting and case studies across eight domains, ranging from intra-organizational and business-to-business disputes to healthcare, legal, public-policy, environmental, international, and transactional bargaining.
+% %
+% Each case is then reformatted into a structured, simulation-ready specification of conflict history, party profiles, issue topics, and preferences\footnotemark[1], and only cases prone to runaway escalation are retained.
+% %
+% Grounding scenarios in attested real-world conflicts rather than synthesizing them from scratch scales diversity in both domain coverage and party identity well beyond what hand curation allows.
+
+% Each scenario then runs as paired multi-turn dialogues under identical conditions, one unmediated and one with an LLM mediator that decides turn by turn when and how to intervene, and the consensus gap between the two trajectories isolates the mediator's contribution as the conflict unfolds.
+% %
+% To probe social cognition comprehensively, every scenario is expanded along five axes in two groups.
+% %
+% \emph{Scenario-difficulty} raises the cognitive load of the conflict itself by sweeping each party's strategic posture, scaling the disputant count from two to three, and stretching the conflict history to several times its default length.
+% %
+% \emph{Persona-control} varies disputant identity by setting each party's emotional reactivity and anchoring its cultural values to distinct configurations, so persona-conditioned parties enact each conflict dynamically rather than follow a fixed script.
+% %
+% The five axes jointly probe the social-cognition abilities mediation demands, namely strategic adaptation, multi-party state tracking, long-context understanding, emotion regulation, and cultural adaptation.
+
+% To recover reliable trajectory-level evaluation, \algname{} integrates a topic-batched evaluator. For each topic, it extracts in a single pass the turns that actually move that topic toward or away from consensus, and updates the topic's consensus score only at those turns rather than folding every turn into every topic. Pinpointing these turns strips out the off-topic noise that indiscriminate per-turn updates accumulate, so each topic's score reflects genuine movement on that topic.
+% %
+% Each run is summarized by three complementary metrics, Consensus Gain (the headroom-normalized agreement improvement over the matched no-mediator baseline), Intervention Latency (how quickly the mediator responds after agreement drops), and Mediation Effectiveness (the per-intervention five-turn lift), making mediator comparisons both trustworthy and inexpensive.
+
+% \footnotetext[1]{We follow the widely adopted social conflict simulation format grounded in the Harvard negotiation framework~\citep{fisher1981getting}.}
+
+% Our main contributions are fourfold.
+% (i) \algname{}, a benchmark for proactive social conflict mediation built on an agentic deep-research pipeline that automatically constructs diverse, real-world-grounded scenarios across eight domains;
+% (ii) a dynamic simulation that varies disputants' strategies, emotions, and cultural identities through persona-controlled LLMs, jointly probing five social-cognition abilities a mediator must exercise;
+% (iii) TRACE, a topic-batched evaluator that scores each topic over the full trajectory in a single pass, yielding trajectory-level assessment that is markedly more reliable and cheaper than per-turn judging;
+% and (iv) a characterization of eight LLM mediators across families and domains, exposing where current models succeed and fail at deciding when and how to intervene.
+% % Evidence 딥리서치해서 만들었다.
+
+%%% Do not fix until here
+
+
+% Ver 5
+% %%% Do not fix from here
+% Social conflict resolution is emerging as a compelling application of large language models (LLMs), promising scalable mediation that human processes struggle to resolve~\citep{tessler2024habermas, ma2025towards}.
+% %
+% Realizing this promise hinges on \emph{social cognition}~\citep{higgins1987social}: tracking and reasoning about parties' implicit, competing goals and strategic positions across an expanding conflict history~\citep{liu2025promediate, ma2025towards}.
+% %
+% Unlike fixed problem-solving, such reasoning becomes far more challenging, as it must adapt to evolving context where the same utterances carry divergent emotions, and cultural connotations shaped by parties' identity~\citep{}.Such reasoning is far harder than fixed problem solving, since it must adapt to an evolving context in which the same utterance carries divergent emotions and cultural connotations shaped by parties' identity~\citep{}.
+
+
+% Building on persona-controlled LLMs that enact social interactions across diverse identities~\citep{li2024culturepark, kwon2025evaluating}, social conflict simulations have emerged as a testbed for LLM mediators. Early efforts target retrospective resolution proposals for escalated disputes~\citep{tan2024robots, chen2026simulating}. \textsc{ProMediate}~\citep{liu2025promediate} moves toward proactive mediators that intervene mid-interaction to forestall escalation.
+% %
+% This shift brings the task closer to human practice, where mediators must read the evolving dynamics and adapt their interventions continuously, rather than deliver a single post proposal. Social cognition is then measured by how well they forestall escalation across the trajectory, not by a final resolution alone.
+
+% However, three key challenges remain unresolved for proactive mediators.
+% %
+% \textbf{First}, the capability boundaries of LLMs across scale and family remain uncharacterized, along with when and how mediators should intervene. Prior work either scores end-state consensus of escalated disputes~\citep{tan2024robots, chen2026simulating, hale2025ai} or covers a narrow set of LLMs~\citep{liu2025promediate} and domains. This leaves intervention dynamics along the trajectory unobserved.
+% %
+% \textbf{Second}, existing testbeds offer limited coverage of socio-cognitive demands. They vary the strategic postures of parties~\citep{liu2025promediate, chen2026simulating}, leaving multi-party and long conflict history tracking, as well as emotional and cultural adaptation, largely unmeasured.
+% %
+% \textbf{Third}, reliable trajectory-level evaluation remains an open problem, as per-turn scoring accumulates noise as topics grow. \textsc{ProMediate} introduces a topic-wise consensus score updated every turn for evaluation. Yet because updates apply indiscriminately, off-topic and irrelevant content contaminates each topic's score \citep{}, propagating errors across the trajectory and distorting assessment.
+
+
+% \begin{table*}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{3.5pt}
+% \renewcommand{\arraystretch}{1.1}
+% \setlength{\aboverulesep}{1pt}
+% \setlength{\belowrulesep}{1pt}
+% \begin{tabular}{l c c c c c c c}
+% \specialrule{\heavyrulewidth}{1pt}{1pt}
+% \multirow{2}{*}{Work} & \multirow{2}{*}{\makecell{\# of\\LLMs}} & \multirow{2}{*}{Domain} & \multirow{2}{*}{Framework}
+%  & \multicolumn{2}{c}{Social cognition} & \multicolumn{2}{c}{Evaluation} \\
+% \cmidrule(lr){5-6}\cmidrule(lr){7-8}
+%  & & & & Scenario  & Persona  & Level & Processing \\
+% \specialrule{\lightrulewidth}{0pt}{0pt}
+% RobotsInTheMiddle~\citep{tan2024robots}& 1 & \cmark~~2 & \xmark~~Retrospective & \cmark~~1 & \xmark~~0 & \xmark~~Outcome & \cmark~~Batch \\
+% HabermasMachine~\citep{tessler2024habermas}   & 2 & \xmark~~1 & \xmark~~Retrospective & \xmark~~0 & \xmark~~0 & \xmark~~Outcome & \cmark~~Batch \\
+% AgentMediation~\citep{chen2026simulating}    & 7 & \xmark~~1 & \xmark~~Retrospective & \cmark~~2 & \xmark~~0 & \xmark~~Outcome & \cmark~~Batch \\
+% KODIS-Mediator~\citep{hale2025ai}    & 1 & \xmark~~1 & \cmark~~Proactive     & \xmark~~0 & \xmark~~0 & \cmark~~Trajectory & \xmark~~Online \\
+% Promediate~\citep{liu2025promediate}        & 3 & \cmark~~3 & \cmark~~Proactive     & \cmark~~2 & \xmark~~0 & \cmark~~Trajectory & \xmark~~Online \\
+% \specialrule{\lightrulewidth}{1.2pt}{1.2pt}
+% \rowcolor{gray!15}
+% \algname{} \textit{(Ours)} & 8 & \cmark~~8 & \cmark~~Proactive & \cmark~~3 & \cmark~~2 & \cmark~~Trajectory & \cmark~~Batch \\
+% \specialrule{\heavyrulewidth}{1.2pt}{1.2pt}
+% \end{tabular}
+% \vspace{-0.2cm}
+% \caption{Comparison of \algname{} with five social conflict resolution via LLM mediators works.}
+% \label{tab:comparison_work}
+% \vspace{-0.5cm}
+% \end{table*}
+
+
+% To address these gaps, we propose \algname{} (\textbf{So}cial \textbf{C}onflict \textbf{R}esolution \textbf{A}rena with \textbf{T}opic-batched \textbf{E}valuation for \textbf{S}ocial cognition), a benchmark for mediation that probes five social cognition abilities with reliable trajectory-level scoring. 
+% %
+% To characterize LLM mediator capabilities, \algname{} evaluates eight mediators (two proprietary, six open-source) on scenarios grounded in real-world conflict cases. These cases are curated via LLM's deep research~\citep{} across eight domains.
+% %
+% They are then reformatted into structured scenario templete\footnotemark[1] that capture conflict's history, party profiles, topics, and preferences, with only the cases prone to runaway escalation retained.    
+% %
+% Following prior social conflict simulations~\citep{kwon2025evaluating, liu2025promediate}, each scenario runs as paired dialogues under identical conditions, with one unmediated and the other including a LLM mediator that decides when and how to intervene. The consensus gap between the two trajectories isolates each mediator's contribution as the conflict unfolds.
+
+% \footnotetext[1]{We follow the widely adopted social conflict simulation format by Harvard Law School’s Program on Negotiation.} 
+
+
+% %%% susskind1999consensus 인용 확인하기. 북이라서 인용 해도 되나 (인용수 2300회 되긴함)
+% \algname{} probes mediators' social cognition along five axes from core competencies~\citep{susskind1999consensus, bowling2000bringing, lebaron2003bridging}, offering a distinct, comprehensive comparison that exposes failures along each: \textit{scenario-difficulty}, which raises social cognition load, and \textit{persona-control}, which varies disputants' identities to test attunement to divergent emotions and cultural connotations.
+% %
+% Scenario-difficulty targets three competencies by adapting the conflict's strategies, parties, and histories: (i) strategic adaptation: adjusting one's approach as parties vary in assertiveness and cooperativeness across Thomas–Kilmann modes~\citep{thomas2008thomas}; (ii) multiple state tracking: stakeholder identification and coalition management as disputants scale; and (iii) long-context understanding: information tracking under longer histories.
+% % ~\citep{moore2014}
+% In contrast, persona-control targets two competencies by varying party profiles: (iv) emotion regulation: regulation and affective empathy across emotionally reactive personas; and (v) cultural adaptation: intercultural competence beyond surface customs and religion, probed across Hofstede configurations~\citep{hofstede2010cultures}.
+% %
+
+% To recover reliable trajectory-level evaluation, \algname{} integrates a topic-batched evaluator. For each topic, it extracts in a single pass the turns that actually move that topic toward or away from consensus, and updates the topic's consensus score only at those turns rather than folding every turn into every topic. Pinpointing these turns strips out the off-topic noise that indiscriminate per-turn updates accumulate, so each topic's score reflects genuine movement on that topic.
+
+% Our main contributions are: (i) ; (ii); (iii) ; and (iv)
+
+
+
+% 초반 Intro 수정 로그 % 초반 Intro 수정 로그% 초반 Intro 수정 로그% 초반 Intro 수정 로그% 초반 Intro 수정 로그
+% Ver 4 (이전 active 버전, ACL 스타일 정리 이전)
+% Social conflict resolution is emerging as a compelling application of large language models (LLMs), promising scalable mediation that human processes struggle to resolve~\citep{tessler2024habermas, ma2025towards}.
+% Realizing this promise hinges on \emph{social cognition}~\citep{higgins1987social}: tracking and reasoning about parties' implicit, competing goals and strategic positions across an expanding conflict history~\citep{liu2025promediate, ma2025towards}.
+% Unlike fixed problem-solving, such reasoning becomes far more challenging, as it must adapt to evolving context where the same utterances carry divergent emotions, and cultural connotations shaped by parties' identity.
+% Building on persona-controlled LLMs that enact social interactions across diverse identities~\citep{li2024culturepark, kwon2025evaluating}, social conflict simulations have emerged as a testbed for LLM mediators. Early efforts target retrospective resolution proposals for escalated disputes~\citep{tan2024robots, chen2026simulating}. \textsc{ProMediate}~\citep{liu2025promediate} moves toward proactive mediators that intervene mid-interaction to forestall escalation.
+% This shift brings the task closer to human practice, where mediators must read the evolving dynamics and adapt their interventions continuously, rather than deliver a single post proposal. Social cognition is then measured by how well they forestall escalation across the trajectory, not by a final resolution alone.
+% To address these gaps, we propose \algname{} (\textbf{So}cial \textbf{C}onflict \textbf{R}esolution \textbf{A}rena with \textbf{T}opic-batched \textbf{E}valuation for \textbf{S}ocial cognition), a benchmark for mediation that probes five social cognition abilities with reliable trajectory-level scoring.
+
+
+
+% Ver 3
+% Social conflict resolution is emerging as a compelling application of large language models (LLMs), promising scalable mediation across diverse perspectives that traditional human processes struggle to deliver~\citep{tessler2024habermas, ma2025towards}.
+% %
+% Unlike single-user requests such as math or coding, realizing this promise hinges on \emph{social cognition}~\citep{higgins1987social}: a mediator must track competing parties' goals and strategic positions across an expanding conflict history, while sustaining emotional and cultural attunement~\citep{liu2025promediate, tessler2024habermas, ma2025towards}.
+
+% To study these capabilities, a growing body of work uses LLM-based social conflict simulations as a testbed for LLM mediators, where persona-controlled agents reproduce strategic behavior, emotion escalation~\citep{kwon2025evaluating}, and culture variation~\citep{li2024culturepark}. Prior work focused on post-hoc resolution proposals for fully escalated disputes~\citep{tan2024robots, chen2026simulating}, while \textsc{ProMediate}~\citep{liu2025promediate} introduces proactive mediators that intervene as the conflict unfolds.
+% %
+% This shift reframes mediation from retrospective consensus finding to real-time engagement, where social cognition abilities are therefore measured along the trajectory, not by a single proposal.
+
+% However, three key challenges remain unresolved in realizing such proactive mediators.
+% %
+% \textbf{First}, the capability boundaries of LLMs across scale and family remain uncharacterized, along with when and how mediators should intervene. Prior works~\citep{tan2024robots, hale2025ai, chen2026simulating} primarily score the end-state consensus of fully escalated disputes over a narrow set of LLMs and thus leave the intervention dynamics along the trajectory unobserved.
+% %
+% \textbf{Second}, no benchmark comprehensively probes the socio-cognitive demands of proactive mediation. Existing testbeds~\citep{liu2025promediate, chen2026simulating} vary mainly the strategic posture across parties, leaving emotional and cultural adaptation, multi-party tracking, and maintaining long conflict history largely unmeasured.
+% %
+% \textbf{Third}, reliable trajectory-level evaluation remains an open problem for proactive mediators, as per-turn scoring accumulates noise as topics grow. \textsc{ProMediate} introduces a topic-wise consensus score updated every turn to score proactive intervention, yet because the updates apply indiscriminately, off-topic content is folded into each topic's score. These spurious contributions propagate errors across the trajectory to distort the final ranking.
+
+% % Ver 2
+
+% Social conflict resolution is emerging as a compelling application of large language models (LLMs), promising scalable mediation that traditional processes struggle to deliver across diverse perspectives~\citep{tessler2024habermas, ma2025towards}.
+% %
+% Unlike single-user requests such as math or coding, realizing this promise hinges on \emph{social cognition}~\citep{higgins1987social}: a mediator must track competing parties' goals and strategic positions across an expanding conflict history, and sustain emotional and cultural attunement~\citep{liu2025promediate, tessler2024habermas, ma2025towards} to intervene effectively.
+% %
+% These social stakes and cognitive demand make conflict resolution a natural probe of whether LLMs can support real human engagement.
+
+% While a growing body of work~\citep{tan2024robots, liu2025promediate, chen2026simulating} studies LLM mediators using LLM-based conflict simulations, three key challenges remain.
+% %
+% First, the capability boundaries of LLMs across scale and family remain uncharacterized, along with when and how they should intervene. Prior works primarily explore post-hoc mediation of fully escalated disputes, scoring the end-state consensus over a narrow set of LLMs, leaving these intervention dynamics unobserved.
+% %
+% Second, no benchmark comprehensively probes mediators' socio-cognition. Although LLM-based conflict simulations can reproduce strategic behavior~\citep{liu2025promediate}, emotion escalation~\citep{kwon2025evaluating}, and culture variation~\citep{li2024culturepark}, existing testbeds vary mainly the strategic axis. They cannot assess mediator competence under the actual demands of mediation, such as tracking multiple parties, retaining a long conflict history, and adapting to strategic, emotional, and cultural dynamics.
+% %
+% Third, reliable trajectory-level evaluation remains an open problem, as per-turn scoring accumulates noise as topics grow. \textsc{ProMediate}~\citep{liu2025promediate} introduces a trajectory-level topic-wise consensus score, updated every turn, to assess proactive mediators that intervene before full escalation. Yet because updates apply indiscriminately, off-topic content is folded into each topic's score, where spurious judgments accumulate and distort the evaluation results.
+
+% % Ver 1
+% Recent advances in large language models (LLM) extend beyond single-user problem solving such as math and coding toward group deliberation and decision-making~\citep{ma2025towards, chen2026simulating}.
+% %
+% A compelling application is conflict mediation, where LLMs can provide scalable support for resolution that are traditionally slow, difficult to scale, and hard to balance across diverse perspectives~\citep{tessler2024habermas}.
+% %
+% Realizing this promise, however, hinges on \emph{social cognition}~\citep{higgins1987social}, the ability to understand and respond to the mental states and value systems of others. Conflict resolution stresses this capability: a mediator must track competing parties' goals and strategic positions across an expanding conflict history, intervene timely, and sustain emotional and cultural attunement~\citep{liu2025promediate}.
+% %
+% This combination of social stakes and cognitive demand makes mediation a natural probe of whether current LLMs can support real human engagement...
+% 초반 Intro 수정 로그% 초반 Intro 수정 로그% 초반 Intro 수정 로그% 초반 Intro 수정 로그% 초반 Intro 수정 로그

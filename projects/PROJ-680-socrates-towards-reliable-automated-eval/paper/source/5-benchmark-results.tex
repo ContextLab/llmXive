@@ -1,0 +1,204 @@
+
+\begin{table*}[t]
+\scriptsize
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}c@{\hspace{2pt}}l@{\hspace{2pt}} |ccccccccc | ccccccccc |ccccccccc@{}}
+\toprule
+\multirow{2}{*}{Type} & \multirow{2}{*}{Mediator}
+ & \multicolumn{9}{c}{\textbf{Intervention Timeliness}}
+ & \multicolumn{9}{c}{\textbf{Intervention Effectiveness}}
+ & \multicolumn{9}{c}{\textbf{Consensus Gain}} \\
+\cmidrule(lr){3-11} \cmidrule(lr){12-20} \cmidrule(lr){21-29}
+ &
+ & Trans & Heal & Env & B2B & Pol & Intl & Legal & Intra & \textit{Avg.}
+ & Trans & Heal & Env & B2B & Pol & Intl & Legal & Intra & \textit{Avg.}
+ & Trans & Heal & Env & B2B & Pol & Intl & Legal & Intra & \textit{Avg.} \\
+\specialrule{\lightrulewidth}{1pt}{0pt}
+\multirow{2}{*}{\rotatebox[origin=c]{90}{\textbf{Prop.}}}
+  & Gemini-3.1-FL & \cellcolor{tim!65} 81.2 & \cellcolor{tim!65} 84.1 & \cellcolor{tim!55} 78.2 & \cellcolor{tim!65} 81.8 & \cellcolor{tim!65} 82.9 & \cellcolor{tim!65} 81.4 & \cellcolor{tim!5} 72.9 & \cellcolor{tim!65} 84.4 & \cellcolor{tim!65} 80.9 & \cellcolor{eff!65} 33.6 & \cellcolor{eff!95} \textbf{27.8} & \cellcolor{eff!55} 16.7 & \cellcolor{eff!95} \textbf{23.5} & \cellcolor{eff!80} 30.3 & \cellcolor{eff!55} 19.5 & \cellcolor{eff!65} 29.4 & \cellcolor{eff!80} 16.1 & \cellcolor{eff!80} 24.6 & \cellcolor{cgn!65} 52.1 & \cellcolor{cgn!80} 47.7 & \cellcolor{cgn!55} 25.9 & \cellcolor{cgn!95} \textbf{34.6} & \cellcolor{cgn!95} \textbf{36.0} & \cellcolor{cgn!55} 22.0 & \cellcolor{cgn!65} 26.7 & \cellcolor{cgn!65} 18.8 & \cellcolor{cgn!80} 33.0 \\
+  & GPT-5.4-mini & \cellcolor{tim!55} 80.7 & \cellcolor{tim!55} 81.9 & \cellcolor{tim!65} 82.3 & \cellcolor{tim!45} 76.3 & \cellcolor{tim!45} 78.2 & \cellcolor{tim!45} 77.2 & \cellcolor{tim!65} 78.6 & \cellcolor{tim!55} 84.3 & \cellcolor{tim!55} 79.9 & \cellcolor{eff!95} \textbf{34.9} & \cellcolor{eff!5} 18.9 & \cellcolor{eff!95} \textbf{24.6} & \cellcolor{eff!80} 23.3 & \cellcolor{eff!55} 22.5 & \cellcolor{eff!65} 21.2 & \cellcolor{eff!95} \textbf{32.3} & \cellcolor{eff!95} \textbf{18.8} & \cellcolor{eff!65} 24.6 & \cellcolor{cgn!95} \textbf{55.6} & \cellcolor{cgn!20} 23.6 & \cellcolor{cgn!95} \textbf{35.0} & \cellcolor{cgn!80} 32.0 & \cellcolor{cgn!55} 28.2 & \cellcolor{cgn!80} 30.3 & \cellcolor{cgn!95} \textbf{41.2} & \cellcolor{cgn!95} \textbf{29.5} & \cellcolor{cgn!95} \textbf{34.4} \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\multirow{6}{*}{\rotatebox[origin=c]{90}{\textbf{Open-Source}}}
+  & DeepSeek-V3.2 & \cellcolor{tim!35} 76.1 & \cellcolor{tim!20} 76.6 & \cellcolor{tim!35} 77.1 & \cellcolor{tim!20} 74.6 & \cellcolor{tim!20} 76.8 & \cellcolor{tim!35} 75.2 & \cellcolor{tim!45} 76.3 & \cellcolor{tim!5} 73.8 & \cellcolor{tim!20} 75.8 & \cellcolor{eff!55} 32.1 & \cellcolor{eff!20} 19.4 & \cellcolor{eff!65} 17.3 & \cellcolor{eff!65} 22.2 & \cellcolor{eff!65} 28.0 & \cellcolor{eff!80} 21.6 & \cellcolor{eff!80} 30.4 & \cellcolor{eff!35} 13.8 & \cellcolor{eff!55} 23.1 & \cellcolor{cgn!80} 53.3 & \cellcolor{cgn!65} 41.2 & \cellcolor{cgn!80} 27.6 & \cellcolor{cgn!45} 26.4 & \cellcolor{cgn!80} 35.4 & \cellcolor{cgn!65} 26.6 & \cellcolor{cgn!80} 27.0 & \cellcolor{cgn!55} 17.8 & \cellcolor{cgn!65} 31.9 \\
+  & Qwen3-235B & \cellcolor{tim!20} 71.7 & \cellcolor{tim!35} 79.7 & \cellcolor{tim!45} 77.1 & \cellcolor{tim!35} 76.1 & \cellcolor{tim!35} 77.2 & \cellcolor{tim!20} 73.5 & \cellcolor{tim!55} 77.1 & \cellcolor{tim!35} 78.6 & \cellcolor{tim!35} 76.4 & \cellcolor{eff!80} 34.0 & \cellcolor{eff!55} 24.2 & \cellcolor{eff!35} 15.2 & \cellcolor{eff!55} 22.1 & \cellcolor{eff!95} \textbf{31.5} & \cellcolor{eff!95} \textbf{25.9} & \cellcolor{eff!55} 28.0 & \cellcolor{eff!65} 16.0 & \cellcolor{eff!95} \textbf{24.6} & \cellcolor{cgn!55} 51.0 & \cellcolor{cgn!35} 29.7 & \cellcolor{cgn!20} 22.8 & \cellcolor{cgn!55} 28.2 & \cellcolor{cgn!65} 32.5 & \cellcolor{cgn!95} \textbf{33.8} & \cellcolor{cgn!45} 20.7 & \cellcolor{cgn!80} 26.9 & \cellcolor{cgn!55} 30.7 \\
+  & Nemotron-3-120B & \cellcolor{tim!5} 70.1 & \cellcolor{tim!5} 70.7 & \cellcolor{tim!5} 74.1 & \cellcolor{tim!5} 69.3 & \cellcolor{tim!5} 71.5 & \cellcolor{tim!5} 70.9 & \cellcolor{tim!20} 73.6 & \cellcolor{tim!20} 75.7 & \cellcolor{tim!5} 72.0 & \cellcolor{eff!35} 29.4 & \cellcolor{eff!65} 25.2 & \cellcolor{eff!5} 11.3 & \cellcolor{eff!45} 19.1 & \cellcolor{eff!35} 17.2 & \cellcolor{eff!45} 18.5 & \cellcolor{eff!20} 17.7 & \cellcolor{eff!55} 15.4 & \cellcolor{eff!35} 19.2 & \cellcolor{cgn!35} 41.9 & \cellcolor{cgn!55} 41.1 & \cellcolor{cgn!5} 16.7 & \cellcolor{cgn!5} 14.5 & \cellcolor{cgn!35} 15.8 & \cellcolor{cgn!35} 17.7 & \cellcolor{cgn!35} 7.0 & \cellcolor{cgn!20} 8.3 & \cellcolor{cgn!35} 20.4 \\
+  & Solar-Pro-3 & \cellcolor{tim!80} 83.0 & \cellcolor{tim!95} \textbf{86.9} & \cellcolor{tim!95} \textbf{84.4} & \cellcolor{tim!80} 84.5 & \cellcolor{tim!80} 85.0 & \cellcolor{tim!95} \textbf{82.4} & \cellcolor{tim!95} \textbf{85.2} & \cellcolor{tim!80} 85.9 & \cellcolor{tim!95} \textbf{84.6} & \cellcolor{eff!20} 24.5 & \cellcolor{eff!45} 21.8 & \cellcolor{eff!20} 13.2 & \cellcolor{eff!35} 17.8 & \cellcolor{eff!20} 15.9 & \cellcolor{eff!5} 14.4 & \cellcolor{eff!5} 16.7 & \cellcolor{eff!5} 9.1 & \cellcolor{eff!5} 16.7 & \cellcolor{cgn!20} 41.8 & \cellcolor{cgn!45} 30.1 & \cellcolor{cgn!35} 24.3 & \cellcolor{cgn!65} 28.3 & \cellcolor{cgn!5} 6.6 & \cellcolor{cgn!5} 13.4 & \cellcolor{cgn!20} 6.0 & \cellcolor{cgn!35} 8.7 & \cellcolor{cgn!20} 19.9 \\
+  & Gemma-4-26B & \cellcolor{tim!45} 79.9 & \cellcolor{tim!45} 81.5 & \cellcolor{tim!20} 74.2 & \cellcolor{tim!55} 79.1 & \cellcolor{tim!55} 81.6 & \cellcolor{tim!55} 81.3 & \cellcolor{tim!35} 74.9 & \cellcolor{tim!45} 79.5 & \cellcolor{tim!45} 79.0 & \cellcolor{eff!45} 29.8 & \cellcolor{eff!35} 20.5 & \cellcolor{eff!45} 16.0 & \cellcolor{eff!5} 12.3 & \cellcolor{eff!5} 14.3 & \cellcolor{eff!20} 17.1 & \cellcolor{eff!45} 25.3 & \cellcolor{eff!20} 9.4 & \cellcolor{eff!20} 18.1 & \cellcolor{cgn!45} 42.9 & \cellcolor{cgn!5} 22.9 & \cellcolor{cgn!45} 24.6 & \cellcolor{cgn!20} 15.8 & \cellcolor{cgn!20} 7.1 & \cellcolor{cgn!20} 15.9 & \cellcolor{cgn!55} 24.4 & \cellcolor{cgn!45} 14.6 & \cellcolor{cgn!45} 21.0 \\
+  & Qwen3-30B & \cellcolor{tim!95} \textbf{84.2} & \cellcolor{tim!80} 85.2 & \cellcolor{tim!80} 84.3 & \cellcolor{tim!95} \textbf{85.6} & \cellcolor{tim!95} \textbf{85.1} & \cellcolor{tim!80} 82.2 & \cellcolor{tim!80} 83.9 & \cellcolor{tim!95} \textbf{86.4} & \cellcolor{tim!80} 84.6 & \cellcolor{eff!5} 19.1 & \cellcolor{eff!80} 26.9 & \cellcolor{eff!80} 18.8 & \cellcolor{eff!20} 17.6 & \cellcolor{eff!45} 18.6 & \cellcolor{eff!35} 17.7 & \cellcolor{eff!35} 24.4 & \cellcolor{eff!45} 14.5 & \cellcolor{eff!45} 19.7 & \cellcolor{cgn!5} -7.9 & \cellcolor{cgn!95} \textbf{48.6} & \cellcolor{cgn!65} 26.3 & \cellcolor{cgn!35} 16.0 & \cellcolor{cgn!45} 17.9 & \cellcolor{cgn!45} 18.1 & \cellcolor{cgn!5} -1.2 & \cellcolor{cgn!5} 8.2 & \cellcolor{cgn!5} 15.7 \\
+\specialrule{\lightrulewidth}{0pt}{1.5pt}
+\multicolumn{2}{c|}{Average} & 78.4 & 80.8 & 79.0 & 78.4 & 79.8 & 78.0 & 77.8 & 81.1 & \textit{79.2} & 29.7 & 23.1 & 16.6 & 19.7 & 22.3 & 19.5 & 25.5 & 14.1 & \textit{21.3} & 41.3 & 35.6 & 25.4 & 24.5 & 22.4 & 22.2 & 19.0 & 16.6 & \textit{25.9} \\
+\specialrule{\lightrulewidth}{1.5pt}{1pt}
+\end{tabular}%
+}
+\vspace{-0.2cm}
+\caption{Conflict resolution performance of the eight mediators across eight domains: Trans (Transactional), Heal (Healthcare), Env (Environmental), B2B (Business-to-Business), Pol (Public-Policy), Intl (International), Legal (Legal), and Intra (Intra-organizational). Cell color intensity increases within each column to indicate higher scores.}
+\label{tab:combined_overall_domain}
+\vspace{-0.5cm}
+\end{table*}
+
+
+
+\section{Benchmarking LLM Mediators}
+\label{sec:experiments}
+
+We benchmark eight LLM mediators with \algname{}: two proprietary models, GPT-5.4-mini and Gemini-3.1-Flash-Lite, and six open-source models, Gemma-4-26B-A4B-it, Qwen3-30B-Instruct, Solar-Pro-3, Nemotron3-120B-A12B, DeepSeek-V3.2, and Qwen3-235B-Instruct. This set spans two axes, proprietary versus open-source and large versus small. At every party turn, the mediator outputs a binary decision whether to intervene. When it does, it inserts a single utterance before the next party speaks; otherwise the dialogue proceeds uninterrupted. This loop repeats until termination.
+%
+Each mediator runs once on every scenario-condition pair, $40$ scenarios $\times$ $15$ conditions $= 600$ runs per mediator and $4{,}800$ in total, each paired with its no-mediator baseline. See Appendix~\ref{app:mediator_detail} for the mediator prompts.
+
+
+% We benchmark eight LLM mediators on \algname{} across the eight conflict domains (\S\ref{sec:experiments:main}) and along the five socio-cognitive axes (\S\ref{sec:experiments:socio}).
+
+\subsection{Performance by Conflict Domain}
+\label{sec:results:domain}
+
+\noindent\underline{\textit{Overview.}} Table~\ref{tab:combined_overall_domain} reports three metrics per mediator across eight domains. \emph{Social conflict resolution remains challenging for every benchmarked LLM, including proprietary frontier models.} Average consensus gain caps at $34.4$, splitting mediators into a top tier ($30.7$--$34.4$) and bottom tier ($15.7$--$21.0$). The split holds across domains, where means range from 41.3 to 16.6 and none clears half the unmediated gap. This gap reflects the domain diversity and social adaptation demands of \algname{}, in sharp contrast to prior works showing a resolution rate of 80--90\% in unconditioned, single domain settings~\citep{kwon2025evaluating, chen2026simulating}.
+
+
+\smallskip\smallskip\noindent\textbf{Proprietary leads, scale alone does not.} The two proprietary mediators achieve higher consensus gain than the strongest open-source by 1.1--2.5 points and lead in six of eight domains. This gap persists even as open-sources close gaps on reasoning benchmarks such as AIME25~\citep{dekoninck2026matharena}. Within a family, scale helps. Qwen3-235B nearly doubles Qwen3-30B's gain. Across families, however, scale does not order the field. Nemotron-3-120B trails the smaller Gemma4-26B on Legal and Intra-organizational despite comparable problem-solving~\citep{chandiramani2026nemotron}. Together, these results show that \emph{general capability does not directly translate to mediation, and the residual gap depends strongly on the conflict domain.}
+
+\smallskip\smallskip\noindent\textbf{Timeliness without effectiveness.} Solar-Pro-3 and Qwen3-30B post the highest intervention timeliness yet rank low on consensus gain. They intervene too often without meaningfully affecting the outcome (see Appendix~\ref{app:intervention_analysis}). Intervention effectiveness, in contrast, aligns with consensus gain. The three mediators tied at 24.6 hold the top three consensus gain scores. \textit{A good mediator must intervene at the right moments and with the right content, as timeliness alone does not resolve conflict.}
+
+\smallskip\smallskip\noindent\textbf{{Domain coverage shapes the verdict.}}
+Intervention timeliness is stable across the eight domains, whereas consensus gain swings from $41.3$ on Transactional conflict down to $16.6$ on Intra-organizational disputes. The easy end coincides with where prior conflict resolution datasets concentrate, since Transactional conflict corpora dominate existing testbeds such as CaSiNo~\citep{chawla2021casino}, CraigslistBargain~\citep{he2018decoupling}, and KODIS~\citep{hale2025kodis}. \emph{A benchmark restricted to transactional conflict overstates mediation ability, making it essential to evaluate how mediators adapt across diverse conflict domains.}
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fiqure/Figure_rader_chart.pdf}
+\vspace*{-0.2cm}
+\caption{Mediator adaptation across general condition and five socio-cognitive axes, measured by consensus gain.}
+\label{fig:radar}
+\vspace*{-0.2cm}
+\end{figure*}
+
+
+
+\subsection{Socio-cognitive Adaptation Analysis}
+\label{sec:experiments:socio}
+
+We use the five independently perturbed socio-cognitive axes to localize which abilities constrain each mediator. Figure~\ref{fig:radar} profiles each mediator across the general condition and the five axes. 
+
+\smallskip\smallskip\noindent\underline{\textit{Highlight.}} On four of the five axes, area grows with model capability, with the proprietary models and Qwen3-235B enclosing the largest regions, yet every mediator contracts on at least one axis. Even within the top tier with comparable overall consensus gain, GPT-5.4-mini and DeepSeek-V3.2 lose far more under Multi-state Tracking than Gemini-3.1-FL and Qwen3-235B. \emph{Mediation competence therefore comprises distinct socio-cognitive abilities, and current LLMs exhibit uneven profiles rather than a single capability frontier.}
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fiqure/Figure_component.pdf}
+\vspace*{-0.4cm}
+{\small \hspace*{0.5cm} (a) Strategy-wise Analysis. \hspace*{1cm} (b) Emotion-wise Analysis. \hspace*{1.4cm} (c) Culture-wise Analysis.}
+\vspace*{0.3cm}
+\caption{Consensus gain shift from the general (unperturbed) condition along three axes: (a) strategic posture, (b) emotional reactivity, and (c) cultural identity. Negative values indicate degradation, positive values improvement.}
+\label{fig:shift}
+\vspace*{-0.4cm}
+\end{figure*}
+
+\subsubsection{Strategy, Emotion, and Culture Shifts}
+\label{sec:experiments:delta}
+
+The uneven model profiles motivate a closer analysis of axes. We therefore measure how consensus gain shifts from the general (unperturbed) condition when strategic posture, emotional reactivity, or cultural identity varies, as summarized in Figure~\ref{fig:shift}. 
+
+
+\smallskip\smallskip\noindent\textbf{Strategy.}
+Strategic posture is the sharpest stress test. All non-collaborative postures reduce consensus gain, with the most severe drops under Competing ($18.9$--$64.1$) and Accommodating ($13.8$--$66.8$). Qwen3-235B suffers the largest drops in both settings despite its high overall ranking, indicating that adversarial or one-sided conflicts demand a capability that aggregate scoring does not capture.
+
+\smallskip\smallskip\noindent\textbf{Emotion.}
+Emotional reactivity produces a smoother but consistent degradation. When both parties are composed, several mediators hold their general score. When both are reactive, every mediator drops. The magnitude does not follow model size, indicating that absorbing emotional volatility, rather than raw scale, separates mediators on this axis.
+
+\smallskip\smallskip\noindent\textbf{Culture.} Cultural identity produces the smallest but most systematic shifts, with mediator scores declining as cultural distance from U.S. norms grows. From a Hofstede perspective, all LLM mediators appear robust on U.S.-anchored values but weaker on East Asian ones, where collectivist orientation and power distance shape the dynamics differently.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fiqure/Figure_Intervention_comparison.pdf}
+\vspace*{-0.5cm}
+\caption{Intervention Effectiveness over conversation progress, where turns are mapped to a 0--100\% scale to align varying turn counts, across the general condition and each hard condition from five socio-cognitive axes.}
+\label{fig:position}
+\vspace*{-0.4cm}
+\end{figure*}
+
+
+
+\subsubsection{Intervention Timing Adaptation}
+\label{sec:timing}
+Axis-level results show how much consensus changes, but not when interventions help. We thus analyze timing in Figure~\ref{fig:position}, which plots intervention effectiveness over normalized conversation progress for the general condition and each hard socio-cognitive condition. Since intervention effectiveness ranges differ across conditions, we read each panel as a within-condition timing profile.
+
+The best intervention window moves with the condition. For Strategy Adaptation or Emotional Regulation, effectiveness rises early and falls off, since mediators must reframe stances or cool emotion before they harden. For Multi-state Tracking or Long-context Understanding, effectiveness instead grows toward later turns, when complex contexts make late moves like summarization more useful.
+Across mediators, the key distinction is whether they follow these timing windows. Stronger mediators peak near each condition's window—GPT-5.4-mini in Strategy and Emotion, Qwen3-235B in Multi-state and Long-context—while weaker ones trace flatter curves, failing to adapt their timing as the conflict evolves. \emph{Effective mediation thus requires adapting timing to the socio-cognitive demands faced in conflict to maximize impact.}
+
+% The axis-level results show how much consensus changes, but not when an intervention is useful. To isolate timing, Figure~\ref{fig:position} traces intervention effectiveness over normalized conversation progress for each hard socio-cognitive condition. Because each panel has different headroom, we compare the shape of each curve within a panel.
+
+% The useful timing window changes by condition. In the general setting, effectiveness is concentrated around the middle of the dialogue and often fades near the end. Strategy adaptation and emotional regulation peak early because competing or reactive openings quickly harden positions. Multi-state tracking and long-context understanding peak later, when parties and history have built enough context for summarization and reframing to work.
+
+% Top-tier model GPT-5.4-mini concentrate effectiveness near the peak timing for each condition, while weaker mediators trace flatter curves and miss the key moment. Within each condition, the mediator whose peak aligns with the most effective interval leads in consensus gain. This highlights that \emph{strong mediation is not choosing one best moment, but adapting timing to the cognitive demand of the conflict to maximize impact.}
+
+% The window shifts with the cognitive demand. Strategy adaptation and emotional regulation peak early because competing or reactive openings quickly harden positions. Multi-state tracking and long-context understanding peak later, when parties and history have built enough context for summarization and reframing to work.
+% %
+% Top-tier models (GPT-5.4-mini and Gemini-3.1-FL) concentrate effectiveness near the peak timing for each condition, while weaker mediators trace flatter curves and miss the key moment. Within each condition, the mediator whose peak aligns with the most effective interval leads in consensus gain. This highlights that \emph{strong mediation is not choosing one best moment, but adapting timing to the cognitive demand of the conflict to maximize impact.}
+
+% % \subsection{Overall Conflict Resolution Performance}
+% % \label{sec:experiments:main}
+
+% % Table~\ref{tab:combined_overall_domain} reports Intervention Timeliness, Intervention Effectiveness, and Consensus Gain for each mediator, broken down by conflict domain and pooled into a per-metric average.
+
+% % \smallskip\smallskip\noindent\textbf{{Top four versus bottom four.}}
+% % No mediator closes more than about a third of the consensus headroom left by the no-mediator baseline. The top four mediators reach a per-domain mean Consensus Gain of $30.7$--$34.4$ (GPT-5.4-mini, Gemini-3.1-FL, DeepSeek-V3.2, Qwen3-235B), while the remaining four fall to $15.7$--$21.0$. Models that lead standard problem-solving benchmarks therefore stay weak on mediation.
+
+% % \smallskip\smallskip\noindent\textbf{{Timeliness without effectiveness.}}
+% % Timeliness tracks Consensus Gain only weakly. Solar-Pro-3 and Qwen3-30B both post the highest mean Timeliness ($84.6$) yet rank among the lowest on Effectiveness ($16.7$, $19.7$) and on Consensus Gain ($19.9$, $15.7$). A high Timeliness score here reflects near-constant intervention rather than precise timing, \emph{inflating responsiveness without improving the outcome}. Effectiveness aligns far better with Consensus Gain, led by GPT-5.4-mini, Gemini-3.1-FL, and Qwen3-235B (each $24.6$), with the proprietary models close behind on Consensus Gain.
+
+% % \smallskip\smallskip\noindent\textbf{{Scale and mediation.}}
+% % The two proprietary models are smaller than the open-source frontier yet lead on Consensus Gain. Qwen3-30B, the smallest model, is also the weakest mediator, posting the lowest mean Consensus Gain ($15.7$) and the largest cross-domain swing, from $48.6$ on Healthcare to $-7.9$ on Transactional Bargaining. Within a family, scale helps, as Qwen3-235B nearly doubles the Consensus Gain of Qwen3-30B. Across families, however, post-training and alignment outweigh raw scale, \emph{suggesting that mediation ability is not read off general problem-solving strength}.
+
+% % \smallskip\smallskip\noindent\textbf{{Domain coverage.}}
+% % Timeliness and Effectiveness remain stable across domains, whereas Consensus Gain varies widely. Transactional Bargaining is the easiest domain (all-mediator mean Consensus Gain $41.3$), while Intra-organizational disputes are the hardest ($16.6$). The easy end coincides with where prior conflict-resolution datasets concentrate, since bargaining and negotiation corpora dominate existing testbeds~\citep{chawla2021casino, kodis2024}. A benchmark restricted to those domains would overstate mediation ability, \emph{confirming that domain coverage is itself a design choice rather than a presentational detail}.
+
+% % \ssubsection{Socio-cognitive Profile of Mediators}
+% % \label{sec:experiments:socio}
+
+% % Figure~\ref{fig:radar} profiles each mediator across the General condition and the five socio-cognitive axes. On four of the five axes (strategic adaptation, emotion regulation, cultural adaptation, and long-context understanding), the radar area grows with model capability, with the proprietary models and Qwen3-235B enclosing the largest regions and Qwen3-30B and Gemma-4-26B the smallest. The exception is multi-party state tracking, where every mediator contracts sharply. Moving from two parties to three lowers Consensus Gain for the entire field, including a collapse from $50.0$ to $-2.1$ for GPT-5.4-mini, from $39.1$ to $-75.8$ for Qwen3-30B, and from $42.2$ to $-39.5$ for Nemotron-3-120B. No mediator is uniformly strong, \emph{indicating that mediation competence is composed of distinct socio-cognitive abilities that current models acquire unevenly}.
+
+
+
+
+
+
+
+
+% % \subsubsection{Strategy, Emotion, and Culture Shifts}
+% % \label{sec:experiments:delta}
+
+% % \begin{figure*}[t]
+% % \centering
+% % \includegraphics[width=\textwidth]{fiqure/Figure_component.pdf}
+% % \vspace*{-0.4cm}
+% % {\small \hspace*{0.5cm} (a) Strategy-wise Analysis. \hspace*{1cm} (b) Emotion-wise Analysis. \hspace*{1.4cm} (c) Culture-wise Analysis.}
+% % \vspace*{0.1cm}
+% % \caption{Change in Consensus Gain relative to the General condition when one persona axis is varied: (a) party strategic posture, (b) party emotional reactivity, and (c) party cultural identity.}
+% % \label{fig:shift}
+% % \vspace*{-0.2cm}
+% % \end{figure*}
+
+% % \begin{figure*}[t]
+% % \centering
+% % \includegraphics[width=\textwidth]{fiqure/Figure_Intervention_comparison.pdf}
+% % \vspace*{-0.4cm}
+% % \caption{Change in Consensus Gain relative to the General condition when one persona axis is varied: (a) party strategic posture, (b) party emotional reactivity, and (c) party cultural identity.}
+% % \label{fig:shift}
+% % \vspace*{-0.2cm}
+% % \end{figure*}
+
+% % Figure~\ref{fig:shift} reports the change in Consensus Gain relative to the General condition, for each mediator, when one persona or strategy axis is varied.
+
+% % \smallskip\smallskip\noindent\textbf{{Strategic posture.}}
+% % Every strategic posture lowers Consensus Gain, and Competing and Accommodating are the most damaging. Under Competing, the drop ranges from $-18.9$ for Solar-Pro-3 to $-64.1$ for Qwen3-235B, and under Accommodating from $-13.8$ for Solar-Pro-3 to $-66.8$ for Qwen3-235B. The strongest mediator overall is the least robust to either posture, \emph{indicating that handling an adversarial or one-sided conflict draws on a capability that overall Consensus Gain does not capture}.
+
+% % \smallskip\smallskip\noindent\textbf{{Emotional reactivity.}}
+% % Party reactivity degrades Consensus Gain monotonically. When both parties are composed (CC), several mediators hold or slightly exceed their General Consensus Gain, with Solar-Pro-3 at $+12.4$ and Gemini-3.1-FL at $+11.4$. When both parties are reactive (RR), every mediator drops, by as much as $-43.1$ for Gemma-4-26B and as little as $-3.9$ for Qwen3-30B. The drop does not order by model size, \emph{indicating that emotion regulation, not raw scale, separates the field here}.
+
+% % \smallskip\smallskip\noindent\textbf{{Cultural identity.}}
+% % Cultural variation shifts Consensus Gain least among the three axes, but the shift is consistent. American-anchored parties leave Consensus Gain closest to the General level, Chinese-anchored parties lower it modestly, and Korean-anchored parties lower it most, by an all-mediator mean of $8.8$ points and up to $14.1$ points for Gemma-4-26B. The ordering American $>$ Chinese $>$ Korean holds for every mediator, \emph{suggesting that current mediators carry a systematic cultural bias rather than an idiosyncratic per-model one}.

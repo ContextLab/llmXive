@@ -1,0 +1,37 @@
+\section{Related Work}
+\label{sec:relatedwork}
+
+% Social 컨플릭트에 협상이나 다양한게 있는데 Mediation이라는게 어떤 차이가 있는지 (간단히 배경지식 설명)
+% 기존 연구에서는 Mediation을 어떻게 다뤘는지 (사후적 개입이고 사람을 엄청 고용해서 진행하였다)
+% 기존 사람 기반 시뮬레이션이라는게 어떻게 발전해서 AI 기반 testbeds를 만들었는지
+% Proactive라는게 어떤 의미가 있는지
+% Social cognition이라는게 점점 중요해지고 있다 Mediation에서
+\noindent\textbf{{Social Conflict Resolution.}}
+Social conflict resolution steers disputing parties toward a consensus, dynamically intervening as the dispute unfolds to defuse it before escalation~\citep{deutsch2011handbook}. Prior work frames this as negotiation, casting LLMs as the disputing parties to study bargaining~\citep{bianchi2024well, zhou2024sotopia, kwon2024llms}. While this direction shows that they can faithfully reproduce human social behavior in conflicts, it does not reveal how disputes between humans are resolved.
+%
+Beyond this, recent work positions the LLM as the third-party mediator that, given a complete recorded conversation, finds common ground and proposes a solution~\citep{tan2024robots, tessler2024habermas}. Yet such studies must recruit thousands of human disputants to simulate conflicts~\citep{chawla2021casino, hale2025kodis, tessler2024habermas}, posing a scalability bottleneck. 
+%
+Thus, building on evidence that LLMs reproduce the behavior of disputants, recent work utilizes LLM simulation to enable scalable testbeds~\citep{chen2026simulating}. Among these, Promediate~\citep{liu2025promediate} proposes a proactive agent that decides when and how to intervene at the interaction level, better matching the dynamic intervention conflict resolution demands. As mediation shifts to the interaction level, it increasingly calls for capabilities long emphasized in social reasoning and multi-turn interaction, such as adapting to parties that differ in mental state~\citep{xiao2025towards} and cultural background~\citep{ki2025multiple}, and to varied context~\citep{shapira2024clever}.
+
+%Towards Dynamic Theory of Mind: Evaluating LLM Adaptation to Temporal Evolution of Human States
+
+
+
+
+% Human Evaluation으로 대화를 평가하는 것을 비현실적이다
+% 이런 점에서 multi-turn interaction level에서 automatic evalaotur가 사용되고 있다
+% Specifically, agreement evaluation to evaluatwe negotiation and mediation 에서는 Consensus를 tracking하고 있다.
+% 이러한 이밸류에이션은 state에 대해 제대로 나타내지 못하는 한계가 있어토픽별로 fine-graind하게 평가할 경우 대화의 상태를 좀 더 잘 나타낼 수 있다는 연구로 나아감.
+% 그러나 이러한 multi-topic을 전부 트래킹하는 것은 힘든데 LLM judge에서 이러한 관련없는 topic은 전통적으로 노이즈로 간주되고 있는데, 이러한 trajectory-level evaluation에서 에러는 뒤의 state를 평가하는 데에도 propagate할 수 있음.
+% 이 점에서 noise를 덜어내고 하는 연구가 점차 중요해지고 있다.
+\smallskip\smallskip\noindent\textbf{Automated Dialogue Evaluation.} 
+Evaluating multi-turn dialogues through human judgment is costly and difficult to scale~\citep{zheng2023judging, deshpande2025multichallenge}. This motivates the adoption of automatic evaluators for interaction assessment. 
+%
+Specifically, in negotiation and mediation, such approaches judge dialogue progress indirectly through end-state outcomes such as consensus or goal achievement between parties~\citep{zhou2024sotopia, chen2026simulating}.
+%
+Yet this single signal alone provides only a coarse view of dialogue state, and recent work shows that decomposing evaluation into fine-grained, turn-level signals across topics yields a more faithful, trajectory-level representation of how the conversation unfolds~\citep{mannekote2023agreement, zhang2025sotopia, liu2025promediate}.
+%
+Tracking every topic, however, remains difficult. LLM judges have long been known to treat unrelated content as noise that distracts their judgment~\citep{ye2025justice}, and in trajectory evaluation such errors propagate to subsequent states~\citep{liu2025promediate}. Reducing this noise has thus become an increasingly important direction for reliable dialogue
+evaluation.
+
+

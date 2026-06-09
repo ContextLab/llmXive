@@ -1,0 +1,52 @@
+\subsection{Path Tracing}
+\label{sec:path_tracing}
+
+%Path tracing \textbf{(PT)} requires anticipating what an agent will see from a position it has not yet reached, a core capability for navigation, exploration, and planning in embodied settings~\cite{habitat19iccv, kolve2017ai2}.
+%Given a top-down map with a marked path $1\!\rightarrow\!2$ and a designated midpoint $M_1$, together with egocentric forward views captured at waypoints 1 and 2 (showing what the agent sees facing along the path), the model must identify which object is visible on the left or right at $M_1$.
+
+%Path tracing (\textbf{PT}) asks what an agent would see from a \emph{midpoint} it has not visited.
+%Given a top-down map with a marked path $1\!\rightarrow\!2$ and midpoint $M_1$ (optionally with endpoint egocentric views), the model predicts which object is visible on the left/right at $M_1$.
+
+%This task requires imagination because the top-down map underdetermines first-person visibility: viewpoint height, occlusion by furniture and walls, and object scale jointly determine what is seen from ground level, and neither the top-down view nor the egocentric views at the endpoints reveal what is visible at the midpoint.
+%We evaluate three input settings: \emph{Path} (map + path), \emph{PathArr} (map + path + query-direction arrow at $M_1$), and \emph{EgoDir} (map + path + egocentric views at waypoints 1 and 2).
+
+
+%We evaluate under three input settings that provide increasing spatial cues: (1)~\emph{Path}: the top-down map with the marked path only; (2)~\emph{PathArr}: the top-down map with an arrow indicating the query direction (left or right) at $M_1$; and (3)~\emph{EgoDir}: the top-down map together with egocentric forward views at waypoints 1 and 2.
+
+%\noindent\textbf{The intermediate thought} is a \emph{sideview image}, a first-person rendering of the scene as it would appear from the queried midpoint $M_1$.
+%By generating this sideview explicitly, the model externalizes the 3D visibility reasoning that the top-down input alone cannot support.
+%Ground-truth sideviews are rendered directly from the simulator at $M_1$.
+
+%\noindent\textbf{Data curation.}
+%We generate synthetic training data from indoor 3D environments in AI2-THOR~\cite{kolve2017ai2} and ProcTHOR~\cite{deitke2022procthor}.
+%For each scene, we sample feasible two-waypoint paths on the navigation mesh, balanced across room types (kitchen, living room, bedroom, bathroom) and distance bins (short, medium, long).
+%At each waypoint we render top-down views, egocentric forward views, and a sweep of candidate sideviews at the midpoint $M_1$.
+%The sideview that best exposes the queried object is selected using simulator segmentation masks.
+%Questions are generated from templates (``Which object can you see on your \{side\} at waypoint M1?'') with four choices: the correct answer drawn from verified visible objects and three distractors drawn from the opposite side or a global object pool.
+%To ensure quality, we apply TIFA-style filtering~\cite{hu2023tifa}: each candidate question is decomposed into binary visibility queries and verified by GPT-4.1 with three-round majority voting.
+%Samples where the correct answer is not visible in the sideview, or where a distractor is also visible, are dropped.
+%We further remove samples where GPT-4.1 can answer correctly from the top-down view + egocentric views at the two endpoints alone, ensuring the benchmark requires genuine spatial imagination.
+%Answer choices are reshuffled with per-sample deterministic seeds to remove positional bias.
+%The synthetic training set contains $11{,}204$ examples.
+
+%\noindent\textbf{Real-world data.}
+%To evaluate cross-domain transfer, we construct a real-world test set from Matterport 3D tour dollhouse views~\cite{chang2017matterport3d}.
+%We scrape bird's-eye screenshots from indoor tours, then use a two-pass GPT pipeline to annotate walking paths: the first pass proposes waypoints on walkable floor, and the second pass identifies visible objects on each side of the midpoint.
+%Annotations are verified through TIFA filtering (checking waypoint placement, object visibility, and left/right correctness) followed by human review.
+%Because the real environments provide only fixed viewpoints, arbitrarily sampled paths do not always align with available egocentric views; we therefore evaluate on thtrainige Path and PathArr settings only for real-world data.
+%Each surviving path yields eight question variants (forward/reverse $\times$ left/right $\times$ arrow/no-arrow).
+%The real-world benchmark contains $332$ human-verified questions.
+
+
+Given a top-down map with a marked path $1\!\rightarrow\!2$, a midpoint $M_1$, and egocentric forward views at waypoints 1 and 2, the model must identify which object is visible on a queried side at $M_1$. Neither the top-down map nor the endpoint views reveal first-person visibility at the midpoint, requiring the model to imagine what the agent would see from ground level.
+
+We evaluate under three input settings of increasing spatial cues: \emph{Path} (map only), \emph{PathArr} (map + query direction arrow), and \emph{EgoDir} (map + egocentric endpoint views).
+
+\noindent\textbf{Imaginative perception target.} A sideview image — a first-person rendering from $M_1$ — that externalizes the 3D visibility reasoning the top-down input cannot support. Ground-truth sideviews are rendered directly from the simulator at $M_1$.
+
+\noindent\textbf{Data.}
+Synthetic data is generated from AI2-THOR~\cite{kolve2017ai2} and ProcTHOR~\cite{deitke2022procthor}, sampling feasible two-waypoint paths balanced across room types and distance bins.
+Questions are template-generated with four answer choices and quality-filtered via TIFA-style verification~\cite{hu2023tifa} using GPT-4.1 majority voting; samples answerable from endpoint views alone are removed to ensure genuine imagination is required.
+The synthetic training set contains $11{,}204$ examples.
+A real-world benchmark of $332$ human-verified questions is constructed from Matterport3D~\cite{chang2017matterport3d} top-down views and evaluated on Path and PathArr settings only.
+Full filtering criteria and real-world annotation pipeline details are in the Appendix.

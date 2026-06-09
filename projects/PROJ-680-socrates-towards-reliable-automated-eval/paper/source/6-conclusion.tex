@@ -1,0 +1,24 @@
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented \algname{}, a benchmark probing LLM mediators along eight domains and five socio-cognitive axes, built on automatic scenario construction and a topic-localized evaluator. \algname{} shows that conflict resolution remains challenging for LLMs and that performance shifts across context and party compositions. This indicates that effective mediation hinges on adaptation, not uniformity, and \algname{} provides the testbed to study it.
+
+
+
+
+\section*{Limitations}
+
+While \algname{} provides a controlled testbed for evaluating LLM mediation across domains and socio-cognitive conditions, several limitations remain. First, the benchmark currently runs all conversations in English, even when parties are assigned different cultural identities. This design isolates cultural values from language variation and keeps simulator behavior comparable across conditions, but it does not test multilingual mediation. Extending \algname{} to multilingual settings would reveal how language choice, translation ambiguity, and language-specific politeness norms affect mediator behavior.
+
+Second, \algname{} focuses on consensus as the primary outcome, since consensus is directly tied to whether a settlement is reached and can be scored consistently across domains. However, mediation quality also involves party satisfaction~\citep{hale2025kodis}, procedural fairness, trust restoration, and emotional repair. These dimensions depend on subjective party perceptions and are therefore harder to validate reliably, but incorporating well-calibrated rubrics for them would provide a more comprehensive evaluation of LLM mediators. We leave these extensions as future work.
+
+
+\section*{Ethical Considerations}
+
+We design \algname{} as a simulation study in which LLM agents role-play conflicts, so no real people are involved as disputants in this process. The scenarios are synthesized by LLM agents from deep-research seeds, with any residual references to specific individuals, organizations, or locations anonymized by the agents before the scenarios enter the benchmark.
+%
+We recruit crowd-sourced annotators and supervised graduate annotators solely for evaluator validation and persona-fidelity verification, and no other human subjects participate in social conflict simulations. Crowd-sourced annotators receive compensation above the U.S. federal minimum wage
+rate, while expert examiners were compensated at
+rates exceeding \$35 per hour.
+

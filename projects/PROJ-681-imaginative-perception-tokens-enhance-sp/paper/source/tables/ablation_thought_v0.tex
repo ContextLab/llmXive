@@ -1,0 +1,21 @@
+\begin{table}[t]
+  \caption{\textbf{Ablation on thought modality and inference mode.} Accuracy (\%) on AI2-THOR benchmarks (PT uses EgoDir variant). We compare Text CoT vs.\ IPT training and vary inference mode: generate thought then answer (w/ text/image), answer directly (answer-only), or condition on ground-truth (w/ GT image).}
+  \vspace{-1em}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  \small
+  \begin{tabular}{ll ccc}
+    \toprule
+    \textbf{Training} & \textbf{Inference} & \textbf{PET} & \textbf{PT} & \textbf{MVC} \\
+    \midrule
+    Text CoT   & w/ text      & 83.1 & 53.1 & 61.5 \\
+    Text CoT   & answer-only  & 78.3 & 55.8 & 62.3 \\
+    \midrule
+    IPT        & w/ image     & 96.8 & 50.4 & 63.1 \\
+    IPT        & answer-only  & 96.8 & 61.1 & 62.3 \\
+    \midrule
+    IPT        & w/ GT image  & 96.7 & \textbf{86.7} & \textbf{67.3} \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:ablation_thought}
+\end{table}

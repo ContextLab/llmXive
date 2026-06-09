@@ -1,0 +1,387 @@
+
+
+
+
+
+% 이게 왜 중요한지 더 드러나게 쓰면 좋을 듯합니다. 리뷰어가 쉽게 다 넣어서 하면 더 리얼한데 그렇게 안하고 이렇게 해야하는게 왜지 라고 생각할듯하네요. 사실 벤치마킹으로서는 이러...
+% 하나씩 뗴어야하는 이유 설명 넣기 -
+
+% 넵 비용떄문에 그럴것같긴합니다; 다만 연구 내용적으로 앞에서는 극단, 뒤 평가에서는 real value로 했다는게 조금 혼동될듯한 부분은 고민해주세요
+
+% 메트릭 설명들 전부 real-time으로서 현재까지의 컨센서스 스코어다라고 말하기
+
+
+
+% Ver3: 교수님 피드백 반영
+\section{\algname{} Framework}
+\label{sec:method}
+
+We formalize the mediation task and then build \algname{} in three stages: agentic scenario curation assembles the scenario pool from real public disputes, socio-cognitive probing expands each scenario along five axes, and topic-localized evaluation scores every trajectory with three metrics.
+
+\subsection{Task Formulation}
+\label{sec:method:task}
+
+Following the widely adopted Harvard conflict simulation framework~\citep{fisher2011getting}, we cast social conflict as the negotiation of a fixed topic set by parties with divergent positions, and represent a conflict scenario as a tuple $s = (\mathcal{B}, \mathcal{P}, \mathcal{T}, \mathcal{W})$.
+%
+The background $\mathcal{B}$ collects the past histories, prior commitments, and strategic posture of the conflict, which together form the common ground from which every party reasons. The party set $\mathcal{P} = \{p_1, \dots, p_n\}$ denotes the disputants, with $n \geq 2$. The topic set $\mathcal{T} = \{T_1, \dots, T_k\}$ enumerates the points of conflict, where each topic carries a discrete option set, making movement observable as a shift among options rather than free-form text. The preference set $\mathcal{W} = \{w_1, \dots, w_n\}$ assigns each party a weight vector $w_i$ over the topics summing to $100$, encoding how much each topic matters and keeping the disagreement non-trivial yet resolvable.
+
+\smallskip\smallskip\noindent\textbf{{Disputing Parties.}}
+Within a scenario, each party $p_i$ is an LLM agent that speaks on its turn, conditioned on two inputs. The shared input, visible to all, is the background $\mathcal{B}$, the topics $\mathcal{T}$, and the dialogue so far. The private input, visible only to $p_i$, is its profile: an objective, a fallback if talks fail, and a per-topic starting stance, a persona $\pi_i$ setting its emotional and cultural identity, and preferences $\mathcal{W}$. \algname{}'s socio-cognitive conditions perturb one scenario component at a time, either a party's profile, the background $\mathcal{B}$, or the party set $\mathcal{P}$ (\S\ref{sec:method:simulation}).
+
+\smallskip\smallskip\noindent\textbf{{Mediator.}}
+A third-party mediator observes the exchange and may speak between party turns. Unlike a party, it sees only the shared input, the background $\mathcal{B}$, the topics $\mathcal{T}$, and the dialogue so far, never any party's persona, stance, or preferences. Thus, the mediator must infer these hidden states from the dialogue, making mediation a test of social cognition. Each turn, it decides when to intervene and, if so, how to move the parties toward agreement across the topics. \algname{} scores both the when and the how of each intervention within the mediation.
+
+\subsection{Agentic Scenario Curation}
+\label{sec:method:construction}
+
+Prior testbeds rely on human experts who hand-crafted scenarios from commercial resources~\citep{liu2025promediate} or government databases~\citep{chen2026simulating}, capping coverage at the few domains these experts can reach. We instead curate every scenario from a real conflict via agentic deep research, where LLMs retrieve and synthesize web evidence across domains while staying faithful to cited sources~\citep{gou2026mind2web, tao2025webshaper}. \algname{} chains this into a three-step pipeline: a \textit{Searcher} gathers real conflict cases, a \textit{Scenario Writer} recasts them into enactable scenarios, and an unmediated simulation filters out cases that resolve on their own.
+
+\smallskip\smallskip\noindent\textbf{{Seed Scenario Search.}}
+We span eight domains (transactional, healthcare, environmental, business-to-business, public-policy, international, legal, and intra-organizational), each a canonical class of disputes drawn from Harvard teaching materials. For each domain, a \textit{Searcher} agent (o4-mini-deep-research~\citep{openai2025deepresearch}) takes the domain as a query and gathers conflict cases from the web, compiling each dispute's parties, contested topics, and event history into a \emph{seed}.
+
+\smallskip\smallskip\noindent\textbf{{Scenario Recast.}}
+A raw seed is in report form and cannot be enacted directly, so a \textit{Scenario Writer} agent (GPT-5.4, chosen for its strong long-form writing ability) recasts each seed into the structured scenario of \S\ref{sec:method:task}, comprising a background $\mathcal{B}$, a party set $\mathcal{P}$ with roles and per-topic stances, a topic set $\mathcal{T}$ with options, and a preference allocation $\mathcal{W}$ for each party, conditioned on the seed's background, topics, and party profiles. Prompts and example scenarios are provided in Appendix~\ref{app:scenario_detail}, with Table~\ref{tab:scenario-example} confirming that recast scenarios faithfully preserve their source inspirations.
+
+\smallskip\smallskip\noindent\textbf{{Simulation-based Filtering.}}
+A mediator can only be credited for resolving a conflict that would not have resolved on its own, so we keep only scenarios that fail to resolve unmediated. Each candidate is enacted as a multi-turn dialogue, the \emph{general} simulation that also serves as the unperturbed baseline for later expansion. Parties are role-playing agents (DeepSeek-V3.2)\footnotemark[1] held fixed across all runs, taking turns in a fixed cyclic order and emitting a private inner thought with each utterance to stay consistent with their role and persona~\citep{liu2025proactive, liu2025promediate}. As LLMs lack a natural stopping point and would otherwise talk past agreement or loop indefinitely~\citep{hu2026multi}, we adopt a explicit termination criteria. Simulations end as resolved once every party signals consensus, or as an impasse when a party walks away or the $100$-turn budget is reached.
+
+\footnotetext[1]{We select DeepSeek-V3.2 for its ability to faithfully reproduce assigned personas (see \S\ref{sec:validation:sim}).}
+
+We run this simulation three times per candidate without a mediator and retain the scenario only when all three replays end in impasse. Rejected scenarios feed back to the \textit{Searcher} for a fresh seed, until \algname{} accumulates $40$ hard scenarios, five per domain, forming the general condition.
+
+\subsection{Socio-Cognitive Probing}
+\label{sec:method:simulation}
+
+Starting from the $40$ general-condition scenarios, \algname{} probes mediator behavior along five socio-cognitive axes, running every resulting condition both with and without a mediator.
+%%%%
+
+\smallskip\smallskip\noindent\textbf{{Socio-cognitive Condition Expansion.}}
+The five axes are restructured from core mediator competencies~\citep{susskind1999consensus,bowling2000bringing,lebaron2003bridging} and organized into two groups, a \emph{context} group that raises the cognitive load of the conflict itself and a \emph{persona} group that varies disputant identity. Although stacking axes would reflect real-world complexity, it would entangle failures across competencies and obscure the performance gap attributable to each social variation. We therefore apply each axis independently to a fresh copy of the scenario, so any change in mediator performance traces back to one competency. 
+
+The context group comprises three axes that perturb the conflict itself:
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item \emph{Strategic Posture} specifies one of three Thomas-Kilmann conflict modes~\citep{thomas2008thomas} in the background $\mathcal{B}$, \emph{competing} (prioritizing self-interest), \emph{avoiding} (withdrawing from conflict), or \emph{accommodating} (placing others' interests ahead of one's own), to probe strategic adaptation.
+\item \emph{Party Composition} adds a third disputant, synthesized by the \textit{Scenario Writer} from the scenario again, to probe multi-state tracking.
+\item \emph{History Length} has the \textit{Scenario Writer} expand the past histories and prior commitments within the background to five times its default length, to probe long-context understanding.
+\end{itemize}
+
+\footnotetext[2]{We adopt Hofstede's cultural values~\citep{hofstede2010cultures} (\emph{e.g.}, uncertainty avoidance, individualism) as cultural background, since they shape conflict-handling~\citep{caputo2019relationship} and underlie surface customs and religion~\citep{guo2025conflict}.}
+
+
+The persona group comprises two axes that vary disputant identity, each applied by adding a persona instruction to the party profile. The two axes are:
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+\item \emph{Emotional Reactivity} sets each party's reactivity on a $0$--$1$ scale (higher = more reactive), fixed at the two endpoints, composed (Com, $0$) and reactive (React, $1$), to keep the contrast sharp, yielding three unordered party pairings.
+\item \emph{Cultural Identity} anchors each party to a Korean (KR), American (US), or Chinese (CN) identity through Hofstede profiles to probe cultural adaptation.\footnotemark[2] Identities are encoded as a statement summarizing its 0--100 scores across the six Hofstede dimensions, appended to the party profile. To isolate identity from language, we prompt all parties to interact in English. This yields three intra-cultural and three cross-cultural pairings.
+\end{itemize}
+
+Together with the general condition, the five axes yield 15 conditions. Refer to Appendix~\ref{app:probing} for the full list of conditions with their prompts and effects on conflict dynamics.
+
+\subsection{Topic-Localized Evaluation}
+\label{sec:method:evaluation}
+
+\subsubsection{Benchmark Metrics}
+\label{sec:method:evaluation:metrics}
+
+\algname{} compares each mediator against the matched unmediated run to quantify added consensus. For each topic $T_j \in \mathcal{T}$, the evaluator outputs a 1--5 agreement rating, which we remap to $[0,1]$ and average across topics into a \emph{Consensus Score} $S_{\leq t} \in [0,1]$ at every turn $t$. Here, $S_{\leq t}$ snapshots the cumulative consensus state up to turn $t$, rather than the agreement at turn $t$ alone, enabling two of our metrics to track real-time dynamics rather than only terminal outcomes. Each scenario therefore yields two matched trajectories, $\{S^\mathrm{unmed}_{\leq t}\}$ and $\{S^\mathrm{med}_{\leq t}\}$, on which the three metrics below operate.
+
+\smallskip\smallskip\noindent\textbf{{Intervention Timeliness.}}
+This metric captures \emph{when} a mediator acts, rewarding a prompt response once consensus drops within the mediated trajectory. We call a turn $t_\mathrm{drop}$ a \emph{drop event} when $S^\mathrm{med}_{\leq t}$ falls by at least $\tau = 0.1$ relative to the preceding turn, and let $t_\mathrm{s}$ be the first intervention within the next $W = 10$ turns:
+\[
+\text{Intervention Timeliness} =
+\left(1 - \frac{t_\mathrm{s} - t_\mathrm{drop}}{W}\right) \times 100,
+\]
+averaged across drop events in a run, where $100$ corresponds to an immediate response and $0$ to no intervention within the window.
+
+\smallskip\smallskip\noindent\textbf{{Intervention Effectiveness.}}
+This metric captures \emph{how} effective each mediator utterance is, the consensus lift it produces over the following five turns. For an intervention at turn $i$,
+\[\text{Intervention Effectiveness} = \frac{S^\mathrm{med}_{\leq i+5} - S^\mathrm{med}_{\leq i-1}}{1 - S^\mathrm{med}_{\leq i-1}} \times 100,\]
+averaged across a mediator's interventions, where $S^\mathrm{med}_{\leq i-1}$ and $S^\mathrm{med}_{\leq i+5}$ are the consensus snapshots immediately before and five turns after the utterance. The normalization by $1 - S^\mathrm{med}_{\leq i-1}$ accounts for ceiling effects when consensus is already high, while negative values indicate interventions that reduce consensus.
+
+
+\smallskip\smallskip\noindent\textbf{{Consensus Gain.}} This metric measures a mediator's overall contribution as the fraction of the unmediated consensus gap closed at the end state.
+\[\text{Consensus Gain} =
+\frac{S^\mathrm{med} - S^\mathrm{unmed}}{1 - S^\mathrm{unmed}} \times 100,\]
+where $S^\mathrm{unmed}$ and $S^\mathrm{med}$ are the terminal Consensus Scores of the matched runs without and with a mediator. Normalizing by the remaining gap $1 - S^\mathrm{unmed}$ makes scenarios with different initial states comparable. A value of $100$ closes the gap entirely, while a negative value indicates the parties end up worse off than without a mediator. When $S^\mathrm{unmed} = 1$, we report the raw change $S^\mathrm{med} - S^\mathrm{unmed}$.
+
+
+
+\subsubsection{Automatic Evaluation}
+\label{sec:method:evaluation:auto}
+
+Per-turn LLM judges score every topic at every turn~\citep{liu2025promediate}, yet only a few topics are actively contested at any given turn while the rest stay inactive, so scoring inactive topics injects noise from irrelevant content~\citep{koo2024benchmarking, ye2025justice} and compounds errors along the trajectory. We instead localize scoring to the turns that move each topic. For each topic $T_j$, the judge reads the dialogue once and locates the turns where $T_j$ is actively in play, those at which it is discussed or a party shifts position. At each located turn it records an agreement score and each party's current stance, and turns that do not touch $T_j$ inherit the prior score. The full trajectory is thus recovered in a single judge pass after the conversation ends, with DeepSeek-V3.2 as the backbone. Automatic evaluation prompts in Appendix~\ref{app:evaluator_detail}.
+
+We validate this evaluator against expert raters in \S\ref{sec:validation:trace}, where it reaches a Pearson $r = 0.82$ with experts, more than doubling both \textsc{ProMediate}~\citep{liu2025promediate} and a non-expert baseline.
+
+
+
+
+ % Expert annotators rate the same dialogues on the same five-point rubric but operate at the coarser granularity of \emph{snippets}, single back-and-forth exchanges; we average the per-turn trajectory within each snippet to align the two readings when comparing automatic and human judgments in \S\ref{sec:validation:trace}.
+
+ 
+
+
+
+
+ % Expert annotators rate the same dialogues on the same five-point rubric but operate at the coarser granularity of \emph{snippets}, single back-and-forth exchanges; we average the per-turn trajectory within each snippet to align the two readings when comparing automatic and human judgments in \S\ref{sec:validation:trace}.
+
+
+% % Ver2 : Method 대격변 이후
+% \section{\algname{} Framework}
+% \label{sec:method}
+
+% We formalize the mediation task and then build \algname{} in three stages: agentic scenario curation assembles the scenario pool from real public disputes, socio-cognitive probing expands each scenario along five axes, and topic-localized evaluation scores every trajectory with three metrics.
+
+% \subsection{Task Formulation}
+% \label{sec:method:task}
+
+% Following the widely adopted Harvard conflict simulation framework~\citep{fisher2011getting}, we cast social conflict as the negotiation of a fixed topic set by parties with divergent positions, and represent a conflict scenario as a tuple $s = (\mathcal{B}, \mathcal{P}, \mathcal{T}, \mathcal{W})$.
+% %
+% The background $\mathcal{B}$ collects the past histories, prior commitments, and strategic posture of the conflict, which together form the common ground from which every party reasons. The party set $\mathcal{P} = \{p_1, \dots, p_n\}$ denotes the disputants, with $n \geq 2$. The topic set $\mathcal{T} = \{T_1, \dots, T_k\}$ enumerates the points of conflict, where each topic carries a discrete option set, making movement observable as a shift among options rather than free-form text. The preference set $\mathcal{W} = \{w_1, \dots, w_n\}$ assigns each party a weight vector $w_i$ over the topics summing to $100$, encoding how much each topic matters and keeping the disagreement non-trivial yet resolvable.
+
+% \smallskip\smallskip\noindent\textbf{{Disputing Parties.}}
+% Within a scenario, each party $p_i$ is an LLM agent that speaks on its turn, conditioned on two inputs. The shared input, visible to all, is the background $\mathcal{B}$, the topics $\mathcal{T}$, and the dialogue so far. The private input, visible only to $p_i$, is its profile: an objective, a fallback if talks fail, and a per-topic starting stance, a persona $\pi_i$ setting its emotional and cultural identity, and preferences $\mathcal{W}$. \algname{}'s socio-cognitive conditions perturb one scenario component at a time, either a party's profile, the background $\mathcal{B}$, or the party set $\mathcal{P}$ (\S\ref{sec:method:simulation}).
+
+% \smallskip\smallskip\noindent\textbf{{Mediator.}}
+% A third-party mediator observes the exchange and may speak between party turns. Unlike a party, it sees only the shared input, the background $\mathcal{B}$, the topics $\mathcal{T}$, and the dialogue so far, never any party's persona, stance, or preferences. Thus, mediator must infer these hidden states from the dialogue, making mediation a test of social cognition. Each turn, it decides when to intervene and, if so, how moving the parties toward agreement across the topics. \algname{} scores both the when and the how of each intervention within the mediation.
+
+% \subsection{Agentic Scenario Curation}
+% \label{sec:method:construction}
+
+% Prior testbeds rely on human experts who hand-crafted scenarios from commercial resources~\citep{liu2025promediate} or government databases~\citep{chen2026simulating}, capping coverage at the few domains these experts can reach. We instead curate every scenario from a real conflict via agentic deep research, where LLMs retrieve and synthesize web evidence across domains while staying faithful to cited sources~\citep{gou2026mind2web, tao2025webshaper}. \algname{} chains this into a three-step pipeline: a \textit{Searcher} gathers real conflict cases, a \textit{Scenario Writer} recasts them into enactable scenarios, and an unmediated simulation filters out cases that resolve on their own.
+
+% \smallskip\smallskip\noindent\textbf{{Seed Scenario Search.}}
+% We span eight domains (transactional, healthcare, environmental, business-to-business, public-policy, international, legal, and intra-organizational), each a canonical class of disputes drawn from Harvard teaching materials. For each domain, a \textit{Searcher} agent (o4-mini-deep-research~\citep{openai2025deepresearch}) takes the domain as a query and gathers conflict cases from the web, compiling each dispute's parties, contested topics, and event history into a \emph{seed}.
+
+% \smallskip\smallskip\noindent\textbf{{Scenario Recast.}}
+% A raw seed is in report form and cannot be enacted directly, so a \textit{Scenario Writer} agent (GPT-5.4, chosen for its strong long-form writing ability) recasts each seed into the structured scenario of \S\ref{sec:method:task}, comprising a background $\mathcal{B}$, a party set $\mathcal{P}$ with roles and per-topic stances, a topic set $\mathcal{T}$ with options, and a preference allocation $\mathcal{W}$ for each party, conditioned on the seed's background, key issues, and party profiles. Prompts, weighting details, and example scenarios are provided in Appendix~\ref{app:scenario_detail}, with Table~\ref{tab:scenario-example} confirming that recast scenarios faithfully preserve the form of their source inspirations.
+
+% \smallskip\smallskip\noindent\textbf{{Simulation-based Filtering.}}
+% A mediator can only be credited for resolving a conflict that would not have resolved on its own, so we keep only scenarios that fail to resolve unmediated. Each candidate is enacted as a multi-turn dialogue, the \emph{general} simulation that also serves as the unperturbed baseline for later expansion. Parties are role-playing agents (DeepSeek-V3.2)\footnotemark[1] held fixed across all runs, taking turns in a fixed cyclic order and emitting a private inner thought with each public utterance to stay consistent with their role and persona~\citep{liu2025proactive, liu2025promediate}. As LLMs lack a natural stopping point and would otherwise talk past agreement or loop indefinitely~\citep{hu2026multi}, we adopt the explicit termination criteria. Simulations end as resolved once every party signals consensus, or as an impasse when a party walks away or the $100$-turn budget is reached.
+
+% \footnotetext[1]{We select DeepSeek-V3.2 for its ability to faithfully reproduce assigned personas (see \S\ref{sec:validation:sim}).}
+
+% We run this simulation three times per candidate without a mediator and retain the scenario only when all three replays end in impasse. Rejected scenarios feed back to the \textit{Searcher} for a fresh seed, until \algname{} accumulates $40$ hard scenarios, five per domain, forming the general condition.
+
+% \subsection{Socio-Cognitive Probing}
+% \label{sec:method:simulation}
+
+% Starting from the $40$ general-condition scenarios, \algname{} probes mediator behavior along five socio-cognitive axes, expanding each scenario into $15$ conditions and running every condition both with and without a mediator.
+
+
+
+% \smallskip\smallskip\noindent\textbf{{Socio-cognitive Condition Expansion.}}
+% The five axes are restructured from core mediator competencies~\citep{susskind1999consensus,bowling2000bringing,lebaron2003bridging} and organized into two groups, a \emph{context} group that raises the cognitive load of the conflict itself and a \emph{persona} group that varies disputant identity. To isolate where mediators fail, we apply each axis independently to a fresh copy of the scenario and never stack axes, so any change in mediator performance is attributable to a single axis. With the unexpanded general condition, the five axes yield $15$ conditions.
+
+% The context group comprises three axes that perturb the conflict itself:
+% \begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+% \item \emph{Strategic Posture} specifies one of three Thomas-Kilmann conflict modes~\citep{thomas2008thomas} in the background $\mathcal{B}$, \emph{competing} (prioritizing self-interest), \emph{avoiding} (withdrawing from conflict), or \emph{accommodating} (placing others' interests ahead of one's own), to probe strategic adaptation.
+% \item \emph{Party Composition} adds a third disputant, synthesized by the \textit{Scenario Writer} from the scenario again, to probe multi-state tracking.
+% \item \emph{History Length} has the \textit{Scenario Writer} expand the past histories and prior commitments within the background to five times its default length, to probe long-context understanding.
+% \end{itemize}
+
+% \footnotetext[2]{We adopt Hofstede's cultural values~\citep{hofstede2010cultures} (\emph{e.g.}, uncertainty avoidance, individualism) as cultural background, since they shape conflict-handling~\citep{caputo2019relationship} and underlie surface customs and religion~\citep{guo2025conflict}.}
+
+
+% The persona group comprises two axes that vary disputant identity, each applied by adding a persona instruction to the party profile. The two axes are:
+% \begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+% \item \emph{Emotional Reactivity} sets each party's reactivity on a $0$--$1$ scale (higher = more reactive), fixed to the two endpoints composed (Com, $0$) and reactive (React, $1$), yielding three unordered party pairings (Com-Com, Com-React, React-React), and probes emotional regulation.
+% \item \emph{Cultural Identity} anchors each party to a Korean (KR), American (US), or Chinese (CN) identity through Hofstede cultural values to probe cultural adaptation.\footnotemark[2] Identities are encoded as a short statement summarizing its 0--100 scores across the six Hofstede dimensions, appended to the party profile. To isolate cultural values from language, we prompt all parties to interact in English. This yields three intra-cultural (US-US, CN-CN, KR-KR) and three cross-cultural (US-CN, US-KR, CN-KR) pairings.
+% \end{itemize}
+
+
+% Appendix~\ref{app:axes} provides, for every axis setting, its full description, the prompt that realizes it, and its effect on conflict dynamics.
+
+% \subsection{Topic-Localized Evaluation}
+% \label{sec:method:evaluation}
+
+% \subsubsection{Benchmark Metrics}
+% \label{sec:method:evaluation:metrics}
+
+% \algname{} compares each mediator against the matched unmediated run to quantify the added consensus. The evaluator outputs an agreement rating in 1--5 scales for each topic $T_j \in \mathcal{T}$, which we remap to $[0,1]$ and average across topics into a per-turn \emph{Consensus Score} $S_t \in [0,1]$. Each scenario therefore yields two matched trajectories, $\{S^\mathrm{unmed}_t\}$ and $\{S^\mathrm{med}_t\}$, on which the three metrics below operate.
+
+
+% \smallskip\smallskip\noindent\textbf{{Intervention Timeliness.}}
+% This metric captures \emph{when} a mediator acts, rewarding prompt response once consensus drops. We call a turn $t_\mathrm{drop}$ a \emph{drop event} when $S_t$ falls by at least $\tau = 0.1$, and let $t_\mathrm{s}$ be the first intervention within the next $W = 10$ turns:
+% \[
+% \text{Intervention Timeliness} =
+% \left(1 - \frac{t_\mathrm{s} - t_\mathrm{drop}}{W}\right) \times 100,
+% \]
+% averaged across drop events in a run, where $100$ corresponds to an immediate response and $0$ to no intervention within the window.
+
+% \smallskip\smallskip\noindent\textbf{{Intervention Effectiveness.}}
+% This metric captures \emph{how} effective each mediator utterance is, the consensus lift it produces over the following five turns. For an intervention at turn $i$,
+% \[\text{Intervention Effectiveness} = \frac{S_{i+5} - S_{i-1}}{1 - S_{i-1}} \times 100,\]
+% averaged across a mediator's interventions, where $S_{i-1}$ and $S_{i+5}$ are the consensus scores immediately before and five turns after the utterance. The normalization by $1 - S_{i-1}$ accounts for ceiling effects when consensus is already high, while negative values indicate interventions that reduce consensus.
+
+
+% \smallskip\smallskip\noindent\textbf{{Consensus Gain.}} This metric measures a mediator's overall contribution as the fraction of the unmediated consensus gap that it closes.
+% \[\text{Consensus Gain} = 
+% \frac{S^\mathrm{med} - S^\mathrm{unmed}}{1 - S^\mathrm{unmed}} \times 100,\]
+% where $S^\mathrm{unmed}$ and $S^\mathrm{med}$ are the final Consensus Scores of the matched runs without and with a mediator. Normalizing by the remaining gap $1 - S^\mathrm{unmed}$ makes scenarios with different initial states comparable. A value of $100$ closes the gap entirely, while a negative value indicates the parties end up worse off than without a mediator. When $S^\mathrm{unmed} = 1$, we report the raw change $S^\mathrm{med} - S^\mathrm{unmed}$.
+
+
+
+% \begin{table*}[t]
+% \centering
+% \renewcommand{\arraystretch}{1.05}
+% \footnotesize
+% \setlength{\tabcolsep}{7.5pt}
+% \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+% \specialrule{\heavyrulewidth}{1pt}{0pt}
+% \makecell{Simulator} & \makecell{DeepSeek-V3.2} & \makecell{Gemini-3.1\\-Pro} & \makecell{GPT-5.4} & \makecell{Gemini-3.1\\-FL} & \makecell{Qwen3\\-235B} & \makecell{GPT-5.4\\-mini} & \makecell{Qwen3\\-30B} & \makecell{Kripp.'s $\alpha$\\(IAA)} \\
+% \specialrule{\lightrulewidth}{0pt}{0pt}
+% Persona & \textbf{87.2} & 86.9 & 80.4 & 75.0 & 74.7 & 72.5 & 70.4 & 0.75 \\
+% \specialrule{\heavyrulewidth}{0pt}{1pt}
+% \end{tabular}
+% \vspace{-0.3cm}
+% \caption{Simulation fidelity for persona fidelity (accuracy (\%) via A/B comparison based evaluation)}
+% \label{tab:persona-reactiveness}
+% \vspace{-0.5cm}
+% \end{table*}
+
+
+
+% \subsubsection{Automatic Evaluation}
+% \label{sec:method:evaluation:auto}
+
+% Per-turn LLM judges score every topic at every turn~\citep{liu2025promediate}, yet only a few topics are actively contested at any given turn while the rest stay inactive, so scoring inactive topics injects noise from irrelevant content~\citep{koo2024benchmarking, ye2025justice} and compounds errors along the trajectory. We instead localize scoring to the turns that move each topic. For each topic $T_j$, the judge reads the dialogue once and locates the turns where $T_j$ is actively in play, those at which it is discussed or a party shifts position. At each located turn it records an agreement score and each party's current stance, and turns that do not touch $T_j$ inherit the prior score. The full trajectory is thus recovered in a single judge pass after the conversation ends, with DeepSeek-V3.2 as the backbone. Automatic evaluation prompts in Appendix~\ref{app:evaluator_detail}.
+
+% We validate this evaluator against expert raters in \S\ref{sec:validation:trace}, where it reaches a Pearson $r = 0.82$ with experts, more than doubling both \textsc{ProMediate}~\citep{liu2025promediate} and a non-expert baseline.
+
+
+
+
+%  % Expert annotators rate the same dialogues on the same five-point rubric but operate at the coarser granularity of \emph{snippets}, single back-and-forth exchanges; we average the per-turn trajectory within each snippet to align the two readings when comparing automatic and human judgments in \S\ref{sec:validation:trace}.
+
+ 
+
+
+
+
+%  % Expert annotators rate the same dialogues on the same five-point rubric but operate at the coarser granularity of \emph{snippets}, single back-and-forth exchanges; we average the per-turn trajectory within each snippet to align the two readings when comparing automatic and human judgments in \S\ref{sec:validation:trace}.
+
+ 
+
+
+% % %%%%%% Ver 1 (대격변 이전) : Mehtod 서술 다 갈아엎기 이전
+
+% % \section{The \algname{} Framework}
+% % \label{sec:method}
+
+% % \subsection{Task Formulation}
+% % \label{sec:method:task}
+
+% % Following the Harvard conflict simulation framework~\citep{fisher2011getting}, we cast social conflict as the negotiation of a fixed topic set by parties with divergent positions, and represent a conflict scenario as a tuple $s = (\mathcal{B}, \mathcal{P}, \mathcal{T}, \mathcal{W})$. 
+% % %
+% % The background $\mathcal{B}$ collects the past histories, prior commitments, and strategic posture of the conflict, which together form the common ground from which every party reasons. The party set $\mathcal{P} = \{p_1, \dots, p_n\}$ denotes the disputants, with $n \geq 2$. The topic set $\mathcal{T} = \{T_1, \dots, T_k\}$ enumerates the points of conflict, where each topic carries a discrete option set, making movement observable as a shift among options rather than free-form text. The preference set $\mathcal{W} = \{w_1, \dots, w_n\}$ assigns each party a weight vector $w_i$ over the topics summing to $100$, encoding how much each topic matters and keeping the disagreement non-trivial yet resolvable.
+
+% % \smallskip\smallskip\noindent\textbf{{Disputing Parties.}}
+% % Within a scenario, each party $p_i$ is an LLM agent that speaks on its turn, conditioned on two inputs. The shared input, visible to all, is the background $\mathcal{B}$, the topics $\mathcal{T}$, and the dialogue so far. The private input, visible only to $p_i$, is its profile: a role fixing its objective and fallback if talks fail, a per-topic stance fixing where it starts, a persona $\pi_i$ setting its emotional and cultural identity, and a weight vector $w_i$ governing which topics it concedes or defends. \algname{}'s socio-cognitive conditions are built by perturbing one component of the scenario at a time, a party's profile, the background $\mathcal{H}$, or the party set $\mathcal{P}$ (\S\ref{sec:method:simulation}).
+
+% % \smallskip\smallskip\noindent\textbf{{Mediator.}}
+% % A third-party mediator observes the exchange and may speak between party turns. Unlike a party, it sees only the shared input, the background $\mathcal{B}$, the topics $\mathcal{T}$, and the dialogue so far, never any party's persona, stance, or preferences. Thus, mediator must infer these hidden states from the dialogue, making mediation a test of social cognition. Each turn, it decides when to intervene and, if so, how moving the parties toward agreement across the topics. \algname{} scores both the when and the how of each intervention within the mediation.
+
+% % \subsection{Scenario Construction}
+% % \label{sec:method:construction}
+
+% % Rather than hand-writing scenarios or synthesizing them from scratch, we ground all scenarios in a collected real-world dispute via agentic deep research.
+% % %
+% % Prior testbeds rely on commercial materials~\citep{liu2025promediate} or government databases~\citep{chen2026simulating}, where humans summarize each component, limiting extensibility to new domains.
+% % %
+% % We thus adopt agentic deep research, as LLM agents autonomously retrieve and synthesize web evidence across domains while staying faithful to cited sources~\citep{gou2026mind2web, tao2025webshaper}.
+
+
+
+
+% % %
+% % We select eight conflict domains (intra-organizational, business-to-business, healthcare, legal, public-policy, environmental, international, and transactional), each a canonical class of disputes drawn from Harvard teaching materials. For each domain, we send task instructions to \texttt{o4-mini-deep-research}~\citep{openai2025deepresearch} with the domain as a query. The agent autonomously gathers conflict cases and compiles each dispute's parties, contested topics, and event history into a seed, a brief report summarizing the case.
+
+% % Because a raw research seed is in report form and cannot be enacted directly, we use a \textit{scenario writer} agent (\texttt{GPT-5.4}, chosen for its strong long-form writing ability) to reformat each seed into the structured scenario of \S\ref{sec:method:task}: a background $\mathcal{B}$, a party set $\mathcal{P}$ with roles and per-topic stances, and a topic set $\mathcal{T}$ with options. All prompts and examples for scenario construction are provided in  \textcolor{red}{Appendix~X}. As shown in \textcolor{red}{Table~X}, the reformatted scenarios are comparable in form to expert-written ones. We assign the preference $\mathcal{W}$ per condition later (\S\ref{sec:method:simulation}). 
+
+% % \subsection{Social Conflict Resolution Simulation}
+% % \label{sec:method:simulation}
+
+% % \algname{} enacts each scenario as a multi-turn dialogue, keeps only the challenging scenarios, those prone to runaway escalation, expands every scenario into $15$ socio-cognitive conditions, and runs each condition both with and without a mediator. All prompts in this step are provided in \textcolor{red}{Appendix~X}.
+
+% % \smallskip\smallskip\noindent\textbf{{Social Conflict Simulation.}}
+% % To attribute any metric difference to the mediator rather than the parties, we instantiate each party as a role-playing LLM agent (DeepSeek-V3.2), held fixed across all runs.\footnotemark[3] Parties take turns in a fixed cyclic order, each speaking once per round. To keep all parties consistent with its role and persona, mirroring how human reason privately~\citep{liu2025proactive, liu2025promediate}, an agent generates utterance with a private inner-thought. As LLMs lack a natural stopping point and would otherwise talk past agreement or loop indefinitely \citep{}, we adopt explicit termination criteria following \citet{kwon2025evaluating}. A simulation ends as resolved once every party signals consensus, or as an impasse when a party walks away or the $100$ turn budget is reached.
+
+% % \footnotetext[3]{We select DeepSeek-V3.2 for its ability to faithfully reproduce assigned personas (see \S\ref{sec:validation:sim}).}
+
+% % \smallskip\smallskip\noindent\textbf{{Challenging Scenario Curation.}}
+% % A mediator can only be credited for resolving a conflict that would not have resolved on its own. We thus keep only hard scenarios prone to conflict escalation. For each candidate scenario, we run the simulation three times without a mediator, and retain it only when all three replays end in impasse. We repeat this sampling until we obtain $40$ challenging scenarios, five per domain, as the general condition.
+
+% % \smallskip\smallskip\noindent\textbf{{Socio-cognitive Condition Expansion}}
+% % A mediator's social cognition surfaces under variation, not under a fixed scenario. We therefore expand each retained scenario along five socio-cognitive axes in two groups, a \emph{context} group that raises the cognitive load of the conflict and a \emph{persona} group that varies disputant identity. We apply each axis independently to a fresh copy of the scenario and never stack axes, so any change in mediator performance is attributable to a single axis. With the unexpanded general condition, the axes yield $15$ conditions.
+
+% % The context group comprises three axes that perturb the conflict itself:
+% % \begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+% % \item \emph{Strategies} controls strategic postures by specifying one of three Thomas-Kilmann conflict modes~\citep{thomas2008thomas} in the background $\mathcal{B}$: \emph{competing} (prioritizing self-interest), \emph{avoiding} (withdrawing from conflict), or \emph{accommodating} (placing others' interests ahead of one's own), targeting strategic adaptation.
+% % \item \emph{Parties} adds a third disputant, synthesized by the scenario writer from the scenario again, and targets multi-state tracking.
+% % \item \emph{Histories} has the scenario writer expand the past histories and prior commitments within the background to five times its default length, targeting long-context understanding.
+% % \end{itemize}
+
+% % The persona group comprises two axes that vary disputant identity, each applied by adding a persona instruction to the party profile:
+% % \begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+% % \item \emph{Emotion Control} sets each party's reactivity on a $0$--$1$ scale (higher = more reactive), fixed to the two endpoints composed (C, $0$) and reactive (R, $1$), yielding three unordered party pairings (CC, CR, RR), and targets emotional regulation.
+% % \item \emph{Culture} anchors each party to a Korean (KR), American (US), or Chinese (CN) identity through Hofstede value statements~\citep{hofstede2010cultures}, and targets cultural adaptation. Each identity is encoded as a short statement summarizing its 0--100 scores across the six Hofstede dimensions, appended to the party profile. To isolate cultural values from language, we prompt all parties to interact in English. This yields three intra-cultural and three cross-cultural pairings.
+% % \end{itemize}
+
+% % The full description of every axis setting, together with its effect on conflict dynamics grounded in prior work, is provided in \textcolor{red}{Appendix~X}.
+
+
+% % \smallskip\smallskip\noindent\textbf{{Preference Weighting.}}
+% % For every party in every condition, scenario writer agent \texttt{GPT-5.4} allocates the preference weights $\mathcal{W}$ from the party's role and persona. Conditioning on persona makes the same topic carry different stakes under different emotional or cultural profiles.
+
+% % \smallskip\smallskip\noindent\textbf{{Benchmarked mediators.}}
+% % We benchmark eight LLM mediators with \algname{}: two proprietary models, GPT-5.4-mini and Gemini-3.1-Flash-Lite, and six open-source models, DeepSeek-V3.2, Qwen3-235B, Solar-Pro-3, Nemotron3-120B, Qwen3-30B, and Gemma-4-26B. This set spans two axes, proprietary versus open-source and large versus small. At every party turn, the mediator outputs a binary decision whether to intervene. When it does, it inserts a single utterance before the next party speaks; otherwise the dialogue proceeds uninterrupted. This loop repeats until termination.
+% % %
+% % Each mediator runs once on every scenario-condition pair, $40$ scenarios $\times$ $15$ conditions $= 600$ runs per mediator and $4{,}800$ in total, each paired with its no-mediator baseline. See \textcolor{red}{Appendix~X} for the full model specifications and mediator prompts.
+
+% % \subsection{Social Conflict Resolution Evaluation}
+% % \label{sec:method:evaluation}
+
+% % \subsubsection{Benchmark Metrics}
+
+% % \algname{} compares each mediator against the same scenario without one, quantifying the added consensus. For every topic $T_j \in \mathcal{T}$, an evaluator rates agreement on a 1–5 scale at each turn where $T_j$ is substantively discussed; otherwise the previous rating is carried forward. Ratings are remapped to $[0,1]$ and averaged across topics to yield a per-turn \emph{Consensus Score} $S_t \in [0,1]$. Each scenario produces matched trajectories ${S^\mathrm{base}_t}$ and ${S^\mathrm{med}_t}$, on which three metrics operate.
+
+% % \smallskip\smallskip\noindent\textbf{{Consensus Gain.}} This metric measures a mediator's overall contribution, the fraction of the consensus gap left by the unmediated baseline that the mediator closes,
+% % \begin{equation}
+% % \text{Consensus Gain} = \frac{S^\mathrm{med} - S^\mathrm{base}}{1 - S^\mathrm{base}},
+% % \label{eq:cg}
+% % \end{equation}
+% % where $S^\mathrm{base}, S^\mathrm{med}$ are the terminal Consensus Scores of the matched runs. Normalizing by the remaining gap $1 - S^\mathrm{base}$ makes scenarios with different initial states comparable, with $\mathrm{CG} = 1$ closing the gap entirely and $\mathrm{CG} < 0$ leaving the parties worse off than the baseline. When $S^\mathrm{base} = 1$, we report the raw change $S^\mathrm{med} - S^\mathrm{base}$.
+
+
+% % \smallskip\smallskip\noindent\textbf{{Intervention Timeliness.}}
+% % This metric captures \emph{when} a mediator acts, rewarding prompt response once consensus drops. We call a turn $t_\mathrm{drop}$ a \emph{drop event} when $S_t$ falls by at least $\tau = 0.1$, and let $t_\mathrm{s}$ be the first intervention within the next $W = 10$ turns:
+% % \begin{equation}
+% % \text{Intervention Timeliness} = 1 - \frac{t_\mathrm{s} - t_\mathrm{drop}}{W},
+% % \label{eq:it}
+% % \end{equation}
+% % averaged across drop events in a run, with $\mathrm{IT} = 1$ for an immediate response and $\mathrm{IT} = 0$ when no intervention falls within the window.
+
+% % \smallskip\smallskip\noindent\textbf{{Intervention Effectiveness.}}
+% % This metric captures \emph{how} effective each mediator utterance is, the consensus lift it produces over the following five turns. For an intervention at turn $i$,
+% % \begin{equation}
+% % \text{Intervention Effectiveness} = \frac{S_{i+5} - S_{i-1}}{1 - S_{i-1}},
+% % \label{eq:ie}
+% % \end{equation}
+% % averaged across a mediator's interventions in the run, where $S_{i-1}$ and $S_{i+5}$ are the Consensus Scores immediately before and five turns after the utterance. As in Eq.~\ref{eq:cg}, dividing by $1 - S_{i-1}$ avoids penalizing small lifts when consensus is already high, while $\mathrm{IE} < 0$ marks interventions that escalate the conflict.
+
+
+% % \subsubsection{Topic-localized Automatic Evaluation}
+% % \label{sec:method:evaluation:auto}
+
+% % \textsc{Promediate}~\citep{liu2025promediate} captures finer-grained consensus dynamics through per-turn evaluation across all topics, yet reliable scoring at this granularity remains difficult. This is because only a few topics in a conflict are actively contested or deadlocked at any given turn, while the rest remain inactive. Updating scores for all topics at every turn therefore introduces noisy signals from irrelevant content~\citep{koo2024benchmarking,ye2025justice}, making consistent and reliable scoring challenging.
+
+% % \algname{} addresses this challenge by localizing scoring to the turns where each topic is actively in play. For each topic $T_j$, the judge reads the dialogue and locates the relevant turns, those at which the topic is discussed or a party shifts position. At each located turn, the judge records an consensus score together with each party's stance on topic. Between these turns, the score carries forward, so a turn that does not touch the topic leaves it unchanged. Since \algname{} obtains scores for all relevant turns at once and carries them forward through inactive turns, we run only a single judge pass after the conversation ends, with \texttt{DeepSeek-V3.2} as the backbone. Prompts are provided in \textcolor{red}{Appendix~X}
+
+% % We validate this evaluator against expert raters in \S\ref{sec:validation:trace}, where it achieves 82.3\% agreement with experts, outperforming both \textsc{ProMediate} and non-experts.
+
+
+
+
+% %  % Expert annotators rate the same dialogues on the same five-point rubric but operate at the coarser granularity of \emph{snippets}, single back-and-forth exchanges; we average the per-turn trajectory within each snippet to align the two readings when comparing automatic and human judgments in \S\ref{sec:validation:trace}.
+
+ 

@@ -1,0 +1,24 @@
+\begin{table}[t]
+  \caption{\textbf{Transfer to similar external benchmarks.} Accuracy (\%). SAT tests perspective taking and MessyTable tests multiview counting, both in domains unseen during training. Best in \textbf{bold}.}
+  \vspace{-1em}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  \small
+  \begin{tabular}{l cc}
+    \toprule
+    & \textbf{PET} & \textbf{MVC} \\
+    \cmidrule(lr){2-2} \cmidrule(lr){3-3}
+    \textbf{Model}
+      & \footnotesize SAT (66)
+      & \footnotesize MessyTable (200) \\
+    \midrule
+    Bagel (base)       & 34.9 & 29.0 \\
+    Bagel (label-only) & 59.1 & 32.5 \\
+    + Text CoT         & 50.0 & 30.0 \\
+    + IPT              & 57.6 & 28.5 \\
+    + Mixed Training   & \textbf{63.6} & \textbf{37.0} \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:transfer}
+\end{table}
+\vspace{-1em}

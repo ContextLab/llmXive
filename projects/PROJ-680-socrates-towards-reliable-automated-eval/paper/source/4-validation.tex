@@ -1,0 +1,68 @@
+
+\begin{table*}[t]
+\centering
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\specialrule{\heavyrulewidth}{0pt}{0pt}
+\makecell{Simulator} & \makecell{DeepSeek\\-V3.2} & \makecell{Gemini-3.1\\-Pro} & \makecell{GPT-5.4} & \makecell{Gemini-3.1\\-FL} & \makecell{Qwen3\\-235B} & \makecell{GPT-5.4\\-mini} & \makecell{Qwen3\\-30B} & \makecell{Kripp.'s $\alpha$\\(IAA)} \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+Persona & \textbf{87.2} & 86.9 & 80.4 & 75.0 & 74.7 & 72.5 & 70.4 & 0.75 \\
+\specialrule{\heavyrulewidth}{0pt}{0pt}
+\end{tabular}
+\vspace{-0.2cm}
+\caption{Simulation fidelity for persona fidelity (accuracy (\%) via A/B comparison based evaluation)}
+\label{tab:persona-reactiveness}
+\vspace{-0.5cm}
+\end{table*}
+
+
+
+\section{Validation of \algname{}}
+\label{sec:validation}
+Two components of \algname{} require empirical validation before benchmarking: (i) the disputant simulators must actually produce the prescribed persona variations\footnotemark[3], and (ii) the topic-localized evaluator must trace trajectories reliably. We validate (i) by checking whether the persona scalar steers party behavior as intended, and (ii) via alignment with human expert judgments.
+
+\footnotetext[3]{We focus on persona fidelity because, for remaining axes, the perturbations are structural by construction or supported by prior validations of strategic posture~\citep{liu2025promediate} and cultural persona~\citep{dey2025can}.}
+
+
+\paragraph{Simulation Fidelity.}
+\label{sec:validation:sim}
+\algname{} uses a float-valued intensity scalar when expanding each party persona, and we ask whether varying this scalar steers agent behavior. We operationalize the check through reactiveness, the persona dimension governing emotional escalation. To probe intensity controllability beyond the binary, we test four scalar levels $\{0, 0.33, 0.66, 1\}$ and check whether agents preserve this scale across simulated conversations.
+
+We evaluate seven strong simulators, drawn from the mediator pool and supplemented with updated backbones (GPT-5.4, Gemini-3.1-Pro), to isolate persona controllability from weak simulator failure. Following the protocol of \citet{choi2026makes}, we sample two levels at random from the four-level grid, pair each against a third randomly chosen reference, and generate the conversations with reference's persona held fixed. Human annotators select the more reactive side in each pair, and higher annotator accuracy indicates more faithful intensity control (see Appendix~\ref{app:simulation_validation_detail} for annotation details).
+
+This yields 160 A/B pairs per simulator, annotated by three crowdworkers with Krippendorff's $\alpha = 0.75$. DeepSeek-V3.2 achieves the highest score (Table~\ref{tab:persona-reactiveness}), indicating that the float-valued persona reliably translates into ordered reactiveness.
+
+
+\begin{wraptable}{r!}{0.5\textwidth} 
+\vspace{-0.4cm}
+\centering
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\begin{tabular}{|L{1.7cm}|X{2cm}|X{1.9cm}|}
+\specialrule{\heavyrulewidth}{1pt}{0pt}
+Evaluator & Trajectory level & Outcome level \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\textsc{Non-expert} & 0.331 (0.000) & 0.527 (0.000) \\
+\textsc{ProMediate}        & 0.372 (0.000) & 0.432 (0.000) \\
+\algname{}     & \textbf{0.823} (0.000) & \textbf{0.801} (0.000) \\
+\specialrule{\heavyrulewidth}{0pt}{1pt}
+\end{tabular}
+\vspace{-0.1cm}
+\caption{Evaluator alignment with experts (Pearson $r$). The values in parenthesis represent p-values.}
+\label{tab:trace-validation}
+\vspace{-0.4cm}
+\end{wraptable}
+
+
+
+\paragraph{Topic-localized Evaluation.}
+\label{sec:validation:trace}
+We test whether the topic-localized evaluation tracks expert judgment. Since humans recognize consensus only after a claim has been met with a response~\citep{clark1991grounding}, per-turn human annotation would inject ambiguity. We instead aggregate the evaluator's per-turn trajectory into snippets, single back-and-forth exchanges, and have experts annotate at this unit. Aggregation preserves any per-turn evaluator error while matching the resolution at which experts can rate reliably. Two expert annotators rate 1,844 snippets from 144 mediator trajectories, sampled to ensure balanced coverage across domains and  models under the same 1--5 rubric as the evaluator (see Appendix~\ref{app:evaluation_validation_detail} for annotation details), reaching inter-annotator agreement of $\alpha = 0.86$.
+
+
+We compare \algname{} against two baselines on the same 1--5 scale: \textsc{ProMediate}'s LLM judge, which scores every topic at every turn regardless of relevance, and a \textsc{Non-expert} rater performing the same task as the experts. We measure alignment with the average expert score using Pearson correlation $r$ at two granularities: \emph{trajectory-level} (all snippets) and \emph{outcome-level} (the final snippet). The two views complement each other, as intervention quality metrics depend on conflict trajectory while consensus gain depends on the final state.
+
+The topic-localized evaluator achieves the strongest alignment with experts, reaching $r = 0.82$ on trajectories and $r = 0.80$ on outcomes (Table~\ref{tab:trace-validation}), more than doubling both baselines on trajectories. This result remains consistent under another backbone (see Table~\ref{tab:trace-validation-other} in Appendix~\ref{app:evaluation_validation_detail}). Without localization, per-turn baselines distort the consensus trajectory (see Figure~\ref{fig:trend} in Appendix~\ref{app:evaluation_validation_detail}).
+

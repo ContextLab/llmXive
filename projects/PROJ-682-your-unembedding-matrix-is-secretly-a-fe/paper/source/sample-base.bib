@@ -1,0 +1,618 @@
+
+% Journals
+
+% First the Full Name is given, then the abbreviation used in the AMS Math
+% Reviews, with an indication if it could not be found there.
+% Note the 2nd overwrites the 1st, so swap them if you want the full name.
+
+ %{AMS}
+ @String{AMSTrans = "American Mathematical Society Translations" }
+ @String{AMSTrans = "Amer. Math. Soc. Transl." }
+ @String{BullAMS = "Bulletin of the American Mathematical Society" }
+ @String{BullAMS = "Bull. Amer. Math. Soc." }
+ @String{ProcAMS = "Proceedings of the American Mathematical Society" }
+ @String{ProcAMS = "Proc. Amer. Math. Soc." }
+ @String{TransAMS = "Transactions of the American Mathematical Society" }
+ @String{TransAMS = "Trans. Amer. Math. Soc." }
+
+ %ACM
+ @String{CACM = "Communications of the {ACM}" }
+ @String{CACM = "Commun. {ACM}" }
+ @String{CompServ = "Comput. Surveys" }
+ @String{JACM = "J. ACM" }
+ @String{ACMMathSoft = "{ACM} Transactions on Mathematical Software" }
+ @String{ACMMathSoft = "{ACM} Trans. Math. Software" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newsletter" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newslett." }
+
+ @String{AmerSocio = "American Journal of Sociology" }
+ @String{AmerStatAssoc = "Journal of the American Statistical Association" }
+ @String{AmerStatAssoc = "J. Amer. Statist. Assoc." }
+ @String{ApplMathComp = "Applied Mathematics and Computation" }
+ @String{ApplMathComp = "Appl. Math. Comput." }
+ @String{AmerMathMonthly = "American Mathematical Monthly" }
+ @String{AmerMathMonthly = "Amer. Math. Monthly" }
+ @String{BIT = "{BIT}" }
+ @String{BritStatPsych = "British Journal of Mathematical and Statistical
+          Psychology" }
+ @String{BritStatPsych = "Brit. J. Math. Statist. Psych." }
+ @String{CanMathBull = "Canadian Mathematical Bulletin" }
+ @String{CanMathBull = "Canad. Math. Bull." }
+ @String{CompApplMath = "Journal of Computational and Applied Mathematics" }
+ @String{CompApplMath = "J. Comput. Appl. Math." }
+ @String{CompPhys = "Journal of Computational Physics" }
+ @String{CompPhys = "J. Comput. Phys." }
+ @String{CompStruct = "Computers and Structures" }
+ @String{CompStruct = "Comput. \& Structures" }
+ @String{CompJour = "The Computer Journal" }
+ @String{CompJour = "Comput. J." }
+ @String{CompSysSci = "Journal of Computer and System Sciences" }
+ @String{CompSysSci = "J. Comput. System Sci." }
+ @String{Computing = "Computing" }
+ @String{ContempMath = "Contemporary Mathematics" }
+ @String{ContempMath = "Contemp. Math." }
+ @String{Crelle = "Crelle's Journal" }
+ @String{GiornaleMath = "Giornale di Mathematiche" }
+ @String{GiornaleMath = "Giorn. Mat." } % didn't find in AMS MR., ibid.
+
+ %IEEE
+ @String{Computer = "{IEEE} Computer" }
+ @String{IEEETransComp = "{IEEE} Transactions on Computers" }
+ @String{IEEETransComp = "{IEEE} Trans. Comput." }
+ @String{IEEETransAC = "{IEEE} Transactions on Automatic Control" }
+ @String{IEEETransAC = "{IEEE} Trans. Automat. Control" }
+ @String{IEEESpec = "{IEEE} Spectrum" } % didn't find in AMS MR
+ @String{ProcIEEE = "Proceedings of the {IEEE}" }
+ @String{ProcIEEE = "Proc. {IEEE}" } % didn't find in AMS MR
+ @String{IEEETransAeroElec = "{IEEE} Transactions on Aerospace and Electronic
+     Systems" }
+ @String{IEEETransAeroElec = "{IEEE} Trans. Aerospace Electron. Systems" }
+
+ @String{IMANumerAna = "{IMA} Journal of Numerical Analysis" }
+ @String{IMANumerAna = "{IMA} J. Numer. Anal." }
+ @String{InfProcLet = "Information Processing Letters" }
+ @String{InfProcLet = "Inform. Process. Lett." }
+ @String{InstMathApp = "Journal of the Institute of Mathematics and
+     its Applications" }
+ @String{InstMathApp = "J. Inst. Math. Appl." }
+ @String{IntControl = "International Journal of Control" }
+ @String{IntControl = "Internat. J. Control" }
+ @String{IntNumerEng = "International Journal for Numerical Methods in
+     Engineering" }
+ @String{IntNumerEng = "Internat. J. Numer. Methods Engrg." }
+ @String{IntSuper = "International Journal of Supercomputing Applications" }
+ @String{IntSuper = "Internat. J. Supercomputing Applic." } % didn't find
+%% in AMS MR
+ @String{Kibernetika = "Kibernetika" }
+ @String{JResNatBurStand = "Journal of Research of the National Bureau
+     of Standards" }
+ @String{JResNatBurStand = "J. Res. Nat. Bur. Standards" }
+ @String{LinAlgApp = "Linear Algebra and its Applications" }
+ @String{LinAlgApp = "Linear Algebra Appl." }
+ @String{MathAnaAppl = "Journal of Mathematical Analysis and Applications" }
+ @String{MathAnaAppl = "J. Math. Anal. Appl." }
+ @String{MathAnnalen = "Mathematische Annalen" }
+ @String{MathAnnalen = "Math. Ann." }
+ @String{MathPhys = "Journal of Mathematical Physics" }
+ @String{MathPhys = "J. Math. Phys." }
+ @String{MathComp = "Mathematics of Computation" }
+ @String{MathComp = "Math. Comp." }
+ @String{MathScand = "Mathematica Scandinavica" }
+ @String{MathScand = "Math. Scand." }
+ @String{TablesAidsComp = "Mathematical Tables and Other Aids to Computation" }
+ @String{TablesAidsComp = "Math. Tables Aids Comput." }
+ @String{NumerMath = "Numerische Mathematik" }
+ @String{NumerMath = "Numer. Math." }
+ @String{PacificMath = "Pacific Journal of Mathematics" }
+ @String{PacificMath = "Pacific J. Math." }
+ @String{ParDistComp = "Journal of Parallel and Distributed Computing" }
+ @String{ParDistComp = "J. Parallel and Distrib. Comput." } % didn't find
+%% in AMS MR
+ @String{ParComputing = "Parallel Computing" }
+ @String{ParComputing = "Parallel Comput." }
+ @String{PhilMag = "Philosophical Magazine" }
+ @String{PhilMag = "Philos. Mag." }
+ @String{ProcNAS = "Proceedings of the National Academy of Sciences
+                    of the USA" }
+ @String{ProcNAS = "Proc. Nat. Acad. Sci. U. S. A." }
+ @String{Psychometrika = "Psychometrika" }
+ @String{QuartMath = "Quarterly Journal of Mathematics, Oxford, Series (2)" }
+ @String{QuartMath = "Quart. J. Math. Oxford Ser. (2)" }
+ @String{QuartApplMath = "Quarterly of Applied Mathematics" }
+ @String{QuartApplMath = "Quart. Appl. Math." }
+ @String{RevueInstStat = "Review of the International Statisical Institute" }
+ @String{RevueInstStat = "Rev. Inst. Internat. Statist." }
+
+ %SIAM
+ @String{JSIAM = "Journal of the Society for Industrial and Applied
+     Mathematics" }
+ @String{JSIAM = "J. Soc. Indust. Appl. Math." }
+ @String{JSIAMB = "Journal of the Society for Industrial and Applied
+     Mathematics, Series B, Numerical Analysis" }
+ @String{JSIAMB = "J. Soc. Indust. Appl. Math. Ser. B Numer. Anal." }
+ @String{SIAMAlgMeth = "{SIAM} Journal on Algebraic and Discrete Methods" }
+ @String{SIAMAlgMeth = "{SIAM} J. Algebraic Discrete Methods" }
+ @String{SIAMAppMath = "{SIAM} Journal on Applied Mathematics" }
+ @String{SIAMAppMath = "{SIAM} J. Appl. Math." }
+ @String{SIAMComp = "{SIAM} Journal on Computing" }
+ @String{SIAMComp = "{SIAM} J. Comput." }
+ @String{SIAMMatrix = "{SIAM} Journal on Matrix Analysis and Applications" }
+ @String{SIAMMatrix = "{SIAM} J. Matrix Anal. Appl." }
+ @String{SIAMNumAnal = "{SIAM} Journal on Numerical Analysis" }
+ @String{SIAMNumAnal = "{SIAM} J. Numer. Anal." }
+ @String{SIAMReview = "{SIAM} Review" }
+ @String{SIAMReview = "{SIAM} Rev." }
+ @String{SIAMSciStat = "{SIAM} Journal on Scientific and Statistical
+     Computing" }
+ @String{SIAMSciStat = "{SIAM} J. Sci. Statist. Comput." }
+
+ @String{SoftPracExp = "Software Practice and Experience" }
+ @String{SoftPracExp = "Software Prac. Experience" } % didn't find in AMS MR
+ @String{StatScience = "Statistical Science" }
+ @String{StatScience = "Statist. Sci." }
+ @String{Techno = "Technometrics" }
+ @String{USSRCompMathPhys = "{USSR} Computational Mathematics and Mathematical
+     Physics" }
+ @String{USSRCompMathPhys = "{U. S. S. R.} Comput. Math. and Math. Phys." }
+ @String{VLSICompSys = "Journal of {VLSI} and Computer Systems" }
+ @String{VLSICompSys = "J. {VLSI} Comput. Syst." }
+ @String{ZAngewMathMech = "Zeitschrift fur Angewandte Mathematik und
+     Mechanik" }
+ @String{ZAngewMathMech = "Z. Angew. Math. Mech." }
+ @String{ZAngewMathPhys = "Zeitschrift fur Angewandte Mathematik und Physik" }
+ @String{ZAngewMathPhys = "Z. Angew. Math. Phys." }
+
+% Publishers % ================================================= |
+
+ @String{Academic = "Academic Press" }
+ @String{ACMPress = "{ACM} Press" }
+ @String{AdamHilger = "Adam Hilger" }
+ @String{AddisonWesley = "Addison-Wesley" }
+ @String{AllynBacon = "Allyn and Bacon" }
+ @String{AMS = "American Mathematical Society" }
+ @String{Birkhauser = "Birkh{\"a}user" }
+ @String{CambridgePress = "Cambridge University Press" }
+ @String{Chelsea = "Chelsea" }
+ @String{ClaredonPress = "Claredon Press" }
+ @String{DoverPub = "Dover Publications" }
+ @String{Eyolles = "Eyolles" }
+ @String{HoltRinehartWinston = "Holt, Rinehart and Winston" }
+ @String{Interscience = "Interscience" }
+ @String{JohnsHopkinsPress = "The Johns Hopkins University Press" }
+ @String{JohnWileySons = "John Wiley and Sons" }
+ @String{Macmillan = "Macmillan" }
+ @String{MathWorks = "The Math Works Inc." }
+ @String{McGrawHill = "McGraw-Hill" }
+ @String{NatBurStd = "National Bureau of Standards" }
+ @String{NorthHolland = "North-Holland" }
+ @String{OxfordPress = "Oxford University Press" }  %address Oxford or London?
+ @String{PergamonPress = "Pergamon Press" }
+ @String{PlenumPress = "Plenum Press" }
+ @String{PrenticeHall = "Prentice-Hall" }
+ @String{SIAMPub = "{SIAM} Publications" }
+ @String{Springer = "Springer-Verlag" }
+ @String{TexasPress = "University of Texas Press" }
+ @String{VanNostrand = "Van Nostrand" }
+ @String{WHFreeman = "W. H. Freeman and Co." }
+
+%Entries
+@misc{r1,
+      title={DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence},
+      author={DeepSeek-AI},
+      year={2026},
+}
+
+@inproceedings{react,
+  title={React: Synergizing reasoning and acting in language models},
+  author={Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik R and Cao, Yuan},
+  booktitle={The eleventh international conference on learning representations},
+  year={2022}
+}
+
+@article{scaling,
+  title={Scaling laws for neural language models},
+  author={Kaplan, Jared and McCandlish, Sam and Henighan, Tom and Brown, Tom B and Chess, Benjamin and Child, Rewon and Gray, Scott and Radford, Alec and Wu, Jeffrey and Amodei, Dario},
+  journal={arXiv preprint arXiv:2001.08361},
+  year={2020}
+}
+
+@inproceedings{prompteol,
+    title = "Scaling Sentence Embeddings with Large Language Models",
+    author = "Jiang, Ting  and
+      Huang, Shaohan  and
+      Luan, Zhongzhi  and
+      Wang, Deqing  and
+      Zhuang, Fuzhen",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2024",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-emnlp.181/",
+    doi = "10.18653/v1/2024.findings-emnlp.181",
+    pages = "3182--3196",
+    abstract = "Large Language Models (LLMs) have recently gained significant interest due to their impressive results in various natural language tasks. However, their application to sentence embeddings is still under active research. In this work, we introduce PromptEOL, a simple and efficient method designed to enhance LLM performance on sentence embeddings with a one-word limitation. We further integrate PromptEOL with in-context learning and alignment to leverage LLMs in two settings: without fine-tuning and with fine-tuning. Our extensive experiments show that PromptEOL enables LLMs to generate superior sentence embeddings without fine-tuning, outperforming contrastive learning methods. Additionally, with fine-tuning, a 2.7B parameter model using PromptEOL surpasses the performance of a 4.8B parameter model from previous methods. We also analyze how scaling model parameters, from 125 million to 66 billion, impacts sentence embedding performance."
+}
+
+@inproceedings{
+    echo,
+    title={Repetition Improves Language Model Embeddings},
+    author={Jacob Mitchell Springer and Suhas Kotha and Daniel Fried and Graham Neubig and Aditi Raghunathan},
+    booktitle={The Thirteenth International Conference on Learning Representations},
+    year={2025},
+    url={https://openreview.net/forum?id=Ahlrf2HGJR}
+}
+
+@inproceedings{
+    moee,
+    title={Your Mixture-of-Experts {LLM} Is Secretly an Embedding Model for Free},
+    author={Ziyue Li and Tianyi Zhou},
+    booktitle={The Thirteenth International Conference on Learning Representations},
+    year={2025},
+    url={https://openreview.net/forum?id=eFGQ97z5Cd}
+}
+
+@misc{llm2vec,
+      title={LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders}, 
+      author={Parishad BehnamGhader and Vaibhav Adlakha and Marius Mosbach and Dzmitry Bahdanau and Nicolas Chapados and Siva Reddy},
+      year={2024},
+      eprint={2404.05961},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2404.05961}, 
+}
+
+@inproceedings{metaeol,
+    title = "Meta-Task Prompting Elicits Embeddings from Large Language Models",
+    author = "Lei, Yibin  and
+      Wu, Di  and
+      Zhou, Tianyi  and
+      Shen, Tao  and
+      Cao, Yu  and
+      Tao, Chongyang  and
+      Yates, Andrew",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.546/",
+    doi = "10.18653/v1/2024.acl-long.546",
+    pages = "10141--10157",
+    abstract = "We introduce a new unsupervised text embedding method, Meta-Task Prompting with Explicit One-Word Limitation (MetaEOL), for generating high-quality sentence embeddings from Large Language Models (LLMs) without the need for model fine-tuning. Leveraging meta-task prompting, MetaEOL guides LLMs to produce embeddings through a series of carefully designed prompts that address multiple representational aspects. Our comprehensive experiments demonstrate that embeddings averaged from various meta-tasks are versatile embeddings that yield competitive performance on Semantic Textual Similarity (STS) benchmarks and excel in downstream tasks, surpassing contrastive-trained models. Our findings suggest a new scaling law, offering a versatile and resource-efficient approach for embedding generation across diverse scenarios."
+}
+
+@inproceedings{geneol,
+    title = "{G}en{EOL}: Harnessing the Generative Power of {LLM}s for Training-Free Sentence Embeddings",
+    author = "Thirukovalluru, Raghuveer  and
+      Dhingra, Bhuwan",
+    editor = "Chiruzzo, Luis  and
+      Ritter, Alan  and
+      Wang, Lu",
+    booktitle = "Findings of the Association for Computational Linguistics: NAACL 2025",
+    month = apr,
+    year = "2025",
+    address = "Albuquerque, New Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-naacl.122/",
+    doi = "10.18653/v1/2025.findings-naacl.122",
+    pages = "2295--2308",
+    ISBN = "979-8-89176-195-7",
+    abstract = "Training-free embedding methods directly leverage pretrained large language models (LLMs) to embed text, bypassing the costly and complex procedure of contrastive learning. Previous training-free embedding methods have mainly focused on optimizing embedding prompts and have overlooked the benefits of utilizing the generative abilities of LLMs. We propose a novel method, GenEOL, which uses LLMs to generate diverse transformations of a sentence that preserve its meaning, and aggregates the resulting embeddings of these transformations to enhance the overall sentence embedding. GenEOL significantly outperforms the existing training-free embedding methods by an average of 2.85 points across several LLMs on the sentence semantic text similarity (STS) benchmark. GenEOL also achieves notable gains in clustering, reranking, and pair-classification tasks from the MTEB benchmark. Additionally, GenEOL stabilizes representation quality across LLM layers and remains robust to perturbations of embedding prompts."
+}
+
+@article{logitlens,
+  title={Eliciting Latent Predictions from Transformers with the Tuned Lens},
+  author={Belrose, Nora and Furman, Zach and Smith, Logan and Wu, Jason and Ge, Brian and Trakhtenberg, Alisa and Shah, Misha and Gurney, Jacob},
+  journal={arXiv preprint arXiv:2303.08112},
+  year={2023}
+}
+
+@inproceedings{bertflow,
+  title={On the Sentence Embeddings from Pre-trained Language Models},
+  author={Li, Bohan and Zhou, Hao and He, Junxian and Wang, Mingxuan and Yang, Yiming and Li, Lei},
+  booktitle={Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  pages={9119--9130},
+  year={2020}
+}
+
+@inproceedings{ethayarajh-2019-contextual,
+    title = "How Contextual are Contextualized Word Representations? {C}omparing the Geometry of {BERT}, {ELM}o, and {GPT}-2 Embeddings",
+    author = "Ethayarajh, Kawin",
+    editor = "Inui, Kentaro  and
+      Jiang, Jing  and
+      Ng, Vincent  and
+      Wan, Xiaojun",
+    booktitle = "Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)",
+    month = nov,
+    year = "2019",
+    address = "Hong Kong, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D19-1006/",
+    doi = "10.18653/v1/D19-1006",
+    pages = "55--65",
+    abstract = "Replacing static word embeddings with contextualized word representations has yielded significant improvements on many NLP tasks. However, just how contextual are the contextualized representations produced by models such as ELMo and BERT? Are there infinitely many context-specific representations for each word, or are words essentially assigned one of a finite number of word-sense representations? For one, we find that the contextualized representations of all words are not isotropic in any layer of the contextualizing model. While representations of the same word in different contexts still have a greater cosine similarity than those of two different words, this self-similarity is much lower in upper layers. This suggests that upper layers of contextualizing models produce more context-specific representations, much like how upper layers of LSTMs produce more task-specific representations. In all layers of ELMo, BERT, and GPT-2, on average, less than 5{\%} of the variance in a word{'}s contextualized representations can be explained by a static embedding for that word, providing some justification for the success of contextualized representations."
+}
+
+@misc{lv2024fact,
+      title={Interpreting Key Mechanisms of Factual Recall in Transformer-Based Language Models}, 
+      author={Ang Lv and Yuhan Chen and Kaiyi Zhang and Yulong Wang and Lifeng Liu and Ji-Rong Wen and Jian Xie and Rui Yan},
+      year={2024},
+      eprint={2403.19521},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2403.19521}, 
+}
+
+@inproceedings{spectral,
+    title = "Spectral Filters, Dark Signals, and Attention Sinks",
+    author = "Cancedda, Nicola",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.263/",
+    doi = "10.18653/v1/2024.acl-long.263",
+    pages = "4792--4808",
+    abstract = "Projecting intermediate representations onto the vocabulary is an increasingly popular interpretation tool for transformer-based LLMs, also known as the logit lens (Nostalgebraist). We propose a quantitative extension to this approach and define spectral filters on intermediate representations based on partitioning the singular vectors of the vocabulary embedding and unembedding matrices into bands. We find that the signals exchanged in the tail end of the spectrum, i.e. corresponding to the singular vectors with smallest singular values, are responsible for attention sinking (Xiao et al., 2023), of which we provide an explanation. We find that the negative log-likelihood of pretrained models can be kept low despite suppressing sizeable parts of the embedding spectrum in a layer-dependent way, as long as attention sinking is preserved. Finally, we discover that the representation of tokens that draw attention from many tokens have large projections on the tail end of the spectrum, and likely act as additional attention sinks."
+}
+
+
+@inproceedings{nie2024text,
+    title = "A Text is Worth Several Tokens: Text Embedding from {LLM}s Secretly Aligns Well with The Key Tokens",
+    author = "Nie, Zhijie  and
+      Zhang, Richong  and
+      Wu, Zhanyu",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.379/",
+    doi = "10.18653/v1/2025.acl-long.379",
+    pages = "7683--7694",
+    ISBN = "979-8-89176-251-0",
+    abstract = "Text embeddings from large language models (LLMs) have achieved excellent results in tasks such as information retrieval, semantic textual similarity, etc. In this work, we show an interesting finding: when feeding a text into the LLM-based embedder, the obtained text embedding will be able to be aligned with the key tokens in the input text. We first fully analyze this phenomenon on eight LLM-based embedders and show that this phenomenon is universal and is not affected by model architecture, training strategy, and embedding method. With a deeper analysis, we find that the main change in embedding space between these embedders and their LLM backbones is in the first principal component. By adjusting the first principal component, we can align text embedding with the key tokens. Finally, we give several examples to demonstrate the vast application potential of this finding: (1) we propose a simple and practical sparse retrieval method based on the aligned tokens, which can achieve 80{\%} of the dense retrieval effect of the same model while reducing the computation significantly; (2) we show that our findings provide a novel perspective to help understand novel technologies (e.g., instruction-following embedding) and fuzzy concepts (e.g., semantic relatedness vs. similarity) in this field."
+}
+
+@misc{whitening,
+      title={Whitening Sentence Representations for Better Semantics and Faster Retrieval}, 
+      author={Jianlin Su and Jiarun Cao and Weijie Liu and Yangyiwen Ou},
+      year={2021},
+      eprint={2103.15316},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2103.15316}, 
+}
+
+@misc{qwen2.5,
+    title = {Qwen2.5: A Party of Foundation Models},
+    url = {https://qwenlm.github.io/blog/qwen2.5/},
+    author = {Qwen Team},
+    month = {September},
+    year = {2024}
+}
+
+@article{llama3,
+  title={The llama 3 herd of models},
+  author={Grattafiori, Aaron and Dubey, Abhimanyu and Jauhri, Abhinav and Pandey, Abhinav and Kadian, Abhishek and Al-Dahle, Ahmad and Letman, Aiesha and Mathur, Akhil and Schelten, Alan and Vaughan, Alex and others},
+  journal={arXiv preprint arXiv:2407.21783},
+  year={2024}
+}
+
+@misc{mistral7b,
+      title={Mistral 7B}, 
+      author={Albert Q. Jiang and Alexandre Sablayrolles and Arthur Mensch and Chris Bamford and Devendra Singh Chaplot and Diego de las Casas and Florian Bressand and Gianna Lengyel and Guillaume Lample and Lucile Saulnier and Lélio Renard Lavaud and Marie-Anne Lachaux and Pierre Stock and Teven Le Scao and Thibaut Lavril and Thomas Wang and Timothée Lacroix and William El Sayed},
+      year={2023},
+      eprint={2310.06825},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2310.06825}, 
+}
+
+@misc{redpajama,
+      title={RedPajama: an Open Dataset for Training Large Language Models}, 
+      author={Maurice Weber and Daniel Fu and Quentin Anthony and Yonatan Oren and Shane Adams and Anton Alexandrov and Xiaozhong Lyu and Huu Nguyen and Xiaozhe Yao and Virginia Adams and Ben Athiwaratkun and Rahul Chalamala and Kezhen Chen and Max Ryabinin and Tri Dao and Percy Liang and Christopher Ré and Irina Rish and Ce Zhang},
+      year={2024},
+      eprint={2411.12372},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2411.12372}, 
+}
+
+@article{inverse,
+  author  = {Penrose, R.},
+  title   = {A generalized inverse for matrices},
+  journal = {Proceedings of the Cambridge Philosophical Society},
+  year    = {1955},
+  volume  = {51},
+  number  = {3},
+  pages   = {406--413},
+  doi     = {10.1017/S0305004100030784}
+}
+
+@inproceedings{mteb,
+    title = "{MTEB}: Massive Text Embedding Benchmark",
+    author = "Muennighoff, Niklas  and
+      Tazi, Nouamane  and
+      Magne, Loic  and
+      Reimers, Nils",
+    editor = "Vlachos, Andreas  and
+      Augenstein, Isabelle",
+    booktitle = "Proceedings of the 17th Conference of the European Chapter of the Association for Computational Linguistics",
+    month = may,
+    year = "2023",
+    address = "Dubrovnik, Croatia",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.eacl-main.148/",
+    doi = "10.18653/v1/2023.eacl-main.148",
+    pages = "2014--2037",
+    abstract = "Text embeddings are commonly evaluated on a small set of datasets from a single task not covering their possible applications to other tasks. It is unclear whether state-of-the-art embeddings on semantic textual similarity (STS) can be equally well applied to other tasks like clustering or reranking. This makes progress in the field difficult to track, as various models are constantly being proposed without proper evaluation. To solve this problem, we introduce the Massive Text Embedding Benchmark (MTEB). MTEB spans 8 embedding tasks covering a total of 58 datasets and 112 languages. Through the benchmarking of 33 models on MTEB, we establish the most comprehensive benchmark of text embeddings todate. We find that no particular text embedding method dominates across all tasks. This suggests that the field has yet to converge on a universal text embedding method and scale it up sufficiently to provide state-of-theart results on all embedding tasks. MTEB comes with open-source code and a public leaderboard at \url{https://github.com/embeddings-benchmark/mteb}."
+}
+
+@article{kusupati2022matryoshka,
+  title={Matryoshka representation learning},
+  author={Kusupati, Aditya and Bhatt, Gantavya and Rege, Aniket and Wallingford, Matthew and Sinha, Aditya and Ramanujan, Vivek and Howard-Snyder, William and Chen, Kaifeng and Kakade, Sham and Jain, Prateek and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={35},
+  pages={30233--30249},
+  year={2022}
+}
+
+@inproceedings{simcse,
+    title = "{S}im{CSE}: Simple Contrastive Learning of Sentence Embeddings",
+    author = "Gao, Tianyu  and
+      Yao, Xingcheng  and
+      Chen, Danqi",
+    editor = "Moens, Marie-Francine  and
+      Huang, Xuanjing  and
+      Specia, Lucia  and
+      Yih, Scott Wen-tau",
+    booktitle = "Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2021",
+    address = "Online and Punta Cana, Dominican Republic",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.emnlp-main.552/",
+    doi = "10.18653/v1/2021.emnlp-main.552",
+    pages = "6894--6910",
+    abstract = "This paper presents SimCSE, a simple contrastive learning framework that greatly advances the state-of-the-art sentence embeddings. We first describe an unsupervised approach, which takes an input sentence and predicts itself in a contrastive objective, with only standard dropout used as noise. This simple method works surprisingly well, performing on par with previous supervised counterparts. We find that dropout acts as minimal data augmentation and removing it leads to a representation collapse. Then, we propose a supervised approach, which incorporates annotated pairs from natural language inference datasets into our contrastive learning framework, by using ``entailment'' pairs as positives and ``contradiction'' pairs as hard negatives. We evaluate SimCSE on standard semantic textual similarity (STS) tasks, and our unsupervised and supervised models using BERT base achieve an average of 76.3{\%} and 81.6{\%} Spearman{'}s correlation respectively, a 4.2{\%} and 2.2{\%} improvement compared to previous best results. We also show{---}both theoretically and empirically{---}that contrastive learning objective regularizes pre-trained embeddings' anisotropic space to be more uniform, and it better aligns positive pairs when supervised signals are available."
+}
+
+@inproceedings{cocondensor,
+    title = "Unsupervised Corpus Aware Language Model Pre-training for Dense Passage Retrieval",
+    author = "Gao, Luyu  and
+      Callan, Jamie",
+    editor = "Muresan, Smaranda  and
+      Nakov, Preslav  and
+      Villavicencio, Aline",
+    booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = may,
+    year = "2022",
+    address = "Dublin, Ireland",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.acl-long.203/",
+    doi = "10.18653/v1/2022.acl-long.203",
+    pages = "2843--2853",
+    abstract = "Recent research demonstrates the effectiveness of using fine-tuned language models (LM) for dense retrieval. However, dense retrievers are hard to train, typically requiring heavily engineered fine-tuning pipelines to realize their full potential. In this paper, we identify and address two underlying problems of dense retrievers: i) fragility to training data noise and ii) requiring large batches to robustly learn the embedding space. We use the recently proposed Condenser pre-training architecture, which learns to condense information into the dense vector through LM pre-training. On top of it, we propose coCondenser, which adds an unsupervised corpus-level contrastive loss to warm up the passage embedding space. Experiments on MS-MARCO, Natural Question, and Trivia QA datasets show that coCondenser removes the need for heavy data engineering such as augmentation, synthesis, or filtering, and the need for large batch training. It shows comparable performance to RocketQA, a state-of-the-art, heavily engineered system, using simple small batch fine-tuning."
+}
+
+@inproceedings{allni,
+    title = "A large annotated corpus for learning natural language inference",
+    author = "Bowman, Samuel R.  and
+      Angeli, Gabor  and
+      Potts, Christopher  and
+      Manning, Christopher D.",
+    editor = "M{\`a}rquez, Llu{\'\i}s  and
+      Callison-Burch, Chris  and
+      Su, Jian",
+    booktitle = "Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing",
+    month = sep,
+    year = "2015",
+    address = "Lisbon, Portugal",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D15-1075",
+    doi = "10.18653/v1/D15-1075",
+    pages = "632--642",
+}
+
+@inproceedings{arguana,
+  author = {Wachsmuth, Henning and Syed, Shahbaz and Stein, Benno},
+  booktitle = {ACL},
+  title = {Retrieval of the Best Counterargument without Prior Topic Knowledge},
+  year = {2018},
+}
+
+@inproceedings{scifact,
+    title = "Fact or Fiction: Verifying Scientific Claims",
+    author = "Wadden, David  and
+      Lin, Shanchuan  and
+      Lo, Kyle  and
+      Wang, Lucy Lu  and
+      van Zuylen, Madeleine  and
+      Cohan, Arman  and
+      Hajishirzi, Hannaneh",
+    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+    month = nov,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.emnlp-main.609",
+    doi = "10.18653/v1/2020.emnlp-main.609",
+    pages = "7534--7550",
+}
+
+@inproceedings{Nfcorpus,
+  title="A Full-Text Learning to Rank Dataset for Medical Information Retrieval",
+  author = "Vera Boteva and Demian Gholipour and Artem Sokolov and Stefan Riezler",
+  booktitle = "Proceedings of the European Conference on Information Retrieval ({ECIR})",
+  location = "Padova, Italy",
+  publisher = "Springer",
+  year = 2016
+}
+
+@article{fiqa,
+  title={WWW'18 Open Challenge: Financial Opinion Mining and Question Answering},
+  author={Maia, Macedo and Handschuh, Siegfried and Freitas, Andr{\'e} and Davis, Brian and McDermott, Ross and Zarrouk, Manel and Balahur, Alexandra},
+  booktitle={Companion Proceedings of the The Web Conference 2018},
+  pages={1941--1942},
+  year={2018}
+}
+
+@inproceedings{beir,
+    title={{BEIR}: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models},
+    author={Nandan Thakur and Nils Reimers and Andreas R{\"u}ckl{\'e} and Abhishek Srivastava and Iryna Gurevych},
+    booktitle={Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2)},
+    year={2021},
+    url={https://openreview.net/forum?id=wCu6T5xFjeJ}
+}
+
+@inproceedings{scidocs,
+  author = {Arman Cohan and Sergey Feldman and Iz Beltagy and Doug Downey and Daniel S. Weld},
+  booktitle = {ACL},
+  title = {SPECTER: Document-level Representation Learning using Citation-informed Transformers},
+  year = {2020},
+}
+
+@inproceedings{touche,
+    author = {Bondarenko, Alexander and Fr\"{o}be, Maik and Beloucif, Meriem and Gienapp, Lukas and Ajjour, Yamen and Panchenko, Alexander and Biemann, Chris and Stein, Benno and Wachsmuth, Henning and Potthast, Martin and Hagen, Matthias},
+    title = {Overview of Touch\'{e} 2020: Argument Retrieval: Extended Abstract},
+    year = {2020},
+    isbn = {978-3-030-58218-0},
+    publisher = {Springer-Verlag},
+    address = {Berlin, Heidelberg},
+    url = {https://doi.org/10.1007/978-3-030-58219-7_26},
+    doi = {10.1007/978-3-030-58219-7_26},
+    abstract = {This paper is a condensed report on Touch\'{e}: the first shared task on argument retrieval that was held at CLEF&nbsp;2020. With the goal to create a collaborative platform for research in argument retrieval, we run two tasks: (1)&nbsp;supporting individuals in finding arguments on socially important topics and (2)&nbsp;supporting individuals with arguments on everyday personal decisions.},
+    booktitle = {Experimental IR Meets Multilinguality, Multimodality, and Interaction: 11th International Conference of the CLEF Association, CLEF 2020, Thessaloniki, Greece, September 22–25, 2020, Proceedings},
+    pages = {384–395},
+    numpages = {12},
+    location = {Thessaloniki, Greece}
+}
+
+@misc{treccovid,
+  archiveprefix = {arXiv},
+  author = {Kirk Roberts and Tasmeer Alam and Steven Bedrick and Dina Demner-Fushman and Kyle Lo and Ian Soboroff and Ellen Voorhees and Lucy Lu Wang and William R Hersh},
+  eprint = {2104.09632},
+  primaryclass = {cs.IR},
+  title = {Searching for Scientific Evidence in a Pandemic: An Overview of TREC-COVID},
+  year = {2021},
+}
+
+
+
+

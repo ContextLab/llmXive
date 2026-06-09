@@ -1,0 +1,126 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[11pt,a4paper,logo]{googledeepmind}
+
+\setleftlogo[100pt]{imgs/logo_left.png}
+\setrightlogo[180pt]{imgs/logo_right.png}
+
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage[most]{tcolorbox}
+
+\definecolor{DeepPurple}{HTML}{5C3A96}
+\definecolor{LighterGray}{HTML}{F7F7FA}
+\definecolor{White}{HTML}{FFFFFF}
+\definecolor{RcbRowShade}{HTML}{F7F7FA}
+\definecolor{RcbAppendixRowShade}{HTML}{EFEFEF}
+\definecolor{RcbHighlightPurple}{RGB}{236,229,250}
+
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{2013}{--}
+\DeclareUnicodeCharacter{2014}{---}
+\DeclareUnicodeCharacter{2019}{'}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+\DeclareUnicodeCharacter{2261}{\ensuremath{\equiv}}
+
+\newenvironment{compactitem}{\begin{itemize}[nosep,leftmargin=*]}{\end{itemize}}
+
+\newcommand{\FigureCaption}[1]{\parbox{\textwidth}{\textbf{Figure~\thefigure:} {\small #1}}}
+\newcommand{\TableCaption}[1]{\parbox{\textwidth}{\textbf{Table~\thetable:} {\small #1}}}
+
+\title{\raisebox{-0.20\height}{
+\includegraphics[height=1.2cm]{imgs/logos/rcb_logo.png}
+}
+\hspace{0.05em}
+ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research}
+
+\author{Shanghai Artificial Intelligence Laboratory}
+
+\newcommand{\teaserfigure}{%
+\begin{center}
+  \refstepcounter{figure}\label{fig:teaser}\label{fig:domains}\label{fig:overall-score-bar}
+  \includegraphics[width=\textwidth]{imgs/domains.pdf}%
+  \hspace{-\textwidth}%
+  \makebox[\textwidth][l]{\hspace{0.7em}\raisebox{2.1em}{\colorbox{white}{\scriptsize\textbf{(a)}}}}%
+  \vspace{0pt}
+  
+  \includegraphics[width=\textwidth]{imgs/exp_fig_overall_score_bar_chart.pdf}%
+  \hspace{-\textwidth}%
+  \makebox[\textwidth][l]{\hspace{0.7em}\raisebox{2.1em}{\colorbox{white}{\scriptsize\textbf{(b)}}}}%
+  \vspace{0pt}
+
+
+  \FigureCaption{\textbf{Overview of ResearchClawBench.} (a) ResearchClawBench spans 10 domains and 40 end-to-end tasks, covering diverse scientific questions and data modalities. (b) Overall scores of agents and LLMs; the 50-point line marks target-paper-level re-discovery, and scores above it indicate the discovery regime.}
+\end{center}
+}
+
+\newcommand{\homepage}{\raisebox{-1.5pt}{\includegraphics[height=1em]{imgs/logos/researchclaw.png}}}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1em]{imgs/github-logo.pdf}}}
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1em]{imgs/hf-logo.pdf}}}
+
+\begin{abstract}
+\textbf{Abstract:} 
+
+AI coding agents are increasingly used for scientific work, but their end-to-end autonomous research capability remains difficult to verify. We present ResearchClawBench, a benchmark for evaluating autonomous scientific research across 40 tasks from 10 scientific domains. Each task is grounded in a real published paper, provides related literature and raw data, and hides the target paper during evaluation. Expert-curated multimodal rubrics decompose the target scientific artifacts into weighted criteria, enabling evaluation of target-paper-level re-discovery while leaving room for new discovery. We evaluate seven autonomous research (auto-research) agents under a unified protocol and seventeen native LLMs through the lightweight ResearchHarness. Current systems remain far from reliable re-discovery: the strongest autonomous agent, Claude Code, averages 21.5, and the strongest ResearchHarness LLM, Claude-Opus-4.7, averages 20.7, with an LLM frontier mean of only 26.5. Error analysis shows that failures concentrate in experimental protocol mismatch, evidence mismatch, and missing scientific core. ResearchClawBench provides a reproducible evaluation frontier for measuring progress toward autonomous scientific research.
+
+
+\vspace{\baselineskip}
+
+\homepage\ \textbf{Page} \texttt{\url{https://internscience.github.io/ResearchClawBench-Home/}}
+
+\github\  \textbf{Code} \texttt{\url{https://github.com/InternScience/ResearchClawBench}}
+
+\huggingface\ \textbf{Data} \texttt{\url{https://huggingface.co/datasets/InternScience/ResearchClawBench}}
+
+\end{abstract}
+
+\begin{document}
+\raggedbottom
+
+\maketitle
+
+\clearpage
+
+\input{sections/introduction}
+
+\input{sections/related_work}
+
+\input{sections/researchclawbench}
+
+\input{sections/experiments}
+
+\input{sections/conclusion}
+
+\input{sections/limitations}
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{custom}
+
+\clearpage
+\appendix
+\input{sections/appendix_author_info}
+
+\input{sections/appendix_task_results}
+
+\input{sections/appendix_case_studies}
+
+\end{document}

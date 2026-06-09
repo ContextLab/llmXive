@@ -1,0 +1,22 @@
+\begin{table}[t]
+  \caption{\textbf{Ablation on latent size.} Accuracy (\%) with w/ Thought inference mode at different imagination resolutions. Best per column in \textbf{bold}.}
+  \vspace{-1em}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  \small
+  \begin{tabular}{l c cc c}
+    \toprule
+    & & \multicolumn{2}{c}{\textbf{PET}} & \textbf{MVC} \\
+    \cmidrule(lr){3-4} \cmidrule(lr){5-5}
+    \textbf{Latent Size} & \textbf{Resolution}
+      & \footnotesize AI2-THOR & \footnotesize Habitat
+      & \footnotesize AI2-THOR \\
+    \midrule
+    Latent-4  & $64\times64$     & 87.4 & 73.3 & 53.5 \\
+    Latent-16 & $256\times256$   & 95.3 & 81.0 & 56.2 \\
+    Latent-32 & $512\times512$   & 95.0 & \textbf{87.0} & 58.9 \\
+    Latent-64 & $1024\times1024$ & \textbf{96.8} & 83.3 & \textbf{63.1} \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:ablation_latent}
+\end{table}
