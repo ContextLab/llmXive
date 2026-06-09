@@ -218,4 +218,7 @@ ready:
 - project_id: PROJ-611-https-arxiv-org-abs-2605-11609
   revision_spec_path: specs/auto-revisions/PROJ-611-https-arxiv-org-abs-2605-11609/round-1
   queued_at: '2026-06-09T21:29:56.693081+00:00'
+- project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
+  revision_spec_path: specs/auto-revisions/PROJ-614-enhancing-train-free-infinite-frame-gene/round-1
+  queued_at: '2026-06-09T21:55:24.695464+00:00'
 blocked: []
