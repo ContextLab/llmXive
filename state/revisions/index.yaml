@@ -200,4 +200,7 @@ ready:
 - project_id: PROJ-644-omniretrieval-unified-retrieval-across-h
   revision_spec_path: specs/auto-revisions/PROJ-644-omniretrieval-unified-retrieval-across-h/round-1
   queued_at: '2026-06-09T04:40:30.316991+00:00'
+- project_id: PROJ-619-delta-discriminative-token-credit-assign
+  revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
+  queued_at: '2026-06-09T07:33:08.388005+00:00'
 blocked: []
