@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-09T00:32:32.540068+00:00'
-last_outcome: committed
+last_used: albert-einstein
+last_used_at: '2026-06-09T02:23:04.734814+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: alan-turing
-  started_at: '2026-05-30T11:01:33.159629+00:00'
-  ended_at: '2026-05-30T11:38:40.956945+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/alan-turing-simulated__2026-05-30__research.md
 - slug: albert-einstein
   started_at: '2026-05-30T11:38:40.956945+00:00'
   ended_at: '2026-05-30T12:24:11.592120+00:00'
@@ -1149,3 +1142,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/reviews/research/alan-turing-simulated__2026-06-09__research.md
+- slug: albert-einstein
+  started_at: '2026-06-09T00:32:32.540068+00:00'
+  ended_at: '2026-06-09T02:23:04.734814+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
