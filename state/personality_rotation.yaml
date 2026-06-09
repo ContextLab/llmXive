@@ -1,14 +1,7 @@
 last_used: david-krakauer
-last_used_at: '2026-06-09T06:48:51.741730+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-09T08:16:05.731164+00:00'
+last_outcome: target_missing
 history:
-- slug: david-krakauer
-  started_at: '2026-05-30T14:34:11.501637+00:00'
-  ended_at: '2026-05-30T15:28:02.876195+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/david-krakauer-simulated__2026-05-30__paper.md
 - slug: eric-kandel
   started_at: '2026-05-30T15:28:02.876195+00:00'
   ended_at: '2026-05-30T15:55:42.107618+00:00'
@@ -1140,4 +1133,9 @@ history:
   started_at: '2026-06-09T05:23:03.705505+00:00'
   ended_at: '2026-06-09T06:48:51.741730+00:00'
   outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-09T06:48:51.741730+00:00'
+  ended_at: '2026-06-09T08:16:05.731164+00:00'
+  outcome: target_missing
   action: comment
