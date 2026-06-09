@@ -1,0 +1,143 @@
+project_id: PROJ-682-your-unembedding-matrix-is-secretly-a-fe
+arxiv_id: '2606.07502'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-09T16:29:35.469240+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 3b151a9a66b3
+    text: The proof in Appendix Section 8 incorrectly states that the projection matrix
+      V_tau V_tau^T is identity. This is mathematically false when dimensionality
+      reduction is applied (V_tau is a subset of columns). While Equation 1 holds,
+      the justification misrepresents the transformation as an isometry on the full
+      space. Correct the text to accurately describe the projection property.
+    severity: writing
+  - id: 94b7f0d9f5cc
+    text: The claim citing lv2024fact states it describes the 'average token' as a
+      'frequency-weighted average embedding over the training corpus'. Verify this
+      attribution explicitly matches the cited paper's content to ensure citation
+      accuracy.
+    severity: writing
+  - id: 4c3b8fa91e3e
+    text: The term 'Logit Spectroscopy' is attributed to spectral. The cited paper
+      title is 'Spectral Filters...'. Clarify if this is a direct quote or a new naming
+      convention to ensure proper credit and terminology accuracy.
+    severity: writing
+  - id: accae5eed9ca
+    text: Code repository is referenced externally (github.com/CentreChen/EmbFilter)
+      but not included in submission. For code quality review, actual implementation
+      files must be accessible to verify reproducibility, modularity, and test coverage.
+    severity: science
+  - id: 0a9fcbe17559
+    text: Algorithm pseudocode and PyTorch implementation in the appendix are commented
+      out (# comments). Include working code snippets or at minimum un-comment the
+      implementation for reviewer verification.
+    severity: writing
+  - id: e858b91931c4
+    text: No dependency specification (requirements.txt, environment.yml, or similar)
+      is included in the paper artifacts. Add explicit dependency list for reproducibility
+      from scratch.
+    severity: science
+  - id: 5af66173d9e3
+    text: Update conference metadata in lines 48-52 to reflect the 2026 submission
+      context instead of the 2018 template placeholders.
+    severity: writing
+  - id: 86fb96875fa6
+    text: Specify exact version numbers for MTEB benchmark and RedPajama dataset used
+      in experiments (e.g., MTEB v1.0) in Section 3.2.1 and Section 5.1.
+    severity: science
+  - id: 8fcd1d94ef3e
+    text: Include a software license (e.g., MIT, Apache 2.0) and a specific git commit
+      hash or tag for the code repository linked in the abstract (Line 167).
+    severity: writing
+  - id: 0b15f864de76
+    text: Define the acronym MTEB at its first occurrence in the Abstract or Introduction,
+      rather than waiting until Section 5.
+    severity: writing
+  - id: ff1385d5585e
+    text: Provide a brief gloss of 'Logit Spectroscopy' in Section 1 when first invoked,
+      instead of deferring the definition to Section 2.
+    severity: writing
+  - id: 7017e6668bf8
+    text: Replace or parenthetically explain 'anisotropic' and 'representation collapse'
+      in Section 1 to aid non-specialist readers.
+    severity: writing
+  - id: 9d7916207499
+    text: The mathematical proof in Appendix sec:proof incorrectly claims V_tau *
+      V_tau^T is the identity matrix. For dimensionality reduction (k < d), this is
+      a projection matrix, not identity. This invalidates the claim that the transformation
+      preserves the original norm.
+    severity: science
+  - id: 7714047b00d5
+    text: Table 5 shows filtering the Dominant subspace (Config 3) degrades performance
+      (47.53 vs 50.07 baseline), contradicting the claim that both edges of the spectrum
+      encode noise. Explain why filtering both edges (EmbFilter) helps while filtering
+      Dominant alone hurts.
+    severity: science
+  - id: b24b79ae4b0b
+    text: Clarify the "distance-preserving" claim in Section 4.2. The transformation
+      preserves distances within the subspace, not the original Euclidean distance.
+      The current phrasing implies original distance preservation, which is mathematically
+      false for reduced dimensions.
+    severity: writing
+  - id: 2b443c738d5a
+    text: Correct the mathematical proof in the Appendix claiming the projection matrix
+      is identity.
+    severity: science
+  - id: 0da91ea9b31f
+    text: Soften claims of "universal pattern" in Abstract and Introduction to reflect
+      limited model scope.
+    severity: writing
+  - id: e4989ccf4acf
+    text: Rephrase "actively writing" in Abstract to avoid implying unproven causal
+      mechanisms.
+    severity: writing
+  - id: 7e3d595f5472
+    text: Report standard deviations and confidence intervals across multiple random
+      seeds. All MTEB results in Tables 1-4 appear to be single-run averages without
+      variance estimates.
+    severity: science
+  - id: '671015828049'
+    text: Add statistical significance testing (e.g., paired t-tests or bootstrap
+      confidence intervals) between EmbFilter and baseline methods. Claims of 9-14%
+      improvements lack statistical validation.
+    severity: science
+  - id: f4375e6a98e5
+    text: "Clarify whether the optimal \u03C4=2 configuration was pre-specified or\
+      \ selected post-hoc from \u03C4={2,4,8} trials. Multiple \u03C4 testing without\
+      \ correction risks cherry-picking."
+    severity: science
+  - id: 447dab7e93a9
+    text: Provide causal evidence for the edge spectrum mechanism. Currently relies
+      on correlational Logit Lens analysis; consider ablation studies that isolate
+      edge spectrum effects from general dimensionality reduction.
+    severity: science
+  - id: def8465e8ccc
+    text: Report standard deviations or confidence intervals over multiple random
+      seeds for all MTEB results.
+    severity: science
+  - id: 7e507b72e55e
+    text: Correct the data inconsistency in Table 4 where PromptEOL and ECHO baselines
+      are identical.
+    severity: science
+  - id: c0747ea3683c
+    text: Include statistical significance testing (e.g., paired t-tests) to validate
+      reported performance gains.
+    severity: science
+  - id: b09d292400be
+    text: 'Correct subject-verb agreement errors (e.g., ''
+
+      ame suppress'' -> ''suppresses'', ''contributor that steer'' -> ''steers'',
+      ''methods exhibits'' -> ''exhibit'', ''requires'' -> ''require'').'
+    severity: writing
+  - id: d4804c59236e
+    text: Fix article usage and typos (e.g., 'an mechanism' -> 'a mechanism', 'from
+      training corpus' -> 'from the training corpus', 'acorss' -> 'across', 'speedup
+      retrieval' -> 'speed up retrieval').
+    severity: writing
+  - id: 98ff5cf4cfe9
+    text: Ensure proper punctuation, including adding a period after 'identification'
+      in the Introduction and capitalizing 'This completes' in the Appendix.
+    severity: writing

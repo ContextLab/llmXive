@@ -209,4 +209,7 @@ ready:
 - project_id: PROJ-575-training-long-context-vision-language-mo
   revision_spec_path: specs/auto-revisions/PROJ-575-training-long-context-vision-language-mo/round-1
   queued_at: '2026-06-09T13:31:44.327378+00:00'
+- project_id: PROJ-682-your-unembedding-matrix-is-secretly-a-fe
+  revision_spec_path: specs/auto-revisions/PROJ-682-your-unembedding-matrix-is-secretly-a-fe/round-1
+  queued_at: '2026-06-09T16:29:35.481429+00:00'
 blocked: []
