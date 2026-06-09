@@ -115,6 +115,10 @@
     "classified_at": "2026-06-02T03:30:47Z",
     "verdict": false
   },
+  "PROJ-610-https-arxiv-org-abs-2605-16403::1.6.0": {
+    "classified_at": "2026-06-09T11:26:04Z",
+    "verdict": false
+  },
   "PROJ-612-a-survey-of-large-audio-language-models::1.6.0": {
     "classified_at": "2026-06-08T16:44:19Z",
     "verdict": false
