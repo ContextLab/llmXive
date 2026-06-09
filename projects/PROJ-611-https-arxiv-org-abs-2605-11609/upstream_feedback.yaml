@@ -97,3 +97,148 @@ rounds:
     text: "Add a brief explanatory sentence when first introducing the entropy\u2011\
       triggered gate to clarify its purpose for readers unfamiliar with gating mechanisms."
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-09T21:29:56.673382+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 89c42deacd0e
+    text: Add confidence intervals and report multiple random seeds (n>=5) for all
+      accuracy metrics in Tables 1-5 with standard deviation
+    severity: writing
+  - id: ceeb4d8e1e56
+    text: Clarify AIME 2026 and HMMT 2025 benchmark dates in Section 4; these appear
+      future-dated and need verification or replacement with existing benchmarks
+    severity: writing
+  - id: 23c6fdf16fdd
+    text: Include standard deviation bars or shaded regions in all training dynamics
+      figures (Figures 3-5) to show run-to-run variance
+    severity: writing
+  - id: 69a6af5f5d8e
+    text: Add ablation on gate threshold sensitivity across all 5 models, not just
+      Qwen3-4B and Qwen3-8B
+    severity: writing
+  - id: 51a6e8d1c6b0
+    text: Verify or replace 2026-dated references (yang2026rlsd, li2026unifying, li2026rethinking,
+      etc.) with existing work or remove if unpublished
+    severity: writing
+  - id: a5a3860136c4
+    text: Explicitly state the licenses for all training datasets (DAPO-Math-17k,
+      AIME, HMMT, MinervaMath) in Section 4. Current citations lack license terms
+      (e.g., CC-BY, MIT) required for open-source reproducibility.
+    severity: writing
+  - id: d053eb548f24
+    text: Add a specific git commit hash or release tag to the GitHub link (Section
+      1) to ensure code and data artifacts are version-locked. WandB runs should be
+      archived or made public-permanent.
+    severity: writing
+  - id: 97f5b8e78522
+    text: Include a data schema definition for the 'privileged context' (c) in Appendix
+      B. Specify field types (e.g., JSONL keys) for the verified solution and feedback
+      string to enable exact data reconstruction.
+    severity: writing
+  - id: 2025fca6d825
+    text: Add descriptive alt text to all figures for accessibility compliance (missing
+      in current LaTeX source).
+    severity: writing
+  - id: 0db57d965a72
+    text: Replace Red/Blue color scheme in Figure 2 with a colorblind-safe palette
+      (e.g., Viridis or Cividis) to distinguish deliberation vs. shortcut tokens.
+    severity: writing
+  - id: 8e498752767a
+    text: Ensure all axes in Figures 1, 3, 4, and 5 have explicit labels (e.g., 'Training
+      Steps', 'Accuracy (%)') directly on the plot, not just in captions.
+    severity: writing
+  - id: 3525e52d7f2e
+    text: Simplify Figure 4 (Training Dynamics) grid layout; a 3x6 subplot configuration
+      may be illegible at standard print resolution.
+    severity: writing
+  - id: 862d6bd0c300
+    text: Define 'Schmitt trigger' or replace with 'hysteresis gate' in Section 3.2
+      for non-control-theory readers.
+    severity: writing
+  - id: dad763444087
+    text: Explicitly define 'avg@32' and 'avg@4' notation in Section 4 (Experiments)
+      Setup.
+    severity: writing
+  - id: b643e04fddfe
+    text: Reduce 'stop-gradient' jargon density in Preliminaries; add brief gloss
+      for non-engineers.
+    severity: writing
+  - id: cba824a5abfa
+    text: Conclusion (Sec 6) claims 'sign reversal carrying most of the gain' but
+      Qwen3-8B ablation (Table ablation_qn_table) shows 'rev. KL' (30.6 Avg) matches
+      SD (30.6 Avg), implying JSD shape is the primary driver on that model. Clarify
+      this nuance to avoid over-attribution.
+    severity: writing
+  - id: cc526304f582
+    text: Report the 'first-reach step' explicitly in Table 1 or main text to substantiate
+      the '10x speedup' claim, as only peak accuracy steps are currently visible (e.g.,
+      Qwen3-4B peak step 100 vs. claimed 10x speedup implies step 20).
+    severity: science
+  - id: 0a885d3951f1
+    text: Qualify the Abstract's claim of 'naturally bounded advantage' to reflect
+      the asymmetric nature (bounded on deliberation side, linear/unbounded on shortcut
+      side) described in Section 3.2.
+    severity: writing
+  - id: e1e67cab9264
+    text: Expand the Broader Impacts discussion (Appendix app:impacts) to include
+      specific potential misuse scenarios (e.g., automated vulnerability discovery,
+      adversarial prompt generation) enabled by improved reasoning, and detail mitigation
+      strategies or safety alignment steps taken alongside the capability improvements.
+    severity: writing
+  - id: 5027f03c9eae
+    text: Report training results averaged over multiple random seeds (e.g., 3-5)
+      with standard deviations to support the '2 to 10x speedup' claims in the Abstract
+      and Section 4.
+    severity: science
+  - id: e4fe9c36b3cc
+    text: Add confidence intervals or statistical significance tests (e.g., t-tests)
+      for the accuracy improvements in Table 1 (main_table.tex) to distinguish signal
+      from training noise.
+    severity: science
+  - id: d63d7603e2cd
+    text: Report standard deviations over multiple training seeds in Table 1 (main_table.tex)
+      to quantify variance in accuracy estimates.
+    severity: science
+  - id: aabf9c3baeb4
+    text: Perform statistical significance tests (e.g., bootstrap or paired t-tests)
+      for the main accuracy comparisons between AntiSD and GRPO in Section 4.1.
+    severity: science
+  - id: 6ff1d4c5781d
+    text: Clarify the number of evaluation seeds used for avg@32 metrics and ensure
+      benchmark variance (AIME size) is acknowledged as a limitation.
+    severity: writing
+  - id: 7a922e08509f
+    text: Break up several overly long sentences (e.g., the opening sentence of the
+      abstract and the paragraph starting with 'On-policy self-distillation answers
+      this in the affirmative') into shorter, clearer statements.
+    severity: writing
+  - id: 39b1918e1802
+    text: "Introduce and define all abbreviations on first use (e.g., 'GRPO', 'RLVR',\
+      \ 'OPD', 'PRM', 'JSD') to aid readability for non\u2011expert readers."
+    severity: writing
+  - id: d1fcf1d3d660
+    text: "Standardize punctuation around mathematical symbols and percentages (e.g.,\
+      \ use '2\u201310\xD7 fewer steps' instead of '$2$ to $10\\times$ fewer training\
+      \ steps')."
+    severity: writing
+  - id: a6f6b7fa294d
+    text: "Revise figure captions for consistency and completeness (e.g., specify\
+      \ what 'root' refers to in Fig. 1(a) and ensure all sub\u2011figures are referenced\
+      \ in the main text)."
+    severity: writing
+  - id: 482ed9508b9e
+    text: "Ensure uniform spacing after LaTeX commands and before punctuation (e.g.,\
+      \ replace '\\textbf{(a)}~An oracle\u2011conditioned teacher\u2026' with '\\\
+      textbf{(a)} An oracle\u2011conditioned teacher\u2026')."
+    severity: writing
+  - id: dd974446b19a
+    text: Check for minor typographical errors such as missing articles or prepositions
+      (e.g., change 'the teacher reward splits tokens into two informative regimes'
+      to 'the teacher's reward splits tokens into two informative regimes').
+    severity: writing
+  - id: 4cd7c93c476a
+    text: "Add a brief explanatory sentence when first introducing the entropy\u2011\
+      triggered gate to clarify its purpose for readers unfamiliar with gating mechanisms."
+    severity: writing
