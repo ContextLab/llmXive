@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-09T03:46:37.600366+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-06-09T05:23:03.705505+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-30T12:24:11.592120+00:00'
-  ended_at: '2026-05-30T13:34:07.482628+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/dan-rockmore-simulated__2026-05-30__paper.md
 - slug: daniel-kahneman
   started_at: '2026-05-30T13:34:07.482628+00:00'
   ended_at: '2026-05-30T14:34:11.501637+00:00'
@@ -1143,5 +1136,10 @@ history:
 - slug: dan-rockmore
   started_at: '2026-06-09T02:23:04.734814+00:00'
   ended_at: '2026-06-09T03:46:37.600366+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-09T03:46:37.600366+00:00'
+  ended_at: '2026-06-09T05:23:03.705505+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
