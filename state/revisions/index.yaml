@@ -203,4 +203,7 @@ ready:
 - project_id: PROJ-619-delta-discriminative-token-credit-assign
   revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
   queued_at: '2026-06-09T07:33:08.388005+00:00'
+- project_id: PROJ-577-multabench-benchmarking-multimodal-tabul
+  revision_spec_path: specs/auto-revisions/PROJ-577-multabench-benchmarking-multimodal-tabul/round-1
+  queued_at: '2026-06-09T11:08:25.461007+00:00'
 blocked: []
