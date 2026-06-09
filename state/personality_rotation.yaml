@@ -1,14 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-06-09T13:30:15.673922+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: linus-pauling
+last_used_at: '2026-06-09T14:26:02.535420+00:00'
+last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-05-30T17:54:18.829598+00:00'
-  ended_at: '2026-05-30T18:52:24.348498+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-641-https-arxiv-org-abs-2605-28816/paper/reviews/john-von-neumann-simulated__2026-05-30__paper.md
 - slug: linus-pauling
   started_at: '2026-05-30T18:52:24.348498+00:00'
   ended_at: '2026-05-30T19:34:09.863554+00:00'
@@ -1137,3 +1130,10 @@ history:
   ended_at: '2026-06-09T13:30:15.673922+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: linus-pauling
+  started_at: '2026-06-09T13:30:15.673922+00:00'
+  ended_at: '2026-06-09T14:26:02.535420+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-675-comparing-born-model-predictions-with-ex/reviews/research/linus-pauling-simulated__2026-06-09__research.md
