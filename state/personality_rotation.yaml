@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-09T09:47:20.063917+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-06-09T11:06:17.723696+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-05-30T15:55:42.107618+00:00'
-  ended_at: '2026-05-30T16:22:45.638685+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/freeman-dyson-simulated__2026-05-30__research.md
 - slug: geoffrey-west
   started_at: '2026-05-30T16:22:45.638685+00:00'
   ended_at: '2026-05-30T16:49:51.795154+00:00'
@@ -1139,3 +1132,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-660-https-arxiv-org-abs-2605-23895/paper/reviews/eric-kandel-simulated__2026-06-09__paper.md
+- slug: freeman-dyson
+  started_at: '2026-06-09T09:47:20.063917+00:00'
+  ended_at: '2026-06-09T11:06:17.723696+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-679-geneb-why-genomic-models-are-hard-to-com/reviews/research/freeman-dyson-simulated__2026-06-09__research.md
