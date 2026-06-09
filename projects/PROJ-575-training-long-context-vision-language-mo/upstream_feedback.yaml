@@ -89,3 +89,169 @@ rounds:
       by correcting p-values or explicitly acknowledging hyperparameter search bias
       when claiming optimal ratios.
     severity: science
+- round_number: 2
+  triggered_at: '2026-06-09T13:31:44.304669+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 3db0b96873ee
+    text: Complete all table rows marked '(... rows omitted ...)' in the LaTeX source
+      to ensure reproducibility.
+    severity: writing
+  - id: bf5552333dda
+    text: Add conflict of interest and funding disclosure in the Acknowledgments section.
+    severity: writing
+  - id: e1c2e03d3a61
+    text: Include statistical significance tests (e.g., confidence intervals) for
+      performance gains in Tables 1 and 3.
+    severity: science
+  - id: db23cbf54c4d
+    text: Define all acronyms (e.g., LongPT, LVLM, mRoPE) on first occurrence in the
+      text.
+    severity: writing
+  - id: 3a5ed2a32796
+    text: Provide full bibliography to verify claims attributed to missing citations
+      (e.g., dynamicntk, daoflashattention, li2024llava).
+    severity: writing
+  - id: 637818ca6b77
+    text: Clarify 'maintains performance' claim at 256K/512K contexts, as absolute
+      scores drop from 57.70 to 52.52 (Table 2).
+    severity: writing
+  - id: faf3d28a3e36
+    text: Resolve contradiction between '5B-token budget' claim (Abstract, Sec 5)
+      and Appendix Table 5 showing 15.16B tokens for VQA data alone.
+    severity: science
+  - id: 3b9b34a1f2dc
+    text: No training code repository or implementation artifacts provided for review.
+      The paper describes training using VeOmni framework but no actual code is accessible
+      for evaluation of reproducibility, modularity, or dependency hygiene.
+    severity: science
+  - id: 847a344a3ae0
+    text: Appendix A.2 mentions 8 H20 nodes (64 GPUs) training setup but no training
+      scripts, data preprocessing pipelines, or evaluation code are included. Code
+      should be released for full reproducibility.
+    severity: science
+  - id: 9761681d5981
+    text: Specify the license and source of the 1.5M PDF document pool (Sec 4.1).
+    severity: science
+  - id: ae7a9a693dea
+    text: Clarify handling of 3% noisy QA pairs from human verification (Appx A.3).
+    severity: science
+  - id: 97c065b3a45d
+    text: Provide data release link or reconstruction instructions for synthetic data.
+    severity: writing
+  - id: bd3ce85ad4ba
+    text: Rename figure files containing tabular data (e.g., 7_table8_generalization_niah.pdf)
+      to align with LaTeX labels (fig:generalization_niah) for consistency.
+    severity: writing
+  - id: 4a9bf060c1b7
+    text: Ensure all color palettes used in plots are colorblind-safe and explicitly
+      mention this in captions if colors differentiate data series.
+    severity: writing
+  - id: 52666c22fdaf
+    text: Expand figure captions to be fully self-contained; define abbreviations
+      like MMLB-D or LD-URL within the caption rather than relying on text cross-references.
+    severity: writing
+  - id: 4ebbd32ce71a
+    text: Define 'mRoPE' and 'Dynamic-NTK' at first use in Section 3 instead of relying
+      on Appendix references.
+    severity: writing
+  - id: 1b0dde26ea82
+    text: Expand 'SFT' before Section 4.3 usage; do not defer definition to Table
+      1 caption.
+    severity: writing
+  - id: a25bba557047
+    text: Spell out 'MM-NIAH' and other benchmark acronyms in the Introduction before
+      citing them.
+    severity: writing
+  - id: 6d47dd352d84
+    text: Clarify 'H20' GPU reference in Appendix for non-hardware specialists.
+    severity: writing
+  - id: d7aaeb76a5e7
+    text: Define 'FSDP' and 'FlashAttention' in Appendix Implementation Details.
+    severity: writing
+  - id: e436ddbbdd7f
+    text: Expand 'DPI' and 'VQA' at first use in Section 4.1.
+    severity: writing
+  - id: 5536c9fb6c07
+    text: Section 5.3 claims a short-context drop from 66.47 to 65.48, but Table 4
+      does not list the 66.47 baseline. Please add the Qwen2.5-VL-7B baseline score
+      for short-context benchmarks to Table 4 or the text to substantiate the 'drop'
+      claim.
+    severity: science
+  - id: 01965d7b9798
+    text: Section 5.3 cites 66.47, while Table 4 shows 66.53 for 20% short data. Ensure
+      numerical consistency between the manuscript text and evaluation tables.
+    severity: writing
+  - id: 7f1d36835d26
+    text: Title and Abstract claim 'Generalization Beyond 128K Context' and 'strong
+      performance at 256K/512K'. Table 5 shows a performance drop from 59.56 (64K)
+      to 52.52 (512K). Temper these claims to reflect extrapolation limits rather
+      than robust generalization.
+    severity: writing
+  - id: 5c3573ecde91
+    text: Section 5.2 claims 8:2 extraction-to-reasoning ratio is 'optimal'. The margin
+      over 6:4 (57.70 vs 57.27) is 0.43 points, likely within evaluation noise. Qualify
+      this claim as 'best observed' rather than optimal.
+    severity: writing
+  - id: d9a7f561ac35
+    text: Section 6.1 claims generalization to long-video tasks 'without video-specific
+      training'. Gains are modest (~3 points). Clarify that this is transfer capability,
+      not optimized performance, to avoid overreach on video understanding claims.
+    severity: writing
+  - id: 0ddd287db7df
+    text: The paper lacks a conflict of interest statement. Multiple authors are affiliated
+      with ByteDance Seed, and Seed 2.0 is used extensively for data synthesis (Sec
+      4.1-4.2). Disclose commercial relationships and potential bias from proprietary
+      model usage."
+    severity: writing
+  - id: cabcfb75efe6
+    text: Data provenance and privacy concerns are not addressed. The 1.5M document
+      pool includes academic papers, books, and manuals (Sec 4.1) but no discussion
+      of copyright licensing, personal data filtering, or how sensitive information
+      was removed from training data."
+    severity: writing
+  - id: 95940b4dbf7e
+    text: The Broader Impact section (app:broader_impact) discusses benefits but omits
+      potential misuse scenarios. Long-context VQA models could enable automated extraction
+      of sensitive information from large document collections. Add discussion of
+      dual-use risks and mitigation strategies."
+    severity: writing
+  - id: e71164a2adca
+    text: Report standard deviations across at least three seeds for all main benchmark
+      results to establish statistical significance.
+    severity: science
+  - id: 79b40fd02fa2
+    text: Clarify if 5B tokens is sufficient for 'training' vs 'SFT' given the 7B
+      parameter model size in Section 3.
+    severity: science
+  - id: 01e14b9eebbc
+    text: Validate LLM judge metrics with human evaluation on a subset of benchmarks
+      to reduce evaluation bias.
+    severity: science
+  - id: 0d22fc7db070
+    text: Report confidence intervals or standard errors for all benchmark scores
+      (e.g., MMLongBench, MM-NIAH) to quantify evaluation uncertainty, particularly
+      given LLM-based judging mentioned in Appendix.
+    severity: science
+  - id: 36d21d720665
+    text: Address multiple-comparisons inflation in ablation studies (Section 5, Appendix)
+      by correcting p-values or explicitly acknowledging hyperparameter search bias
+      when claiming optimal ratios.
+    severity: science
+  - id: a756a11aa754
+    text: Remove orphaned table row fragment at the start of e002 (pool-native & 23.6%...)
+      which breaks LaTeX compilation and readability.
+    severity: writing
+  - id: 54166ff3ea41
+    text: Consolidate duplicate sections (Limitations, Broader Impact, mRoPE, MM-NIAH)
+      found in both e001 and e002 to prevent narrative redundancy.
+    severity: writing
+  - id: 92a70c1d1b7a
+    text: Resolve duplicate label 'tab:short_mix_long_vqa' defined in both e000 and
+      e001 to ensure cross-references function correctly.
+    severity: writing
+  - id: f93e0f29957e
+    text: Clarify the 'five tasks' claim in the Introduction to match the two categories
+      (VQA, OCR) detailed in Section 4.
+    severity: writing

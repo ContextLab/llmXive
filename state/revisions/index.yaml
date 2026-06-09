@@ -206,4 +206,7 @@ ready:
 - project_id: PROJ-577-multabench-benchmarking-multimodal-tabul
   revision_spec_path: specs/auto-revisions/PROJ-577-multabench-benchmarking-multimodal-tabul/round-1
   queued_at: '2026-06-09T11:08:25.461007+00:00'
+- project_id: PROJ-575-training-long-context-vision-language-mo
+  revision_spec_path: specs/auto-revisions/PROJ-575-training-long-context-vision-language-mo/round-1
+  queued_at: '2026-06-09T13:31:44.327378+00:00'
 blocked: []
