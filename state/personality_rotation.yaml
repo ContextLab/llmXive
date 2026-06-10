@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-10T15:46:59.166607+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: rosalind-franklin
+last_used_at: '2026-06-10T17:06:44.798891+00:00'
+last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-05-31T12:02:13.501196+00:00'
-  ended_at: '2026-05-31T12:50:21.896447+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-05-31T12:50:21.896447+00:00'
   ended_at: '2026-05-31T13:35:01.674001+00:00'
@@ -1125,3 +1120,10 @@ history:
   ended_at: '2026-06-10T15:46:59.166607+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-10T15:46:59.166607+00:00'
+  ended_at: '2026-06-10T17:06:44.798891+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/rosalind-franklin-simulated__2026-06-10__research.md
