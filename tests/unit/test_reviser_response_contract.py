@@ -215,6 +215,20 @@ def test_build_concern_responses_pads_missing_honestly():
     assert by_id["C1"].artifacts_changed == ["specs/000-x/spec.md"]
     assert by_id["C2"].response == "<missing>"
     assert "no response" in by_id["C2"].what_changed.lower()
+    # Observability: a partial miss names the concerns the reviser DID answer
+    # so the trail distinguishes a skip from a total parse-to-zero.
+    assert "C1" in by_id["C2"].what_changed
+
+
+def test_build_concern_responses_all_missing_records_parse_to_zero_reason():
+    """When the whole reply parses to zero per-concern responses (the
+    PROJ-552 plan-009 R2 shape), every padded entry must say SO in the
+    trail — not the generic skip message (notes/spec-015 observability
+    follow-up)."""
+    out = build_concern_responses([], _concerns())
+    assert all(r.response == "<missing>" for r in out)
+    for r in out:
+        assert "ZERO per-concern responses" in r.what_changed
 
 
 def test_delimited_path_with_crlf_line_endings():

@@ -449,6 +449,28 @@ def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
     return _FREE_MODELS_CACHE
 
 
+_MODEL_COSTS_CACHE: dict[str, tuple[float | None, float | None]] = {}
+
+
+def model_token_costs(model: str) -> tuple[float | None, float | None]:
+    """Catalog ``(input, output)`` USD cost-per-token for ``model``.
+
+    Process-cached. Returns ``(None, None)`` when the catalog is
+    unreachable or the model is unlisted — callers treat that as
+    "cost unknown" (never as free).
+    """
+    if model in _MODEL_COSTS_CACHE:
+        return _MODEL_COSTS_CACHE[model]
+    try:
+        for m in _fetch_cloud_models():
+            mid = str(m.get("id") or "")
+            if mid:
+                _MODEL_COSTS_CACHE[mid] = _model_token_costs(m)
+    except Exception:
+        return (None, None)
+    return _MODEL_COSTS_CACHE.get(model, (None, None))
+
+
 def is_free_model(model: str) -> bool:
     """Whether ``model`` is a free Dartmouth chat model (cost-per-token == 0).
 
@@ -571,18 +593,23 @@ class DartmouthBackend(BaseBackend):
         except ImportError as exc:
             raise PermanentBackendError("langchain-core is not installed") from exc
 
-        # Free-only guard (Constitution Principle IV: v1 uses free backends,
-        # cost_estimate_usd == 0). Dartmouth's catalog mixes free self-hosted
-        # models with paid external providers (gpt-5, claude, gemini, ...);
-        # calling a paid model would incur real cost the cost=0.0 invariant
-        # hides. Refuse anything not confirmed free by the live pricing catalog
-        # (or the KNOWN_FREE_MODELS fail-safe).
-        if not is_free_model(model):
-            raise PermanentBackendError(
-                f"Dartmouth model {model!r} is not a free model "
-                "(v1 forbids paid models — Constitution Principle IV); "
-                "see chat.dartmouth.edu/api/models pricing"
-            )
+        # Free-first guard (Constitution Principle IV). Dartmouth's catalog
+        # mixes free self-hosted models with paid external providers (gpt-5,
+        # claude, gemini, ...). Paid models are refused UNLESS the
+        # credit-managed opt-in path approves the call: the process-level
+        # LLMXIVE_PAID_OPT_IN master switch must be on AND the live daily
+        # credit budget must have headroom (issue #295: 2000 credits/day =
+        # ~$2.00 list-price equivalent, renewing daily — costing the project
+        # $0 in actual money when managed within budget). The guard FAILS
+        # CLOSED (balance unreachable -> refuse). See backends/credits.py.
+        paid_call = not is_free_model(model)
+        if paid_call:
+            from llmxive.backends.credits import paid_call_allowed
+
+            allowed, reason = paid_call_allowed(model)
+            if not allowed:
+                raise PermanentBackendError(f"Dartmouth: {reason}")
+            _log.info("dartmouth: %s", reason)
 
         client = self._client(model)
         from langchain_core.messages import BaseMessage as _BaseMessage
@@ -682,11 +709,23 @@ class DartmouthBackend(BaseBackend):
                     f"(finish_reason={finish_reason!r}, additional_kwargs={getattr(reply, 'additional_kwargs', {})})"
                 )
 
+            # Free models cost 0.0; an opted-in paid call reports its real
+            # list-price estimate from the catalog pricing x token usage so
+            # run logs account honestly for credit consumption (#295).
+            cost_estimate = 0.0
+            if paid_call:
+                usage = meta.get("token_usage", {}) or {}
+                in_cost, out_cost = model_token_costs(model)
+                cost_estimate = (
+                    float(usage.get("prompt_tokens") or 0) * (in_cost or 0.0)
+                    + float(usage.get("completion_tokens") or 0) * (out_cost or 0.0)
+                )
+
             return ChatResponse(
                 text=text_out,
                 model=model,
                 backend=self.name,
-                cost_estimate_usd=0.0,  # Dartmouth Chat is free for community members
+                cost_estimate_usd=cost_estimate,
             )
 
         # Centralized retry — absorbs brief transient failures (Dartmouth
@@ -723,4 +762,5 @@ __all__ = [
     "DartmouthBackend",
     "free_chat_models",
     "is_free_model",
+    "model_token_costs",
 ]

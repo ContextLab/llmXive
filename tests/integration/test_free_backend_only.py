@@ -35,25 +35,28 @@ def test_every_backend_is_free() -> None:
 
 
 def test_every_agent_is_paid_opt_in_false() -> None:
+    """Pin: no registry agent currently opts into paid models.
+
+    paid_opt_in=True is now schema-legal (issue #295: the credit-managed
+    Dartmouth daily-budget path), but flipping an agent requires a written
+    justification in the introducing PR — updating this pin is the visible
+    friction that enforces it (Constitution IV).
+    """
     reg = registry_loader.load()
     for agent in reg.agents:
         assert agent.paid_opt_in is False, (
-            f"agent {agent.name!r} has paid_opt_in=True; v1 invariant is False "
-            f"(FR-020)"
+            f"agent {agent.name!r} has paid_opt_in=True; flipping this pin "
+            f"requires a written Constitution-IV justification (issue #295)"
         )
 
 
-def test_runlog_writer_blocks_non_zero_cost(tmp_path: Path) -> None:
-    """A run-log entry with cost_estimate_usd > 0 must raise."""
-    for sub in ("projects", "run-log", "locks", "citations"):
-        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
-
+def _cost_entry(project_id: str, cost: float) -> RunLogEntry:
     now = datetime.now(UTC)
-    entry = RunLogEntry(
+    return RunLogEntry(
         run_id="11111111-1111-1111-1111-111111111111",
         entry_id="22222222-2222-2222-2222-222222222222",
         agent_name="test_agent",
-        project_id="PROJ-001-cost",
+        project_id=project_id,
         task_id="33333333-3333-3333-3333-333333333333",
         inputs=[],
         outputs=[],
@@ -63,11 +66,41 @@ def test_runlog_writer_blocks_non_zero_cost(tmp_path: Path) -> None:
         started_at=now,
         ended_at=now,
         outcome=Outcome.SUCCESS,
-        cost_estimate_usd=0.000001,  # any non-zero
+        cost_estimate_usd=cost,
     )
+
+
+def test_runlog_writer_blocks_non_zero_cost(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A run-log entry with cost_estimate_usd > 0 must raise without opt-in."""
+    monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
+    for sub in ("projects", "run-log", "locks", "citations"):
+        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
+
+    entry = _cost_entry("PROJ-001-cost", 0.000001)  # any non-zero
 
     with pytest.raises(CostInvariantError):
         append_entry(entry, repo_root=tmp_path)
+
+
+def test_runlog_writer_allows_cost_with_paid_opt_in(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """With LLMXIVE_PAID_OPT_IN set, an opted-in paid call's real cost
+    estimate is logged (honest credit accounting — issue #295)."""
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    for sub in ("projects", "run-log", "locks", "citations"):
+        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
+
+    entry = _cost_entry("PROJ-003-paid", 0.000032)
+
+    written = append_entry(entry, repo_root=tmp_path)
+    assert written.exists()
+    import json
+
+    logged = json.loads(written.read_text(encoding="utf-8").strip())
+    assert logged["cost_estimate_usd"] == pytest.approx(0.000032)
 
 
 def test_zero_cost_runlog_succeeds(tmp_path: Path) -> None:
