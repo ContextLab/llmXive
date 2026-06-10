@@ -13,7 +13,6 @@ authors = [{ name = "Contextual Dynamics Lab", email = "research.computing@dartm
 dependencies = [
   # LLM / agent framework
   "langchain>=0.3",
-  "langgraph>=0.2",
   "langchain-dartmouth>=0.3.1",
   "huggingface_hub",
   # Data validation
@@ -53,6 +52,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+mcp = [
+  "mcp>=1.0",
+]
 dev = [
   "pytest>=8",
   "pytest-asyncio",

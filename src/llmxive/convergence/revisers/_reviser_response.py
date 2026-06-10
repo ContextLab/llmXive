@@ -361,6 +361,27 @@ def build_concern_responses(
         if isinstance(cid, str):
             by_id[cid] = raw
 
+    # Observability (notes/spec-015 follow-up): when concerns get padded
+    # ``<missing>``, record WHY in ``what_changed`` so the convergence trail
+    # distinguishes "the whole reply parsed to zero per-concern responses"
+    # (format drift / truncation — the PROJ-552 plan-009 R2 shape) from "the
+    # model answered other concerns but skipped this one". A total parse
+    # failure raises upstream and never reaches this padding path.
+    if not by_id:
+        missing_reason = (
+            "reviser reply parsed to ZERO per-concern responses "
+            f"({len(responses_raw)} raw entries, none with a concern_id) — "
+            "likely response-format drift or truncation; no response for "
+            "this concern"
+        )
+    else:
+        answered_preview = ", ".join(sorted(by_id)[:5])
+        missing_reason = (
+            "reviser produced no response for this concern (it DID respond "
+            f"to {len(by_id)} other concern(s): {answered_preview}"
+            f"{', …' if len(by_id) > 5 else ''})"
+        )
+
     out: list[ConcernResponse] = []
     for c in concerns:
         r = by_id.get(c.id)
@@ -369,7 +390,7 @@ def build_concern_responses(
                 ConcernResponse(
                     concern_id=c.id,
                     response="<missing>",
-                    what_changed="reviser produced no response for this concern",
+                    what_changed=missing_reason,
                     artifacts_changed=[],
                 )
             )
