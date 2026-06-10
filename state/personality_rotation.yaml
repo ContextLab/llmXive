@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-10T22:16:55.463428+00:00'
-last_outcome: committed
+last_used: dan-rockmore
+last_used_at: '2026-06-10T23:06:41.304400+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: ada-lovelace
-  started_at: '2026-05-31T16:52:16.294121+00:00'
-  ended_at: '2026-05-31T17:25:33.645071+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/ada-lovelace-simulated__2026-05-31__research.md
 - slug: alan-turing
   started_at: '2026-05-31T17:25:33.645071+00:00'
   ended_at: '2026-05-31T17:54:14.428646+00:00'
@@ -1129,3 +1122,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-300-exploring-the-relationship-between-solar/reviews/research/albert-einstein-simulated__2026-06-10__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-10T22:16:55.463428+00:00'
+  ended_at: '2026-06-10T23:06:41.304400+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
