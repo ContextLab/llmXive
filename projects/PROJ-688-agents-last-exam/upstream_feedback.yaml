@@ -1,0 +1,228 @@
+project_id: PROJ-688-agents-last-exam
+arxiv_id: '2606.05405'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-10T19:36:31.996084+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 2c5f5b8d9a7a
+    text: "Verify that every bibliography entry has verification_status: verified;\
+      \ add any missing citations and ensure all in\u2011text citations resolve to\
+      \ these entries."
+    severity: writing
+  - id: 7494c40be1e0
+    text: "Add explicit statements linking each major claim in the abstract, introduction,\
+      \ and conclusion to the corresponding figures or tables (e.g., Fig.\u202F2,\
+      \ Table\u202F1) that provide the supporting evidence."
+    severity: writing
+  - id: 5b57a1b54a10
+    text: Provide a concise reproducibility checklist in the Methods/Experiment sections,
+      specifying software versions, VM configurations, and random seed handling to
+      ensure results can be replicated.
+    severity: writing
+  - id: 1897a2189457
+    text: Replace any placeholder macros (e.g., \taskcount, \totalvariants) in the
+      final PDF with their concrete values to avoid ambiguity for readers.
+    severity: writing
+  - id: a6075591647c
+    text: Abstract claims average full pass rate is 2.6% for hardest tier but Table
+      tab:main-results Last-Exam column shows pass rates from 0.0% to 8.6% across
+      configurations. Verify this aggregate value is explicitly calculated and documented.
+    severity: writing
+  - id: 3b183e383be0
+    text: Paper claims 13 of taskcount subdomains entirely uncovered but Table tab:related-comparison
+      does not display coverage counts per benchmark. Include actual numbers to support
+      this claim.
+    severity: writing
+  - id: f2da61766859
+    text: The first benchmark to cover all taskcount SOC/O*NET industries claim is
+      strong. The related work table shows breadth as ratios without explicit verification
+      that ALE uniquely covers all 55 subdomains. Add clarifying text or footnote.
+    severity: writing
+  - id: 8b2948fa2ebe
+    text: ALE-CLI comparison states 25.2% overall pass rate for Codex plus GPT-5.5
+      but Table tab:main-results lower panel shows 26.4% for this configuration. This
+      numerical discrepancy must be resolved.
+    severity: writing
+  - id: 2d6a196dd14c
+    text: Bibliography file references.bib is not included in the submission. All
+      citation keys cannot be verified. Include the bibliography file or confirm citations
+      are externally accessible.
+    severity: writing
+  - id: 284b993efdc3
+    text: 'Code quality review cannot be performed: no actual code repository, task
+      specifications (main.py), evaluation scripts, or test files were provided. Only
+      paper LaTeX source and figures are available. For code-quality review, submit
+      the benchmark implementation repository or at minimum representative task specification
+      files and scoring code.'
+    severity: writing
+  - id: 0e35453b79be
+    text: Explicitly state the data license (e.g., CC-BY, OpenRAIL) for the benchmark
+      dataset in the main text or appendix. Currently, only repository links are provided
+      (main.tex lines 55-58), leaving legal terms ambiguous for downstream reuse.
+    severity: writing
+  - id: e9f5c9642313
+    text: Document the task metadata schema (e.g., JSON/YAML structure) in an appendix.
+      The paper describes Python functions (app:task-spec-protocol lines 1350-1400)
+      but lacks a concrete schema definition for the 1.5K task instances.
+    severity: writing
+  - id: 490821af1d89
+    text: Clarify the dataset versioning policy in the main text. While 'ALE-V1, 2026/06'
+      appears in an appendix (app:executed-industry-task-inventory.tex line 1230),
+      the rolling evaluation strategy requires explicit version tags for reproducibility.
+    severity: writing
+  - id: 8a49f157f589
+    text: Figure 2 (panel_c_subdomain.pdf) plots 55 subdomains on a single axis. At
+      print scale, y-axis labels will overlap or become illegible. Aggregate categories
+      or use an interactive supplement.
+    severity: writing
+  - id: 26afbcc92a56
+    text: Appendix heatmaps (Figs A4-A6) use 1.25\textwidth for ~150 rows. Cell text
+      will be unreadable. Reduce instance count or provide high-res vector versions
+      for inspection.
+    severity: writing
+  - id: dff08ffdb44f
+    text: The custom scoring palette (sc0-s5) uses a red-green gradient. This is not
+      colorblind-safe. Switch to viridis/cividis for quantitative heatmaps to ensure
+      accessibility.
+    severity: writing
+  - id: 6a9eb68bea70
+    text: All includegraphics commands lack alt text attributes. Add descriptive alt
+      text or ensure captions are sufficiently detailed for screen readers.
+    severity: writing
+  - id: d9d4f5a33ca9
+    text: Define 'LLM' (Large Language Model) at first use in Abstract.
+    severity: writing
+  - id: 14d1ebe01acf
+    text: Spell out 'SOC' (Standard Occupational Classification) and 'O*NET' (Occupational
+      Information Network) in Abstract.
+    severity: writing
+  - id: 88fe7e6ca8fb
+    text: Define 'harness' and 'backbone' with plain English equivalents (e.g., 'orchestration
+      system', 'foundation model') in Abstract/Intro.
+    severity: writing
+  - id: acb36a08dce0
+    text: Define common acronyms (CLI, GUI, VM, API, JSON, TSV) at first occurrence
+      in Introduction or Appendix.
+    severity: writing
+  - id: 2828ef28dd24
+    text: Define domain-specific acronyms (CAD, CAM, PLC, SCADA, SPC, URDF, MSA, VST,
+      DAW, MIDI) in relevant Appendix sections.
+    severity: writing
+  - id: cc6dff66529b
+    text: Replace 'GDP relevant' with 'economically significant' for broader accessibility.
+    severity: writing
+  - id: b07100c643b3
+    text: Define 'MCP' (Model Context Protocol?) in Appendix A.1 where 'CUA MCP bridge'
+      is mentioned.
+    severity: writing
+  - id: 95f3fc40eb30
+    text: Clarify 'vCPUs', 'RAM', and 'GPU' definitions in Appendix A.4.
+    severity: writing
+  - id: dbba6cf2ca87
+    text: Correct Section 4.1 claim that 'most agents achieve a 0% pass rate' on Last-Exam
+      tier; Table 1 shows only 5/12 mainstream configs are 0%.
+    severity: science
+  - id: 7d2667917cf3
+    text: Resolve numerical discrepancy between Section 4.1 (25.2% ALE-CLI pass rate)
+      and Table 1 ALE-CLI panel (26.4% for Codex/GPT-5.5).
+    severity: science
+  - id: e7d1a4da9070
+    text: Clarify Abstract's '2.6% average full pass rate' to explicitly specify it
+      refers to the Last-Exam tier, not overall benchmark average.
+    severity: writing
+  - id: 448491b6237f
+    text: Abstract and Introduction claim ALE is an 'instrument for closing the gap...
+      GDP relevant impact'. This conflates benchmark task completion with actual economic
+      value. The paper measures capability, not GDP impact. Suggest reframing to 'measuring
+      potential for economic transformation' to avoid overclaiming causal economic
+      linkage.
+    severity: writing
+  - id: 910555e72374
+    text: Appendix A.6 claims the public subset 'confirms' representativeness based
+      on a single model (Claude Code + Opus 4.7) correlation. A single configuration
+      is insufficient to confirm general representativeness across diverse agent architectures.
+      Qualify this claim (e.g., 'suggests' or 'under tested configurations').
+    severity: science
+  - id: d022e6a0b9a2
+    text: Table 1 and Introduction state ALE covers 'all 55 SOC/O*NET industries'.
+      While taxonomy-mapped, the public release contains only 150 tasks. Clarify if
+      'coverage' refers to taxonomy inclusion or statistically significant evaluation
+      coverage per industry to prevent overstatement of evaluation breadth.
+    severity: writing
+  - id: f0ec83455d79
+    text: Include an explicit ethics statement regarding IRB approval or exemption
+      for the 250+ industry experts who contributed tasks. Section 'dataset-details.tex'
+      describes human data collection but lacks consent/IRB documentation.
+    severity: science
+  - id: 142a80dcfac1
+    text: Add a dual-use risk discussion for sensitive task domains (e.g., 'radiology/microdicom'
+      and 'cybersecurity/snake_crackme'). Explain mitigation strategies for potential
+      misuse of medical or offensive security capabilities.
+    severity: writing
+  - id: ac5b4de918ed
+    text: Formalize Conflict of Interest disclosures. 'acknowledgements.tex' lists
+      industry funding (Snorkel AI, Unipat AI) and many industry affiliations, but
+      no explicit COI statement is present.
+    severity: writing
+  - id: 840012d78111
+    text: Add confidence intervals or standard errors to Table 1 (main results) to
+      quantify uncertainty, as most configurations currently report single-run averages
+      despite agent stochasticity.
+    severity: science
+  - id: 9a053e6b5010
+    text: Clarify whether the 'Last-Exam' tier stratification was defined a priori
+      or derived from pilot results to avoid circularity in difficulty claims.
+    severity: science
+  - id: e08a55cf6855
+    text: Validate the public subset's representativeness across multiple model classes,
+      not just Claude Code + Opus 4.7 (Fig. 7), to ensure generalizability.
+    severity: science
+  - id: 26a9f526d947
+    text: Report 95% confidence intervals for all mean pass rates and scores in Table
+      1, not just the subset with repeated runs.
+    severity: science
+  - id: 53520924336b
+    text: Apply multiple-comparison correction (e.g., Bonferroni) when ranking harness-model
+      configurations to control Type I error.
+    severity: science
+  - id: 2ec9f535acfc
+    text: Validate public subset representativeness using multiple agent configurations,
+      not just a single correlation coefficient.
+    severity: science
+  - id: 211c49458c66
+    text: Replace \resizebox in tables/main_results.tex with \small/\footnotesize
+      and manual column widths to prevent font distortion.
+    severity: writing
+  - id: 54e35fae747f
+    text: Remove aggressive \vspace{-5.2em} in main.tex (line 148) in favor of standard
+      spacing commands to improve layout robustness.
+    severity: writing
+  - id: 3f344deae294
+    text: Clean up empty \input{author} block in main.tex (line 145) and standardize
+      \par usage in appendix/authors.tex for consistency.
+    severity: writing
+  - id: 1988e82e6589
+    text: Verify \faIcon rendering within \resizebox table cells in tables/main_results.tex
+      to ensure correct scaling and alignment.
+    severity: writing
+  - id: 5c1965f2cf50
+    text: In Section 4 (Evaluation Pipeline), correct the phrasing 'The rare appearance
+      single ``task'' refers to...' to clarify that the term 'task' alone refers to
+      the instance level.
+    severity: writing
+  - id: 5e5f83317800
+    text: "In Appendix D (Task Specification Protocol), fix the sentence fragment\
+      \ 'Operating through a \emph{session API}...' by integrating it with the preceding\
+      \ sentence or adding a subject."
+    severity: writing
+  - id: a0a49654f8a9
+    text: Replace informal '1K+' notation in the Abstract and Section 3 with formal
+      'over 1,000' or '1,000+' to match academic style.
+    severity: writing
+  - id: '392394377237'
+    text: In Appendix E (Timeout Analysis), hyphenate 'five hour' to 'five-hour' when
+      used as a compound modifier before 'wall clock cap'.
+    severity: writing

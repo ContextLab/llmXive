@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-10T09:15:59.875720Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-684-latent-spatial-memory-for-video-world-mo
-last_run_id: null
+last_run_id: bbc7c71c-6624-487e-91f8-5bede5a82d98
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Latent Spatial Memory for Video World Models
-updated_at: '2026-06-10T09:16:00.340441Z'
+updated_at: '2026-06-10T19:12:11.809921Z'
