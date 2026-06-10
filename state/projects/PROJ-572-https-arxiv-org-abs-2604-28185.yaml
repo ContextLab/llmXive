@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:14:54.560027Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-572-https-arxiv-org-abs-2604-28185
-last_run_id: null
+last_run_id: 1dd4172b-57b4-4e53-88a4-899bee186b24
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic
   World Modeling'
-updated_at: '2026-05-15T15:15:06.955755Z'
+updated_at: '2026-06-10T11:49:19.242292Z'

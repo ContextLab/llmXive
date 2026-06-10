@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-06T08:55:10.060891Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-669-tide-proactive-multi-problem-discovery-v
-last_run_id: null
+last_run_id: ca5b371f-4027-4ad9-bf9f-21d2d768f2da
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration'
-updated_at: '2026-06-06T08:55:10.217350Z'
+updated_at: '2026-06-10T11:02:03.999121Z'
