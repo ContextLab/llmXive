@@ -19,8 +19,9 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pydantic import ValidationError
 
-from llmxive.agents.base import Agent, AgentContext
+from llmxive.agents.base import Agent, AgentContext, MalformedResponseError
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import chat_with_fallback
@@ -37,6 +38,17 @@ from llmxive.types import (
 _FRONTMATTER_RE = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
     re.DOTALL,
+)
+
+# Appended to the retry prompt when output validation rejects a response
+# (issue #294 typed-boundary work; see base.MalformedResponseError). The
+# run-log shows every recent google.gemma-4-31B-it fallback call failing
+# exactly here, fatally — the retry-with-feedback loop recovers these.
+_FORMAT_REMINDER = (
+    "Your response MUST start with a line containing exactly `---`, "
+    "followed by the YAML frontmatter fields required by the review-record "
+    "contract in the system prompt, followed by a line containing exactly "
+    "`---`, followed by the markdown review body."
 )
 
 
@@ -586,11 +598,23 @@ class PaperReviewerAgent(Agent):
         text = response.text.strip()
         match = _FRONTMATTER_RE.match(text)
         if not match:
-            raise RuntimeError("paper_reviewer: response missing YAML frontmatter")
-        front = yaml.safe_load(match.group("frontmatter"))
+            raise MalformedResponseError(
+                "paper_reviewer: response missing YAML frontmatter",
+                format_reminder=_FORMAT_REMINDER,
+            )
+        try:
+            front = yaml.safe_load(match.group("frontmatter"))
+        except yaml.YAMLError as exc:
+            raise MalformedResponseError(
+                f"paper_reviewer: frontmatter is not valid YAML ({exc})",
+                format_reminder=_FORMAT_REMINDER,
+            ) from exc
         body = match.group("body").strip()
         if not isinstance(front, dict):
-            raise RuntimeError("paper_reviewer: frontmatter must be a YAML mapping")
+            raise MalformedResponseError(
+                "paper_reviewer: frontmatter must be a YAML mapping",
+                format_reminder=_FORMAT_REMINDER,
+            )
 
         # Force runtime-known fields.
         front["reviewer_name"] = self.entry.name
@@ -662,7 +686,14 @@ class PaperReviewerAgent(Agent):
                 front["artifact_hash"] = hash_file(meta_path)
                 front["artifact_path"] = str(meta_path.relative_to(repo))
 
-        record = ReviewRecord.model_validate(front)
+        try:
+            record = ReviewRecord.model_validate(front)
+        except ValidationError as exc:
+            raise MalformedResponseError(
+                f"paper_reviewer: frontmatter failed ReviewRecord schema "
+                f"validation: {exc}",
+                format_reminder=_FORMAT_REMINDER,
+            ) from exc
         # Self-review prevention (discrepancy #7 / #49): resolve the real
         # producer of the reviewed artifact from the run-log (was a None stub).
         producer = runlog_store.producer_of_artifact(

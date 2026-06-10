@@ -220,7 +220,8 @@ state/                   # canonical state — projects/ (per-project YAML), run
 web/                     # the static dashboard (synced to docs/ on deploy)
 specs/                   # Spec-Kit specs for the platform itself (this repo's own /speckit-* work)
 .github/workflows/       # the hourly pipeline crons + the submission-intake cron + Deploy Pages
-tests/phase2/            # real-call tests (no mocks as the primary path — Constitution III)
+eval/promptfoo/          # prompt-regression gate (PRs touching agents/prompts/** fail on contract regressions)
+tests/                   # unit/ contract/ integration/ + real_call/ (no mocks as the primary path — Constitution III)
 ```
 
 ## Running it
@@ -245,6 +246,20 @@ intake, and `Deploy Pages` to publish `web/` → `docs/`.
 LLM calls need a Dartmouth Chat API key (`DARTMOUTH_CHAT_API_KEY`, or
 `python -m llmxive auth set`); without it the backends fall through to local
 transformers (open-weight Hugging Face models run locally; no token required).
+
+### Tests & quality gates
+
+```sh
+pytest tests/unit tests/contract tests/integration   # offline suites
+LLMXIVE_REAL_TESTS=1 pytest tests/real_call          # real-call suites (Constitution III)
+```
+
+`tests/unit/test_config_consistency.py` pins the configuration single source
+of truth (free-models-only registry, README↔registry model agreement, no
+point-system language — spec 021). PRs that touch `agents/prompts/**` run the
+[promptfoo](https://github.com/promptfoo/promptfoo) gate in
+[`eval/promptfoo/`](eval/promptfoo/), which validates reviewer outputs with
+the production parsers across repeated runs (`Prompt Eval` workflow).
 
 ### Audit tools (spec 010)
 
