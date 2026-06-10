@@ -8,6 +8,7 @@ evaluator) where a 3B-class model is sufficient.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Any
 
 from llmxive.backends.base import (
     BaseBackend,
@@ -16,11 +17,11 @@ from llmxive.backends.base import (
     PermanentBackendError,
 )
 
-
 # Loaded (tokenizer, model) pairs, keyed by model id. Loading a checkpoint
 # dominates call latency; deterministic-judge tests and multi-candidate
-# filter passes call chat() repeatedly with the same model.
-_MODEL_CACHE: dict[str, tuple[object, object]] = {}
+# filter passes call chat() repeatedly with the same model. Values are
+# untyped because transformers is a lazy optional import here.
+_MODEL_CACHE: dict[str, tuple[Any, Any]] = {}
 
 
 class LocalBackend(BaseBackend):

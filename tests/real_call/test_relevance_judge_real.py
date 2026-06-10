@@ -66,7 +66,7 @@ def _judge(**extra):
 
 
 def test_judge_is_deterministic_across_reruns_real():
-    """Same (query, candidate) × 3 cache-less calls → identical verdicts.
+    """Same (query, candidate) x 3 cache-less calls → identical verdicts.
 
     This is the exact failure mode from #112: pre-fix, backend-default
     sampling flipped these run-to-run."""

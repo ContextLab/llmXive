@@ -55,9 +55,11 @@
 - [X] T017 Real-call claim-layer set against live sources (OEIS,
       Wikipedia, Wikidata; receipts; compute; local backend): 23 passed,
       5 skipped (skips = Dartmouth-key-only fill steps, covered nightly).
-- [X] T018 Full offline suite green, including 12 pre-existing
-      claims-layer failures present on `origin/main` root-caused and
-      fixed (see notes/2026-06-10-issue-294-audit-remediation.md).
+- [X] T018 Full offline suite green — including root-causing a
+      regression the Phase 0 sweep itself introduced
+      (`prompts/claim_extraction.md` was live via `claims/extract.py`;
+      restored at the canonical `agents/prompts/` location — see
+      notes/2026-06-10-issue-294-audit-remediation.md).
 
 ## Phase 4 — Docs + issue bookkeeping (SC-003)
 
