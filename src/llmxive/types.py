@@ -439,7 +439,12 @@ class AgentRegistryEntry(_Strict):
     default_model: str = Field(min_length=1)
     tools: list[SnakeNameField] = Field(default_factory=list)
     wall_clock_budget_seconds: int = Field(ge=30, le=1800)
-    paid_opt_in: Literal[False]  # v1 invariant: Constitution Principle IV
+    # Default False (Constitution Principle IV free-first). True is
+    # sanctioned ONLY via the credit-managed Dartmouth daily-budget path
+    # (issue #295; runtime-gated by LLMXIVE_PAID_OPT_IN + the live credit
+    # cap in backends/credits.py) and requires written justification in
+    # the introducing PR.
+    paid_opt_in: bool = False
 
 
 class AgentRegistry(_Strict):

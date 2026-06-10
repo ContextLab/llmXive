@@ -29,30 +29,38 @@ def _state_root() -> Path:
 
 
 class CostInvariantError(RuntimeError):
-    """Raised when an agent attempts to log a non-zero cost in v1.
+    """Raised when an agent logs a non-zero cost without paid opt-in.
 
-    Per FR-020 + Constitution Principle IV (Free First), every backend
-    in the v1 agent registry has `is_paid: false` and every agent has
-    `paid_opt_in: false`. A run-log entry with cost_estimate_usd > 0
-    therefore indicates either (a) a backend implementation bug or (b)
-    a registry compromise — both warrant a hard failure.
+    Per FR-020 + Constitution Principle IV (Free First), runs default to
+    free models only (``cost_estimate_usd == 0.0``). The ONLY sanctioned
+    non-zero-cost path is the credit-managed Dartmouth daily budget
+    (issue #295), active solely when ``LLMXIVE_PAID_OPT_IN`` is set —
+    see :mod:`llmxive.backends.credits`. A non-zero cost WITHOUT that
+    switch indicates either (a) a backend implementation bug or (b) a
+    registry compromise — both warrant a hard failure.
     """
 
 
 def _check_cost_invariant(entry: RunLogEntry) -> None:
-    """T103: hard-block any non-zero cost in v1.
+    """T103: hard-block any non-zero cost unless paid opt-in is active.
 
-    The agent registry's contract schema asserts paid_opt_in is
-    `const false`; this guard catches the case where the registry has
-    been edited to allow a paid backend without also relaxing the
-    schema.
+    When ``LLMXIVE_PAID_OPT_IN`` is enabled, opted-in paid calls log
+    their real list-price estimate (honest accounting of credit
+    consumption); the backend's credit guard
+    (:func:`llmxive.backends.credits.paid_call_allowed`) enforces the
+    daily-budget cap before any such call is made.
     """
     if entry.cost_estimate_usd > 0:
+        from llmxive.backends.credits import paid_opt_in_enabled
+
+        if paid_opt_in_enabled():
+            return
         raise CostInvariantError(
             f"agent {entry.agent_name!r} attempted to log "
             f"cost_estimate_usd={entry.cost_estimate_usd} on backend "
-            f"{entry.backend.value!r}; the v1 invariant is 0.0 "
-            f"(see contracts/agent-registry.schema.yaml is_paid:const false)"
+            f"{entry.backend.value!r} without LLMXIVE_PAID_OPT_IN; the "
+            f"free-first invariant is 0.0 (the only sanctioned paid path "
+            f"is the credit-managed opt-in — issue #295, backends/credits.py)"
         )
 
 

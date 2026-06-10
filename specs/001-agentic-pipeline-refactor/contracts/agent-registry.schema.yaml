@@ -101,4 +101,9 @@ properties:
           maximum: 1800
         paid_opt_in:
           type: boolean
-          const: false  # v1 invariant: Constitution Principle IV
+          # Default false (Constitution Principle IV free-first). `true` is
+          # sanctioned ONLY via the credit-managed Dartmouth daily-budget
+          # path (issue #295): calls require LLMXIVE_PAID_OPT_IN=1 at
+          # runtime AND live headroom under the daily credit cap
+          # (src/llmxive/backends/credits.py), and must carry a written
+          # justification in the introducing PR.

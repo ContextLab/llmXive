@@ -183,6 +183,24 @@ def _cmd_backends_list_models(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_credits(args: argparse.Namespace) -> int:
+    """Show the live Dartmouth daily paid-credit balance + guard status."""
+    from llmxive.backends import credits as credits_mod
+
+    balance = credits_mod.fetch_credit_balance()
+    cap = credits_mod.budget_fraction() * balance.max_budget
+    print(f"account:          {balance.account}")
+    print(
+        f"spend:            {balance.spend:.2f} / {balance.max_budget:.2f} "
+        f"credits (~${balance.usd_equivalent_spend:.4f} of "
+        f"~${balance.max_budget / 1000.0:.2f} list-price equivalent)"
+    )
+    print(f"paid-call cap:    {cap:.2f} credits ({credits_mod.budget_fraction():.0%} of max_budget)")
+    print(f"resets at:        {balance.budget_reset_at} ({balance.budget_duration})")
+    print(f"paid opt-in:      {'ON' if credits_mod.paid_opt_in_enabled() else 'off'} ({credits_mod.PAID_OPT_IN_ENV})")
+    return 0
+
+
 def _cmd_auth_set(args: argparse.Namespace) -> int:
     if args.key:
         key = args.key
@@ -836,6 +854,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_lm = backends_subs.add_parser("list-models", help="list models for a backend")
     p_lm.add_argument("--backend", required=True, choices=["dartmouth", "local"])
     p_lm.set_defaults(func=_cmd_backends_list_models)
+
+    p_credits = subs.add_parser(
+        "credits",
+        help="show the Dartmouth daily paid-credit balance (issue #295)",
+    )
+    p_credits.set_defaults(func=_cmd_credits)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")
     auth_subs = p_auth.add_subparsers(dest="auth_cmd", required=True)
