@@ -283,7 +283,7 @@ def chat_with_fallback(
         # the API model registry (verified 2026-05-29):
         #   qwen.qwen3.5-122b     max_input_tokens=256000  (was assumed 32K)
         #   openai.gpt-oss-120b   max_input_tokens=128000
-        #   google.gemma-3-27b-it 128K context
+        #   google.gemma-4-31B-it 128K context
         # ``max_output_tokens`` is unset on the vLLM-hosted models, so
         # there is no hard server-side cap; output is bounded by
         # ``max_input_tokens - input_tokens``. 128K is the highest cap

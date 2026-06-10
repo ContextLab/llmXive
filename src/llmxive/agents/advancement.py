@@ -3,12 +3,13 @@
 The sole writer of Project.current_stage. Reads project state + review
 records and decides each stage transition.
 
-Acceptance gate (per user request 2026-04-29): in addition to the
-points threshold, **every required specialist reviewer must have
-written an accept review** before the project can advance to
-RESEARCH_ACCEPTED or PAPER_ACCEPTED. The list of required specialists
-is read from agents/registry.yaml at evaluation time (any agent whose
-name starts with `research_reviewer_` or `paper_reviewer_`).
+Acceptance gate (spec 015 / Constitution VI): **every required
+specialist reviewer must have written an accept review** — unanimous
+LLM-panel acceptance, with NO accumulated point system — before the
+project can advance to RESEARCH_ACCEPTED or PAPER_ACCEPTED. The list
+of required specialists is read from agents/registry.yaml at
+evaluation time (any agent whose name starts with
+`research_reviewer_` or `paper_reviewer_`).
 
 Two distinct rejection semantics (post spec-015 T042 + maintainer review):
 
