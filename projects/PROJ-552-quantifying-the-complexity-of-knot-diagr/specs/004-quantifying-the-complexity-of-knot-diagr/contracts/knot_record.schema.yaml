@@ -1,78 +1,85 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: KnotRecord
-description: "Schema for individual knot records with computed invariants (canonical version)"
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord"
+description: "Represents a single prime knot with attributes including crossing number, braid index, and computed invariants"
+type: "object"
 required:
- - knot_id
- - crossing_number
- - data_source
- - checksum
- - created_at
- - alternating_classification
+  - "knot_id"
+  - "crossing_number"
+  - "braid_index"
+  - "checksum"
 properties:
- knot_id:
- type: string
- description: "Unique identifier (e.g., \"3_1\", \"4_1\")"
- pattern: "^[0-9]+_[0-9]+$"
- crossing_number:
- type: integer
- description: "Minimum number of crossings in any diagram"
- minimum: 3
- braid_index:
- type: integer
- description: "Minimum number of strands in braid representation"
- minimum: 1
- nullable: true
- arc_index:
- type: integer
- description: "Computed via Birman-Menasco algorithm"
- nullable: true
- seifert_circle_count:
- type: integer
- description: "Computed via Seifert's algorithm"
- nullable: true
- bridge_number:
- type: integer
- description: "Computed via Schubert's bridge decomposition"
- nullable: true
- alternating_classification:
- type: string
- description: "Alternating classification status"
- enum:
- - "alternating"
- - "non-alternating"
- - "unclassifiable"
- hyperbolic_volume:
- type: number
- description: "Geometric volume (zero/undefined for torus/satellite)"
- nullable: true
- diagram_representation:
- type: string
- description: "DT code or braid word representation"
- nullable: true
- missing_invariant_flags:
- type: array
- description: "List of invariants that could not be computed"
- items:
- type: string
- default: []
- data_source:
- type: string
- description: "Source of data (e.g., \"knot_atlas\")"
- enum:
- - "knot_atlas"
- - "knot_info"
- - "computed"
- checksum:
- type: string
- description: "SHA-256 checksum of raw record"
- pattern: "^[a-f0-9]{64}$"
- created_at:
- type: string
- description: "Record creation timestamp"
- format: date-time
- missing_invariant_flags_reason:
- type: string
- description: "Reason for missing invariant flags if any"
- nullable: true
+  knot_id:
+    type: "string"
+    description: "Unique identifier for the knot"
+    pattern: "^c[0-9]+_[0-9a-z]+$"
+    example: "c10_123"
+  crossing_number:
+    type: "integer"
+    description: "Minimum number of crossings in any diagram"
+    minimum: 1
+    maximum: 13
+    example: 10
+  braid_index:
+    type: "integer"
+    description: "Minimum number of strands in braid representation"
+    minimum: 2
+    example: 5
+  hyperbolic_volume:
+    type: ["number", "null"]
+    description: "Volume of hyperbolic complement; null for torus/satellite knots"
+    minimum: 0
+    example: 2.828127
+  alternating:
+    type: ["boolean", "null"]
+    description: "Whether knot is alternating; null if unclassifiable"
+    example: true
+  arc_index:
+    type: ["integer", "null"]
+    description: "Minimum number of arcs in grid diagram; null if not computable"
+    minimum: 1
+    example: 11
+  seifert_circle_count:
+    type: ["integer", "null"]
+    description: "Number of Seifert circles in minimal diagram; null if not computable"
+    minimum: 1
+    example: 6
+  bridge_number:
+    type: ["integer", "null"]
+    description: "Minimum number of bridges; null if not computable"
+    minimum: 1
+    example: 3
+  diagram_type:
+    type: ["string", "null"]
+    description: "Type of diagram representation available"
+    enum:
+      - "braid_word"
+      - "dt_code"
+      - "both"
+      - "none"
+      - null
+    example: "braid_word"
+  dt_code:
+    type: ["string", "null"]
+    description: "Dowker-Thistlethwaite code; null if not available"
+    example: "10 12 -14 -16 8 2 -18 -4 6 -20 -22 -24 -26 10 28 -30 -32"
+  braid_word:
+    type: ["string", "null"]
+    description: "Braid word representation; null if not available"
+    example: "1 2 -1 -2 3 2 -3"
+  missing_invariant_flags:
+    type: "array"
+    description: "Flags for missing computable invariants"
+    items:
+      type: "string"
+      enum:
+        - "arc_index"
+        - "seifert_circle_count"
+        - "bridge_number"
+    example:
+      - "bridge_number"
+  checksum:
+    type: "string"
+    description: "SHA-256 hash of record for reproducibility tracking"
+    pattern: "^[a-f0-9]{64}$"
+    example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 additionalProperties: false

@@ -1,26 +1,26 @@
-resolved_at: '2026-06-04T03:46:12.778972+00:00'
+resolved_at: '2026-06-10T21:25:39.623335+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
+  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
+  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
+  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_The_Mathematical_Structure_of_Rotational_Difficulty_in_Human_Movement_b_/32574108
+  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/thesis/A_Mixed-Methods_Investigation_of_Polyculturalism_and_Polycultural_Identity_in_Super-Diverse_Australia/32441211
+  - url: https://figshare.com/articles/media/__14___/32642088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
+  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
+  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
+  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_The_Mathematical_Structure_of_Rotational_Difficulty_in_Human_Movement_b_/32574108
+  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/thesis/A_Mixed-Methods_Investigation_of_Polyculturalism_and_Polycultural_Identity_in_Super-Diverse_Australia/32441211
+  - url: https://figshare.com/articles/media/__14___/32642088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -52,15 +52,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604171
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5604159
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604137
+  - url: https://zenodo.org/records/5604171
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -68,38 +64,36 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://zenodo.org/records/5603470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
     reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
       timeout=20)'
-  - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20438566
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://archaeology.datastations.nl/dataset.xhtml?persistentId=doi:10.17026/AR/NYXVIJ
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: MUST
   status: verified
   candidates:
   - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/macabdul9/SarcasmDetection_Mustard/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 0.0
@@ -118,31 +112,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/macabdul9/SarcasmDetection_Mustard/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Filtered_OTU_table_from_16S_rRNA_sequencing_of_Duttaphrynus_melanostictus_gut_microbiota/32574063
+  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_dataset_contains_sample_metadata_mitochondrial_genome_sequences_phylogenetic_trees_and_species_morphology_figures_associated_with_the_published_study_/32573976
+  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
+  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
+  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
+  - url: https://figshare.com/articles/media/__14___/32642088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -154,11 +144,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -166,29 +156,36 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.03660
+  - url: https://zenodo.org/records/20633560
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.03606
+  - url: https://zenodo.org/records/20633560
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.02403
+  - url: https://zenodo.org/records/20633589
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.01979
+  - url: https://zenodo.org/records/20633589
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.00631
+  - url: https://zenodo.org/records/20633304
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: III
   status: verified
   candidates:
+  - url: https://huggingface.co/datasets/Donghyun99/Oxford-IIIT-Pet/resolve/main/data/test-00000-of-00001-fcb5a4d7cd48c7db.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   - url: https://huggingface.co/datasets/davanstrien/iiif_manuscripts_label_ge_50/resolve/main/data/train-00000-of-00005.parquet
     source: huggingface
     format: parquet
@@ -197,13 +194,6 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   - url: https://huggingface.co/datasets/davanstrien/manuscript_iiif_test/resolve/main/data/train-00000-of-00005.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/davanstrien/test_iiif/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 0.0
@@ -211,6 +201,10 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
+  - url: https://huggingface.co/datasets/Donghyun99/Oxford-IIIT-Pet/resolve/main/data/test-00000-of-00001-fcb5a4d7cd48c7db.parquet
+    source: huggingface
+    status: verified
+    format: parquet
   - url: https://huggingface.co/datasets/davanstrien/iiif_manuscripts_label_ge_50/resolve/main/data/train-00000-of-00005.parquet
     source: huggingface
     status: verified
@@ -223,27 +217,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/iitm-ddp/iiith-indic-speech/resolve/main/data/iiit-hin-data.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://figshare.com/articles/dataset/Filtered_OTU_table_from_16S_rRNA_sequencing_of_Duttaphrynus_melanostictus_gut_microbiota/32574063
+  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_dataset_contains_sample_metadata_mitochondrial_genome_sequences_phylogenetic_trees_and_species_morphology_figures_associated_with_the_published_study_/32573976
+  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
+  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
+  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
+  - url: https://figshare.com/articles/media/__14___/32642088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -251,11 +241,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20103118
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/2527914
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20103118
+  - url: https://zenodo.org/records/8000218
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -263,63 +257,55 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://journals.sagepub.com/doi/10.1177/19322968221076559
-    source: zenodo
+  - url: https://www.checklistbank.org/dataset/5492?__goaway_challenge=cookie&__goaway_id=c1b33eb0308d8684ac6ddae769453788
+    source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://arxiv.org/abs/math/0611569
+  - url: https://www.checklistbank.org/dataset/5613?__goaway_challenge=cookie&__goaway_id=3135c1851bc51173052958cc0b51ec78
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.29076
+    reason: HTTP 403
+  - url: https://www.checklistbank.org/dataset/20277?__goaway_challenge=cookie&__goaway_id=c26f53ff414e82ef8da099944ee1d1bd
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.25200
+    reason: HTTP 403
+  - url: https://www.checklistbank.org/dataset/53389?__goaway_challenge=cookie&__goaway_id=5f19500a653ffc4ae3d83f0010c03407
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.11244
+    reason: HTTP 403
+  - url: https://www.checklistbank.org/dataset/53155?__goaway_challenge=cookie&__goaway_id=d2f5a32b3150a0189c33d202abcd20ea
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.05114
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: HTTP 403
 - intent: FR-003
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Filtered_OTU_table_from_16S_rRNA_sequencing_of_Duttaphrynus_melanostictus_gut_microbiota/32574063
+  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_dataset_contains_sample_metadata_mitochondrial_genome_sequences_phylogenetic_trees_and_species_morphology_figures_associated_with_the_published_study_/32573976
+  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/stress_strain_curves/32574111
+  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Motivation_to_Participate_in_Physical_Education_in_Mainstream_Schooling_for_Autistic_Youth/31909834
+  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Catastrophic_Plate_Tectonics_in_Orbital_Time_b_/32146135
+  - url: https://figshare.com/articles/media/__14___/32642088
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3841160
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10364827
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13843104
+  - url: https://zenodo.org/records/3841160
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -327,8 +313,81 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10384626
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-014
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/__14___/32642088
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3627657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10299128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10166876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10234736
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10388577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615161
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.5281/zenodo.20470525
@@ -336,24 +395,6 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20453648
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20438566
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: FR-014
-  status: unresolved
-  candidates: []
-  candidates_tried: []
 - intent: SC-001
   status: unresolved
   candidates: []

@@ -1,0 +1,31 @@
+reason: 'plan panel engine failure: BackendError: every model in chain [''qwen.qwen3.5-122b'',
+  ''openai.gpt-oss-120b'', ''google.gemma-4-31B-it''] failed on backend ''dartmouth'';
+  errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model ''qwen.qwen3.5-122b''
+  hung past 360s deadline (no response received) | openai.gpt-oss-120b(model-down
+  attempt 1): !DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+
+  <html><head>
+
+  <title>302 Moved Temporarily</title>
+
+  </head><body>
+
+  <h1>Moved </h1>
+
+  <p>The document has moved <a href="http://outage.dartmouth.edu">here</a>.</p>
+
+  </body></html> | google.gemma-4-31B-it(model-down attempt 1): !DOCTYPE HTML PUBLIC
+  "-//IETF//DTD HTML 2.0//EN">
+
+  <html><head>
+
+  <title>302 Moved Temporarily</title>
+
+  </head><body>
+
+  <h1>Moved </h1>
+
+  <p>The document has moved <a href="http://outage.dartmouth.edu">here</a>.</p>
+
+  </body></html>'
+stage: plan
