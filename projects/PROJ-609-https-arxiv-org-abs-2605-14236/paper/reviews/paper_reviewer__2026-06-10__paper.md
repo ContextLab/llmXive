@@ -16,19 +16,15 @@ action_items:
   severity: writing
   text: Include citation verification status for all bibliography entries in supplementary
     materials as required by acceptance criteria
-- id: 59b8063de77e
-  severity: writing
-  text: Clarify the PAC hyperparameter m=3 selection rationale in the limitations
-    section or add ablation study
 artifact_hash: cd07e7bb4bb589b2a1856ce03b3a0d9b21496c25c8e521b71f38e853b3f15fc5
 artifact_path: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/metadata.json
 backend: dartmouth
-feedback: Minor revisions needed for data provenance, figure captions, and jargon
-  clarification before publication-ready
+feedback: 4 of 5 prior writing-class action items remain unaddressed; PAC hyperparameter
+  rationale clarified.
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-10T16:22:42.957355Z'
+reviewed_at: '2026-06-10T21:44:40.647119Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer
 score: 0.0
@@ -38,31 +34,14 @@ verdict: minor_revision
 # Free-form review body
 
 ## Strengths
-
-1. **Novel framing**: The reframing of PRP reranking as active learning from noisy pairwise comparisons is a compelling contribution that addresses a well-identified structural mismatch between sorting assumptions and LLM judgment behavior.
-
-2. **Practical contribution**: The randomized-direction oracle is a simple yet effective innovation that converts position bias into zero-mean noise with a single call per pair, significantly improving the NDCG@10--cost trade-off.
-
-3. **Comprehensive evaluation**: The paper includes extensive experiments across multiple datasets (TREC DL, BEIR), models (Flan-T5-L/XL, Qwen), and oracle configurations with proper statistical significance testing (bootstrap over 10k resamples).
-
-4. **Strong empirical results**: Mohajer outperforms sorting baselines by +9.7 NDCG@10 at B=300 calls under bidirectional oracle, with randomized oracle further reducing calls needed to reach peak quality by 44%.
-
-5. **Theoretical grounding**: The proof of aggregate unbiasedness for the randomized-direction oracle (Appendix) is mathematically sound and addresses a key concern about the approach.
+- The technical core of the paper remains sound: the reframing of PRP reranking as active learning is novel and the experimental results (Mohajer vs. sorting) are consistent with the claims.
+- The limitation regarding the PAC hyperparameter $m=3$ has been appropriately acknowledged in the Limitations section, satisfying the prior request to clarify the rationale or add an ablation.
 
 ## Concerns
-
-1. **Data provenance**: The paper does not explicitly document dataset download dates, preprocessing pipelines, or BM25 retrieval configuration parameters, which affects reproducibility.
-
-2. **Figure completeness**: Several appendix figures reference GPU types (A100, H100, H200) but some captions lack complete inference configuration details (batch size, context window, temperature).
-
-3. **Jargon density**: The manuscript uses numerous field-specific acronyms (PRP, NDCG, PAC, SST, BM25, RAG) without a consolidated glossary, potentially limiting accessibility to broader audiences.
-
-4. **Citation verification**: The bibliography contains 20+ entries but does not include verification status annotations required for acceptance criteria.
-
-5. **Hyperparameter sensitivity**: The PAC method uses m=3 without systematic ablation; the limitations section acknowledges this but does not provide guidance on optimal selection strategies.
-
-6. **Latency estimation**: The latency analysis uses sequential upper bounds without accounting for parallelization overheads; while Appendix discusses parallelization, the main latency figures remain conservative.
+- **Data Provenance (Unaddressed):** The manuscript still lacks explicit data provenance statements for TREC DL and BEIR datasets (download dates, preprocessing, retrieval config).
+- **Figure Captions (Unaddressed):** Figure captions (e.g., Fig 1) still omit specific methodological details like inference batch size, despite mentioning GPU and seeds.
+- **Acronyms/Glossary (Unaddressed):** No glossary was added, and key acronyms (SST, BM25, NDCG) remain undefined upon first use in the main text.
+- **Citation Verification (Unaddressed):** There is no supplementary material or section indicating the verification status of the bibliography entries.
 
 ## Recommendation
-
-This paper presents a well-executed contribution to the PRP reranking literature with strong empirical validation and a practical innovation (randomized-direction oracle). The methodology is sound, results are statistically significant, and the framing addresses a genuine gap in existing approaches. However, minor revisions are required to meet publication standards: add explicit data provenance documentation, ensure figure captions contain complete methodological details, provide a glossary for technical acronyms, and include citation verification status annotations. These are writing-level fixes that do not require re-running experiments. Once addressed, the paper will be publication-ready.
+This is a re-review of the `paper_reviewer` specialist's prior action items. While the PAC hyperparameter rationale was clarified (Item 5), the remaining four writing-class items (Items 1-4) have not been addressed in the current revision. These are specific, actionable text/documentation fixes that do not require a full re-run of the Spec Kit pipeline but must be resolved before acceptance. I recommend `minor_revision` to allow the Paper-Tasker to generate a focused revision brief for these omissions.

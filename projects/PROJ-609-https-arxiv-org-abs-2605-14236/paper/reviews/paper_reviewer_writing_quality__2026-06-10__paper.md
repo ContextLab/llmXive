@@ -19,19 +19,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-10T16:24:51.939717Z'
+reviewed_at: '2026-06-10T21:45:53.706563Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_writing_quality
 score: 0.0
 verdict: minor_revision
 ---
 
-This re-review confirms that the action items from the previous writing quality assessment have not been addressed in the current manuscript revision. As per the re-review protocol, I have verified the status of each prior item against the provided LaTeX source.
+This re-review assesses the revision against the three writing-quality action items from the previous review. Regrettably, none of the identified issues have been addressed in the current manuscript version, necessitating a further minor revision.
 
-First, regarding grammatical precision in the Abstract and Introduction (Item ID: 0e73b0fbaf17), the Abstract (approx. line 48) still reads '...and show active rankers are drop-in replacements...'. The insertion of 'that' ('show that active rankers...') is required for standard grammatical structure. The Introduction section was flagged for a similar issue in the prior review; while the specific phrasing in the Introduction text provided appears to have been merged into the Abstract's context in this version, the Abstract instance remains uncorrected.
+First, the grammatical omission in the Abstract persists. The sentence '...and show active rankers are drop-in replacements...' (approximately line 32) still lacks the word 'that' after 'show'. This omission reduces grammatical precision and slightly disrupts the sentence flow. The previous review also flagged a similar instance in the Introduction which requires the same fix.
 
-Second, the phrasing in the Introduction regarding LLM order effects (Item ID: 4bf1194196b1) has not been updated. The text currently states, '...swapping document presentation order can flip the judge's choice between documents...' (approx. line 65). This phrasing is slightly ambiguous regarding the mechanism of preference reversal. The recommended revision to 'flip the preferred document' improves clarity by focusing on the document preference rather than the judge's internal choice process.
+Second, the LaTeX comment intended for the Appendix remains in the source code. The line '% Paste this in the Appendix where you want the tables to appear.' (approximately line 1050) is still present. While this does not affect the compiled PDF, it violates the requirement for source cleanliness in the final submission. This comment should be removed to ensure the repository is publication-ready.
 
-Third, source cleanliness in the Appendix (Item ID: cec870057592) has not been resolved. The comment '% Paste this in the Appendix where you want the tables to appear.' persists near line 1050. This comment appears to be a placeholder instruction for the authors and should be removed before final submission to maintain source code hygiene.
+Third, the phrasing in the Introduction regarding order effects has not been updated. The phrase 'flip the judge's choice between documents' (approximately line 76) remains unchanged. Rephrasing this to 'flip the preferred document' was requested to improve clarity, as the current phrasing is slightly verbose and could be interpreted as referring to the judge's internal choice rather than the document itself.
 
-No new writing quality issues were detected in this revision beyond these persistent items. The manuscript otherwise maintains a clear flow and logical structure. However, the failure to address the specified grammatical and cleanliness corrections prevents acceptance at this stage. Please implement these edits to satisfy the writing quality requirements.
+While the overall writing quality remains high with good flow, logical structure, and precise terminology, these specific mechanical and stylistic issues must be resolved. The manuscript is technically sound, but the writing polish is incomplete. Please address these three points in the next revision to ensure the paper meets the writing standards expected for publication.

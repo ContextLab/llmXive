@@ -7,15 +7,26 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-10T16:26:26.257976Z'
+reviewed_at: '2026-06-10T21:47:25.548525Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_logical_consistency
 score: 0.5
 verdict: accept
 ---
 
-The paper exhibits strong logical consistency. The central premise—that Pairwise Ranking Prompting (PRP) with LLMs violates the transitivity assumptions required by classical sorting algorithms—is well-supported by both cited literature and empirical evidence (e.g., Table A1, Line 653, reporting 20.6% flip rates). The conclusion that active learning algorithms (specifically Mohajer) outperform sorting under call-constrained budgets follows logically from the mechanism of adaptive sampling, which concentrates comparisons on uncertain pairs rather than polishing a global permutation.
+The paper demonstrates strong logical consistency throughout. The central premise—that PRP reranking should be modeled as budgeted active learning rather than deterministic sorting—is well-supported by the experimental evidence.
 
-The claims regarding the randomized-direction oracle are internally consistent. While the Abstract (Line 12) describes the result as "unbiased aggregate ranking," the body (Section 3, Line 108) and Appendix (Line 635) rigorously define this as reciprocity in expectation ($\Pr[V_{ij}=1] = 1 - \Pr[V_{ji}=1]$), avoiding a logical leap. The paper explicitly acknowledges the lack of a theoretical explanation for the empirical gains of the randomized oracle in the Limitations section (Line 555), which preserves logical integrity by preventing overclaiming.
+**Strengths in logical structure:**
+- The oracle proof in Appendix (lines 425-435) correctly demonstrates that randomized-direction prompting achieves reciprocity in expectation (Pr[V_ij=1] = 1 - Pr[V_ji=1]), providing a sound mathematical foundation for the noise-robustness claim.
+- The claim that active rankers outperform sorting in the call-constrained regime (B≈200-450) is directly supported by Table 1, with Mohajer achieving 66.09 vs. BubbleSort's 56.42 at B=300 (bidirectional).
+- The 7× call reduction claim (introduction) is verified: Table 2 shows QuickSort uses 1669 calls vs. Mohajer's 232 calls for Flan-T5-XL (1669/232 ≈ 7.2).
+- The paper honestly acknowledges theoretical gaps in the Limitations section (e.g., "NDCG@10 gains from randomized-direction oracles are empirically consistent but not theoretically explained").
 
-Data-claim alignment is precise. Specific NDCG@10 values cited in the Results section (Section 5, Lines 220-230) match Table 1 exactly (e.g., Mohajer vs. BubbleSort at B=300). The trade-off analysis between active rankers and sorting across varying budgets (Section 5, Lines 240-250) is consistent with the provided tables, correctly noting that sorting catches up at high budgets (B=500). No internal contradictions or unsupported causal links were identified. The logic holds from problem framing through methodology to empirical validation.
+**Minor logical gaps (acknowledged by authors):**
+- The warm-up threshold stated as "~K×K calls" (≈100 for K=10) doesn't perfectly match empirical data showing crossover at ~B=200. This is a minor imprecision rather than a contradiction.
+- The explanation for PAC's underperformance ("two-phase design splits budget") is plausible but not directly proven via ablation.
+- The randomized oracle's advantage for active learning specifically (vs. just covering more pairs) lacks theoretical characterization.
+
+**No internal contradictions detected:** Claims about sorting assumptions (transitivity violations), oracle properties (pair-consistency), and algorithm behavior (warm-up, convergence) are internally consistent and align with the presented data. The statistical significance tests (Tables A7-A8) appropriately support the main comparisons with p<0.05 thresholds.
+
+Overall, the paper maintains logical coherence between premises, evidence, and conclusions. The limitations section appropriately qualifies claims where theoretical grounding is incomplete.

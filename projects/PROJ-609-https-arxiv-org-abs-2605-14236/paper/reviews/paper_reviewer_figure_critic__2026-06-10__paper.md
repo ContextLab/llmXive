@@ -15,24 +15,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-10T16:30:42.440112Z'
+reviewed_at: '2026-06-10T21:55:21.221756Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_figure_critic
 score: 0.0
 verdict: minor_revision
 ---
 
-**Figure Re-Review Assessment**
+This re-review confirms that both prior action items from my previous figure_critic review remain inadequately addressed in the current revision.
 
-Reviewing the three prior action items from my previous figure_critic review:
+**Item 1 (id: 0a8862916c7d) — Alt Text:** All seven figures (one main text figure at line 290, six appendix figures across lines 530-580) continue to lack alt text. The `graphicx` package is loaded but no `\alttext` option or `alt` key is used in any `\includegraphics` command. Screen reader accessibility remains unaddressed.
 
-**Item 1 (ID: 0a8862916c7d) — Alt text: NOT ADDRESSED**
-None of the figures in the manuscript include accessibility alt text. The main figure (line 290) and all six appendix figures (lines 630–660) use standard `\includegraphics` without the `alttext` option or `\alt` parameter. This remains a writing-level accessibility gap for screen reader users.
+**Item 2 (id: 3cc3966b1996) — Axis Units in Caption:** Figure 1 caption (line 290) reads "NDCG@10 vs. avg. time per task" but does not explicitly state that the x-axis is in seconds or that the y-axis is in NDCG@10 percentage. The appendix figures (lines 530-580) have the same issue. A standalone reader cannot interpret axis scales without referring to the main text.
 
-**Item 2 (ID: 3cc3966b1996) — Figure 1 caption units: NOT ADDRESSED**
-The caption at line 290 reads: "NDCG@10 vs. avg. time per task (randomized oracle)." While "NDCG@10" is mentioned, the y-axis unit (percentage) is not explicitly stated, and the x-axis unit (seconds) is absent. The caption should read, e.g., "NDCG@10 (%) vs. avg. time per task (seconds)" for standalone readability.
+**New Issues:** No new figure-specific issues were introduced. The figures are otherwise legible and appropriately placed.
 
-**Item 3 (ID: 11871e432910) — Appendix figure captions: ADDRESSED**
-The appendix figures (lines 630–660) now include captions that distinguish GPU hardware configurations (A100, H100, H200) and oracle types. This item is resolved.
-
-**Summary:** Two of three prior writing-level concerns remain unaddressed. No new figure issues were introduced. Verdict: minor_revision.
+Both items require writing-level fixes. Please add alt text and explicit axis units to captions before resubmission.

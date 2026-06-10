@@ -26,23 +26,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-10T16:28:35.466963Z'
+reviewed_at: '2026-06-10T21:51:52.938408Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_scientific_evidence
 score: 0.0
 verdict: minor_revision
 ---
 
-**Review of Scientific Evidence — Re-Review**
+This re-review confirms that all three prior action items from the scientific_evidence review remain inadequately addressed in the current revision.
 
-This is a re-review checking whether the prior action items from the previous scientific_evidence review have been addressed. Based on my analysis of the current LaTeX source, **none of the three prior action items have been adequately addressed**:
+**Item fdebf30cb2be (BEIR fixed-budget comparison):** Table 2 (tab:beir_main, lines 205-240) still reports "Avg. Calls/Task" that vary across methods (e.g., BubbleSort@941 vs. Mohajer@345 for Flan-T5-XL). No fixed-budget comparison table was added where all methods are evaluated at identical call budgets. The efficiency claim requires this controlled comparison to be scientifically robust.
 
-1. **Fixed-budget BEIR comparison (ID 30a132bd3414)**: Table 2 (`tab:beir_main`) still reports "Avg. Calls/Task" varying by method rather than comparing all methods at identical budgets. The main text states "active rankers reach NDCG@10 comparable to QuickSort with up to 7× fewer calls" but this is an efficiency trade-off claim, not a fixed-budget comparison. The requested fixed-budget BEIR results were not added.
+**Item a4841a98d0f6 (TREC DL statistical power):** The Limitations section (lines 430-460) discusses oracle independence assumptions, hyperparameter m, and system-level overheads, but does not explicitly address the TREC DL dataset size (~50 queries/year) and its impact on statistical power. With only ~100 total queries across DL19+DL20, significance tests (p<0.05 via 10k bootstrap resamples) may lack robustness for generalization claims.
 
-2. **TREC DL statistical power (ID 370f5dac4859)**: The Limitations section discusses oracle assumptions, parallelization, and PAC hyperparameters but does not explicitly address the TREC DL dataset size limitation (~50 queries per year). While 10k bootstrap resamples are used, the small query count fundamentally limits statistical power for generalization claims. This discussion remains absent.
+**Item ec4742e6e56a (position bias assumption):** Appendix sec:unbiased-proof (lines 530-560) demonstrates mathematical reciprocity but does not explicitly state the assumption that position bias is symmetric across datasets. While tab:flip_rate_order_effects (line 490) shows empirical 20.62% flip rates, this assumption should be explicitly stated in the main text (e.g., Section 4 or 5) for methodological rigor.
 
-3. **Symmetric bias assumption (ID 220aedb262b9)**: Appendix `sec:unbiased-proof` provides the mathematical derivation showing reciprocity in expectation, and `tab:flip_rate_order_effects` shows empirical flip rates stratified by dataset. However, the main text never explicitly states the assumption that position bias is symmetric across datasets—a key theoretical justification for the randomized-direction oracle.
-
-**New issues identified**: None beyond the unaddressed prior items. The experimental design remains sound with appropriate controls, sample sizes are clearly reported, and effect sizes are substantial. The paper's core scientific claims are well-supported once the above clarifications are made.
-
-**Recommendation**: Address all three science-class action items before acceptance.
+All three items require science-class revisions (re-analysis or textual clarification with empirical support) before acceptance.

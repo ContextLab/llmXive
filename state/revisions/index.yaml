@@ -242,4 +242,7 @@ ready:
 - project_id: PROJ-688-agents-last-exam
   revision_spec_path: specs/auto-revisions/PROJ-688-agents-last-exam/round-1
   queued_at: '2026-06-10T19:36:32.024117+00:00'
+- project_id: PROJ-609-https-arxiv-org-abs-2605-14236
+  revision_spec_path: specs/auto-revisions/PROJ-609-https-arxiv-org-abs-2605-14236/round-1
+  queued_at: '2026-06-10T21:55:48.251239+00:00'
 blocked: []

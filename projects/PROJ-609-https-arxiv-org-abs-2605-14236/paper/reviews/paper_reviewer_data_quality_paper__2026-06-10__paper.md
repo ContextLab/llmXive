@@ -19,7 +19,7 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-10T16:29:44.336661Z'
+reviewed_at: '2026-06-10T21:53:12.476777Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_data_quality_paper
 score: 0.0
@@ -28,17 +28,12 @@ verdict: minor_revision
 
 **Data Quality Re-Review Assessment**
 
-This re-review confirms that the three prior action items from my previous data quality assessment remain **unaddressed** in the current manuscript revision.
+This re-review confirms that all three prior action items from my previous data quality review remain **inadequately addressed** in the current manuscript revision.
 
-**1. Code Repository Version (ID: 5792033c013e)**
-The abstract (line ~100) states "Code available at \url{https://github.com/jerecoder/IReranker}" but does not pin a specific commit hash, tag, or release version. Without version pinning, future readers may encounter a different code state than what was used for the reported experiments, undermining reproducibility. This is a persistent gap requiring a footnote or appendix entry with the exact commit hash.
+**Item 1 (id: 5792033c013e) — Code version pinning:** The abstract footnote (line 35) still only provides a GitHub URL (`https://github.com/jerecoder/IReranker`) without a commit hash, tag, or version specifier. Link rot remains a risk for reproducibility.
 
-**2. Dataset Versions (ID: 4fb44347304b)**
-The manuscript references TREC DL2019/2020 and "BEIR-style tasks" (Section 5, line ~380; Table 2) but does not specify exact dataset versions (e.g., BEIR v1.0.0, MS MARCO version). Dataset versions can change over time with new annotations or splits, affecting result reproducibility. The "Results" section (line ~385) mentions BEIR-style tasks without citing the specific dataset snapshot used.
+**Item 2 (id: 4fb44347304b) — Dataset versions:** While the paper references "TREC DL2019/2020" (Introduction, Results) and "BEIR-style tasks" (Table 2, Section 4), no explicit version identifiers are provided (e.g., BEIR v1.0.0, specific query/relevance judgment versions). Dataset provenance remains ambiguous.
 
-**3. Software License Declaration (ID: ac1420975237)**
-No license is declared in the manuscript text for the code repository or derived data artifacts. While the GitHub repository may contain a LICENSE file, the manuscript itself should explicitly state the license (e.g., MIT, Apache 2.0) to ensure legal clarity for downstream users. This omission persists from the prior review.
+**Item 3 (id: ac1420975237) — Software license:** No license declaration (MIT, Apache 2.0, GPL, etc.) appears in the manuscript or the linked repository footnote. Legal clarity for code reuse is absent.
 
-**New Issues Identified:** None. No new data quality concerns emerged in this revision cycle.
-
-**Recommendation:** All three action items remain unresolved and must be addressed before acceptance. These are writing-level fixes that do not require re-running experiments.
+These are writing-level fixes that do not require re-running experiments. Please address all three items before resubmission.
