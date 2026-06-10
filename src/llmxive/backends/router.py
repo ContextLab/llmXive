@@ -146,11 +146,13 @@ def chat_with_model_fallback(
     that is the fix for the per-model breaker composing with fallback. A
     NON-Unavailable ``PermanentBackendError`` on the primary (paid-model guard, a
     hard refusal) still aborts immediately (no peer walk). When the whole chain
-    is exhausted, if ANY failure was ``BackendUnavailable`` we raise
+    is exhausted, if ANY failure was ``BackendUnavailable`` OR transient-class
+    (``ModelDownError`` / ``TransientBackendError``) we raise
     ``BackendUnavailable`` (a true full-endpoint outage → the run loop's existing
-    clean-abort path fires, preserving the breaker's anti-thrash purpose);
-    otherwise we raise the aggregate ``BackendError``. On a ``model=None`` call
-    there is no chain to walk — it is a single signature-degrading ``chat``.
+    clean-abort path fires with state preserved — NEVER a human escalation);
+    only an all-permanent exhaustion raises the aggregate ``BackendError``. On a
+    ``model=None`` call there is no chain to walk — it is a single
+    signature-degrading ``chat``.
     """
     import time as _time
 
@@ -163,6 +165,7 @@ def chat_with_model_fallback(
     models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
     errors: list[str] = []
     saw_unavailable = False
+    saw_transient = False
     for model_idx, m in enumerate(models_to_try):
         attempts = 3 if model_idx == 0 else 1
         for attempt in range(attempts):
@@ -187,9 +190,11 @@ def chat_with_model_fallback(
                 # maintenance redirect) — not flickering. Retrying the SAME model
                 # burns another full deadline / will just re-redirect; skip the
                 # remaining same-model attempts and fall straight to the next peer.
+                saw_transient = True
                 errors.append(f"{m}(model-down attempt {attempt + 1}): {exc}")
                 break
             except TransientBackendError as exc:
+                saw_transient = True
                 errors.append(f"{m}(transient attempt {attempt + 1}): {exc}")
                 if "reasoning budget exhausted" in str(exc):
                     break
@@ -217,6 +222,19 @@ def chat_with_model_fallback(
     # true full-endpoint outage (rather than as a recoverable BackendError).
     if saw_unavailable:
         raise BackendUnavailable(detail)
+    # An all-failed chain whose failures were TRANSIENT-class (deadline hangs,
+    # 302→outage.dartmouth.edu redirects, 5xx flaps on EVERY model) is a
+    # full-endpoint outage that will heal on its own — the run must abort
+    # cleanly with state preserved, exactly like the breaker-open case. Before
+    # this clause, such an exhaustion raised plain BackendError, which the
+    # stage-panel's generic engine-failure handler escalated to
+    # human_input_needed — observed live on PROJ-552 (dispatch 27306941191,
+    # 2026-06-10: qwen deadline-hang + gpt-oss/gemma both 302→outage). A
+    # transient infrastructure outage is NOT human-actionable (bug-#8 family).
+    if saw_transient:
+        raise BackendUnavailable(detail)
+    # All-permanent exhaustion (every peer hard-rejected) — genuinely
+    # engine/config-actionable, keep the recoverable aggregate error.
     raise BackendError(detail)
 
 
