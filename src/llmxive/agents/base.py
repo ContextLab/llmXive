@@ -13,6 +13,7 @@ Status-Reporter) extend Agent directly.
 from __future__ import annotations
 
 import abc
+import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -27,6 +28,39 @@ from llmxive.types import (
     Outcome,
     RunLogEntry,
 )
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class MalformedResponseError(RuntimeError):
+    """An agent's LLM response failed deterministic output validation.
+
+    Raised by ``handle_response`` when the response cannot be parsed
+    against the agent's output contract (missing YAML frontmatter,
+    schema-invalid fields, …). ``Agent.run`` catches this and re-prompts
+    the model with the validation error appended (the structured-output
+    retry pattern from issue #294: the error message itself is the
+    feedback), up to ``MAX_MALFORMED_RESPONSE_RETRIES`` times, before
+    failing the run. This converts the historically-fatal
+    "response missing YAML frontmatter" failures (observed on
+    google.gemma-4-31B-it fallback calls, run-log 2026-06-05..08) into
+    recoverable retries.
+
+    ``format_reminder`` is an optional, contract-specific restatement of
+    the required output format that is appended to the retry prompt.
+    """
+
+    def __init__(self, message: str, *, format_reminder: str = "") -> None:
+        super().__init__(message)
+        self.format_reminder = format_reminder
+
+
+#: Retries AFTER the first attempt (3 model calls maximum). Bounded per
+#: Constitution V — fail fast rather than loop on a model that cannot
+#: satisfy the contract; the bounded retry exists because a single
+#: re-prompt with the concrete validation error empirically recovers
+#: most formatting slips.
+MAX_MALFORMED_RESPONSE_RETRIES = 2
 
 
 @dataclass
@@ -92,16 +126,48 @@ class Agent(abc.ABC):
         try:
             messages = self.build_messages(ctx)
             captured_messages = messages
-            response = chat_with_fallback(
-                messages,
-                default_backend=self.entry.default_backend.value,
-                fallback_backends=[b.value for b in self.entry.fallback_backends],
-                model=self.entry.default_model,
-            )
-            captured_response = response
-            backend_used = BackendName(response.backend)
-            model_used = response.model
-            outputs = self.handle_response(ctx, response)
+            attempt_messages: list[ChatMessage] = list(messages)
+            for attempt in range(MAX_MALFORMED_RESPONSE_RETRIES + 1):
+                response = chat_with_fallback(
+                    attempt_messages,
+                    default_backend=self.entry.default_backend.value,
+                    fallback_backends=[b.value for b in self.entry.fallback_backends],
+                    model=self.entry.default_model,
+                )
+                captured_messages = attempt_messages
+                captured_response = response
+                backend_used = BackendName(response.backend)
+                model_used = response.model
+                try:
+                    outputs = self.handle_response(ctx, response)
+                    break
+                except MalformedResponseError as exc:
+                    if attempt == MAX_MALFORMED_RESPONSE_RETRIES:
+                        raise
+                    _LOGGER.warning(
+                        "[%s] malformed response (attempt %d/%d), re-prompting "
+                        "with validation error: %s",
+                        self.name, attempt + 1,
+                        MAX_MALFORMED_RESPONSE_RETRIES + 1, exc,
+                    )
+                    reminder = (
+                        f" {exc.format_reminder}" if exc.format_reminder else ""
+                    )
+                    attempt_messages = [
+                        *attempt_messages,
+                        ChatMessage(role="assistant", content=response.text),
+                        ChatMessage(
+                            role="user",
+                            content=(
+                                "Your previous response was REJECTED by a "
+                                f"deterministic output validator: {exc}.{reminder} "
+                                "Produce the complete response again from "
+                                "scratch, following the required output "
+                                "format EXACTLY. Output nothing except the "
+                                "required format."
+                            ),
+                        ),
+                    ]
         except Exception as exc:
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
@@ -246,4 +312,9 @@ def _capture_non_speckit_inspection(
         )
 
 
-__all__ = ["Agent", "AgentContext"]
+__all__ = [
+    "MAX_MALFORMED_RESPONSE_RETRIES",
+    "Agent",
+    "AgentContext",
+    "MalformedResponseError",
+]

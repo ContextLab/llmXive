@@ -103,8 +103,12 @@ class TestWikidataEntityFillReal:
             f"SC-002: 'Canberra' not traceable in quote={prov.quote!r} or url={prov.url!r}"
         )
 
-    def test_relational_claim_stays_blocked(self, tmp_path):
-        """RELATIONAL claims are deferred in v1 — fill_claim must return blocked."""
+    def test_relational_claim_never_filled_without_source(self, tmp_path):
+        """RELATIONAL fills are LIVE since spec 018 (FR-009/FR-010 removed
+        the spec-017 v1 deferral, so channels ARE tried). The invariant that
+        must hold forever is the FR-011 safety property: either the claim
+        blocks, or a filled value traces to a real fetched source — never
+        model memory."""
         from llmxive.claims.models import ClaimKind
         from llmxive.fill.service import fill_claim
 
@@ -122,16 +126,19 @@ class TestWikidataEntityFillReal:
             model="qwen.qwen3.5-122b",
             repo_root=tmp_path,
         )
-        assert result.status == "blocked", (
-            f"RELATIONAL claim should be blocked in v1, got {result.status!r} "
-            f"value={result.value!r}"
+        assert result.status in {"blocked", "filled"}, (
+            f"unexpected fill status {result.status!r} value={result.value!r}"
         )
-        assert result.channels_tried == [], (
-            f"RELATIONAL should be blocked before channels are tried, got {result.channels_tried}"
-        )
+        if result.status == "filled":
+            prov = result.provenance
+            assert prov is not None and prov.url and prov.quote, (
+                f"FR-011: filled RELATIONAL value lacks source provenance: {result!r}"
+            )
 
-    def test_magnitude_claim_stays_blocked(self, tmp_path):
-        """MAGNITUDE claims are deferred in v1 — fill_claim must return blocked."""
+    def test_magnitude_claim_never_filled_without_source(self, tmp_path):
+        """MAGNITUDE/superlative fills are LIVE since spec 018 (FR-008/FR-010
+        removed the spec-017 v1 deferral). Same FR-011 safety property as the
+        relational case: block, or fill with real source provenance."""
         from llmxive.claims.models import ClaimKind
         from llmxive.fill.service import fill_claim
 
@@ -149,7 +156,11 @@ class TestWikidataEntityFillReal:
             model="qwen.qwen3.5-122b",
             repo_root=tmp_path,
         )
-        assert result.status == "blocked", (
-            f"MAGNITUDE claim should be blocked in v1, got {result.status!r}"
+        assert result.status in {"blocked", "filled"}, (
+            f"unexpected fill status {result.status!r} value={result.value!r}"
         )
-        assert result.channels_tried == []
+        if result.status == "filled":
+            prov = result.provenance
+            assert prov is not None and prov.url and prov.quote, (
+                f"FR-011: filled MAGNITUDE value lacks source provenance: {result!r}"
+            )

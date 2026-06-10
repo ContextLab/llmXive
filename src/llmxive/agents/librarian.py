@@ -364,6 +364,9 @@ class LibrarianAgent(Agent):
                     model=self.entry.default_model,
                     default_backend=self.entry.default_backend.value,
                     fallback_backends=[b.value for b in self.entry.fallback_backends],
+                    # Issue #112: freeze per-candidate verdicts on disk so
+                    # re-runs replay identical judgments.
+                    repo_root=repo_root,
                 )
                 if rejected:
                     judge_rejected_count = len(rejected)

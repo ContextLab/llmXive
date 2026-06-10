@@ -256,7 +256,7 @@ _PIPELINE_STAGE_DISPLAY: list[dict[str, Any]] = [
      "description": "The implementer agent executes the task list — writing code, running real tests, collecting data — ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
      "inputs": ["`tasks.md`"], "outputs": ["Code under `projects/<id>/code/`", "Data under `projects/<id>/data/`", "All tasks checked off → research_complete"]},
     {"key": "research_review", "name": "Research review", "lane": "research", "stage": Stage.RESEARCH_REVIEW,
-     "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist. Human reviews count double.",
+     "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) run the identify → revise → re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system — human and simulated-personality reviews are advisory inputs routed through stage-aware triage.",
      "inputs": ["A research_complete project"], "outputs": ["Review records under `projects/<id>/reviews/research/`", "A verdict (accepted / minor revision / full revision / rejected)"]},
     # Paper lane
     {"key": "paper_init", "name": "Paper init", "lane": "paper", "stage": Stage.PAPER_DRAFTING_INIT,
@@ -278,7 +278,7 @@ _PIPELINE_STAGE_DISPLAY: list[dict[str, Any]] = [
      "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied — ready for paper review.",
      "inputs": ["A drafted paper"], "outputs": ["A review-ready PDF + sources"]},
     {"key": "paper_review", "name": "Paper review", "lane": "paper", "stage": Stage.PAPER_REVIEW,
-     "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) each vote. Acceptance requires both the points threshold and an accept verdict from every specialist.",
+     "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) run the identify → revise → re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system.",
      "inputs": ["A paper-complete project"], "outputs": ["Review records under `projects/<id>/paper/reviews/`", "A verdict (accepted / minor / major-writing / major-science / fundamental flaws)"]},
     {"key": "posted", "name": "Posted", "lane": "paper", "stage": Stage.POSTED,
      "description": "The paper is published — the PDF is final and an announcement goes out. The project is done.",

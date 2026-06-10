@@ -50,6 +50,8 @@ _SLOW_MODULES = frozenset({
     "test_receipt_real",
     "test_calibration_heldout",
     "test_summarize_fidelity",
+    # issue #112: 3 repeated judge calls + cache-freeze round trip
+    "test_relevance_judge_real",
 })
 
 

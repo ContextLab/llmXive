@@ -1,0 +1,125 @@
+# Prompt-regression gate (issue #294 Phase 2; supports issue #216).
+#
+# Runs the critical reviewer prompts against the production backend
+# router (see llmxive_provider.py) and validates each response with the
+# PRODUCTION frontmatter/schema parser (see assert_review_frontmatter.py).
+# CI runs this on every PR touching agents/prompts/** with `--repeat 3`,
+# so format-contract regressions AND run-to-run instability both fail
+# the build before a prompt change merges.
+#
+# Local/offline run (no Dartmouth access — identical code path through
+# local transformers):
+#   LLMXIVE_EVAL_BACKEND=local LLMXIVE_EVAL_MODEL=Qwen/Qwen2.5-0.5B-Instruct \
+#     npx promptfoo@latest eval -c eval/promptfoo/promptfooconfig.yaml --no-cache
+
+description: "llmXive reviewer-prompt regression gate"
+
+prompts:
+  - file://../../agents/prompts/research_reviewer_idea_quality.md
+
+providers:
+  - id: file://llmxive_provider.py
+    label: llmxive-router
+
+defaultTest:
+  assert:
+    - type: python
+      value: file://assert_review_frontmatter.py
+
+tests:
+  - description: "clearly flawed, unfalsifiable idea must not be accepted"
+    vars:
+      expected_not_accept: true
+      user_payload: |
+        # project_id
+        PROJ-000-eval-fixture-flawed
+
+        # spec.md
+
+        ## Research question
+        Is consciousness basically just, like, vibes? We will prove that all
+        software bugs are caused by negative energy fields surrounding the
+        developer.
+
+        ## Success criteria
+        None. The result is self-evident and requires no falsifiable test,
+        baseline, or data.
+
+        # plan.md
+
+        (empty)
+
+        # tasks.md
+
+        (empty)
+
+        # code summary
+
+        (no files)
+
+        # data summary
+
+        (no files)
+
+        # results summary
+
+        (none)
+
+        # prior reviews
+
+        (no prior reviews)
+
+        # Task
+
+        Return the review record per the contract.
+
+  - description: "well-posed falsifiable idea yields a schema-valid review"
+    vars:
+      user_payload: |
+        # project_id
+        PROJ-000-eval-fixture-sound
+
+        # spec.md
+
+        ## Research question
+        How does the local density of syntactic code clones correlate with
+        the perplexity and bug-detection accuracy of pre-trained language
+        models on open-source Python code?
+
+        ## Success criteria
+        - Spearman correlation between clone density and per-file perplexity
+          reported with 95% CI on >= 500 repositories.
+        - Bug-detection AUROC compared across clone-density quartiles.
+
+        # plan.md
+
+        Sample repositories from a public corpus; compute clone density with
+        a token-based detector; evaluate two open-weight code models;
+        pre-register the analysis plan.
+
+        # tasks.md
+
+        - [ ] T001 corpus sampling script
+        - [ ] T002 clone-density metric
+        - [ ] T003 model evaluation harness
+        - [ ] T004 statistical analysis + figures
+
+        # code summary
+
+        (no files yet)
+
+        # data summary
+
+        (no files yet)
+
+        # results summary
+
+        (none)
+
+        # prior reviews
+
+        (no prior reviews)
+
+        # Task
+
+        Return the review record per the contract.

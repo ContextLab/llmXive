@@ -1,0 +1,60 @@
+# Prompt-regression gate (issue #294 Phase 2; supports issue #216).
+#
+# Fails a PR that changes agents/prompts/** (or the eval harness itself)
+# when a critical prompt stops producing schema-valid reviewer output on
+# the production free models, or becomes unstable across repeats.
+# Assertions reuse the production parser (eval/promptfoo/...), so this
+# gate cannot drift from what the pipeline actually validates.
+
+name: Prompt Eval
+
+on:
+  pull_request:
+    paths:
+      - 'agents/prompts/**'
+      - 'eval/promptfoo/**'
+      - '.github/workflows/prompt-eval.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prompt-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install llmxive (provider + assertions import it)
+        run: pip install -e .
+
+      - name: Run prompt eval (3 repeats — instability also fails)
+        run: |
+          npx promptfoo@latest eval \
+            -c eval/promptfoo/promptfooconfig.yaml \
+            --repeat 3 \
+            --no-cache \
+            -o prompt-eval-results.json
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-eval-results
+          path: prompt-eval-results.json

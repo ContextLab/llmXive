@@ -68,6 +68,13 @@ def test_create_new_feature_dry_run(tmp_path: Path) -> None:
         ["git", "config", "user.name", "ci"],
         cwd=str(fake_repo), check=True, capture_output=True,
     )
+    # Hermetic against host git config: a global commit.gpgsign=true (e.g.
+    # managed dev containers signing via a server) would make the sandbox
+    # commit exit 128 even though the script under test is fine.
+    subprocess.run(
+        ["git", "config", "commit.gpgsign", "false"],
+        cwd=str(fake_repo), check=True, capture_output=True,
+    )
     (fake_repo / "README.md").write_text("sandbox", encoding="utf-8")
     subprocess.run(["git", "add", "."], cwd=str(fake_repo), check=True, capture_output=True)
     subprocess.run(

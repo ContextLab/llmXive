@@ -160,9 +160,12 @@ All inference runs on free backends: Dartmouth's
 (primary) and local [transformers](https://huggingface.co/docs/transformers)
 (fallback) — open-weight Hugging Face models run locally, no API token.
 Long, complex tasks (planning, paper writing, deep
-review) go to **Qwen 3.5 122B**; faster classification-shaped tasks (clarifying
-questions, triage, quick judgments) go to **Gemma 3 27B**. No paid services
-(Constitution Principle IV — free-first).
+review) go to **Qwen 3.5 122B** (registry id `qwen.qwen3.5-122b`); faster
+classification-shaped tasks (clarifying questions, triage, quick judgments) go
+to **Gemma 4 31B** (registry id `google.gemma-4-31B-it`). The single source of
+truth for per-agent model assignments is
+[`agents/registry.yaml`](agents/registry.yaml). No paid services (Constitution
+Principle IV — free-first).
 
 ## The website
 
@@ -217,7 +220,8 @@ state/                   # canonical state — projects/ (per-project YAML), run
 web/                     # the static dashboard (synced to docs/ on deploy)
 specs/                   # Spec-Kit specs for the platform itself (this repo's own /speckit-* work)
 .github/workflows/       # the hourly pipeline crons + the submission-intake cron + Deploy Pages
-tests/phase2/            # real-call tests (no mocks as the primary path — Constitution III)
+eval/promptfoo/          # prompt-regression gate (PRs touching agents/prompts/** fail on contract regressions)
+tests/                   # unit/ contract/ integration/ + real_call/ (no mocks as the primary path — Constitution III)
 ```
 
 ## Running it
@@ -242,6 +246,20 @@ intake, and `Deploy Pages` to publish `web/` → `docs/`.
 LLM calls need a Dartmouth Chat API key (`DARTMOUTH_CHAT_API_KEY`, or
 `python -m llmxive auth set`); without it the backends fall through to local
 transformers (open-weight Hugging Face models run locally; no token required).
+
+### Tests & quality gates
+
+```sh
+pytest tests/unit tests/contract tests/integration   # offline suites
+LLMXIVE_REAL_TESTS=1 pytest tests/real_call          # real-call suites (Constitution III)
+```
+
+`tests/unit/test_config_consistency.py` pins the configuration single source
+of truth (free-models-only registry, README↔registry model agreement, no
+point-system language — spec 021). PRs that touch `agents/prompts/**` run the
+[promptfoo](https://github.com/promptfoo/promptfoo) gate in
+[`eval/promptfoo/`](eval/promptfoo/), which validates reviewer outputs with
+the production parsers across repeated runs (`Prompt Eval` workflow).
 
 ### Audit tools (spec 010)
 

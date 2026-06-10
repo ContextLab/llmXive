@@ -18,8 +18,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
+from pydantic import ValidationError
 
-from llmxive.agents.base import Agent, AgentContext
+from llmxive.agents.base import Agent, AgentContext, MalformedResponseError
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import repo_root as _repo_root
@@ -34,6 +35,15 @@ from llmxive.types import (
 _FRONTMATTER_RE = re.compile(
     r"^---\s*\n(?P<frontmatter>.*?)\n---\s*\n(?P<body>.*)$",
     re.DOTALL,
+)
+
+# Appended to the retry prompt when output validation rejects a response
+# (issue #294 typed-boundary work; see base.MalformedResponseError).
+_FORMAT_REMINDER = (
+    "Your response MUST start with a line containing exactly `---`, "
+    "followed by the YAML frontmatter fields required by the review-record "
+    "contract in the system prompt, followed by a line containing exactly "
+    "`---`, followed by the markdown review body."
 )
 
 
@@ -140,11 +150,23 @@ class ResearchReviewerAgent(Agent):
         text = response.text.strip()
         match = _FRONTMATTER_RE.match(text)
         if not match:
-            raise RuntimeError("research_reviewer: response missing YAML frontmatter")
-        front = yaml.safe_load(match.group("frontmatter"))
+            raise MalformedResponseError(
+                "research_reviewer: response missing YAML frontmatter",
+                format_reminder=_FORMAT_REMINDER,
+            )
+        try:
+            front = yaml.safe_load(match.group("frontmatter"))
+        except yaml.YAMLError as exc:
+            raise MalformedResponseError(
+                f"research_reviewer: frontmatter is not valid YAML ({exc})",
+                format_reminder=_FORMAT_REMINDER,
+            ) from exc
         body = match.group("body").strip()
         if not isinstance(front, dict):
-            raise RuntimeError("research_reviewer: frontmatter must be a YAML mapping")
+            raise MalformedResponseError(
+                "research_reviewer: frontmatter must be a YAML mapping",
+                format_reminder=_FORMAT_REMINDER,
+            )
 
         # Force the runtime-known fields onto the record (LLM may echo
         # placeholder values that we replace authoritatively).
@@ -166,7 +188,14 @@ class ResearchReviewerAgent(Agent):
                 front["artifact_hash"] = hash_file(tasks_path)
                 front["artifact_path"] = str(tasks_path.relative_to(repo))
 
-        record = ReviewRecord.model_validate(front)
+        try:
+            record = ReviewRecord.model_validate(front)
+        except ValidationError as exc:
+            raise MalformedResponseError(
+                f"research_reviewer: frontmatter failed ReviewRecord schema "
+                f"validation: {exc}",
+                format_reminder=_FORMAT_REMINDER,
+            ) from exc
 
         # Self-review prevention (discrepancy #7 / #49): resolve the agent that
         # actually produced the reviewed artifact from the run-log so

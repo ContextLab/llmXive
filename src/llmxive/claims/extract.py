@@ -2,7 +2,7 @@
 
 extract_claims(text, *, artifact_path, backend, model, repo_root) -> list[Claim]
 
-One LLM call rendering prompts/claim_extraction.md; parses a YAML response
+One LLM call rendering agents/prompts/claim_extraction.md; parses a YAML response
 into Claim objects. Precision-favored: the prompt instructs to skip design
 choices, thresholds, parameters, and subjective statements. A post-parse
 filter (_filter_check_worthy) applies deterministic safety-net rules.
@@ -22,7 +22,7 @@ from llmxive.claims.models import Claim, ClaimStatus, compute_claim_id
 
 logger = logging.getLogger(__name__)
 
-_PROMPT_PATH = "prompts/claim_extraction.md"
+_PROMPT_PATH = "agents/prompts/claim_extraction.md"
 _DEFAULT_MODEL = "qwen.qwen3.5-122b"
 
 # ---------------------------------------------------------------------------
@@ -397,8 +397,12 @@ def extract_claims(
     what the planning strip/smooth must remove. Non-planning stages are unchanged.
 
     Returns a list of :class:`Claim` objects with ``status=PENDING``.
-    On any failure (backend error, unparseable reply, missing prompt) returns
-    ``[]`` and logs a warning — a failed extraction must not crash the pipeline.
+    On RUNTIME failure (backend error, unparseable reply) returns ``[]``
+    and logs a warning — a transient extraction failure must not crash
+    the pipeline. A MISSING PROMPT asset is different: it is a broken
+    deployment, not a flake, and silently extracting nothing would let
+    unverified claims sail through — so it raises (Constitution V; this
+    exact silence masked the 2026-06-10 prompts/ relocation regression).
     """
     from llmxive.agents.prompts import load_prompt
     from llmxive.backends.base import ChatMessage
@@ -411,9 +415,12 @@ def extract_claims(
             prompt_block = load_prompt(_PROMPT_PATH, repo_root=repo_root)
         except FileNotFoundError:
             prompt_block = load_prompt(_PROMPT_PATH, repo_root=_real_repo_root())
-    except Exception as exc:
-        logger.warning("claim_extract: prompt not found (%s); skipping extraction", exc)
-        return []
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            f"claim-extraction prompt not found: {_PROMPT_PATH}. The claims "
+            f"layer cannot run without it — restore the prompt under "
+            f"agents/prompts/ (original error: {exc})"
+        ) from exc
 
     # Exclude citation/survey sections (References, Related Work, …) so their
     # citation years and titles are never extracted as the document's own claims.

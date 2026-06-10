@@ -8,6 +8,7 @@ evaluator) where a 3B-class model is sufficient.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Any
 
 from llmxive.backends.base import (
     BaseBackend,
@@ -15,6 +16,12 @@ from llmxive.backends.base import (
     ChatResponse,
     PermanentBackendError,
 )
+
+# Loaded (tokenizer, model) pairs, keyed by model id. Loading a checkpoint
+# dominates call latency; deterministic-judge tests and multi-candidate
+# filter passes call chat() repeatedly with the same model. Values are
+# untyped because transformers is a lazy optional import here.
+_MODEL_CACHE: dict[str, tuple[Any, Any]] = {}
 
 
 class LocalBackend(BaseBackend):
@@ -47,15 +54,38 @@ class LocalBackend(BaseBackend):
                 "transformers is not installed; required by local backend"
             ) from exc
 
-        tokenizer = AutoTokenizer.from_pretrained(model)
-        llm = AutoModelForCausalLM.from_pretrained(model)
-        prompt = "\n".join(f"{m.role}: {m.content}" for m in messages) + "\nassistant:"
+        if model in _MODEL_CACHE:
+            tokenizer, llm = _MODEL_CACHE[model]
+        else:
+            tokenizer = AutoTokenizer.from_pretrained(model)
+            llm = AutoModelForCausalLM.from_pretrained(model)
+            _MODEL_CACHE[model] = (tokenizer, llm)
+        msg_list = list(messages)
+        # Instruct checkpoints only behave (follow the system prompt, emit
+        # EOS instead of rambling) when fed through their chat template;
+        # fall back to plain role-prefixed concatenation for bare LMs
+        # (e.g. tiny-gpt2) that ship no template.
+        if getattr(tokenizer, "chat_template", None):
+            prompt = tokenizer.apply_chat_template(
+                [{"role": m.role, "content": m.content} for m in msg_list],
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+        else:
+            prompt = "\n".join(f"{m.role}: {m.content}" for m in msg_list) + "\nassistant:"
         inputs = tokenizer(prompt, return_tensors="pt")
-        out = llm.generate(
-            **inputs,
-            max_new_tokens=max_tokens or 256,
-            temperature=temperature or 0.7,
-        )
+        # temperature == 0 means DETERMINISTIC decoding (issue #112: the
+        # relevance judge pins temperature 0.0). The previous
+        # ``temperature or 0.7`` silently coerced 0.0 → 0.7 because 0.0 is
+        # falsy; transformers also rejects temperature=0 unless sampling is
+        # disabled, so 0/None map to greedy decoding instead.
+        gen_kwargs: dict[str, object] = {"max_new_tokens": max_tokens or 256}
+        if temperature is not None and temperature > 0:
+            gen_kwargs["do_sample"] = True
+            gen_kwargs["temperature"] = temperature
+        else:
+            gen_kwargs["do_sample"] = False
+        out = llm.generate(**inputs, **gen_kwargs)
         text = tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
         return ChatResponse(
             text=text,
