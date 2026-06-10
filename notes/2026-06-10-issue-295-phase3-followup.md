@@ -80,3 +80,28 @@ Commits: `3a54a28a` (credits), `79c9af21` (MCP + pilot + observability).
   OEIS ~249 power-analysis + Knot-Atlas-vs-arXiv data source), or a
   clean transient abort still at `clarified` (retry). NEVER
   human_input_needed for an outage now.
+
+## ADDENDUM — full-pipeline audit → issue #303 (same session)
+
+Audited paper-pipeline + activity logs + funnel at the maintainer's
+request. Headline: 696 projects, 0 ever completed. Root causes (all
+verified, evidence in #303):
+1. **Severed paper-revision loop**: `graph.py:726-728` keeps only
+   `.current_stage` from `advancement_evaluate`, DISCARDING
+   `revision_spec_path` — the exact field the revision implementer is
+   gated on (`implementer.py:348`). Proven by running evaluate()
+   directly on PROJ-565 (instantly produced round-1 spec). Also CI
+   persist steps don't `git add specs/`. → 1,233 reviewer runs in June,
+   0 paper_accepted ever, 92 papers stuck 20+ days.
+2. **Starved research funnel**: scheduler 1.5^rank gives paper_review
+   (rank 18, never exits) ~1,478x vs flesh_out_complete (rank 1);
+   no cron targets flesh_out_complete → 589 ideas, ~0 advancement.
+3. 18/94 papers silently fall back to raw arXiv PDF (no failure
+   artifact); only 2/76 restyled PDFs pass the PDF audit.
+4. Maintainer directives folded in: human escalation must be RARE
+   (auto-rebrainstorm infeasible ideas; batch cap-escalations; engine
+   failures → auto-filed issues) + DOI sign-off via emoji-vote GitHub
+   issue at AWAITING_PUBLICATION_SIGNOFF.
+
+NEXT SESSION: execute #303 in order (fix 1 first — small + unblocks
+everything; write the run_one_step PAPER_REVIEW regression test).
