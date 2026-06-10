@@ -591,3 +591,48 @@ test_fill_render_repairs_citation); the proven-good render tests were untouched.
 Commits: c77de3fa (plan) 4b2cf2c4 (tasks+analyze) 4a06d0cc (US1) 16e44ee9 (US2 freeze+key)
 58877524 (US3+real-call tests) 8cb9771e+112eeb22 (real-call fixes) 2920cf1f (durable placeholder)
 081e74f4 (reviser stage threading). Real-call sign-off: free model = qwen.qwen3.5-122b.
+
+## HANDOFF / RESUME POINT — 2026-06-07 (spec-020 follow-ups + real-call CI)
+
+**Everything local is committed + pushed. Nothing of mine is uncommitted** (only
+cron/state noise: state/run-log/*, state/convergence-cache/*, summarize_cache/*,
+papers/.supported.json — do NOT commit these).
+
+### Where we are
+spec 020 (deterministic claim caching + planning reference-only) is DONE and on
+`main`. The follow-up verification surfaced + fixed several real issues. PR status:
+- **#275 spec-020** — MERGED to main (the whole feature: US1 planning strip +
+  references-only, US2 freeze + durable placeholder, FR-012 strong form, US3 +
+  templates, deterministic planning_scan guarantee).
+- **#282 real-call CI fix** — MERGED. Root-caused the recurring "real-call CI fails":
+  the backend-reachability pre-flight (`llmxive.checks.backends`) probed Dartmouth
+  `list_models()` SINGLE-SHOT, so one transient non-JSON blip failed the WHOLE gate
+  before any test ran (sank #275/#281/#282). Fix = (a) split the real-call suite into
+  a fast 24-test per-PR gate (`-m "not slow"`, tests/real_call/conftest.py marks the
+  73 heavy fetch/ground/e2e tests `slow`) + a NEW nightly full-suite job
+  (.github/workflows/llmxive-real-call-nightly.yml, 180-min); (b) retry the
+  reachability probe 3x w/ backoff. Proof: #282 real-call went GREEN in 31m20s.
+- **#281 whitespace fix** — OPEN, CI re-running. The ONLY remaining action.
+  Fixes a pre-existing bug surfaced by real-testing: `strip_claim_artifacts`
+  collapsed `[ \t]{2,}` unconditionally, mangling directory trees/tables in any doc
+  the claim layer touched. Fix = return text byte-for-byte when nothing was removed.
+  Merged main into the branch (commit 2dd1c3fa) so it has the split+retry workflow.
+
+### RESUME: the one remaining action
+Merge #281 once its CI is green (it re-runs with the fast subset + retry probe →
+should pass like #282):
+    gh pr checks 281 --repo ContextLab/llmXive        # confirm all 5 green
+    gh pr merge 281 --repo ContextLab/llmXive --merge
+(CI run for #281: 27102044489. A scheduled wakeup at ~15:36 will attempt this
+auto-merge if green.) If real-call fails on reachability again, verify Dartmouth
+with a REAL chat call (NOT `curl /` — the root path doesn't return a body; the API
+works) and re-run the job.
+
+### Open design notes (not blocking; user already decided)
+- Planning strip performance (~10 min/doc, LLM rewrite per claim): user chose KEEP
+  AS-IS. The deterministic planning_scan only catches comma-counts/percentages/timed;
+  bare counts ("49 prime knots"), entity facts, relational claims need the LLM —
+  going fully deterministic would lose recall. No change made.
+- LLM extraction is non-deterministic (0→6 claims on the real plan across runs); the
+  deterministic planning_scan is the GUARANTEE backstop. extract_claims has a
+  planning-recall addendum (stage_label threaded) to raise recall.
