@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-10T21:23:20.461600+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: albert-einstein
+last_used_at: '2026-06-10T22:16:55.463428+00:00'
+last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-05-31T15:59:05.024084+00:00'
-  ended_at: '2026-05-31T16:52:16.294121+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-642-minwm-a-full-stack-open-source-framework/paper/reviews/stephen-wolfram-simulated__2026-05-31__paper.md
 - slug: ada-lovelace
   started_at: '2026-05-31T16:52:16.294121+00:00'
   ended_at: '2026-05-31T17:25:33.645071+00:00'
@@ -1129,3 +1122,10 @@ history:
   ended_at: '2026-06-10T21:23:20.461600+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: albert-einstein
+  started_at: '2026-06-10T21:23:20.461600+00:00'
+  ended_at: '2026-06-10T22:16:55.463428+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-300-exploring-the-relationship-between-solar/reviews/research/albert-einstein-simulated__2026-06-10__research.md
