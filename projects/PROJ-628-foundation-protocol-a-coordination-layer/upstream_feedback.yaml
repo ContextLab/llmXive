@@ -1,0 +1,150 @@
+project_id: PROJ-628-foundation-protocol-a-coordination-layer
+arxiv_id: '2605.23218'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-10T13:22:35.378309+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: eeb0a68596ec
+    text: Add an explicit license declaration (e.g., CC-BY or MIT) to main.tex to
+      clarify manuscript provenance and reuse rights.
+    severity: writing
+  - id: 0421f55e1646
+    text: Pin all GitHub repository links in the Appendix and bibliography to specific
+      commit hashes or version tags to prevent link rot and ensure reproducibility.
+    severity: science
+  - id: e17e16f042ec
+    text: Correct bibliography access dates (currently 2026) to reflect actual review
+      time or explain the temporal context to avoid provenance confusion.
+    severity: writing
+  - id: a80cbbb0d5fa
+    text: Provide stable, machine-readable schema references (e.g., JSON Schema URLs)
+      for the FP vocabulary objects described in Table 1.
+    severity: science
+  - id: 9b2b433f956c
+    text: Figures lack alt text or description attributes for accessibility compliance.
+      Add \alttext or equivalent metadata for figures/FP.pdf and figures/web-evolve.pdf.
+    severity: writing
+  - id: d836ffaa3053
+    text: Figure~\ref{fig:fp-arch} caption is descriptive but does not explain the
+      visual encoding (what do colors, shapes, arrows represent?). Add a brief visual
+      legend in caption or nearby text.
+    severity: writing
+  - id: 74a24bae589d
+    text: The web-evolution figure (8.3MB PDF) is unusually large; verify it is not
+      embedding unnecessary high-resolution assets that will bloat print output.
+    severity: writing
+  - id: 70030960a253
+    text: Define or replace 'Agentic Society' with 'autonomous agent ecosystem' for
+      broader accessibility.
+    severity: writing
+  - id: 5b0e8f14b561
+    text: Replace 'first-class concerns' with 'core features' and 'graph-first' with
+      'graph-based' in Abstract.
+    severity: writing
+  - id: fde02cd57659
+    text: Define acronyms (MCP, A2A, DIDComm) at first mention in Introduction rather
+      than assuming specialist knowledge.
+    severity: writing
+  - id: d4c217817b55
+    text: Replace 'behavioral closure' and 'evidence spine' with 'complete behavior
+      set' and 'audit trail' in Section 1.3.
+    severity: writing
+  - id: d28158879be3
+    text: Replace 'flag-day migration' and 'prompt stuffing' with 'sudden migration'
+      and 'excessive prompt content' in Sections 1.3 and 2.6.
+    severity: writing
+  - id: 3029d33b9a40
+    text: "The 'intelligence density' argument (Section 1.1, Table 1) assumes increased\
+      \ coordination requires a new protocol layer without establishing the causal\
+      \ mechanism. The historical progression does not logically entail that agentic\
+      \ systems need FP specifically\u2014this premise requires explicit justification\
+      \ rather than rhetorical framing."
+    severity: science
+  - id: 05dc9ddb01a8
+    text: The protocol fragmentation claim (Section 1, Table 2) asserts semantic drift
+      and integration costs across MCP/A2A/DIDComm without empirical evidence. No
+      comparative data or case studies demonstrate actual incompatibility. This central
+      premise needs supporting analysis to be logically sound.
+    severity: science
+  - id: 050cad2ffb65
+    text: FP claims to be 'transport-agnostic' (Section 1.3, 2.3) while the reference
+      implementation uses a tree topology (Appendix 3.3). The paper states 'tree model
+      is not a hard architectural constraint' but provides no evidence that the implementation
+      supports alternative topologies without modification. This creates internal
+      tension between claimed flexibility and actual design.
+    severity: writing
+  - id: 6af2e582f05b
+    text: The economic primitives section (Section 1.3, Appendix 3.4) asserts verification
+      becomes 'scarce' and FP addresses this, but provides no economic model or data
+      showing FP's specific primitives solve the problem better than existing solutions
+      (e.g., UCP). The causal claim is asserted without demonstration.
+    severity: science
+  - id: d9ed5fffe2e9
+    text: Security claims (Section 2.4, Appendix 3.5) describe standard cryptographic
+      practices (signatures, encryption, hash chains) as novel 'protocol-level oversight.'
+      The logical leap from 'we use cryptography' to 'this makes safety a protocol
+      concern' requires explicit mechanistic explanation of what FP-specific mechanisms
+      enable beyond existing practice.
+    severity: writing
+  - id: e7f74595a205
+    text: Claims about protocol effectiveness (e.g., 'FP is designed to make autonomous
+      agency composable while keeping accountability non-negotiable' in abstract)
+      lack empirical validation. Add limitations section acknowledging untested claims.
+    severity: writing
+  - id: 452d4b3a92f4
+    text: The paper states FP 'unifies heterogeneous entities' and 'supports native
+      multi-party organization' but provides no comparative benchmarks against MCP,
+      A2A, or DIDComm. Either add evaluation or soften claims to 'proposed' rather
+      than 'demonstrated.'
+    severity: writing
+  - id: 36c5661098ed
+    text: "Abstract claims FP enables 'a human\u2013AI society that is open, pluralistic,\
+      \ and governable' without evidence this is achievable through protocol design\
+      \ alone. This is a societal claim beyond technical scope."
+    severity: writing
+  - id: e3eb9d715086
+    text: Reference implementation appendix describes 'working FP stack' but omits
+      implementation details and admits code is 'non-normative.' This creates gap
+      between claimed functionality and demonstrated capability.
+    severity: writing
+  - id: 23b6d4595b4d
+    text: The central claims regarding reduced integration overhead and improved governance
+      lack empirical support. Include a comparative study measuring token usage, latency,
+      or integration time against baselines (e.g., MCP, A2A).
+    severity: science
+  - id: 57de922f07da
+    text: The 'AI company' scenario (Section 3.2) is illustrative, not experimental.
+      It does not provide data on failure rates, audit success, or economic settlement
+      times. Convert this into a case study with measurable metrics.
+    severity: science
+  - id: 4c7e9a32e8cd
+    text: The reference implementation (Appendix) describes architecture but lacks
+      performance benchmarks (throughput, concurrency). Provide quantitative data
+      to validate scalability claims.
+    severity: science
+  - id: fbd93014d82a
+    text: The paper makes empirical claims about FP's benefits (e.g., token overhead
+      reduction, safety improvements, scalability) without statistical evidence. Future
+      empirical evaluation should include sample sizes, confidence intervals, and
+      hypothesis tests.
+    severity: science
+  - id: b8cacd4c7e46
+    text: Protocol comparisons in Table 1 (main.tex, lines 163-174) are qualitative.
+      If quantitative performance metrics are added, appropriate statistical tests
+      and multiple-comparisons corrections should be applied.
+    severity: science
+  - id: 1250fc51a764
+    text: 'Correct spacing before citation in subsec:intel-density: ''process further\cite{katz1985network}''
+      should be ''process further \cite{katz1985network}''.'
+    severity: writing
+  - id: 5bc3394e9ce6
+    text: 'Fix sentence-start capitalization in subsec:interaction: ''and \emph{Economic
+      primitives}'' should begin with ''And'' or be merged with the preceding sentence.'
+    severity: writing
+  - id: 137d5944ac3b
+    text: Rename section 'Acknowledge' to 'Acknowledgements' or 'Acknowledgments'
+      per standard academic convention.
+    severity: writing
