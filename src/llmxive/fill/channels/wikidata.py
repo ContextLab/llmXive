@@ -6,12 +6,20 @@ Uses the Wikidata API:
   wbsearchentities  — find candidate Q-ids for the query
   wbgetentities     — fetch labels/descriptions/claims for each Q-id
 
+``wbsearchentities`` matches entity NAMES/aliases, not full text — a
+relation-phrase query like "capital of Australia" matches nothing even
+though Q408 (Australia) carries the answer in its P36 statement. When the
+phrase search comes back empty, we fall back to searching the proper-noun
+terms in the query/claim ("Australia", "Sydney"), whose entity statements
+then surface the fact for the present-in-source gate.
+
 Returns FetchedSource per entity; [] on any HTTP failure.
 """
 
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from llmxive.claims.models import Claim
@@ -23,6 +31,47 @@ logger = logging.getLogger(__name__)
 
 _SEARCH_URL = "https://www.wikidata.org/w/api.php"
 _MAX_ENTITIES = 3  # top-N entities to fetch per query
+
+#: Fact-bearing properties walked FIRST when building an entity's text blob.
+#: Rich entities (countries, people) carry hundreds of properties and the
+#: walk is capped, so without prioritization canonical facts like P36
+#: (capital) routinely fall outside the cap — Q408 (Australia) never
+#: surfaced "Canberra" for the present-in-source gate.
+_PRIORITY_PIDS: tuple[str, ...] = (
+    "P31",    # instance of
+    "P36",    # capital
+    "P1376",  # capital of
+    "P17",    # country
+    "P30",    # continent
+    "P361",   # part of
+    "P527",   # has part
+    "P1082",  # population
+    "P2046",  # area
+    "P6",     # head of government
+    "P35",    # head of state
+    "P112",   # founded by
+    "P159",   # headquarters location
+    "P50",    # author
+    "P57",    # director
+    "P19",    # place of birth
+    "P20",    # place of death
+    "P27",    # country of citizenship
+    "P106",   # occupation
+    "P569",   # date of birth
+    "P570",   # date of death
+)
+
+
+def _ordered_claims(claims_data: dict[str, Any]) -> list[tuple[str, Any]]:
+    """Property items with fact-bearing PIDs first, then response order."""
+    priority = [
+        (pid, claims_data[pid]) for pid in _PRIORITY_PIDS if pid in claims_data
+    ]
+    rest = [
+        (pid, snaks) for pid, snaks in claims_data.items()
+        if pid not in _PRIORITY_PIDS
+    ]
+    return priority + rest
 
 
 # ---------------------------------------------------------------------------
@@ -74,11 +123,12 @@ def _parse_entity(
     descriptions = entity.get("descriptions", {})
     description = descriptions.get("en", {}).get("value", "")
 
-    # Extract string values from claims (snak mainvalue strings only)
+    # Extract string values from claims (snak mainvalue strings only),
+    # fact-bearing properties first so the cap can't push them out.
     claim_snippets: list[str] = []
     ref_labels = ref_labels or {}
     claims_data = entity.get("claims", {})
-    for pid, snak_list in list(claims_data.items())[:60]:
+    for pid, snak_list in _ordered_claims(claims_data)[:60]:
         for snak in snak_list[:3]:
             ms = snak.get("mainsnak", {})
             dv = ms.get("datavalue", {})
@@ -118,7 +168,9 @@ def _collect_ref_qids(entity_data: dict[str, Any], qids: list[str]) -> list[str]
     entities = entity_data.get("entities", {})
     for qid in qids:
         entity = entities.get(qid, {})
-        for _pid, snak_list in list(entity.get("claims", {}).items())[:60]:
+        # Same prioritized walk as _parse_entity, so the Q-ids whose labels
+        # we resolve are the ones that will actually appear in the blob.
+        for _pid, snak_list in _ordered_claims(entity.get("claims", {}))[:60]:
             for snak in snak_list[:3]:
                 ms = snak.get("mainsnak", {})
                 dv = ms.get("datavalue", {})
@@ -128,6 +180,53 @@ def _collect_ref_qids(entity_data: dict[str, Any], qids: list[str]) -> list[str]
                         ref_qids.append(inner_id)
                         seen.add(inner_id)
     return ref_qids[:30]  # cap to avoid very large secondary fetches
+
+
+def _proper_noun_terms(query: str, claim: Claim) -> list[str]:
+    """Capitalized multi-word/single-word terms from the query + claim text.
+
+    Fallback search terms for when the phrase query matches no entity NAME:
+    "The capital of Australia is Sydney" → ["Australia", "Sydney"]. Adjacent
+    capitalized words group into one term ("New Zealand"). Sentence-initial
+    capitalization is handled by dropping terms shorter than 3 chars and
+    common sentence starters rather than positional tricks.
+    """
+    text = f"{query} {claim.raw_text}"
+    terms: list[str] = []
+    seen: set[str] = set()
+    for match in re.finditer(r"\b([A-Z][a-zA-Z0-9'-]+(?:\s+[A-Z][a-zA-Z0-9'-]+)*)", text):
+        term = match.group(1).strip()
+        if len(term) < 3 or term.lower() in {"the", "this", "that", "these", "those"}:
+            continue
+        if term.lower() not in seen:
+            seen.add(term.lower())
+            terms.append(term)
+    return terms[:4]  # bounded fan-out
+
+
+def _search_entities(query: str, *, timeout: float) -> list[tuple[str, str, str]]:
+    """One wbsearchentities call → parsed candidates ([] on any failure)."""
+    try:
+        r = _retry_request(
+            "GET",
+            _SEARCH_URL,
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            params={
+                "action": "wbsearchentities",
+                "search": query,
+                "language": "en",
+                "format": "json",
+                "limit": str(_MAX_ENTITIES),
+            },
+            timeout=timeout,
+        )
+        if r.status_code != 200:
+            logger.debug("wikidata: search returned HTTP %s", r.status_code)
+            return []
+        return _parse_search(r.json())
+    except Exception as exc:
+        logger.debug("wikidata: search failed: %s", exc)
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -147,30 +246,22 @@ def search_and_fetch(
     if not query.strip():
         return []
 
-    # Step 1: search for entity Q-ids
-    try:
-        r = _retry_request(
-            "GET",
-            _SEARCH_URL,
-            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
-            params={
-                "action": "wbsearchentities",
-                "search": query,
-                "language": "en",
-                "format": "json",
-                "limit": str(_MAX_ENTITIES),
-            },
-            timeout=timeout,
-        )
-        if r.status_code != 200:
-            logger.debug("wikidata: search returned HTTP %s", r.status_code)
-            return []
-        search_data = r.json()
-    except Exception as exc:
-        logger.debug("wikidata: search failed: %s", exc)
-        return []
-
-    candidates = _parse_search(search_data)
+    # Step 1: search for entity Q-ids. wbsearchentities matches entity
+    # names/aliases only, so a relation phrase ("capital of Australia")
+    # often returns nothing — fall back to the proper-noun terms, whose
+    # entity statements carry the fact (e.g. Q408's P36 → Canberra).
+    candidates = _search_entities(query, timeout=timeout)
+    if not candidates:
+        merged: list[tuple[str, str, str]] = []
+        seen_qids: set[str] = set()
+        for term in _proper_noun_terms(query, claim):
+            for cand in _search_entities(term, timeout=timeout):
+                if cand[0] not in seen_qids:
+                    seen_qids.add(cand[0])
+                    merged.append(cand)
+            if len(merged) >= _MAX_ENTITIES:
+                break
+        candidates = merged
     if not candidates:
         return []
 
