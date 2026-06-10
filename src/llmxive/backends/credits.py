@@ -41,8 +41,8 @@ from __future__ import annotations
 import logging
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 logger = logging.getLogger(__name__)
 
@@ -229,10 +229,10 @@ def paid_call_allowed(
 __all__ = [
     "BALANCE_TTL_ENV",
     "BUDGET_FRACTION_ENV",
-    "CreditBalance",
     "DEFAULT_BALANCE_TTL_S",
     "DEFAULT_BUDGET_FRACTION",
     "PAID_OPT_IN_ENV",
+    "CreditBalance",
     "budget_fraction",
     "fetch_credit_balance",
     "paid_call_allowed",
