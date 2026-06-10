@@ -99,6 +99,18 @@ production Dartmouth backend:
   removed**; rewritten to assert the permanent FR-011 safety property
   (block, or fill with real source provenance — never model memory) and
   re-validated live (2 passed, 376 s).
+- **Latent production bug found and fixed in the wikidata fill channel**
+  (`test_wrong_capital_corrected_to_canberra`, also failing in both
+  nightly CI runs on main — the channel could effectively never fill
+  entity facts about rich entities): (a) `wbsearchentities` matches
+  entity NAMES only, so the relation-phrase query the fill service
+  derives ("capital of Australia") returned zero candidates — added a
+  proper-noun fallback search ("Australia", "Sydney"); (b) the entity
+  text-blob walk took the first 60 properties in arbitrary response
+  order, pushing canonical facts (P36 capital) outside the cap on rich
+  entities like Q408 — fact-bearing properties are now walked first.
+  Re-validated live: the full wikidata real-call file passes 3/3
+  (13 min), with Sydney corrected to Canberra from the real Q408 fetch.
 
 ## Regression caught and fixed during this work (honest record)
 
