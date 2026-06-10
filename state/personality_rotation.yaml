@@ -1,11 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-10T03:07:17.469117+00:00'
-last_outcome: librarian_held
+last_used: david-krakauer
+last_used_at: '2026-06-10T05:02:57.088255+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-05-31T01:43:54.988190+00:00'
-  ended_at: '2026-05-31T03:06:44.284878+00:00'
-  outcome: model_error
 - slug: daniel-kahneman
   started_at: '2026-05-31T03:06:44.284878+00:00'
   ended_at: '2026-05-31T05:03:45.455677+00:00'
@@ -1128,3 +1124,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/reviews/research/_held/david-krakauer-simulated__2026-06-10__research.md
+- slug: david-krakauer
+  started_at: '2026-06-10T03:07:17.469117+00:00'
+  ended_at: '2026-06-10T05:02:57.088255+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
