@@ -1,0 +1,39 @@
+\begin{table*}[t]
+  \centering
+  \caption{Exploration quality at $K{=}5$. \textbf{Bold} marks the best non-oracle result per column; \underline{underline} marks the second best. HitReg / HitFile are region-/file-level hit rates; Rec$_\ell$ is line-level recall. $\downarrow$ indicates lower is better; all others are higher-is-better. All agentic explorers are driven by GPT-5.4 as the underlying model.}
+  
+  \label{tab:main-results}
+  \vspace{1mm}
+  \scriptsize
+  \renewcommand{\arraystretch}{1.10}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l ccccc ccc cc @{}}
+    \toprule
+    & \multicolumn{5}{c}{\textit{Coverage \& Accuracy}} & \multicolumn{3}{c}{\textit{Ranking}} & \multicolumn{2}{c}{\textit{Efficiency \& Noise}} \\
+    \cmidrule(lr){2-6} \cmidrule(lr){7-9} \cmidrule(lr){10-11}
+    Explorer
+      & HitReg & Prec & Rec$_\ell$ & F1 & HitFile
+      & nDCG@500 & Rec@500 & FUH
+      & CtxEff & NoiseReg$\downarrow$ \\
+    \midrule
+    Oracle  & 0.915 & 1.000 & 0.953 & 0.964 & 0.923 & 0.858 & 0.576 & 1.000 & 1.000 & 0.000 \\
+    Random  & 0.003 & 0.002 & 0.004 & 0.002 & 0.004 & 0.004 & 0.001 & 0.006 & 0.002 & 0.997 \\
+    \midrule
+    BM25    & 0.065 & 0.055 & 0.021 & 0.024 & 0.079 & 0.132 & 0.021 & 0.141 & 0.087 & 0.910 \\
+    TF-IDF  & 0.121 & 0.117 & 0.049 & 0.054 & 0.140 & 0.223 & 0.049 & 0.240 & 0.190 & 0.821 \\
+    Potion  & 0.069 & 0.055 & 0.025 & 0.026 & 0.088 & 0.136 & 0.025 & 0.146 & 0.100 & 0.897 \\
+    \midrule
+    OpenHands      & 0.514 & 0.489 & 0.179 & 0.209 & 0.645 & 0.867 & 0.177 & 0.895 & 0.737 & 0.245 \\
+    Mini-SWE-Agent & 0.505 & 0.530 & 0.151 & 0.190 & 0.640 & 0.885 & 0.151 & 0.907 & 0.754 & 0.253 \\
+    AweAgent       & \underline{0.534} & 0.577 & 0.140 & 0.182 & \textbf{0.682} & \textbf{0.954} & 0.140 & \underline{0.975} & \underline{0.829} & 0.191 \\
+    AutoCodeRover  & 0.272 & \textbf{0.680} & \underline{0.233} & \underline{0.291} & 0.280 & 0.720 & 0.165 & 0.730 & 0.738 & \underline{0.034} \\
+    LocAgent       & 0.472 & \underline{0.642} & 0.191 & 0.241 & 0.540 & \underline{0.950} & 0.173 & \textbf{0.977} & 0.799 & 0.195 \\
+    OrcaLoca       & 0.126 & 0.295 & 0.033 & 0.049 & 0.129 & 0.311 & 0.030 & 0.313 & 0.317 & \textbf{0.003} \\
+    CoSIL          & \textbf{0.544} & 0.581 & \textbf{0.788} & \textbf{0.602} & 0.544 & 0.824 & \textbf{0.412} & 0.920 & \textbf{0.898} & 0.471 \\
+    \midrule
+    Claude Code    & 0.531 & 0.598 & 0.154 & 0.202 & \underline{0.667} & 0.938 & 0.154 & 0.963 & \underline{0.829} & 0.186 \\
+    Codex          & 0.516 & 0.523 & 0.194 & 0.223 & 0.649 & 0.901 & \underline{0.190} & 0.936 & 0.762 & 0.249 \\
+    \bottomrule
+  \end{tabular*}
+  \vspace{-4mm}
+\end{table*}

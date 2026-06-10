@@ -1,0 +1,1495 @@
+%%% ====================================================================
+%%%  BibTeX-file{
+%%%     author          = "Gerry Murray",
+%%%     version         = "1.2",
+%%%     date            = "2 April 2012",
+%%%     filename        = "acmsmall-sample-bibfile.bib",
+%%%     address         = "ACM, NY",
+%%%     email           = "murray at hq.acm.org",
+%%%     codetable       = "ISO/ASCII",
+%%%     keywords        = "ACM Reference Format, bibliography, citation, references",
+%%%     supported       = "yes",
+%%%     docstring       = "This BibTeX database file contains 'bibdata' entries
+%%%                        that 'match' the examples provided in the Specifications Document
+%%%                        AND, also, 'legacy'-type bibs. It should assist authors in
+%%%                        choosing the 'correct' at-bibtype and necessary bib-fields
+%%%                        so as to obtain the appropriate ACM Reference Format output.
+%%%                        It also contains many 'Standard Abbreviations'. "
+%%%  }
+%%% ====================================================================
+
+% Journals
+
+% First the Full Name is given, then the abbreviation used in the AMS Math
+% Reviews, with an indication if it could not be found there.
+% Note the 2nd overwrites the 1st, so swap them if you want the full name.
+
+%{AMS}
+@String{AMSTrans = "American Mathematical Society Translations" }
+@String{AMSTrans = "Amer. Math. Soc. Transl." }
+@String{BullAMS = "Bulletin of the American Mathematical Society" }
+@String{BullAMS = "Bull. Amer. Math. Soc." }
+@String{ProcAMS = "Proceedings of the American Mathematical Society" }
+@String{ProcAMS = "Proc. Amer. Math. Soc." }
+@String{TransAMS = "Transactions of the American Mathematical Society" }
+@String{TransAMS = "Trans. Amer. Math. Soc." }
+
+%ACM
+@String{CACM = "Communications of the {ACM}" }
+@String{CACM = "Commun. {ACM}" }
+@String{CompServ = "Comput. Surveys" }
+@String{JACM = "J. ACM" }
+@String{ACMMathSoft = "{ACM} Transactions on Mathematical Software" }
+@String{ACMMathSoft = "{ACM} Trans. Math. Software" }
+@String{SIGNUM = "{ACM} {SIGNUM} Newsletter" }
+@String{SIGNUM = "{ACM} {SIGNUM} Newslett." }
+
+@String{AmerSocio = "American Journal of Sociology" }
+@String{AmerStatAssoc = "Journal of the American Statistical Association" }
+@String{AmerStatAssoc = "J. Amer. Statist. Assoc." }
+@String{ApplMathComp = "Applied Mathematics and Computation" }
+@String{ApplMathComp = "Appl. Math. Comput." }
+@String{AmerMathMonthly = "American Mathematical Monthly" }
+@String{AmerMathMonthly = "Amer. Math. Monthly" }
+@String{BIT = "{BIT}" }
+@String{BritStatPsych = "British Journal of Mathematical and Statistical
+      Psychology" }
+@String{BritStatPsych = "Brit. J. Math. Statist. Psych." }
+@String{CanMathBull = "Canadian Mathematical Bulletin" }
+@String{CanMathBull = "Canad. Math. Bull." }
+@String{CompApplMath = "Journal of Computational and Applied Mathematics" }
+@String{CompApplMath = "J. Comput. Appl. Math." }
+@String{CompPhys = "Journal of Computational Physics" }
+@String{CompPhys = "J. Comput. Phys." }
+@String{CompStruct = "Computers and Structures" }
+@String{CompStruct = "Comput. \& Structures" }
+@String{CompJour = "The Computer Journal" }
+@String{CompJour = "Comput. J." }
+@String{CompSysSci = "Journal of Computer and System Sciences" }
+@String{CompSysSci = "J. Comput. System Sci." }
+@String{Computing = "Computing" }
+@String{ContempMath = "Contemporary Mathematics" }
+@String{ContempMath = "Contemp. Math." }
+@String{Crelle = "Crelle's Journal" }
+@String{GiornaleMath = "Giornale di Mathematiche" }
+@String{GiornaleMath = "Giorn. Mat." } % didn't find in AMS MR., ibid.
+
+%IEEE
+@String{Computer = "{IEEE} Computer" }
+@String{IEEETransComp = "{IEEE} Transactions on Computers" }
+@String{IEEETransComp = "{IEEE} Trans. Comput." }
+@String{IEEETransAC = "{IEEE} Transactions on Automatic Control" }
+@String{IEEETransAC = "{IEEE} Trans. Automat. Control" }
+@String{IEEESpec = "{IEEE} Spectrum" } % didn't find in AMS MR
+@String{ProcIEEE = "Proceedings of the {IEEE}" }
+@String{ProcIEEE = "Proc. {IEEE}" } % didn't find in AMS MR
+@String{IEEETransAeroElec = "{IEEE} Transactions on Aerospace and Electronic
+ Systems" }
+@String{IEEETransAeroElec = "{IEEE} Trans. Aerospace Electron. Systems" }
+
+@String{IMANumerAna = "{IMA} Journal of Numerical Analysis" }
+@String{IMANumerAna = "{IMA} J. Numer. Anal." }
+@String{InfProcLet = "Information Processing Letters" }
+@String{InfProcLet = "Inform. Process. Lett." }
+@String{InstMathApp = "Journal of the Institute of Mathematics and
+ its Applications" }
+@String{InstMathApp = "J. Inst. Math. Appl." }
+@String{IntControl = "International Journal of Control" }
+@String{IntControl = "Internat. J. Control" }
+@String{IntNumerEng = "International Journal for Numerical Methods in
+ Engineering" }
+@String{IntNumerEng = "Internat. J. Numer. Methods Engrg." }
+@String{IntSuper = "International Journal of Supercomputing Applications" }
+@String{IntSuper = "Internat. J. Supercomputing Applic." } % didn't find
+%% in AMS MR
+@String{Kibernetika = "Kibernetika" }
+@String{JResNatBurStand = "Journal of Research of the National Bureau
+ of Standards" }
+@String{JResNatBurStand = "J. Res. Nat. Bur. Standards" }
+@String{LinAlgApp = "Linear Algebra and its Applications" }
+@String{LinAlgApp = "Linear Algebra Appl." }
+@String{MathAnaAppl = "Journal of Mathematical Analysis and Applications" }
+@String{MathAnaAppl = "J. Math. Anal. Appl." }
+@String{MathAnnalen = "Mathematische Annalen" }
+@String{MathAnnalen = "Math. Ann." }
+@String{MathPhys = "Journal of Mathematical Physics" }
+@String{MathPhys = "J. Math. Phys." }
+@String{MathComp = "Mathematics of Computation" }
+@String{MathComp = "Math. Comp." }
+@String{MathScand = "Mathematica Scandinavica" }
+@String{MathScand = "Math. Scand." }
+@String{TablesAidsComp = "Mathematical Tables and Other Aids to Computation" }
+@String{TablesAidsComp = "Math. Tables Aids Comput." }
+@String{NumerMath = "Numerische Mathematik" }
+@String{NumerMath = "Numer. Math." }
+@String{PacificMath = "Pacific Journal of Mathematics" }
+@String{PacificMath = "Pacific J. Math." }
+@String{ParDistComp = "Journal of Parallel and Distributed Computing" }
+@String{ParDistComp = "J. Parallel and Distrib. Comput." } % didn't find
+%% in AMS MR
+@String{ParComputing = "Parallel Computing" }
+@String{ParComputing = "Parallel Comput." }
+@String{PhilMag = "Philosophical Magazine" }
+@String{PhilMag = "Philos. Mag." }
+@String{ProcNAS = "Proceedings of the National Academy of Sciences
+                of the USA" }
+@String{ProcNAS = "Proc. Nat. Acad. Sci. U. S. A." }
+@String{Psychometrika = "Psychometrika" }
+@String{QuartMath = "Quarterly Journal of Mathematics, Oxford, Series (2)" }
+@String{QuartMath = "Quart. J. Math. Oxford Ser. (2)" }
+@String{QuartApplMath = "Quarterly of Applied Mathematics" }
+@String{QuartApplMath = "Quart. Appl. Math." }
+@String{RevueInstStat = "Review of the International Statisical Institute" }
+@String{RevueInstStat = "Rev. Inst. Internat. Statist." }
+
+%SIAM
+@String{JSIAM = "Journal of the Society for Industrial and Applied
+ Mathematics" }
+@String{JSIAM = "J. Soc. Indust. Appl. Math." }
+@String{JSIAMB = "Journal of the Society for Industrial and Applied
+ Mathematics, Series B, Numerical Analysis" }
+@String{JSIAMB = "J. Soc. Indust. Appl. Math. Ser. B Numer. Anal." }
+@String{SIAMAlgMeth = "{SIAM} Journal on Algebraic and Discrete Methods" }
+@String{SIAMAlgMeth = "{SIAM} J. Algebraic Discrete Methods" }
+@String{SIAMAppMath = "{SIAM} Journal on Applied Mathematics" }
+@String{SIAMAppMath = "{SIAM} J. Appl. Math." }
+@String{SIAMComp = "{SIAM} Journal on Computing" }
+@String{SIAMComp = "{SIAM} J. Comput." }
+@String{SIAMMatrix = "{SIAM} Journal on Matrix Analysis and Applications" }
+@String{SIAMMatrix = "{SIAM} J. Matrix Anal. Appl." }
+@String{SIAMNumAnal = "{SIAM} Journal on Numerical Analysis" }
+@String{SIAMNumAnal = "{SIAM} J. Numer. Anal." }
+@String{SIAMReview = "{SIAM} Review" }
+@String{SIAMReview = "{SIAM} Rev." }
+@String{SIAMSciStat = "{SIAM} Journal on Scientific and Statistical
+ Computing" }
+@String{SIAMSciStat = "{SIAM} J. Sci. Statist. Comput." }
+
+@String{SoftPracExp = "Software Practice and Experience" }
+@String{SoftPracExp = "Software Prac. Experience" } % didn't find in AMS MR
+@String{StatScience = "Statistical Science" }
+@String{StatScience = "Statist. Sci." }
+@String{Techno = "Technometrics" }
+@String{USSRCompMathPhys = "{USSR} Computational Mathematics and Mathematical
+ Physics" }
+@String{USSRCompMathPhys = "{U. S. S. R.} Comput. Math. and Math. Phys." }
+@String{VLSICompSys = "Journal of {VLSI} and Computer Systems" }
+@String{VLSICompSys = "J. {VLSI} Comput. Syst." }
+@String{ZAngewMathMech = "Zeitschrift fur Angewandte Mathematik und
+ Mechanik" }
+@String{ZAngewMathMech = "Z. Angew. Math. Mech." }
+@String{ZAngewMathPhys = "Zeitschrift fur Angewandte Mathematik und Physik" }
+@String{ZAngewMathPhys = "Z. Angew. Math. Phys." }
+
+% Publishers % ================================================= |
+
+@String{Academic = "Academic Press" }
+@String{ACMPress = "{ACM} Press" }
+@String{AdamHilger = "Adam Hilger" }
+@String{AddisonWesley = "Addison-Wesley" }
+@String{AllynBacon = "Allyn and Bacon" }
+@String{AMS = "American Mathematical Society" }
+@String{Birkhauser = "Birkha{\"u}ser" }
+@String{CambridgePress = "Cambridge University Press" }
+@String{Chelsea = "Chelsea" }
+@String{ClaredonPress = "Claredon Press" }
+@String{DoverPub = "Dover Publications" }
+@String{Eyolles = "Eyolles" }
+@String{HoltRinehartWinston = "Holt, Rinehart and Winston" }
+@String{Interscience = "Interscience" }
+@String{JohnsHopkinsPress = "The Johns Hopkins University Press" }
+@String{JohnWileySons = "John Wiley and Sons" }
+@String{Macmillan = "Macmillan" }
+@String{MathWorks = "The Math Works Inc." }
+@String{McGrawHill = "McGraw-Hill" }
+@String{NatBurStd = "National Bureau of Standards" }
+@String{NorthHolland = "North-Holland" }
+@String{OxfordPress = "Oxford University Press" }  %address Oxford or London?
+@String{PergamonPress = "Pergamon Press" }
+@String{PlenumPress = "Plenum Press" }
+@String{PrenticeHall = "Prentice-Hall" }
+@String{SIAMPub = "{SIAM} Publications" }
+@String{Springer = "Springer-Verlag" }
+@String{TexasPress = "University of Texas Press" }
+@String{VanNostrand = "Van Nostrand" }
+@String{WHFreeman = "W. H. Freeman and Co." }
+
+
+
+% --- new 
+
+@String{ICCV = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}}
+@String{CVPR = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}}
+@String{ICLR = {International Conference on Learning Representations (ICLR)}}
+
+@InProceedings{worldscore,
+    title     = {WorldScore: A Unified Evaluation Benchmark for World Generation},
+    author    = {Duan, Haoyi and Yu, Hong-Xing and Chen, Sirui and Fei-Fei, Li and Wu, Jiajun},
+    booktitle = ICCV,
+    month     = {October},
+    year      = {2025},
+    pages     = {27713-27724}
+}
+
+@article{huang2025vipe,
+  title={Vipe: Video pose engine for 3d geometric perception},
+  author={Huang, Jiahui and Zhou, Qunjie and Rabeti, Hesam and Korovko, Aleksandr and Ling, Huan and Ren, Xuanchi and Shen, Tianchang and Gao, Jun and Slepichev, Dmitry and Lin, Chen-Hsuan and others},
+  journal={arXiv preprint arXiv:2508.10934},
+  year={2025}
+}
+
+@article{lin2025depth,
+  title={Depth anything 3: Recovering the visual space from any views},
+  author={Lin, Haotong and Chen, Sili and Liew, Junhao and Chen, Donny Y and Li, Zhenyu and Shi, Guang and Feng, Jiashi and Kang, Bingyi},
+  journal=ICLR,
+  year={2026}
+}
+
+@inproceedings{zhao2026spatia,
+  title={Spatia: Video Generation with Updatable Spatial Memory},
+  author={Zhao, Jinjing and Wei, Fangyun and Liu, Zhening and Zhang, Hongyang and Xu, Chang and Lu, Yan},
+  booktitle=CVPR,
+  year={2026}
+}
+
+@inproceedings{jiang2025vace,
+  title={Vace: All-in-one video creation and editing},
+  author={Jiang, Zeyinzi and Han, Zhen and Mao, Chaojie and Zhang, Jingfeng and Pan, Yulin and Liu, Yu},
+  booktitle=ICCV,
+  pages={17191--17202},
+  year={2025}
+}
+
+
+@article{hu2021lora,
+  title={Lora: Low-rank adaptation of large language models.},
+  author={Hu, Edward J and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Liang and Chen, Weizhu and others},
+  journal=ICLR,
+  year={2022}
+}
+
+@techreport{anthropic2024claude3,
+  title        = {Claude 3 Model Card},
+  author       = {Anthropic},
+  institution  = {Anthropic PBC},
+  year         = {2024},
+  url          = {https://www-cdn.anthropic.com/de8ba9b01c9ab7cbabf5c33b80b7bbc618857627/Model_Card_Claude_3.pdf},
+}
+
+@inproceedings{shenvideovla,
+  title={VideoVLA: Video Generators Can Be Generalizable Robot Manipulators},
+  author={Shen, Yichao and Wei, Fangyun and Du, Zhiying and Liang, Yaobo and Lu, Yan and Yang, Jiaolong and Zheng, Nanning and Guo, Baining},
+  booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems}
+}
+
+
+
+@article{achiam2023gpt,
+  title={Gpt-4 technical report},
+  author={Achiam, Josh and Adler, Steven and Agarwal, Sandhini and Ahmad, Lama and Akkaya, Ilge and Aleman, Florencia Leoni and Almeida, Diogo and Altenschmidt, Janko and Altman, Sam and Anadkat, Shyamal and others},
+  journal={arXiv preprint arXiv:2303.08774},
+  year={2023}
+}
+@article{team2024gemini,
+  title={Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context},
+  author={Team, Gemini and Georgiev, Petko and Lei, Ving Ian and Burnell, Ryan and Bai, Libin and Gulati, Anmol and Tanzer, Garrett and Vincent, Damien and Pan, Zhufeng and Wang, Shibo and others},
+  journal={arXiv preprint arXiv:2403.05530},
+  year={2024}
+}
+@misc{google2025gemini2flash,
+  author       = {Google DeepMind},
+  title        = {Gemini 2.0 Flash: A Multimodal Model with 1 Million Token Context Window},
+  howpublished = {\url{https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash}},
+  year         = {2025},
+}
+@inproceedings{piccinelli2024unidepth,
+    title     = {{U}ni{D}epth: Universal Monocular Metric Depth Estimation},
+    author    = {Piccinelli, Luigi and Yang, Yung-Hsu and Sakaridis, Christos and Segu, Mattia and Li, Siyuan and Van Gool, Luc and Yu, Fisher},
+    booktitle = CVPR,
+    year      = {2024}
+}
+@techreport{anthropic2025claude4,
+  title       = {Claude 4 Model Card (Claude Opus 4 \& Sonnet 4)},
+  author      = {Anthropic},
+  institution = {Anthropic PBC},
+  month       = {May},
+  year        = {2025},
+  howpublished= {\url{https://www-cdn.anthropic.com/4263b940cabb546aa0e3283f35b686f4f3b2ff47.pdf}},
+}
+@misc{openai2025gpt41,
+  author       = {OpenAI},
+  title        = {Introducing GPT-4.1 in the API},
+  howpublished = {\url{https://openai.com/index/gpt-4-1/}},
+  year         = {2025}
+}
+@misc{meta2025llama4,
+  author = {{Meta-AI}},
+  title = {The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation},
+  howpublished = {Meta AI Blog},
+  year = {2025},
+  month = {April},
+  url = {https://ai.meta.com/blog/llama-4-multimodal-intelligence/},
+}
+
+@article{beltagy2020longformer,
+  title={Longformer: The long-document transformer},
+  author={Beltagy, Iz and Peters, Matthew E and Cohan, Arman},
+  journal={arXiv preprint arXiv:2004.05150},
+  year={2020}
+}
+
+@inproceedings{borgeaud2022improving,
+  title={Improving language models by retrieving from trillions of tokens},
+  author={Borgeaud, Sebastian and Mensch, Arthur and Hoffmann, Jordan and Cai, Trevor and Rutherford, Eliza and Millican, Katie and Van Den Driessche, George Bm and Lespiau, Jean-Baptiste and Damoc, Bogdan and Clark, Aidan and others},
+  booktitle={International conference on machine learning},
+  pages={2206--2240},
+  year={2022},
+  organization={PMLR}
+}
+
+
+@article{duan2026liveworld,
+  title={Liveworld: Simulating out-of-sight dynamics in generative video world models},
+  author={Duan, Zicheng and Xia, Jiatong and Zhang, Zeyu and Zhang, Wenbo and Zhou, Gengze and Gou, Chenhui and He, Yefei and Chen, Feng and Zhang, Xinyu and Liu, Lingqiao},
+  journal={arXiv preprint arXiv:2603.07145},
+  year={2026}
+}
+
+
+@article{brown2020language,
+  title={Language models are few-shot learners},
+  author={Brown, Tom and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared D and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and others},
+  journal={Advances in neural information processing systems},
+  volume={33},
+  pages={1877--1901},
+  year={2020}
+}
+
+@inproceedings{zhang2026panflow,
+  title={Panflow: Decoupled motion control for panoramic video generation},
+  author={Zhang, Cheng and Liang, Hanwen and Chen, Donny Y and Wu, Qianyi and Plataniotis, Konstantinos N and Gambardella, Camilo Cruz and Cai, Jianfei},
+  booktitle=AAAI,
+  volume={40},
+  number={15},
+  pages={12385--12393},
+  year={2026}
+}
+
+@article{wang2026world,
+  title={World-R1: Reinforcing 3D Constraints for Text-to-Video Generation},
+  author={Wang, Weijie and He, Xiaoxuan and Gu, Youping and Yang, Yifan and Zhang, Zeyu and He, Yefei and Ding, Yanbo and Hu, Xirui and Chen, Donny Y and He, Zhiyuan and others},
+  journal={arXiv preprint arXiv:2604.24764},
+  year={2026}
+}
+
+@article{wang2025volsplat,
+  title={VolSplat: Rethinking Feed-Forward 3D Gaussian Splatting with Voxel-Aligned Prediction},
+  author={Wang, Weijie and Chen, Yeqing and Zhang, Zeyu and Liu, Hengyu and Wang, Haoxiao and Feng, Zhiyuan and Qin, Wenkang and Zhu, Zheng and Chen, Donny Y. and Zhuang, Bohan},
+  journal={arXiv preprint arXiv:2509.19297},
+  year={2025}
+}
+
+@article{wang2025zpressor,
+  title={Zpressor: Bottleneck-aware compression for scalable feed-forward 3dgs},
+  author={Wang, Weijie and Chen, Donny Y and Zhang, Zeyu and Shi, Duochao and Liu, Akide and Zhuang, Bohan},
+  journal=NeurIPS,
+  volume={38},
+  pages={113407--113436},
+  year={2026}
+}
+
+@article{wang2026feed,
+  title={Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective},
+  author={Wang, Weijie and Cao, Qihang and Gao, Sensen and Chen, Donny Y and Xu, Haofei and Bian, Wenjing and Peng, Songyou and Cham, Tat-Jen and Zheng, Chuanxia and Geiger, Andreas and others},
+  journal={arXiv preprint arXiv:2604.14025},
+  year={2026}
+}
+
+@article{wang2025drivegen3d,
+  title={DriveGen3D: Boosting Feed-Forward Driving Scene Generation with Efficient Video Diffusion},
+  author={Wang, Weijie and Zhu, Jiagang and Zhang, Zeyu and Wang, Xiaofeng and Zhu, Zheng and Zhao, Guosheng and Ni, Chaojun and Wang, Haoxiao and Huang, Guan and Chen, Xinze and Zhou, Yukun and Qin, Wenkang and Shi, Duochao and Li, Haoyun and Xiao, Yicheng and Chen, Donny Y. and Lu, Jiwen},
+  journal={arXiv preprint arXiv:2510.15264},
+  year={2025}
+}
+
+@article{chevalier2023adapting,
+  title={Adapting language models to compress contexts},
+  author={Chevalier, Alexis and Wettig, Alexander and Ajith, Anirudh and Chen, Danqi},
+  journal={arXiv preprint arXiv:2305.14788},
+  year={2023}
+}
+
+@article{choromanski2020rethinking,
+  title={Rethinking attention with performers},
+  author={Choromanski, Krzysztof and Likhosherstov, Valerii and Dohan, David and Song, Xingyou and Gane, Andreea and Sarlos, Tamas and Hawkins, Peter and Davis, Jared and Mohiuddin, Afroz and Kaiser, Lukasz and others},
+  journal={arXiv preprint arXiv:2009.14794},
+  year={2020}
+}
+
+@article{wang2025pi,
+  title={Pi3: Scalable Permutation-Equivariant Visual Geometry Learning},
+  author={Wang, Yifan and Zhou, Jianjun and Zhu, Haoyi and Chang, Wenzheng and Zhou, Yang and Li, Zizun and Chen, Junyi and Pang, Jiangmiao and Shen, Chunhua and He, Tong},
+  journal={arXiv e-prints},
+  pages={arXiv--2507},
+  year={2025}
+}
+
+@article{zhou2025stable,
+  title={Stable virtual camera: Generative view synthesis with diffusion models},
+  author={Zhou, Jensen and Gao, Hang and Voleti, Vikram and Vasishta, Aaryaman and Yao, Chun-Han and Boss, Mark and Torr, Philip and Rupprecht, Christian and Jampani, Varun},
+  journal={arXiv preprint arXiv:2503.14489},
+  year={2025}
+}
+
+@article{dai2019transformer,
+  title={Transformer-xl: Attentive language models beyond a fixed-length context},
+  author={Dai, Zihang and Yang, Zhilin and Yang, Yiming and Carbonell, Jaime and Le, Quoc V and Salakhutdinov, Ruslan},
+  journal={arXiv preprint arXiv:1901.02860},
+  year={2019}
+}
+
+@article{dao2022flashattention,
+  title={Flashattention: Fast and memory-efficient exact attention with io-awareness},
+  author={Dao, Tri and Fu, Dan and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
+  journal={Advances in neural information processing systems},
+  volume={35},
+  pages={16344--16359},
+  year={2022}
+}
+
+@article{dao2023flashattention,
+  title={Flashattention-2: Faster attention with better parallelism and work partitioning},
+  author={Dao, Tri},
+  journal={arXiv preprint arXiv:2307.08691},
+  year={2023}
+}
+
+@inproceedings{devlin2019bert,
+  title={Bert: Pre-training of deep bidirectional transformers for language understanding},
+  author={Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  booktitle={Proceedings of the 2019 conference of the North American chapter of the association for computational linguistics: human language technologies, volume 1 (long and short papers)},
+  pages={4171--4186},
+  year={2019}
+}
+
+@article{ding2024longrope,
+  title={Longrope: Extending llm context window beyond 2 million tokens},
+  author={Ding, Yiran and Zhang, Li Lyna and Zhang, Chengruidong and Xu, Yuanyuan and Shang, Ning and Xu, Jiahang and Yang, Fan and Yang, Mao},
+  journal={arXiv preprint arXiv:2402.13753},
+  year={2024}
+}
+
+@inproceedings{fan2024rmt,
+  title={Rmt: Retentive networks meet vision transformers},
+  author={Fan, Qihang and Huang, Huaibo and Chen, Mingrui and Liu, Hongmin and He, Ran},
+  booktitle={Proceedings of the IEEE/CVF conference on computer vision and pattern recognition},
+  pages={5641--5651},
+  year={2024}
+}
+
+@article{gu2023mamba,
+  title={Mamba: Linear-time sequence modeling with selective state spaces},
+  author={Gu, Albert and Dao, Tri},
+  journal={arXiv preprint arXiv:2312.00752},
+  year={2023}
+}
+
+@inproceedings{guu2020retrieval,
+  title={Retrieval augmented language model pre-training},
+  author={Guu, Kelvin and Lee, Kenton and Tung, Zora and Pasupat, Panupong and Chang, Mingwei},
+  booktitle={International conference on machine learning},
+  pages={3929--3938},
+  year={2020},
+  organization={PMLR}
+}
+
+@article{jimenez2024hipporag,
+  title={Hipporag: Neurobiologically inspired long-term memory for large language models},
+  author={Jimenez Gutierrez, Bernal and Shu, Yiheng and Gu, Yu and Yasunaga, Michihiro and Su, Yu},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={59532--59569},
+  year={2024}
+}
+
+@inproceedings{kwon2023efficient,
+  title={Efficient memory management for large language model serving with pagedattention},
+  author={Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and Sheng, Ying and Zheng, Lianmin and Yu, Cody Hao and Gonzalez, Joseph and Zhang, Hao and Stoica, Ion},
+  booktitle={Proceedings of the 29th symposium on operating systems principles},
+  pages={611--626},
+  year={2023}
+}
+
+@article{chou2025captain,
+  title={Captain Safari: A World Engine with Pose-Aligned 3D Memory},
+  author={Chou, Yu-Cheng and Wang, Xingrui and Li, Yitong and Wang, Jiahao and Liu, Hanting and Xie, Cihang and Yuille, Alan and Xiao, Junfei},
+  journal={arXiv preprint arXiv:2511.22815},
+  year={2025}
+}
+
+@article{wu2025video,
+  title={Video world models with long-term spatial memory},
+  author={Wu, Tong and Yang, Shuai and Po, Ryan and Xu, Yinghao and Liu, Ziwei and Lin, Dahua and Wetzstein, Gordon},
+  journal={arXiv preprint arXiv:2506.05284},
+  year={2025}
+}
+
+@article{wang2026trisplat,
+  title={TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction},
+  author={Wang, Weijie and Li, Zimu and Shi, Jinchuan and Zhang, Zeyu and Ye, Botao and Pollefeys, Marc and Chen, Donny Y. and Zhuang, Bohan},
+  journal={arXiv preprint arXiv:2605.26115},
+  year={2026}
+}
+
+@article{lewis2020retrieval,
+  title={Retrieval-augmented generation for knowledge-intensive nlp tasks},
+  author={Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and others},
+  journal={Advances in neural information processing systems},
+  volume={33},
+  pages={9459--9474},
+  year={2020}
+}
+
+@article{li2024snapkv,
+  title={Snapkv: Llm knows what you are looking for before generation},
+  author={Li, Yuhong and Huang, Yingbing and Yang, Bowen and Venkitesh, Bharat and Locatelli, Acyr and Ye, Hanchen and Cai, Tianle and Lewis, Patrick and Chen, Deming},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={22947--22970},
+  year={2024}
+}
+
+@article{liu2023ring,
+  title={Ring attention with blockwise transformers for near-infinite context},
+  author={Liu, Hao and Zaharia, Matei and Abbeel, Pieter},
+  journal={arXiv preprint arXiv:2310.01889},
+  year={2023}
+}
+
+@article{peng2023rwkv,
+  title={Rwkv: Reinventing rnns for the transformer era},
+  author={Peng, Bo and Alcaide, Eric and Anthony, Quentin and Albalak, Alon and Arcadinho, Samuel and Biderman, Stella and Cao, Huanqi and Cheng, Xin and Chung, Michael and Grella, Matteo and others},
+  journal={arXiv preprint arXiv:2305.13048},
+  year={2023}
+}
+
+@article{peng2023yarn,
+  title={Yarn: Efficient context window extension of large language models},
+  author={Peng, Bowen and Quesnelle, Jeffrey and Fan, Honglu and Shippole, Enrico},
+  journal={arXiv preprint arXiv:2309.00071},
+  year={2023}
+}
+@inproceedings{poli2023hyena,
+  title={Hyena hierarchy: Towards larger convolutional language models},
+  author={Poli, Michael and Massaroli, Stefano and Nguyen, Eric and Fu, Daniel Y and Dao, Tri and Baccus, Stephen and Bengio, Yoshua and Ermon, Stefano and R{\'e}, Christopher},
+  booktitle={International Conference on Machine Learning},
+  pages={28043--28078},
+  year={2023},
+  organization={PMLR}
+}
+
+@article{press2021train,
+  title={Train short, test long: Attention with linear biases enables input length extrapolation},
+  author={Press, Ofir and Smith, Noah A and Lewis, Mike},
+  journal={arXiv preprint arXiv:2108.12409},
+  year={2021}
+}
+
+@article{radford2018improving,
+  title={Improving language understanding by generative pre-training},
+  author={Radford, Alec and Narasimhan, Karthik and Salimans, Tim and Sutskever, Ilya and others},
+  year={2018},
+  publisher={San Francisco, CA, USA}
+}
+
+@article{radford2019language,
+  title={Language models are unsupervised multitask learners},
+  author={Radford, Alec and Wu, Jeffrey and Child, Rewon and Luan, David and Amodei, Dario and Sutskever, Ilya and others},
+  journal={OpenAI blog},
+  volume={1},
+  number={8},
+  pages={9},
+  year={2019}
+}
+
+@article{rae2019compressive,
+  title={Compressive transformers for long-range sequence modelling},
+  author={Rae, Jack W and Potapenko, Anna and Jayakumar, Siddhant M and Lillicrap, Timothy P},
+  journal={arXiv preprint arXiv:1911.05507},
+  year={2019}
+}
+
+@article{raffel2020exploring,
+  title={Exploring the limits of transfer learning with a unified text-to-text transformer},
+  author={Raffel, Colin and Shazeer, Noam and Roberts, Adam and Lee, Katherine and Narang, Sharan and Matena, Michael and Zhou, Yanqi and Li, Wei and Liu, Peter J},
+  journal={Journal of machine learning research},
+  volume={21},
+  number={140},
+  pages={1--67},
+  year={2020}
+}
+
+@article{su2024roformer,
+  title={Roformer: Enhanced transformer with rotary position embedding},
+  author={Su, Jianlin and Ahmed, Murtadha and Lu, Yu and Pan, Shengfeng and Bo, Wen and Liu, Yunfeng},
+  journal={Neurocomputing},
+  volume={568},
+  pages={127063},
+  year={2024},
+  publisher={Elsevier}
+}
+
+@article{wang2020linformer,
+  title={Linformer: Self-attention with linear complexity},
+  author={Wang, Sinong and Li, Belinda Z and Khabsa, Madian and Fang, Han and Ma, Hao},
+  journal={arXiv preprint arXiv:2006.04768},
+  year={2020}
+}
+
+@article{wu2020memformer,
+  title={Memformer: A memory-augmented transformer for sequence modeling},
+  author={Wu, Qingyang and Lan, Zhenzhong and Qian, Kun and Gu, Jing and Geramifard, Alborz and Yu, Zhou},
+  journal={arXiv preprint arXiv:2010.06891},
+  year={2020}
+}
+
+@article{xiong2023effective,
+  title={Effective long-context scaling of foundation models},
+  author={Xiong, Wenhan and Liu, Jingyu and Molybog, Igor and Zhang, Hejia and Bhargava, Prajjwal and Hou, Rui and Martin, Louis and Rungta, Rashi and Sankararaman, Karthik Abinav and Oguz, Barlas and others},
+  journal={arXiv preprint arXiv:2309.16039},
+  year={2023}
+}
+
+@article{zaheer2020big,
+  title={Big bird: Transformers for longer sequences},
+  author={Zaheer, Manzil and Guruganesh, Guru and Dubey, Kumar Avinava and Ainslie, Joshua and Alberti, Chris and Ontanon, Santiago and Pham, Philip and Ravula, Anirudh and Wang, Qifan and Yang, Li and others},
+  journal={Advances in neural information processing systems},
+  volume={33},
+  pages={17283--17297},
+  year={2020}
+}
+
+@article{zhang2023h2o,
+  title={H2o: Heavy-hitter oracle for efficient generative inference of large language models},
+  author={Zhang, Zhenyu and Sheng, Ying and Zhou, Tianyi and Chen, Tianlong and Zheng, Lianmin and Cai, Ruisi and Song, Zhao and Tian, Yuandong and R{\'e}, Christopher and Barrett, Clark and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  pages={34661--34710},
+  year={2023}
+}
+
+@article{yu2024viewcrafter,
+  title={Viewcrafter: Taming video diffusion models for high-fidelity novel view synthesis},
+  author={Yu, Wangbo and Xing, Jinbo and Yuan, Li and Hu, Wenbo and Li, Xiaoyu and Huang, Zhipeng and Gao, Xiangjun and Wong, Tien-Tsin and Shan, Ying and Tian, Yonghong},
+  journal={arXiv preprint arXiv:2409.02048},
+  year={2024}
+}
+
+@article{liu2025infinitystar,
+  title={InfinityStar: Unified Spacetime AutoRegressive Modeling for Visual Generation},
+  author={Liu, Jinlai and Han, Jian and Yan, Bin and Wu, Hui and Zhu, Fengda and Wang, Xing and Jiang, Yi and Peng, Bingyue and Yuan, Zehuan},
+  journal={arXiv preprint arXiv:2511.04675},
+  year={2025}
+}
+
+@article{chen2025flexworld,
+  title={FlexWorld: Progressively expanding 3D scenes for flexiable-view synthesis},
+  author={Chen, Luxi and Zhou, Zihan and Zhao, Min and Wang, Yikai and Zhang, Ge and Huang, Wenhao and Sun, Hao and Wen, Ji-Rong and Li, Chongxuan},
+  journal={arXiv preprint arXiv:2503.13265},
+  year={2025}
+}
+
+@inproceedings{ma2025you,
+  title={You see it, you got it: Learning 3d creation on pose-free videos at scale},
+  author={Ma, Baorui and Gao, Huachen and Deng, Haoge and Luo, Zhengxiong and Huang, Tiejun and Tang, Lulu and Wang, Xinlong},
+  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+  pages={2016--2029},
+  year={2025}
+}
+
+@article{yu2025context,
+  title={Context as memory: Scene-consistent interactive long video generation with memory retrieval},
+  author={Yu, Jiwen and Bai, Jianhong and Qin, Yiran and Liu, Quande and Wang, Xintao and Wan, Pengfei and Zhang, Di and Liu, Xihui},
+  journal={arXiv preprint arXiv:2506.03141},
+  year={2025}
+}
+
+@article{huang2025voyager,
+  title={Voyager: Long-Range and World-Consistent Video Diffusion for Explorable 3D Scene Generation},
+  author={Huang, Tianyu and Zheng, Wangguandong and Wang, Tengfei and Liu, Yuhao and Wang, Zhenwei and Wu, Junta and Jiang, Jie and Li, Hui and Lau, Rynson WH and Zuo, Wangmeng and others},
+  journal={arXiv preprint arXiv:2506.04225},
+  year={2025}
+}
+
+@article{li2025vmem,
+  title={VMem: Consistent Interactive Video Scene Generation with Surfel-Indexed View Memory},
+  author={Li, Runjia and Torr, Philip and Vedaldi, Andrea and Jakab, Tomas},
+  journal={arXiv preprint arXiv:2506.18903},
+  year={2025}
+}
+
+@article{blattmann2023stable,
+  title={Stable video diffusion: Scaling latent video diffusion models to large datasets},
+  author={Blattmann, Andreas and Dockhorn, Tim and Kulal, Sumith and Mendelevitch, Daniel and Kilian, Maciej and Lorenz, Dominik and Levi, Yam and English, Zion and Voleti, Vikram and Letts, Adam and others},
+  journal={arXiv preprint arXiv:2311.15127},
+  year={2023}
+}
+
+@article{chen2023videocrafter1,
+  title={Videocrafter1: Open diffusion models for high-quality video generation},
+  author={Chen, Haoxin and Xia, Menghan and He, Yingqing and Zhang, Yong and Cun, Xiaodong and Yang, Shaoshu and Xing, Jinbo and Liu, Yaofang and Chen, Qifeng and Wang, Xintao and others},
+  journal={arXiv preprint arXiv:2310.19512},
+  year={2023}
+}
+
+@inproceedings{chen2024videocrafter2,
+  title={Videocrafter2: Overcoming data limitations for high-quality video diffusion models},
+  author={Chen, Haoxin and Zhang, Yong and Cun, Xiaodong and Xia, Menghan and Wang, Xintao and Weng, Chao and Shan, Ying},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={7310--7320},
+  year={2024}
+}
+
+@inproceedings{zeng2024make,
+  title={Make pixels dance: High-dynamic video generation},
+  author={Zeng, Yan and Wei, Guoqiang and Zheng, Jiani and Zou, Jiaxin and Wei, Yang and Zhang, Yuchen and Li, Hang},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={8850--8860},
+  year={2024}
+}
+
+@inproceedings{peebles2023scalable,
+  title={Scalable diffusion models with transformers},
+  author={Peebles, William and Xie, Saining},
+  booktitle={Proceedings of the IEEE/CVF international conference on computer vision},
+  pages={4195--4205},
+  year={2023}
+}
+
+@inproceedings{esser2024scaling,
+  title={Scaling rectified flow transformers for high-resolution image synthesis},
+  author={Esser, Patrick and Kulal, Sumith and Blattmann, Andreas and Entezari, Rahim and M{\"u}ller, Jonas and Saini, Harry and Levi, Yam and Lorenz, Dominik and Sauer, Axel and Boesel, Frederic and others},
+  booktitle={Forty-first international conference on machine learning},
+  year={2024}
+}
+
+@article{yang2024cogvideox,
+  title={Cogvideox: Text-to-video diffusion models with an expert transformer},
+  author={Yang, Zhuoyi and Teng, Jiayan and Zheng, Wendi and Ding, Ming and Huang, Shiyu and Xu, Jiazheng and Yang, Yuanming and Hong, Wenyi and Zhang, Xiaohan and Feng, Guanyu and others},
+  journal={arXiv preprint arXiv:2408.06072},
+  year={2024}
+}
+
+@article{kong2024hunyuanvideo,
+  title={Hunyuanvideo: A systematic framework for large video generative models},
+  author={Kong, Weijie and Tian, Qi and Zhang, Zijian and Min, Rox and Dai, Zuozhuo and Zhou, Jin and Xiong, Jiangfeng and Li, Xin and Wu, Bo and Zhang, Jianwei and others},
+  journal={arXiv preprint arXiv:2412.03603},
+  year={2024}
+}
+
+@article{wan2025wan,
+      title={Wan: Open and Advanced Large-Scale Video Generative Models}, 
+      author={Team Wan and Ang Wang and Baole Ai and Bin Wen and Chaojie Mao and Chen-Wei Xie and Di Chen and Feiwu Yu and Haiming Zhao and Jianxiao Yang and Jianyuan Zeng and Jiayu Wang and Jingfeng Zhang and Jingren Zhou and Jinkai Wang and Jixuan Chen and Kai Zhu and Kang Zhao and Keyu Yan and Lianghua Huang and Mengyang Feng and Ningyi Zhang and Pandeng Li and Pingyu Wu and Ruihang Chu and Ruili Feng and Shiwei Zhang and Siyang Sun and Tao Fang and Tianxing Wang and Tianyi Gui and Tingyu Weng and Tong Shen and Wei Lin and Wei Wang and Wei Wang and Wenmeng Zhou and Wente Wang and Wenting Shen and Wenyuan Yu and Xianzhong Shi and Xiaoming Huang and Xin Xu and Yan Kou and Yangyu Lv and Yifei Li and Yijing Liu and Yiming Wang and Yingya Zhang and Yitong Huang and Yong Li and You Wu and Yu Liu and Yulin Pan and Yun Zheng and Yuntao Hong and Yupeng Shi and Yutong Feng and Zeyinzi Jiang and Zhen Han and Zhi-Fan Wu and Ziyu Liu},
+      journal = {arXiv preprint arXiv:2503.20314},
+      year={2025}
+}
+
+@article{team2025longcat,
+  title={LongCat-Video Technical Report},
+  author={Team, Meituan LongCat and Cai, Xunliang and Huang, Qilong and Kang, Zhuoliang and Li, Hongyu and Liang, Shijun and Ma, Liya and Ren, Siyu and Wei, Xiaoming and Xie, Rixu and others},
+  journal={arXiv preprint arXiv:2510.22200},
+  year={2025}
+}
+
+@article{hacohen2024ltx,
+  title={Ltx-video: Realtime video latent diffusion},
+  author={HaCohen, Yoav and Chiprut, Nisan and Brazowski, Benny and Shalem, Daniel and Moshe, Dudu and Richardson, Eitan and Levin, Eran and Shiran, Guy and Zabari, Nir and Gordon, Ori and others},
+  journal={arXiv preprint arXiv:2501.00103},
+  year={2024}
+}
+
+@misc{veo,
+  title = {Veo},
+  author = {Google},
+  howpublished = {\url{https://deepmind.google/models/veo/}},
+  year = {2024},
+}
+
+@misc{sora,
+  title = {Sora},
+  author = {OpenAI},
+  howpublished = {\url{https://openai.com/sora/}},
+  year = {2024},
+}
+
+@misc{Hailuo,
+  title = {Hailuo},
+  author = {MiniMax},
+  howpublished = {\url{https://hailuoai.video/}},
+  year = {2024},
+}
+
+@misc{Kling,
+  title = {Kling},
+  author = {Kuaishou},
+  howpublished = {\url{https://klingai.com}},
+  year = {2024},
+}
+
+@misc{PixVerse,
+  title = {PixVerse},
+  author = {PixVerse},
+  howpublished = {\url{https://app.pixverse.ai}},
+  year = {2024},
+}
+
+@misc{Vidu,
+  title = {Vidu},
+  author = {Shengshu},
+  howpublished = {\url{https://vidu.cn}},
+  year = {2024},
+}
+
+@article{sun2025virtual,
+  title={From Virtual Games to Real-World Play},
+  author={Sun, Wenqiang and Wei, Fangyun and Zhao, Jinjing and Chen, Xi and Chen, Zilong and Zhang, Hongyang and Zhang, Jun and Lu, Yan},
+  journal={arXiv preprint arXiv:2506.18901},
+  year={2025}
+}
+
+@article{gao2025seedance,
+  title={Seedance 1.0: Exploring the Boundaries of Video Generation Models},
+  author={Gao, Yu and Guo, Haoyuan and Hoang, Tuyen and Huang, Weilin and Jiang, Lu and Kong, Fangyuan and Li, Huixia and Li, Jiashi and Li, Liang and Li, Xiaojie and others},
+  journal={arXiv preprint arXiv:2506.09113},
+  year={2025}
+}
+
+@article{zheng2024open1,
+  title={Open-sora: Democratizing efficient video production for all},
+  author={Zheng, Zangwei and Peng, Xiangyu and Yang, Tianji and Shen, Chenhui and Li, Shenggui and Liu, Hongxin and Zhou, Yukun and Li, Tianyi and You, Yang},
+  journal={arXiv preprint arXiv:2412.20404},
+  year={2024}
+}
+
+@article{lin2024open_plan,
+  title={Open-sora plan: Open-source large video generation model},
+  author={Lin, Bin and Ge, Yunyang and Cheng, Xinhua and Li, Zongjian and Zhu, Bin and Wang, Shaodong and He, Xianyi and Ye, Yang and Yuan, Shenghai and Chen, Liuhan and others},
+  journal={arXiv preprint arXiv:2412.00131},
+  year={2024}
+}
+
+@article{peng2025open2,
+  title={Open-sora 2.0: Training a commercial-level video generation model in \$200 k},
+  author={Peng, Xiangyu and Zheng, Zangwei and Shen, Chenhui and Young, Tom and Guo, Xinying and Wang, Binluo and Xu, Hang and Liu, Hongxin and Jiang, Mingyan and Li, Wenjun and others},
+  journal={arXiv preprint arXiv:2503.09642},
+  year={2025}
+}
+
+@article{ma2025step,
+  title={Step-video-t2v technical report: The practice, challenges, and future of video foundation model},
+  author={Ma, Guoqing and Huang, Haoyang and Yan, Kun and Chen, Liangyu and Duan, Nan and Yin, Shengming and Wan, Changyi and Ming, Ranchen and Song, Xiaoniu and Chen, Xing and others},
+  journal={arXiv preprint arXiv:2502.10248},
+  year={2025}
+}
+
+
+@article{kim2024fifo,
+  title={Fifo-diffusion: Generating infinite videos from text without training},
+  author={Kim, Jihwan and Kang, Junoh and Choi, Jinyoung and Han, Bohyung},
+  journal={arXiv preprint arXiv:2405.11473},
+  year={2024}
+}
+
+@article{jin2024pyramidal,
+  title={Pyramidal flow matching for efficient video generative modeling},
+  author={Jin, Yang and Sun, Zhicheng and Li, Ningyuan and Xu, Kun and Jiang, Hao and Zhuang, Nan and Huang, Quzhe and Song, Yang and Mu, Yadong and Lin, Zhouchen},
+  journal={arXiv preprint arXiv:2410.05954},
+  year={2024}
+}
+
+
+@article{alonso2024diffusion,
+  title={Diffusion for world modeling: Visual details matter in atari},
+  author={Alonso, Eloi and Jelley, Adam and Micheli, Vincent and Kanervisto, Anssi and Storkey, Amos J and Pearce, Tim and Fleuret, Fran{\c{c}}ois},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={58757--58791},
+  year={2024}
+}
+
+@article{gao2024vid,
+  title={Vid-gpt: Introducing gpt-style autoregressive generation in video diffusion models},
+  author={Gao, Kaifeng and Shi, Jiaxin and Zhang, Hanwang and Wang, Chunping and Xiao, Jun},
+  journal={arXiv preprint arXiv:2406.10981},
+  year={2024}
+}
+
+
+@article{henschel2024streamingt2v,
+  title={Streamingt2v: Consistent, dynamic, and extendable long video generation from text},
+  author={Henschel, Roberto and Khachatryan, Levon and Poghosyan, Hayk and Hayrapetyan, Daniil and Tadevosyan, Vahram and Wang, Zhangyang and Navasardyan, Shant and Shi, Humphrey},
+  journal={arXiv preprint arXiv:2403.14773},
+  year={2024}
+}
+
+@article{wu2022nuwa,
+  title={Nuwa-infinity: Autoregressive over autoregressive generation for infinite visual synthesis},
+  author={Wu, Chenfei and Liang, Jian and Hu, Xiaowei and Gan, Zhe and Wang, Jianfeng and Wang, Lijuan and Liu, Zicheng and Fang, Yuejian and Duan, Nan},
+  journal={arXiv preprint arXiv:2207.09814},
+  year={2022}
+}
+
+@article{chen2024diffusion,
+  title={Diffusion forcing: Next-token prediction meets full-sequence diffusion},
+  author={Chen, Boyuan and Mart{\'\i} Mons{\'o}, Diego and Du, Yilun and Simchowitz, Max and Tedrake, Russ and Sitzmann, Vincent},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={24081--24125},
+  year={2024}
+}
+
+@article{song2025history,
+  title={History-Guided Video Diffusion},
+  author={Song, Kiwhan and Chen, Boyuan and Simchowitz, Max and Du, Yilun and Tedrake, Russ and Sitzmann, Vincent},
+  journal={arXiv preprint arXiv:2502.06764},
+  year={2025}
+}
+
+@inproceedings{zhang2025mega,
+  title={Mega: Memory-efficient 4d gaussian splatting for dynamic scenes},
+  author={Zhang, Xinjie and Liu, Zhening and Zhang, Yifan and Ge, Xingtong and He, Dailan and Xu, Tongda and Wang, Yan and Lin, Zehong and Yan, Shuicheng and Zhang, Jun},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={27828--27838},
+  year={2025}
+}
+
+
+@article{yin2024slow,
+  title={From slow bidirectional to fast autoregressive video diffusion models},
+  author={Yin, Tianwei and Zhang, Qiang and Zhang, Richard and Freeman, William T and Durand, Fredo and Shechtman, Eli and Huang, Xun},
+  journal={arXiv preprint arXiv:2412.07772},
+  volume={2},
+  year={2024}
+}
+
+@article{gu2025long,
+  title={Long-Context Autoregressive Video Modeling with Next-Frame Prediction},
+  author={Gu, Yuchao and Mao, Weijia and Shou, Mike Zheng},
+  journal={arXiv preprint arXiv:2503.19325},
+  year={2025}
+}
+
+@article{xie2024progressive,
+  title={Progressive autoregressive video diffusion models},
+  author={Xie, Desai and Xu, Zhan and Hong, Yicong and Tan, Hao and Liu, Difan and Liu, Feng and Kaufman, Arie and Zhou, Yang},
+  journal={arXiv preprint arXiv:2410.08151},
+  year={2024}
+}
+
+@article{chen2025skyreels,
+  title={SkyReels-V2: Infinite-length Film Generative Model},
+  author={Chen, Guibin and Lin, Dixuan and Yang, Jiangping and Lin, Chunze and Zhu, Juncheng and Fan, Mingyuan and Zhang, Hao and Chen, Sheng and Chen, Zheng and Ma, Chengchen and others},
+  journal={arXiv preprint arXiv:2504.13074},
+  year={2025}
+}
+
+@misc{magi1,
+      title={MAGI-1: Autoregressive Video Generation at Scale},
+      author={Sand-AI},
+      year={2025},
+      url={https://static.magi.world/static/files/MAGI_1.pdf},
+}
+
+
+@article{guo2023animatediff,
+  title={Animatediff: Animate your personalized text-to-image diffusion models without specific tuning},
+  author={Guo, Yuwei and Yang, Ceyuan and Rao, Anyi and Liang, Zhengyang and Wang, Yaohui and Qiao, Yu and Agrawala, Maneesh and Lin, Dahua and Dai, Bo},
+  journal={arXiv preprint arXiv:2307.04725},
+  year={2023}
+}
+
+@article{liu2024dynamics,
+  title={Dynamics-Aware Gaussian Splatting Streaming Towards Fast On-the-Fly 4D Reconstruction},
+  author={Liu, Zhening and Hu, Yingdong and Zhang, Xinjie and Song, Rui and Shao, Jiawei and Lin, Zehong and Zhang, Jun},
+  journal={arXiv preprint arXiv:2411.14847},
+  year={2024}
+}
+
+@inproceedings{sitzmann2021lfns,
+               author = {Sitzmann, Vincent
+                         and Rezchikov, Semon
+                         and Freeman, William T.
+                         and Tenenbaum, Joshua B.
+                         and Durand, Fredo},
+               title = {Light Field Networks: Neural Scene Representations
+                        with Single-Evaluation Rendering},
+               booktitle = {Proc. NeurIPS},
+               year={2021}
+            }
+
+@inproceedings{yang2024direct,
+  title={Direct-a-video: Customized video generation with user-directed camera movement and object motion},
+  author={Yang, Shiyuan and Hou, Liang and Huang, Haibin and Ma, Chongyang and Wan, Pengfei and Zhang, Di and Chen, Xiaodong and Liao, Jing},
+  booktitle={ACM SIGGRAPH 2024 Conference Papers},
+  pages={1--12},
+  year={2024}
+}
+
+@article{feng2024i2vcontrol,
+  title={I2vcontrol-camera: Precise video camera control with adjustable motion strength},
+  author={Feng, Wanquan and Liu, Jiawei and Tu, Pengqi and Qi, Tianhao and Sun, Mingzhen and Ma, Tianxiang and Zhao, Songtao and Zhou, Siyu and He, Qian},
+  journal={arXiv preprint arXiv:2411.06525},
+  year={2024}
+}
+
+@article{he2024cameractrl,
+  title={Cameractrl: Enabling camera control for text-to-video generation},
+  author={He, Hao and Xu, Yinghao and Guo, Yuwei and Wetzstein, Gordon and Dai, Bo and Li, Hongsheng and Yang, Ceyuan},
+  journal={arXiv preprint arXiv:2404.02101},
+  year={2024}
+}
+
+@article{he2025cameractrl,
+  title={Cameractrl ii: Dynamic scene exploration via camera-controlled video diffusion models},
+  author={He, Hao and Yang, Ceyuan and Lin, Shanchuan and Xu, Yinghao and Wei, Meng and Gui, Liangke and Zhao, Qi and Wetzstein, Gordon and Jiang, Lu and Li, Hongsheng},
+  journal={arXiv preprint arXiv:2503.10592},
+  year={2025}
+}
+
+@misc{gen3,
+  author       = {Runway},
+  title        = {Introducing Gen-3 Alpha: A new frontier for video generation},
+  year         = {2024},
+  url          = {https://runwayml.com/research/introducing-gen-3-alpha},
+  note         = {Accessed: 2025-02-24}
+}
+
+@misc{minimax,
+  author       = {HailuoAI},
+  title        = {Hailuo},
+  year         = {2024},
+  url          = {https://hailuoai.video/},
+  note         = {Accessed: 2025-02-24}
+}
+
+@article{yu2025trajectorycrafter,
+  title={Trajectorycrafter: Redirecting camera trajectory for monocular videos via diffusion models},
+  author={YU, Mark and Hu, Wenbo and Xing, Jinbo and Shan, Ying},
+  journal={arXiv preprint arXiv:2503.05638},
+  year={2025}
+}
+
+@article{gu2025das,
+        title={Diffusion as Shader: 3D-aware Video Diffusion for Versatile Video Generation Control}, 
+         author={Zekai Gu and Rui Yan and Jiahao Lu and Peng Li and Zhiyang Dou and Chenyang Si and Zhen Dong and Qifeng Liu and Cheng Lin and Ziwei Liu and Wenping Wang and Yuan Liu},
+         year={2025},
+         journal={arXiv preprint arXiv:2501.03847}
+        }
+
+ @inproceedings{ren2025gen3c,
+    title={GEN3C: 3D-Informed World-Consistent Video Generation with Precise Camera Control},
+    author={Ren, Xuanchi and Shen, Tianchang and Huang, Jiahui and Ling, Huan and
+        Lu, Yifan and Nimier-David, Merlin and Müller, Thomas and Keller, Alexander and
+        Fidler, Sanja and Gao, Jun},
+    booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+    year={2025}
+}
+
+@article{yang2025omnicam,
+  title={OmniCam: Unified Multimodal Video Generation via Camera Control},
+  author={Yang, Xiaoda and Xu, Jiayang and Luan, Kaixuan and Zhan, Xinyu and Qiu, Hongshun and Shi, Shijun and Li, Hao and Yang, Shuai and Zhang, Li and Yu, Checheng and others},
+  journal={arXiv preprint arXiv:2504.02312},
+  year={2025}
+}
+
+@article{bai2025recammaster,
+  title={Recammaster: Camera-controlled generative rendering from a single video},
+  author={Bai, Jianhong and Xia, Menghan and Fu, Xiao and Wang, Xintao and Mu, Lianrui and Cao, Jinwen and Liu, Zuozhu and Hu, Haoji and Bai, Xiang and Wan, Pengfei and others},
+  journal={arXiv preprint arXiv:2503.11647},
+  year={2025}
+}
+
+@article{luo2025camclonemaster,
+  title={CamCloneMaster: Enabling Reference-based Camera Control for Video Generation},
+  author={Luo, Yawen and Bai, Jianhong and Shi, Xiaoyu and Xia, Menghan and Wang, Xintao and Wan, Pengfei and Zhang, Di and Gai, Kun and Xue, Tianfan},
+  journal={arXiv preprint arXiv:2506.03140},
+  year={2025}
+}
+
+@inproceedings{yu2024wonderjourney,
+  title={Wonderjourney: Going from anywhere to everywhere},
+  author={Yu, Hong-Xing and Duan, Haoyi and Hur, Junhwa and Sargent, Kyle and Rubinstein, Michael and Freeman, William T and Cole, Forrester and Sun, Deqing and Snavely, Noah and Wu, Jiajun and others},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={6658--6667},
+  year={2024}
+}
+
+@inproceedings{
+    engstler2024invisible,
+    title={Invisible Stitch: Generating Smooth 3D Scenes with Depth Inpainting},
+    author={Paul Engstler and Andrea Vedaldi and Iro Laina and Christian Rupprecht},
+    year={2024},
+    booktitle={Arxiv}
+}
+
+@article{yu2024wonderworld,
+    title={WonderWorld: Interactive 3D Scene Generation from a Single Image},
+    author={Hong-Xing Yu and Haoyi Duan and Charles Herrmann and William T. Freeman and Jiajun Wu},
+    journal={arXiv:2406.09394},
+    year={2024}
+}
+
+@article{xu2024easyanimate,
+  title={Easyanimate: A high-performance long video generation method based on transformer architecture},
+  author={Xu, Jiaqi and Zou, Xinyi and Huang, Kunzhe and Chen, Yunkuo and Liu, Bo and Cheng, MengLi and Shi, Xing and Huang, Jun},
+  journal={arXiv preprint arXiv:2405.18991},
+  year={2024}
+}
+
+@article{allegro2024,
+  title={Allegro: Open the Black Box of Commercial-Level Video Generation Model},
+  author={Yuan Zhou and Qiuyue Wang and Yuxuan Cai and Huan Yang},
+  journal={arXiv preprint arXiv:2410.15458},
+  year={2024}
+}
+
+@article{fan2025vchitect,
+  title={Vchitect-2.0: Parallel Transformer for Scaling Up Video Diffusion Models},
+  author={Fan, Weichen and Si, Chenyang and Song, Junhao and Yang, Zhenyu and He, Yinan and Zhuo, Long and Huang, Ziqi and Dong, Ziyue and He, Jingwen and Pan, Dongwei and others},
+  journal={arXiv preprint arXiv:2501.08453},
+  year={2025}
+}
+
+@inproceedings{wang2024dust3r,
+  title={Dust3r: Geometric 3d vision made easy},
+  author={Wang, Shuzhe and Leroy, Vincent and Cabon, Yohann and Chidlovskii, Boris and Revaud, Jerome},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={20697--20709},
+  year={2024}
+}
+
+@misc{mast3r_eccv24,
+      title={Grounding Image Matching in 3D with MASt3R}, 
+      author={Vincent Leroy and Yohann Cabon and Jerome Revaud},
+      booktitle = {ECCV},
+      year = {2024}
+}
+
+@article{wang20243d,
+  title={3D Reconstruction with Spatial Memory},
+  author={Wang, Hengyi and Agapito, Lourdes},
+  journal={arXiv preprint arXiv:2408.16061},
+  year={2024}
+}
+
+@inproceedings{cabon2025must3r,
+  title={Must3r: Multi-view network for stereo 3d reconstruction},
+  author={Cabon, Yohann and Stoffl, Lucas and Antsfeld, Leonid and Csurka, Gabriela and Chidlovskii, Boris and Revaud, Jerome and Leroy, Vincent},
+  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+  pages={1050--1060},
+  year={2025}
+}
+
+@InProceedings{Yang_2025_Fast3R,
+    title={Fast3R: Towards 3D Reconstruction of 1000+ Images in One Forward Pass},
+    author={Jianing Yang and Alexander Sax and Kevin J. Liang and Mikael Henaff and Hao Tang and Ang Cao and Joyce Chai and Franziska Meier and Matt Feiszli},
+    booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month={June},
+    year={2025},
+}
+
+@article{wang2025continuous,
+  title={Continuous 3D Perception Model with Persistent State},
+  author={Wang, Qianqian and Zhang, Yifei and Holynski, Aleksander and Efros, Alexei A and Kanazawa, Angjoo},
+  journal={arXiv preprint arXiv:2501.12387},
+  year={2025}
+}
+
+@inproceedings{wang2024vggsfm,
+  title={VGGSfM: Visual Geometry Grounded Deep Structure From Motion},
+  author={Wang, Jianyuan and Karaev, Nikita and Rupprecht, Christian and Novotny, David},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={21686--21697},
+  year={2024}
+}
+
+@inproceedings{wang2025vggt,
+  title={VGGT: Visual Geometry Grounded Transformer},
+  author={Wang, Jianyuan and Chen, Minghao and Karaev, Nikita and Vedaldi, Andrea and Rupprecht, Christian and Novotny, David},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year={2025}
+}
+
+@misc{keetha2025mapanything,
+  title={{MapAnything}: Universal Feed-Forward Metric {3D} Reconstruction},
+  author={Nikhil Keetha and Norman M\"{u}ller and Johannes Sch\"{o}nberger and Lorenzo Porzi and Yuchen Zhang and Tobias Fischer and Arno Knapitsch and Duncan Zauss and Ethan Weber and Nelson Antunes and Jonathon Luiten and Manuel Lopez-Antequera and Samuel Rota Bul\`{o} and Christian Richardt and Deva Ramanan and Sebastian Scherer and Peter Kontschieder},
+  note={arXiv preprint arXiv:2509.13414},
+  year={2025}
+}
+
+
+@article{valevski2024diffusion,
+  title={Diffusion models are real-time game engines},
+  author={Valevski, Dani and Leviathan, Yaniv and Arar, Moab and Fruchter, Shlomi},
+  journal={arXiv preprint arXiv:2408.14837},
+  year={2024}
+}
+
+
+@article{che2024gamegen,
+  title={Gamegen-x: Interactive open-world game video generation},
+  author={Che, Haoxuan and He, Xuanhua and Liu, Quande and Jin, Cheng and Chen, Hao},
+  journal={arXiv preprint arXiv:2411.00769},
+  year={2024}
+}
+
+
+@article{zhang2025matrixgame,
+  title     = {Matrix-Game: Interactive World Foundation Model},
+  author    = {Yifan Zhang and Chunli Peng and Boyang Wang and Puyi Wang and Qingcheng Zhu and Zedong Gao and Eric Li and Yang Liu and Yahui Zhou},
+  journal   = {arXiv},
+  year      = {2025}
+}
+
+@article{yang2024playable,
+  title={Playable Game Generation},
+  author={Yang, Mingyu and Li, Junyou and Fang, Zhongbin and Chen, Sheng and Yu, Yangbin and Fu, Qiang and Yang, Wei and Ye, Deheng},
+  journal={arXiv preprint arXiv:2412.00887},
+  year={2024}
+}
+
+@article{xiao2025worldmem,
+  title={WORLDMEM: Long-term Consistent World Simulation with Memory},
+  author={Xiao, Zeqi and Lan, Yushi and Zhou, Yifan and Ouyang, Wenqi and Yang, Shuai and Zeng, Yanhong and Pan, Xingang},
+  journal={arXiv preprint arXiv:2504.12369},
+  year={2025}
+}
+
+@article{oasis2024,
+  title={Oasis: A universe in a transformer},
+  author={Decart, Etched and McIntyre, Quinn and Campbell, Spruce and Chen, Xinlei and Wachen, Robert},
+  journal={URL: https://oasis-model. github. io},
+  year={2024}
+}
+
+@inproceedings{bruce2024genie,
+  title={Genie: Generative interactive environments},
+  author={Bruce, Jake and Dennis, Michael D and Edwards, Ashley and Parker-Holder, Jack and Shi, Yuge and Hughes, Edward and Lai, Matthew and Mavalankar, Aditi and Steigerwald, Richie and Apps, Chris and others},
+  booktitle={Forty-first International Conference on Machine Learning},
+  year={2024}
+}
+
+@misc{parkerholder2024genie2,
+  title         = {Genie 2: A Large-Scale Foundation World Model},
+  author        = {Jack Parker-Holder and Philip Ball and Jake Bruce and Vibhavari Dasagi and Kristian Holsheimer and Christos Kaplanis and Alexandre Moufarek and Guy Scully and Jeremy Shar and Jimmy Shi and Stephen Spencer and Jessica Yung and Michael Dennis and Sultan Kenjeyev and Shangbang Long and Vlad Mnih and Harris Chan and Maxime Gazeau and Bonnie Li and Fabio Pardo and Luyu Wang and Lei Zhang and Frederic Besse and Tim Harley and Anna Mitenkova and Jane Wang and Jeff Clune and Demis Hassabis and Raia Hadsell and Adrian Bolton and Satinder Singh and Tim Rockt{\"a}schel},
+  year          = {2024},
+  howpublished  = {\url{https://deepmind.google/discover/blog/genie-2-a-large-scale-foundation-world-model/}},
+  url           = {https://deepmind.google/discover/blog/genie-2-a-large-scale-foundation-world-model/}
+}
+
+@article{feng2024matrix,
+  title={The matrix: Infinite-horizon world generation with real-time moving control},
+  author={Feng, Ruili and Zhang, Han and Yang, Zhantao and Xiao, Jie and Shu, Zhilei and Liu, Zhiheng and Zheng, Andy and Huang, Yukun and Liu, Yu and Zhang, Hongyang},
+  journal={arXiv preprint arXiv:2412.03568},
+  year={2024}
+}
+
+
+@article{yu2025gamefactory,
+  title={GameFactory: Creating New Games with Generative Interactive Videos},
+  author={Yu, Jiwen and Qin, Yiran and Wang, Xintao and Wan, Pengfei and Zhang, Di and Liu, Xihui},
+  journal={arXiv preprint arXiv:2501.08325},
+  year={2025}
+}
+
+
+@article{Brohan2023RT2VM,
+  title={RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control},
+  author={Anthony Brohan and Noah Brown and Justice Carbajal and Yevgen Chebotar and Krzysztof Choromanski and Tianli Ding and Danny Driess and Kumar Avinava Dubey and Chelsea Finn and Peter R. Florence and Chuyuan Fu and Montse Gonzalez Arenas and Keerthana Gopalakrishnan and Kehang Han and Karol Hausman and Alexander Herzog and Jasmine Hsu and Brian Ichter and Alex Irpan and Nikhil J. Joshi and Ryan C. Julian and Dmitry Kalashnikov and Yuheng Kuang and Isabel Leal and Sergey Levine and Henryk Michalewski and Igor Mordatch and Karl Pertsch and Kanishka Rao and Krista Reymann and Michael S. Ryoo and Grecia Salazar and Pannag R. Sanketi and Pierre Sermanet and Jaspiar Singh and Anikait Singh and Radu Soricut and Huong Tran and Vincent Vanhoucke and Quan Ho Vuong and Ayzaan Wahid and Stefan Welker and Paul Wohlhart and Ted Xiao and Tianhe Yu and Brianna Zitkovich},
+  journal={ArXiv},
+  year={2023},
+  volume={abs/2307.15818},
+  url={https://api.semanticscholar.org/CorpusID:260293142}
+}
+
+@article{Li2023VisionLanguageFM,
+  title={Vision-Language Foundation Models as Effective Robot Imitators},
+  author={Xinghang Li and Minghuan Liu and Hanbo Zhang and Cunjun Yu and Jie Xu and Hongtao Wu and Chi-Hou Cheang and Ya Jing and Weinan Zhang and Huaping Liu and Hang Li and Tao Kong},
+  journal={ArXiv},
+  year={2023},
+  volume={abs/2311.01378},
+  url={https://api.semanticscholar.org/CorpusID:264935429}
+}
+
+@article{Kim2024OpenVLAAO,
+  title={OpenVLA: An Open-Source Vision-Language-Action Model},
+  author={Moo Jin Kim and Karl Pertsch and Siddharth Karamcheti and Ted Xiao and Ashwin Balakrishna and Suraj Nair and Rafael Rafailov and Ethan Paul Foster and Grace Lam and Pannag R. Sanketi and Quan Vuong and Thomas Kollar and Benjamin Burchfiel and Russ Tedrake and Dorsa Sadigh and Sergey Levine and Percy Liang and Chelsea Finn},
+  journal={ArXiv},
+  year={2024},
+  volume={abs/2406.09246},
+  url={https://api.semanticscholar.org/CorpusID:270440391}
+}
+
+@article{Hancock2024RuntimeOI,
+  title={Run-time Observation Interventions Make Vision-Language-Action Models More Visually Robust},
+  author={Asher Hancock and Allen Z. Ren and Anirudha Majumdar},
+  journal={2025 IEEE International Conference on Robotics and Automation (ICRA)},
+  year={2024},
+  pages={9499-9506},
+  url={https://api.semanticscholar.org/CorpusID:273098082}
+}
+
+@article{Zhen20243DVLAA3,
+  title={3D-VLA: A 3D Vision-Language-Action Generative World Model},
+  author={Haoyu Zhen and Xiaowen Qiu and Peihao Chen and Jincheng Yang and Xin Yan and Yilun Du and Yining Hong and Chuang Gan},
+  journal={ArXiv},
+  year={2024},
+  volume={abs/2403.09631},
+  url={https://api.semanticscholar.org/CorpusID:268385444}
+}
+
+@article{Li2025PointVLAIT,
+  title={PointVLA: Injecting the 3D World into Vision-Language-Action Models},
+  author={Chengmeng Li and Junjie Wen and Yan Peng and Yaxin Peng and Feifei Feng and Yichen Zhu},
+  journal={ArXiv},
+  year={2025},
+  volume={abs/2503.07511},
+  url={https://api.semanticscholar.org/CorpusID:276928085}
+}
+
+@article{Team2024OctoAO,
+  title={Octo: An Open-Source Generalist Robot Policy},
+  author={Octo Model Team and Dibya Ghosh and Homer Rich Walke and Karl Pertsch and Kevin Black and Oier Mees and Sudeep Dasari and Joey Hejna and Tobias Kreiman and Charles Xu and Jianlan Luo and You Liang Tan and Pannag R. Sanketi and Quan Vuong and Ted Xiao and Dorsa Sadigh and Chelsea Finn and Sergey Levine},
+  journal={ArXiv},
+  year={2024},
+  volume={abs/2405.12213},
+  url={https://api.semanticscholar.org/CorpusID:266379116}
+}
+
+@inproceedings{Wen2024DiffusionVLAGA,
+  title={Diffusion-VLA: Generalizable and Interpretable Robot Foundation Model via Self-Generated Reasoning},
+  author={Junjie Wen and Minjie Zhu and Yichen Zhu and Zhibin Tang and Jinming Li and Zhongyi Zhou and Chengmeng Li and Xiaoyu Liu and Yaxin Peng and Chaomin Shen and Feifei Feng},
+  year={2024},
+  url={https://api.semanticscholar.org/CorpusID:274465094}
+}
+
+@article{bai2023qwen,
+  title={Qwen technical report},
+  author={Bai, Jinze and Bai, Shuai and Chu, Yunfei and Cui, Zeyu and Dang, Kai and Deng, Xiaodong and Fan, Yang and Ge, Wenbin and Han, Yu and Huang, Fei and others},
+  journal={arXiv preprint arXiv:2309.16609},
+  year={2023}
+}
+
+@article{yang2025qwen3,
+  title={Qwen3 technical report},
+  author={Yang, An and Li, Anfeng and Yang, Baosong and Zhang, Beichen and Hui, Binyuan and Zheng, Bo and Yu, Bowen and Gao, Chang and Huang, Chengen and Lv, Chenxu and others},
+  journal={arXiv preprint arXiv:2505.09388},
+  year={2025}
+}
+
+@article{liu2024deepseek,
+  title={Deepseek-v3 technical report},
+  author={Liu, Aixin and Feng, Bei and Xue, Bing and Wang, Bingxuan and Wu, Bochao and Lu, Chengda and Zhao, Chenggang and Deng, Chengqi and Zhang, Chenyu and Ruan, Chong and others},
+  journal={arXiv preprint arXiv:2412.19437},
+  year={2024}
+}
+
+@article{team2025kimi,
+  title={Kimi k2: Open agentic intelligence},
+  author={Team, Kimi and Bai, Yifan and Bao, Yiping and Chen, Guanduo and Chen, Jiahao and Chen, Ningxin and Chen, Ruijue and Chen, Yanru and Chen, Yuankun and Chen, Yutian and others},
+  journal={arXiv preprint arXiv:2507.20534},
+  year={2025}
+}
+
+
+@article{kerbl20233d,
+  title={3D Gaussian splatting for real-time radiance field rendering.},
+  author={Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas and Drettakis, George},
+  journal={ACM Trans. Graph.},
+  volume={42},
+  number={4},
+  pages={139--1},
+  year={2023}
+}
+
+@article{yang2025kwai,
+  title={Kwai keye-vl 1.5 technical report},
+  author={Yang, Biao and Wen, Bin and Ding, Boyang and Liu, Changyi and Chu, Chenglong and Song, Chengru and Rao, Chongling and Yi, Chuan and Li, Da and Zang, Dunju and others},
+  journal={arXiv preprint arXiv:2509.01563},
+  year={2025}
+}
+
+@inproceedings{liang2025referdino,
+    title={ReferDINO: Referring Video Object Segmentation with Visual Grounding Foundations},
+    author={Liang, Tianming and Lin, Kun-Yu and Tan, Chaolei and Zhang, Jianguo and Zheng, Wei-Shi and Hu, Jian-Fang},
+    booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+    year={2025}
+}
+
+@article{lipman2022flow,
+  title={Flow matching for generative modeling},
+  author={Lipman, Yaron and Chen, Ricky TQ and Ben-Hamu, Heli and Nickel, Maximilian and Le, Matt},
+  journal={arXiv preprint arXiv:2210.02747},
+  year={2022}
+}
+
+@misc{zhang2023adding,
+  title={Adding Conditional Control to Text-to-Image Diffusion Models}, 
+  author={Lvmin Zhang and Anyi Rao and Maneesh Agrawala},
+  booktitle={IEEE International Conference on Computer Vision (ICCV)},
+  year={2023},
+}
+
+@article{zhou2018stereo,
+  title={Stereo magnification: Learning view synthesis using multiplane images},
+  author={Zhou, Tinghui and Tucker, Richard and Flynn, John and Fyffe, Graham and Snavely, Noah},
+  journal={arXiv preprint arXiv:1805.09817},
+  year={2018}
+}
+
+@article{wang2025spatialvid,
+  title={Spatialvid: A large-scale video dataset with spatial annotations},
+  author={Wang, Jiahao and Yuan, Yufeng and Zheng, Rujie and Lin, Youtian and Gao, Jian and Chen, Lin-Zhuo and Bao, Yajie and Zhang, Yi and Zeng, Chang and Zhou, Yanxi and others},
+  journal={arXiv preprint arXiv:2509.09676},
+  year={2025}
+}
+
+@article{duan2025worldscore,
+  title={Worldscore: A unified evaluation benchmark for world generation},
+  author={Duan, Haoyi and Yu, Hong-Xing and Chen, Sirui and Fei-Fei, Li and Wu, Jiajun},
+  journal={arXiv preprint arXiv:2504.00983},
+  year={2025}
+}
+
+@inproceedings{edstedt2024roma,
+title={{RoMa: Robust Dense Feature Matching}},
+author={Edstedt, Johan and Sun, Qiyu and Bökman, Georg and Wadenbäck, Mårten and Felsberg, Michael},
+booktitle={IEEE Conference on Computer Vision and Pattern Recognition},
+year={2024}
+}
+
+@misc{carion2025sam3segmentconcepts,
+      title={SAM 3: Segment Anything with Concepts},
+      author={Nicolas Carion and Laura Gustafson and Yuan-Ting Hu and Shoubhik Debnath and Ronghang Hu and Didac Suris and Chaitanya Ryali and Kalyan Vasudev Alwala and Haitham Khedr and Andrew Huang and Jie Lei and Tengyu Ma and Baishan Guo and Arpit Kalla and Markus Marks and Joseph Greer and Meng Wang and Peize Sun and Roman Rädle and Triantafyllos Afouras and Effrosyni Mavroudi and Katherine Xu and Tsung-Han Wu and Yu Zhou and Liliane Momeni and Rishi Hazra and Shuangrui Ding and Sagar Vaze and Francois Porcher and Feng Li and Siyuan Li and Aishwarya Kamath and Ho Kei Cheng and Piotr Dollár and Nikhila Ravi and Kate Saenko and Pengchuan Zhang and Christoph Feichtenhofer},
+      year={2025},
+      eprint={2511.16719},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2511.16719},
+}
+
+@article{chung2023luciddreamer,
+  title={LucidDreamer: Domain-free Generation of 3D Gaussian Splatting Scenes},
+  author={Chung, Jaeyoung and Lee, Suyoung and Nam, Hyeongjin and Lee, Jaerin and Lee, Kyoung Mu},
+  journal={arXiv preprint arXiv:2311.13384},
+  year={2023}
+}
+
+@misc{li2025flashworld,
+        title={FlashWorld: High-quality 3D Scene Generation within Seconds},
+        author={Xinyang Li and Tengfei Wang and Zixiao Gu and Shengchuan Zhang and Chunchao Guo and Liujuan Cao},
+        year={2025},
+        eprint={2510.13678},
+        archivePrefix={arXiv},
+        primaryClass={cs.CV}
+    }

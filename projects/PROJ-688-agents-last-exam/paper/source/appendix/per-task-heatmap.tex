@@ -1,0 +1,28 @@
+\subsection{Per-Task Instance Score Heatmaps}
+\label{app:per-task-heatmap}
+
+Figures~\ref{fig:heatmap-nearterm}--\ref{fig:heatmap-lastexam} show the mean score of every task instance under each evaluated agent system.
+Rows are sorted by descending average score across all systems; columns are grouped by harness and sorted by descending average score within each group.
+Task instance labels are colored by taxonomy domain (legend inset).
+Gray cells indicate missing runs.
+
+\begin{figure}[p]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=1.25\textwidth]{figures/task_heatmap_nearterm.pdf}}
+\caption{\textbf{Per-task instance scores: Near-Term tier} (\neartermcount{} task instances).}
+\label{fig:heatmap-nearterm}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=1.25\textwidth]{figures/task_heatmap_fullspectrum.pdf}}
+\caption{\textbf{Per-task instance scores: Full-Spectrum tier} (\fullspectrumcount{} task instances).}
+\label{fig:heatmap-fullspectrum}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=1.25\textwidth]{figures/task_heatmap_lastexam.pdf}}
+\caption{\textbf{Per-task instance scores: Last-Exam tier} (\lastexamcount{} task instances).}
+\label{fig:heatmap-lastexam}
+\end{figure}

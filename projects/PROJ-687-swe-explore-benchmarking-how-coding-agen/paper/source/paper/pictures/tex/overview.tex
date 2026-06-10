@@ -1,0 +1,24 @@
+\begin{figure}[t]
+  \centering
+  % ---------- left: donut chart ----------
+  \begin{minipage}[t]{0.42\linewidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{paper/pictures/lang_distribution.pdf}
+    \captionof{figure}{Language distribution of the $848$ retained
+    SWE-Explore instances across 10 different coding languages.}
+    \label{fig:lang-dist}
+  \end{minipage}\hfill
+  % ---------- right: metadata stats table ----------
+  \begin{minipage}[t]{0.55\linewidth}
+    \vspace{0pt}
+    \centering
+    \captionof{table}{Per-instance averages of the ground-truth core context
+    $|R_{\text{core}}|$ at the file, region, and line granularity.}
+    \label{tab:bench-stats}
+    \vspace{1mm}
+    \input{paper/tables/0-status}
+  \end{minipage}
+  \vspace{-2mm}
+\end{figure}
+

@@ -1,0 +1,268 @@
+\section{Experiments}
+
+\subsection{Experiment Setup}
+\paragraph{Benchmarks.}
+We evaluate \method{} on two agent benchmarks. \textbf{ALFWorld} \citep{Shridhar2021ALFWorld} is a text-based interactive environment aligned with the ALFRED embodied AI benchmark, comprising six categories of household tasks: Pick and Place (Pick), Look at Obj in Light (Look), Pick Clean then Place in Recep (Clean), Pick Heat then Place in Recep (Heat), Pick Cool then Place in Recep (Cool), and Pick Two Obj and Place (Pick2). \textbf{Search-QA} follows the evaluation protocol of \citet{Jin2025SearchR1} and covers seven search-augmented QA datasets, including three single-hop benchmarks (NQ \citep{Kwiatkowski2019NQ}, TriviaQA \citep{Joshi2017TriviaQA}, PopQA \citep{Mallen2023PopQA}) and four multi-hop benchmarks (HotpotQA \citep{Yang2018HotpotQA}, 2WikiMultihopQA \citep{Ho2020Wiki}, MuSiQue \citep{Trivedi2022MuSiQue}, Bamboogle \citep{Press2023Bamboogle}). Training data are drawn from NQ and HotpotQA, and the remaining five datasets serve as out-of-domain evaluation sets.
+ 
+\paragraph{Baselines.}
+For ALFWorld, we compare against Vanilla, Few-shot, Reflexion \citep{Shinn2023Reflexion}, AdaPlanner \citep{Sun2023AdaPlanner}, and In-context Skill. For Search-QA, we compare against Vanilla, CoT \citep{Wei2022CoT}, Few-shot, R1-Instruct \citep{DeepSeek2025R1}, RAG \citep{Lewis2020RAG}, and In-context Skill. Among them, In-context Skill uses the same skill as \method{} but places it in the prompt rather than encoding it as LoRA weights.
+ 
+\paragraph{Implementation Details.}
+We use Qwen3-8B~\citep{Yang2025Qwen3} as the frozen backbone LLM. The skill compiler is implemented as a Transformer-based hypernetwork that maps each textual skill document to a set of LoRA updates. Unless otherwise specified, we use the same LoRA configuration across experiments. In the pretraining stage, we train the compiler on approximately 171K deduplicated skill documents crawled from GitHub, totaling roughly 300M tokens. In the SFT stage, we use the teacher trajectories and skill library released by \citet{Xia2026SkillRL}, mixing ALFWorld and Search-QA trajectories into a single training set and using 5 ALFWorld skills and 3 Search-QA skills. For Search-QA, passage retrieval is performed using E5~\citep{Wang2022E5}. Complete training hyperparameters and skill-to-task matching rules are provided in Appendix~\ref{app:training} and Appendix~\ref{app:skill}.
+
+\subsection{Main Results}
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+  Performance on \textbf{ALFWorld} in success rate \%.
+  Results are reported on both \emph{seen} and \emph{unseen} splits
+  with per-task breakdown.
+  \emph{Step} denotes the average number of steps taken per episode.
+  \emph{Prefill} and \emph{Decode} report average token counts
+  (k) per step.
+  The best and second-best results are highlighted in
+  \textbf{bold} and \underline{underline}, respectively.
+}
+\label{tab:alfworld}
+\begin{tabular}{
+  l
+  cccccc   % Pick Look Clean Heat Cool Pick2
+  c|       % Avg
+  c        % Step
+  cc       % Prefill | Decode
+}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+  & \multicolumn{6}{c}{\textbf{ALFWorld Task}}
+  & \multirow{2}{*}{\textbf{Avg}$\uparrow$}
+  & \multirow{2}{*}{\textbf{Step}$\downarrow$}
+  & \multicolumn{2}{c}{\textbf{Cost}$\downarrow$} \\
+\cmidrule(lr){2-7}\cmidrule(lr){10-11}
+  & \textbf{Pick} & \textbf{Look} & \textbf{Clean}
+  & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2}
+  & & & \textbf{Prefill} & \textbf{Decode} \\
+\midrule
+\multicolumn{11}{l}{\emph{Seen split}} \\[2pt]
+Vanilla
+  & 82.9 & 46.2 & 18.5 & 37.5 & 32.0 & 29.2 & 43.6
+  & 35.0 & \best{0.44} & 0.55 \\
+Few-Shot
+  & 82.9 & 46.2 & 44.4 & \best{68.8} & 36.0 & 12.5 & 50.0
+  & 31.3 & 2.04 & 0.54 \\
+Reflexion
+  & 77.1 & 53.9 & 33.3 & 31.3 & \second{56.0} & 12.5 & 46.4
+  & 33.3 & 0.55 & 0.66 \\
+AdaPlanner
+  & \second{91.4} & 30.8 & 33.3 & 37.5 & 28.0 & \second{33.3} & 47.1
+  & 35.9 & 0.54 & 0.84 \\
+In-Context Skill
+  & 85.7 & \second{69.2} & \best{70.4} & 31.3 & 12.0 & \second{33.3} & \second{52.9}
+  & \second{30.8} & 1.21 & \second{0.50} \\
+\rowcolor{ourblue}
+\textbf{\method{}}
+  & \best{97.1} & \best{92.3} & \second{63.0} & \second{43.8}
+  & \best{64.0} & \best{75.0} & \best{74.3}
+  & \best{28.4} & \best{0.44} & \best{0.34} \\
+\midrule
+\multicolumn{11}{l}{\emph{Unseen split}} \\[2pt]
+Vanilla
+  & 54.2 & 55.6 & 41.9 & \second{47.8} & 57.1 & 23.5 & 47.0
+  & 34.9 & \best{0.44} & 0.62 \\
+Few-Shot
+  & 66.7 & 50.0 & 61.3 & \best{56.5} & \second{76.2} &  0.00 & 54.5
+  & \best{28.5} & 2.04 & \best{0.50} \\
+Reflexion
+  & 50.0 & \second{61.1} & 58.1 & 43.5 & 66.7 &  0.00 & 48.5
+  & 32.8 & 0.57 & 0.82 \\
+AdaPlanner
+  & \second{83.3} & 50.0 & 54.8 & 39.1 & 52.4 & \second{29.4} & 53.0
+  & 34.3 & 0.54 & 0.75 \\
+In-Context Skill
+  & 70.8 & \second{61.1} & \best{74.2} & 43.5 & 47.6 & 23.5 & \second{56.0}
+  & \second{29.7} & 1.23 & 0.61 \\
+\rowcolor{ourblue}
+\textbf{\method{}}
+  & \best{91.7} & \best{66.7} & \second{64.5} & 43.5
+  & \best{81.0} & \best{70.6} & \best{69.4}
+  & 31.4 & \best{0.44} & \second{0.51} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5.5pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+  Performance on \textbf{Search-QA} in exact match \%.
+  $\dagger$ and $\star$ indicate in-domain and out-of-domain
+  datasets, respectively.
+  \emph{Cost} denotes average token counts
+  (k) per step.
+  The best and second-best results are highlighted in
+  \textbf{bold} and \underline{underline}, respectively.
+}
+\label{tab:search}
+\begin{tabular}{
+  l
+  ccc          % Single-Hop: NQ Triv Pop
+  cccc         % Multi-Hop:  Hotp 2WK MuS Bam
+  c|           % Avg
+  c            % Cost
+}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+  & \multicolumn{3}{c}{\textbf{Single-Hop QA}}
+  & \multicolumn{4}{c}{\textbf{Multi-Hop QA}}
+  & \multirow{2}{*}{\textbf{Avg}$\uparrow$}
+  & \multirow{2}{*}{\makecell{\textbf{Cost}$\downarrow$}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-8}
+  & \textbf{NQ}$^\dagger$
+  & \textbf{Triv}$^\star$
+  & \textbf{Pop}$^\star$
+  & \textbf{Hotp}$^\dagger$
+  & \textbf{2WK}$^\star$
+  & \textbf{MuS}$^\star$
+  & \textbf{Bam}$^\star$
+  & & \\
+\midrule
+Vanilla
+  & 25.2 & 50.6 & 35.2 & 26.2 & 26.8 & 4.20  & 28.8 & 28.1 & \second{0.24} \\
+CoT
+  & 19.2 & 50.8 & 20.0 & 22.4 & 26.2 & 5.00  & \second{37.6} & 24.5 & \best{0.09} \\
+Few-Shot
+  & 34.6 & \second{57.6} & 39.4 & 30.0 & 25.8 & 6.00  & 17.6 & 31.7 & 0.94 \\
+R1-Instruct
+  & 27.0 & 55.0 & 31.6 & 26.6 & \second{33.6} & 5.80  & 34.4 & 30.1 & \second{0.24} \\
+RAG
+  & \best{39.0} & \best{64.0} & \best{45.0} & \second{32.4} & 21.2 & 6.80  & 27.2 & \second{34.4} & 0.89 \\
+In-Context Skill
+  & 27.2 & 56.4 & 33.0 & 30.2 & \best{39.8} & \second{7.60} & \best{38.4} & 32.6 & 1.10 \\
+\rowcolor{ourblue}
+\textbf{\method{}}
+  & \second{36.2} & \second{57.6} & \second{41.0} & \best{39.6}
+  & 32.0 & \best{9.80}  & 25.6
+  & \best{35.6} & 0.31 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Method Performance.}
+Tables~\ref{tab:alfworld} and~\ref{tab:search} show that \method{} achieves the best average performance on both benchmarks. On ALFWorld, \method{} reaches 74.3\% and 69.4\% average success on both the seen and unseen splits, improving over In-Context Skill by 21.4 and 13.4 points. On Search-QA, it achieves the highest average EM score of 35.6. The gains are especially pronounced on multi-step tasks: on unseen Pick2, \method{} reaches 70.6\%, surpassing the second-best method by 41.2 points, and it also obtains the best scores on HotpotQA and MuSiQue.
+
+% As shown in Table~\ref{tab:alfworld} and Table~\ref{tab:search}, \method{} achieves the best average performance on both benchmarks. On ALFWorld, \method{} obtains average success rates of 74.3\% and 69.4\% on the seen and unseen splits, respectively, significantly outperforming all compared methods. On Search-QA, \method{} achieves the highest average EM score of 35.6.
+ 
+% Notably, \method{} exhibits particularly strong advantages on tasks that require multi-step planning and state tracking. On the Pick2 task in ALFWorld, which requires coordinating the manipulation of two objects, \method{} achieves a 70.6\% success rate on the unseen split, surpassing the second-best method by 41.2 percentage points. On the multi-hop reasoning tasks in Search-QA, \method{} achieves the highest scores among all methods on both HotpotQA (39.6) and MuSiQue (9.8). These results suggest that skill knowledge encoded in LoRA weights is especially advantageous for tasks that demand cross-step information integration.
+ 
+\paragraph{Token Efficiency.}
+On ALFWorld, \method{} reduces prefill overhead by 64.1\% relative to In-Context Skill, while improving average success by 21.4 and 13.4 points on the seen and unseen splits, respectively. On Search-QA, it reduces context overhead by 72.2\% and improves average EM by 3.0 points. These results suggest that moving skill knowledge from prompt to LoRA weight space provides a dual benefit: it lowers inference-time token cost while preserving, and often improving, the effectiveness of behavior.
+
+Beyond cost, \method{} also shortens interaction trajectories. On the seen split, it achieves the fewest average steps per episode, reducing the trajectory length from 35.0 steps for the Vanilla backbone to 28.4 steps. This indicates that latent skill weights can help the agent reach successful outcomes with fewer environment interactions, rather than merely improving final success rates.
+% In-context Skill serves as the most direct comparator to \method{}, as both use exactly the same skill content; the only difference lies in the storage format: In-context Skill injects skill text explicitly into the prompt, while \method{} encodes it into LoRA weights via the hypernetwork. On ALFWorld, \method{} reduces prefill overhead by 64.1\% compared to In-context Skill, while improving the average success rate by 21.4 and 13.4 percentage points on the seen and unseen splits, respectively. On Search-QA, context overhead is reduced by 72.2\%, with the average EM score improving by 3.0. This comparison directly demonstrates that migrating skill knowledge from context space to weight space yields a dual advantage in both efficiency and performance.
+ 
+% Furthermore, \method{} achieves the fewest average steps per episode on the ALFWorld seen split at 28.4, reducing the trajectory length by approximately 6.6 steps compared to the Vanilla backbone (35.0). This indicates that LoRA-encoded skill knowledge guides the model toward shorter, more efficient decision paths rather than relying on longer trajectories to compensate for policy uncertainty.
+
+Tables~\ref{tab:alfworld} and~\ref{tab:search} show that \method{} improves both performance and token efficiency over explicit text injection. We next ask whether the resulting skill weight space has structure that can be analyzed and used. We find that \method{} exhibits three properties: \emph{structured}, \emph{controllable}, and \emph{composability}.
+
+% Tables~\ref{tab:alfworld} and \ref{tab:search} establish that encoding skill knowledge as LoRA weights yields advantages in both efficiency and performance over explicit text injection. A natural follow-up question is whether the LoRA weight space produced by the hypernetwork is merely an opaque black box, or whether it possesses internal structure that can be understood and exploited. We find that this weight space exhibits three properties that are structurally unattainable under in-context approaches: it is \emph{structured}, \emph{controllable}, and \emph{composable}. Being structured means the weight space is not a black box but spontaneously organizes into meaningful semantic geometry; being controllable means we can leverage this geometry to precisely modulate the injection strength of individual skills; and being composable means that different skills can be arithmetically combined within this structured space, enabling modular capability stacking.
+
+
+\subsection{Structured: Semantic Geometry of the LoRA Weight Space}
+To examine whether \method{} form a meaningful latent geometry, we apply Multidimensional Scaling (MDS) to the LoRA weights of the 8 in-domain skills at both the pretrain and SFT stages. We also evaluate out-of-distribution (OOD) skill texts collected from public GitHub repositories, covering Code (18 skills), Finance (13 skills), and Writing (11 skills). OOD source details are provided in Appendix~\ref{app:ood_skill}.
+% To examine whether the LoRA weights generated by the hypernetwork form meaningful semantic structure in the latent space, we apply Multidimensional Scaling (MDS) to the LoRA weights of the 8 in-domain skills and visualize their distribution at both the pretrain and SFT stages. We additionally collect three categories of out-of-distribution (OOD) skill texts from public GitHub repositories, covering Code (18 skills), Finance (13 skills), and Writing (11 skills), and feed them into the pretrain hypernetwork to generate LoRA weights for MDS visualization. The specific OOD sources are listed in Appendix~\ref{app:ood_skill}.
+
+As shown in the left panel of Figure~\ref{fig:lora_mds}, the in-domain skill LoRAs form clear domain-level clusters: the 5 ALFWorld skills and 3 Search skills are separated in weight space, with an inter-cluster distance of 0.0887 and higher within-domain than cross-domain similarity (0.982 vs. 0.910). After SFT, the inter-cluster distance decreases to 0.0704, a 20.6\% reduction, while both within-domain and cross-domain similarities increase. This suggests that SFT introduces shared agent-level behavioral patterns while preserving skill-specific structure.
+% As shown in the left panel of Figure~\ref{fig:lora_mds}, the latent skill space exhibits clear domain-level clustering. The 5 ALFWorld skills and 3 Search skills are fully separated in the LoRA space, with an inter-cluster distance of 0.0887. Within-domain similarity (0.982) is substantially higher than cross-domain similarity (0.910), indicating that the hypernetwork spontaneously learns a semantically structured weight space in which skills with different semantic content are mapped to geometrically separable regions. SFT causes the skill LoRAs to contract toward a shared direction: after fine-tuning, the inter-cluster distance decreases from 0.0887 to 0.0704, a reduction of 20.6\%, with both within-domain and cross-domain similarities increasing in tandem. This suggests that SFT encodes a degree of general agent behavioral patterns into all skill LoRAs while reinforcing skill-specific capabilities, drawing different skills closer together in the representation space.
+
+The right panel further shows that this semantic organization generalizes beyond the training domains. OOD skills from Code, Finance, and Writing form separated clusters, with within-domain similarities of 0.783, 0.9664, and 0.9681, respectively, each exceeding the corresponding cross-domain similarities. Since these skills come from diverse repositories and writing styles without domain-specific supervision, the clustering suggests that the compiler maps procedural text into a semantically organized weight space rather than merely overfitting to the in-domain skills.
+% As shown in the right panel of Figure~\ref{fig:lora_mds}, the domain-level encoding capability generalizes to unseen domains. The three OOD domains form clearly separated clusters, with within-domain cosine similarities of 0.783 (Code), 0.9664 (Finance), and 0.9681 (Writing), all exceeding the similarity of any cross-domain pair. These OOD skills originate from different authors and repositories with diverse writing styles, yet the hypernetwork perceives their semantic boundaries without any domain-specific supervision, confirming that domain-level clustering is an intrinsic structural capability acquired during pretraining rather than overfitting to the training domains.
+
+Given this geometric structure, a natural question arises: can we leverage this structure to actively control the injection strength of a skill?
+ 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{lora_mds_heng.jpg}
+  \caption{
+    MDS visualization of LoRA weights.
+    \textbf{Left}: in-domain ALFWorld and Search skills; \textbf{Right}: OOD Code, Finance, and Writing skills; ``$+$'' marks each cluster centroid , and \emph{within} reports mean intra-cluster cosine similarity. Axes are scaled by $\times 10^{-2}$.
+  }
+  \label{fig:lora_mds}
+\end{figure}
+
+\subsection{Controllable: Precise Modulation of Skill Injection Strength}
+We next examine whether \method{} support continuous strength control, rather than the binary choice available to in-context skill. We introduce an injection coefficient $\alpha$ that linearly scales the hypernetwork output $\Delta W$, and sweep $\alpha \in \{0, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8, 1.0, 1.2\}$ on the ALFWorld seen and unseen splits. Here, $\alpha{=}0$ corresponds to the frozen backbone without LoRA. Full results are provided in Table~\ref{tab:scale}.
+
+% Motivated by the fact that LoRA injection coefficients can modulate the magnitude of weight updates, we investigate whether linearly scaling the hypernetwork output $\Delta W$ enables active control over skill injection strength. Specifically, we introduce a injection coefficient $\alpha$ and systematically sweep $\alpha \in \{0, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8, 1.0, 1.2\}$ on the ALFWorld seen and unseen splits, where $\alpha{=}0$ corresponds to the backbone without any LoRA and $\alpha{=}1.0$ corresponds to the unscaled hypernetwork output. Full per-task results are provided in Appendix ~\ref{tab:scale}.
+
+As shown in Figure~\ref{fig:scale}, task performance follows an inverted-U curve. On the seen split, average success rises from 43.57\% at $\alpha{=}0$ to 74.29\% at $\alpha{=}0.6$, but drops to 22.86\% at $\alpha{=}1.2$. The unseen split shows the same pattern, peaking at 70.90\% when $\alpha{=}0.5$ and falling to 8.21\% at $\alpha{=}1.2$. Moreover, four of the six tasks share the same optimal $\alpha$ across seen and unseen splits, while the remaining two differ by only one grid point. These results suggest that generated skill LoRAs have a stable effective injection range: moderate scaling strengthens skill behavior, whereas excessive scaling disrupts the backbone.
+% As shown in Figure~\ref{fig:scale}, all tasks exhibit an inverted-U scale-performance curve. On the seen split, average success rate rises monotonically from 43.57\% ($\alpha{=}0$) to a peak of 74.29\% ($\alpha{=}0.6$), then declines steadily and collapses to 22.86\% at $\alpha{=}1.2$. The unseen split follows the same trend, peaking at 70.90\% ($\alpha{=}0.5$) and dropping to 8.21\% at $\alpha{=}1.2$. Per-task analysis reveals that four of the six tasks share identical optimal $\alpha$ values across seen and unseen, while the remaining two (Pick, Pick2) differ by only one step. These findings indicate that the hypernetwork output $\Delta W$ admits a stable effective injection interval within which the LoRA productively supplements backbone capabilities; beyond this interval, it disrupts the model's existing knowledge. The close agreement of optimal $\alpha$ across the two data distributions further confirms that this effective interval is robust to distribution shift.
+However, the optimal $\alpha$ varies across tasks, and using a single global value can be suboptimal; for example, applying $\alpha{=}0.6$ to all unseen tasks loses 21.74, 17.65, and 12.90 points on Heat, Pick2, and Clean relative to their task-specific optima, motivating adaptive $\alpha$ selection.
+% Applying a single global $\alpha$, however, incurs substantial performance losses on tasks whose optimal injection strengths diverge. Using the seen-split global optimum $\alpha{=}0.6$ uniformly, Heat, Pick2, and Clean suffer losses of 21.74pp, 17.65pp, and 12.90pp on the unseen split, respectively, while Pick and Cool happen to coincide with their optima and incur no loss. This result demonstrates significant task-level variation in the required injection strength and motivates future work on adaptive $\alpha$ selection, for instance by dynamically predicting the optimal injection strength from the skill text or task type to further unlock the performance ceiling of \method{}.
+
+Figure~\ref{fig:scale} further suggests that tasks with weaker backbone baselines often require stronger skill injection. Pick and Pick2 share the same skill, but Pick2 has a lower unseen-split backbone baseline than Pick, 23.53\% compared with 54.17\%, and requires a larger optimal $\alpha$, 0.8 compared with 0.6. With this stronger injection, Pick2 reaches 88.24\% on the unseen split, close to the peak performance of Pick on the same split at 91.67\%. A similar pattern appears across different skills: Clean starts from a lower baseline than Cool, requires a higher optimal $\alpha$, and obtains a larger peak gain. Heat is an exception, suggesting that optimal injection strength also depends on the structure of the required action sequence.
+% The upper panel of Figure~\ref{fig:scale} further reveals an informative pattern: for tasks sharing the same skill, the weaker the backbone's baseline capability, the stronger the LoRA injection required. Pick and Pick2 share the same skill but differ in difficulty, with Pick involving single-object placement and Pick2 requiring coordinated manipulation of two objects. The optimal $\alpha$ for Pick is 0.5 (seen) and 0.6 (unseen), while for Pick2 it is consistently higher at 0.6 (seen) and 0.8 (unseen). Meanwhile, the backbone baseline for Pick2 is substantially lower than for Pick (unseen: 23.53\% vs.\ 54.17\%). At $\alpha{=}0.8$, Pick2-unseen reaches 88.24\%, nearly matching Pick-unseen's peak of 91.67\%, confirming that stronger LoRA injection effectively compensates for the backbone's deficiency on more challenging tasks.
+
+% The lower panel shows that this pattern also appears across different skills. On the unseen split, Clean has a lower backbone baseline than Cool, 41.94\% compared with 57.14\%. It also requires a higher optimal $\alpha$, 0.8 compared with 0.6, and achieves a larger peak gain. Heat is an exception, suggesting that optimal injection strength depends not only on baseline weakness but also on task structure.
+% The lower panel of Figure~\ref{fig:scale} demonstrates that this pattern extends across different skills. Taking Clean and Cool on the unseen split as an illustrative pair: the Vanilla backbone achieves 57.14\% on Cool with an optimal $\alpha$ of 0.6 and a peak gain of +23.81pp, whereas Clean starts from a lower baseline of 41.94\%, requires a higher optimal $\alpha$ of 0.8, and achieves a larger peak gain of +35.48pp. Tasks where the backbone is weaker require stronger injection to fully activate skill knowledge and exhibit greater room for LoRA-driven improvement. This trend holds across most tasks, with Heat as an exception: its baseline (47.83\%) is not the weakest, yet its optimal $\alpha$ is only 0.3, possibly because the action sequences in Heat tasks are relatively regular and the backbone already possesses sufficient prior knowledge, causing excessive skill injection to interfere rather than help.
+
+The $\alpha$-scaling analysis demonstrates that the injection strength of individual skills can be precisely modulated. A further question naturally follows: can different skills be directly combined within this structured space?
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{scale_analysis_clear.jpg}
+  \caption{
+    Scale-performance curves on ALFWorld under varying LoRA injection coefficient $\alpha$.
+    \textbf{Top}: Pick vs.\ Pick2, the same skill but differing in difficulty. Stars mark the per-task optimal $\alpha$.
+    \textbf{Bottom}: Clean vs.\ Cool on the unseen split, using different skills. Shaded regions indicate the performance gain over the $\alpha{=}0$ baseline.
+  }
+  \label{fig:scale}
+\end{figure}
+
+\subsection{Composable: Skill Arithmetic in Parameter Space}
+We next examine whether \method{} can be composed in parameter space. We define successful composition as preserving the target skill capability while adding the complementary capability of an auxiliary skill without interference. We use \emph{Look} as the target skill and \emph{Pick} as the auxiliary skill, since their task-specific components are non-overlapping and complementary in ALFWorld. We evaluate five configurations on all 31 Look episodes: Look-Only, Pick-Only, Direct Merging of complete skill LoRAs, Text Merging by concatenating skill texts before compilation, and Component Merging by separately compiling aligned components and combining their LoRAs.
+
+% This section examines the composability of Skill LoRA. We define composability as follows: after superposing the LoRAs of two skills, the original capability of the target skill is fully preserved while the complementary capability of the auxiliary skill is introduced without interference. We select Look and Pick as the composition pair, as their task-specific components are entirely non-overlapping across all ALFWorld skills, making them highly complementary in capability dimensions. We evaluate five configurations on all 31 Look task episodes (13 seen, 18 unseen): Look-Only serves as the baseline; Pick-Only tests whether Pick's exploration capability transfers to Look tasks in isolation; Direct Merging mounts the average of the two complete skill LoRAs; Text Merging concatenates the two skill texts and feeds them into the hypernetwork to produce a single LoRA; and Component Merging decomposes each skill text into four components (general, look task-specific, pick task-specific, and mistakes), encodes each into an independent LoRA, and combines the resulting LoRAs.
+
+As shown in Table~\ref{tab:compose}, Component Merging achieves the best performance on both splits, reaching 84.6\% on seen episodes and 77.8\% on unseen episodes. Compared with Look-Only, it adds 3 successful episodes on the seen split and 2 on the unseen split, while losing none of Look-Only's original successes. This satisfies both requirements of our composability definition: preserving the target capability and introducing complementary behavior. By contrast, Direct Merging and Text Merging fail to improve over Look-Only on the unseen split and lose some of its original successes, suggesting that naive weight averaging and text concatenation both introduce interference.
+% As shown in Table~\ref{tab:compose}, Component Merging achieves the best performance on both splits (84.6\% seen, 77.8\% unseen), substantially outperforming all other configurations. Examining changes in the success set, Component Merging adds 3 successful episodes on the seen split and 2 on the unseen split relative to Look-Only, while losing none of Look-Only's original successes, satisfying both requirements of the composability definition. In contrast, Direct Merging and Text Merging both fail to surpass the Look-Only baseline on the unseen split (61.1\% vs.\ 72.2\%) and each loses a subset of Look-Only's original successes, indicating that naive weight averaging and text concatenation both damage existing capabilities.
+
+Per-episode analysis in Appendix~\ref{app:case_study} suggests that Component Merging succeeds because it aligns the granularity of text decomposition with the granularity of weight addition. The Pick-specific component contributes systematic search behavior, while shared general and mistake-avoidance components are included only once, avoiding redundant amplification. Direct Merging instead double-counts shared components at the weight level, while Text Merging creates an out-of-distribution combined skill document. These results suggest that skill composition in LoRA space requires semantically aligned components rather than direct merging of whole skills. These results suggest a general principle: skill composition in LoRA space requires semantic alignment between text decomposition and weight addition. Direct Merging over-amplifies shared components at the weight level, while Text Merging creates an out-of-distribution combined skill document at the text level. Component Merging avoids both failure modes by retaining shared components once and adding task-specific components on demand, enabling complementary skills to coexist with less interference.
+% Per-episode analysis of the three merging strategies reveals their respective success and failure mechanisms; full case studies are provided in Appendix~\ref{app:case_study}. Component Merging succeeds through its component-level decomposition: the pick task-specific component contributes a systematic search strategy that cleanly repairs episodes where Look-Only fails due to insufficient search coverage, while general and mistakes components are each mounted only once, leaving the original lamp interaction behavior undisturbed. Direct Merging fails due to weight redundancy: the two skills share nearly identical general and mistakes components, so merging their complete LoRAs superimposes these shared weights twice, over-amplifying general behavioral patterns that suppress task-specific pick-up actions and causing the model to perceive targets yet fail to trigger retrieval. Text Merging fails through a fundamentally different mechanism: the concatenated text constitutes an out-of-distribution input unseen during hypernetwork training, and the resulting LoRA cannot effectively separate the two skills' knowledge, causing pick-up, lamp activation, and exploration behaviors to alternate without forming a coherent action sequence.
+ 
+% These results point to a general principle: skill composition in LoRA space requires semantic alignment between the granularity of text decomposition and the granularity of weight contribution. Direct Merging redundantly superimposes shared components at the weight level; Text Merging produces OOD inputs at the text level. The two shortcuts fail from opposite directions yet converge on the same fundamental constraint. Component Merging identifies the correct semantic granularity, retaining general and mistakes once each and superposing task-specific components on demand, thereby enabling two skills' capabilities to coexist without interference while complementing each other when needed.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{
+  Skill composition results on all 31 Look task episodes under five skill
+composition configurations. The best result per split is highlighted in \textbf{bold}.
+}
+\label{tab:compose}
+\begin{tabular}{l cc cc}
+\toprule
+& \multicolumn{2}{c}{\textbf{Seen}}
+& \multicolumn{2}{c}{\textbf{Unseen}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\textbf{Method}
+  & \textbf{Ep.} & \textbf{\%}
+  & \textbf{Ep.} & \textbf{\%} \\
+\midrule
+Look-Only      & 8/13  & 61.5        & 13/18 & 72.2 \\
+Pick-Only      & 8/13  & 61.5        & 11/18 & 61.1 \\
+\midrule
+Direct Merging & 9/13  & 69.2        & 11/18 & 61.1 \\
+Text Merging   & 8/13  & 61.5        & 11/18 & 61.1 \\
+\rowcolor{ourblue}
+\textbf{Component Merging} & 11/13 & \best{84.6} & 14/18 & \best{77.8} \\
+\bottomrule
+\end{tabular}
+\end{table}

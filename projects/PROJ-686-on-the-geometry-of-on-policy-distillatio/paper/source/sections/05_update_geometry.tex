@@ -1,0 +1,261 @@
+% \section{Subspace Locking in OPD}
+% \label{sec:subspace-lock}
+
+% Section~\ref{sec:locate} located OPD with respect to the pretrained
+% weight geometry. We now study the intrinsic update trajectory
+% $\Delta W_t = W_t - W_0$. This view reveals a stronger separation:
+% OPD rapidly enters a low-dimensional update band.
+
+% \subsection{A Low-Dimensional Update Band}
+% \label{sec:subspace-band}
+
+% We first measure the effective dimension of $\Delta W_t$. For each
+% matrix, we compute the stable rank
+% \begin{equation}
+%     \mathrm{srank}(\Delta W_t)
+%     =
+%     \frac{\|\Delta W_t\|_F^2}{\|\Delta W_t\|_{\mathrm{op}}^2},
+% \end{equation}
+% and average over all analyzed weight matrices. This quantity measures
+% how many dominant singular directions carry the update energy.
+
+% Figure~\ref{fig:intrinsic-metrics}(a) shows distinct intrinsic
+% trajectories. OPD stays within a narrow low-rank band throughout
+% training. SFT progressively expands its update subspace, while RLVR
+% contracts toward a low-dimensional endpoint. OPD is therefore not a
+% temporal interpolation between the two; it enters the low-dimensional
+% regime early and remains there.
+
+% This behavior is not explained by update scale.
+% Figure~\ref{fig:intrinsic-metrics}(b) reports the Frobenius norm
+% $\|\Delta W_t\|_F$. The final OPD norm is $0.452$, substantially larger
+% than the final RLVR norm $0.168$, although the two end with nearly the
+% same stable rank. SFT reaches a much larger norm, $4.701$, and expands
+% to a much higher stable rank. The low-dimensionality of OPD is therefore
+% a property of the update spectrum, not a byproduct of small parameter
+% movement.
+
+% We also inspect spectral shape through the Hill tail estimator \cite{8b55684a-14a0-31e4-b039-d044b4625cb8}.
+% As shown in Figure~\ref{fig:intrinsic-metrics}(c), OPD changes mildly
+% from $2.34$ to $2.93$, whereas SFT increases sharply and RLVR decreases
+% over training. This auxiliary diagnostic is consistent with the stable
+% rank result: OPD accumulates a nontrivial update while preserving a
+% bounded spectral profile.
+
+
+% \subsection{Stability and Functional Sufficiency}
+% \label{sec:subspace-sufficient}
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{figures/similarity.png}
+%     \caption{
+%     \textbf{Subspace emergence.}
+% Top-$16$ subspace similarity to the final update shows that OPD locks
+% onto its final update channel earlier than SFT and RLVR.    
+%     }
+%     \label{fig:subspace-similarity}
+% \end{figure}
+
+% Low dimensionality alone does not imply subspace locking. A trajectory
+% may remain low-rank while rotating through different low-dimensional
+% subspaces over time. We therefore test when the final low-dimensional
+% update channel emerges.
+
+% Let $V_K(t)$ denote the top-$K$ right singular subspace of
+% $\Delta W_t$. We compare each checkpoint to the final subspace
+% $V_K(t_{\mathrm{end}})$:
+% \begin{equation}
+%     \mathrm{Sim}_K(t,t_{\mathrm{end}})
+%     =
+%     \frac{1}{K}
+%     \left\| V_K(t)^\top V_K(t_{\mathrm{end}}) \right\|_F^2 .
+%     \label{eq:subspace-sim}
+% \end{equation}
+% This score lies in $[0,1]$; values near $1$ indicate that the update
+% already uses the singular directions of the final update channel.
+
+% Figure~\ref{fig:subspace-similarity} shows that OPD is strongly aligned
+% with its final $V_{16}$ subspace at the first measured checkpoint and
+% then increases smoothly. SFT and RLVR approach their final subspaces
+% more gradually. Thus, the low-dimensional channel used by OPD is not
+% assembled only late in training; it is already visible early in the
+% trajectory.
+
+% We further explore whether this channel is only descriptive or functionally
+% sufficient for training. To test this, we constrain each gradient matrix
+% $g$ to an early right singular subspace:
+% \begin{equation}
+%     g
+%     \leftarrow
+%     g V_{16} V_{16}^{\top}.
+%     \label{eq:k16-projection}
+% \end{equation}
+% For both OPD and SFT, $V_{16}$ is extracted from the top right singular
+% vectors of $\Delta W_t$ around $20\%$ training progress, and training
+% then resumes under this rank-$16$ constraint.
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{figures/k16_projection_percent.png}
+%     \caption{
+%     \textbf{Rank-$16$ projected training.}
+% Rank-$16$ projection leaves OPD intact but degrades SFT; the shared
+% marker denotes the projection start.
+%     }
+%     \label{fig:k16-projection}
+% \end{figure}
+
+
+% \begin{figure*}[t]
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{figures/control_stable_rank.png}
+%     \caption{
+%     \textbf{Controls on subspace locking.}
+%     Token sparsification and off-policy rollout perturbations preserve the
+%     OPD stable-rank trajectory. Objective-level interpolation changes the
+%     trajectory, identifying objective composition as the sensitive control axis.
+%     }
+%     \label{fig:controls}
+% \end{figure*}
+
+
+% Figure~\ref{fig:k16-projection} shows the resulting reasoning performance.
+% OPD is essentially unchanged under the rank-$16$ bottleneck, finishing
+% at $64.2\%$ avg@8 compared with $63.3\%$ for unconstrained training.
+% SFT degrades sharply under the same constraint, finishing at $45.6\%$
+% compared with $55.5\%$ for unconstrained training over the matched
+% training window. The same projection dimension therefore has opposite
+% functional consequences for the two paradigms.
+
+% \paragraph{Implication.}
+% These results identify subspace locking as an intrinsic property of OPD:
+% the update trajectory rapidly enters a small, persistent subspace that is
+% sufficient for training.
+
+
+
+\section{Subspace Locking in OPD}
+\label{sec:subspace-lock}
+
+Section~\ref{sec:locate} located on-policy distillation (OPD) within the SFT--RLVR parameter-space spectrum. We now ask whether this positioning is only an endpoint property, or whether OPD follows a distinct update trajectory during training. We study the cumulative update
+$\Delta W_t = W_t - W_0$ across checkpoints and show that OPD rapidly
+enters a persistent low-dimensional update channel.
+
+\subsection{A Low-Dimensional Update Band}
+\label{sec:subspace-band}
+
+We first characterize the effective dimension of $\Delta W_t$. For each
+matrix, we compute the stable rank
+\vspace{-1em}
+\begin{equation}
+    \mathrm{srank}(\Delta W_t)
+    =
+    \frac{\|\Delta W_t\|_F^2}{\|\Delta W_t\|_{\mathrm{op}}^2},
+\end{equation}
+and average over all analyzed weight matrices. This measures how many
+dominant singular directions carry the update energy.
+
+Figure~\ref{fig:intrinsic-metrics}(a) shows that OPD stays within a
+narrow low-rank band throughout training. SFT progressively expands its
+update subspace, while RLVR contracts toward a low-dimensional endpoint.
+Thus, OPD is not a temporal interpolation between the two: it enters the
+low-dimensional regime early and remains there.
+
+To rule out a trivial small-update explanation, we complement stable rank
+with update-scale and spectral-shape diagnostics. Frobenius norms in
+Figure~\ref{fig:intrinsic-metrics}(b) show that OPD accumulates a
+substantially larger update than RLVR while ending with comparable stable
+rank. Hill tail estimates in Figure~\ref{fig:intrinsic-metrics}(c) provide
+an auxiliary check on the singular-value profile: OPD evolves mildly,
+whereas SFT increases sharply and RLVR decreases over training. Together,
+these diagnostics show that OPD's low-dimensionality is not a byproduct of
+small parameter movement, but a bounded spectral profile of a nontrivial
+update. Full metric definitions are given in
+Appendix~\ref{app:trajectory-metrics}.
+
+\subsection{Stability and Functional Sufficiency}
+\label{sec:subspace-sufficient}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/similarity.pdf}
+    \vspace{-2em}
+    \caption{
+    \textbf{Subspace emergence.}
+    Top-$16$ subspace similarity to the final update shows that OPD locks
+    onto its final update channel earlier than SFT and RLVR.
+    }
+    \label{fig:subspace-similarity}
+\end{figure}
+
+\paragraph{Early subspace emergence.} Low dimensionality alone does not imply subspace locking: a trajectory may
+remain low rank while rotating through different low-dimensional subspaces.
+We therefore test when the final low-dimensional update channel emerges.
+Let $V_K(t)$ denote the top-$K$ right singular subspace of $\Delta W_t$.
+We compare each checkpoint to the final subspace $V_K(t_{\mathrm{end}})$:
+\begin{equation}
+    \mathrm{Sim}_K(t,t_{\mathrm{end}})
+    =
+    \frac{1}{K}
+    \left\| V_K(t)^\top V_K(t_{\mathrm{end}}) \right\|_F^2 .
+    \label{eq:subspace-sim}
+\end{equation}
+Values near $1$ indicate that the update already uses the singular
+directions of the final update channel.
+
+Figure~\ref{fig:subspace-similarity} shows that OPD aligns with its final
+$V_{16}$ subspace from the first measured checkpoint, whereas SFT and RLVR converge more gradually. Thus, OPD's
+low-dimensional channel emerges early rather than being assembled late.
+
+\paragraph{Functional sufficiency.}
+We next ask whether this channel is only descriptive or also sufficient
+for learning. Motivated by the early stable-rank scale of OPD, we use
+$K=16$ as a stringent bottleneck: it is close to, but slightly below, the
+effective dimension observed near the projection point. We then constrain
+each gradient matrix $g$ to the early right singular subspace:
+\begin{equation}
+    g
+    \leftarrow
+    g V_{16} V_{16}^{\top}.
+    \label{eq:k16-projection}
+\end{equation}
+For both OPD and SFT, $V_{16}$ is extracted from the top right singular
+vectors of $\Delta W_t$ around $20\%$ training progress, and training
+then resumes under this rank-$16$ constraint.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/k16_projection_percent.png}
+    \vspace{-2em}
+    \caption{
+    \textbf{Rank-$16$ projected training.}
+    Rank-$16$ projection leaves OPD intact but degrades SFT.
+    }
+    \label{fig:k16-projection}
+    \vspace{-12pt}
+
+\end{figure}
+
+Figure~\ref{fig:k16-projection} shows that OPD is essentially unchanged under the rank-$16$ bottleneck, indicating that the early low-dimensional channel is sufficient for OPD training. The same constraint degrades SFT over the matched window, confirming that this sufficiency is not a generic property of the projection dimension. The same qualitative pattern holds across additional reasoning benchmarks (Appendix~\ref{app:k16-extra-eval}, Figure~\ref{fig:k16-extra-benchmarks}).
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/control_stable_rank_new_color.pdf}
+    \vspace{-2em}
+    \caption{
+    \textbf{Controls on subspace locking.}
+    Runtime perturbations preserve the OPD stable-rank trajectory, whereas objective-level interpolation changes it, identifying objective composition as the sensitive control axis.
+    }
+    \label{fig:controls}
+    \vspace{-12pt}
+
+\end{figure*}
+
+\begin{takeawaybox}
+\textbf{Implication.}
+OPD subspace locking identifies an early-emerging update channel that is
+both persistent and sufficient for training. Future OPD implementations
+should therefore monitor and exploit this channel, rather than treating
+low-dimensionality as a post-hoc spectral statistic only.
+\end{takeawaybox}

@@ -1,0 +1,46 @@
+\subsection{Timeout Analysis}
+\label{app:timeout-analysis}
+
+ALE evaluations use a five hour wall clock cap per run.
+When a run reaches the cap, the harness stops the agent and the normal evaluator scores whatever artifacts are present in the output directory.
+In the export used for Table~\ref{tab:main-results}, 2.9\% of evaluated runs reached the cap.
+Runs that reached the cap have a mean score of 20.8, compared with 27.7 for runs that ended earlier.
+
+\begin{table}[h]
+\centering
+\caption{Timeout frequency by difficulty tier. Scores are mean normalized scores on the same 0 to 100 scale used in Table~\ref{tab:main-results}.}
+\label{tab:timeout-by-tier}
+\begin{tabular}{lrrr}
+\toprule
+Tier & Timeout rate & Timeout score & Other score \\
+\midrule
+Near-Term & 2.4\% & 42.1 & 46.8 \\
+Full-Spectrum & 2.5\% & 20.3 & 21.4 \\
+Last-Exam & 4.4\% & 2.0 & 4.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Timeout frequency by harness for harnesses with at least one run that reached the cap.}
+\label{tab:timeout-by-harness}
+\begin{tabular}{lrrr}
+\toprule
+Harness & Timeout rate & Timeout score & Other score \\
+\midrule
+Claude Code & 5.1\% & 30.1 & 35.6 \\
+Cursor & 3.9\% & 36.8 & 40.9 \\
+OpenClaw & 3.7\% & 20.5 & 25.3 \\
+Terminus & 2.7\% & 0.0 & 33.7 \\
+Gemini CLI & 2.4\% & 7.1 & 7.3 \\
+Codex & 2.1\% & 41.3 & 32.5 \\
+ForgeCode & 1.7\% & 0.0 & 30.9 \\
+ALE-Claw & 1.1\% & 6.7 & 39.4 \\
+Grok CLI & 0.9\% & 0.0 & 15.6 \\
+Droid & 0.4\% & 2.4 & 34.7 \\
+Hermes & 0.3\% & 0.0 & 34.2 \\
+OpenHands & 0.3\% & 0.0 & 21.0 \\
+\bottomrule
+\end{tabular}
+\end{table}

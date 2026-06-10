@@ -1,0 +1,19 @@
+\subsection{Public-Subset Representativeness}
+\label{app:fullpool}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\linewidth]{figures/fullpool_domain_comparison.pdf}
+\caption{\textbf{Public-subset representativeness.}
+Pass rate per taxonomy cluster on the public subset ($x$) vs.\ the full task pool ($y$) for Claude Code + Opus~4.7.
+Point size $\propto$ total task instances per cluster.
+The strong correlation ($r{=}0.89$) confirms the public subset is representative.}
+\label{fig:fullpool-scatter}
+\end{figure}
+
+To verify that the public subset is representative of the broader benchmark despite its limited size (Section~\ref{sec:construction-pipeline}), we ran Claude Code + Opus~4.7 on the full task pool.
+The full task pool yield a higher pass rate.
+The gap arises because the public set includes the full Last-Exam tier, while the private pool contains proportionally more Near-Term-level tasks.
+Figure~\ref{fig:fullpool-scatter} compares pass rates per taxonomy cluster on the public subset versus the full task pool.
+The two axes are strongly correlated (Pearson $r{=}0.89$, $p{<}0.001$), indicating that the public subset faithfully reflects full-pool difficulty across domains.
+Most clusters lie above the diagonal because the private pool's higher share of easier tasks raises each cluster's full-pool pass rate.

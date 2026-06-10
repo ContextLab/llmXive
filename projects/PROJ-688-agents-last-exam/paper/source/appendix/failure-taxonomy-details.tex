@@ -1,0 +1,52 @@
+\subsection{Failure Taxonomy Classification}
+\label{app:failure-taxonomy}
+
+This appendix documents the two-stage pipeline behind the failure root-cause taxonomy presented in Figure~\ref{fig:failure-taxonomy}.
+
+\subsubsection{Stage 1: Trajectory analysis}
+For each failed task, an LLM (OpenAI Codex) was given access to the full run artifact directory, including the agent interaction log (\texttt{interaction\_log.json}), run metadata (\texttt{run\_result.json}, \texttt{agent\_result.json}), evaluation output (\texttt{debug/eval/result.json}), and event traces (\texttt{events.jsonl}).
+The LLM was prompted to produce a structured \emph{analysis card} in Markdown with five mandatory sections:
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+    \item \textbf{Conclusion}: a one-sentence verdict, an overall judgment (success / partial success / failure), and the single most important problem.
+    \item \textbf{Task description}: a plain-language explanation of what the task asks, including key constraints and runtime metadata.
+    \item \textbf{What the agent did right}: correct behaviors, with evidence pointers to specific log entries.
+    \item \textbf{What the agent did wrong}: observed errors, with evidence pointers. The prompt requires separating confirmed errors from uncertain or inferred causes.
+    \item \textbf{Scoring}: the final score, raw score breakdown (if available), inferred evaluation criteria, and a confidence rating.
+\end{enumerate}
+
+Each claim in the analysis card must cite a specific artifact file and field as evidence.
+The prompt prohibits reading the full transcript (\texttt{transcript.jsonl}) to keep generation cost bounded; the interaction log provides a sufficient behavioral summary.
+
+\subsubsection{Stage 2: Taxonomy classification}
+Each analysis card was then classified into a two-level failure taxonomy using GPT-4o (temperature 0).
+The classification prompt defines the following hierarchy:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item \textbf{Understanding}: the agent lacked knowledge or fabricated information.
+    \begin{itemize}[itemsep=1pt]
+        \item \emph{Domain Knowledge Gap}: the agent's errors trace back to missing specialized expertise. The prompt instructs: ``Would a domain expert have avoided this mistake? If yes, classify here.''
+        \item \emph{Hallucination/Fabrication}: the agent invented data or results instead of computing them.
+    \end{itemize}
+    \item \textbf{Approach}: the agent understood the domain but chose the wrong plan.
+    \begin{itemize}[itemsep=1pt]
+        \item \emph{Wrong Strategy}: the agent violated explicit task constraints or chose a fundamentally wrong method not attributable to domain ignorance.
+        \item \emph{Incomplete/Abandoned}: the agent stopped early or failed to produce required deliverables.
+    \end{itemize}
+    \item \textbf{Execution}: the approach was sound but the implementation was flawed.
+    \begin{itemize}[itemsep=1pt]
+        \item \emph{Implementation Bug}: logic errors, calculation mistakes, or data processing bugs.
+        \item \emph{Output Format Error}: output in wrong format, location, or structure.
+    \end{itemize}
+    \item \textbf{Infrastructure}: external constraints unrelated to agent capability.
+    \begin{itemize}[itemsep=1pt]
+        \item \emph{GUI/Browser Failure}: GUI or browser interaction failed due to tool issues.
+        \item \emph{Timeout/Resources}: the agent ran out of time or computational resources.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Distribution}
+Nearly half (47\%) of classifiable failures stem from Approach errors: wrong strategy (30\%) or premature abandonment (17\%).
+Understanding failures account for 31\%, dominated by domain knowledge gaps (25\%) with a smaller fraction (6\%) involving hallucination or data fabrication.
+The remaining 22\% are Execution errors: output format mismatches (10\%), implementation bugs (8\%), and GUI interaction failures (4\%).
+Timeout and resource-exhaustion cases are excluded from this breakdown because they reflect environment constraints rather than agent reasoning failures; their prevalence is analyzed separately in Appendix~\ref{app:timeout-analysis}.

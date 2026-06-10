@@ -1,0 +1,99 @@
+\section{Method}
+\label{sec:method}
+\begin{figure*}[t]
+    \vspace{-10pt}
+    \centering
+    \includegraphics[width=\textwidth]{figures/method.png}
+    \caption{
+    Overview of \method{}.
+    \textbf{Left}: textual skills are transformed into in-weight latent skills through hypernetwork-based LoRA generation.
+    \textbf{Middle}: the skill compiler is trained by skill document pretraining and trajectory-supervised fine-tuning.
+    \textbf{Right}: the resulting latent skills support structured semantic geometry, controllable injection strength, and composable parameter-space arithmetic at inference time.
+    }
+    \label{fig:method}
+\end{figure*}
+
+\method{} converts a textual skill into a LoRA adapter that can be mounted on a frozen LLM. The skill text is consumed by a skill compiler, while inference uses the generated adapter instead of inserting the skill document into the prompt. We describe it in four parts: latent skill definition, document-level pretraining, trajectory-supervised fine-tuning, and inference-time control and composition.
+
+\subsection{Latent Skill Definition}
+\label{sec:latent_skill_definition}
+
+Let $M_\theta$ denote a backbone LLM with frozen parameters $\theta$, and let $s$ be a textual skill document. At decision step $t$, the agent observes a history $h_t$ and produces an output $y_t$. In-context skill prompting directly conditions the model on the skill text. \method{} instead replaces textual conditioning with parameter conditioning.
+
+A skill compiler $G_\phi$ maps the skill document to a set of LoRA updates:
+\begin{equation}
+    \Delta_s = G_\phi(s),
+\end{equation}
+where $\Delta_s$ denotes the latent skill induced by $s$. With $\Delta_s$ mounted, the model predicts from the task history alone:
+\begin{equation}
+    p_{\theta,\phi}(y_t \mid h_t, s)
+    =
+    p_{\theta \oplus \alpha \Delta_s}(y_t \mid h_t),
+\end{equation}
+where $\oplus$ denotes LoRA-based parameter augmentation and $\alpha$ controls the injection strength.
+
+For each target module $m \in \mathcal{M}$, the generated update follows the standard LoRA form $\Delta W_s^{(m)}=B_s^{(m)}A_s^{(m)}$. Mounting a latent skill adds a scaled low-rank update to the frozen weight:
+\begin{equation}
+    W'
+    =
+    W
+    +
+    \frac{\alpha}{r} B_s A_s ,
+\end{equation}
+where $r$ is the LoRA rank. A complete latent skill is the collection of generated updates $\Delta_s=\{\Delta W_s^{(m)}\}_{m\in\mathcal{M}}$ over the selected target modules. 
+
+\subsection{Skill Document Pretraining}
+\label{sec:pretraining}
+
+First, we pretrain the skill compiler on a corpus
+of textual skill documents, denoted by \(\mathcal{D}_{pre} =
+\{s_i\}_{i=1}^N\). The goal is to initialize \(G_\phi\) to map procedural text into usable adapter weights while keeping the backbone LLM frozen.
+Given a skill document \(s\), we randomly instantiate one of two document-level pretraining tasks. In the reconstruction task, the compiler reads the complete skill document \(s\), and the adapted backbone receives a reconstruction instruction as input and is trained to reproduce the original document \(s\). In the completion task, we construct a truncated prefix \(\tilde{s}\) by randomly removing the latter part of the document; the compiler reads \(\tilde{s}\), and the adapted backbone is trained to complete the full skill document.
+
+For each skill, we construct document-level supervision instances $(s_i^{\mathrm{src}}, q_i, z_i)$, where $s_i^{\mathrm{src}}$ is the text provided to the compiler, $q_i$ is the prompt given to the adapted backbone, and $z_i$ is the target output. Let $\Delta_i^{\mathrm{pre}}=G_\phi(s_i^{\mathrm{src}})$. The pretraining objective is
+\begin{equation}
+    \mathcal{L}_{\mathrm{pre}}
+    =
+    -\sum_{i,j}
+    \log p_{\theta \oplus \alpha \Delta_i^{\mathrm{pre}}}
+    \bigl(z_{i,j} \mid q_i, z_{i,<j}\bigr),
+\end{equation}
+where the summation ranges over all document-level supervision instances and target tokens.
+
+Only the compiler parameters $\phi$ are updated. Since the skill document is provided to $G_\phi$ rather than directly to the adapted backbone, information useful for predicting $z_i$ must be mediated through the generated adapter.
+
+\subsection{Trajectory-Supervised Fine-Tuning}
+\label{sec:sft}
+
+After pretraining, we fine-tune the skill compiler with teacher agent trajectories. Let $\mathcal{D}_{\mathrm{sft}}=\{(s_i,\tau_i)\}_{i=1}^{M}$ denote the supervised dataset. Each example pairs a skill document $s_i$ with a teacher trajectory $\tau_i=\{(h_{i,t}, y_{i,t}^{\star})\}_{t=1}^{T_i}$, where $h_{i,t}$ is the agent history at step $t$ and $y_{i,t}^{\star}$ is the teacher output.
+
+For each pair $(s_i,\tau_i)$, the compiler generates one latent skill, denoted by $\Delta_i^{\mathrm{sft}}=G_\phi(s_i)$. The same adapter is mounted throughout the entire trajectory. The fine-tuning objective is
+\begin{equation}
+    \mathcal{L}_{\mathrm{sft}}
+    =
+    -\sum_{i,t,j}
+    \log p_{\theta \oplus \alpha \Delta_i^{\mathrm{sft}}}
+    \bigl(y_{i,t,j}^{\star}
+    \mid h_{i,t}, y_{i,t,<j}^{\star}\bigr),
+\end{equation}
+where the summation ranges over all trajectories, decision steps, and target tokens.
+
+The backbone remains frozen, and only $\phi$ is updated. Since $\Delta_i^{\mathrm{sft}}$ is generated solely from the skill document $s_i$ and shared across all decision steps in $\tau_i$, the objective encourages the adapter to capture skill-level, trajectory-consistent policy information rather than per-step adaptations. This aligns the compiler to produce latent skills whose effects remain stable across multi-step interaction.
+
+\subsection{Inference-Time Skill Control and Composition}
+\label{sec:inference}
+
+At inference time, skill compilation is separated from agent execution. Given a skill library $\mathcal{S}=\{s_1,\ldots,s_K\}$, each skill can be compiled once and stored in an adapter cache $\mathcal{C}[k]=G_\phi(s_k)$. After compilation, the skill is not included in the prompt.
+
+For a task instance, a skill selector chooses one or more relevant skills. If a single skill $s_k$ is selected, its cached adapter $\mathcal{C}[k]$ is mounted on the backbone with injection coefficient $\alpha_k$. The agent then predicts each step from the current history $h_t$ using the adapted model. Setting $\alpha_k=0$ recovers the frozen backbone, while larger values increase the influence of the latent skill.
+
+When multiple skills are selected, \method{} composes their adapters in weight space:
+\begin{equation}
+    \Delta_{\mathcal{K}}
+    =
+    \sum_{k\in \mathcal{K}}
+    \alpha_k \mathcal{C}[k],
+\end{equation}
+where $\mathcal{K}$ is the selected skill set. The composed adapter is then mounted on the LLM for inference.
+
+For skills with shared subcomponents, direct adapter addition may over-amplify common behavior. \method{} therefore also supports component-level composition. Specifically, a skill can be decomposed into semantic components $s_k=\{c_{k,1},\ldots,c_{k,L_k}\}$, each component can be compiled independently as $\Delta_{k,\ell}=G_\phi(c_{k,\ell})$, and the final adapter can be formed by adding retained shared and skill-specific components, e.g., $\Delta_{\mathrm{comp}}=\sum_{c\in\mathcal{U}}\gamma_cG_\phi(c)$, where $\mathcal{U}$ is the selected component set and $\gamma_c$ is an optional component-level injection coefficient.

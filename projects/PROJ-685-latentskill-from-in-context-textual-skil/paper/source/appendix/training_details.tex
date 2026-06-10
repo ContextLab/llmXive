@@ -1,0 +1,9 @@
+\section{Training Details}
+\label{app:training}
+
+We use Qwen3-8B \citep{Yang2025Qwen3} as the backbone LLM throughout all experiments. During pretraining, skill documents are crawled from GitHub and undergo deduplication and quality filtering. The meta data (name and description) of each skill is stripped, retaining only the markdown body as training input. Training configurations for both stages are described below.
+
+
+\paragraph{Pretraining.} We pretrain the hypernetwork on approximately 171K deduplicated skill documents crawled from GitHub, totaling roughly 300M tokens. Training is conducted on 8$\times$H100 GPUs for 10 epochs with a batch size of 64, a learning rate of 5e-5 with 200 warmup steps, and a maximum sequence length of 4,096 tokens. We use AdamW with a weight decay of 0.1.
+
+\paragraph{Supervised Fine-Tuning.} We fine-tune the pretrained hypernetwork on the teacher trajectories released by \citet{Xia2026SkillRL}, comprising 237 complete ALFWorld task trajectories and 500 complete Search-QA task trajectories mixed into a single training set. Training is conducted on 8$\times$H100 GPUs for 10 epochs with a batch size of 32, a learning rate of 1e-5 with 400 warmup steps, and a maximum sequence length of 4,096 tokens. We use AdamW with a weight decay of 0.1.

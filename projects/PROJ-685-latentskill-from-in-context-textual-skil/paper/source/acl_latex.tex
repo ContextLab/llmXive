@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+
+\usepackage{acl}
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\graphicspath{{figures/}{latex/figures/}}
+\usepackage{booktabs}      % \toprule \midrule \bottomrule
+\usepackage{multirow}      % \multirow
+\usepackage{makecell}      % \shortstack in table headers
+\usepackage{array}         % extended column specs
+\usepackage{xcolor}        % color support
+\usepackage{colortbl}      % table row shading
+\usepackage{amsmath}
+\usepackage{stfloats}
+
+\definecolor{splitgray}{RGB}{235,235,235}
+\definecolor{ourblue}{RGB}{214,229,252}
+
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\second}[1]{\underline{#1}}
+\newcommand{\grayrow}{\rowcolor{splitgray}}
+\newcommand{\textttt}[1]{\texttt{#1}}
+\newcommand{\method}{\textbf{\textttt{LatentSkill}}}
+
+\title{\method{}: From In-Context Textual Skills to In-Weight Latent Skills for LLM Agents}
+
+\author{
+  \textbf{Aofan Yu}$^{1}$\thanks{Equal contribution.} \quad
+  \textbf{Chenyu Zhou}$^{1}$\footnotemark[1] \quad
+  \textbf{Tianyi Xu}$^{1}$ \quad
+  \textbf{Zihan Guo}$^{2,3}$ \quad
+  \textbf{Rong Shan}$^{1}$ \\
+  \textbf{Zhihui Fu}$^{4}$ \quad
+  \textbf{Jun Wang}$^{4}$\thanks{Corresponding authors.} \quad
+  \textbf{Weiwen Liu}$^{1}$\footnotemark[2] \quad
+  \textbf{Yong Yu}$^{1}$ \quad
+  \textbf{Weinan Zhang}$^{1,3}$\footnotemark[2] \quad
+  \textbf{Jianghao Lin}$^{1}$\footnotemark[2] \\[6pt]
+  $^{1}$Shanghai Jiao Tong University \quad
+  $^{2}$Sun Yat-Sen University \\
+  $^{3}$Shanghai Innovation Institute \quad
+  $^{4}$OPPO Research Institute \\[4pt]
+  \texttt{junwang.lu@gmail.com} \quad
+  \texttt{\{wwliu, wnzhang, linjianghao\}@sjtu.edu.cn}
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/further_analysis}
+\input{sections/conclusion}
+\input{sections/limitation}
+
+
+\bibliography{custom}
+
+\appendix
+\input{appendix/training_details}
+\input{appendix/skill_configuration}
+\input{appendix/evaluation_details}
+\input{appendix/submodule_ablation}
+\input{appendix/low_rank_encoding}
+\input{appendix/ood_skill_sources}
+\input{appendix/injection_coefficient_analysis}
+\input{appendix/composition_case_studies}
+\input{appendix/sensitivity_details}
+\end{document}

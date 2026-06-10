@@ -1,0 +1,50 @@
+\section{Skill Configuration}
+\label{app:skill}
+
+We adopt the skill library released by \citet{Xia2026SkillRL}. For ALFWorld, skills are matched to tasks by category without retrieval, as shown in Table~\ref{tab:skill_alf}. Note that the Pick and Pick2 task types share the same skill document. For Search-QA, three skill documents correspond to three reasoning types and are matched according to dataset, as shown in Table~\ref{tab:skill_search}.
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{ALFWorld skill-to-task matching rules.}
+\label{tab:skill_alf}
+\begin{tabular}{ll}
+\toprule
+\textbf{Task Type} & \textbf{Skill} \\
+\midrule
+Pick & Pick And Place Skill \\
+Pick2 & Pick And Place Skill \\
+\midrule
+Look & Look At Obj In Light Skill \\
+Clean & Clean Skill \\
+Heat & Heat Skill \\
+Cool & Cool Skill \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{Search-QA skill-to-task matching rules.}
+\label{tab:skill_search}
+\begin{tabular}{ll}
+\toprule
+\textbf{Dataset} & \textbf{Skill} \\
+\midrule
+NQ & direct\_retrieval \\
+TriviaQA & direct\_retrieval \\
+PopQA & direct\_retrieval \\
+\midrule
+Bamboogle & multi\_hop\_reasoning \\
+MuSiQue & multi\_hop\_reasoning \\
+\midrule
+HotpotQA & \makecell[l]{multi\_hop\_reasoning \\ comparison} \\
+2WikiMultihopQA & \makecell[l]{multi\_hop\_reasoning \\ comparison} \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,33 @@
+\vspace{-1em}
+\section{Introduction}
+\vspace{-.5em}
+Over the past few years, AI systems have cleared one celebrated benchmark after another: world-champion
+games~\citep{silver2016alphago}, olympiad mathematics~\citep{deepmind2025geminiimo}, and
+competitive programming~\citep{google2025geminiicpc}. Yet by the metric that ultimately matters, economic output, the broader impact has remained surprisingly muted; benchmark victories have accumulated faster than measurable transformation in core industries. This gap, which we view as a utility problem for AI, suggests that the field now needs evaluations that measure not only abstract competence, but also the ability to carry out long-horizon, economically valuable work in real professional environments. 
+
+This gap matters because AI progress is remarkably shaped by the benchmarks the field chooses to optimize. Benchmarks do not merely record capability; they focus research attention, define engineering targets, and often determine which domains become tractable for rapid improvement. The recent history of AI makes this pattern clear: once a domain is captured by a verifiable and widely used evaluation, progress in that domain tends to accelerate, and deployment often follows, like ImageNet~\citep{deng2009imagenet} played this role in computer vision. For economically central sectors such as finance, law, electrical engineering, and manufacturing, however, comparable evaluations remain underdeveloped. If such benchmarks can be built and eventually saturated, that outcome would signify more than success on a test: it would indicate that AI systems have become capable of performing the underlying professional workflows at a level sufficient for real industrial adoption.
+
+Building such evaluations is difficult for structural reasons. First, long-horizon authentic workflows are expensive to collect because they must be sourced from real software and organizational contexts. Prior work often adopts task units that are easier to collect, whether shorter computer-use tasks~\citep{xie2024osworld}, synthetic environment construction~\citep{aggarwal2026gymanything}, or purely question-answering setups~\citep{yang2026onemillionbench}. Second, broad industry coverage with authentic, economically valuable workflows is also hard. It requires sustained access to experts across domains and deep insight into the industrial landscape. Existing benchmarks often evaluate on a limited set of domains~\citep{alphaeval2026}. Third, verification is intrinsically hard for real workflows because the output space is heterogeneous. A correct deliverable may be a file, spreadsheet, media artifact, report, design, or model. As a result, benchmarks that measure economically valuable work often rely on human judgment, as in GDPval~\citep{patwardhan2025gdpval} and the Remote Labor Index~\citep{mazeika2025rli}. These constraints help explain why existing benchmarks often trade away one of realism, breadth, or verifiability. They jointly motivate \textbf{Agents' Last Exam (ALE)}.
+
+\begin{lastexambox}
+\textbf{Why ``Last Exam''?}\enspace
+The name carries a dual aspiration.
+\emph{Last as competence threshold}: an agent that passes these industry exams demonstrates readiness to carry out sustained, economically valuable work in that profession, not merely to answer questions about it.
+\emph{Last as difficulty frontier}: by grounding evaluation in authentic long-horizon workflows that require professional judgment, ALE sits at the boundary of what current systems can reliably accomplish.
+\end{lastexambox}
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+    \vspace{-0.8em}
+    \centering
+    \includegraphics{figures/positioning.pdf}
+    \vspace{-0.9em}
+    \caption{\textbf{Benchmark positioning map.} Prior benchmarks are placed by mapping their
+    published domains onto the ALE domain taxonomy.}
+    \label{fig:positioning}
+    \vspace{-1.3em}
+  \end{wrapfigure}
+\noindent ALE is a benchmark of 1K+ task instances spanning \taskcount{} subfields and \clustercount{} industry clusters, developed in collaboration with 250+ domain experts. To ensure broad and representative industry coverage, expert advisory committees map each domain's workflow landscape and identify economically meaningful workflow families, anchored in the O*NET / SOC 2018 occupational taxonomy~\citep{peterson2001onet,bls2018soc}. Its task workflows are sourced from real professional practice: rather than inventing synthetic scenarios, experts contribute projects they have already completed, which then undergo multi-round quality control, including first-pass review, engineer dry-runs, and final peer review by expert committees, before admission. Most tasks demand computer use that interleaves GUI interaction (desktop applications, browsers, domain-specific software) with CLI operations (shell scripting, code execution, file manipulation), requiring the union of capabilities that existing benchmarks test in isolation. To make heterogeneous real-world outputs verifiable without human judges, ALE standardizes evaluation around structured deliverable-based or milestone-based checks against expert-provided references and rubrics.
+
+ALE's target evaluation subject is the \emph{Generalist Computer-Use Agent} (GCUA), such as Claude Code~\citep{anthropic2025claudecode} or Codex~\citep{openai2025codex}, that combines visual perception, code execution, tool use, and long-horizon planning within a single action loop. ALE's task surface is, by construction, a superset of GUI-only benchmarks like OSWorld~\citep{xie2024osworld} and CLI-only benchmarks like Terminal-Bench~\citep{merrill2026terminalbench}. For coverage comparisons, we use the \taskcount{} ALE subdomains as a common coordinate system and map each prior benchmark's published subjects, applications, repositories, or occupations onto this taxonomy (Figure~\ref{fig:positioning}). Current results confirm that ALE is far from saturated: the strongest configuration (Codex with GPT-5.5), which already achieves 82\% on Terminal-Bench, scores below 50\% even on ALE's easiest tier and under 10\% on the hardest; most mainstream agents, including Claude Code, record near-zero pass rates at that difficulty level.
+
+More broadly, ALE is intended not merely as another leaderboard, but as an instrument for closing the gap between benchmark success and GDP-relevant impact: \textbf{if frontier AI agents can pass this last exam, then progress on the benchmark may begin to register as real economic transformation.}

@@ -1,0 +1,32 @@
+\section{Introduction}
+
+Large-scale video diffusion models~\cite{sora,wan2025wan,kong2024hunyuanvideo,yang2024cogvideox,blattmann2023stable} have demonstrated remarkable ability to synthesize photorealistic sequences, motivating their use as world simulators that internalize visual dynamics and generate plausible future observations conditioned on camera trajectories or actions~\cite{bruce2024genie,parkerholder2024genie2,valevski2024diffusion,alonso2024diffusion,che2024gamegen}. A central challenge in this paradigm is maintaining 3D spatial consistency: without explicit spatial memory, even powerful generators accumulate geometric drift, producing frames that are individually convincing but collectively inconsistent when projected into a shared world coordinate system.
+
+A natural remedy is to equip the generator with a persistent 3D representation that tracks what has been observed. As shown in Fig~\ref{fig:concept}, recent world-generation systems~\cite{zhao2026spatia,huang2025voyager,yu2024wonderworld,yu2024wonderjourney,duan2026liveworld,wang2025drivegen3d,wang2026world,wu2025video,chou2025captain} adopt this strategy by maintaining an explicit point cloud in RGB space which is rendered and re-encoded at every step. While effective at enforcing multi-view consistency, this pipeline introduces two fundamental bottlenecks. First, the repeated round trip between latent and pixel space is computationally prohibitive, as rendering millions of colored points at full resolution and re-encoding them dominates wall-clock time. Second, the RGB detour does not preserve the model's native latent conditioning features. RGB point-cloud memories render a target-view image and then re-encode it into a latent tensor, producing a surrogate conditioning signal that may be distorted by VAE reconstruction error, rasterization artifacts, and distribution mismatch.
+
+To address these bottlenecks, we propose \textbf{latent spatial memory}, a persistent 3D cache that stores the diffusion model's latent features at world-space locations instead of RGB colors. As illustrated in Fig.~\ref{fig:concept}, an observed frame is first encoded into a VAE latent tensor, and each latent-grid cell is lifted into 3D by depth-guided back-projection. Each memory element thus pairs a world-space coordinate with the corresponding full-channel latent token. At readout time, the cache is projected directly onto the target camera grid at latent resolution with depth-aware visibility handling, yielding a target-view latent tensor in the same space consumed by the diffusion backbone. This avoids both pixel-resolution rendering of the cache and per-step VAE encoding of the rendered image, eliminating the two main bottlenecks of RGB point-cloud memories.
+
+Building on this representation, we present \method{}, a video world model that generates long, geometrically consistent rollouts chunk by chunk through an initialize-readout-update latent memory cycle as shown in Fig~\ref{fig:pipeline}. 
+First, \method{} initializes the latent spatial memory by encoding the initial frame and back-projecting its latent tokens into the 3D cache via depth-guided lifting~\cite{lin2025depth,wang2026feed,wang2025zpressor,wang2025volsplat,wang2026trisplat}. 
+For each subsequent chunk, it reads from memory by projecting the cache onto every target camera pose, producing latent-space feature tensors that are injected into the diffusion backbone through a ControlNet-style side branch~\cite{zhang2023adding}. 
+After decoding the denoised latents into output frames, \method{} updates the memory by estimating depth, segmenting dynamic objects~\cite{carion2025sam3segmentconcepts}, re-encoding the frames into clean latent features, and back-projecting them into the cache to preserve geometric coherence. 
+This cycle repeats over chunks to support long-horizon generation. %
+
+\begin{figure}
+    \centering
+    \vspace{-1.5em}
+    \includegraphics[width=\linewidth]{figures/concept.pdf}
+    \caption{\textbf{Latent spatial memory vs.\ RGB point cloud based memory for world model.}
+Top: prior systems store memory as colored points and pay a rasterise-and-encode round trip at every conditioning step.
+Bottom: latent spatial memory stores latent features at world-space location and reads them back through a single latent-resolution projection, eliminating the per-step pixel-space detour and shrinking the cache footprint by the squared VAE compression factor.}
+    \label{fig:concept}
+    \vspace{-1em}
+\end{figure}
+
+Extensive experiments validate the benefits of latent spatial memory in both generation quality and efficiency. Across WorldScore~\cite{worldscore,duan2025worldscore} and RealEstate10K~\cite{zhou2018stereo}, \method{} achieves state-of-the-art or competitive performance against strong 3D-aware, RGB-cache, and video-generation baselines. At the same time, end-to-end video generation is up to $\mathbf{10.57\times}$ end-to-end faster and uses up to $\mathbf{55\times}$ less GPU memory in 3D cache than RGB point-cloud readout, making world-consistent generation practical for long trajectories.
+Our contributions can be summarized as follows:
+\begin{itemize}[leftmargin=*]
+    \item We introduce \emph{latent spatial memory}, the 3D memory for video world models that operates entirely in latent space, avoiding pixel-space conversion.
+    \item We propose \method{}, a video world model built around latent spatial memory, with depth-guided back-projection for construction, occlusion-aware readout at latent resolution, and iterative refinement with dynamic object exclusion.
+    \item Our method achieves state-of-the-art world generation on WorldScore and competitive novel view synthesis on RealEstate10K, with up to $\mathbf{10.57\times}$ in end-to-end speedup and $\mathbf{55\times}$ in memory reduction.
+\end{itemize}

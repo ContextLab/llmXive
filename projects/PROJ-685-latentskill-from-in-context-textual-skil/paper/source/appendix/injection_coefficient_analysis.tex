@@ -1,0 +1,54 @@
+\section{Injection Coefficient Analysis}
+\label{app:scale}
+
+Table~\ref{tab:scale} reports the full per-task ALFWorld success rates under each LoRA injection coefficient $\alpha$ on both the seen and unseen splits.
+
+\begin{table}[h]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+  ALFWorld success rate (\%) under varying LoRA scaling factor $\alpha$ on seen and unseen splits. $\alpha{=}0$ corresponds to the backbone without LoRA and $\alpha{=}1$ corresponds to the unscaled hypernetwork output. The best result per task is highlighted in \textbf{bold}, and the best average row is shaded in blue.
+}
+\label{tab:scale}
+\begin{tabular}{c ccccccc}
+\toprule
+& \multicolumn{7}{c}{\textbf{Seen}} \\
+\cmidrule(lr){2-8}
+$\alpha$
+  & \textbf{Pick} & \textbf{Look} & \textbf{Clean}
+  & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2}
+  & \textbf{Avg} \\
+\midrule
+0.0 & 82.86 & 46.15 & 18.52 & 37.50 & 32.00 & 29.17 & 43.57 \\
+0.1 & 82.86 & 53.85 & 33.33 & 43.75 & 52.00 & 37.50 & 52.86 \\
+0.2 & 82.86 & 61.54 & 44.44 & 50.00 & 48.00 & 41.67 & 56.43 \\
+0.3 & 91.43 & 69.23 & 51.85 & \best{56.25} & 48.00 & 50.00 & 62.86 \\
+0.5 & \best{100.0}& \best{92.31} & 48.15 & 43.75 & 56.00 & 62.50 & 68.57 \\
+\rowcolor{ourblue}
+0.6 & 97.14 & \best{92.31}& 62.96 & 43.75 & \best{64.00}& \best{75.00}& \best{74.29}\\
+0.8 & 97.14 & 76.92 & \best{70.37}& 31.25 & 52.00 & 70.83 & 70.00 \\
+1.0 & 97.14 & 61.54 & 66.67 & 37.50 & 44.00 & 50.00 & 63.57 \\
+1.2 & 65.71 &  7.69 &  7.41 &  6.25 &  8.00 & 12.50 & 22.86 \\
+\midrule
+& \multicolumn{7}{c}{\textbf{Unseen}} \\
+\cmidrule(lr){2-8}
+$\alpha$
+  & \textbf{Pick} & \textbf{Look} & \textbf{Clean}
+  & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2}
+  & \textbf{Avg} \\
+\midrule
+0.0 & 54.17 & 55.56 & 41.94 & 47.83 & 57.14 & 23.53 & 47.01 \\
+0.1 & 79.17 & 55.56 & 48.39 & 43.48 & 71.43 & 11.76 & 52.99 \\
+0.2 & 75.00 & 55.56 & 54.84 & 47.83 & 66.67 & 23.53 & 55.22 \\
+0.3 & 75.00 & 55.56 & 58.06 & \best{65.22}& 71.43 & 47.06 & 62.69 \\
+\rowcolor{ourblue}
+0.5 & 79.17& \best{77.78}& 70.97 & 56.52 & 76.19 & 64.71 & \best{70.90}\\
+0.6 & \best{91.67}& 66.67 & 64.52 & 43.48 & \best{80.95}& 70.59 & 69.40 \\
+0.8 & 87.50 & 66.67 & \best{77.42}& 34.78 & 38.10 & \best{88.24}& 65.67 \\
+1.0 & 75.00 & 72.22 & 70.97 & 43.48 & 38.10 & 64.71 & 61.19 \\
+1.2 & 33.33 &  0.00 &  6.45 &  4.35 &  0.00 &  0.00 &  8.21 \\
+\bottomrule
+\end{tabular}
+\end{table}

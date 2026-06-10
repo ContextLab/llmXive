@@ -1,0 +1,68 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+ \PassOptionsToPackage{numbers,sort&compress}{natbib}
+% \usepackage{neurips_2026}
+\usepackage{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{pifont}
+\usepackage{enumitem}
+\usepackage[dvipsnames,table]{xcolor}
+\usepackage{makecell}
+\usepackage{caption}      % \captionof
+\newcommand{\todo}[1]{{\textcolor{red}{\textbf{[TODO: #1]}}}}
+\newcommand{\todoc}[2]{{\textcolor{#1}{\textbf{[#2]}}}}
+\newcommand{\todoblue}[1]{\todoc{blue}{\textbf{#1}}}
+\newcommand{\gu}[1]{\todoblue{Gu: #1}}
+\newcommand{\shi}[1]{\todoc{orange}{Shi: #1}}
+\newcommand{\zhang}[1]{\todoc{purple}{Zhang: #1}}
+\newcommand{\wang}[1]{\todoc{green}{Wang: #1}}
+\newcommand{\ye}[1]{\todoc{orange}{Ye: #1}}
+\newcommand{\he}[1]{\todoc{purple}{He: #1}}
+\newcommand{\liang}[1]{\todoc{teal}{Liang: #1}}
+\newcommand{\zeng}[1]{\textcolor[rgb]{1,0.66,0}{\textbf{[Zeng: #1]}}}
+
+\title{SWE-Explore: Benchmarking How Coding Agents Explore Repositories}
+ 
+\author{Anonymous Authors}
+
+\begin{document}
+
+\maketitle
+\vspace{-8mm}
+\begin{abstract}
+\vspace{-3mm}
+Repository-level coding benchmarks such as SWE-bench have driven a rapid surge in the capabilities of coding agents. Yet they usually treat coding tasks as a holistic, binary prediction problem (e.g., resolved or unresolved), neglecting fine-grained agent capabilities such as repository understanding, context retrieval, code localization, and bug diagnosis. In this paper, we introduce \textbf{SWE-Explore}, a benchmark that isolates the evaluation of repository exploration, a critical capability of coding agents. Given a repository and an issue, SWE-Explore asks a explorer to return a ranked list of relevant code regions under a fixed line budget. SWE-Explore covers 848 issues across 10 programming languages and 203 open-source repositories. For each instance, we derive line-level ground truth from independent agent trajectories that successfully solved the same issue, distilling the specific code regions their solution paths actually consulted. We evaluate exploration along coverage, ranking, and context-efficiency dimensions, showing that these metrics strongly track downstream repair behavior. Across a broad set of retrieval methods, general coding agents, and specialized localizers, we find that agentic explorers form a clear tier above classical retrieval. While file-level localization is already strong for modern methods, line-level coverage and efficient ranking remain the key axes differentiating state-of-the-art explorers.
+
+\end{abstract}
+\vspace{-6mm}
+\input{paper/sections/01_intro}
+\input{paper/sections/02_related_work}
+\input{paper/sections/03_benchmark}
+\input{paper/sections/04_exp}
+
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\newpage
+\appendix
+\input{paper/sections/appendix}
+
+\newpage
+\input{checklist.tex}
+
+\end{document}

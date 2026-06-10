@@ -1,0 +1,33 @@
+\subsection{Cost, Time, and Token Efficiency}
+\label{app:cost-performance}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/cost_performance.pdf}
+\caption{\textbf{Performance vs.\ resource consumption for mainstream agent harnesses.}
+Each bubble represents one harness--backbone configuration from Table~\ref{tab:main-results};
+bubble area is proportional to total token consumption.
+\textbf{(a)}~Overall mean score vs.\ total API cost (configurations with available cost data).
+\textbf{(b)}~Overall mean score vs.\ total wall-clock time (all 14 configurations).
+The ideal operating point is the upper-left corner of each panel (high score, low resource use).}
+\label{fig:cost-performance}
+\end{figure}
+
+Figure~\ref{fig:cost-performance} visualizes the relationship between performance and resource consumption across the 14 mainstream harness--backbone configurations in Table~\ref{tab:main-results}.
+Three observations emerge.
+
+\noindent \textbf{Cost and performance are only loosely correlated.}
+In panel~(a), ALE-Claw with GPT-5.5 achieves the highest overall mean score (48.0\%) at \$307 total API cost, while the same harness paired with Opus~4.7 spends $3.7\times$ more (\$1\,141) yet scores 6.0 percentage points lower (42.0\%).
+Cursor with GPT-5.5 is even more frugal, reaching 41.7\% for \$177, whereas Codex with GPT-5.4 spends \$138 for only 13.1\%.
+The spread indicates that higher spending does not reliably translate to better results; the backbone model's fit to the task distribution and the harness's token efficiency jointly determine the cost--performance tradeoff.
+
+\noindent \textbf{Time efficiency varies widely.}
+Panel~(b) reveals that wall-clock time is largely decoupled from score.
+ALE-Claw (GPT-5.5) achieves the top score in approximately 48 hours of total wall-clock time, whereas Claude Code (Sonnet~4.6) requires 181 hours for a lower score (35.3\%).
+Droid (Opus~4.6) is the fastest configuration (23 hours) but scores only 27.3\%.
+The variation reflects differences in per-task timeout behavior, retry strategies, and the degree of parallelism in each harness's action loop.
+
+\noindent \textbf{Token consumption does not predict performance.}
+Bubble sizes in both panels show that token-heavy configurations are not necessarily higher-scoring.
+ALE-Claw (Opus~4.7) consumes 1\,350M tokens yet scores slightly below Cursor (Opus~4.7) at 446M tokens (42.0\% vs.\ 43.3\%).
+Conversely, Cursor (GPT-5.5) uses only 156M tokens while reaching 41.7\%, suggesting that concise tool use and efficient context management can compensate for raw token volume.

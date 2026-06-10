@@ -1,0 +1,20 @@
+\subsection{Task Construction Pipeline Details}
+\label{app:construction-pipeline}
+
+This appendix expands on the staged construction protocol summarized in Section~\ref{sec:construction-pipeline} and depicted in Figure~\ref{fig:pipeline}. The protocol converts an expert's workflow submission into a benchmark instance through five gates: expert sourcing, task submission and editing, first-pass review, task implementation, and final QC and acceptance.
+
+\noindent \textbf{Expert sourcing.}
+The pipeline begins with targeted expert outreach. To ensure coverage across the defined taxonomies, we established an advisory committee comprising leading industry professionals and expert practitioners. This committee anchors the recruitment of domain specialists who perform complex software workflows in their daily practice.
+
+\noindent \textbf{Task submission and editing.}
+Tasks originate directly from these practitioners through a dedicated web submission portal (\url{https://agents-last-exam.org/submit/new/form}). The structural overhead for experts is kept deliberately low; they are asked to upload their own past projects that historically took them days or weeks to complete. AI-assisted tools on the portal help practitioners iteratively refine their proposals until the core components are fully specified: \textit{a natural language description, the input files, the target software and tools, the expected output deliverable, and a clear evaluation specification}.
+For source-grounded tasks, public papers~\citep{prasad2017video,guo2023asynchronous}, datasets, standards, and workflow documentation may also define input assets, label sets, or reference artifacts; the task bundle retains these source records as part of its material provenance.
+
+\noindent \textbf{First-pass review.}
+Upon submission, tasks undergo a first review round that functions as a screening gate. Submissions receive feedback in the form of standard conference-style decisions: \texttt{major / minor revision}, \texttt{borderline accept}, \texttt{accept}, and \texttt{strong accept}. Any revision-based decision loops the proposal back to the expert for further editing.
+
+\noindent \textbf{Task implementation.}
+Proposed tasks must then be translated from written specifications into executable benchmark environments. During implementation, an engineering team converts the expert's intent into runnable assets, provisions the necessary software containers, and codifies the evaluation logic. This process involves a rigorous engineer review and dry-run execution. If the engineer discovers gaps in the task logic or missing dependencies, the system triggers an automatic email notification, routing the task log back to the expert to unblock development.
+
+\noindent \textbf{Final QC and acceptance.}
+Before a fully implemented task is admitted to the benchmark, it passes a final quality control gate overseen by the expert committee. This peer-review step evaluates both reproducibility and evaluation integrity. Specifically, reviewers check whether the expert's reference output is fundamentally correct, whether the evaluation bounds are properly calibrated (e.g., neither impossibly narrow nor spuriously permissive), and whether the problem context provides sufficient information to reach the final state. Issues found at this stage send the task back for final adjustments prior to acceptance.

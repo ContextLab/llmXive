@@ -1,0 +1,82 @@
+\section{Sensitivity Analysis Details}
+\label{app:perturbation}
+
+\begin{table*}[!t]
+\vspace{-450pt}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+  Full per-task sensitivity results under four perturbation types.
+  ALFWorld reports success rate (\%) and Search-QA reports exact match (\%).
+  Each perturbation is evaluated with both In-context Skill and \method{}.
+  The best result per perturbation is highlighted in \textbf{bold}, and \method{} rows are shaded in blue.
+}
+\label{tab:sensitivity_full_table}
+\begin{tabular}{
+  l
+  cccccc c
+  ccccccc c
+}
+\toprule
+& \multicolumn{7}{c}{\textbf{ALFWorld}}
+& \multicolumn{8}{c}{\textbf{Search-QA}} \\
+\cmidrule(lr){2-8}\cmidrule(lr){9-16}
+\textbf{Method}
+  & \textbf{Pick} & \textbf{Look} & \textbf{Clean}
+  & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2}
+  & \textbf{Avg}
+  & \textbf{NQ} & \textbf{Triv} & \textbf{Pop}
+  & \textbf{Hotp} & \textbf{2WK} & \textbf{MuS} & \textbf{Bam}
+  & \textbf{Avg} \\
+\midrule
+\multicolumn{16}{l}{\emph{Base}} \\
+In-context & 85.7 & 69.2 & \best{70.4} & 31.3 & 12.0 & 33.3 & 52.9
+  & 27.2 & 56.4 & 33.0 & 30.2 & \best{39.8} & 7.60 & \best{38.4} & 32.6 \\
+\rowcolor{ourblue}
+\method{} & \best{97.1} & \best{92.3} & 63.0 & \best{43.8} & \best{64.0} & \best{75.0} & \best{74.3}
+  & \best{36.2} & \best{57.6} & \best{41.0} & \best{39.6} & 32.0 & \best{9.80} & 25.6 & \best{35.6} \\
+\midrule
+\multicolumn{16}{l}{\emph{Paraphrase}} \\
+In-context & 88.6 & 61.5 & 51.9 & \best{56.3} & 16.0 & 20.8 & 50.7
+  & 28.6 & 58.8 & 33.4 & 31.0 & \best{38.4} & 7.60 & \best{37.6} & 33.2 \\
+\rowcolor{ourblue}
+\method{} & \best{97.1} & \best{84.6} & 51.9 & 43.8 & \best{56.0} & \best{62.5} & \best{67.9}
+  & \best{29.8} & \best{61.6} & \best{36.0} & \best{34.2} & 32.0 & \best{9.40} & 36.8 & \best{34.0} \\
+\midrule
+\multicolumn{16}{l}{\emph{Plaintext}} \\
+In-context & 80.0 & 61.5 & 66.7 & 43.8 & 12.0 & 25.0 & 50.0
+  & 27.6 & 56.4 & 31.8 & \best{31.6} & 34.8 & 9.20 & \best{43.2} & 32.4 \\
+\rowcolor{ourblue}
+\method{} & \best{97.1} & \best{76.9} & 66.7 & \best{56.3} & \best{64.0} & \best{70.8} & \best{74.3}
+  & \best{32.4} & \best{60.0} & \best{35.4} & 30.8 & \best{35.4} & \best{10.8} & 40.0 & \best{34.4} \\
+\midrule
+\multicolumn{16}{l}{\emph{Reorder}} \\
+In-context & 82.9 & 61.5 & \best{59.3} & 31.3 & 12.0 & 41.7 & 50.7
+  & 27.6 & 56.6 & 30.8 & \best{29.8} & \best{37.6} & \best{10.4} & 37.6 & 32.4 \\
+\rowcolor{ourblue}
+\method{} & \best{94.3} & \best{84.6} & 51.9 & \best{43.8} & \best{64.0} & \best{66.7} & \best{69.3}
+  & \best{32.8} & \best{59.6} & \best{34.8} & 28.8 & 34.0 & 9.80 & \best{40.0} & \best{33.6} \\
+\midrule
+\multicolumn{16}{l}{\emph{Noise}} \\
+In-context & 80.0 & 61.5 & \best{66.7} & 31.3 & 12.0 & 20.8 & 47.9
+  & 24.8 & 57.0 & 30.2 & 32.0 & 33.6 & \best{10.4} & \best{40.8} & 31.7 \\
+\rowcolor{ourblue}
+\method{} & \best{91.4} & \best{69.2} & 63.0 & \best{50.0} & \best{68.0} & \best{70.8} & \best{71.4}
+  & \best{30.6} & \best{60.8} & \best{35.0} & \best{32.2} & \best{34.0} & 8.40 & 39.2 & \best{33.7} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+We apply four types of perturbation to the original skill text and regenerate LoRA weights to evaluate performance changes on ALFWorld and Search-QA. The four perturbations target the semantic content, formatting structure, arrangement order, and information density of skill text, respectively, covering the major quality degradation scenarios that skill texts may encounter in practical deployment.
+
+\begin{itemize}
+    \item \textbf{Paraphrase.} We use a fixed prompt and fixed temperature with Claude Sonnet to produce semantically equivalent rewrites of each skill text, preserving the original meaning while altering the wording. All rewritten texts are manually verified to ensure semantic consistency.
+    \item \textbf{Plaintext.} We convert Markdown bullet-point formatting into plain-text paragraphs, removing all \texttt{*}, \texttt{\#}, and \texttt{\_} markup symbols.
+    \item \textbf{Reorder.} We randomly shuffle the order of bullet points within each section, using a fixed random seed to ensure reproducibility.
+    \item \textbf{Noise.} We insert one logically irrelevant but grammatically fluent sentence at the end of each rule, before the \texttt{Apply when} field.
+\end{itemize}
+
+Full per-task results are reported in Table~\ref{tab:sensitivity_full_table}.
+
+

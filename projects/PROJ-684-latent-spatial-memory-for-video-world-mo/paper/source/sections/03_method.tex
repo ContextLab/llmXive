@@ -1,0 +1,193 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+A video world model synthesizes a multi-view-consistent sequence $\{I^t\}_{t=1}^{T}$ from an initial frame $I^0$ and a camera trajectory $\{(\mathbf{E}^t, K^t)\}$, where $\mathbf{E}^t$ and $K^t$ are the extrinsics and intrinsics of frame $t$.
+Modern systems build on a pretrained video diffusion backbone that operates in the latent space of a VAE with encoder $\mathcal{E}$, decoder $\mathcal{D}$, spatial stride $s$, and latent channel count $C$.
+Generation proceeds autoregressively over the overlapping chunk of latent frames, each denoised from Gaussian noise conditioned on its predecessors.
+Although effective for short clips, this autoregressive scheme conditions only on a small temporal context, so that information about earlier observations gradually fades as the rollout advances.
+As a consequence, geometric drift accumulates whenever the camera revisits a previously observed region: the same physical surface may reappear at a different position, with inconsistent texture, or with altered scene layout, breaking the multi-view consistency that downstream applications rely on~\cite{yang2024cogvideox, wan2025wan}.
+
+A common remedy is to attach a persistent \emph{RGB point cloud}~\cite{zhao2026spatia, huang2025voyager, yu2024wonderworld}
+\begin{equation}
+\mathcal{M}_{\text{rgb}} = \bigl\{(\mathbf{p}_i, \mathbf{c}_i)\bigr\}, \qquad \mathbf{p}_i \in \mathbb{R}^3,\; \mathbf{c}_i \in [0, 1]^3,
+\label{eq:rgb-mem}
+\end{equation}
+that records the color $\mathbf{c}_i$ of every observed surface point $\mathbf{p}_i$.
+The cache is initialized from $I^0$ through depth-guided back-projection and grown along the rollout, providing a long-term geometric scaffold that the autoregressive context alone cannot maintain.
+Conditioning on this 3D cache, however, forces a full pixel-space round trip at every target view: the cache is first rasterised into an RGB image at the target pose $(\mathbf{E}^t, K^t)$, and then re-encoded into a latent tensor $\hat{\mathbf{z}}^t$ that is supplied to the denoiser,
+\begin{equation}
+\hat{\mathbf{z}}^t = \mathcal{E}\,\!\bigl (\mathrm{Rasterise}(\mathcal{M}_{\text{rgb}};\, \mathbf{E}^t, K^t)\bigr),
+\label{eq:rgb-read}
+\end{equation}
+where $\mathrm{Rasterise}(\cdot)$ denotes $z$-buffered projection followed by shading.
+This conditioning step introduces two major costs. First, the rasterizer and VAE encoder operate at pixel resolution, while the generator consumes latent-resolution tensors, making each read unnecessarily expensive and increasingly costly as the cache grows. Second, RGB readout must be re-encoded into a surrogate latent signal, which can deviate from the model's native latent representation due to reconstruction error, rasterization artifacts, visibility holes, and distribution mismatch. Thus, storing memory in pixel space creates both computational and representation bottlenecks for a latent-space generator.
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/pipeline.pdf}
+    \caption{\textbf{Overview of \method.} \method{} initializes a 3D latent cache from $I_0$ by encoding it into VAE latents and lifting them with depth-guided back-projection. At each target view, the cache is read through a latent-resolution projection, and generation proceeds chunk by chunk: each decoded output chunk is re-estimated for depth, re-encoded into latents, and back-projected to extend the cache.}
+    \label{fig:pipeline}
+\end{figure*}
+
+
+
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Overview}
+\label{sec:method:principle}
+
+Mirage maintains a persistent latent cache $\mathcal{M}$ and generates videos by first initializing memory and then repeating a readout-update cycle over overlapping chunks,
+as illustrated in Figure~\ref{fig:pipeline}.
+\textbf{Initialization:} the initial frame $I^0$ is encoded by encoder $\mathcal{E}$ and lifted
+into world space via depth-guided back-projection, seeding $\mathcal{M}$
+with one latent-attributed 3D point per latent cell
+(Section~\ref{sec:method:mem}).
+\textbf{Readout and denoising:}
+For each chunk, $\mathcal{M}$ is projected onto the target camera grids at latent resolution, producing target-view latent feature tensors. 
+These tensors are injected into the diffusion backbone through a ControlNet-style side branch, allowing the backbone to denoise the chunk entirely in latent space
+(Section~\ref{sec:method:read}).
+\textbf{Cache update:} the generated frames  are re-encoded and back-projected to update
+$\mathcal{M}$, with moving objects and sky excluded to preserve geometric
+coherence (Section~\ref{sec:method:update}).
+Crucially, $\mathcal{M}$ is queried directly in latent space, while
+pixel-space operations appear only during chunk-level cache update. This
+avoids the per-conditioning-step render-and-encode loop of RGB point cloud
+memories and reduces both readout cost and cache footprint by a factor of
+$s^2$.
+
+
+
+
+
+
+
+
+
+
+\subsection{Latent Spatial Memory Initialization}
+\label{sec:method:mem}
+
+
+We represent the memory as a set of latent-attributed 3D points
+\begin{equation}
+\mathcal{M} = \bigl\{(\mathbf{p}_i, \mathbf{f}_i)\bigr\},
+\qquad \mathbf{p}_i \in \mathbb{R}^{3},\; \mathbf{f}_i \in \mathbb{R}^{C},
+\label{eq:lat-mem}
+\end{equation}
+where each point $i$ pairs a world-space coordinate $\mathbf{p}_i$ with
+latent feature $\mathbf{f}_i$ drawn directly from the VAE encoder, matching the native
+input space of the diffusion backbone.
+
+
+
+
+
+
+\boldstart{Construction.}
+Given a frame with latent tensor $\mathbf{z} \in \mathbb{R}^{C \times h \times w}$,
+metric depth map $D$, intrinsics $K$, and camera pose $\mathbf{E}$
+from a feed-forward reconstructor~\cite{lin2025depth}, we first
+downsample $D$ to the latent grid and rescale $K$ accordingly; in what
+follows we use $D$ and $K$ to refer to their latent-resolution versions.
+Each latent cell $(u,v)$ is then back-projected into world space,
+producing one memory element per cell:
+\begin{equation}
+\mathbf{p}_{uv} = \pi^{-1}(u, v, D(u,v);\, K, \mathbf{E}), \qquad \mathbf{F}_{uv} = \mathbf{z}[:, v, u],
+\label{eq:lift}
+\end{equation}
+where $\pi^{-1}$ denotes standard pinhole back-projection
+(Appendix~\ref{sec:app_geometry}) and $\mathbf{F}_{uv}\in \mathbb{R}^C$ denotes the latent token stored at the memory element anchored at $\mathbf{p}_{uv}$.
+The initial cache is seeded by applying Eq.~\ref{eq:lift} to the
+encoded latent of $I^0$, and is subsequently updated by the following autoregressive memory update.
+
+
+
+
+
+\subsection{Latent-space Memory Readout}
+\label{sec:method:read}
+
+ Given a target view $(\mathbf{E}^t, K^t)$, we query the latent memory
+$\mathcal{M}$ by projecting all memory points onto the target camera grid
+at latent resolution. For each target cell, we retain the frontmost
+projected point using $z$-buffering and retrieve its associated latent
+token:
+\begin{equation}
+i^t(u,v)
+=
+\operatorname*{arg\,min}_{i \in \Omega^t(u,v)}
+\bigl[\mathbf{E}^t \mathbf{p}_i\bigr]_z,
+\qquad
+\hat{\mathbf{z}}^t(u,v)
+=
+\mathbf{F}_{i^t(u,v)} .
+\label{eq:read}
+\end{equation}
+Here $\Omega^t(u,v)$ denotes the set of memory points that project to
+latent cell $(u,v)$ with positive depth under the target view
+$(\mathbf{E}^t,K^t)$, and $[\cdot]_z$ extracts the depth coordinate.
+Cells with $\Omega^t(u,v)=\emptyset$ are zero-filled. We also produce a
+binary visibility mask $\mathbf{m}^t\in\{0,1\}^{h\times w}$ indicating
+which cells receive at least one projected point. This mask allows the
+denoiser to distinguish genuinely unseen regions from observed regions
+whose latent feature is zero. 
+
+This readout preserves the stored conditioning signal: when the cache is
+constructed from a source frame and queried from the same view,
+Eq.~\ref{eq:read} retrieves the corresponding source-view latent tokens on
+visible cells, up to discretization and occlusion. 
+%In contrast, RGB-space memories must render and re-encode the cache before conditioning thebackbone, introducing a lossy round trip that can distort the features seen by the denoiser.
+To generate each chunk, the latent memory readouts $\hat{\mathbf{z}}^t$ and visibility masks $\mathbf{m}^t$ are concatenated and passed to a ControlNet-style side branch~\cite{zhang2023adding}, which injects memory features into the video diffusion backbone. 
+Besides, segment-aware rotary encodings~\cite{su2024roformer} are also leveraged to mark noisy target, clean preceding, and clean reference frames in a single forward pass. 
+Because the readouts already lie in the backbone's latent space, no bridging encoder is needed, avoiding the rasterize-and-reencode step required by RGB-cache pipelines.
+
+
+
+
+\subsection{Autoregressive 3D Cache Update}
+\label{sec:method:update}
+
+After each chunk is generated, \method{} updates $\mathcal{M}$ with the
+newly observed static scene content. 
+We estimate depth and camera parameters for the generated frames using a
+feed-forward reconstructor~\cite{lin2025depth}, re-encode the frames into
+clean VAE latents $\tilde{\mathbf{z}}^t=\mathcal{E}(I^t)$, and
+back-project the corresponding latent tokens into the cache using Eq. \ref{eq:lift}. Then, the updated memory can be denoted as:
+\begin{equation}
+\mathcal{M}
+\leftarrow
+\mathcal{M}
+\cup
+\bigl\{(\mathbf{p}_{uv}, \mathbf{F}_{uv})\bigr\}_{(u,v)\in\Lambda^t},
+\label{eq:lat-update}
+\end{equation}
+where $\Lambda^t$ contains latent cells with valid depth outside dynamic
+objects and sky regions, detected by an open-vocabulary entity
+extractor~\cite{yang2025qwen3} and a video segmenter~\cite{carion2025sam3segmentconcepts}.
+This filtering prevents transient or geometrically unreliable content
+from contaminating the persistent cache. 
+The current chunk latents are also carried forward as short-term temporal
+context for the next chunk.
+
+
+
+
+
+
+\subsection{Efficient Adaptation to Existing Diffusion Models}
+We adapt a pretrained camera-controllable video diffusion
+transformer~\cite{wan2025wan,zhao2026spatia} in two stages. 
+In the first stage, we freeze the backbone and VAE and train only the
+ControlNet-style side branch, aligning latent memory readouts with the
+backbone feature space without perturbing the pretrained generative
+prior. 
+In the second stage, we attach rank-64 LoRA adapters~\cite{hu2021lora}
+to the self-attention projections and jointly optimize them with the side
+branch, enabling lightweight adaptation to the memory condition while
+preserving the backbone's appearance and motion priors. 
+Both stages use the flow-matching objective~\cite{lipman2022flow} on the
+target frames.
+

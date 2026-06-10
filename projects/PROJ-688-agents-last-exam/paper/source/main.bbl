@@ -1,0 +1,414 @@
+\begin{thebibliography}{51}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Aggarwal et~al.(2026)Aggarwal, Neubig, and
+  Welleck]{aggarwal2026gymanything}
+Pranjal Aggarwal, Graham Neubig, and Sean Welleck.
+\newblock Gym-anything: Turn any software into an agent environment, 2026.
+
+\bibitem[{Alibaba Cloud}(2026)]{alibaba2026qwen36plus}
+{Alibaba Cloud}.
+\newblock Alibaba unveils qwen3.6-plus to accelerate agentic ai deployment for
+  enterprises and alibaba's ai applications.
+\newblock
+  \url{https://www.alibabacloud.com/en/press-room/alibaba-unveils-qwen3-6-plus-to-accelerate-agentic},
+  2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{AlphaEval Team}(2026)]{alphaeval2026}
+{AlphaEval Team}.
+\newblock Alphaeval: Real-world agent benchmark.
+\newblock \url{https://alphaeval.ai/}, 2026.
+\newblock Accessed: 2026-04-09.
+
+\bibitem[{Anthropic}(2025)]{anthropic2025claudecode}
+{Anthropic}.
+\newblock Claude code: An agentic coding tool.
+\newblock \url{https://docs.anthropic.com/en/docs/claude-code}, 2025.
+\newblock Accessed: 2026-04-09.
+
+\bibitem[{Anthropic}(2026{\natexlab{a}})]{anthropic2026opus46}
+{Anthropic}.
+\newblock Claude opus 4.6 system card.
+\newblock
+  \url{https://www-cdn.anthropic.com/14e4fb01875d2a69f646fa5e574dea2b1c0ff7b5.pdf},
+  2026{\natexlab{a}}.
+\newblock Accessed: 2026-05-07.
+
+\bibitem[{Anthropic}(2026{\natexlab{b}})]{anthropic2026opus47}
+{Anthropic}.
+\newblock Introducing claude opus 4.7.
+\newblock \url{https://www.anthropic.com/news/claude-opus-4-7},
+  2026{\natexlab{b}}.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{Anthropic}(2026{\natexlab{c}})]{anthropic2026sonnet46}
+{Anthropic}.
+\newblock Claude sonnet 4.6.
+\newblock \url{https://www.anthropic.com/claude/sonnet}, 2026{\natexlab{c}}.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{Cursor}(2025)]{cursor2025cli}
+{Cursor}.
+\newblock Cursor cli.
+\newblock \url{https://cursor.com/en-US/cli}, 2025.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{DeepSeek}(2026)]{deepseek2026v4pro}
+{DeepSeek}.
+\newblock Models \& pricing.
+\newblock \url{https://api-docs.deepseek.com/quick_start/pricing}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[Deng et~al.(2009)Deng, Dong, Socher, Li, Li, and
+  Fei-Fei]{deng2009imagenet}
+Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li~Fei-Fei.
+\newblock Imagenet: A large-scale hierarchical image database.
+\newblock In \emph{2009 IEEE Conference on Computer Vision and Pattern
+  Recognition}, pages 248--255. IEEE, 2009.
+
+\bibitem[{Docker}(2026)]{docker2026droid}
+{Docker}.
+\newblock Droid.
+\newblock \url{https://docs.docker.com/ai/sandboxes/agents/droid/}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{Google}(2025)]{google2025geminiicpc}
+{Google}.
+\newblock Gemini wins international collegiate programming contest gold.
+\newblock
+  \url{https://blog.google/technology/google-deepmind/gemini-gold-icpc/}, 2025.
+\newblock Accessed: 2026-04-09.
+
+\bibitem[{Google}(2026)]{google2026gemini31pro}
+{Google}.
+\newblock Gemini 3.1 pro: A smarter model for your most complex tasks.
+\newblock
+  \url{https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/},
+  2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{Google DeepMind}(2025)]{deepmind2025geminiimo}
+{Google DeepMind}.
+\newblock Advanced version of gemini with deep think officially achieves
+  gold-medal standard at the international mathematical olympiad.
+\newblock
+  \url{https://deepmind.google/discover/blog/advanced-version-of-gemini-with-deep-think-officially-achieves-gold-medal-standard-at-the-international-mathematical-olympiad/},
+  2025.
+\newblock Published 2025-07-21.
+
+\bibitem[Guo et~al.(2023)Guo, Liu, Qu, Lu, Zhu, and Lv]{guo2023asynchronous}
+Yu~Guo, Ryan~Wen Liu, Jingxiang Qu, Yuxu Lu, Fenghua Zhu, and Yisheng Lv.
+\newblock Asynchronous trajectory matching-based multimodal maritime data
+  fusion for vessel traffic surveillance in inland waterways.
+\newblock \emph{IEEE Transactions on Intelligent Transportation Systems},
+  24\penalty0 (11):\penalty0 12779--12792, 2023.
+\newblock \doi{10.1109/TITS.2023.3285415}.
+
+\bibitem[Hendrycks et~al.(2021)Hendrycks, Burns, Basart, Zou, Mazeika, Song,
+  and Steinhardt]{hendrycks2021measuring}
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn
+  Song, and Jacob Steinhardt.
+\newblock Measuring massive multitask language understanding.
+\newblock \emph{Proceedings of the International Conference on Learning
+  Representations (ICLR)}, 2021.
+
+\bibitem[Jimenez et~al.(2024)Jimenez, Yang, Wettig, Yao, Pei, Press, and
+  Narasimhan]{jimenez2024swebench}
+Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir
+  Press, and Karthik~R. Narasimhan.
+\newblock Swe-bench: Can language models resolve real-world github issues?
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations, ICLR 2024, Vienna, Austria, May 7-11, 2024}. OpenReview.net,
+  2024.
+
+\bibitem[{Kilo AI}(2026)]{pinchbench2026}
+{Kilo AI}.
+\newblock {PinchBench}: An {OpenClaw} agent benchmark leaderboard.
+\newblock \url{https://pinchbench.com/}, 2026.
+\newblock Snapshot of 2026-04-13.
+
+\bibitem[Mazeika et~al.(2025)Mazeika, Gatti, Menghini, Sehwag, Singhal,
+  Orlovskiy, Basart, Sharma, Peskoff, Lau, Lim, Carroll, Blair, Sivakumar,
+  Basu, et~al.]{mazeika2025rli}
+Mantas Mazeika, Alice Gatti, Cristina Menghini, Udari~Madhushani Sehwag, Shivam
+  Singhal, Yury Orlovskiy, Steven Basart, Manasi Sharma, Denis Peskoff, Elaine
+  Lau, Jaehyuk Lim, Lachlan Carroll, Alice Blair, Vinaya Sivakumar, Sumana
+  Basu, et~al.
+\newblock Remote labor index: Measuring ai automation of remote work, 2025.
+
+\bibitem[Merrill et~al.(2026)Merrill, Shaw, Carlini, Li, Raj, Bercovich, Shi,
+  Shin, Walshe, Buchanan, Shen, Ye, Lin, Poulos, Wang, Nezhurina, Jitsev, Lu,
+  Mastromichalakis, Xu, Chen, Liu, Zhang, Chen, Kashyap, Uslu, Li, Wu, Yan,
+  Bian, Sharma, Sun, Dillmann, Anand, Lanpouthakoun, Koopah, Hu, Guha, Dreiman,
+  Zhu, Krauth, Zhong, Muennighoff, Amanfu, Tan, Pimpalgaonkar, Aggarwal, Lin,
+  Lan, Zhao, Liang, Wang, Wang, Zhou, Heineman, Liu, Trivedi, Yang, Lin,
+  Shetty, Yang, Omi, Raoof, Li, Zhuo, Lin, Dai, Wang, Chai, Zhou, Wahdany, She,
+  Hu, Dong, Zhu, Cui, Saiyed, Kolbeinsson, Hu, Rytting, Marten, Wang, Dimakis,
+  Konwinski, and Schmidt]{merrill2026terminalbench}
+Mike~A. Merrill, Alexander~G. Shaw, Nicholas Carlini, Boxuan Li, Harsh Raj,
+  Ivan Bercovich, Lin Shi, Jeong~Yeon Shin, Thomas Walshe, E.~Kelly Buchanan,
+  Junhong Shen, Guanghao Ye, Haowei Lin, Jason Poulos, Maoyu Wang, Marianna
+  Nezhurina, Jenia Jitsev, Di~Lu, Orfeas~Menis Mastromichalakis, Zhiwei Xu,
+  Zizhao Chen, Yue Liu, Robert Zhang, Leon~Liangyu Chen, Anurag Kashyap,
+  Jan-Lucas Uslu, Jeffrey Li, Jianbo Wu, Minghao Yan, Song Bian, Vedang Sharma,
+  Ke~Sun, Steven Dillmann, Akshay Anand, Andrew Lanpouthakoun, Bardia Koopah,
+  Changran Hu, Etash Guha, Gabriel H.~S. Dreiman, Jiacheng Zhu, Karl Krauth,
+  Li~Zhong, Niklas Muennighoff, Robert Amanfu, Shangyin Tan, Shreyas
+  Pimpalgaonkar, Tushar Aggarwal, Xiangning Lin, Xin Lan, Xuandong Zhao, Yiqing
+  Liang, Yuanli Wang, Zilong Wang, Changzhi Zhou, David Heineman, Hange Liu,
+  Harsh Trivedi, John Yang, Junhong Lin, Manish Shetty, Michael Yang, Nabil
+  Omi, Negin Raoof, Shanda Li, Terry~Yue Zhuo, Wuwei Lin, Yiwei Dai, Yuxin
+  Wang, Wenhao Chai, Shang Zhou, Dariush Wahdany, Ziyu She, Jiaming Hu, Zhikang
+  Dong, Yuxuan Zhu, Sasha Cui, Ahson Saiyed, Arinbj{\"o}rn Kolbeinsson, Jesse
+  Hu, Christopher~Michael Rytting, Ryan Marten, Yixin Wang, Alex Dimakis, Andy
+  Konwinski, and Ludwig Schmidt.
+\newblock Terminal-bench: Benchmarking agents on hard, realistic tasks in
+  command line interfaces.
+\newblock In \emph{The Fourteenth International Conference on Learning
+  Representations, {ICLR} 2026}, 2026.
+
+\bibitem[Mialon et~al.(2024)Mialon, Fourrier, 0008, LeCun, and
+  Scialom]{mialon2024gaia}
+Gr{\'e}goire Mialon, Cl{\'e}mentine Fourrier, Thomas~Wolf 0008, Yann LeCun, and
+  Thomas Scialom.
+\newblock Gaia: a benchmark for general ai assistants.
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations, ICLR 2024, Vienna, Austria, May 7-11, 2024}. OpenReview.net,
+  2024.
+
+\bibitem[MiMo-V2.5()]{mimov25}
+MiMo-V2.5.
+\newblock Mimo-v2.5.
+\newblock \url{https://huggingface.co/collections/XiaomiMiMo/mimo-v25}, 2026.
+
+\bibitem[{MiniMax}(2026)]{minimax2026m27}
+{MiniMax}.
+\newblock Minimax-m2.7.
+\newblock \url{https://huggingface.co/MiniMaxAI/MiniMax-M2.7}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{Moonshot AI}(2026)]{moonshot2026kimi26}
+{Moonshot AI}.
+\newblock Model list.
+\newblock \url{https://platform.kimi.ai/docs/models}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{National Center for O*NET Development}(2026)]{onet302database}
+{National Center for O*NET Development}.
+\newblock {O*NET 30.2 Database}, 2026.
+\newblock URL \url{https://www.onetcenter.org/database.html}.
+\newblock Sponsored by the U.S. Department of Labor, Employment and Training
+  Administration.
+
+\bibitem[{National Institutes of Health}(2021)]{nih2021strategicplan}
+{National Institutes of Health}.
+\newblock Nih-wide strategic plan for fiscal years 2021--2025.
+\newblock Technical report, National Institutes of Health, 2021.
+\newblock URL \url{https://www.nih.gov/about-nih/nih-wide-strategic-plan}.
+
+\bibitem[{National Science Board, National Science
+  Foundation}(2024)]{nsb2024sei}
+{National Science Board, National Science Foundation}.
+\newblock Science and engineering indicators 2024: The state of u.s. science
+  and engineering.
+\newblock Technical Report NSB-2024-3, National Science Foundation, Alexandria,
+  VA, 2024.
+\newblock URL \url{https://ncses.nsf.gov/pubs/nsb20243}.
+
+\bibitem[{Nous Research}(2026)]{nous2026hermes}
+{Nous Research}.
+\newblock Hermes agent cli.
+\newblock \url{https://hermes-agent.ai/tools/hermes-agent-cli}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[{OpenAI}(2025)]{openai2025codex}
+{OpenAI}.
+\newblock Codex: A cloud-based software engineering agent.
+\newblock \url{https://openai.com/index/introducing-codex/}, 2025.
+\newblock Accessed: 2026-04-09.
+
+\bibitem[{OpenAI}(2026{\natexlab{a}})]{openai2026gpt54}
+{OpenAI}.
+\newblock Introducing gpt-5.4.
+\newblock \url{https://openai.com/index/introducing-gpt-5-4/},
+  2026{\natexlab{a}}.
+\newblock Accessed: 2026-05-07.
+
+\bibitem[{OpenAI}(2026{\natexlab{b}})]{openai2026gpt55}
+{OpenAI}.
+\newblock Introducing gpt-5.5.
+\newblock \url{https://openai.com/index/introducing-gpt-5-5/},
+  2026{\natexlab{b}}.
+\newblock Accessed: 2026-05-07.
+
+\bibitem[{OpenClaw}(2026)]{openclaw2026agent}
+{OpenClaw}.
+\newblock Agent runtime.
+\newblock \url{https://docs.openclaw.ai/agent}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[Patwardhan et~al.(2025)Patwardhan, Dias, Proehl, Kim, Wang, Watkins,
+  Fishman, Aljubeh, Thacker, Fauconnet, Kim, Chao, Miserendino, Chabot, Li,
+  Sharman, Barr, Glaese, and Tworek]{patwardhan2025gdpval}
+Tejal Patwardhan, Rachel Dias, Elizabeth Proehl, Grace Kim, Michele Wang,
+  Olivia Watkins, Simón~Posada Fishman, Marwan Aljubeh, Phoebe Thacker,
+  Laurance Fauconnet, Natalie~S. Kim, Patrick Chao, Samuel Miserendino, Gildas
+  Chabot, David Li, Michael Sharman, Alexandra Barr, Amelia Glaese, and Jerry
+  Tworek.
+\newblock Gdpval: Evaluating ai model performance on real-world economically
+  valuable tasks, 2025.
+
+\bibitem[Peterson et~al.(2001)Peterson, Mumford, Borman, Jeanneret,
+  et~al.]{peterson2001onet}
+N.~G. Peterson, M.~D. Mumford, W.~C. Borman, P.~R. Jeanneret, et~al.
+\newblock Understanding work using the occupational information network
+  (o*net): Implications for practice and research.
+\newblock \emph{Personnel Psychology}, 54\penalty0 (2):\penalty0 451--492,
+  2001.
+\newblock \doi{10.1111/j.1744-6570.2001.tb00100.x}.
+
+\bibitem[Phan et~al.(2026)Phan, Gatti, Li, Khoja, Kim, Ren, Hausenloy, Zhang,
+  Mazeika, Hendrycks, Han, Hu, Zhang, Zhang, Shaaban, et~al.]{phan2026hle}
+Long Phan, Alice Gatti, Nathaniel Li, Adam Khoja, Ryan Kim, Richard Ren, Jason
+  Hausenloy, Oliver Zhang, Mantas Mazeika, Dan Hendrycks, Ziwen Han, Josephina
+  Hu, Hugh Zhang, Chen Bo~Calvin Zhang, Mohamed Shaaban, et~al.
+\newblock A benchmark of expert-level academic questions to assess ai
+  capabilities.
+\newblock \emph{Nature}, 649\penalty0 (8099):\penalty0 1139--1146, January
+  2026.
+\newblock \doi{10.1038/s41586-025-09962-4}.
+
+\bibitem[Prasad et~al.(2017)Prasad, Rajan, Rachmawati, Rajabally, and
+  Quek]{prasad2017video}
+Dilip~K. Prasad, Deepu Rajan, Lily Rachmawati, Eshan Rajabally, and Chai Quek.
+\newblock Video processing from electro-optical sensors for object detection
+  and tracking in a maritime environment: A survey.
+\newblock \emph{IEEE Transactions on Intelligent Transportation Systems},
+  18\penalty0 (8):\penalty0 1993--2016, 2017.
+\newblock \doi{10.1109/TITS.2016.2634580}.
+
+\bibitem[Rein et~al.(2023)Rein, Hou, Stickland, Petty, Pang, Dirani, Michael,
+  and Bowman]{rein2024gpqa}
+David Rein, Betty~Li Hou, Asa~Cooper Stickland, Jackson Petty, Richard~Yuanzhe
+  Pang, Julien Dirani, Julian Michael, and Samuel~R. Bowman.
+\newblock Gpqa: A graduate-level google-proof q\&a benchmark, 2023.
+
+\bibitem[Silver et~al.(2016)Silver, Huang, Maddison, Guez, Sifre, van~den
+  Driessche, Schrittwieser, Antonoglou, Panneershelvam, Lanctot,
+  et~al.]{silver2016alphago}
+David Silver, Aja Huang, Chris~J. Maddison, Arthur Guez, Laurent Sifre, George
+  van~den Driessche, Julian Schrittwieser, Ioannis Antonoglou, Veda
+  Panneershelvam, Marc Lanctot, et~al.
+\newblock Mastering the game of go with deep neural networks and tree search.
+\newblock \emph{Nature}, 529\penalty0 (7587):\penalty0 484--489, 2016.
+\newblock \doi{10.1038/nature16961}.
+
+\bibitem[Tabassi(2023)]{nist2023airmf}
+Elham Tabassi.
+\newblock Artificial intelligence risk management framework (ai rmf 1.0).
+\newblock Technical Report NIST AI 100-1, National Institute of Standards and
+  Technology, Gaithersburg, MD, 2023.
+
+\bibitem[{Tailcall}(2024)]{tailcall2024forgecode}
+{Tailcall}.
+\newblock {ForgeCode}: Ai enabled pair programmer for claude, gpt, o series,
+  grok, deepseek, gemini and 300+ models.
+\newblock \url{https://github.com/tailcallhq/forgecode}, 2024.
+\newblock Accessed: 2026-04-30.
+
+\bibitem[{U.S. Bureau of Labor Statistics}(2018)]{bls2018soc}
+{U.S. Bureau of Labor Statistics}.
+\newblock 2018 standard occupational classification definitions, 2018.
+
+\bibitem[{U.S. Congress}(2022)]{uschips2022}
+{U.S. Congress}.
+\newblock Chips and science act of 2022, public law 117-167, 2022.
+\newblock URL
+  \url{https://www.congress.gov/117/plaws/publ167/PLAW-117publ167.pdf}.
+
+\bibitem[{U.S. National Science Foundation}(2024)]{nsfchips2024}
+{U.S. National Science Foundation}.
+\newblock Chips and science, 2024.
+\newblock URL \url{https://www.nsf.gov/chips}.
+
+\bibitem[Wang et~al.(2025)Wang, Li, Song, Xu, Tang, Zhuge, Pan, Song, Li,
+  Singh, et~al.]{wang2025openhands}
+Xingyao Wang, Boxuan Li, Yufan Song, Frank~F. Xu, Xiangru Tang, Mingchen Zhuge,
+  Jiayi Pan, Yueqi Song, Bowen Li, Jaskirat Singh, et~al.
+\newblock Openhands: An open platform for {AI} software developers as
+  generalist agents.
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations}, 2025.
+
+\bibitem[{xAI}(2026)]{xai2026models}
+{xAI}.
+\newblock Models and pricing.
+\newblock \url{https://docs.x.ai/developers/models}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[Xie et~al.(2024)Xie, Zhang, Chen, Li, Zhao, Cao, Hua, Cheng, Shin,
+  Lei, Liu, Xu, Zhou, Savarese, Xiong, Zhong, and Yu]{xie2024osworld}
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng
+  Cao, Toh~Jing Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, Yitao Liu,
+  Yiheng Xu, Shuyan Zhou, Silvio Savarese, Caiming Xiong, Victor Zhong, and Tao
+  Yu.
+\newblock Osworld: Benchmarking multimodal agents for open-ended tasks in real
+  computer environments.
+\newblock In Amir Globersons, Lester Mackey, Danielle Belgrave, Angela Fan,
+  Ulrich Paquet, Jakub~M. Tomczak, and Cheng Zhang, editors, \emph{Advances in
+  Neural Information Processing Systems 38: Annual Conference on Neural
+  Information Processing Systems 2024, NeurIPS 2024, Vancouver, BC, Canada,
+  December 10 - 15, 2024}, 2024.
+
+\bibitem[Yang et~al.(2024)Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and
+  Press]{yang2024swe}
+John Yang, Carlos~E Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao,
+  Karthik Narasimhan, and Ofir Press.
+\newblock Swe-agent: Agent-computer interfaces enable automated software
+  engineering.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  37:\penalty0 50528--50652, 2024.
+
+\bibitem[Yang et~al.(2026)Yang, Liu, Li, Bai, Chen, Chen, Duan, Dong, Hu, Jia,
+  Liu, Peng, Ren, Tian, Wang, Xiao, Yao, Yin, Zhang, Zhang, Jiao, Zheng, and
+  Gong]{yang2026onemillionbench}
+Qianyu Yang, Yang Liu, Jiaqi Li, Jun Bai, Hao Chen, Kaiyuan Chen, Tiliang Duan,
+  Jiayun Dong, Xiaobo Hu, Zixia Jia, Yang Liu, Tao Peng, Yixin Ren, Ran Tian,
+  Zaiyuan Wang, Yanglihong Xiao, Gang Yao, Lingyue Yin, Ge~Zhang, Chun Zhang,
+  Jianpeng Jiao, Zilong Zheng, and Yuan Gong.
+\newblock \$onemillion-bench: How far are language agents from human experts?,
+  2026.
+\newblock URL \url{https://arxiv.org/abs/2603.07980}.
+
+\bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and
+  Cao]{yao2023react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik~R.
+  Narasimhan, and Yuan Cao.
+\newblock React: Synergizing reasoning and acting in language models.
+\newblock In \emph{The Eleventh International Conference on Learning
+  Representations, {ICLR} 2023, Kigali, Rwanda, May 1-5, 2023}. OpenReview.net,
+  2023.
+
+\bibitem[{Z.AI}(2026)]{zai2026glm51}
+{Z.AI}.
+\newblock Glm-5.1.
+\newblock \url{https://docs.z.ai/guides/llm/glm-5.1}, 2026.
+\newblock Accessed: 2026-05-05.
+
+\bibitem[Zhou et~al.(2024)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk,
+  Fried, Alon, and Neubig]{zhou2024webarena}
+Shuyan Zhou, Frank~F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar,
+  Xianyi Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham
+  Neubig.
+\newblock Webarena: {A} realistic web environment for building autonomous
+  agents.
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations, {ICLR} 2024, Vienna, Austria, May 7-11, 2024}.
+  OpenReview.net, 2024.
+
+\end{thebibliography}

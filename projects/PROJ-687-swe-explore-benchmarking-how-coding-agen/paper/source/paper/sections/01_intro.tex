@@ -1,0 +1,34 @@
+\section{Introduction}
+
+
+
+Repository-level coding benchmarks, such as SWE-bench~\citep{jimenez2024swebench}, have driven a rapid surge in the capabilities of automated coding agents~\citep{chowdhury2024swebenchverified,zhang2025swebenchgoeslive,deng2025swebenchproaiagents}. The ecosystem around these benchmarks has expanded quickly: new evaluation distributions now cover multilingual repositories, multimodal software issues, and harder, long-horizon professional tasks~\citep{yang2025swesmith,zan2025multiswebenchmultilingualbenchmarkissue,yang2025swebench,badertdinov2025swerebenchautomatedpipelinetask}. In parallel, scalable training-oriented resources like SWE-smith~\citep{yang2025swesmith}, SWE-Gym~\citep{pan2025trainingsoftwareengineeringagents}, and SWE-Dev~\citep{wang2025swedev} are actively fueling agent development.Supported by these robust resources, frameworks such as SWE-agent~\citep{yang2024sweagent}, AutoCodeRover~\citep{zhang2024autocoderover}, Agentless~\citep{xia2024agentless}, OpenHands~\citep{wang2024openhands}, Claude Code~\citep{anthropic2025claudecode}, Mini-SWE-Agent~\citep{yang2024sweagent}, and AweAgent~\citep{chen2026beyondswecurrentcodeagent} have successfully turned repository-scale issue resolution into a practical, everyday testbed for software engineering agents.
+
+However, the widespread adoption of these benchmarks stems from a protocol that is both their strength and primary limitation: each repair attempt is reduced to a single pass/fail prediction, as shown in Figure~\ref{fig:motivation}. While this binary metric makes models directly comparable, it obscures the underlying mechanics of success. A holistic pass/fail score cannot reveal which specific step---reading the relevant code, localizing the bug, generating the patch, or validating the fix---actually succeeded or failed. Once we step back from this single prediction, two distinct failure modes emerge. An agent either fails to explore the relevant code for the fix, or it retrieves sufficient evidence but fails to synthesize a correct patch. While the latter is readily captured by existing executable benchmarks, the former is largely hidden. A real-world repository contains thousands of files. Determining which specific lines carries the evidence for a given issue is a daunting challenge, even for the agents that ultimately solve it. This decomposition is increasingly recognized by recent work on context management and bug localization~\citep{li2026contextbench,chen2025locagent,yu2025orcaloca,wang2026swepruner,zhu2026swecontextbench,suri2026codescout}.
+
+Consequently, the capability of coding agents in repository exploration remains under-measured.
+Despite recent efforts to study agentic localization and retrieval~\citep{li2026contextbench,zhang2025mulocbench,wang2026swepruner,zhu2026swecontextbench,chen2025locagent,yu2025orcaloca,suri2026codescout}, existing evaluations still lack a common, precise target for comparing classical retrievers, search agents, and long-context selectors. Measuring file or function level localization only indicates whether an agent reached the right general neighborhood, no metric reveals exactly \textit{which} lines of code were explored. Without visibility into line-level coverage, we cannot rigorously evaluate how well an agent explores a repository before it begins to write code.
+
+
+\input{paper/pictures/tex/motivation}
+
+
+
+In this paper, we introduce \textbf{SWE-Explore}, a benchmark that turns repository exploration into a comparable evaluation target. Given an issue and a repository, an explorer is asked to return a ranked list of code regions; we then score that list against ground truth derived from independent agent trajectories that successfully solved the same issue, asking how early it surfaces the evidence those trajectories actually relied on. The output format is deliberately simple: sparse retrievers, interactive agents, and long-context selectors are all compared as producers of the same ranked region list under a fixed line budget. This lets SWE-Explore evaluate exploration behavior without requiring the explorer to write or validate a patch.
+
+To check that a higher exploration score actually leads to better repair, SWE-Explore is paired with a controlled downstream protocol: we feed each explorer's output---and only that output---as the available repository context to a fixed coding agent, and measure whether the resulting patch passes the original test suite. This protocol is not a replacement for the primary benchmark but a way to verify that what our exploration metrics measure is the same thing that drives downstream success. In this sense, the downstream protocol serves as an external validity check, while the benchmark itself remains a lightweight context-selection task.
+
+
+
+In summary, our contributions are as follows:
+
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=0pt]
+
+\item \textbf{A new evaluation target.} We isolate repository exploration from end-to-end repair and formalize it as a ranked, line-level context selection task, so that retrievers, search agents, and long-context selectors can be compared on the axis they are designed to improve.
+
+\item \textbf{Trajectory-grounded supervision.} We propose a novel method to annotate ground truth lines from successful agent trajectories, with least requiring manual annotation.
+
+\item \textbf{A studied metric set, validated against repair.} We systematically compare coverage, ranking, and budget-efficiency metrics, and use a controlled downstream protocol---where each explorer's output is the only context visible to a fixed coding agent---to show that the metrics we keep are predictive of repair success across a broad set of explorers.
+
+\end{itemize}

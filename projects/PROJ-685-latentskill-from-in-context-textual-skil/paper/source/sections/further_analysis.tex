@@ -1,0 +1,47 @@
+\section{Sensitivity and Security}
+We further evaluate robustness when the skill text is perturbed or the prompt is attacked. For sensitivity analysis, we apply four perturbations to the skill text: \textbf{Paraphrase}, which rewrites the skill with equivalent meaning; \textbf{Plaintext}, which removes Markdown formatting; \textbf{Reorder}, which shuffles bullet order within each section; and \textbf{Noise}, which injects irrelevant but fluent descriptions. For security analysis, we consider two prompt-level attacks: \textbf{Hijack}, which appends a malicious system-override instruction, and \textbf{Extract}, which asks the model to reproduce the skill content. Implementation details and full per-task results are provided in Appendix~\ref{app:perturbation}.
+
+As shown in Table~\ref{tab:sensitivity_security}, \method{} maintains a consistent advantage over In-context Skill under all perturbations. On ALFWorld, the margin ranges from 17.2 to 24.3 points, comparable to the 21.4 point margin under the base condition. On Search-QA, the latent-skill approach also remains ahead under every perturbation. Notably, removing Markdown formatting causes no degradation on ALFWorld, suggesting that the generated LoRA captures skill semantics rather than relying on surface formatting. Across the four perturbations, the average ALFWorld success rate is 70.7\%, only 3.6 points below the base performance.
+
+The same pattern holds under prompt-level attacks. Under Hijack, In-context Skill drops from 52.9\% to 8.57\% on ALFWorld, while the weight-space variant retains 38.6\%; on Search-QA, it drops by only 1.6 points. Under Extract, In-context Skill is vulnerable because the skill text is directly present in the prompt, whereas weight-space storage reduces direct plaintext exposure. These results suggest that moving skills from prompt space to LoRA weights improves not only efficiency, but also robustness to prompt perturbations and prompt-level attacks.
+% \subsection{Sensitivity}
+% To verify the robustness of the hypernetwork encoding, we apply four types of perturbation to the skill text and evaluate both In-context Skill and \method{} on the perturbed skills: (1) \textbf{Paraphrase}: semantically equivalent rewriting with altered wording; (2) \textbf{Plaintext}: removal of Markdown structural markup; (3) \textbf{Reorder}: random shuffling of bullet-point order within each section; (4) \textbf{Noise}: injection of logically irrelevant but grammatically fluent descriptions.
+ 
+% As shown in Table~\ref{tab:sensitivity_security}, \method{} maintains a consistent advantage over In-context Skill under all perturbation types. On ALFWorld, the margin ranges from +17.2 to +24.3 percentage points across the four perturbations, comparable to or exceeding the +21.4 percentage point advantage under the base condition. On Search-QA, \method{} likewise retains its lead under every perturbation. Notably, removing Markdown formatting causes zero performance degradation for \method{} on ALFWorld, indicating that the hypernetwork encodes the semantic content of a skill rather than its surface formatting. Across all four perturbations, \method{} averages 70.7\% on ALFWorld, only 3.6 percentage points below the base, while In-context Skill averages 49.8\%, 3.1 percentage points below its base, with both methods exhibiting comparable magnitudes of degradation. These results confirm that the hypernetwork's encoding is inherently robust to surface-level variation in skill text, and that the performance advantage of \method{} does not depend on specific wording or formatting but stems from the structural advantage of parametric storage itself. Perturbation implementation details and full per-task results are provided in Appendix~\ref{app:perturbation}.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{
+  Average performance under skill text perturbations and adversarial attacks.
+  ALFWorld reports success rate (\%) and Search-QA reports exact match (\%).
+}
+\label{tab:sensitivity_security}
+\begin{tabular}{l c>{\columncolor{ourblue}}c c>{\columncolor{ourblue}}c}
+\toprule
+& \multicolumn{2}{c}{\textbf{ALFWorld}}
+& \multicolumn{2}{c}{\textbf{Search-QA}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\textbf{Method}
+  & \textbf{In-context} & \textbf{Latent}
+  & \textbf{In-context} & \textbf{Latent} \\
+\midrule
+Base       & 52.9 & \best{74.3} & 32.6 & \best{35.6} \\
+\midrule
+Paraphrase & 50.7 & \best{67.9} & 33.2 & \best{34.0} \\
+Plaintext  & 50.0 & \best{74.3} & 32.4 & \best{34.4} \\
+Reorder    & 50.7 & \best{69.3} & 32.4 & \best{33.6} \\
+Noise      & 47.9 & \best{71.4} & 31.7 & \best{33.7} \\
+\midrule
+Hijack     & 8.57 & \best{38.6} & 23.5 & \best{34.0} \\
+Extract    & 48.6 & \best{70.0} & 21.3 & \best{29.3} \\
+\bottomrule
+\end{tabular}
+\end{table}
+% \subsection{Security}
+
+% We evaluate the security advantage of latent skills from two attack directions. Task Hijacking appends a malicious instruction disguised as a system override to the end of the prompt, attempting to divert the agent from its original task; Skill Extraction injects a direct extraction instruction asking the model to reproduce its skill content verbatim, simulating a prompt leaking attack.
+
+% As shown in Table~\ref{tab:sensitivity_security}, \method{} exhibits stronger robustness under both attack types. Task Hijacking causes In-context Skill to drop from 52.9\% to 8.57\% on ALFWorld, while \method{} still maintains 38.6\%; on Search-QA, \method{} drops by only 1.6 percentage points, remaining virtually unaffected. This is because in-context skills coexist with malicious instructions in the same prompt, competing directly at the attention level, whereas latent skills are already consolidated into weight parameters, making it difficult for text-level attacks to override parameter-level behavioral patterns. For Skill Extraction, in-context skill text is fully exposed in the prompt and can be directly read out by extraction attacks; latent skills, by contrast, are encoded in weight space, making it substantially harder for attackers to recover the original skill text from model outputs compared to the in-context approach.

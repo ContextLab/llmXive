@@ -1,0 +1,15 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have introduced \emph{latent spatial memory}, a 3D cache that stores the video diffusion model's own latent features rather than RGB colors at each world-space point, and built \method{} around this representation as a video world model that operates entirely within the VAE latent manifold.
+By reading the cache through a single latent-resolution projection, \method{} removes the rasterise-and-encode round trip that dominates the per-step cost of RGB point cloud caches.
+The decode-and-re-encode pair required to grow the cache is amortised over an entire chunk and never appears in the conditioning loop, so the per-step critical path is freed of pixel-space operations and the cache footprint shrinks by the squared VAE compression factor.
+Across WorldScore and RealEstate10K, \method{} delivers state-of-the-art quality while reading from the cache an order of magnitude faster and with an order of magnitude less GPU memory than RGB-cache baselines, turning world-consistent generation into a process that scales with the rollout horizon.
+
+\boldstart{Limitations and future work.}
+The dynamic-region filter excludes moving entities from the persistent memory because their geometry is unreliable, so \method{} does not maintain the state of dynamic actors across chunks.
+Scenes dominated by pervasive motion therefore benefit less from the cache than scenes dominated by rigid geometry, and persisting dynamic content across chunks is a natural direction for future work.
+\vspace{1cm}
+
+\section{Acknowledgments}
+This work was supported by computing resources from Microsoft.

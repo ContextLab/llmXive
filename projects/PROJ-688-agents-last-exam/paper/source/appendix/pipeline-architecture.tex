@@ -1,0 +1,19 @@
+\subsection{Pipeline Architecture Details}
+\label{app:pipeline-architecture}
+
+This appendix expands on the three decoupled components summarized in Section~\ref{sec:pipeline-architecture} and depicted in Figure~\ref{fig:task-spec}: the task specification, the agent, and the environment.
+
+\noindent \textbf{Task Specification.}
+The task specification is the executable form of an expert submission. It encapsulates five elements provided during the construction pipeline (Section~\ref{sec:construction-pipeline}): a natural-language \emph{description}, \emph{input assets}, the required \emph{software}, \emph{reference assets} (ground-truth outputs), and \emph{evaluation criteria}. These are encoded in a single \texttt{main.py} file that exposes three lifecycle functions: \texttt{load()} declares the task description, metadata, and compute requirements; \texttt{start()} provisions the virtual machine into a deterministic starting state by copying input assets and launching the required software; and \texttt{evaluate()} scores the agent's output artifacts against references or rubrics, returning a normalized score in $[0, 1]$. The full protocol is detailed in Appendix~\ref{app:task-spec-protocol}.
+
+\noindent \textbf{Agent.}
+The agent is the system under evaluation, composed of a \emph{harness} (orchestration middleware) and a \emph{model} (the foundation model). Upon receiving the task configuration, which consists of a description and associated metadata, the agent enters an action loop: it observes the environment (via screenshots, shell output, or file contents), selects an action (mouse clicks, keystrokes, shell commands, file edits, or API calls), executes it, and repeats until it decides to terminate.
+
+\noindent \textbf{Environment.}
+Each task executes inside a remote virtual machine that hosts the required industrial software and exposes a standardized filesystem layout. Four directories partition the workspace: \texttt{input/} contains assets the agent reads (e.g., design files, game binaries, raw data); \texttt{software/} holds pre-installed applications and their dependencies; \texttt{output/} is the sole writable target where the agent deposits its deliverables; and \texttt{reference/} stores ground-truth artifacts used exclusively by the scoring function (the agent has no access to this directory during execution). This layout enforces a clean contract: the agent reads from \texttt{input/}, writes to \texttt{output/}, and is scored by comparison against \texttt{reference/}.
+
+\noindent \textbf{Compute environment.}
+All task instances are executed on Google Cloud Platform (GCP) virtual machines. The default configuration is \texttt{c4-standard-4} (4~vCPUs, 16\,GB RAM). Tasks that require GPU acceleration (e.g., 3D rendering, simulation) use \texttt{g2-standard-8} instances equipped with an NVIDIA L4 GPU. A small number of tasks involving heavy numerical simulation are provisioned with higher-memory or multi-core configurations as dictated by the task's compute requirements declared in \texttt{load()}. These resource assignments are determined per-task based on the software and workload involved.
+
+\noindent \textbf{Decoupled design guarantees.}
+The decoupled design yields two practical guarantees. First, any agent, regardless of its internal architecture, model backbone, or tool configuration, can be evaluated on any task provided it conforms to the action interface (shell commands, GUI interactions, and file I/O). Second, the same task specification can be deployed across different environment backends (cloud VMs or local containers) without modification.

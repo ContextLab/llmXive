@@ -1,0 +1,168 @@
+\documentclass{article}
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+
+\usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{arydshln}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage{fontawesome5}
+\usepackage[most]{tcolorbox}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{tikz}
+\usepackage[font=footnotesize]{caption}
+\usepackage{etoc}
+\usepackage{placeins}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\circled}[1]{\tikz[baseline=(char.base)]{\node[shape=circle,draw,inner sep=1pt,minimum size=12pt,font=\scriptsize] (char) {#1};}}
+\definecolor{agentrow}{HTML}{F0F6EE}
+\definecolor{modelrow}{HTML}{FFF6E8}
+\definecolor{harnessrow}{HTML}{EEF5FB}
+\definecolor{termrow}{HTML}{F5F0FA}
+\definecolor{lastexamred}{HTML}{D00000}
+\definecolor{sc0}{HTML}{9C2F2F}
+\definecolor{sc1}{HTML}{B45F06}
+\definecolor{sc2}{HTML}{8A6D1D}
+\definecolor{sc3}{HTML}{4F7C2C}
+\definecolor{sc4}{HTML}{2E6F3E}
+\definecolor{sc5}{HTML}{1D5B35}
+\newcommand{\hsc}[1]{%
+  \ifdim #1 pt < 5pt \textcolor{sc0}{#1}%
+  \else\ifdim #1 pt < 20pt \textcolor{sc1}{#1}%
+  \else\ifdim #1 pt < 40pt \textcolor{sc2}{#1}%
+  \else\ifdim #1 pt < 60pt \textcolor{sc3}{#1}%
+  \else\ifdim #1 pt < 80pt \textcolor{sc4}{#1}%
+  \else \textcolor{sc5}{#1}%
+  \fi\fi\fi\fi\fi}
+\newcommand{\hscb}[1]{%
+  \ifdim #1 pt < 5pt \textcolor{sc0}{\textbf{#1}}%
+  \else\ifdim #1 pt < 20pt \textcolor{sc1}{\textbf{#1}}%
+  \else\ifdim #1 pt < 40pt \textcolor{sc2}{\textbf{#1}}%
+  \else\ifdim #1 pt < 60pt \textcolor{sc3}{\textbf{#1}}%
+  \else\ifdim #1 pt < 80pt \textcolor{sc4}{\textbf{#1}}%
+  \else \textcolor{sc5}{\textbf{#1}}%
+  \fi\fi\fi\fi\fi}
+
+\definecolor{papertodobg}{HTML}{FFF8E1}
+\definecolor{papertodoframe}{HTML}{E65100}
+\newcommand{\papertodotag}{%
+  \tcbox[on line, arc=2pt, boxrule=0.45pt,%
+    colback=papertodobg, colframe=papertodoframe!55!black,%
+    boxsep=2pt, left=3.5pt, right=3.5pt, top=1pt, bottom=1pt,%
+    nobeforeafter]{\textbf{[TODO]}}}
+\newcommand{\papertodo}[1]{%
+  \tcbox[on line, arc=2pt, boxrule=0.45pt,%
+    colback=papertodobg, colframe=papertodoframe!55!black,%
+    boxsep=2pt, left=3.5pt, right=3.5pt, top=1pt, bottom=1pt,%
+    nobeforeafter]{\textbf{[TODO:} #1\textbf{]}}}
+\newenvironment{paperTODOblock}{%
+  \begin{tcolorbox}[
+    colback=papertodobg, colframe=papertodoframe!55!black,
+    arc=2pt, boxrule=0.45pt, left=5pt, right=5pt, top=4pt, bottom=4pt,
+    before skip=\smallskipamount, after skip=\smallskipamount]
+}{\end{tcolorbox}}
+
+\newtcolorbox{lastexambox}{%
+  enhanced, sharp corners,
+  colback=lastexamred!4, colframe=lastexamred!70!black,
+  boxrule=0pt, leftrule=3pt,
+  left=7pt, right=7pt, top=5pt, bottom=5pt,
+  before skip=6pt, after skip=8pt,
+  fontupper=\small
+}
+\renewcommand{\answerTODO}[1][]{\papertodotag}
+\renewcommand{\justificationTODO}[1][]{\papertodotag}
+
+\newcommand{\dawn}[1]{{\color{orange} (dawn: #1)}}
+\newcommand{\YY}[1]{{\color{blue} (YY: #1)}}
+
+\graphicspath{{./}}
+\input{data/counts.tex}
+
+\definecolor{halinkcol}{HTML}{1B4F9C}
+\newcommand{\hficon}{\raisebox{-0.22\height}{\includegraphics[height=1.02em]{figures/hf-logo.png}}}
+\newcommand{\halink}[3]{{\hypersetup{hidelinks}\href{#3}{{\color{black!80}#1}\,\textcolor{halinkcol}{#2}}}}
+\newcommand{\halinksep}{\hspace{0.9em}\textcolor{black!25}{\rule[-0.15ex]{0.5pt}{1.5ex}}\hspace{0.9em}}
+\newcommand{\resourcelinks}{%
+  {\small
+    \halink{\faGlobe}{Website}{https://agents-last-exam.org}\halinksep
+    \halink{\faGithub}{GitHub}{https://github.com/rdi-berkeley/agents-last-exam}\halinksep
+    \halink{\hficon}{HuggingFace}{https://huggingface.co/datasets/agents-last-exam/agents-last-exam}\halinksep
+    \halink{\faTrophy}{Leaderboard}{https://agents-last-exam.org/leaderboard}%
+  }}
+
+\title{%
+  \raisebox{-0.12\height}{\includegraphics[height=1.15em]{figures/agenthle-logo-new.png}}\hspace{0.35em}%
+  Agents' Last Exam%
+}
+
+\input{author}
+\vspace{-1cm}
+
+\begin{document}
+
+\maketitle
+\vspace{-5.2em}
+\centerline{\resourcelinks}
+\vspace{1.8em}
+\input{authors-frontmatter}
+\clearpage
+\input{abstract}
+\vspace{-1em}
+\begin{figure}[h]
+\centering
+\makebox[\textwidth][c]{%
+\includegraphics[width=1.1\linewidth]{figures/teaser.pdf}%
+}
+\caption{\textbf{Agents' Last Exam} spans a broad taxonomy of professional tasks and realistic workflows.}
+\label{fig:teaser}
+\end{figure}
+
+\begin{figure}[t!]
+  \centering
+  \makebox[\textwidth][c]{%
+    \includegraphics[width=1.17\textwidth]{figures/build_distribution/panel_c/panel_c_subdomain.pdf}%
+  }
+  \vspace{-1.5em}
+  \caption{\textbf{Distribution of \totalvariants{} task instances across the ALE taxonomy.} Each row is one of the \taskcount{} subdomains, grouped under the \clustercount{} top-level domains (parenthetical numbers give domain totals). Stacked bars decompose each subdomain into fully-implemented instances (domain color) and expert submissions awaiting Quality Control (QC) Process (orange). All \taskcount{} subdomains receive non-zero coverage. Current runnable task instances target either Linux or Windows virtual machines.}
+  \label{fig:subdomain-distribution}
+  \vspace{-1.6em}
+\end{figure}
+
+\input{intro}
+\input{dataset-details}
+\input{evaluation-pipeline}
+\input{experiment}
+\input{related}
+\input{conclusion}
+\input{acknowledgements}
+
+{\small
+\bibliographystyle{plainnat}
+\bibliography{references}
+}
+
+\appendix
+\addtocontents{toc}{\protect\contentsline{part}{Appendices}{}{}}
+
+\input{appendix}
+
+\FloatBarrier
+
+\end{document}

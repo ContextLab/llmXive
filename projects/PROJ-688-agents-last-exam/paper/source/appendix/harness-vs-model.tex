@@ -1,0 +1,19 @@
+\subsection{Model vs.\ Harness Effect}
+\label{app:harness-vs-model}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.65\linewidth]{figures/harness_vs_model.pdf}
+\caption{\textbf{Model choice vs.\ harness choice.}
+Each dot is one configuration; the vertical bracket shows the full range of overall pass rates.
+Varying the backbone model under a fixed harness (OpenClaw, 12 models) produces an 18.0\,pp spread, roughly 3$\times$ the spread observed when varying the harness under a fixed backbone (5.3--6.0\,pp).}
+\label{fig:harness-vs-model}
+\end{figure}
+
+A natural question raised by Table~\ref{tab:main-results} is whether performance differences are driven primarily by the choice of foundation model or the choice of agent harness.
+Figure~\ref{fig:harness-vs-model} isolates the two factors.
+Under a fixed OpenClaw harness, swapping the backbone model produces an overall pass-rate spread of 18.0 percentage points (from 5.3\% for Grok~4.3 to 23.3\% for GPT-5.5).
+Under a fixed backbone, swapping the harness yields a much narrower spread: 6.0\,pp when the backbone is GPT-5.5 (five harnesses, 19.3--25.3\%) and 5.3\,pp when the backbone is Claude Opus~4.7 (three harnesses, 14.7--20.0\%).
+
+The pattern is consistent across both backbone choices: among the competitive harnesses evaluated here, engineering differences in prompting strategy, tool routing, and context management account for only a modest share of overall performance variation.
+The dominant factor is the foundation model's reasoning and domain knowledge, which aligns with the failure analysis in Section~\ref{sec:experiment-analysis}, where Understanding and Approach errors (both rooted in model capability) constitute the majority of failures.

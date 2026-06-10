@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[preprint]{acl}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{array}
+
+\captionsetup[table]{
+  font=small,
+  labelfont=bf,
+  textfont=normalfont,
+  labelsep=space,
+  skip=4pt
+}
+
+\hbadness=10000
+\vbadness=10000
+
+\title{
+\vspace{-0.7em}
+{\LARGE \bfseries On the Geometry of On-Policy Distillation}
+\vspace{-0.3em}
+}
+
+\setlength\titlebox{4.0cm}
+\usepackage[most]{tcolorbox}
+
+% \setlength{\dbltextfloatsep}{6pt plus 2pt minus 2pt}
+% \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+% \setlength{\floatsep}{6pt plus 2pt minus 2pt}
+
+\newtcolorbox{takeawaybox}{
+  colback=blue!2,
+  colframe=blue!25!black,
+  boxrule=0.35pt,
+  arc=1pt,
+  left=5pt,
+  right=5pt,
+  top=2pt,
+  bottom=2pt,
+  before skip=6pt,
+  after skip=6pt
+}
+
+
+\setlength\titlebox{4.6cm}
+
+\author{
+\begin{tabular}{c}
+\large
+Zhennan Shen$^{1}$,
+Yanshu Li$^{2}$,
+Qingyu Yin$^{3}$,
+Chak Tou Leong$^{4}$,
+Zhilin Wang$^{5}$ \\
+\large
+Yanxu Chen$^{6}$,
+Rongduo Han$^{7}$,
+Sunbowen Lee$^{8}$,
+Yi R. Fung$^{1}$ \\
+\\[-0.35em]
+\normalsize
+$^{1}$HKUST \quad
+$^{2}$UT Austin \quad
+$^{3}$Zhejiang University \quad
+$^{4}$Hong Kong PolyU \\
+$^{5}$USTC \quad
+$^{6}$BUPT \quad
+$^{7}$Nankai University \quad
+$^{8}$BIT
+\end{tabular}
+}
+
+
+
+\begin{document}
+
+\maketitle
+
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/04_opd_pnt_framework}
+\input{sections/05_update_geometry}
+\input{sections/06_low_rank_drivers}
+\input{sections/07_discussion}
+\input{sections/limitation}
+
+\bibliography{custom}
+
+\input{sections/appendix}
+
+\end{document}

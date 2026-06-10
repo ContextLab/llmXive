@@ -1,0 +1,132 @@
+\section{SWE-Explore Benchmark}
+% \vspace{-3mm}
+
+
+
+\subsection{Task Formulation}
+% \vspace{-2mm}
+SWE-Explore formulates \emph{repository exploration} as a standalone functionality. Given an issue $q$ and a repository snapshot $\mathcal{R}$, SWE-Explore returns a ranked list of relevant code regions: 
+\[
+  f : (q, \mathcal{R}) \;\mapsto\; P = (r_1, r_2, \ldots, r_K),
+\]
+where \(P= (r_1, r_2, \ldots, r_K)\) is the \emph{ranked region list}. Each region $r_i = (p_i, s_i, e_i)$ consists of a file path $p_i$ and a line range $[s_i, e_i]$. SWE-Explore does not require a final patch, does not access the ground truth, and is not required to interact with the repository. As shown in Figure~\ref{fig:framework}, the benchmark scores $P$ against trajectory-grounded supervision derived per instance (\S\ref{sec:gt}) using the metric family in \S\ref{sec:metrics}. Independently, we use a restricted-context repair bridge (\S\ref{sec:bridge}) as a one-time methodological validation that these metrics track repair behavior; the bridge is not part of the standard evaluation loop, and a new explorer can be benchmarked using only the metrics above.
+
+
+
+
+% \vspace{-3mm}
+\subsection{Data Sources}
+\label{sec:stats}
+% \vspace{-2mm}
+SWE-Explore is built on three public repository-level data sources: SWE-bench Verified~\citep{jimenez2024swebench,chowdhury2024swebenchverified}, SWE-bench-Pro~\citep{deng2025swebenchproaiagents}, and SWE-bench Multilingual~\citep{yang2025swesmith}. After the solution-verification filter described in \S\ref{sec:gt}, we retain $848$ instances spanning $10$ programming languages and $203$ open-source repositories. As Table~\ref{tab:bench-stats} and Figure~\ref{fig:lang-dist} summarizes, each instance carries on average $4.3$ ground-truth files, $4.7$ regions, and $1{,}578$ visible lines, embedded in repositories that average $759$ files and $180$K lines of non-test source code. Per-source breakdowns and the full benchmark distribution are deferred to Appendix~\ref{app:datasets}.
+
+
+
+
+
+% \vspace{-3mm}
+\subsection{Ground-Truth Annotation}
+\label{sec:gt}
+% \vspace{-2mm}
+
+
+SWE-Explore keeps only instances for which we observe \emph{at least two successful issue-resolution trajectories} from strong LLMs such as GPT-5.4, Gemini-3-Pro, Sonnet-4.6, GLM-5.1, and Kimi-K2.6. Instances without two successful trajectories are excluded, because their trajectory-derived context would not support the cross-run agreement signal used below. After this filter, $848$ instances are retained across the three source datasets.
+
+% \vspace{-3mm}
+\paragraph{Trajectory Source.}
+Directly annotating necessary context by hand is costly at our scale and difficult to make consistent: hundreds of repository-level issues span ten languages, and annotators may draw different boundaries around helpers, configuration, and tests. SWE-Explore instead derives supervision from \emph{solution-verified agent trajectories}: successful runs by strong coding agents such as GPT-5.4, Gemini-3-Pro, Sonnet-4.6, GLM-5.1, and Kimi-2.6 under the original harness. For each retained instance, we collect its successful trajectory set $T$ with $|T| \geq 2$.
+
+
+
+We treat regions repeatedly surfaced across independent successful trajectories as a behavioral signal for core context: they are the code spans that different solution paths naturally explored while resolving the same issue. Given $T$, we first intersect read regions across trajectories to obtain conservative core candidates, then use an LLM-based refinement step to promote a small subset of model-specific optional reads when they are load-bearing for the issue. Finally, the authors manually audit every refined ground truth against the issue and trajectories, removing unsupported regions.
+
+
+
+
+
+\input{paper/pictures/tex/overview}
+
+
+
+
+% \vspace{-3mm}
+\paragraph{Extracting reads.} From each trajectory we collect all read actions that resolve to an explicit file--interval pair---editor-style \texttt{view} tool calls, command-line reads (\texttt{cat}/\texttt{head}/\texttt{tail}/\texttt{sed -n}), and \texttt{grep -n} line hits within $\mathcal{R}$---and normalize them into regions $(p, s, e)$. Actions we cannot unambiguously map to such a pair (e.g., free-form terminal interaction) are discarded rather than heuristically expanded, keeping the supervision record strictly grounded in observable reads.
+
+
+\input{paper/pictures/tex/instance}
+% \vspace{-3mm}
+\paragraph{Generating regions.}\label{sec:core-opt}
+Let $R(\tau)$ be the set of $(p, s, e)$ regions extracted from trajectory $\tau$ as described above. We first compute a conservative intersection candidate $R_{\text{int}} = \bigcap_{\tau \in T} R(\tau)$ and collect model-specific optional reads outside this intersection as $R_{\text{opt}}^{(m)} = \bigl(\bigcup_{\tau \in T_m} R(\tau)\bigr) \setminus R_{\text{int}}$, where $T_m \subseteq T$ is the successful trajectories from model family $m$. Intersection and union are taken file-wise at the line level, so two overlapping reads of \texttt{parser.py:40--80} and \texttt{parser.py:60--100} contribute \texttt{parser.py:60--80} to $R_{\text{int}}$.
+
+The final ground-truth core $R_{\text{core}}$ used in this paper is the \emph{refined} version of $R_{\text{int}}$: an LLM-based refinement step promotes a small subset of optional reads when they are load-bearing for the issue, and the authors then manually audit the resulting regions. Unless otherwise stated, all later uses of $R_{\text{core}}$ refer to this refined and audited ground truth, and $R_{\text{core}}$ is the only scoring target in the main experiments. Figure~\ref{fig:instance-example} shows an example instance of SWE-Explore Bench. Details and ablations comparing pure intersection, refined core, and union variants are deferred to Appendix~\ref{app:refine}.
+
+
+% \vspace{-3mm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+\subsection{Metrics}
+\label{sec:metrics}
+ 
+With ground truth in hand, the next question is how to score an explorer's ranked region list against it. Let $L(r) \subseteq \{(p, \ell)\}$ be the set of $(p, \ell)$ pairs covered by region $r$, and for budget $B$ let $P_{\leq B}$ be the longest prefix of $P$ whose cumulative $|L(\cdot)|$ does not exceed $B$. Write $L(P) = \bigcup_i L(r_i)$ and $Y = L(R_{\text{core}})$.
+ 
+\paragraph{Coverage and accuracy.}
+
+\emph{Precision} and \emph{recall} are defined at the line level,
+$\textsc{Prec} = |L(P) \cap Y| / |L(P)|$ and $\textsc{Rec} = |L(P) \cap Y| / |Y|$, with $\textsc{F1}$ their harmonic mean. We also report two coarser hit rates that capture the practically important event of overlapping the right code even when line spans are imprecise: a file-level
+$\textsc{HitFile} = |\{p : \exists i,\, p_i = p\} \cap \textsc{Files}(Y)| / |\textsc{Files}(Y)|$,
+and a region-level analogue
+$\textsc{HitRegion} = |\{r \in R_{\text{core}} : \exists i,\, L(r_i) \cap L(r) \neq \emptyset\}| / |R_{\text{core}}|$,
+which counts the fraction of core regions for which the explorer surfaced at least one overlapping prediction.
+ 
+\paragraph{Ranking under budget.}
+We adapt nDCG to a line-budget setting. Each predicted region $r_i$ is assigned a gain $g_i$ equal to the number of core lines it covers; regions are processed in their predicted order, and $\textsc{DCG@}B$ accumulates the discounted gain over the longest prefix whose cumulative line count stays within the budget $B$:
+\[
+  \textsc{DCG@}B \;=\; \sum_{i \in P_{\leq B}} \frac{g_i}{\log_2(i+2)}.
+\]
+$\textsc{nDCG@}B$ normalizes this against the best DCG attainable on the same instance under the same line budget; the ideal-ordering procedure is described in Appendix~\ref{app:idcg}. Using a line budget instead of a rank cutoff means a single verbose region that exhausts the budget without proportional gain is penalized just as heavily as omitting useful content. We additionally report \emph{first useful hit} (FUH), defined as $1 - i^\star / |P|$ where $i^\star$ is the smallest rank whose visible lines intersect the core target $Y$ (and $0$ if no rank in $P$ does); higher FUH means the explorer surfaced useful evidence earlier.
+
+
+ 
+
+\paragraph{Efficiency and noise.}
+\emph{Context efficiency} is the fraction of predicted visible lines that fall inside $L(R_{\text{core}}) \cup L(R_{\text{opt}}^{(m)})$, quantifying how much of the selected context is grounded evidence versus off-target. A complementary \emph{noise rate}, defined as the fraction of predicted regions overlapping neither $R_{\text{core}}$ nor $R_{\text{opt}}^{(m)}$, serves as a region-level diagnostic.
+
+
+
+
+
+
+
+ 
+\paragraph{Validation by downstream repair.}\label{sec:bridge}
+To check that the metrics above track downstream repair behavior, we construct a one-time \emph{restricted-context environment}: for a given explorer output $P$, we hide everything in the repository outside $\bigcup_i (p_i, [s_i, e_i])$, and ask a fixed coding agent to produce a patch that is then judged by the original SWE-bench harness. This is a one-time sanity check on the metrics and is not part of the standard evaluation procedure, and \S\ref{sec:downstream} uses it to quantify how well each metric predicts resolve rate; full implementation details---the sanitized container, the line-budget value $B$, the test-callback interface, and the patch scaffold---are given in Appendix~\ref{app:bridge}.
+
+
+
+
+
+
+
+
+
+
+
+
+
