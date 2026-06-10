@@ -1,0 +1,96 @@
+
+\section{What Controls Subspace Locking?}
+\label{sec:controls}
+Section~\ref{sec:subspace-lock} shows that on-policy distillation (OPD) learns through an
+early-emerging update channel sufficient for training. We now ask what
+maintains this channel by perturbing three candidate factors: token-level
+teacher supervision, rollout policy, and objective composition. We use stable rank as the primary diagnostic, with details in Appendix~\ref{app:control-details}.
+
+
+
+\subsection{Runtime Perturbations Preserve the Lock}
+\label{sec:runtime-controls}
+
+We first perturb runtime sources while keeping the objective fixed. Token
+sparsification retains either top-KL or randomly selected tokens at
+$25\%$ and $50\%$ density. Figure~\ref{fig:controls}(a) shows that all
+sparsified variants closely track the OPD stable-rank trajectory. Even
+random $25\%$ retention changes update scale more than spectral shape,
+indicating that the low-rank profile is not localized to a small set of
+high-KL tokens.
+
+% We next perturb rollout generation. 
+% Off-policy rollout perturbations leave the stable-rank trajectory nearly
+% unchanged, as shown in Figure~\ref{fig:controls}(b). Off-policy OPD produces
+% a modestly larger update norm, but its stable rank remains
+% matched to on-policy OPD. Thus, the lock is robust to both token-level
+% thinning and rollout-policy changes.
+
+Off-policy rollout perturbations also leave the stable-rank trajectory
+nearly unchanged (Figure~\ref{fig:controls}(b)). Although off-policy OPD
+produces a modestly larger update norm, its stable rank remains matched to
+on-policy OPD, showing robustness to rollout-policy changes.
+
+\subsection{Objective Mixing Changes the Rank Dynamics}
+\label{sec:objective-mixing}
+We perturb objective composition by interpolating the OPD and RLVR
+advantage signals in our GRPO-style policy-gradient implementation:
+\begin{equation}
+    A_i^{(\alpha)}
+    =
+    \alpha A_{i,\mathrm{OPD}}
+    +
+    (1-\alpha)A_{i,\mathrm{RLVR}} .
+    \label{eq:objective-mixing}
+\end{equation}
+Unlike token sparsification or off-policy generation, this changes the
+gradient source rather than only the sampled data.
+
+Figure~\ref{fig:controls}(c) shows a clear split. OPD-dominant mixtures
+retain the OPD-like stable-rank trajectory. When the OPD component becomes
+weak, the trajectory no longer follows the baseline and enters a distinct
+spectral regime. Objective composition therefore changes the rank dynamics
+in a way that runtime perturbations do not.
+
+\paragraph{Mechanistic view.}
+The controls separate sample perturbations from objective perturbations.
+OPD gradients can be written as token-level sums,
+\begin{equation}
+    g_{\mathrm{OPD}}=\sum_t J_t^\top \delta_t , \
+    \tilde g_{\mathrm{OPD}}=\sum_t m_t J_t^\top \delta_t ,
+\end{equation}
+where $J_t$ is the local Jacobian, $\delta_t$ is the teacher--student
+token discrepancy, and $m_t$ is a token mask. If token gradients share a
+dominant update subspace, masking primarily rescales the second moment,
+\begin{equation}
+    \mathbb{E}[\tilde g \tilde g^\top]
+    \approx
+    c\,\mathbb{E}[g_{\mathrm{OPD}}g_{\mathrm{OPD}}^\top]+\mathrm{noise},
+\end{equation}
+so the leading spectral directions are preserved. Off-policy rollouts
+change the sampling distribution, but retain the same teacher-token
+gradient source. Objective mixing changes the source itself:
+\begin{equation}
+\begin{split}
+    g_\alpha
+    &=
+    \alpha g_{\mathrm{OPD}}
+    +(1-\alpha)g_{\mathrm{RLVR}}, \\
+    \Sigma_\alpha
+    &\approx
+    \alpha^2\Sigma_{\mathrm{OPD}}
+    +(1-\alpha)^2\Sigma_{\mathrm{RLVR}} \\
+    &\quad
+    +\alpha(1-\alpha)\Sigma_{\mathrm{cross}} .
+\end{split}
+\end{equation}
+Thus, weakening the OPD term can change the dominant covariance geometry,
+explaining why objective mixing, unlike token thinning or rollout changes,
+breaks the OPD-like rank trajectory.
+
+\begin{takeawaybox}
+\textbf{Implication.}
+Subspace locking is objective-sensitive rather than runtime-induced.
+Effective OPD recipes should regulate objective-induced update geometry,
+not only token coverage or rollout generation.
+\end{takeawaybox}

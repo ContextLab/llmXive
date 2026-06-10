@@ -1,0 +1,204 @@
+\subsection{Evaluation Modes: Full Taxonomy and Worked Examples}
+\label{app:evaluation-modes}
+
+This appendix expands Section~\ref{sec:evaluation-modes}. We document (i) where the scoring code runs, (ii) the artifact modes that a task author can choose for the comparison, (iii) the score-composition patterns observed across the benchmark, and (iv) the helper layer that backs LLM-as-judge evaluations. Concrete task implementations are cited throughout so that readers can inspect the full source.
+
+\subsubsection{Execution Locale}
+\label{app:eval-locale}
+
+\noindent \textbf{Host-side scoring (default).}
+The harness pulls the agent's artifact off the VM with \texttt{session.read\_file} or \texttt{session.read\_bytes}, then runs the scoring code in the host Python process. This is the default whenever (a) the artifact is small enough to transfer and (b) the scoring tooling is available off-VM. Examples:
+\begin{itemize}[nosep,leftmargin=1.2em]
+    \item \texttt{finance/equity\_research\_summary} reads the produced LibreOffice workbook bytes and calls \texttt{score\_workbook\_bytes} against a manifest.
+    \item \texttt{cybersecurity/snake\_crackme} reads a flag file, normalizes the text, and compares the SHA-256 of every candidate against the expected digest.
+    \item \texttt{photography/raw\_photo\_processing} compares exported file pairs against a reference manifest.
+\end{itemize}
+Host-side scoring is preferred because the scoring code is more easily reviewed, version-controlled, and re-run offline against a saved trajectory.
+
+\noindent \textbf{VM-side verifier.}
+When the artifact requires software that cannot be reasonably moved off the VM (CAD/CAM kernels, headless 3D renderers, vendor-licensed engines, very large geometry), \texttt{evaluate()} uploads a per-task script from \texttt{tasks/<task>/scripts/} into a temporary directory on the VM and invokes it with \texttt{session.run\_command}; the script prints a JSON result on stdout, which the host parses into a score. Examples:
+\begin{itemize}[nosep,leftmargin=1.2em]
+    \item \texttt{manufacturing/gcode} uploads \texttt{check\_collision.py}, \texttt{simulate\_agent.py}, and \texttt{verify\_stl.py} to drive PowerMill's COM API for collision detection and stock simulation, then to score the resulting STL surface against a hidden reference STL.
+    \item \texttt{finance/sec\_10k\_financial\_parsing} uploads \texttt{score\_outputs.py} which uses the VM's Python environment to score the parsed filings against a multi-file reference manifest.
+\end{itemize}
+The contract is uniform: VM-side verifiers communicate with the host strictly through their stdout JSON, never by writing into \texttt{output/}.
+
+\subsubsection{Artifact Modes}
+\label{app:eval-modes}
+
+Each task workflow author selects one or more of the following modes for the comparison step. Table~\ref{tab:eval-modes} summarizes the modes and representative task workflows.
+
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{4.0cm}}
+        \toprule
+        \textbf{Mode} & \textbf{Reference form} & \textbf{Locale} & \textbf{Judge} & \textbf{Example task workflow}\\
+        \midrule
+        Exact / hashed value & secret / digest & host & code & \texttt{cybersecurity/}\allowbreak\texttt{snake\_crackme}\\
+        Structured tabular & manifest of (field, value, tolerance) & host or VM & code & \texttt{finance/}\allowbreak\texttt{sec\_10k\_}\allowbreak\texttt{financial\_parsing}\\
+        Geometric / spatial & STL / mesh / point cloud & VM & code & \texttt{manufacturing/}\allowbreak\texttt{gcode}\\
+        Visual appearance & reference screenshots & host & vision LLM & \texttt{game/}\allowbreak\texttt{mota\_reproduction}\\
+        Behavioral / world state & deterministic state dump & VM & code & \texttt{architecture/}\allowbreak\texttt{parametric\_}\allowbreak\texttt{energy\_simulation}\\
+        Free-text / semantic & rubric & host & LLM & \texttt{finance/}\allowbreak\texttt{equity\_research\_}\allowbreak\texttt{summary} (rubric component)\\
+        Executable artifact & test set / oracle program & host or VM & code & \texttt{data\_computer\_}\allowbreak\texttt{science/}\allowbreak\texttt{data\_pipeline\_}\allowbreak\texttt{etl\_instance\_1}\\
+        \bottomrule
+    \end{tabular}
+    \caption{Evaluation modes available to task workflow authors. Most ALE task workflows combine two or more modes (e.g., a behavioral gate with a geometric score).}
+    \label{tab:eval-modes}
+\end{table}
+
+\noindent \textbf{Exact / hashed values.} The deliverable is a short string (a flag, a parsed answer, an identifier). Scoring is byte-equal or hash-equal after normalization. Because the answer is small but the search space is large, this mode is dominant in cybersecurity and a subset of mathematics task workflows.
+
+\noindent \textbf{Structured tabular / numeric.} The deliverable is a table or a multi-field record (cells of a workbook, line items of a financial filing, parameters of a calibration). The reference is a manifest of (field, value, tolerance) tuples; per-field credit is granted within tolerance and aggregated. This mode is dominant in finance, accounting, and clinical-data-standards task workflows.
+
+\noindent \textbf{Geometric / spatial.} The deliverable is a 3D mesh, a point cloud, or any spatially-embedded artifact. Scoring uses surface-distance functions (e.g., 10{,}000 surface samples scored against a reference STL in \texttt{gcode}, with credit for each fraction-within-threshold band).
+
+\noindent \textbf{Visual appearance.} The deliverable's correctness is most naturally judged by human eye (a rendered scene, a recolored photo, a UI screenshot). The host calls a vision LLM judge with the agent and reference images side by side and a rubric question.
+
+\noindent \textbf{Behavioral / world state.} The deliverable is the state of an interactive system after the agent's edits. Scoring replays the system under a fixed trajectory and dumps a comparable state (game map, simulation log, NPC events).
+
+\noindent \textbf{Free-text / semantic.} The deliverable is a written report. Scoring is a rubric of yes/no or graded sub-criteria, evaluated by an LLM judge.
+
+\noindent \textbf{Executable artifact.} The deliverable is a program, a model, or a pipeline. Scoring runs the artifact against a held-out test set or oracle and aggregates per-instance correctness.
+
+\subsubsection{Score-Composition Patterns}
+\label{app:eval-composition}
+
+Per-mode scores are combined into the final $[0, 1]$ value by one of four patterns:
+
+\noindent \textbf{Gate-and-score.} A hard precondition that forces $0$ on failure, followed by a continuous score. Used to prevent reward hacking by superficially close artifacts. Canonical example: in \texttt{manufacturing/gcode}, a PowerMill collision/gouge gate must pass before any geometric similarity is awarded; otherwise the task workflow scores $0$ regardless of how close the simulated stock model is to the reference.
+
+\noindent \textbf{Weighted rubric.} An expert-defined weighted sum over multiple sub-metrics, e.g.\ \texttt{gcode}'s
+\[
+    \text{score} = 0.70 \cdot \mathrm{frac\_within}(0.3\,\text{mm}) + 0.30 \cdot \mathrm{frac\_within}(2.0\,\text{mm})
+\]
+on the surface-distance distribution between agent and reference STLs. Weights are part of the task spec and are reviewed during the QC stage of Section~\ref{sec:construction-pipeline}.
+
+\noindent \textbf{Binary checklist averaging.} The deliverable is judged by $N$ independent yes/no questions, and the score is the mean. The \texttt{game/mota\_reproduction} task workflow uses this pattern over a set of vision-LLM probes (engine identification, character sprite presence, map layout match).
+
+\noindent \textbf{Pairwise file aggregation.} When the deliverable is a directory of files matched against a reference directory, the helper \texttt{utils.evaluation.collect\_matching\_files} pairs each agent file with its reference, runs the same scoring function on every pair, and returns the mean.
+
+\subsubsection{Judge Types and the LLM-Judge Helper Layer}
+\label{app:eval-judges}
+
+\noindent \textbf{Avoid LLM judges by default.}
+ALE deliberately suppresses the use of LLM-as-judge wherever a deterministic alternative exists. The standing rule for every accepted task workflow is: if the deliverable can be reduced to bytes, fields, geometry, world state, or executable behavior, the scoring code must operate on those signals, not on a model's holistic opinion of the result. A task that proposes ``ask GPT-4 whether the result looks correct'' is rejected at the QC stage of Section~\ref{sec:construction-pipeline} and either re-engineered to expose a checkable artifact or dropped. This is enforced for three reasons: (i) judge models drift across releases, which would silently re-rank agents; (ii) general-purpose ``does this look right?'' prompts are too soft to discriminate near-correct from correct, which is exactly the regime where the benchmark needs to resolve agents; and (iii) deterministic judges can be re-run offline against a saved trajectory by anyone who has the artifact, with no API cost.
+
+\noindent \textbf{When LLM judging is unavoidable.}
+A small set of task workflows have no objective code-based reference, primarily creative or perceptual deliverables such as rendered scenes, music-production sessions, UV-mapped textures, and animation previews. For these, ALE uses the helper layer in \texttt{utils/evaluation.py}:
+\begin{itemize}[nosep,leftmargin=1.2em]
+    \item \texttt{llm\_vision\_yes\_no\_judge}: a single targeted yes/no visual question over an (agent image, reference image) pair.
+    \item \texttt{llm\_vision\_binary\_questions\_sync} / \texttt{llm\_vision\_binary\_checklist\_judge}: a list of independent yes/no probes whose final score is a fraction.
+    \item \texttt{llm\_vision\_judge} / \texttt{llm\_vision\_json\_judge}: a graded or JSON-structured rubric over a small fixed set of fields.
+\end{itemize}
+
+\noindent \textbf{Targeted probes, not general judging.}
+The single most important property of ALE's LLM-judged workflows is that the prompts \emph{never} ask the model to score the artifact in the abstract. Every prompt is a narrow, evidence-anchored yes/no probe, written by the task author with reference to (a) the specific software the workflow uses and (b) failure modes the author has observed in pilot agent runs. The model is asked one structurally tight question at a time; the score is composed by code from those answers. The following are verbatim probes from current task workflows:
+
+\begin{itemize}[nosep,leftmargin=1.2em]
+    \item \texttt{game/mota\_reproduction} (replay-time engine and state checks):
+    \begin{itemize}[nosep,leftmargin=1.2em]
+        \item ``Does the first image show that the game is developed using RPGMakerXP? One can identify whether there is an `orange sun-like circle' in the top-left corner of the game window.'' (gate)
+        \item ``Does the first image show with the same map layout as in the original game?''
+        \item ``Does the first image show with the same player status as in the original game?''
+    \end{itemize}
+    \item \texttt{audio/timbre\_synthesis} (proves the agent actually used the DAW):
+    \begin{itemize}[nosep,leftmargin=1.2em]
+        \item ``Does this image show either (a) a software synthesizer / VST plugin interface with visible parameters such as oscillators, filters, envelopes, LFOs, or effects, OR (b) a DAW (e.g., Cubase, Ableton, FL Studio, Logic, Reaper) arrangement / piano-roll / mixer view that contains one or more tracks with audio or MIDI clips?'' (gate)
+        \item ``Does this screenshot provide evidence that the user has actually worked on the project, for example a DAW arrangement containing multiple tracks with audio or MIDI clips, a piano roll with notes entered, or a synthesizer plugin whose knobs/sliders are clearly not all in their default/init positions?''
+    \end{itemize}
+    \item \texttt{game/uv\_reproduction} (UV-mapping artifact checks against a fixed reference):
+    \begin{itemize}[nosep,leftmargin=1.2em]
+        \item ``Is the texture placement and orientation correct enough to pass?''
+        \item ``Does the candidate preserve the reference material appearance and color palette well enough to pass?''
+        \item ``Are obvious UV seams, stretching, or texture artifacts absent enough for the result to pass?''
+    \end{itemize}
+    \item \texttt{game/high\_to\_low\_modeling} (decimation correctness):
+    \begin{itemize}[nosep,leftmargin=1.2em]
+        \item ``Does the candidate preserve the overall highpoly shape well enough to pass?''
+        \item ``Does the candidate preserve the main silhouettes across the sampled views well enough to pass?''
+        \item ``Does the candidate achieve a meaningful lowpoly reduction rather than effectively submitting the highpoly again?''
+        \item ``Are obvious visual artifacts or shape collapses absent enough for the result to pass?''
+    \end{itemize}
+    \item \texttt{game/object\_generation} (missing-geometry restoration):
+    \begin{itemize}[nosep,leftmargin=1.2em]
+        \item ``Is the missing geometry restored well enough to pass?''
+        \item ``Is the part placement and alignment correct enough to pass?''
+        \item ``Is the whole object coherent and complete enough to pass?''
+        \item ``Is the final material appearance acceptable enough to pass?''
+    \end{itemize}
+    \item \texttt{game/skeletal\_animation\_reproduction} (replay self-consistency):
+    \begin{itemize}[nosep,leftmargin=1.2em]
+        \item ``Does the submitted preview match the reference body motion well enough to pass?''
+        \item ``Does the replay rendered from \texttt{final.blend} agree with the submitted preview well enough to pass?''
+        \item ``Do the visible skeleton states and poses look natural and non-broken enough to pass?''
+    \end{itemize}
+\end{itemize}
+
+\noindent Three patterns recur across these probes. (1) Each question targets one identifiable artifact (a circle in a corner, a track in a DAW, a UV seam, a silhouette, a pose), not the gestalt of ``is the deliverable good.'' (2) Many probes are written as gates, i.e., a binary precondition that must hold before the rest of the rubric is even checked, so that an unrelated screenshot or a placeholder file scores $0$ before any quality judgment is asked. (3) The remaining probes are phrased as ``\dots enough to pass?'' rather than as graded preferences, which converts the model into a same-vs.-different comparator against a fixed reference rather than a free-form quality oracle. Together these conventions limit the burden on the LLM to a series of decisions that a domain expert could replicate from the same image, and keep the LLM out of the role of integrator: the integration (weighting, gating, and aggregation across instances) always happens in code.
+
+\subsubsection{Empirical Distribution of Judge Types}
+\label{app:eval-judge-stats}
+
+To make the design choice ``code-based by default, LLM only when unavoidable'' concrete, we report the actual distribution of judge types and execution locales at the task-workflow level. The proportions in Table~\ref{tab:judge-stats} are obtained by static analysis of every \texttt{main.py} in the open-sourced reference task tree together with its accompanying \texttt{scripts/} directory, scanning for direct invocations of the LLM-judge helpers in \texttt{utils/evaluation.py} and for the use of \texttt{session.run\_command} on uploaded Python verifiers.
+
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \begin{tabular}{l r}
+            \toprule
+            \textbf{Judge type} & \textbf{Share}\\
+            \midrule
+            Code-based (deterministic)   & 93.2\%\\
+            LLM-as-judge                 &  6.8\%\\
+            \bottomrule
+        \end{tabular}
+        \\[0.4em]
+        \textbf{(a)} Judge type per task workflow.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \begin{tabular}{l r}
+            \toprule
+            \textbf{Execution locale} & \textbf{Share}\\
+            \midrule
+            Host-side                       & 88.5\%\\
+            VM-side verifier                & 11.5\%\\
+            \bottomrule
+        \end{tabular}
+        \\[0.4em]
+        \textbf{(b)} Execution locale of the scoring code.
+    \end{minipage}
+    \caption{Distribution of judge type and execution locale across the open-sourced task workflows in the ALE reference task tree.}
+    \label{tab:judge-stats}
+\end{table}
+
+\noindent \textbf{Within the LLM-judged subset.}
+Vision-grounded primitives dominate: the most-used helpers are \texttt{llm\_vision\_judge}, \texttt{llm\_vision\_binary\_checklist\_judge}, \texttt{llm\_vision\_binary\_questions\_sync}, and \texttt{llm\_vision\_yes\_no\_judge}. The remaining helpers (\texttt{llm\_multimodal\_binary\_questions\_sync}, \texttt{llm\_multimodal\_text}, \texttt{llm\_multimodal\_json}, \texttt{llm\_vision\_json\_judge}, and the video-rubric \texttt{gemini\_video\_json\_judge}) appear in only a handful of task workflows each. Helpers may co-occur within a single task workflow. The concentration on vision helpers reflects the fact that LLM judging is reserved for cases where the deliverable is a rendered scene, photo, screenshot, or short video that has no objective code-based reference.
+
+\noindent \textbf{Within the VM-side subset.}
+VM-side task workflows are dominated by industries whose deliverable cannot be scored without the on-VM software stack: CAD/CAM (PowerMill, SolidWorks), licensed financial workbooks, and headless 3D rendering. The contract is uniform: a per-task-workflow verifier under \texttt{tasks/<task-workflow>/scripts/} is uploaded by \texttt{evaluate()} into a temporary directory on the VM, executed via \texttt{session.run\_command}, and its JSON stdout is parsed back into a score on the host.
+
+\noindent \textbf{Composition patterns.}
+A static-analysis estimate finds that the great majority of \texttt{evaluate()} bodies contain at least two early \texttt{return [0.0]} sites preceding a continuous-score path, consistent with the gate-and-score pattern of Section~\ref{app:eval-composition}. Explicit weighted-rubric expressions of the form $a\cdot x + b\cdot y$ appear in only a small fraction of \texttt{main.py} files; in most task workflows the weighting is encoded inside per-task-workflow scoring scripts under \texttt{scripts/} (which the static count above does not pick up), so this is a lower bound on the true prevalence of weighted aggregation.
+
+\subsubsection{Reference Isolation and Robustness}
+\label{app:eval-isolation}
+
+\noindent \textbf{Reference isolation.}
+The \texttt{reference/} directory lives outside the agent's workspace and is not exposed through any session API a non-evaluator caller would invoke. Most \texttt{evaluate()} implementations begin with a sanity check that lists every required reference path and returns $0.0$ early if any path is missing, which both prevents misconfigured runs from silently producing inflated scores and documents the reference contract in the same file as the scoring logic.
+
+\noindent \textbf{Output presence and shape checks.}
+Workflows consistently treat ``no output produced'' or ``output in the wrong shape'' as score $0$ rather than as a crash, so that an agent that times out or refuses still emits a well-defined number.
+
+\noindent \textbf{Determinism.}
+Code-based judges are deterministic by construction. For LLM-judged task workflows, we record the judge model and prompt with the result and make sure that any score can be re-derived from the agent's saved artifacts.
+
+\subsubsection{Workflows and Task Instances}
+\label{app:eval-variants}
+
+A single task workflow (one \texttt{main.py}) exposes a list of \emph{task instances}, encoded in the codebase as the \texttt{VARIANTS} tuple list: each instance carries instance-specific configuration but shares the same \texttt{evaluate()}. For example, the \texttt{manufacturing/gcode} task workflow declares 18 workpiece instances, each pointing at a different blank PowerMill project but scored by the same collision-gate-then-STL pipeline. Per-instance scores are averaged into a task workflow score, task workflow scores are averaged into industry scores, and industry scores aggregate into the cluster-level results reported in Section~\ref{sec:experiment}. The current ALE release contains \totaltasks{} task workflows and \totalvariants{} task instances in total.

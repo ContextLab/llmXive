@@ -1,0 +1,47 @@
+
+\providecommand{\cmkg}{\textcolor{green!55!black}{\ding{51}}}
+\providecommand{\xmkr}{\textcolor{red!70!black}{\ding{55}}}
+
+\begin{table}[t]
+  
+  \centering
+  \caption{Comparison of SWE-Explore with existing repository-level coding and exploration benchmarks across six design dimensions covering ground-truth granularity, evaluation protocol, and ranked-region assessment.}
+  \vspace{1mm}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.18}
+  \setlength{\tabcolsep}{4pt}
+  \label{tab:compare}
+  \begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}} l cccccc @{}}
+    \toprule
+    \textbf{Benchmark}
+      & \makecell{\textbf{Exec.}\\\textbf{Based}}
+      & \makecell{\textbf{Multi-}\\\textbf{Lingual}}
+      & \makecell{\textbf{Line-Level}\\\textbf{GT}}
+      & \makecell{\textbf{Trajectory-}\\\textbf{Grounded GT}}
+      & \makecell{\textbf{Joint Expl.}\\\textbf{+\,Repair Eval}}
+      & \makecell{\textbf{Ranked}\\\textbf{Region Eval}} \\
+    \midrule
+    Loc-Bench~\citep{chen2025locagent}
+      & \xmkr & \xmkr & \xmkr & \xmkr & \xmkr & \xmkr \\
+    \midrule
+    SWE-bench Verified~\citep{jimenez2024swebench,chowdhury2024swebenchverified}
+      & \cmkg & \xmkr & \xmkr & \xmkr & \xmkr & \xmkr \\
+    SWE-bench Multilingual~\citep{yang2025swesmith}
+      & \cmkg & \cmkg & \xmkr & \xmkr & \xmkr & \xmkr \\
+    SWE-bench-Pro~\citep{deng2025swebenchproaiagents}
+      & \cmkg & \cmkg & \xmkr & \xmkr & \xmkr & \xmkr \\
+    \midrule
+    ContextBench~\citep{li2026contextbench}
+      & \cmkg & \cmkg & \xmkr & \xmkr & \cmkg & \xmkr \\
+    SWE-ContextBench~\citep{zhu2026swecontextbench}
+      & \cmkg & \xmkr & \xmkr & \xmkr & \xmkr & \xmkr \\
+    \midrule
+    % \rowcolor{green!12}
+    \textbf{SWE-Explore (Ours)}
+      & \cmkg & \cmkg & \cmkg & \cmkg & \cmkg & \cmkg \\
+    \bottomrule
+  \end{tabular*}
+
+
+  \vspace{-2mm}
+\end{table}

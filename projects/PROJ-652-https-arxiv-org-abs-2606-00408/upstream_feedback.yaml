@@ -122,3 +122,193 @@ rounds:
       \ values (-1.5em, -2em, -2.75em) without clear rationale. Consider consistent\
       \ spacing policy for visual coherence."
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-10T07:46:37.831300+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: bd936910a7e5
+    text: Verify all citations against the bibliography verification status in state/citations/.
+    severity: writing
+  - id: a2e018f3a8db
+    text: Ensure full LaTeX source is provided to verify compilation and figure references.
+    severity: writing
+  - id: 050fa1ba15e2
+    text: Bibliography contains duplicate 'gpt5mini' entry with conflicting authors
+      (DeepSeekAI vs OpenAI). Must resolve to a single, accurate citation or remove
+      one entry.
+    severity: writing
+  - id: 0d6c8c859223
+    text: Several URLs in case studies are truncated or incomplete (e.g., 'https://www.archaeological.org/grant/conservation-and-').
+      Verify all URLs are functional and complete before submission.
+    severity: writing
+  - id: c03fb7ba9d7e
+    text: Table 'tables/reliable.tex' contains only placeholder comment. Scaffold
+      reliability claims in Section 4.3 cannot be verified. Include actual table data
+      or remove unsupported claims.
+    severity: science
+  - id: dd66fe29a6e1
+    text: Attention percentages (53.7% vs 25.6%) cited in Section 5.2.1 match critical
+      elements but underlying attn table data is not fully visible. Ensure supplementary
+      materials contain complete data for reproducibility.
+    severity: science
+  - id: 6840024300a8
+    text: Include source code repository contents (scripts, configs, tests) in the
+      review package to enable modularity and reproducibility assessment.
+    severity: science
+  - id: ee27c4cff48d
+    text: Add explicit license declaration for released code and trajectories in the
+      Abstract or Appendix.
+    severity: writing
+  - id: 260d0c81a26d
+    text: Include specific version tags or commit hashes for the released artifacts
+      to ensure reproducibility.
+    severity: writing
+  - id: 5d1f072d5977
+    text: Replace or supplement external web URLs in the bibliography with persistent
+      identifiers (DOIs) to mitigate link rot.
+    severity: writing
+  - id: ddc18636b915
+    text: Define acronyms SNR, PCA, AUC, and LLM-as-Judge at first use in main text
+      or captions.
+    severity: writing
+  - id: 85eebb5132de
+    text: Replace 'trajectory' with 'search history' and 'backbone' with 'model' for
+      broader accessibility.
+    severity: writing
+  - id: f0b2267d2f9f
+    text: Simplify 'Regime Map' to 'Performance Phases' and 'Scaffold' to 'Framework'
+      to reduce field-specific density.
+    severity: writing
+  - id: 23ab73a4fec8
+    text: Explain 'token-for-turn trade-off' in plain language in the abstract or
+      introduction.
+    severity: writing
+  - id: 912f9fc471cd
+    text: Clarify the definition of 'middle observations' in the masking mechanism
+      (Eq 2 vs Section 6.1). The paper masks 'earlier' observations (turns 1 to t-K),
+      which includes both 'first' and 'middle' trajectory pages. However, Section
+      6.1 claims masking targets 'neglected middle observations' while Fig 3 notes
+      agents re-open 'first pages'. This creates ambiguity about whether 'first' pages
+      are also masked and how this relates to the 'Collapse' regime.
+    severity: writing
+  - id: 60db9f39f199
+    text: Align the qualitative description in Figure 1 caption ('CM adds little')
+      with the quantitative data in Section 5 ('+6.2 to +6.6 pts'). A 6-point gain
+      is substantial relative to the baseline, and 'little' may understate the 'plateau'
+      regime's benefit compared to the 'Middle' regime (+11.7 pts).
+    severity: writing
+  - id: 9b31075ba683
+    text: Ensure the 'Signal-to-Noise Ratio bottleneck' claim (Section 6.2) is clearly
+      linked to the 'Regime Map' (Section 5). The text states SNR optimization is
+      the bottleneck, yet masking (an SNR optimizer) fails in the Saturated regime.
+      Clarify that SNR optimization is beneficial *only* when the model's filtering
+      capacity is insufficient (Middle regime), rather than being a universal bottleneck.
+    severity: science
+  - id: 68a5033a63ca
+    text: Section 5.2.1 claims masking works 'mechanistically' due to attention dynamics.
+      Evidence is limited to 3 model settings (4B-35B). Soften to 'correlates with'
+      or 'suggests' to avoid over-extrapolation to 284B models.
+    severity: science
+  - id: 6b1a1bc0229e
+    text: Section 6 reports precise gains (e.g., +11.7 pts) without error bars or
+      significance tests. Add confidence intervals to prevent over-stating precision
+      of stochastic agent results.
+    severity: science
+  - id: fdcc2e0df6c0
+    text: Abstract claims a 'holistic perspective' on context use. Scope is limited
+      to observation masking on search. Reframe as 'empirical framework for observation
+      masking' to match actual contribution.
+    severity: writing
+  - id: ab119acfcd72
+    text: Include explicit IRB/ethics approval statement for the 'Human Audit' described
+      in Appendix Experiment Settings. Clarify if fully automated or if human consent
+      was obtained.
+    severity: writing
+  - id: d60fc37d070c
+    text: Expand the 'Ethical Considerations' section to propose specific mitigations
+      for the acknowledged risk that masking could suppress safety warnings in deployed
+      agents.
+    severity: writing
+  - id: 661f24fd252c
+    text: Verify that case studies involving personal news (e.g., suicide, breakups)
+      do not inadvertently expose private PII beyond what is necessary for the research
+      context.
+    severity: writing
+  - id: 04fbfddc1fca
+    text: Report statistical significance (p-values or confidence intervals) for accuracy
+      gains in Table 1, especially for small margins like +0.1%.
+    severity: science
+  - id: 479724dbb51c
+    text: Control for tool call budget (turn count) to isolate the masking effect
+      from the confounding variable of increased search attempts.
+    severity: science
+  - id: 3369d2d6c159
+    text: Clarify if the 'regime' is model-dependent or task-dependent given the variance
+      across benchmarks (e.g., GPT-OSS-120B results in Table 1).
+    severity: science
+  - id: 20de54d19d77
+    text: "Main results table (tables/main-table.tex) reports accuracy gains as point\
+      \ estimates without confidence intervals or standard errors. Provide 95% CIs\
+      \ for all \u0394Acc values to enable assessment of statistical significance."
+    severity: science
+  - id: 234c999640d6
+    text: Multiple-comparisons issue across 12+ model-retriever combinations on BrowseComp-Plus
+      plus 3 additional benchmarks. No correction (e.g., Bonferroni, FDR) is reported
+      for the regime boundary claims. Add statistical testing framework.
+    severity: science
+  - id: a9cd3f089c12
+    text: Attention percentages (e.g., 53.7% reasoning vs 25.6% observations in Section
+      5.3.1) lack uncertainty quantification. Report standard errors or confidence
+      intervals from bootstrap across trajectories.
+    severity: science
+  - id: f0e69ca58d2a
+    text: Regression probe AUC values (Figure 5, Section 5.2) are reported without
+      confidence intervals or statistical tests comparing AUCs across conditions.
+      This weakens the separability claims.
+    severity: science
+  - id: f7b85af5e7b0
+    text: 'Figure label naming inconsistency persists: fig1:masking, fig1:pie, fig1:pie_main
+      (e001) vs fig:teaser, fig:probe, fig:attention-maps (e000, e002). Standardize
+      to fig: prefix throughout.'
+    severity: writing
+  - id: f9b42603a8aa
+    text: 'Heading hierarchy issue unresolved: "Related Work" section (e001) lacks
+      proper section number while "Experiment Setup" has \label{sec:setup}. Either
+      add numbering or reorder sections to follow standard flow.'
+    severity: writing
+  - id: abe31315c187
+    text: 'Truncated figure caption in e002 remains incomplete: "Comparison of per-query
+      change in rol" cuts off mid-word. Verify full caption text matches intended
+      figure content.'
+    severity: writing
+  - id: 7b77c76e5884
+    text: 'Duplicate bibliography entry for gpt5mini persists in custom.bib: two entries
+      with conflicting authors (DeepSeekAI vs OpenAI). Deduplicate and verify correct
+      citation key.'
+    severity: writing
+  - id: 939912f61fb8
+    text: 'Vertical spacing inconsistency unresolved: \vspace values still vary widely
+      (-0.5em, -1.5em, -2em, -2.75em, -3em) without clear rationale. Apply consistent
+      spacing policy.'
+    severity: writing
+  - id: b5322fdea955
+    text: Section 3 (Related Work) contains sentence fragments without subjects, e.g.,
+      'Amplifies lost-in-the-middle'. Rewrite as complete sentences.
+    severity: writing
+  - id: 8fbd9b90d49a
+    text: Section 6 (Conclusion) uses fragments ('Must be calibrated...'). Ensure
+      all paragraphs have complete sentences.
+    severity: writing
+  - id: 588b05f59d60
+    text: Acknowledgement section starts with 'Thank Dr...'. Use 'We thank...' for
+      formal tone.
+    severity: writing
+  - id: 7005b6c253f2
+    text: Model naming is inconsistent (e.g., 'DeepSeek-V4-Flash-Max' in text vs 'DS-V4-Flash-Max'
+      in Table 1). Standardize across the paper.
+    severity: writing
+  - id: 66227c128700
+    text: "Figure 1 caption uses 'when \textit{Model Saturated}' which reads like\
+      \ a label. Rephrase to 'when the model is saturated' for clarity."
+    severity: writing

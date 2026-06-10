@@ -1,0 +1,184 @@
+\begin{figure*}
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/Main.pdf}
+    \vspace{-2em}
+\caption{
+    Optimization geometry of OPD compared with SFT and RLVR.
+    (a) OPD occupies a relaxed off-principal regime between dense principal-aligned SFT updates and sparse off-principal RLVR updates.
+    (b) OPD rapidly enters a locked low-dimensional subspace during training.
+    (c) The lock is robust to token and rollout perturbations, but sensitive to objective composition.
+    }
+    \label{fig:placeholder}
+    \vspace{-1em}
+\end{figure*}
+
+
+
+\section{Introduction}
+Large reasoning models (LRMs) have substantially advanced complex
+mathematical and programming reasoning in large language models ~\cite{guo2025deepseek,shao2024deepseekmathpushinglimitsmathematical,openai2024openaio1card}.
+Post-training is a central driver of this progress. Beyond supervised
+fine-tuning (SFT) \cite{wei2022finetunedlanguagemodelszeroshot} on offline demonstrations and reinforcement learning with verifiable rewards (RLVR) ~\cite{shao2024deepseekmathpushinglimitsmathematical,guo2025deepseek,yu2025dapoopensourcellmreinforcement} from sparse outcome signals, on-policy
+distillation (OPD) has recently emerged as a complementary paradigm:
+it trains a student on its own sampled trajectories under dense
+token-level guidance from a stronger teacher~\cite{agarwal2024onpolicydistillationlanguagemodels,lu2025onpolicydistillation}.
+
+
+Despite its empirical utility, the parameter-space dynamics of OPD remain
+poorly understood. Prior analyses show that SFT and RLVR leave distinct
+geometric footprints: SFT induces dense, principal-aligned updates \cite{liu2026liftveiltruthprincipal}, whereas
+RLVR produces sparse, off-principal updates that better preserve pretrained spectral structure~\cite{mukherjee2025reinforcementlearningfinetunessmall, zhu2025pnt}. OPD combines features of both:
+dense token-level distillation resembles SFT, while on-policy sampling and policy-gradient optimization connect it to RLVR \cite{agarwal2024onpolicydistillationlanguagemodels}. This makes its parameter trajectory difficult to infer from either paradigm alone. Thus, we study OPD through three research questions:
+
+% \begin{center}
+% \begin{minipage}{1\linewidth}
+% \emph{RQ1: Where does OPD lie within the parameter-space spectrum between
+% SFT and RLVR?}
+% \vspace{5pt}
+
+% \emph{RQ2: What intrinsic update trajectory does OPD follow during
+% training?}
+
+% \vspace{5pt}
+% \emph{RQ3: Which component of OPD controls this trajectory?}
+% \end{minipage}
+% \end{center}
+
+% \noindent\textbf{We organize our analysis around three questions.}
+% \begin{quote}
+% \textbf{RQ1:} \emph{Where does OPD lie within the parameter-space spectrum between SFT and RLVR?}
+
+% \vspace{2pt}
+% \textbf{RQ2:} \emph{What intrinsic update trajectory does OPD follow during training?}
+
+% \vspace{2pt}
+% \textbf{RQ3:} \emph{Which component of OPD controls this trajectory?}
+% \end{quote}
+
+
+\begin{tcolorbox}[
+    colback=white!2,
+    colframe=white!15,
+    boxrule=0pt,
+    arc=5pt,
+    left=5pt,right=5pt,top=1pt,bottom=2pt
+]
+% \textbf{Research questions.}
+\begin{itemize}[leftmargin=1.8em,itemsep=2pt,topsep=2pt]
+    \item[\textbf{RQ1}] \emph{Where does OPD lie within the parameter-space spectrum between SFT and RLVR?}
+    % Where does OPD sit between SFT and RLVR from a parameter-space perspective
+    % Where does OPD fall on the continuum between SFT and RLVR in terms of parameter-space updates?
+    \item[\textbf{RQ2}] \emph{What intrinsic update trajectory does OPD follow during training?}
+    \item[\textbf{RQ3}] \emph{Which component of OPD controls this trajectory?}
+\end{itemize}
+\vspace{-1em}
+\end{tcolorbox}
+
+\textbf{OPD occupies a relaxed off-principal regime
+(\S\ref{sec:locate}).}
+Answering RQ1, we locate OPD relative to SFT and RLVR using a suite of
+parameter-space diagnostics. The results show that across update sparsity, spectral drift, principal-subspace rotation, and update localization, OPD consistently falls between SFT and RLVR with a  bias toward the RLVR side. We refer to this region as a \emph{relaxed off-principal regime}: OPD is more selective and geometry-preserving than SFT, yet less constrained than RLVR. We further interpret this positioning through a relaxed Three-Gate view ~\cite{zhu2025pnt}: OPD retains RLVR's geometry-preserving update bias, but dense teacher supervision broadens the set of active directions and makes more coordinates visibly update.
+
+\textbf{OPD learns through subspace locking
+(\S\ref{sec:subspace-lock}).}
+Answering RQ2, we move beyond endpoint localization and characterize how
+OPD updates evolve during training: we track cumulative updates
+$\Delta W_t$ across checkpoints using effective dimension, update scale,
+and spectral shape diagnostics. This trajectory-level analysis shows that
+OPD rapidly enters a narrow low-dimensional update band, while SFT expands and RLVR contracts. This is not a vanishing-update artifact: OPD has a substantially larger cumulative update norm than RLVR while ending with comparable stable rank. We then test whether this low-dimensional channel is stable and functional: subspace similarity shows early alignment with the final update channel, and constraining subsequent training to this early subspace preserves OPD performance while degrading SFT. These results identify OPD subspace locking: an early-emerging, persistent, and functionally sufficient low-dimensional update channel.
+
+\textbf{Objective composition controls subspace locking
+(\S\ref{sec:controls}).}
+Answering RQ3, we test which part of OPD maintains the locked trajectory
+by perturbing three factors that distinguish OPD from standard SFT or
+RLVR: token supervision density, rollout policy, and objective composition.
+Token sparsification and off-policy rollouts preserve the OPD rank
+trajectory, changing update scale at most. In contrast, objective-level interpolation exposes a boundary of the locked regime, where the rank
+dynamics depart from the trajectory. These controls indicate that the lock is robust to runtime perturbations but sensitive to objective composition.
+
+% The rest of the paper proceeds as follows. Section~\ref{sec:related}
+% reviews related work; Section~\ref{sec:locate} locates OPD in parameter
+% space; Section~\ref{sec:subspace-lock} studies its update trajectory; and
+% Section~\ref{sec:controls} analyzes what controls subspace locking.
+
+Together, our findings provide a parameter-space account of OPD
+post-training. OPD is not merely an endpoint interpolation between SFT and RLVR; it follows a distinct update trajectory characterized by relaxed off-principal localization, early subspace locking, and sensitivity to objective composition. We discuss how these diagnostics can guide future geometry-aware OPD algorithms in Section~\ref{sec:discussion}.
+
+% Where is OPD?
+% OPD occupies a relaxed off-principal regime.
+% How does OPD move?
+% OPD learns through subspace locking.
+% What controls the lock?
+% The lock is objective-sensitive, not runtime-driven.
+
+% \section{Introduction}
+% Large reasoning models (LRMs) have substantially advanced the ability of
+% large language models (LLMs) to solve complex mathematical and programming tasks \cite{shao2024deepseekmathpushinglimitsmathematical,openai2026openaio1card}.
+% Recently, on-policy distillation (OPD) has emerged as a complementary
+% post-training paradigm for improving these capabilities. In contrast to
+% supervised fine-tuning (SFT) on fixed offline demonstrations and reinforcement
+% learning with verifiable rewards (RLVR) from sparse scalar feedback, OPD
+% trains the student on its own sampled trajectories under dense token-level
+% guidance from a stronger teacher~\cite{lu2025onpolicydistillation}.
+
+
+
+% Despite the widespread adoption of OPD, how it fundamentally alters model parameters 
+% remains poorly understood. Prior parameter-space analyses~\cite{zhu2025pnt} demonstrate 
+% that SFT and RL exhibit distinct geometric footprints: RL yields sparse, off-principal 
+% updates that preserve pretraining spectral structures, whereas SFT produces dense 
+% updates along principal directions. \textbf{However, predicting the parametric alignment of OPD remains non-trivial due to its hybrid nature.} Its dense token-level KL supervision 
+% resembles SFT, yet its on-policy rollouts and policy-gradient objectives align with RL. 
+% Crucially, a systematic, parameter-space characterization of OPD remains absent from 
+% the literature. This motivates our first inquiry:
+
+% \begin{center}
+% \emph{RQ1: Where does OPD reside within the parametric spectrum 
+% bounded by SFT and RLVR?}
+% \end{center}
+
+% \textbf{OPD as a relaxed off-principal regime (\S\ref{sec:locate}).} 
+% A multi-dimensional, parameter-focused diagnosis, spanning update sparsity, spectral drift, principal-angle rotation, and update--principal mask overlap, reveals that OPD consistently occupies a distinct intermediate regime. Robust across diverse model scales and configurations, its parametric behavior exhibits a controlled inclination toward RLVR rather than SFT. 
+
+% To ground this observation mechanistically, we extend the Three-Gate Theory recently proposed by Mukherjee et al. \footnote{\cite{zhu2025pnt}}: while OPD inherits the KL-anchored, off-principal geometry innate to RLVR, its dense per-token supervision partially saturates each regulatory gate. This interaction yields a \textbf{\emph{relaxed off-principal regime}} that smoothly interpolates between the two training paradigms.
+
+
+%  The above characterizes \emph{where} OPD's updates land relative to the pretrained weight geometry. However, it leaves open a complementary question: what is the intrinsic structure of the update trajectory itself?
+
+% \begin{center}
+% \emph{RQ2: What is the intrinsic geometry of OPD's weight updates?}
+% \end{center}
+
+
+% \textbf{Intrinsic subspace locking (\S\ref{sec:subspace_locking}).} 
+% Trajectory-level spectral diagnostics reveal that OPD updates exhibit a unique \emph{intrinsic low-dimensional locking}. While its Frobenius norm establishes a substantial intermediate scale ($\text{SFT} \gg \text{OPD} \gg \text{RLVR}$), its effective dimension remains remarkably bounded. Crucially, unlike the uncontrolled dimensional expansion of SFT  or the severe compression of RLVR , OPD uniquely locks into a narrow, low-dimensional band from the onset of training.
+
+% To functionally validate this property, online training gradients are projected into a strict rank-16 singular subspace ($V_{16}$). This structural bottleneck yields negligible downstream degradation for OPD on mathematical reasoning, whereas it severely decimates SFT performance. This striking divergence demonstrates that OPD's low-rank profile is not a passive statistical artifact, but a functional manifold within which its optimization path natively unfolds. This naturally raises our final question:
+
+
+% \begin{center}
+% \emph{RQ3: What governs the intrinsic low-rank structure of OPD?}
+% \end{center}
+
+% \textbf{Reverse-KL geometric dominance (\S\ref{sec:controls}).} 
+% A series of stringent ablation controls reveals that this low-rank trajectory is remarkably decoupled from token-level and operational dynamics. Counterintuitively, neither token density nor on-policy sampling drives the subspace lock: the low stable-rank profile persists under aggressive token sparsification and when transitioning entirely to off-policy teacher rollouts. 
+
+% By ruling out these runtime factors, the structural origin logically isolates to the mathematical form of the objective itself. Continuous loss-mixing sweeps uncover a striking asymmetric transition: rather than displaying a smooth linear interpolation between the two paradigms, the update manifold is precipitously dominated by the reverse-KL term. This non-linear geometric command demonstrates that the distillation objective operates as the absolute governor of OPD's trajectory, \textbf{a phenomenon we mechanistically elucidate through a gradient-level analysis of its mode-seeking landscape.}
+
+
+% \textbf{Conclusion and Discussion: }\label{sec:conclusion} Our work provides the following key contributions::
+
+% \begin{itemize}
+% \item \textbf{Regime (\S\ref{sec:locate}).} We establish that OPD occupies a \emph{relaxed off-principal regime} interpolating between SFT and RLVR, balancing a substantial intermediate update scale with a clear geometric inclination toward RLVR. This positioning is mechanistically elucidated by extending prior structural theory.
+
+% \item \textbf{Locking (\S\ref{sec:subspace-lock}).} We identify an intrinsic subspace-locking characteristic throughout the OPD training process, a structural phenomenon functionally validated through gradient-projection experiments.
+
+% \item \textbf{Dominance (\S\ref{sec:controls}).} We isolate the origin of this low-rank profile away from runtime operational factors, proving that the update manifold is precipitously governed by the mode-seeking geometry of the reverse-KL objective.
+% \end{itemize}
+
+% Together, these findings provide the first parameter-space characterization of on-policy 
+% distillation trajectories, complementing concurrent literature that analyzes post-training 
+% through purely distributional lenses. Crucially, OPD establishes a unique, geometry-driven 
+% optimization regime bounded between SFT and RLVR, calling for the design of distillation-native, 
+% geometry-aware alignment paradigms that explicitly exploit these intrinsic trajectory boundaries 
+% to safely scale reasoning capacity.

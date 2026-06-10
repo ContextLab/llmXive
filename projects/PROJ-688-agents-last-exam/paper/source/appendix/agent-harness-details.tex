@@ -1,0 +1,147 @@
+\subsection{Agent Harness Internals}
+\label{app:agent-harness}
+
+This appendix elaborates on the internal structure of the agent harness introduced in Section~\ref{sec:agent-architecture}. The architecture described here is shared, at a macro level, across mainstream harness implementations such as Claude Code~\citep{anthropic2025claudecode}, Codex~\citep{openai2025codex}, and OpenClaw, and is faithfully reproduced in our own native implementation.
+
+\noindent \textbf{Main agent loop.}
+The harness operates a six-phase control loop: \circled{0}~\emph{Initialization} configures the system prompt and tool bindings; \circled{1}~\emph{Context Building} assembles the current conversation state; \circled{2}~\emph{LLM Call} queries the foundation model; \circled{3}~\emph{Decide} routes the model's output to either a final delivery or a tool invocation; \circled{4}~\emph{Collect Tool Result} gathers the execution outcome; \circled{5}~\emph{Overflow Check} evaluates whether the accumulated context exceeds a compaction threshold. If not, the loop returns to phase~1; otherwise, context compaction is triggered before the next iteration. The loop terminates when the model elects to deliver rather than act.
+
+\noindent \textbf{System prompt builder.}
+At initialization, the harness constructs a system prompt from modular components: \emph{Identity} (agent persona), \emph{Memory} (persistent cross-session state), \emph{Tool Guidance} (usage conventions for each tool), \emph{Runtime} (environment metadata), \emph{Behavioral Rules} (safety and policy constraints), and \emph{Skills} (domain-specific capabilities). These components are typically authored through configuration files such as \texttt{CLAUDE.md} or \texttt{AGENTS.md}.
+
+\noindent \textbf{Tool system.}
+The harness exposes a unified tool interface that the model invokes by name: file operations (read, write, glob, grep), shell execution, web search and fetch, and sub-agent management (spawn, list, wait, terminate). Each tool returns structured results that are appended to the conversation context.
+
+\noindent \textbf{GUI-as-Tool: CUA MCP bridge.}
+The GUI-as-Tool mode extends the tool system with 14 desktop-action tools exposed through an MCP server that wraps a CUA (Computer-Use Agent) HTTP API running on the VM. Table~\ref{tab:gui-tools} lists the full tool surface.
+
+\begin{table}[h]
+\caption{\textbf{GUI-as-Tool: 14 desktop-action tools} exposed via the CUA MCP bridge.}
+\label{tab:gui-tools}
+\centering
+\small
+\begin{tabular}{@{}llp{7.2cm}@{}}
+\toprule
+Group & Tool & Description \\
+\midrule
+\multirow{5}{*}{Keyboard}
+ & \texttt{key} & Press and release one or more keys (supports hotkeys, e.g.\ \texttt{["ctrl","c"]}) \\
+ & \texttt{key\_down} & Press keys down without releasing (for modifier holds) \\
+ & \texttt{key\_up} & Release previously held keys \\
+ & \texttt{type} & Type text into the currently focused input field \\
+ & \texttt{hold\_key} & Hold keys for a specified duration, then release \\
+\midrule
+\multirow{6}{*}{Mouse}
+ & \texttt{mouse\_move} & Move the cursor to a coordinate \\
+ & \texttt{click} & Click at a coordinate (left/right/middle; single/double/triple) \\
+ & \texttt{drag} & Drag from a start coordinate to an end coordinate \\
+ & \texttt{mouse\_down} & Press a mouse button without releasing \\
+ & \texttt{mouse\_up} & Release a mouse button \\
+ & \texttt{scroll} & Scroll in a direction (up/down/left/right) by a specified amount \\
+\midrule
+\multirow{3}{*}{Utility}
+ & \texttt{screenshot} & Capture the current screen; optionally save to a VM path \\
+ & \texttt{cursor\_position} & Return the current cursor coordinates \\
+ & \texttt{wait} & Pause execution for a specified duration \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Tool Surface and Terminology}
+\label{app:tool-surface}
+
+\noindent \textbf{Tool taxonomy and per-agent availability.}
+Tool names differ across harnesses, so the analysis in Figure~\ref{fig:tool-usage} maps raw tool calls into a common taxonomy before aggregation.
+\emph{Bash} denotes direct shell or terminal execution, including tools named \texttt{Bash}, \texttt{bash}, \texttt{shell}, \texttt{exec}, \texttt{run\_shell\_command}, \texttt{terminal}, \texttt{Execute}, \texttt{bash\_command}, and \texttt{execute\_code}.
+\emph{File} denotes direct file-system tools such as \texttt{Read}, \texttt{Write}, \texttt{Edit}, \texttt{Glob}, \texttt{Grep}, \texttt{read\_file}, \texttt{write\_file}, \texttt{edit\_file}, \texttt{patch}, and \texttt{list\_directory}.
+\emph{GUI} denotes the CUA desktop-action surface in Table~\ref{tab:gui-tools}, including wrapper-specific names such as \texttt{mcp\_\_cua\_\_click}, \texttt{cua\_\_\_screenshot}, and \texttt{mcp\_cua\_key}.
+\emph{Web} denotes browser or retrieval tools such as \texttt{WebSearch}, \texttt{WebFetch}, \texttt{web\_search}, \texttt{web\_fetch}, \texttt{webSearch}, \texttt{webFetch}, and \texttt{browser\_navigate}.
+\emph{Planning/delegation} denotes explicit planning, task-tracking, memory, or sub-agent tools such as \texttt{TodoWrite}, \texttt{task}, \texttt{think}, \texttt{delegate}, \texttt{subagents}, and \texttt{memory\_get}.
+\emph{Other} captures process, session, finish, or harness-internal utilities that do not fit the preceding groups.
+Finally, \emph{Azure desktop} refers to the hosted Windows remote-desktop backend used for Windows GUI task execution; it is an execution substrate, not a model provider and not a separate tool class.
+
+\iffalse  %
+\begin{table}[h]
+\caption{\textbf{Tool-surface comparison across agent harnesses evaluated on ALE.}
+\cmark{} = usable dedicated tool available;
+\textendash{} = not exposed;
+\xmark{} = tool schema present but denied or non-functional.
+Capability rows indicate whether the harness exposes at least one dedicated tool in that category;
+agents without a dedicated tool may still access equivalent functionality through shell execution.}
+\label{tab:tool-surface}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}l *{11}{c} @{}}
+\toprule
+& \rotatebox{70}{Claude Code}
+& \rotatebox{70}{Codex}
+& \rotatebox{70}{Cursor}
+& \rotatebox{70}{Droid}
+& \rotatebox{70}{ForgeCode}
+& \rotatebox{70}{Gemini CLI}
+& \rotatebox{70}{Grok CLI}
+& \rotatebox{70}{OpenClaw}
+& \rotatebox{70}{ALE-Claw}
+& \rotatebox{70}{OpenHands}
+& \rotatebox{70}{Terminus} \\
+\midrule
+Visible tools
+  & 29 & 24 & 30 & 27 & 13 & 24 & 47 & 16 & 13 & 6 & 2 \\
+\midrule
+File read/write/edit
+  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \textendash \\
+File search (glob/grep)
+  & \cmark & \textendash & \cmark & \cmark & \cmark & \cmark & \cmark & \textendash & \textendash & \textendash & \textendash \\
+Shell execution
+  & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark\rlap{$^a$} \\
+Web search
+  & \cmark & \cmark & \cmark & \xmark & \textendash & \xmark & \xmark & \xmark & \xmark & \textendash & \textendash \\
+URL fetch
+  & \cmark & \textendash & \cmark & \cmark & \cmark & \xmark & \textendash & \xmark & \cmark & \textendash & \textendash \\
+Desktop GUI (CUA)
+  & \cmark & \cmark\rlap{$^b$} & \cmark & \cmark & \textendash & \cmark & \cmark & \cmark & \cmark\rlap{$^c$} & \cmark\rlap{$^c$} & \textendash \\
+Sub-agent delegation
+  & \cmark & \textendash & \cmark & \cmark & \cmark & \textendash & \xmark\rlap{$^d$} & \textendash & \cmark & \textendash & \textendash \\
+Scheduling / cron
+  & \cmark & \textendash & \textendash & \textendash & \textendash & \textendash & \cmark & \textendash & \textendash & \textendash & \textendash \\
+Task planning (todo)
+  & \cmark & \cmark & \cmark & \cmark & \cmark & \xmark & \textendash & \textendash & \textendash & \cmark & \textendash \\
+Cross-session memory
+  & \textendash & \textendash & \textendash & \textendash & \textendash & \xmark & \textendash & \cmark & \cmark & \textendash & \textendash \\
+\midrule
+Windows support
+  & \cmark & \cmark & \cmark & \cmark & \textendash & \cmark & \cmark & \cmark & \cmark & \textendash & \textendash \\
+\bottomrule
+\end{tabular}
+\\[4pt]
+\raggedright\scriptsize
+$^a$Terminus sends keystrokes to a tmux pane rather than exposing a standard shell tool.~~
+$^b$Codex exposes 16 GUI tools (others expose 14); all fail on Windows due to desktop lock screen.~~
+$^c$ALE-Claw bundles GUI primitives into a single \texttt{computer(action=\dots)} tool; OpenHands wraps them in composite \texttt{desktop\_use} and \texttt{browser} tools.~~
+$^d$Grok CLI sub-agent tools fail under OpenRouter routing (hard-coded xAI model IDs).
+\end{table}
+\fi
+
+\noindent \textbf{Sub-agents.}
+Complex tasks benefit from delegation. The harness can spawn specialized sub-agents (a \emph{General} sub-agent with access to all tools, an \emph{Explore} sub-agent restricted to read-only operations, among others) that operate in isolated context windows and return summarized results to the parent loop. This mechanism enables parallel exploration and limits context consumption.
+
+\noindent \textbf{Context manager.}
+Long-horizon professional tasks routinely generate context that exceeds model limits. The context manager implements a three-tier compaction strategy: (1)~\emph{Microcompaction} clears stale tool results in place; (2)~\emph{LLM-based summarization} compresses older conversation segments into structured checkpoints; (3)~\emph{Truncation} enforces hard context-window limits (e.g., 400K or 1M tokens). This graduated approach preserves recent detail while retaining long-range planning state.
+
+\noindent \textbf{ALE-Claw vs.\ OpenClaw.}
+OpenClaw is a personal AI assistant with two main components: a user-interaction runtime and an agent loop.
+For ALE-Claw, we removed the components that keep a long-lived, multi-user AI assistant alive in production: the scheduled-prompt subsystem, including cron and heartbeats; multi-channel gateways; the skills system; and the plugin framework with lifecycle hooks.
+These components are not needed to solve a single benchmark task.
+The simplification reduces the system prompt by ${\sim}65\%$.
+
+The agent loop is similar in principle to the design in Figure~\ref{fig:agent-harness}: it takes a task instruction and turns it into a sequence of tool calls and observations until the task is complete.
+OpenClaw was originally developed in TypeScript~\citep{openclaw2026agent}, which makes direct adaptation to the CUA framework difficult.
+To resolve this, we rewrote the agent loop in Python and added a small set of CUA-specific adaptations: a composite computer-use tool that matches CUA's native GUI surface, and a vision-driven GUI sub-agent, \texttt{delegate\_gui}, with no OpenClaw analogue.
+We retained OpenClaw's load-bearing context-management primitives near-verbatim.
+
+ALE-Claw is also of independent interest.
+By isolating OpenClaw's agent loop and porting it to Python, we make the design accessible to the broader Python research ecosystem and to the CUA framework specifically, where the original TypeScript implementation cannot be plugged in directly.
+The Python port also enables dynamic ablation of the agent harness.
+Components can be swapped or removed in place, and the resulting performance shift can be measured directly; this workflow is impractical against the original TypeScript runtime.
+As one concrete future direction, ALE-Claw can serve as a fixed scaffold for benchmarking different GUI models against the same task suite.

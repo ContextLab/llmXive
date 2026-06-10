@@ -1,0 +1,486 @@
+\appendix
+
+\section{Dataset Details}
+\label{app:datasets}
+
+This appendix supplements \S\ref{sec:stats}. The main paper reports the aggregate
+benchmark statistics; here we specify the retained instance set, record schema,
+and repository-snapshot assumptions used by SWE-Explore.
+
+\paragraph{Source benchmarks and filtering.}
+SWE-Explore is constructed from three public repository-level sources:
+SWE-bench Verified, SWE-bench-Pro, and SWE-bench Multilingual. We keep an
+instance only when at least two trajectory resolves the
+original task under the source benchmark's executable harness. This filtering
+step ensures that the supervision target is extracted from successful repair
+behavior rather than from failed exploration attempts. After filtering,
+SWE-Explore contains 848 instances across 10 programming languages and 203
+open-source repositories.
+
+\paragraph{Benchmark composition.}
+The retained set combines Python-centered verified issues, harder professional
+software-engineering tasks, and multilingual issue-resolution tasks. This design
+keeps the benchmark tied to executable repair while reducing dependence on a
+single language ecosystem or repository family.
+
+\paragraph{Language distribution.}
+The language distribution is shown in Table~\ref{tab:language_distribution}.
+Python remains the largest subset because SWE-bench Verified is Python-centric;
+SWE-bench-Pro and SWE-bench Multilingual add most of the non-Python coverage.
+
+\begin{table}[h]
+\centering
+\caption{Language distribution of SWE-Explore.}
+\label{tab:language_distribution}
+\begin{tabular}{lrr}
+\toprule
+Language & Instances & Percentage (\%) \\
+\midrule
+Python & 547 & 64.5 \\
+Go & 84 & 9.9 \\
+JavaScript & 51 & 6.0 \\
+Rust & 31 & 3.7 \\
+Java & 30 & 3.5 \\
+PHP & 28 & 3.3 \\
+TypeScript & 27 & 3.2 \\
+Ruby & 22 & 2.6 \\
+C & 21 & 2.5 \\
+C++ & 7 & 0.8 \\
+\midrule
+Total & 848 & 100.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Benchmark record schema.}
+Each instance is stored as a structured record containing the issue, repository
+metadata, trajectory provenance, and line-level supervision. The core fields are:
+\begin{itemize}
+    \item \texttt{instance\_id}: unique instance identifier;
+    \item \texttt{repo}: source repository name;
+    \item \texttt{source}: source benchmark;
+    \item \texttt{problem\_statement}: natural-language issue description;
+    \item \texttt{ground\_truth.read\_core\_regions}: line-level core regions used for scoring;
+    \item \texttt{ground\_truth.read\_optional\_regions}: optional regions used for diagnostics and context-efficiency computation;
+    \item \texttt{provenance}: successful source trajectories and extraction metadata.
+\end{itemize}
+All file paths are stored as repository-relative paths. Line intervals are
+1-indexed and closed. Before scoring, paths are canonicalized so that equivalent
+spellings such as \texttt{./src/foo.py} and \texttt{src/foo.py} map to the same
+repository-relative file.
+
+\paragraph{Repository snapshots.}
+Each instance is evaluated against a fixed repository snapshot inherited from
+its source benchmark. The same snapshot is used to resolve line intervals, score
+explorer predictions, and run restricted-context downstream validation.
+Generated files, temporary files, external dependency paths, and files outside
+the repository checkout are not treated as valid repository files.
+
+
+\section{Ground-Truth Construction and Refinement Details}
+\label{app:refine}
+\label{app:gt_construction}
+
+This appendix supplements \S\ref{sec:gt}. The main paper describes the
+trajectory-grounded construction at a high level; here we record the extraction,
+normalization, refinement, and audit rules used to produce the final line-level
+targets.
+
+
+
+\paragraph{Read extraction.}
+We extract observable file-reading behavior and convert it into
+repository-relative line regions. We parse three types of read signals:
+\begin{itemize}
+    \item \textbf{Editor views}: tool calls with an explicit file path and visible line range;
+    \item \textbf{Command-line reads}: commands such as \texttt{cat}, \texttt{head}, \texttt{tail}, and \texttt{sed -n} when the target file can be resolved;
+    \item \textbf{Search hits}: \texttt{grep -n} outputs that can be mapped to repository files and line numbers.
+\end{itemize}
+Signals that cannot be mapped to a unique file--interval pair are discarded.
+This rule keeps the supervision tied to observable repository reads and avoids
+expanding ambiguous terminal output into unsupported line regions.
+
+\paragraph{Path normalization.}
+Absolute paths are accepted only when they point inside the repository checkout.
+Relative paths are normalized by removing redundant \texttt{./} segments,
+resolving \texttt{..} segments whenever possible, and matching the result
+against the repository file index. Reads mapped to multiple candidate files are
+discarded. Reads mapped outside the repository are also discarded.
+
+\paragraph{Line-interval normalization.}
+Each read is converted into a tuple $(p,s,e)$, where $p$ is the
+repository-relative path and $[s,e]$ is a 1-indexed closed interval. Whole-file
+reads are expanded using the file's line count at the evaluated checkout.
+Out-of-range intervals are clipped to valid file boundaries. Empty intervals are
+removed. Adjacent or overlapping intervals from the same trajectory and file are
+merged before cross-trajectory aggregation.
+
+\paragraph{Core and optional context.}
+Let $\mathcal{T}$ be the successful trajectory set for an instance and let
+$R(\tau)$ denote the merged line regions read by trajectory $\tau$. The raw core
+context is the file-wise, line-level intersection across successful trajectories:
+\[
+R^{\mathrm{raw}}_{\mathrm{core}}
+=
+\bigcap_{\tau \in \mathcal{T}} R(\tau).
+\]
+The raw optional context is the portion of successful reads outside this
+intersection:
+\[
+R^{\mathrm{raw}}_{\mathrm{opt}}
+=
+\left(\bigcup_{\tau \in \mathcal{T}} R(\tau)\right)
+\setminus R^{\mathrm{raw}}_{\mathrm{core}}.
+\]
+The union has high recall but includes exploratory detours, redundant file
+openings, and model-specific context that may not be necessary for repair. The
+intersection is more conservative: it keeps only evidence consulted across
+successful solution paths. SWE-Explore therefore uses the refined core as the
+main scoring target and keeps optional context for diagnostics and
+context-efficiency computation.
+
+\paragraph{LLM-assisted refinement.}
+Pure intersection can under-cover cases where different successful agents use
+different but equivalent evidence. We therefore consider optional regions that
+are repeatedly visited, directly adjacent to core evidence, or close to modified
+regions. For each candidate, the refinement model receives the issue statement,
+the candidate region, nearby code context, and a compact summary of successful
+trajectories. The output schema contains:
+\begin{itemize}
+    \item a binary decision on whether the candidate is load-bearing;
+    \item a short rationale grounded in the issue and trajectory evidence;
+    \item the precise line interval to promote into the refined core.
+\end{itemize}
+Candidates without a precise promoted interval are rejected.
+
+\paragraph{Human audit.}
+Every promoted region is manually audited against the issue, source
+trajectories, and final patch. The audit checks whether:
+\begin{itemize}
+    \item the region exists in the repository at the evaluated checkout;
+    \item the region is relevant to the issue rather than merely adjacent or frequently opened;
+    \item including it rewards evidence that a successful solution plausibly relied on.
+\end{itemize}
+Regions that fail any check are removed. The audit keeps the target conservative
+while recovering load-bearing context that pure intersection may miss.
+
+\paragraph{Context variants.}
+For analysis, we maintain three target variants: pure intersection, refined core,
+and full union. The pure-intersection target is maximally conservative. The
+full-union target is high-recall but noisy. The refined-core target balances
+these two extremes and is the default target used in the main experiments.
+
+
+\section{Metric Definitions and Ideal-Order Implementation}
+\label{app:metrics}
+
+This appendix supplements \S\ref{sec:metrics}. The main paper defines the metric
+family used in the experiments; here we give the evaluator-level definitions,
+including duplicate handling, budgeted prefixes, and the ideal-order computation
+used by nDCG.
+
+\paragraph{Line universe.}
+All metrics are computed over repository-relative line identifiers $(p,\ell)$,
+where $p$ is a normalized path and $\ell$ is a 1-indexed line number. A predicted
+region contributes all visible lines in its clipped interval. Duplicate
+predicted lines are counted once for set-based precision and recall, while the
+original region order is preserved for rank-aware metrics.
+
+Let $L(r)$ denote the set of line identifiers covered by region $r$, let
+$L(P)=\bigcup_i L(r_i)$ denote the union of predicted lines, and let
+$Y=L(R_{\mathrm{core}})$ denote the line-level core target.
+
+\paragraph{Coverage metrics.}
+Line-level precision and recall are defined as:
+\[
+\mathrm{Prec}
+=
+\frac{|L(P)\cap Y|}{|L(P)|},
+\qquad
+\mathrm{Rec}_{\ell}
+=
+\frac{|L(P)\cap Y|}{|Y|}.
+\]
+F1 is the harmonic mean of precision and recall:
+\[
+\mathrm{F1}
+=
+\frac{2\cdot \mathrm{Prec}\cdot \mathrm{Rec}_{\ell}}
+{\mathrm{Prec}+\mathrm{Rec}_{\ell}}.
+\]
+
+\paragraph{Hit rates.}
+We also report two coarser hit rates. \textsc{HitFile} measures whether the
+prediction reaches ground-truth files:
+\[
+\mathrm{HitFile}
+=
+\frac{
+|\{p:\exists i, p_i=p\}\cap \mathrm{Files}(Y)|
+}{
+|\mathrm{Files}(Y)|
+}.
+\]
+\textsc{HitRegion} measures whether each ground-truth region is overlapped by
+at least one predicted region:
+\[
+\mathrm{HitRegion}
+=
+\frac{
+|\{r\in R_{\mathrm{core}}:\exists i,\ L(r_i)\cap L(r)\neq \emptyset\}|
+}{
+|R_{\mathrm{core}}|
+}.
+\]
+
+\paragraph{Budgeted prefixes.}
+For a line budget $B$, $P_{\le B}$ is the longest prediction prefix whose
+cumulative visible lines do not exceed $B$. This prefix definition penalizes
+explorers that place very large regions early: a verbose early region can
+exhaust the budget before more useful evidence appears. The main experiments use
+$B=500$ for the primary rank-aware score and additionally compute
+$B\in\{100,300,500\}$ in the released evaluator.
+
+\paragraph{nDCG.}
+For nDCG, each predicted region receives gain equal to the number of newly
+covered core lines. Regions are processed in predicted order, and the discounted
+gain is:
+\[
+\mathrm{DCG}@B
+=
+\sum_{i\in P_{\le B}}
+\frac{g_i}{\log_2(i+2)}.
+\]
+The normalized score is:
+\[
+\mathrm{nDCG}@B
+=
+\frac{\mathrm{DCG}@B}{\mathrm{IDCG}@B}.
+\]
+
+\paragraph{Ideal-ordering for nDCG.}
+\label{app:idcg}
+The ideal DCG is computed under the same line budget as the explorer output. We
+construct the ideal order greedily: at each step, the evaluator selects the
+remaining ground-truth region with the largest marginal uncovered-line gain,
+subject to the remaining line budget. Ties are broken by shorter region length
+and then by repository path. This makes the normalization instance-specific and
+budget-matched: an explorer is compared against the best achievable ordering of
+the same target evidence, not against an unconstrained full-context oracle.
+
+\paragraph{First useful hit.}
+First Useful Hit (FUH) measures how early the explorer first surfaces any core
+evidence. Let $i^\star$ be the first predicted rank whose visible lines intersect
+$Y$. We define:
+\[
+\mathrm{FUH}
+=
+\begin{cases}
+1 - i^\star/|P|, & \text{when such } i^\star \text{ exists},\\
+0, & \text{otherwise}.
+\end{cases}
+\]
+Higher values indicate that useful evidence appears earlier in the ranked list.
+
+\paragraph{Efficiency and noise.}
+Context efficiency is the fraction of predicted visible lines that fall inside
+either core or optional context:
+\[
+\mathrm{CtxEff}
+=
+\frac{
+|L(P)\cap (L(R_{\mathrm{core}})\cup L(R_{\mathrm{opt}}))|
+}{
+|L(P)|
+}.
+\]
+Noise rate is the fraction of predicted regions that overlap neither core nor
+optional context. The main table reports region-level noise.
+
+\paragraph{Aggregation.}
+Metrics are computed per instance and then averaged over instances. Empty
+predictions receive zero for coverage, ranking, first-hit, and efficiency
+metrics. Predictions with invalid paths or empty intervals are discarded before
+scoring.
+
+
+\section{Restricted-Context Validation Protocol}
+\label{app:bridge}
+\label{app:restricted_context}
+
+This appendix supplements \S\ref{sec:bridge} and \S\ref{sec:downstream}. The
+restricted-context protocol is used to test whether the selected regions can
+support actual patch generation under a fixed patching scaffold; it is not part
+of the standard upstream scoring loop.
+
+\paragraph{Context materialization.}
+For each explorer output, we first normalize paths, clip intervals to file
+boundaries, and remove invalid regions. For selected files, only the predicted
+line intervals remain visible. Lines outside the selected intervals are replaced
+with blank placeholders rather than deleted, so that repository paths and line
+numbers remain stable during patch generation and debugging. Files not selected
+by the explorer are hidden from the patching agent.
+
+\paragraph{Fixed patch scaffold.}
+All restricted-context runs use the same patcher, prompt template, tool set, and
+interaction budget. The only variable is the visible context produced by the
+explorer. This control is important because otherwise a higher resolve rate
+could reflect a stronger patch-generation scaffold rather than better
+exploration.
+
+\paragraph{Patch application and harness evaluation.}
+After patch generation, the predicted diff is applied to the original repository
+checkout and evaluated with the source benchmark's executable harness. An
+instance is counted as resolved only when the patch passes the benchmark's
+standard tests. Empty patches, unparsable diffs, failed patch applications, and
+test failures are all counted as unresolved.
+
+\paragraph{Failure diagnostics.}
+For every unresolved run, we log a coarse failure reason: no diff generated,
+invalid diff, patch failed to apply, patch outside visible context, applied patch
+failed tests, timeout, or infrastructure error. These diagnostics do not change
+the resolved/unresolved label; they are used to understand how restricted
+context affects repair.
+
+
+\section{Explorer Implementation Details}
+\label{app:explorers}
+
+This appendix supplements the explorer setup in \S\ref{sec:main-results}. All
+methods are converted to the same output contract before scoring: an ordered
+list of at most $K=5$ repository-relative line regions. Each region is represented
+as a path and a closed line interval. Invalid paths, empty intervals, and regions
+outside the repository checkout are discarded before evaluation.
+
+\paragraph{Retrieval baselines.}
+BM25 and TF--IDF use the issue statement as the query and rank repository chunks
+by lexical similarity. The top-ranked chunks are converted into line regions.
+Potion uses the same chunk-and-rank interface as a lightweight dense retrieval
+baseline.
+
+\paragraph{Agentic explorers.}
+For agentic explorers, each system is run under its original search or
+localization scaffold. We then normalize the resulting file, function, or region
+outputs into line-level regions. When a method produces file-level outputs, we
+map them to the most specific span supported by the method output or associated
+read trace. This conversion is applied before scoring so that all methods are
+compared under the same ranked-region contract.
+
+\paragraph{Output validation.}
+Before scoring, each prediction is checked for path validity, interval validity,
+and repository membership. Invalid predictions are dropped. Predictions with
+empty intervals are dropped. The remaining predictions are scored according to
+their original order.
+
+
+\section{Case Study: \texttt{scikit-learn/scikit-learn\#10844}}
+\label{appendix:case-study}
+
+To make the quantitative results in \S\ref{sec:main-results} concrete, we walk through a single instance for which all 14 explorers produced output and whose ground truth is small enough to inspect end-to-end. We pick a real numerical-overflow bug whose ranking on this single instance closely tracks the ordering in the main tables, so the case mirrors --- rather than distorts --- the global picture.
+
+\paragraph{Issue (\texttt{scikit-learn/scikit-learn\#10844}, from SWE-Bench Verified).}
+The issue is titled \emph{``\texttt{fowlkes\_mallows\_score} returns \texttt{RuntimeWarning} when variables get too big.''} The reporter observes that the line
+\begin{center}\small\texttt{return tk / np.sqrt(pk * qk) if tk != 0. else 0.}\end{center}
+inside \texttt{sklearn/metrics/cluster/supervised.py} silently overflows when \texttt{pk * qk} exceeds $2^{32}$, because \texttt{pk} and \texttt{qk} are 32-bit integers; the result is a \texttt{RuntimeWarning} and a corrupted score. The fix casts the operands to \texttt{np.float64} before the multiplication, plus adds a regression test in \texttt{tests/test\_supervised.py} that triggers the overflow path.
+
+\paragraph{Ground truth.}
+The refined ground truth lists two core files spanning only $26$ lines in total, so the line-recall view is not dominated by wide whole-file scopes:
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+Path & Line range & Role \\
+\midrule
+\texttt{sklearn/metrics/cluster/supervised.py}              & 850--870  & modified function (\texttt{fowlkes\_mallows\_score}) \\
+\texttt{sklearn/metrics/cluster/tests/test\_supervised.py}  & 245--249  & 5-line regression test for the overflow case \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Per-explorer outputs.}
+Table~\ref{tab:case-sklearn} reports every explorer's top-5 output and the resulting metrics. Regions are abridged to fit the column; entries in [\,brackets\,] mark a region whose file overlaps a ground-truth file.
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Top-5 outputs and metrics on \texttt{scikit-learn/scikit-learn\#10844}.
+HF = HitFile, Noise = NoiseFile, Rec$_\ell$ = line recall, F1 = line F1, Cov = weighted core coverage.}
+\label{tab:case-sklearn}
+\begin{tabular}{l p{6.6cm} ccccc}
+\toprule
+Explorer & Returned regions (top-5, abridged) & HF$\uparrow$ & Noise$\downarrow$ & Rec$_\ell\uparrow$ & F1$\uparrow$ & Cov$\uparrow$ \\
+\midrule
+Oracle         & [supervised.py:850--870], [test\_supervised.py:245--249]                                                                       & 1.00 & 0.00 & 1.00 & 1.00 & 1.00 \\
+\midrule
+Random         & unrelated files from other repos                                                                                              & 0.00 & 1.00 & 0.00 & 0.00 & 0.00 \\
+TF--IDF        & ISSUE\_TEMPLATE.md, CONTRIBUTING.md, doc/support.rst, doc/faq.rst                                                              & 0.00 & 1.00 & 0.00 & 0.00 & 0.00 \\
+Potion (RAG)   & ISSUE\_TEMPLATE.md, CONTRIBUTING.md ($\times$2), doc/support.rst, sklearn/\_\_init\_\_.py                                       & 0.00 & 1.00 & 0.00 & 0.00 & 0.00 \\
+BM25           & ISSUE\_TEMPLATE.md, PR\_TEMPLATE.md, CONTRIBUTING.md ($\times$2), [supervised.py:781--860]                                     & 0.50 & 0.75 & 0.42 & 0.07 & 0.31 \\
+\midrule
+AutoCodeRover  & [supervised.py:787--859]  (only 1 region emitted)                                                                              & 0.50 & 0.00 & 0.38 & 0.20 & 0.29 \\
+OrcaLoca       & [supervised.py:787--859]  (only 1 region emitted)                                                                              & 0.50 & 0.00 & 0.38 & 0.20 & 0.29 \\
+LocAgent       & [supervised.py:787--859], [supervised.py:53--107], [supervised.py:34--50]                                                      & 0.50 & 0.00 & 0.38 & 0.12 & 0.29 \\
+CoSIL          & [supervised.py:1--$\infty$], cluster/setup.py, metrics/setup.py, cluster/\_\_init\_\_.py, metrics/\_\_init\_\_.py             & 0.50 & 0.80 & 0.81 & 0.05 & 0.60 \\
+Claude Code    & [supervised.py:28--31/53--107/787--859/193--214], [test\_supervised.py:239--276]                                               & 1.00 & 0.00 & 0.58 & 0.14 & 0.69 \\
+Mini-SWE-Agent & [supervised.py:787--859/53--95], [test\_supervised.py:239--276], doc/clustering.rst, doc/whats\_new/v0.18.rst                  & 1.00 & 0.50 & 0.58 & 0.14 & 0.69 \\
+AweAgent       & [supervised.py:28--31/53--107/787--859], [test\_supervised.py:239--276], doc/clustering.rst                                    & 1.00 & 0.33 & 0.58 & 0.15 & 0.69 \\
+Codex          & [supervised.py:852--859/53--107/579--605], [test\_supervised.py:239--276/170--184]                                             & 1.00 & 0.00 & 0.50 & 0.15 & 0.63 \\
+OpenHands      & [supervised.py:787--859/53--107], [test\_supervised.py:239--276/170--184], metrics/classification.py                            & 1.00 & 0.33 & 0.58 & 0.14 & 0.69 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Discussion.}
+Three patterns are visible, and all three echo the global ordering reported in \S\ref{sec:main-results}.
+
+\emph{First, one-shot lexical retrieval is essentially useless on this bug.}
+TF--IDF, Potion, and Random all reach HitFile $=0$. The issue text contains no rare identifier that pins down the modified module: it talks about \texttt{RuntimeWarning}, overflow, and integer multiplication, all of which are far more frequent in the project's templates and documentation than in the implementation. BM25 partially recovers (HitFile $=0.50$) by anchoring on \texttt{fowlkes\_mallows\_score} appearing both in the title and in the file, but it still buries the function below four template files and never reaches the regression test. This is the regime the global numbers describe: sparse retrievers cluster near Random on file hit, and Potion adds little above them.
+
+\emph{Second, the academic localizers behave like the rest of the paper: precise on the implementation file, blind to the test file.}
+AutoCodeRover, OrcaLoca, LocAgent, and CoSIL all reach \texttt{supervised.py} and land squarely on the \texttt{fowlkes\_mallows\_score} block, but none of them surfaces \texttt{test\_supervised.py}; their HitFile therefore caps at $0.50$. AutoCodeRover and OrcaLoca additionally under-fill the top-5 budget, emitting only one region, which costs them line recall and coverage even within the file they do reach. CoSIL again emits whole files, which lifts Rec$_\ell$ to $0.81$ at the cost of high file-level noise --- the same Rec$_\ell$/HitFile asymmetry it shows in the main table.
+
+\emph{Third, all five general-purpose agents converge on the same fix neighborhood.}
+Claude Code, Mini-SWE-Agent, AweAgent, Codex, and OpenHands all reach both ground-truth files (HitFile $=1.00$), and all land on the \texttt{fowlkes\_mallows\_score} body in \texttt{supervised.py:787--859} plus the surrounding test block in \texttt{test\_supervised.py:239--276}. Differences between them reduce to small variations in span shape and how many auxiliary regions they include: Codex emits the tightest spans on the fix line itself (\texttt{852--859}), while AweAgent and OpenHands include extra context such as imports or related metrics. This mirrors the main-table observation that the general agents form a tight cluster on HitFile and Cov, with the remaining variance dominated by how much surrounding code each one chooses to return.
+
+\emph{Takeaway.}
+On this instance the practical ranking is Random/TF--IDF/Potion $\ll$ BM25 $<$ academic localizers (one file only, precise) $<$ general agents (both files, function-scoped spans) $<$ CoSIL (recall by whole-file emission) $<$ Oracle. The relative ordering and the magnitude of the gaps both match the global tables: the lexical baselines sit at the floor, the academic localizers occupy a narrow precision-leaning band, the general agents share a higher operating point on file hit and coverage, and only Oracle achieves matching scores on \emph{both} line-level and file-level metrics. The case therefore illustrates why we report file hit, line recall, and coverage together: each metric independently reproduces a different part of this same ordering.
+
+
+
+\section{Reproducibility, Compute, and Limitations}
+\label{app:reproducibility}
+
+This appendix collects implementation information that is not central to the
+main argument but is needed to interpret the released artifact and compute cost.
+
+\paragraph{Reproducibility.}
+The released artifact contains benchmark records, the common explorer-output
+schema, metric computation scripts, and restricted-context validation scripts.
+Each instance records source provenance, repository metadata, and line-level
+context annotations. The evaluation pipeline consumes ranked-region predictions
+and produces both per-instance metrics and aggregate tables.
+
+\paragraph{Compute.}
+Sparse retrieval baselines run on CPU workers after repository indexing. Dense
+retrieval additionally requires embedding computation but no fine-tuning.
+Agentic explorers and restricted-context validation are the most expensive
+components because they require LLM calls and executable harness runs. For each
+downstream run, we log the model, prompt, tool budget, wall-clock time, patch
+status, and resolved status.
+
+\paragraph{Limitations.}
+SWE-Explore covers instances solved by at least one agent in our pool, so it does
+not represent the full distribution of unsolved repository-level issues. Its
+trajectory-derived ground truth is an empirical approximation of useful context,
+not a proof that no other evidence could support a valid solution. Some valid
+solution paths may rely on different evidence than the successful trajectories we
+observe. The restricted-context protocol should therefore be read as a controlled
+validation of exploration metrics, rather than as an absolute measure of
+patch-generation ability.
+
+\paragraph{Responsible release.}
+SWE-Explore is derived from public software-engineering benchmarks and public
+repository metadata. The release excludes private repositories, credentials, and
+user data. Benchmark records preserve source attribution and include
+documentation for schema, provenance, and intended use.
+

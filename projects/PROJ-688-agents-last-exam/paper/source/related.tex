@@ -1,0 +1,44 @@
+\section{Related Work}
+\label{sec:related}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Positioning of ALE against representative benchmarks.} Industry counts use the mapping in
+Appendix~\ref{app:taxonomy}; ``--'' indicates that the benchmark does not declare a
+domain taxonomy and is not directly comparable.}
+\label{tab:related-comparison}
+\renewcommand{\arraystretch}{0.95}
+\setlength{\tabcolsep}{6pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l l r c l l l l}
+\toprule
+\textbf{Benchmark} & \textbf{Task form} & \textbf{Size} & \textbf{Breadth} & \textbf{Domain grounding} & \textbf{Task source} & \textbf{Horizon} & \textbf{Verification} \\
+\midrule
+\multicolumn{8}{l}{\textit{Knowledge \& exam-style QA}} \\
+MMLU~\citep{hendrycks2021measuring}        & Knowledge QA       & $\sim$16K & 26 / \taskcount{} & Academic subjects     & Mined (exams)                 & Seconds        & Auto (exact match) \\
+GPQA~\citep{rein2024gpqa}                  & Knowledge QA       & $\sim$500 & 8 / \taskcount{}  & Hard sciences         & Domain experts                & Minutes        & Auto (exact match) \\
+HLE~\citep{phan2026hle}                    & Knowledge QA       & $\sim$2.5K & 20 / \taskcount{} & Academic subjects     & Domain experts                & Minutes        & Auto (exact / LLM-judge) \\
+\midrule
+\multicolumn{8}{l}{\textit{Agentic \& computer-use benchmarks}} \\
+GAIA~\citep{mialon2024gaia}                & Tool-use QA        & $\sim$500 & --                & General assistant     & Curators                      & Minutes        & Auto (exact match) \\
+SWE-bench~\citep{jimenez2024swebench}      & Code patch         & $\sim$2K  & 5 / \taskcount{}  & OSS Python repos      & Mined (GitHub)                & Minutes--Hours & Auto (unit tests) \\
+OSWorld~\citep{xie2024osworld}             & GUI Operation      & $\sim$400 & 5 / \taskcount{}  & Desktop apps          & Curators                      & Minutes        & Auto (state checks) \\
+WebArena~\citep{zhou2024webarena}          & GUI Operation      & $\sim$800 & 4 / \taskcount{}  & Web apps (6 sites)    & Curators                      & Minutes        & Auto (state checks) \\
+Terminal-Bench~2~\citep{merrill2026terminalbench} & CLI Operation & $\sim$100 & 6 / \taskcount{}  & Terminal workflows    & Curators                      & Minutes--Hours & Auto (state checks) \\
+PinchBench~\citep{pinchbench2026}          & Assistant tasks    & $\sim$50  & 3 / \taskcount{}  & Productivity + coding & Curators                      & Minutes        & Auto (tests / LLM-judge) \\
+\midrule
+\multicolumn{8}{l}{\textit{Economically grounded / project-style benchmarks}} \\
+GDPval~\citep{patwardhan2025gdpval}        & Project deliverable & $\sim$200 & 16 / \taskcount{} & Top GDP occupations  & Industry experts              & Hours--Days    & Human (expert) \\
+RLI~\citep{mazeika2025rli}                 & Project deliverable & $\sim$250 & 14 / \taskcount{} & Upwork's categories & Mined (Upwork)              & Hours--Days    & Human (expert) \\
+\textbf{ALE (ours)}                        & \textbf{Project deliverable} & \textbf{$\sim$1.5K} & \textbf{\taskcount{} / \taskcount{}} & \textbf{SOC 2018 + O*NET} & \textbf{Industry experts}     & \textbf{Hours--Weeks} & \textbf{Auto (deterministic scripts)} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:related-comparison} positions ALE against prominent benchmarks; the ``Breadth'' column reports industry coverage by mapping each benchmark's published categories onto our \taskcount{}-industry taxonomy.
+Knowledge and exam-style benchmarks such as MMLU~\citep{hendrycks2021measuring}, GPQA~\citep{rein2024gpqa}, and HLE~\citep{phan2026hle} are topically broad but test what a model \emph{knows}, not what it can \emph{do}.
+Agentic benchmarks including SWE-bench~\citep{jimenez2024swebench}, OSWorld~\citep{xie2024osworld}, WebArena~\citep{zhou2024webarena}, and GAIA~\citep{mialon2024gaia} add multi-step interaction and tool use but cover only a handful of software-centric domains and typically rely on curator-authored tasks rather than real professional workflows.
+The closest contemporaries, GDPval~\citep{patwardhan2025gdpval} and RLI~\citep{mazeika2025rli}, target economically grounded, project-scale evaluation but still leave large portions of the labor market untested (16 and 14 of \taskcount{} industries, respectively) and depend on expensive human grading.
+ALE closes these gaps: it is the first benchmark to cover all \taskcount{} SOC/O*NET industries, draws every task from a real project completed by one of 300+ practitioners, and replaces human evaluation with deterministic, rubric-based automated verification.
+

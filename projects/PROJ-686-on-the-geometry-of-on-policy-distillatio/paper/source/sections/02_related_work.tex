@@ -1,0 +1,65 @@
+
+
+\section{Related Work}
+\label{sec:related}
+
+% \paragraph{Post-Training of LLM}
+% Post-training adaptation in large language models primarily bifurcates into Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL). SFT induces behavioral imitation through cross-entropy optimization over offline expert demonstrations \cite{howard2018universallanguagemodelfinetuning,dodge2020finetuningpretrainedlanguagemodels,wei2022finetunedlanguagemodelszeroshot}. To move beyond static supervision, Reinforcement Learning from Human Feedback (RLHF) aligns models using preference-based reward modeling \cite{ouyang2022traininglanguagemodelsfollow,ziegler2020finetuninglanguagemodelshuman}. For complex reasoning tasks, Reinforcement Learning with Verifiable Rewards (RLVR) further optimizes policies against deterministic outcome verifiers via online policy-gradient optimization \cite{shao2024deepseekmathpushinglimitsmathematical,guo2025deepseek}.
+
+
+% \paragraph{On-Policy Distillation}
+
+% On-Policy Distillation (OPD) has rapidly matured into a pivotal post-training 
+% paradigm for scaling large language model reasoning \cite{song2026surveyonpolicydistillationlarge}. By 
+% synthesizing online exploration with dense teacher guidance, OPD achieves competitive 
+% reasoning gains to reinforcement learning while significantly compressing the active 
+% training footprint and sample complexity . Driven 
+% by this empirical success, the frontier has shifted from basic alignment protocols 
+% to deep phenomenological audits, multi-teacher fusion, and robust scaling recipes 
+% \cite{fu2026revisitingonpolicydistillationempirical,li2026rethinkingonpolicydistillationlarge}. Frontier pipelines now aggressively 
+% deploy OPD variants across industrial scales to stabilize policy trajectories and bypass 
+% the heavy optimization overhead of full RL \cite{deepseekai2026deepseekv4, yang2025qwen3technicalreport}. 
+
+% However, these behavior-level accounts treat distillation as a black box, leaving its underlying weight-space geometry uncharacterized.
+
+
+\paragraph{Post-training for large language models.} Post-training large language models for reasoning has largely followed
+three paradigms. Supervised fine-tuning (SFT) trains on offline
+demonstrations with cross-entropy objectives
+\cite{howard2018universallanguagemodelfinetuning,
+dodge2020finetuningpretrainedlanguagemodels,
+wei2022finetunedlanguagemodelszeroshot}. Reinforcement learning methods,
+including RLHF and reinforcement learning with verifiable rewards (RLVR),
+optimize policies using preference or outcome-level feedback
+\cite{ziegler2020finetuninglanguagemodelshuman,
+ouyang2022traininglanguagemodelsfollow,
+shao2024deepseekmathpushinglimitsmathematical, guo2025deepseek}. 
+
+More recently, on-policy distillation (OPD) has emerged
+as a complementary route: it trains on student-generated rollouts while
+using a stronger teacher to provide dense token-level guidance
+\cite{lu2025onpolicydistillation,
+song2026surveyonpolicydistillationlarge}. Recent work studies OPD from
+the perspectives of empirical failure modes, scaling recipes, and
+multi-teacher distillation
+\cite{fu2026revisitingonpolicydistillationempirical,
+li2026rethinkingonpolicydistillationlarge,
+deepseekai2026deepseekv4,
+yang2025qwen3technicalreport}. These accounts characterize when OPD works
+behaviorally, but leave its parameter-space dynamics largely unexamined.
+% \paragraph{Parameter-Space Analysis of Post-Training}
+\paragraph{Post-training weight geometry.}
+Recent studies reveal a fundamental 
+optimization dichotomy: SFT induces dense weight updates that distort the 
+pretrained spectral structure along principal directions 
+\cite{liu2026liftveiltruthprincipal}, whereas online RL targets highly localized, 
+off-principal subnetworks 
+\cite{mukherjee2025reinforcementlearningfinetunessmall}. This RL bias can be 
+viewed as a conservative projection that limits policy-level KL drift 
+\cite{shenfeld2025rlsrazoronlinereinforcement, wu2026invisibleleashrlvrescape}, 
+with pretrained model geometry steering the trajectory toward low-curvature, 
+spectrum-preserving subspaces \cite{zhu2025pnt}.
+
+These studies establish the SFT--RLVR geometric split, but leave open where
+OPD lies within this spectrum and how its updates evolve during training.
+We study this missing regime.

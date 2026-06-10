@@ -1,0 +1,29 @@
+% \section{Discussion}
+
+% Our analysis identifies OPD as a distinct parameter-space regime rather
+% than a simple endpoint interpolation between SFT and RLVR. OPD occupies a
+% relaxed off-principal region, but its training trajectory further exhibits
+% subspace locking: cumulative updates rapidly enter a small, persistent
+% low-dimensional channel that is sufficient to preserve training progress.
+
+% These results position update geometry as a first-order design variable for
+% OPD. Runtime perturbations preserve the locked rank profile, whereas
+% objective-level interpolation changes it, identifying objective composition
+% as the sensitive control axis. The same diagnostics can further be used to
+% study whether similar locked update channels arise across broader model
+% families, domains, and projection dimensions.
+
+
+\section{Discussion \& Conclusion}
+\label{sec:discussion}
+
+Our analysis identifies on-policy distillation (OPD) as a distinct parameter-space regime rather than a simple endpoint interpolation between SFT and RLVR. OPD occupies a relaxed off-principal region, but its training trajectory further exhibits subspace locking: cumulative updates rapidly enter a small, persistent low-dimensional channel that is sufficient to preserve training progress.
+
+These findings suggest a key guiding principle for future OPD algorithms:
+design OPD as \emph{geometry control}, not merely as denser token
+supervision. Effective recipes should monitor the locked update channel and
+use objective composition as the primary lever when this geometry drifts,
+with token selection, rollout policy, and teacher scale tuned through their
+effect on update geometry. Such geometry-aware control may make OPD more
+stable, interpretable, and transferable by preserving the update channel
+that supports learning while avoiding unnecessary parameter-space drift.

@@ -1,0 +1,25 @@
+\begin{table}[t]
+  \centering
+  % ---------- left: downstream resolve rate ----------
+  \begin{minipage}[t]{0.46\linewidth}
+    \vspace{0pt}
+    \centering
+    \captionof{table}{Downstream resolve rate under the restricted-context
+    validation environment (GPT-5.4 with Mini-SWE-Agent, $K{=}5$).}
+    \label{tab:downstream}
+    \vspace{1mm}
+    \input{paper/tables/2-resolve-rate}
+  \end{minipage}\hfill
+  % ---------- right: metric correlation ----------
+  \begin{minipage}[t]{0.51\linewidth}
+    \vspace{0pt}
+    \centering
+    \captionof{table}{Explorer-level correlation between each upstream
+    exploration metric and downstream resolve rate, computed across all
+    explorers in our pool. $\downarrow$ marks lower-is-better.}
+    \label{tab:correlation}
+    \vspace{1mm}
+    \input{paper/tables/3-co}
+  \end{minipage}
+  \vspace{-2mm}
+\end{table}

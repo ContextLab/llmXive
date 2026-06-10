@@ -95,3 +95,158 @@ rounds:
     text: Rephrase 'flip the judge's choice between documents' in Introduction (line
       76) to 'flip the preferred document' for clarity.
     severity: writing
+- round_number: 2
+  triggered_at: '2026-06-10T16:31:04.512007+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: e78b16e3112e
+    text: Add explicit data provenance statements for all datasets (TREC DL, BEIR)
+      including download dates, preprocessing steps, and retrieval configuration
+    severity: writing
+  - id: 1585fd85837e
+    text: Ensure all figure captions include complete methodological details for reproducibility
+      (GPU type, inference batch size, random seed count)
+    severity: writing
+  - id: a07f67ffdd5b
+    text: Add glossary or expand first-use definitions for field-specific acronyms
+      (PRP, NDCG, PAC, SST, BM25) to improve accessibility
+    severity: writing
+  - id: 2e5405f1cdfe
+    text: Include citation verification status for all bibliography entries in supplementary
+      materials as required by acceptance criteria
+    severity: writing
+  - id: 59b8063de77e
+    text: Clarify the PAC hyperparameter m=3 selection rationale in the limitations
+      section or add ablation study
+    severity: writing
+  - id: 72300e0551d1
+    text: Code repository (https://github.com/jerecoder/IReranker) remains inaccessible
+      for review. Provide artifact hash or include minimal code snippets in appendix
+      to verify reproducibility claims.
+    severity: science
+  - id: bed7e2c0c4de
+    text: Paper references implementation details (Mohajer algorithm, PAC+Bubble)
+      but provides no pseudocode or algorithm listings. Add Algorithm 1-2 with complexity
+      analysis for reproducibility.
+    severity: science
+  - id: d891fa08e8fd
+    text: No dependency list or environment specification (Python version, LLM API
+      details, hardware specs) provided for experimental replication.
+    severity: science
+  - id: 5792033c013e
+    text: Pin the code repository version (e.g., commit hash or tag) in the manuscript
+      to prevent link rot and ensure reproducibility.
+    severity: writing
+  - id: 4fb44347304b
+    text: Explicitly state the exact versions of datasets used (e.g., BEIR v1.0.0,
+      TREC DL2019/2020) to ensure data consistency.
+    severity: writing
+  - id: ac1420975237
+    text: Declare a software license for the code repository and any derived data
+      artifacts to ensure legal clarity.
+    severity: writing
+  - id: 0a8862916c7d
+    text: Add alt text for all figures using the graphicx alttext option or figure
+      environment to ensure accessibility compliance for screen readers.
+    severity: writing
+  - id: 3cc3966b1996
+    text: Figure 1 caption (line 290) should explicitly state x-axis units (seconds)
+      and y-axis units (NDCG@10 %) for standalone readability without referring to
+      text.
+    severity: writing
+  - id: f0bc9d0a3b70
+    text: Define NDCG@10 at first use in Abstract and Introduction. Currently appears
+      as 'NDCG@10' without expansion.
+    severity: writing
+  - id: d3d03eaf4912
+    text: Define BEIR (Benchmarking Information Retrieval) when first mentioned in
+      Introduction.
+    severity: writing
+  - id: 7e61a93ac78d
+    text: Expand 'CI' to 'Confidence Interval' in Table 1 caption.
+    severity: writing
+  - id: d2704c93ba64
+    text: Define BM25 (Okapi BM25) in Section 5 or Introduction.
+    severity: writing
+  - id: 49283a0a0e81
+    text: Replace 'call-constrained regime' with 'call-limited setting' in Abstract
+      for clarity.
+    severity: writing
+  - id: 22b62de9ca9c
+    text: "Clarify the scope of the randomized\u2011direction oracle\u2019s unbiasedness.\
+      \ The proof (Appendix\u202FA) assumes strict pair\u2011consistency, which may\
+      \ be violated by real LLM APIs (hidden state, non\u2011stationarity). Either\
+      \ provide empirical validation of the unbiasedness claim or temper the statement\
+      \ to reflect this assumption."
+    severity: science
+  - id: 6ffb4d4b3f72
+    text: "Revise the \u201Cdrop\u2011in replacement\u201D claim (Abstract & Conclusion).\
+      \ Active rankers require a warm\u2011up phase (\u2248K\xB2 calls) and hyper\u2011\
+      parameters (e.g., the PAC pool multiplier\u202Fm). Explicitly discuss these\
+      \ prerequisites and their impact on deployment complexity."
+    severity: writing
+  - id: 1199d7d238b6
+    text: "Limit the prescriptive recipe (\u201Cuse Mohajer with randomized\u2011\
+      direction when budget exceeds the warm\u2011up threshold\u201D) to the specific\
+      \ models and datasets evaluated (Flan\u2011T5\u2011L/XL, Qwen\u20113\u20114B).\
+      \ Acknowledge that performance may differ for other LLM families or larger candidate\
+      \ pools."
+    severity: science
+  - id: acf2c4490884
+    text: "Add a discussion of how the reported latency estimates (Section\u202F6)\
+      \ might change with realistic parallel batching, and qualify any conclusions\
+      \ about \u201Ctime\u2011to\u2011quality\u201D that are based on sequential upper\u2011\
+      bounds."
+    severity: writing
+  - id: fdebf30cb2be
+    text: Table 2 (BEIR) still compares methods at different converged budgets (e.g.,
+      BubbleSort@941 calls vs. Mohajer@345 calls). The requested fixed-budget comparison
+      on BEIR was not added. Please clarify whether this is a fixed-budget comparison
+      or an efficiency trade-off, and add fixed-budget BEIR results to strengthen
+      the efficiency claim.
+    severity: science
+  - id: a4841a98d0f6
+    text: The Limitations section does not explicitly discuss the TREC DL dataset
+      size (~50 queries/year) and its impact on statistical power for generalization.
+      Bootstrapping is used, but the small query count limits robustness of significance
+      tests (p < 0.05). Please add this discussion to the limitations section.
+    severity: science
+  - id: ec4742e6e56a
+    text: The randomized-direction oracle proof (Appendix sec:unbiased-proof) shows
+      mathematical reciprocity but does not explicitly state the assumption that position
+      bias is symmetric across all datasets. The flip-rate table provides empirical
+      support but the assumption should be stated in the main text for rigor.
+    severity: science
+  - id: 975930f5a261
+    text: "Report uncertainty estimates (e.g., bootstrap confidence intervals) for\
+      \ the bidirectional\u2011oracle results, which are currently presented as deterministic\
+      \ point estimates."
+    severity: science
+  - id: 160b9279ea2b
+    text: "Apply a multiple\u2011testing correction (e.g., Bonferroni or Benjamini\u2011\
+      Hochberg) when assessing statistical significance across the many budget columns\
+      \ and ranker comparisons."
+    severity: science
+  - id: 73441eaeea4c
+    text: "Discuss and, if possible, quantify the dependence structure among LLM calls\
+      \ (especially under the randomized\u2011direction oracle) and its impact on\
+      \ the validity of the bootstrap procedures."
+    severity: science
+  - id: c47c3d91fe3b
+    text: "Include effect\u2011size measures (e.g., mean \u0394NDCG@10 with confidence\
+      \ intervals) alongside p\u2011values to give a clearer picture of practical\
+      \ significance."
+    severity: science
+  - id: 0e73b0fbaf17
+    text: Add 'that' after 'show' in Abstract and Introduction (lines 48, 72) for
+      grammatical precision.
+    severity: writing
+  - id: cec870057592
+    text: Remove the LaTeX comment '% Paste this in the Appendix...' from the Appendix
+      source (line 1050) to ensure source cleanliness.
+    severity: writing
+  - id: 4bf1194196b1
+    text: Rephrase 'flip the judge's choice between documents' in Introduction (line
+      76) to 'flip the preferred document' for clarity.
+    severity: writing

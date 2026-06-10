@@ -1,0 +1,213 @@
+\begin{thebibliography}{37}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{Anthropic}(2025)]{anthropic2025claudecode}
+{Anthropic}.
+\newblock Claude code: Ai-assisted coding in real-world codebases, 2025.
+\newblock URL \url{https://claude.ai/code}.
+\newblock Accessed: 2026-05.
+
+\bibitem[Badertdinov et~al.(2025)Badertdinov, Golubev, Nekrashevich, Shevtsov, Karasik, Andriushchenko, Trofimova, Litvintseva, and Yangel]{badertdinov2025swerebenchautomatedpipelinetask}
+Ibragim Badertdinov, Alexander Golubev, Maksim Nekrashevich, Anton Shevtsov, Simon Karasik, Andrei Andriushchenko, Maria Trofimova, Daria Litvintseva, and Boris Yangel.
+\newblock Swe-rebench: An automated pipeline for task collection and decontaminated evaluation of software engineering agents, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.20411}.
+
+\bibitem[Chen et~al.(2026)Chen, Meng, Zhao, Li, Cheng, Song, Chen, Lin, Chen, Zhao, Song, Liu, Chen, Jia, and Wen]{chen2026beyondswecurrentcodeagent}
+Guoxin Chen, Fanzhe Meng, Jiale Zhao, Minghao Li, Daixuan Cheng, Huatong Song, Jie Chen, Yuzhi Lin, Hui Chen, Xin Zhao, Ruihua Song, Chang Liu, Cheng Chen, Kai Jia, and Ji-Rong Wen.
+\newblock Beyondswe: Can current code agent survive beyond single-repo bug fixing?, 2026.
+\newblock URL \url{https://arxiv.org/abs/2603.03194}.
+
+\bibitem[Chen et~al.(2025{\natexlab{a}})Chen, Lin, Shi, Lian, Gu, Yun, Chen, Cao, Liu, Xia, et~al.]{chen2025swe}
+Silin Chen, Shaoxin Lin, Yuling Shi, Heng Lian, Xiaodong Gu, Longfei Yun, Dong Chen, Lin Cao, Jiyang Liu, Nu~Xia, et~al.
+\newblock Swe-exp: Experience-driven software issue resolution.
+\newblock \emph{arXiv preprint arXiv:2507.23361}, 2025{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{b}})Chen, Tang, Deng, Wu, Wu, Jiang, Prasanna, Cohan, and Wang]{chen2025locagent}
+Zhaoling Chen, Xiangru Tang, Gangda Deng, Fang Wu, Jialong Wu, Zhiwei Jiang, Viktor~K. Prasanna, Arman Cohan, and Xingyao Wang.
+\newblock {L}oc{A}gent: Graph-guided {LLM} agents for code localization.
+\newblock \emph{CoRR}, abs/2503.09089, 2025{\natexlab{b}}.
+\newblock \doi{10.48550/arXiv.2503.09089}.
+
+\bibitem[Chowdhury et~al.(2024)Chowdhury, Aung, Shern, Jaffe, Sherburn, Starace, Mays, Dias, Aljubeh, Glaese, Jimenez, Yang, Ho, Patwardhan, Liu, and Madry]{chowdhury2024swebenchverified}
+Neil Chowdhury, James Aung, Chan~Jun Shern, Oliver Jaffe, Dane Sherburn, Giulio Starace, Evan Mays, Rachel Dias, Marwan Aljubeh, Mia Glaese, Carlos~E. Jimenez, John Yang, Leyton Ho, Tejal Patwardhan, Kevin Liu, and Aleksander Madry.
+\newblock Introducing {SWE}-bench verified, August 2024.
+\newblock URL \url{https://openai.com/index/introducing-swe-bench-verified/}.
+\newblock OpenAI milestone, updated February 24, 2025.
+
+\bibitem[Deng et~al.(2025)Deng, Da, Pan, He, Ide, Garg, Lauffer, Park, Pasari, Rane, Sampath, Krishnan, Kundurthy, Hendryx, Wang, Bharadwaj, Holm, Aluri, Zhang, Jacobson, Liu, and Kenstler]{deng2025swebenchproaiagents}
+Xiang Deng, Jeff Da, Edwin Pan, Yannis~Yiming He, Charles Ide, Kanak Garg, Niklas Lauffer, Andrew Park, Nitin Pasari, Chetan Rane, Karmini Sampath, Maya Krishnan, Srivatsa Kundurthy, Sean Hendryx, Zifan Wang, Vijay Bharadwaj, Jeff Holm, Raja Aluri, Chen Bo~Calvin Zhang, Noah Jacobson, Bing Liu, and Brad Kenstler.
+\newblock Swe-bench pro: Can ai agents solve long-horizon software engineering tasks?, 2025.
+\newblock URL \url{https://arxiv.org/abs/2509.16941}.
+
+\bibitem[Husain et~al.(2019)Husain, Wu, Gazit, Allamanis, and Brockschmidt]{husain2019codesearchnet}
+Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt.
+\newblock {CodeSearchNet} challenge: Evaluating the state of semantic code search, 2019.
+\newblock URL \url{https://arxiv.org/abs/1909.09436}.
+
+\bibitem[J{\"a}rvelin and Kek{\"a}l{\"a}inen(2002)]{jarvelin2002ndcg}
+Kalervo J{\"a}rvelin and Jaana Kek{\"a}l{\"a}inen.
+\newblock Cumulated gain-based evaluation of {IR} techniques.
+\newblock \emph{ACM Transactions on Information Systems}, 20\penalty0 (4):\penalty0 422--446, 2002.
+\newblock \doi{10.1145/582415.582418}.
+
+\bibitem[Jiang et~al.(2025)Jiang, Ren, Yan, Jiang, Li, and Liu]{jiang2025issuelocalizationllmdriveniterative}
+Zhonghao Jiang, Xiaoxue Ren, Meng Yan, Wei Jiang, Yong Li, and Zhongxin Liu.
+\newblock Issue localization via llm-driven iterative code graph searching, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.22424}.
+
+\bibitem[Jimenez et~al.(2024)Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan]{jimenez2024swebench}
+Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, and Karthik Narasimhan.
+\newblock {SWE}-bench: Can language models resolve real-world {GitHub} issues?
+\newblock In \emph{The Twelfth International Conference on Learning Representations}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=VTF8yNQM66}.
+
+\bibitem[Li et~al.(2025)Li, Shi, Lin, Gu, Lian, Wang, Jia, Huang, and Wang]{li2025swe}
+Han Li, Yuling Shi, Shaoxin Lin, Xiaodong Gu, Heng Lian, Xin Wang, Yantao Jia, Tao Huang, and Qianxiang Wang.
+\newblock Swe-debate: Competitive multi-agent debate for software issue resolution.
+\newblock \emph{arXiv preprint arXiv:2507.23348}, 2025.
+
+\bibitem[Li et~al.(2026)Li, Zhu, Zhang, Feng, Wang, Pan, Barr, Sarro, Chu, and Ye]{li2026contextbench}
+Han Li, Letian Zhu, Bohan Zhang, Rili Feng, Jiaming Wang, Yue Pan, Earl~T. Barr, Federica Sarro, Zhaoyang Chu, and He~Ye.
+\newblock {C}ontext{B}ench: A benchmark for context retrieval in coding agents.
+\newblock \emph{CoRR}, abs/2602.05892, 2026.
+\newblock \doi{10.48550/arXiv.2602.05892}.
+
+\bibitem[Liu et~al.(2024)Liu, Xu, and McAuley]{liu2024repobench}
+Tianyang Liu, Canwen Xu, and Julian McAuley.
+\newblock Repobench: Benchmarking repository-level code auto-completion systems.
+\newblock In \emph{The Twelfth International Conference on Learning Representations}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=pPjZIOuQuF}.
+
+\bibitem[Pan et~al.(2025)Pan, Wang, Neubig, Jaitly, Ji, Suhr, and Zhang]{pan2025trainingsoftwareengineeringagents}
+Jiayi Pan, Xingyao Wang, Graham Neubig, Navdeep Jaitly, Heng Ji, Alane Suhr, and Yizhe Zhang.
+\newblock Training software engineering agents and verifiers with swe-gym, 2025.
+\newblock URL \url{https://arxiv.org/abs/2412.21139}.
+
+\bibitem[Peng et~al.(2025)Peng, Shi, Wang, Zhang, Shen, and Gu]{peng2025swe}
+Weihan Peng, Yuling Shi, Yuhang Wang, Xinyun Zhang, Beijun Shen, and Xiaodong Gu.
+\newblock Swe-qa: Can language models answer repository-level code questions?
+\newblock \emph{arXiv preprint arXiv:2509.14635}, 2025.
+
+\bibitem[Robertson and Zaragoza(2009)]{robertson2009bm25}
+Stephen Robertson and Hugo Zaragoza.
+\newblock The probabilistic relevance framework: {BM25} and beyond.
+\newblock \emph{Foundations and Trends in Information Retrieval}, 3\penalty0 (4):\penalty0 333--389, 2009.
+\newblock \doi{10.1561/1500000019}.
+
+\bibitem[Salton and Buckley(1988)]{salton1988termweighting}
+Gerard Salton and Christopher Buckley.
+\newblock Term-weighting approaches in automatic text retrieval.
+\newblock \emph{Information Processing \& Management}, 24\penalty0 (5):\penalty0 513--523, 1988.
+\newblock \doi{10.1016/0306-4573(88)90021-0}.
+
+\bibitem[Shi et~al.(2024)Shi, Wang, Wan, Wang, and Gu]{shi2024code}
+Yuling Shi, Songsong Wang, Chengcheng Wan, Min Wang, and Xiaodong Gu.
+\newblock From code to correctness: Closing the last mile of code generation with hierarchical debugging.
+\newblock \emph{arXiv preprint arXiv:2410.01215}, 2024.
+
+\bibitem[Shi et~al.(2025{\natexlab{a}})Shi, Qian, Zhang, Shen, and Gu]{shi2025longcodezip}
+Yuling Shi, Yichun Qian, Hongyu Zhang, Beijun Shen, and Xiaodong Gu.
+\newblock Longcodezip: Compress long context for code language models.
+\newblock In \emph{2025 40th IEEE/ACM International Conference on Automated Software Engineering (ASE)}, pages 141--153. IEEE, 2025{\natexlab{a}}.
+
+\bibitem[Shi et~al.(2025{\natexlab{b}})Shi, Zhang, Wan, and Gu]{shi2025between}
+Yuling Shi, Hongyu Zhang, Chengcheng Wan, and Xiaodong Gu.
+\newblock Between lines of code: Unraveling the distinct patterns of machine and human programmers.
+\newblock In \emph{2025 IEEE/ACM 47th International Conference on Software Engineering (ICSE)}, pages 1628--1639. IEEE, 2025{\natexlab{b}}.
+
+\bibitem[Suri et~al.(2026)Suri, Li, Shojaie, Han, Hsu, Garg, Deshmukh, and Kumar]{suri2026codescout}
+Manan Suri, Xiangci Li, Mehdi Shojaie, Songyang Han, Chao-Chun Hsu, Shweta Garg, Aniket~Anand Deshmukh, and Varun Kumar.
+\newblock {C}ode{S}cout: Contextual problem statement enhancement for software agents.
+\newblock \emph{CoRR}, abs/2603.05744, 2026.
+\newblock \doi{10.48550/arXiv.2603.05744}.
+
+\bibitem[Wang et~al.(2025)Wang, Hou, Wei, Tang, and Dong]{wang2025swedev}
+Haoran Wang, Zhenyu Hou, Yao Wei, Jie Tang, and Yuxiao Dong.
+\newblock {SWE}-dev: Building software engineering agents with training and inference scaling.
+\newblock In \emph{Findings of the Association for Computational Linguistics: ACL 2025}, pages 3742--3761. Association for Computational Linguistics, 2025.
+\newblock \doi{10.18653/v1/2025.findings-acl.193}.
+\newblock URL \url{https://aclanthology.org/2025.findings-acl.193/}.
+
+\bibitem[Wang et~al.(2024)Wang, Li, Song, Xu, Tang, Zhuge, Pan, Song, Li, Singh, Tran, Li, Ma, Zheng, Qian, Shao, Muennighoff, Zhang, Hui, Lin, Brennan, Peng, Ji, and Neubig]{wang2024openhands}
+Xingyao Wang, Boxuan Li, Yufan Song, Frank~F. Xu, Xiangru Tang, Mingchen Zhuge, Jiayi Pan, Yueqi Song, Bowen Li, Jaskirat Singh, Hoang~H. Tran, Fuqiang Li, Ren Ma, Mingzhang Zheng, Bill Qian, Yanjun Shao, Niklas Muennighoff, Yizhe Zhang, Binyuan Hui, Junyang Lin, Robert Brennan, Hao Peng, Heng Ji, and Graham Neubig.
+\newblock {OpenHands}: An open platform for {AI} software developers as generalist agents, 2024.
+\newblock URL \url{https://arxiv.org/abs/2407.16741}.
+
+\bibitem[Wang et~al.(2026{\natexlab{a}})Wang, Wang, Shi, Chen, Wang, Wang, Shen, Li, Gu, McAuley, et~al.]{wang2026context}
+Yifei Wang, Ziteng Wang, Yuling Shi, Silin Chen, Xinrui Wang, Yueqi Wang, Beijun Shen, Linjing Li, Xiaodong Gu, Julian McAuley, et~al.
+\newblock Context compression for llm agents: A survey of methods, failure modes, and evaluation.
+\newblock 2026{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2026{\natexlab{b}})Wang, Shi, Yang, Zhang, He, Lian, Chen, Ye, Cai, and Gu]{wang2026swepruner}
+Yuhang Wang, Yuling Shi, Mo~Yang, Rongrui Zhang, Shilin He, Heng Lian, Yuting Chen, Siyu Ye, Kai Cai, and Xiaodong Gu.
+\newblock {SWE}-pruner: Self-adaptive context pruning for coding agents.
+\newblock \emph{CoRR}, abs/2601.16746, 2026{\natexlab{b}}.
+\newblock \doi{10.48550/arXiv.2601.16746}.
+
+\bibitem[Xia et~al.(2024)Xia, Deng, Dunn, and Zhang]{xia2024agentless}
+Chunqiu~Steven Xia, Yinlin Deng, Soren Dunn, and Lingming Zhang.
+\newblock Agentless: Demystifying {LLM}-based software engineering agents.
+\newblock \emph{CoRR}, abs/2407.01489, 2024.
+\newblock \doi{10.48550/arXiv.2407.01489}.
+
+\bibitem[Yang et~al.(2024)Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and Press]{yang2024sweagent}
+John Yang, Carlos~E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik~R. Narasimhan, and Ofir Press.
+\newblock {SWE}-agent: Agent-computer interfaces enable automated software engineering.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=mXpq6ut8J3}.
+
+\bibitem[Yang et~al.(2025{\natexlab{a}})Yang, Jimenez, Zhang, Lieret, Yang, Wu, Press, Muennighoff, Synnaeve, Narasimhan, Yang, Wang, and Press]{yang2025swebench}
+John Yang, Carlos~E Jimenez, Alex~L Zhang, Kilian Lieret, Joyce Yang, Xindi Wu, Ori Press, Niklas Muennighoff, Gabriel Synnaeve, Karthik~R Narasimhan, Diyi Yang, Sida Wang, and Ofir Press.
+\newblock {SWE}-bench multimodal: Do {AI} systems generalize to visual software domains?
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025{\natexlab{a}}.
+\newblock URL \url{https://openreview.net/forum?id=riTiq3i21b}.
+
+\bibitem[Yang et~al.(2025{\natexlab{b}})Yang, Lieret, Jimenez, Wettig, Khandpur, Zhang, Hui, Press, Schmidt, and Yang]{yang2025swesmith}
+John Yang, Kilian Lieret, Carlos~E. Jimenez, Alexander Wettig, Kabir Khandpur, Yanzhe Zhang, Binyuan Hui, Ofir Press, Ludwig Schmidt, and Diyi Yang.
+\newblock Swe-smith: Scaling data for software engineering agents, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2504.21798}.
+
+\bibitem[Yu et~al.(2025)Yu, Zhang, Zhao, Huang, Yao, Ding, and Zhao]{yu2025orcaloca}
+Zhongming Yu, Hejia Zhang, Yujie Zhao, Hanxian Huang, Matrix Yao, Ke~Ding, and Jishen Zhao.
+\newblock {O}rca{L}oca: An {LLM} agent framework for software issue localization.
+\newblock In \emph{International Conference on Machine Learning}, 2025.
+\newblock URL \url{https://openreview.net/forum?id=LyUfPOvM6I}.
+
+\bibitem[Zan et~al.(2025)Zan, Huang, Liu, Chen, Zhang, Xin, Chen, Liu, Zhong, Li, Liu, Xiao, Chen, Zhang, Su, Liu, Long, Shen, and Xiang]{zan2025multiswebenchmultilingualbenchmarkissue}
+Daoguang Zan, Zhirong Huang, Wei Liu, Hanwu Chen, Linhao Zhang, Shulin Xin, Lu~Chen, Qi~Liu, Xiaojian Zhong, Aoyan Li, Siyao Liu, Yongsheng Xiao, Liangqiang Chen, Yuyu Zhang, Jing Su, Tianyu Liu, Rui Long, Kai Shen, and Liang Xiang.
+\newblock Multi-swe-bench: A multilingual benchmark for issue resolving, 2025.
+\newblock URL \url{https://arxiv.org/abs/2504.02605}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, He, Zhang, Kang, Li, Xie, Wang, Wang, Huang, Fu, Nallipogu, Lin, Dang, Rajmohan, and Zhang]{zhang2025swebenchgoeslive}
+Linghao Zhang, Shilin He, Chaoyun Zhang, Yu~Kang, Bowen Li, Chengxing Xie, Junhao Wang, Maoquan Wang, Yufan Huang, Shengyu Fu, Elsie Nallipogu, Qingwei Lin, Yingnong Dang, Saravan Rajmohan, and Dongmei Zhang.
+\newblock Swe-bench goes live!, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2505.23419}.
+
+\bibitem[Zhang et~al.(2024)Zhang, Ruan, Fan, and Roychoudhury]{zhang2024autocoderover}
+Yuntong Zhang, Haifeng Ruan, Zhiyu Fan, and Abhik Roychoudhury.
+\newblock {A}uto{C}ode{R}over: Autonomous program improvement.
+\newblock In \emph{Proceedings of the 33rd ACM SIGSOFT International Symposium on Software Testing and Analysis}, 2024.
+\newblock \doi{10.1145/3650212.3680384}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Wang, Yang, Pan, Tang, Li, Xing, Zhang, Li, and Zhang]{zhang2025mulocbench}
+Zejun Zhang, Jian Wang, Qingyun Yang, Yifan Pan, Yi~Tang, Yi~Li, Zhenchang Xing, Tian Zhang, Xuandong Li, and Guoan Zhang.
+\newblock {MULocBench}: A benchmark for localizing code and non-code issues in software projects, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2509.25242}.
+
+\bibitem[Zhou et~al.(2012)Zhou, Zhang, and Lo]{zhou2012buglocator}
+Jian Zhou, Hongyu Zhang, and David Lo.
+\newblock Where should the bugs be fixed? more accurate information retrieval-based bug localization based on bug reports.
+\newblock In \emph{Proceedings of the 34th International Conference on Software Engineering}, pages 14--24. IEEE, 2012.
+\newblock \doi{10.1109/ICSE.2012.6227210}.
+
+\bibitem[Zhu et~al.(2026)Zhu, Hu, and Wu]{zhu2026swecontextbench}
+Jared Zhu, Minhao Hu, and Junde Wu.
+\newblock {SWE} context bench: A benchmark for context learning in coding.
+\newblock \emph{CoRR}, abs/2602.08316, 2026.
+\newblock \doi{10.48550/arXiv.2602.08316}.
+
+\end{thebibliography}

@@ -1,0 +1,164 @@
+ 
+\section{Experiments}
+
+ 
+\subsection{Setup}
+
+ 
+\paragraph{Explorers.}
+We evaluate explorers from four families. Two \emph{baselines} bound the dynamic range: Oracle returns $R_{\text{core}}$ directly, and Random returns uniformly sampled regions. \emph{Sparse retrievers} are represented by BM25~\citep{robertson2009bm25} and TF--IDF~\citep{salton1988termweighting}. As a \emph{lightweight dense retriever} we use a RAG pipeline instantiated with Potion, a static word-embedding retriever distilled from a sentence transformer. Finally, the \emph{agentic explorers} cover five general-purpose coding agents (Claude Code~\citep{anthropic2025claudecode}, Codex, OpenHands~\citep{wang2024openhands}, Mini-SWE-Agent~\citep{yang2024sweagent}, AweAgent~\citep{chen2026beyondswecurrentcodeagent}) and four published academic localization agents (AutoCodeRover~\citep{zhang2024autocoderover}, LocAgent~\citep{chen2025locagent}, OrcaLoca~\citep{yu2025orcaloca}, CoSIL~\citep{jiang2025issuelocalizationllmdriveniterative}); Oracle in particular plays a central role in validating our ground-truth construction (\S\ref{sec:downstream}).
+
+
+ 
+\paragraph{Metrics.} Following the analysis in \S\ref{sec:metrics}, we report a combination of strongly predictive metrics and standard baselines. The primary metrics are Precision, nDCG@500, HitFile, and Context Efficiency, selected for their high correlation with downstream behavior and low mutual redundancy. We additionally report Recall, F1, and hit/noise region rates as conventional references, even though several of these exhibit weaker predictive power individually. Full metric definitions are in \S\ref{sec:metrics}.
+
+ 
+\paragraph{Choice of $K$.}
+On our refined ground truth, the per-instance number of core regions averages roughly $4.7$ after the LLM-refinement step (\S\ref{sec:gt}). We therefore fix $K{=}5$ for every explorer in this paper: each explorer is asked to return its five most relevant regions, which keeps the comparison both fair across systems and aligned with the size of the supervision target.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\input{paper/tables/co-reslo}
+
+
+
+
+\input{paper/tables/5-models}
+
+
+
+ 
+\subsection{Downstream validation.}
+\label{sec:downstream}
+ 
+
+
+Before using upstream exploration metrics as the main evaluation target, we ask whether they track downstream repair behavior. On a shared $n{=}150$ subset of SWE-Explore Bench, each explorer provides its $K{=}5$ ranked regions; the resulting context is then given to a fixed Mini-SWE-Agent patcher backed by GPT-5.4 and Gemini-3-Pro, and we average the SWE-bench harness resolve rate over the two patchers. Table~\ref{tab:correlation} reports the explorer-level Pearson and Spearman correlations between each upstream metric and this downstream resolve rate.
+ 
+\paragraph{Stable signals.}
+The strongest metrics are not purely file-level or purely recall-based. Context Efficiency has the highest Pearson correlation ($r{=}0.950$), suggesting that useful context must be both relevant and compact. Rec@100 is the strongest rank-correlated signal ($\rho{=}0.845$), indicating that early coverage under a tight line budget is especially predictive of repair. HitFile, HitRegion, and FUH remain strong Pearson signals: they capture whether the explorer reaches the right file, overlaps the right evidence, and surfaces useful evidence early. Precision is also predictive, but it is most informative when interpreted together with coverage-oriented metrics.
+
+ 
+\paragraph{Useful but incomplete signals.}
+Rank-aware metrics such as nDCG@500 have very high Pearson correlation but weaker Spearman correlation, indicating that they separate broad quality tiers well but are less stable for ordering nearby explorers. Recall-style metrics show a budget effect: Rec@100 is strong in both views, while broader recall metrics and F1 are more rank-sensitive than scale-sensitive, reflecting their tendency to reward broad reading even when the selected context is not compact. Noise rates have the expected negative correlation, but serve better as diagnostics than as standalone success measures. Together, these results justify reporting a mixed metric set rather than a single score. In Table~\ref{tab:main-results} and Table~\ref{tab:llm-comparison}, we therefore emphasize HitRegion, HitFile, Precision, nDCG@500, FUH, and Context Efficiency, while retaining Recall, F1, Recall@500, and noise-region rate as complementary diagnostics.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\input{paper/tables/1-main}
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ────────────────────────────────────────────────────────────────────
+% ────────────────────────────────────────────────────────────────────
+ 
+\subsection{Exploration Quality}
+\label{sec:main-results}
+ 
+Table~\ref{tab:llm-comparison} and Table~\ref{tab:main-results} report upstream exploration quality for all explorers and models at $K{=}5$. We highlight the following observations.
+
+ 
+\paragraph{Agentic exploration is a clear step above non-agentic retrieval.}
+Sparse retrievers (BM25, TF--IDF) and the lightweight dense retriever remain close to Random on most metrics, while every agentic explorer is substantially higher than them. This confirms that repository exploration is not well captured by one-shot lexical or embedding retrieval alone: multi-step interaction with the repository is already necessary to reach the metric range occupied by modern coding agents.
+ 
+\paragraph{Low F1 is mostly a recall problem.}
+Despite strong file-level hit rates and ranking scores, most non-oracle explorers still have low F1, and the limiting term is usually line-level recall rather than precision. The general-purpose coding agents all reach high HitFile and nDCG@500, but their Rec$_\ell$ remains only around $0.14$--$0.19$; AutoCodeRover is highly precise, yet also recall-limited. This suggests that broad enough repository exploration remains a central bottleneck for current code-agent-style explorers: they often find plausible files early, but miss many of the specific spans needed to cover the full ground-truth context.
+
+ 
+\paragraph{LLM choice shifts the operating point, but not the bottleneck.}
+Table~\ref{tab:llm-comparison} controls the scaffold by running the same Mini-SWE-Agent explorer with different LLMs. The GPT-family models form the strongest tier, but with slightly different profiles: GPT-5.4 is cleaner and more compact, while GPT-5.4-mini surfaces more core regions and ranks useful evidence earlier. Kimi-K2.6 and Sonnet-4.5 form a middle tier, and GLM-4.7 and Gemini-3-Pro lag mainly in coverage and ranking. The larger pattern is more important than the exact ordering: across all LLMs, file-level hits remain much stronger than line-level recall, so replacing the base model alone does not remove the exploration bottleneck. High-recall region discovery still appears to require better exploration mechanisms, not just a stronger patching model.
+
+ 
+\paragraph{General coding agents behave surprisingly similarly.}
+Claude Code, Codex, OpenHands, Mini-SWE-Agent, and AweAgent have closely matched profiles across coverage, ranking, and efficiency metrics. This is notable because they differ in implementation and harness complexity, yet their exploration outputs occupy nearly the same operating point: high file hit, high early ranking, compact context, and low line recall. The similarity suggests that a complex repair harness is not necessarily required to study the exploration subproblem; a simpler explorer interface can expose much of the same behavior.
+
+ 
+\paragraph{Specialized localizers only help when they broaden search.}
+The academic agents do not uniformly dominate general coding agents. AutoCodeRover is precise but conservative, OrcaLoca has very low noise but misses many relevant regions, and LocAgent resembles the general-agent profile rather than changing the recall frontier. CoSIL is the main exception: it achieves by far the highest non-oracle Rec$_\ell$ and F1, suggesting that its iterative code-graph search is an important component for high-recall exploration. In contrast, explorers that rely more heavily on shell-style navigation or narrow search actions may reach the right files while still under-covering line-level evidence.
+
+\paragraph{Line-level evaluation adds information beyond file hits.}
+HitFile remains a strong and useful signal, as shown by the downstream correlations in \S\ref{sec:downstream}; however, it does not distinguish whether an explorer actually surfaces the relevant spans inside those files. The contrast between high HitFile and much lower Rec$_\ell$ across most agentic explorers supports SWE-Explore's line-level design: file-level localization captures reaching the right neighborhood, while line-level metrics measure whether the evidence needed by successful trajectories is actually exposed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ────────────────────────────────────────────────────────────────────
+\input{paper/pictures/tex/degradation}
+\vspace{-3mm}
+\subsection{Controlled Context Degradation}
+\label{sec:degradation}
+\vspace{-1mm}
+The previous sections show that explorer behavior differs along coverage, precision, ranking, and efficiency, and that these differences affect downstream repair. Here we ask a more controlled robustness question: is a patcher more sensitive to \emph{missing} relevant context or to \emph{redundant} irrelevant context? In the restricted-context validation environment (\S\ref{sec:bridge}), we synthetically perturb Oracle context by exposing only an $\alpha\in\{0,25,50,75,100\}$ fraction of core regions (missing-context condition), or by filling the removed budget with randomly sampled non-core regions (redundant-context condition). We sweep $\alpha$ on two stratified $n{=}150$ subsets of SWE-Explore under both a weak patcher GPT-5.4-mini and a strong patcher GPT-5.4; Figure~\ref{fig:degradation} reports all four panels.
+
+
+\vspace{-3mm}
+\paragraph{Missing context is the dominant failure mode.}
+On the easier subset, downstream resolve rate changes sharply only after enough core evidence is present: performance stays low through partial context, then jumps between $\alpha{=}50$ and $\alpha{=}75$. This threshold-like pattern suggests that patchers are not simply accumulating value smoothly from every additional region; instead, several pieces of core evidence must be present together before a correct fix becomes likely. Redundant context is less damaging once this threshold is crossed: the redundant-context curve closely tracks the missing-context curve for $\alpha\geq75$, indicating that modern patchers can tolerate extra irrelevant code when the essential evidence is already visible. This agrees with the metric analysis above: in the high-coverage regime, missing core evidence matters more than moderate precision loss, so recall-oriented improvements are more valuable than small filtering gains. Redundancy hurts most when core evidence is scarce, especially at $\alpha{=}0$, where random non-core code lowers resolve rate by $7$--$9$\,pp. The harder subset shows a much narrower range, suggesting that when the issue itself exceeds the patcher's capability, improving context alone has limited effect.
+
+\vspace{-3mm}
+\paragraph{The easier-subset dip suggests caution with empty-context baselines.}
+Both easier-subset curves dip from $\alpha{=}0$ to $\alpha{=}25$, especially under the stronger patcher. A plausible explanation is memorization: with no repository context, the model may rely on an issue-only prior, while a small incomplete slice of $R_{\text{core}}$ pushes it to reconcile partial evidence. Because the dip disappears on the harder subset, we treat it as a caveat rather than the main effect: empty-context baselines on canonical repositories may be inflated and should be interpreted carefully.
+
+
+\section{Conclusion}
+
+We presented \textbf{SWE-Explore}, a benchmark for evaluating repository exploration independently from patch generation through ranked, line-level context selection. Using trajectory-derived supervision, SWE-Explore compares retrievers, search agents, and long-context selectors by the evidence they surface rather than only by final repair outcomes. Our experiments show that exploration metrics track downstream repair, that current agents are strong at finding relevant files but remain recall-limited at the line level, and that missing core evidence hurts more than moderate redundant context. We hope SWE-Explore provides a focused target for building explorers that read repositories more broadly and expose the spans repair agents actually need.
+

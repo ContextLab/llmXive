@@ -1,0 +1,865 @@
+\appendix
+
+\section{AI Usage}
+We used ChatGPT for writing assistance, including language polishing,
+LaTeX formatting, organization suggestions, and refinement of presentation.
+We also used it to assist with drafting plotting and analysis scripts.
+All scientific claims, experimental designs, code, figures, numerical
+results, and final manuscript content were reviewed, verified, and edited
+by the authors. No generative AI system was used as an author, to produce
+experimental results, or to make autonomous scientific decisions.
+
+
+\section{Artifact Use}
+We use publicly available model checkpoints, datasets, and benchmarks only
+for research evaluation and analysis. We cite the corresponding creators in
+the main text or appendix and use these artifacts consistently with their
+intended research use. We checked the public license or usage terms of the
+major artifacts where available, including Qwen3, DAPO-Math-17k,
+Dolci-Think SFT, DeepCoder, and LiveCodeBench. We do not redistribute the
+original artifacts.
+
+\section{Experimental Details}
+\label{app:experimental-details}
+
+\subsection{Training Setup}
+\label{app:training-setup}
+
+This section summarizes the training setups used in the main
+parameter-space analyses. Table~\ref{tab:shared-training-setup} gives the
+shared setup. Tables~\ref{tab:sft-default-setting},
+\ref{tab:opd-default-setting}, and~\ref{tab:rlvr-default-setting} report
+the default supervised finetuning (SFT), on-policy distillation (OPD), and reinforcement learning with verifiable rewards (RLVR) settings, respectively. OPD and RLVR are initialized from the same SFT anchor, while the SFT trajectory is measured from the pretrained base checkpoint. We use Qwen3 checkpoints~\cite{yang2025qwen3technicalreport}; math-domain
+OPD/RLVR runs use dapo-math-17k~\cite{yu2025dapoopensourcellmreinforcement},
+and the SFT anchor is trained on Dolci-Think SFT data~\cite{olmo2025olmo3}.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Item} & \textbf{Shared setting} \\
+\midrule
+Model family & Qwen3 \\
+Main backbone & Qwen3-8B \\
+Evaluation & AIME 2024 avg@8 \\
+Precision & bf16 training \\
+Gradient accumulation & fp32 \\
+Attention softmax & fp32 \\
+Hardware & H200 80GB GPUs \\
+Dropout & 0.0 \\
+\bottomrule
+\end{tabularx}
+\caption{Shared settings used in the main training runs.}
+\label{tab:shared-training-setup}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Item} & \textbf{SFT default setting} \\
+\midrule
+Initialization & Qwen3-8B-Base \\
+Objective & Supervised next-token prediction \\
+Loss mask & Qwen3 loss mask \\
+Training data & Dolci-Think SFT data\\
+Epochs & 5 \\
+Final checkpoint & \texttt{iter\_0005375} \\
+Global batch size & 256 \\
+Learning rate & $10^{-5}$ \\
+Schedule & Cosine decay to $10^{-6}$ \\
+Warmup & 10\% of training steps \\
+Optimizer & Adam \\
+Weight decay & 0.1 \\
+Adam betas & $(0.9,0.95)$ \\
+% Tensor parallelism & 1 \\
+% Pipeline parallelism & 1 \\
+% Sequence parallelism & On \\
+Save interval & 256 steps \\
+Eval interval & 256 steps \\
+Role & Produces the shared SFT anchor \\
+\bottomrule
+\end{tabularx}
+\caption{Default SFT setting used to produce the shared anchor checkpoint.}
+\label{tab:sft-default-setting}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Item} & \textbf{OPD default setting} \\
+\midrule
+Initialization & SFT anchor \texttt{iter\_0005375} \\
+Student & Qwen3-8B \\
+Teacher & Qwen3-32B \\
+Training data & dapo-math-17k  \\
+Rollout policy & Student-generated, on-policy \\
+Rollout prompts & 300 per step \\
+Samples per prompt & 8 \\
+Rollout temperature & 1.0 \\
+Training steps & 299 \\
+Save interval & 64 steps \\
+Objective & On-policy distillation \\
+Teacher supervision & Token log-probabilities \\
+OPD coefficient & 1.0 \\
+Advantage estimator & GRPO \\
+KL loss & Disabled \\
+Entropy bonus & Disabled \\
+Global batch size & 64 \\
+Learning rate & $10^{-6}$ \\
+Schedule & Constant \\
+Optimizer & Adam \\
+Weight decay & 0.1 \\
+Adam betas & $(0.9,0.98)$ \\
+% Tensor parallelism & 4 \\
+% Pipeline parallelism & 1 \\
+% Sequence parallelism & On \\
+\bottomrule
+\end{tabularx}
+\caption{Default OPD setting used in the main experiments.}
+\label{tab:opd-default-setting}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Item} & \textbf{RLVR default setting} \\
+\midrule
+Initialization & SFT anchor \texttt{iter\_0005375} \\
+Student & Qwen3-8B \\
+Teacher & None \\
+Training data & dapo-math-17k \\
+Rollout policy & Student-generated, on-policy \\
+Rollout prompts & 1024 per step \\
+Samples per prompt & 8 \\
+Rollout temperature & 1.0 \\
+Training steps & 1023 \\
+Objective & Verifier-reward GRPO \\
+Reward & Binary DeepScaler math accuracy \\
+Advantage estimator & GRPO \\
+KL loss & Disabled \\
+Entropy bonus & Disabled \\
+PPO clipping & $\epsilon=0.2$, $\epsilon_{\mathrm{high}}=0.28$ \\
+Dynamic filter & Skip batches with zero reward variance \\
+Global batch size & 512 \\
+Learning rate & $10^{-6}$ \\
+Schedule & Constant \\
+Optimizer & Adam \\
+Weight decay & 0.1 \\
+Adam betas & $(0.9,0.98)$ \\
+Adam epsilon & $10^{-15}$ \\
+% Tensor parallelism & 4 \\
+% Pipeline parallelism & 1 \\
+% Sequence parallelism & On \\
+\bottomrule
+\end{tabularx}
+\caption{Default RLVR setting used in the main experiments.}
+\label{tab:rlvr-default-setting}
+\end{table}
+
+\paragraph{Endpoint selection.}
+We choose the main analyzed endpoints according to the evaluation curves
+observed during training. The SFT, OPD, and RLVR runs showed little
+additional improvement near the selected checkpoints, corresponding
+approximately to 5k, 300, and 1k training steps, respectively. We use these
+rounded horizons as the main comparison points for interpretability and
+reproducibility, rather than tuning endpoints to optimize the
+parameter-space diagnostics.
+
+\paragraph{Geometry origins.}
+For OPD and RLVR, $W_0$ is the shared SFT anchor
+\texttt{iter\_0005375}. For SFT, $W_0$ is the pretrained Qwen3-8B-Base
+checkpoint. All updates are computed as $\Delta W = W_+ - W_0$ relative to
+the corresponding stage initialization. Thus, OPD and RLVR share a common
+origin in the parameter-space comparison.
+
+\subsection{OPD Variant Setup}
+\label{app:opd-variants}
+
+All OPD variant runs follow Table~\ref{tab:opd-default-setting} unless the
+changed factor is listed explicitly. Table~\ref{tab:opd-variants}
+summarizes the student, teacher, and changed factor for each variant. Additional variant-specific notes are provided in
+Table~\ref{tab:opd-variant-notes}.
+
+The code-domain variant uses DeepCoder data \cite{deepcoder2025};
+evaluation is conducted on LiveCodeBench v5~\cite{jain2024livecodebenchholisticcontaminationfree}.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}p{0.27\linewidth}p{0.20\linewidth}p{0.22\linewidth}X@{}}
+\toprule
+\textbf{Variant} & \textbf{Student} & \textbf{Teacher} & \textbf{Changed factor} \\
+\midrule
+Baseline & Qwen3-8B & Qwen3-32B & Reference \\
+MoE teacher & Qwen3-8B & Qwen3-30B-A3B & Teacher architecture \\
+4B$\rightarrow$8B & Qwen3-4B & Qwen3-8B & Teacher scale \\
+4B$\rightarrow$14B & Qwen3-4B & Qwen3-14B & Teacher scale \\
+4B$\rightarrow$32B & Qwen3-4B & Qwen3-32B & Teacher scale \\
+14B$\rightarrow$32B & Qwen3-14B & Qwen3-32B & Student scale \\
+Code domain & Qwen3-8B & Qwen3-32B & Data domain \\
+Multi-seed & Qwen3-8B & Qwen3-32B & Random seed \\
+\bottomrule
+\end{tabularx}
+\caption{
+OPD variant runs used for robustness checks in
+Table~\ref{tab:update_sparsity}.
+}
+\label{tab:opd-variants}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Variant} & \textbf{Additional setting} \\
+\midrule
+Code domain & Uses DeepCoder data  and LiveCodeBench v5 evaluation \\
+MoE teacher & Uses Qwen3-30B-A3B as the teacher model \\
+Multi-seed & Uses the same Qwen3-8B/Qwen3-32B math setting with different random seeds \\
+\bottomrule
+\end{tabularx}
+\caption{Additional notes for OPD variant runs.}
+\label{tab:opd-variant-notes}
+\end{table}
+
+\subsection{Parameter-Space Diagnostic Implementation}
+\label{app:diagnostic-implementation}
+
+All diagnostics are computed offline on saved checkpoints. Each analysis
+loads a pair of checkpoints $(W_0,W_+)$ and computes
+$\Delta W = W_+ - W_0$. For OPD and RLVR, $W_0$ is the shared SFT anchor;
+for SFT, $W_0$ is the pretrained Qwen3-8B-Base model. Metrics are computed
+per matrix and then averaged across matrices unless otherwise specified.
+
+\paragraph{bf16-aware update sparsity.}
+Both $W_0$ and $W_+$ are cast to bf16 and then back to fp32 before
+comparison. A scalar entry is considered unchanged when
+\[
+\begin{aligned}
+    |W_{+,ij}^{\mathrm{bf16}} - W_{0,ij}^{\mathrm{bf16}}|
+    &\le
+    \eta
+    \max\!\left(
+    |W_{0,ij}^{\mathrm{bf16}}|,
+    |W_{+,ij}^{\mathrm{bf16}}|
+    \right), \\
+    \eta &= 10^{-3}.
+\end{aligned}
+\]
+The bf16-aware sparsity is
+\[
+    \mathrm{sp}_{\mathrm{bf16}}(W_0,W_+)
+    =
+    1 -
+    \frac{1}{n}
+    \sum_{i,j}
+    \mathbf{1}\!\left[
+    W_{+,ij}\not\approx_{\eta} W_{0,ij}
+    \right],
+\]
+where $n$ is the number of entries in the analyzed matrix. Overall sparsity
+is parameter-count weighted across analyzed weights.
+
+\paragraph{Principal-angle rotation.}
+For each matrix, let
+\[
+    W_0 = U_0\Sigma_0V_0^\top,
+    W_+ = U_+\Sigma_+V_+^\top .
+\]
+Let $U_{0,k},V_{0,k}$ and $U_{+,k},V_{+,k}$ denote the top-$k$ left and
+right singular subspaces. We compute principal angles by
+\[
+    \cos\theta_i^{U}
+    =
+    \sigma_i(U_{0,k}^{\top}U_{+,k}),
+    \cos\theta_i^{V}
+    =
+    \sigma_i(V_{0,k}^{\top}V_{+,k}).
+\]
+We use $k=512$ by default and report summary statistics of the resulting
+angle vectors. These diagnostics use CPU float64 SVD, since GPU SVD can
+produce unstable angles for near-identical matrices.
+
+\paragraph{Spectral drift.}
+Let $\sigma(W)$ denote the singular-value vector of $W$ in descending
+order. We measure normalized spectral shift as
+\[
+    \mathrm{NSS}(W_0,W_+)
+    =
+    \frac{
+    \|\sigma(W_+) - \sigma(W_0)\|_2
+    }{
+    \|\sigma(W_0)\|_2
+    }.
+\]
+NSS is computed per matrix and then averaged without parameter-count
+weighting.
+
+\paragraph{Update--mask overlap.}
+The visible update mask is
+\[
+    M_{\mathrm{upd}}
+    =
+    \{(i,j): W_{+,ij}\not\approx_{\eta} W_{0,ij}\}.
+\]
+We compare it with two masks derived from $W_0$. The principal mask
+$M_{\mathrm{princ}}$ contains the top-$\alpha$ fraction of entries by
+magnitude in the rank-$r$ SVD reconstruction of $W_0$, and the
+low-magnitude mask $M_{\mathrm{low}}$ contains the bottom-$\alpha$ fraction
+of entries by $|W_0|$. For
+$M_\star\in\{M_{\mathrm{princ}},M_{\mathrm{low}}\}$, we report
+\[
+    \mathrm{Overlap}(M_\star,M_{\mathrm{upd}})
+    =
+    \frac{|M_\star\cap M_{\mathrm{upd}}|}
+    {|M_{\mathrm{upd}}|}.
+\]
+We use rank $r=64$ and $\alpha=0.5$ unless otherwise specified. The random
+baseline is $\alpha$, since each reference mask contains an $\alpha$
+fraction of entries.
+
+\paragraph{Matrix coverage and averaging.}
+For bf16-aware sparsity, we compute overall sparsity over all analyzed
+weight parameters and report both overall and per-type summaries. For
+spectral geometry and update-mask overlap, we analyze standard weight
+matrices across layers; QKV projections are split into Q, K, and V when
+needed. Metrics are first computed per matrix and then averaged across
+matrices. This avoids domination by a small number of large matrices while
+preserving layer-wise and module-wise variation.
+
+\section{Objectives and Three-Gate Extension}
+\label{app:three_gate_extension}
+
+\paragraph{Original Three-Gate account.}
+The Three-Gate account of RLVR~\cite{zhu2025pnt} explains visible update
+sparsity as the outcome of a constrained, geometry-steered, and
+precision-filtered optimization process.
+
+\emph{Gate I: KL anchor.}
+RLVR updates are locally constrained in policy space. In a KL-regularized or
+trust-region view, the post-update policy remains close to the current or
+reference policy:
+\begin{equation}
+D_{\mathrm{KL}}(\pi_{\theta^+}\,\|\,\pi_{\theta})
+\leq K .
+\end{equation}
+This policy-space leash prevents each step from freely rewriting the
+pretrained model.
+
+\emph{Gate II: model geometry.}
+The KL anchor limits the size of the update, but not its location. The second
+gate attributes this location to pretrained model geometry. Given a bounded
+step, the structured loss landscape steers updates away from high-curvature
+principal directions and toward lower-curvature, spectrum-preserving regions.
+This explains why RLVR updates are off-principal rather than merely small.
+
+\emph{Gate III: precision realization.}
+The final gate determines which coordinates become visible in stored weights.
+Under bf16 precision, sub-threshold micro-updates are not realized as changed
+parameters. Thus the underlying routing bias appears as high bf16-aware update
+sparsity: preferred regions receive visible updates, while changes elsewhere
+remain hidden.
+
+% Our extension keeps this decomposition but changes the signal source. RLVR
+% uses a sequence-level reward signal, whereas OPD supplies dense token-level
+% teacher supervision. We therefore treat OPD as a relaxed extension of the same
+% gated geometry rather than as a separate, SFT-like rewriting regime.
+
+\paragraph{Training objectives.}
+We write the three post-training paradigms in a common notation. For an input
+$x$ and sequence $y=(y_1,\ldots,y_T)$, SFT minimizes cross-entropy on offline
+demonstrations:
+\begin{equation}
+\mathcal{L}_{\mathrm{SFT}}
+=
+-\sum_{t=1}^{T}
+\log p_\theta(y_t^\star\mid x,y_{<t}^\star).
+\end{equation}
+
+RLVR uses on-policy samples with a scalar sequence-level advantage:
+\begin{equation}
+\mathcal{L}_{\mathrm{RLVR}}
+=
+-
+A(y)
+\sum_{t=1}^{T}
+\log p_\theta(y_t\mid x,y_{<t})
++
+\beta \mathcal{R}_{\mathrm{KL}},
+\end{equation}
+where
+\begin{equation}
+\mathcal{R}_{\mathrm{KL}}
+=
+D_{\mathrm{KL}}
+\!\left(
+p_\theta(\cdot\mid x)
+\,\|\,
+p_{\mathrm{ref}}(\cdot\mid x)
+\right).
+\end{equation}
+Here $A(y)$ denotes a normalized sequence-level advantage and
+$p_{\mathrm{ref}}$ is the reference policy. Clip-only RL variants can be
+viewed as replacing the explicit KL penalty with a local trust-region effect.
+
+OPD optimizes student-generated rollouts against a teacher distribution:
+\begin{equation}
+\mathcal{L}_{\mathrm{OPD}}
+=
+\sum_{t=1}^{T}
+D_{\mathrm{KL}}
+\!\left(
+p_\theta^t
+\,\|\,
+q_T^t
+\right),
+\end{equation}
+where
+\[
+p_\theta^t
+=
+p_\theta(\cdot\mid x,y_{<t}),
+q_T^t
+=
+q_T(\cdot\mid x,y_{<t}).
+\]
+If a forward-KL implementation is used, the KL direction is replaced
+accordingly; the signal-granularity argument below is unchanged.
+
+\paragraph{Unified score-weighted form.}
+Let
+\begin{equation}
+\phi_t
+=
+\nabla_\theta
+\log p_\theta(y_t\mid x,y_{<t})
+\end{equation}
+denote the token score. A broad class of stochastic post-training updates can
+be abstracted as
+\begin{equation}
+g
+=
+\sum_{t=1}^{T}
+a_t \phi_t .
+\label{eq:app_unified_gradient}
+\end{equation}
+The distinction lies in the coefficient $a_t$. In RLVR, $a_t=A(y)$ is shared
+across the sequence. In OPD, $a_t$ varies across tokens, induced by
+teacher--student disagreement. Thus OPD keeps the on-policy structure of RLVR
+but replaces a scalar credit signal with dense token-level supervision.
+
+\paragraph{OPD-specific relaxation.}
+The relaxation appears at the level of update covariance. Let
+$C=\mathbb{E}[gg^\top]$. For RLVR,
+\begin{equation}
+C_{\mathrm{RLVR}}
+=
+\mathbb{E}
+\left[
+A(y)^2 ss^\top
+\right],
+s=\sum_t \phi_t .
+\end{equation}
+For OPD,
+\begin{equation}
+C_{\mathrm{OPD}}
+=
+\mathbb{E}
+\left[
+\sum_{t,t'}
+a_t a_{t'}
+\phi_t \phi_{t'}^\top
+\right].
+\end{equation}
+RLVR couples all token scores through one sequence-level scalar. OPD uses
+heterogeneous token coefficients, expanding the accessible directional support
+within the same geometry-steered update family. This is the sense in which OPD
+is \emph{relaxed}: it remains anchored and geometry-constrained, but less
+selective than RLVR.
+
+\paragraph{Local anchor and weight bound.}
+We now make the anchoring step explicit. For a weight block $W$, consider a
+local quadratic constraint
+\begin{equation}
+\frac{1}{2}
+\langle
+\mathrm{vec}(\Delta W),
+S_W \mathrm{vec}(\Delta W)
+\rangle
+\leq
+\delta_W,
+S_W \succeq \mu_W I .
+\end{equation}
+This implies
+\begin{equation}
+\|\Delta W\|_F
+\leq
+\sqrt{\frac{2\delta_W}{\mu_W}} .
+\label{eq:app_weight_bound}
+\end{equation}
+The bound captures the anchoring effect. OPD differs from RLVR not by removing
+the anchor, but by using denser token-level information inside the anchored
+region.
+
+\paragraph{Spectral stability under bounded updates.}
+Let $W_+=W_0+\Delta W$ and
+$\gamma_k=\sigma_k(W_0)-\sigma_{k+1}(W_0)$ be the singular-value gap. By
+Wedin-type perturbation bounds,
+\begin{equation}
+\begin{split}
+&\max\{
+\|\sin\Theta(U_k(W_0),U_k(W_+))\|_2, \\
+&
+\|\sin\Theta(V_k(W_0),V_k(W_+))\|_2
+\}
+\leq
+\frac{\|\Delta W\|_2}{\gamma_k}.
+\end{split}
+\end{equation}
+Singular values satisfy
+\begin{equation}
+|\sigma_i(W_+) - \sigma_i(W_0)|
+\leq
+\|\Delta W\|_2,
+\end{equation}
+and
+\begin{equation}
+\|\sigma(W_+) - \sigma(W_0)\|_2
+\leq
+\|\Delta W\|_F .
+\end{equation}
+Therefore, updates with small operator and Frobenius norm tend to preserve the
+pretrained spectral structure. OPD remains in this bounded regime, but its
+dense token-level signal permits larger subspace rotation and spectral drift
+than RLVR.
+
+\paragraph{Precision realization.}
+bf16 precision determines which coordinates become visible in stored weights.
+A coordinate is realized as changed only if
+\begin{equation}
+|\Delta W_{ij}|
+\gtrsim
+\tfrac{1}{2}
+\mathrm{ULP}_{\mathrm{bf16}}(W_{0,ij}).
+\end{equation}
+The corresponding visible update mask is
+\begin{equation}
+M_{ij}
+=
+\mathbf{1}
+\left[
+|\Delta W_{ij}|
+\gtrsim
+\tfrac{1}{2}
+\mathrm{ULP}_{\mathrm{bf16}}(W_{0,ij})
+\right].
+\end{equation}
+Since OPD updates are larger than RLVR updates but remain
+geometry-constrained, more coordinates cross the realization threshold,
+yielding intermediate bf16-aware sparsity.
+
+\section{Trajectory Metric Definitions}
+\label{app:trajectory-metrics}
+
+For trajectory-level analysis, we study the cumulative update
+$\Delta W_t = W_t - W_0$ at each checkpoint. Unless otherwise specified,
+metrics are computed for each analyzed weight matrix and then averaged
+across matrices.
+
+\paragraph{Stable rank.}
+Stable rank measures the effective number of dominant singular directions
+that carry the update energy:
+\begin{equation}
+    \mathrm{srank}(\Delta W_t)
+    =
+    \frac{\|\Delta W_t\|_F^2}
+         {\|\Delta W_t\|_{\mathrm{op}}^2}.
+\end{equation}
+Unlike algebraic rank, stable rank is insensitive to arbitrarily small
+singular values and therefore provides a scale-aware measure of effective
+update dimensionality.
+
+\paragraph{Frobenius norm.}
+We use the Frobenius norm to measure cumulative update magnitude:
+\begin{equation}
+    \|\Delta W_t\|_F
+    =
+    \left(
+    \sum_{i,j} (\Delta W_{t,ij})^2
+    \right)^{1/2}.
+\end{equation}
+This diagnostic rules out the possibility that low stable rank is merely
+caused by negligible parameter movement.
+
+\paragraph{Hill tail estimate.}
+To inspect the spectral shape of $\Delta W_t$, we use the Hill tail
+estimator~\cite{8b55684a-14a0-31e4-b039-d044b4625cb8}. Let
+$\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_k$ denote the selected
+top singular values. We estimate the tail exponent as
+\begin{equation}
+    \widehat{\alpha}_{\mathrm{Hill}}
+    =
+    \left[
+    \frac{1}{k-1}
+    \sum_{i=1}^{k-1}
+    \log
+    \frac{\sigma_i}{\sigma_k}
+    \right]^{-1}.
+\end{equation}
+We use this only as an auxiliary spectral-shape diagnostic, complementary
+to stable rank.
+
+
+\section{Additional Evaluation of Rank-Constrained Training}
+\label{app:k16-extra-eval}
+
+To test whether the functional-sufficiency result in
+Section~\ref{sec:subspace-sufficient} is specific to AIME 2024, we evaluate
+the same rank-$16$ projected runs on additional reasoning benchmarks, as shown in Figure ~\ref{fig:k16-extra-benchmarks}. The
+projection subspace, projection start, and matched training windows are the
+same as in the main experiment.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/fig_k16_projection_allbench.pdf}
+    \caption{
+    \textbf{Additional evaluation of rank-constrained training.}
+    We compare unconstrained training and rank-$16$ projected training
+    across five reasoning benchmarks. Across benchmarks, OPD is consistently
+    less affected by the rank-$16$ bottleneck than SFT. Green diamonds
+    denote the shared anchor checkpoint, and dashed vertical lines denote
+    the projection start.
+    }
+    \label{fig:k16-extra-benchmarks}
+\end{figure*}
+
+The additional benchmarks show the same qualitative pattern as
+Figure~\ref{fig:k16-projection}. OPD remains broadly robust under the early
+rank-$16$ subspace constraint, whereas SFT is substantially more sensitive
+to the same bottleneck. This supports the conclusion that the early
+low-dimensional update channel is functionally sufficient for OPD beyond
+the primary AIME 2024 evaluation.
+
+\section{Control Experiment Details}
+\label{app:control-details}
+\subsection{Shared OPD Control Setup}
+\label{app:control-shared-setup}
+
+All control experiments in Section~\ref{sec:controls} are based on the
+same OPD baseline configuration. Unless otherwise specified, each
+intervention changes only the stated factor and keeps the remaining OPD
+training pipeline fixed. Full training hyperparameters are provided in
+Appendix~\ref{app:experimental-details}.
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lp{0.52\linewidth}@{}}
+\toprule
+Item & Setting \\
+\midrule
+Student model & Qwen3-8B \\
+Teacher model & Qwen3-32B \\
+Student initialization & Qwen3-8B SFT anchor, iter\_0005375 \\
+Training data & dapo-math-17k \\
+Training length & 300 steps \\
+Checkpoint steps & 63, 127, 191, 255, 299 \\
+Baseline rollout & Student-generated, 8 samples per prompt \\
+Analyzed matrices & 36 layers $\times$ 4 attention weights \\
+Primary diagnostic & Stable rank \\
+Auxiliary diagnostics & Frobenius norm, Hill tail estimate \\
+\bottomrule
+\end{tabular}
+\caption{Shared setup for OPD control experiments.}
+\label{tab:control-shared-setup}
+\end{table}
+
+For all spectral diagnostics, we analyze the same matrix set as in the main
+trajectory analysis: 144 matrices, corresponding to 36 layers and four
+attention weight types per layer. Metrics are computed per matrix and then
+averaged across matrices.
+
+\subsection{Perturbation Protocols}
+\label{app:control-protocols}
+\paragraph{Token sparsification.}
+This intervention perturbs the density of token-level teacher supervision
+while keeping the rollout policy and OPD objective fixed. For each sampled
+response token $a_t$, the implementation computes the sampled-token
+student--teacher log-probability gap
+\[
+    r_t
+    =
+    \log \pi_\theta(a_t\mid s_t)
+    -
+    \log \pi_T(a_t\mid s_t),
+\]
+where $\pi_\theta$ is the student policy and $\pi_T$ is the teacher policy.
+This is a sampled-token log-probability gap, not a full-vocabulary KL
+divergence.
+
+For token sparsification, we introduce a binary token mask
+$m_t\in\{0,1\}$. In top-KL retention, tokens are ranked by $r_t$ and the
+largest $\rho$ fraction is retained; this selects tokens where the student
+is most over-confident relative to the teacher. In random retention,
+$m_t=1$ for a uniformly sampled $\rho$ fraction of response tokens. We use
+$\rho\in\{0.25,0.50\}$.
+
+The retained-token signal is compensated by
+\[
+    \widetilde{r}_t
+    =
+    \frac{T}{\sum_{\tau=1}^{T}m_\tau}
+    m_t r_t .
+    \label{eq:masked-opd-signal}
+\]
+The additive OPD update then uses this gap as a correction term, subtracting
+it from the advantage. Thus, the top-KL variant selects the tokens with the
+largest student--teacher deviation, while the training signal penalizes this
+deviation. Masking is applied independently for each sample at the
+response-token level. All other settings, including teacher model,
+on-policy rollout generation, optimizer, batch size, learning rate, and
+training data, are kept identical to the OPD baseline. The sparsification
+runs are evaluated at checkpoints $s=\{63,127,191,255\}$.
+
+\paragraph{Off-policy rollouts.}
+This intervention perturbs the rollout policy while keeping the token-level
+OPD objective fixed. In the baseline, rollouts are generated by the current
+student policy:
+\[
+    y \sim \pi_\theta(\cdot\mid x).
+\]
+In the off-policy variant, rollouts are generated by the teacher:
+\[
+    y \sim \pi_T(\cdot\mid x),
+\]
+and the student then computes log-probabilities on these teacher-generated
+tokens during the training forward pass. The training objective remains pure
+OPD KL distillation; no reward mixing is introduced. Thus, this intervention
+changes the sampling distribution but keeps the teacher-token gradient
+source fixed.
+
+The off-policy runs use Qwen3-32B teacher rollouts served through an sglang
+router with two teacher replicas. The importance-ratio clipping threshold
+is set to $\epsilon=1.0$, making clipping effectively inactive for this
+comparison. The off-policy checkpoints are evaluated at
+$s=\{63,127,191,255,299\}$.
+
+
+\paragraph{Objective interpolation.}
+This intervention perturbs the objective composition while keeping the
+student rollout policy fixed. We implement this at the advantage level by
+mixing the OPD teacher-correction signal with the RLVR reward signal:
+\begin{equation}
+    A_i^{(\alpha)}
+    =
+    \alpha A_{i,\mathrm{OPD}}
+    +
+    (1-\alpha)A_{i,\mathrm{RLVR}},
+    \label{eq:alpha-mixed-advantage}
+\end{equation}
+where $A_{i,\mathrm{OPD}}=-r_i$ and
+$r_i=\log\pi_\theta(a_i\mid s_i)-\log\pi_T(a_i\mid s_i)$ is the
+sampled-token student--teacher log-probability gap. Thus, the OPD term
+encourages correction toward the teacher. $A_{i,\mathrm{RLVR}}$ is the
+GRPO advantage from the math accuracy reward, broadcast to response tokens.
+The resulting policy-gradient direction is
+\begin{equation}
+    g_{\alpha}
+    =
+    \mathbb{E}_i
+    \left[
+    A_i^{(\alpha)}
+    \nabla_\theta
+    \log \pi_\theta(a_i\mid s_i)
+    \right].
+    \label{eq:alpha-mixed-gradient}
+\end{equation}
+We evaluate
+$\alpha\in\{0.75,0.50,0.25,0.05,0.01\}$, with $\alpha=1$ corresponding
+to the pure OPD baseline and $\alpha=0$ corresponding to the RLVR endpoint.
+All alpha-mixing runs use raw signal mixing without per-batch standard
+deviation normalization. The rollout policy remains on-policy, and the
+optimizer, batch size, learning rate, training data, and evaluation setup
+are identical to the baseline.
+
+\paragraph{Controlled variables.}
+Table~\ref{tab:control-variables} summarizes which factor is changed by
+each intervention.
+
+\begin{table*}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Dimension & Baseline & Token sparse & Off-policy & Alpha mix \\
+\midrule
+Rollout policy & Student & Student & Teacher & Student \\
+Token coverage & 100\% & 25/50\% & 100\% & 100\% \\
+Objective signal & OPD & OPD & OPD & OPD/RLVR mix \\
+Reward module & OPD & OPD & OPD & Mixed reward \\
+Other settings & -- & Same & Same & Same \\
+\bottomrule
+\end{tabular}
+\caption{
+Controlled variables in Section~\ref{sec:controls}. Each intervention
+changes one target factor while keeping the remaining OPD setup fixed where
+possible.
+}
+\label{tab:control-variables}
+\end{table*}
+
+\subsection{Auxiliary Metrics}
+\label{app:control-auxiliary}
+
+Stable rank is the primary diagnostic in Section~\ref{sec:controls}
+because the question is whether the locked low-dimensional update channel
+is preserved. We additionally track update scale and spectral shape through Frobenius norm and Hill tail estimates
+(Figure~\ref{fig:control-auxiliary}). These auxiliary diagnostics verify
+that runtime perturbations preserve the OPD-like spectral trajectory up to
+scale shifts, whereas objective interpolation changes the update geometry
+more substantially.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/fig_s3_combined.pdf}
+    \caption{
+    \textbf{Auxiliary metrics for control experiments.}
+    We report update scale and spectral-shape diagnostics for the same
+    perturbations analyzed in Figure~\ref{fig:controls}. Runtime
+    perturbations preserve the OPD-like spectral profile up to modest scale
+    changes, whereas objective interpolation induces a distinct trajectory.
+    }
+    \label{fig:control-auxiliary}
+\end{figure*}
+
+
+% \section{Experimental Details}
+% \label{app:experimental-details}
+
+% \section{Complete Experimental Data}
+% \label{app:complete-data}
+
+% \section{Additional Trajectory Diagnostics}
+% \label{app:additional-diagnostics}
+
+
+% \section{Layer-wise and Module-wise Analysis}
+% \label{app:layer-module}

@@ -1,0 +1,203 @@
+\section{Experiments}
+\label{sec:exp}
+
+\begin{table*}
+    \centering
+    \caption{
+    \textbf{Evaluation Results on WorldScore~\cite{worldscore}.}
+    The \textbf{Average Score} column is the average of the Static Score and Dynamic Score, while the remaining metrics are computed by the WorldScore benchmark.
+    }
+    \resizebox{\linewidth}{!}{%
+        \begin{tabular}{l|ccc|ccc|cccc|ccc}
+        \toprule
+        Method
+        & \makecell{\textbf{Average}\\\textbf{Score}}
+        & \makecell{\textbf{Static}\\\textbf{Score}}
+        & \makecell{\textbf{Dynamic}\\\textbf{Score}}
+        & \makecell{Camera\\Ctrl}
+        & \makecell{Object\\Ctrl}
+        & \makecell{Content\\Align}
+        & \makecell{3D\\Const}
+        & \makecell{Photo\\Const}
+        & \makecell{Style\\Const}
+        & \makecell{Subject\\Quality}
+        & \makecell{Motion\\Acc}
+        & \makecell{Motion\\Mag}
+        & \makecell{Motion\\Smooth} \\
+        \midrule
+        \multicolumn{14}{l}{\textit{Models with 3D Cache}} \\
+        WonderJourney~\cite{yu2024wonderjourney}     & 54.19 & 63.75 & 44.63 & 84.60 & 37.10 & 35.54 & 80.60 & 79.03 & 62.82 & \underline{66.56} & - & - & - \\
+        InvisibleStitch~\cite{engstler2024invisible} & 51.95 & 61.12 & 42.78 & \textbf{93.20} & 36.51 & 29.53 & 88.51 & 89.19 & 32.37 & 58.50 & - & - & - \\
+        WonderWorld~\cite{yu2024wonderworld}         & 61.79 & 72.69 & 50.88 & \underline{92.98} & 51.76 & 71.25 & 86.87 & 85.56 & 70.57 & 49.81 & - & - & - \\
+        Voyager~\cite{huang2025voyager}              & 66.08 & \textbf{77.62} & 54.53 & 85.95 & \underline{66.92} & 68.92 & 81.56 & 85.99 & \underline{84.89} & \textbf{71.09} & - & - & - \\
+        FlashWorld~\cite{li2025flashworld}           & 60.23 & 70.85 & 49.60 & 84.43 & 50.28 & 56.54 & 85.87 & 86.72 & 79.36 & 52.75 & - & - & - \\
+        LucidDreamer~\cite{chung2023luciddreamer}    & 59.84 & 70.40 & 49.28 & 88.93 & 41.18 & \textbf{75.00} & \underline{90.37} & \underline{90.20} & 48.10 & 58.99 & - & - & - \\
+        Spatia~\cite{zhao2026spatia}                 & \underline{69.73} & 72.63 & \underline{66.82} & 75.66 & 52.32 & 69.95 & 86.40 & 89.10 & 80.09 & 54.86 & 54.83 & 24.75 & \underline{80.26} \\
+        \midrule
+        \multicolumn{14}{l}{\textit{General Video Models}} \\
+        VideoCrafter2~\cite{chen2024videocrafter2}   & 50.03 & 52.57 & 47.49 & 28.92 & 39.07 & \underline{72.46} & 65.14 & 61.85 & 43.79 & 56.74 & 47.12 & 30.40 & 29.39 \\
+        EasyAnimate~\cite{xu2024easyanimate}         & 52.25 & 52.85 & 51.65 & 26.72 & 54.50 & 50.76 & 67.29 & 47.35 & 73.05 & 50.31 & \underline{75.00} & 31.16 & 40.32 \\
+        Allegro~\cite{allegro2024}                   & 53.64 & 55.31 & 51.97 & 24.84 & 57.47 & 51.48 & 70.50 & 69.89 & 65.60 & 47.41 & 54.39 & \textbf{40.28} & 37.81 \\
+        CogVideoX-I2V~\cite{yang2024cogvideox}       & 60.64 & 62.15 & 59.12 & 38.27 & 40.07 & 36.73 & 86.21 & 88.12 & 83.22 & 62.44 & 69.56 & 26.42 & 60.15 \\
+        Vchitect-2.0~\cite{fan2025vchitect}          & 40.38 & 42.28 & 38.47 & 26.55 & 49.54 & 65.75 & 41.53 & 42.30 & 25.69 & 44.58 & 33.59 & \underline{33.81} & 21.31 \\
+        LTX-Video~\cite{hacohen2024ltx}              & 55.99 & 55.44 & 56.54 & 25.06 & 53.41 & 39.73 & 78.41 & 88.92 & 53.50 & 49.08 & \textbf{76.22} & 29.95 & 71.09 \\
+        Wan2.1~\cite{wan2025wan}                     & 55.21 & 57.56 & 52.85 & 23.53 & 40.32 & 45.44 & 78.74 & 78.36 & 77.18 & 59.38 & 54.27 & 33.26 & 38.05 \\
+        \midrule
+        \method{} (Ours)                             & \textbf{70.36} & \underline{73.60} & \textbf{67.11} & 55.36 & \textbf{74.17} & 42.09 & \textbf{92.21} & \textbf{93.95} & \textbf{96.91} & 60.50 & 51.36 & 24.18 & \textbf{80.36} \\
+        \bottomrule
+        \end{tabular}%
+    }
+    \label{tab:world-score}
+\end{table*}
+
+\subsection{Experimental Setup}
+\label{sec:exp:setup}
+
+\boldstart{Datasets and baselines.}
+We train on a corpus of videos from RealEstate10K~\cite{zhou2018stereo}, with depth and camera poses~\cite{huang2025vipe,lin2025depth} and dynamic regions removed as in Sec.~\ref{sec:method:update}. Evaluation is performed on WorldScore~\cite{worldscore,duan2025worldscore}, which reports ten metrics covering controllability, consistency, quality, and motion, and on RealEstate10K, which provides paired ground truth for novel view synthesis and supports the closed loop protocol of Spatia~\cite{zhao2026spatia}. On WorldScore we compare against RGB point cloud based scene generators~\cite{yu2024wonderjourney,engstler2024invisible,yu2024wonderworld,huang2025voyager} and state of the art foundation video generators~\cite{chen2024videocrafter2,xu2024easyanimate,allegro2024,yang2024cogvideox,fan2025vchitect,hacohen2024ltx,wan2025wan,zhao2026spatia}. On RealEstate10K we additionally compare against the view memory baselines SEVA~\cite{zhou2025stable} and VMem~\cite{li2025vmem}, and against 3D aware video generators ViewCrafter~\cite{yu2024viewcrafter} and FlexWorld~\cite{chen2025flexworld}.
+
+\boldstart{Implementation and evaluation.}
+Our backbone is Wan2.2-TI2V-5B~\cite{wan2025wan}, whose VAE has a compression ratio of $4\times16\times16$ and latent channel count $C=48$. Each generation chunk contains nine latent frames at resolution $44\times80$, corresponding to 33 RGB frames at $704\times1280$.
+Training was conducted on 32 A100 GPUs with a global batch size of 64. The ControlNet-style side branch is initialized from its corresponding blocks of Wan2.2 and trained with an AdamW optimizer, bfloat16 mixed precision, and the flow-matching objective~\cite{lipman2022flow} on target frames. At inference, we use the UniPC flow scheduler with 40 sampling steps. We evaluate generation quality using the WorldScore Average Score and its constituent metrics, as well as PSNR, SSIM, LPIPS, and the closed-loop metrics PSNR$_C$, SSIM$_C$, and LPIPS$_C$ on RealEstate10K following Spatia. Efficiency is measured on a single NVIDIA H100 with the wall-clock time and peak GPU memory for one cache read as rollout length increases.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/open.pdf}
+    \caption{\textbf{Open-domain video comparison.}
+    Generations on out-of-domain prompts spanning outdoor
+    and natural scenes that lie far from the RealEstate10K training
+    distribution. \method{} generalizes beyond indoor real-estate footage,
+    producing temporally smooth and 3D-consistent rollouts under aggressive
+    camera motion, whereas RGB point cloud baselines show stretched textures
+    on unseen layouts and foundation video generators drift in geometry.}
+    \label{fig:open_domain_video}
+\end{figure*}
+
+
+\begin{table}[!t]
+    \centering
+    \caption{
+    \textbf{Evaluation Results on RealEstate10K~\cite{zhou2018stereo}.} We report novel-view synthesis and closed-loop results. Following Spatia~\cite{zhao2026spatia}, closed-loop evaluation measures the similarity between the initial frame and the final frame after generating a return trajectory.
+    }
+    \resizebox{0.8\linewidth}{!}{
+    \begin{tabular}{lccc|ccc}
+    \toprule
+    Method & \multicolumn{3}{c|}{Novel View Synthesis} & \multicolumn{3}{c}{Closed-Loop} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+    & PSNR $\uparrow$ & SSIM $\uparrow$ & LPIPS $\downarrow$ & PSNR$_{C}$ $\uparrow$ & SSIM$_{C}$ $\uparrow$ & LPIPS$_{C}$ $\downarrow$ \\
+    \midrule
+    SEVA \cite{zhou2025stable}           & 13.07 & 0.515 & 0.445 & - & - & - \\
+    VMem \cite{li2025vmem}               & 14.62 & 0.522 & 0.426 & - & - & - \\
+    \midrule
+    ViewCrafter \cite{yu2024viewcrafter} & 15.78 & 0.580 & 0.396 & 14.79 & 0.481 & 0.365 \\
+    FlexWorld \cite{chen2025flexworld}   & 16.25 & 0.593 & 0.370 & 12.20 & 0.428 & 0.598 \\
+    Voyager \cite{huang2025voyager}      & 17.79 & 0.636 & 0.297 & 17.66 & 0.540 & 0.380 \\
+    Spatia \cite{zhao2026spatia}         & \textbf{18.58} & \underline{0.646} & \underline{0.254} & \underline{19.38} & \underline{0.579} & \textbf{0.213} \\
+    \midrule
+    \method{} (Ours)                     & \underline{18.38} & \textbf{0.779} & \textbf{0.250} & \textbf{20.05} & \textbf{0.825} & \underline{0.228} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \label{tab:re10k-merge}
+\end{table}
+
+
+\subsection{Main Results}
+\label{sec:exp:main}
+
+
+
+\boldstart{World generation on WorldScore.}
+Table~\ref{tab:world-score} summarises results on WorldScore. \method{} attains the highest Average Score of all compared systems, improving over the memory augmented Spatia baseline and clearly outperforming every foundation video generator that lacks a persistent spatial representation. The advantage is strongest on the dynamic partition, while \method{} remains competitive on the static partition. On the static axis, \method{} leads on 3D and photometric consistency, confirming that latent spatial memory preserves the geometric scaffolding that RGB caches provide without incurring their representational loss. We attribute this balance to two design choices. First, the readout in Eq.~\ref{eq:read} injects geometric hints at the same resolution and distribution as the native latents of the backbone, so the generator does not have to reconcile two incompatible signal spaces. Second, the dynamic object filter described in Section~\ref{sec:method:update} prevents moving elements from contaminating the persistent memory, which is a common source of drift in RGB point cloud pipelines. Figure~\ref{fig:open_domain_video} provides side-by-side qualitative comparisons on out-of-domain prompts, where \method{} maintains 3D coherence on scenes that lie far from the RealEstate10K training distribution while RGB-cache and memory-free baselines exhibit visible drift.
+
+\boldstart{Novel view synthesis and closed-loop consistency.}
+Table~\ref{tab:re10k-merge} reports results on RealEstate10K. In the standard novel view synthesis setting, \method{} achieves the best SSIM and LPIPS, while remaining close to Spatia on PSNR, surpassing both view memory baselines and all 3D aware video generators. The closed loop setting is particularly informative because it amplifies long horizon drift, since any per step inaccuracy accumulates over a trajectory that returns to its starting viewpoint. \method{} achieves the best PSNR$_C$ and SSIM$_C$ under this protocol, while remaining second-best on LPIPS$_C$, indicating that latent spatial memory anchors the generator to a coherent geometric representation even after the camera has left and returned to a region. Figures~\ref{fig:re10k_video} and~\ref{fig:re10k_revisit} provides side-by-side video comparisons along the same trajectories: \method{} produces frames that remain sharp and structurally consistent when the camera advances through the scene, whereas Spatia and Voyager occasionally hallucinate incompatible geometry and foundation video generators without spatial memory drift noticeably. Visualizations on more challenging trajectories can be seen in Figure~\ref{fig:re10k_video_2}. These results show that moving the cache into latent space not only matches a well tuned RGB cache but improves on it, because the stored feature vectors carry semantic and textural information that three color channels cannot express.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/efficiency.pdf}
+    \caption{\textbf{Efficiency scaling with rollout progress.}
+    Per-frame cache-read time (\emph{left}) and peak cache footprint (\emph{right}) measured on a single NVIDIA H100 across five autoregressive rollout chunks. Numbers above each bar report raw measurements (in s/frame and MiB respectively); the y-axes use a linear scale so the gap between methods is shown faithfully. After the first chunk amortises a one-off setup pass, \method{} settles at a per-frame cost of $0.25$\,s and a cache footprint that grows by less than $0.5$\,MiB per chunk. RGB-cache baselines (Spatia, Gen3C) require an order of magnitude more memory and one-to-two orders of magnitude more time per frame, since every conditioning step re-rasterises the accumulated point cloud and re-encodes the result through the VAE. The view-memory baseline VMem keeps memory bounded but still scales linearly because its retrieval cost grows with the number of stored views. Latent spatial memory removes the pixel-space round trip from the per-step critical path, leaving the conditioning loop with a single latent-resolution projection.}
+    \label{fig:efficiency_scaling}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/re10k.pdf}
+\caption{\textbf{Video comparison on RealEstate10K.}
+Each block shows one RealEstate10K trajectory, with rows corresponding to Voyager, Spatia, VMem, and \method{} (Ours), and columns showing uniformly sampled frames over time. Across indoor and outdoor scenes, \method{} preserves sharper structure and more stable appearance under camera motion, while baselines exhibit geometry drift, texture distortion, or accumulated artifacts.}
+    \label{fig:re10k_video}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/revisit.pdf}
+    % 在closed-loop 测试中，相机轨迹逐渐回到起点。对比last frame和input frame，在revisit setting下 \methond{} 展示出strong consisitency。
+    \caption{
+        \textbf{Closed-loop revisit comparison on RealEstate10K.} In the closed-loop test, the camera trajectory gradually returns to its starting point. The comparison between the last frame and the input frame shows that \method{} maintains strong consistency under the revisit setting.
+    }
+    \label{fig:re10k_revisit}
+\end{figure*}
+
+\boldstart{Efficiency.}
+A central motivation for latent spatial memory is to remove the pixel space round trip from the per step critical path. Figure~\ref{fig:efficiency_scaling} plots, as a function of rollout length, the wall clock time of a single cache read and the peak GPU memory required to maintain the cache. We compare \method{} with representative RGB point cloud baselines that rasterises the accumulated cloud with a z-buffered renderer and re-encodes the resulting image through the VAE at every step. Both quantities grow slowly for latent spatial memory, because the read operates at the native latent resolution and the cache itself is smaller by a factor of $s^2$ per spatial dimension. In contrast, the RGB cache exhibits rapid growth along both axes, since the per step rasterisation scales with $HW$ rather than $hw$ and the cloud expands roughly linearly with the number of anchored frames. At matched rollout length, end-to-end video generation is $10.57\times$ faster than the RGB pipeline and consumes $55\times$ less GPU memory on 3D cache. The gap widens with horizon, and RGB baselines eventually exhaust the memory budget on trajectories that latent spatial memory completes comfortably. 
+
+
+\subsection{Ablation Studies}
+\label{sec:exp:ablation}
+
+We isolate the contribution of each component of \method{} on a split of WorldScore prompts, so that ablations are directly comparable to the main benchmark. Component level results are reported in Table~\ref{tab:ablation}, and the sensitivity to the depth source used to build the latent cache is reported separately in Table~\ref{tab:depth}.
+
+\boldstart{Latent vs. RGB memory.}
+Replacing the latent cache with an RGB point cloud of the same source frames, while keeping the backbone and training recipe unchanged, decreases the Average Score and weakens 3D and photometric consistency. This confirms that bottleneck of the RGB detour discards information that backbone can exploit when the cache remains in latent space.
+
+\boldstart{Feature downsampling versus geometry downsampling.}
+An alternative to the design in Eq.~\ref{eq:lift} is to upsample the latent feature to pixel resolution and lift at full resolution, then aggregate into the latent grid during readout. 
+This variant degrades 3D consistency because it interpolates features that lie outside the backbone's pretraining distribution. 
+Matching geometry to the native latent grid instead is both cheaper and more faithful to the generator.
+
+\boldstart{Dynamic object filtering.}
+Disabling the mask that excludes moving objects and the sky from cache updates degrades long horizon stability, since stale dynamic content persists in the memory and is splatted back into future chunks. The effect is largest on 3D and photometric consistency.
+
+\boldstart{Two stage training.}
+Replacing the two stage schedule with a single stage that jointly trains the side branch and LoRA reduces final quality, because the backbone adapts to an immature conditioning signal early in optimisation. Freezing the backbone during stage one and only then unlocking LoRA stabilises convergence.
+\begin{table}
+    \centering
+    \caption{\textbf{Ablation studies on a WorldScore split.} Each row disables or alters a single component of \method{} while all other settings remain fixed.}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lccccc}
+    \toprule
+    Variant & Avg $\uparrow$ & Static $\uparrow$ & Dynamic $\uparrow$ & 3D Cons $\uparrow$ & Photo Cons $\uparrow$ \\
+    \midrule
+    \method{} (full)                        & \textbf{70.36} & \textbf{73.60} & \textbf{67.11} & \textbf{92.21} & \textbf{93.95} \\
+    \midrule
+    Explicit RGB Point Cloud                & \underline{67.71} & \underline{70.49} & \underline{64.93} & \underline{90.75} & \underline{91.10} \\
+    Feature Upsample, Pixel Resolution Lift & 60.85 & 62.41 & 59.28 & 84.90 & 79.81 \\
+    No Dynamic Object Filter                & 61.20 & 62.69 & 59.70 & 80.88 & 76.10 \\
+    Single Stage Training                   & 63.18 & 65.15 & 61.20 & 87.11 & 84.47 \\
+    \bottomrule
+    \end{tabular}
+    }
+    \label{tab:ablation}
+\end{table}
+
+
+
+\boldstart{Depth source.}
+Because latent spatial memory is constructed from estimated depth, we study its robustness by swapping the default DepthAnything 3~\cite{lin2025depth} reconstructor for alternative depth predictors~\cite{keetha2025mapanything,piccinelli2024unidepth}. Table~\ref{tab:depth} shows that \method{} remains competitive under noisier depth, because the ControlNet style side branch treats the projected cache as a soft geometric hint rather than a hard constraint, and the dynamic filter removes the worst outliers before they enter the memory. The margin relative to the strongest depth estimator is modest, indicating that the benefits of latent spatial memory do not hinge on a particular reconstructor.
+\begin{table}
+    \centering
+    \caption{\textbf{Sensitivity to the depth source.} We swap DepthAnything 3 for alternative depth predictors while keeping all other components of \method{} fixed.}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lccccc}
+    \toprule
+    Depth Source & Avg $\uparrow$ & Static $\uparrow$ & Dynamic $\uparrow$ & 3D Cons $\uparrow$ & Photo Cons $\uparrow$ \\
+    \midrule
+    DepthAnything 3~\cite{lin2025depth} (default) & 70.36 & 73.60 & 67.11 & 92.21 & 93.95 \\
+    MapAnything~\cite{keetha2025mapanything}      & 69.66 & 72.78 & 66.53 & 91.89 & 93.32 \\
+    UniDepth~\cite{piccinelli2024unidepth}        & 69.13 & 72.15 & 66.10 & 91.63 & 92.79 \\
+    \bottomrule
+    \end{tabular}
+    }
+    \label{tab:depth}
+\end{table}

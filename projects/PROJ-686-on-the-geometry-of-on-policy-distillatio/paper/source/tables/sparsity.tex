@@ -1,0 +1,60 @@
+\begin{table*}[!t]
+\centering
+
+
+\small
+\setlength{\tabcolsep}{3.8pt}
+\renewcommand{\arraystretch}{1.05}
+
+\begin{tabular*}{1\textwidth}{@{\extracolsep{\fill}} l l l l r @{}}
+\toprule
+\textbf{Base Model} &
+\textbf{Finetuned (FT) Model} &
+\textbf{Algorithm} &
+\textbf{Data} &
+\textbf{sparsity$_{\mathrm{bf16}}$} \\
+\midrule
+
+\multicolumn{5}{@{}l}{\textit{Controlled comparison: SFT $<$ OPD $<$ RLVR}} \\
+Qwen3-8B-Base         & Qwen3-8B-SFT            & SFT          & Math & 8.1\%  \\
+Qwen3-8B-SFT          & OPD-8B-T32B                 & \textbf{OPD} & Math            & \textbf{51.6\%} \\
+Qwen3-8B-SFT          & RLVR-8B                 & GRPO         & Math            & 77.2\% \\
+
+\midrule
+\multicolumn{5}{@{}l}{\textit{OPD robustness across teacher / student / data}} \\
+Qwen3-4B-SFT          & OPD-4B-T8B              & \textbf{OPD} & Math            & \textbf{50.3\%} \\
+Qwen3-4B-SFT          & OPD-4B-T14B             & \textbf{OPD} & Math            & \textbf{51.1\%} \\
+Qwen3-4B-SFT          & OPD-4B-T32B             & \textbf{OPD} & Math            & \textbf{51.7\%} \\
+Qwen3-14B-SFT         & OPD-14B-T32B            & \textbf{OPD} & Math            & \textbf{56.6\%} \\
+Qwen3-8B-SFT          & OPD-8B-T32B-Code        & \textbf{OPD} & Code            & \textbf{57.1\%} \\
+Qwen3-8B-SFT          & OPD-8B-T32B-MoE         & \textbf{OPD} & Math            & \textbf{48.6\%} \\
+
+\midrule
+\multicolumn{5}{@{}l}{\textit{Published reference points}} \\
+Qwen3-8B-Base         & Klear-Reasoner-8B-SFT   & SFT          & Math+Code       & 0.6\%  \\
+Qwen3-14B-Base        & UniReason-14B-think-SFT & SFT          & Mixed$^\dagger$            & 18.8\% \\
+Klear-Reasoner-8B-SFT & Klear-Reasoner-8B       & GRPO         & Math+Code       & 69.9\% \\
+Qwen3-8B-Base         & GT-Qwen3-8B-Base        & GRPO         & Math            & 79.0\% \\
+Qwen3-4B              & Polaris-4B-Preview      & DAPO         & Math            & 79.9\% \\
+
+\bottomrule
+\end{tabular*}
+
+% \caption{
+% \textbf{bf16-aware update sparsity.}
+% OPD lies between SFT and RLVR in the controlled Qwen3-8B comparison, and remains stable across OPD variants.
+% Published checkpoints are used only as external reference points.
+% Mixed$^\dagger$ denotes a mixture of math, code, STEM, logic, and instruction data. \textcolor{magenta}{\small Yi: what does the terminologies like "T8B" in "OPD-4B-T8B" etc stand for (sth special)? for the average reader/reviewer, this may not be immediately clear, and some elaboration/clarification can help clarity.}
+% }
+
+\caption{
+\textbf{bf16-aware update sparsity.}
+OPD lies between SFT and RLVR in the controlled Qwen3-8B comparison, and remains stable across OPD variants.
+Published checkpoints are used only as external reference points.
+In OPD variant names, {T}$x${B} denotes a teacher model with $x$B parameters, e.g., {OPD-4B-T8B} uses a 4B student and an 8B teacher.
+Mixed$^\dagger$ denotes a mixture of math, code, STEM, logic, and instruction data. 
+}
+\label{tab:update_sparsity}
+
+\vspace{-0.6em}
+\end{table*}

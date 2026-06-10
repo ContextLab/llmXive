@@ -1,0 +1,53 @@
+{
+  "arxiv_id": "2606.09828",
+  "arxiv_url": "https://arxiv.org/abs/2606.09828",
+  "title": "Latent Spatial Memory for Video World Models",
+  "authors": [
+    "Weijie Wang",
+    "Haoyu Zhao",
+    "Yifan Yang",
+    "Feng Chen",
+    "Zeyu Zhang",
+    "Yefei He",
+    "Zicheng Duan",
+    "Donny Y. Chen",
+    "Yuqing Yang",
+    "Bohan Zhuang"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Video world models that maintain 3D spatial consistency across generated frames typically rely on explicit point cloud memory constructed in RGB space. This design is both computationally expensive, requiring repeated rendering and VAE encoding, and inherently lossy, as the round trip through pixel space discards rich features of the learned latent representation. In this paper, we introduce \\emph{latent spatial memory} for video world models, a persistent 3D cache that stores scene information directly in the diffusion latent space, avoiding pixel-space reconstruction. Building on this, we propose Mirage, a latent-space spatial memory framework that constructs the memory by lifting latent tokens into 3D via depth-guided back-projection and queries it by synthesizing novel views through direct latent-space warping. This unified formulation eliminates both the information loss of pixel-space reconstruction and the computational burden of repeated encoding and rendering. Experiments show that latent spatial memory achieves up to \\textbf{10.57}$\\times$ faster end-to-end video generation and \\textbf{55}$\\times$ reduction in memory footprint relative to explicit 3D baselines. Leveraging the geometric prior of the diffusion model, Mirage attains state-of-the-art performance on WorldScore and strong reconstruction quality on RealEstate10K.",
+  "submitted_via": "llmXive dashboard, GitHub issue #300",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "fancyhdr.sty",
+    "figures",
+    "figures/revisit.pdf",
+    "figures/concept.pdf",
+    "figures/microsoft.pdf",
+    "figures/teaser.pdf",
+    "figures/re10k2.pdf",
+    "figures/re10k.pdf",
+    "figures/pipeline.pdf",
+    "figures/open.pdf",
+    "figures/efficiency.pdf",
+    "main.tex",
+    "microsoft-tech-report.sty",
+    "README.md",
+    "reference.bib",
+    "sections",
+    "sections/07_appendix.tex",
+    "sections/05_conclusion.tex",
+    "sections/04_experiments.tex",
+    "sections/03_method.tex",
+    "sections/02_related_work.tex",
+    "sections/01_introduction.tex",
+    "sections/00_abstract.tex"
+  ]
+}

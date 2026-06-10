@@ -1,0 +1,37 @@
+\section{Out-of-Distribution Skill Sources}
+\label{app:ood_skill}
+% To verify whether the domain-level encoding capability of the hypernetwork generalizes to unseen domains (\S4.3), we collect skill texts from public GitHub repositories across three domains. Code skills (18) are drawn from \texttt{addyosmani/agent-skills}, \texttt{jaktestowac/awesome-copilot-for-testers}, and \texttt{github/awesome-copilot}. Finance skills (13) are drawn from \texttt{deanpeters/Product-Manager-Skills}, \texttt{CaseMark/skills}, \texttt{borghei/claude-skills}, and \texttt{anthropics/knowledge-work-plugins}. Writing skills (11) are drawn from \texttt{affaan-m/everything-claude-code}, \texttt{danielabar/meblog}, \texttt{OpenClaudia/openclaudia-skills}, \texttt{continuedev/continue}, \texttt{lguz/humanize-writing-skill}, \texttt{jpeggdev/humanize-writing}, and \texttt{labarba/sciwrite}.
+
+To verify whether the domain-level encoding capability of the hypernetwork generalizes to unseen domains (\S4.3), we collect skill texts from public GitHub repositories across three out-of-distribution domains: Code (18 skills), Finance (13 skills), and Writing (11 skills). Table~\ref{tab:ood_sources} lists the source repositories for each domain.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Out-of-distribution skill sources collected from public GitHub repositories across three unseen domains.}
+\begin{tabular}{ll}
+\toprule
+\textbf{Domain} & \textbf{GitHub Repository} \\
+\midrule
+\multirow{3}{*}{Code}
+  & \texttt{addyosmani/agent-skills} \\
+  & \texttt{jaktestowac/awesome-copilot-for-testers} \\
+  & \texttt{github/awesome-copilot} \\
+\midrule
+\multirow{4}{*}{Finance}
+  & \texttt{deanpeters/Product-Manager-Skills} \\
+  & \texttt{CaseMark/skills} \\
+  & \texttt{borghei/claude-skills} \\
+  & \texttt{anthropics/knowledge-work-plugins} \\
+\midrule
+\multirow{7}{*}{Writing}
+  & \texttt{affaan-m/everything-claude-code} \\
+  & \texttt{danielabar/meblog} \\
+  & \texttt{OpenClaudia/openclaudia-skills} \\
+  & \texttt{continuedev/continue} \\
+  & \texttt{lguz/humanize-writing-skill} \\
+  & \texttt{jpeggdev/humanize-writing} \\
+  & \texttt{labarba/sciwrite} \\
+\bottomrule
+\end{tabular}
+\label{tab:ood_sources}
+\end{table}

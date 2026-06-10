@@ -1,0 +1,6 @@
+\section{Evaluation Details}
+\label{app:eval}
+
+\paragraph{ALFWorld.} We evaluate on both the seen split (140 episodes) and the unseen split (134 episodes). Each episode is capped at 50 steps. Skills are matched to tasks by category without retrieval. We report success rate (\%).
+
+\paragraph{Search-QA.} We randomly sample 500 examples from each dataset, except Bamboogle which is evaluated on its full set of 125 examples. The retriever is E5 with top-$k$=3 retrieved passages, and each query is allowed a maximum of 4 retrieval steps. Skills are matched according to dataset and annotated question sub-type (see Table~\ref{tab:skill_search}). We report Exact Match (EM).

@@ -1,0 +1,90 @@
+
+\input{tables/main_results}
+\section{Experiment}
+\label{sec:experiment}
+
+ALE's task instances are drawn from authentic professional workflows that experts carry out on real computer environments, routinely interleaving shell commands, GUI applications, file manipulation, and web research within a single task.
+As argued in Section~\ref{sec:agent-architecture}, this operational surface requires \textbf{Generalist CUA-agents} (GCUA) with full capability across all five functional layers (Brain, Eyes, Body, Hands, Feet). We therefore evaluate all agent systems in GCUA configuration.
+
+\subsection{Main Results}
+To bring every agent into GCUA configuration, each system is extended with \textbf{GUI-as-Tool} mode: a unified CUA MCP bridge exposes 14 desktop-action tools (Table~\ref{tab:gui-tools}) as standard entries in the agent's tool system, so that a single foundation model reasons over both shell output and visual feedback within one action loop.
+Table~\ref{tab:main-results} reports mean scores, pass rates, costs, and wall-clock times for agent systems and foundation models. Specifically, mean score is the mean fine-grained task score, full pass rate is the share of tasks receiving full credit. Each run is capped at five hours; the overall timeout rate is 4.3\%, ranging from ${\sim}$1\% for lightweight harnesses to 7\% for OpenClaw (see Appendix~\ref{app:timeout-analysis}).
+Rows are grouped into five blocks: (a)~mainstream harness--backbone configurations; (b)~model sweeps with the harness fixed to OpenClaw+GUI-as-Tool; (c)~harness sweeps with the backbone fixed to GPT-5.5; (d)~harness sweeps with the backbone fixed to Claude Opus~4.7; and (e)~\textbf{ALE-CLI}, the \aleclicount{} Linux-only task instances that can be attempted by CLI-only agents (ForgeCode, Hermes, Terminus) without GUI desktop access, reported in the lower panel of Table~\ref{tab:main-results} with Codex and Claude~Code as GCUA references.
+
+\noindent \textbf{ALE-CLI: a harder CLI-focused sub-benchmark.}
+ALE-CLI is a natural comparison point to Terminal-Bench~\citep{merrill2026terminalbench}, which contains ${\sim}$100 terminal-centric tasks at a similar scale.
+However, ALE-CLI tasks are substantially harder and require longer agent sessions:
+Codex~\citep{openai2025codex} with GPT-5.5~\citep{openai2026gpt55}, the strongest configuration that achieves 82\% on Terminal-Bench, reaches only a 25.2\% overall pass rate on ALE-CLI (41.5\% on Near-Term, 20.0\% on Full-Spectrum, 4.5\% on \textcolor{lastexamred}{Last-Exam}).
+
+\noindent \textbf{Three difficulty tiers.}
+A single run of a frontier agent on one ALE task costs \$3--10 on average and takes tens of minutes to hours.
+Evaluating the full \publictaskcount{}-task public set is therefore expensive, so ALE organizes tasks into three difficulty tiers that let the community choose a subset matching its evaluation budget and goal.
+\textbf{Near-Term} (\neartermcount{} tasks) contains workflows that current frontier agents can partially complete, with top pass rates reaching $\sim$30\%; these tasks are the most cost-effective target for short-term leaderboard competition and rapid iteration.
+\textbf{Full-Spectrum} (\fullspectrumcount{} tasks) covers, by design, each of ALE's \taskcount{} subdomains with at least one task instance, ensuring broad domain coverage for comprehensive evaluation.
+\textcolor{lastexamred}{\textbf{Last-Exam}} (\lastexamcount{} tasks) comprises the hardest workflows, on which most agents achieve a 0\% pass rate; these tasks anchor the benchmark's long-term headroom and are best reserved for milestone evaluations rather than routine testing.
+
+\noindent \textbf{ALE-Claw: a Self-implemented GCUA reference.}
+We implement \textbf{ALE-Claw} to test whether the basic GCUA components in Section~\ref{sec:agent-architecture}, namely a single action loop, modular tools, GUI-as-Tool, and context compaction, suffice for achieving a comparable performance to frontier harnesses.
+ALE-Claw is a simplified implementation derived from OpenClaw~\citep{openclaw2026agent} and scoped to isolated benchmark runs.
+It omits product features such as long-term memory management and user preference customization, which are useful for interactive agents such as Claude Code~\citep{anthropic2025claudecode} but not required for single-task evaluation.
+Holding the foundation model fixed, ALE-Claw has comparable performance to default OpenClaw on ALE. Appendix~\ref{app:agent-harness} documents the implementation differences.
+
+\begin{figure}[htbp]
+    \vspace{-0.8em}
+    \centering
+    \newcommand{\toolswatch}[2]{\textcolor[HTML]{#1}{\rule{0.7ex}{0.7ex}}\,#2}
+    \newlength{\analysisfigheight}
+    \setlength{\analysisfigheight}{0.25\linewidth}
+    \begin{tikzpicture}[baseline=(img.south)]
+      \node[inner sep=0pt,anchor=south west] (img) {\includegraphics[height=\analysisfigheight]{figures/domain_radar.pdf}};
+      \node[anchor=south west,inner sep=0.3pt,fill=white,text opacity=1,fill opacity=0.85] at ([xshift=1pt,yshift=1pt]img.south west) {\small (a)};
+    \end{tikzpicture}\hspace{0.01\linewidth}%
+    \begin{tikzpicture}[baseline=(img.south)]
+      \node[inner sep=0pt,anchor=south west] (img) {\includegraphics[height=\analysisfigheight]{figures/tool_usage_harness.pdf}};
+      \node[anchor=south west,inner sep=0.3pt,fill=white,text opacity=1,fill opacity=0.85] at ([xshift=4pt,yshift=1pt]img.south west) {\small (b)};
+    \end{tikzpicture}\hspace{0.01\linewidth}%
+    \begin{tikzpicture}[baseline=(img.south)]
+      \node[inner sep=0pt,anchor=south west] (img) {\includegraphics[height=\analysisfigheight]{figures/tool_usage_openclaw.pdf}};
+      \node[anchor=south west,inner sep=0.3pt,fill=white,text opacity=1,fill opacity=0.85] at ([xshift=4pt,yshift=1pt]img.south west) {\small (c)};
+    \end{tikzpicture}\hspace{0.01\linewidth}%
+    \begin{tikzpicture}[baseline=(img.south)]
+      \node[inner sep=0pt,anchor=south west] (img) {\includegraphics[height=\analysisfigheight,trim={8pt 0pt 2pt 2pt},clip]{figures/failure_taxonomy.pdf}};
+      \node[anchor=south west,inner sep=0.3pt,fill=white,text opacity=1,fill opacity=0.85] at ([xshift=1pt,yshift=1pt]img.south west) {\small (d)};
+    \end{tikzpicture}
+    \makebox[\linewidth][l]{\hspace{0.285\linewidth}{\sffamily\scriptsize
+      \toolswatch{3A7CA5}{Bash}\quad
+      \toolswatch{E8985E}{File}\quad
+      \toolswatch{7B6D8E}{GUI}\quad
+      \toolswatch{6AAB6E}{Planning}\quad
+      \toolswatch{C75C5C}{Web}\quad
+      \toolswatch{B0B0B0}{Other}}}
+    \caption{\textbf{Experiment analysis overview.}
+    (a)~Domain-level mean scores for Opus~4.7 and GPT-5.5, each averaged over harnesses with completed runs on the selected public task set; the sparse transportation domain is omitted.
+    (b)~Tool-call mix for the best available table-backed configuration per harness.
+    (c)~Tool-call mix for backbone models under a fixed OpenClaw harness.
+    (d)~Failure root-cause taxonomy for failed Claude Code + Opus~4.7 public-task runs.}
+    \label{fig:analysis-overview}
+    \label{fig:tool-usage}
+    \label{fig:failure-taxonomy}
+\end{figure}
+
+\subsection{Analysis}
+\label{sec:experiment-analysis}
+\noindent \textbf{Domain-level performance.}
+Figure~\ref{fig:analysis-overview}(a) shows mean scores by domain for Opus~4.7 and GPT-5.5, each averaged over harnesses.
+The two frontier models exhibit similar domain profiles: computational mathematics and agriculture/environment score highest (${\sim}$60\%), while visual media and education remain below 30\%.
+This shared ranking likely reflects both an imbalance in intrinsic model capability across domains and uneven exposure to tool-use tasks during training, where code-adjacent domains receive far more coverage than specialized professional workflows.
+
+\noindent \textbf{Tool usage.}
+The tool traces, normalized using the taxonomy in Appendix~\ref{app:tool-surface}, reveal that both harness and model shape the tool-call mix (Figure~\ref{fig:analysis-overview}(b,c)).
+GUI usage remains below task demand: 34\% of public task instances designate graphical software as the primary tool, yet the GUI share stays small across most configurations, as agents execute GUI tasks through Bash/CLI substitutes.
+
+\noindent \textbf{Failure taxonomy.}
+We classified the failed tasks of Claude Code + Opus~4.7 into a two-level taxonomy (Figure~\ref{fig:analysis-overview}(d); details in Appendix~\ref{app:failure-taxonomy}).
+Understanding and Approach failures together account for roughly three quarters of cases, indicating that the dominant bottleneck is domain knowledge rather than execution capability.
+Lacking specialized knowledge, agents default to ad-hoc scripts instead of the intended domain software, reinforcing the GUI-underutilization pattern above.
+
+\noindent \textbf{Additional analysis.}
+Appendix~\ref{app:harness-vs-model} further decomposes the performance variation into model and harness effects, finding that the choice of foundation model accounts for roughly 3$\times$ the spread of the choice of agent harness among well-engineered systems.
+Appendix~\ref{app:cost-performance} examines the cost, time, and token efficiency of each configuration (Figure~\ref{fig:cost-performance}), showing that higher resource consumption does not reliably translate to better performance.
+Appendix~\ref{app:per-task-heatmap} provides per-task instance score heatmaps (Figures~\ref{fig:heatmap-nearterm}--\ref{fig:heatmap-lastexam}) that visualize every task--agent combination across the three tiers.

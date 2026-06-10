@@ -1,0 +1,41 @@
+%
+\begin{table*}[t]
+  \centering
+  \caption{Exploration quality at $K{=}5$ across different LLMs powering the same \textbf{Mini-SWE-Agent} scaffold. \textbf{Bold} marks the best result per column; \underline{underline} marks the second best.}
+  \label{tab:llm-comparison}
+  \vspace{1mm}
+  \scriptsize
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l cccc c ccc cc @{}}
+    \toprule
+    & \multicolumn{5}{c}{\textit{Coverage \& Accuracy}} & \multicolumn{3}{c}{\textit{Ranking}} & \multicolumn{2}{c}{\textit{Efficiency \& Noise}} \\
+    \cmidrule(lr){2-6} \cmidrule(lr){7-9} \cmidrule(lr){10-11}
+    Model
+      & HitReg & Prec & Rec$_\ell$ & F1 & HitFile
+      & nDCG@500 & Rec@500 & FUH
+      & CtxEff & NoiseReg$\downarrow$ \\
+    \midrule
+    GPT-5.4
+      & \underline{0.516} & \textbf{0.542} & \underline{0.154} & \underline{0.194} & \textbf{0.655}
+      & \underline{0.905} & \underline{0.154} & \underline{0.927}
+      & \textbf{0.771} & \textbf{0.258} \\
+    GPT-5.4-mini
+      & \textbf{0.531} & 0.509 & \textbf{0.185} & \textbf{0.215} & \underline{0.649}
+      & \textbf{0.924} & \textbf{0.183} & \textbf{0.956}
+      & \underline{0.754} & \underline{0.265} \\
+    Kimi-K2.6
+      & 0.413 & 0.475 & 0.117 & 0.149 & 0.509
+      & 0.739 & 0.115 & 0.759
+      & 0.676 & 0.316 \\
+    Sonnet-4.5
+      & 0.428 & \underline{0.519} & {0.118} & 0.154 & 0.535
+      & 0.779 & 0.116 & 0.802
+      & 0.715 & 0.279 \\
+    GLM-4.7
+      & 0.289 & 0.414 & 0.122 & 0.148 & 0.343 & 0.557 & 0.105 & 0.572 & 0.536 & 0.465 \\
+    Gemini-3-Pro
+      & 0.268 & 0.420 & 0.052 & 0.079 & 0.369 & 0.605 & 0.052 & 0.620 & 0.540 & 0.467 \\
+    \bottomrule
+  \end{tabular*}
+  \vspace{-4mm}
+\end{table*}

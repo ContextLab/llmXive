@@ -1,0 +1,107 @@
+\begin{table}[t]
+\caption{\textbf{Main results on ALE.}
+Each difficulty level reports the full-pass rate~(\textbf{Pass}, \%),
+the mean score~(\textbf{Score}, \%),
+total API cost~(\textbf{\faIcon[regular]{money-bill-alt}}),
+total wall-clock time~(\textbf{\faIcon[regular]{clock}}),
+and total token use~(\textbf{Tok.}).
+The final \textbf{Overall Pass Rate} column reports the full-pass rate over all evaluated tasks in the three difficulty levels.
+``--''~cost data not available.
+Superscript~$\pm$ values denote score standard deviations estimated from three independent runs of the same task instance; due to compute budget constraints, only a subset of configurations include repeated runs.
+$^\dagger$Model uses an additional visual sub-agent for visual perception.
+The lower panel reports \textbf{ALE-CLI}, the Linux-only subset, comparing CLI agents alongside GCUA references~($^*$).}
+\label{tab:main-results}
+\centering
+{\renewcommand\baselinestretch{1.25}\selectfont
+\setlength{\dashlinedash}{0.7pt}%
+\setlength{\dashlinegap}{1.2pt}%
+\setlength{\arrayrulewidth}{0.2pt}%
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{\hskip 4pt}l@{\hskip 6pt}ccccc@{\hskip 7pt}:ccccc@{\hskip 7pt}:ccccc@{\hskip 6pt}:c@{\hskip 4pt}}
+\toprule
+& \multicolumn{5}{c}{{\large\textsf{\textbf{Near-Term}}} (59 tasks)}
+& \multicolumn{5}{c}{{\large\textsf{\textbf{Full-Spectrum}}} (55 tasks)}
+& \multicolumn{5}{c}{\textcolor{lastexamred}{{\large\textsf{\textbf{Last-Exam}}}} (35 tasks)}
+& \textbf{Overall} \\
+& Pass (\%) & Score & \faIcon[regular]{money-bill-alt} & \faIcon[regular]{clock} & Tok.
+& Pass (\%) & Score & \faIcon[regular]{money-bill-alt} & \faIcon[regular]{clock} & Tok.
+& Pass (\%) & Score & \faIcon[regular]{money-bill-alt} & \faIcon[regular]{clock} & Tok.
+& \textbf{Pass Rate}
+\\
+\midrule
+\rowcolor{agentrow}
+\multicolumn{17}{l}{\textbf{Mainstream Agent Harnesses (paired LLM + GUI-as-Tool)}} \\
+Codex~\citep{openai2025codex} (GPT-5.5~\citep{openai2026gpt55}) & \hscb{42.4} & \hsc{70.7} & \$200 & 30h & 208M & \hsc{20.0} & \hsc{36.1} & \$163 & 23h & 156M & \hscb{8.6} & \hsc{13.8} & \$197 & 29h & 217M & \hscb{26.2} \\
+ALE-Claw (GPT-5.5~\citep{openai2026gpt55}) & \hsc{35.6} & \hscb{74.0} & \$127 & 17h & 148M & \hscb{21.8} & \hscb{40.9} & \$68 & 14h & 53M & \hscb{8.6} & \hscb{15.2} & \$112 & 19h & 130M & \hsc{24.2} \\
+Cursor~\citep{cursor2025cli} (GPT-5.5~\citep{openai2026gpt55}) & \hsc{36.4} & \hsc{68.1}$^{\pm1}$ & \$61 & 37h & 49M & \hsc{20.0} & \hsc{34.4} & \$52 & 26h & 39M & \hsc{2.9} & \hsc{8.7} & \$64 & 21h & 69M & \hsc{22.5} \\
+Cursor~\citep{cursor2025cli} (Opus 4.7~\citep{anthropic2026opus47}) & \hsc{32.2} & \hsc{66.7} & \$113 & 34h & 95M & \hsc{20.0} & \hsc{39.1} & \$184 & 18h & 202M & \hsc{5.7} & \hsc{10.6} & \$155 & 22h & 149M & \hsc{21.5} \\
+Droid~\citep{docker2026droid} (GPT-5.5~\citep{openai2026gpt55}) & \hsc{30.5} & \hsc{61.5} & \$92 & 27h & 86M & \hsc{16.4} & \hsc{35.0} & \$69 & 21h & 59M & \hscb{8.6} & \hsc{14.3} & \$83 & 42h & 102M & \hsc{20.1} \\
+ALE-Claw (Opus 4.7~\citep{anthropic2026opus47}) & \hsc{30.5} & \hsc{65.8} & \$260 & 21h & 294M & \hsc{18.2} & \hsc{38.1} & \$251 & 20h & 293M & \hsc{2.9} & \hsc{7.9} & \$630 & 49h & 763M & \hsc{19.5} \\
+Claude Code~\citep{anthropic2025claudecode} (Sonnet 4.6~\citep{anthropic2026sonnet46}) & \hsc{31.4} & \hsc{59.7}$^{\pm1}$ & \$104 & 72h & 248M & \hsc{12.7} & \hsc{27.1}$^{\pm1}$ & \$110 & 38h & 240M & \hsc{0.0} & \hsc{6.9} & \$164 & 72h & 334M & \hsc{17.1} \\
+Claude Code~\citep{anthropic2025claudecode} (Opus 4.7~\citep{anthropic2026opus47}) & \hsc{23.7} & \hsc{61.7} & \$108 & 17h & 114M & \hsc{12.7} & \hsc{30.6} & \$169 & 15h & 198M & \hsc{0.0} & \hsc{2.1} & \$133 & 19h & 142M & \hsc{14.1} \\
+Droid~\citep{docker2026droid} (Opus 4.7~\citep{anthropic2026opus47}) & \hsc{29.7} & \hsc{66.7}$^{\pm1}$ & \$143 & 18h & 144M & \hsc{3.6} & \hsc{12.4} & \$39 & 5h & 39M & \hsc{2.9} & \hsc{7.7} & \$135 & 15h & 177M & \hsc{13.8} \\
+ALE-Claw (GPT-5.4~\citep{openai2026gpt54}) & \hsc{23.7} & \hsc{50.3} & \$55 & 19h & 148M & \hsc{9.1} & \hsc{23.7} & \$159 & 21h & 496M & \hsc{0.0} & \hsc{4.5} & \$131 & 27h & 428M & \hsc{12.8} \\
+Codex~\citep{openai2025codex} (GPT-5.4~\citep{openai2026gpt54}) & \hsc{15.3} & \hsc{25.9} & \$37 & 19h & 54M & \hsc{3.6} & \hsc{7.7} & \$43 & 15h & 70M & \hsc{0.0} & \hsc{0.0} & \$58 & 16h & 91M & \hsc{7.4} \\
+Grok CLI~\citep{xai2026models} (Grok 4.3~\citep{xai2026models}) & \hsc{10.2} & \hsc{34.5}$^{\pm1}$ & \$105 & 24h & 86M & \hsc{7.3} & \hsc{17.4} & \$91 & 21h & 73M & \hsc{0.0} & \hsc{2.0} & \$91 & 20h & 77M & \hsc{6.7} \\
+\midrule
+\rowcolor{modelrow}
+\multicolumn{17}{l}{\textbf{LLM Model Comparison (fixed OpenClaw~\citep{openclaw2026agent} + GUI-as-Tool)}} \\
+GPT-5.5~\citep{openai2026gpt55} & \hscb{39.0} & \hscb{71.0} & \$185 & 38h & 189M & \hsc{18.2} & \hsc{33.8} & \$116 & 28h & 117M & \hsc{2.9} & \hscb{10.7} & \$150 & 29h & 170M & \hscb{22.8} \\
+GPT-5.4~\citep{openai2026gpt54} & \hsc{34.7} & \hsc{62.2}$^{\pm1}$ & \$61 & 50h & 86M & \hscb{19.4} & \hscb{34.8}$^{\pm1}$ & \$131 & 64h & 285M & \hscb{5.7} & \hsc{8.2} & \$92 & 50h & 184M & \hsc{22.3} \\
+Claude Opus 4.7~\citep{anthropic2026opus47} & \hsc{28.8} & \hsc{62.5} & \$173 & 46h & 172M & \hsc{10.9} & \hsc{29.0} & \$164 & 27h & 144M & \hsc{2.9} & \hsc{4.0} & \$513 & 72h & 522M & \hsc{16.1} \\
+Gemini 3.1 Pro~\citep{google2026gemini31pro} & \hsc{29.7} & \hsc{54.9}$^{\pm1}$ & \$178 & 51h & 555M & \hsc{10.9} & \hsc{23.9} & \$573 & 69h & 2053M & \hsc{0.0} & \hsc{0.4} & \$336 & 56h & 1025M & \hsc{15.8} \\
+Claude Opus 4.6~\citep{anthropic2026opus46} & \hsc{23.7} & \hsc{55.1}$^{\pm1}$ & \$191 & 49h & 187M & \hsc{13.6} & \hsc{30.0}$^{\pm1}$ & \$118 & 59h & 95M & \hsc{2.9} & \hsc{6.0} & \$191 & 64h & 164M & \hsc{15.1} \\
+DeepSeek V4 Pro\rlap{$^\dagger$}~\citep{deepseek2026v4pro} & \hsc{20.9} & \hsc{48.1}$^{\pm3}$ & \$117 & 93h & 294M & \hsc{10.9} & \hsc{24.3}$^{\pm2}$ & \$73 & 61h & 201M & \hsc{2.9} & \hsc{3.9} & \$134 & 83h & 418M & \hsc{13.0} \\
+GLM 5.1\rlap{$^\dagger$}~\citep{zai2026glm51} & \hsc{21.2} & \hsc{48.9}$^{\pm2}$ & \$91 & 108h & 259M & \hsc{9.1} & \hsc{23.0}$^{\pm1}$ & \$243 & 110h & 590M & \hsc{2.9} & \hsc{6.5}$^{\pm1}$ & \$172 & 106h & 562M & \hsc{12.4} \\
+Claude Sonnet 4.6~\citep{anthropic2026sonnet46} & \hsc{16.9} & \hsc{44.4} & \$107 & 25h & 134M & \hsc{7.3} & \hsc{20.5} & \$70 & 19h & 106M & \hsc{2.9} & \hsc{2.9} & \$56 & 21h & 93M & \hsc{10.1} \\
+Kimi K2.6~\citep{moonshot2026kimi26} & \hsc{16.9} & \hsc{39.0}$^{\pm2}$ & \$38 & 100h & 175M & \hsc{6.4} & \hsc{18.6}$^{\pm1}$ & \$39 & 111h & 133M & \hsc{1.4} & \hsc{1.5}$^{\pm1}$ & \$44 & 85h & 156M & \hsc{9.4} \\
+Qwen3.6 Plus~\citep{alibaba2026qwen36plus} & \hsc{14.4} & \hsc{40.7}$^{\pm2}$ & \$76 & 97h & 369M & \hsc{8.2} & \hsc{23.8}$^{\pm1}$ & \$99 & 82h & 420M & \hsc{0.0} & \hsc{1.5}$^{\pm1}$ & \$110 & 81h & 444M & \hsc{8.7} \\
+MIMO v2.5~\citep{mimov25} & \hsc{12.7} & \hsc{39.0}$^{\pm2}$ & \$11 & 70h & 157M & \hsc{9.1} & \hsc{21.1}$^{\pm1}$ & \$23 & 61h & 326M & \hsc{1.4} & \hsc{4.2}$^{\pm1}$ & \$15 & 65h & 257M & \hsc{8.7} \\
+MiniMax M2.7\rlap{$^\dagger$}~\citep{minimax2026m27} & \hsc{11.9} & \hsc{26.9}$^{\pm1}$ & \$8 & 76h & 113M & \hsc{3.6} & \hsc{8.6}$^{\pm1}$ & \$10 & 64h & 148M & \hsc{0.0} & \hsc{2.7} & \$10 & 54h & 115M & \hsc{6.0} \\
+Grok 4.3~\citep{xai2026models} & \hsc{7.6} & \hsc{27.8}$^{\pm1}$ & \$31 & 60h & 121M & \hsc{3.6} & \hsc{12.9}$^{\pm2}$ & \$29 & 51h & 98M & \hsc{0.0} & \hsc{2.0}$^{\pm1}$ & \$29 & 67h & 100M & \hsc{4.4} \\
+\midrule
+\rowcolor{harnessrow}
+\multicolumn{17}{l}{\textbf{Agent Harness Comparison (fixed GPT-5.5~\citep{openai2026gpt55} + GUI-as-Tool)}} \\
+Codex~\citep{openai2025codex} & \hscb{42.4} & \hsc{70.7} & \$200 & 30h & 208M & \hsc{20.0} & \hsc{36.1} & \$163 & 23h & 156M & \hscb{8.6} & \hsc{13.8} & \$197 & 29h & 217M & \hscb{26.2} \\
+ALE-Claw & \hsc{35.6} & \hscb{74.0} & \$127 & 17h & 148M & \hscb{21.8} & \hscb{40.9} & \$68 & 14h & 53M & \hscb{8.6} & \hscb{15.2} & \$112 & 19h & 130M & \hsc{24.2} \\
+OpenClaw~\citep{openclaw2026agent} & \hsc{39.0} & \hsc{71.0} & \$185 & 38h & 189M & \hsc{18.2} & \hsc{33.8} & \$116 & 28h & 117M & \hsc{2.9} & \hsc{10.7} & \$150 & 29h & 170M & \hsc{22.8} \\
+Cursor~\citep{cursor2025cli} & \hsc{36.4} & \hsc{68.1}$^{\pm1}$ & \$61 & 37h & 49M & \hsc{20.0} & \hsc{34.4} & \$52 & 26h & 39M & \hsc{2.9} & \hsc{8.7} & \$64 & 21h & 69M & \hsc{22.5} \\
+Droid~\citep{docker2026droid} & \hsc{30.5} & \hsc{61.5} & \$92 & 27h & 86M & \hsc{16.4} & \hsc{35.0} & \$69 & 21h & 59M & \hscb{8.6} & \hsc{14.3} & \$83 & 42h & 102M & \hsc{20.1} \\
+\midrule
+\rowcolor{harnessrow}
+\multicolumn{17}{l}{\textbf{Agent Harness Comparison (fixed Claude Opus 4.7~\citep{anthropic2026opus47} + GUI-as-Tool)}} \\
+Cursor~\citep{cursor2025cli} & \hscb{32.2} & \hscb{66.7} & \$113 & 34h & 95M & \hscb{20.0} & \hscb{39.1} & \$184 & 18h & 202M & \hscb{5.7} & \hscb{10.6} & \$155 & 22h & 149M & \hscb{21.5} \\
+ALE-Claw & \hsc{30.5} & \hsc{65.8} & \$260 & 21h & 294M & \hsc{18.2} & \hsc{38.1} & \$251 & 20h & 293M & \hsc{2.9} & \hsc{7.9} & \$630 & 49h & 763M & \hsc{19.5} \\
+Claude Code~\citep{anthropic2025claudecode} & \hsc{23.7} & \hsc{61.7} & \$108 & 17h & 114M & \hsc{12.7} & \hsc{30.6} & \$169 & 15h & 198M & \hsc{0.0} & \hsc{2.1} & \$133 & 19h & 142M & \hsc{14.1} \\
+\bottomrule
+\end{tabular}}\par
+\vspace{.35em}
+\noindent{\footnotesize ALE-CLI (Linux-only subset, 106 tasks).}\par
+\vspace{.12em}
+\setlength{\dashlinedash}{0.7pt}%
+\setlength{\dashlinegap}{1.2pt}%
+\setlength{\arrayrulewidth}{0.2pt}%
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{\hskip 4pt}l@{\hskip 6pt}ccccc@{\hskip 7pt}:ccccc@{\hskip 7pt}:ccccc@{\hskip 6pt}:c@{\hskip 4pt}}
+\toprule
+& \multicolumn{5}{c}{{\large\textsf{\textbf{Near-Term}}} (42 tasks)}
+& \multicolumn{5}{c}{{\large\textsf{\textbf{Full-Spectrum}}} (42 tasks)}
+& \multicolumn{5}{c}{\textcolor{lastexamred}{{\large\textsf{\textbf{Last-Exam}}}} (22 tasks)}
+& \textbf{Overall} \\
+& Pass (\%) & Score & \faIcon[regular]{money-bill-alt} & \faIcon[regular]{clock} & Tok.
+& Pass (\%) & Score & \faIcon[regular]{money-bill-alt} & \faIcon[regular]{clock} & Tok.
+& Pass (\%) & Score & \faIcon[regular]{money-bill-alt} & \faIcon[regular]{clock} & Tok.
+& \textbf{Pass Rate}
+\\
+\midrule
+\rowcolor{termrow}
+\multicolumn{17}{l}{\textbf{ALE-CLI: CLI Agents + GUI-as-Tool}} \\
+Codex~\citep{openai2025codex} (GPT-5.5~\citep{openai2026gpt55})\rlap{$^*$} & \hscb{42.9} & \hscb{74.6} & \$132 & 13h & 148M & \hscb{21.4} & \hscb{34.4} & \$107 & 12h & 99M & \hscb{4.5} & \hscb{11.2} & \$106 & 12h & 131M & \hscb{26.4} \\
+Claude Code~\citep{anthropic2025claudecode} (Sonnet 4.6~\citep{anthropic2026sonnet46})\rlap{$^*$} & \hsc{27.4} & \hsc{60.6}$^{\pm2}$ & \$36 & 19h & 77M & \hsc{14.3} & \hsc{28.3}$^{\pm1}$ & \$54 & 26h & 112M & \hsc{0.0} & \hsc{6.6} & \$55 & 36h & 110M & \hsc{16.5} \\
+ForgeCode~\citep{tailcall2024forgecode} (Sonnet 4.6~\citep{anthropic2026sonnet46}) & \hsc{23.0} & \hsc{52.2}$^{\pm3}$ & \$36 & 34h & 144M & \hsc{8.7} & \hsc{17.6}$^{\pm2}$ & \$39 & 32h & 112M & \hsc{3.0} & \hsc{5.6}$^{\pm2}$ & \$24 & 52h & 88M & \hsc{13.2} \\
+Hermes~\citep{nous2026hermes} (Sonnet 4.6~\citep{anthropic2026sonnet46}) & \hsc{21.8} & \hsc{56.2}$^{\pm3}$ & \$195 & 28h & 197M & \hsc{8.7} & \hsc{22.5}$^{\pm1}$ & \$132 & 23h & 121M & \hscb{4.5} & \hsc{5.7}$^{\pm2}$ & \$114 & 24h & 192M & \hsc{13.1} \\
+Terminus~\citep{merrill2026terminalbench} (Sonnet 4.6~\citep{anthropic2026sonnet46}) & \hsc{20.2} & \hsc{54.7}$^{\pm2}$ & \$71 & 36h & 197M & \hsc{8.3} & \hsc{22.7} & \$55 & 32h & 513M & \hsc{2.3} & \hsc{3.0}$^{\pm2}$ & \$134 & 55h & 608M & \hsc{11.8} \\
+OpenHands~\citep{wang2025openhands} (Sonnet 4.6~\citep{anthropic2026sonnet46}) & \hsc{15.5} & \hsc{35.7}$^{\pm5}$ & \$74 & 29h & 194M & \hsc{7.1} & \hsc{13.6}$^{\pm3}$ & \$21 & 26h & 191M & \hsc{0.0} & \hsc{2.3}$^{\pm2}$ & \$74 & 50h & 275M & \hsc{9.0} \\
+\bottomrule
+\end{tabular}}\par}
+\end{table}

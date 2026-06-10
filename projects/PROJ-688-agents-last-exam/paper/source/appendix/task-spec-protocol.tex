@@ -1,0 +1,13 @@
+\subsection{Task Specification Protocol}
+\label{app:task-spec-protocol}
+
+Every task specification implements three lifecycle phases that together ensure deterministic, reproducible evaluation.
+
+\noindent \textbf{Phase 1: \texttt{load()} (Initialization).}
+The \texttt{load()} function is purely declarative: it returns a structured task object containing the natural-language description visible to the agent, metadata (filesystem paths, configuration parameters, task-specific constants), and compute requirements (operating system type, hardware specifications). No remote connection is established and no environment state is modified. This phase defines \emph{what} the task is.
+
+\noindent \textbf{Phase 2: \texttt{start()} (Environment Preparation).}
+The \texttt{start()} function transforms the virtual machine into the task's deterministic starting state. Operating through a \emph{session API} that provides programmatic access to the remote desktop, including file-system operations (create, copy, delete), application management (launch, install), keyboard and mouse control, and screen capture, etc.
+
+\noindent \textbf{Phase 3: \texttt{evaluate()} (Scoring).}
+After the agent terminates, the \texttt{evaluate()} function retrieves the agent's output artifacts from the remote environment and scores them against the reference assets or rubric criteria defined in the specification. The function returns a normalized score in $[0, 1]$. The concrete evaluation methodology (deliverable-based extraction versus milestone-based reporting, rubric comparison versus reference matching, and the anti-gaming provenance gates that guard against shortcut solutions) is summarized in Section~\ref{sec:evaluation-modes} and detailed in Appendix~\ref{app:evaluation-modes}.

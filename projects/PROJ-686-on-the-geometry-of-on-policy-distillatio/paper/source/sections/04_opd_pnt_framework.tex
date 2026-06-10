@@ -1,0 +1,293 @@
+
+\input{tables/sparsity}
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/fig1_spectral_geometry.pdf}
+    % \caption{
+    % \textbf{Parameter-space diagnostics.}
+    % SFT induces larger subspace rotation and spectral drift, RLVR preserves the pretrained geometry most strongly, and OPD lies between the two.
+    % \textcolor{magenta}{Yi: note that the x-axis label for the two left subfigure is "k" which may not have been defined here - training iter or layer idx?}
+    % }
+    \caption{
+    \textbf{Parameter-space diagnostics.}
+    SFT induces larger subspace rotation and spectral drift, RLVR preserves the
+    pretrained geometry most strongly, and OPD lies between them.
+   Here, $k$ denotes the rank index of
+principal angles or singular values; the all-layer panels enumerate analyzed
+weight matrices across layers and module types.
+    }
+    \label{fig:angle_rotation}
+\end{figure*}
+
+
+\section{Locating OPD in Parameter Space}\label{sec:locate}
+
+
+
+% We begin by locating OPD's optimization regime in parameter space 
+% relative to SFT and RLVR. Moving beyond empirical observation, we 
+% then provide a mechanistic account by extending existing theoretical 
+% frameworks. Our analysis reveals that, despite its distinct training 
+% formulation, OPD partially inherits RLVR's off-principal update 
+% geometry while being relaxed toward the SFT regime by its dense 
+% per-token supervision --- a positioning that remains consistent 
+% across runs and largely invariant to datasets and OPD variants.
+
+
+% \textbf{Model Suite.}
+% We analyze a combination of publicly released and in-house trained 
+% checkpoints, summarized in Table~\ref{tab:models}. The suite spans 
+% multiple teacher--student capacity gaps (2$\times$ to 8$\times$), 
+% diverse data domains (mathematical reasoning and code generation), 
+% and several model families including both dense and 
+% Mixture-of-Experts architectures. We anchor our analysis on 
+% Qwen3-8B, which uniquely permits controlled three-way comparison: 
+% the same base model serves as the starting point for SFT 
+% (Qwen3-8B-Base $\to$ Qwen3-8B-SFT), the student for OPD 
+% (Qwen3-8B-SFT $\to$ Qwen3-32B teacher), and the policy for RLVR 
+% (Qwen3-8B-SFT $\to$ GRPO), thereby isolating the effect of 
+% training paradigm from architectural confounds.
+
+
+We first ask whether on-policy distillation (OPD) should be understood as an SFT-like distillation
+method, an RLVR-like online optimizer, or a distinct parameter-space
+regime. To answer this, we locate OPD within the SFT--RLVR spectrum using
+diagnostics over update support, subspace rotation, spectral drift, and
+update localization. This section first defines these diagnostics, then
+uses them to compare OPD with SFT and RLVR under a controlled setting, and
+finally interprets the observed positioning through a relaxed Three-Gate
+view.
+
+\textbf{Experimental setup.}
+We analyze Qwen3-family checkpoints \cite{yang2025qwen3technicalreport} spanning teacher--student gaps, data domains, 
+and dense/MoE teachers. Our main comparison centers on Qwen3-8B: OPD and RLVR share the same SFT anchor and math-domain prompt distribution, while SFT is measured as the preceding supervised adaptation stage from the pretrained base. Full
+experimental details are provided in Appendix~\ref{app:experimental-details}.
+
+
+
+
+\subsection{Parameter-Space Diagnostics}
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/principal.pdf}
+    \caption{
+    \textbf{Update-mask localization.}
+    We compare where bf16-visible updates land relative to principal and low-magnitude masks.
+    OPD shifts updates away from principal weights and toward low-magnitude regions, while remaining less selective than RLVR.
+    }
+    \label{fig:parameter_diagnostics}
+    \vspace{-1em}
+\end{figure*}
+
+Following recent work on post-training weight geometry~\cite{zhu2025pnt},
+we use four diagnostics to measure where updates occur, how far they rotate pretrained subspaces, how much they distort the spectrum, and whether they land on principal or low-magnitude weights. Let $W_0$ denote the initialization, $W_+$ the post-training weight matrix, and $\Delta W = W_+ - W_0$.
+
+\paragraph{Update sparsity.}
+Under \textbf{bfloat16} precision, small updates can be absorbed by rounding. 
+We treat scalar weights $w_i,\hat{w}_i\in\mathbb{R}$ as unchanged if
+\[
+|\hat{w}_i-w_i| \leq \eta \max(|w_i|,|\hat{w}_i|),
+\quad \eta=10^{-3}.
+\]
+The bf16-aware update sparsity is
+\begin{equation}
+  \mathrm{sp}(W_0,W_+)
+  =
+  1-\frac{1}{n}
+  \sum_{i,j}
+  \mathbf{1}\!\left[
+    W_{+,ij}\not\approx_{\eta}W_{0,ij}
+  \right],
+\end{equation}
+where $n$ is the number of entries. Larger values indicate fewer visible 
+weight changes.
+
+\paragraph{Principal-angle rotation.}
+We measure rotation of the dominant singular subspaces by the principal angles 
+between the top-$k$ subspaces of $W_0$ and $W_+$:
+\vspace{-0.3em}
+\begin{equation}
+\begin{split}
+  \cos\theta_i(U) &= \sigma_i\!\bigl(U_{0,k}^\top U_{+,k}\bigr), \\
+  \cos\theta_i(V) &= \sigma_i\!\bigl(V_{0,k}^\top V_{+,k}\bigr),
+\end{split}
+\end{equation}
+where $U_{\cdot,k}$ and $V_{\cdot,k}$ denote the top-$k$ left and right 
+singular vectors. Smaller angles indicate stronger preservation of the 
+pretrained dominant subspaces.
+
+\paragraph{Spectral drift.}
+We quantify distortion of the singular-value spectrum using the normalized 
+spectral shift:
+\begin{equation}
+ \mathrm{NSS}(W_0,W_+) = \frac{\|\sigma(W_+) - \sigma(W_0)\|_2}
+                         {\|\sigma(W_0)\|_2},
+\end{equation}
+where $\sigma(\cdot)$ denotes singular values in descending order. Smaller NSS 
+indicates stronger spectral preservation.
+
+\paragraph{Update--mask overlap.}
+To localize visible updates, we compare the update mask
+\[
+M = \{(i,j): \text{bf16}(W_+)_{ij} \neq \text{bf16}(W_0)_{ij}\}
+\]
+with two masks derived from $W_0$. The principal mask $M_{\mathrm{princ}}$ 
+contains the top-$\alpha$ fraction of entries in the rank-$k$ SVD 
+reconstruction of $W_0$, serving as a proxy for high-curvature regions 
+\cite{liu2026liftveiltruthprincipal}. The low-magnitude mask $M_{\mathrm{low}}$ contains 
+the bottom-$\alpha$ fraction of entries by $|W_0|$. For $M_\star \in \{M_{\mathrm{princ}}, M_{\mathrm{low}}\}$, we report
+\vspace{-0.3em}
+\[
+\mathrm{Overlap}(M_\star,M) = \frac{|M_\star \cap M|}{|M|},
+\]
+with random baseline $\alpha$. Sub-random overlap with $M_{\mathrm{princ}}$ 
+indicates depletion from principal weights, while super-random overlap with 
+$M_{\mathrm{low}}$ indicates concentration in low-magnitude regions.
+
+
+
+
+
+
+% We apply the diagnostics above to locate OPD relative to SFT and RLVR.
+% Across update sparsity, principal-angle rotation, spectral drift, and
+% update-mask overlap, OPD consistently falls between dense SFT updates and
+% highly selective RLVR updates.
+
+\subsection{OPD Occupies a Relaxed Off-Principal Regime}
+
+Taken together, these diagnostics place OPD in an intermediate but
+RLVR-biased region of the parameter-space spectrum. OPD is more selective
+and geometry-preserving than SFT, yet less constrained than RLVR. We call
+this regime \emph{relaxed off-principal}.
+
+\paragraph{Update sparsity.}
+In the controlled Qwen3-8B comparison, SFT leaves only $8.1\%$ of weights
+unchanged at bf16 precision, while RLVR leaves $77.2\%$ unchanged.
+OPD lies between them at $51.6\%$. This pattern is stable across OPD
+variants: teacher scale, student scale, code data, and a MoE teacher keep
+OPD within $48.6\%$--$57.1\%$ sparsity. Published reference checkpoints
+exhibit the same SFT--RLVR separation (Table~\ref{tab:update_sparsity}).
+
+\paragraph{Subspace rotation and spectral drift.}
+SFT induces the largest rotation of the pretrained singular subspaces:
+in the representative layer, its principal angles rise above $10^\circ$.
+OPD shows smaller but nonzero rotation, with representative-layer angles
+around $1^\circ$, while RLVR exhibits the smallest rotations below
+$0.5^\circ$. Spectral drift follows the same ordering: SFT is at the
+$10^{-3}$ level, OPD at the $10^{-4}$ level, and RLVR at the $10^{-5}$
+level (Figure~\ref{fig:angle_rotation}).
+
+\paragraph{Update localization.}
+Conditioned on bf16-visible updates, global update density decreases from
+SFT to OPD to RLVR: $92.73\%$, $46.28\%$, and $27.76\%$. Principal-mask
+overlap also decreases monotonically, placing OPD and RLVR below the
+$30\%$ random baseline. Low-magnitude overlap shows a stronger separation:
+$31.88\%$ for SFT, $53.59\%$ for OPD, and $73.48\%$ for RLVR
+(Figure~\ref{fig:parameter_diagnostics}).
+
+Across all three diagnostics, OPD follows the same off-principal direction as RLVR, but with weaker selectivity and larger visible support.
+
+% \paragraph{Takeaway.}
+% OPD consistently occupies an intermediate but RLVR-biased region of the
+% parameter-space spectrum: sparse relative to SFT, less selective than RLVR,
+% and strongly shifted toward low-magnitude updates. We call this regime
+% \emph{relaxed off-principal}.
+
+
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/intrinsic_metrics_3panel.pdf}
+    \vspace{-2em}
+    \caption{
+    \textbf{Intrinsic update geometry.}
+    We track cumulative updates $\Delta W_t$.
+    OPD stays in a narrow stable-rank band, whereas SFT expands and
+    RLVR contracts. Frobenius norms rule out a small-update explanation:
+    OPD moves more than RLVR while ending with comparable stable rank.
+    Hill estimates provide an auxiliary spectral-shape check.
+    }
+    \label{fig:intrinsic-metrics}
+    \vspace{-1em}
+\end{figure*}
+
+
+\subsection{A Relaxed Three-Gate Account of OPD}
+
+We next explain why the empirical regime above is both off-principal and
+relaxed by extending the Three-Gate account of RLVR optimization~\cite{zhu2025pnt}. In this view,
+RLVR updates become off-principal through three filters: (1) a distributional anchor that limits update size, (2) pretrained model geometry that routes bounded updates away from dominant spectral directions, and (3) finite-precision realization that determines which coordinates become visibly changed. We argue that OPD preserves this gated structure, but relaxes it through dense token-level teacher supervision. Full objective forms and derivation details are provided in Appendix~\ref{app:three_gate_extension}.
+
+\paragraph{Signal granularity.}
+The key difference is the granularity of the training signal. Let
+\[
+\phi_t=\nabla_\theta \log p_\theta(y_t\mid x,y_{<t})
+\]
+denote the token score. A broad class of post-training updates can be written as
+\vspace{-1em}
+\begin{equation}
+g = \sum_{t=1}^{T} a_t \phi_t .
+\label{eq:unified_gradient}
+\end{equation}
+The paradigms differ in the coefficients $a_t$. In RLVR, the reward signal is sequence-level, so $a_t=A(y)$ is shared across tokens. In OPD, $a_t$ varies across tokens according to local teacher--student disagreement. Thus, OPD retains the on-policy form of RLVR, but replaces a scalar credit signal with dense token-level supervision.
+
+\paragraph{Gate I: distributional anchor.}
+OPD remains anchored. Under a local quadratic budget, the update norm is
+bounded as
+
+\begin{equation}
+\|\Delta W\|_F
+\leq
+\sqrt{\frac{2\delta_W}{\mu_W}} .
+\label{eq:opd_gate1_bound}
+\end{equation}
+
+The difference is how this budget is used. RLVR spends it through a
+sequence-level reward signal, whereas OPD uses teacher-token distributions to provide denser descent directions within the anchored region. This yields larger effective updates than RLVR while remaining far below SFT-style unconstrained rewriting.
+
+\paragraph{Gate II: model geometry.}
+A bounded update is still shaped by pretrained model geometry. OPD therefore does not freely rewrite the dominant spectral structure as SFT does. The relaxation appears in the update covariance:
+
+\begin{equation}
+\mathbb{E}[gg^\top]
+=
+\sum_{t,t'}
+\mathbb{E}\!\left[
+a_t a_{t'} \phi_t \phi_{t'}^\top
+\right].
+\label{eq:opd_gradient_cov}
+\end{equation}
+RLVR couples all token scores through a shared scalar coefficient, whereas OPD uses heterogeneous token coefficients. This broadens the accessible directional support while keeping the update geometry-steered, matching the observed pattern that OPD preserves spectral structure more than SFT but less strictly than RLVR.
+
+\paragraph{Gate III: precision realization.}
+The bf16 realization gate is unchanged. A coordinate becomes visibly updated only when
+
+\begin{equation}
+M_{ij}
+=
+\mathbf{1}\!\left[
+|\Delta W_{ij}|
+\gtrsim
+\tfrac{1}{2}\mathrm{ULP}_{\mathrm{bf16}}(W_{0,ij})
+\right].
+\label{eq:bf16_realization_gate}
+\end{equation}
+Larger geometry-constrained updates allow more OPD coordinates to pass the bf16 realization threshold, lowering sparsity while preserving the
+off-principal bias.
+
+
+\begin{takeawaybox}
+\textbf{Implication.}
+OPD occupies a relaxed off-principal regime: geometry-steered like RLVR,
+but less selective under dense teacher supervision. This suggests that OPD recipes should regulate update geometry, rather than treating token-level supervision density as the primary design axis.
+\end{takeawaybox}
+% \paragraph{Implication.}
+% OPD preserves the gated structure of RLVR, including anchoring, geometry steering, and
+% precision filtering, but relaxes each gate through dense token-level teacher
+% supervision. This yields an off-principal but less selective regime, matching
+% the intermediate geometry observed above.
+

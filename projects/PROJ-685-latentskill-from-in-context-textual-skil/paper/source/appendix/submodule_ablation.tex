@@ -1,0 +1,74 @@
+\section{Sub-module Ablation}
+\label{app:submodule}
+
+To localize where skill knowledge resides within the model architecture, we analyze the discriminability of each of the 7 LoRA injection positions in Qwen3-8B (attn\_q/k/v/o and mlp\_gate/up/down) by computing the gap between within-domain and cross-domain cosine similarity for each position. We then design ablation experiments on the ALFWorld seen and unseen splits to compare six injection configurations: \textbf{full} (all 36 layers, all 7 positions), \textbf{full:o+d} (all 36 layers, attn\_o and mlp\_down only), \textbf{last6} (layers 30--35, all 7 positions), \textbf{last6:o+d} (layers 30--35, attn\_o and mlp\_down only), \textbf{first30} (layers 0--29, all 7 positions), and \textbf{first30:o+d} (layers 0--29, attn\_o and mlp\_down only). All configurations use $\alpha{=}1$.
+
+As shown in Figure~\ref{fig:submodule_disc}, attn\_o and mlp\_down exhibit substantially higher discriminability gaps than the remaining five positions (pretrain: 0.056/0.105; SFT: 0.050/0.094), while attn\_q/k/v show gaps close to zero. This indicates that the parametric differences between skills are concentrated in the information output and integration stages rather than the feature selection stages. After SFT, the gaps at all positions narrow slightly, consistent with the domain-level distance contraction observed in the clustering analysis (\S4.3).
+
+The position ablation in Table~\ref{tab:submodule} validates this finding from a performance perspective. The full:o+d configuration uses only 2 out of 7 injection positions yet retains 93.3\% of the full configuration's performance on the seen split (59.3 vs.\ 63.6). On the unseen split, full:o+d surpasses full by 2.2 percentage points (63.4 vs.\ 61.2), suggesting that the remaining 5 positions contribute primarily noise that hinders generalization. These two analyses jointly demonstrate that targeted injection into attn\_o and mlp\_down serves both as a functional validation of the similarity-based finding and as a more favorable deployment strategy that achieves comparable or improved performance with 2/7 of the injection parameters.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{submodule_discriminability.png}
+  \caption{
+    Per-module discriminability (within-domain minus cross-domain cosine similarity gap) for the 7 LoRA injection positions in Qwen3-8B, measured before (Pretrain) and after (SFT) instruction fine-tuning. \texttt{attn\_o} and \texttt{mlp\_down} exhibit substantially higher gaps, identifying them as the primary carriers of skill-specific knowledge.
+  }
+  \label{fig:submodule_disc}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{
+  ALFWorld performance (\%) under six LoRA injection configurations with $\alpha{=}1$. The best result per task within each split is highlighted in \textbf{bold}. Rows shaded in blue use \texttt{attn\_o} and \texttt{mlp\_down} only.
+}
+\label{tab:submodule}
+\begin{tabular}{l ccccccc}
+\toprule
+\textbf{Config}
+  & \textbf{Pick} & \textbf{Look} & \textbf{Clean}
+  & \textbf{Heat} & \textbf{Cool} & \textbf{Pick2}
+  & \textbf{Avg} \\
+\midrule
+\multicolumn{8}{l}{\emph{Seen split}} \\[2pt]
+full
+  & \best{97.1} & 61.5 & \best{66.7} & 37.5 & 44.0 & 50.0 & \best{63.6} \\
+\rowcolor{ourblue}
+full:o+d
+  & 85.7 & 61.5 & 51.9 & \best{43.8} & \best{48.0} & 50.0 & 59.3 \\
+\midrule
+last6
+  & 88.6 & 30.8 & \best{37.0} & 25.0 & \best{36.0} & \best{33.3} & 47.1 \\
+\rowcolor{ourblue}
+last6:o+d
+  & \best{91.4} & \best{53.9} & 33.3 & \best{37.5} & 24.0 & 29.2 & \best{47.9} \\
+\midrule
+first30
+  & \best{91.4} & 69.2 & \best{55.6} & 37.5 & 44.0 & \best{54.2} & \best{61.4} \\
+\rowcolor{ourblue}
+first30:o+d
+  & 82.9 & \best{76.9} & 44.4 & 37.5 & \best{56.0} & 50.0 & 59.3 \\
+\midrule
+\multicolumn{8}{l}{\emph{Unseen split}} \\[2pt]
+full
+  & \best{75.0} & \best{72.2} & \best{71.0} & 43.5 & 38.1 & \best{64.7} & 61.2 \\
+\rowcolor{ourblue}
+full:o+d
+  & 70.8 & 55.6 & 64.5 & \best{56.5} & \best{81.0} & 47.1 & \best{63.4} \\
+\midrule
+last6
+  & 58.3 & \best{55.6} & 41.9 & 47.8 & \best{71.4} & \best{23.5} & \best{50.0} \\
+\rowcolor{ourblue}
+last6:o+d
+  & \best{62.5} & 50.0 & \best{45.2} & 47.8 & 57.1 & 17.7 & 47.8 \\
+\midrule
+first30
+  & 75.0 & \best{66.7} & \best{71.0} & 60.9 & 33.3 & \best{64.7} & \best{62.7} \\
+\rowcolor{ourblue}
+first30:o+d
+  & \best{83.3} & 61.1 & 58.1 & \best{65.2} & \best{71.4} & 17.7 & 61.2 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,40 @@
+\section{Introduction}
+\begin{figure}[t!]
+    \vspace{-10pt}
+    \centering
+    \includegraphics[width=\columnwidth]{motivation_1.png}
+    \caption{The key advantages of \method{} over in-context skill: (1) zero skill tokens in prompt with plug-and-play modularity, and (2) a structured, controllable, and composable skill weight space.}
+    \label{fig:motivation}
+\end{figure}
+LLM agents increasingly solve complex tasks by interleaving reasoning, action, and feedback from external environments \citep{Yao2023ReAct, Shinn2023Reflexion, Zhao2024ExpeL}.
+To handle specialized and long-horizon tasks, many systems further rely on external skills: reusable textual procedures that encode task strategies, tool-use patterns, and recovery heuristics \citep{Wang2023Voyager, Xia2026SkillRL, Wu2025EvolveR, SkillOS2026, pan2026skill, wang2026skill}.
+A common design retrieves relevant skills from a skill library and inserts them into the prompt when the agent selects an action \citep{Cho2026SkillRet, zhang2026mmskill}.
+This design is simple and modular, but it becomes costly as interactions grow longer and skill libraries grow larger.
+The same skill text may be inserted repeatedly across decision steps, consuming context and increasing prefill cost; long inputs also make it harder for models to use all supplied information robustly \citep{Jiang2023LLMLingua, Jiang2024LongLLMLingua, Liu2024LostMiddle}.
+Moreover, skills kept as readable prompt content can expose proprietary procedures and share the instruction channel with potentially untrusted observations \citep{Greshake2023IndirectInjection, Liu2023PromptInjection, Wallace2024InstructionHierarchy, Schmotz2026SkillSecurity, guo2026skill}.
+Parametric alternatives, such as agent fine-tuning or curriculum learning, avoid inserting skill text at inference time, but they fuse skills into the model parameters \citep{Chen2023FireAct, Zeng2024AgentTuning, Lu2026Skill0}.
+As a result, individual skills become difficult to update, remove, or combine.
+Existing approaches therefore face a trilemma: how to avoid repeated skill text in the prompt, while still allowing skills to be updated modularly and combined during inference.
+
+We introduce \textbf{\method{}}, a framework that converts textual agent skills into LoRA adapters through hypernetwork-based adapter generation \citep{Ha2017Hypernetwork, Hu2022LoRA, Liu2026SHINE}.
+Instead of delivering skills through the context window, \method{} represents them in weight space.
+Given a skill description, a trained hypernetwork generates a skill-specific LoRA adapter in a single forward pass, which is then mounted on the backbone LLM during inference.
+The original skill text is no longer included in the prompt, reducing both context cost and exposure as readable text.
+Meanwhile, the generated adapters remain modular: they can be loaded, unloaded, replaced, or scaled without retraining the backbone, aligning with prior work on non-destructive adapter composition and dynamic LoRA combination \citep{Pfeiffer2021AdapterFusion, Huang2024LoraHub}.
+They can also be combined when the original skills are decomposed into semantically aligned components.
+
+Beyond efficiency, we show that representing skills as LoRA weights gives them useful structure.
+Across ALFWorld \citep{Shridhar2021ALFWorld} and Search-QA \citep{Jin2025SearchR1}, \method{} improves over the direct in-context skill baseline while using the same skill descriptions and substantially reducing the prompt overhead caused by skill text.
+We further find that generated skill LoRAs are \textbf{structured}, with skills from different domains forming separable clusters in weight space; \textbf{controllable}, since their effect can be adjusted through the LoRA scaling coefficient $\alpha$; and \textbf{composable}, when skill descriptions are decomposed into aligned components before their LoRAs are combined.
+Together, these results suggest that latent skill weights are not just compressed prompts, but a representation of procedural knowledge that can be inspected, adjusted, and reused.
+
+Our contributions are threefold. 
+\textbf{(1)} We propose \method{}, a framework that converts textual agent skills into modular LoRA adapters through a hypernetwork. 
+\textbf{(2)} We show that \method{} improves over direct in-context skill prompting on ALFWorld and Search-QA while reducing the context overhead introduced by skill text. 
+\textbf{(3)} We analyze the generated skill weights and show that they exhibit domain-level structure, can be controlled through LoRA scaling, and can be composed when skills are decomposed at the right granularity.
+% Our contributions are threefold:
+% \begin{itemize}
+%     \item We propose \method{}, a framework that converts textual agent skills into modular LoRA adapters through a hypernetwork.
+%     \item We show that \method{} improves over direct in-context skill prompting on ALFWorld and Search-QA while reducing the context overhead introduced by skill text.
+%     \item We analyze the generated skill weights and show that they exhibit domain-level structure, can be controlled through LoRA scaling, and can be composed when skills are decomposed at the right granularity.
+% \end{itemize}
