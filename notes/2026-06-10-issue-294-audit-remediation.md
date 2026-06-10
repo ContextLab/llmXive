@@ -44,13 +44,14 @@ admit. The local backend's `temperature or 0.7` falsy-zero bug was fixed
 in the same pass (temperature 0/None → greedy decoding), and it now uses
 the tokenizer chat template for instruct checkpoints.
 
-## Real-call validation (this container cannot reach chat.dartmouth.edu)
+## Real-call validation
 
-Network policy blocks `chat.dartmouth.edu`; OEIS / Wikipedia / Wikidata /
-arXiv / Crossref / HF Hub are reachable. Per Constitution III the
-validation used the *real* local transformers backend (an officially
-supported fallback) through the identical router code path, plus the
-real external claim sources:
+Initially `chat.dartmouth.edu` appeared unreachable (transient); it later
+resolved, and the maintainer supplied the Dartmouth key mid-session, so
+validation ran in two waves — first through the *real* local transformers
+backend (an officially supported fallback) through the identical router
+code path plus the real external claim sources, then repeated on the
+production Dartmouth backend:
 
 - **Judge determinism (probe + permanent test)**: `judge_one()` ×3 on the
   verbatim PROJ-261 question via `Qwen/Qwen2.5-0.5B-Instruct` (local
@@ -70,6 +71,34 @@ real external claim sources:
   gate exists to catch. (First attempt timed out at the python-worker
   300 s limit purely due to CPU contention with a concurrently running
   25-min pytest suite.)
+
+### Dartmouth-backed wave (after the key arrived)
+
+- **Preflight passes completely** — the audit's Phase 0 exit threshold.
+- **#112 on the production model**: `test_relevance_judge_real.py` →
+  2 passed in 66 s on `qwen.qwen3.5-122b` via Dartmouth (identical
+  verdicts ×3 + frozen-cache replay).
+- **promptfoo gate, CI configuration**: `--repeat 3` on Dartmouth qwen →
+  **6/6 passed** (schema-valid review records every repeat; the
+  deliberately-flawed idea never accepted; verdicts stable).
+- **Full offline suite**: 2323 passed, 16 skipped, 0 failed.
+- **Per-PR real-call gate** (`-m "not slow"`): green after making one
+  fixture hermetic (`test_speckit_scripts_headless` sandbox repos now
+  disable `commit.gpgsign`, which managed dev containers set globally).
+- **Claim-fill battery caveat (own error, documented for honesty)**: the
+  first Dartmouth battery run exported `LLMXIVE_CLAIM_FILL=1` globally,
+  which legitimately changes `resolve.py` semantics (spec 017 opt-in
+  auto-correction) and false-failed spec-016 assertions — e.g. the
+  fabricated knot count 27,635 came back VERIFIED **with the corrected
+  value 9,988 from the real OEIS A002863 fetch**, which is spec-017
+  working as designed, not a fabrication endorsement. Re-run without the
+  flag (nightly-CI semantics): those tests pass.
+- **Two genuinely stale tests modernized**: the
+  `test_fill_wikidata_real` "stays blocked in v1, no channels tried"
+  pair pinned the spec-017 deferral that spec 018 **FR-010 explicitly
+  removed**; rewritten to assert the permanent FR-011 safety property
+  (block, or fill with real source provenance — never model memory) and
+  re-validated live (2 passed, 376 s).
 
 ## Regression caught and fixed during this work (honest record)
 
