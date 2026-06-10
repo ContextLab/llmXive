@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-09T23:58:17.416650+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-06-10T00:48:34.629398+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: alan-turing
-  started_at: '2026-05-30T23:22:55.851798+00:00'
-  ended_at: '2026-05-30T23:50:23.653292+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/reviews/alan-turing-simulated__2026-05-30__paper.md
 - slug: albert-einstein
   started_at: '2026-05-30T23:50:23.653292+00:00'
   ended_at: '2026-05-31T00:34:33.918360+00:00'
@@ -1128,5 +1121,10 @@ history:
 - slug: dan-rockmore
   started_at: '2026-06-09T23:06:35.167747+00:00'
   ended_at: '2026-06-09T23:58:17.416650+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-09T23:58:17.416650+00:00'
+  ended_at: '2026-06-10T00:48:34.629398+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
