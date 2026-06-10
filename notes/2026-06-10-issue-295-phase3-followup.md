@@ -60,3 +60,23 @@ Commits: `3a54a28a` (credits), `79c9af21` (MCP + pilot + observability).
   — persist-before-abort + reasoning-volume levers if it still stalls).
 - Future policy decisions (each needs its own justification): flipping
   specific agents (e.g. deep paper review) to `paid_opt_in: true`.
+
+## FINAL STATUS (end of session, 2026-06-10 ~22:45 UTC)
+
+- **PR #302 MERGED** (`0b949813`); issue #295 auto-closed. Lint
+  follow-up `0ab4fad8` (ruff autofix that missed the credits commit).
+- **4th as-you-go bug, found LIVE from the first 552 dispatch:**
+  all-transient model-chain exhaustion (qwen deadline-hang +
+  gpt-oss/gemma 302→outage) raised plain BackendError → stage panel
+  WRONGLY escalated PROJ-552 to human_input_needed. Fixed in
+  `4daafe58` (exhaustion with any transient-class failure →
+  BackendUnavailable → clean abort, state preserved; 6 regression
+  tests). State remediated in `6b3e60f1` (552 reset to `clarified`,
+  stale marker removed — bug-#8-style remediation).
+- **PROJ-552 re-dispatched on fixed main: run 27311831772**
+  (plan stage, ~3h expected). ON RESUME: `git pull`, check
+  `state/projects/PROJ-552-*.yaml` current_stage — expect `planned`
+  (advance), an honest `convergence_kickback.yaml` (content concerns:
+  OEIS ~249 power-analysis + Knot-Atlas-vs-arXiv data source), or a
+  clean transient abort still at `clarified` (retry). NEVER
+  human_input_needed for an outage now.
