@@ -116,6 +116,21 @@ class TestStripClaimArtifacts:
         assert "There are 9988 prime knots." in out
         assert "The census is reputable." in out
 
+    def test_preserves_aligned_whitespace_when_nothing_removed(self):
+        # A clean doc (no markers/pointers) must round-trip byte-for-byte — the
+        # whitespace collapse exists only to tidy a removal, so running it on a
+        # directory tree / ASCII table mangled the alignment (spec 020 real-test).
+        tree = (
+            "```text\n"
+            "specs/020/\n"
+            "├── plan.md              # This file\n"
+            "│   ├── requirements.txt\n"
+            "└── tasks.md             # Phase 2 output\n"
+            "```\n"
+        )
+        assert strip_claim_artifacts(tree) == tree
+        assert strip_claim_artifacts(tree, preserve_pointers=True) == tree
+
     def test_removes_stray_pointer(self):
         text = "The count is {{claim:c_3369e68a}} per the source."
         out = strip_claim_artifacts(text)
