@@ -1,14 +1,7 @@
 last_used: daniel-kahneman
-last_used_at: '2026-06-10T01:45:36.787909+00:00'
+last_used_at: '2026-06-10T03:07:17.469117+00:00'
 last_outcome: librarian_held
 history:
-- slug: dan-rockmore
-  started_at: '2026-05-31T00:34:33.918360+00:00'
-  ended_at: '2026-05-31T01:43:54.988190+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/dan-rockmore-simulated__2026-05-31__research.md
 - slug: daniel-kahneman
   started_at: '2026-05-31T01:43:54.988190+00:00'
   ended_at: '2026-05-31T03:06:44.284878+00:00'
@@ -1128,3 +1121,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/reviews/_held/david-krakauer-simulated__2026-06-10__paper.md
+- slug: david-krakauer
+  started_at: '2026-06-10T01:45:36.787909+00:00'
+  ended_at: '2026-06-10T03:07:17.469117+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/reviews/research/_held/david-krakauer-simulated__2026-06-10__research.md
