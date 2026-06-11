@@ -742,3 +742,47 @@
   verification_status: verified
   verified_against_url: https://oeis.org/A002863
   verified_at: '2026-06-11T23:01:05.636605Z'
+- artifact_hash: 1f695f214260ecc3e48532b771d1241fec14c404d8d3b44b99ac6c12ed4f97a6
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-11T23:23:58.293165Z'
+- artifact_hash: 1f695f214260ecc3e48532b771d1241fec14c404d8d3b44b99ac6c12ed4f97a6
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[math/0303273] Estimates for the minimal crossing number'
+  kind: url
+  value: https://arxiv.org/abs/math/0303273
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/math/0303273
+  verified_at: '2026-06-11T23:23:58.293165Z'
+- artifact_hash: 1f695f214260ecc3e48532b771d1241fec14c404d8d3b44b99ac6c12ed4f97a6
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 2-bridge knot - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/2-bridge_knot
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/2-bridge_knot
+  verified_at: '2026-06-11T23:23:58.293165Z'
+- artifact_hash: 1f695f214260ecc3e48532b771d1241fec14c404d8d3b44b99ac6c12ed4f97a6
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: A002863 - OEIS
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: verified
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-06-11T23:23:58.293165Z'
