@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T22:27:25.750881Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-462-evaluating-the-impact-of-code-generation
-last_run_id: 9202c0e3-c023-4a8e-864f-81e3a3df712c
+last_run_id: 8570eb5a-cd91-466b-bc3d-2c69e68e9e03
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Impact of Code Generation on Developer Cognitive Load
-updated_at: '2026-05-08T22:29:19.971704Z'
+updated_at: '2026-06-11T13:17:45.167503Z'
