@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-11T03:11:51.301475Z'
+current_stage: paper_review
+failed_stage: null
+field: test
+human_escalation_reason: null
+id: PROJ-997-spec023-signoff-reject-test
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: specs/auto-revisions/PROJ-997-spec023-signoff-reject-test/round-1
+speckit_paper_dir: projects/PROJ-997-spec023-signoff-reject-test/paper/specs/001-p
+speckit_research_dir: projects/PROJ-997-spec023-signoff-reject-test/specs/001-t
+title: Spec 023 Sign-off Rejection Routing Test
+updated_at: '2026-06-11T03:12:06.717652Z'

@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-633-mobilegym-a-verifiable-and-highly-parall/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile
   GUI Agent Research'
-updated_at: '2026-05-28T09:16:53.330884Z'
+updated_at: '2026-06-11T03:08:56.768132Z'

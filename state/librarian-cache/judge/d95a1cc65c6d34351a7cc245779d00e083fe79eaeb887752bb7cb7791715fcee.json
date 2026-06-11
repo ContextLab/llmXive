@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.3748/wjg.v31.i10.102725",
+  "judged_at": "2026-06-11T02:54:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "rationale": "This paper is off-domain entirely, focusing on AI ethics and diagnostic challenges in gastroenterology rather than human cognitive processes like visual salience or attentional bias in moral decision-making. The shared terms \"bias\" and \"decision-making\" refer to distinct constructs (algorithmic fairness vs. cognitive psychology), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

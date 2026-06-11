@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-651-grepseek-training-search-agents-for-dire/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'GrepSeek: Training Search Agents for Direct Corpus Interaction'
-updated_at: '2026-06-02T09:29:16.036068Z'
+updated_at: '2026-06-11T03:09:31.952890Z'

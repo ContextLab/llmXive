@@ -138,7 +138,17 @@ class PaperClarifierAgent(SlashCommandAgent):
                 f"paper_clarifier emitted verdict=escalate after {new_n} attempt(s); "
                 f"unresolved markers={len(markers) - len(patches_by_index)}"
             )
-            write_human_input_needed(memory_dir, reason)
+            # Spec 023 / FR-017: bounded — only escalate AT the cap; below
+            # it, fail the attempt and retry on a later tick.
+            if new_n < TASKER_MAX_REVISION_ROUNDS:
+                raise RuntimeError(
+                    f"{reason} (attempt {new_n}/{TASKER_MAX_REVISION_ROUNDS}; "
+                    "retrying before any human escalation)"
+                )
+            write_human_input_needed(
+                memory_dir, reason, stage="paper_clarify",
+                rounds_used=new_n, bound=TASKER_MAX_REVISION_ROUNDS,
+            )
             raise RuntimeError(reason)
         if markers and len(patches_by_index) < len(markers):
             new_n = bump_attempts(memory_dir)
@@ -152,7 +162,10 @@ class PaperClarifierAgent(SlashCommandAgent):
                     f"{TASKER_MAX_REVISION_ROUNDS}); {len(missing)} markers still "
                     f"unresolved: {missing!r}"
                 )
-                write_human_input_needed(memory_dir, reason)
+                write_human_input_needed(
+                    memory_dir, reason, stage="paper_clarify",
+                    rounds_used=new_n, bound=TASKER_MAX_REVISION_ROUNDS,
+                )
                 raise RuntimeError(reason)
             raise RuntimeError(
                 f"Paper clarifier left {len(missing)} of {len(markers)} markers "

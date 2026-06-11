@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.3389/fnins.2017.00468",
+  "judged_at": "2026-06-11T02:51:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "rationale": "This paper provides foundational evidence for the core mechanism (visual attention influencing choice bias) central to the user's question, satisfying criterion (a) for same-mechanism evidence and (d) for foundational methodology, even though the specific decision domain (perceptual vs. moral) differs.",
+  "relevant": true
+}

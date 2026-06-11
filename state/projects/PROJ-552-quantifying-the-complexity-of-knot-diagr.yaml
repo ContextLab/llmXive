@@ -1,42 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: mathematics
-human_escalation_reason: 'plan panel engine failure: BackendError: every model in
-  chain [''qwen.qwen3.5-122b'', ''openai.gpt-oss-120b'', ''google.gemma-4-31B-it'']
-  failed on backend ''dartmouth''; errors: qwen.qwen3.5-122b(model-down attempt 1):
-  Dartmouth model ''qwen.qwen3.5-122b'' hung past 360s deadline (no response received)
-  | openai.gpt-oss-120b(model-down attempt 1): !DOCTYPE HTML PUBLIC "-//IETF//DTD
-  HTML 2.0//EN">
-
-  <html><head>
-
-  <title>302 Moved Temporarily</title>
-
-  </head><body>
-
-  <h1>Moved </h1>
-
-  <p>The document has moved <a href="http://outage.dartmouth.edu">here</a>.</p>
-
-  </body></html> | google.gemma-4-31B-it(model-down attempt 1): !DOCTYPE HTML PUBLIC
-  "-//IETF//DTD HTML 2.0//EN">
-
-  <html><head>
-
-  <title>302 Moved Temporarily</title>
-
-  </head><body>
-
-  <h1>Moved </h1>
-
-  <p>The document has moved <a href="http://outage.dartmouth.edu">here</a>.</p>
-
-  </body></html>'
+human_escalation_reason: null
 id: PROJ-552-quantifying-the-complexity-of-knot-diagr
-last_run_id: a4277d98-9101-4504-929d-041c3ac9a40d
+last_run_id: e8e4df2b-feb9-4a7f-a0d6-ca01edf88828
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -45,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr
 title: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
-updated_at: '2026-06-10T21:37:17.366322Z'
+updated_at: '2026-06-11T11:50:52.219749Z'

@@ -15,6 +15,7 @@ CLI:
 from __future__ import annotations
 
 import json
+import logging
 import re
 import shutil
 import traceback
@@ -32,6 +33,9 @@ FIGURE_WIDTH_TOLERANCE_PX = 4
 # Canonical figure widths as fractions of textwidth (per FR-015 / spec 010 FR-017).
 # Resolved to pixel widths at render time given the rendered page's actual textwidth.
 CANONICAL_WIDTH_FRACTIONS = (0.45, 1.0, 1.0)  # narrow, column, full (column == linewidth)
+
+
+logger = logging.getLogger(__name__)
 
 
 def _now_iso() -> str:
@@ -280,6 +284,33 @@ def audit_pdf(pdf_path: Path, out_dir: Path) -> dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{paper_id}.json"
     out_path.write_text(json.dumps(report, indent=2))
+
+    # Spec 023 / FR-023: every audit outcome updates the per-paper status
+    # record, and defects feed the bounded automatic repair loop (the US1
+    # revision machinery). Best-effort but loud — a status failure never
+    # breaks the audit sweep.
+    if paper_id.startswith("PROJ-"):
+        try:
+            from llmxive.state.paper_status import (
+                ensure_repair_round,
+                record_audit_result,
+            )
+
+            defects = [
+                {**f, "page": page["page"]}
+                for page in report["pages"]
+                for f in page["failures"]
+            ]
+            passed = report["summary"]["total_failures"] == 0
+            record_audit_result(
+                paper_id, {"passed": passed, "defects": defects}
+            )
+            if not passed:
+                ensure_repair_round(paper_id)
+        except Exception as exc:
+            logger.warning(
+                "paper-status/repair update failed for %s: %s", paper_id, exc
+            )
     return report
 
 

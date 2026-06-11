@@ -22,7 +22,13 @@ from typing import Any
 from uuid import uuid4
 
 from llmxive.agents import registry as registry_loader
-from llmxive.agents.advancement import evaluate as advancement_evaluate
+from llmxive.agents.advancement import (
+    REVIEW_STAGES,
+    verdict_coverage,
+)
+from llmxive.agents.advancement import (
+    evaluate as advancement_evaluate,
+)
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.idea_lifecycle import (
     BrainstormAgent,
@@ -30,6 +36,7 @@ from llmxive.agents.idea_lifecycle import (
     IdeaSelectorAgent,
     ResearchQuestionValidatorAgent,
 )
+from llmxive.agents.implementer import LLMXiveImplementer
 from llmxive.agents.lifecycle import is_valid_transition
 from llmxive.agents.paper_initializer import PaperInitializerAgent
 from llmxive.agents.paper_reviewer import PaperReviewerAgent
@@ -42,7 +49,9 @@ from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
     CONVERGENCE_KICKBACK_CAP,
+    IDEA_RETRY_CAP,
     KickbackDecision,
+    bump_count,
     consume_convergence_kickback,
     reset_kickback_count,
 )
@@ -175,6 +184,11 @@ STAGE_AFTER_AGENT: dict[Stage, Stage] = {
 }
 
 
+#: Registry name of the convergence revision implementer (spec 013 / 023):
+#: dispatched for a review-stage project whose saved state carries an
+#: unconsumed ``revision_spec_path`` (FR-002).
+_REVISION_IMPLEMENTER_NAME = "llmxive_implementer"
+
 _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "brainstorm": BrainstormAgent,
     "flesh_out": FleshOutAgent,
@@ -185,6 +199,7 @@ _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "paper_initializer": PaperInitializerAgent,
     "paper_reviewer": PaperReviewerAgent,
     "paper_publisher": PaperPublisher,
+    _REVISION_IMPLEMENTER_NAME: LLMXiveImplementer,
 }
 
 _SPECKIT_AGENTS: dict[str, type[SlashCommandAgent]] = {
@@ -364,31 +379,81 @@ def run_one_step(
         return project
 
     if agent_name is None:
-        # Stages handled elsewhere (paper-review stages, terminal states):
-        # ask the Advancement-Evaluator to evaluate review records.
-        return advancement_evaluate(project, repo_root=repo)
+        # Stages handled elsewhere (terminal states, unmapped stages):
+        # ask the Advancement-Evaluator to evaluate review records — and
+        # PERSIST its full result (spec 023 / FR-001: an evaluated-but-
+        # unsaved decision is a discarded decision).
+        evaluated = advancement_evaluate(project, repo_root=repo)
+        project_store.save(evaluated, repo_root=repo)
+        return evaluated
 
     entry = registry_loader.get(agent_name, repo_root=repo)
     project_dir = repo / "projects" / project.id
     project_dir.mkdir(parents=True, exist_ok=True)
 
+    ran_revision_implementer = False
     if agent_name in _NON_SPECKIT_AGENTS:
-        # Special-case for review stages: dispatch to all specialist
-        # reviewers (each on a focused prompt) plus the generic
-        # reviewer. The Advancement-Evaluator gates on every
-        # specialist accepting (FR-028); failing to dispatch them
-        # means projects can never satisfy the gate.
+        # Review stages (spec 023 / US1): three mutually-exclusive moves.
+        #
+        #   1. An unconsumed revision work-spec exists → dispatch the
+        #      revision implementer, NOT reviewers (FR-002). The
+        #      implementer consumes the work-spec, clears
+        #      ``revision_spec_path``, and persists its own transition.
+        #   2. No work-spec, but some required specialist's verdict is
+        #      missing or stale (computed against an older artifact) →
+        #      dispatch ONLY those specialists (FR-004 + stale-verdict
+        #      edge case), recording why.
+        #   3. Complete + current verdict set → dispatch NOTHING; the
+        #      Advancement-Evaluator below decides from the existing
+        #      verdicts (FR-004: no redundant reviewer calls).
+        #
+        # The evaluator gates on every specialist accepting (FR-028);
+        # failing to dispatch missing specialists means projects can
+        # never satisfy the gate.
         agents_to_run: list[str] = []
-        if project.current_stage in {Stage.RESEARCH_COMPLETE, Stage.RESEARCH_REVIEW}:
-            agents_to_run = [
-                n for n in registry_loader.list_names(repo_root=repo)
-                if n == "research_reviewer" or n.startswith("research_reviewer_")
-            ]
-        elif project.current_stage in {Stage.PAPER_COMPLETE, Stage.PAPER_REVIEW}:
-            agents_to_run = [
-                n for n in registry_loader.list_names(repo_root=repo)
-                if n == "paper_reviewer" or n.startswith("paper_reviewer_")
-            ]
+        if project.current_stage in REVIEW_STAGES:
+            if project.revision_spec_path:
+                agents_to_run = [_REVISION_IMPLEMENTER_NAME]
+                ran_revision_implementer = True
+                logger.info(
+                    "%s carries unconsumed revision work-spec %s — "
+                    "dispatching the revision implementer instead of reviewers",
+                    project.id, project.revision_spec_path,
+                )
+            else:
+                coverage = verdict_coverage(project, repo_root=repo)
+                prefix = (
+                    "research_reviewer"
+                    if coverage.track == "research"
+                    else "paper_reviewer"
+                )
+                if coverage.complete_and_current:
+                    logger.info(
+                        "%s: complete current verdict set (%d specialists, "
+                        "live_hash=%s) — skipping reviewer dispatch, "
+                        "evaluating existing verdicts (FR-004)",
+                        project.id, len(coverage.required),
+                        (coverage.live_hash or "")[:12],
+                    )
+                else:
+                    needed = coverage.needs_dispatch
+                    if coverage.stale:
+                        logger.info(
+                            "%s: stale verdicts from %s (artifact changed "
+                            "since review; live_hash=%s) — re-dispatching "
+                            "only those specialists",
+                            project.id, sorted(coverage.stale),
+                            (coverage.live_hash or "")[:12],
+                        )
+                    agents_to_run = [
+                        n for n in registry_loader.list_names(repo_root=repo)
+                        if n in needed
+                        # The generic (un-suffixed) reviewer runs only on a
+                        # project's first-ever review round; it does not
+                        # gate advancement, so re-running it on every
+                        # stale/missing round is redundant load.
+                        or (n == prefix and not coverage.has_any_records)
+                    ]
         else:
             agents_to_run = [agent_name]
 
@@ -463,10 +528,19 @@ def run_one_step(
             # forever (current_stage never advances; the cap never increments).
             logger.info("stage-panel kickback for %s: %s", project.id, exc)
         except StagePanelEscalation as exc:
-            # Engine failure: the panel wrote human_input_needed.yaml. Fall
-            # through so _decide_next_stage routes to HUMAN_INPUT_NEEDED rather
-            # than crashing the entire run loop with an unhandled exception.
-            logger.warning("stage-panel escalation for %s: %s", project.id, exc)
+            # Engine failure (spec 023 / FR-016): the panel already filed a
+            # tracked GitHub issue with the evidence. The project STAYS at
+            # its current stage — schedulable, retried on later ticks, and
+            # recovering automatically once the underlying defect is fixed.
+            # (Pre-023 this fell through to a HUMAN_INPUT_NEEDED park.)
+            logger.warning(
+                "stage-panel engine failure for %s (issue filed; project "
+                "stays schedulable): %s", project.id, exc,
+            )
+            try:
+                return project_store.load(project.id, repo_root=repo)
+            except FileNotFoundError:
+                return project
     else:
         raise RuntimeError(f"no implementation registered for agent {agent_name!r}")
 
@@ -478,6 +552,38 @@ def run_one_step(
         project = project_store.load(project.id, repo_root=repo)
     except FileNotFoundError:
         pass
+
+    # Review stages (spec 023 / US1, FR-001): the Advancement-Evaluator's
+    # FULL result — stage, ``revision_spec_path``, kickback provenance —
+    # is persisted, not reduced to a stage name. The pre-023 shape
+    # (``return evaluated.current_stage`` inside ``_decide_next_stage``)
+    # discarded everything but the stage: 92 papers looped at review
+    # forever because their revise/accept decisions evaporated every tick
+    # (issue #303 root cause).
+    if entry_stage in REVIEW_STAGES:
+        if ran_revision_implementer:
+            # The implementer persisted its own transition (it clears
+            # ``revision_spec_path`` and routes back to the review stage,
+            # or applies its failsafe). Do NOT evaluate now: the stored
+            # verdicts are stale relative to the just-revised artifact —
+            # the next pass re-dispatches exactly the stale specialists.
+            return project
+        # Hold the per-project lock across evaluate+save: with a complete
+        # verdict set NO agent dispatch happens, so nothing else acquired
+        # it — two concurrent lanes could otherwise both evaluate and race
+        # on the round dir / saved state (spec 023 concurrent-lanes edge
+        # case). The loser sees LockError and retries on a later tick.
+        from llmxive.agents.runner import project_lock
+        with project_lock(project.id, run_id, repo_root=repo):
+            evaluated = advancement_evaluate(project, repo_root=repo)
+            evaluated = evaluated.model_copy(
+                update={
+                    "updated_at": datetime.now(UTC),
+                    "last_run_id": run_id,
+                }
+            )
+            project_store.save(evaluated, repo_root=repo)
+        return evaluated
 
     # Update project stage based on the agent that just ran.
     next_stage = _decide_next_stage(project, project_dir, repo_root=repo)
@@ -573,6 +679,121 @@ def _write_kickback_feedback(project_dir: Path, decision: KickbackDecision) -> N
     )
 
 
+def _archive_idea_files(project_dir: Path) -> list[tuple[str, str]]:
+    """Move the canonical idea .md bodies into ``idea/.archive/`` and return
+    ``(filename, text)`` pairs so the constrained re-brainstorm can show the
+    agent WHAT was rejected (FR-014)."""
+    idea_dir = project_dir / "idea"
+    archived: list[tuple[str, str]] = []
+    if not idea_dir.is_dir():
+        return archived
+    archive_dir = idea_dir / ".archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    for md in sorted(idea_dir.glob("*.md")):
+        # Don't archive diagnostic side-files; just the canonical idea body.
+        if md.name in {
+            "research_question_validation.md",
+            KICKBACK_FEEDBACK_FILENAME,
+        }:
+            continue
+        text = md.read_text(encoding="utf-8", errors="replace")
+        md.rename(archive_dir / f"{ts}-{md.name}")
+        archived.append((md.name, text))
+    return archived
+
+
+def _write_rebrainstorm_feedback(
+    project_dir: Path,
+    *,
+    reason: str,
+    archived: list[tuple[str, str]],
+    attempt: int,
+    cap: int,
+) -> None:
+    """Constrained re-brainstorm instruction for the next flesh-out pass
+    (FR-014) — written to the same ``idea/kickback_feedback.md`` injection
+    point the convergence kickbacks use (Constitution I)."""
+    idea_dir = project_dir / "idea"
+    idea_dir.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Idea rejected as infeasible — propose a CONSTRAINED replacement",
+        "",
+        f"Regeneration attempt {attempt} of {cap}. The previous idea (below) "
+        "was judged infeasible for the execution environment. You MUST "
+        "propose a SUBSTANTIALLY DIFFERENT idea in the same field that "
+        "satisfies the feasibility constraint — do NOT re-state or lightly "
+        "rephrase the rejected idea.",
+        "",
+        f"**Why it was rejected**: {reason}",
+        "",
+        "**Feasibility constraint**: the entire study must be executable by "
+        "automated agents inside GitHub-Actions-class compute — public "
+        "datasets or generated data only, no human subjects, no wet lab, no "
+        "GPU training runs, no paid services.",
+        "",
+        "## The rejected idea (for reference — do not reuse)",
+        "",
+    ]
+    for name, text in archived:
+        lines.append(f"### {name}")
+        lines.append("")
+        lines.append(text.strip())
+        lines.append("")
+    if not archived:
+        lines.append("(the rejected idea body was empty or already archived)")
+    (idea_dir / KICKBACK_FEEDBACK_FILENAME).write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
+def process_scope_rejection(project: Project, project_dir: Path) -> Stage | None:
+    """FR-014 infeasible-idea automation (spec 023): archive + constrained
+    re-brainstorm, bounded by ``IDEA_RETRY_CAP`` → honest terminal.
+
+    Returns the stage to route to, or None when no ``scope_rejected.yaml``
+    marker is present. Public because the same path re-processes projects
+    that the PRE-023 behavior parked at ``human_input_needed`` (FR-018) —
+    one implementation for both entries (Constitution I).
+    """
+    scope_marker = project_dir / ".specify" / "memory" / "scope_rejected.yaml"
+    if not scope_marker.exists():
+        return None
+    reason = scope_marker.read_text(encoding="utf-8", errors="replace").strip()
+    archived = _archive_idea_files(project_dir)
+    if not archived:
+        # Already archived (e.g. by the pre-023 park path): pull the most
+        # recent archive snapshot so the re-brainstorm still sees what was
+        # rejected.
+        archive_dir = project_dir / "idea" / ".archive"
+        if archive_dir.is_dir():
+            archived = [
+                (p.name, p.read_text(encoding="utf-8", errors="replace"))
+                for p in sorted(archive_dir.glob("*.md"))[-2:]
+            ]
+    scope_marker.unlink()  # consumed — a fresh rejection writes a new one
+    count = bump_count(project_dir / ".specify" / "memory", "idea_scope_reject")
+    if count > IDEA_RETRY_CAP:
+        logger.warning(
+            "%s: %d infeasible-scope rejections (cap=%d) — honest "
+            "terminal VALIDATOR_REJECTED (FR-014)",
+            project.id, count, IDEA_RETRY_CAP,
+        )
+        return Stage.VALIDATOR_REJECTED
+    _write_rebrainstorm_feedback(
+        project_dir,
+        reason=reason or "flesh-out judged the idea out of feasible scope",
+        archived=archived,
+        attempt=count,
+        cap=IDEA_RETRY_CAP,
+    )
+    logger.info(
+        "%s: infeasible scope — archived idea, constrained re-brainstorm "
+        "%d/%d (FR-014)", project.id, count, IDEA_RETRY_CAP,
+    )
+    return Stage.BRAINSTORMED
+
+
 def _decide_next_stage(
     project: Project, project_dir: Path, *, repo_root: Path | None = None
 ) -> Stage:
@@ -596,6 +817,34 @@ def _decide_next_stage(
                 f"Last reason: {decision.reason}"
             )
             _write_human_escalation_marker(mem_dir, reason, decision.stage_label)
+            # Spec 023 / FR-017: every surviving human escalation carries
+            # machine-checkable exhaustion evidence and feeds the digest.
+            from llmxive.state.escalations import EscalationRecord, write_record
+            try:
+                write_record(
+                    EscalationRecord(
+                        project_id=project.id,
+                        stage=decision.stage_label,
+                        loop="convergence-kickback",
+                        bound=CONVERGENCE_KICKBACK_CAP,
+                        rounds_used=decision.count,
+                        attempts=[
+                            {
+                                "round": str(decision.count),
+                                "summary": (decision.reason or "")[:500],
+                                "outcome": "panel did not converge",
+                            }
+                        ],
+                        recommended_action=(
+                            "Review the unresolved panel concerns and either "
+                            "revise the content manually or terminate the "
+                            "project honestly."
+                        ),
+                    ),
+                    repo_root=repo_root,
+                )
+            except Exception as rec_exc:  # never block the routing decision
+                logger.warning("escalation-record write failed: %s", rec_exc)
             return Stage.HUMAN_INPUT_NEEDED
         try:
             target_stage = Stage(decision.to_stage or "")
@@ -641,40 +890,29 @@ def _decide_next_stage(
     if _human_input_marker(project_dir):
         return Stage.HUMAN_INPUT_NEEDED
 
-    # Scope-rejection from flesh-out: the brainstorm agent does NOT
-    # currently re-propose a different idea for an existing project (it
-    # only seeds new projects), so rolling back to BRAINSTORMED creates
-    # an infinite loop where flesh-out keeps re-rejecting the same body.
-    # Instead, archive the rejected idea file and escalate the project to
-    # HUMAN_INPUT_NEEDED — a human (or a future brainstorm-replace agent)
-    # can then either propose a new idea body or terminate the project.
-    # The marker is kept (not deleted) so the human-input UI can see why.
-    scope_marker = project_dir / ".specify" / "memory" / "scope_rejected.yaml"
-    if scope_marker.exists():
-        # Archive the rejected idea so the human-input handler (or a
-        # follow-up brainstorm-replace pass) sees clearly which idea was
-        # rejected without it remaining in idea/<slug>.md.
-        idea_dir = project_dir / "idea"
-        if idea_dir.is_dir():
-            archive_dir = idea_dir / ".archive"
-            archive_dir.mkdir(parents=True, exist_ok=True)
-            ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-            for md in sorted(idea_dir.glob("*.md")):
-                # Don't archive diagnostic side-files; just the canonical
-                # idea body. We move only non-diagnostic .md files.
-                if md.name in {
-                    "research_question_validation.md",
-                }:
-                    continue
-                target = archive_dir / f"{ts}-{md.name}"
-                md.rename(target)
-        return Stage.HUMAN_INPUT_NEEDED
+    # Scope-rejection from flesh-out (spec 023 / FR-014): an idea judged
+    # infeasible for the execution environment is ARCHIVED and a
+    # CONSTRAINED re-brainstorm is triggered automatically — the archived
+    # idea + the infeasibility reason are written to
+    # ``idea/kickback_feedback.md`` (the existing FleshOutAgent injection
+    # point), and the project routes back to BRAINSTORMED where flesh_out
+    # regenerates under the constraint. The loop is bounded by
+    # ``IDEA_RETRY_CAP``; exhaustion takes the HONEST terminal
+    # (``VALIDATOR_REJECTED`` — never picked again, publicly a rejected
+    # idea), NEVER a human escalation. (Pre-023 this path parked the
+    # project at HUMAN_INPUT_NEEDED with an instruction the system itself
+    # could execute — the exact deal-breaker named in issue #303.)
+    scope_stage = process_scope_rejection(project, project_dir)
+    if scope_stage is not None:
+        return scope_stage
 
     # Research-question-validator routing (spec 003 / D10):
     #   validator_revise   → roll back to FLESH_OUT_IN_PROGRESS so flesh_out
     #                        re-runs (with the [REVISED] question hint, if any)
-    #   validator_rejected → roll back to BRAINSTORMED so brainstorm proposes
-    #                        a fresh idea
+    #   validator_rejected → roll back to BRAINSTORMED so flesh_out proposes
+    #                        a fresh idea — bounded by the same FR-014
+    #                        idea-retry cap (an unbounded reject→regenerate
+    #                        cycle is the same defect class as scope-reject).
     # Sentinels are consumed (deleted) so subsequent ticks don't repeat the
     # routing decision. The "validated" sentinel is left in place as a
     # historical artifact (it doesn't override the default stage transition).
@@ -689,6 +927,16 @@ def _decide_next_stage(
     )
     if validator_rejected.exists():
         validator_rejected.unlink()
+        count = bump_count(
+            project_dir / ".specify" / "memory", "idea_validator_reject"
+        )
+        if count > IDEA_RETRY_CAP:
+            logger.warning(
+                "%s: %d validator rejections (cap=%d) — honest terminal "
+                "VALIDATOR_REJECTED (FR-014)",
+                project.id, count, IDEA_RETRY_CAP,
+            )
+            return Stage.VALIDATOR_REJECTED
         return Stage.BRAINSTORMED
 
     cur = project.current_stage
@@ -713,19 +961,10 @@ def _decide_next_stage(
             return Stage.PAPER_COMPLETE
         return Stage.PAPER_IN_PROGRESS
 
-    # Research-reviewer leaves the project at research_review and lets
-    # the Advancement-Evaluator decide the next stage based on the
-    # accumulated review records. We treat RESEARCH_COMPLETE the same
-    # way once the specialists have run (the review records already
-    # exist on disk, so advancement_evaluate can decide).
-    if cur in {Stage.RESEARCH_COMPLETE, Stage.RESEARCH_REVIEW}:
-        evaluated = advancement_evaluate(project, repo_root=repo_root)
-        return evaluated.current_stage
-
-    # Paper-Reviewer (US5) — same pattern.
-    if cur in {Stage.PAPER_COMPLETE, Stage.PAPER_REVIEW}:
-        evaluated = advancement_evaluate(project, repo_root=repo_root)
-        return evaluated.current_stage
+    # Review stages never reach here: ``run_one_step`` evaluates AND
+    # persists the Advancement-Evaluator's full result before calling
+    # ``_decide_next_stage`` (spec 023 / FR-001 — the old stage-only
+    # return here was the issue-#303 discard bug).
 
     # Spec 015 T042 / FR-034: the 7 transient revision stages were
     # DELETED. Routing decisions for any non-convergence are now made

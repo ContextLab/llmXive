@@ -1,0 +1,36 @@
+project_id: PROJ-580-https-arxiv-org-abs-2605-15141
+round: 1
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 4, saw section 12500", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-580-https-arxiv-org-abs-2605-15141/paper/source/
+  location: page 23
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-580-https-arxiv-org-abs-2605-15141/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 1 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-11T03:07:21.333758+00:00'

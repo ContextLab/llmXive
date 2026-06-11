@@ -243,3 +243,47 @@ def test_delimited_path_with_crlf_line_endings():
     assert path in artifacts
     assert "body line" in artifacts[path]
     assert "BEGIN_ARTIFACT" not in artifacts[path]
+
+
+def test_run_pass_with_artifact_retry_corrects_zero_artifact_reply():
+    """Spec 023 defect #13 (observed live on PROJ-552's plan panel): under
+    a heavy concern load the model emits the change-log but ZERO artifact
+    blocks. One corrective re-pass with the explicit re-prompt recovers."""
+    from llmxive.convergence.revisers._reviser_response import (
+        MISSING_ARTIFACTS_REPROMPT,
+        run_pass_with_artifact_retry,
+    )
+
+    calls: list[str] = []
+
+    def run_pass(extra: str = ""):
+        calls.append(extra)
+        if len(calls) == 1:
+            raise RuntimeError(
+                "PlanReviser: response JSON has no usable "
+                "'updated_artifacts' map; got: 0 artifacts"
+            )
+        return {"a/plan.md": "fixed"}, []
+
+    arts, responses = run_pass_with_artifact_retry(run_pass, reviser_name="PlanReviser")
+    assert arts == {"a/plan.md": "fixed"}
+    assert calls == ["", MISSING_ARTIFACTS_REPROMPT]
+
+
+def test_run_pass_with_artifact_retry_propagates_other_errors():
+    from llmxive.backends.base import BackendUnavailable
+    from llmxive.convergence.revisers._reviser_response import (
+        run_pass_with_artifact_retry,
+    )
+
+    def outage(extra: str = ""):
+        raise BackendUnavailable("endpoint down")
+
+    with pytest.raises(BackendUnavailable):
+        run_pass_with_artifact_retry(outage, reviser_name="X")
+
+    def config_error(extra: str = ""):
+        raise RuntimeError("response tried to write artifacts outside the plan set")
+
+    with pytest.raises(RuntimeError, match="outside the plan set"):
+        run_pass_with_artifact_retry(config_error, reviser_name="X")

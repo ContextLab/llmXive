@@ -289,7 +289,20 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
 
     field_pool = [args.field] if args.field else list(LIBRARIAN_DEFAULT_FIELDS)
 
-    n_target = max(1, args.count)
+    # Spec 023 / FR-008: automated intake is throttled while the
+    # idea-stage backlog grows (drain < intake); resumes as it drains.
+    from llmxive.pipeline.intake_throttle import intake_allowance
+
+    decision = intake_allowance(max(1, args.count), repo_root=repo, kind="auto")
+    print(
+        f"[brainstorm] intake throttle: requested={decision.requested} "
+        f"allowed={decision.allowed} backlog={decision.backlog} "
+        f"growth={decision.growth} — {decision.reason}"
+    )
+    if decision.allowed <= 0:
+        print("[brainstorm] intake throttled to zero this tick; nothing seeded")
+        return 0
+    n_target = decision.allowed
     now = datetime.now(UTC)
 
     try:
@@ -417,12 +430,27 @@ def _cmd_hf_papers_submit_top(args: argparse.Namespace) -> int:
 
     Daily cron entry point (.github/workflows/hf-daily-papers.yml @ 23:59 UTC).
     """
+    from pathlib import Path
+
     from llmxive.hf_daily_papers import cli_main as _hf_cli
+    from llmxive.pipeline.intake_throttle import intake_allowance
+
+    # Spec 023 / FR-008: HF daily-papers intake is automated — throttle it
+    # with the same allowance as brainstorm seeding.
+    requested = args.limit if args.limit is not None else 5
+    decision = intake_allowance(requested, repo_root=Path.cwd(), kind="auto")
+    print(
+        f"[hf-papers] intake throttle: requested={decision.requested} "
+        f"allowed={decision.allowed} backlog={decision.backlog} "
+        f"growth={decision.growth} — {decision.reason}"
+    )
+    if decision.allowed <= 0:
+        print("[hf-papers] intake throttled to zero this tick; nothing submitted")
+        return 0
     argv = []
     if args.date is not None:
         argv += ["--date", args.date]
-    if args.limit is not None:
-        argv += ["--limit", str(args.limit)]
+    argv += ["--limit", str(decision.allowed)]
     if args.repo:
         argv += ["--repo", args.repo]
     if args.dry_run:
@@ -530,6 +558,21 @@ def _cmd_submissions_process(_args: argparse.Namespace) -> int:
     if not issues:
         print("[submissions] no open human-submission issues — nothing to do")
         return 0
+
+    # Spec 023 / FR-008: human submissions consult the same intake
+    # throttle, but kind="human" guarantees at least one per tick — the
+    # throttle damps AUTOMATED intake; people are never starved (the
+    # backlog of unprocessed issues simply drains more slowly).
+    from llmxive.pipeline.intake_throttle import intake_allowance
+
+    decision = intake_allowance(len(issues), repo_root=repo, kind="human")
+    if decision.throttled:
+        print(
+            f"[submissions] intake throttle: processing {decision.allowed} of "
+            f"{decision.requested} open submissions this tick "
+            f"(backlog={decision.backlog}, growth={decision.growth})"
+        )
+        issues = issues[: decision.allowed]
 
     n_ok = n_skipped = n_failed = 0
     for issue in issues:
@@ -734,6 +777,23 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
     project_store.save(project, repo_root=repo)
     print(f"[unblock-agent] {project_id}: agent_blocked → {target.value}")
     return 0
+
+
+def _cmd_project_signoff_poll(_args: argparse.Namespace) -> int:
+    """Scheduled-lane entry: drive the publication sign-off vote gate
+    (spec 023 / FR-019..021) over every project parked at
+    ``awaiting_publication_signoff``."""
+    from pathlib import Path
+
+    from llmxive.integrations.signoff_gate import poll_all
+
+    actions = poll_all(repo_root=Path.cwd())
+    if not actions:
+        print("[signoff] no projects awaiting publication sign-off")
+        return 0
+    for pid, action in sorted(actions.items()):
+        print(f"[signoff] {pid}: {action}")
+    return 0 if not any(a.startswith("error") for a in actions.values()) else 1
 
 
 def _cmd_project_publish_approve(args: argparse.Namespace) -> int:
@@ -989,6 +1049,14 @@ def build_parser() -> argparse.ArgumentParser:
              "a gh identity.",
     )
     p_signoff.set_defaults(func=_cmd_project_publish_approve)
+
+    p_signoff_poll = project_subs.add_parser(
+        "signoff-poll",
+        help="open/parse publication sign-off vote issues for every "
+             "gate-parked paper (spec 023 / FR-019..021; scheduled lane "
+             "entry point)",
+    )
+    p_signoff_poll.set_defaults(func=_cmd_project_signoff_poll)
 
     return parser
 

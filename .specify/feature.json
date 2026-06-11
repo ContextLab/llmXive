@@ -1,3 +1,1 @@
-{
-  "feature_directory": "specs/020-deterministic-claim-caching"
-}
+{"feature_directory": "specs/023-pipeline-e2e-completion"}

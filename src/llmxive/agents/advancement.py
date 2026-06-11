@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 from llmxive.agents import registry as registry_loader
@@ -195,6 +196,142 @@ def _infer_live_hash(records: list[ReviewRecord]) -> str | None:
         return None
     latest = max(records, key=lambda r: r.reviewed_at)
     return latest.artifact_hash
+
+
+#: Bounded revision discipline (spec 023 edge case "a revision round itself
+#: fails repeatedly"): once this many auto-revision rounds exist without the
+#: panel converging, the next non-accept evaluation takes the HONEST terminal
+#: route (paper → PAPER_FUNDAMENTAL_FLAWS, research → RESEARCH_FULL_REVISION)
+#: instead of writing round N+1 forever. Matches the spec-015 3-round
+#: per-step convergence convention.
+MAX_REVISION_ROUNDS = 3
+
+
+def _revision_rounds_exhausted(
+    project_id: str, *, repo_root: Path | None = None
+) -> bool:
+    from llmxive.convergence.revision_adapter import next_round_number
+
+    repo = repo_root or _repo_root()
+    return next_round_number(repo, project_id) > MAX_REVISION_ROUNDS
+
+
+#: Stages whose pipeline step is governed by verdict coverage + evaluation
+#: (spec 023 / US1). The graph consults this set; keep it here so the
+#: evaluator and the dispatcher cannot drift apart.
+REVIEW_STAGES: frozenset[Stage] = frozenset(
+    {
+        Stage.RESEARCH_COMPLETE,
+        Stage.RESEARCH_REVIEW,
+        Stage.PAPER_COMPLETE,
+        Stage.PAPER_REVIEW,
+    }
+)
+
+
+def review_track(stage: Stage) -> str:
+    """``"research"`` or ``"paper"`` for a review stage (KeyError otherwise)."""
+    return {
+        Stage.RESEARCH_COMPLETE: "research",
+        Stage.RESEARCH_REVIEW: "research",
+        Stage.PAPER_COMPLETE: "paper",
+        Stage.PAPER_REVIEW: "paper",
+    }[stage]
+
+
+def live_artifact_hash(
+    project_id: str, *, track: str, repo_root: Path | None = None
+) -> str | None:
+    """SHA-256 of the track's LIVE governing artifact, or None if absent.
+
+    Mirrors exactly what the reviewers stamp into ``ReviewRecord.artifact_hash``
+    (research: feature ``tasks.md``; paper: feature ``tasks.md``, falling back
+    to ``paper/metadata.json`` for arXiv-intake projects) via the shared
+    :func:`llmxive.state.project.feature_dir_for` resolution. This is the
+    TRUE artifact hash — unlike :func:`_infer_live_hash`, which can only see
+    what was most recently reviewed and therefore cannot detect that the
+    artifact changed after the last review (the stale-verdict edge case in
+    spec 023).
+    """
+    repo = repo_root or _repo_root()
+    project_dir = repo / "projects" / project_id
+    feature = project_store.feature_dir_for(project_dir, track=track)
+    if feature is not None:
+        tasks_path = feature / "tasks.md"
+        if tasks_path.exists():
+            return project_store.hash_file(tasks_path)
+    if track == "paper":
+        meta_path = project_dir / "paper" / "metadata.json"
+        if meta_path.is_file():
+            return project_store.hash_file(meta_path)
+    return None
+
+
+@dataclass(frozen=True)
+class VerdictCoverage:
+    """Which required specialists have a CURRENT verdict for a project.
+
+    ``missing`` — required specialists with no record at all;
+    ``stale`` — required specialists whose most-recent record was computed
+    against a different artifact version than ``live_hash``.
+    """
+
+    track: str
+    live_hash: str | None
+    required: frozenset[str]
+    current: frozenset[str]
+    stale: frozenset[str]
+    missing: frozenset[str]
+    has_any_records: bool
+
+    @property
+    def complete_and_current(self) -> bool:
+        """True iff evaluation can proceed with NO reviewer dispatch (FR-004)."""
+        return bool(self.required) and not self.stale and not self.missing
+
+    @property
+    def needs_dispatch(self) -> frozenset[str]:
+        return self.stale | self.missing
+
+
+def verdict_coverage(
+    project: Project, *, repo_root: Path | None = None
+) -> VerdictCoverage:
+    """Coverage of the project's required review panel (spec 023 / FR-004).
+
+    Compares each required specialist's most-recent record against the TRUE
+    live artifact hash. When the live artifact cannot be hashed (no feature
+    dir yet), falls back to :func:`_infer_live_hash` so a fully-reviewed
+    record set is still recognized as current rather than perpetually stale.
+    """
+    track = review_track(project.current_stage)
+    prefix = "research_reviewer_" if track == "research" else "paper_reviewer_"
+    required = frozenset(_required_specialists(prefix, repo_root=repo_root))
+    records = reviews_store.list_for(project.id, stage=track, repo_root=repo_root)
+    live = live_artifact_hash(project.id, track=track, repo_root=repo_root)
+    if live is None:
+        live = _infer_live_hash(records)
+    latest = _most_recent_per_specialist(records)
+    current: set[str] = set()
+    stale: set[str] = set()
+    missing: set[str] = set()
+    for name in required:
+        rec = latest.get(name)
+        if rec is None:
+            missing.add(name)
+        elif live is not None and rec.artifact_hash != live:
+            stale.add(name)
+        else:
+            current.add(name)
+    return VerdictCoverage(
+        track=track,
+        live_hash=live,
+        required=required,
+        current=frozenset(current),
+        stale=frozenset(stale),
+        missing=frozenset(missing),
+        has_any_records=bool(records),
+    )
 
 
 def _consolidate_action_items(
@@ -426,6 +563,16 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         # out after applying the revision.
         consolidated = _consolidate_action_items(records)
         if consolidated:
+            if _revision_rounds_exhausted(project.id, repo_root=repo_root):
+                logger.warning(
+                    "%s: %d revision rounds without research-panel "
+                    "convergence — honest terminal RESEARCH_FULL_REVISION "
+                    "(spec 023 bounded-revision cap)",
+                    project.id, MAX_REVISION_ROUNDS,
+                )
+                return _transition(
+                    project, Stage.RESEARCH_FULL_REVISION
+                ).model_copy(update={"revision_spec_path": None})
             from llmxive.convergence.revision_adapter import (
                 kickback_to_revision_spec,
             )
@@ -590,6 +737,25 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                 # Nothing actionable yet — stay at PAPER_REVIEW for more
                 # reviews to arrive.
                 return project
+            if _revision_rounds_exhausted(project.id, repo_root=repo_root):
+                logger.warning(
+                    "%s: %d revision rounds without paper-panel convergence "
+                    "— honest terminal PAPER_FUNDAMENTAL_FLAWS (spec 023 "
+                    "bounded-revision cap)",
+                    project.id, MAX_REVISION_ROUNDS,
+                )
+                from llmxive.agents.upstream_feedback import (
+                    append_rejection_rationale,
+                )
+                try:
+                    append_rejection_rationale(
+                        project.id, consolidated, repo_root=repo_root,
+                    )
+                except Exception:
+                    pass
+                return _transition(
+                    project, Stage.PAPER_FUNDAMENTAL_FLAWS
+                ).model_copy(update={"revision_spec_path": None})
             engine_concerns = [
                 Concern(
                     id=str(getattr(it, "id", "") or "000000000000")[:12].ljust(12, "0"),
@@ -685,4 +851,14 @@ def commit(project: Project, *, repo_root: Path | None = None) -> None:
     project_store.save(project, repo_root=repo_root)
 
 
-__all__ = ["AdvancementError", "commit", "evaluate"]
+__all__ = [
+    "MAX_REVISION_ROUNDS",
+    "REVIEW_STAGES",
+    "AdvancementError",
+    "VerdictCoverage",
+    "commit",
+    "evaluate",
+    "live_artifact_hash",
+    "review_track",
+    "verdict_coverage",
+]

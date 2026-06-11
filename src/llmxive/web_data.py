@@ -1040,6 +1040,36 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         "current_artifact": _current_artifact(repo, project, links),
         "citation_summary": _citation_summary(repo, project.id),
         "last_run_log": _last_run_log(repo, project.id),
+        # Spec 023 / FR-024: the paper's TRUE compile/audit status from the
+        # per-paper status record (state/paper_status/<id>.json) —
+        # "audited" | "restyled_unaudited" | "fallback_original" — with
+        # zero unmarked fallbacks. A served PDF without a record is
+        # surfaced loudly as "unverified" (fail-closed display).
+        "paper_status": _paper_status_entry(repo, project),
+    }
+
+
+def _paper_status_entry(repo: Path, project: Project) -> dict[str, Any] | None:
+    """Spec 023 / FR-024: per-paper status for the public shelf."""
+    from llmxive.state import paper_status as ps_store
+
+    record = ps_store.load(project.id, repo_root=repo)
+    has_pdf = any((repo / "projects" / project.id / "paper" / "pdf").glob("*.pdf")) \
+        if (repo / "projects" / project.id / "paper" / "pdf").is_dir() else False
+    if record is None:
+        if not has_pdf:
+            return None  # nothing served, nothing to mark
+        # Fail-closed: a served PDF without a status record is NOT shown
+        # as healthy — it is explicitly unverified until the compile/audit
+        # chain records its outcome.
+        return {"status": "unverified", "failure": None, "audit_passed": None}
+    return {
+        "status": record.get("status"),
+        "failure": (record.get("failure") or {}).get("reason")
+        if record.get("failure") else None,
+        "audit_passed": (record.get("audit") or {}).get("passed")
+        if record.get("audit") else None,
+        "repair_rounds": record.get("repair_rounds", 0),
     }
 
 

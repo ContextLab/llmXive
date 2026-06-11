@@ -1,0 +1,17 @@
+{
+  "title": "Spec 023 Sign-off Gate End-to-End Test",
+  "abstract": "Synthetic test artifact for the spec-023 publication sign-off round-trip (sandbox DOI).",
+  "doi": "10.5072/zenodo.512176",
+  "doi_url": "https://doi.org/10.5072/zenodo.512176",
+  "zenodo_id": 512176,
+  "volume": "26",
+  "issue": "06",
+  "doi_versions": [
+    {
+      "doi": "10.5072/zenodo.512176",
+      "version_index": 1,
+      "published_at": "2026-06-11T03:11:25.982491Z",
+      "pdf_sha256": "ae0409b60e60c2ad2df5b11a0d107bc7b185b6c08f9ee8e78d2acfa4f8128381"
+    }
+  ]
+}

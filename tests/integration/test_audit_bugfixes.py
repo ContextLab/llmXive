@@ -178,12 +178,16 @@ def _make_ctx(project_id: str, project_dir, agent_name: str):
     )
 
 
-def test_clarifier_escalate_verdict_writes_human_input(tmp_path):
-    """T032: when the LLM emits ``verdict: escalate`` the clarifier writes
-    human_input_needed.yaml + raises (the path was previously dead)."""
+def test_clarifier_escalate_verdict_is_bounded(tmp_path):
+    """T032 + spec 023 / FR-017 (supersedes the immediate-park form): an
+    LLM ``verdict: escalate`` alone is NOT exhaustion. Below the attempt
+    cap the clarifier fails the attempt (retry later) WITHOUT writing
+    human_input_needed.yaml; only at the cap does it park — and then with
+    an exhaustion-evidence escalation record alongside."""
     import pytest as _pt
 
     from llmxive.backends.base import ChatResponse
+    from llmxive.config import TASKER_MAX_REVISION_ROUNDS
     from llmxive.speckit.clarify_cmd import ClarifierAgent
 
     proj = tmp_path / "projects" / "PROJ-T032-x"
@@ -193,13 +197,25 @@ def test_clarifier_escalate_verdict_writes_human_input(tmp_path):
 
     agent = ClarifierAgent()
     ctx = _make_ctx("PROJ-T032-x", proj, "clarifier")
-    mech = agent.mechanical_step(ctx)
     resp = ChatResponse(text='{"verdict": "escalate", "patches": []}', model="m", backend="dartmouth")
-
-    with _pt.raises(RuntimeError, match="escalate"):
-        agent.write_artifacts(ctx, mech, resp)
     hin = proj / ".specify" / "memory" / "human_input_needed.yaml"
-    assert hin.exists(), "escalate verdict must write human_input_needed.yaml"
+
+    for attempt in range(1, TASKER_MAX_REVISION_ROUNDS + 1):
+        mech = agent.mechanical_step(ctx)
+        with _pt.raises(RuntimeError, match="escalate"):
+            agent.write_artifacts(ctx, mech, resp)
+        if attempt < TASKER_MAX_REVISION_ROUNDS:
+            assert not hin.exists(), (
+                f"attempt {attempt} is below the cap — no park (FR-017)"
+            )
+    assert hin.exists(), "cap reached → park with evidence"
+    import yaml as _yaml
+    esc_dir = tmp_path / "state" / "escalations"
+    # The exhaustion-evidence record was written alongside (rounds==bound).
+    records = list(esc_dir.glob("*.yaml")) if esc_dir.is_dir() else []
+    assert records, "cap escalation must carry an exhaustion-evidence record"
+    rec = _yaml.safe_load(records[0].read_text(encoding="utf-8"))
+    assert rec["rounds_used"] >= rec["bound"]
 
 
 def test_paper_specifier_supplies_code_and_data_summary(tmp_path):

@@ -183,12 +183,21 @@ def _spec_research_plan() -> ReviewSpec:
             prompt_task="T051", wiring_task="T056",
         ),
         reviser=_TodoReviser("planner", wiring_task="T056"),
+        # Spec 023 defect #14: a kickback's to_stage names the stage WHOSE
+        # AGENT must re-run (the graph dispatches STAGE_TO_AGENT[to_stage]).
+        # The old map was one stage too far forward: "clarified" re-ran the
+        # PLANNER against the same defective spec — a spec-gap concern could
+        # never be repaired (observed live: PROJ-552 hit the kickback cap
+        # re-flagging a spec.md factual error the plan reviser is forbidden
+        # from editing). Re-plan = "clarified" (planner runs there); fix the
+        # spec = "specified" (clarifier + spec panel run there and the
+        # SpecReviser CAN edit spec.md).
         kickback_routing={
-            Severity.WRITING: "planned",  # re-plan
-            Severity.REQUIREMENT: "clarified",  # spec gap
-            Severity.METHODOLOGY: "clarified",
-            Severity.SCIENCE: "clarified",
-            Severity.FATAL: "clarified",
+            Severity.WRITING: "clarified",  # re-plan
+            Severity.REQUIREMENT: "specified",  # spec gap -> spec panel re-runs
+            Severity.METHODOLOGY: "specified",
+            Severity.SCIENCE: "specified",
+            Severity.FATAL: "specified",
         },
         overflow_goal="preserve every FR/SC id and every spec constraint verbatim",
         advance_stage="tasked",
@@ -205,12 +214,15 @@ def _spec_research_tasks() -> ReviewSpec:
             prompt_task="T052", wiring_task="T057",
         ),
         reviser=_TodoReviser("tasker", wiring_task="T057"),
+        # Spec 023 defect #14 (see the plan panel above): a plan flaw is
+        # fixed by the PLANNER, which runs at "clarified" — "planned" runs
+        # the tasker against the same defective plan.
         kickback_routing={
             Severity.WRITING: "tasked",
-            Severity.REQUIREMENT: "planned",  # plan flaw
-            Severity.METHODOLOGY: "planned",
-            Severity.SCIENCE: "planned",
-            Severity.FATAL: "planned",
+            Severity.REQUIREMENT: "clarified",  # plan flaw -> planner re-runs
+            Severity.METHODOLOGY: "clarified",
+            Severity.SCIENCE: "clarified",
+            Severity.FATAL: "clarified",
         },
         overflow_goal="preserve every FR/SC/task id verbatim",
         advance_stage="analyzed",
@@ -278,12 +290,15 @@ def _spec_paper_plan() -> ReviewSpec:
             prompt_task="T053", wiring_task="T056",
         ),
         reviser=_TodoReviser("paper_planner", wiring_task="T056"),
+        # Spec 023 defect #14 (paper side): re-plan = "paper_clarified"
+        # (paper planner runs there); paper-spec gap = "paper_specified"
+        # (paper clarifier + paper-spec panel run there).
         kickback_routing={
-            Severity.WRITING: "paper_planned",
-            Severity.REQUIREMENT: "paper_clarified",
-            Severity.METHODOLOGY: "paper_clarified",
-            Severity.SCIENCE: "paper_clarified",
-            Severity.FATAL: "paper_clarified",
+            Severity.WRITING: "paper_clarified",  # re-plan
+            Severity.REQUIREMENT: "paper_specified",  # paper-spec gap
+            Severity.METHODOLOGY: "paper_specified",
+            Severity.SCIENCE: "paper_specified",
+            Severity.FATAL: "paper_specified",
         },
         overflow_goal="preserve every FR/SC id + paper plan constraints verbatim",
         advance_stage="paper_tasked",
@@ -300,12 +315,14 @@ def _spec_paper_tasks() -> ReviewSpec:
             prompt_task="T053", wiring_task="T057",
         ),
         reviser=_TodoReviser("paper_tasker", wiring_task="T057"),
+        # Spec 023 defect #14: a paper-plan flaw is fixed by the paper
+        # PLANNER, which runs at "paper_clarified".
         kickback_routing={
             Severity.WRITING: "paper_tasked",
-            Severity.REQUIREMENT: "paper_planned",
-            Severity.METHODOLOGY: "paper_planned",
-            Severity.SCIENCE: "paper_planned",
-            Severity.FATAL: "paper_planned",
+            Severity.REQUIREMENT: "paper_clarified",  # paper-plan flaw
+            Severity.METHODOLOGY: "paper_clarified",
+            Severity.SCIENCE: "paper_clarified",
+            Severity.FATAL: "paper_clarified",
         },
         overflow_goal="preserve every paper-task id verbatim",
         advance_stage="paper_analyzed",

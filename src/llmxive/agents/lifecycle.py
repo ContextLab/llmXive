@@ -20,19 +20,31 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # Allow direct BRAINSTORMED → FLESH_OUT_COMPLETE when the FleshOut
     # agent finishes in one tick. The IN_PROGRESS intermediate is an
     # optional checkpoint for long-running flesh-out work.
-    Stage.BRAINSTORMED: {Stage.FLESH_OUT_IN_PROGRESS, Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED},
-    Stage.FLESH_OUT_IN_PROGRESS: {Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED},
+    Stage.BRAINSTORMED: {
+        Stage.FLESH_OUT_IN_PROGRESS, Stage.FLESH_OUT_COMPLETE,
+        Stage.HUMAN_INPUT_NEEDED,
+        # Spec 023 / FR-014: bounded idea-retry cap exhausted → honest
+        # terminal (idea rejected to the backlog; never scheduled again).
+        Stage.VALIDATOR_REJECTED,
+    },
+    Stage.FLESH_OUT_IN_PROGRESS: {
+        Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED,
+        Stage.BRAINSTORMED,  # FR-014 constrained re-brainstorm
+        Stage.VALIDATOR_REJECTED,  # FR-014 cap exhausted
+    },
     Stage.FLESH_OUT_COMPLETE: {
         # spec 003 / D10: research_question_validator inserted between
         # flesh_out and project_initializer. The validator emits one of
         # three outcomes:
         #   validated         → VALIDATED → PROJECT_INITIALIZED
         #   validator_revise  → FLESH_OUT_IN_PROGRESS (re-flesh_out)
-        #   validator_rejected → BRAINSTORMED (re-brainstorm)
+        #   validator_rejected → BRAINSTORMED (re-brainstorm, bounded by
+        #                        the FR-014 idea-retry cap)
         Stage.VALIDATED,
         Stage.FLESH_OUT_IN_PROGRESS,  # validator_revise rollback
         Stage.HUMAN_INPUT_NEEDED,
         Stage.BRAINSTORMED,  # scope rejection or validator_rejected rolls back
+        Stage.VALIDATOR_REJECTED,  # FR-014 cap exhausted → honest terminal
         # Legacy direct path retained for backward compat (e.g., a
         # flesh_out_complete project that pre-dates the validator stage).
         Stage.PROJECT_INITIALIZED,
@@ -55,14 +67,26 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.CLARIFY_IN_PROGRESS: {Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
     # CLARIFIED -> CLARIFIED self-loop: the plan convergence panel (run by the
     # planner at CLARIFIED) kicks back to ``clarified`` for spec-gap concerns.
-    Stage.CLARIFIED: {Stage.PLANNED, Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
+    # Spec 023 defect #14: kickback routes were one stage too far forward
+    # (a kickback's to_stage names the stage WHOSE AGENT must re-run, and
+    # the graph runs STAGE_TO_AGENT[stage] — so 'fix the spec' must route
+    # to SPECIFIED, where the clarifier + spec panel run and the
+    # SpecReviser can actually edit spec.md). CLARIFIED -> SPECIFIED is
+    # the plan panel's spec-gap kickback.
+    Stage.CLARIFIED: {
+        Stage.PLANNED, Stage.CLARIFIED, Stage.SPECIFIED,
+        Stage.HUMAN_INPUT_NEEDED,
+    },
     # PLANNED -> PLANNED self-loop: the tasks convergence panel (run by the
     # tasker at PLANNED) kicks back to ``planned`` to re-task on a deeper
     # unresolved concern — exactly mirroring the CLARIFIED self-loop for the
     # plan panel. (A writing-only kickback routes forward to TASKED, already
     # allowed.) Without this self-loop edge a tasks-stage kickback would crash
     # run_one_step's is_valid_transition guard.
-    Stage.PLANNED: {Stage.PLANNED, Stage.TASKED, Stage.HUMAN_INPUT_NEEDED},
+    Stage.PLANNED: {
+        Stage.PLANNED, Stage.TASKED, Stage.HUMAN_INPUT_NEEDED,
+        Stage.CLARIFIED,  # spec 023 defect #14: tasks panel plan-flaw kickback (planner re-runs at CLARIFIED)
+    },
     Stage.TASKED: {Stage.ANALYZE_IN_PROGRESS, Stage.ANALYZED},
     Stage.ANALYZE_IN_PROGRESS: {Stage.ANALYZED, Stage.HUMAN_INPUT_NEEDED},
     Stage.ANALYZED: {Stage.IN_PROGRESS},
@@ -118,6 +142,7 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # paper_clarified-targeted concerns.
     Stage.PAPER_CLARIFIED: {
         Stage.PAPER_PLANNED, Stage.PAPER_CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
+        Stage.PAPER_SPECIFIED,  # spec 023 defect #14: paper-plan spec-gap kickback
     },
     # PAPER_PLANNED -> PAPER_PLANNED self-loop: the paper_tasks convergence
     # panel (run by the paper_tasker at PAPER_PLANNED) kicks back here to
@@ -125,6 +150,8 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # HUMAN_INPUT_NEEDED edge lets the kickback cap escalate cleanly.
     Stage.PAPER_PLANNED: {
         Stage.PAPER_PLANNED, Stage.PAPER_TASKED, Stage.HUMAN_INPUT_NEEDED,
+        Stage.PAPER_SPECIFIED,  # spec 023 defect #14: paper-plan spec-gap kickback
+        Stage.PAPER_CLARIFIED,  # paper tasks panel plan-flaw kickback target
     },
     Stage.PAPER_TASKED: {Stage.PAPER_ANALYZED},
     Stage.PAPER_ANALYZED: {Stage.PAPER_IN_PROGRESS},
@@ -167,6 +194,10 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.POSTED,
         Stage.PUBLISH_BLOCKED,
         Stage.AWAITING_PUBLICATION_SIGNOFF,  # no-op self-loop until sign-off
+        # Spec 023 / FR-020: a maintainer REJECTION at the sign-off gate
+        # converts the stated reason into review feedback and re-enters
+        # the revision loop.
+        Stage.PAPER_REVIEW,
     },
     Stage.PUBLISH_BLOCKED: {Stage.PAPER_ACCEPTED},  # operator `project republish`
     Stage.PAPER_FUNDAMENTAL_FLAWS: {Stage.BRAINSTORMED},

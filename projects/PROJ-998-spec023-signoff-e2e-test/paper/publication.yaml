@@ -1,0 +1,26 @@
+schema_version: '1'
+project_id: PROJ-998-spec023-signoff-e2e-test
+title: Spec 023 Sign-off Gate End-to-End Test
+volume: '26'
+issue: '06'
+display_volume_issue: '26.06'
+doi: 10.5072/zenodo.512176
+doi_url: https://doi.org/10.5072/zenodo.512176
+concept_doi: 10.5072/zenodo.512175
+doi_versions:
+- doi: 10.5072/zenodo.512176
+  version_index: 1
+  published_at: '2026-06-11T03:11:25.982491Z'
+  pdf_sha256: ae0409b60e60c2ad2df5b11a0d107bc7b185b6c08f9ee8e78d2acfa4f8128381
+zenodo_id: 512176
+zenodo_environment: sandbox
+citation_string: . 2026. *Spec 023 Sign-off Gate End-to-End Test*. llmXive **26.06**.
+  doi:10.5072/zenodo.512176.
+authors_at_publication: []
+accepted_at: '2026-06-11T03:09:07.948064Z'
+published_at: '2026-06-11T03:11:25.982491Z'
+review_summary:
+  num_reviewers: 0
+  num_revision_rounds: 0
+  num_action_items_addressed: 0
+  num_action_items_failed: 0

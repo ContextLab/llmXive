@@ -76,12 +76,18 @@ def _picked_distribution(repo: Path, *, n_samples: int = 400) -> dict[str, int]:
     return counts
 
 
-def test_in_progress_strongly_preempts_analyzed(tmp_path: Path) -> None:
+def test_in_progress_preempts_analyzed_at_equal_staleness(tmp_path: Path) -> None:
     """IN_PROGRESS is one rank deeper than ANALYZED in STAGE_PROGRESSION;
-    its base weight is STAGE_GROWTH_BASE^1 ~= 1.5x higher. Over many
-    samples, IN_PROGRESS should win the strong majority of picks."""
+    with equal queue depth and staleness its stage weight is
+    STAGE_GROWTH_BASE^1 ~= 1.5x higher, so it wins the majority of picks.
+
+    Spec 023 / FR-006 note: the original form of this test gave ANALYZED a
+    10-day-old project vs a 1-day-old IN_PROGRESS one and still demanded an
+    IN_PROGRESS majority — under the counterweighted scheduler, neglect
+    deliberately boosts the stale queue (that is the FR-006 point), so the
+    ages are now equal to isolate the rank preference."""
     _bootstrap_state(tmp_path)
-    _make(tmp_path, "PROJ-001-fresh", Stage.ANALYZED, age_days=10)
+    _make(tmp_path, "PROJ-001-fresh", Stage.ANALYZED, age_days=1)
     _make(tmp_path, "PROJ-002-active", Stage.IN_PROGRESS, age_days=1)
 
     counts = _picked_distribution(tmp_path)
@@ -92,6 +98,20 @@ def test_in_progress_strongly_preempts_analyzed(tmp_path: Path) -> None:
     )
     # ANALYZED still gets non-zero share — the queue keeps draining.
     assert counts.get("PROJ-001-fresh", 0) > 0
+
+
+def test_stale_neglected_stage_gains_share(tmp_path: Path) -> None:
+    """Spec 023 / FR-006: a queue NOT touched for two weeks out-weighs a
+    fresh queue one rank deeper — neglect counterbalances rank."""
+    _bootstrap_state(tmp_path)
+    _make(tmp_path, "PROJ-010-stale", Stage.ANALYZED, age_days=14)
+    _make(tmp_path, "PROJ-011-fresh", Stage.IN_PROGRESS, age_days=0)
+
+    counts = _picked_distribution(tmp_path)
+    total = sum(counts.values())
+    assert counts.get("PROJ-010-stale", 0) / total > 0.4, (
+        f"two-week-stale analyzed should claw back substantial share; {counts}"
+    )
 
 
 def test_same_stage_yields_roughly_uniform_picks(tmp_path: Path) -> None:

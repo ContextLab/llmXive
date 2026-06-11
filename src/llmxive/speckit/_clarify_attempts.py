@@ -56,12 +56,61 @@ def reset_attempts(memory_dir: Path) -> None:
         p.unlink()
 
 
-def write_human_input_needed(memory_dir: Path, reason: str, *, stage: str = "clarify") -> Path:
+def _project_id_from(memory_dir: Path) -> str:
+    for part in memory_dir.parts:
+        if part.startswith("PROJ-"):
+            return part
+    return "unknown"
+
+
+def _repo_root_from(memory_dir: Path) -> Path | None:
+    """Resolve the repo root from a project memory dir
+    (``<root>/projects/<id>[/paper]/.specify/memory``) so the escalation
+    record lands in the SAME tree as the marker — never the installed
+    repo when a hermetic root is in use."""
+    parts = memory_dir.resolve().parts
+    if "projects" in parts:
+        idx = parts.index("projects")
+        return Path(*parts[:idx])
+    return None
+
+
+def write_human_input_needed(
+    memory_dir: Path,
+    reason: str,
+    *,
+    stage: str = "clarify",
+    rounds_used: int | None = None,
+    bound: int | None = None,
+    attempts: list[dict[str, str]] | None = None,
+) -> Path:
     """Drop a ``human_input_needed.yaml`` so the graph routes the project to
-    ``HUMAN_INPUT_NEEDED`` rather than retrying the clarifier forever."""
+    ``HUMAN_INPUT_NEEDED`` rather than retrying the clarifier forever.
+
+    Spec 023 / FR-017: when ``rounds_used``/``bound`` are supplied the
+    exhaustion-evidence escalation record is written alongside (validated
+    at write time — escalating before the bound is a hard error)."""
     memory_dir.mkdir(parents=True, exist_ok=True)
     p = memory_dir / _HUMAN_INPUT_FILENAME
     p.write_text(yaml.safe_dump({"reason": reason, "stage": stage}), encoding="utf-8")
+    if rounds_used is not None and bound is not None:
+        from llmxive.state.escalations import EscalationRecord, write_record
+
+        write_record(
+            EscalationRecord(
+                project_id=_project_id_from(memory_dir),
+                stage=stage,
+                loop="clarifier-attempts",
+                bound=bound,
+                rounds_used=rounds_used,
+                attempts=attempts or [{"round": str(rounds_used), "summary": reason, "outcome": "cap hit"}],
+                recommended_action=(
+                    "Resolve the spec's open clarification markers manually "
+                    "or revise the upstream spec, then clear the marker."
+                ),
+            ),
+            repo_root=_repo_root_from(memory_dir),
+        )
     return p
 
 

@@ -1,133 +1,145 @@
 # Data Model: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-## Entity Overview
+## Entity Relationships
 
-This document describes the data entities used throughout the project, their attributes, relationships, and validation constraints.
+```mermaid
+erDiagram
+    KnotRecord ||--o{ InvariantComputation : "has"
+    KnotRecord ||--o{ RegressionModel : "contributes to"
+    InvariantComputation ||--o{ CompositeComplexityScore : "feeds"
+    RegressionModel ||--o{ ValidationResult : "produces"
+```
 
 ## Core Entities
 
 ### KnotRecord
 
-Represents a single prime knot with all computed and tabulated invariants.
+Represents a single prime knot with all measured and computed attributes. Governed by `contracts/knot_record.schema.yaml`.
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `knot_id` | string | Unique identifier (e.g., "10_123" for 123rd knot with 10 crossings) | Required, unique |
-| `crossing_number` | integer | Tabulated crossing number | Required, ≥ 3, ≤ 13 |
-| `braid_index` | integer | Algorithmically determined braid index | Required, ≥ 2 |
-| `hyperbolic_volume` | float | Hyperbolic volume (geometric invariant) | Required for volume analysis, > 0 |
-| `is_alternating` | boolean | Alternating classification | Required, true/false |
-| `arc_index` | integer | Computed arc index | Optional, ≥ 2 |
-| `seifert_circle_count` | integer | Computed Seifert circle count | Optional, ≥ 1 |
-| `bridge_number` | integer | Computed bridge number | Optional, ≥ 2 |
-| `dt_code` | string | Dowker-Thistlethwaite code | Optional |
-| `braid_word` | string | Braid word representation | Optional |
-| `missing_invariant_flags` | list[string] | Flags for missing computable invariants | Optional, empty list if all present |
-| `data_source` | string | Source of data (e.g., "knot_atlas", "computed") | Required |
-| `computation_timestamp` | datetime | When invariants were computed | Required |
-| `checksum` | string | SHA-256 checksum of record | Required |
+| Field | Type | Description | Source | Required |
+|-------|------|-------------|--------|----------|
+| knot_id | string | Unique identifier (e.g., "3_1", "4_1", "10_123") | Knot Atlas | Yes |
+| crossing_number | integer | Minimal crossing number for the knot | Knot Atlas | Yes |
+| braid_index | integer | Minimal braid index | Knot Atlas | Yes |
+| hyperbolic_volume | float | Hyperbolic volume (null for torus/satellite) | Knot Atlas | Yes* |
+| is_alternating | ["boolean", "null"] | Alternating classification (null if unclassifiable) | Knot Atlas | Yes* |
+| dt_code | string | Dowker-Thistlethwaite code (diagram representation) | Knot Atlas | No |
+| braid_word | string | Braid word representation (diagram representation) | Knot Atlas | No |
+| arc_index | integer | Computed arc index (Birman-Menasco) | Computed | No |
+| seifert_circle_count | integer | Computed Seifert circle count | Computed | No |
+| bridge_number | integer | Computed bridge number (Schubert) | Computed | No |
+| missing_invariant_flags | array | List of invariants that could not be computed | Computed | No |
+| validation_status | string | "validated", "exploratory", or "unclassifiable" | Computed | Yes |
 
-**Invariant Dependency Note**: Bridge number ≤ crossing number for most knots (known inequality). This dependency must be acknowledged in all analysis and reporting.
+*Required for volume prediction analysis; records with undefined volume are filtered and documented.
 
 ### InvariantsDataset
 
 Aggregated collection of KnotRecord entities with metadata.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `dataset_id` | string | Unique dataset identifier |
-| `knot_records` | list[KnotRecord] | All knot records |
-| `total_count` | integer | Total number of knots |
-| `alternating_count` | integer | Number of alternating knots |
-| `non_alternating_count` | integer | Number of non-alternating knots |
-| `volume_complete_count` | integer | Knots with complete hyperbolic volume |
-| `computation_timestamp` | datetime | When dataset was created |
-| `data_source_version` | string | Version of Knot Atlas data (tracked from API response) |
-| `checksum` | string | SHA-256 checksum of dataset |
+| Field | Type | Description |
+|-------|------|-------------|
+| dataset_id | string | Unique identifier for dataset version |
+| source | string | "knot_atlas" |
+| download_timestamp | datetime | When data was downloaded |
+| total_knots | integer | Total number of knot records (prime knots at a specified crossing number per OEIS A002863, https://oeis.org/A002863) |
+| validated_knots | integer | Number of knots in validated scope (crossing number ≤10) |
+| exploratory_knots | integer | Number of knots in exploratory scope (crossing number 11-13) |
+| checksum_sha256 | string | SHA-256 checksum of dataset file |
 
 ### RegressionModel
 
-Represents fitted regression model with metrics.
+Represents a fitted regression model with all metrics. Governed by `contracts/regression_output.schema.yaml`.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `model_id` | string | Unique model identifier |
-| `model_type` | string | "linear", "polynomial", "logarithmic", or "spline" |
-| `coefficients` | dict | Model coefficients |
-| `r_squared` | float | R² goodness-of-fit |
-| `aic` | float | Akaike Information Criterion |
-| `bic` | float | Bayesian Information Criterion |
-| `mae` | float | Mean Absolute Error |
-| `vif_scores` | dict | Variance Inflation Factors per predictor |
-| `training_sample_size` | integer | Number of knots in training sample |
-| `validation_sample_size` | integer | Number of knots in validation sample |
-| `residual_families` | list[string] | Knot families with significant deviations |
-| `fit_timestamp` | datetime | When model was fitted |
-
-**Schema Governance**: Regression output MUST conform to `contracts/regression_output.schema.yaml` (CANONICAL).
+| Field | Type | Description |
+|-------|------|-------------|
+| model_id | string | Unique identifier |
+| model_type | string | "linear", "polynomial", or "logarithmic" |
+| formula | string | Mathematical formula representation |
+| coefficients | object | Model coefficients (keyed by predictor) |
+| r_squared | float | Coefficient of determination |
+| aic | float | Akaike Information Criterion |
+| bic | float | Bayesian Information Criterion |
+| mae | float | Mean Absolute Error |
+| vif_crossing | float | Variance Inflation Factor for crossing number |
+| vif_braid | float | Variance Inflation Factor for braid index |
+| residual_outliers | array | List of knot_ids that deviate significantly |
 
 ### CompositeComplexityScore
 
-Weighted complexity measure.
+Represents the weighted complexity measure. **EXPLORATORY CONSTRUCT ONLY** - no predictive claims. Governed by `contracts/composite_score.schema.yaml`.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `score_id` | string | Unique score identifier |
-| `crossing_weight` | float | Weight for crossing number (default: 1.0) |
-| `braid_weight` | float | Weight for braid index (default: 1.0) |
-| `per_knot_scores` | dict[knot_id, float] | Score per knot |
-| `correlation_pearson` | float | Pearson correlation with hyperbolic volume |
-| `correlation_spearman` | float | Spearman correlation with hyperbolic volume |
-| `effect_size_r` | float | Effect size (r) |
-| `validation_sample_size` | integer | Number of knots in validation |
-| `creation_timestamp` | datetime | When score was created |
-
-**Storage Location**: CompositeComplexityScore records are stored in `data/processed/validation_results.parquet` (not separate file).
+| Field | Type | Description |
+|-------|------|-------------|
+| score_id | string | Unique identifier |
+| weight_crossing | float | Weight for crossing number (default 1.0) |
+| weight_braid | float | Weight for braid index (default 1.0) |
+| per_knot_scores | object | Mapping of knot_id to score value |
+| correlation_pearson | float | Pearson correlation with hyperbolic volume |
+| correlation_spearman | float | Spearman correlation with hyperbolic volume |
+| effect_size_r | float | Effect size (r) for correlation |
+| p_value | float | Statistical significance of correlation |
 
 ## Data Flow
 
 ```
-Knot Atlas API
-    ↓ (download_knots.py)
-Raw Dataset (data/raw/knot_atlas_*.parquet)
-    ↓ (parse_knots.py)
-Cleaned Dataset (data/processed/cleaned_*.parquet)
-    ↓ (compute_invariants.py)
-Invariants Dataset (data/processed/invariants_*.parquet)
-    ↓ (exploratory.py)
-Plots (data/plots/*.png) + Exploratory Results
-    ↓ (regression.py)
-Regression Results (data/processed/regression_results_*.parquet) [conforms to regression_output.schema.yaml]
-    ↓ (validation.py)
-Validation Results (data/processed/validation_results.parquet) [includes CompositeComplexityScore]
+Knot Atlas (raw download)
+    ↓ [FR-002: Parse and clean]
+Raw Dataset (data/raw/knot_atlas_download.csv)
+    ↓ [FR-003: Compute invariants]
+Invariants Dataset (data/processed/invariants_dataset.csv)
+    ↓ [FR-004: Exploratory analysis]
+Plots (data/plots/*.png)
+    ↓ [FR-005: Regression modeling on FULL DATASET]
+Regression Models (data/processed/regression_models.json)
+    ↓ [FR-006: Composite score (exploratory ranking only)]
+Composite Scores (data/processed/composite_scores.json)
+    ↓ [FR-008: Statistical testing]
+Validation Results (data/processed/validation_results.json)
 ```
 
-## Validation Constraints
+## File Formats
 
-1. **Crossing Number**: Must be integer ≥ 3 and ≤ 13 (Phase 1 scope)
-2. **Braid Index**: Must be integer ≥ 2 (per knot theory constraints)
-3. **Hyperbolic Volume**: Must be float > 0 for volume prediction analysis (torus/satellite knots excluded)
-4. **Missing Invariant Flags**: Records with computable invariants missing must be flagged, not silently excluded
-5. **Checksums**: All data files under `data/` must have SHA-256 checksums recorded
-6. **Random Seeds**: All stochastic operations must use pinned random seeds documented in `docs/reproducibility/`
-7. **Inequality Verification**: Known mathematical inequalities (bridge ≤ crossing, etc.) must be verified empirically before analysis per Constitution Principle VI
-8. **Spec Defect Tracking**: SC-006 (provisional) and SC-012 (provisional) thresholds documented; validation checks use provisional values pending spec amendment
+### CSV Schema (invariants_dataset.csv)
 
-## File Locations
+```csv
+knot_id,crossing_number,braid_index,hyperbolic_volume,is_alternating,dt_code,braid_word,arc_index,seifert_circle_count,bridge_number,missing_invariant_flags,validation_status
+```
 
-| Data Type | Location | Format |
-|-----------|----------|--------|
-| Raw Knot Atlas Data | `data/raw/knot_atlas_*.parquet` | Parquet |
-| Cleaned Dataset | `data/processed/cleaned_*.parquet` | Parquet |
-| Invariants Dataset | `data/processed/invariants_*.parquet` | Parquet |
-| Regression Results | `data/processed/regression_results_*.parquet` | Parquet (conforms to regression_output.schema.yaml) |
-| Validation Results | `data/processed/validation_results.parquet` | Parquet (includes CompositeComplexityScore) |
-| Exploratory Plots | `data/plots/*.png` | PNG (minimum 1200x900 pixels) |
-| Reproducibility Docs | `docs/reproducibility/` | Markdown |
-| Power Analysis | `docs/reproducibility/power_analysis.md` | Markdown |
-| License Compliance | `docs/reproducibility/license_compliance.md` | Markdown |
-| Spec Defects | `docs/reproducibility/spec_defects.md` | Markdown |
+### JSON Schema (regression_models.json)
 
-## License Compliance
+```json
+{
+  "models": [
+    {
+      "model_id": "linear_001",
+      "model_type": "linear",
+      "formula": "volume = β₀ + β₁×crossing + β₂×braid + ε",
+      "coefficients": {"intercept": 0.0, "crossing": 0.5, "braid": 0.3},
+      "r_squared": 0.85,
+      "aic": 123.45,
+      "bic": 125.67,
+      "mae": 0.12,
+      "vif_crossing": 1.2,
+      "vif_braid": 1.1,
+      "residual_outliers": ["10_123", "11_456"]
+    }
+  ]
+}
+```
 
-Knot Atlas data license terms will be checked and documented in `docs/reproducibility/license_compliance.md`. Redistribution and reproducibility requirements documented per Constitution Principle III.
+### JSON Schema (composite_scores.json)
+
+```json
+{
+  "score_id": "composite_001",
+  "weight_crossing": 1.0,
+  "weight_braid": 1.0,
+  "per_knot_scores": {"3_1": 4.0, "4_1": 5.0},
+  "correlation_pearson": 0.89,
+  "correlation_spearman": 0.91,
+  "effect_size_r": 0.89,
+  "p_value": 0.001,
+  "methodological_note": "EXPLORATORY CONSTRUCT - no predictive claims"
+}
+```

@@ -1,82 +1,85 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord"
+description: "Represents a single prime knot with measured and computed attributes. CANONICAL SCHEMA - use for all new implementations. Data source: OEIS A002863 provides prime knot counts at specific crossing numbers (prime knots at a specific crossing number per https://oeis.org/A002863)."
 type: "object"
-title: "KnotRecord Schema"
-description: "Schema for a single prime knot record with computed and tabulated invariants"
-required:
-  - "knot_id"
-  - "crossing_number"
-  - "braid_index"
-  - "hyperbolic_volume"
-  - "is_alternating"
-  - "data_source"
-  - "computation_timestamp"
-  - "checksum"
 properties:
   knot_id:
     type: "string"
-    description: "Unique identifier for the knot (e.g., '10_123' for 123rd knot with 10 crossings)"
+    description: "Unique identifier (e.g., \"3_1\", \"4_1\", \"10_123\")"
     pattern: "^[0-9]+_[0-9]+$"
   crossing_number:
     type: "integer"
-    description: "Tabulated crossing number"
+    description: "Minimal crossing number for the knot"
     minimum: 3
     maximum: 13
   braid_index:
     type: "integer"
-    description: "Algorithmically determined braid index"
+    description: "Minimal braid index"
     minimum: 2
   hyperbolic_volume:
-    type: "number"
-    description: "Hyperbolic volume (geometric invariant)"
+    type: ["number", "null"]
+    description: "Hyperbolic volume (null for torus/satellite knots)"
     minimum: 0
   is_alternating:
-    type: "boolean"
-    description: "Alternating classification (true = alternating, false = non-alternating)"
-  arc_index:
-    type: "integer"
-    description: "Computed arc index via Birman-Menasco method"
-    minimum: 2
-    nullable: true
-  seifert_circle_count:
-    type: "integer"
-    description: "Computed Seifert circle count via Seifert's algorithm"
-    minimum: 1
-    nullable: true
-  bridge_number:
-    type: "integer"
-    description: "Computed bridge number via Schubert's bridge decomposition"
-    minimum: 2
-    nullable: true
+    type: ["boolean", "null"]
+    description: "Alternating classification (null if unclassifiable)"
   dt_code:
-    type: "string"
-    description: "Dowker-Thistlethwaite code representation"
-    nullable: true
+    type: ["string", "null"]
+    description: "Dowker-Thistlethwaite code (diagram representation)"
   braid_word:
-    type: "string"
-    description: "Braid word representation"
-    nullable: true
+    type: ["string", "null"]
+    description: "Braid word representation (diagram representation)"
+  arc_index:
+    type: ["integer", "null"]
+    description: "Computed arc index (Birman-Menasco method)"
+    minimum: 3
+  seifert_circle_count:
+    type: ["integer", "null"]
+    description: "Computed Seifert circle count (Seifert's algorithm; s(D) per https://arxiv.org/abs/math/0303273)"
+    minimum: 1
+  bridge_number:
+    type: ["integer", "null"]
+    description: "Computed bridge number (Schubert's decomposition; 2-bridge knot per https://en.wikipedia.org/wiki/2-bridge_knot)"
+    minimum: 1
   missing_invariant_flags:
     type: "array"
-    description: "Flags for missing computable invariants"
+    description: "List of invariants that could not be computed"
     items:
       type: "string"
-      enum:
-        - "no_representation_available"
-        - "algorithm_not_implemented"
-        - "computation_failed"
-  data_source:
+      enum: ["arc_index", "seifert_circle_count", "bridge_number", "all"]
+    default: []
+  validation_status:
     type: "string"
-    description: "Source of data"
-    enum:
-      - "knot_atlas"
-      - "computed"
-      - "knotinfo"
-  computation_timestamp:
-    type: "string"
-    description: "ISO 8601 timestamp when invariants were computed"
-    format: "date-time"
-  checksum:
-    type: "string"
-    description: "SHA-256 checksum of the record"
-    pattern: "^[a-f0-9]{64}$"
+    description: "Validation scope classification"
+    enum: ["validated", "exploratory", "unclassifiable"]
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+  - validation_status
 additionalProperties: false
+examples:
+  - knot_id: "3_1"
+    crossing_number: 3
+    braid_index: 2
+    hyperbolic_volume: 0.533
+    is_alternating: true
+    dt_code: "4 6 2"
+    braid_word: null
+    arc_index: 3
+    seifert_circle_count: 2
+    bridge_number: 2
+    missing_invariant_flags: []
+    validation_status: "validated"
+  - knot_id: "11_456"
+    crossing_number: 11
+    braid_index: 4
+    hyperbolic_volume: 2.345
+    is_alternating: false
+    dt_code: null
+    braid_word: "σ1 σ2-1 σ3 σ2"
+    arc_index: null
+    seifert_circle_count: null
+    bridge_number: null
+    missing_invariant_flags: ["arc_index", "seifert_circle_count", "bridge_number"]
+    validation_status: "exploratory"

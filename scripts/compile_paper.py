@@ -38,6 +38,7 @@ from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "src"))
 STYLE_DIR = REPO / "papers" / ".style"
 # Use the content-extractor (clean wrapper from scratch) rather than the
 # preserve-original-preamble approach, which got bogged down on venue
@@ -386,6 +387,20 @@ def compile_project(project: Path) -> dict[str, Any]:
     return result
 
 
+def _record_status(project: Path, result: dict[str, Any]) -> None:
+    """Spec 023 / FR-022: every compile/restyle outcome writes the per-paper
+    status record — a fallback (or failure) without a recorded reason is a
+    contract violation. Best-effort: a status-write failure never breaks
+    the compile sweep, but it is LOUD."""
+    try:
+        from llmxive.state.paper_status import record_compile_result
+
+        record_compile_result(project.name, result, repo_root=REPO)
+    except Exception as exc:
+        print(f"[compile] WARNING: paper-status record failed for "
+              f"{project.name}: {exc}", file=sys.stderr)
+
+
 def _iter_projects(arg_dirs: list[Path]) -> list[Path]:
     """Resolve --all + explicit project paths into a deduped list."""
     seen: set[Path] = set()
@@ -425,6 +440,7 @@ def main(argv: list[str] | None = None) -> int:
     fail_count = 0
     for project in targets:
         res = compile_project(project)
+        _record_status(project, res)
         if res["ok"]:
             print(f"[compile] {project.name}: {res['strategy']} → {Path(res['pdf']).name}")
             # Surface page-overflow warnings — these don't fail the

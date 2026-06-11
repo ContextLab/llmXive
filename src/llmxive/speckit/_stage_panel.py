@@ -312,17 +312,28 @@ def run_stage_panel(
         # run_one_step does not catch TransientBackendError, so it surfaces to
         # the CLI as a transient FAIL with no stage change.
         raise
-    except Exception as exc:  # genuine engine failure — escalate, do not swallow.
-        _write_human_input_needed(
-            memory_dir,
-            {
-                "reason": (
-                    f"{stage_label} panel engine failure: "
-                    f"{type(exc).__name__}: {exc}"
-                ),
-                "stage": stage_label,
-            },
+    except Exception as exc:  # genuine engine failure — file an issue, never park (FR-016).
+        # Spec 023 / FR-016: an unexpected engine failure is engineering's
+        # problem, not the project's — pre-023 this wrote
+        # human_input_needed.yaml and PARKED the project. Now a tracked
+        # GitHub issue is filed (deduped per project+failure class) with
+        # the evidence, and the project stays at its current stage,
+        # schedulable, recovering automatically once the defect is fixed.
+        from llmxive.state.escalations import file_engine_failure_issue
+
+        project_id = next(
+            (part for part in memory_dir.parts if part.startswith("PROJ-")),
+            "unknown",
         )
+        try:
+            file_engine_failure_issue(
+                project_id=project_id,
+                stage=stage_label,
+                error=f"{type(exc).__name__}: {exc}",
+                repo_root=repo_root,
+            )
+        except Exception as file_exc:  # best-effort — never mask the failure
+            logger.warning("engine-failure issue filing failed: %s", file_exc)
         raise StagePanelEscalation(
             f"{stage_label} panel engine failure: {type(exc).__name__}: {exc}"
         ) from exc

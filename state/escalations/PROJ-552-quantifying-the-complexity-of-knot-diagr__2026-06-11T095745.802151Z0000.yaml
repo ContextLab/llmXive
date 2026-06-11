@@ -1,0 +1,16 @@
+project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+stage: plan
+loop: convergence-kickback
+bound: 3
+rounds_used: 4
+attempts:
+- round: '4'
+  summary: 10 concern(s) remained unresolved after 3 round(s) at stage 'planned';
+    worst unresolved severity = 'science'. Routing to 'clarified' with full provenance
+    so the next worker can address the root cause.
+  outcome: panel did not converge
+recommended_action: Review the unresolved panel concerns and either revise the content
+  manually or terminate the project honestly.
+timestamp: '2026-06-11T09:57:45.802151+00:00'
+digest_id: "resolved: maintainer post-mortem 2026-06-11 (notes/2026-06-11-proj-552-postmortem.md)\
+  \ \u2014 pipeline-induced (defects #14/#15); resumed at specified"

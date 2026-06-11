@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-612-a-survey-of-large-audio-language-models/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:08:16.553116+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-612-a-survey-of-large-audio-language-models",
+  "updated_at": "2026-06-11T03:08:16.553124+00:00"
+}

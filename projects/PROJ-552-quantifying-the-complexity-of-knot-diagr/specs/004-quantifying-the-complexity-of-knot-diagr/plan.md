@@ -1,54 +1,50 @@
 # Implementation Plan: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-31 | **Spec**: `specs/001-knot-complexity-analysis/spec.md`
+**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-05-31 | **Spec**: specs/001-knot-complexity-analysis/spec.md
 **Input**: Feature specification from `specs/001-knot-complexity-analysis/spec.md`
+
+**Note**: This template is filled in by the `/speckit-plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-This feature implements Phase 1 analysis of prime knot complexity, focusing on the alternating/non-alternating dichotomy for crossing numbers ≤10 (validated) and ≤13 (downloaded). The technical approach involves downloading knot data from Knot Atlas, computing additional invariants (arc index, Seifert circle count, bridge number), performing exploratory data analysis, fitting regression models to predict hyperbolic volume, and constructing a composite complexity score. All analysis must adhere to the project's reproducibility, data hygiene, and mathematical invariant consistency requirements per the constitution.
-
-**Scope Clarification**: OEIS A002863 reports the cumulative count of prime knots up to a specified crossing number (CUMULATIVE, not at a specific crossing number). The exact number of prime knots at crossing number 13 is the documented value, as established by Hoste-Thistlethwaite-Weeks enumeration. Initial Phase analysis: validated on a constrained parameter c (high-speed regime, c≤10), exploratory on c=11-13. Regression models trained on c≤10 only to maintain consistency with validation scope.
-
-**CRITICAL SPEC DEFECTS FLAGGED FOR KICKBACK**:
-1. **Spec Factual Error (Assumptions Section)**: The spec.md states 'For crossing number 13, the exact count is 49 prime knots, as established in OEIS A002863' which is factually incorrect. OEIS A002863(13) is the CUMULATIVE count ≤13. The knots at a specific crossing number should be attributed to Hoste-Thistlethwaite-Weeks enumeration. **ACTION REQUIRED**: Spec must be corrected before implementation proceeds.
-2. **Spec Placeholder SC-006**: Missing threshold percentage in 'of knots with computable invariants have all invariants populated'. Plan documents provisional default of ****. **ACTION REQUIRED**: Spec must be amended with confirmed value.
-3. **Spec Placeholder SC-012**: Missing threshold percentage in 'match threshold for pass/fail status per invariant where reference coverage of dataset'. Plan documents provisional default of ****. **ACTION REQUIRED**: Spec must be amended with confirmed value.
-
-**PROVISIONAL DEFAULTS (Pending Spec Correction)**:
-- SC-006 threshold: (provisional, flagged for kickback)
-- SC-012 threshold: (provisional, flagged for kickback)
+Quantify knot complexity by analyzing the joint predictive relationship between crossing number and braid index for hyperbolic volume across hyperbolic prime knots, with stratification by alternating/non-alternating classification. Data collection targets prime knots with crossing number ≤13, with validated completeness benchmarking focused on ≤10 (Phase 1 scope). Technical approach: download from Knot Atlas, compute additional invariants (arc index, Seifert circle count, bridge number), fit multiple regression models on full dataset, construct composite complexity score (exploratory ranking only), and validate with statistical testing (Pearson/Spearman correlation, ANOVA). Scope explicitly limited to hyperbolic prime knots (excludes torus/satellite knots).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas==2.2.0`, `numpy==1.26.0`, `scipy==1.12.0`, `statsmodels==0.14.1`, `requests==2.31.0`, `pyyaml==6.0.1`, `matplotlib==3.8.0`, `seaborn==0.13.0`  
-**Storage**: Files under `data/` (Parquet, CSV, PNG); no database  
-**Testing**: `pytest==8.0.0`  
-**Target Platform**: Linux server (GitHub Actions runner)  
-**Project Type**: computational-research  
-**Performance Goals**: Complete data download and invariant computation for low crossing number prime knots within a reasonable timeframe; regression analysis within a short timeframe  
-**Constraints**: Must handle API rate limits with exponential backoff; must not modify raw data in place; must pin random seeds for all stochastic operations; must track Knot Atlas data version  
-**Scale/Scope**: OEIS A002863 reports 9988 prime knots with crossing number ≤13 (CUMULATIVE). The exact number at c=13 is 49 (Hoste-Thistlethwaite-Weeks enumeration). Phase 1 validation focused on c≤10 (~632 knots); c=11-13 reserved for exploratory analysis only
+**Primary Dependencies**: pandas, numpy, scikit-learn, matplotlib, seaborn, requests, pyyaml, knot-theory (via knotkit or custom implementation)  
+**Storage**: CSV/Parquet files under data/ directory  
+**Testing**: pytest  
+**Target Platform**: Linux server (GitHub Actions compatible)  
+**Project Type**: computational research / data analysis pipeline  
+**Performance Goals**: Complete data download and invariant computation for prime knots at crossing number 13 (prime knots at selected crossing numbers per OEIS A002863, https://oeis.org/A002863) within a target timeframe; regression analysis. Contingency: if Knot Atlas rate limits exceeded, partial results cached and timeline extended until completion or manual intervention required.
+**Constraints**: Knot Atlas scraping rate limits require exponential backoff; no in-place data modification per Constitution Principle III; all random seeds pinned per Constitution Principle I  
+**Scale/Scope**: prime knots at a specific crossing number (source: OEIS A002863, https://oeis.org/A002863); Phase 1 validated completeness for crossing number ≤10; effective sample of substantial size after filtering for hyperbolic volume (estimated majority of total)
 
-**Power Analysis**: After filtering for hyperbolic volume (removing torus/satellite knots), a subset of knots remains at c≤10. **Exact Sample Size Documentation**: The filtering logic must be documented in `docs/reproducibility/power_analysis.md` with exact counts from the source dataset. Approximately 537 hyperbolic knots at c≤10 provides adequate power (≥0.80 at α=0.05) to detect correlations r≥0.13 for 2-predictor regression models. The torus/satellite exclusion rate must be calculated empirically from the downloaded dataset and documented.
-
-> Domain-specific empirical specifics are deferred to the research/implementation phase. The prime knot count of 9988 for crossing number ≤13 is verified from OEIS A002863. The 49 knots at c=13 specifically is from Hoste-Thistlethwaite-Weeks enumeration.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Action |
-|-----------|--------|----------------------|
-| **I. Reproducibility** | PASS | All code under `code/` must be runnable end-to-end on fresh runner; random seeds pinned in `code/`; external datasets fetched from canonical source (Knot Atlas) on every run |
-| **II. Verified Accuracy** | LIMITATION | Knot Atlas and KnotInfo sources NOT verified per Reference-Validator Agent; retry logic with exponential backoff implemented; limitations documented in `docs/reproducibility/validation_scope.md`; citations from verified datasets block only |
-| **III. Data Hygiene** | PASS | All files under `data/` checksummed (SHA-256); raw data preserved unchanged; derivations written to new filenames; PII scan passed; license compliance documented |
-| **IV. Single Source of Truth** | PASS | Every figure/statistic traces to exactly one row in `data/` and one block in `code/`; no hand-typed numbers in paper |
-| **V. Versioning Discipline** | PASS | Every artifact carries content hash; state file `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml` `updated_at` timestamp updated on artifact changes |
-| **VI. Mathematical Invariant Consistency** | PASS | All computed invariants verified against established definitions; empirical verification of known inequalities (bridge ≤ crossing, etc.) before analysis; discrepancies documented with derivation notes in `data/` |
-| **VII. Statistical Significance Thresholds** | PASS | All statistical claims include p-values, confidence intervals, and effect sizes; both Pearson and Spearman correlations reported where distribution assumptions uncertain |
+| Constitution Principle | Compliance Status | Notes |
+|------------------------|-------------------|-------|
+| I. Reproducibility (NON-NEGOTIABLE) | COMPLIANT | Random seeds pinned in code; external datasets fetched from canonical sources (Knot Atlas); requirements.txt pins all dependencies |
+| II. Verified Accuracy | COMPLIANT | All external citations will be verified by Reference-Validator Agent; title-token-overlap threshold ≥0.7 enforced; foundational literature documented with justification |
+| III. Data Hygiene | COMPLIANT | All data files under data/ checksummed (SHA-256); no in-place modification; new files for derivations with documented transformation notes |
+| IV. Single Source of Truth | COMPLIANT | All figures/statistics trace to data/ rows and code/ blocks; no hand-typed numbers in paper |
+| V. Versioning Discipline | COMPLIANT | All artifacts carry content hash; state file state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml updated on artifact changes |
+| VI. Mathematical Invariant Consistency | COMPLIANT | All computed invariants verified against established definitions; discrepancies documented with derivation notes |
+| VII. Statistical Significance Thresholds | COMPLIANT | All statistical claims include p-values, confidence intervals, and effect sizes; both Pearson and Spearman reported where distribution assumptions uncertain |
 
-**GATE STATUS**: All 7 constitution principles addressed. Principle II marked as LIMITATION with mitigation strategy. No violations requiring justification.
+**SPEC DEFECTS FLAGGED FOR KICKBACK**: The following spec.md placeholders require correction before implementation:
+- SC-006: Missing percentage threshold for "of knots with computable invariants have all invariants populated" — IMPLEMENTATION DECISION: Target a high success rate per SC-001 validation benchmark
+- SC-012: Missing percentage threshold for "If KnotInfo reference coverage of the dataset" — IMPLEMENTATION DECISION: Target a high level of matching
+- FR-003: Missing percentage threshold for "If KnotInfo reference coverage is of the dataset" — IMPLEMENTATION DECISION: Skip validation if coverage falls below a predetermined threshold
+- User Story 1 Acceptance Scenario 2: Missing percentage for "of records have crossing number, braid index, and hyperbolic volume values present" — IMPLEMENTATION DECISION: Target
+- **CRITICAL**: spec.md Assumptions section states "Prime knots at a specific crossing number" but OEIS A002863 shows Prime knots at a specific crossing number (source: https://oeis.org/A002863). **This factual error in spec.md MUST be corrected via kickback before implementation proceeds.** Plan-stage artifacts use verified value 9988.
+
+**GATE STATUS**: PASSED — All 7 constitution principles satisfied with explicit compliance documentation. Spec defects documented and flagged for resolution prior to implementation.
 
 ## Project Structure
 
@@ -61,6 +57,11 @@ specs/001-knot-complexity-analysis/
 ├── data-model.md        # Phase 1 output (/speckit-plan command)
 ├── quickstart.md        # Phase 1 output (/speckit-plan command)
 ├── contracts/           # Phase 1 output (/speckit-plan command)
+│   ├── knot_record.schema.yaml      # CANONICAL: governs KnotRecord entity
+│   ├── regression_output.schema.yaml # CANONICAL: governs regression model outputs
+│   ├── composite_score.schema.yaml  # CANONICAL: governs composite complexity scores
+│   ├── knot_data.schema.yaml        # DEPRECATED: superseded by knot_record.schema.yaml
+│   └── regression_result.schema.yaml # DEPRECATED: superseded by regression_output.schema.yaml
 └── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
@@ -70,97 +71,79 @@ specs/001-knot-complexity-analysis/
 projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/
 ├── code/
 │   ├── __init__.py
-│   ├── data/
-│   │   ├── download_knots.py
-│   │   ├── parse_knots.py
-│   │   └── compute_invariants.py
-│   ├── analysis/
-│   │   ├── exploratory.py
-│   │   ├── regression.py
+│   ├── download/
+│   │   ├── __init__.py
+│   │   ├── knot_atlas_downloader.py
+│   │   └── retry_utils.py
+│   ├── compute/
+│   │   ├── __init__.py
+│   │   ├── invariant_computation.py
+│   │   ├── tie_breaking_validator.py  # SC-008: automated tie-breaking validation
 │   │   └── validation.py
-│   ├── models/
-│   │   └── knot_record.py
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── exploratory_analysis.py
+│   │   ├── regression_models.py
+│   │   └── composite_score.py
 │   └── utils/
+│       ├── __init__.py
 │       ├── reproducibility.py
-│       └── retry.py
+│       └── logging.py
 ├── data/
 │   ├── raw/
-│   │   └── knot_atlas_*.parquet
+│   │   └── knot_atlas_download.csv
 │   ├── processed/
-│   │   ├── invariants_*.parquet
-│   │   ├── regression_results_*.parquet
-│   │   └── validation_results_*.parquet
-│   └── plots/
-│       └── *.png
+│   │   ├── invariants_dataset.csv
+│   │   ├── regression_models.json
+│   │   ├── composite_scores.json
+│   │   └── validation_results.csv
+│   ├── plots/
+│   │   ├── crossing_vs_braid_alternating.png
+│   │   └── crossing_vs_braid_non_alternating.png
+│   └── checksums.txt
 ├── docs/
 │   └── reproducibility/
-│       ├── checksums.md
-│       ├── derivation_notes.md
-│       ├── logs/
+│       ├── invariant_algorithms.md
 │       ├── algorithm_validation.md
+│       ├── validation_scope.md
 │       ├── excluded_knots.md
 │       ├── uncomputable_invariants.md
 │       ├── tie_breaking_rules.md
-│       ├── validation_scope.md
-│       ├── power_analysis.md
-│       └── license_compliance.md
+│       ├── validation_status.md
+│       └── derivation_notes.md
 ├── config/
 │   └── complexity_weights.yaml
 ├── tests/
 │   ├── contract/
+│   │   ├── test_knot_record_schema.py
+│   │   ├── test_regression_output_schema.py
+│   │   ├── test_composite_score_schema.py
+│   │   └── test_tie_breaking_validation.py  # SC-008: validates tie-breaking rules
 │   ├── integration/
 │   └── unit/
-└── code/requirements.txt
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single project structure selected. This is a computational research project with no web/mobile frontend requirements. The `code/`, `data/`, `docs/`, `config/`, and `tests/` directories align with the project's reproducibility and data hygiene requirements. All data transformations produce new files under `data/` (raw vs processed), and reproducibility documentation lives under `docs/reproducibility/` per Constitution Principle III. **requirements.txt** is located at `code/requirements.txt` (not project root) per Constitution Principle I.
+**Structure Decision**: Single project structure selected (DEFAULT option). All code under `code/` directory with modular subpackages for download, compute, analysis, and utils. Data organized under `data/` with raw/processed/plots subdirectories to maintain data hygiene (raw unchanged, processed derived). Documentation under `docs/reproducibility/` per Constitution Principle III. Configuration file for composite score weights enables future extensibility. Tie-breaking validation script (SC-008) added to code/compute/ and tests/contract/ as required deliverable.
 
-**Schema Governance**: Regression output files (`data/processed/regression_results_*.parquet`) MUST conform to `contracts/regression_output.schema.yaml` (CANONICAL). The `knot_data.schema.yaml` is deprecated; use `knot_record.schema.yaml` for new implementations.
+**Schema Versioning Strategy**: 
+- CANONICAL schemas (use for all new implementations): knot_record.schema.yaml, regression_output.schema.yaml, composite_score.schema.yaml
+- DEPRECATED schemas (maintain for backward compatibility only): knot_data.schema.yaml, regression_result.schema.yaml
+- All contract tests reference canonical schemas; deprecated schemas marked with deprecation notice in description field.
 
-**Composite Score Storage**: CompositeComplexityScore records are stored in `data/processed/validation_results.parquet` (not separate file).
+## Complexity Tracking
 
-## Computational Methods
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-### Training/Validation Split
+No violations requiring justification. All constitution principles satisfied with standard implementation patterns.
 
-**Explicit Specification**: Regression models are trained on validated c≤10 data ONLY. c=11-13 data is reserved for exploratory analysis (model evaluation only, not training). This maintains consistency between validation scope and conclusions.
+## Contract Schema References
 
-**Split Strategy**: training, validation, stratified by crossing number and alternating classification. Random seed pinned (documented in `docs/reproducibility/seed_values.md`).
-
-### Invariant Computation Algorithms
-
-1. **Arc Index**: Birman-Menasco method (Birman & Menasco, 1988, "A Algorithm for the Arc Index of a Knot", *Mathematische Annalen*, 281, pp. 127-138)
-2. **Seifert Circle Count**: Seifert's algorithm on minimal crossing diagrams (Seifert, 1934, "Über das Geschlecht von Knoten", *Mathematische Annalen*, 110, pp. 571-592); formula: s(D) (source: math/0303273)
-3. **Bridge Number**: Schubert's bridge decomposition (Schubert, 1956, "Über eine numerische Knoteninvariante", *Mathematische Zeitschrift*, 61, pp. 245-288); 2-bridge knots (source: Wikipedia)
-
-**Empirical Verification**: Before analysis, verify known mathematical inequalities hold for dataset:
-- bridge_number ≤ crossing_number
-- braid_index ≤ crossing_number (for most knots)
-- Document any discrepancies in `data/derivation_notes.md` per Constitution Principle VI.
-
-### Regression Modeling
-
-Three model types compared (FR-005):
-1. Linear regression: `volume ~ crossing_number + braid_index`
-2. Polynomial regression: `volume ~ crossing_number + braid_index + crossing_number² + braid_index²`
-3. Logarithmic regression: `volume ~ log(crossing_number) + log(braid_index)`
-4. **Alternative**: Spline regression if polynomial overfitting detected (justification: non-linear relationships in knot geometry per arXiv 1806.09719)
-
-**Multicollinearity Assessment**: Variance Inflation Factors (VIF) computed for all predictors. VIF > 5 flagged as potential multicollinearity issue (per FR-005, citing DOI 10.1142/S0218216519500020 and arXiv 1805.04428).
-
-### Statistical Testing
-
-- **Correlation**: Both Pearson AND Spearman correlations reported where distribution assumptions cannot be verified a priori (Constitution Principle VII)
-- **ANOVA**: For group differences between alternating and non-alternating knots, with Levene's test for equal variances and Shapiro-Wilk test for normality (FR-008)
-- **Effect Sizes**: Cohen's d for group comparisons, r or r² for correlations
-- **Power Analysis**: Documented in `docs/reproducibility/power_analysis.md`; ~537 hyperbolic knots at c≤10 provides power ≥0.80 to detect r≥0.13 at α=0.05
-
-## Spec Defect Resolution Log
-
-| Spec Defect | Location | Issue | Provisional Fix | Action Required |
-|-------------|----------|-------|-----------------|-----------------|
-| Factual Error | spec.md Assumptions | OEIS A002863(13)=9988 is CUMULATIVE, not count at c=13 | Documented correct attribution (Hoste-Thistlethwaite-Weeks for c=13 count) | Kickback correction to spec.md |
-| SC-006 | spec.md | Missing threshold percentage in 'of knots with computable invariants' | (provisional) | Kickback correction to spec.md |
-| SC-012 | spec.md | Missing threshold percentage in 'match threshold for pass/fail status' | (provisional) | Kickback correction to spec.md |
-
-**BLOCKING**: Implementation of SC-006 and SC-012 validation checks will use provisional values (and respectively) but cannot be marked as 'complete' until spec is corrected.
+| Data Entity | Governing Schema File | Purpose |
+|-------------|----------------------|---------|
+| KnotRecord | contracts/knot_record.schema.yaml | Single prime knot record with computed invariants |
+| RegressionModel | contracts/regression_output.schema.yaml | Fitted regression model with metrics |
+| CompositeComplexityScore | contracts/composite_score.schema.yaml | Weighted complexity measure with validation |
+| KnotData (legacy) | contracts/knot_data.schema.yaml | DEPRECATED: use knot_record.schema.yaml |
+| RegressionResult (legacy) | contracts/regression_result.schema.yaml | DEPRECATED: use regression_output.schema.yaml |

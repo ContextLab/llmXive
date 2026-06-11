@@ -1,0 +1,64 @@
+name: Pipeline — Validate Ideas
+# Spec 023 / FR-007: dedicated drain lane for the idea-validation backlog.
+# 589 projects sat at flesh_out_complete with ~2% of roulette picks and NO
+# scheduled lane targeting the stage (issue #303 funnel starvation). This
+# lane runs the research_question_validator over the queue at a cadence
+# sized so sustained drain exceeds intake: 8 validations/hour (~192/day)
+# vs hourly brainstorm + 2-hourly flesh-out intake (~60-120/day). Intake
+# additionally self-throttles while the backlog grows (FR-008).
+on:
+  schedule:
+    - cron: '40 * * * *'   # hourly, offset 40min (avoid other lanes' slots)
+  workflow_dispatch:
+permissions:
+  actions: write             # workflow_dispatch to pages.yml
+  contents: write
+  issues: write
+concurrency:
+  group: pipeline-validate-ideas
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.11", cache: pip }
+      - run: pip install -e ".[dev]"
+      - run: python -m llmxive preflight
+      - name: Run idea-validation pass
+        run: python -m llmxive run --max-tasks 8 --stage flesh_out_complete
+      - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+      - name: Commit + push
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/ projects/ web/data/ specs/ || true
+          if git diff --cached --quiet; then echo "no changes"; echo "pushed=false" >> "$GITHUB_OUTPUT"; else
+
+            git commit -m "pipeline(validate-ideas): 1h tick"
+
+            for i in 1 2 3 4 5; do
+
+              git pull --rebase origin main && git push && break
+
+              echo "push attempt $i failed; retrying..." >&2
+
+              sleep $((5 * i))
+
+            done
+            echo "pushed=true" >> $GITHUB_OUTPUT
+
+          fi
+
+      - name: Trigger Pages deploy
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main

@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-606-https-arxiv-org-abs-2605-18747/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:08:04.913097+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
+  "updated_at": "2026-06-11T03:08:04.913107+00:00"
+}

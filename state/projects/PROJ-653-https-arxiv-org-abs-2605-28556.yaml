@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-653-https-arxiv-org-abs-2605-28556/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks'
-updated_at: '2026-06-03T19:21:37.651717Z'
+updated_at: '2026-06-11T03:09:39.948601Z'

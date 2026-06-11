@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: RegressionResult
-description: "Schema for regression model results and validation metrics (deprecated - use regression_output.schema.yaml for new implementations)"
+description: "DEPRECATED: This schema is superseded by regression_output.schema.yaml. Use regression_output.schema.yaml for all new implementations. Maintained for backward compatibility only."
 type: object
 required:
  - model_id

@@ -74,15 +74,38 @@ def _tidy(line: str) -> str:
     return line.rstrip()
 
 
-def strip_empirical_values(text: str) -> str:
-    """Remove every high-confidence empirical value from ``text`` (deterministic).
+#: Grammatical stand-in for a deferred empirical value (spec 023 defect
+#: #15): bare DELETION left broken prose — "≥95% of records have X" became
+#: "of records have X" — which review panels then (correctly) flagged as an
+#: incomplete placeholder, and the reviser's re-added number was stripped
+#: again on the next render: an unwinnable loop observed live on PROJ-552.
+#: The marker is sanctioned in the shared panel-review block; panels must
+#: not flag it.
+DEFERRED_MARKER = "[deferred]"
 
-    Operates line by line (markdown headers and fenced code are left untouched).
-    For each empirical token it also absorbs an immediately-preceding comparison
-    operator / approximator (``≥95%`` → removed whole). Guaranteed claim-free of
-    these patterns and idempotent. Surrounding prose, references, and all
-    structural numbers are preserved.
+
+def _normalize_value(token: str) -> str:
+    """Canonical form for exempt-value comparison: digits/percent only."""
+    return re.sub(r"[^\d.%]", "", token).rstrip(".")
+
+
+def strip_empirical_values(
+    text: str, *, exempt: tuple[str, ...] = ()
+) -> str:
+    """Defer every high-confidence empirical value in ``text`` (deterministic).
+
+    Operates line by line (markdown headers and fenced code are left
+    untouched). Each empirical token — together with an immediately-
+    preceding comparison operator / approximator (``≥95%`` is handled
+    whole) — is replaced by :data:`DEFERRED_MARKER`, keeping the sentence
+    grammatical. Idempotent; structural numbers are preserved.
+
+    ``exempt`` (spec 023 defect #15): values verified against a primary
+    source (the project's ``verified_facts.yaml``) are EXACTLY what the
+    planning rule wants cited — they are kept, not deferred.
     """
+    exempt_norm = {_normalize_value(v) for v in exempt if v}
+    exempt_norm.discard("")
     out: list[str] = []
     in_fence = False
     for line in text.split("\n"):
@@ -95,18 +118,22 @@ def strip_empirical_values(text: str) -> str:
             out.append(line)
             continue
         new = line
-        # Remove tokens right-to-left so earlier offsets stay valid.
+        pos = 0
         while True:
-            m = _EMPIRICAL_TOKEN.search(new)
+            m = _EMPIRICAL_TOKEN.search(new, pos)
             if m is None:
                 break
+            if _normalize_value(m.group(0)) in exempt_norm:
+                pos = m.end()
+                continue
             start = m.start()
             lead = _LEAD.search(new[:start])
             if lead is not None:
                 start = lead.start()
-            new = new[:start] + new[m.end():]
+            new = new[:start] + DEFERRED_MARKER + new[m.end():]
+            pos = start + len(DEFERRED_MARKER)
         out.append(_tidy(new) if new != line else line)
     return "\n".join(out)
 
 
-__all__ = ["has_empirical_value", "strip_empirical_values"]
+__all__ = ["DEFERRED_MARKER", "has_empirical_value", "strip_empirical_values"]

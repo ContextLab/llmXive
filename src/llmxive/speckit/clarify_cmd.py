@@ -146,7 +146,19 @@ class ClarifierAgent(SlashCommandAgent):
                 f"clarifier emitted verdict=escalate after {new_n} attempt(s); "
                 f"unresolved markers={len(markers) - len(patches_by_index)}"
             )
-            write_human_input_needed(memory_dir, reason)
+            # Spec 023 / FR-017: an LLM "escalate" verdict alone is NOT
+            # exhaustion — the bounded loop must run to its cap before a
+            # human is asked. Below the cap, fail this attempt and retry
+            # on a later tick.
+            if new_n < TASKER_MAX_REVISION_ROUNDS:
+                raise RuntimeError(
+                    f"{reason} (attempt {new_n}/{TASKER_MAX_REVISION_ROUNDS}; "
+                    "retrying before any human escalation)"
+                )
+            write_human_input_needed(
+                memory_dir, reason,
+                rounds_used=new_n, bound=TASKER_MAX_REVISION_ROUNDS,
+            )
             raise RuntimeError(reason)
         # Quality gate: every [NEEDS CLARIFICATION] marker MUST have a real
         # replacement. If the LLM produced fewer patches than markers, fail the
@@ -164,7 +176,10 @@ class ClarifierAgent(SlashCommandAgent):
                     f"{TASKER_MAX_REVISION_ROUNDS}); {len(missing)} markers still "
                     f"unresolved: {missing!r}"
                 )
-                write_human_input_needed(memory_dir, reason)
+                write_human_input_needed(
+                    memory_dir, reason,
+                    rounds_used=new_n, bound=TASKER_MAX_REVISION_ROUNDS,
+                )
                 raise RuntimeError(reason)
             raise RuntimeError(
                 f"Clarifier left {len(missing)} of {len(markers)} markers unresolved "

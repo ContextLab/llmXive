@@ -67,6 +67,7 @@ jobs:
           git add projects || true
           git add state/personality-submissions || true
           git add web/data/ || true
+          git add specs/ || true
           if git diff --cached --quiet; then
             echo "no changes"
             echo "pushed=false" >> $GITHUB_OUTPUT

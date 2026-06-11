@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.47746/fmcr.2025.6506",
+  "judged_at": "2026-06-11T02:53:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "rationale": "This paper investigates primacy bias (information order effects) rather than visual salience or attentional bias, representing a distinct construct sharing only homonym keywords (\"bias\", \"decision-making\"). It does not measure the user's independent variable (visual salience) or dependent variable (attentional bias).",
+  "relevant": false
+}

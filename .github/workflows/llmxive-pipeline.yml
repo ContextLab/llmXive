@@ -91,6 +91,15 @@ jobs:
           if [[ -n "${PROJECT_ID:-}" ]]; then ARGS+=(--project "$PROJECT_ID"); fi
           if [[ -n "${STAGE:-}" ]]; then ARGS+=(--stage "$STAGE"); fi
           python -m llmxive "${ARGS[@]}"
+      - name: Update escalation digest (spec 023 / FR-017)
+        # Aggregates open exhaustion-evidence escalation records into ONE
+        # digest issue (no per-project pings). Best-effort: a digest
+        # failure never fails the pipeline tick.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -c "from llmxive.state.escalations import update_digest; update_digest()" || true
       - name: Persist pipeline progress
         # Commit + push whatever the pipeline produced (advanced stage, new
         # artifacts, run-log telemetry) back to the branch this run checked out,
@@ -107,7 +116,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add state projects .llmxive || true
+          git add state projects .llmxive specs || true
           if git diff --cached --quiet; then
             echo "no pipeline changes to commit"
           else

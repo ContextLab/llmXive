@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-562-a-stylometric-application-of-large-langu/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:03:08.822253+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-562-a-stylometric-application-of-large-langu",
+  "updated_at": "2026-06-11T03:03:08.822265+00:00"
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1007/s41463-025-00215-0",
+  "judged_at": "2026-06-11T02:51:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "rationale": "The paper focuses on human perception of AI ethical decisions and does not measure or discuss the specific variables of visual salience or attentional bias required by the user's question. It shares the broad domain keyword of moral judgment but lacks the necessary connection to the specific mechanism or variables under investigation.",
+  "relevant": false
+}

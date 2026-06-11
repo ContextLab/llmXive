@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-622-https-arxiv-org-abs-2605-23463/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: StepAudio 2.5 Technical Report
-updated_at: '2026-05-26T14:10:33.472106Z'
+updated_at: '2026-06-11T03:08:40.046569Z'

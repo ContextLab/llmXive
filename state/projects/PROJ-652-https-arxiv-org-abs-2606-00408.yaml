@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-652-https-arxiv-org-abs-2606-00408/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Masking Stale Observations Helps Search Agents -- Until It Doesn''t: A Regime
   Map and Its Mechanism'
-updated_at: '2026-06-03T19:21:37.398879Z'
+updated_at: '2026-06-11T03:09:35.434502Z'

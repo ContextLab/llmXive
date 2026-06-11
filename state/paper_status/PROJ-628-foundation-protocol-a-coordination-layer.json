@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:08:49.013348+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-628-foundation-protocol-a-coordination-layer",
+  "updated_at": "2026-06-11T03:08:49.013361+00:00"
+}

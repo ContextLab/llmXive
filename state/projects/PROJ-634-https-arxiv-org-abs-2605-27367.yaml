@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-634-https-arxiv-org-abs-2605-27367/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SpatialBench: Is Your Spatial Foundation Model an All-Round Player?'
-updated_at: '2026-05-28T15:10:09.239350Z'
+updated_at: '2026-06-11T03:09:04.924110Z'

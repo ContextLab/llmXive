@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4918",
+  "judged_at": "2026-06-11T02:45:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "rationale": "This paper focuses on mathematical quantum probability models for social agents and does not measure or discuss the user's specific variables (visual salience, attentional bias) or the empirical psychological domain of moral decision-making. It falls under the rejection rule for distinct constructs sharing only homonym keywords (\"decision making\") without a measurable connection to the user's mechanism or domain.",
+  "relevant": false
+}

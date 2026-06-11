@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:08:31.458761+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
+  "updated_at": "2026-06-11T03:08:31.458774+00:00"
+}

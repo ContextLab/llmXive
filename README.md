@@ -48,9 +48,18 @@ Three terminal outcomes:
 
 - **All specialists accept** → `paper_accepted` →
   `awaiting_publication_signoff`. The transition through to `posted`
-  requires a maintainer to record explicit approval via
-  `llmxive project publish-approve <PROJ-ID>` (spec 015 FR-054 — every
-  real Zenodo DOI mint gated on a manual sign-off). Once approved, the
+  goes through the **maintainer vote gate** (spec 023): the system opens
+  a GitHub issue tagging every maintainer with the compiled PDF, review
+  trail, and a one-glance summary; a maintainer approves with a 👍
+  reaction (or an `approve` comment) and the publication proceeds
+  automatically — or rejects with `reject: <reason>`, which converts the
+  reason into review feedback and re-enters the automated revision loop.
+  The scheduled `signoff-poll` lane parses the votes (any maintainer
+  rejection takes precedence; non-maintainer votes are ignored; the
+  issue is the durable sign-off record, and decisions are idempotent —
+  no DOI is ever double-minted). `llmxive project publish-approve
+  <PROJ-ID>` remains the manual CLI path that writes the same FR-054
+  record. Once approved, the
   `paper_publisher` agent (spec 013) pre-reserves a Zenodo DOI,
   recompiles the PDF with the final
   `\paperstatus{Auto-Reviewed | Auto-Revised | Published}` byline +

@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:09:26.981919+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
+  "updated_at": "2026-06-11T03:09:26.981941+00:00"
+}

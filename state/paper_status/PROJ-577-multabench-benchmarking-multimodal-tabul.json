@@ -1,0 +1,21 @@
+{
+  "pdf": "projects/PROJ-577-multabench-benchmarking-multimodal-tabul/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 2, saw section 60",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 61
+      }
+    ],
+    "audited_at": "2026-06-11T03:07:13.194147+00:00"
+  },
+  "repair_rounds": 1,
+  "status": "restyled_unaudited",
+  "failure": null,
+  "paper_id": "PROJ-577-multabench-benchmarking-multimodal-tabul",
+  "updated_at": "2026-06-11T03:07:13.214647+00:00"
+}

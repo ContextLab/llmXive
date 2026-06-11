@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:07:10.198547+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-576-sana-wm-efficient-minute-scale-world-mod",
+  "updated_at": "2026-06-11T03:07:10.198557+00:00"
+}
