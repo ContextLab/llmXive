@@ -338,4 +338,7 @@ ready:
 - project_id: PROJ-997-spec023-signoff-reject-test
   revision_spec_path: specs/auto-revisions/PROJ-997-spec023-signoff-reject-test/round-1
   queued_at: '2026-06-11T03:12:06.694711+00:00'
+- project_id: PROJ-565-edit-compass-editreward-compass-a-unifie
+  revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-2
+  queued_at: '2026-06-11T03:39:08.298607+00:00'
 blocked: []

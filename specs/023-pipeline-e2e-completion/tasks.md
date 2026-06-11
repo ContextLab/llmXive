@@ -38,7 +38,7 @@ regression test, in the same effort.
 - [X] T006 [US1] Gate reviewer fan-out in src/llmxive/pipeline/graph.py (dispatch block ~:387-435): when a complete, current (live-hash-matching) verdict set exists, skip reviewer dispatch and proceed directly to advancement evaluation; when the set is stale, re-dispatch only the specialists whose verdicts are stale, recording the staleness reason (FR-004 + spec edge case)
 - [X] T007 [P] [US1] Regression tests in tests/unit/test_review_dispatch_gating.py: (a) complete+current set → zero reviewer dispatches, evaluation runs; (b) stale set → only changed-artifact specialists re-dispatched with reason recorded; (c) incomplete set → only missing specialists dispatched (FR-004)
 - [X] T008 [US1] Verify/repair revision-implementer consumption in src/llmxive/agents/implementer.py:343-354: implementer consumes exactly the persisted work-spec, records consumption (clears/marks `revision_spec_path`), and the re-review round then proceeds; when a revision round fails repeatedly, the bounded kickback cap applies and routes to the honest terminal; regression test in tests/unit/test_revision_workspec_consumption.py (FR-002 + revision-failure edge case)
-- [ ] T009 [US1] Real-state demonstration: run `python -m llmxive run --project <stuck paper-review project> --max-tasks 1` twice (evaluation pass, then implementer pass) against the real repository; verify persisted work-spec + implementer dispatch + commit contents; record run IDs and outcomes in notes/2026-06-10-spec-023-execution.md (US1 independent test; Constitution III)
+- [X] T009 [US1] Real-state demonstration: run `python -m llmxive run --project <stuck paper-review project> --max-tasks 1` twice (evaluation pass, then implementer pass) against the real repository; verify persisted work-spec + implementer dispatch + commit contents; record run IDs and outcomes in notes/2026-06-10-spec-023-execution.md (US1 independent test; Constitution III)
 
 **Checkpoint**: papers can exit review; ~83% no-op reviewer load disappears.
 
@@ -65,11 +65,11 @@ regression test, in the same effort.
 
 - [X] T016 [US4] Implement the infeasible-idea automation in src/llmxive/agents/lifecycle.py: a flesh-out "infeasible scope" verdict archives the idea and triggers a constrained re-brainstorm (feasibility constraint injected into the prompt); after a bounded retry count, honest terminal to backlog/rejected — never `human_input_needed` (FR-014)
 - [X] T017 [P] [US4] Regression tests in tests/unit/test_infeasible_idea_automation.py: verdict → archive + constrained re-brainstorm; N failed regenerations → honest terminal; no path writes `human_input_needed` (FR-014)
-- [ ] T018 [US4] Audit every `human_input_needed` writer in src/llmxive/ (grep-complete inventory) and classify each: (a) automate/remove, (b) bound-with-evidence, (c) sanctioned sign-off gate; convert all remaining infra-failure shapes (rate limiting, mid-call drops) to retry-later clean aborts extending the PR-#302 router classification in src/llmxive/backends/router.py; record the inventory table in notes/2026-06-10-spec-023-execution.md (FR-015, FR-017)
+- [X] T018 [US4] Audit every `human_input_needed` writer in src/llmxive/ (grep-complete inventory) and classify each: (a) automate/remove, (b) bound-with-evidence, (c) sanctioned sign-off gate; convert all remaining infra-failure shapes (rate limiting, mid-call drops) to retry-later clean aborts extending the PR-#302 router classification in src/llmxive/backends/router.py; record the inventory table in notes/2026-06-10-spec-023-execution.md (FR-015, FR-017)
 - [X] T019 [US4] Implement engine-failure auto-issue filing: unexpected engine failures file a tracked GitHub issue with failure evidence (project, stage, traceback, run id) instead of parking the project; project remains schedulable; new module or extension in src/llmxive/state/escalations.py with the GitHub call behind an injected client (FR-016)
 - [X] T020 [US4] Implement the exhaustion-evidence escalation record per contracts/escalation-record.md in src/llmxive/state/escalations.py: write-time validation (`rounds_used >= bound`), storage under state/escalations/, and digest aggregation emitted by the 3h scheduled pipeline lane (.github/workflows/llmxive-pipeline.yml; audit.yml is push/PR-triggered with contents:read, so it cannot write issues) as a single periodically-updated digest GitHub issue (sets `digest_id`; no per-project pings); wire every surviving escalation writer through it (FR-017)
 - [X] T021 [P] [US4] Contract + unit tests in tests/contract/test_escalation_record.py and tests/unit/test_escalation_paths.py: record schema validated; premature escalation fails fast; infra failures never produce records; engine failures produce issues not records (FR-015..017)
-- [ ] T022 [US4] Re-process the three parked infeasible-idea projects (PROJ-545, PROJ-553, PROJ-557) through the new automation via real pipeline passes; verify each re-brainstorms or honestly terminates without human input; record outcomes in notes/2026-06-10-spec-023-execution.md (FR-018)
+- [X] T022 [US4] Re-process the three parked infeasible-idea projects (PROJ-545, PROJ-553, PROJ-557) through the new automation via real pipeline passes; verify each re-brainstorms or honestly terminates without human input; record outcomes in notes/2026-06-10-spec-023-execution.md (FR-018)
 
 **Checkpoint**: steady-state escalation population ≈ 0 outside sign-off.
 
@@ -119,10 +119,10 @@ regression test, in the same effort.
 
 ## Phase 9: Polish & Cross-Cutting
 
-- [ ] T040 Update documentation in the same change-set as the code (Constitution parity): README.md pipeline description, CLAUDE.md if workflows changed, docstrings for new modules (escalations, signoff parser, paper status), and web/ text where the site status legend appears
-- [ ] T041 Run quickstart.md end-to-end as written and fix any drift between its commands and the shipped behavior in specs/023-pipeline-e2e-completion/quickstart.md
+- [X] T040 Update documentation in the same change-set as the code (Constitution parity): README.md pipeline description, CLAUDE.md if workflows changed, docstrings for new modules (escalations, signoff parser, paper status), and web/ text where the site status legend appears
+- [X] T041 Run quickstart.md end-to-end as written and fix any drift between its commands and the shipped behavior in specs/023-pipeline-e2e-completion/quickstart.md
 - [ ] T042 Full verification gates (SC-008): `pytest tests/unit tests/contract tests/integration -q` and `LLMXIVE_REAL_TESTS=1 pytest tests/real_call -m "not slow" -q` — zero failures; re-run entire suite after any fix; record results in notes/2026-06-10-spec-023-execution.md
-- [ ] T043 Measure success criteria against canonical state and record evidence per SC-001..SC-008 (review-exit transitions, backlog trend, run-log reviewer share, escalation population, sign-off round-trip, shelf status cross-check) in notes/2026-06-10-spec-023-execution.md
+- [X] T043 Measure success criteria against canonical state and record evidence per SC-001..SC-008 (review-exit transitions, backlog trend, run-log reviewer share, escalation population, sign-off round-trip, shelf status cross-check) in notes/2026-06-10-spec-023-execution.md
 
 ## Dependencies & Execution Order
 
