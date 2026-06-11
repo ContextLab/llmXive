@@ -357,3 +357,6 @@ ready:
 - project_id: PROJ-562-a-stylometric-application-of-large-langu
   revision_spec_path: specs/auto-revisions/PROJ-562-a-stylometric-application-of-large-langu/round-1
   queued_at: '2026-06-11T16:41:00.614923+00:00'
+- project_id: PROJ-688-agents-last-exam
+  revision_spec_path: specs/auto-revisions/PROJ-688-agents-last-exam/round-1
+  queued_at: '2026-06-11T19:00:15.753975+00:00'

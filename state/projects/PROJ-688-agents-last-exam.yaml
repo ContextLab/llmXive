@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-688-agents-last-exam
-last_run_id: null
+last_run_id: ae8816d8-9755-4c89-8e53-384af547ad3c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-688-agents-last-exam/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Agents' Last Exam
-updated_at: '2026-06-10T09:16:10.683174Z'
+updated_at: '2026-06-11T19:00:15.802204Z'
