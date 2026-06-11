@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T18:27:45.931785Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-215-investigating-the-relationship-between-g
-last_run_id: 94778330-8ecd-4059-bce7-b93f39f4863b
+last_run_id: d8207109-5a3d-4414-9b67-7719eb73ad82
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Gut Microbiome Composition and Mental
   Health in Public Datasets
-updated_at: '2026-05-03T18:31:02.772169Z'
+updated_at: '2026-06-11T22:23:51.122424Z'
