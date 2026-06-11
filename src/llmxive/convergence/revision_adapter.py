@@ -37,12 +37,13 @@ from .types import Concern, KickbackRecord, Severity
 
 # --- next-round-number discovery ----------------------------------------
 
-def _next_round_number(repo: Path, project_id: str) -> int:
+def next_round_number(repo: Path, project_id: str) -> int:
     """Return the next available round number for the project.
 
     Mirrors the discovery rule from ``revision_planner._next_round_number``
     so existing rounds laid down by the deprecated module are recognised
-    and not overwritten."""
+    and not overwritten. Public: ``advancement.evaluate`` consults it to
+    enforce the bounded revision-round cap (spec 023)."""
     base = repo / "specs" / "auto-revisions" / project_id
     if not base.is_dir():
         return 1
@@ -288,7 +289,7 @@ def kickback_to_revision_spec(
     """
     repo = Path(repo_root)
     if round_num is None:
-        round_num = _next_round_number(repo, project_id)
+        round_num = next_round_number(repo, project_id)
     if revision_kind is None:
         revision_kind = (
             "paper_science"
@@ -371,11 +372,11 @@ def kickback_to_revision_spec(
 
 __all__ = [
     "_legacy_severity",
-    "_next_round_number",
     "_render_analyze_report",
     "_render_plan",
     "_render_spec",
     "_render_tasks",
     "_seed_specify_input",
     "kickback_to_revision_spec",
+    "next_round_number",
 ]

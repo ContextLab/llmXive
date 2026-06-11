@@ -106,6 +106,32 @@ def hash_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def feature_dir_for(project_dir: Path, *, track: str) -> Path | None:
+    """The speckit feature dir whose ``tasks.md`` is the track's governing
+    review artifact (canonical home — spec 023 / FR-004).
+
+    ``track="research"`` looks under ``projects/<id>/specs/*/``;
+    ``track="paper"`` under ``projects/<id>/paper/specs/*/``. Preference
+    order: a dir with ``tasks.md``, then one with ``spec.md``, then the
+    alphabetically-first candidate — pure alphabetical sort alone can pick
+    a ghost dir created when an earlier LLM run wrote to an invented slug.
+    Both reviewers and the advancement evaluator's verdict-coverage check
+    MUST resolve the artifact through here so "current vs stale" means the
+    same file everywhere.
+    """
+    base = project_dir / "paper" if track == "paper" else project_dir
+    candidates = sorted(base.glob("specs/*/"))
+    if not candidates:
+        return None
+    for c in candidates:
+        if (c / "tasks.md").exists():
+            return c
+    for c in candidates:
+        if (c / "spec.md").exists():
+            return c
+    return candidates[0]
+
+
 def refresh_artifact_hashes(project: Project, *, repo_root: Path | None = None) -> Project:
     """Recompute artifact_hashes for every file under projects/<PROJ-ID>/.
 
@@ -123,4 +149,11 @@ def refresh_artifact_hashes(project: Project, *, repo_root: Path | None = None) 
     return project.model_copy(update={"artifact_hashes": new_hashes})
 
 
-__all__ = ["hash_file", "list_all", "load", "refresh_artifact_hashes", "save"]
+__all__ = [
+    "feature_dir_for",
+    "hash_file",
+    "list_all",
+    "load",
+    "refresh_artifact_hashes",
+    "save",
+]

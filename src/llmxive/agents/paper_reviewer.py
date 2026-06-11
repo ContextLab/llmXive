@@ -415,17 +415,12 @@ class PaperReviewerAgent(Agent):
         return repo / "projects" / ctx.project_id
 
     def _paper_feature_dir(self, project_dir: Path) -> Path | None:
-        # Prefer the dir that actually has tasks.md, then spec.md.
-        candidates = sorted((project_dir / "paper").glob("specs/*/"))
-        if not candidates:
-            return None
-        for c in candidates:
-            if (c / "tasks.md").exists():
-                return c
-        for c in candidates:
-            if (c / "spec.md").exists():
-                return c
-        return candidates[0]
+        # Canonical resolution shared with advancement.verdict_coverage —
+        # the reviewer's artifact_hash and the coverage check's notion of
+        # "the live artifact" must agree (spec 023 / FR-004).
+        from llmxive.state.project import feature_dir_for
+
+        return feature_dir_for(project_dir, track="paper")
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
         repo = _repo_root()

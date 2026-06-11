@@ -22,7 +22,13 @@ from typing import Any
 from uuid import uuid4
 
 from llmxive.agents import registry as registry_loader
-from llmxive.agents.advancement import evaluate as advancement_evaluate
+from llmxive.agents.advancement import (
+    REVIEW_STAGES,
+    verdict_coverage,
+)
+from llmxive.agents.advancement import (
+    evaluate as advancement_evaluate,
+)
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.idea_lifecycle import (
     BrainstormAgent,
@@ -30,6 +36,7 @@ from llmxive.agents.idea_lifecycle import (
     IdeaSelectorAgent,
     ResearchQuestionValidatorAgent,
 )
+from llmxive.agents.implementer import LLMXiveImplementer
 from llmxive.agents.lifecycle import is_valid_transition
 from llmxive.agents.paper_initializer import PaperInitializerAgent
 from llmxive.agents.paper_reviewer import PaperReviewerAgent
@@ -175,6 +182,11 @@ STAGE_AFTER_AGENT: dict[Stage, Stage] = {
 }
 
 
+#: Registry name of the convergence revision implementer (spec 013 / 023):
+#: dispatched for a review-stage project whose saved state carries an
+#: unconsumed ``revision_spec_path`` (FR-002).
+_REVISION_IMPLEMENTER_NAME = "llmxive_implementer"
+
 _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "brainstorm": BrainstormAgent,
     "flesh_out": FleshOutAgent,
@@ -185,6 +197,7 @@ _NON_SPECKIT_AGENTS: dict[str, Callable[[AgentRegistryEntry], Agent]] = {
     "paper_initializer": PaperInitializerAgent,
     "paper_reviewer": PaperReviewerAgent,
     "paper_publisher": PaperPublisher,
+    _REVISION_IMPLEMENTER_NAME: LLMXiveImplementer,
 }
 
 _SPECKIT_AGENTS: dict[str, type[SlashCommandAgent]] = {
@@ -364,31 +377,81 @@ def run_one_step(
         return project
 
     if agent_name is None:
-        # Stages handled elsewhere (paper-review stages, terminal states):
-        # ask the Advancement-Evaluator to evaluate review records.
-        return advancement_evaluate(project, repo_root=repo)
+        # Stages handled elsewhere (terminal states, unmapped stages):
+        # ask the Advancement-Evaluator to evaluate review records — and
+        # PERSIST its full result (spec 023 / FR-001: an evaluated-but-
+        # unsaved decision is a discarded decision).
+        evaluated = advancement_evaluate(project, repo_root=repo)
+        project_store.save(evaluated, repo_root=repo)
+        return evaluated
 
     entry = registry_loader.get(agent_name, repo_root=repo)
     project_dir = repo / "projects" / project.id
     project_dir.mkdir(parents=True, exist_ok=True)
 
+    ran_revision_implementer = False
     if agent_name in _NON_SPECKIT_AGENTS:
-        # Special-case for review stages: dispatch to all specialist
-        # reviewers (each on a focused prompt) plus the generic
-        # reviewer. The Advancement-Evaluator gates on every
-        # specialist accepting (FR-028); failing to dispatch them
-        # means projects can never satisfy the gate.
+        # Review stages (spec 023 / US1): three mutually-exclusive moves.
+        #
+        #   1. An unconsumed revision work-spec exists → dispatch the
+        #      revision implementer, NOT reviewers (FR-002). The
+        #      implementer consumes the work-spec, clears
+        #      ``revision_spec_path``, and persists its own transition.
+        #   2. No work-spec, but some required specialist's verdict is
+        #      missing or stale (computed against an older artifact) →
+        #      dispatch ONLY those specialists (FR-004 + stale-verdict
+        #      edge case), recording why.
+        #   3. Complete + current verdict set → dispatch NOTHING; the
+        #      Advancement-Evaluator below decides from the existing
+        #      verdicts (FR-004: no redundant reviewer calls).
+        #
+        # The evaluator gates on every specialist accepting (FR-028);
+        # failing to dispatch missing specialists means projects can
+        # never satisfy the gate.
         agents_to_run: list[str] = []
-        if project.current_stage in {Stage.RESEARCH_COMPLETE, Stage.RESEARCH_REVIEW}:
-            agents_to_run = [
-                n for n in registry_loader.list_names(repo_root=repo)
-                if n == "research_reviewer" or n.startswith("research_reviewer_")
-            ]
-        elif project.current_stage in {Stage.PAPER_COMPLETE, Stage.PAPER_REVIEW}:
-            agents_to_run = [
-                n for n in registry_loader.list_names(repo_root=repo)
-                if n == "paper_reviewer" or n.startswith("paper_reviewer_")
-            ]
+        if project.current_stage in REVIEW_STAGES:
+            if project.revision_spec_path:
+                agents_to_run = [_REVISION_IMPLEMENTER_NAME]
+                ran_revision_implementer = True
+                logger.info(
+                    "%s carries unconsumed revision work-spec %s — "
+                    "dispatching the revision implementer instead of reviewers",
+                    project.id, project.revision_spec_path,
+                )
+            else:
+                coverage = verdict_coverage(project, repo_root=repo)
+                prefix = (
+                    "research_reviewer"
+                    if coverage.track == "research"
+                    else "paper_reviewer"
+                )
+                if coverage.complete_and_current:
+                    logger.info(
+                        "%s: complete current verdict set (%d specialists, "
+                        "live_hash=%s) — skipping reviewer dispatch, "
+                        "evaluating existing verdicts (FR-004)",
+                        project.id, len(coverage.required),
+                        (coverage.live_hash or "")[:12],
+                    )
+                else:
+                    needed = coverage.needs_dispatch
+                    if coverage.stale:
+                        logger.info(
+                            "%s: stale verdicts from %s (artifact changed "
+                            "since review; live_hash=%s) — re-dispatching "
+                            "only those specialists",
+                            project.id, sorted(coverage.stale),
+                            (coverage.live_hash or "")[:12],
+                        )
+                    agents_to_run = [
+                        n for n in registry_loader.list_names(repo_root=repo)
+                        if n in needed
+                        # The generic (un-suffixed) reviewer runs only on a
+                        # project's first-ever review round; it does not
+                        # gate advancement, so re-running it on every
+                        # stale/missing round is redundant load.
+                        or (n == prefix and not coverage.has_any_records)
+                    ]
         else:
             agents_to_run = [agent_name]
 
@@ -478,6 +541,31 @@ def run_one_step(
         project = project_store.load(project.id, repo_root=repo)
     except FileNotFoundError:
         pass
+
+    # Review stages (spec 023 / US1, FR-001): the Advancement-Evaluator's
+    # FULL result — stage, ``revision_spec_path``, kickback provenance —
+    # is persisted, not reduced to a stage name. The pre-023 shape
+    # (``return evaluated.current_stage`` inside ``_decide_next_stage``)
+    # discarded everything but the stage: 92 papers looped at review
+    # forever because their revise/accept decisions evaporated every tick
+    # (issue #303 root cause).
+    if entry_stage in REVIEW_STAGES:
+        if ran_revision_implementer:
+            # The implementer persisted its own transition (it clears
+            # ``revision_spec_path`` and routes back to the review stage,
+            # or applies its failsafe). Do NOT evaluate now: the stored
+            # verdicts are stale relative to the just-revised artifact —
+            # the next pass re-dispatches exactly the stale specialists.
+            return project
+        evaluated = advancement_evaluate(project, repo_root=repo)
+        evaluated = evaluated.model_copy(
+            update={
+                "updated_at": datetime.now(UTC),
+                "last_run_id": run_id,
+            }
+        )
+        project_store.save(evaluated, repo_root=repo)
+        return evaluated
 
     # Update project stage based on the agent that just ran.
     next_stage = _decide_next_stage(project, project_dir, repo_root=repo)
@@ -713,19 +801,10 @@ def _decide_next_stage(
             return Stage.PAPER_COMPLETE
         return Stage.PAPER_IN_PROGRESS
 
-    # Research-reviewer leaves the project at research_review and lets
-    # the Advancement-Evaluator decide the next stage based on the
-    # accumulated review records. We treat RESEARCH_COMPLETE the same
-    # way once the specialists have run (the review records already
-    # exist on disk, so advancement_evaluate can decide).
-    if cur in {Stage.RESEARCH_COMPLETE, Stage.RESEARCH_REVIEW}:
-        evaluated = advancement_evaluate(project, repo_root=repo_root)
-        return evaluated.current_stage
-
-    # Paper-Reviewer (US5) — same pattern.
-    if cur in {Stage.PAPER_COMPLETE, Stage.PAPER_REVIEW}:
-        evaluated = advancement_evaluate(project, repo_root=repo_root)
-        return evaluated.current_stage
+    # Review stages never reach here: ``run_one_step`` evaluates AND
+    # persists the Advancement-Evaluator's full result before calling
+    # ``_decide_next_stage`` (spec 023 / FR-001 — the old stage-only
+    # return here was the issue-#303 discard bug).
 
     # Spec 015 T042 / FR-034: the 7 transient revision stages were
     # DELETED. Routing decisions for any non-convergence are now made
