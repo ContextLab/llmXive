@@ -15,11 +15,11 @@ import yaml
 
 from llmxive.convergence.revision_adapter import (
     _legacy_severity,
-    _next_round_number,
     _render_plan,
     _render_spec,
     _render_tasks,
     kickback_to_revision_spec,
+    next_round_number,
 )
 from llmxive.convergence.types import (
     Concern,
@@ -133,14 +133,14 @@ class TestRevisionAdapterDirectoryContract:
 
 class TestRevisionAdapterRoundNumbering:
     def test_next_round_is_one_for_fresh_project(self, tmp_path: Path) -> None:
-        assert _next_round_number(tmp_path, "PROJ-100-test") == 1
+        assert next_round_number(tmp_path, "PROJ-100-test") == 1
 
     def test_next_round_increments_with_existing_rounds(self, tmp_path: Path) -> None:
         base = tmp_path / "specs" / "auto-revisions" / "PROJ-100-test"
         (base / "round-1").mkdir(parents=True)
         (base / "round-2").mkdir()
         (base / "round-5").mkdir()  # gap is OK
-        assert _next_round_number(tmp_path, "PROJ-100-test") == 6
+        assert next_round_number(tmp_path, "PROJ-100-test") == 6
 
     def test_consecutive_adapter_calls_increment_round(self, tmp_path: Path) -> None:
         kb = _make_kickback([_make_concern()])

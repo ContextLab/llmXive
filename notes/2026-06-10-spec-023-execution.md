@@ -39,4 +39,38 @@ previously silently lost — FR-003).
 | 2 | T004 design | auto-revision rounds were UNBOUNDED (round-N+1 forever; only the zero-success failsafe bounded anything) | MAX_REVISION_ROUNDS=3 → honest terminal, tested |
 | 3 | T006 design | `_infer_live_hash` cannot detect post-review artifact changes (stale-verdict edge case) — it infers "live" from the records themselves | true-hash `live_artifact_hash` + shared `feature_dir_for`; coverage check uses it |
 
-## T009 — real-state demonstration (pending)
+## T009 — real-state demonstration (US1)
+
+Pass 1 (run 2f5c46df) on PROJ-565 (paper_review, complete current
+12-specialist verdict set): ZERO reviewer dispatches (FR-004), evaluation
+ran, and for the first time ever the decision PERSISTED —
+`revision_spec_path = specs/auto-revisions/PROJ-565.../round-1` with a
+23-task work-spec on disk. Pass 2 (implementer consumption, ~23 real LLM
+calls + compile gates) running in background.
+
+## US4 — T018 escalation-writer inventory (FR-015/017)
+
+| Writer | Path | Classification | Action |
+|-|-|-|-|
+| flesh-out scope rejection | graph.py `_decide_next_stage` | (a) automated | FR-014: archive + constrained re-brainstorm via `process_scope_rejection`, bounded `IDEA_RETRY_CAP=3` → `VALIDATOR_REJECTED` terminal |
+| validator idea rejection | graph.py sentinel branch | (a) automated | same bounded counter (was an unbounded reject→regenerate loop) |
+| stage-panel engine failure | `_stage_panel.run_stage_panel` generic except | (a) automated | FR-016: deduped GitHub issue (`state/escalations.file_engine_failure_issue`); project stays at stage, schedulable (graph handler returns unchanged) |
+| stage-panel outage paths | BackendUnavailable / TransientBackendError re-raise | already clean (PR #302) | regression-tested: no marker/issue/record |
+| convergence kickback cap | graph.py `decision.escalate` | (b) bounded-with-evidence | exhaustion `EscalationRecord` (count/cap/concerns) written alongside the marker |
+| clarifier attempt cap | `_clarify_attempts.write_human_input_needed` (clarify + paper_clarify) | (b) bounded-with-evidence | record written with rounds/cap; the LLM `escalate` verdict no longer parks below the cap (was unbounded!) |
+| implementer UNKNOWN failsafe | implementer.py → AGENT_BLOCKED | (b) bounded-with-evidence | record with 3-zero-round evidence |
+| publication sign-off | `awaiting_publication_signoff` | (c) sanctioned | US5 gate (maintainer vote) |
+
+Digest: `state/escalations.update_digest` aggregates open records into ONE
+issue; wired into llmxive-pipeline.yml (audit.yml was the analyze-stage
+choice but is push/PR-triggered with contents:read — the 3h scheduled lane
+has issues:write, so the digest lives there; tasks.md T020 note updated).
+
+## US4 — T022 re-processing (FR-018)
+
+PROJ-545 / PROJ-553 / PROJ-557 (parked pre-023 at human_input_needed with
+kept `scope_rejected.yaml` markers) re-processed through the REAL
+`process_scope_rejection` helper: each archived idea pulled from
+`.archive/` into the constrained feedback, marker consumed, counter 1/3,
+stage → brainstormed, escalation reason cleared. Real constrained
+re-brainstorm pass dispatched on PROJ-545 for verification.

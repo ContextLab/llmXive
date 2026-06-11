@@ -102,6 +102,9 @@ _NEVER_PICK: set[Stage] = {
     # via `llmxive project unblock-agent` (operator must edit action
     # items first).
     Stage.AGENT_BLOCKED,
+    # Spec 023 / FR-014: VALIDATOR_REJECTED is the honest idea-track
+    # terminal (idea-retry cap exhausted; rejected to the backlog).
+    Stage.VALIDATOR_REJECTED,
 }
 
 

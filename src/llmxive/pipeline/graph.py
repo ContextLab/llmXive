@@ -49,7 +49,9 @@ from llmxive.agents.runner import run_agent
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
     CONVERGENCE_KICKBACK_CAP,
+    IDEA_RETRY_CAP,
     KickbackDecision,
+    bump_count,
     consume_convergence_kickback,
     reset_kickback_count,
 )
@@ -526,10 +528,19 @@ def run_one_step(
             # forever (current_stage never advances; the cap never increments).
             logger.info("stage-panel kickback for %s: %s", project.id, exc)
         except StagePanelEscalation as exc:
-            # Engine failure: the panel wrote human_input_needed.yaml. Fall
-            # through so _decide_next_stage routes to HUMAN_INPUT_NEEDED rather
-            # than crashing the entire run loop with an unhandled exception.
-            logger.warning("stage-panel escalation for %s: %s", project.id, exc)
+            # Engine failure (spec 023 / FR-016): the panel already filed a
+            # tracked GitHub issue with the evidence. The project STAYS at
+            # its current stage — schedulable, retried on later ticks, and
+            # recovering automatically once the underlying defect is fixed.
+            # (Pre-023 this fell through to a HUMAN_INPUT_NEEDED park.)
+            logger.warning(
+                "stage-panel engine failure for %s (issue filed; project "
+                "stays schedulable): %s", project.id, exc,
+            )
+            try:
+                return project_store.load(project.id, repo_root=repo)
+            except FileNotFoundError:
+                return project
     else:
         raise RuntimeError(f"no implementation registered for agent {agent_name!r}")
 
@@ -668,6 +679,121 @@ def _write_kickback_feedback(project_dir: Path, decision: KickbackDecision) -> N
     )
 
 
+def _archive_idea_files(project_dir: Path) -> list[tuple[str, str]]:
+    """Move the canonical idea .md bodies into ``idea/.archive/`` and return
+    ``(filename, text)`` pairs so the constrained re-brainstorm can show the
+    agent WHAT was rejected (FR-014)."""
+    idea_dir = project_dir / "idea"
+    archived: list[tuple[str, str]] = []
+    if not idea_dir.is_dir():
+        return archived
+    archive_dir = idea_dir / ".archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    for md in sorted(idea_dir.glob("*.md")):
+        # Don't archive diagnostic side-files; just the canonical idea body.
+        if md.name in {
+            "research_question_validation.md",
+            KICKBACK_FEEDBACK_FILENAME,
+        }:
+            continue
+        text = md.read_text(encoding="utf-8", errors="replace")
+        md.rename(archive_dir / f"{ts}-{md.name}")
+        archived.append((md.name, text))
+    return archived
+
+
+def _write_rebrainstorm_feedback(
+    project_dir: Path,
+    *,
+    reason: str,
+    archived: list[tuple[str, str]],
+    attempt: int,
+    cap: int,
+) -> None:
+    """Constrained re-brainstorm instruction for the next flesh-out pass
+    (FR-014) — written to the same ``idea/kickback_feedback.md`` injection
+    point the convergence kickbacks use (Constitution I)."""
+    idea_dir = project_dir / "idea"
+    idea_dir.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Idea rejected as infeasible — propose a CONSTRAINED replacement",
+        "",
+        f"Regeneration attempt {attempt} of {cap}. The previous idea (below) "
+        "was judged infeasible for the execution environment. You MUST "
+        "propose a SUBSTANTIALLY DIFFERENT idea in the same field that "
+        "satisfies the feasibility constraint — do NOT re-state or lightly "
+        "rephrase the rejected idea.",
+        "",
+        f"**Why it was rejected**: {reason}",
+        "",
+        "**Feasibility constraint**: the entire study must be executable by "
+        "automated agents inside GitHub-Actions-class compute — public "
+        "datasets or generated data only, no human subjects, no wet lab, no "
+        "GPU training runs, no paid services.",
+        "",
+        "## The rejected idea (for reference — do not reuse)",
+        "",
+    ]
+    for name, text in archived:
+        lines.append(f"### {name}")
+        lines.append("")
+        lines.append(text.strip())
+        lines.append("")
+    if not archived:
+        lines.append("(the rejected idea body was empty or already archived)")
+    (idea_dir / KICKBACK_FEEDBACK_FILENAME).write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
+def process_scope_rejection(project: Project, project_dir: Path) -> Stage | None:
+    """FR-014 infeasible-idea automation (spec 023): archive + constrained
+    re-brainstorm, bounded by ``IDEA_RETRY_CAP`` → honest terminal.
+
+    Returns the stage to route to, or None when no ``scope_rejected.yaml``
+    marker is present. Public because the same path re-processes projects
+    that the PRE-023 behavior parked at ``human_input_needed`` (FR-018) —
+    one implementation for both entries (Constitution I).
+    """
+    scope_marker = project_dir / ".specify" / "memory" / "scope_rejected.yaml"
+    if not scope_marker.exists():
+        return None
+    reason = scope_marker.read_text(encoding="utf-8", errors="replace").strip()
+    archived = _archive_idea_files(project_dir)
+    if not archived:
+        # Already archived (e.g. by the pre-023 park path): pull the most
+        # recent archive snapshot so the re-brainstorm still sees what was
+        # rejected.
+        archive_dir = project_dir / "idea" / ".archive"
+        if archive_dir.is_dir():
+            archived = [
+                (p.name, p.read_text(encoding="utf-8", errors="replace"))
+                for p in sorted(archive_dir.glob("*.md"))[-2:]
+            ]
+    scope_marker.unlink()  # consumed — a fresh rejection writes a new one
+    count = bump_count(project_dir / ".specify" / "memory", "idea_scope_reject")
+    if count > IDEA_RETRY_CAP:
+        logger.warning(
+            "%s: %d infeasible-scope rejections (cap=%d) — honest "
+            "terminal VALIDATOR_REJECTED (FR-014)",
+            project.id, count, IDEA_RETRY_CAP,
+        )
+        return Stage.VALIDATOR_REJECTED
+    _write_rebrainstorm_feedback(
+        project_dir,
+        reason=reason or "flesh-out judged the idea out of feasible scope",
+        archived=archived,
+        attempt=count,
+        cap=IDEA_RETRY_CAP,
+    )
+    logger.info(
+        "%s: infeasible scope — archived idea, constrained re-brainstorm "
+        "%d/%d (FR-014)", project.id, count, IDEA_RETRY_CAP,
+    )
+    return Stage.BRAINSTORMED
+
+
 def _decide_next_stage(
     project: Project, project_dir: Path, *, repo_root: Path | None = None
 ) -> Stage:
@@ -691,6 +817,34 @@ def _decide_next_stage(
                 f"Last reason: {decision.reason}"
             )
             _write_human_escalation_marker(mem_dir, reason, decision.stage_label)
+            # Spec 023 / FR-017: every surviving human escalation carries
+            # machine-checkable exhaustion evidence and feeds the digest.
+            from llmxive.state.escalations import EscalationRecord, write_record
+            try:
+                write_record(
+                    EscalationRecord(
+                        project_id=project.id,
+                        stage=decision.stage_label,
+                        loop="convergence-kickback",
+                        bound=CONVERGENCE_KICKBACK_CAP,
+                        rounds_used=decision.count,
+                        attempts=[
+                            {
+                                "round": str(decision.count),
+                                "summary": (decision.reason or "")[:500],
+                                "outcome": "panel did not converge",
+                            }
+                        ],
+                        recommended_action=(
+                            "Review the unresolved panel concerns and either "
+                            "revise the content manually or terminate the "
+                            "project honestly."
+                        ),
+                    ),
+                    repo_root=repo_root,
+                )
+            except Exception as rec_exc:  # never block the routing decision
+                logger.warning("escalation-record write failed: %s", rec_exc)
             return Stage.HUMAN_INPUT_NEEDED
         try:
             target_stage = Stage(decision.to_stage or "")
@@ -736,40 +890,29 @@ def _decide_next_stage(
     if _human_input_marker(project_dir):
         return Stage.HUMAN_INPUT_NEEDED
 
-    # Scope-rejection from flesh-out: the brainstorm agent does NOT
-    # currently re-propose a different idea for an existing project (it
-    # only seeds new projects), so rolling back to BRAINSTORMED creates
-    # an infinite loop where flesh-out keeps re-rejecting the same body.
-    # Instead, archive the rejected idea file and escalate the project to
-    # HUMAN_INPUT_NEEDED — a human (or a future brainstorm-replace agent)
-    # can then either propose a new idea body or terminate the project.
-    # The marker is kept (not deleted) so the human-input UI can see why.
-    scope_marker = project_dir / ".specify" / "memory" / "scope_rejected.yaml"
-    if scope_marker.exists():
-        # Archive the rejected idea so the human-input handler (or a
-        # follow-up brainstorm-replace pass) sees clearly which idea was
-        # rejected without it remaining in idea/<slug>.md.
-        idea_dir = project_dir / "idea"
-        if idea_dir.is_dir():
-            archive_dir = idea_dir / ".archive"
-            archive_dir.mkdir(parents=True, exist_ok=True)
-            ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-            for md in sorted(idea_dir.glob("*.md")):
-                # Don't archive diagnostic side-files; just the canonical
-                # idea body. We move only non-diagnostic .md files.
-                if md.name in {
-                    "research_question_validation.md",
-                }:
-                    continue
-                target = archive_dir / f"{ts}-{md.name}"
-                md.rename(target)
-        return Stage.HUMAN_INPUT_NEEDED
+    # Scope-rejection from flesh-out (spec 023 / FR-014): an idea judged
+    # infeasible for the execution environment is ARCHIVED and a
+    # CONSTRAINED re-brainstorm is triggered automatically — the archived
+    # idea + the infeasibility reason are written to
+    # ``idea/kickback_feedback.md`` (the existing FleshOutAgent injection
+    # point), and the project routes back to BRAINSTORMED where flesh_out
+    # regenerates under the constraint. The loop is bounded by
+    # ``IDEA_RETRY_CAP``; exhaustion takes the HONEST terminal
+    # (``VALIDATOR_REJECTED`` — never picked again, publicly a rejected
+    # idea), NEVER a human escalation. (Pre-023 this path parked the
+    # project at HUMAN_INPUT_NEEDED with an instruction the system itself
+    # could execute — the exact deal-breaker named in issue #303.)
+    scope_stage = process_scope_rejection(project, project_dir)
+    if scope_stage is not None:
+        return scope_stage
 
     # Research-question-validator routing (spec 003 / D10):
     #   validator_revise   → roll back to FLESH_OUT_IN_PROGRESS so flesh_out
     #                        re-runs (with the [REVISED] question hint, if any)
-    #   validator_rejected → roll back to BRAINSTORMED so brainstorm proposes
-    #                        a fresh idea
+    #   validator_rejected → roll back to BRAINSTORMED so flesh_out proposes
+    #                        a fresh idea — bounded by the same FR-014
+    #                        idea-retry cap (an unbounded reject→regenerate
+    #                        cycle is the same defect class as scope-reject).
     # Sentinels are consumed (deleted) so subsequent ticks don't repeat the
     # routing decision. The "validated" sentinel is left in place as a
     # historical artifact (it doesn't override the default stage transition).
@@ -784,6 +927,16 @@ def _decide_next_stage(
     )
     if validator_rejected.exists():
         validator_rejected.unlink()
+        count = bump_count(
+            project_dir / ".specify" / "memory", "idea_validator_reject"
+        )
+        if count > IDEA_RETRY_CAP:
+            logger.warning(
+                "%s: %d validator rejections (cap=%d) — honest terminal "
+                "VALIDATOR_REJECTED (FR-014)",
+                project.id, count, IDEA_RETRY_CAP,
+            )
+            return Stage.VALIDATOR_REJECTED
         return Stage.BRAINSTORMED
 
     cur = project.current_stage

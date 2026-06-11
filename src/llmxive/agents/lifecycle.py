@@ -20,19 +20,31 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # Allow direct BRAINSTORMED → FLESH_OUT_COMPLETE when the FleshOut
     # agent finishes in one tick. The IN_PROGRESS intermediate is an
     # optional checkpoint for long-running flesh-out work.
-    Stage.BRAINSTORMED: {Stage.FLESH_OUT_IN_PROGRESS, Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED},
-    Stage.FLESH_OUT_IN_PROGRESS: {Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED},
+    Stage.BRAINSTORMED: {
+        Stage.FLESH_OUT_IN_PROGRESS, Stage.FLESH_OUT_COMPLETE,
+        Stage.HUMAN_INPUT_NEEDED,
+        # Spec 023 / FR-014: bounded idea-retry cap exhausted → honest
+        # terminal (idea rejected to the backlog; never scheduled again).
+        Stage.VALIDATOR_REJECTED,
+    },
+    Stage.FLESH_OUT_IN_PROGRESS: {
+        Stage.FLESH_OUT_COMPLETE, Stage.HUMAN_INPUT_NEEDED,
+        Stage.BRAINSTORMED,  # FR-014 constrained re-brainstorm
+        Stage.VALIDATOR_REJECTED,  # FR-014 cap exhausted
+    },
     Stage.FLESH_OUT_COMPLETE: {
         # spec 003 / D10: research_question_validator inserted between
         # flesh_out and project_initializer. The validator emits one of
         # three outcomes:
         #   validated         → VALIDATED → PROJECT_INITIALIZED
         #   validator_revise  → FLESH_OUT_IN_PROGRESS (re-flesh_out)
-        #   validator_rejected → BRAINSTORMED (re-brainstorm)
+        #   validator_rejected → BRAINSTORMED (re-brainstorm, bounded by
+        #                        the FR-014 idea-retry cap)
         Stage.VALIDATED,
         Stage.FLESH_OUT_IN_PROGRESS,  # validator_revise rollback
         Stage.HUMAN_INPUT_NEEDED,
         Stage.BRAINSTORMED,  # scope rejection or validator_rejected rolls back
+        Stage.VALIDATOR_REJECTED,  # FR-014 cap exhausted → honest terminal
         # Legacy direct path retained for backward compat (e.g., a
         # flesh_out_complete project that pre-dates the validator stage).
         Stage.PROJECT_INITIALIZED,

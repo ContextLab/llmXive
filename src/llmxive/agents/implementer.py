@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import subprocess
 import time
@@ -57,6 +58,8 @@ from llmxive.types import (
     RunLogEntry,
     Stage,
 )
+
+logger = logging.getLogger(__name__)
 
 # Canonical display identity for author lists, run logs, and the
 # revision_history.yaml `implementer_agent` field. NOT the registry
@@ -559,6 +562,40 @@ class LLMXiveImplementer(Agent):
                         classification=classification,
                         zero_count=new_zero_count,
                     )
+                    # Spec 023 / FR-017: exhaustion evidence + digest feed.
+                    from llmxive.state.escalations import (
+                        EscalationRecord,
+                        write_record,
+                    )
+                    try:
+                        write_record(
+                            EscalationRecord(
+                                project_id=project.id,
+                                stage=project.current_stage.value,
+                                loop="implementer-zero-rounds",
+                                bound=3,
+                                rounds_used=new_zero_count,
+                                attempts=[
+                                    {
+                                        "round": str(new_zero_count),
+                                        "summary": "zero-success revision round",
+                                        "outcome": (
+                                            classification.evidence or ""
+                                        )[:500],
+                                    }
+                                ],
+                                recommended_action=(
+                                    "Triage the unclassifiable implementer "
+                                    "failure, then `llmxive project "
+                                    "unblock-agent`."
+                                ),
+                            ),
+                            repo_root=repo,
+                        )
+                    except Exception as rec_exc:
+                        logger.warning(
+                            "escalation-record write failed: %s", rec_exc
+                        )
                     project_state.update(
                         project.id,
                         {

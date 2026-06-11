@@ -254,23 +254,24 @@ def test_run_one_step_catches_kickback_and_routes(tmp_path: Path, monkeypatch) -
     assert yaml.safe_load((mem / "kickback_count.yaml").read_text()) == {"spec": 1}
 
 
-def test_run_one_step_catches_escalation_and_routes_to_human(
+def test_run_one_step_keeps_project_schedulable_on_engine_failure(
     tmp_path: Path, monkeypatch
 ) -> None:
+    """Spec 023 / FR-016 (supersedes the spec-015 route-to-human form of
+    this test): an engine failure files a tracked issue inside the panel
+    and the graph keeps the project AT ITS CURRENT STAGE — schedulable,
+    retried on later ticks. It must neither crash the run nor park the
+    project at HUMAN_INPUT_NEEDED."""
     from llmxive.pipeline import graph
     from llmxive.speckit._stage_panel import StagePanelEscalation
     from llmxive.state import project as project_store
 
     project = _spec_project()
-    mem = tmp_path / "projects" / project.id / ".specify" / "memory"
 
     class _EscalationAgent:
         def run(self, sk_ctx) -> None:
-            mem.mkdir(parents=True, exist_ok=True)
-            (mem / "human_input_needed.yaml").write_text(
-                yaml.safe_dump({"reason": "spec panel engine failure: boom", "stage": "spec"}),
-                encoding="utf-8",
-            )
+            # The panel files the engine-failure issue itself (covered by
+            # test_escalation_paths); here it just raises.
             raise StagePanelEscalation("spec panel engine failure: boom")
 
     monkeypatch.setitem(graph._SPECKIT_AGENTS, "clarifier", _EscalationAgent)
@@ -283,9 +284,10 @@ def test_run_one_step_catches_escalation_and_routes_to_human(
 
     result = graph.run_one_step(project, repo_root=tmp_path)
 
-    # Engine failure routes to HUMAN_INPUT_NEEDED instead of crashing the run.
-    assert result.current_stage == Stage.HUMAN_INPUT_NEEDED
-    assert result.human_escalation_reason
+    assert result.current_stage == project.current_stage, (
+        "engine failure must leave the project at its stage (FR-016)"
+    )
+    assert result.current_stage != Stage.HUMAN_INPUT_NEEDED
 
 
 # --- tasks-stage adaptive kickback (research tasker now emits the sentinel) ---

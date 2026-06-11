@@ -44,6 +44,14 @@ CONVERGENCE_KICKBACK_CAP = 3
 #: ``CONVERGENCE_KICKBACK_CAP`` as the SSoT for both caps.
 CLAIM_RETRY_BUDGET = 2
 
+#: Spec 023 / FR-014: bounded automated retries for idea-stage rejections
+#: (flesh-out "infeasible scope" + validator "rejected"). Each rejection
+#: archives the idea and triggers a constrained re-brainstorm; after this
+#: many failed regenerations the project takes the honest terminal
+#: (``Stage.VALIDATOR_REJECTED`` — the idea backlog), NEVER a human
+#: escalation. Kept with the other caps as the SSoT.
+IDEA_RETRY_CAP = 3
+
 _KICKBACK_COUNT_FILENAME = "kickback_count.yaml"
 _CONVERGENCE_KICKBACK_FILENAME = "convergence_kickback.yaml"
 
@@ -88,6 +96,26 @@ def _write_counts(memory_dir: Path, counts: dict[str, int]) -> None:
     memory_dir.mkdir(parents=True, exist_ok=True)
     path = memory_dir / _KICKBACK_COUNT_FILENAME
     path.write_text(yaml.safe_dump(counts), encoding="utf-8")
+
+
+def bump_count(memory_dir: Path, label: str) -> int:
+    """Increment and return the persistent counter for ``label``.
+
+    Shares ``kickback_count.yaml`` with the convergence-kickback counters
+    (one counter file per memory dir, keyed by label — Constitution I).
+    Used by the FR-014 idea-retry bound (labels ``idea_scope_reject`` /
+    ``idea_validator_reject``)."""
+    counts = _read_counts(memory_dir)
+    new_count = counts.get(label, 0) + 1
+    counts[label] = new_count
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    _write_counts(memory_dir, counts)
+    return new_count
+
+
+def read_count(memory_dir: Path, label: str) -> int:
+    """Current value of the persistent counter for ``label`` (0 if unset)."""
+    return _read_counts(memory_dir).get(label, 0)
 
 
 def reset_kickback_count(memory_dir: Path, stage_label: str) -> None:
@@ -204,7 +232,10 @@ def consume_convergence_kickback(memory_dir: Path) -> KickbackDecision | None:
 __all__ = [
     "CLAIM_RETRY_BUDGET",
     "CONVERGENCE_KICKBACK_CAP",
+    "IDEA_RETRY_CAP",
     "KickbackDecision",
+    "bump_count",
     "consume_convergence_kickback",
+    "read_count",
     "reset_kickback_count",
 ]
