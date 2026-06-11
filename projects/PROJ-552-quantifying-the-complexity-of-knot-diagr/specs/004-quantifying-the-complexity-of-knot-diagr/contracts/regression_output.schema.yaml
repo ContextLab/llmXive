@@ -8,7 +8,7 @@ required:
  - "predictors"
  - "coefficients"
  - "r_squared"
- - "vif_scores"
+ - "vif_values"
  - "validation_type"
 properties:
  model_id:
@@ -46,9 +46,9 @@ properties:
    type: "number"
    minimum: 0
    description: "Mean Absolute Error"
- vif_scores:
+ vif_values:
    type: "object"
-   description: "Variance Inflation Factors for each predictor (reported with mathematical constraint context)"
+   description: "Variance Inflation Factors for each predictor (reported with mathematical constraint context; VIF > 5 is exploratory context, not a correction trigger)"
    additionalProperties:
      type: "number"
      minimum: 1

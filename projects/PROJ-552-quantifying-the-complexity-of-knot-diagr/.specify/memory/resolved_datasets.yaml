@@ -1,26 +1,26 @@
-resolved_at: '2026-06-11T16:02:03.999470+00:00'
+resolved_at: '2026-06-11T17:13:58.845861+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
+  - url: https://figshare.com/articles/journal_contribution/Athlete_Fit_Tool_-_Coach_Athlete_Version/32649306
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
+  - url: https://figshare.com/articles/dataset/2026_2027_Madonna_University_Application_Forms_Out_Call_O70_3636_6909_O7036366909_Admissions_are_now_open_for_the_2026_2027_academic_session_Interested_candidates_are_advised_to_obtain_and_complete_their_admission_forms_before_the_closing_d/32649804
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
+  - url: https://acs.figshare.com/articles/journal_contribution/Analytic_Nonadiabatic_Derivative_Couplings_Using_Noncollinear_Spin-Flip_TDDFT/32649798
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
+  - url: https://acs.figshare.com/articles/journal_contribution/Bandage-Type_Autocatalytic_PdCl_sub_2_sub_Containing_Film_as_Visual_Hydrogen_Sensor_for_Noninvasive_Monitoring_of_Mg-Alloy_Biodegradation/32649779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.manchester.ac.uk/articles/dataset/X-ray_CT_datasets_showing_uniaxially_compressed_elastomer-embedded_microspheres/32133037
+  - url: https://acs.figshare.com/articles/journal_contribution/Intermolecular_Asymmetric_Iodoazolation_of_Alkenyl_Ethers_Catalyzed_by_Chiral_Dinuclear_Zinc_Bis_aminoimino_binaphthoxide_Complex/32649776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
+  - url: https://figshare.com/articles/journal_contribution/Athlete_Fit_Tool_-_Coach_Athlete_Version/32649306
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
+  - url: https://figshare.com/articles/dataset/2026_2027_Madonna_University_Application_Forms_Out_Call_O70_3636_6909_O7036366909_Admissions_are_now_open_for_the_2026_2027_academic_session_Interested_candidates_are_advised_to_obtain_and_complete_their_admission_forms_before_the_closing_d/32649804
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
+  - url: https://acs.figshare.com/articles/journal_contribution/Analytic_Nonadiabatic_Derivative_Couplings_Using_Noncollinear_Spin-Flip_TDDFT/32649798
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
+  - url: https://acs.figshare.com/articles/journal_contribution/Bandage-Type_Autocatalytic_PdCl_sub_2_sub_Containing_Film_as_Visual_Hydrogen_Sensor_for_Noninvasive_Monitoring_of_Mg-Alloy_Biodegradation/32649779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.manchester.ac.uk/articles/dataset/X-ray_CT_datasets_showing_uniaxially_compressed_elastomer-embedded_microspheres/32133037
+  - url: https://acs.figshare.com/articles/journal_contribution/Intermolecular_Asymmetric_Iodoazolation_of_Alkenyl_Ethers_Catalyzed_by_Chiral_Dinuclear_Zinc_Bis_aminoimino_binaphthoxide_Complex/32649776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -115,23 +115,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
+  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -155,23 +155,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20646364
+  - url: https://zenodo.org/records/20647225
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Jupiter/PT9.6S
+  - url: https://zenodo.org/records/20647225
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Jupiter/PT48S
+  - url: https://zenodo.org/records/20647242
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Saturn/L1/PT48S
+  - url: https://zenodo.org/records/20647242
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Saturn/HG/PT48S
+  - url: https://zenodo.org/records/20647121
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -216,23 +216,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
+  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -256,23 +256,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20646433
+  - url: https://zenodo.org/records/20647225
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20646433
+  - url: https://zenodo.org/records/20647225
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20646429
+  - url: https://zenodo.org/records/20596651
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20646429
+  - url: https://zenodo.org/records/20596651
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Jupiter/PT9.6S
+  - url: https://zenodo.org/records/19490282
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -280,23 +280,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
+  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,32 +336,32 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: FR-014
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Wintering_in_the_Warm/32504214
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
+  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -397,20 +397,63 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    reason: unrecognized/non-dataset content
 - intent: SC-001
   status: unresolved
   candidates: []
-  candidates_tried: []
+  candidates_tried:
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-001
   status: unresolved
   candidates: []

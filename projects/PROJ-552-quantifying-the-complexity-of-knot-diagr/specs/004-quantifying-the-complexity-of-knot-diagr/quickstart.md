@@ -3,134 +3,253 @@
 ## Prerequisites
 
 - Python 3.11 or higher
-- Stable internet connection (for downloading from KnotInfo/HTW)
-- At least 500MB disk space for data and processed outputs
+- Stable internet connection (for downloading Knot Atlas data)
+- 2GB+ available disk space (for dataset storage and computation)
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
-   ```
+1. **Clone the repository** (if using local copy):
+```bash
+git clone <repository-url>
+cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+```
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2. **Create virtual environment**:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-3. Install dependencies:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3. **Install dependencies**:
+```bash
+pip install -r code/config/requirements.txt
+```
 
-## Quick Start
+**Requirements File**: code/config/requirements.txt pins the following dependencies:
+- pandas==2.1.4
+- numpy==1.26.3
+- scikit-learn==1.4.0
+- scipy==1.12.0
+- matplotlib==3.8.2
+- pyyaml==6.0.1
+- requests==2.31.0
+- tqdm==4.66.1
+- datasets==2.16.1
+- pytest==7.4.3
+
+## Running the Pipeline
 
 ### Step 1: Download Knot Data
 
 ```bash
-python code/data/download_knot_data.py --crossing-limit 13
+python code/downloader/knot_atlas_client.py --output data/raw/knot_atlas_export.csv --max-crossing-number 13
 ```
 
-This downloads all prime knots with crossing number ≤13 from KnotInfo/HTW. Data is saved to `data/raw/knot_atlas_export.csv`.
+**Expected Output**:
+- data/raw/knot_atlas_export.csv (downloaded dataset)
+- data/checksums.txt (SHA-256 checksum recorded)
+- docs/reproducibility/logs/download.log (timestamped log)
 
-**Retry Verification**: Exponential backoff (2s, [deferred], [deferred]...) applied; partial results cached after 3 consecutive failures.
+**Retry Logic**: If Knot Atlas is unavailable, exponential backoff is applied (2s → [deferred] → [deferred] → [deferred] → [deferred]). Partial results cached after 3 consecutive failures.
 
-### Step 2: Parse and Clean Data
+**URL Stability Note**: Knot Atlas URL stability is not independently verified. If download fails persistently, consult docs/reproducibility/url_fallback.md for checksummed mirror options.
+
+### Step 2: Compute Invariants
 
 ```bash
-python code/data/parse_knot_data.py
+python code/invariant_computation/main.py --input data/raw/knot_atlas_export.csv --output data/derived/invariants_computed.csv
 ```
 
-Parses the raw data and creates:
-- `data/processed/invariants_dataset.parquet` (processed dataset)
-- `docs/reproducibility/excluded_knots.md` (hyperbolic volume filtering log)
-- `docs/reproducibility/classification_counts.md` (ambiguous classification counts)
-- `docs/reproducibility/validation_scope.md` (Phase 1 scope boundaries)
+**Expected Output**:
+- data/derived/invariants_computed.csv (dataset with computed invariants)
+- docs/reproducibility/uncomputable_invariants.md (records with missing invariants)
+- docs/reproducibility/algorithm_validation.md (validation results against KnotInfo)
 
-### Step 3: Compute Additional Invariants
+### Step 3: Exploratory Analysis
 
 ```bash
-python code/data/compute_invariants.py
+python code/analysis/exploratory_analysis.py --input data/derived/invariants_computed.csv --output-dir data/plots/
 ```
 
-Computes arc index, Seifert circle count, and bridge number where diagram representations are available. Records with missing invariants are flagged. Produces:
-- `docs/reproducibility/uncomputable_invariants.md` (coverage metrics per SC-006/SC-010)
-- `docs/reproducibility/algorithm_validation.md` (pass/fail status per SC-012)
+**Expected Output**:
+- data/plots/crossing_vs_braid_alternating.png (1200x900 pixels)
+- data/plots/crossing_vs_braid_non_alternating.png (1200x900 pixels)
+- docs/reproducibility/logs/analysis.log
 
-### Step 4: Exploratory Analysis
+### Step 4: Regression Modeling
 
 ```bash
-python code/analysis/exploratory_analysis.py
+python code/analysis/regression_models.py --input data/derived/invariants_computed.csv --output data/derived/regression_results.csv
 ```
 
-Generates scatter plots of crossing number vs. braid index, stratified by alternating/non-alternating classification. Performs ANOVA with effect sizes (Cohen's d, r). Plots saved to `data/plots/`.
+**Expected Output**:
+- data/derived/regression_results.csv (all model metrics)
+- docs/reproducibility/logs/regression.log
 
-### Step 5: Fit Regression Models
+### Step 5: Composite Score Validation
 
 ```bash
-python code/analysis/regression_models.py
+python code/analysis/composite_score.py --input data/derived/invariants_computed.csv --config code/config/complexity_weights.yaml --output data/derived/composite_score_results.csv
 ```
 
-Fits linear, polynomial (degree=2), and logarithmic (base e) regression models. Results conform to `contracts/regression_output.schema.yaml`.
+**Expected Output**:
+- data/derived/composite_score_results.csv (correlation metrics)
+- docs/reproducibility/logs/composite_score.log
 
-### Step 6: Construct and Validate Composite Score
+**Sensitivity Analysis**: To run sensitivity analysis across weight configurations:
+```bash
+python code/analysis/composite_score.py --input data/derived/invariants_computed.csv --config code/config/complexity_weights.yaml --sensitivity-analysis --output data/derived/composite_score_sensitivity.csv
+```
+
+### Step 6: Run Full Pipeline
 
 ```bash
-python code/analysis/composite_score.py
+python code/main.py --config code/config/seeds.yaml
 ```
 
-Constructs composite complexity score with configurable weights. Validates against exploratory validation sample.
+**This executes all steps in sequence with proper error handling and logging.**
 
-## Reproducibility
+## Configuration
 
-All analysis is reproducible with pinned random seeds. To verify:
+### Random Seed Pinning
+
+Edit code/config/seeds.yaml to set random seeds:
+
+```yaml
+random_seed: 42
+numpy_seed: 42
+tensorflow_seed: 42  # if applicable
+```
+
+### Composite Score Weights
+
+Edit code/config/complexity_weights.yaml to configure weights:
+
+```yaml
+weight_crossing_number: 1.0
+weight_braid_index: 1.0
+```
+
+**Note**: Equal weights (1:1 ratio) is the default with no theoretical basis; configurable for future iterations. Sensitivity analysis recommended to assess robustness across weight space (0-1 increments).
+
+## Data Directory Structure
+
+After running the pipeline, your data/ directory should contain:
+
+```
+data/
+├── raw/
+│   ├── knot_atlas_export.csv
+│   └── knot_atlas_export.csv.sha256
+├── derived/
+│   ├── invariants_computed.csv
+│   ├── regression_results.csv
+│   └── composite_score_results.csv
+├── plots/
+│   ├── crossing_vs_braid_alternating.png
+│   └── crossing_vs_braid_non_alternating.png
+└── checksums.txt
+```
+
+## Reproducibility Verification
+
+To verify reproducibility:
 
 ```bash
-python code/utils/reproducibility_utils.py --verify
+python code/reproducibility/validation.py --verify-all
 ```
 
-This checks that all checksums match and derivation notes are complete.
+**This checks**:
+- All checksums match recorded values
+- Random seeds are pinned correctly
+- Derivation notes are complete
+- Logs are properly formatted
 
-## Output Files
+## Testing
 
-| File | Location | Description |
-|------|----------|-------------|
-| knot_atlas_export.csv | data/raw/ | Raw downloaded data |
-| invariants_dataset.parquet | data/processed/ | Processed dataset with invariants |
-| exploratory_validation_sample.parquet | data/processed/ | Stratified validation sample |
-| crossing_vs_braid_stratified.png | data/plots/ | Exploratory scatter plot |
-| checksums.md | docs/reproducibility/ | SHA-256 checksums for all data files |
-| derivation_notes.md | docs/reproducibility/ | Step-by-step transformation documentation |
-| logs/ | docs/reproducibility/logs/ | Timestamped execution logs |
-| excluded_knots.md | docs/reproducibility/ | Hyperbolic volume filtering log |
-| classification_counts.md | docs/reproducibility/ | Ambiguous classification counts |
-| validation_scope.md | docs/reproducibility/ | Phase 1 scope boundaries |
-| uncomputable_invariants.md | docs/reproducibility/ | Coverage metrics per invariant |
-| algorithm_validation.md | docs/reproducibility/ | Algorithm validation pass/fail |
-| tie_breaking_rules.md | docs/reproducibility/ | Tie-breaking policy documentation |
+### Run Contract Tests
+
+```bash
+pytest tests/contract/ -v
+```
+
+**Contract Test Coverage**:
+- test_knot_record.py: Validates KnotRecord outputs against knot_record.schema.yaml
+- test_regression_output.py: Validates RegressionModel outputs against regression_output.schema.yaml
+- test_composite_score.py: Validates CompositeComplexityScore outputs against composite_score_output.schema.yaml
+
+### Run Integration Tests
+
+```bash
+pytest tests/integration/ -v
+```
+
+### Run Unit Tests
+
+```bash
+pytest tests/unit/ -v
+```
 
 ## Troubleshooting
 
-### KnotInfo Unavailable
+### Knot Atlas Unavailable
 
-If KnotInfo is unavailable, the download script will retry with exponential backoff (2s, [deferred], [deferred], etc.). After 3 consecutive failures, partial results are cached to disk. See `docs/reproducibility/logs/` for retry logs.
+If download fails after 3 retries with exponential backoff:
+1. Check network connectivity
+2. Verify Knot Atlas URL is accessible
+3. Partial results will be cached in data/raw/
+4. Consult docs/reproducibility/url_fallback.md for checksummed mirror options
+5. Logs available in docs/reproducibility/logs/download.log
 
-### Missing Invariants
+### Missing Invariant Data
 
-Records with missing invariants are flagged in the dataset rather than silently excluded. See `docs/reproducibility/uncomputable_invariants.md` for details.
+If invariants cannot be computed:
+1. Check data/derived/invariants_computed.csv for missing_invariant_flags
+2. Review docs/reproducibility/uncomputable_invariants.md for details
+3. Records are flagged, not silently excluded
 
-### Ambiguous Classification
+### Algorithm Validation Failure
 
-Knots with ambiguous alternating/non-alternating classification are marked as "unclassifiable" or excluded from stratified analysis. Count logged in `docs/reproducibility/classification_counts.md`.
+If validation against KnotInfo fails:
+1. Check docs/reproducibility/algorithm_validation.md for pass/fail status
+2. If coverage is insufficient, validation is skipped per FR-003
+3. Limitation documented in algorithm_validation.md
 
-### Tie-Breaking
+### Tie-Breaking Validation
 
-Crossing number ties are handled per documented rules in `docs/reproducibility/tie_breaking_rules.md`.
+To verify tie-breaking rules are applied consistently:
+
+```bash
+python code/reproducibility/validation.py --check-tie-breaking
+```
+
+**This verifies**:
+- Braid word preferred over DT code when both available
+- Lexicographically first DT code used when multiple exist
+- Consistency across all invariant computations
+
+### Selection Bias Awareness
+
+Results are limited to hyperbolic knots only (torus/satellite knots excluded). See docs/reproducibility/selection_bias.md for impact analysis.
+
+### Statistical Interpretation
+
+For finite census (prime knots ≤13), p-values are exploratory only. Frame results as descriptive model fit (R², MAE) rather than statistical significance. See docs/reproducibility/statistical_framing.md.
 
 ## Next Steps
 
-- Review `docs/reproducibility/validation_scope.md` for Phase 1 scope boundaries
-- Check `docs/reproducibility/algorithm_validation.md` for algorithm validation status
-- Examine `docs/reproducibility/excluded_knots.md` for filtered records (torus/satellite knots)
+After completing the quickstart:
+
+1. **Review Results**: Examine data/derived/regression_results.csv for model comparisons
+2. **Check Validation**: Review docs/reproducibility/validation_scope.md for Phase 1 scope boundaries
+3. **Explore Plots**: View data/plots/ for visual analysis of crossing number vs. braid index
+4. **Read Documentation**: See docs/reproducibility/ for complete reproducibility artifacts
+5. **Assess Sensitivity**: Run sensitivity analysis to verify composite score robustness
+
+## Support
+
+For issues or questions:
+1. Check docs/reproducibility/logs/ for error logs
+2. Review FR-003 for invariant computation requirements
+3. Consult Constitution Principle I for reproducibility standards
+4. See specs/004-quantifying-the-complexity-of-knot-diagr/spec.md for full specification
