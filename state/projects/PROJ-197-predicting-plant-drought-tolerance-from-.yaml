@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T11:20:56.252744Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-197-predicting-plant-drought-tolerance-from-
-last_run_id: ee25ece4-1d81-45fa-9873-d03836318dde
+last_run_id: 53a33b41-79fe-4a2c-bf9b-143d95db54ab
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Plant Drought Tolerance from Publicly Available Physiological and
   Genomic Data
-updated_at: '2026-05-03T11:25:00.868944Z'
+updated_at: '2026-06-11T19:38:30.234548Z'
