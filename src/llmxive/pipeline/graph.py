@@ -557,14 +557,21 @@ def run_one_step(
             # verdicts are stale relative to the just-revised artifact —
             # the next pass re-dispatches exactly the stale specialists.
             return project
-        evaluated = advancement_evaluate(project, repo_root=repo)
-        evaluated = evaluated.model_copy(
-            update={
-                "updated_at": datetime.now(UTC),
-                "last_run_id": run_id,
-            }
-        )
-        project_store.save(evaluated, repo_root=repo)
+        # Hold the per-project lock across evaluate+save: with a complete
+        # verdict set NO agent dispatch happens, so nothing else acquired
+        # it — two concurrent lanes could otherwise both evaluate and race
+        # on the round dir / saved state (spec 023 concurrent-lanes edge
+        # case). The loser sees LockError and retries on a later tick.
+        from llmxive.agents.runner import project_lock
+        with project_lock(project.id, run_id, repo_root=repo):
+            evaluated = advancement_evaluate(project, repo_root=repo)
+            evaluated = evaluated.model_copy(
+                update={
+                    "updated_at": datetime.now(UTC),
+                    "last_run_id": run_id,
+                }
+            )
+            project_store.save(evaluated, repo_root=repo)
         return evaluated
 
     # Update project stage based on the agent that just ran.

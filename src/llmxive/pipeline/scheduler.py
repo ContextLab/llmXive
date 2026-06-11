@@ -39,7 +39,10 @@ Locked projects (per `pipeline/lock.py`) and terminal stages
 
 from __future__ import annotations
 
+import math
 import random
+from collections import defaultdict
+from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.pipeline import lock as lockmod
@@ -113,6 +116,27 @@ _NEVER_PICK: set[Stage] = {
 # but earlier-stage projects still get picked every several ticks."
 STAGE_GROWTH_BASE: float = 1.5
 
+# --- Spec 023 / FR-006: stage-allocation counterweights -------------------
+#
+# Pre-023 the roulette weighted PROJECTS individually by
+# ``STAGE_GROWTH_BASE ** rank`` — so 92 paper-review projects each carrying
+# ~1478x swamped 589 flesh_out_complete projects at 1.5x (the idea queue got
+# ~2% of picks and effectively never drained; issue #303). Selection is now
+# TWO-LEVEL: pick a STAGE by counterweighted roulette, then a project within
+# that stage. The stage weight keeps the late-stage preference but bounds its
+# dominance and counterbalances it with queue depth and staleness:
+#
+#   stage_weight = GROWTH^min(rank, STAGE_RANK_CAP)      (bounded preference)
+#                  * (1 + log2(1 + queue_depth))          (deep queues matter)
+#                  * (1 + min(stale_days, MAX) / DIVISOR)  (neglect matters)
+#
+# and every eligible stage is floored at MIN_STAGE_SHARE of the total — the
+# FR-006 "non-vanishing share" guarantee is explicit, not emergent.
+STAGE_RANK_CAP: int = 12
+MIN_STAGE_SHARE: float = 0.05
+STALENESS_DIVISOR_DAYS: float = 7.0
+MAX_STALENESS_DAYS: float = 14.0
+
 # Comment-count bonus: every personality/reviewer comment file in
 # projects/<id>/reviews/research/ adds this much to the multiplier,
 # capped at MAX_COMMENT_BONUS comments.
@@ -178,11 +202,58 @@ def _eligible_candidates(
     return out
 
 
+def _stage_rank(stage: Stage) -> int:
+    try:
+        return STAGE_PROGRESSION.index(stage)
+    except ValueError:
+        return 0
+
+
+def stage_weight(
+    stage: Stage, candidates: list[Project], *, now: datetime | None = None
+) -> float:
+    """Counterweighted scheduling weight for one stage's queue (FR-006)."""
+    if not candidates:
+        return 0.0
+    now = now or datetime.now(UTC)
+    pref = STAGE_GROWTH_BASE ** min(_stage_rank(stage), STAGE_RANK_CAP)
+    depth_term = 1.0 + math.log2(1 + len(candidates))
+    oldest = min(c.updated_at for c in candidates)
+    stale_days = max(0.0, (now - oldest).total_seconds() / 86400.0)
+    staleness_term = 1.0 + min(stale_days, MAX_STALENESS_DAYS) / STALENESS_DIVISOR_DAYS
+    return pref * depth_term * staleness_term
+
+
+def _stage_weights_with_floor(
+    by_stage: dict[Stage, list[Project]], *, now: datetime | None = None
+) -> dict[Stage, float]:
+    """Stage weights with the MIN_STAGE_SHARE floor applied (FR-006)."""
+    weights = {
+        s: stage_weight(s, cands, now=now) for s, cands in by_stage.items()
+    }
+    total = sum(weights.values())
+    if total <= 0:
+        return weights
+    floor = MIN_STAGE_SHARE * total
+    return {s: max(w, floor) for s, w in weights.items()}
+
+
+def _pick_within_stage(
+    candidates: list[Project], *, repo_root: Path | None, rand,
+) -> Project:
+    weights = [priority_score(p, repo_root=repo_root) for p in candidates]
+    total = sum(weights)
+    if total <= 0:
+        return sorted(candidates, key=lambda p: p.updated_at)[0]
+    return rand.choices(candidates, weights=weights, k=1)[0]
+
+
 def pick_next(
     *, repo_root: Path | None = None, stage: Stage | None = None,
     rng: random.Random | None = None,
 ) -> Project | None:
-    """Pick the next project to act on via priority-weighted random choice.
+    """Pick the next project: stage by counterweighted roulette (FR-006),
+    then a project within that stage.
 
     `rng` lets tests inject a seeded `random.Random` for determinism.
     Production callers should pass None (uses the module-level RNG).
@@ -190,15 +261,22 @@ def pick_next(
     candidates = _eligible_candidates(repo_root=repo_root, stage=stage)
     if not candidates:
         return None
-    weights = [priority_score(p, repo_root=repo_root) for p in candidates]
-    total = sum(weights)
+    rand = rng if rng is not None else random
+    if stage is not None:
+        return _pick_within_stage(candidates, repo_root=repo_root, rand=rand)
+    by_stage: dict[Stage, list[Project]] = defaultdict(list)
+    for p in candidates:
+        by_stage[p.current_stage].append(p)
+    weights = _stage_weights_with_floor(by_stage)
+    stages = list(by_stage)
+    total = sum(weights[s] for s in stages)
     if total <= 0:
-        # All weights zero (shouldn't happen given _NEVER_PICK filter, but
-        # be defensive). Fall back to oldest-first within the candidate pool.
         candidates.sort(key=lambda p: p.updated_at)
         return candidates[0]
-    rand = rng if rng is not None else random
-    return rand.choices(candidates, weights=weights, k=1)[0]
+    chosen_stage = rand.choices(stages, weights=[weights[s] for s in stages], k=1)[0]
+    return _pick_within_stage(
+        by_stage[chosen_stage], repo_root=repo_root, rand=rand
+    )
 
 
 def pick_next_n(
@@ -219,14 +297,25 @@ def pick_next_n(
     picked: list[Project] = []
     rand = rng if rng is not None else random
     while candidates and len(picked) < n:
-        weights = [priority_score(p, repo_root=repo_root) for p in candidates]
-        total = sum(weights)
-        if total <= 0:
-            # Degenerate: append oldest, exit.
-            candidates.sort(key=lambda p: p.updated_at)
-            picked.append(candidates.pop(0))
-            continue
-        choice = rand.choices(candidates, weights=weights, k=1)[0]
+        if stage is not None:
+            choice = _pick_within_stage(candidates, repo_root=repo_root, rand=rand)
+        else:
+            by_stage: dict[Stage, list[Project]] = defaultdict(list)
+            for p in candidates:
+                by_stage[p.current_stage].append(p)
+            weights = _stage_weights_with_floor(by_stage)
+            stages = list(by_stage)
+            total = sum(weights[s] for s in stages)
+            if total <= 0:
+                candidates.sort(key=lambda p: p.updated_at)
+                picked.append(candidates.pop(0))
+                continue
+            chosen_stage = rand.choices(
+                stages, weights=[weights[s] for s in stages], k=1
+            )[0]
+            choice = _pick_within_stage(
+                by_stage[chosen_stage], repo_root=repo_root, rand=rand
+            )
         picked.append(choice)
         candidates = [c for c in candidates if c.id != choice.id]
     return picked
@@ -235,10 +324,15 @@ def pick_next_n(
 __all__ = [
     "COMMENT_BONUS_PER",
     "MAX_COMMENT_BONUS",
+    "MAX_STALENESS_DAYS",
+    "MIN_STAGE_SHARE",
     "PRIORITY",
     "STAGE_GROWTH_BASE",
     "STAGE_PROGRESSION",
+    "STAGE_RANK_CAP",
+    "STALENESS_DIVISOR_DAYS",
     "pick_next",
     "pick_next_n",
     "priority_score",
+    "stage_weight",
 ]
