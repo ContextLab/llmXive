@@ -190,6 +190,22 @@ class ZenodoClient:
             raw=d2,
         )
 
+    def get_deposition(self, deposition_id: int) -> dict[str, Any]:
+        """Fetch a deposition's raw record (draft or published).
+
+        Used by the publisher's resume path (spec 023 / FR-020
+        idempotence): a crash between ``publish()`` and the local state
+        write must NOT mint a second DOI — the recovery ledger's
+        deposition is fetched and inspected (``submitted`` → already
+        published; reuse its DOI) instead of creating a new one."""
+        r = requests.get(
+            f"{self.base}/deposit/depositions/{deposition_id}",
+            headers=self._headers(json_body=False),
+            timeout=self.timeout,
+        )
+        self._raise_for_status(r)
+        return r.json()
+
     def delete_draft(self, deposition_id: int) -> None:
         """Convenience: delete an unpublished draft (e.g., during tests).
         Zenodo prohibits deleting published depositions; this is a no-op

@@ -779,6 +779,23 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_project_signoff_poll(_args: argparse.Namespace) -> int:
+    """Scheduled-lane entry: drive the publication sign-off vote gate
+    (spec 023 / FR-019..021) over every project parked at
+    ``awaiting_publication_signoff``."""
+    from pathlib import Path
+
+    from llmxive.integrations.signoff_gate import poll_all
+
+    actions = poll_all(repo_root=Path.cwd())
+    if not actions:
+        print("[signoff] no projects awaiting publication sign-off")
+        return 0
+    for pid, action in sorted(actions.items()):
+        print(f"[signoff] {pid}: {action}")
+    return 0 if not any(a.startswith("error") for a in actions.values()) else 1
+
+
 def _cmd_project_publish_approve(args: argparse.Namespace) -> int:
     """`llmxive project publish-approve <PROJ-ID> [--who X] --what Y` (spec 015 / FR-054).
 
@@ -1032,6 +1049,14 @@ def build_parser() -> argparse.ArgumentParser:
              "a gh identity.",
     )
     p_signoff.set_defaults(func=_cmd_project_publish_approve)
+
+    p_signoff_poll = project_subs.add_parser(
+        "signoff-poll",
+        help="open/parse publication sign-off vote issues for every "
+             "gate-parked paper (spec 023 / FR-019..021; scheduled lane "
+             "entry point)",
+    )
+    p_signoff_poll.set_defaults(func=_cmd_project_signoff_poll)
 
     return parser
 

@@ -105,6 +105,11 @@ _NEVER_PICK: set[Stage] = {
     # Spec 023 / FR-014: VALIDATOR_REJECTED is the honest idea-track
     # terminal (idea-retry cap exhausted; rejected to the backlog).
     Stage.VALIDATOR_REJECTED,
+    # Spec 023 / FR-021: sign-off-parked papers consume ZERO scheduler
+    # capacity — the signoff-poll lane (integrations.signoff_gate) owns
+    # the stage: it opens/parses the maintainer vote and dispatches the
+    # publisher itself on approval.
+    Stage.AWAITING_PUBLICATION_SIGNOFF,
 }
 
 

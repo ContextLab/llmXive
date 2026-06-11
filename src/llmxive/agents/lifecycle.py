@@ -179,6 +179,10 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.POSTED,
         Stage.PUBLISH_BLOCKED,
         Stage.AWAITING_PUBLICATION_SIGNOFF,  # no-op self-loop until sign-off
+        # Spec 023 / FR-020: a maintainer REJECTION at the sign-off gate
+        # converts the stated reason into review feedback and re-enters
+        # the revision loop.
+        Stage.PAPER_REVIEW,
     },
     Stage.PUBLISH_BLOCKED: {Stage.PAPER_ACCEPTED},  # operator `project republish`
     Stage.PAPER_FUNDAMENTAL_FLAWS: {Stage.BRAINSTORMED},

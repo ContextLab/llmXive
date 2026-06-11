@@ -151,6 +151,41 @@ def _append_appendix_input(source_dir: Path, appendix_tex_rel: str) -> None:
     primary.write_text(text, encoding="utf-8")
 
 
+def _draft_ledger_path(paper_dir: Path) -> Path:
+    """Recovery ledger for the in-flight Zenodo deposition (FR-020
+    idempotence): written immediately after draft creation so a crash at
+    ANY later point — including after the remote publish succeeded — can
+    resume the SAME deposition instead of minting a second DOI."""
+    return paper_dir / ".zenodo_draft.yaml"
+
+
+def _read_draft_ledger(paper_dir: Path) -> dict | None:
+    p = _draft_ledger_path(paper_dir)
+    if not p.is_file():
+        return None
+    try:
+        data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError:
+        return None
+    return data if isinstance(data, dict) and data.get("deposition_id") else None
+
+
+def _write_draft_ledger(
+    paper_dir: Path, *, deposition_id: int, doi: str, environment: str
+) -> None:
+    _draft_ledger_path(paper_dir).write_text(
+        yaml.safe_dump(
+            {
+                "deposition_id": deposition_id,
+                "doi": doi,
+                "environment": environment,
+                "created_at": datetime.now(UTC).isoformat(),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
 def _publish_failure_counter_path(repo_root: Path, project_id: str) -> Path:
     return repo_root / "state" / f"{project_id}.publisher.yaml"
 
@@ -255,6 +290,32 @@ class PaperPublisher(Agent):
             metadata_path = paper_dir / "metadata.json"
             metadata = json.loads(metadata_path.read_text(encoding="utf-8")) if metadata_path.is_file() else {}
 
+            # Spec 023 / FR-020 idempotence check 1: a publication.yaml
+            # with a minted DOI but a non-POSTED stage means a prior run
+            # crashed between mint and the state write. CONVERGE — never
+            # mint again.
+            prior_pub = pub_state.load(project.id, repo_root=repo)
+            if prior_pub is not None and prior_pub.doi:
+                ended = datetime.now(UTC)
+                project_state.update(
+                    project.id,
+                    {
+                        "current_stage": Stage.POSTED.value,
+                        "updated_at": ended.isoformat(),
+                    },
+                    repo_root=repo,
+                )
+                _draft_ledger_path(paper_dir).unlink(missing_ok=True)
+                outputs.append(f"projects/{project.id}/paper/publication.yaml")
+                failure_reason = (
+                    f"already published (doi={prior_pub.doi}); converged "
+                    "state to posted without re-minting"
+                )
+                return self._emit_run_log(
+                    ctx, started, ended, outcome, failure_reason, outputs,
+                    backend_used, model_used,
+                )
+
             # FR-024: derive volume/issue from acceptance time.
             accepted_at = project.updated_at  # last advancement
             vi = VolumeIssue.from_datetime(accepted_at)
@@ -282,13 +343,59 @@ class PaperPublisher(Agent):
                 project_id=project.id,
             )
 
-            # Create draft (pre-reserves DOI) — new deposition for first
-            # publication; new version for re-publication.
-            if is_republication:
-                draft = client.new_version(int(existing_zenodo_id or 0))
+            # Spec 023 / FR-020 idempotence check 2: a prior run may have
+            # created (or even PUBLISHED) a deposition and then crashed
+            # before the local state write. The recovery ledger
+            # (paper/.zenodo_draft.yaml, written immediately after draft
+            # creation) lets us RESUME that deposition instead of minting
+            # a second DOI.
+            resumed_published: zenodo_module.PublishedDeposition | None = None
+            draft = None
+            ledger = _read_draft_ledger(paper_dir)
+            if ledger and ledger.get("environment") == (
+                "sandbox" if use_sandbox else "production"
+            ):
+                try:
+                    raw = client.get_deposition(int(ledger["deposition_id"]))
+                except zenodo_module.ZenodoAPIError:
+                    raw = None
+                if raw is not None and raw.get("submitted"):
+                    # Already published remotely — adopt it, do NOT re-mint.
+                    resumed_published = zenodo_module.PublishedDeposition(
+                        deposition_id=int(raw["id"]),
+                        doi=raw.get("doi", "") or str(ledger.get("doi") or ""),
+                        doi_url=raw.get("doi_url")
+                        or f"https://doi.org/{raw.get('doi', '')}",
+                        concept_doi=raw.get("conceptdoi"),
+                        raw=raw,
+                    )
+                elif raw is not None:
+                    links = raw.get("links") or {}
+                    prereserve = (raw.get("metadata") or {}).get("prereserve_doi") or {}
+                    draft = zenodo_module.Deposition(
+                        deposition_id=int(raw["id"]),
+                        doi=prereserve.get("doi") or str(ledger.get("doi") or ""),
+                        bucket_url=links.get("bucket", ""),
+                        publish_url=links.get("publish", ""),
+                        raw=raw,
+                    )
+            if resumed_published is None and draft is None:
+                # Create draft (pre-reserves DOI) — new deposition for first
+                # publication; new version for re-publication.
+                if is_republication:
+                    draft = client.new_version(int(existing_zenodo_id or 0))
+                else:
+                    draft = client.create_deposition(zenodo_meta)
+            if resumed_published is not None:
+                doi = resumed_published.doi
             else:
-                draft = client.create_deposition(zenodo_meta)
-            doi = draft.doi
+                doi = draft.doi
+                _write_draft_ledger(
+                    paper_dir,
+                    deposition_id=draft.deposition_id,
+                    doi=doi,
+                    environment="sandbox" if use_sandbox else "production",
+                )
             if not doi:
                 raise RuntimeError("Zenodo did not return a pre-reserved DOI")
 
@@ -315,9 +422,13 @@ class PaperPublisher(Agent):
             out_pdf.write_bytes(pdf_bytes)
             outputs.append(str(out_pdf.relative_to(repo)))
 
-            # Upload + publish.
-            client.upload_file(draft.bucket_url, "main.pdf", pdf_bytes)
-            published = client.publish(draft.deposition_id)
+            # Upload + publish (skipped when resuming an already-published
+            # deposition — FR-020 idempotence).
+            if resumed_published is not None:
+                published = resumed_published
+            else:
+                client.upload_file(draft.bucket_url, "main.pdf", pdf_bytes)
+                published = client.publish(draft.deposition_id)
             doi = published.doi  # canonical after publish (may match prereserve)
             doi_url = published.doi_url
             concept_doi = published.concept_doi
@@ -352,7 +463,7 @@ class PaperPublisher(Agent):
                 doi_url=doi_url,
                 concept_doi=concept_doi,
                 doi_versions=all_versions,
-                zenodo_id=draft.deposition_id,
+                zenodo_id=published.deposition_id,
                 zenodo_environment="sandbox" if use_sandbox else "production",
                 citation_string=citation,
                 authors_at_publication=authors,
@@ -362,6 +473,9 @@ class PaperPublisher(Agent):
             )
             pub_state.save(project.id, pub, repo_root=repo)
             outputs.append(f"projects/{project.id}/paper/publication.yaml")
+            # Publication recorded — the recovery ledger has served its
+            # purpose (FR-020 idempotence).
+            _draft_ledger_path(paper_dir).unlink(missing_ok=True)
 
             # Reset failure counter on success.
             _bump_failure_counter(repo, project.id, failed=False)
