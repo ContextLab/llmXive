@@ -1,0 +1,187 @@
+project_id: PROJ-563-many-shot-cot-icl-making-in-context-lear
+arxiv_id: '2605.13511'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-11T10:53:39.873547+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 6bca207a2fac
+    text: Resolve LaTeX source duplication between body input commands and appendix
+      content in main-llmxive.tex to prevent double-rendering of sections.
+    severity: writing
+  - id: c737be115bf5
+    text: Verify all citation keys in example_paper.bib are present and resolve 2025/2026
+      publication dates for acceptance criteria.
+    severity: writing
+  - id: a80d2611804f
+    text: Ensure all figure references in text match the provided figure_inventory
+      filenames exactly.
+    severity: writing
+  - id: eeafbe123105
+    text: The evaluation results for 'gpt-5.2' in Table 1 (section/curvature.tex)
+      lack a citation and the model version is not publicly verified. Add a reference
+      or remove this model from the experimental claims to ensure factual accuracy.
+    severity: science
+  - id: 794f5d0d2525
+    text: Citations \\cite{tsp} (Section 6) and \\cite{vllm} (Appendix) are referenced
+      in the text but missing from example_paper.bib. Add these entries to support
+      the methodological claims.
+    severity: writing
+  - id: 4ea0291cbc92
+    text: The citation \\cite{qwen2025qwen25technicalreport} is used for both Qwen2.5
+      and QwQ models. Verify if QwQ requires a distinct technical report citation
+      to accurately attribute the model architecture.
+    severity: writing
+  - id: 23bfdb7f1933
+    text: 'Algorithm 1 in the Appendix contains a syntax error: `\mathbf{m}[j] \leftarrow
+      \mathbf{m}[j] + \times \mathrm{score}^{(j)}_{M}`. The `+ \times` operator combination
+      is invalid LaTeX/math syntax and logically nonsensical.'
+    severity: writing
+  - id: ca1f4333e194
+    text: Experimental code artifacts (scripts, configs, tests) are not included in
+      the submission. For reproducibility, please provide a link to the code repository
+      and a `requirements.txt` or environment file.
+    severity: science
+  - id: 007f0bb6e8f1
+    text: Dataset citations lack version numbers and license information. Add explicit
+      dataset versions and licenses for reproducibility.
+    severity: writing
+  - id: 374a9e137af4
+    text: 'No data availability statement: processed demonstration data and embedding
+      vectors are not publicly accessible. Provide a data repository link or commit
+      hash.'
+    severity: writing
+  - id: 80d0416fb053
+    text: Bibliography contains truncated entries and missing URLs. Complete all references
+      with DOIs or stable URLs.
+    severity: writing
+  - id: 41c24675ae5d
+    text: Embedding models lack version/commit specification. Add exact model versions
+      for reproducibility.
+    severity: writing
+  - id: 06f08f733011
+    text: Experimental seeds are mentioned but exact seed values are not documented.
+      Provide seed values for full reproducibility.
+    severity: writing
+  - id: 7575c3add0c8
+    text: Add accessible alt text to all \includegraphics commands (e.g., using the
+      alt package) to comply with accessibility standards.
+    severity: writing
+  - id: 7adc086e552d
+    text: Clarify axis labels in Figure 2 (overview) caption; current description
+      (x=accuracy, y=shots) contradicts standard scaling plot conventions and may
+      confuse readers.
+    severity: writing
+  - id: 9389558a326f
+    text: Include dataset names (e.g., BANKING77) directly in Figure 5 caption to
+      ensure standalone interpretability without relying on main text.
+    severity: writing
+  - id: b257d5c6a510
+    text: Verify colorblind accessibility for Figures 2 and 6; add hatching or markers
+      to distinguish 'warm' vs 'cool' tasks for grayscale printing.
+    severity: writing
+  - id: 8923986d2140
+    text: Define acronyms RAG, PCA, UMAP, RoPE, TSP, 2-opt, vLLM, and BGE at first
+      use.
+    severity: writing
+  - id: 24140924f376
+    text: Simplify technical terms like 'embedding trajectory' and 'in-context test-time
+      learning' for broader accessibility.
+    severity: writing
+  - id: 93581c3ecfd3
+    text: Briefly explain 'zone of proximal development' when introduced in Section
+      5.1.
+    severity: writing
+  - id: fab4854cbd15
+    text: Clarify the model identity for the '5.42 percentage-point gain' claim in
+      the Abstract. This gain corresponds to gpt-5.2 in Table 3, but gpt-5.2 is not
+      defined in the 'LLMs Studied' section (Section 3.2).
+    severity: writing
+  - id: 526e1cfacc90
+    text: Correct the demonstration count inconsistency in Table 3 (Section 6). The
+      column header reads '124', while the text and other tables (e.g., Table 4) consistently
+      use '128'.
+    severity: writing
+  - id: 6400bc5ec700
+    text: Clarify the source of the 5.42% gain in the abstract; it comes from gpt-5.2
+      (Table 5), not the primary open models (Qwen3). Ensure the headline number reflects
+      the generalizable contribution or specifies the model.
+    severity: writing
+  - id: 2ba41f7df937
+    text: Temper the claim of 'causal factor' in Section 5.2. While the ablation supports
+      the hypothesis, embedding curvature is a proxy; use 'suggests a causal link'
+      or 'supports the hypothesis' instead of definitive causality.
+    severity: science
+  - id: 75a59ea09dab
+    text: Review the title and abstract phrasing 'Truly Learn'. Since weights are
+      fixed, 'functional learning' or 'test-time adaptation' is more precise than
+      implying cognitive learning occurs.
+    severity: writing
+  - id: 19185ebc7346
+    text: Revise Impact Statement to explicitly discuss dual-use risks of enhanced
+      reasoning capabilities, such as automated generation of complex disinformation
+      or adversarial planning.
+    severity: writing
+  - id: 71f060d1f2cf
+    text: Add a statement clarifying copyright/licensing compliance for datasets containing
+      copyrighted narratives (e.g., DetectiveQA) used in the few-shot demonstrations.
+    severity: writing
+  - id: c54fa3804f74
+    text: Report standard deviation or confidence intervals for CDS results in Tables
+      3 and 4 to establish statistical significance of reported gains.
+    severity: science
+  - id: a8696b97ce33
+    text: Increase the number of random seeds for variance analysis beyond 5, or provide
+      statistical justification for the current sample size given observed variance.
+    severity: science
+  - id: d1ad89a71ed0
+    text: Clarify potential circularity in embedding model selection (Qwen3 target
+      vs. Qwen3-Embedding) for the primary curvature analysis.
+    severity: science
+  - id: 50fc13771b84
+    text: Report confidence intervals or standard errors for all performance gains
+      in Tables 4, 5, 6 (e.g., CDS vs origin comparisons). Point estimates alone cannot
+      establish statistical significance.
+    severity: science
+  - id: ea0fe2e5c287
+    text: Provide p-values for reported Pearson correlations (r=-0.547 overall). With
+      ~5 orderings sampled, test whether correlations differ significantly from zero.
+    severity: science
+  - id: ee0fadfda8fc
+    text: "Apply multiple-comparisons correction (e.g., Bonferroni or FDR) given 3\
+      \ tasks \xD7 4 shot levels \xD7 3 models \xD7 3 methods = 36+ hypothesis tests."
+    severity: science
+  - id: cca1ece6784a
+    text: Increase random ordering seeds from 5 to at least 10-20 for variance estimates.
+      Five samples yield high uncertainty on standard deviation estimates themselves.
+    severity: science
+  - id: b889ca99184a
+    text: "Fix Algorithm 1 line 15 syntax error (\"m[j] \u2190 m[j] + \xD7 score_M\"\
+      ) and specify how PCA/UMAP scores are weighted/combined statistically."
+    severity: writing
+  - id: 4e0987b45be4
+    text: Report statistical test results (t-test, ANOVA) comparing CDS vs high-curvature
+      ablation in Table 5, not just point estimates.
+    severity: science
+  - id: 59682ceae4f0
+    text: Remove duplicate package imports (e.g., amsmath, amssymb) to avoid redundancy
+      and potential compilation warnings.
+    severity: writing
+  - id: fb8504bcfd94
+    text: Eliminate or replace negative vertical spacing commands (e.g., \vspace{-5mm},
+      \vspace{-2mm}) with proper spacing adjustments via LaTeX lengths or class options.
+    severity: writing
+  - id: 22d3f16f77f2
+    text: "Ensure consistent line wrapping in source files (e.g., keep lines under\
+      \ 80 characters) to improve readability and version\u2011control diffs."
+    severity: writing
+  - id: 52af378231c9
+    text: Add a clear \clearpage before the \appendix to guarantee that figures/tables
+      do not float into the appendix section.
+    severity: writing
+  - id: 770281ec647f
+    text: Verify that all algorithm environments include the required \usepackage{algorithmic}
+      (or use the algorithmicx package) to avoid undefined commands.
+    severity: writing

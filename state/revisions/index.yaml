@@ -254,4 +254,7 @@ ready:
 - project_id: PROJ-618-bench-evaluating-proactive-personal-assi
   revision_spec_path: specs/auto-revisions/PROJ-618-bench-evaluating-proactive-personal-assi/round-1
   queued_at: '2026-06-11T08:46:29.939969+00:00'
+- project_id: PROJ-563-many-shot-cot-icl-making-in-context-lear
+  revision_spec_path: specs/auto-revisions/PROJ-563-many-shot-cot-icl-making-in-context-lear/round-1
+  queued_at: '2026-06-11T10:53:39.897435+00:00'
 blocked: []
