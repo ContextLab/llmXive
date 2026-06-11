@@ -289,19 +289,32 @@ def _validate_edit_path(
     norm = rel_path.replace("\\", "/")
     if norm.startswith("./"):
         norm = norm[2:]
-    abs_path = (repo_root / norm).resolve()
-    try:
-        abs_path.relative_to(repo_root.resolve())
-    except ValueError:
-        return None  # outside repo
+    if not norm:
+        return None
+    # The LLM naturally emits PROJECT-relative paths ("paper/source/main.tex"
+    # — that's how the prompt names the manuscript). Accept both repo-
+    # relative and project-relative forms (spec 023: 21 of 39 real round-1
+    # edits were rejected solely for this).
+    candidates = [
+        (repo_root / norm).resolve(),
+        (repo_root / "projects" / project_id / norm).resolve(),
+    ]
     paper_src = (repo_root / "projects" / project_id / "paper" / "source").resolve()
-    if str(abs_path).startswith(str(paper_src)):
-        return abs_path
-    if severity == "science":
-        for sub in ("code", "data"):
-            base = (repo_root / "projects" / project_id / sub).resolve()
-            if str(abs_path).startswith(str(base)):
-                return abs_path
+    science_bases = [
+        (repo_root / "projects" / project_id / sub).resolve()
+        for sub in ("code", "data")
+    ]
+    for abs_path in candidates:
+        try:
+            abs_path.relative_to(repo_root.resolve())
+        except ValueError:
+            continue  # outside repo
+        if str(abs_path).startswith(str(paper_src)):
+            return abs_path
+        if severity == "science" and any(
+            str(abs_path).startswith(str(base)) for base in science_bases
+        ):
+            return abs_path
     return None
 
 
@@ -995,12 +1008,25 @@ def _read_tasks_md(tasks_path: Path) -> list[dict[str, str]]:
     pat = re.compile(
         r"^- \[ \] T(\d+)\s*(?:\[P\])?\s*(?:\[([^\]]+)\])?\s+(.*)$", re.M
     )
+    sev_in_text = re.compile(r"severity:\s*(writing|science|fatal)", re.IGNORECASE)
     text = tasks_path.read_text(encoding="utf-8")
     for m in pat.finditer(text):
+        task_text = m.group(3).strip()
+        # The bracket tag is a severity ONLY when it actually names one —
+        # the revision adapter emits "[REV]" as a task-category tag with
+        # the real severity inline as "(severity: writing)". Pre-023 the
+        # tag was blindly taken as the severity ("REV"), which broke the
+        # severity-dependent path rules for every adapter-written round.
+        tag = (m.group(2) or "").strip().lower()
+        if tag in {"writing", "science", "fatal"}:
+            severity = tag
+        else:
+            sev_m = sev_in_text.search(task_text)
+            severity = sev_m.group(1).lower() if sev_m else "writing"
         out.append({
             "id": m.group(1).strip(),
-            "severity": (m.group(2) or "").strip() or "writing",
-            "text": m.group(3).strip(),
+            "severity": severity,
+            "text": task_text,
         })
     # Also accept the alternative `id: <hex>` markdown format the
     # revision_planner emits.
