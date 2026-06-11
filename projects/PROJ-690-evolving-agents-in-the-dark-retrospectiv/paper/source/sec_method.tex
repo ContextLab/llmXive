@@ -1,0 +1,127 @@
+\begin{algorithm}[t]
+\caption{\looseness=-1 A single round of \method{}. One backbone instantiates every operator (the difficulty $\mathrm{judge}$, $\mathrm{solve}$, $\mathrm{optimize}$, and $\mathrm{rank}$), differing in its inputs and consulting no ground-truth label.}
+\label{alg:rho}
+\footnotesize
+\begin{algorithmic}[1]
+\Require past trajectories $\mathcal{D}{=}\{(t_i,\tau_i)\}_i$ and harness $h_0$, with coreset size $k$, group size $G$, candidate count $N$, and DPP weight $\theta$
+\Ensure  updated harness $h^\star$
+\rhostage{Stage 1 \, Coreset Selection}
+\State $r_i \gets \mathrm{judge}(t_i,\tau_i)\ \ \forall\,(t_i,\tau_i)\in\mathcal{D}$
+\State $\mathcal{D}_{\mathrm{core}} \gets \textsc{DPP-Greedy}\bigl(\{(t_i,r_i)\};\,\theta,k\bigr)$
+\rhostage{Stage 2 \, Group Rollout}
+\For{$t \in \mathcal{D}_{\mathrm{core}}$ \textbf{in parallel}}
+  \State $\{\tau_{t,g}\}_{g=1}^{G} \gets \mathrm{solve}(h_0,t)$ \Comment{$k{\times}G$ rollouts}
+  \State $\tau_t^{(0)} \gets \tau_{t,1}$ \Comment{\emph{fixed} baseline rollout}
+  \State $I_t \gets \mathrm{rank}_{\mathrm{val}}\bigl(t,\{\tau_{t,g}\}\bigr)\cup\mathrm{rank}_{\mathrm{con}}\bigl(t,\{\tau_{t,g}\}\bigr)$
+\EndFor
+\State $I \gets \bigcup_{t\in\mathcal{D}_{\mathrm{core}}} I_t$
+\rhostage{Stage 3 \, Best-of-$N$ Harness Proposal}
+\For{$j = 1,\dots,N$ \textbf{in parallel}}
+  \State $h_j \gets \mathrm{optimize}\bigl(h_0,\,I\bigr)$
+  \State $\tau_t^{(j)} \gets \mathrm{solve}(h_j,t)\ \ \forall\,t\in\mathcal{D}_{\mathrm{core}}$ \Comment{$N{\times}k$ re-solves}
+  \State $S_j \gets \tfrac{1}{k}\sum_{t\in\mathcal{D}_{\mathrm{core}}} \mathrm{rank}\bigl(t,\,\tau_t^{(j)},\,\tau_t^{(0)}\bigr)$
+\EndFor
+\State $j^\star \gets \arg\max_{j} S_j$
+\State \Return $h_{j^\star}$ \textbf{if} $S_{j^\star}>0$, \textbf{else} $h_0$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\section{Retrospective Harness Optimization}
+
+\looseness=-1 We propose \method{}, a self-supervised method that improves a harness using only past trajectories.
+Specifically, our pipeline (Figure~\ref{fig:rho-pipeline}) consists of three stages, namely coreset selection, group rollout, and best-of-$N$ harness proposal.
+First, we select a representative subset of past tasks to define the optimization target.
+Next, we sample a group of parallel rollouts for each task in this coreset and extract harness improvement signals from them.
+Finally, we generate $N$ candidate harnesses based on these signals and retain the most preferred one using pairwise self-preference.
+The full algorithm is detailed in Algorithm~\ref{alg:rho}.
+
+\subsection{Coreset Selection}
+
+Given a large set of past trajectories, we need to extract the most critical signals to guide the harness optimization.
+Optimizing the harness on every individual trajectory is computationally prohibitive, and it further risks diluting important signals with trivial ones.
+To address this, we first select a coreset $\mathcal{D}_{\mathrm{core}}$ from the full set $\mathcal{D}$ to represent the trajectories that require optimization the most.
+Specifically, we require the coreset to capture both challenging and diverse scenarios.
+This requirement encourages our optimization to cover a wide range of failure modes when addressing the most difficult problems.
+To accomplish this, we introduce a Determinantal Point Process (DPP) kernel \citep{kulesza2012dpp} to rank all past trajectories by difficulty while satisfying a diversity constraint.
+In practice, we employ a language model judge to analyze every trajectory $\tau_i$ and extract a difficulty score $r_i$ alongside a textual description.
+This description details the specific challenges of the problem and potential failure modes.
+We then compute the embedding of this description and use the cosine similarity between embeddings as the similarity metric $S_{i,j}$ for any two trajectories $\tau_i$ and $\tau_j$.
+By considering both the difficulty scores $r$ and the trajectory similarity matrix $S$, we construct a kernel matrix
+\[
+    K = \mathrm{diag}( \widetilde{r})\,S\,\mathrm{diag}( \widetilde{r}),
+\]
+where  $\widetilde{r}_i$ is a scaled version of the trajectory's difficulty score $r_i$:
+\[
+\widetilde{r}_i = \big(\max(r_i,\epsilon)\,/\,\max_j \max(r_j,\epsilon)\big)^{\alpha},
+\]
+\[
+\alpha = \theta/\big(2(1-\theta)\big).
+\]
+With this kernel function $K$, DPP selects a subset $Y$ with probability proportional to the kernel determinant $\det(K_Y)$, using parameter $\theta$ to adjust the relative importance of difficulty and diversity via $\alpha$. With $\theta = 1$, the trajectories are ranked purely by difficulty and $\theta = 0$ (uniform weights) ranked purely by similarity diversity.
+Using $\theta = 0.7$, we select $k$ trajectories into a coreset $\mathcal{D}_{\mathrm{core}}$ that covers difficult, diverse failure modes for the subsequent stages.
+
+\subsection{Group Rollout}
+
+Inspired by previous work that uses relative advantages within a group as reward signals for reinforcement learning \citep{shao2024deepseekmath}, we generate a set of trajectories by running $G$ parallel agent solves on each coreset task.
+Subsequently, the agent compares these group trajectories to identify underperforming runs.
+The agent then uses contrastive signals within the group to formulate instructions for optimizing the harness.
+Specifically, we perform this self-preference analysis along two dimensions.
+\begin{itemize}
+    \item \looseness=-1 \textbf{Self-validation} ($\mathrm{rank}_{\mathrm{val}}$)\textbf{.} This dimension examines the correctness of the agent within each trajectory.
+    The agent inspects each trajectory against the required task and environment observations to determine whether the objective is efficiently achieved, exploiting the partial ability of models to recognize the limits of their own knowledge \citep{pan2025refusal}.
+    During this process, it flags incorrect tool invocations, false assumptions, and premature stopping. These flagged aspects are then extracted as areas of improvement for the relatively underperforming runs.
+    \item \looseness=-1 \textbf{Self-consistency} ($\mathrm{rank}_{\mathrm{con}}$)\textbf{.} This dimension examines whether the behavior of the agent remains consistent across different trajectories.
+    Because low self-consistency typically indicates high uncertainty \citep{wang2022selfconsistency,farquhar2024semantic}, we instruct the agent to analyze contradictions among trajectories.
+    The agent identifies consequential disagreements, such as divergent plans, tool sequences, or final answers, and generates optimization instructions to encourage more consistent behavior.
+\end{itemize}
+These $\mathrm{rank}_{\mathrm{val}}$ and $\mathrm{rank}_{\mathrm{con}}$ analyses yield structured evaluations in JSON format, and for each task their union forms the improvement instruction $I_t = \mathrm{rank}_{\mathrm{val}}\bigl(t, \{\tau_{t,g}\}\bigr) \cup \mathrm{rank}_{\mathrm{con}}\bigl(t, \{\tau_{t,g}\}\bigr)$.
+As a result, we merge $\{I_t\}$ across all tasks in the coreset to form the final harness improvement instructions.
+
+\begin{table*}[t]
+\caption{Held-out pass rate after harness optimization. The Architecture column indicates which harness surface each method edits. $\Delta$ is the absolute change over Vanilla Codex on the same held-out split.}
+\label{tab:main}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccc}
+\toprule
+& \textbf{Harness} & \multicolumn{2}{c}{\textbf{SWE-Bench Pro}} & \multicolumn{2}{c}{\textbf{Terminal-Bench~2}} & \multicolumn{2}{c}{\textbf{GAIA-2}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+\textbf{Method} & \textbf{Architecture} & \textbf{Pass} & $\boldsymbol{\Delta}$ & \textbf{Pass} & $\boldsymbol{\Delta}$ & \textbf{Pass} & $\boldsymbol{\Delta}$ \\
+\midrule
+\rowcolor{rowAlt}
+Vanilla Codex & None & 0.59 & n/a & 0.71 & n/a & 0.29 & n/a \\
+\midrule
+\rowcolor{white}
+Dynamic Cheatsheet \citep{suzgun2025dynamiccheatsheet} & Skills & 0.62 & $+0.03$ & 0.73 & $+0.02$ & 0.30 & $+0.01$ \\
+\rowcolor{rowAlt}
+ReasoningBank \citep{ouyang2026reasoningbank} & Memory & 0.61 & $+0.02$ & 0.73 & $+0.02$ & 0.28 & $-0.01$ \\
+\rowcolor{white}
+Sleep-time Compute \citep{lin2025sleeptime} & Memory & 0.64 & $+0.05$ & 0.73 & $+0.02$ & 0.32 & $+0.03$ \\
+\midrule
+\cellcolor{rhoBlue}\method{} & \cellcolor{rhoBlue}Skills+Tools & \cellcolor{rhoBlue}\textbf{0.78} & \cellcolor{rhoBlue}$\mathbf{+0.19}$ & \cellcolor{rhoBlue}\textbf{0.76} & \cellcolor{rhoBlue}$\mathbf{+0.05}$ & \cellcolor{rhoBlue}\textbf{0.37} & \cellcolor{rhoBlue}$\mathbf{+0.08}$ \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-1em}
+\end{table*}
+
+\subsection{Best-of-$N$ Harness Proposal}
+
+After obtaining the improvement instructions, we optimize the harness by providing these instructions to the agent.
+However, as observed in prior studies on agent evolution \citep{agrawal2025gepa,hu2024adas,lee2026metaharness}, harness optimization is inherently stochastic and may not reliably improve performance even with valid input signals.
+To mitigate this limitation, we sample harness proposals in parallel and filter them using agent self-preference.
+This selection is designed to favor candidates whose improvements generalize to future tasks.
+Specifically, we execute $N$ parallel optimization calls to generate $N$ candidate harnesses, denoted as $h_1$ to $h_N$.
+Following this step, we use these candidates to obtain $N$ sets of new trajectories on the $k$ coreset tasks.
+For every coreset task, we then compute an agent preference score by ranking the new trajectory from each candidate harness against the old trajectory from the original harness.
+We aggregate these scores across the coreset to determine the relative advantage score of each candidate:
+\[
+    S_j = \frac{1}{|\mathcal{D}_{\mathrm{core}}|}
+    \sum_{t \in \mathcal{D}_{\mathrm{core}}}
+    \mathrm{rank}\!\left(t, \tau_{t}^{(j)}, \tau_{t}^{(0)}\right),
+\]
+where $\tau_{t}^{(0)}$ is the original harness trajectory for task $t$.
+Finally, we return the candidate harness with the maximum relative advantage to replace the original one.
+We accept this update only if its score is strictly greater than zero ($S_j > 0$).

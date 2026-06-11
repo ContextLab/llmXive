@@ -1,0 +1,111 @@
+\section{Data Pipeline}
+\label{sec:data_pipeline}
+
+The quality ceiling of a 3D generative model is fundamentally governed by its training data.
+Unlike video-based world models that curate internet-sourced footage~\cite{Sora2024},
+ABot-Earth directly uses city-scale 3DGS scenes as training
+data, produced by our reconstruction engine \abotgs.
+We design a robust data engine spanning four stages: large-scale imagery collection from diverse sources, 3DGS reconstruction via \abotgs, spatial partitioning and multi-view rendering to produce training tiles, and multi-granularity quality assessment and curation.
+
+The overall pipeline is illustrated in \cref{fig:data_pipeline}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figure/fig_data_pipeline.jpg}
+\caption{Data pipeline overview. Multi-source imagery is
+reconstructed into 3DGS scenes via ABot-3DGS, then spatially
+partitioned into tiles and rendered from multi-view cameras. Multi-granularity quality
+assessment and curation at the tile, view, and dataset levels ensure
+only high-fidelity samples enter the final training set.}
+\label{fig:data_pipeline}
+\end{figure}
+
+\subsection{Data Collection}
+\label{sec:data_acquisition}
+
+To build the training foundation for 3DGS generation, we collect real-world imagery from three complementary categories: satellite, aerial, and urban (\cref{fig:data_sources}). Together they greatly expand data scale and scene diversity by spanning the full range from orbital to ground-level viewpoints, and further improve reconstruction quality in regions where cross-viewpoint coverage is available. Each category draws on both proprietary acquisitions and curated public datasets (Table~\ref{tab:open_datasets}); all sources are real-world captures rather than synthetic assets, and undergo unified coordinate transformation and metadata standardization before entering the \abotgs pipeline.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figure/fig_data_sources.jpg}
+\caption{Data sources overview. Satellite, aerial, and urban imagery
+provide complementary viewpoint coverage for large-area reconstruction.
+Each category combines proprietary and public sources.}
+\label{fig:data_sources}
+\end{figure}
+
+\paragraph{Multi-Stereo Satellite Imagery}
+Multi-stereo satellite imagery consists of multiple orbital captures at varying off-nadir angles over the same region, providing the parallax necessary for 3D reconstruction. We collect such imagery from both proprietary acquisitions and public benchmarks (e.g., DFC 2019~\cite{DFC2019}; see Table~\ref{tab:open_datasets}) and reconstruct it into 3DGS scenes via FromOrbit2Ground~\cite{orbit2ground}, a satellite reconstruction module within ABot-3DGS.
+FromOrbit2Ground addresses the extreme viewpoint gap between orbital captures and ground-level rendering through a two-stage pipeline: a Z-Monotonic SDF recovers watertight urban geometry from sparse top-down views, and a diffusion-based restoration network synthesizes high-fidelity facade textures.
+This satellite-to-3DGS path significantly expands geographic coverage, allowing scalable acquisition of training scenes across diverse urban and natural landscapes worldwide.
+
+\paragraph{Aerial Data}
+We leverage high-resolution oblique aerial data as the core training source, covering built-up areas and natural landscapes across multiple cities and regions. After standardized preprocessing, the imagery feeds directly into the ABot-3DGS reconstruction pipeline, producing photorealistic 3DGS scenes. The pipeline optionally integrates LiDAR point clouds and pre-built photogrammetric meshes as auxiliary geometric priors to further improve surface reconstruction quality. We also incorporate public UAV datasets such as UrbanScene3D~\cite{UrbanScene3D} and Mill-19~\cite{MegaNeRF} to increase scene variety.
+
+\paragraph{Urban Data}
+Street-view videos, drone footage, and other low-altitude urban imagery are collected and quality-filtered, then matched with the other data sources for joint reconstruction. Public datasets such as UC-GS~\cite{UCGS} provide representative examples, combining drone and ground-level captures within the same urban scenes. Through ABot-3DGS's cross-viewpoint fusion capability (\cref{sec:reconstruction}), these ground-level inputs are registered with aerial data and jointly reconstructed to improve facade detail and novel-view quality at low altitudes.
+
+\begin{table}[t]
+\centering
+\caption{Open-source real-world datasets used in our data pipeline, covering satellite, aerial, and ground-level viewpoints.}
+\label{tab:open_datasets}
+\small
+\begin{tabular}{lrrlllc}
+\toprule
+Dataset & Images & Area & DOF & View & Aerial & Depth \\
+\midrule
+DFC 2019~\cite{DFC2019} & 1K & 25\,km$^2$ & 3 & Satellite & Off-nadir & \checkmark \\
+UrbanScene3D~\cite{UrbanScene3D} & 128K & 55\,km$^2$ & 6 & UAV & Any & \checkmark \\
+UrbanBIS~\cite{UrbanBIS} & 113K & 10.78\,km$^2$ & 3 & UAV & Any & -- \\
+CrossLoc~\cite{CrossLoc} & 57K & 2.7\,km$^2$ & 6 & UAV & Any & \checkmark \\
+Mill-19~\cite{MegaNeRF} & 3.5K & 0.18\,km$^2$ & 6 & UAV & Nadir & -- \\
+UAVD4L~\cite{UAVD4L} & 0.3K & 2.5\,km$^2$ & 6 & UAV & Any & \checkmark \\
+DenseUAV~\cite{DenseUAV} & 27K & -- & 3 & UAV & Nadir & -- \\
+UC-GS~\cite{UCGS} & 7K & -- & 6 & UAV+Gnd & Nadir & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{City-Scale Reconstruction via ABot-3DGS}
+\label{sec:reconstruction}
+
+Converting multi-source imagery into 3DGS representations at this scale poses three main challenges. First, the extreme spatial extent of each project---hundreds of square kilometers---demands scalable computation. Second, heterogeneous scene content (buildings, roads, vegetation, water bodies) requires robust handling across diverse semantics. Third, the multi-source data differ significantly in resolution, viewpoint, and acquisition conditions (time of day, weather, season), introducing substantial appearance variation that must be disentangled from intrinsic scene properties. ABot-3DGS addresses these challenges through the following core capabilities.
+
+\paragraph{Scalable Architecture}
+ABot-3DGS employs a hierarchical block-based architecture that partitions city-scale scenes into independently optimizable blocks. A continuous level-of-detail (LOD) hierarchy~\cite{CLOD} adaptively manages scene complexity, and multi-strategy point cloud simplification reduces model size without sacrificing geometric fidelity. The entire pipeline is engineered for GPU cluster parallelism, supporting efficient distributed reconstruction.
+
+\paragraph{Geometry and Detail Optimization}
+For geometric accuracy, the pipeline leverages available geometric priors to support reconstruction, and further introduces depth estimation and multi-view geometric consistency to enhance surface precision. For detail enhancement, native training at full input resolution preserves fine-grained textures, and generative refinement recovers appearance in under-observed regions.
+
+\paragraph{Scene Robustness}
+Semantics-aware optimization applies differentiated strategies to varied scene content. Multi-level appearance variation modeling disentangles intrinsic scene appearance from transient effects and cross-source inconsistencies such as lighting, weather, and seasonal changes. Dynamic elements such as vehicles and pedestrians are automatically detected and removed.
+
+\paragraph{Cross-View Quality Enhancement}
+Cross-view matching enables robust coarse localization and fine registration across data sources captured at vastly different viewpoints. Combined with 3D-consistent image generation, these complementary views are coherently fused into unified reconstructions. Aerial data contributes broad geographic extent while urban captures supply finer-grained details, collectively elevating scene quality beyond what any single source achieves.
+
+Together, these capabilities allow \abotgs to reliably produce photorealistic 3DGS scenes at city scale from large-scale real-world imagery. The resulting reconstructions serve as the data foundation for training our downstream generative model.
+
+\subsection{Training Tile Generation}
+\label{sec:training_data}
+
+Given the 3DGS scenes produced by \abotgs, we construct training tile collections through a systematic pipeline. This pipeline converts raw Gaussian primitives into a compact, generation-friendly representation and pairs each tile with dense multi-view supervision.
+
+\paragraph{Spatial Partitioning and Tile Extraction}
+A sliding window strategy is applied over the 3DGS scenes, with each tile covering a $200\,\text{m} \times 200\,\text{m}$ region and adjacent tiles overlapping to provide boundary context. Each tile is normalized to a standard coordinate system and cleaned via clustering to remove floating artifacts.
+
+\paragraph{Multi-View Rendering}
+Virtual camera arrays are distributed across multiple altitude layers with layer-specific field-of-view settings, covering a range of pitch angles from nadir to oblique viewpoints. Oblique views are sampled at multiple compass directions to capture facade details from all orientations. Random perturbations are applied to camera position, altitude, pitch, and yaw to further increase viewpoint diversity. Additionally, simulated satellite-view images are rendered from the same scenes to provide conditioning inputs for model training (Section~3.4). The resulting rendered views and their source tiles then undergo multi-granularity quality assessment.
+
+\subsection{Data Quality Assessment}
+\label{sec:quality}
+
+We establish a multi-granularity quality assessment framework operating at three levels---tile-level reconstruction, view-level rendering, and dataset-level curation---to ensure only reliable, high-quality samples enter the final training set.
+
+\paragraph{Tile-Level 3DGS Reconstruction Assessment}
+Each 3DGS tile is evaluated across four dimensions: reference metrics (PSNR / SSIM / LPIPS), geometric accuracy, VLM perceptual quality scores, and spatial completeness. Tiles failing to meet minimum thresholds are recycled to the reconstruction stage with adjusted parameters or excluded entirely.
+
+\paragraph{View-Level Rendering Assessment}
+Views with low accumulated opacity are first discarded to eliminate void and boundary regions. A vision-language model (VLM) then scores the remaining views on texture sharpness, artifact absence, and overall perceptual quality. Only views passing both filters are retained as training supervision.
+
+\paragraph{Dataset-Level Curation}
+Two curation operations are performed at the tile collection level: spatial diversity balancing, which tracks scene categories and applies stratified sampling so that no single urban morphology dominates; and semantic deduplication, which clusters tiles in embedding space and downsamples near-duplicates to avoid mode collapse.

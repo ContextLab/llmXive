@@ -1,0 +1,18 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Harness optimization.}
+Harness optimization improves an agent by editing the prompts, program parameters, or workflow code that surround a fixed model.
+One line optimizes prompts or pipeline parameters against a labeled metric, spanning LLM-as-optimizer search \citep{yang2023opro}, declarative pipeline compilation \citep{khattab2023dspy}, textual-gradient updates \citep{yuksekgonul2024textgrad}, and reflective prompt evolution \citep{agrawal2025gepa}.
+A more agentic line lets a meta-agent rewrite the agent's own code, where ADAS searches the space of agentic system designs \citep{hu2024adas} and Meta-Harness searches over harness code using the execution traces and scores of prior candidates \citep{lee2026metaharness}.
+Although these methods differ in the surface they edit, all of them steer the search with a labeled validation metric.
+\method{} departs from this paradigm, requiring no validation feedback and improving the harness in a single retrospective pass over unlabeled past trajectories.
+
+\paragraph{Agent self-improvement.}
+\looseness=-1 A second line improves agents from their own past experience, using the agent's self-judgment over trajectories in place of ground-truth labels.
+Dynamic Cheatsheet maintains a self-curated memory of reusable strategies and code snippets at test time \citep{suzgun2025dynamiccheatsheet}, while ReasoningBank distills generalizable reasoning strategies from self-judged successes and failures \citep{ouyang2026reasoningbank}.
+MemMA coordinates the memory cycle with multiple agents and repairs its memory bank against self-generated probe questions \citep{lin2026memma}, Sleep-time Compute precomputes useful context offline before queries arrive \citep{lin2025sleeptime}, and M$^\star$ evolves the memory system itself as an executable program, discovering a task-specific memory harness per task family \citep{pan2026mstar}.
+Concurrent to our work, SkillOS instead trains a skill curator with reinforcement learning from outcome and judge rewards, updating a skill repository from accumulated experience \citep{ouyang2026skillos}.
+These methods enrich an agent's stored memory, context, or skill list while leaving the rest of the harness untouched.
+\method{} instead optimizes the full harness, including executable tools and instructions, rather than memory alone.
+Appendix~\ref{app:positioning} gives a detailed comparison with related work.

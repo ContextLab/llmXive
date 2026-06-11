@@ -1,0 +1,138 @@
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig-behavior-shift.pdf}
+\caption{Behavior shift after \method{}. \method{} sustains longer working sessions and shifts the agent's per-step action mix toward verification on SWE-Bench Pro, and toward execution on Terminal-Bench~2 and \mbox{GAIA-2}.}
+\vspace{-1em}
+\label{fig:steps}
+\end{figure*}
+
+\section{Discussion}
+
+% \looseness=-1 We organize the analysis around four questions, asking how behavior changes after optimization (\S\ref{sec:disc-behavior}), how coreset selection shapes evolution (\S\ref{sec:disc-coreset}), whether updates are consistent (\S\ref{sec:disc-consistency}), and how much retrospective analysis contributes (\S\ref{sec:disc-diagnosis}).
+
+\subsection{How does agent behavior change after optimization?}
+\label{sec:disc-behavior}
+
+\looseness=-1 Although \method{} creates new skills and tools for the agent, it is not immediately apparent through which mechanisms these updates enable the agent to perform better on future tasks.
+To examine this, we visualize the frequency of tool calls and the cumulative success rate with respect to the number of steps taken by the agent.
+Specifically, Figure~\ref{fig:steps} plots the cumulative fraction of held-out tasks resolved within a given number of agent steps, and it shows how the action mix of the agent changes over time.
+We observe that the performance improvements across all three datasets primarily originate from higher success rates on tasks requiring long horizons.
+In contrast, the gains concentrate on long-horizon tasks rather than those completed in fewer steps, most clearly on SWE-Bench Pro.
+Furthermore, the optimization process changes the working patterns of the agent.
+Consequently, the optimized agent shifts toward relying more heavily on specific types of actions.
+For example, on SWE-Bench Pro, the agent verifies its work much more frequently.
+This proactive verification appears to account for a large portion of the performance gains on long-horizon tasks.
+On Terminal-Bench~2 and \mbox{GAIA-2}, the agent increases its accuracy by actively applying newly developed tools.
+Complementary to our action-level statistics, token-level attribution over long reasoning chains offers a finer-grained lens on long-horizon agent behavior \citep{pan2026flashtrace}.
+
+\subsection{How does coreset selection shape capability evolution?}
+\label{sec:disc-coreset}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig-coreset-selection.pdf}
+\caption{Coreset selection on SWE-Bench Pro. \emph{(a)} Where each selector's picks land on the task embedding, with coverage spreading out, difficulty clustering, and \method{}'s DPP balancing both. \emph{(b)} Held-out pass rate of the harness optimized from each coreset. Difficulty or diversity alone trails even random sampling, and only the DPP's combination reaches the top gain.}
+\label{fig:coreset-schematic}
+\vspace{-1.5em}
+\end{figure}
+
+
+\begin{table}[t]
+\caption{Best-of-$N$ harness proposal vs.\ a single sampled candidate. Held-out pass rate of the $N{=}3$ candidates. \emph{Mean} is the expected score under uniform random selection, and \emph{Chosen} is the candidate \method{} deploys.}
+\label{tab:bestofn}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\sbox0{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Dataset} & \textbf{Mean} & \textbf{Chosen} & \textbf{Std} & \textbf{Lowest} \\
+\midrule
+\rowcolor{rowAlt}
+SWE-Bench Pro & 0.79 & 0.78 & 0.06 & 0.73 \\
+\rowcolor{white}
+Terminal-Bench~2 & 0.74 & \textbf{0.76} & 0.03 & 0.71 \\
+\rowcolor{rowAlt}
+GAIA-2 & 0.34 & \textbf{0.37} & 0.03 & 0.32 \\
+\bottomrule
+\end{tabular}%
+}
+\ifdim\wd0>\columnwidth
+  \resizebox{\columnwidth}{!}{\usebox0}%
+\else
+  \usebox0%
+\fi
+\end{table}
+
+\begin{table}[t]
+\caption{Ablation of the diagnosis step across all three benchmarks. Each row re-renders full \method{}'s diagnoses with one cue blanked, holding the proposal agent's prompt fixed (\S\ref{sec:disc-diagnosis}). \emph{Raw trajectory} skips diagnosis and shows the proposal agent the raw trajectories directly. Cells report held-out pass rate.}
+\label{tab:diagnosis}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\sbox0{%
+\begin{tabular}{lccc}
+\toprule
+\textbf{Variant} & \textbf{SWE Pro} & \textbf{TB~2} & \textbf{GAIA-2} \\
+\midrule
+\rowcolor{rowAlt}
+Full diagnosis & \textbf{0.78} & \textbf{0.76} & \textbf{0.37} \\
+\rowcolor{white}
+\;\; $-$ self-consistency & 0.56 & 0.75 & 0.27 \\
+\rowcolor{rowAlt}
+\;\; $-$ self-validation & 0.70 & 0.73 & 0.30 \\
+\rowcolor{white}
+Raw trajectory & 0.60 & 0.75 & 0.29 \\
+\bottomrule
+\end{tabular}%
+}
+\ifdim\wd0>\columnwidth
+  \resizebox{\columnwidth}{!}{\usebox0}%
+\else
+  \usebox0%
+\fi
+\vspace{-1.5em}
+\end{table}
+
+\looseness=-1 We investigate how coreset selection influences the optimization process.
+To this end, we compare our DPP-based selection against several ablation strategies.
+These variants include selecting tasks solely by difficulty ($\theta=1$), selecting tasks purely to maximize coverage ($\theta=0$), and sampling trajectories randomly.
+In addition, we measure the final performance of the optimized harness under each selection strategy.
+As the t-SNE projection of task embeddings in Figure~\ref{fig:coreset-schematic} reveals, selecting tasks exclusively by difficulty causes the chosen samples to cluster in a narrow region of the task distribution.
+This clustering occurs because the language model judges certain types of tasks as inherently more difficult, and consequently it fails to include other task types in the coreset.
+As a result, this strategy yields no meaningful performance improvement after optimization.
+Similarly, optimizing solely for coverage also produces suboptimal results.
+In contrast, random sampling can occasionally select a trajectory that proves useful for optimization.
+These findings suggest that a coreset selection strategy balancing both difficulty and diversity is vital for providing the proper signals to guide harness optimization.
+
+\subsection{Does \method{} produce consistent harness updates?}
+\label{sec:disc-consistency}
+
+Because \method{} operates without ground-truth labels for reference, we evaluate whether its optimization outputs are consistent across runs.
+This consistency is closely tied to the overall effectiveness of our best-of-$N$ harness proposal.
+We examine whether the selection strategy reliably identifies the candidate harness that performs best on downstream tasks.
+In this experiment, we measure the test scores of all three generated candidate harnesses rather than just the most preferred one.
+Here Table~\ref{tab:bestofn} shows that the generated harnesses exhibit only moderate variance.
+Notably, even the lowest-scoring candidate still meaningfully improves agent performance over the baseline.
+Furthermore, the best-of-$N$ selection prevents the deployment of poorly performing harnesses.
+Specifically, the chosen harness scores higher than the worst candidate across all three benchmarks.
+At the same time, the most preferred harness does not invariably coincide with the highest-scoring candidate on the test set, though the selection consistently avoids the worst candidate.
+
+
+
+\subsection{How much does retrospective analysis contribute?}
+\label{sec:disc-diagnosis}
+
+We analyze the contribution of the two signals extracted during retrospective analysis, namely self-validation and self-consistency.
+We compare these explicit signals against a more direct approach that provides raw trajectories during optimization and skips the explicit retrospective analysis step.
+In addition, we study the individual contribution of each diagnostic signal to the final performance.
+
+To investigate the necessity of the group rollout and diagnostic stages, we conduct an ablation study.
+Specifically, we remove the self-validation and self-consistency signals independently, and we subsequently rerun the optimization and evaluation procedures.
+We also introduce a raw trajectory baseline.
+This baseline bypasses the separate ranking analysis. Instead, it provides the original trajectories directly to the optimization step, asking the agent to analyze the trajectory and propose improvements in a single pass.
+Table~\ref{tab:diagnosis} shows that removing either the self-consistency or the self-validation signal consistently degrades final performance across benchmarks.
+This result indicates that both signals are highly important for optimizing the harness.
+Additionally, full diagnosis outperforms the simplified raw-trajectory baseline on all three benchmarks.
+This result suggests that although single-pass trajectory analysis is feasible, the explicit self-validation and self-consistency signals are essential rather than incidental, yielding more reliable improvements across datasets.
+

@@ -1,0 +1,29 @@
+
+\begin{table*}[t]
+\centering
+\caption{Comparison of 3D Earth/city generation methods. Our method is trained directly on real-world 3DGS data with single-image conditioning, enabling large-scale generation without seam artifacts. Inference speed is reported as a coarse qualitative estimate of the time required to synthesize approximately 1\,km$^2$ of scene content.}
+\label{tab:comparison}
+\vspace{-0.5em}
+\resizebox{\textwidth}{!}{%
+% \begin{tabular}{lccccccc}
+\begin{tabular}{l l l l l l p{1.2cm}}
+\toprule
+\textbf{Method} & \textbf{Training Data} & \textbf{Condition} & \textbf{Beyond Buildings} & \textbf{Large-Scale} & \textbf{Core Paradigm} & \textbf{Speed} \\
+\midrule
+Sat2Scene~\cite{sat2scene} & Images \& Height Map & Layout & \textcolor{red}{\ding{55}} & \textcolor{red}{\ding{55}} & Geo. Coloring & / \\
+Sat2City~\cite{sat2city} & Mesh & Height Map & \textcolor{red}{\ding{55}} & {\color{green}\checkmark} & Building Object Gen. & / \\
+Sat2Density++~\cite{Qian_2026_Sat2Densitypp} & Images & Single Satellite & {\color{green}\checkmark} & \textcolor{red}{\ding{55}} & Feedforward & / \\
+Sat3DGen~\cite{qian2026satdgen} & Images & Single Satellite & {\color{green}\checkmark} & \textcolor{red}{\ding{55}} & Feedforward & / \\
+UrbanWorld~\cite{urbanworld} & Mesh + UV & OSM or Layout & {\color{green}\checkmark} & {\color{green}\checkmark} & Multi-Stage & / \\
+SynCity~\cite{engstler2025syncity} & Training Free & Text Prompt & {\color{green}\checkmark} & {\color{green}\checkmark} & Multi-Stage & / \\
+SkyFall-GS~\cite{skyfallgs} & Images & Multi-view Satellite & {\color{green}\checkmark} & {\color{green}\checkmark} & Iterative Optimization & 6 hours \\
+Orbit2Ground~\cite{orbit2ground} & Images & Multi-view Satellite & {\color{green}\checkmark} & {\color{green}\checkmark} & Iterative Optimization & / \\
+XCube~\cite{ren2024xcube} & Mesh & LiDAR Scan & {\color{green}\checkmark} & {\color{green}\checkmark} & 3D Generative & N/A \\
+EarthCrafter~\cite{earthcrafter} & Mesh & Satellite + Depth & {\color{green}\checkmark} & {\color{green}\checkmark} & 3D Generative & 2 hours \\
+\midrule
+\textbf{Ours} & \textbf{3DGS} & \textbf{Single Satellite} & \textbf{\textcolor{green}{\checkmark}} & \textbf{\textcolor{green}{\checkmark}} & \textbf{3D Generative} & \textbf{10 min} \\
+\bottomrule
+\end{tabular}%
+}
+% \vspace{0.5em}
+\end{table*}

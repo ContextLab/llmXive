@@ -1,0 +1,103 @@
+\begin{table*}[t]
+\caption{Agent invocations by role for the optimization phase on SWE-Bench Pro ($k=10$ train tasks, $M_{\mathrm{test}}=100$ held-out tasks). \textsc{rollout} is $G$ parallel solves per coreset task, \textsc{after} is one solve per candidate per coreset task, \textsc{rank} is one pairwise rank per candidate per coreset task, and \textsc{test} is one solve per held-out task. Counts are read directly from the persisted trajectory directories, and \textsc{llm} reports auxiliary chat-completion calls.}
+\label{tab:cost-breakdown}
+\centering
+\small
+\begin{tabular}{lrrrrrrrr}
+\toprule
+\textbf{Method} & \textbf{rollout} & \textbf{diagnose} & \textbf{optimize} & \textbf{after} & \textbf{rank} & \textbf{test} & \textbf{total} & \textbf{llm} \\
+\midrule
+Vanilla Codex                              &   0 &  0 &  0 &  0 &  0 & 100 & 100 &  0 \\
+ReasoningBank \citep{ouyang2026reasoningbank}   &  10 &  0 &  0 &  0 &  0 & 100 & 110 & 20 \\
+Dynamic Cheatsheet \citep{suzgun2025dynamiccheatsheet} &  30 &  0 & 10 & 10 & 10 & 100 & 160 &  0 \\
+Sleep-time Compute \citep{lin2025sleeptime}        &  30 &  0 & 30 & 30 & 30 & 100 & 220 &  0 \\
+\method{}                            &  30 & 10 &  3 & 30 & 30 & 100 & 203 &  0 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Optimization-Phase Compute Cost}\label{app:cost}
+
+This appendix documents the optimization-phase compute cost of \method{} and the baselines reported in Table~\ref{tab:main} and Table~\ref{tab:meta-harness}.
+We report the numbers without claiming an efficiency advantage. Among the trajectory-only methods at matched coreset budget ($k=10$, $N=3$), \method{} sits in the same order of magnitude as Sleep-time Compute and Dynamic Cheatsheet, and is more expensive than ReasoningBank.
+The matched-budget Meta-Harness configuration is the only baseline whose cost is qualitatively different, and its upstream-default budget would be larger still, as we discuss at the end.
+
+\subsection{Accounting Scope}
+
+Every method dispatches two kinds of model calls during the offline phase, plus the same per-task solve at evaluation time.
+We count them separately because they go through different backends and have different unit costs.
+
+\noindent\textbf{Codex (agent) invocations.}
+One Codex CLI subprocess that runs to completion is one agent invocation.
+Each invocation persists a trajectory directory recording the role (one of solve, diagnose, optimize, rank), the harness id, the task id, the wall-clock duration, and the exit status.
+We obtain the per-method totals by counting these directories.
+
+\noindent\textbf{Auxiliary LLM calls.}
+A single direct API call to the same \texttt{gpt-5.5} backbone, issued outside the Codex CLI.
+Only ReasoningBank uses these in the offline phase, namely two per training task, for success judgment and memory-item extraction.
+Coreset selection also issues one auxiliary LLM call per candidate task before any method starts. This cost is shared across methods at matched coreset and is reported once at the end of this appendix.
+
+\looseness=-1\noindent\textbf{Embedding calls.}
+ReasoningBank and DPP coreset selection both call \texttt{BAAI/bge-large-en-v1.5} \citep{xiao2023cpack} for fingerprint or query embedding.
+We execute the encoder locally, so these calls do not hit a remote endpoint and are not aggregated with the LLM totals.
+
+\subsection{Per-Method Decomposition}
+
+Table~\ref{tab:cost-breakdown} breaks down the optimization phase on SWE-Bench Pro ($k=10$ train tasks, $M_{\mathrm{test}}=100$ held-out tasks) into agent invocations by role.
+Terminal-Bench~2 differs only in $M_{\mathrm{test}}=59$, while GAIA-2 matches SWE-Bench Pro.
+
+
+\looseness=-1 The table is a literal accounting of how each method spends its offline budget.
+ReasoningBank issues one solve per training task and never proposes a candidate harness, so the offline phase costs only $k=10$ extra Codex invocations on top of the held-out evaluation, and its $2k$ auxiliary LLM calls are the success judge and the memory-item extractor.
+Dynamic Cheatsheet and Sleep-time Compute both roll out each training task $G=3$ times to surface variance, then run an optimizer agent. Dynamic Cheatsheet invokes a single curator over all $k$ tasks ($N{=}1$ candidate), while Sleep-time Compute runs one edit pass per task per restart (3 restarts $\times$ $k$ tasks $=30$ optimize calls).
+Both then commit each unique candidate harness through the after-solve and pairwise-rank steps shared with \method{}.
+\method{}'s footprint differs from Sleep-time Compute's only by trading $30-3=27$ per-task optimize calls for $10$ diagnose calls plus the $3$ candidate-level optimize calls in the best-of-$N$ proposer, and the after-solve and rank phases are identical at $N=3$ candidates.
+
+\subsection{Wall-Clock Time}
+
+\looseness=-1 Table~\ref{tab:cost-walltime} reports two complementary wall-clock measurements per (method, dataset) cell.
+$\Sigma_{\mathrm{codex}}$ is the sum of per-invocation wall-clock over every agent invocation in the run, and it is the cost of running the same workload serially on one agent process.
+End-to-end is the elapsed time from the run's start to its completion, under our infrastructure setting of 10 concurrent agent calls and 10 concurrent graders.
+The ratio between the two columns reflects how much of the workload was successfully parallelized, where the trajectory-only methods reach $5$--$10\times$ speedup, while ReasoningBank reaches $3.5$--$4.5\times$ because its offline phase is sequential by construction (each training task's solve must commit to memory before the next task's retrieval).
+Meta-Harness is a validation-feedback rather than a trajectory-only method, so we report its budget separately in \S\ref{app:cost:mh}, not here.
+
+\begin{table*}[t]
+\caption{Wall-clock cost per run, by dataset. $\Sigma_{\mathrm{codex}}$ is the sum of per-invocation wall-clock over all agent invocations (i.e. the cost on one Codex subprocess), and \emph{end-to-end} is the elapsed time from run start to completion under 10-way agent concurrency and 10-way grader concurrency. Hours.}
+\label{tab:cost-walltime}
+\centering
+\small
+\begin{tabular}{l rr rr rr}
+\toprule
+& \multicolumn{2}{c}{\textbf{SWE-Bench Pro}} & \multicolumn{2}{c}{\textbf{Terminal-Bench~2}} & \multicolumn{2}{c}{\textbf{GAIA-2}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+\textbf{Method} & $\Sigma_{\mathrm{codex}}$ & end-to-end & $\Sigma_{\mathrm{codex}}$ & end-to-end & $\Sigma_{\mathrm{codex}}$ & end-to-end \\
+\midrule
+Vanilla Codex                                 &  9.4 & 1.1 &  4.3 & 0.6 &  4.2 & 0.6 \\
+ReasoningBank \citep{ouyang2026reasoningbank}      & 17.5 & 4.6 &  8.0 & 2.4 &  7.2 & 2.0 \\
+Dynamic Cheatsheet \citep{suzgun2025dynamiccheatsheet} & 17.9 & 2.5 & 10.8 & 1.9 &  6.5 & 1.2 \\
+Sleep-time Compute \citep{lin2025sleeptime}           & 22.2 & 3.2 & 14.5 & 2.2 &  7.0 & 1.2 \\
+\method{}                                & 23.1 & 3.2 & 15.5 & 2.5 &  9.2 & 1.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Two observations are worth stating explicitly.
+First, per-invocation cost varies by more than $2\times$ across datasets (GAIA-2 averages around $150$\,s per invocation, Terminal-Bench~2 around $300$\,s, SWE-Bench Pro around $400$\,s), so an agent-call count is informative only within a dataset, and cost cannot be compared across datasets by summing invocation counts alone.
+Second, at matched coreset and $N=3$, \method{} is within $\pm 4\%$ of Sleep-time Compute on every dataset, more expensive than Dynamic Cheatsheet (which uses $N=1$), and substantially more expensive than ReasoningBank (which performs no group rollout, no candidate proposal, no pairwise rank).
+
+\subsection{Matched-Budget Meta-Harness}\label{app:cost:mh}
+
+Meta-Harness has a qualitatively larger compute footprint because validation grades feed back into the proposer.
+At its upstream default ($I=20$ outer iterations, $C=3$ candidates per iteration, $T=2$ solve trials per task) the offline phase alone would cost
+$I (1 + C M_{\mathrm{search}} T) + M_{\mathrm{search}} T \approx 1{,}210$
+agent invocations on SWE-Bench Pro --- nearly twelve times \method{}'s optimization-phase count of $103$.
+The matched-budget configuration we report in Table~\ref{tab:meta-harness} reduces this to $I=1$, $C=3$, $T=1$, amounting to $M_{\mathrm{search}} T + I (1 + C M_{\mathrm{search}} T) = 10 + 31 = 41$ optimization-phase invocations; this is the configuration whose held-out pass rate ($0.62$ on SWE-Bench Pro) is reported alongside \method{}'s in the main text.
+The 10-round configuration reported in the same table keeps $C=3$, $T=1$ but raises $I$ to $10$, giving $10 + 10 \cdot 31 = 320$ optimization-phase invocations ($3.1\times$ \method{}'s optimization-phase count of $103$).
+These counts exclude the shared $M_{\mathrm{test}}=100$ held-out evaluation, which every method pays once regardless of optimizer.
+Because Meta-Harness is a validation-feedback rather than a trajectory-only method, it is not included in the wall-clock comparison of Table~\ref{tab:cost-walltime}.
+
+\subsection{Coreset Selection Cost (Shared)}
+
+\looseness=-1 Coreset selection runs once before any method's offline phase begins.
+For SWE-Bench Pro this consumes $100$ auxiliary LLM calls (one difficulty judgment per candidate task) plus one batched embedding call over the same $100$ fingerprints, after which the selected $k=10$ task ids are persisted and reused verbatim by every baseline.
+This cost is paid once per dataset and is not attributed to any individual method.

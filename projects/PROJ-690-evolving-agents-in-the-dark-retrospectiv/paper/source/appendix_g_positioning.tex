@@ -1,0 +1,60 @@
+\section{Comparison with Related Work}\label{app:positioning}
+
+\begin{table}[t]
+\caption{\looseness=-1 Comparison of \method{} with prior methods.
+The right block marks whether each method meets \method{}'s setting along three axes.
+\textbf{Label-free}: uses no ground-truth metric or validation set.
+\textbf{Full harness}: edits executable tools and skills, not memory or prompt text alone.
+\textbf{Single pass}: a one-shot retrospective pass, rather than an online stream, an iterative validation-scored search, or a weight-training loop.
+\cfull{}~satisfied, \chalf{}~partial, \cnone{}~not satisfied.}
+\label{tab:positioning}
+\centering
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllccc}
+\toprule
+& & & & \multicolumn{3}{c}{\textbf{Satisfies \method{}'s setting}} \\
+\cmidrule(l){5-7}
+\textbf{Method} & \textbf{Harness architecture} & \textbf{Feedback signal} & \textbf{Cost} & \makecell{\textbf{Label-}\\\textbf{free}} & \makecell{\textbf{Full}\\\textbf{harness}} & \makecell{\textbf{Single}\\\textbf{pass}} \\
+\midrule
+\multicolumn{7}{l}{\textit{Validation-feedback optimization}} \\
+\rowcolor{rowAlt}
+OPRO \citep{yang2023opro}                 & Prompt                  & Validation metric                & Iterative search    & \cnone & \cnone & \cnone \\
+\rowcolor{white}
+DSPy \citep{khattab2023dspy}              & Prompt $+$ demos        & Validation metric                & Iterative search    & \cnone & \cnone & \cnone \\
+\rowcolor{rowAlt}
+TextGrad \citep{yuksekgonul2024textgrad}  & Prompt                  & Textual gradient                 & Iterative search    & \cnone & \cnone & \cnone \\
+\rowcolor{white}
+GEPA \citep{agrawal2025gepa}              & Prompt                  & Val.\ metric $+$ reflection      & Iterative (genetic) & \cnone & \cnone & \cnone \\
+\rowcolor{rowAlt}
+ADAS \citep{hu2024adas}                   & Full agent code         & Validation accuracy              & 25--30 iter.        & \cnone & \cfull & \cnone \\
+\rowcolor{white}
+Meta-Harness \citep{lee2026metaharness}   & Full harness code       & Search-set score                 & $\sim$20 iter.      & \cnone & \cfull & \cnone \\
+\addlinespace
+\multicolumn{7}{l}{\textit{Experience-based self-improvement}} \\
+\rowcolor{rowAlt}
+Dynamic Cheatsheet \citep{suzgun2025dynamiccheatsheet} & Cheatsheet text & Self-judgment             & Online stream       & \cfull & \chalf & \cnone \\
+\rowcolor{white}
+ReasoningBank \citep{ouyang2026reasoningbank} & Memory items     & LLM-as-judge                     & Online stream       & \cfull & \cnone & \cnone \\
+\rowcolor{rowAlt}
+MemMA \citep{lin2026memma}                & Memory entries          & Synthetic probe QA               & Online (session)    & \cfull & \cnone & \cnone \\
+\rowcolor{white}
+Sleep-time Compute \citep{lin2025sleeptime} & Input context         & None                             & Precompute          & \cfull & \cnone & \cfull \\
+\rowcolor{rowAlt}
+SkillOS$^\dagger$ \citep{ouyang2026skillos} & Skill list            & RL reward$^\dagger$              & RL training         & \chalf & \chalf & \cnone \\
+\midrule
+\rowcolor{rhoBlue}
+\method{} (ours)                          & Tools $+$ skills $+$ instr.\ & Self-preference             & Single pass         & \cfull & \cfull & \cfull \\
+\bottomrule
+\end{tabular}%
+}
+
+\vspace{2pt}
+{\footnotesize $^\dagger$SkillOS's reinforcement-learning reward is an LLM-as-judge self-signal rather than gold labels, but it still requires a labeled training corpus, a separate judge model, and weight updates.}
+\end{table}
+
+Table~\ref{tab:positioning} compares \method{} with the prior methods discussed in Section~\ref{sec:related}.
+For each method we report the harness surface it edits, the feedback signal that drives it, and the cost regime it incurs, and we mark whether it meets \method{}'s setting on three criteria, namely whether optimization is label-free, whether it edits the full harness, and whether it runs as a single offline retrospective pass.
+Validation-feedback optimizers reach the full-harness end of the surface axis, where ADAS and Meta-Harness rewrite executable code, but every member of this family steers the search with a ground-truth metric and iterates against it.
+Experience-based methods drop the labels, yet they only curate memory or skill text online and leave the executable harness untouched, while Sleep-time Compute precomputes context offline but optimizes nothing.
+As a result, each prior method satisfies at most two of the three axes, and \method{} is the only entry that satisfies all three at once.

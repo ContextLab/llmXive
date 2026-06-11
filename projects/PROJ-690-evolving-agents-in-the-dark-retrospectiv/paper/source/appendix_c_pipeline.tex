@@ -1,0 +1,31 @@
+\section{Pipeline Implementation Details}\label{app:pipeline}
+
+\looseness=-1 This appendix documents the design choices that govern \method{}'s behavior but do not appear in \S 4 or Algorithm~\ref{alg:rho}. The equations and operator signatures are fixed by the main text, and what follows are the mechanics that make them executable.
+
+\subsection{Harness Representation and Mounting}
+
+\looseness=-1 A harness is a directory of files with no fixed schema, where prose instructions, executable scripts, and structured configuration sit side by side. At every operator call the harness is materialized as a subdirectory of the agent's working directory, and the agent reads it the same way it reads task files rather than as a system-prompt prefix. The $\mathrm{solve}$ operator mounts the harness read-only by convention, while $\mathrm{optimize}$ mounts a fresh copy with write access and accepts whatever the agent leaves behind on the filesystem. Harnesses are compared by content, so if $\mathrm{optimize}$ returns a harness identical to the input, the candidate is treated as a no-op and dropped before evaluation. This keeps the harness surface tool-agnostic and lets the optimizer extend any of the three file kinds without a representation change.
+
+\subsection{Role Separation and Workspace Isolation}
+
+\looseness=-1 The same backbone executes $\mathrm{solve}$, the diagnosis analysis ($\mathrm{rank}_{\mathrm{val}}$/$\mathrm{rank}_{\mathrm{con}}$), $\mathrm{optimize}$, and $\mathrm{rank}$. Role separation is achieved by workspace contents rather than by changing the backbone, where each operator runs in a fresh workspace that contains only the inputs it should see. $\mathrm{solve}$ sees the task files and the current harness. The diagnosis analysis sees the task and the group of trajectories for that task. $\mathrm{optimize}$ sees the harness directory, the diagnosis instructions, and the trajectory rollouts that motivated them. Finally, $\mathrm{rank}$ sees the task, two trajectories, and both candidate harness directories side by side. Per-role ablation therefore amounts to swapping prompts and inputs, not models, which keeps the operators directly comparable.
+
+\subsection{Order, Parsing, and Failure Handling in Pairwise Ranking}
+
+\looseness=-1 $\mathrm{rank}$ is invoked once per (task, candidate) pair. We present the candidate trajectory first and the baseline trajectory second, then negate the parsed scalar. This swap is a standard mitigation for position bias in pairwise judges, applied without per-call order randomization. The judge is constrained to return a single integer in $[-10, 10]$ with a one-sentence rationale, and we do not retry. Any parse or execution failure deterministically yields zero. This makes $\mathrm{rank}$ a strict pessimist, since silent failures pull the mean toward the rejection threshold rather than away from it.
+
+\subsection{Diagnosis vs.\ Ranking Inputs}
+
+The diagnosis analysis consumes the full group of $G$ rollouts for one task and produces a single textual instruction $I$ with a severity weight, whereas $\mathrm{rank}$ is strictly pairwise. We do not collapse a group into a Bradley--Terry score for evaluation. For each candidate, we pair the candidate's rollout of a task against a fixed baseline trajectory drawn from the original group, and we hold this baseline constant across every candidate so the comparison stays anchored to the same reference. The consequence is that $G > 1$ enters the pipeline as a diagnostic device only, since it sharpens the instruction $I$ through cross-trajectory inconsistency but does not vote on which candidate wins.
+
+\subsection{Optimizer Action Space}
+
+$\mathrm{optimize}$ is a code-agent invocation, not a constrained text rewriter. It sees the materialized harness as a filesystem and may add, remove, or modify any file inside it. We hand it the diagnosis instructions sorted by descending severity, with severity exposed as a soft attention weight in $[0, 1]$ rather than a hard priority queue, so the agent can still merge or skip suggestions that conflict. We do not parse a diff out of the agent's final message, and the new harness state is recovered from the directory itself when the call returns. This keeps the action space identical to the representation, where anything that fits in a directory is a valid edit.
+
+\subsection{Acceptance Gate and No-Ops}
+
+An update is accepted only when the best candidate's mean pairwise score over the coreset is strictly positive, and a mean of zero is rejected. Before the gate, a candidate is dropped if the optimizer failed, the call timed out, or the produced harness is identical to the input. If every candidate is dropped, or every surviving candidate scores $S_j \leq 0$, \method{} leaves the harness unchanged. This no-update behavior is part of the result rather than a tooling failure. In Figure~\ref{fig:coreset-schematic}, selectors whose coreset fails to expose useful weaknesses (pure coverage, pure difficulty) leave held-out accuracy near the Vanilla Codex baseline.
+
+\subsection{Persistence}
+
+We persist the input harness id, along with the trajectories produced by each operator ($\mathrm{solve}$, the diagnosis analysis, $\mathrm{optimize}$, and $\mathrm{rank}$) identified by id. We further persist the diagnosis instruction, the candidate harness ids together with their diffs against the input, the per-candidate pairwise scores, the mean pairwise score, and the accept flag. Every stored trajectory carries its full event stream, final message, workspace diff, and wall-clock time. These records are what makes downstream audit, re-grading, and ablation possible without re-running the agent.

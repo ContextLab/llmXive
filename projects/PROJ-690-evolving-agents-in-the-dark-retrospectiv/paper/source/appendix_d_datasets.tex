@@ -1,0 +1,90 @@
+\section{Dataset Specifications}\label{app:datasets}
+
+\looseness=-1 This appendix documents what we take from each upstream benchmark, how we split it, what the agent sees at solve time, and how grading runs.
+Pinned upstream commits make the partition and grader reproducible from a clean checkout.
+
+\subsection{SWE-Bench Pro}
+
+SWE-Bench Pro \citep{deng2025swebenchpro} is the long-horizon software-engineering benchmark in our suite.
+Tasks resolve only when a multi-file patch passes the upstream test set, and failure modes are therefore concrete and traceable to the harness's repository conventions and build commands.
+
+\noindent\textbf{Source.}
+We load the test split of \texttt{ScaleAI/SWE-bench\_Pro} from Hugging Face.
+Evaluator scripts and per-instance Docker images come from the official \texttt{scaleapi/SWE-bench\_Pro-os} repository, pinned to a fixed commit.\footnote{Commit \texttt{0c64e26f00b9c190432de7fc520c8ceed5c25518}.}
+
+\noindent\textbf{Split.}
+Rows are ordered by the SHA-256 hash of \texttt{(seed, instance\_id)} with the seed fixed.
+The first 100 form the training pool and the next 100 the held-out test pool, and the remaining rows are unused.
+We report on the held-out test pool.
+
+\looseness=-1\noindent\textbf{Solve interface.}
+Each task materializes a prompt file describing the issue plus a fresh clone of the upstream repository at its base commit, mounted in the workspace.
+The agent edits repository files in place, and no extra tools are injected.
+
+\noindent\textbf{Grading.}
+We extract the agent's patch by re-applying its workspace edits to a fresh checkout and taking \texttt{git diff --binary}.
+If the workspace path fails, we fall back to scanning the agent's final message for fenced diff blocks.
+Binary hunks and auto-generated paths (dependency, cache, and build directories) are stripped before scoring.
+The patch is then applied inside the official per-instance Docker image distributed by the SWE-Bench Pro authors, and the official run and parser scripts are invoked.
+A task passes iff every \texttt{FAIL\_TO\_PASS} and \texttt{PASS\_TO\_PASS} test resolves correctly.
+The Docker wall-clock budget is one hour per task.
+
+\subsection{Terminal-Bench~2}
+
+Terminal-Bench~2 \citep{terminalbench2} contains executable command-line tasks. Failure is a missed reward, not a missed convention, so the harness mostly buys consistency in how the agent inspects state and chains commands.
+
+\noindent\textbf{Source.}
+We use the upstream Terminal-Bench~2 repository at a fixed commit\footnote{Commit \texttt{53ff2b87d621bdb97b455671f2bd9728b7d86c11}.}, yielding 89 tasks.
+
+\noindent\textbf{Split.}
+Tasks are hash-ordered with the same seeded scheme as SWE-Bench Pro.
+The first 30 form the training pool, the remaining 59 the held-out pool.
+
+\noindent\textbf{Solve interface.}
+Each task spins up a fresh Docker container whose image is declared by the task.
+Containers carry a cleanup label and per-task CPU and memory limits.
+The agent's host workspace is bind-mounted inside the container.
+The solve prompt instructs the agent to author shell scripts on the host and execute them inside the container.
+A wall-clock watchdog terminates the container when the task's declared agent timeout elapses.
+
+\looseness=-1\noindent\textbf{Grading.}
+We run the task's upstream test suite inside the still-running container under its declared verifier timeout.
+The verifier writes a reward of 0 or 1 to a known path.
+A task passes iff the reward equals 1.
+We apply no difficulty filter, so held-out numbers span the upstream difficulty mix.
+
+\noindent\textbf{Data integrity.}
+The solve prompt instructs the agent not to read the test directory, the upstream solution, or the verifier log.
+This is a prompt-level convention, not a sandbox restriction.
+We document it for transparency, since a sufficiently adversarial agent could read the verifier and game the reward.
+We rely on the held-out pool and Table~\ref{tab:main}'s cross-benchmark consistency to detect such behavior, and we have not observed it.
+
+\subsection{GAIA-2}
+
+\looseness=-1 GAIA-2 \citep{froger2026gaia2} differs from the two coding benchmarks in that the environment evolves independently of the agent.
+The harness layer therefore has to encode behavior under partial observation and asynchronous events, not just stable build conventions.
+
+\noindent\textbf{Source.}
+We load the validation split of the GAIA-2 release on Hugging Face under the \texttt{mini} configuration, yielding 200 scenarios.
+Each scenario ships an asynchronous event stream and an upstream write-action verifier.
+
+\noindent\textbf{Split.}
+Scenarios are hash-ordered with the same seeded scheme.
+The first 100 form the training pool, and the remainder, 100, form the held-out pool.
+We report on the held-out slice.
+
+\looseness=-1\noindent\textbf{Solve interface.}
+Each scenario's workspace contains a task prompt, a tool dispatcher, and a tool catalog.
+The agent invokes tools through a single shell command per call.
+The dispatcher relays each call to a sidecar process running the upstream environment, which advances simulated time and replays scheduled events.
+The scenario's ground-truth state is held entirely by the sidecar, and the agent never reads it.
+
+\looseness=-1\noindent\textbf{Grading.}
+When the agent finishes, the sidecar invokes the scenario's upstream verifier.
+The judge LLM is the same Codex \texttt{gpt-5.5} backbone we use elsewhere, and routing defaults to the same Azure Foundry endpoint.
+A scenario passes iff the upstream verifier reports success.
+
+\noindent\textbf{Environment modifications.}
+Two changes to the upstream environment affect reported numbers and must be disclosed.
+First, the upstream cap of one \texttt{send\_message\_to\_user} call per turn is raised to four, since the original cap penalizes verbose agents that would otherwise complete the task correctly.
+Second, three optional judge-relaxation switches (event filtering, relaxed per-app UI judging, and trivial filesystem-read filtering) are available as ablation axes but are all disabled in the experiments reported in Table~\ref{tab:main}.

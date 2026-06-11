@@ -1,0 +1,31 @@
+\section{Problem Setting}
+\label{sec:setting}
+
+We define a \textit{harness} $h$ as a persistent collection of tools, prompts, and skills that an agent can use to solve a task.
+Given a task $t$ and a harness $h$, an agent can attempt the task using a loop of reasoning, acting, and observing.
+This multi-step process generates a \textit{trajectory} $\tau$, which records the information read by the agent, its chain of thought, the tools used, and the final output.
+We denote this execution process with a prompted agent operation as $\tau = \mathrm{solve}(h, t)$.
+As the agent executes multiple tasks, it produces a dataset of trajectories $\mathcal{D} = \{\tau_1, \tau_2, \ldots, \tau_n\}$.
+These trajectories often contain instances of failure and useful insights that can be used to improve the harness.
+Consequently, we ask whether the agent can retrospectively analyze past trajectories to optimize its harness and improve its future performance.
+To quantify this, we define a latent \textit{utility function} $U(t, \tau)$ that measures the quality of a trajectory.
+We formalize the optimization as a function $\mathrm{optimize}(h, \text{instruction})$ that returns a modified harness $h'$.
+The goal is to find an optimal harness $h^\star$ that maximizes the expected utility on future tasks:
+\vspace{-0.5em}
+\[
+    h^\star = \arg\max_{h'} \; \mathbb{E}_{t,\, \tau \sim \mathrm{solve}(h', t)}
+    \left[ U(t, \tau) \right].
+\]
+
+\noindent\textbf{Problem.}
+However, estimating this utility function accurately is difficult in practice.
+To evaluate the true utility of a harness, we would need a representative validation set of future tasks and a mechanism to calculate the success rate of the agent using this specific harness.
+In our setting, the function $U$ is latent and cannot be directly observed.
+
+\noindent\textbf{Our Approach.}
+Because the utility $U$ is latent, we cannot directly optimize it.
+Instead, we substitute this latent utility with a self-preference estimator.
+Specifically, we instruct the agent to compare multiple trajectories on the same task to compute a self-preference ranking.
+We define a ranking function as $(\text{rank}, \text{rationale}) = \mathrm{rank}(t, \tau_1, \tau_2, \ldots, \tau_m)$.
+This function yields a preference ordering over the given trajectories and provides a rationale that explains why the agent prefers certain executions over others.
+The next section details how we organize the operations of solving, ranking, and optimizing to improve the latent harness utility.

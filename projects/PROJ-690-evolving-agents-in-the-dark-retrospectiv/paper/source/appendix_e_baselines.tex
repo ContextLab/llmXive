@@ -1,0 +1,89 @@
+\section{Baseline Implementations}\label{app:baselines}
+
+\looseness=-1 Every baseline runs under the same Codex \texttt{gpt-5.5} backbone at high reasoning effort.
+The trajectory-only family (Dynamic Cheatsheet, ReasoningBank, and Sleep-time Compute) shares \method{}'s Coreset Selection budget of 10 training tasks and 3 candidates.
+Baselines differ only in what the offline phase persists and how the solver consumes it.
+This appendix documents each.
+
+\subsection{Dynamic Cheatsheet \citep{suzgun2025dynamiccheatsheet}}
+
+Dynamic Cheatsheet curates a running list of reusable facts and procedures harvested from past trajectories.
+
+\noindent\textbf{Persistence layer.}
+A single markdown file lives inside the harness, structured as \texttt{<memory\_item>} blocks containing a description, a worked example, and a usage count.
+
+\noindent\textbf{Offline phase.}
+A curator agent iterates over the selected training tasks in order.
+For each task it reads the current cheatsheet plus the solve transcript and rewrites the cheatsheet in place.
+
+\noindent\textbf{Online consumption.}
+The cheatsheet is part of the harness, and the solver reads it as part of normal harness lookup.
+No additional prompt prefix is injected.
+
+\noindent\textbf{Faithfulness.}
+Upstream Dynamic Cheatsheet updates the cheatsheet after every task, so the next task's solver sees the update.
+Our default configuration runs solves for all selected training tasks before invoking the curator, then commits one cheatsheet.
+The single-task configuration that matches the upstream per-example update is available as a sensitivity setting, while Table~\ref{tab:main} uses the default.
+
+\subsection{ReasoningBank \citep{ouyang2026reasoningbank}}
+
+ReasoningBank stores reusable reasoning patterns extracted from past trajectories and retrieves them on demand at inference time.
+
+\noindent\textbf{Persistence layer.}
+A JSONL bank of items, each with title, description, body, and a precomputed embedding.
+The bank lives outside the harness directory because solve-time access is by similarity retrieval, not by harness materialization.
+
+\noindent\textbf{Offline phase.}
+For each selected training task we solve it, ask the judge whether the trajectory was successful, then run an extraction prompt that distills reusable reasoning patterns from the trajectory.
+Extracted items are appended to the bank, and embeddings are computed locally.
+
+\noindent\textbf{Online consumption.}
+At each held-out solve, we encode the task description with the same encoder, retrieve the top-$n$ items by cosine similarity, render them as a memory preamble prepended to the solve instructions.
+Top-$n$ is fixed at 1.
+
+\looseness=-1\noindent\textbf{Faithfulness.}
+We replace the upstream Gemini embedding with \texttt{BAAI/bge-large-en-v1.5} \citep{xiao2023cpack}, a 1024-dimensional locally executed sentence encoder, so that every baseline that uses retrieval shares the same encoder, dimensionality, and storage backend.
+This removes a confound between memory-bank quality and embedding-provider quality.
+
+\subsection{Sleep-time Compute \citep{lin2025sleeptime}}
+
+Sleep-time Compute preprocesses past traces into compact notes that are prepended to the agent's context at inference time, following the Letta implementation \citep{packer2023memgpt}.
+
+\noindent\textbf{Persistence layer.}
+A set of bounded markdown memory blocks stored inside the harness, edited with structured edit tools (insert, replace, rethink, finish) that mirror upstream Letta semantics.
+
+\noindent\textbf{Offline phase.}
+A sleep-time agent iterates over the selected training tasks.
+For each task it reads the task's prompt and trajectories, then issues a sequence of memory-edit tool calls to update the harness's memory blocks.
+The system prompt is the upstream Letta system prompt, used verbatim.
+
+\noindent\textbf{Online consumption.}
+The solver reads the memory blocks as part of the harness, the same way it reads any harness file.
+
+\looseness=-1\noindent\textbf{Scope.}
+Edits accumulate across tasks, and the sleep-time agent works against a single evolving memory state task after task.
+We do not reset memory between training tasks.
+
+\subsection{Meta-Harness \citep{lee2026metaharness}}
+
+Meta-Harness is the validation-feedback reference, where a meta-agent rewrites the harness, and the rewrites are scored against a labeled validation set.
+
+\noindent\textbf{Persistence layer.}
+A sequence of candidate harness directories paired with a search history recording per-candidate validation pass rates.
+
+\noindent\textbf{Offline phase.}
+An outer loop alternates between a proposer that reads the search history and emits a new harness, and an evaluator that grades the proposed harness on the search-task set using the dataset's ground-truth grader.
+Upstream's default budget is 20 outer iterations $\times$ 3 candidates per iteration $\times$ 2 solve trials per task, far above the budget we give \method{}.
+
+\looseness=-1\noindent\textbf{Validation-feedback footprint.}
+The proposer reads each candidate's per-task scores, mean score, and pass rate from the history, and the grader signal directly shapes the next proposal.
+This is the hallmark of the validation-feedback family and the axis along which Meta-Harness is incomparable to the trajectory-only baselines.
+
+\noindent\textbf{Matched-budget configuration.}
+For Table~\ref{tab:meta-harness} we run the outer loop for one iteration with 3 candidates and 1 solve trial per task, so the candidate count matches \method{}'s $N=3$.
+The validation-grade cost is what Table~\ref{tab:meta-harness} reports.
+
+\looseness=-1\noindent\textbf{Shared configuration.}
+All four baselines and \method{} start from the same empty harness for a given dataset, use the same coreset of selected training tasks, and are graded against the same held-out split with the same grader.
+The only deliberate axis of variation is what the offline phase persists and how the solver consumes it.
+Meta-Harness additionally consumes validation grades, and this is the axis Table~\ref{tab:meta-harness} measures.

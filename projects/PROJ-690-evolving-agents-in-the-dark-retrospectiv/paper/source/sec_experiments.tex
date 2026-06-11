@@ -1,0 +1,106 @@
+\section{Experiments and Results}
+% Source of the artifacts shown in this figure (winning harness per dataset):
+%   TB2:    runs/exp-rho-tb2/harness/h_edccd200e74a/
+%   SWE:    runs/exp-rho-swebench/harness/h_c13b7933bad0/
+%   GAIA-2: runs/exp-rho-gaia2-patched/harness/h_abff8c30ecd6/
+% See docs/paper/figures/fig-harness-artifacts.html for the figure source and
+% inline mapping from each artifact item back to its README/script.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig-harness-artifacts.pdf}
+\caption{\looseness=-1 Highest-scoring harness produced by \method{} on each benchmark. \emph{Instructions} are task-agnostic procedural rules, \emph{Skills} record grader or environment idiosyncrasies that previously caused failures, and \emph{Tools} are executable scripts. Items shown are representative, and the full verbatim contents of each harness are in Appendix~\ref{app:artifacts}.}
+\label{fig:harness-artifacts}
+\vspace{-1em}
+\end{figure*}
+
+
+
+\noindent\textbf{Setup.}
+We use the Codex agent \citep{openai2025codex} as the base harness for retrospective optimization.
+Specifically, this agent uses GPT-5.5 \citep{openai2026gpt55} configured with high reasoning effort.
+When we invoke Codex to solve a task, we construct the harness as a configurable workspace folder.
+This folder contains executable scripts as tools, along with text files for skills and instructions.
+For all our experiments, we set the coreset size $k$ to 10.
+In addition, we use 3 for both parallel trajectory sampling and harness proposals.
+To measure the improvement, we report the pass rate on the held-out test set using both the vanilla Codex harness and the optimized one.
+
+\noindent\textbf{Data.}
+We collect past trajectories from existing benchmark datasets.
+Specifically, we divide the original benchmarks into a trajectory set and a test set.
+%TODO: Update the whole paper to use "trajectory set" instead of "training/train set".
+We then run the vanilla Codex agent on the trajectory set to generate the required trajectories for \method{}.
+Building on this, we evaluate \method{} on SWE-Bench Pro, Terminal-Bench~2, and \mbox{GAIA-2}.
+SWE-Bench Pro contains long-horizon software-engineering tasks requiring repository-level reasoning and multi-file edits \citep{deng2025swebenchpro}.
+Terminal-Bench~2 contains command-line tasks with executable graders \citep{terminalbench2}.
+\mbox{GAIA-2} evaluates LLM agents in dynamic, asynchronous environments for knowledge work \citep{froger2026gaia2}.
+As a result, these three benchmarks cover a wide range of task types across software engineering, technical work, and knowledge work.
+We provide detailed information about the benchmarks and data splits in Appendix~\ref{app:datasets}.
+
+\subsection{Comparison with Feedback-Free Baselines}
+
+We compare \method{} against three competitive harness optimization methods that do not require validation feedback.
+For the baselines, \textit{Dynamic Cheatsheet} maintains a running record of useful facts and procedures \citep{suzgun2025dynamiccheatsheet}.
+\textit{ReasoningBank} stores reusable reasoning patterns and retrieves the top-$k$ relevant entries at inference time \citep{ouyang2026reasoningbank}.
+Similarly, \textit{Sleep-time Compute} preprocesses past traces offline into compact notes, which are then prepended to the agent's context \citep{lin2025sleeptime}.
+We adapt each baseline to our datasets and agent setting while holding the total agent-call budget approximately fixed to ensure a fair comparison.
+Detailed adaptation procedures are provided in Appendix~\ref{app:baselines}.
+
+As Table~\ref{tab:main} shows, \method{} delivers consistent improvements across all three benchmarks, whereas the baselines do not.
+Most notably, we achieve an absolute improvement of 19\% on SWE-Bench Pro without relying on any validation-based grading.
+We attribute this advantage to the more flexible harness optimization that \method{} enables.
+Specifically, the agent can create new tools, skills, and instructions for the harness, whereas previous methods focus predominantly on memory systems or text-based skills.
+Furthermore, the use of self-preference may contribute to the consistency of these harness improvements.
+In contrast, the performance gains of the baseline methods tend to be smaller and vary across different datasets.
+In the next section (Section~\ref{sec:case-study}), we examine how \method{} modifies the harness to improve the agent.
+
+
+
+
+\subsection{What the Optimized Harness Contains}
+\label{sec:case-study}
+
+Figure~\ref{fig:harness-artifacts} summarizes and interprets the new harness contents generated after \method{} optimization.
+In our work, the harness is materialized as a directory containing markdown files for instructions and skills, as well as executable scripts for tools.
+
+Across all three benchmarks, \method{} adds multiple new skills and tools to the harness.
+Many of these new additions address typical failure modes encountered by the original harness.
+For example, in SWE-Bench Pro, the agent learns that the Go toolchain resides at a non-standard location outside the default path.
+It also discovers that Python cache directories must be stripped before producing the final diff, as failing to do so often prevents patches from applying cleanly.
+To address these, the agent adds a new \texttt{check\_build\_and\_lint} tool that locates non-standard toolchains and flags the generated artifacts that must be kept out of the patch, fixing the diff-hygiene procedures the original trajectories repeatedly missed.
+These examples illustrate how \method{} identifies useful tools and skills across diverse scenarios by analyzing past failures.
+
+\subsection{Comparison with Validation-Feedback Optimization}
+
+We next compare \method{} against Meta-Harness \citep{lee2026metaharness}.
+Meta-Harness is a validation-feedback optimizer that proposes harness edits, grades each candidate on a labeled validation split, and retains the edit that yields the highest validation pass rate.
+To maintain a fair comparison, we use the same Codex agent as the Meta-Harness proposer and solver.
+Unlike \method{}, Meta-Harness requires held-out labels, and because it evolves over multiple rounds, it consumes more agent calls.
+Therefore, we evaluate it at a single round to match our compute budget, as well as in an extended-budget setting where it runs for ten rounds.
+
+\begin{table}[t]
+\caption{\method{} versus Meta-Harness, a validation-feedback optimizer, on SWE-Bench Pro. \emph{Agent calls} is the optimization-time budget relative to one \method{} run. Held-out pass rate on the same split as Table~\ref{tab:main}.}
+\label{tab:meta-harness}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \shortstack{\textbf{Val.}\\\textbf{labels}} & \shortstack{\textbf{Agent}\\\textbf{calls}} & \shortstack{\textbf{SWE-Bench}\\\textbf{Pro}} \\
+\midrule
+\rowcolor{rhoBlue}
+\method{} & none & 103 ($1.0\times$) & 0.78 \\
+\rowcolor{white}
+Meta-Harness (1 round) & required & 41 ($0.4\times$) & 0.62 \\
+\rowcolor{rowAlt}
+Meta-Harness (10 rounds) & required & 320 ($3.1\times$) & \textbf{0.80} \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-1.5em}
+\end{table}
+
+At the matched single-round budget, Meta-Harness selects its best candidate using validation scores but achieves only a 0.62 pass rate on SWE-Bench Pro.
+This is substantially lower than the 0.78 pass rate achieved by \method{}.
+Scaling Meta-Harness to a 10-round setting increases its performance ceiling to 0.80 on SWE-Bench Pro.
+However, this higher performance requires roughly three times the optimization-phase compute of \method{} and, more importantly, still depends on held-out labels that \method{} does not use.

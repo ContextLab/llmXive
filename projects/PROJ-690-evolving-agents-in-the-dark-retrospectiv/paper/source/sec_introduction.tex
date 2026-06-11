@@ -1,0 +1,53 @@
+\section{Introduction}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig1-rho-comparison.pdf}
+\caption{\looseness=-1 \method{} versus validation-feedback harness optimization.
+Validation-feedback methods iterate against a labeled validation set, whereas \method{} optimizes from past trajectories in a single retrospective pass with no ground-truth labels.}
+\vspace{-1.5em}
+\label{fig:rho-comparison}
+\end{figure}
+
+\looseness=-1 A \textit{harness} enables an AI agent to complete complex tasks by providing it with available skills, workflows, and tools.
+One important research question is how to improve the harness continuously.
+Specifically, after an agent is deployed, we aim to continually evolve its harness by learning from past experiences, which in turn improves its performance on future tasks.
+
+Prior work has proposed various methods for evolving the agent harness \citep{zhou2022ape,yang2023opro,khattab2023dspy,yuksekgonul2024textgrad,agrawal2025gepa,hu2024adas,lee2026metaharness}.
+However, these methods rely on scoring against a validation set to guide the improvements.
+In practical deployment scenarios, it is often difficult to collect a validation set that accurately estimates the distribution of future tasks to validate the updated harness.
+On the other hand, the continuous operation of an agent naturally produces a rich set of trajectories from past tasks.
+This leads to our central question. \textit{Can we improve the agent harness to enhance future performance when we only have access to past trajectories?}
+
+To address this problem, we propose \textit{Retrospective Harness Optimization} (\method{}), a self-supervised method that optimizes the harness through a retrospective analysis of past trajectories.
+This method employs the agent's internal self-preference over trajectories to guide the optimization process.
+Figure~\ref{fig:rho-comparison} contrasts \method{} with conventional validation-feedback optimization, which iterates against a labeled validation set.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2-pipeline.pdf}
+\caption{\looseness=-1 The \method{} pipeline. \emph{Coreset Selection} picks a small, difficulty-diverse subset of past tasks with a determinantal point process (DPP). \emph{Group Rollout} re-solves each task $G$ times and diagnoses within-trajectory failures (self-validation) and cross-trajectory disagreements (self-consistency). \emph{Harness Proposal} samples $N$ candidate harnesses and keeps the one whose rollouts are most preferred over the baseline. No ground-truth labels are used.}
+\vspace{-1em}
+\label{fig:rho-pipeline}
+\end{figure*}
+\looseness=-1 Figure~\ref{fig:rho-pipeline} illustrates this process.
+Specifically, given a large set of past trajectories, \method{} first selects a diverse and challenging coreset of tasks.
+Then the agent re-attempts each task in the coreset multiple times to generate parallel trajectories.
+Building on this, we extract two diagnostic signals, namely self-validation within a trajectory and self-consistency across parallel trajectories.
+These signals are then used to instruct the generation of harness updates.
+Finally, by using the agent's pairwise self-preference, we select the most promising harness from the newly generated proposals.
+
+\looseness=-1 We evaluate the effectiveness of \method{} across three agent domains that span software engineering, technical work, and knowledge work.
+\method{} consistently improves the agent's performance across all three domains.
+Notably, by running a single round of retrospective harness optimization on software-engineering trajectories, we improve the pass rate on SWE-Bench Pro \citep{deng2025swebenchpro} from 59\% to 78\%, without depending on grading against a validation set.
+
+\looseness=-1 Furthermore, we provide a detailed analysis on how the retrospective optimization process improves performance.
+We observe that \method{} designs specific skills and tools targeting typical failure modes encountered in past tasks. These components reshape the agent's action patterns and help it sustain higher accuracy in long-horizon sessions.
+Additionally, we quantitatively analyze the contributions of the diagnostic signals during the retrospective process.
+This analysis demonstrates that each step in \method{} progressively isolates signals that contribute to performance improvements.
+
+\looseness=-1 Our contributions are as follows:
+\begin{itemize}[label=$\diamond$]
+    \item We propose retrospective harness optimization, which addresses the gap of improving the full harness (including memory, context, skills, and tools) exclusively from unlabeled trajectories.
+    \item We evaluate \method{} across three scenarios and show that retrospective analysis consistently outperforms straightforward experience accumulation and surpasses validation-feedback-driven evolution under a comparable budget.
+    \item We provide a quantitative analysis of the impact of harness optimization on agent performance, showing that gathering effective improvement signals leads to targeted changes in the harness and optimizes the agent's behavior.
+\end{itemize}

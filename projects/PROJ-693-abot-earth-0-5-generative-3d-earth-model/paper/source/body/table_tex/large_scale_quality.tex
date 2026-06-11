@@ -1,0 +1,41 @@
+% \begin{table}[h]
+% \centering
+% \caption{Performance comparison of different products.}
+% \vspace{-0.5em}
+% \label{tab:large_scale_performance}
+% \begin{tabular}{l c c c}
+% \toprule
+% Method & Coverage $\uparrow$ & Visual Consistency $\uparrow$ & Visual Quality $\uparrow$ \\
+% \midrule
+% Marble & -- & -- & -- \\
+% Google-Earth & -- & -- & -- \\
+% \textbf{ABot-Earth(Ours)} & -- & -- & -- \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \caption{Comprehensive comparison of different products in terms of performance and efficiency.}
+% \label{tab:large_scale_performance}
+% \begin{tabular}{l ccc ccc} % 1个l(左对齐) + 6个c(居中对齐) = 共7列
+% \toprule
+
+% % --- 第一行表头：合并列 ---
+% \multirow{2}{*}{\textbf{Method}} & \multicolumn{3}{c}{\textbf{Performance}} & \multicolumn{3}{c}{\textbf{Efficiency}} \\
+% \cmidrule(lr){2-4} \cmidrule(lr){5-7} % 绘制两段局部的横线，(lr)会自动在中间留出空隙
+
+% % --- 第二行表头 ---
+% % 第一列由于被上面的 Method 跨行占用了，这里开头直接写 &
+% & Coverage $\uparrow$ & Visual Consistency $\uparrow$ & Visual Quality $\uparrow$ & Cost $\downarrow$ & Freshness $\downarrow$ & Storage $\downarrow$ \\
+% \midrule
+
+% % --- 数据行 ---
+% Marble & -- & -- & -- & -- & -- & -- \\
+% Google-Earth & -- & -- & -- & High & Month & GB \\
+% \midrule % 在基线和我们的方法之间画一根细分界线，更突显 Ours
+% \textbf{ABot-Earth (Ours)} & \textbf{--} & \textbf{--} & \textbf{--} & \textbf{Free} & \textbf{Day} & \textbf{MB} \\
+
+% \bottomrule
+% \end{tabular}
+% \end{table}

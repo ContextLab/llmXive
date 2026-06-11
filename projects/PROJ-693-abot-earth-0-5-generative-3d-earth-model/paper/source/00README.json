@@ -1,0 +1,53 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "paper.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "AbotClaw_fig/quadrupeddemo1.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amapmedium.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "body/table_tex/intro_compare.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "body/table_tex/large_scale_efficiency.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "body/table_tex/opendataset.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "paper.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "reference.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

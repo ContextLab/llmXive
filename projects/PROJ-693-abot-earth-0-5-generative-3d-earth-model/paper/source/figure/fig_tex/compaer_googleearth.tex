@@ -1,0 +1,59 @@
+% 引用：https://developers.google.com/maps/coverage?hl=zh-cn#countryregion-coverage
+
+\begin{figure}[htp]
+\centering
+% === Group 1: Auckland (Comparable Quality) ===
+\begin{subfigure}[t]{0.38\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figure_eval/Auckland_pitch60_yaw270_zoom02x_Google.jpeg}
+\caption{Google Earth (New Zealand)}
+\label{fig:auckland_google}
+\end{subfigure}
+\hspace{15pt} % <--- 将 \hfill 改为固定间距，15pt 可以根据需要微调（数值越小越靠拢）
+\begin{subfigure}[t]{0.38\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figure_eval/Auckland_pitch60_yaw270_zoom02x.png}
+\caption{\method{} (New Zealand)}
+\label{fig:auckland_ours}
+\end{subfigure}
+
+\vspace{6pt}
+
+% === Group 2: US Capitol (Slightly Weaker) ===
+\begin{subfigure}[t]{0.38\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figure_eval/Kamakura_google.png}
+\caption{Google Earth (Japan)}
+\label{fig:capitol_google}
+\end{subfigure}
+\hspace{15pt} % <--- 同步修改
+\begin{subfigure}[t]{0.38\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figure_eval/Kamakura_earth.png}
+\caption{\method{} (Japan)}
+\label{fig:capitol_ours}
+\end{subfigure}
+
+\vspace{6pt}
+
+% === Group 3: Istanbul (No Google 3D vs. Ours) ===
+\begin{subfigure}[t]{0.38\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figure_eval/Ireland_google.png}
+\caption{Google Earth (Ireland,  no 3D tile)}
+\label{fig:istanbul_google}
+\end{subfigure}
+\hspace{15pt} % <--- 同步修改
+\begin{subfigure}[t]{0.38\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figure_eval/Ireland_earth.png}
+\caption{\method{} (Ireland)}
+\label{fig:istanbul_ours}
+\end{subfigure}
+
+\caption{Qualitative comparisons between Google Earth and \method{} across different regions: 
+{(a-b) New Zealand} and {(c-d) Japan}, where our method achieves comparable visual quality to Google Earth's 3D reconstruction; and 
+{(e-f) Ireland}, where Google Earth lacks 3D scanning data and renders only a flat map approximation, while \method{} successfully synthesizes a detailed 3D scene from satellite imagery.}
+
+\label{fig:coverage}
+\end{figure}
