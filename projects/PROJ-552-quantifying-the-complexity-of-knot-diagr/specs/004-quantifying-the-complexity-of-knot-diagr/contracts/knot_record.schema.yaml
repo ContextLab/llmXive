@@ -1,85 +1,77 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
-description: "Represents a single prime knot with attributes including crossing number, braid index, and computed invariants"
+description: "Represents a single prime knot with attributes including computed invariants and classification"
 type: "object"
-required:
-  - "knot_id"
-  - "crossing_number"
-  - "braid_index"
-  - "checksum"
 properties:
   knot_id:
     type: "string"
-    description: "Unique identifier for the knot"
-    pattern: "^c[0-9]+_[0-9a-z]+$"
-    example: "c10_123"
+    description: "Unique identifier (e.g., \"3_1\", \"4_1\", \"10_123\")"
   crossing_number:
     type: "integer"
-    description: "Minimum number of crossings in any diagram"
-    minimum: 1
-    maximum: 13
-    example: 10
+    description: "Minimal crossing number of the knot"
+    minimum: 0
   braid_index:
     type: "integer"
-    description: "Minimum number of strands in braid representation"
-    minimum: 2
-    example: 5
+    description: "Minimal braid index (algorithmically determined)"
+    minimum: 1
   hyperbolic_volume:
-    type: ["number", "null"]
-    description: "Volume of hyperbolic complement; null for torus/satellite knots"
+    type: "number"
+    description: "Hyperbolic volume (filtered for valid values)"
     minimum: 0
-    example: 2.828127
-  alternating:
-    type: ["boolean", "null"]
-    description: "Whether knot is alternating; null if unclassifiable"
-    example: true
-  arc_index:
-    type: ["integer", "null"]
-    description: "Minimum number of arcs in grid diagram; null if not computable"
-    minimum: 1
-    example: 11
-  seifert_circle_count:
-    type: ["integer", "null"]
-    description: "Number of Seifert circles in minimal diagram; null if not computable"
-    minimum: 1
-    example: 6
-  bridge_number:
-    type: ["integer", "null"]
-    description: "Minimum number of bridges; null if not computable"
-    minimum: 1
-    example: 3
-  diagram_type:
-    type: ["string", "null"]
-    description: "Type of diagram representation available"
+  is_alternating:
+    type: "string"
+    description: "Alternating classification (true/false/unclassifiable)"
     enum:
-      - "braid_word"
-      - "dt_code"
-      - "both"
-      - "none"
-      - null
-    example: "braid_word"
+      - "true"
+      - "false"
+      - "unclassifiable"
+  arc_index:
+    type: "integer"
+    description: "Arc index (computed via Birman-Menasco)"
+    minimum: 1
+    nullable: true
+  seifert_circle_count:
+    type: "integer"
+    description: "Seifert circle count (computed via Seifert's algorithm)"
+    minimum: 1
+    nullable: true
+  bridge_number:
+    type: "integer"
+    description: "Bridge number (computed via Schubert's decomposition)"
+    minimum: 1
+    nullable: true
   dt_code:
-    type: ["string", "null"]
-    description: "Dowker-Thistlethwaite code; null if not available"
-    example: "10 12 -14 -16 8 2 -18 -4 6 -20 -22 -24 -26 10 28 -30 -32"
+    type: "string"
+    description: "Dowker-Thistlethwaite code representation"
+    nullable: true
   braid_word:
-    type: ["string", "null"]
-    description: "Braid word representation; null if not available"
-    example: "1 2 -1 -2 3 2 -3"
+    type: "string"
+    description: "Braid word representation"
+    nullable: true
   missing_invariant_flags:
     type: "array"
     description: "Flags for missing computable invariants"
     items:
       type: "string"
-      enum:
-        - "arc_index"
-        - "seifert_circle_count"
-        - "bridge_number"
-    example:
-      - "bridge_number"
-  checksum:
+    default: []
+  data_source:
     type: "string"
-    description: "SHA-256 hash of record for reproducibility tracking"
+    description: "Source of original data (e.g., \"knot_atlas\")"
+  download_timestamp:
+    type: "string"
+    description: "When data was downloaded (ISO 8601 format)"
+    format: "date-time"
+  checksum_sha256:
+    type: "string"
+    description: "SHA-256 checksum of source record"
     pattern: "^[a-f0-9]{64}$"
-    example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+  - hyperbolic_volume
+  - is_alternating
+  - data_source
+  - download_timestamp
+  - checksum_sha256
 additionalProperties: false

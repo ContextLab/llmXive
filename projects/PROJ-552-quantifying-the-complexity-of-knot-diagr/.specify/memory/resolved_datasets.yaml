@@ -1,26 +1,26 @@
-resolved_at: '2026-06-10T21:25:39.623335+00:00'
+resolved_at: '2026-06-10T23:08:43.585801+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/__14___/32642088
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Reconceptualizing_Ancillary_under_the_GloBE_Rules_A_Comparative_Approach_to_the_Treatment_of_Non-Profit_Organizations/32609043
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/__14___/32642088
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Reconceptualizing_Ancillary_under_the_GloBE_Rules_A_Comparative_Approach_to_the_Treatment_of_Non-Profit_Organizations/32609043
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -116,23 +116,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/__14___/32642088
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -156,26 +156,26 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20633560
+  - url: https://repository.mu.edu.et/handle/123456789/1179
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20633560
+  - url: https://yareta.unige.ch/archives/bee08795-8279-4097-8b7f-c18707a38491
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20633589
+  - url: https://yareta.unige.ch/archives/71954ffa-efa6-437f-ae88-286aa9b68359
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20633589
+  - url: https://yareta.unige.ch/archives/2145dd92-67cb-4ede-acda-39aacab5623e
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20633304
+  - url: https://doi.org/10.5281/zenodo.20621408
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
 - intent: III
   status: verified
   candidates:
@@ -217,23 +217,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/__14___/32642088
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -257,23 +257,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.checklistbank.org/dataset/5492?__goaway_challenge=cookie&__goaway_id=c1b33eb0308d8684ac6ddae769453788
+  - url: https://www.checklistbank.org/dataset/37570?__goaway_challenge=cookie&__goaway_id=f21ccc8d15153ee6d074226b99f0bd95
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/5613?__goaway_challenge=cookie&__goaway_id=3135c1851bc51173052958cc0b51ec78
+  - url: https://www.checklistbank.org/dataset/50196?__goaway_challenge=cookie&__goaway_id=31254d9b0d6d9945af7f99e7e73f7029
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/20277?__goaway_challenge=cookie&__goaway_id=c26f53ff414e82ef8da099944ee1d1bd
+  - url: https://www.checklistbank.org/dataset/50041?__goaway_challenge=cookie&__goaway_id=1b8bc73807d112f45ac834c19bfc26a5
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/53389?__goaway_challenge=cookie&__goaway_id=5f19500a653ffc4ae3d83f0010c03407
+  - url: https://www.checklistbank.org/dataset/49981?__goaway_challenge=cookie&__goaway_id=0adbd4809fcd7bfaed4a87fd9a89c18a
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/53155?__goaway_challenge=cookie&__goaway_id=d2f5a32b3150a0189c33d202abcd20ea
+  - url: https://www.checklistbank.org/dataset/36863?__goaway_challenge=cookie&__goaway_id=739f7e3024e710ae31b9e5a2e7472b74
     source: datacite
     status: wrong_format
     reason: HTTP 403
@@ -281,23 +281,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/__14___/32642088
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -333,36 +333,37 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://zenodo.org/records/20469943
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: FR-014
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Data_from_Neural_activity_profiles_reveal_overlapping_intermingled_subpopulations_spanning_area_borders_in_mouse_sensorimotor_cortex_eLife_2026/32642106
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smithsonian.figshare.com/articles/report/Sand_dunes_near_Palmira_Ecuador/32642055
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_model_for_automating_the_determination_of_remedial_works_when_reusing_building_services_products_PDF_report_/26068774
+  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Resolution_Ontology/32642085
+  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/__14___/32642088
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -382,19 +383,6 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10388577
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20615161
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
 - intent: SC-001
   status: unresolved
   candidates: []

@@ -1,137 +1,127 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "InvariantsDataset"
-description: "Aggregated collection of KnotRecord entities with metadata about data source and computation timestamps"
-type: object
+description: "Aggregated collection of KnotRecord entities with metadata"
+type: "object"
 properties:
- dataset_id:
- type: string
- description: "Unique identifier for this dataset version"
- pattern: "^dataset_[0-9]+$"
- knot_records:
- type: array
- description: "Collection of individual knot records"
- items:
- $ref: "#/definitions/KnotRecord"
- data_source:
- type: string
- description: "Source of the knot data"
- enum:
- - "knot_atlas"
- - "knot_info"
- - "hoste_thistlethwaite_weeks"
- download_timestamp:
- type: string
- description: "ISO 8601 timestamp of data download"
- format: date-time
- crossing_number_range:
- type: object
- description: "Range of crossing numbers in dataset"
- properties:
- min:
- type: integer
- minimum: 1
- max:
- type: integer
- minimum: 1
- required:
- - min
- - max
- total_knots:
- type: integer
- description: "Total count of all records"
- minimum: 1
- alternating_count:
- type: integer
- description: "Count of alternating knots"
- minimum: 0
- non_alternating_count:
- type: integer
- description: "Count of non-alternating knots"
- minimum: 0
- volume_available_count:
- type: integer
- description: "Count of knots with valid hyperbolic volume"
- minimum: 0
- schema_version:
- type: string
- description: "Data model schema version"
- pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
- validation_scope:
- type: string
- description: "Scope of validation for Phase 1 (crossing number ≤10 validated, ≤13 collected)"
- enum:
- - "phase1_validated_le_10"
- - "full_le_13"
- prime_knot_counts:
- type: object
- description: "Prime knot counts per crossing number from OEIS A002863"
- additionalProperties:
- type: integer
- minimum: 0
+  dataset_id:
+    type: "string"
+    description: "Unique dataset identifier"
+  knot_records:
+    type: "array"
+    description: "Array of knot records"
+    items:
+      $ref: "#/definitions/KnotRecord"
+  total_knots:
+    type: "integer"
+    description: "Total number of knots in dataset"
+    minimum: 0
+  crossing_number_range:
+    type: "object"
+    description: "Min and max crossing numbers"
+    properties:
+      min:
+        type: "integer"
+        minimum: 0
+      max:
+        type: "integer"
+        minimum: 0
+    required:
+      - min
+      - max
+  alternating_count:
+    type: "integer"
+    description: "Count of alternating knots"
+    minimum: 0
+  non_alternating_count:
+    type: "integer"
+    description: "Count of non-alternating knots"
+    minimum: 0
+  unclassifiable_count:
+    type: "integer"
+    description: "Count of unclassifiable knots"
+    minimum: 0
+  data_source:
+    type: "string"
+    description: "Primary data source"
+  created_timestamp:
+    type: "string"
+    description: "When dataset was created (ISO 8601 format)"
+    format: "date-time"
+  checksum_sha256:
+    type: "string"
+    description: "SHA-256 checksum of dataset file"
+    pattern: "^[a-f0-9]{64}$"
 definitions:
- KnotRecord:
- type: object
- properties:
- knot_id:
- type: string
- description: "Unique identifier for the knot (e.g., \"10_123\", \"13_4567\")"
- pattern: "^[0-9]+_[0-9]+$"
- crossing_number:
- type: integer
- description: "Minimal crossing count"
- minimum: 1
- maximum: 13
- braid_index:
- type: integer
- description: "Minimal braid representation index"
- minimum: 1
- nullable: true
- hyperbolic_volume:
- type: ["number", "null"]
- description: "Geometric volume (null for torus/satellite knots)"
- minimum: 0
- nullable: true
- alternating_classification:
- type: string
- description: "Alternating classification (null if ambiguous)"
- enum:
- - "alternating"
- - "non-alternating"
- - "unclassifiable"
- arc_index:
- type: ["integer", "null"]
- description: "Computed arc index (null if not computable)"
- minimum: 1
- nullable: true
- seifert_circle_count:
- type: ["integer", "null"]
- description: "Computed Seifert circle count (null if not computable)"
- minimum: 1
- nullable: true
- bridge_number:
- type: ["integer", "null"]
- description: "Computed bridge number (null if not computable)"
- minimum: 1
- nullable: true
- missing_invariant_flags:
- type: array
- description: "Flags for missing invariants"
- items:
- type: string
- default: []
- required:
- - knot_id
- - crossing_number
- - braid_index
- - alternating_classification
+  KnotRecord:
+    type: "object"
+    properties:
+      knot_id:
+        type: "string"
+      crossing_number:
+        type: "integer"
+        minimum: 0
+      braid_index:
+        type: "integer"
+        minimum: 1
+      hyperbolic_volume:
+        type: "number"
+        minimum: 0
+      is_alternating:
+        type: "string"
+        enum:
+          - "true"
+          - "false"
+          - "unclassifiable"
+      arc_index:
+        type: "integer"
+        minimum: 1
+        nullable: true
+      seifert_circle_count:
+        type: "integer"
+        minimum: 1
+        nullable: true
+      bridge_number:
+        type: "integer"
+        minimum: 1
+        nullable: true
+      dt_code:
+        type: "string"
+        nullable: true
+      braid_word:
+        type: "string"
+        nullable: true
+      missing_invariant_flags:
+        type: "array"
+        items:
+          type: "string"
+        default: []
+      data_source:
+        type: "string"
+      download_timestamp:
+        type: "string"
+        format: "date-time"
+      checksum_sha256:
+        type: "string"
+        pattern: "^[a-f0-9]{64}$"
+    required:
+      - knot_id
+      - crossing_number
+      - braid_index
+      - hyperbolic_volume
+      - is_alternating
+      - data_source
+      - download_timestamp
+      - checksum_sha256
+    additionalProperties: false
 required:
- - dataset_id
- - data_source
- - download_timestamp
- - crossing_number_range
- - total_knots
- - alternating_count
- - non_alternating_count
- - schema_version
- - validation_scope
+  - dataset_id
+  - knot_records
+  - total_knots
+  - crossing_number_range
+  - alternating_count
+  - non_alternating_count
+  - unclassifiable_count
+  - data_source
+  - created_timestamp
+  - checksum_sha256
 additionalProperties: false
