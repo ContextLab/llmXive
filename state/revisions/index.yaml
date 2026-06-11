@@ -354,3 +354,6 @@ ready:
 - project_id: PROJ-563-many-shot-cot-icl-making-in-context-lear
   queued_at: '2026-06-11T10:53:39.897435+00:00'
   revision_spec_path: specs/auto-revisions/PROJ-563-many-shot-cot-icl-making-in-context-lear/round-1
+- project_id: PROJ-562-a-stylometric-application-of-large-langu
+  revision_spec_path: specs/auto-revisions/PROJ-562-a-stylometric-application-of-large-langu/round-1
+  queued_at: '2026-06-11T16:41:00.614923+00:00'

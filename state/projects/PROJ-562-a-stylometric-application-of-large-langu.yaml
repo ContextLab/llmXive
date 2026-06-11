@@ -6,12 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-562-a-stylometric-application-of-large-langu
-last_run_id: null
+last_run_id: f848dd0d-a092-4964-a1c9-db66337da28d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: specs/auto-revisions/PROJ-562-a-stylometric-application-of-large-langu/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: A Stylometric Application of Large Language Models
-updated_at: '2026-05-13T13:15:00Z'
+updated_at: '2026-06-11T16:41:00.662456Z'
