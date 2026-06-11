@@ -8,6 +8,7 @@ inputs are routed through ``tools/summarize``. See contracts/convergence-engine.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import time
@@ -20,7 +21,11 @@ from llmxive.agents.citation_guard import (
     UNVERIFIED_MARKER_PREFIX,
     has_unverified_markers,
 )
-from llmxive.backends.base import BackendUnavailable, TransientBackendError
+from llmxive.backends.base import (
+    BackendError,
+    BackendUnavailable,
+    TransientBackendError,
+)
 from llmxive.tools.summarize import estimate_tokens, summarize
 
 from .kickback import route_kickback
@@ -33,6 +38,8 @@ from .types import (
     Severity,
     Verdict,
 )
+
+logger = logging.getLogger(__name__)
 
 # A hook the caller supplies to persist a per-round inspection record + run-log entry
 # (FR-015/050/051). Signature: (round_index, concerns, responses, verdicts) -> None.
@@ -347,7 +354,29 @@ def run_convergence(
             break  # nothing can resolve the concerns -> kickback
         prev_artifacts = artifacts
         with _abort_provenance(rounds_used + 1):
-            new_arts, responses = spec.reviser.revise(artifacts, list(open_concerns))
+            # Spec 023 defect #12: ONE malformed LLM reply (reviser output
+            # parsed to zero artifacts / unparseable JSON) used to kill the
+            # whole panel run as a generic engine failure — observed live on
+            # PROJ-552's plan panel after hours of converged review rounds.
+            # A malformed reply is an LLM flake, not an engine defect: retry
+            # the revise call once before propagating. Backend outages
+            # (BackendError subclasses RuntimeError!) keep their clean-abort
+            # path — never retried here.
+            for revise_attempt in (1, 2):
+                try:
+                    new_arts, responses = spec.reviser.revise(
+                        artifacts, list(open_concerns)
+                    )
+                    break
+                except BackendError:
+                    raise
+                except RuntimeError as exc:
+                    if revise_attempt == 2:
+                        raise
+                    logger.warning(
+                        "reviser reply malformed (attempt %d/2): %s — retrying",
+                        revise_attempt, exc,
+                    )
         artifacts = {**artifacts, **new_arts}
         response_history.extend(responses)
         seen = _present(artifacts)
