@@ -468,3 +468,189 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1142/s0218216519500020
   verified_at: '2026-06-11T19:14:31.080530Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Minimal grid diagrams of the prime knots with crossing number 13 and
+    arc index 13 (2024)
+  fetched_title: '[2402.02717] Minimal grid diagrams of the prime knots with crossing
+    number 13 and arc index 13'
+  kind: url
+  value: https://arxiv.org/abs/2402.02717
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2402.02717
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Seifert circles, crossing number and the braid index of generalized
+    knots and links (2022)
+  fetched_title: '[2212.14737] Seifert circles, crossing number and the braid index
+    of generalized knots and links'
+  kind: url
+  value: https://arxiv.org/abs/2212.14737
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2212.14737
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: A002863 - OEIS
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: verified
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[math/0303273] Estimates for the minimal crossing number'
+  kind: url
+  value: https://arxiv.org/abs/math/0303273
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/math/0303273
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: 2-bridge knot - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/2-bridge_knot
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/2-bridge_knot
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X
+  verification_status: unreachable
+  verified_against_url: https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: 7bd2c8d7e353483a3928374cad45d683263568a52d14d5f51eda338f688a0663
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/006-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-008
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Bisected vertex leveling of plane graphs: Braid index, arc index
+    and delta diagrams'
+  kind: doi
+  value: 10.1142/S021821651850044X
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1142/s021821651850044x
+  verified_at: '2026-06-11T20:01:25.172283Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Minimal grid diagrams of the prime knots with crossing number 13 and
+    arc index 13 (2024)
+  fetched_title: '[2402.02717] Minimal grid diagrams of the prime knots with crossing
+    number 13 and arc index 13'
+  kind: url
+  value: https://arxiv.org/abs/2402.02717
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2402.02717
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Seifert circles, crossing number and the braid index of generalized
+    knots and links (2022)
+  fetched_title: '[2212.14737] Seifert circles, crossing number and the braid index
+    of generalized knots and links'
+  kind: url
+  value: https://arxiv.org/abs/2212.14737
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2212.14737
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: A002863 - OEIS
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: verified
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[math/0303273] Estimates for the minimal crossing number'
+  kind: url
+  value: https://arxiv.org/abs/math/0303273
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/math/0303273
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: 2-bridge knot - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/2-bridge_knot
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/2-bridge_knot
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X
+  verification_status: unreachable
+  verified_against_url: https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-11T20:55:24.397414Z'
+- artifact_hash: e9c84bf71ae71636ad1a817cc9a79dd37cc6f655360cff44ff430a0a7b980ec7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/007-quantifying-the-complexity-of-knot-diagr/spec.md
+  cite_id: c-008
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Bisected vertex leveling of plane graphs: Braid index, arc index
+    and delta diagrams'
+  kind: doi
+  value: 10.1142/S021821651850044X
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1142/s021821651850044x
+  verified_at: '2026-06-11T20:55:24.397414Z'

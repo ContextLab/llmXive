@@ -64,6 +64,9 @@ previously silently lost — FR-003).
 | 14 | 552 post-mortem | kickback to_stage off-by-one EVERYWHERE (spec-gap route re-ran the planner; no spec-editing agent ever ran) | routing maps corrected + lifecycle edges + semantics test |
 | 15 | 552 post-mortem | claim-strip bare-deleted values (broken prose, verified values deleted) | [deferred] marker + verified-facts exemption + panel sanction |
 | 16 | 552 spec re-pass | strip-vs-testability WAR: reviser restores '≥80%', strip deletes it, reviewer re-flags — bounded DESIGN TARGETS are requirements, not empirical claims | bound-led values (≥ ≤ within at-least…) KEPT; approximator-led (~, approximately…) still deferred |
+| 16b | 552 spec cycle | bare timed values (retry schedules '1s → 2s → 4s') deferred into nonsense | timed quantities defer only when approximator-led |
+| 17 | 552 re-specify | feature-dir heuristic resolved the STALE cycle dir after idea-root kickbacks | speckit_*_dir pointer is the SSoT; heuristic fallback |
+| 18 | 552 spec cap #2 | idea-root kickback loop DIVERGES (3→4→8 concerns): each cycle regenerates the spec and the panel reviews a fresh document; the recurring scope dispute (hyperbolic-only filtering changes the population) needed a human call the loop kept 'documenting' instead of deciding | maintainer decision recorded via the kickback-feedback channel: question restated over HYPERBOLIC prime knots (volume is undefined otherwise — the restriction is mathematically forced); composite score + extra invariants dropped to Future Work; spec counter reset (kicks tainted by #15/#16 residue + the undecided scope) |
 
 ## T009 — real-state demonstration (US1)
 
