@@ -1,0 +1,53 @@
+**Why this priority**: Edge case handling ensures reproducibility and robustness. Without explicit handling, silent failures or inconsistent behavior could invalidate downstream results. Reproducibility documentation is essential for scientific validation and community verification.
+
+**Independent Test**: Can be fully tested by (1) simulating edge cases (API failures, missing data fields, ambiguous classifications) and verifying that the system produces appropriate flags, logs, and partial results rather than crashing or silently excluding data, AND (2) verifying that all reproducibility artifacts (checksums, logs, derivation notes, random seeds) are present and complete according to FR-009.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Knot Atlas is unavailable, **When** retry logic executes, **Then** exponential backoff is applied and partial results are cached to disk after 3 consecutive failures
+2. **Given** a knot record has missing invariant data, **When** the computation module processes it, **Then** the record is flagged with missing_invariant_flags rather than being silently excluded
+3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as "unclassifiable"
+4. **Given** crossing number ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records
+5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ directory
+
+### Edge Cases
+
+<!--
+ ACTION REQUIRED: The content in this section represents placeholders.
+ Fill them out with the right edge cases.
+-->
+
+- What happens when Knot Atlas is unavailable or rate-limited during download? (System should implement retry logic with exponential backoff and cache partial results)
+- How does system handle knots where braid index, hyperbolic volume, or other invariants are not computable from available diagram representations? (Records should be flagged with missing_invariant_flags rather than silently excluded)
+- What happens when alternating vs. non-alternating classification is ambiguous or missing for a knot? (System should either exclude from stratified analysis or mark as unclassifiable)
+- How does system handle ties or near-ties in crossing number when determining "minimal" representations? (Document tie-breaking rules and ensure consistency across all invariant computations)
+- What happens when hyperbolic volume is zero or undefined (e.g., for torus or satellite knots)? (Records should be flagged and excluded from volume prediction analysis with count logged)
+
+## Related Work
+
+<!--
+ ACTION REQUIRED: Copy citations from the idea markdown verbatim. Do NOT add new ones.
+-->
+
+- — Establishes foundational inequalities relating crossing number and braid index for classical links.
+- — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
+- [The algebraic crossing number and the braid index of knots and links (2006)] — Investigates the conjecture that algebraic crossing number is uniquely determined in minimal braid representation.
+- [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical data on prime knots with crossing number 13, establishing a testable dataset for correlation analysis.
+- — Relates crossing number to bridge number, offering a third invariant for potential composite measures.
+- [Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams (2018)](https://arxiv.org/abs/1806.09719) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
+
+## Requirements *(mandatory)*
+
+<!--
+ ACTION REQUIRED: The content in this section represents placeholders.
+ Fill them out with the right functional requirements.
+-->
+
+### Functional Requirements
+
+- **FR-001**: System MUST download knot data from Knot Atlas (https://katlas.org) including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number up to a specified threshold. Data format follows Knot Atlas JSON schema or CSV export with documented column mapping. **Scope Distinction**: Data availability extends to crossing number ≤13, but validated completeness for Phase 1 focuses on crossing number ≤10 (per SC-001). This distinction must be maintained throughout implementation and reporting. **Phase 1 Conclusion Limitation**: All Phase 1 conclusions must be explicitly qualified as limited to validated crossing number ≤10 data; any analysis using crossing number 11-13 data must be marked as exploratory/unvalidated in final reports.
+- **FR-002**: System MUST parse and clean the dataset to extract consistent representations of crossing number, braid index, and hyperbolic volume for each prime knot, creating new derived dataset files (no in-place modification per Constitution Principle III)
+- **FR-003**: System MUST compute additional invariants (arc index, Seifert circle count, bridge number) from available diagram representations (minimal crossing diagrams, braid words, or Dowker-Thistlethwaite codes as provided by Knot Atlas). A diagram representation is considered "available" if the corresponding field in the Knot Atlas record is non-null and non-empty. When no representations are available for a knot, the record MUST be flagged with missing_invariant_flags and included in a summary report at `docs/reproducibility/uncomputable_invariants.md`. Invariant computation algorithms: arc index via Birman-Menasco method (Birman & Menasco, 1988, "A Algorithm for the Arc Index of a Knot", *Mathematische Annalen*, 281, pp. 127-138); Seifert circle count via Seifert's algorithm on minimal crossing diagrams (Seifert, 1934, "Über das Geschlecht von Knoten", *Mathematische Annalen*, 110, pp. 571-592); bridge number via Schubert's bridge decomposition (Schubert, 1956, "Über eine numerische Knoteninvariante", *Mathematische Zeitschrift*, 61, pp. 245-288). Reference implementations and mathematical definitions documented in docs/reproducibility/invariant_algorithms.md. **Algorithm Validation Requirement**: System MUST validate algorithm implementation correctness against available reference values from KnotInfo for the dataset subset. If KnotInfo reference coverage is of the dataset, validation against KnotInfo MUST be skipped and the limitation MUST be documented in `docs/reproducibility/algorithm_validation.md` with pass/fail status per invariant and per algorithm, noting the coverage constraint and the skip rationale. Pass/fail threshold: match with reference values where reference data exists. **Invariant Dependency Acknowledgment**: Arc index, Seifert circle count, and bridge number have known mathematical constraints with crossing number and braid index (e.g., bridge number ≤ crossing number for most knots). Validation is exploratory correlation analysis, not independence testing. This limitation must be acknowledged in all final reports. **Exploratory Extension Note**: Computation of arc index, Seifert circle count, and bridge number extends beyond the original idea's methodology and is an exploratory addition for richer analysis. **Representation Availability Definition**: "Available" diagram representations are explicitly defined as: (1) minimal crossing diagram with non-empty DT code field, (2) braid word representation with non-empty braid word field, (3) any combination of the above where at least one field is non-null and non-empty. When no representations are available, the record is flagged and excluded from invariant computation but retained in dataset for documentation purposes.
+- **FR-004**: System MUST perform exploratory data analysis including scatter plots of crossing number vs. braid index, stratified by alternating/non-alternating classification, with output as PNG files saved to data/plots/ directory with minimum resolution 1200x900 pixels
+- **FR-005**: System MUST fit at least 3 regression model types (linear regression, polynomial/non-linear regression models, AND logarithmic regression models) to test relationships between crossing number, braid index, and hyperbolic volume. **Multicollinearity Assessment**: System MUST compute variance inflation factors (VIF) for all predictors in regression models to assess multicollinearity, given that braid index ≤ crossing number for most knots (known inequality). VIF values MUST be documented alongside model metrics. If VIF > 5 (https://doi.org/10.1142/S0218216519500020, https://arxiv.org/pdf/1805.04428) for any predictor, this MUST be flagged in final reports as a potential multicollinearity issue affecting coefficient interpretation. **Residual Analysis**: System MUST identify and document specific knot families (e.g., pretzel knots, torus knots) that deviate significantly from model predictions based on residual analysis, implementing the methodology from the original idea.
+- **FR-006**: System MUST construct a composite complexity score as a weighted combination of crossing number and braid index with default equal weights (1:1 ratio between crossing number and braid index), weights configurable via `config/complexity_weights.yaml`. **Theoretical Limitation Acknowledgment**: No established mathematical basis exists in knot theory literature for linear combination of crossing number and braid index. The equal-weight default is exploratory and configurable. Justification for default: no theoretical basis exists for differential weighting at this stage. This limitation must be acknowledged in all final reports. **Composite Score Note**: This composite complexity score is an exploratory construct not present in the original idea, added to enable richer analysis of joint predictive relationships.
