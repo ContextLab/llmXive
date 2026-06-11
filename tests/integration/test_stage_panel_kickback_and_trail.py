@@ -5,7 +5,8 @@ reviewers + a fake reviser (the established offline-engine fixture pattern):
 
 * a panel NON-CONVERGENCE writes ``convergence_kickback.yaml`` (with to_stage /
   reason / unresolved_concerns) and NOT ``human_input_needed.yaml``;
-* a genuine engine EXCEPTION still writes ``human_input_needed.yaml``;
+* a genuine engine EXCEPTION files a tracked issue (spec 023 / FR-016)
+  and writes NO marker — the project stays schedulable;
 * a multi-round convergence persists a ``convergence_trail/<stage>-NNN.jsonl``
   provenance file with one JSON line per round.
 """
@@ -149,7 +150,21 @@ def test_nonconvergence_writes_convergence_kickback(tmp_path: Path) -> None:
     assert payload["unresolved_concerns"][0]["text"] == "unsound method"
 
 
-def test_engine_exception_writes_human_input_needed(tmp_path: Path) -> None:
+def test_engine_exception_files_issue_and_never_parks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Spec 023 / FR-016 (supersedes the park-at-human_input form): a
+    genuine engine failure files a tracked GitHub issue (deduped, at the
+    injected gh boundary) and writes NO marker — the project stays
+    schedulable. Still raises StagePanelEscalation so the graph keeps the
+    project at its current stage."""
+    from llmxive.state import escalations as esc_mod
+
+    filed: list[dict] = []
+    monkeypatch.setattr(
+        esc_mod, "file_engine_failure_issue",
+        lambda **kw: filed.append(kw) or 7,
+    )
     key = "projects/PROJ-902-x/specs/001-x/spec.md"
     concern = Concern(
         id="c1", reviewer="methodology", severity=Severity.SCIENCE,
@@ -164,8 +179,10 @@ def test_engine_exception_writes_human_input_needed(tmp_path: Path) -> None:
     with pytest.raises(StagePanelEscalation):
         _run(tmp_path, reviewers=[reviewer], reviser=_Boom(key))
     memory_dir = tmp_path / "repo" / "projects" / "PROJ-902-x" / ".specify" / "memory"
-    # Genuine engine failure → human escalation, NOT the adaptive sentinel.
-    assert (memory_dir / "human_input_needed.yaml").exists()
+    # Engine failure → tracked issue, NO park, NOT the adaptive sentinel.
+    assert filed and filed[0]["project_id"] == "PROJ-902-x"
+    assert "reviser exploded" in filed[0]["error"]
+    assert not (memory_dir / "human_input_needed.yaml").exists()
     assert not (memory_dir / "convergence_kickback.yaml").exists()
 
 

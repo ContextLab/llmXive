@@ -63,6 +63,18 @@ def _project_id_from(memory_dir: Path) -> str:
     return "unknown"
 
 
+def _repo_root_from(memory_dir: Path) -> Path | None:
+    """Resolve the repo root from a project memory dir
+    (``<root>/projects/<id>[/paper]/.specify/memory``) so the escalation
+    record lands in the SAME tree as the marker — never the installed
+    repo when a hermetic root is in use."""
+    parts = memory_dir.resolve().parts
+    if "projects" in parts:
+        idx = parts.index("projects")
+        return Path(*parts[:idx])
+    return None
+
+
 def write_human_input_needed(
     memory_dir: Path,
     reason: str,
@@ -96,7 +108,8 @@ def write_human_input_needed(
                     "Resolve the spec's open clarification markers manually "
                     "or revise the upstream spec, then clear the marker."
                 ),
-            )
+            ),
+            repo_root=_repo_root_from(memory_dir),
         )
     return p
 
