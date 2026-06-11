@@ -1,12 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-11T17:15:42.477757+00:00'
-last_outcome: committed
+last_used: ada-lovelace
+last_used_at: '2026-06-11T18:34:04.690193+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: richard-feynman
-  started_at: '2026-05-31T23:53:34.413703+00:00'
-  ended_at: '2026-06-01T00:36:03.139015+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: rosalind-franklin
   started_at: '2026-06-01T00:36:03.139015+00:00'
   ended_at: '2026-06-01T01:48:59.344585+00:00'
@@ -1133,3 +1128,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-664-https-arxiv-org-abs-2606-02060/reviews/research/stephen-wolfram-simulated__2026-06-11__research.md
+- slug: ada-lovelace
+  started_at: '2026-06-11T17:15:42.477757+00:00'
+  ended_at: '2026-06-11T18:34:04.690193+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
