@@ -15,48 +15,17 @@ To what extent do crossing number and braid index jointly predict the hyperbolic
 
 Crossing number and braid index are combinatorial invariants derived from diagrammatic representations, whereas hyperbolic volume is a geometric invariant derived from the knot complement. While bounds exist linking these quantities, the precise functional relationship across large datasets of prime knots remains empirical. Quantifying this link would clarify how much geometric complexity is encoded in standard diagrammatic measures, potentially improving classification heuristics and theoretical bound tightening.
 
-## Related work
-
-- [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical data on 9,988 prime knots with crossing number 13, establishing a testable dataset for correlation analysis.
-- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://doi.org/10.4153/CJM-1993-007-x) — Establishes foundational inequalities relating crossing number and braid index for classical links.
-- [Seifert circles, crossing number and the braid index of generalized knots and links (2022)](https://arxiv.org/abs/2212.14737) — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
-- [The algebraic crossing number and the braid index of knots and links (2009)](https://arxiv.org/abs/0907.1019) — Investigates the conjecture that algebraic crossing number is uniquely determined in minimal braid representation.
-- [On the bridge number of knot diagrams with minimal crossings (2003)](https://arxiv.org/abs/math/0301320) — Relates crossing number to bridge number, offering a third invariant for potential composite measures.
-- [Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams (2018)](https://arxiv.org/abs/1806.09719) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
-
-## Expected results
-
-We expect to find that crossing number and braid index jointly explain a significant portion of the variance in hyperbolic volume, but with systematic residuals for non-alternating knots. A non-linear model (e.g., logarithmic or power-law) should fit the data better than a linear one, reflecting the geometric constraints on volume growth relative to diagrammatic complexity.
-
-## Methodology sketch
-
-- Download the prime knot census (up to 13 crossings) from Knot Atlas (https://katlas.org) including crossing number, braid index, and hyperbolic volume.
-- Parse the data to align knot identifiers across the crossing number, braid index, and volume columns.
-- **Filter dataset**: Retain only prime knots where (a) hyperbolic volume is numerically defined (>0), (b) crossing number and braid index are both populated, and (c) alternating classification is explicitly marked. **Target**: ≥90% of knots with computable invariants have all invariants populated (SC-006).
-- **Alternating classification handling**: 100% of knots with ambiguous or missing alternating classification are excluded from stratified analysis (SC-007).
-- Split the dataset into training (80%) and hold-out test (20%) sets stratified by alternating/non-alternating classification.
-- Fit multiple regression models predicting hyperbolic volume from crossing number and braid index (linear, polynomial, and logarithmic forms).
-- **Model selection criterion**: Select the model achieving ≥80% statistical power to detect medium effect sizes (Cohen's f² ≥ 0.15) based on pre-analysis power calculation (FR-005).
-- Evaluate model performance on the hold-out set using Mean Absolute Error (MAE) and R-squared metrics.
-- **Validation threshold**: If KnotInfo reference coverage is ≥90% of the dataset, proceed with validation; otherwise skip validation step (FR-003).
-- **Crossing number scope**: Primary analysis covers knots ≤10 crossings (validated); knots with 11-13 crossings are analyzed as exploratory extension only, with conclusions explicitly qualified as preliminary (scope-e070570d).
-- Analyze residuals to identify specific knot families (e.g., pretzel knots) that deviate significantly from the global trend.
-- **Derivation notes**: All model transformations include formula citations with page/section references and step-by-step transformation logic in code comments (SC-004).
-- Apply statistical tests (ANOVA) to compare model fit between alternating and non-alternating subsets.
-- **Match threshold**: Achieve ≥90% match threshold between computed invariants and reference values for validation to pass (SC-012).
-- Document all code and data transformations for reproducibility within a single GitHub Actions job.
-
 ## Literature gap analysis
 
 ### What we searched
 
-Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "crossing number braid index hyperbolic volume knot" and (2) "knot invariants correlation geometric complexity". Retrieved 15 verified citations spanning 1993-2024.
+Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "crossing number braid index hyperbolic volume knot" and (2) "knot invariants correlation geometric complexity". Retrieved 17 verified citations spanning 2003-2025.
 
 ### What is known
 
-- [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Establishes empirical dataset of 9,988 prime knots with crossing number 13, enabling large-scale correlation analysis.
-- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://doi.org/10.4153/CJM-1993-007-x) — Provides foundational inequalities linking crossing number and braid index for classical links.
-- [Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams (2018)](https://arxiv.org/abs/1806.09719) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
+- [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical dataset of 9,988 prime knots with crossing number 13, enabling large-scale correlation analysis.
+- [Bisected vertex leveling of plane graphs: Braid index, arc index and delta diagrams (2018)](https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
+- [Seifert circles, crossing number and the braid index of generalized knots and links (2022)](https://arxiv.org/abs/2212.14737) — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
 
 ### What is NOT known
 
@@ -68,7 +37,28 @@ Quantifying this relationship enables more accurate classification heuristics fo
 
 ### How this project addresses the gap
 
-The regression analysis pipeline directly measures the predictive power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class and statistical power validation, producing previously-unavailable empirical evidence on the strength and form of these relationships.
+The regression analysis pipeline directly measures the predictive power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class, producing previously-unavailable empirical evidence on the strength and form of these relationships.
+
+## Expected results
+
+We expect to find that crossing number and braid index jointly explain a significant portion of the variance in hyperbolic volume, but with systematic residuals for non-alternating knots. A non-linear model (e.g., logarithmic or power-law) should fit the data better than a linear one, reflecting the geometric constraints on volume growth relative to diagrammatic complexity.
+
+## Methodology sketch
+
+- **Data source**: Download prime knot census (up to 13 crossings) from Knot Atlas (https://katlas.org) including crossing number, braid index, and hyperbolic volume.
+- **Data retrieval**: Use `wget` or `curl` to fetch CSV/JSON data files; verify file integrity with checksums.
+- **Parsing**: Parse data to align knot identifiers across the crossing number, braid index, and volume columns using Python (pandas).
+- **Filtering**: Retain only prime knots where (a) hyperbolic volume is numerically defined (>0), (b) crossing number and braid index are both populated, and (c) alternating classification is explicitly marked.
+- **Scope confirmation**: Primary analysis limited to knots ≤10 crossings (validated data); knots with 11-13 crossings analyzed as exploratory extension only, with conclusions explicitly qualified as preliminary.
+- **Stratification**: Split dataset into training (80%) and hold-out test (20%) sets **stratified by alternating/non-alternating classification** (not by crossing number).
+- **Model fitting**: Fit multiple regression models predicting hyperbolic volume from crossing number and braid index (linear, polynomial, and logarithmic forms) using scikit-learn.
+- **Model selection**: Select the model achieving best cross-validated R-squared on training set; document all transformations with formula citations and step-by-step logic in code comments.
+- **Evaluation**: Evaluate model performance on hold-out set using Mean Absolute Error (MAE) and R-squared metrics.
+- **Statistical testing**: Apply ANOVA to compare model fit between alternating and non-alternating subsets to test for systematic differences.
+- **Residual analysis**: Analyze residuals to identify specific knot families (e.g., pretzel knots) that deviate significantly from the global trend.
+- **Validation target**: Validate computed invariants against KnotInfo reference values where available; validation target (hyperbolic volume) is measured independently from crossing number and braid index (different mathematical constructions).
+- **Reproducibility**: Document all code and data transformations for reproducibility within a single GitHub Actions job (6h time limit, 7GB RAM, 2 CPU cores).
+- **No GPU/HPC**: All computation performed on CPU-only; no fine-tuning of large models; data size kept within 7GB RAM envelope.
 
 ## Duplicate-check
 
@@ -79,7 +69,7 @@ The regression analysis pipeline directly measures the predictive power of cross
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-11T19:08:23Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-11T19:54:20Z
 **Outcome**: success
 **Original term**: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics
 **Verified citation count**: 17

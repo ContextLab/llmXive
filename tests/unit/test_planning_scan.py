@@ -26,6 +26,7 @@ from llmxive.claims.planning_scan import has_empirical_value, strip_empirical_va
         ("~2,000 prime knots downloaded.", "2,000"),
         ("approximately 95% of records are clean.", "95%"),
         ("The first 1,701,936 knots.", "1,701,936"),
+        ("Ingest takes approximately 15 minutes.", "15 minutes"),
     ],
 )
 def test_strips_empirical(text: str, gone: str) -> None:
@@ -57,6 +58,10 @@ def test_strips_empirical(text: str, gone: str) -> None:
         ("Complete within 15 minutes.", "15 minutes"),  # time budget
         ("at least 80% statistical power", "80%"),     # target
         ("minimum 80% power", "80%"),                  # target
+        # Spec 023 #16b: bare timed values are design parameters
+        # (timeouts/backoffs/budgets), never world-claims.
+        ("Exponential backoff (1s → 60s max).", "60s"),
+        ("per-pass timeout 30 ms", "30 ms"),
     ],
 )
 def test_preserves_structural(text: str, kept: str) -> None:

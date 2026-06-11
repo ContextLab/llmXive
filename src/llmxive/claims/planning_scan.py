@@ -147,6 +147,17 @@ def strip_empirical_values(
                 pos = m.end()
                 continue
             start = m.start()
+            # Spec 023 defect #16b (observed on 552's FR-010 retry schedule
+            # "1s → 2s → 4s → 8s → 60s (max)", deferred into nonsense): a
+            # bare TIMED quantity in a planning doc is essentially always a
+            # DESIGN PARAMETER (timeout, backoff, budget), not a claim
+            # about the world. Defer timed values only when approximator-
+            # led ("takes approximately 15 minutes" — a runtime claim).
+            if re.fullmatch(_TIMED, m.group(0), re.IGNORECASE) and not _LEAD.search(
+                new[:start]
+            ):
+                pos = m.end()
+                continue
             if _BOUND_LEAD.search(new[:start]) is not None:
                 # Spec 023 defect #16: a bound-led value (>=95%, "at least
                 # 80%", "within 60 minutes") is a CHOSEN DESIGN TARGET — a
