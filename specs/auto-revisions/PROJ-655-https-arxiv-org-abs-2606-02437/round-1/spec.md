@@ -1,0 +1,73 @@
+# Revision Specification: Paper Science Revision — PROJ-655-https-arxiv-org-abs-2606-02437 round 1
+
+**Generated**: 2026-06-11T22:06:02.256357+00:00
+**Kind**: paper_science
+**Project**: PROJ-655-https-arxiv-org-abs-2606-02437
+**Round**: 1
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[03122ff9408f] (severity: science)** Complete all truncated tables in the manuscript (MinT handoff, MoE scale curves, serving readiness) to enable proper assessment of infrastructure claims.
+- **[9bf5e9bf8160] (severity: science)** Provide full statistical significance testing for the AIME24 accuracy improvement (0.3644 to 0.4867 at k=198) including confidence intervals and p-values.
+- **[370ca2515ca5] (severity: science)** Validate the LoRA memory capacity law (10^-3 to 10^-2 tokens per trainable parameter) across additional tasks and model scales beyond DishNameBenchmark.
+- **[cd448f84ae8a] (severity: science)** Provide complete implementation details for OLoRA-tail initialization including exact singular value thresholding and scaling factor formulas.
+- **[a8dcb1d63c63] (severity: science)** Add code repository link and training configuration files to ensure reproducibility of the trillion-scale LoRA RL experiments.
+- **[1c7cb8533dfc] (severity: writing)** Figure 1 caption claims 'fraction of regulatory DNA increases... to 98% in humans' citing ENCODE 2012. ENCODE 2012 reported ~80% biochemical functionality, not 98% regulatory DNA. This misrepresents the cited source. Correct the claim or citation.
+- **[742051b98a44] (severity: writing)** Section 3.1 claims Kimi K2 has '32.6B activated parameters and 1.04T total parameters' citing kimiteam2026k2. Verify these exact figures against the cited paper. If not explicitly stated, remove specificity or cite internal measurement.
+- **[eae29f755da7] (severity: writing)** Section 5.1 claims 'Across 263 runs' for DishNameBenchmark and Section 5.3 claims AIME24 accuracy '0.3644 at k=1 to 0.4867 at k=198'. Ensure these numbers match the experimental data tables/figures exactly to avoid precision mismatches.
+- **[8fd2fcd6e2d1] (severity: writing)** Section 4.2 claims OLoRA KL divergence 'saturating near 8' at step 100. Verify Figure 5 (olora_vs_olora_tail_reward_kl.pdf) visually supports this specific step and value before stating it as fact.
+- **[d94581471f0f] (severity: science)** Release the full code repository (training scripts, MinT infrastructure, evaluation harness) to enable reproducibility verification of dependency hygiene and test coverage.
+- **[056091fa7ca5] (severity: writing)** Expand truncated tables (e.g., tab:mint-handoff, tab:mint-policy-state) to show full metrics rather than '(... omitted ...)' for transparency.
+- **[382dd0d3983f] (severity: science)** Provide concrete implementation details for the Context Distillation algorithm (Listing 1) beyond pseudocode to support replication.
+- **[4e74d6e022f3] (severity: science)** Add a Data Availability Statement linking to MinT infrastructure and DishNameBenchmark. Claims in Sec 5 & 6 rely on these but no URLs are provided.
+- **[08d3913a0b76] (severity: writing)** Specify license for released adapters, code, and benchmarks. Currently absent from the manuscript.
+- **[66d2c7864ace] (severity: writing)** Replace company blog URLs in bibliography (e.g., openai.com, qwenlm.github.io) with arXiv/DOI links to mitigate link rot.
+- **[cf7d909196c1] (severity: writing)** Ensure color consistency for the R3 method across Figures 4, 5, and 6. The same line color and marker style must be used to facilitate cross-figure comparison.
+- **[e278cb086488] (severity: writing)** Verify axis label legibility in Figure 17 (heatmaps) and Figures 13 and 20 (log-scale plots). Text may be too small for print resolution; increase font size or simplify labels.
+- **[6997bcc0540e] (severity: writing)** Confirm error bars are visually distinct in Figure 15. If standard deviation is small relative to bar height, consider using a secondary y-axis or inset plot.
+- **[30d6672e36fd] (severity: writing)** Figure 27 should explicitly plot the fitted regression line alongside the data points to visually support the ln(k) claim in the text.
+- **[bffc1f26ab1c] (severity: writing)** Define all acronyms (MoE, RL, KL, PPO, GRPO, RLVR, SVD, PiSSA, MiLoRA, OLoRA, DAPO, TIM, MinT, ALFWorld, AIME) at first occurrence throughout the manuscript.
+- **[efe02f86fcce] (severity: writing)** Ensure "TIM" (Training-Inference Mismatch) is defined in the text before its use in the Figure 3.2 caption.
+- **[28f75b107846] (severity: writing)** Simplify or explain technical phrases like "KL leash", "trajectory distribution", and "expert routing" for non-specialist readers.
+- **[c5e691e4c9b2] (severity: writing)** Briefly describe benchmarks (DishNameBenchmark, ALFWorld, AIME24) upon first mention to clarify their purpose.
+- **[377f5a7a9982] (severity: science)** The central thesis claims PEFT is transformative 'only when the three axes reinforce one another' (Introduction, Sec 1). However, the evidence presents each axis (Scale Up, Down, Out) largely in isolation. Add a discussion or controlled comparison demonstrating the logical dependency between axes (e.g., how Scale Out performance degrades without Scale Down stability) to support the coupling claim.
+- **[13c8b1597522] (severity: writing)** Title claims Million Personal Models but only 10^6 addressable catalog is described, not actual deployment. Clarify this is a theoretical target, not demonstrated capability. (Abstract, Section 6.4)
+- **[c2d597be958a] (severity: science)** Kimi K2 trillion-scale LoRA RL presented as proof of existence with limited empirical data. Add full experimental details or reframe as unverified claim. (Section 3.3)
+- **[6524e5fd1f16] (severity: science)** Collective intelligence from majority voting may be simple ensemble effect. Distinguish diversity-based gains from repetition baselines more rigorously. (Section 6.3, Figure 26)
+- **[48a5c076bf25] (severity: science)** LoRA memory capacity law (10^-3 to 10^-2 tokens/param) is benchmark-specific. Add generalization caveats and real-world validation. (Section 6.2, Figure 20)
+- **[fbf39fa6ac98] (severity: writing)** OLoRA-tail claims as RL-native initialization overreach - it is one method that works, not proven optimal. Temper language. (Section 4.2.2, Figure 14)
+- **[a731b1637da0] (severity: writing)** Add a dedicated Ethics Statement detailing IRB/consent protocols for any user data used to train personal models or simulators.
+- **[515961fec201] (severity: writing)** Discuss dual-use risks of 'Million Personal Models', specifically regarding impersonation, manipulation, and privacy leakage from adapters.
+- **[c9ae102514f3] (severity: writing)** Clarify safety guardrails in MinT infrastructure (Section 7) to prevent serving harmful or misaligned personal model instances.
+- **[294f90f517b9] (severity: writing)** Address ethical implications of 'User Simulators' (Section 6) that model real group-opinion dynamics, including potential for social engineering.
+- **[a06a81ce1ce7] (severity: science)** Provide quantitative compute budget table (FLOPs/wall-clock) comparing 1T MoE LoRA RL vs full-finetuning baselines to substantiate the 10% cost claim (Section 3.3).
+- **[0cc05be81c7b] (severity: science)** Re-run rank-1 standard LoRA baseline with equivalent hyperparameter sweep (LR, alpha) to isolate initialization effects from tuning sensitivity (Figure 5).
+- **[c8c2815d56f5] (severity: science)** Report confidence intervals or p-values for the majority voting accuracy gains (k=198) to confirm statistical significance over repetition baselines (Section 6).
+- **[abe4a14f54c9] (severity: science)** No confidence intervals or standard errors reported for any quantitative claims (e.g., 58.3% vs 56.3% OLoRA-tail gain, majority voting accuracy). Add 95% CI for all reported means.
+- **[27228a8cb49d] (severity: science)** No statistical significance tests performed for key comparisons (OLoRA-tail vs LoRA, rank regimes, memory capacity thresholds). Add t-tests or bootstrap CIs with p-values.
+- **[dbdb527ca334] (severity: science)** Multiple comparisons across 9 ranks × 4 batch sizes × 6 seeds (216 runs) without correction. Report FDR-adjusted p-values or use Bonferroni correction for all pairwise tests.
+- **[d9038535967c] (severity: science)** Majority voting regression (accuracy ≈ 0.386 + 0.0172 ln(k), R² ≈ 0.888) lacks residual analysis, standard errors on coefficients, or model diagnostics. Add regression diagnostics.
+- **[77b147377eda] (severity: science)** Memory capacity ceiling claim (10⁻³ to 10⁻² tokens/parameter) has no uncertainty quantification. Provide confidence intervals on the capacity threshold estimate.
+- **[eb342bea2a83] (severity: science)** Seed-level results (6 seeds) insufficient for reliable mean estimates; recommend ≥30 seeds for low-rank regime or report bootstrapped CIs.
+- **[6a8a5bf2b4e8] (severity: writing)** Remove '(... rows omitted ...)' placeholders from table environments (e.g., tab:mint-policy-state, tab:mint-handoff) to ensure compilable LaTeX.
+- **[25fd1a4852cc] (severity: writing)** Define or remove custom macros (\pony, \apphead, \appkey, \fittowidth) used throughout text and tables, as they are undefined in the preamble.
+- **[765e4ba03be9] (severity: writing)** Correct label naming conventions (e.g., \label{subsubsec:personality-as-environment} used with \section command) to match section hierarchy.
+- **[424fa2efab07] (severity: writing)** Standardize caption formatting; \pony{} is used inconsistently across figure captions (e.g., present in fig:peft-perspective-teaser, absent in fig:r3-mismatch-routing).
+- **[bda21bb20b54] (severity: writing)** Remove all \\pony{} macros from the LaTeX source to ensure clean publication-ready text.
+- **[c12b5859745d] (severity: writing)** Replace placeholder text like '(... rows omitted ...)' in tables with actual data or summary captions.
+- **[5cad00acdcdc] (severity: writing)** Simplify complex multi-clause sentences in mathematical derivations (e.g., Section 3.1.2) for better readability.
+- **[0706e776fe28] (severity: writing)** Standardize citation commands (\\citep vs \\citet) throughout the document for consistency.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 50 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.

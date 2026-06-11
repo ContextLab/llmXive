@@ -360,3 +360,6 @@ ready:
 - project_id: PROJ-688-agents-last-exam
   revision_spec_path: specs/auto-revisions/PROJ-688-agents-last-exam/round-1
   queued_at: '2026-06-11T19:00:15.753975+00:00'
+- project_id: PROJ-655-https-arxiv-org-abs-2606-02437
+  revision_spec_path: specs/auto-revisions/PROJ-655-https-arxiv-org-abs-2606-02437/round-1
+  queued_at: '2026-06-11T22:06:02.272002+00:00'

@@ -1,0 +1,450 @@
+project_id: PROJ-655-https-arxiv-org-abs-2606-02437
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 03122ff9408f
+  text: Complete all truncated tables in the manuscript (MinT handoff, MoE scale curves,
+    serving readiness) to enable proper assessment of infrastructure claims.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 9bf5e9bf8160
+  text: Provide full statistical significance testing for the AIME24 accuracy improvement
+    (0.3644 to 0.4867 at k=198) including confidence intervals and p-values.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 370ca2515ca5
+  text: Validate the LoRA memory capacity law (10^-3 to 10^-2 tokens per trainable
+    parameter) across additional tasks and model scales beyond DishNameBenchmark.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: cd448f84ae8a
+  text: Provide complete implementation details for OLoRA-tail initialization including
+    exact singular value thresholding and scaling factor formulas.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: a8dcb1d63c63
+  text: Add code repository link and training configuration files to ensure reproducibility
+    of the trillion-scale LoRA RL experiments.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 1c7cb8533dfc
+  text: Figure 1 caption claims 'fraction of regulatory DNA increases... to 98% in
+    humans' citing ENCODE 2012. ENCODE 2012 reported ~80% biochemical functionality,
+    not 98% regulatory DNA. This misrepresents the cited source. Correct the claim
+    or citation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 742051b98a44
+  text: Section 3.1 claims Kimi K2 has '32.6B activated parameters and 1.04T total
+    parameters' citing kimiteam2026k2. Verify these exact figures against the cited
+    paper. If not explicitly stated, remove specificity or cite internal measurement.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: eae29f755da7
+  text: Section 5.1 claims 'Across 263 runs' for DishNameBenchmark and Section 5.3
+    claims AIME24 accuracy '0.3644 at k=1 to 0.4867 at k=198'. Ensure these numbers
+    match the experimental data tables/figures exactly to avoid precision mismatches.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 8fd2fcd6e2d1
+  text: Section 4.2 claims OLoRA KL divergence 'saturating near 8' at step 100. Verify
+    Figure 5 (olora_vs_olora_tail_reward_kl.pdf) visually supports this specific step
+    and value before stating it as fact.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: d94581471f0f
+  text: Release the full code repository (training scripts, MinT infrastructure, evaluation
+    harness) to enable reproducibility verification of dependency hygiene and test
+    coverage.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 056091fa7ca5
+  text: Expand truncated tables (e.g., tab:mint-handoff, tab:mint-policy-state) to
+    show full metrics rather than '(... omitted ...)' for transparency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 382dd0d3983f
+  text: Provide concrete implementation details for the Context Distillation algorithm
+    (Listing 1) beyond pseudocode to support replication.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 4e74d6e022f3
+  text: Add a Data Availability Statement linking to MinT infrastructure and DishNameBenchmark.
+    Claims in Sec 5 & 6 rely on these but no URLs are provided.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 08d3913a0b76
+  text: Specify license for released adapters, code, and benchmarks. Currently absent
+    from the manuscript.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 66d2c7864ace
+  text: Replace company blog URLs in bibliography (e.g., openai.com, qwenlm.github.io)
+    with arXiv/DOI links to mitigate link rot.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: cf7d909196c1
+  text: Ensure color consistency for the R3 method across Figures 4, 5, and 6. The
+    same line color and marker style must be used to facilitate cross-figure comparison.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: e278cb086488
+  text: Verify axis label legibility in Figure 17 (heatmaps) and Figures 13 and 20
+    (log-scale plots). Text may be too small for print resolution; increase font size
+    or simplify labels.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 6997bcc0540e
+  text: Confirm error bars are visually distinct in Figure 15. If standard deviation
+    is small relative to bar height, consider using a secondary y-axis or inset plot.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 30d6672e36fd
+  text: Figure 27 should explicitly plot the fitted regression line alongside the
+    data points to visually support the ln(k) claim in the text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: bffc1f26ab1c
+  text: Define all acronyms (MoE, RL, KL, PPO, GRPO, RLVR, SVD, PiSSA, MiLoRA, OLoRA,
+    DAPO, TIM, MinT, ALFWorld, AIME) at first occurrence throughout the manuscript.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: efe02f86fcce
+  text: Ensure "TIM" (Training-Inference Mismatch) is defined in the text before its
+    use in the Figure 3.2 caption.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 28f75b107846
+  text: Simplify or explain technical phrases like "KL leash", "trajectory distribution",
+    and "expert routing" for non-specialist readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: c5e691e4c9b2
+  text: Briefly describe benchmarks (DishNameBenchmark, ALFWorld, AIME24) upon first
+    mention to clarify their purpose.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 377f5a7a9982
+  text: The central thesis claims PEFT is transformative 'only when the three axes
+    reinforce one another' (Introduction, Sec 1). However, the evidence presents each
+    axis (Scale Up, Down, Out) largely in isolation. Add a discussion or controlled
+    comparison demonstrating the logical dependency between axes (e.g., how Scale
+    Out performance degrades without Scale Down stability) to support the coupling
+    claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 13c8b1597522
+  text: Title claims Million Personal Models but only 10^6 addressable catalog is
+    described, not actual deployment. Clarify this is a theoretical target, not demonstrated
+    capability. (Abstract, Section 6.4)
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: c2d597be958a
+  text: Kimi K2 trillion-scale LoRA RL presented as proof of existence with limited
+    empirical data. Add full experimental details or reframe as unverified claim.
+    (Section 3.3)
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 6524e5fd1f16
+  text: Collective intelligence from majority voting may be simple ensemble effect.
+    Distinguish diversity-based gains from repetition baselines more rigorously. (Section
+    6.3, Figure 26)
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 48a5c076bf25
+  text: LoRA memory capacity law (10^-3 to 10^-2 tokens/param) is benchmark-specific.
+    Add generalization caveats and real-world validation. (Section 6.2, Figure 20)
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: fbf39fa6ac98
+  text: OLoRA-tail claims as RL-native initialization overreach - it is one method
+    that works, not proven optimal. Temper language. (Section 4.2.2, Figure 14)
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: a731b1637da0
+  text: Add a dedicated Ethics Statement detailing IRB/consent protocols for any user
+    data used to train personal models or simulators.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 515961fec201
+  text: Discuss dual-use risks of 'Million Personal Models', specifically regarding
+    impersonation, manipulation, and privacy leakage from adapters.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: c9ae102514f3
+  text: Clarify safety guardrails in MinT infrastructure (Section 7) to prevent serving
+    harmful or misaligned personal model instances.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 294f90f517b9
+  text: Address ethical implications of 'User Simulators' (Section 6) that model real
+    group-opinion dynamics, including potential for social engineering.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: a06a81ce1ce7
+  text: Provide quantitative compute budget table (FLOPs/wall-clock) comparing 1T
+    MoE LoRA RL vs full-finetuning baselines to substantiate the 10% cost claim (Section
+    3.3).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 0cc05be81c7b
+  text: Re-run rank-1 standard LoRA baseline with equivalent hyperparameter sweep
+    (LR, alpha) to isolate initialization effects from tuning sensitivity (Figure
+    5).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: c8c2815d56f5
+  text: Report confidence intervals or p-values for the majority voting accuracy gains
+    (k=198) to confirm statistical significance over repetition baselines (Section
+    6).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: abe4a14f54c9
+  text: No confidence intervals or standard errors reported for any quantitative claims
+    (e.g., 58.3% vs 56.3% OLoRA-tail gain, majority voting accuracy). Add 95% CI for
+    all reported means.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 27228a8cb49d
+  text: No statistical significance tests performed for key comparisons (OLoRA-tail
+    vs LoRA, rank regimes, memory capacity thresholds). Add t-tests or bootstrap CIs
+    with p-values.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: dbdb527ca334
+  text: "Multiple comparisons across 9 ranks \xD7 4 batch sizes \xD7 6 seeds (216\
+    \ runs) without correction. Report FDR-adjusted p-values or use Bonferroni correction\
+    \ for all pairwise tests."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: d9038535967c
+  text: "Majority voting regression (accuracy \u2248 0.386 + 0.0172 ln(k), R\xB2 \u2248\
+    \ 0.888) lacks residual analysis, standard errors on coefficients, or model diagnostics.\
+    \ Add regression diagnostics."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 77b147377eda
+  text: "Memory capacity ceiling claim (10\u207B\xB3 to 10\u207B\xB2 tokens/parameter)\
+    \ has no uncertainty quantification. Provide confidence intervals on the capacity\
+    \ threshold estimate."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: eb342bea2a83
+  text: "Seed-level results (6 seeds) insufficient for reliable mean estimates; recommend\
+    \ \u226530 seeds for low-rank regime or report bootstrapped CIs."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 6a8a5bf2b4e8
+  text: Remove '(... rows omitted ...)' placeholders from table environments (e.g.,
+    tab:mint-policy-state, tab:mint-handoff) to ensure compilable LaTeX.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 25fd1a4852cc
+  text: Define or remove custom macros (\pony, \apphead, \appkey, \fittowidth) used
+    throughout text and tables, as they are undefined in the preamble.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 765e4ba03be9
+  text: Correct label naming conventions (e.g., \label{subsubsec:personality-as-environment}
+    used with \section command) to match section hierarchy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 424fa2efab07
+  text: Standardize caption formatting; \pony{} is used inconsistently across figure
+    captions (e.g., present in fig:peft-perspective-teaser, absent in fig:r3-mismatch-routing).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: bda21bb20b54
+  text: Remove all \\pony{} macros from the LaTeX source to ensure clean publication-ready
+    text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: c12b5859745d
+  text: Replace placeholder text like '(... rows omitted ...)' in tables with actual
+    data or summary captions.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 5cad00acdcdc
+  text: Simplify complex multi-clause sentences in mathematical derivations (e.g.,
+    Section 3.1.2) for better readability.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+- id: 0706e776fe28
+  text: Standardize citation commands (\\citep vs \\citet) throughout the document
+    for consistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 50 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-11T22:06:02.256732+00:00'
