@@ -24,6 +24,29 @@ follows the issue-#239 part-7 discipline: examine every artifact a stage
 produces, fix the *stage* (code, prompts, agents) until its outputs are high
 quality, then move on.
 
+**Explicitly out of scope:** the 9-domain repetition of the end-to-end
+traversal (issue #239's domain-generality pass) is follow-on work that
+begins only after this feature's single complete traversal; splitting
+projects into separate repositories (#263) and labeled-eval prompt
+optimization (#216) remain separate tracks.
+
+## Clarifications
+
+### Session 2026-06-10
+
+- Q: If a stage proves quality-limited on free models during the traversal,
+  may agents be flipped to the credit-managed paid path? → A: Yes,
+  justification-gated — specific agents may be flipped to `paid_opt_in`
+  within the daily credit budget, each flip carrying its own written
+  Constitution-IV justification in the introducing PR; free models remain
+  the default everywhere.
+- Q: Which project satisfies the "every phase from brainstormed idea to
+  published paper" demonstration (US3/SC-001)? → A: PROJ-552 is the
+  designated demonstration project, continuing from its current stage; its
+  recorded history already covers the earlier phases (including real
+  kickback/recovery cycles). If it reaches an honest bounded terminal
+  instead, another project substitutes (see Edge Cases).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Review decisions take effect (Priority: P1)
@@ -477,10 +500,12 @@ data marks each paper's status accurately.
   panel within the 3-round cap, spec 015), claim-verification stack (specs
   016–020), and per-project locking are sound and remain the foundation;
   this feature repairs flow *through* them rather than redesigning them.
-- The existing free-model backends (with the credit-managed opt-in from
-  spec 022 available where already sanctioned) provide sufficient quality
-  for every stage; if a stage proves quality-limited, fixing that stage
-  (prompts/gates/models within sanctioned policy) is in scope per FR-012.
+- Free-model backends remain the default for every stage. When a stage
+  proves quality-limited, the remedy ladder is: fix prompts/gates/retries
+  first; if still insufficient, flipping that specific agent to the
+  credit-managed paid path (`paid_opt_in`, within the daily credit budget)
+  is sanctioned, with a written Constitution-IV justification per agent in
+  the introducing change (clarified 2026-06-10).
 - Zenodo (or the already-integrated DOI provider, sandbox where
   appropriate for tests) remains the publication channel; a sandbox DOI is
   acceptable for test runs, and the demonstration project's real DOI mint
@@ -488,10 +513,12 @@ data marks each paper's status accurately.
 - "Maintainers" are the repository's collaborators with write access (or
   an explicitly configured list); the sign-off parser validates voter
   identity against that list.
-- The demonstration project may be any genuinely pipeline-generated idea
-  (including PROJ-552, currently mid-traversal at planning, if it
-  converges); the negative-control weak idea may be drawn from the
-  existing backlog.
+- PROJ-552 (currently mid-traversal at planning) is the designated
+  demonstration project, continuing from its current stage — its recorded
+  history covers the earlier phases with real kickback/recovery evidence
+  (clarified 2026-06-10). If it terminates honestly at a bounded cap,
+  another pipeline-generated project substitutes. The negative-control
+  weak idea may be drawn from the existing backlog.
 - The end-to-end traversal is wall-clock long (multi-day across scheduled
   passes); delivery includes monitoring it to completion, not just landing
   the code.
