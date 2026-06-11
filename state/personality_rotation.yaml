@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-11T12:47:47.660073+00:00'
-last_outcome: committed
+last_used: rosalind-franklin
+last_used_at: '2026-06-11T14:20:08.434661+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-05-31T22:22:59.074937+00:00'
-  ended_at: '2026-05-31T22:50:24.317924+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-05-31T22:50:24.317924+00:00'
   ended_at: '2026-05-31T23:53:34.413703+00:00'
@@ -1131,3 +1126,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-06-11__research.md
+- slug: rosalind-franklin
+  started_at: '2026-06-11T12:47:47.660073+00:00'
+  ended_at: '2026-06-11T14:20:08.434661+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
