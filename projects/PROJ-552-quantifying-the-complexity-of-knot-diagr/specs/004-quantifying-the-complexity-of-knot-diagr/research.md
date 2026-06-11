@@ -1,137 +1,126 @@
 # Research: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-## Research Question (Phase 1)
+## Overview
 
-To what extent do crossing number and braid index jointly predict the hyperbolic volume of prime knots, and does this relationship differ systematically between alternating and non-alternating classes?
+This research investigates the joint predictive relationship between crossing number and braid index for hyperbolic volume in prime knots, with systematic comparison between alternating and non-alternating classes. Phase 1 focuses on the alternating/non-alternating dichotomy for crossing numbers ≤10 (validated) and ≤13 (downloaded).
 
 ## Dataset Strategy
 
-| Dataset | Source URL | Coverage | Verification Status | Notes |
-|---------|------------|----------|---------------------|-------|
-| Knot Atlas Prime Knots (≤13 crossings) | https://katlas.org | All prime knots with crossing number ≤13 | ✅ VERIFIED | Per FR-001, data downloaded from verified Knot Atlas source |
-| OEIS A002863 (Prime knot enumeration) | https://oeis.org/A002863 | Cumulative count up to crossing number 13 (9988 total) | ✅ VERIFIED | CUMULATIVE count only: total number of prime knots up to C13. Per-crossing counts come from HTW enumeration (~49-50 at C13) |
-| KnotInfo (Reference values for validation) | https://knotinfo.math.indiana.edu | Subset of knots | ✅ VERIFIED | Per FR-003, used for algorithm validation where reference coverage |
-| Hoste-Thistlethwaite-Weeks (HTW) enumeration | https://katlas.org/wiki/Tables | Per-crossing counts | ✅ VERIFIED | Provides per-crossing enumeration (~49-50 knots at C13) |
+| Dataset | Source | Purpose | Verified URL |
+|---------|--------|---------|--------------|
+| Knot Atlas Prime Knots (≤13) | Knot Atlas (katlas.org) | Primary data source for crossing number, braid index, hyperbolic volume, alternating classification | NO verified source found (per verified datasets block; specification cites https://katlas.org as canonical source) |
+| KnotInfo Reference Values | KnotInfo (katlas.org/wiki/KnotInfo) | Algorithm validation for computed invariants (arc index, Seifert circle count, bridge number) | NO verified source found (per verified datasets block) |
+| Hoste-Thistlethwaite-Weeks Enumeration | OEIS A002863 | Dataset completeness validation for prime knot counts at each crossing number ≤10 | https://oeis.org/A002863 |
+| Minimal Grid Diagrams Study (2024) | arXiv 2402.02717 | Empirical data on prime knots with crossing number 13 | https://arxiv.org/abs/2402.02717 |
+| Bisected Vertex Leveling Study (2018) | arXiv 1806.09719 | Upper bounds for braid index in terms of crossing number; polynomial regression justification | https://arxiv.org/abs/1806.09719 |
 
-**Data Collection Plan**:
-1. Download prime knot data from Knot Atlas (https://katlas.org) via programmatic export
-2. Parse CSV/JSON export containing crossing number, braid index, hyperbolic volume, alternating/non-alternating classification
-3. Validate completeness against OEIS A002863 cumulative counts (9988 up to C13) AND HTW enumeration for per-crossing counts (~49-50 at C13)
-4. Flag records with missing invariants rather than silent exclusion (per FR-011)
+**Dataset Count Clarification**: OEIS A002863(13) represents the CUMULATIVE count of prime knots with crossing number ≤13. The exact number of prime knots at crossing number 13 specifically is known, as established by Hoste-Thistlethwaite-Weeks enumeration. This distinction is critical for dataset completeness validation (SC-001).
 
-**Phase 1 Validation Scope**: Dataset completeness validation focuses on crossing numbers ≤10 as benchmarking scope. Data collection covers all knots with crossing number ≤13, but full validation across all crossing numbers ≤13 is deferred to future iterations due to computational constraints (prime knots at crossing number 13: ~49-50 per HTW enumeration; cumulative total up to C13: 9988 per OEIS A002863).
+**CRITICAL SPEC DEFECTS FLAGGED FOR KICKBACK**:
+1. **Spec Factual Error (Assumptions Section)**: The spec.md incorrectly states 'For crossing number 13, the exact count is 49 prime knots, as established in OEIS A002863'. OEIS A002863(13)=9988 is the CUMULATIVE count ≤13. The knots at a specific crossing number should be attributed to Hoste-Thistlethwaite-Weeks enumeration.
+2. **Spec Placeholder SC-006**: Missing threshold percentage. Plan documents provisional default of **** (flagged for kickback correction).
+3. **Spec Placeholder SC-012**: Missing threshold percentage. Plan documents provisional default of **** (flagged for kickback correction).
 
-## Invariant Computation Strategy
+**Note**: Per verified datasets block constraints, Knot Atlas URL is not in the verified sources list. The specification cites https://katlas.org as the canonical source, but verification status is "NO verified source found". Implementation must handle this by implementing retry logic with exponential backoff (FR-010) and documenting the verification limitation in `docs/reproducibility/validation_scope.md`.
 
-| Invariant | Algorithm | Reference | Validation Approach |
-|-----------|-----------|-----------|---------------------|
-| Arc Index | Birman-Menasco method | Birman & Menasco (1988), *Mathematische Annalen* 281, pp. 127-138 | Validate against KnotInfo reference values where coverage |
-| Seifert Circle Count | Seifert's algorithm on minimal crossing diagrams | Seifert (1934), *Mathematische Annalen* 110, pp. 571-592 | Validate against KnotInfo reference values where coverage |
-| Bridge Number | Schubert's bridge decomposition | Schubert (1956), *Mathematische Zeitschrift* 61, pp. 245-288 | Validate against KnotInfo reference values where coverage |
+**Training/Validation Specification**: Regression models trained on validated c≤10 data ONLY. c=11-13 data reserved for exploratory analysis (model evaluation only, not training).
 
-**Representation Availability Definition**: A diagram representation is considered "available" if: (1) minimal crossing diagram with non-empty DT code field, (2) braid word representation with non-empty braid word field, or (3) any combination where at least one field is non-null and non-empty.
+## Data Sources and Access
 
-**Algorithm Validation Requirement**: System MUST validate algorithm implementation correctness against available reference values from KnotInfo for the dataset subset. If KnotInfo reference coverage is of the dataset, validation against KnotInfo MUST be skipped and the limitation MUST be documented in `docs/reproducibility/algorithm_validation.md` with pass/fail status per invariant and per algorithm, noting the coverage constraint and the skip rationale. Pass/fail threshold: match with reference values where reference data exists.
+### Knot Atlas (Primary Source)
 
-## Statistical Analysis Plan
+The Knot Atlas provides comprehensive data on prime knots including:
+- Crossing number (tabulated)
+- Braid index (algorithmically determined)
+- Hyperbolic volume (geometric invariant)
+- Alternating/non-alternating classification
+- Diagram representations (Dowker-Thistlethwaite codes, braid words)
 
-### Regression Models (FR-005)
+**Access Method**: HTTP API or CSV export with documented column mapping (FR-001). Retry logic with exponential backoff (initial:, max:, multiplier: 2) implemented per FR-010.
 
-| Model Type | Predictors | Outcome | Metrics |
-|------------|------------|---------|---------|
-| Linear Regression | Crossing number, Braid index | Hyperbolic volume | R², AIC/BIC, MAE, VIF |
-| Polynomial Regression | Crossing number, Braid index, interaction terms | Hyperbolic volume | R², AIC/BIC, MAE, VIF |
-| Logarithmic Regression | log(Crossing number), log(Braid index) | Hyperbolic volume | R², AIC/BIC, MAE, VIF |
+**Version Tracking**: Knot Atlas version captured from API response headers or metadata file; stored in InvariantsDataset.data_source_version field.
 
-### Murasugi's Theorem Constraint
+### Validation Against Reference Values
 
-For alternating knots, braid index is functionally dependent on crossing number (deterministic relationship per Murasugi's theorem: braid index equals crossing number plus a constant for alternating knots). This creates perfect multicollinearity for the alternating subgroup. Regression analysis will be stratified:
+KnotInfo provides reference values for algorithm validation. Per FR-003, if KnotInfo reference coverage is of dataset (threshold from plan), validation is skipped and limitation documented in `docs/reproducibility/validation_scope.md`.
 
-- **Alternating knots**: Excluded from joint regression analysis (braid index is deterministic function of crossing number)
-- **Non-alternating knots**: Only non-alternating knots will be used for joint predictor modeling
+### Empirical Inequality Verification
 
-**VIF Assessment**: Compute variance inflation factors (VIF) for all predictors in non-alternating subgroup. If VIF > 5, flag in final reports as potential multicollinearity issue affecting coefficient interpretation.
+Before analysis, verify known mathematical inequalities hold for dataset:
+- bridge_number ≤ crossing_number
+- braid_index ≤ crossing_number (for most knots)
 
-**Mathematical Constraint Acknowledgment**: Even in non-alternating knots, braid index is bounded by crossing number (braid index ≤ crossing number). This creates inherent correlation structure. VIF > 5 threshold may be insufficient for this regime where predictors are bounded by mathematical constraints. **Recommendation**: Report partial correlation coefficients controlling for crossing number to isolate braid index's independent contribution to hyperbolic volume prediction.
+Discrepancies documented in `data/derivation_notes.md` per Constitution Principle VI (Mathematical Invariant Consistency).
 
-### Correlation Analysis (FR-008)
+## Computational Methods
 
-| Test | Purpose | Reporting Requirements |
-|------|---------|------------------------|
-| Pearson Correlation | Linear relationship strength | Report alongside Spearman; acknowledge discrete data limitation |
-| Spearman Correlation | Monotonic relationship strength | Primary correlation measure for discrete invariants |
-| ANOVA / Welch's ANOVA | Group differences (alternating vs non-alternating) | Report p-values, Cohen's d effect sizes; perform Levene's test and Shapiro-Wilk test before ANOVA |
-| Kruskal-Wallis | Non-parametric group comparison | Use if ANOVA assumptions violated |
+### Invariant Computation Algorithms
 
-**Mandatory Dual Correlation**: Per Constitution Principle VII, BOTH Pearson AND Spearman correlations MUST be reported when distribution assumptions cannot be verified a priori—this is a mandatory requirement, not conditional.
+1. **Arc Index**: Birman-Menasco method (Birman & Menasco, 1988, "A Algorithm for the Arc Index of a Knot", *Mathematische Annalen*, 281, pp. 127-138)
+2. **Seifert Circle Count**: Seifert's algorithm on minimal crossing diagrams (Seifert, 1934, "Über das Geschlecht von Knoten", *Mathematische Annalen*, 110, pp. 571-592); formula: s(D) (source: math/0303273)
+3. **Bridge Number**: Schubert's bridge decomposition (Schubert, 1956, "Über eine numerische Knoteninvariante", *Mathematische Zeitschrift*, 61, pp. 245-288); 2-bridge knots (source: Wikipedia)
 
-### Composite Complexity Score (FR-006)
+### Regression Modeling
 
-- Default weights: 1:1 ratio between crossing number and braid index
-- Configurable via `config/complexity_weights.yaml`
-- Validation: Correlation with hyperbolic volume on exploratory validation sample (random stratified split by crossing number)
-- **Hypothesis Nature**: No established mathematical basis exists in knot theory literature for linear combination of crossing number and braid index. The equal-weight default is exploratory and configurable. This validation is **hypothesis-generating, not hypothesis-confirming**. Results indicate empirical correlation strength only, not theoretical construct validity.
-- **Theoretical Limitation Acknowledgment**: No established mathematical basis exists in knot theory literature for linear combination of crossing number and braid index. The equal-weight default is exploratory and configurable.
+Three model types compared (FR-005):
+1. Linear regression: `volume ~ crossing_number + braid_index`
+2. Polynomial regression: `volume ~ crossing_number + braid_index + crossing_number² + braid_index²`
+3. Logarithmic regression: `volume ~ log(crossing_number) + log(braid_index)`
+4. **Alternative**: Spline regression if polynomial overfitting detected
 
-### Cross-Validation Strategy (Addressing methodology-27624403)
+**Polynomial Justification**: Despite discrete predictors, polynomial terms capture known non-linear relationships in knot geometry (citing arXiv 1806.09719). If VIF > 5 or cross-validation error increases, spline regression used as alternative.
 
-**Training/Validation Split**: Models trained on full dataset (≤13 crossings) with 5-fold stratified cross-validation and hold-out sample. Phase 1 scope limitation (≤10 crossings for benchmarking) is separate from validation methodology.
+**Multicollinearity Assessment**: Variance Inflation Factors (VIF) computed for all predictors. VIF > 5 flagged as potential multicollinearity issue (per FR-005, citing DOI 10.1142/S0218216519500020 and arXiv 1805.04428).
 
-**Procedure**:
-1. Split data into 5 stratified folds (by crossing number)
-2. Train on 4 folds, validate on 1 fold; repeat 5 times
-3. Hold-out of data for final model evaluation (not used in CV)
-4. Report mean validation metrics across all folds plus hold-out performance
-5. Random seed pinned for reproducibility (configurable via `config/complexity_weights.yaml`)
+### Statistical Testing
 
-**Selection Bias Limitation (Addressing methodology-3e2540f9)**: Hyperbolic volume filtering excludes torus and satellite knots (FR-014, Assumptions). This introduces selection bias: the analysis will only capture relationships within hyperbolic knots, not general prime knot complexity. **Final reports MUST explicitly state this limitation to avoid overgeneralization.**
+- **Correlation**: Both Pearson AND Spearman correlations reported where distribution assumptions cannot be verified a priori (Constitution Principle VII)
+- **ANOVA**: For group differences between alternating and non-alternating knots, with Levene's test for equal variances and Shapiro-Wilk test for normality (FR-008)
+- **Effect Sizes**: Cohen's d for group comparisons, r or r² for correlations
 
-### Regression Output Schema Authority (Addressing plan_consistency-2c26dd4a)
+### Power Analysis
 
-- **CANONICAL**: `contracts/regression_output.schema.yaml` — use for code/models/*.json files
-- **LEGACY**: `contracts/regression_model.schema.yaml` — retained for backward compatibility
-- **DEPRECATED**: `contracts/regression_result.schema.yaml` — no longer used for new implementations
+**Sample Size**: ~632 knots at c≤10; after filtering for hyperbolic volume (removing torus/satellite knots), a subset of knots remain.
 
-## Edge Case Handling (FR-010, FR-011, FR-012, FR-014)
+**Filtering Logic Documentation**: The exact filtering logic for torus/satellite exclusion must be documented in `docs/reproducibility/power_analysis.md` with exact counts from the source dataset. The filtering removes knots where hyperbolic_volume is zero or undefined.
 
-| Edge Case | Handling Strategy | Documentation Location |
-|-----------|-------------------|------------------------|
-| Knot Atlas unavailable/rate-limited | Exponential backoff (→ → →... → max); partial results cached after 3 consecutive failures | `docs/reproducibility/retry_logs.md` |
-| Missing invariant data | Flag with `missing_invariant_flags`; include in summary report | `docs/reproducibility/uncomputable_invariants.md` |
-| Ambiguous alternating classification | Exclude from stratified analysis or mark as "unclassifiable" | Logged in analysis output |
-| Crossing number ties | Apply documented tie-breaking rules consistently | `docs/reproducibility/tie_breaking_rules.md` |
-| Zero/undefined hyperbolic volume | Filter out for volume prediction analysis; document excluded records | `docs/reproducibility/excluded_knots.md` |
+**Power Calculation**: For 2-predictor regression with α=0.05, power=0.80, minimum detectable correlation r≥0.13. This provides adequate power for hypothesis-hypothesis-generating exploratory analysis.
 
-**Tie-Breaking Rules**: (1) When multiple diagram representations exist for a knot, prefer braid word representation over Dowker-Thistlethwaite code; (2) When multiple Dowker-Thistlethwaite codes exist, prefer lexicographically first code.
+**Documentation**: Full power analysis documented in `docs/reproducibility/power_analysis.md`.
 
-## Computational Task Ordering
+## Expected Findings
 
-1. **Data Download** (Phase 0): Download prime knot data from Knot Atlas (≤13 crossings)
-2. **Data Validation** (Phase 0): Validate completeness against OEIS A002863 (cumulative 9988) AND HTW enumeration (per-crossing ~49-50 at C13) for crossing numbers ≤10
-3. **Invariant Computation** (Phase 1): Compute arc index, Seifert circle count, bridge number where diagram representations available
-4. **Exploratory Analysis** (Phase 1): Generate scatter plots of crossing number vs. braid index stratified by classification
-5. **Regression Modeling** (Phase 1): Fit linear, polynomial, logarithmic models with VIF assessment; stratified by alternating/non-alternating (alternating excluded from joint regression per Murasugi's theorem); report partial correlations controlling for crossing number
-6. **Composite Score Validation** (Phase 1): Construct and validate composite complexity score on exploratory validation sample (hypothesis-generating, not hypothesis-confirming)
-7. **Residual Analysis** (Phase 1): Identify knot families deviating from global trend
-8. **Reproducibility Documentation** (Phase 1): Generate checksums, derivation notes, timestamped logs
+### Hypothesis
 
-**Phase 1 Conclusion Limitation**: All Phase 1 conclusions must be explicitly limited to validated crossing number ≤10 data; any analysis using crossing number 11-13 data must be marked as exploratory/unvalidated in final reports.
+Crossing number and braid index jointly predict hyperbolic volume, with non-linear relationship differing between alternating and non-alternating classes.
 
-## Success Criteria Alignment
+### Validation Approach
 
-| Success Criterion | Research Action |
-|-------------------|-----------------|
-| SC-001: Dataset completeness high (limited crossings) | Validate against OEIS A002863 cumulative (9988) AND HTW per-crossing (~49-50 at C13) counts; document in `docs/reproducibility/validation_scope.md` |
-| SC-002: Multiple regression models compared | Fit linear, polynomial, logarithmic models; document R², AIC/BIC, MAE |
-| SC-003: Composite score correlation reported | Compute Pearson and Spearman correlations on exploratory validation sample |
-| SC-004: Reproducible transformations | Pin random seeds; record SHA-256 checksums; write derivation notes |
-| SC-005: Retry logic verified | Simulate failures; verify exponential backoff and caching |
-| SC-006: substantially populated computable invariants | Document uncomputable records in `docs/reproducibility/uncomputable_invariants.md` |
-| SC-007: Ambiguous classification handled | Exclude or mark as "unclassifiable"; no silent exclusions |
-| SC-008: Tie-breaking rules validated | Create validation script; confirm consistency |
-| SC-009: Exploratory plots generated | Save PNG files (1200x900 pixels) to `data/plots/` |
-| SC-010: ≥3 additional invariants computed | Compute arc index, Seifert circle count, bridge number where available |
-| SC-011: ANOVA with effect sizes | Report Cohen's d alongside p-values; perform assumption checks |
-| SC-012: Algorithm validation high-accuracy match | Validate against KnotInfo where coverage; document pass/fail |
-| SC-013: Scope validation documented | Document Phase 1 scope boundaries in `docs/reproducibility/validation_scope.md` |
-| SC-014: Hyperbolic volume completeness at a high level | Filter and document excluded knots in `docs/reproducibility/excluded_knots.md` |
+Composite complexity score (equal-weighted crossing number + braid index) validated against exploratory validation sample using random stratified split by crossing number. Correlation coefficients and effect sizes reported regardless of magnitude (exploratory analysis, not ML prediction).
+
+### Construct Validity Limitation
+
+**Acknowledged**: Composite score validated against hyperbolic volume is predictive correlation, not construct validation (circular by design). Alternative validation against geometric properties (canonical longitude, twist number) where available in literature will be documented as hypothesis-generating, not confirmatory. This limitation is explicitly stated in final paper.
+
+## Limitations
+
+1. **Phase 1 Scope**: Conclusions explicitly limited to validated crossing number ≤10 data; crossing number 11-13 data marked as exploratory/unvalidated
+2. **Invariant Dependencies**: Arc index, Seifert circle count, and bridge number have known mathematical constraints with crossing number and braid index (e.g., bridge number ≤ crossing number); validation is exploratory correlation, not independence testing
+3. **Hyperbolic Volume Availability**: Torus and satellite knots have volume zero or undefined; filtered from volume prediction analysis (FR-014)
+4. **Multicollinearity**: Braid index ≤ crossing number for most knots; VIF assessment quantifies impact on coefficient interpretation
+5. **Discrete Data**: Pearson correlation assumes continuous data with normal distribution; interpretation limited by discrete nature of crossing number and braid index (small integers)
+6. **Generalizability**: Results apply only to hyperbolic knots, not all prime knots. This selection bias is explicitly stated in final paper.
+7. **Construct Validity**: Composite complexity score validated only against hyperbolic volume (predictive correlation, not construct validation). Alternative validation documented as hypothesis-generating.
+8. **Unverified Data Sources**: Knot Atlas and KnotInfo sources not verified per Reference-Validator Agent; analysis proceeds with documented limitations.
+9. **OEIS Count Clarification**: OEIS A002863(13)=9988 is CUMULATIVE ≤13, not 'at c=13'. The 49 knots at c=13 comes from Hoste-Thistlethwaite-Weeks enumeration.
+10. **Spec Defects Pending Correction**: SC-006 (provisional) and SC-012 (provisional) thresholds flagged for kickback correction; validation checks use provisional values but cannot be marked complete until spec is amended.
+
+## Reproducibility Requirements
+
+- Random seeds pinned in code (Constitution Principle I)
+- SHA-256 checksums for all data files recorded under `data/` (Constitution Principle III)
+- Derivation notes with formula citations, step-by-step transformation logic, parameter values (FR-009)
+- Timestamped logs capturing operation, input/output files, parameters, status, duration (FR-009)
+- Power analysis documented in `docs/reproducibility/power_analysis.md`
+- License compliance documented in `docs/reproducibility/license_compliance.md`
+- **Spec Defect Tracking**: All spec defects documented in `docs/reproducibility/spec_defects.md` with kickback status

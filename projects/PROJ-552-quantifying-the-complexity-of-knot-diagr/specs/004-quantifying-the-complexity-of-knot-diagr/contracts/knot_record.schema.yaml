@@ -1,44 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "KnotRecord"
-description: "Represents a single prime knot with attributes including computed invariants and classification"
 type: "object"
+title: "KnotRecord Schema"
+description: "Schema for a single prime knot record with computed and tabulated invariants"
+required:
+  - "knot_id"
+  - "crossing_number"
+  - "braid_index"
+  - "hyperbolic_volume"
+  - "is_alternating"
+  - "data_source"
+  - "computation_timestamp"
+  - "checksum"
 properties:
   knot_id:
     type: "string"
-    description: "Unique identifier (e.g., \"3_1\", \"4_1\", \"10_123\")"
+    description: "Unique identifier for the knot (e.g., '10_123' for 123rd knot with 10 crossings)"
+    pattern: "^[0-9]+_[0-9]+$"
   crossing_number:
     type: "integer"
-    description: "Minimal crossing number of the knot"
-    minimum: 0
+    description: "Tabulated crossing number"
+    minimum: 3
+    maximum: 13
   braid_index:
     type: "integer"
-    description: "Minimal braid index (algorithmically determined)"
-    minimum: 1
+    description: "Algorithmically determined braid index"
+    minimum: 2
   hyperbolic_volume:
     type: "number"
-    description: "Hyperbolic volume (filtered for valid values)"
+    description: "Hyperbolic volume (geometric invariant)"
     minimum: 0
   is_alternating:
-    type: "string"
-    description: "Alternating classification (true/false/unclassifiable)"
-    enum:
-      - "true"
-      - "false"
-      - "unclassifiable"
+    type: "boolean"
+    description: "Alternating classification (true = alternating, false = non-alternating)"
   arc_index:
     type: "integer"
-    description: "Arc index (computed via Birman-Menasco)"
-    minimum: 1
+    description: "Computed arc index via Birman-Menasco method"
+    minimum: 2
     nullable: true
   seifert_circle_count:
     type: "integer"
-    description: "Seifert circle count (computed via Seifert's algorithm)"
+    description: "Computed Seifert circle count via Seifert's algorithm"
     minimum: 1
     nullable: true
   bridge_number:
     type: "integer"
-    description: "Bridge number (computed via Schubert's decomposition)"
-    minimum: 1
+    description: "Computed bridge number via Schubert's bridge decomposition"
+    minimum: 2
     nullable: true
   dt_code:
     type: "string"
@@ -53,25 +60,23 @@ properties:
     description: "Flags for missing computable invariants"
     items:
       type: "string"
-    default: []
+      enum:
+        - "no_representation_available"
+        - "algorithm_not_implemented"
+        - "computation_failed"
   data_source:
     type: "string"
-    description: "Source of original data (e.g., \"knot_atlas\")"
-  download_timestamp:
+    description: "Source of data"
+    enum:
+      - "knot_atlas"
+      - "computed"
+      - "knotinfo"
+  computation_timestamp:
     type: "string"
-    description: "When data was downloaded (ISO 8601 format)"
+    description: "ISO 8601 timestamp when invariants were computed"
     format: "date-time"
-  checksum_sha256:
+  checksum:
     type: "string"
-    description: "SHA-256 checksum of source record"
+    description: "SHA-256 checksum of the record"
     pattern: "^[a-f0-9]{64}$"
-required:
-  - knot_id
-  - crossing_number
-  - braid_index
-  - hyperbolic_volume
-  - is_alternating
-  - data_source
-  - download_timestamp
-  - checksum_sha256
 additionalProperties: false

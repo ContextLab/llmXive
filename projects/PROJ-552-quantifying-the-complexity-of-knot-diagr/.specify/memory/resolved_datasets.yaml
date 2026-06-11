@@ -1,26 +1,26 @@
-resolved_at: '2026-06-10T23:08:43.585801+00:00'
+resolved_at: '2026-06-11T00:35:05.093269+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
+  - url: https://figshare.com/articles/media/Olabisi_Onabanjo_University_Ago_Iwoye_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
+  - url: https://figshare.com/articles/presentation/College_of_Nursing_Sciences_Federal_Neuropsychiatric_Hospital_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_A/32642577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
+  - url: https://figshare.com/articles/media/River_State_University_of_Science_and_Technology_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
+  - url: https://figshare.com/articles/journal_contribution/College_of_Nursing_Sciences_UMTH_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_Admission_CALL_09036153255_for/32642571
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Reconceptualizing_Ancillary_under_the_GloBE_Rules_A_Comparative_Approach_to_the_Treatment_of_Non-Profit_Organizations/32609043
+  - url: https://figshare.com/articles/journal_contribution/Post-Brexit_Trade_Resilience_How_Polish_Exporters_Maintained_Surplus_with_the_UK_Through_Operational_Efficiency/32642544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
+  - url: https://figshare.com/articles/media/Olabisi_Onabanjo_University_Ago_Iwoye_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
+  - url: https://figshare.com/articles/presentation/College_of_Nursing_Sciences_Federal_Neuropsychiatric_Hospital_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_A/32642577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
+  - url: https://figshare.com/articles/media/River_State_University_of_Science_and_Technology_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
+  - url: https://figshare.com/articles/journal_contribution/College_of_Nursing_Sciences_UMTH_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_Admission_CALL_09036153255_for/32642571
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Reconceptualizing_Ancillary_under_the_GloBE_Rules_A_Comparative_Approach_to_the_Treatment_of_Non-Profit_Organizations/32609043
+  - url: https://figshare.com/articles/journal_contribution/Post-Brexit_Trade_Resilience_How_Polish_Exporters_Maintained_Surplus_with_the_UK_Through_Operational_Efficiency/32642544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -52,15 +52,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604159
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5604171
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604165
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -80,16 +80,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://zenodo.org/records/20470525
     source: datacite
     status: wrong_format
     reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
       timeout=20)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: MUST
   status: verified
   candidates:
@@ -116,23 +115,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Gestational_influenza_A_virus_infection_elicits_nonresolving_vascular_dysfunction_and_T-cell_accumulation_in_the_aorta_of_mice/32642310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
+  - url: https://figshare.com/articles/dataset/Olabisi_Onabanjo_University_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642580
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
+  - url: https://figshare.com/articles/media/Olabisi_Onabanjo_University_Ago_Iwoye_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
+  - url: https://figshare.com/articles/presentation/College_of_Nursing_Sciences_Federal_Neuropsychiatric_Hospital_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_A/32642577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
+  - url: https://figshare.com/articles/media/River_State_University_of_Science_and_Technology_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -156,26 +155,26 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mu.edu.et/handle/123456789/1179
+  - url: https://zenodo.org/records/20634722
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/bee08795-8279-4097-8b7f-c18707a38491
+  - url: https://zenodo.org/records/20634722
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/71954ffa-efa6-437f-ae88-286aa9b68359
+  - url: https://zenodo.org/records/20623532
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/2145dd92-67cb-4ede-acda-39aacab5623e
+  - url: https://zenodo.org/records/20434286
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20621408
+  - url: https://zenodo.org/records/20434286
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: III
   status: verified
   candidates:
@@ -217,23 +216,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Gestational_influenza_A_virus_infection_elicits_nonresolving_vascular_dysfunction_and_T-cell_accumulation_in_the_aorta_of_mice/32642310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
+  - url: https://figshare.com/articles/dataset/Olabisi_Onabanjo_University_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642580
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
+  - url: https://figshare.com/articles/media/Olabisi_Onabanjo_University_Ago_Iwoye_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
+  - url: https://figshare.com/articles/presentation/College_of_Nursing_Sciences_Federal_Neuropsychiatric_Hospital_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_A/32642577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
+  - url: https://figshare.com/articles/media/River_State_University_of_Science_and_Technology_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -241,11 +240,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20103118
+  - url: https://zenodo.org/records/2527914
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2527914
+  - url: https://zenodo.org/records/20103118
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -253,51 +252,51 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8295786
+  - url: https://journals.sagepub.com/doi/10.1177/19322968221076559
     source: zenodo
     status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/15135848
+    source: datacite
+    status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.checklistbank.org/dataset/37570?__goaway_challenge=cookie&__goaway_id=f21ccc8d15153ee6d074226b99f0bd95
+  - url: https://zenodo.org/records/15135848
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/50196?__goaway_challenge=cookie&__goaway_id=31254d9b0d6d9945af7f99e7e73f7029
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20634869
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/50041?__goaway_challenge=cookie&__goaway_id=1b8bc73807d112f45ac834c19bfc26a5
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20634869
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/49981?__goaway_challenge=cookie&__goaway_id=0adbd4809fcd7bfaed4a87fd9a89c18a
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20634730
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.checklistbank.org/dataset/36863?__goaway_challenge=cookie&__goaway_id=739f7e3024e710ae31b9e5a2e7472b74
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
+    reason: unrecognized/non-dataset content
 - intent: FR-003
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
+  - url: https://figshare.com/articles/dataset/Lagos_State_University_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Gestational_influenza_A_virus_infection_elicits_nonresolving_vascular_dysfunction_and_T-cell_accumulation_in_the_aorta_of_mice/32642310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
+  - url: https://figshare.com/articles/dataset/Olabisi_Onabanjo_University_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642580
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
+  - url: https://figshare.com/articles/media/Olabisi_Onabanjo_University_Ago_Iwoye_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
+  - url: https://figshare.com/articles/presentation/College_of_Nursing_Sciences_Federal_Neuropsychiatric_Hospital_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_A/32642577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -309,15 +308,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13213336
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/13843104
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10384626
+  - url: https://zenodo.org/records/13213336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962101
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -333,37 +332,36 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-014
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_An_overlooked_terrestrial_archive_Freshwater_cements_and_hydroclimate_signals_in_Quaternary_glaciogenic_deposits/32609157
+  - url: https://figshare.com/articles/dataset/Nasarawa_State_University_Keffi_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642592
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dose-efficient_Quantum_Phase_Estimation_in_Lossy_Optical_Interferometry_-_7908089_pdf/32270271
+  - url: https://figshare.com/articles/figure/Zenith_College_of_Nursing_Sciences_Maiduguri_2026_2027_Registration_Form_Is_Out_CALL_09036153255_Dr_David_for_admission_process_into_the_school_The_School_Management_also_wishes_to_inform_the_General_Public_that_Admission_CALL_09036153255_f/32642583
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mating_Behavior_and_Social_Scale/32101441
+  - url: https://figshare.com/articles/dataset/Niger_Delta_University_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642589
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Exertional_heat_stroke-related_acute_kidney_injury_novel_animal_and_cellular_models/32642244
+  - url: https://figshare.com/articles/dataset/Lagos_State_University_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32642586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Examining_critical_care_nurses_support_for_and_willingness_to_participate_in_voluntary_assisted_dying_A_mixed-method_study/32642241
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Gestational_influenza_A_virus_infection_elicits_nonresolving_vascular_dysfunction_and_T-cell_accumulation_in_the_aorta_of_mice/32642310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -379,8 +377,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10234736
+  - url: https://zenodo.org/records/10345972
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10388577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: SC-001
