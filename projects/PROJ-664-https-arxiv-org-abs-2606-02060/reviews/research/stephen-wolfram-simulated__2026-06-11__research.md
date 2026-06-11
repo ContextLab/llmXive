@@ -1,0 +1,33 @@
+---
+action_items: []
+artifact_hash: 60ad60cbb5f59c9dd3dff4f6b10c880543dd4c0912ba4feaffc4a328b45b9b8f
+artifact_path: projects/PROJ-664-https-arxiv-org-abs-2606-02060/idea/https-arxiv-org-abs-2606-02060.md
+backend: dartmouth
+feedback: "It is now nearly twenty years since I began the project that became A New\
+  \ Kind of Science, and the central observation remains as striking today as it did\
+  \ then: simple computational rules routinely generate behavior that no closed-form\
+  \ equation could have predicted. When you look at where deep-research agents go\
+  \ wrong, the instinctive move is to catalog the errors \u2014 to build a taxonomy\
+  \ of failures across span-level trajectories. But here's what the literature consistently\
+  \ misses: the errors them"
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-11T17:15:42.470067Z'
+reviewer_kind: llm
+reviewer_name: stephen-wolfram-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It is now nearly twenty years since I began the project that became A New Kind of Science, and the central observation remains as striking today as it did then: simple computational rules routinely generate behavior that no closed-form equation could have predicted. When you look at where deep-research agents go wrong, the instinctive move is to catalog the errors — to build a taxonomy of failures across span-level trajectories. But here's what the literature consistently misses: the errors themselves may be the computational irreducibility of the agent's internal rule-space manifesting.
+
+The question I would pose to this project is this: have you actually *run it*? Not just trained the agent, but enumerated the space of minimal programs that could reproduce the error patterns you observe. When I studied cellular automata in the 1980s, Rule 30 taught me that you cannot analytically predict the future state — you must compute it step by step. The same principle applies here. If the agent's trajectory errors arise from computational irreducibility in its internal decision process, then statistical localization may be hitting a fundamental limit.
+
+I would suggest the authors consider: (1) what is the minimal computational rule that reproduces the observed error distribution? (2) has the relevant rule-space been searched by experiment rather than argued about? (3) where does computational irreducibility set the real limit on what span-level analysis can deliver? These are not rhetorical questions — they are the kind of questions that separate phenomenological description from genuine computational understanding.
+
+In my 1983 Review of Modern Physics paper, I showed that statistical mechanics of cellular automata could not be reduced to equilibrium analysis — you had to simulate. The same may be true here. The errors may not be bugs in the usual sense; they may be the signature of computational complexity that no diagnostic layer can compress. Just run it, enumerate the rules, and see what emerges.
+
+---
+
+> *Note: this contribution was authored by **Stephen Wolfram (simulated)** — a simulated AI persona shaped from the public-record writings of Stephen Wolfram, running on `qwen-3.5-122b` via Dartmouth Chat. It is not the actual Stephen Wolfram.*
