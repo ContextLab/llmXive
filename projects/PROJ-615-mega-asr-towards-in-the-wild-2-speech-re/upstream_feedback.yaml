@@ -1,0 +1,189 @@
+project_id: PROJ-615-mega-asr-towards-in-the-wild-2-speech-re
+arxiv_id: '2605.19833'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-11T02:26:03.707105+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 28f78eb8d026
+    text: "Complete all tables with full data rows\u2014currently multiple tables\
+      \ show '(... N rows omitted ...)' which prevents independent verification of\
+      \ reported WER improvements"
+    severity: science
+  - id: c152a674d88a
+    text: 'Verify all bibliography entries have verification_status: verified; multiple
+      citations reference arXiv preprints from 2025-2026 which cannot be externally
+      validated'
+    severity: science
+  - id: 318ac7256a41
+    text: "Provide detailed documentation of the 'agentic check' used to verify physical\
+      \ plausibility of the 54 compound acoustic scenarios\u2014current description\
+      \ is insufficient for reproducibility"
+    severity: science
+  - id: 78c8cde01f3d
+    text: Address the arXiv ID date inconsistency (2605.19833 indicates May 2026 submission);
+      clarify whether this paper is a synthetic pipeline artifact or a genuine third-party
+      submission
+    severity: science
+  - id: ef886ac6d6ef
+    text: Resolve contradiction between Section 3.1 text (claiming 35% average WER
+      for Qwen3-ASR on Voices-in-the-wild-2M) and Table 1 (reporting 18.42% WER).
+    severity: science
+  - id: 3029f8d093ed
+    text: Correct the relative reduction percentages in Section 5.2 [Enh.3]; the text
+      attributes 65.8% to Whisper-Large-v3, but calculations suggest 65.8% refers
+      to Gemini-3-Flash.
+    severity: writing
+  - id: a8f00d6cb2c5
+    text: Provide direct links to the source code repository (e.g., GitHub) in the
+      manuscript and ensure public access for reproducibility.
+    severity: writing
+  - id: 10e4a265c9b5
+    text: Specify exact software dependency versions (e.g., PyTorch, torchaudio, transformers)
+      in Appendix or a requirements.txt file.
+    severity: writing
+  - id: 151626da6e5a
+    text: Include random seeds for the simulation pipeline (Section 3) and RL training
+      (Section 4) to ensure deterministic results.
+    severity: science
+  - id: 5fd9516c78b5
+    text: Explicitly declare the data license (e.g., CC-BY-4.0) for Voices-in-the-Wild-2M
+      in Section 3 or Appendix. HuggingFace links alone are insufficient for provenance.
+    severity: writing
+  - id: 368c31c040ee
+    text: Resolve the discrepancy between '2.4M synthesized clips' (Section 3) and
+      '2M' scale (Table 1). Consistent reporting is required for data reproducibility.
+    severity: writing
+  - id: 191536ee1adb
+    text: Provide a persistent archive link (e.g., Zenodo DOI) alongside GitHub/HuggingFace
+      to prevent link rot for the dataset and benchmark code.
+    severity: writing
+  - id: 5053112208a2
+    text: Reduce Figure 1 width from 1.1 textwidth to 0.95 textwidth to prevent margin
+      overflow in standard proceedings.
+    severity: writing
+  - id: 4b0ae5d2c283
+    text: Clarify y-axis labels in Figure 3. Accuracy is ambiguous in ASR. Specify
+      if this is 1-WER or token accuracy.
+    severity: writing
+  - id: bb317a490918
+    text: Ensure all figures are legible in grayscale. Verify distinct line styles
+      or markers for Figure 1 radar plot.
+    severity: writing
+  - id: 68897d05c82f
+    text: Increase font size in Figure 5 (inference-routing) as it is constrained
+      to 0.41 linewidth within a minipage.
+    severity: writing
+  - id: e757febf0744
+    text: Define all acronyms at first use (WER, RL, LoRA, DAPO, GRPO, RIR) in the
+      main text, not just in appendix or context.
+    severity: writing
+  - id: 13f3c71b0eff
+    text: Replace 'In-the-wild^2' in title with plain text (e.g., 'In-the-wild Squared'
+      or 'Second-Generation In-the-wild') to avoid math notation confusion.
+    severity: writing
+  - id: 4fc7d16d630c
+    text: Expand technical terms like 'atomic acoustic effects', 'agentic check',
+      and 'backbone preservation' with brief plain-language explanations.
+    severity: writing
+  - id: e236d3f73a46
+    text: 'Hyperparameter contradiction: Section 4.1.2 and Analysis (Table hp-tau)
+      claim tau=0.3 is optimal, but Appendix ''Reward tuning and diagnostics'' states
+      tau=0.5 was used. Reconcile the actual value used and update results accordingly.'
+    severity: science
+  - id: e9333098a931
+    text: 'Abstract numerical mismatch: Abstract cites WERs (45.69% vs 54.01% on VOiCES;
+      21.49% vs 29.34% on NOIZEUS) that do not match Tables 1 & 3 (7.35% vs 8.94%;
+      19.80% vs 23.97%). Verify and correct these values.'
+    severity: writing
+  - id: c9407ca60f79
+    text: 'Notation inconsistency: Equation 6 uses R_simple, while Section 4.1.1 defines
+      R_static and Section 5 uses R_rule. Standardize reward notation throughout the
+      manuscript.'
+    severity: writing
+  - id: 2e97de075614
+    text: Temper general "In-the-wild" deployment claims to reflect the dominance
+      of simulated training data (2.4M clips vs 1.5k real).
+    severity: science
+  - id: 8171382ec76c
+    text: Define the specific physical constraints used by the "agentic check" to
+      validate compound acoustic scenarios in Section 3.1.
+    severity: science
+  - id: 50c698a7bc22
+    text: Clarify that the "over 30% relative WER reduction" claim applies specifically
+      to Voices-in-the-Wild-Bench mixed scenarios, not all benchmarks.
+    severity: writing
+  - id: 8ecce37a9f1f
+    text: Add IRB/IACUC approval statement for the 16 human participants mentioned
+      in Section 3.3.
+    severity: science
+  - id: 5389357b428c
+    text: Clarify consent and privacy protocols for the 1,500 internet-sourced recordings
+      in Voices-in-the-wild-Bench.
+    severity: writing
+  - id: '710659513650'
+    text: Include a discussion on dual-use risks (e.g., surveillance) of robust ASR
+      in noisy environments.
+    severity: writing
+  - id: 5bbe4f595e7f
+    text: Verify license compatibility for the combined Voices-in-the-wild-2M dataset.
+    severity: science
+  - id: 3de30d5836b9
+    text: Add statistical significance tests (e.g., bootstrap or t-test) for WER differences
+      in Tables 1 and 2 to rule out random variance.
+    severity: science
+  - id: a255b62ff599
+    text: Explicitly quantify the domain gap between the 2M simulated training clips
+      and real-world benchmarks to support 'in-the-wild' claims.
+    severity: science
+  - id: f61f496f7356
+    text: Clarify if semantic metrics in Table tab:judge use a held-out LLM or the
+      same model family to avoid evaluation circularity.
+    severity: science
+  - id: d3059d3a8051
+    text: Report confidence intervals or standard deviations for all WER metrics in
+      Tables 3, 4, and 5 to quantify uncertainty.
+    severity: science
+  - id: ae532054c52f
+    text: Perform statistical significance tests (e.g., bootstrap or paired t-test)
+      for main performance claims against baselines.
+    severity: science
+  - id: 7dcc3247074a
+    text: Clarify the number of random seeds used for training and evaluation to ensure
+      reproducibility of reported WERs.
+    severity: science
+  - id: 6ab2c01aea42
+    text: 'Standardize citation commands: use \citep consistently throughout the document
+      instead of mixing with \cite.'
+    severity: writing
+  - id: c9b3799618cf
+    text: Remove placeholder text rows omitted from tables in e000 and e001 before
+      final submission.
+    severity: writing
+  - id: c6b462daa4e4
+    text: 'Fix table/figure environment hygiene in e001: use standard table environments
+      instead of \captionof inside figures.'
+    severity: writing
+  - id: 1a44d721f954
+    text: 'Clean up section heading syntax: remove extra spaces and double \textsc
+      usage in e000.'
+    severity: writing
+  - id: 53ac16287e39
+    text: Ensure consistent capitalization in cross-references (Table vs table, Figure
+      vs figure).
+    severity: writing
+  - id: 81a17161c3bc
+    text: Complete the truncated sentence in the Appendix (Section 'Training and Implementation
+      Details', last paragraph) which ends with 'important for'.
+    severity: writing
+  - id: 70a58ea54058
+    text: Standardize emphasis usage; remove excessive underlining (e.g., Introduction,
+      Section 'Voices-in-the-wild-2M') and inconsistent bolding (e.g., Experiments
+      section numbers).
+    severity: writing
+  - id: d1e82328337f
+    text: Unify capitalization for figure and table references (currently mixed 'figure~'
+      and 'Figure~').
+    severity: writing

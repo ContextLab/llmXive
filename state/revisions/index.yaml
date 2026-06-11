@@ -249,6 +249,9 @@ ready:
 - project_id: PROJ-565-edit-compass-editreward-compass-a-unifie
   queued_at: '2026-06-11T02:09:46.519634+00:00'
   revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-1
+- project_id: PROJ-615-mega-asr-towards-in-the-wild-2-speech-re
+  queued_at: '2026-06-11T02:26:03.730751+00:00'
+  revision_spec_path: specs/auto-revisions/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/round-1
 - project_id: PROJ-566-mint-managed-infrastructure-for-training
   queued_at: '2026-06-11T03:03:17.447806+00:00'
   revision_spec_path: specs/auto-revisions/PROJ-566-mint-managed-infrastructure-for-training/round-1
@@ -342,3 +345,12 @@ ready:
 - project_id: PROJ-565-edit-compass-editreward-compass-a-unifie
   queued_at: '2026-06-11T04:09:05.269537+00:00'
   revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-1
+- project_id: PROJ-601-https-arxiv-org-abs-2605-12882
+  queued_at: '2026-06-11T04:53:19.418410+00:00'
+  revision_spec_path: specs/auto-revisions/PROJ-601-https-arxiv-org-abs-2605-12882/round-1
+- project_id: PROJ-618-bench-evaluating-proactive-personal-assi
+  queued_at: '2026-06-11T08:46:29.939969+00:00'
+  revision_spec_path: specs/auto-revisions/PROJ-618-bench-evaluating-proactive-personal-assi/round-1
+- project_id: PROJ-563-many-shot-cot-icl-making-in-context-lear
+  queued_at: '2026-06-11T10:53:39.897435+00:00'
+  revision_spec_path: specs/auto-revisions/PROJ-563-many-shot-cot-icl-making-in-context-lear/round-1
