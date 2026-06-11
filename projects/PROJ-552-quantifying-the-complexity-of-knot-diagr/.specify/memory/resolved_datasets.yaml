@@ -1,26 +1,26 @@
-resolved_at: '2026-06-11T08:21:59.546459+00:00'
+resolved_at: '2026-06-11T16:02:03.999470+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.lboro.ac.uk/articles/report/PRME_Chapter_UK_Ireland_ESD_Resource_Exchange_Booklet/32646948
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_i_Asparagus_cochinchinensis_genome_i_b_/31152190
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_i_Doctor_s_post_in_an_online_chat_i_/32646969
+  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Prevalence_of_knee_pain_and_factors_influencing_its_risk_in_ambulatory_chronic_stroke_survivors/32646973
+  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_the_manuscript_Intrinsic_physiological_features_explain_the_distinct_global_functional_diversity_pattern_in_non-vascular_photoautotrophs_/32646909
+  - url: https://figshare.manchester.ac.uk/articles/dataset/X-ray_CT_datasets_showing_uniaxially_compressed_elastomer-embedded_microspheres/32133037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.lboro.ac.uk/articles/report/PRME_Chapter_UK_Ireland_ESD_Resource_Exchange_Booklet/32646948
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_i_Asparagus_cochinchinensis_genome_i_b_/31152190
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_i_Doctor_s_post_in_an_online_chat_i_/32646969
+  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Prevalence_of_knee_pain_and_factors_influencing_its_risk_in_ambulatory_chronic_stroke_survivors/32646973
+  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_the_manuscript_Intrinsic_physiological_features_explain_the_distinct_global_functional_diversity_pattern_in_non-vascular_photoautotrophs_/32646909
+  - url: https://figshare.manchester.ac.uk/articles/dataset/X-ray_CT_datasets_showing_uniaxially_compressed_elastomer-embedded_microspheres/32133037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -84,11 +84,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: MUST
   status: verified
   candidates:
@@ -115,23 +115,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Genomic_characterization_of_drug-resistant_Mycobacterium_tuberculosis_complex_in_western_Kenya_reveals_predominance_of_isoniazid_resistance_and_discordance_with_routine_susceptibility_testing_xlsx/32646984
+  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Genomic_characterization_of_drug-resistant_Mycobacterium_tuberculosis_complex_in_western_Kenya_reveals_predominance_of_isoniazid_resistance_and_discordance_with_routine_susceptibility_testing_docx/32646987
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Genomic_characterization_of_drug-resistant_Mycobacterium_tuberculosis_complex_in_western_Kenya_reveals_predominance_of_isoniazid_resistance_and_discordance_with_routine_susceptibility_testing_docx/32646981
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Compiled_Numerical_Values/31890352
+  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/report/PRME_Chapter_UK_Ireland_ESD_Resource_Exchange_Booklet/32646948
+  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -151,27 +151,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
+  - url: https://zenodo.org/records/18961168
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20639330
+  - url: https://zenodo.org/records/20646364
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20639330
+  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Jupiter/PT9.6S
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18646743
+  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Jupiter/PT48S
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18646743
+  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Saturn/L1/PT48S
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://digital.ub.uni-paderborn.de/doi/10.17619/UNIPB/1-2584
+  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Saturn/HG/PT48S
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -216,27 +216,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table5_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32647002
+  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table2_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646993
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table3_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646996
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table4_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646999
+  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646990
+  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3341783
+  - url: https://zenodo.org/records/20103118
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -244,35 +244,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20103118
+  - url: https://zenodo.org/records/3341783
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8000218
+  - url: https://zenodo.org/records/10373581
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://journals.sagepub.com/doi/10.1177/19322968221076559
+  - url: https://zenodo.org/records/8295786
     source: zenodo
     status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/20639330
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20646433
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20639330
+  - url: https://zenodo.org/records/20646433
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://boris-portal.unibe.ch/entities/publication/59282dcb-f977-4b0c-9a25-7efe2adb14ee
+  - url: https://zenodo.org/records/20646429
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20639149
+  - url: https://zenodo.org/records/20646429
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20639149
+  - url: https://spase-metadata.org/NASA/NumericalData/Voyager1/MAG/Jupiter/PT9.6S
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -280,35 +280,35 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table5_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32647002
+  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table2_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646993
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table3_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646996
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table4_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646999
+  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646990
+  - url: https://figshare.com/articles/dataset/USPTO-retro/30823988
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10364827
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3841160
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13843104
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6373741
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -316,7 +316,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6962101
+  - url: https://zenodo.org/records/10384626
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,32 +336,32 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
 - intent: FR-014
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Compiled_Numerical_Values/31890352
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Wintering_in_the_Warm/32504214
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table5_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32647002
+  - url: https://rshare.library.torontomu.ca/articles/thesis/_Games_Need_Care_Every_Once_in_a_While_Video_Game_Re-Releases_as_Software_Restoration/32616267
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table2_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646993
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Sharing_memories_of_Boro_s_former_stomping_ground/32504217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table3_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646996
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Tribute_to_Mozart_of_Football_Golden_Boy_was_a_diamond_for_Boro/32504265
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table4_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646999
+  - url: https://figshare.com/articles/dataset/Welfare_scores_body_weight_and_body_temperature/32594841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -377,11 +377,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10345972
+  - url: https://zenodo.org/records/10229940
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10388577
+  - url: https://zenodo.org/records/10294916
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -397,16 +397,16 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
 - intent: SC-001
   status: unresolved
   candidates: []

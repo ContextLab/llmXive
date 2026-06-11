@@ -2,176 +2,135 @@
 
 ## Prerequisites
 
-- Python 3.11 or later
-- Access to internet (for downloading data from Knot Atlas)
-- 2GB+ available disk space (for data storage and processing)
+- Python 3.11 or higher
+- Stable internet connection (for downloading from KnotInfo/HTW)
+- At least 500MB disk space for data and processed outputs
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   git clone <repository-url>
+   cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+   ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+3. Install dependencies:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Configuration
+## Quick Start
 
-### Environment Variables
-
-```bash
-# Optional: Set Knot Atlas API timeout (default: 30 seconds)
-export KNOT_ATLAS_TIMEOUT=30
-
-# Optional: Set retry configuration (default: initial=1s, max=60s, multiplier=2)
-export RETRY_INITIAL=1
-export RETRY_MAX=60
-export RETRY_MULTIPLIER=2
-```
-
-### Composite Score Weights
-
-Edit `config/complexity_weights.yaml` to customize the composite complexity score:
-
-```yaml
-# Default equal weights (1:1 ratio)
-weight_crossing: 1.0
-weight_braid: 1.0
-```
-
-## Running the Pipeline
-
-### Step 1: Download Data
+### Step 1: Download Knot Data
 
 ```bash
-python -m code.download.knot_atlas_downloader --crossing-number 13 --output data/raw/knot_atlas_download.csv
+python code/data/download_knot_data.py --crossing-limit 13
 ```
 
-This will:
-- Download all prime knots with crossing number ≤13 from Knot Atlas (via HTML scraping)
-- Apply exponential backoff retry logic if the API is unavailable
-- Save raw data to `data/raw/knot_atlas_download.csv`
-- Generate checksum file at `data/checksums.txt`
-- Expected output: the number of prime knots at a specified crossing number (source: OEIS A002863, https://oeis.org/A002863)
+This downloads all prime knots with crossing number ≤13 from KnotInfo/HTW. Data is saved to `data/raw/knot_atlas_export.csv`.
 
-### Step 2: Compute Invariants
+**Retry Verification**: Exponential backoff (2s, [deferred], [deferred]...) applied; partial results cached after 3 consecutive failures.
+
+### Step 2: Parse and Clean Data
 
 ```bash
-python -m code.compute.invariant_computation --input data/raw/knot_atlas_download.csv --output data/processed/invariants_dataset.csv
+python code/data/parse_knot_data.py
 ```
 
-This will:
-- Compute arc index, Seifert circle count, and bridge number where diagram representations are available
-- Flag records with missing invariants
-- Generate validation report at `docs/reproducibility/algorithm_validation.md`
+Parses the raw data and creates:
+- `data/processed/invariants_dataset.parquet` (processed dataset)
+- `docs/reproducibility/excluded_knots.md` (hyperbolic volume filtering log)
+- `docs/reproducibility/classification_counts.md` (ambiguous classification counts)
+- `docs/reproducibility/validation_scope.md` (Phase 1 scope boundaries)
 
-### Step 3: Validate Tie-Breaking Rules (SC-008 Deliverable)
+### Step 3: Compute Additional Invariants
 
 ```bash
-python -m code.compute.tie_breaking_validator --input data/processed/invariants_dataset.csv --output docs/reproducibility/tie_breaking_validation.md
+python code/data/compute_invariants.py
 ```
 
-This will:
-- Verify tie-breaking rules are applied consistently across all invariant computations
-- Generate validation report documenting any violations
-- Required deliverable per SC-008
+Computes arc index, Seifert circle count, and bridge number where diagram representations are available. Records with missing invariants are flagged. Produces:
+- `docs/reproducibility/uncomputable_invariants.md` (coverage metrics per SC-006/SC-010)
+- `docs/reproducibility/algorithm_validation.md` (pass/fail status per SC-012)
 
 ### Step 4: Exploratory Analysis
 
 ```bash
-python -m code.analysis.exploratory_analysis --input data/processed/invariants_dataset.csv --output data/plots/
+python code/analysis/exploratory_analysis.py
 ```
 
-This will:
-- Generate scatter plots of crossing number vs. braid index stratified by alternating classification
-- Save plots to `data/plots/` with minimum resolution 1200x900 pixels
+Generates scatter plots of crossing number vs. braid index, stratified by alternating/non-alternating classification. Performs ANOVA with effect sizes (Cohen's d, r). Plots saved to `data/plots/`.
 
-### Step 5: Regression Modeling (Full Dataset)
+### Step 5: Fit Regression Models
 
 ```bash
-python -m code.analysis.regression_models --input data/processed/invariants_dataset.csv --output data/processed/regression_models.json
+python code/analysis/regression_models.py
 ```
 
-This will:
-- Fit linear, polynomial, and logarithmic regression models on FULL DATASET (no train/validation split)
-- Compute VIF for multicollinearity assessment
-- Identify residual outliers (knot families deviating from global trend)
+Fits linear, polynomial (degree=2), and logarithmic (base e) regression models. Results conform to `contracts/regression_output.schema.yaml`.
 
-### Step 6: Composite Score Validation (Exploratory Only)
+### Step 6: Construct and Validate Composite Score
 
 ```bash
-python -m code.analysis.composite_score --input data/processed/invariants_dataset.csv --config config/complexity_weights.yaml --output data/processed/composite_scores.json
+python code/analysis/composite_score.py
 ```
 
-This will:
-- Compute composite complexity scores with configured weights
-- Validate against full dataset (exploratory ranking only, no predictive claims)
-- Report Pearson and Spearman correlations with effect sizes
+Constructs composite complexity score with configurable weights. Validates against exploratory validation sample.
 
-### Step 7: Reproducibility Check
+## Reproducibility
+
+All analysis is reproducible with pinned random seeds. To verify:
 
 ```bash
-python -m code.utils.reproducibility --data-dir data/ --output docs/reproducibility/
+python code/utils/reproducibility_utils.py --verify
 ```
 
-This will:
-- Verify all random seeds are pinned
-- Generate SHA-256 checksums for all data files
-- Document all transformations with derivation notes
-- Generate timestamped logs
+This checks that all checksums match and derivation notes are complete.
 
 ## Output Files
 
-| File | Description |
-|------|-------------|
-| `data/raw/knot_atlas_download.csv` | Raw downloaded data from Knot Atlas |
-| `data/processed/invariants_dataset.csv` | Dataset with computed invariants |
-| `data/plots/crossing_vs_braid_*.png` | Exploratory scatter plots |
-| `data/processed/regression_models.json` | Fitted regression models with metrics |
-| `data/processed/composite_scores.json` | Composite complexity scores (exploratory only) |
-| `data/checksums.txt` | SHA-256 checksums for all data files |
-| `docs/reproducibility/*.md` | Reproducibility documentation |
-| `docs/reproducibility/tie_breaking_validation.md` | Tie-breaking rule validation report (SC-008) |
+| File | Location | Description |
+|------|----------|-------------|
+| knot_atlas_export.csv | data/raw/ | Raw downloaded data |
+| invariants_dataset.parquet | data/processed/ | Processed dataset with invariants |
+| exploratory_validation_sample.parquet | data/processed/ | Stratified validation sample |
+| crossing_vs_braid_stratified.png | data/plots/ | Exploratory scatter plot |
+| checksums.md | docs/reproducibility/ | SHA-256 checksums for all data files |
+| derivation_notes.md | docs/reproducibility/ | Step-by-step transformation documentation |
+| logs/ | docs/reproducibility/logs/ | Timestamped execution logs |
+| excluded_knots.md | docs/reproducibility/ | Hyperbolic volume filtering log |
+| classification_counts.md | docs/reproducibility/ | Ambiguous classification counts |
+| validation_scope.md | docs/reproducibility/ | Phase 1 scope boundaries |
+| uncomputable_invariants.md | docs/reproducibility/ | Coverage metrics per invariant |
+| algorithm_validation.md | docs/reproducibility/ | Algorithm validation pass/fail |
+| tie_breaking_rules.md | docs/reproducibility/ | Tie-breaking policy documentation |
 
 ## Troubleshooting
 
-### Knot Atlas Unavailable
+### KnotInfo Unavailable
 
-If the download fails due to API unavailability:
-- Check `docs/reproducibility/validation_status.md` for retry status
-- Partial results are cached after 3 consecutive failures
-- Retry logic applies exponential backoff (→ → →... → max)
-- Timeline extended if rate limits exceeded
+If KnotInfo is unavailable, the download script will retry with exponential backoff (2s, [deferred], [deferred], etc.). After 3 consecutive failures, partial results are cached to disk. See `docs/reproducibility/logs/` for retry logs.
 
 ### Missing Invariants
 
-If invariant computation fails for some knots:
-- Check `docs/reproducibility/uncomputable_invariants.md` for flagged records
-- Records are not silently excluded; they are flagged with `missing_invariant_flags`
+Records with missing invariants are flagged in the dataset rather than silently excluded. See `docs/reproducibility/uncomputable_invariants.md` for details.
 
-### ANOVA Assumption Violations
+### Ambiguous Classification
 
-If Levene's test or Shapiro-Wilk test fails:
-- System automatically uses robust alternatives (Welch's ANOVA, Kruskal-Wallis)
-- Deviation is documented in `docs/reproducibility/validation_status.md`
+Knots with ambiguous alternating/non-alternating classification are marked as "unclassifiable" or excluded from stratified analysis. Count logged in `docs/reproducibility/classification_counts.md`.
 
-## Validation
+### Tie-Breaking
 
-Run the validation suite to verify all success criteria:
+Crossing number ties are handled per documented rules in `docs/reproducibility/tie_breaking_rules.md`.
 
-```bash
-pytest tests/contract/ -v
-```
+## Next Steps
 
-This verifies:
-- SC-001: Dataset completeness for crossing number ≤10
-- SC-005: Retry logic with exponential backoff
-- SC-008: Tie-breaking rule consistency (via test_tie_breaking_validation.py)
-- SC-012: Algorithm validation against KnotInfo
-- Contract schemas: knot_record, regression_output, composite_score
+- Review `docs/reproducibility/validation_scope.md` for Phase 1 scope boundaries
+- Check `docs/reproducibility/algorithm_validation.md` for algorithm validation status
+- Examine `docs/reproducibility/excluded_knots.md` for filtered records (torus/satellite knots)

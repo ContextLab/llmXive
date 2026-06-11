@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionOutput"
-description: "Schema for regression model outputs in the knot complexity analysis. CANONICAL SCHEMA - use for code/models/*.json files. Dataset size reference: the count of prime knots at a specific crossing number per OEIS A002863 (https://oeis.org/A002863)."
+description: "Schema for regression model outputs in the knot complexity analysis. CANONICAL SCHEMA - use for code/models/*.json files. Dataset size reference: the cumulative total of prime knots for crossing number ≤13 per OEIS A002863 (https://oeis.org/A002863)."
 type: "object"
 required:
  - "model_id"
@@ -21,7 +21,7 @@ properties:
    - "polynomial"
    - "logarithmic"
    - "ridge"
-   description: "Type of regression model"
+   description: "Type of regression model (polynomial=degree 2, logarithmic=base e)"
  predictors:
    type: "array"
    items:
@@ -73,6 +73,6 @@ properties:
    default: "full-dataset-correlation"
  methodological_note:
    type: "string"
-   description: "Note about methodology (e.g., full-dataset analysis, not ML predictive modeling)"
+   description: "Note about methodology (e.g., full-dataset correlation analysis, not ML predictive modeling)"
    default: "Full-dataset correlation analysis; not train/validation split"
 additionalProperties: false

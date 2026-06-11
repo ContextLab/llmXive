@@ -282,3 +282,25 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1142/s0218216519500020
   verified_at: '2026-06-11T15:50:47.563705Z'
+- artifact_hash: 73272d31cb3ed0e3312ff836e0b48771bf41903f2c1774cb87f3421734a9afe7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/HosteThistlethwaiteWeeks
+  verification_status: mismatch
+  verified_against_url: https://github.com/HosteThistlethwaiteWeeks
+  verified_at: '2026-06-11T16:30:55.393194Z'
+- artifact_hash: 73272d31cb3ed0e3312ff836e0b48771bf41903f2c1774cb87f3421734a9afe7
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/004-quantifying-the-complexity-of-knot-diagr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: A002863 - OEIS
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: verified
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-06-11T16:30:55.393194Z'

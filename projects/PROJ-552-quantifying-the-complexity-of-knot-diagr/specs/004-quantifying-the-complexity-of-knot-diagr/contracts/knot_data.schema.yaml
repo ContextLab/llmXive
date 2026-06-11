@@ -69,11 +69,11 @@ properties:
    default: []
  data_source:
    type: "string"
-   description: "Source of data (e.g., \"Knot Atlas\")"
+   description: "Source of data (e.g., \"KnotInfo\")"
    enum:
-     - "Knot Atlas"
      - "KnotInfo"
-     - "Hoste‑Thistlethwaite‑Weeks"
+     - "HTW"
+     - "Knot Atlas"
  source_checksum:
    type: "string"
    description: "SHA‑256 checksum of raw record"
