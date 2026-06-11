@@ -1,26 +1,26 @@
-resolved_at: '2026-06-11T03:09:28.225392+00:00'
+resolved_at: '2026-06-11T08:21:59.546459+00:00'
 datasets:
 - intent: 10.1142/S0218216519500020
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Federal_University_of_Health_Sciences_Kwale_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643609
+  - url: https://repository.lboro.ac.uk/articles/report/PRME_Chapter_UK_Ireland_ESD_Resource_Exchange_Booklet/32646948
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multilevel_Metabolic_Engineering_of_Probiotic_Escherichia_coli_Nissle_1917_for_Antibiotic-Free_Production_of_Alanine/32643612
+  - url: https://figshare.com/articles/dataset/_b_i_Asparagus_cochinchinensis_genome_i_b_/31152190
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_07036833482_Department_of_Nursing_Sciences_Veritas_University_2026_2027_Post_UTME_form_Application_Form_Admission_Form_is_Out_now_Call_07036833482_To_Apply_2347036833482_ND_HND_Nursing_Form_Midwifery_Form_Post-basic_nursing_form_Transfer_A/32643603
+  - url: https://figshare.com/articles/figure/_i_Doctor_s_post_in_an_online_chat_i_/32646969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Agriculture_Bassam-Biri_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643606
+  - url: https://tandf.figshare.com/articles/journal_contribution/Prevalence_of_knee_pain_and_factors_influencing_its_risk_in_ambulatory_chronic_stroke_survivors/32646973
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_National_University_of_Science_and_Technology_Abuja_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643600
+  - url: https://figshare.com/articles/dataset/Dataset_for_the_manuscript_Intrinsic_physiological_features_explain_the_distinct_global_functional_diversity_pattern_in_non-vascular_photoautotrophs_/32646909
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,23 +28,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/poster/B_07033307887_Babcock_University_Ilishan-Remo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_/32643588
+  - url: https://repository.lboro.ac.uk/articles/report/PRME_Chapter_UK_Ireland_ESD_Resource_Exchange_Booklet/32646948
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Federal_University_of_Health_Sciences_Kwale_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643609
+  - url: https://figshare.com/articles/dataset/_b_i_Asparagus_cochinchinensis_genome_i_b_/31152190
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multilevel_Metabolic_Engineering_of_Probiotic_Escherichia_coli_Nissle_1917_for_Antibiotic-Free_Production_of_Alanine/32643612
+  - url: https://figshare.com/articles/figure/_i_Doctor_s_post_in_an_online_chat_i_/32646969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_07036833482_Department_of_Nursing_Sciences_Veritas_University_2026_2027_Post_UTME_form_Application_Form_Admission_Form_is_Out_now_Call_07036833482_To_Apply_2347036833482_ND_HND_Nursing_Form_Midwifery_Form_Post-basic_nursing_form_Transfer_A/32643603
+  - url: https://tandf.figshare.com/articles/journal_contribution/Prevalence_of_knee_pain_and_factors_influencing_its_risk_in_ambulatory_chronic_stroke_survivors/32646973
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Agriculture_Bassam-Biri_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643606
+  - url: https://figshare.com/articles/dataset/Dataset_for_the_manuscript_Intrinsic_physiological_features_explain_the_distinct_global_functional_diversity_pattern_in_non-vascular_photoautotrophs_/32646909
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -84,11 +84,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
 - intent: MUST
   status: verified
   candidates:
@@ -115,23 +115,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Where_Can_We_Store_CO_sub_2_sub_and_at_What_Cost_A_Global_Geologic_Screening/32643630
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Genomic_characterization_of_drug-resistant_Mycobacterium_tuberculosis_complex_in_western_Kenya_reveals_predominance_of_isoniazid_resistance_and_discordance_with_routine_susceptibility_testing_xlsx/32646984
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Alvan_Ikoku_Federal_University_of_Education_Owerri_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643624
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Genomic_characterization_of_drug-resistant_Mycobacterium_tuberculosis_complex_in_western_Kenya_reveals_predominance_of_isoniazid_resistance_and_discordance_with_routine_susceptibility_testing_docx/32646987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_07036833482_Department_of_Nursing_Sciences_National_Open_University_of_Nigeria_NOUN_2026_2027_Post_UTME_form_Application_Form_Admission_Form_is_Out_now_Call_07036833482_To_Apply_2347036833482_ND_HND_Nursing_Form_Midwifery_Form_Post-basic_n/32643618
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Genomic_characterization_of_drug-resistant_Mycobacterium_tuberculosis_complex_in_western_Kenya_reveals_predominance_of_isoniazid_resistance_and_discordance_with_routine_susceptibility_testing_docx/32646981
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Education_Zari_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643615
+  - url: https://figshare.com/articles/dataset/Compiled_Numerical_Values/31890352
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Phase-Selective_Synthesis_of_Zn_sub_3_sub_Sb_sub_2_sub_and_ZnSb_Quantum_Dots_via_Temperature-Controlled_Zn-Loss-Mediated_Reconstructions/32643621
+  - url: https://repository.lboro.ac.uk/articles/report/PRME_Chapter_UK_Ireland_ESD_Resource_Exchange_Booklet/32646948
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -155,23 +155,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://umontreal.scholaris.ca/handle/1866/44925
+  - url: https://zenodo.org/records/20639330
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ualberta.scholaris.ca/handle/123456789/62619
+  - url: https://zenodo.org/records/20639330
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://umontreal.scholaris.ca/handle/1866/44888
+  - url: https://zenodo.org/records/18646743
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635796
+  - url: https://zenodo.org/records/18646743
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635796
+  - url: https://digital.ub.uni-paderborn.de/doi/10.17619/UNIPB/1-2584
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -216,23 +216,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Where_Can_We_Store_CO_sub_2_sub_and_at_What_Cost_A_Global_Geologic_Screening/32643630
+  - url: https://frontiersin.figshare.com/articles/dataset/Table5_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32647002
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Alvan_Ikoku_Federal_University_of_Education_Owerri_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643624
+  - url: https://frontiersin.figshare.com/articles/dataset/Table2_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_07036833482_Department_of_Nursing_Sciences_National_Open_University_of_Nigeria_NOUN_2026_2027_Post_UTME_form_Application_Form_Admission_Form_is_Out_now_Call_07036833482_To_Apply_2347036833482_ND_HND_Nursing_Form_Midwifery_Form_Post-basic_n/32643618
+  - url: https://frontiersin.figshare.com/articles/dataset/Table3_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646996
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Education_Zari_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643615
+  - url: https://frontiersin.figshare.com/articles/dataset/Table4_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646999
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Phase-Selective_Synthesis_of_Zn_sub_3_sub_Sb_sub_2_sub_and_ZnSb_Quantum_Dots_via_Temperature-Controlled_Zn-Loss-Mediated_Reconstructions/32643621
+  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646990
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -256,23 +256,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://umontreal.scholaris.ca/handle/1866/44938
+  - url: https://zenodo.org/records/20639330
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ualberta.scholaris.ca/handle/123456789/61445
+  - url: https://zenodo.org/records/20639330
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635818
+  - url: https://boris-portal.unibe.ch/entities/publication/59282dcb-f977-4b0c-9a25-7efe2adb14ee
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635818
+  - url: https://zenodo.org/records/20639149
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.09321
+  - url: https://zenodo.org/records/20639149
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -280,23 +280,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Education_Kano_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643636
+  - url: https://frontiersin.figshare.com/articles/dataset/Table5_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32647002
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Where_Can_We_Store_CO_sub_2_sub_and_at_What_Cost_A_Global_Geologic_Screening/32643630
+  - url: https://frontiersin.figshare.com/articles/dataset/Table2_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Alvan_Ikoku_Federal_University_of_Education_Owerri_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643624
+  - url: https://frontiersin.figshare.com/articles/dataset/Table3_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646996
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_07036833482_Department_of_Nursing_Sciences_National_Open_University_of_Nigeria_NOUN_2026_2027_Post_UTME_form_Application_Form_Admission_Form_is_Out_now_Call_07036833482_To_Apply_2347036833482_ND_HND_Nursing_Form_Midwifery_Form_Post-basic_n/32643618
+  - url: https://frontiersin.figshare.com/articles/dataset/Table4_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646999
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Education_Zari_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643615
+  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646990
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -345,23 +345,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Education_Kano_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643636
+  - url: https://figshare.com/articles/dataset/Compiled_Numerical_Values/31890352
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Where_Can_We_Store_CO_sub_2_sub_and_at_What_Cost_A_Global_Geologic_Screening/32643630
+  - url: https://frontiersin.figshare.com/articles/dataset/Table5_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32647002
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Alvan_Ikoku_Federal_University_of_Education_Owerri_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643624
+  - url: https://frontiersin.figshare.com/articles/dataset/Table2_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_07036833482_Department_of_Nursing_Sciences_National_Open_University_of_Nigeria_NOUN_2026_2027_Post_UTME_form_Application_Form_Admission_Form_is_Out_now_Call_07036833482_To_Apply_2347036833482_ND_HND_Nursing_Form_Midwifery_Form_Post-basic_n/32643618
+  - url: https://frontiersin.figshare.com/articles/dataset/Table3_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646996
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Federal_University_of_Education_Zari_2026_2027_Pre-Degree_Form_Part-time_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32643615
+  - url: https://frontiersin.figshare.com/articles/dataset/Table4_Effects_of_various_land_utilization_types_on_groundwater_at_different_temporal_scales_a_case_study_of_Huocheng_plain_Xinjiang_China_docx/32646999
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -402,11 +402,11 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: SC-001
   status: unresolved
   candidates: []

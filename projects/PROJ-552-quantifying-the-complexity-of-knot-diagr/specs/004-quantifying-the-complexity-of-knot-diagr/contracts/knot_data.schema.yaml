@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotData"
-description: "Schema for a single prime knot record with computed invariants (DEPRECATED: use knot-record.schema.yaml)"
+description: "DEPRECATED: This schema is superseded by knot_record.schema.yaml. Use knot_record.schema.yaml for all new implementations. Maintained for backward compatibility only."
 type: "object"
 required:
  - "knot_id"

@@ -164,7 +164,25 @@ restyled_unaudited (defects → repair work-specs generated), 19
 fallback_original (every one now carries its reconstructed failure
 reason)**. Zero unmarked fallbacks.
 
-## US3 — PROJ-552 traversal status
+## US3 — PROJ-552 cap outcome + substitute (2026-06-11)
+
+After the defect-#11/#12/#13 fixes, PROJ-552's plan panel ran a clean
+full cycle: **revisions landed** (round 2: all 24 concerns addressed and
+passed), but reviewers raised fresh science-class concerns every round
+(round 3: 9 new; round 4: 10 unresolved) — honest non-convergence. The
+4th plan kickback exceeded the cap → the **evidence-carrying escalation**
+(state/escalations/PROJ-552__2026-06-11T095745.yaml: loop
+convergence-kickback, 4/3 rounds, attempt evidence, recommended action).
+This is the spec's cap edge case firing legitimately: a real,
+well-evidenced, RARE human ask (trail: convergence_trail/plan-017.jsonl).
+
+**Substitute demonstration project (per the spec edge case):
+PROJ-069-statistical-analysis-of-sentiment-drift-** — pipeline-generated,
+honestly validated TODAY through the new funnel machinery
+(flesh_out_complete → validated in the T015 passes); it proceeds
+project_initialized → … → posted via the scheduled lanes post-merge.
+
+## US3 — PROJ-552 traversal status (pre-cap history)
 
 Designated demo at `clarified` (reconciliation dispatch 27315363219
 converged the clarify panel after the earlier honest 13-concern
