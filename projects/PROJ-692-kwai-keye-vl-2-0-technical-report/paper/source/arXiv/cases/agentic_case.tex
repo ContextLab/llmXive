@@ -1,0 +1,49 @@
+\subsubsubsection{Case VI: Multi-Domain Service Agent}
+\label{agentic_cases}
+
+\begin{caseprompt}
+A user asks the assistant to arrange several services for parents visiting Quanzhou on the same day. The request evolves across multiple turns: recommend and book a comfortable hotel near the user's home, choose a spot-removing skincare product that can arrive within one hour, pay the hotel and delivery orders, recommend a Minnan-cuisine restaurant with Ginger Duck and a rich family set meal, create the restaurant order, and finally pay it.
+\end{caseprompt}
+
+\begin{caseresponse}
+\textbf{Personalized planning.} The assistant first retrieves the user's profile to ground the task in verified information. It identifies the home address, infers that the user's most frequent hotel brand is Home Inn, converts the home address to coordinates, and searches for nearby hotels in Quanzhou. It recommends \textbf{Home Inn (Quanzhou Tian'an Road Branch)} because it is 1.2 km from the user's home, matches the user's historical hotel preference, provides a comfortable queen-bed room, and costs only 288 RMB within the 1000 RMB budget.
+
+\textbf{Hotel booking.} After the user confirms the recommendation, the assistant creates a hotel order for one night in the comfortable queen-bed room:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Item} & \textbf{Result} \\
+\midrule
+Hotel & Home Inn (Quanzhou Tian'an Road Branch) \\
+Room & Comfortable queen-bed room \\
+Date & 2024-12-30 \\
+Order ID & OOd651df337d \\
+Price & 288 RMB \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Delivery recommendation and timing verification.} For the skincare request, the assistant searches for spot-removing skincare products, retrieves store locations, computes distances from the user's home, and converts distances into delivery times. It recommends \textbf{Yuquan Spot-Removing Serum} from \textbf{Yueyan Skincare Store}, because the store is 412 meters away and the estimated delivery time is 28 minutes, satisfying the one-hour constraint.
+
+\textbf{Cross-domain order execution.} The assistant then creates and pays the delivery order, handles the hotel payment with the correct hotel-payment tool after detecting a payment-type mismatch, and searches in-store restaurant options for Minnan cuisine with Ginger Duck. It recommends \textbf{Minnan Flavor Restaurant} and its \textbf{Traditional Minnan Family Banquet Set (3--4 people)} because the set contains Ginger Duck, is suitable for a family meal, and costs 398 RMB. After user confirmation, it creates and pays the in-store order.
+
+\textbf{Final confirmed arrangement.}
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Service} & \textbf{Selection} & \textbf{Order ID} & \textbf{Status} \\
+\midrule
+Hotel & Home Inn queen-bed room, 288 RMB & OOd651df337d & Paid \\
+Delivery & Yuquan Spot-Removing Serum, 258 RMB & OTad2c5d4616 & Paid; arrives at 15:58 \\
+Restaurant & Minnan family banquet set, 398 RMB & OI3ddaed0869 & Paid \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Agent capability demonstrated.} This case shows that Keye-VL-2.0 can maintain a multi-turn service plan, use user history for personalization, call tools across hotel, delivery, geolocation, distance estimation, and in-store ordering domains, recover from an incorrect payment-tool route, and complete all user-confirmed transactions while keeping the final response concise.
+\end{caseresponse}
+
+\captionof{figure}{\textbf{Agent case for multi-domain service orchestration.} Keye-VL-2.0 coordinates personalization, search, geolocation, delivery-time estimation, booking, payment, recommendation, and order creation across hotel, delivery, and in-store service domains.}
+\label{fig:multi_domain_service_agent_case}
+
+\clearpage

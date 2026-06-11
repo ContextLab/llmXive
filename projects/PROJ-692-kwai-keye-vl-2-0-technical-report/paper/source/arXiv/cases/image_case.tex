@@ -1,0 +1,94 @@
+\subsubsubsection{Case II: Spatial Reasoning in an Indoor Layout}
+\label{image_cases}
+
+\begin{center}
+\CaseInputTitle{Input Image}\\[0.4em]
+\IfFileExists{arXiv/cases/figs/room_layout_spatial_reasoning.png}{%
+  \includegraphics[width=0.72\linewidth]{arXiv/cases/figs/room_layout_spatial_reasoning.png}%
+}{%
+  \fbox{\begin{minipage}[c][5.2cm][c]{0.72\linewidth}
+    \centering
+    Room layout image placeholder\\
+    arXiv/cases/figs/room\_layout\_spatial\_reasoning.png
+  \end{minipage}}%
+}
+\end{center}
+
+\begin{caseprompt}
+The image is a top-down view of a room, with each piece of furniture labeled by a letter. Please answer the following questions:
+\begin{enumerate}[leftmargin=1.6em,itemsep=0.15em,topsep=0.25em]
+  \item Which direction is \textbf{A (the sofa)} facing?
+  \item Which direction is \textbf{C (the TV)} facing?
+  \item Are \textbf{A (the sofa)} and \textbf{C (the TV)} facing each other?
+  \item When entering the room through \textbf{G (the door)}, what furniture is on your \textbf{left-hand side} and what furniture is on your \textbf{right-hand side}?
+  \item What is the relative spatial relationship between \textbf{D (the floor lamp)} and \textbf{H (the window)}?
+  \item If \textbf{B (the coffee table)} is moved next to \textbf{E (the dining table)}, in which direction should it be moved?
+  \item In which corner of the room is \textbf{F (the bookshelf)} located? Describe its position relative to the other furniture.
+\end{enumerate}
+Please answer based on the spatial layout shown in the image, paying close attention to orientations, directions, and relative positions.
+\end{caseprompt}
+
+\begin{caseresponse}
+\textbf{Directions of A and C.} A (sofa) faces toward the center of the room, i.e., to the right. C (TV) faces toward the center of the room, i.e., to the left. Therefore, A and C are facing each other, forming a typical living-room seating arrangement.
+
+\textbf{Left and right when entering from G.} When standing at G and entering the room, the furniture on the left-hand side is the sofa A, while the furniture on the right-hand side is the TV C.
+
+\textbf{Relative position of D and H.} D (floor lamp) is to the left of H (window), namely on the west side of the window. The floor lamp is positioned left and slightly forward of the window, and both are near the north wall.
+
+\textbf{Moving B next to E.} B (coffee table) is currently south of E (dining table), or below it in the top-down layout. To move B next to the dining table, it should be moved north.
+
+\textbf{Location of F.} F (bookshelf) is located in the northeast corner of the room. Relative to the other furniture, it is east of the window H, north of the TV C, and northeast of the dining table E. It is positioned near the intersection of the north and east walls.
+
+Overall, this layout shows a standard living-room configuration: the sofa and TV face each other to form a seating area, the dining table is in the middle-north section, the window and bookshelf are on the north wall, and the door is on the south wall.
+\end{caseresponse}
+
+\captionof{figure}{\textbf{Image case for spatial layout understanding.} Given a labeled top-down indoor scene, Keye-VL-2.0 identifies object orientations, egocentric left-right relations, furniture positions, and the direction needed to move an object.}
+\label{fig:room_spatial_reasoning_case}
+
+\clearpage
+
+\subsubsubsection{Case III: Anatomical Reasoning and Error Detection}
+
+\begin{center}
+\CaseInputTitle{Input Image}\\[0.4em]
+\IfFileExists{arXiv/cases/figs/heart_circulation_diagram.png}{%
+  \includegraphics[width=0.76\linewidth]{arXiv/cases/figs/heart_circulation_diagram.png}%
+}{%
+  \fbox{\begin{minipage}[c][5.2cm][c]{0.76\linewidth}
+    \centering
+    Heart circulation diagram placeholder\\
+    arXiv/cases/figs/heart\_circulation\_diagram.png
+  \end{minipage}}%
+}
+\end{center}
+
+\begin{caseprompt}
+This image is an anatomical diagram of the human heart and a schematic of blood circulation. Please answer the following questions:
+\begin{itemize}[leftmargin=1.6em,itemsep=0.15em,topsep=0.25em]
+  \item What are the four chambers of the heart? Please list them according to the labels in the diagram.
+  \item What do the blue and red arrows in the diagram represent, respectively? Hint: it is related to blood oxygen content.
+  \item After blood flows from the lungs into the heart, which chambers and blood vessels does it sequentially pass through before being delivered to the rest of the body?
+  \item Where is the ``Mitral Valve'' labeled in the diagram located? Which two chambers does it connect?
+  \item Based on the text description in the diagram, point out one scientifically incorrect statement and correct it.
+\end{itemize}
+Please base your answers on the labels and text information provided in the image.
+\end{caseprompt}
+
+\begin{caseresponse}
+\textbf{Four chambers.} According to the labels in the diagram, the four chambers of the heart are Right Atrium, Right Ventricle, Left Atrium, and Left Ventricle.
+
+\textbf{Meaning of blue and red arrows.} Blue arrows represent the flow of oxygen-poor blood with low oxygen content. Red arrows represent the flow of oxygen-rich blood with high oxygen content. This is consistent with the diagram text describing oxygen-poor blood returning and oxygen-rich blood flowing from the lungs.
+
+\textbf{Pathway from the lungs to the body.} The sequence is: lungs \(\rightarrow\) left atrium \(\rightarrow\) left ventricle \(\rightarrow\) aorta \(\rightarrow\) entire body.
+
+\textbf{Position of the Mitral Valve.} The Mitral Valve is located between the left atrium and the left ventricle. It connects the Left Atrium and the Left Ventricle.
+
+\textbf{Scientific error and correction.} The path description for oxygen-poor blood states: body \(\rightarrow\) SVC \(\rightarrow\) right atrium \(\rightarrow\) SVC \(\rightarrow\) right ventricle. This is incorrect because the SVC is used twice, and it carries blood from the body to the right atrium rather than from the right atrium to the right ventricle. The corrected pathway should be: body \(\rightarrow\) SVC \(\rightarrow\) right atrium \(\rightarrow\) right ventricle \(\rightarrow\) pulmonary artery \(\rightarrow\) lungs.
+
+Additionally, there is a spelling error in the diagram: ``pulmary'' should be ``pulmonary.''
+\end{caseresponse}
+
+\captionof{figure}{\textbf{Image case for anatomical diagram understanding.} Given a labeled heart diagram with blood-flow arrows and explanatory text, Keye-VL-2.0 identifies cardiac chambers, interprets oxygen-rich and oxygen-poor circulation, localizes the mitral valve, reconstructs the pulmonary-to-systemic pathway, and detects an incorrect textual description.}
+\label{fig:heart_circulation_case}
+
+\clearpage

@@ -1,0 +1,34 @@
+\section{Method}
+\label{sec3}
+
+While significant progress has been made in object-level 3D generation, with leading methods like TRELLIS~\cite{xiang2025structured}, TRELLIS.2~\cite{xiang2025native}, Hunyuan3D~\cite{lai2025hunyuan3d25highfidelity3d,hunyuan3d22025tencent,yang2024hunyuan3d}, and Seed3D~\cite{Seed3D} demonstrating remarkable capabilities, scaling these paradigms to Earth-scale, real-world outdoor scenes presents a series of fundamental challenges. To address these, our method, \method{}, introduces a tightly integrated set of innovations designed specifically for generative 3D earth modeling, which we detail in the following sections.
+
+\subsection{Native 3DGS Generative Framework}
+\label{sec:3dgs_framework}
+
+The first major challenge is a {representation gap}. Existing generators are predominantly designed for clean 3D mesh assets, often created for rendering engines. However, real-world outdoor environments, rich with complex non-manifold topologies like foliage and water surfaces, are more faithfully captured by 3DGS.
+
+To bridge this gap, we pioneer a native 3DGS generative framework. Our approach centers on a compression-generation paradigm that operates directly on the 3DGS representation. It is designed to learn a compact latent space from high-quality, real-world 3DGS scenes, each comprising millions of unstructured Gaussian primitives, and subsequently generate novel scenes directly in this native format. This allows our model to handle the complexity and fidelity of real-world captures without being constrained by mesh-based assumptions.
+
+\subsection{Inherent Multi-LOD Decoding for Interactivity}
+\label{sec:lod_decoder}
+
+A second challenge is achieving {scale and interactivity}. Earth-scale generation demands a seamless and continuous Level-of-Detail (LOD) experience, allowing users to transition from a planetary overview to fine-grained, street-level views. This critical interactivity requirement is largely unaddressed by object-centric generators.
+
+Our solution is an inherent multi-LOD decoder that is deeply integrated into the generation process itself. Rather than treating LOD as a post-processing step, our decoder is architected to directly synthesize a hierarchical 3DGS structure. This allows for the on-demand generation of appropriate levels of detail, enabling smooth and real-time online visualization without the overhead of storing or processing multiple discrete versions of the scene.
+
+\subsection{Seamless Sliding-Window Inference for Spatial Coherence}
+\label{sec:sliding_window}
+
+Third, ensuring {spatial coherence} at a large scale is paramount. Generating kilometer-scale areas monolithically is computationally prohibitive, but naively stitching multiple generated tiles often results in visible artifacts, breaking the illusion of a continuous world~\cite{blockfusion,ren2024xcube,earthcrafter,Qian_2023_Sat2Density,sat2densitypp,qian2026sat3dgen}.
+
+To overcome this, we propose an efficient seamless sliding-window inference strategy. This mechanism intelligently blends overlapping regions during the generation phase. By carefully managing the influence of adjacent tiles within these transition zones, our strategy drastically reduces stitching artifacts. This makes it practical to render vast, seamless landscapes, ensuring a continuous user experience during large-scale exploration.
+
+\subsection{Cross-Domain Adaptation for Robust Conditioning}
+\label{sec:conditioning}
+
+Finally, the model must exhibit {conditional robustness}. Our chosen conditioning signal, satellite imagery, exhibits significant global variance in quality, resolution, and acquisition angles. Furthermore, a substantial domain gap exists between these satellite images and the aerial-view imagery typically used for training reconstructions, primarily due to atmospheric effects and different sensor characteristics.
+
+To ensure our model performs reliably, we employ a cross-domain conditional adaptation strategy. This is a two-stage approach. During training, we simulate satellite-view renderings from our training data to provide a consistent conditional input for the model to learn from. At inference, we introduce a novel Vision-Language Model (VLM)-based harness that dynamically adapts the conditioning to the specific characteristics of the real-world satellite input. This ensures robust and high-fidelity 3D content generation from any real-world satellite image, regardless of its origin or quality.
+
+In summary, through this tightly integrated set of innovations, \method{} achieves the first end-to-end generation of interactive, streamable, Earth-scale 3D outdoor environments directly from real-world satellite imagery.

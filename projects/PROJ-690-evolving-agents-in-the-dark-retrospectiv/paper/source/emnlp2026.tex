@@ -1,0 +1,180 @@
+\documentclass[11pt]{article}
+
+% Pass [table] to xcolor (loaded by acl.sty) so \rowcolors is available.
+\PassOptionsToPackage{table}{xcolor}
+
+% Change "review" to "final" to generate the camera-ready version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+
+% In preprint/final mode the lineno package is not loaded, so \linenumbers is
+% undefined; the document still toggles it around the single-column appendix.
+% Provide a no-op so those calls compile (review mode keeps lineno's real one).
+\providecommand{\linenumbers}{}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+% \usepackage{inconsolata}  % optional; install texlive-fonts-extra to enable
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{wasysym}  % \CIRCLE \LEFTcircle \Circle for the positioning table
+\newcommand{\cfull}{\CIRCLE}
+\newcommand{\chalf}{\LEFTcircle}
+\newcommand{\cnone}{\Circle}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\definecolor{rhoAccent}{HTML}{2F4F6F}
+\definecolor{rhoComment}{HTML}{6F7480}
+\definecolor{rowAlt}{HTML}{ECECEC}
+\definecolor{rhoBlue}{HTML}{D6E6F2}
+
+% \newcommand{\joy}[1]{{\color{purple}{joy: #1}}}
+\newcommand{\joy}[1]{}
+
+% Prompt listings: a rounded, outlined card with a dark filled title bar
+% (tcolorbox) wrapping a line-wrapping listings block. Long prompt lines (up
+% to 343 chars) wrap; the card breaks across pages (floats cannot). tcolorbox
+% breakable conflicts with the [review] lineno package, so line numbers are
+% disabled across single-column Appendix A (\onecolumn + \nolinenumbers).
+\usepackage{listings}
+\usepackage{enumitem}
+
+\setlist[itemize]{leftmargin=*,topsep=0pt,itemsep=1pt}
+\setlist[enumerate]{leftmargin=*,topsep=0pt,itemsep=1pt}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{listings,breakable,skins}
+
+\definecolor{promptBg}{HTML}{F8FAFC}     % near-white body fill
+\definecolor{promptStroke}{HTML}{2F4F6F} % = rhoAccent: border + title bar
+
+\lstdefinestyle{prompt}{%
+  basicstyle=\small\ttfamily,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=true,
+  breakindent=1.5em,
+  postbreak=\mbox{\textcolor{rhoComment}{$\hookrightarrow$}\space},
+  showstringspaces=false,
+  aboveskip=0pt, belowskip=0pt,
+}
+
+% \begin{promptbox}[lst:label]{Title}  ...  \end{promptbox}
+\newtcblisting[auto counter]{promptbox}[2][]{%
+  breakable, enhanced,
+  listing only,
+  listing options={style=prompt},
+  colback=promptBg,
+  colframe=promptStroke,
+  boxrule=0.6pt,
+  arc=4pt, outer arc=4pt,
+  left=8pt, right=7pt, top=5pt, bottom=5pt,
+  boxsep=1pt,
+  before skip=1.2em, after skip=0.8em,
+  colbacktitle=promptStroke,
+  coltitle=white,
+  fonttitle=\bfseries\footnotesize,
+  toptitle=2.5pt, bottomtitle=2.5pt,
+  title={Listing~\thetcbcounter\quad #2},
+  label={#1},
+}
+
+\algrenewcommand\algorithmiccomment[1]{\unskip\hfill\textcolor{rhoComment}{\,$\triangleright$\,\textit{\footnotesize #1}}}
+\algrenewcommand\algorithmicrequire{\textcolor{rhoAccent}{\textbf{Input:}}}
+\algrenewcommand\algorithmicensure{\textcolor{rhoAccent}{\textbf{Output:}}}
+\algrenewcommand\algorithmicreturn{\textcolor{rhoAccent}{\textbf{return}}}
+\newcommand{\rhostage}[1]{\Statex \textcolor{rhoAccent}{\rule[1pt]{6pt}{6pt}}\,\textcolor{rhoAccent}{\textsc{\textbf{#1}}}}
+
+\title{Evolving Agents in the Dark: \\ \textsc{Retrospective Harness Optimization} via Self-Preference}
+
+\author{
+  \textbf{Wenbo Pan\textsuperscript{1} \quad Shujie Liu\textsuperscript{2} \quad Chin-Yew Lin\textsuperscript{2} \quad Jingying Zeng\textsuperscript{2} \quad Xianfeng Tang\textsuperscript{2}} \\
+  \textbf{Xiangyang Zhou\textsuperscript{2} \quad Yan Lu\textsuperscript{2} \quad Xiaohua Jia\textsuperscript{1}} \\[4pt]
+  \textsuperscript{1}City University of Hong Kong \qquad \textsuperscript{2}Microsoft Research Asia
+}
+
+\newcommand{\method}{\textsc{RHO}}
+\newcommand{\harness}{harness}
+\newcommand{\tbd}{\textcolor{red}{\textsc{tbd}}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+AI agents rely on a \textit{harness} of skills, tools, and workflows to solve complex problems.
+Continually improving this harness is essential for adapting to new tasks.
+However, existing optimization methods typically require ground-truth validation sets, yet such labeled data is difficult to acquire in practical deployment settings.
+To address this problem, we introduce \textit{Retrospective Harness Optimization} (\method{}), a self-supervised method that optimizes the agent harness using only past trajectories.
+Specifically, \method{} selects a diverse coreset of challenging tasks from past trajectories and re-solves them in parallel.
+The agent analyzes these rollouts using self-validation and self-consistency, then generates candidate harness updates and selects the most effective one by its own pairwise self-preference.
+We evaluate \method{} across three diverse domains, spanning software engineering, technical work, and knowledge work.
+Notably, a single optimization round improves the pass rate on SWE-Bench Pro from 59\% to 78\% without any external grading.
+Furthermore, our analysis demonstrates that \method{} effectively targets prior failure modes. As a result, the optimized harness alters the agent's behavior patterns and sustains higher accuracy during long-horizon sessions.
+Code is available at \url{https://github.com/wbopan/retro-harness} and the project website at \url{https://paper-rho.wenbo.io}.
+\end{abstract}
+
+\input{sec_introduction}
+\input{sec_related_work}
+\input{sec_problem_setting}
+\input{sec_method}
+\input{sec_experiments}
+\input{sec_discussion}
+\input{sec_conclusion}
+
+\section*{Limitations}
+
+In this paper we introduce \method{}, a self-supervised method that improves an agent's harness from its own past trajectories without any external grading.
+However, operating without ground-truth feedback carries several limitations.
+First, group rollout replays each coreset task several times, which assumes environments that reset cleanly and tolerate repeated attempts, leaving one-shot or irreversible tasks outside the setting \method{} targets.
+Second, \method{} presumes that a meaningful portion of the agent's competence is mediated by an editable harness of prompts, skills, and tools; our experiments span software engineering, technical work, and knowledge work, and extending \method{} to domains with different harness surfaces, task fingerprints, and rollout budgets remains future work.
+Third, \method{} trusts past trajectories as its only optimization input; in open environments these trajectories can embed adversarial content injected mid-task \citep{liu2026webtrap}, and harness updates distilled from compromised trajectories could entrench such behavior, reinforcing the need for the audit practices in the Ethics Statement.
+
+\section*{Ethics Statement}
+
+\method{} modifies persistent agent behavior from model-generated judgments.
+This can amplify mistaken preferences, unsafe procedures, or biased behavioral rules if the evaluator prefers them.
+Deployments should keep full audit logs, require human approval for sensitive harness edits, and use domain-specific safety checks before applying accepted harnesses to high-impact tasks.
+
+\section*{Reproducibility Statement}
+
+Every run persists prompts, completions, trajectories, diagnoses, candidate harnesses, harness diffs, configs, scores, run metadata, and held-out reports.
+The numbers in this draft are direct reads from recorded run reports.
+A detailed comparison with related work is given in Appendix~\ref{app:positioning}, prompts are listed in Appendix~\ref{app:prompts}, hyperparameters in Appendix~\ref{app:hyperparameters}, full pipeline details in Appendix~\ref{app:pipeline}, per-dataset specifications in Appendix~\ref{app:datasets}, baseline implementations in Appendix~\ref{app:baselines}, and per-method optimization-phase compute cost in Appendix~\ref{app:cost}.
+
+\bibliography{custom}
+
+\appendix
+
+% Appendix A (positioning) and the prompts appendix both render single-column:
+% the positioning table spans the full page width, and the verbatim prompts are
+% wide artifacts whose long lines read far better at full page width
+% (permitted by the ACL April-2025 single-column appendix exception).
+\onecolumn
+\nolinenumbers   % breakable tcolorbox prompt cards are incompatible with lineno
+\input{appendix_g_positioning}
+\input{appendix_a_prompts}
+\linenumbers
+\twocolumn
+\input{appendix_b_hyperparameters}
+\input{appendix_c_pipeline}
+\input{appendix_d_datasets}
+\input{appendix_e_baselines}
+\input{appendix_f_cost}
+
+% Concrete computed harness artifacts last: single-column, wide verbatim dumps.
+\onecolumn
+\nolinenumbers
+\input{appendix_h_artifacts}
+
+\end{document}

@@ -1,0 +1,118 @@
+\section{Evaluation}
+\label{sec:result}
+
+We evaluate our method from two complementary perspectives: generative fidelity and system-level applicability.
+
+To assess generative fidelity, we conduct a quantitative comparison against existing academic baselines for outdoor scene generation, thereby establishing the fundamental realism of our model. To evaluate system-level applicability, we examine our framework from multiple angles. We first perform a product-level benchmark against leading commercial solutions, focusing on performance and efficiency. Furthermore, we demonstrate the practical utility and extensibility of our system by showcasing a hybrid generation-reconstruction approach for integrating high-fidelity landmark models, a key feature for real-world applications.
+
+\subsection{Generative Fidelity}
+
+
+As presented in \cref{tab:conditions_results}, we assess the generative fidelity of our method against prominent outdoor scene generation baselines: CityDreamer~\cite{CityDreamer}, GaussianCity~\cite{Xie_2025_CVPR}, and EarthCrafter~\cite{earthcrafter}. The evaluation employs the standard FID~\cite{NIPS2017_8a1d6947} and KID~\cite{binkowski2021demystifyingmmdgans} metrics, which are computed between a set of our generated 2D renderings and a ground-truth image set derived from real-world data. Baseline results are cited from their respective publications.
+
+Our method achieves a state-of-the-art FID score of 16.1, a substantial improvement over the previous best of 69.5. This result is particularly compelling because our metrics are benchmarked against a ground-truth distribution derived from renderings of highly complex, real-world 3DGS reconstructions. This poses a significantly greater modeling challenge compared to evaluations on more constrained or synthetic datasets, underscoring our model's superior capability to capture the photorealism and intricate detail of authentic aerial environments.
+
+Crucially, our contribution extends far beyond superior rendering quality. While existing research primarily focuses on generating isolated or limited-area scenes, our work is the first to directly tackle the challenges of creating continuous, interactive, Earth-scale 3D environments. \method{} therefore not only sets a new benchmark for generative fidelity but also marks a fundamental step towards planetary-scale digital twins, a frontier previously unexplored by these methods.
+
+
+\input{body/table_tex/tab_fid}
+
+\subsection{System-level Applicability}
+\label{sec:system_applicability}
+
+While academic benchmarks focus primarily on pixel-level generative fidelity, deploying 3D generation models in real-world pipelines requires a holistic evaluation of system-level performance. To this end, we conduct a comparative analysis between \method{} and two leading commercial solutions: Google Earth (the industry standard for photogrammetry-based planetary reconstruction) and Marble (a state-of-the-art closed-source procedural 3D world-generation platform).
+
+We evaluate these systems across four key dimensions critical for large-scale production: \textit{Spatial Coverage}, \textit{Timeliness and Efficiency}, \textit{Visual Quality}, and \textit{System Openness}. A high-level overview of this multi-dimensional comparison is summarized in \cref{tab:system_comparison_merged}, with detailed analyses in the following sections.
+
+\input{body/table_tex/earth_marble_compare}
+
+\subsubsection{Spatial Coverage and Scalability}
+A system's value is fundamentally tied to its reach. Here, \method{}'s generative paradigm offers a significant advantage. As shown in the continental-scale comparison in \cref{fig:system_comparison}, Google Earth's coverage is constrained by physical acquisition; its high-fidelity 3D geometry is limited to well-surveyed metropolitan areas. According to its official platform~\footnote{\url{https://developers.google.com/maps/coverage\#countryregion-coverage}}, 3D assets cover only a fraction of global countries, and even within these regions, data is sparse, often omitting non-CBD areas. In contrast, by leveraging a continuous latent space, \method{} rapidly provides 3D assets for vast regions, including numerous developing countries and smaller cities. As illustrated in \cref{fig:coverage}, \method{} successfully generates a plausible 3D scene of Ireland, whereas Google Earth, lacking scan data for this region, falls back to a 2D image.
+
+\input{figure/fig_tex/compaer_googleearth}
+
+\subsubsection{Efficiency}
+In terms of efficiency, \method{} demonstrates clear superiority. Requiring only satellite imagery as input, it can generate 1 km² in under 10 minutes, offering exceptional timeliness for on-demand 3D environment creation. In stark contrast, commercial photogrammetry pipelines are slow, batch-processed endeavors. Changes in Google Earth's geometry typically require months to years to propagate from image capture to renderer.  This makes \method{} uniquely suited for applications requiring rapid updates or synthesis of unmapped areas.
+
+
+
+\input{body/table_tex/coverage_and_score}
+
+\subsubsection{Visual Quality and Aesthetics}
+Beyond performance metrics, we also conducted a comprehensive human study to assess visual quality, with results summarized in the radar chart in \cref{fig:system_comparison}. We defined three components for participants: Geometric Accuracy (structural integrity), Textural Fidelity (surface detail representation), and Overall Aesthetics (holistic appeal, including lighting and color harmony).
+
+Notably, \method{} achieves a higher aesthetic score than Google Earth. We attribute this to the holistic nature of aesthetic judgment: observers often prioritize plausible lighting and color harmony over micro-level texture accuracy. Our model excels at replicating these holistic photorealistic qualities.
+
+Conversely, and as anticipated, Google Earth maintains advantages in geometric and textural fidelity. This is an expected outcome, given that Google's reconstruction algorithms have been meticulously optimized over many years, incorporating sophisticated strategies like optimized aerial survey patterns, strong priors ("Manhattan-world" assumption), and extensive manual post-processing. We liken this current gap to the difference between a 3D model hand-crafted by a professional artist and one from a first-generation generative model (e.g., LRM~\cite{hong2024lrm} or CLAY~\cite{CLAY}).
+
+However, we believe this quality gap is not fundamental. With the continued evolution of \method{}, we are confident that our generative capabilities will progressively close this gap, with the potential to eventually approach and even exceed the quality of traditionally reconstructed outdoor scenes.
+
+
+
+
+\subsubsection{System Openness and Downstream Integration}
+Commercial solutions often operate as closed-loop proprietary ecosystems. Google Earth restricts users to its viewer or constrained API tiles, prohibiting direct access to raw data. Marble operates as a black-box service with limited export pipelines. Conversely, \method{} is built on open standards. Our model generates native 3DGS that can be rendered from any angle, facilitating immediate downstream utility in simulation, virtual production, and spatial computing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\linewidth]{sections/dibiao_pdf.pdf}
+    \caption{Landmark integration results. We composite reconstructed landmarks into our generative environments. Top-down views are in the leftmost column, with oblique renderings in the others. From top to bottom: Eiffel Tower, Colosseum, US Capitol, and Arc de Triomphe. The models preserve fine-grained architectural details and blend effectively with the surrounding context.}
+    \label{fig:dibiao}
+\end{figure}
+
+\subsection{Landmark Enhancement: Exploring a Hybrid Generative-Reconstructive Approach}
+
+An interesting distinction arises when considering the generation of iconic landmarks. While a typical generated city block might be evaluated on its overall realism, a world-renowned structure like the Eiffel Tower or the Roman Colosseum is often compared directly to a user's well-established mental image. This suggests that enhancing such landmarks with higher-fidelity models could significantly improve the overall user experience and sense of place. Simply scaling up generative efforts for this task is often impractical, motivating an exploration into a hybrid ``best-of-both-worlds'' paradigm that is both economical and targeted. This approach leverages fast, scalable generation for the vast surrounding context while integrating dedicated, high-fidelity reconstructions only where they might offer the most impact.
+
+To investigate this possibility, we experimented with a classical Structure-from-Motion and Multi-View Stereo pipeline (COLMAP)~\cite{schoenberger2016sfm,schoenberger2016mvs} on crowd-sourced imagery to create dense reconstructions of selected landmarks. These were then converted into our native 3D Gaussian Splatting format, geo-registered, and composited into the generatively synthesized environment. The results of this integration are shown in \cref{fig:dibiao}, which includes several high-fidelity landmark models.
+
+
+This exploration into hybrid scenes hints at a core principle of ABot-Earth: its potential as an editable and extensible platform. A scene generated by ABot-Earth need not be a static, immutable image but can serve as a structured spatial foundation for secondary creation and information fusion. For urban planners, this could mean clearing entire blocks to visualize future design blueprints. For emergency commanders, it opens possibilities for overlaying dynamic data like fire progression onto a 3D command sandbox. For business clients, it could enable the fusion of logistics routes and demographic heatmaps for operational analysis. This potential to merge a generative base with dynamic data streams points toward a future where ABot-Earth evolves from a map into a spatial intelligence and decision-making platform for diverse industries.
+
+
+\input{body/table_tex/large_scale_metric}
+\input{body/table_tex/large_scale_quality}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

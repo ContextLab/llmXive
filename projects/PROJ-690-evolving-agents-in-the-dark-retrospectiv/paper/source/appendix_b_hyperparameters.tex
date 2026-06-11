@@ -1,0 +1,64 @@
+\section{Hyperparameters and Infrastructure}\label{app:hyperparameters}
+
+Table~\ref{tab:hparams} lists every hyperparameter and infrastructure setting used in our experiments.
+Values already reported in the main text (Section~\ref{sec:setting} and Section~5.1) are reproduced here for convenience, and values not previously stated are introduced here.
+The intent is an audit-ready specification, with one column per parameter, one value per cell, and no defaults left implicit.
+Dataset-specific overrides on solver wall-clock and grading are deferred to Appendix~\ref{app:datasets}, and prompt text for every agent role is in Appendix~\ref{app:prompts}.
+
+\begin{table*}[t]
+\caption{Hyperparameters and infrastructure for \method{}. Parameters appearing in the main text are marked with a $^{\dagger}$ and are restated here for completeness only.}
+\label{tab:hparams}
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{l}{\textit{Backbone agent}} \\
+\midrule
+Model$^{\dagger}$           & Codex \texttt{gpt-5.5}                       & Shared across solve, optimize, and rank. \\
+Reasoning effort$^{\dagger}$ & high                                        & Applied to all roles uniformly. \\
+Sampling temperature        & provider default                             & Codex reasoning models do not expose temperature. \\
+Provider                    & Cloud-hosted \texttt{gpt-5.5} (Codex CLI)    & Single hosted endpoint. \\
+\midrule
+\multicolumn{3}{l}{\textit{Coreset selection}} \\
+\midrule
+Selector                    & DPP, greedy MAP                              & \cite{kulesza2012dpp}. \\
+Coreset size $k$$^{\dagger}$ & 10                                          & Train tasks. \\
+DPP weight $\theta$$^{\dagger}$ & 0.7                                      & Difficulty/diversity tradeoff. \\
+Score floor $\epsilon$      & 0.1                                          & Lower bound on normalized difficulty. \\
+Judge model                 & Codex \texttt{gpt-5.5}, high                 & Same backbone as the solver. \\
+Trajectory-digest budget    & 10{,}000 BPE tokens, head/tail truncation    & Ground-truth-revealing commands scrubbed. \\
+Fingerprint embedding       & \texttt{BAAI/bge-large-en-v1.5}, 1024-d      & Executed locally \citep{xiao2023cpack}. \\
+\midrule
+\multicolumn{3}{l}{\textit{Group rollout}} \\
+\midrule
+Rollouts per task $G$       & 3                                            & Parallel solves under $h_0$ per coreset task. \\
+Solve wall-clock timeout    & 900 s                                        & Dataset overrides in Appendix~\ref{app:datasets}. \\
+Diagnosis prompt            & see Appendix~\ref{app:prompts}               & Self-validation $+$ self-consistency cues. \\
+Severity range              & $[0,1]$                                      & Soft attention weight, not a hard threshold. \\
+\midrule
+\multicolumn{3}{l}{\textit{Best-of-$N$ harness proposal}} \\
+\midrule
+Candidates $N$$^{\dagger}$  & 3                                            & Parallel optimizer samples. \\
+Optimizer prompt            & see Appendix~\ref{app:prompts}               & Conditioned on $\{I_t\}_{t\in\mathcal{D}_{\mathrm{core}}}$. \\
+Ranking timeout             & 300 s per pairwise call                      & Per $\mathrm{rank}(t,\tau_a,\tau_b)$. \\
+Acceptance threshold        & $S_j > 0$ (strict)                           & Mean pairwise score over the coreset. \\
+\midrule
+\multicolumn{3}{l}{\textit{Infrastructure}} \\
+\midrule
+Agent-call concurrency      & 10 concurrent calls (cap 30)                 & Parallelism for Table~\ref{tab:main} runs. \\
+Rounds per experiment       & 1                                            & Unless stated otherwise. \\
+Persistence                 & full logs to disk                            & Prompts, completions, trajectories, diagnoses, \\
+                            &                                              & candidate harnesses, diffs, scores, run summaries. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Several choices in Table~\ref{tab:hparams} warrant brief justification.
+We set $G=3$ because three rollouts are enough for the diagnosis prompt to surface cross-trajectory disagreements, and pilots with larger $G$ inflated cost linearly without sharpening the diagnosis signal.
+We weight the DPP at $\theta=0.7$ so that difficulty dominates diversity, on the principle that an unselected easy task carries less optimization signal than a redundant hard one.
+Concretely, $\theta$ enters through the difficulty weights $\widetilde{r}_i = \big(\max(r_i,\epsilon)\,/\,\max_j \max(r_j,\epsilon)\big)^{\alpha}$ with $\alpha = \theta/\big(2(1-\theta)\big)$, and the factor of two offsets the difficulty term's doubled appearance in $\log\det K$, so that $\theta$ and $1-\theta$ weight the difficulty and diversity terms directly.
+We make the acceptance gate strictly positive rather than non-negative because pairwise self-preference is a noisy estimator, and breaking ties in favor of change would inflate regression risk for no expected gain.
+Finally, we use the same Codex \texttt{gpt-5.5} backbone for solver, optimizer, and ranker, since decoupling the solver from the judge would introduce a confound where measured held-out gains could be attributed to a stronger judge rather than to \method{} itself.
+Per-dataset configuration overrides referenced above are in Appendix~\ref{app:datasets}, and baseline-specific configurations are in Appendix~\ref{app:baselines}.

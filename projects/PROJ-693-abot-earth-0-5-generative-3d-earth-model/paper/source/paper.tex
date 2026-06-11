@@ -1,0 +1,237 @@
+\documentclass[]{amap}
+\usepackage{amssymb}
+
+\usepackage[toc,page,header]{appendix}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{minitoc}
+\usepackage{solarized-light}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{siunitx,array}
+\usepackage[table]{xcolor}
+\usepackage{makecell,array,booktabs}
+\usepackage{makecell}
+\usepackage{framed}
+
+\usepackage{bbding}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{placeins}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{longtable}
+\usepackage{hhline}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{CJKutf8}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{cleveref}
+%\usepackage{xeCJK}
+\usepackage{tablefootnote}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{mdframed}
+\usepackage{subcaption}
+\usepackage[usestackEOL]{stackengine}
+\usepackage[numbers]{natbib}
+\newcommand{\commentout}[1]{}
+\renewcommand{\paragraph}[1]{\noindent\textbf{#1.}\hspace*{1em}}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlist[itemize]{leftmargin=15pt}
+\usepackage{siunitx,array}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage{arydshln}
+\usepackage{pifont}
+\usepackage{bbding}
+\definecolor{ampblue}{rgb}{0.82, 0.88, 0.94}
+\usepackage[table]{xcolor} % 用于颜色
+\usepackage{array} 
+\usepackage[dvipsnames]{xcolor}
+% \usepackage[export]{adjustbox}
+
+\sisetup{
+table-number-alignment = center, % 若偏好小数点居中，改为 center
+table-space-text-post = \textsuperscript{*},
+output-decimal-marker = .
+}
+
+
+\RequirePackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot} \def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\iid{i.i.d\onedot} \def\wolog{w.l.o.g\onedot}
+\makeatother
+% \newcommand{\VLAFM}{ABot-M0}
+\renewcommand\lstlistingname{Algorithm}
+\setlength{\FrameSep}{2pt}
+\newcommand{\method}{\textit{ABot-Earth 0.5}\xspace}
+\newcommand{\abotgs}{ABot-3DGS\xspace}
+
+
+\crefname{figure}{Fig.}{Figs.}  % 小写形式（单数，复数）
+\Crefname{figure}{Fig.}{Figs.}  % 首字母大写形式（单数，复数）
+
+\crefname{table}{Tab.}{Tabs.}
+\Crefname{table}{Tab.}{Tabs.}
+\Crefname{section}{Sec.}{Secs.}
+\Crefname{section}{Sec.}{Secs.}
+
+
+% 标题渐变色
+\usepackage{xcolor}
+
+% \newcommand{\ABotGrad}{%
+% {\color{blue}A}%
+% {\color{blue!75!orange}B}%
+% {\color{blue!55!orange}o}%
+% {\color{blue!35!orange}t}%
+% {\color{blue!20!orange}-}%
+% {\color{orange!30!blue}M}%
+% {\color{orange!10!blue}0}%
+% }
+
+% \definecolor{abot1}{HTML}{039BE5}
+% \definecolor{abot2}{HTML}{2D9BBF}
+% \definecolor{abot3}{HTML}{579A99}
+% \definecolor{abot4}{HTML}{819A72}
+% \definecolor{abot5}{HTML}{AB994C}
+% \definecolor{abot6}{HTML}{D59826}
+% \definecolor{abot7}{HTML}{FF9800}
+
+% \newcommand{\ABotMZero}{%
+% {\color{abot1}A}%
+% {\color{abot2}B}%
+% {\color{abot3}o}%
+% {\color{abot4}t}%
+% {\color{abot5}-}%
+% {\color{abot6}M}%
+% {\color{abot7}0}%
+% }
+
+
+\definecolor{abot1}{HTML}{0185FE}
+\definecolor{abot2}{HTML}{0185FE}
+\definecolor{abot3}{HTML}{0185FE}
+\definecolor{abot4}{HTML}{0185FE}
+\definecolor{abot5}{HTML}{FB8C00}
+\definecolor{abot6}{HTML}{FB8C00}
+\definecolor{abot7}{HTML}{FB8C00}
+
+\newcommand{\ABotMZero}{%
+{\color{abot1}A}%
+{\color{abot2}B}%
+{\color{abot3}o}%
+{\color{abot4}t}%
+{\color{abot5}-}%
+{\color{abot6}M}%
+{\color{abot7}0}%
+}
+
+%%%%%%%%%%%%%%%%%%%%
+
+% \title{ABot-M0: VLA Foundation Model for Robotic Manipulation with Action Manifold Learning}
+% \title{\ABotMZero: VLA Foundation Model for Robotic Manipulation with Action Manifold Learning}
+\title{ABot-Earth 0.5: Generative 3D Earth Model}
+
+\author{AMAP CV Lab}
+\vspace{-40pt}
+
+
+% \contribution{See \hyperref[sec:contributions]{Contributions} section for a full author list.}
+
+\abstract{
+% We present \method{}, a generative 3D framework that leverages globally ubiquitous and geospatially referenced satellite imagery to synthesize near-seamless, Earth-scale 3D environments natively. By proposing a native 3D Gaussian Splatting (3DGS) latent generative formulation trained directly on diverse real-world urban reconstructions, \method{} preserves exceptional geometric and textural realism while generating a $1\text{~km}^2$ aerial scene in under 10 minutes. Our framework natively support hierarchical level-of-detail (multi-LOD) structures for real-time rendering on web-based map engines. This physically authentic and interactive pipeline effectively mitigates the sim-to-real domain gap, serving as a highly practical simulation sandbox for downstream Embodied AI tasks like closed-loop UAV navigation. Ultimately, by offering an ultra-low-cost, high-efficiency solution, our work significantly lowers the technical and financial barriers to large-scale 3D reconstruction, empowering global-scale digital earth visualization.
+
+We present \method{}, a generative 3D framework designed to synthesize vast, seamless 3D environments from ubiquitous, geospatially referenced satellite imagery. To achieve this, we propose a novel generative model formulated directly with the 3D Gaussian Splatting (3DGS) representation. The model is trained on a diverse corpus of existing real-world urban reconstructions, learning to generate realistic geometry and textures. At inference, it synthesizes novel 3D scenes conditioned solely on satellite imagery at a scalable rate of under 10 minutes per square kilometer, while demonstrating exceptional realism. The framework is designed for accessibility, with integrated hierarchical level-of-detail (LOD) structures that permit real-time, interactive visualization on web-based map engines. This high-fidelity simulation sandbox effectively mitigates the sim-to-real domain gap, enabling critical downstream Embodied AI applications like closed-loop UAV navigation. By providing an ultra-low-cost and high-efficiency solution, \method{} significantly lowers the technical and financial barriers to large-scale 3D reconstruction and empowers the future of global digital earth visualization.
+
+\bigskip
+
+
+% Furthermore, to support seamless Earth-scale navigation, our model supports hierarchical multi-LOD generation, paired with a customized 3DGS visualization engine based on YunJing that achieves a real-time rendering speed.
+
+
+\textbf{Official Page: } \url{http://abot-earth.amap.com/}
+
+
+}
+
+
+\begin{document}
+\maketitle
+\vspace{-4pt}
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figure/fig_teaser.jpg}
+\caption{We are unveiling \method{}, a generative 3D Earth model. Our official launch showcases an evolving 3DGS world spanning over 300 cities across 190+ countries, with continuous global expansion.}
+
+\label{fig:teaser}
+\end{figure}
+
+\newpage
+% \tableofcontents
+% \newpage
+
+
+
+%\newpage
+\input{sections/sec1_introduction}
+\input{sections/sec2_data_pipeline}
+% \input{sections/1.data_pipeline}
+\input{sections/sec3_method}
+\input{sections/sec4_deployment}
+\input{sections/sec5_evaluation}
+
+% \input{sections/engineering_implementation}
+% \input{sections/sec4_pretraining}
+% \input{sections/sec5_sft}
+% \input{sections/sec6_experiment}
+\input{sections/sec6_conclusion}
+
+
+% \clearpage
+\input{sections/contribution}
+% \clearpage
+
+% \bibliographystyle{plainnat}
+% % \bibliography{main}
+% \bibliography{reference}
+
+% \bibliographystyle{unsrtnat}
+% % \bibliography{main}
+% \bibliography{reference}
+
+\bibliographystyle{IEEEtran}
+% \bibliography{main}
+\bibliography{reference}
+
+% \newpage
+% \input{sections/sec7_appendix}
+% 
+% \clearpage
+% \clearpage
+% % \beginappendix
+
+% \input{sections/appendix}
+% \let\clearpage\relax
+
+\end{document}

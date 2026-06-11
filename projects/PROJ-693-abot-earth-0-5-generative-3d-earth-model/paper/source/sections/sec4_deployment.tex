@@ -1,0 +1,121 @@
+\section{Deployment: From Algorithm to a Planetary-Scale System}
+\label{sec:deployment}
+
+Bridging the gap between a novel generative algorithm and a robust, planetary-scale service requires a sophisticated engineering deployment strategy. The theoretical power of \method{} is realized through a two-stage, end-to-end pipeline designed for massive scalability and real-time performance. The first stage is a {Global-Scale Production Pipeline} responsible for generating trillions of Gaussian primitives from satellite imagery. The second stage is a {Scalable Post-Processing and Rendering Pipeline} that organizes this colossal dataset for interactive, real-time exploration on a map engine. This section details the architecture and key engineering decisions of this entire system.
+
+% ---------------------------------
+\subsection{Global-Scale 3DGS Production Pipeline}
+
+\paragraph{Tile-Based Generation Strategy and Resource Planning}
+To operationalize global-scale scene generation, we designed a large-scale, tile-based concurrent production pipeline. The primary engineering constraint is the VRAM capacity of inference GPUs, which dictates the maximum input image resolution and, consequently, the spatial extent of a single generation run. Our strategy partitions the global target area into regular spatial tiles, with each tile processed as an independent generation task.
+
+Using A100 GPUs, a single inference pass can process a 4K resolution satellite image, corresponding to a ground coverage of approximately 1.6km × 1.6km (2.56km²). This inference scale represents a {64-fold increase in area} compared to our 200m × 200m training tiles, demanding exceptional long-range spatial consistency from our model. Our current strategy focuses on achieving near-perfect seamlessness within each 1.6km × 1.6km block, leveraging an internal sliding-window mechanism. This modular, block-based approach is a pragmatic choice to maximize internal quality under current hardware limitations. Based on a global built-up area of approximately 800,000km², this results in a total of roughly 312,500 production tiles. A fully seamless, cross-block inference strategy is theoretically feasible and is a key objective for future iterations of our pipeline.
+% ---------------------------------
+
+\paragraph{Production Scheduling and Performance}
+Under a 1,000-GPU cluster configuration, single-tile inference completes in approximately 25 minutes. The entire production run, comprising over 300 concurrent batches, is estimated to finish in under 10 days. Our task scheduling system is designed for robustness, employing dynamic queues and load-balancing to mitigate the impact of straggler tasks caused by varying scene complexity (e.g., dense urban cores vs. sparse suburbs). The pipeline supports checkpoint-based resumption and automatic retries, ensuring the reliability of this massive and long-running production job. The final output, comprising hundreds of billions of Gaussian primitives, presents a substantial yet manageable data organization challenge.
+% ---------------------------------
+
+\paragraph{Georeferencing and Input Preprocessing}
+Accurate geospatial alignment is critical. We record the geographic bounding box for each tile, providing the necessary anchors for global coordinate transformation. A critical preprocessing step addresses the scale variance of input imagery. Since our model is trained within a specific Ground Sampling Distance (GSD) range, we uniformly rescale all input images to match this training scale, ensuring stable geometric and textural synthesis.
+
+This is particularly important when handling standard Web Mercator (EPSG:3857) raster tiles, which suffer from significant areal distortion at higher latitudes. To counteract this distortion and ensure a consistent input scale, our pipeline first mosaics the Web Mercator tiles into a contiguous geographic image. It then performs an isotropic resampling process based on the target spatial extent, guaranteeing a uniform effective GSD across all latitudes. This rigorous preprocessing satisfies the model's dimensional and scale constraints, ensuring high-quality generation globally.
+% ---------------------------------
+% \begin{figure}[htp]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{sections/CutBlock.png}
+%     \caption{The tile-based production pipeline partitions the globe for parallel inference.}
+%     \label{fig:cutblock}
+% \end{figure}
+
+% \begin{figure}[htp]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{sections/LODTiles.png}
+%     \caption{Hierarchical LOD tiles are generated for efficient, multi-resolution streaming.}
+%     \label{fig:lodtiles}
+% \end{figure}
+
+% \begin{figure}[htp]
+%     \centering % Center the entire figure block
+
+%     % --- First Subfigure ---
+%     % Note: We now specify height instead of width
+%     \begin{subfigure}{\dimexpr0.48\linewidth} % The width is just a container, can be adjusted
+%         \centering
+%         \includegraphics[height=4cm]{sections/CutBlock.png} % Specify a fixed height
+%         \caption{The tile-based production pipeline partitions the globe for parallel inference.}
+%         \label{fig:cutblock}
+%     \end{subfigure}
+%     \hfill % Adds flexible horizontal space
+%     % --- Second Subfigure ---
+%     \begin{subfigure}{\dimexpr0.48\linewidth}
+%         \centering
+%         \includegraphics[height=4cm]{sections/LODTiles.png} % Use the EXACT SAME height
+%         \caption{Hierarchical LOD tiles are generated for efficient, multi-resolution streaming.}
+%         \label{fig:lodtiles}
+%     \end{subfigure}
+
+%     \caption{Overview of the production and data organization pipeline.}
+%     \label{fig:pipeline_overview}
+% \end{figure}
+
+
+\begin{figure}[ht]
+    \centering % Center the entire figure block
+
+    % --- First Subfigure ---
+    \begin{subfigure}[b]{0.45\linewidth}
+        \centering
+        % 直接为图片指定一个固定的高度，例如 4cm
+        \includegraphics[height=6cm]{sections/CutBlock.png} 
+        \caption{The tile-based production pipeline partitions the globe for parallel inference.}
+        \label{fig:cutblock}
+    \end{subfigure}
+    \hfill % 在两图之间添加弹性空白
+    % --- Second Subfigure ---
+    \begin{subfigure}[b]{0.51\linewidth}
+        \centering
+        % 使用与第一张图完全相同的高度值
+        \includegraphics[height=6cm]{sections/LODTiles.png}
+        \caption{Hierarchical LOD tiles are generated for efficient, multi-resolution streaming.}
+        \label{fig:lodtiles}
+    \end{subfigure}
+
+    \caption{Overview of the production and data organization pipeline.}
+    \label{fig:pipeline_overview}
+\end{figure}
+
+
+
+
+\subsection{EarthScape: Scalable Rendering Pipeline}
+
+The production pipeline yields approximately 320,000 inference blocks, which contains approximately 3.2 trillion Gaussian primitives. This colossal data volume presents two fundamental engineering bottlenecks: (1) the 100 million primitives per block far exceed the rendering capacity of consumer GPUs, and (2) each block exists in an independent local coordinate system, preventing direct assembly into a continuous scene. Our deployment pipeline addresses these challenges through three core pillars: geographic alignment, LOD data reorganization, and rendering scheduling.
+% ---------------------------------
+
+\paragraph{I. Geographic Alignment: Unified Coordinate Transformation}
+Each inference block is normalized into a unified coordinate framework. First, using affine transformation parameters saved during production, each model is restored to its projected coordinate space (EPSG:3857). Subsequently, an ENU (East-North-Up) local tangent plane coordinate system is established at the tile's center. All Gaussian primitives—including their positions, rotation quaternions, and scaling parameters—are uniformly transformed into this ENU frame. This process ensures that all block models share a common, meter-scale coordinate system suitable for rendering engines, while retaining precise global georeferencing through their ENU origins. This alignment establishes the spatial datum for all subsequent processing.
+
+\paragraph{II. LOD Data Reorganization: A Prerequisite for Interaction}
+Given the 3.2 trillion primitive dataset, Level-of-Detail (LOD) organization is not an optimization but an absolute prerequisite for deployment. Our solution is a multi-pronged strategy:
+
+\textit{Tile Re-partitioning.} After alignment, all Gaussians are re-assigned to a standard map tile hierarchy (zoom/x/y), merging data across inference block boundaries. This creates a 6-level LOD structure spanning from zoom level 14 to 19.
+
+\textit{Multi-level LOD Generation.} The three highest-precision levels (zoom 17-19) are generated natively by the inference model itself, which supports multi-resolution outputs. This avoids quality loss from downsampling. The three lower-precision levels (zoom 14-16) are generated from the zoom-17 data using a statistical decimation scheme guided by the Bhattacharyya distance. This method is highly efficient as it operates analytically on Gaussian parameters, allowing us to offload this task to CPUs and run it in parallel with GPU-based inference, significantly reducing end-to-end latency by leveraging heterogeneous compute resources.
+
+\textit{Spatial Indexing.} We construct a two-tier spatial index: an explicit `tileset.json` compliant with the Open Geospatial Consortium (OGC) 3D Tiles specification \cite{ogc2023referencing} for standard clients, and an implicit map tile path convention (\texttt{\{zoom\}/\{x\}/\{y\}}) for direct access and Content Delivery Network (CDN) caching.
+
+
+
+
+
+
+\paragraph{III. Rendering Scheduling: Real-time Rendering via Map Engine}
+This entire data organization strategy culminates in its integration with the Amap Yunjing rendering engine. The engine's native tile scheduling capabilities are leveraged to manage the 3DGS data. Each frame, it dynamically computes the required tile set and precision level based on the camera's viewport. Close views load high-precision tiles (zoom 17-19), while distant views load coarse-grained tiles (zoom 14-15), with smooth fade transitions between levels. This approach reuses the engine's existing frustum culling and asynchronous streaming infrastructure, ultimately achieving real-time, interactive rendering of a trillion-scale global 3DGS dataset.
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=1\linewidth]{sections/Rendered.jpg}
+    \caption{LOD rendering in the map engine, enabling seamless exploration from global to street-level views.}
+    \label{fig:rendered}
+\end{figure}

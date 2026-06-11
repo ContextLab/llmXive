@@ -1,0 +1,39 @@
+\begin{table}[t]
+\centering
+\caption{Open-source city-scale datasets incorporated in our training pipeline.
+\checkmark\ indicates the attribute is available.}
+\label{tab:open_datasets}
+\small
+\begin{tabular}{l r r c c c c c c c}
+\toprule
+\textbf{Dataset} & \textbf{Images} & \textbf{Area} & \textbf{DOF} & \textbf{Viewpoint} & \textbf{Aerial Type} & \textbf{Depth} & \textbf{Weather} & \textbf{Light} & \textbf{Seq.} \\
+\midrule
+\multicolumn{10}{l}{\textit{Synthetic City-Scale}} \\
+\addlinespace[2pt]
+AerialGo        & 3.45M & 134\,km$^2$   & 6 & UAV+Ground   & Oblique   & \checkmark & \checkmark & \checkmark & \checkmark \\
+MatrixCity      & 519K  & 28\,km$^2$    & 6 & UAV+Ground   & Arbitrary & \checkmark & \checkmark & \checkmark & \checkmark \\
+MatrixCity-Sat  & 50    & 1\,km$^2$     & / & Satellite    & Near-nadir & \checkmark & --         & --         & -- \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Real-World City-Scale}} \\
+\addlinespace[2pt]
+UrbanScene3D    & 128K  & 55\,km$^2$    & 6 & UAV          & Arbitrary & \checkmark & --         & --         & \checkmark \\
+UrbanBIS        & 113K  & 10.78\,km$^2$ & 3 & UAV          & Arbitrary & --         & --         & --         & \checkmark \\
+CrossLoc        & 57K   & 2.7\,km$^2$   & 6 & UAV          & Arbitrary & \checkmark & --         & --         & \checkmark \\
+Mill-19         & 3.5K  & 0.18\,km$^2$  & 6 & UAV          & Overhead  & --         & --         & \checkmark & \checkmark \\
+UAVD4L          & 0.3K  & 2.5\,km$^2$   & 6 & UAV          & Arbitrary & \checkmark & --         & --         & \checkmark \\
+Demo UAV        & 27K   & --            & / & Sat.+UAV     & --        & --         & --         & --         & -- \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Real-World Satellite}} \\
+\addlinespace[2pt]
+DFC 2019        & --    & $\sim$4\,km$^2$ & / & Satellite (WV-3) & Off-nadir & --     & --         & --         & -- \\
+GoogleEarth     & --    & $\sim$4\,km$^2$ & / & Satellite+Ground & Mixed    & --     & --         & \checkmark & -- \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Satellite / Cross-View}} \\
+\addlinespace[2pt]
+CVUSA           & 88K   & --            & / & Sat.+Ground  & --        & --         & --         & --         & -- \\
+CVACT           & 256K  & --            & / & Sat.+Ground  & --        & --         & --         & --         & -- \\
+VIGOR           & 529K  & --            & / & Sat.+Ground  & --        & --         & --         & --         & -- \\
+GeoContext-v1   & 26K   & --            & / & Sat.+Ground  & --        & --         & --         & --         & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

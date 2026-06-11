@@ -1,0 +1,1023 @@
+\section{Optimized Harness Artifacts}\label{app:artifacts}
+
+This appendix reproduces, verbatim, the complete contents of the highest-scoring harness \method{} produced on each benchmark, i.e.\ the harnesses summarized in Figure~\ref{fig:harness-artifacts}. Each harness is a directory of Markdown instruction and skill files together with executable tool scripts; every file is shown in full, with no abridgement. Files are grouped by benchmark and labeled with their path inside the harness directory and their role (instruction, skill, or tool).
+
+\subsection{SWE-Bench Pro}
+
+\begin{promptbox}[lst:art-swe-readme]{SWE-Bench Pro harness: \texttt{README.md} (instructions)}
+# SWE-bench Repair Harness
+
+Use this harness before editing and before finalizing a task. The goal is to
+make the final patch answer the exact prompt, not just compile.
+
+## Default Workflow
+
+1. Read the prompt as a contract. Write a short requirement ledger covering:
+   exact public names, file paths, payload shapes, errors/status codes,
+   default values, supported backends/platforms, and called-out edge cases.
+2. Look for an existing reference when the task sounds like a known fix:
+   local git history, tags, upstream commits, tests, fixtures, or nearby
+   implementation patterns. Prefer adapting proven behavior over guessing.
+3. Trace the real path end to end before editing. Follow stored data back to
+   user-visible artifacts, config values back to their runtime representation,
+   and wrappers back to the implementation that actually executes.
+4. Make the smallest production-source change that satisfies the contract.
+   Keep generated files, caches, temporary smoke tests, and local environment
+   output out of the submitted diff.
+5. Verify executable behavior. Syntax checks are not enough: run at least one
+   focused smoke that calls every new public route/function/method and covers
+   each explicit failure/edge condition in the prompt.
+6. Re-open the requirement ledger before the final answer. Check literal API
+   names, response shapes, defaults, cleanup behavior, and every backend or
+   platform named by the prompt.
+
+## Tools
+
+- `harness/bin/repair-verify` discovers common non-PATH toolchains, runs cheap
+  language checks, reports generated artifacts, and accepts extra task-specific
+  commands.
+- `harness/checklists/contract-verification.md` is the detailed checklist for
+  requirement-led smoke tests and final review.
+
+Typical use:
+
+```bash
+../harness/bin/repair-verify repo
+../harness/bin/repair-verify repo -- go test ./lib/events ./lib/service
+../harness/bin/repair-verify repo --clean-pycache -- python -m compileall -q lib
+```
+
+If project dependencies are unavailable, still write a tiny direct smoke with
+local stubs for the changed layer. The smoke should execute the contract shape
+that hidden tests are likely to assert.
+\end{promptbox}
+
+\begin{promptbox}[lst:art-swe-checklist]{SWE-Bench Pro harness: \texttt{checklists/contract-verification.md} (skill)}
+# Contract Verification Checklist
+
+Use this as a final gate for each repair. High-severity misses in prior runs
+came from not executing the exact prompt contract.
+
+## Requirement Ledger
+
+- Copy exact interface names from the prompt: type/function/method names,
+  struct fields, route paths, config keys, defaults, error strings, and payload
+  shapes.
+- Mark each requirement with one of: implemented, intentionally unchanged with
+  reason, or blocked with observed evidence.
+- Re-check literal wording before finalizing. Hidden tests often compile
+  against exact names such as `StreamEmitter`, `getRaw`, `BackoffDuration`, or
+  `durationSeconds`.
+
+## Behavioral Smoke Tests
+
+- Exercise every new public entry point directly, not only syntax or import
+  checks. For web/API work, call the controller or route layer and assert the
+  response body shape and error translation.
+- Cover negative paths from the prompt: missing records, denied privileges,
+  full queues, closed emitters, deleted resources, unsupported platforms,
+  expired deadlines, failed backends, and boundary positions.
+- For state machines, assert transitions at start, middle, end, stopped,
+  paused/playing, and invalid input boundaries.
+- For data import/parsing tasks, compare complete real fixture outputs against
+  expected outputs. Synthetic examples are useful only after at least one real
+  regression fixture passes exactly.
+- For filesystem/data-cleanup tasks, trace generated or transformed artifacts.
+  If the stored record is normalized, test the visible/generated filename too.
+- For configurable behavior, test the runtime config value shape used by the
+  project, including string values like `"0"` and `"1"` when applicable.
+- For multi-backend features, smoke every named backend/path and every explicit
+  selector value. Do not validate only the backend that is easiest to run.
+
+## Language/Repo Recipes
+
+- Go: search for `/tmp/go/bin/go` and `/tmp/go/bin/gofmt` before declaring Go
+  unavailable. Run gofmt on touched files, focused package tests, and compile
+  cross-platform build-tag paths when the prompt mentions a platform.
+- Python: run `python -m py_compile` or `compileall` on touched files, then a
+  direct smoke for changed behavior. Remove `__pycache__`, `.pyc`, `.pytest_cache`,
+  and test environment artifacts before finalizing.
+- JavaScript/TypeScript: syntax/type checks do not catch missing runtime imports
+  or wrong response shapes. Add a small Node smoke with stubs for changed app,
+  controller, or model methods when full dependencies are missing.
+- Missing-file tasks: search local/upstream history for the target file and its
+  tests. Run the narrow package or upstream tests after adapting the file.
+
+## Final Diff Hygiene
+
+- Run `git diff --check`.
+- Run `git status --short --untracked-files=all` and inspect untracked files.
+- Remove generated caches, local smoke files, downloaded fixtures, virtualenvs,
+  node caches, coverage output, and temporary logs unless the prompt explicitly
+  asks to add them.
+- If any normal test cannot run, state the exact command and the observed reason,
+  then compensate with the closest direct smoke you can execute.
+\end{promptbox}
+
+\begin{promptbox}[lst:art-swe-verify]{SWE-Bench Pro harness: \texttt{bin/repair-verify} (tool)}
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: repair-verify [repo] [--clean-pycache] [-- extra command...]
+
+Runs cheap, task-agnostic verification helpers from inside a SWE-bench repo:
+  - discovers common non-PATH Go/Python/Node tools
+  - runs git diff --check when the repo is a git worktree
+  - runs cheap syntax/package checks when obvious source files exist
+  - reports generated artifacts that should usually be removed
+  - optionally runs one extra task-specific command
+
+Examples:
+  harness/bin/repair-verify repo
+  harness/bin/repair-verify repo -- go test ./lib/events ./lib/service
+  harness/bin/repair-verify repo --clean-pycache -- python -m compileall -q lib
+EOF
+}
+
+repo="repo"
+clean_pycache=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    --clean-pycache)
+      clean_pycache=1
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      repo="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ ! -d "$repo" ]]; then
+  echo "repo directory not found: $repo" >&2
+  exit 2
+fi
+
+cd "$repo"
+
+find_tool() {
+  local name="$1"
+  shift
+  if command -v "$name" >/dev/null 2>&1; then
+    command -v "$name"
+    return 0
+  fi
+  for candidate in "$@"; do
+    if [[ -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+go_bin="$(find_tool go /tmp/go/bin/go || true)"
+gofmt_bin="$(find_tool gofmt /tmp/go/bin/gofmt || true)"
+python_bin="$(find_tool python3 /usr/bin/python3 /usr/local/bin/python3 || find_tool python /usr/bin/python || true)"
+node_bin="$(find_tool node /usr/bin/node /usr/local/bin/node || true)"
+
+echo "== discovered tools =="
+echo "go: ${go_bin:-not found}"
+echo "gofmt: ${gofmt_bin:-not found}"
+echo "python: ${python_bin:-not found}"
+echo "node: ${node_bin:-not found}"
+
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo
+  echo "== git diff check =="
+  git diff --check
+fi
+
+if [[ -n "$gofmt_bin" ]] && find . -path ./.git -prune -o -name '*.go' -print -quit | grep -q .; then
+  echo
+  echo "== gofmt check =="
+  unformatted="$("$gofmt_bin" -l $(find . -path ./.git -prune -o -name '*.go' -print))"
+  if [[ -n "$unformatted" ]]; then
+    echo "$unformatted"
+    echo "gofmt check failed: run gofmt on the files above" >&2
+    exit 1
+  fi
+fi
+
+if [[ -n "$go_bin" && -f go.mod ]]; then
+  echo
+  echo "== go package list =="
+  "$go_bin" list ./... >/dev/null
+fi
+
+if [[ -n "$python_bin" ]] && find . -path ./.git -prune -o -name '*.py' -print -quit | grep -q .; then
+  echo
+  echo "== python compile touched files =="
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    mapfile -t py_files < <(git diff --name-only --diff-filter=ACMR -- '*.py')
+    if [[ ${#py_files[@]} -gt 0 ]]; then
+      "$python_bin" -m py_compile "${py_files[@]}"
+    else
+      echo "no changed Python files"
+    fi
+  else
+    echo "not a git worktree; skipping touched-file compile"
+  fi
+fi
+
+if [[ -n "$node_bin" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  mapfile -t js_files < <(git diff --name-only --diff-filter=ACMR -- '*.js' '*.cjs' '*.mjs')
+  if [[ ${#js_files[@]} -gt 0 ]]; then
+    echo
+    echo "== node syntax touched js files =="
+    for file in "${js_files[@]}"; do
+      "$node_bin" --check "$file"
+    done
+  fi
+fi
+
+if [[ $# -gt 0 ]]; then
+  echo
+  echo "== extra command =="
+  "$@"
+fi
+
+if [[ "$clean_pycache" -eq 1 ]]; then
+  echo
+  echo "== cleaning python caches =="
+  find . \( -type d -name __pycache__ -o -type d -name .pytest_cache \) -prune -exec rm -rf {} +
+  find . -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
+fi
+
+echo
+echo "== generated artifact scan =="
+find . \
+  -path ./.git -prune -o \
+  \( -type d \( -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache -o -name .tox -o -name node_modules -o -name .nyc_output -o -name coverage \) \
+  -o -type f \( -name '*.pyc' -o -name '*.pyo' -o -name '*.profraw' -o -name '*.test' \) \) \
+  -print | sed -n 's#^\./##;1,200p'
+
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo
+  echo "== worktree status =="
+  git status --short --untracked-files=all
+fi
+
+echo
+echo "Reminder: run a direct smoke for the prompt contract: public API shape, negative paths, named backends/platforms, and boundary cases."
+\end{promptbox}
+
+\subsection{Terminal-Bench~2}
+
+\begin{promptbox}[lst:art-tb2-readme]{Terminal-Bench~2 harness: \texttt{README.md} (instructions)}
+# Terminal-Bench Harness Playbook
+
+Use this harness before solving a task and again before the final answer. The goal is to solve the task on its stated merits, leave the requested artifacts in the container, and avoid wasting time on paths that only satisfy a visible symptom.
+
+## First Pass
+
+1. Extract the contract from the prompt:
+   - final artifacts and exact paths, usually under `/app`
+   - exact command(s) or invocation style the grader may use
+   - allowed and forbidden files; treat `test/` and `tests/` as different names
+   - whether the task is black-box/API-only, reverse engineering, package repair, system setup, or stochastic implementation
+2. Use the host-to-container script pattern from the prompt for nontrivial commands. It avoids quoting failures and leaves a useful command trail in `/host-ws`.
+3. Inspect only sources that are consistent with the task. "Readable" is not the same as "methodologically allowed."
+4. Start with a tiny reproducible probe, then scale to the full input. Save intermediate scripts, logs, and validation commands in the host workspace when useful.
+
+## Integrity Boundaries
+
+For tasks framed as black-box recovery, model extraction, API querying, or "by making queries":
+
+- Do not read implementation internals to recover hidden parameters, constants, labels, or answers.
+- Import or execute only the public API needed for queries unless the prompt explicitly asks for source inspection.
+- Validate recovery with query-derived evidence: held-out probes, recurrence/support diagnostics, round-trip checks, or output agreement. Do not compare against hidden ground-truth variables even if they are exposed.
+
+For tasks asking for an emulator, interpreter, compiler, sampler, server, or independent reimplementation:
+
+- Prefer a general implementation path over task-specific state injection or host-side artifact synthesis.
+- If host hooks are necessary, keep them minimal and document why they preserve the requested abstraction.
+- Verify the final artifact is produced through the intended path. Example: an emulated program should create its own output through emulated syscalls, not through a host reconstruction of internal memory.
+
+## Final Validation Gate
+
+Before finishing, run a grader-shaped validation:
+
+- Run the exact command from the prompt, with the same flags and paths.
+- Compare all observable outputs that matter: files, stdout, stderr, exit status, sizes, and checksums when applicable.
+- Verify artifacts are in the container filesystem path that will be graded, not only in `/host-ws`.
+- Confirm forbidden paths and grading assets were not used.
+- Add at least one hidden-surface smoke check when the visible example is narrow: import more modules, exercise a second API form, test join/post/leave instead of only setup, or check geometry constraints after serialization.
+
+## Package And Container Repair
+
+Use this for Python/R/Cython/library compatibility tasks.
+
+- Keep dependency versions required by the prompt stable. Watch for `pip install` or build tools silently upgrading NumPy or other pinned packages.
+- Run the requested snippet from outside the source tree so imports come from the installed package.
+- Assert compiled extensions load from compiled artifacts, not fallback `.py` files:
+
+```sh
+python - <<'PY'
+import inspect
+from package import module
+print(inspect.getfile(module))
+PY
+```
+- Add broad, non-grader checks after the exact snippet:
+  - import representative public modules excluding forbidden test/grader paths
+  - `compileall` package code excluding test directories when syntax compatibility is a risk
+  - direct smoke calls for compiled helpers
+- Reuse `tools/python_package_smoke.py` for broad import, compiled-extension, and compile checks when it fits the package shape.
+- Prefer explicit, file-targeted compatibility patches over broad regex rewrites unless the rewrite is followed by a scan for unintended changes.
+
+## Reverse Engineering And Binary Matching
+
+- Collect behavior first: exit status, stdout, stderr, generated files, hashes, file sizes, and compression limits.
+- Rebuild with the exact prompt command. Optimized flags can change floating-point or layout-sensitive output.
+- Byte-compare every observable artifact. For generated images or binary files, compare both hashes and targeted structure fields.
+- If a source size limit exists, check the exact measurement command from the prompt.
+
+## Large File Editing And Vim Macros
+
+- Infer the transformation from head/tail/random samples and row counts before editing the real file.
+- Validate the script shape against the allowed command list and count macro keystrokes.
+- Prefer file-wide substitutions for simple regular transformations; per-line macros can be much slower at million-row scale.
+- When using Vim replacement strings, test escaping and backreferences on a tiny copy first.
+- Use portable timing fallbacks such as `date +%s` if `/usr/bin/time` is unavailable.
+- Final check: run headless Vim on a saved copy or the real input, then `cmp` against the expected file.
+
+## Geometry And Segmentation Outputs
+
+For mask conversion or image-geometry tasks:
+
+- Use the required model family and real weights when the prompt requires real segmentation. A randomly initialized checkpoint only validates plumbing.
+- Keep the CLI general: no hardcoded demo paths; support the prompt's positional/flag style when ambiguous.
+- After writing CSV/JSON outputs, validate the serialized artifact, not just the in-memory masks:
+  - row count and non-geometry columns preserved
+  - all masks are polylines, closed when the format expects closure
+  - no rectangle-like fallback polygons
+  - exactly one connected component per object
+  - no rasterized overlaps after contour export
+- Reuse `tools/validate_mask_csv.py` for CSV polygon masks when the column names match the prompt.
+- If CPU inference is slow, batch independent model calls where the library supports it.
+
+## Metacircular Or Language Tasks
+
+- Treat visible `test/` programs as sanctioned examples unless the prompt forbids that exact path. Do not touch `tests/`, `test_outputs`, grader logs, or solution files.
+- Compare native interpreter output against the new evaluator/interpreter on every visible program.
+- Include the prompt's nested/self-hosting example as a final smoke check.
+- Avoid special-casing the evaluator's own filename unless the prompt explicitly allows it; it weakens evidence that self-interpretation really works.
+
+## System Service Tasks
+
+- Prefer normal service CLIs over low-level database/API object creation, because defaults often populate domains, styles, policies, queues, and pipelines.
+- Verify ownership and runtime directories before starting daemons.
+- Do not trust a single status command; also check processes, queues, logs, and direct behavior.
+- Build a full behavioral smoke test from the prompt. For a mailing list, that means join confirmation, posting delivery to subscribers, leave confirmation, queue drain, and final policy values.
+
+## Scientific Or Stochastic Implementations
+
+- Confirm the runtime exists and install the minimal required runtime if it does not.
+- The public `test()` function should print clear `NAME: PASS` or `NAME: FAIL` lines plus relevant statistics.
+- Test both the public sampler and any complex helper modules.
+- Include deterministic invalid-input checks and at least one rejection case for violated assumptions, such as non-log-concavity.
+- For stochastic outputs, compare distribution statistics with tolerances and persist the required sample file.
+
+## Constraint/Solver Recovery Tasks
+
+- For small ciphers or exact finite-state systems, encode the exact operations as constraints when that is simpler than deriving a full attack by hand.
+- Constrain all available known examples when feasible, not just the minimum needed to get one candidate.
+- Validate recovered parameters against every known pair, then validate the final deliverable with the provided encrypt/decrypt or round-trip path.
+\end{promptbox}
+
+\begin{promptbox}[lst:art-tb2-smoke]{Terminal-Bench~2 harness: \texttt{tools/python\_package\_smoke.py} (tool)}
+#!/usr/bin/env python3
+"""Run installed-package smoke checks without touching test/grader paths."""
+
+from __future__ import annotations
+
+import argparse
+import compileall
+import importlib
+import inspect
+import pkgutil
+from pathlib import Path
+
+
+FORBIDDEN_PARTS = {
+    "test",
+    "tests",
+    "test_outputs",
+    "solution",
+    "logs",
+    "verifier",
+    "__pycache__",
+}
+
+
+def forbidden(path: Path) -> bool:
+    return any(part in FORBIDDEN_PARTS for part in path.parts)
+
+
+def iter_modules(package_name: str, limit: int | None) -> list[str]:
+    package = importlib.import_module(package_name)
+    names = [package_name]
+    package_path = getattr(package, "__path__", None)
+    if package_path is not None:
+        for module in pkgutil.walk_packages(package_path, prefix=f"{package_name}."):
+            lower_parts = set(module.name.lower().split("."))
+            if lower_parts & FORBIDDEN_PARTS:
+                continue
+            names.append(module.name)
+            if limit is not None and len(names) >= limit:
+                break
+    return names
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("package")
+    parser.add_argument("--compiled-module", action="append", default=[])
+    parser.add_argument("--import-limit", type=int, default=200)
+    parser.add_argument("--compileall", action="store_true")
+    args = parser.parse_args()
+
+    failures: list[str] = []
+    imported = 0
+    for name in iter_modules(args.package, args.import_limit):
+        try:
+            importlib.import_module(name)
+            imported += 1
+        except Exception as exc:  # noqa: BLE001 - smoke tool should report all failures
+            failures.append(f"import failed {name}: {type(exc).__name__}: {exc}")
+
+    for name in args.compiled_module:
+        try:
+            module = importlib.import_module(name)
+            path = inspect.getfile(module)
+        except Exception as exc:  # noqa: BLE001
+            failures.append(f"compiled module import failed {name}: {type(exc).__name__}: {exc}")
+            continue
+        if not any(path.endswith(suffix) for suffix in (".so", ".pyd", ".dll", ".dylib")):
+            failures.append(f"{name} did not load from a compiled extension: {path}")
+
+    if args.compileall:
+        package = importlib.import_module(args.package)
+        roots = [Path(path) for path in getattr(package, "__path__", [])]
+        for root in roots:
+            for py_file in root.rglob("*.py"):
+                if forbidden(py_file):
+                    continue
+                ok = compileall.compile_file(str(py_file), quiet=1)
+                if not ok:
+                    failures.append(f"compile failed {py_file}")
+
+    if failures:
+        print(f"PYTHON_PACKAGE_SMOKE: FAIL imported={imported}")
+        for failure in failures[:80]:
+            print(failure)
+        if len(failures) > 80:
+            print(f"... {len(failures) - 80} more failures")
+        return 1
+
+    print(f"PYTHON_PACKAGE_SMOKE: PASS imported={imported}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+\end{promptbox}
+
+\begin{promptbox}[lst:art-tb2-mask]{Terminal-Bench~2 harness: \texttt{tools/validate\_mask\_csv.py} (tool)}
+#!/usr/bin/env python3
+"""Validate polygon mask CSV outputs for segmentation/refinement tasks.
+
+The checker is intentionally structural: it does not judge segmentation quality,
+but it catches common grading-surface failures after serialization.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+def parse_coords(value: object) -> list[float]:
+    if isinstance(value, (list, tuple, np.ndarray)):
+        return [float(x) for x in value]
+    text = str(value).strip()
+    if not text:
+        return []
+    try:
+        parsed = ast.literal_eval(text)
+    except (ValueError, SyntaxError):
+        text = text.strip("[]")
+        if not text:
+            return []
+        return [float(part) for part in text.replace(";", ",").split(",") if part.strip()]
+    if not isinstance(parsed, (list, tuple)):
+        return []
+    return [float(x) for x in parsed]
+
+
+def is_rectangle_like(xs: list[float], ys: list[float]) -> bool:
+    points = list(zip(xs, ys))
+    if len(points) < 4:
+        return False
+    unique = list(dict.fromkeys(points))
+    if len(unique) == 5 and unique[0] == unique[-1]:
+        unique = unique[:-1]
+    if len(unique) != 4:
+        return False
+    return len({x for x, _ in unique}) == 2 and len({y for _, y in unique}) == 2
+
+
+def rasterize_with_numpy(points: np.ndarray, height: int, width: int) -> np.ndarray:
+    mask = np.zeros((height, width), dtype=np.uint8)
+    min_x = max(0, int(np.floor(points[:, 0].min())))
+    max_x = min(width - 1, int(np.ceil(points[:, 0].max())))
+    min_y = max(0, int(np.floor(points[:, 1].min())))
+    max_y = min(height - 1, int(np.ceil(points[:, 1].max())))
+    if min_x > max_x or min_y > max_y:
+        return mask
+
+    x_centers = np.arange(min_x, max_x + 1, dtype=float) + 0.5
+    for y in range(min_y, max_y + 1):
+        y_center = y + 0.5
+        inside = np.zeros_like(x_centers, dtype=bool)
+        j = len(points) - 1
+        for i in range(len(points)):
+            xi, yi = points[i]
+            xj, yj = points[j]
+            crosses = (yi > y_center) != (yj > y_center)
+            if crosses:
+                x_intersect = (xj - xi) * (y_center - yi) / (yj - yi) + xi
+                inside ^= x_centers < x_intersect
+            j = i
+        mask[y, min_x : max_x + 1] = inside.astype(np.uint8)
+    return mask
+
+
+def rasterize(xs: list[float], ys: list[float], height: int, width: int) -> np.ndarray:
+    pts = np.array([[round(x), round(y)] for x, y in zip(xs, ys)], dtype=np.int32)
+    pts[:, 0] = np.clip(pts[:, 0], 0, width - 1)
+    pts[:, 1] = np.clip(pts[:, 1], 0, height - 1)
+    if len(pts) < 3:
+        return np.zeros((height, width), dtype=np.uint8)
+    try:
+        import cv2
+
+        mask = np.zeros((height, width), dtype=np.uint8)
+        cv2.fillPoly(mask, [pts], 1)
+        return mask
+    except ImportError:
+        return rasterize_with_numpy(pts.astype(float), height, width)
+
+
+def connected_components(mask: np.ndarray) -> int:
+    try:
+        import cv2
+
+        count, _ = cv2.connectedComponents(mask.astype(np.uint8), connectivity=8)
+        return int(count - 1)
+    except ImportError:
+        seen = np.zeros(mask.shape, dtype=bool)
+        active = mask.astype(bool)
+        components = 0
+        height, width = mask.shape
+        for y, x in np.argwhere(active):
+            if seen[y, x]:
+                continue
+            components += 1
+            stack = [(int(y), int(x))]
+            seen[y, x] = True
+            while stack:
+                cy, cx = stack.pop()
+                for ny in range(max(0, cy - 1), min(height, cy + 2)):
+                    for nx in range(max(0, cx - 1), min(width, cx + 2)):
+                        if active[ny, nx] and not seen[ny, nx]:
+                            seen[ny, nx] = True
+                            stack.append((ny, nx))
+        return components
+
+
+def infer_canvas(df: pd.DataFrame, margin: int) -> tuple[int, int]:
+    xmax = int(np.ceil(pd.to_numeric(df["xmax"]).max())) + margin
+    ymax = int(np.ceil(pd.to_numeric(df["ymax"]).max())) + margin
+    return max(1, ymax), max(1, xmax)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input-csv", help="Optional original CSV for row/column preservation checks")
+    parser.add_argument("--output-csv", required=True)
+    parser.add_argument("--width", type=int)
+    parser.add_argument("--height", type=int)
+    parser.add_argument("--margin", type=int, default=3)
+    args = parser.parse_args()
+
+    output_path = Path(args.output_csv)
+    df = pd.read_csv(output_path)
+    required = {"xmin", "xmax", "ymin", "ymax", "coords_x", "coords_y"}
+    missing = required - set(df.columns)
+    failures: list[str] = []
+    if missing:
+        failures.append(f"missing columns: {sorted(missing)}")
+        print("\n".join(failures))
+        return 1
+
+    if args.input_csv:
+        original = pd.read_csv(args.input_csv)
+        if len(original) != len(df):
+            failures.append(f"row count changed: input={len(original)} output={len(df)}")
+        lost = [col for col in original.columns if col not in df.columns]
+        if lost:
+            failures.append(f"output lost input columns: {lost}")
+
+    height, width = (
+        (args.height, args.width)
+        if args.height and args.width
+        else infer_canvas(df, args.margin)
+    )
+
+    occupied = np.zeros((height, width), dtype=np.uint16)
+    for idx, row in df.iterrows():
+        xs = parse_coords(row["coords_x"])
+        ys = parse_coords(row["coords_y"])
+        if len(xs) != len(ys):
+            failures.append(f"row {idx}: coords_x/coords_y length mismatch")
+            continue
+        if len(xs) < 4:
+            failures.append(f"row {idx}: fewer than 4 polygon points")
+            continue
+        if (xs[0], ys[0]) != (xs[-1], ys[-1]):
+            failures.append(f"row {idx}: polygon is not closed")
+        if is_rectangle_like(xs, ys):
+            failures.append(f"row {idx}: rectangle-like polygon")
+        mask = rasterize(xs, ys, height, width)
+        components = connected_components(mask)
+        if components != 1:
+            failures.append(f"row {idx}: connected components={components}")
+        occupied += mask.astype(np.uint16)
+
+    overlap_pixels = int((occupied > 1).sum())
+    if overlap_pixels:
+        failures.append(f"raster overlap pixels={overlap_pixels}")
+
+    if failures:
+        print("MASK_CSV_VALIDATION: FAIL")
+        for failure in failures[:50]:
+            print(failure)
+        if len(failures) > 50:
+            print(f"... {len(failures) - 50} more failures")
+        return 1
+
+    print(f"MASK_CSV_VALIDATION: PASS rows={len(df)} canvas={width}x{height}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+\end{promptbox}
+
+\subsection{GAIA-2}
+
+\begin{promptbox}[lst:art-gaia-readme]{GAIA-2 harness: \texttt{README.md} (instructions)}
+# GAIA-2 Harness Notes
+
+Use this as the first checklist for future GAIA-2 ARE tasks. The recurring failures in prior runs were weak evidence before writes, ambiguous references, exact timing/quoted-text drift, missed mandatory side effects, and noisy tool discovery.
+
+## First Minute
+
+1. Read the user request through AgentUserInterface, not the Codex prompt or `poll` alone:
+
+   ```bash
+   python task/tools/are.py call AgentUserInterface get_all_messages --json '{}'
+   ```
+
+2. Read `task/tools/catalog.json` for app and function names. Avoid dumping the full `are.py list` output unless the catalog is missing or corrupt.
+3. Get the simulated current time before resolving relative dates, windows, "today", "this month", or deadline math:
+
+   ```bash
+   python task/tools/are.py call SystemApp get_current_time --json '{}'
+   ```
+
+4. For each needed function, inspect its exact schema before calling it:
+
+   ```bash
+   python task/tools/are.py schema <AppName> <function_name>
+   ```
+
+5. Do not read `task/.gaia2/scenario.json`. Avoid broad `.gaia2_state` or sidecar-log inspection; use app APIs unless normal APIs cannot expose required evidence.
+
+## Request Decomposition
+
+Before writes, make a short private checklist:
+
+- Mandatory writes: every send, create, delete, order, move, booking, or final user reply that must happen.
+- Conditional writes: the exact condition, evidence needed, and action if the condition is not met.
+- Ambiguous references: any phrase that could match multiple emails, files, people, events, products, or conversations.
+- Exact details: quoted strings, punctuation, quantities, service types, addresses, dates, times, folders, and recipients.
+- Verification: one read-back call after each write, then `python task/tools/are.py poll` after writes that may trigger environment replies.
+
+Do not let a conditional branch swallow a later mandatory instruction. A sentence like "Then email X that the cab was ordered" is still mandatory unless the user clearly made it conditional.
+
+## Evidence Rules Before Acting
+
+- Never send, move, delete, reply to, order, or book based only on filename, loose search hits, or an inferred heuristic.
+- For file tasks, confirm the target by content. If an ARE file read returns empty or lazy-loaded content, use the catalog/schema to find another content/search/read operation and keep searching. If content remains unavailable, treat selection as unresolved instead of guessing from a filename.
+- For email tasks, search results may match body text as well as subject. If the user asks for a subject/title, read candidate metadata and manually filter by subject.
+- For chats/messages, resolve search result IDs back to participant names before acting.
+- For product variants, verify availability, exact variant attributes, quantity, and price/order state after checkout.
+- For calendar duration/count comparisons, page all events in the relevant range and compute totals once in a small script instead of eyeballing partial views.
+
+## Ambiguity Policy
+
+When a user reference has multiple plausible targets:
+
+1. Enumerate the candidates with stable identifiers and distinguishing metadata.
+2. If the user told you to clarify on issues, ask through AgentUserInterface and wait only as long as the task gives you a deadline or the environment convention requires.
+3. For irreversible external actions such as sending email, deleting files/events, ordering products, or booking rides, do not invent a fallback after no clarification. Complete unambiguous parts, report the unresolved blocker to the user through AgentUserInterface, and do not perform the ambiguous write.
+4. Only use a fallback when the user specified it or the app data gives a single unambiguous, documented rule.
+
+## Timing And Waiting
+
+Treat timing constraints as first-class requirements.
+
+- Compute absolute deadlines from the user message timestamp/current simulated time before doing other work.
+- Keep exact target times visible in notes, for example "reply at 2024-10-15 07:04:00; add to cart at 07:04:30".
+- Pre-resolve all target IDs, payloads, product variants, and quoted strings before waiting for a deadline. After the wait, execute the deadline writes directly with no extra search or schema discovery in between.
+- If several writes share one exact timestamp, use the fastest direct-call path available. Avoid per-item searching between writes; prepare the call arguments first.
+- `wait` and notification calls may return early or advance simulated time in chunks. Do not run background or wall-clock loops that keep advancing time while you are acting.
+- Prefer bounded waits to the next absolute deadline, then immediately perform the deadline action.
+- When monitoring a window, filter/read messages by timestamp and ignore messages outside the requested window, even if they appear during an extra check.
+- For post-email replies, verify via timestamp, parent/thread id, sender, and full inbox pagination when needed.
+
+Exact quoted text matters. Preserve punctuation inside quotes, including trailing commas, and verify created titles/bodies by reading them back.
+
+## Pagination And Aggregation
+
+Many list APIs are paginated or have view limits. Page until exhaustion, not until the first useful hit:
+
+- Keep the same filters while advancing offset/page tokens.
+- Stop when an empty page is returned or a page has fewer items than the requested limit.
+- Record count evidence before the final answer when the task asks for "most", "how many", "latest", or "which app has more".
+- Use `harness/are_helper.py page ...` when a function uses simple `limit`/`offset` arguments.
+
+## User-Facing Protocol
+
+- The Codex final answer is only a run summary. It does not count as the GAIA-2 user reply.
+- Send progress/completion/blocker messages with AgentUserInterface `send_message_to_user`.
+- Before the final AUI message, confirm every mandatory write is either done and verified, intentionally skipped because its condition was false, or blocked by explicit unresolved ambiguity.
+
+## Helper Script
+
+`harness/are_helper.py` wraps common ARE calls and avoids shell quoting/JQ mistakes.
+
+Examples:
+
+```bash
+python harness/are_helper.py catalog --app Emails
+python harness/are_helper.py schema Emails search_emails
+python harness/are_helper.py call AgentUserInterface send_message_to_user --json '{"content":"Done"}'
+python harness/are_helper.py page Contacts list_contacts --limit 100 --json '{}'
+```
+
+Use the helper for convenience, but still inspect the schema for exact argument names.
+\end{promptbox}
+
+\begin{promptbox}[lst:art-gaia-helper]{GAIA-2 harness: \texttt{are\_helper.py} (tool)}
+#!/usr/bin/env python3
+"""Small ARE command helper for GAIA-2 tasks.
+
+The script intentionally stays generic: it shells out to task/tools/are.py,
+keeps JSON quoting inside Python, and provides a simple offset/limit paginator
+for APIs with standard pagination arguments.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+
+COMMON_ITEM_KEYS = (
+    "items",
+    "results",
+    "data",
+    "records",
+    "messages",
+    "emails",
+    "events",
+    "contacts",
+    "conversations",
+    "products",
+    "orders",
+    "rides",
+    "files",
+    "entries",
+)
+
+
+def parse_json_arg(raw: str) -> dict[str, Any]:
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"--json is not valid JSON: {exc}") from exc
+    if not isinstance(value, dict):
+        raise SystemExit("--json must decode to an object")
+    return value
+
+
+def are_py(task_root: str) -> Path:
+    path = Path(task_root) / "tools" / "are.py"
+    if not path.exists():
+        raise SystemExit(f"ARE tool not found: {path}")
+    return path
+
+
+def run_are(task_root: str, args: list[str]) -> Any:
+    cmd = [sys.executable, str(are_py(task_root)), *args]
+    proc = subprocess.run(cmd, text=True, capture_output=True)
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stderr)
+        sys.stderr.write(proc.stdout)
+        raise SystemExit(proc.returncode)
+
+    out = proc.stdout.strip()
+    if not out:
+        return None
+    try:
+        return json.loads(out)
+    except json.JSONDecodeError:
+        return out
+
+
+def print_json(value: Any) -> None:
+    print(json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True))
+
+
+def command_catalog(args: argparse.Namespace) -> None:
+    path = Path(args.task_root) / "tools" / "catalog.json"
+    if not path.exists():
+        raise SystemExit(f"Catalog not found: {path}")
+    catalog = json.loads(path.read_text())
+    if args.app is None:
+        print_json(catalog)
+        return
+
+    needle = args.app.lower()
+
+    def keep(value: Any) -> Any:
+        if isinstance(value, dict):
+            kept: dict[str, Any] = {}
+            for key, child in value.items():
+                child_kept = keep(child)
+                if needle in str(key).lower() or child_kept not in (None, {}, []):
+                    kept[key] = child if needle in str(key).lower() else child_kept
+            return kept
+        if isinstance(value, list):
+            kept_list = [item for item in (keep(item) for item in value) if item not in (None, {}, [])]
+            return kept_list
+        if needle in str(value).lower():
+            return value
+        return None
+
+    print_json(keep(catalog))
+
+
+def command_schema(args: argparse.Namespace) -> None:
+    print_json(run_are(args.task_root, ["schema", args.app, args.function]))
+
+
+def command_call(args: argparse.Namespace) -> None:
+    payload = parse_json_arg(args.json)
+    print_json(
+        run_are(
+            args.task_root,
+            ["call", args.app, args.function, "--json", json.dumps(payload, ensure_ascii=False)],
+        )
+    )
+
+
+def extract_items(result: Any, explicit_key: str | None) -> list[Any]:
+    if explicit_key:
+        if not isinstance(result, dict) or explicit_key not in result:
+            raise SystemExit(f"Result does not contain items key {explicit_key!r}")
+        items = result[explicit_key]
+    elif isinstance(result, list):
+        items = result
+    elif isinstance(result, dict):
+        items = None
+        for key in COMMON_ITEM_KEYS:
+            if isinstance(result.get(key), list):
+                items = result[key]
+                break
+        if items is None:
+            list_values = [value for value in result.values() if isinstance(value, list)]
+            if len(list_values) == 1:
+                items = list_values[0]
+            else:
+                raise SystemExit(
+                    "Could not infer list field. Re-run with --items-key. "
+                    f"Top-level keys: {', '.join(result.keys())}"
+                )
+    else:
+        raise SystemExit(f"Cannot paginate non-list result of type {type(result).__name__}")
+
+    if not isinstance(items, list):
+        raise SystemExit("Inferred items value is not a list")
+    return items
+
+
+def command_page(args: argparse.Namespace) -> None:
+    base = parse_json_arg(args.json)
+    offset = args.start
+    all_items: list[Any] = []
+    pages = 0
+
+    while True:
+        payload = dict(base)
+        payload[args.limit_key] = args.limit
+        payload[args.offset_key] = offset
+        result = run_are(
+            args.task_root,
+            ["call", args.app, args.function, "--json", json.dumps(payload, ensure_ascii=False)],
+        )
+        items = extract_items(result, args.items_key)
+        all_items.extend(items)
+        pages += 1
+        if not items or len(items) < args.limit:
+            break
+        if args.max_pages is not None and pages >= args.max_pages:
+            break
+        offset += args.limit
+
+    print_json({"count": len(all_items), "pages": pages, "items": all_items})
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--task-root", default="task", help="Task root containing tools/are.py")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    catalog = sub.add_parser("catalog", help="Print catalog.json, optionally filtered by app text")
+    catalog.add_argument("--app")
+    catalog.set_defaults(func=command_catalog)
+
+    schema = sub.add_parser("schema", help="Print one function schema")
+    schema.add_argument("app")
+    schema.add_argument("function")
+    schema.set_defaults(func=command_schema)
+
+    call = sub.add_parser("call", help="Call one ARE function with JSON args")
+    call.add_argument("app")
+    call.add_argument("function")
+    call.add_argument("--json", default="{}")
+    call.set_defaults(func=command_call)
+
+    page = sub.add_parser("page", help="Collect all pages for offset/limit list APIs")
+    page.add_argument("app")
+    page.add_argument("function")
+    page.add_argument("--json", default="{}", help="Base JSON args excluding limit/offset")
+    page.add_argument("--limit", type=int, default=100)
+    page.add_argument("--start", type=int, default=0)
+    page.add_argument("--limit-key", default="limit")
+    page.add_argument("--offset-key", default="offset")
+    page.add_argument("--items-key")
+    page.add_argument("--max-pages", type=int)
+    page.set_defaults(func=command_page)
+    return parser
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
+\end{promptbox}
+

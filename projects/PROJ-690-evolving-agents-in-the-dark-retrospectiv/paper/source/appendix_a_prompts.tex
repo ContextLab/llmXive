@@ -1,0 +1,308 @@
+\section{Prompts}\label{app:prompts}
+
+This appendix collects the prompts that instantiate the five agent
+operators of \method{} (\S\ref{sec:setting}, Algorithm~\ref{alg:rho},
+Figure~\ref{fig:rho-pipeline}), namely $\mathrm{solve}$, the difficulty judge
+used in Coreset Selection, the diagnosis analysis, $\mathrm{optimize}$,
+and $\mathrm{rank}$. The prompts are reproduced verbatim. Placeholders
+of the form \texttt{\{name\}} are filled at call time with the values
+described under each block.
+
+\subsection{Solve}
+
+Every $\mathrm{solve}(h, t)$ call materializes the harness and the
+task into a fresh workspace at \texttt{harness/} and \texttt{task/} and
+hands the agent the wrapper instructions below. The wrapper is
+task-agnostic, in that the harness directory carries all task-shaping
+guidance, and the agent is told only how to read the workspace and how
+to deliver a final answer. The same wrapper is reused for the
+baseline rollout and for every candidate-harness rollout so that
+$\mathrm{solve}$ is the only varying input.
+
+\begin{promptbox}[lst:solve]{The $\mathrm{solve}$ wrapper prompt.}
+Solve the task defined in task/prompt.md, using the information and tools available under harness/.
+
+The harness (harness/) is a toolkit of resources and guidance that helps the agent solve tasks. It can contain any type of file - helper scripts, artifacts, environment setup, documentation with relevant context, and workflows to follow.
+
+Workspace layout:
+  harness/   - read and invoke anything here, but do not modify it
+  task/      - files for this task, including prompt.md
+
+Steps:
+1. Familiarize yourself with the information and available tools in harness/.
+2. Read and analyze task/prompt.md.
+3. Complete the task. For code repair tasks, modify files directly under task/repo/.
+4. Present your final answer in your last message, in the format prompt.md specifies (or plain prose if unspecified).
+\end{promptbox}
+
+\subsection{Coreset Selection (Difficulty Judge)}
+
+The difficulty judge produces the score $r_i \in [0, 10]$ and the
+abstract fingerprint $\phi_i$ that drive the DPP coreset selector of
+\S 4.1. It sees the task description together with a length-bounded
+digest of one short prior trajectory under the current harness. The
+digest is truncated head/tail to a fixed token budget, and any
+commands that read the task's expected-answer files are scrubbed
+before the digest is shown to the judge. The judge is asked to keep
+the fingerprint in task-agnostic structural vocabulary so that
+fingerprints from different codebases remain comparable under cosine
+similarity.
+
+\begin{promptbox}[lst:judge]{The difficulty judge prompt used in Coreset Selection.}
+Rate the difficulty of the following software engineering task and write
+an abstract structural fingerprint of it. You may also use the observed
+agent run below to inform your judgment.
+
+Output a JSON object (no markdown fences, no extra text):
+{
+  "difficulty": <float in [0.0, 10.0]>,
+  "abstract_fingerprint": "<see guide below>"
+}
+
+Difficulty scale:
+- 0-2: trivial (obvious one-line fix, cosmetic change).
+- 3-5: moderate (localized change, well-defined spec).
+- 6-8: hard (multi-file, non-obvious design, subtle bugs).
+- 9-10: very hard (cross-cutting refactor, deep reasoning required).
+
+Abstract fingerprint guide - 3-5 sentences (~60-120 words) describing
+the *shape* of the problem in vocabulary that would apply equally to
+any software project. Cover:
+- Failure mode: what typically goes wrong (partial propagation,
+  missed boundary case, silent precedence regression, broken invariant
+  under a new branch, etc.).
+- Source of difficulty: what makes it hard or easy (scattered
+  invariants, ambiguous spec, tight coupling, purely localized
+  arithmetic, etc.).
+- Technical complexity: scope (single-function / multi-file /
+  cross-module / architectural), reasoning depth (local / contextual /
+  global invariant tracking), type of change (bug fix / feature /
+  refactor / rollback).
+
+Do NOT mention: repository, product, company, framework, or library
+names; file paths; function, class, config, or variable names;
+domain-specific nouns tied to a particular codebase. Use only abstract
+structural programming vocabulary (invariant, precedence, boundary,
+state reconciliation, propagation, ordering, contract, etc.).
+
+The observed agent run contains concrete file paths, library names, and
+tool output. Abstract these out the same way - fingerprints describe
+shapes, not the specific codebase the agent happened to run in.
+
+The observed run is a single noisy sample, not ground truth. Do not
+lower difficulty just because the agent appeared to succeed in one
+attempt, and do not raise difficulty just because one attempt thrashed
+on bootstrap issues. Treat the trajectory as evidence that adjusts your
+prior on task difficulty and failure mode; weight it relative to what
+the task description itself implies.
+
+Example of a well-abstracted fingerprint:
+  "A multi-file refactor whose difficulty comes from keeping a single
+  shared invariant consistent across several independently-evolving
+  modules; the typical failure mode is partial propagation, where one
+  call site adopts the new contract while another silently keeps the
+  old, producing a latent bug that only surfaces under a specific
+  input ordering. Spec ambiguity is low but reasoning must be global -
+  the change is mechanically small per site but requires tracing a
+  contract through the call graph."
+
+Task:
+---
+{query}
+---
+
+Observed agent run (under the current harness):
+---
+{trajectory_digest}
+---
+\end{promptbox}
+
+\noindent\texttt{\{query\}} is the natural-language task description.
+\texttt{\{trajectory\_digest\}} is the scrubbed, head/tail-truncated
+digest of one prior trajectory for the same task. This difficulty
+value is the score $r_i \in [0,10]$ that enters the DPP
+kernel, where it is normalized by $r_i/10$ as in \S 4.1, and the
+fingerprint is embedded to a unit vector $x_i$ that defines the
+similarity matrix $S = X X^\top$.
+
+\subsection{Diagnosis}
+
+The diagnosis prompt implements
+$I_t = \mathrm{rank}_{\mathrm{val}}(t, \{\tau_g\}_{g=1}^{G}) \cup \mathrm{rank}_{\mathrm{con}}(t, \{\tau_g\}_{g=1}^{G})$ (\S 4.2). The
+workspace presents the agent with the original task, the shared
+harness used by every rollout, and $G$ rollout directories. The agent
+executes a five-step workflow, comprising per-trajectory inspection, failure-mode
+analysis (\emph{self-validation}), cross-trajectory disagreement
+analysis (\emph{self-consistency}), a single high-level harness
+improvement direction, and a severity score that doubles as a soft
+attention weight downstream. The structured JSON output binds each
+field to a fixed slot so $\mathrm{optimize}$ can attend by severity.
+
+\begin{promptbox}[lst:diagnose]{The diagnosis prompt.}
+Analyze three solve trajectories for the same task.
+
+The harness (harness/) is a toolkit of resources and guidance that helps the agent solve tasks. It can contain any type of file - helper scripts, artifacts, environment setup, documentation with relevant context, and workflows to follow.
+
+Workspace layout:
+  task/              - the original task. Read task/prompt.md to understand the question.
+  harness/           - the shared harness used by all three trajectories.
+  trajectory_0/      - first solve attempt. Contains events.jsonl, final_message.txt, and workspace_diff/.
+  trajectory_1/      - second solve attempt. Contains events.jsonl, final_message.txt, and workspace_diff/.
+  trajectory_2/      - third solve attempt. Contains events.jsonl, final_message.txt, and workspace_diff/.
+
+Your job is to analyze and evaluate the three trajectories. Follow this workflow:
+
+## Step 1: Inspect each trajectory
+
+For each of trajectory_0, trajectory_1, and trajectory_2:
+
+1. Inspect final_message.txt and events.jsonl to understand the action and decision process.
+2. Evaluate whether the trajectory accurately and efficiently completed the task.
+3. Set successful to 1 if the trajectory accurately completed the task, otherwise set it to 0.
+4. In quality_analysis, note what evidence, files, tools, or reasoning steps the trajectory relied on, and whether there was unnecessary work, missed information, misleading evidence, or an incorrect decision.
+
+## Step 2: Analyze failure modes
+
+If all three trajectories accurately and efficiently completed the task, this section can be brief. Otherwise, analyze why one or more trajectories failed or performed poorly. Make this analysis faithful and actionable. Ground it in what the trajectories actually did.
+
+## Step 3: Analyze inconsistency
+
+Compare the three event sequences and final answers. Identify whether there are inconsistencies among them: where and why the trajectories diverged, and how those differences affected the behavior.
+
+## Step 4: Summarize harness improvement direction
+
+Suggest one high-level, simple direction for improving the harness. This should be a general improvement direction based on the trajectory analysis, not a detailed edit plan and not a task-specific hardcoded fix.
+
+## Step 5: Assign severity
+
+Set severity to a float from 0.0 to 1.0 for how strongly this task should influence the next harness optimization:
+
+- 0.0: no meaningful issue; all trajectories answered accurately and efficiently.
+- 0.1-0.3: minor inefficiency or weak concern; do not optimize from this alone.
+- 0.4-0.7: mixed success, inconsistency, or a plausible harness gap.
+- 0.8-1.0: clear failure, missing information, or a high-confidence harness issue.
+
+## Output format
+
+Your final message must be exactly one JSON object (no markdown fences, no other text):
+{
+  "task_id": "<task id, if available from the task prompt or context>",
+  "severity": 0.0,
+  "trajectory_analyses": [
+    {
+      "trajectory": "trajectory_0",
+      "successful": 1,
+      "quality_analysis": "<faithful analysis of whether this trajectory completed the task accurately and efficiently>",
+      "issues": "<any missed information, misleading evidence, inefficiency, or incorrect decision; empty string if none>"
+    },
+    {
+      "trajectory": "trajectory_1",
+      "successful": 1,
+      "quality_analysis": "<faithful analysis of whether this trajectory completed the task accurately and efficiently>",
+      "issues": "<any missed information, misleading evidence, inefficiency, or incorrect decision; empty string if none>"
+    },
+    {
+      "trajectory": "trajectory_2",
+      "successful": 1,
+      "quality_analysis": "<faithful analysis of whether this trajectory completed the task accurately and efficiently>",
+      "issues": "<any missed information, misleading evidence, inefficiency, or incorrect decision; empty string if none>"
+    }
+  ],
+  "failure_mode_analysis": "<actionable analysis in markdown of why any trajectory failed or performed poorly; brief if none failed>",
+  "inconsistency_analysis": "<root-cause analysis in markdown of where and why the trajectories diverged, and how that affected quality>",
+  "harness_improvement_direction": "<one high-level, simple direction for improving the harness>"
+}
+\end{promptbox}
+
+\noindent\looseness=-1 The trajectory directories carry the full event stream, the
+agent's final message, and any workspace diff produced by the rollout.
+The \texttt{$-$self-validation} and \texttt{$-$self-consistency}
+ablations in Table~\ref{tab:diagnosis} remove the corresponding step
+and the corresponding output field, and the surrounding scaffolding is
+left intact.
+
+\subsection{Optimization}
+
+The optimization prompt implements
+$h_j = \mathrm{optimize}(h_0, \{I_t\}_{t \in \mathcal{D}_{\mathrm{core}}})$
+(\S 4.3). The editor agent is given write access to a fresh copy of
+the harness and a directory of per-task diagnoses sorted by severity.
+The instruction frames severity as a soft attention weight, requires
+cross-task pattern matching before any edit, and discourages
+task-specific hardcoded fixes. Each of the $N$ candidates is sampled
+independently with the same prompt, and randomness from the underlying
+agent supplies the diversity.
+
+\begin{promptbox}[lst:optimize]{The $\mathrm{optimize}$ prompt.}
+Based on the per-task diagnoses in diagnoses/, analyze and optimize the current harness/ to improve performance on future tasks. "Better performance" means the agent's final answer more directly and correctly answers what each task asks, with fewer wasted steps.
+
+The harness (harness/) is a toolkit of resources and guidance that helps the agent solve tasks. It can contain any type of file - helper scripts, artifacts, environment setup, documentation with relevant context, and workflows to follow.
+
+Workspace layout:
+  harness/       - the current harness; you may directly modify it (add/remove/edit any files)
+  diagnoses/     - one subdirectory per task, each containing:
+    - diagnosis.md  - structured trajectory analysis, severity, failure modes, inconsistency analysis, and a high-level harness improvement direction
+    - prompt.md     - the original task for context
+
+## Steps
+
+1. Read each diagnosis in diagnoses/task_XXXX/diagnosis.md and the corresponding prompt.md.
+2. Use Severity as a soft attention weight from 0.00 to 1.00, not as ground truth. Higher severity means the diagnosis should influence optimization more strongly.
+3. Look for patterns across diagnoses - are multiple tasks failing for similar reasons?
+4. Prioritize high-severity recurring failure modes and high-severity recurring inconsistency root causes.
+5. Low-severity tasks usually should not cause a harness edit by themselves unless the same issue motif recurs across tasks.
+6. Make surgical improvements to harness/ that address the high-level diagnosed issues.
+
+When done, send the changes and your rationale as your final message. If you made no changes, explain why the current harness is already sufficient.
+\end{promptbox}
+
+\noindent Each \texttt{diagnoses/task\_XXXX/} subdirectory holds the
+serialized diagnosis JSON rendered as Markdown alongside the original
+task prompt. Subdirectories are indexed in descending severity so the
+agent encounters the most consequential diagnoses first.
+
+\subsection{Pairwise Ranking}
+
+\looseness=-1 The ranking prompt implements
+$\mathrm{rank}(t, \tau_a, \tau_b) \in [-10, 10]$ used in Best-of-$N$
+acceptance (\S 4.3 and Algorithm~\ref{alg:rho}). The evaluator sees the task, the
+two harnesses, and the two trajectories. The candidate trajectory is
+presented as \texttt{trajectory\_A} and the baseline as
+\texttt{trajectory\_B}, and the orchestrator negates the returned integer
+so the scalar score is oriented as baseline\,$\to$\,candidate
+regardless of presentation order. Presenting the candidate first
+reduces a later-option preference bias we observed in pilot runs.
+The rubric below uses an integer scale in $[-10,10]$, and downstream only
+the sign and relative magnitude of the score are used (\S\ref{sec:setting}).
+
+\begin{promptbox}[lst:rank]{The $\mathrm{rank}$ prompt used in Best-of-$N$ acceptance.}
+Analyze the difference in performance between harness A and harness B on the same task. You will see one task/ directory (containing prompt.md) and two trajectory_*/ directories (each containing events.jsonl and final_message.txt). Produce a JSON object scoring the A -> B transition on an integer scale from -10 to +10 with a short rationale.
+
+The harness (harness/) is a toolkit of resources and guidance that helps the agent solve tasks. It can contain any type of file - helper scripts, artifacts, environment setup, documentation with relevant context, and workflows to follow.
+
+Scoring rubric:
+
+- +10: A -> B is a change from unacceptable to excellent; B's trajectory is efficient and its answer is correct.
+- 0: A and B perform comparably, or it is not possible to determine which is better.
+- -10: A -> B is a severe regression; B's trajectory is inefficient and its answer is wrong.
+
+Workspace layout:
+  task/                 - the original task (prompt.md is the question)
+  harness_A/            - the harness used by trajectory A
+  harness_B/            - the harness used by trajectory B
+  trajectory_A/         - trajectory from harness A (final_message.txt is the answer)
+  trajectory_B/         - trajectory from harness B (final_message.txt is the answer)
+
+## Evaluation steps
+
+1. Read task/prompt.md to understand what the task requires.
+2. Read and compare trajectory_A and trajectory_B.
+
+Your final reply must be exactly one JSON object (no markdown fences, no other text):
+{"value": <integer in [-10, 10]>, "rationale": "<one-sentence rationale>"}
+\end{promptbox}
+
+\noindent The candidate score $S_j$ in Algorithm~\ref{alg:rho} averages this
+integer (with the orientation flip described above) over the coreset
+$\mathcal{D}_{\mathrm{core}}$, and the candidate is accepted only when
+$S_j > 0$, otherwise the harness remains at $h_0$.

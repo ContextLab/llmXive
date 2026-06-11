@@ -1,0 +1,40 @@
+{
+  "arxiv_id": "2606.10917",
+  "arxiv_url": "https://arxiv.org/abs/2606.10917",
+  "title": "Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution",
+  "authors": [
+    "Xucong Wang",
+    "Ziyu Ma",
+    "Shidong Yang",
+    "Tongwen Huang",
+    "Pengkun Wang",
+    "Yong Wang",
+    "Xiangxiang Chu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Although Large Language Model (LLM) agents have demonstrated strong performance on complex tasks, their learning is often limited by inefficient interaction feedback and static training environments, which hinder broader generalization. To address these limitations, this paper introduces Role-Agent, \\textcolor{black}{a framework} that harnesses a single LLM to function concurrently as both the agent and the environment, enabling a bootstrapped co-evolution. Role-Agent comprises two synergistic components: World-In-Agent (WIA) and Agent-In-World (AIW). In WIA, the LLM acts as the agent and predicts future states after each action; the alignment between predicted and actual states is then used as a process reward, encouraging environment-aware reasoning. In AIW, the LLM analyzes failure modes from failed trajectories and retrieves tasks with similar failure patterns, thereby reshaping the training data distribution for targeted practice. Experiments on multiple benchmarks show that Role-Agent consistently improves performance, yielding an average gain of over 4\\% over strong baselines.",
+  "submitted_via": "llmXive dashboard, GitHub issue #311",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/AMAP-ML/roleagent"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "acl_latex.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_latex.tex",
+    "acl_natbib.bst",
+    "acl.sty",
+    "case.pdf",
+    "dyna.pdf",
+    "eff.pdf",
+    "main.pdf",
+    "ref.bib",
+    "small.pdf",
+    "title.pdf",
+    "visualize.pdf"
+  ]
+}
