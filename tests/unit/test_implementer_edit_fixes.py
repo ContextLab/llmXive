@@ -111,7 +111,8 @@ def test_feature_dir_for_honors_project_pointer(tmp_path: Path) -> None:
     proj = tmp_path / "projects" / pid
     old = proj / "specs" / "004-old"
     new = proj / "specs" / "005-new"
-    old.mkdir(parents=True); new.mkdir(parents=True)
+    old.mkdir(parents=True)
+    new.mkdir(parents=True)
     (old / "tasks.md").write_text("- [X] T001 stale\n", encoding="utf-8")
     (new / "spec.md").write_text("# fresh spec\n", encoding="utf-8")
     state = tmp_path / "state" / "projects"
