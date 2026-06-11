@@ -61,6 +61,9 @@ previously silently lost — FR-003).
 | 11 | US3 plan pass | `chat_with_fallback` swallowed the model-walk's `BackendUnavailable` (subclasses BackendError) and re-raised plain BackendError at backend-chain exhaustion — a Dartmouth-wide outage classed as an ENGINE failure (PR-#302 gap, one layer up; observed live on PROJ-552) | `saw_outage` → BackendUnavailable + 2 regression tests |
 | 12 | US3 plan retry | a single parse-to-zero reviser reply aborted the whole panel run as an engine failure (issue #308 auto-filed by the new FR-016 path — machinery worked; flake avoidable) | engine retries revise() once on RuntimeError (BackendError excluded); 3 regression tests |
 | 13 | US3 plan retry ×2 | the parse-to-zero is LOAD-DEPENDENT (diagnosed by capturing a real reviser reply: light load works; heavy concern loads spend the output on the change-log and emit zero artifact blocks) — a blind identical retry fails identically | shared `run_pass_with_artifact_retry` corrective re-pass (explicit re-prompt budgeting output for artifact blocks) wired into all 7 doc revisers; 2 regression tests |
+| 14 | 552 post-mortem | kickback to_stage off-by-one EVERYWHERE (spec-gap route re-ran the planner; no spec-editing agent ever ran) | routing maps corrected + lifecycle edges + semantics test |
+| 15 | 552 post-mortem | claim-strip bare-deleted values (broken prose, verified values deleted) | [deferred] marker + verified-facts exemption + panel sanction |
+| 16 | 552 spec re-pass | strip-vs-testability WAR: reviser restores '≥80%', strip deletes it, reviewer re-flags — bounded DESIGN TARGETS are requirements, not empirical claims | bound-led values (≥ ≤ within at-least…) KEPT; approximator-led (~, approximately…) still deferred |
 
 ## T009 — real-state demonstration (US1)
 

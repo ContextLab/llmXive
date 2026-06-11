@@ -24,10 +24,7 @@ from llmxive.claims.planning_scan import has_empirical_value, strip_empirical_va
     [
         ("There are 27,635 prime knots.", "27,635"),
         ("~2,000 prime knots downloaded.", "2,000"),
-        ("≥95% data completeness.", "95%"),
-        ("reference coverage ≥10%.", "10%"),
-        ("Complete within 15 minutes.", "15 minutes"),
-        ("Exponential backoff (1s → 60s max).", "60s"),
+        ("approximately 95% of records are clean.", "95%"),
         ("The first 1,701,936 knots.", "1,701,936"),
     ],
 )
@@ -49,6 +46,17 @@ def test_strips_empirical(text: str, gone: str) -> None:
         ("on 2026-05-29", "2026-05-29"),               # date
         ("citation title overlap ≥0.7", "0.7"),        # bare decimal threshold
         ("dataset ds002800", "ds002800"),              # dataset id
+        # Spec 023 defect #16: bound-led values are CHOSEN DESIGN TARGETS
+        # (requirements the project sets), not empirical claims — stripping
+        # them made every success criterion untestable and put the
+        # testability reviewers at war with the strip (observed live on
+        # PROJ-552's spec panel: the reviser restored "≥80%", the strip
+        # deleted it, the reviewer re-flagged the hole, forever).
+        ("≥95% data completeness.", "95%"),            # target
+        ("reference coverage ≥10%.", "10%"),           # target
+        ("Complete within 15 minutes.", "15 minutes"),  # time budget
+        ("at least 80% statistical power", "80%"),     # target
+        ("minimum 80% power", "80%"),                  # target
     ],
 )
 def test_preserves_structural(text: str, kept: str) -> None:
@@ -65,8 +73,9 @@ def test_idempotent_and_headers_and_fences() -> None:
     # header line + fenced code are untouched
     assert "# Heading with 27,635 in it" in once
     assert "code with 1,234 stays" in once
-    # the prose value is gone
-    assert "There are 27,635 knots" not in once
+    # the prose claim value is deferred; the bound-led target survives (#16)
+    assert "27,635 knots" not in once.split("\n")[1]
+    assert "≥95% complete" in once
     assert strip_empirical_values(once) == once  # idempotent
 
 

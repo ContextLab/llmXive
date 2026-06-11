@@ -7,12 +7,16 @@ high-confidence empirical patterns spec 020 defers out of planning docs, regardl
 of the LLM's recall, while being conservative enough never to touch STRUCTURAL
 numbers.
 
-STRIPPED (high-confidence empirical specifics):
-  - comma-grouped counts/magnitudes:  27,635   1,701,936   2,000
-  - percentages:                      95%   ≥10%   0.5%
-  - timed/measured quantities:        15 minutes   60s   1s   2 hours   30 ms
+DEFERRED (bare/approximated empirical assertions → ``[deferred]``):
+  - comma-grouped counts/magnitudes:  27,635   ~1,701,936   a total of 2,000
+  - bare/approximated percentages:    95% of records   approximately 10%
+  - bare timed quantities:            takes 15 minutes   60s
 
-PRESERVED (structural / qualifier — never matched):
+PRESERVED (never deferred):
+  - DESIGN TARGETS (spec 023 #16) — bound-led values are requirements the
+    project CHOOSES, not claims about the world:
+    ≥95% completeness   at least 80% power   within 15 minutes   ≤30 ms
+  - verified-facts values (the ``exempt`` parameter)
   - scope bounds & indices:           ≤13 crossings   Phase 1   crossing number 13
   - ranges:                           1-10
   - versions / dotted:                1.0.0
@@ -50,12 +54,28 @@ _EMPIRICAL_TOKEN = re.compile(
     re.IGNORECASE,
 )
 
-# A leading comparison operator (≥ ~ < …) or approximator word to absorb together
-# with the value, so "≥95%" / "within 15 minutes" / "~27,635" leave clean prose.
+# Two distinct lead classes (spec 023 defect #16):
+#
+# A BOUND lead marks a CHOSEN DESIGN TARGET — a requirement the project
+# sets ("≥95% match", "at least 80% power", "within 60 minutes",
+# "up to 13 crossings"). Targets are requirements, not empirical claims:
+# they are KEPT (stripping them made every success criterion untestable —
+# the reviewer-vs-strip war observed live on PROJ-552).
+_BOUND_LEAD = re.compile(
+    r"(?:[≥≤<>±=]\s*|"
+    r"\b(?:up\s+to|at\s+least|at\s+most|within|minimum(?:\s+of)?|"
+    r"maximum(?:\s+of)?|no\s+more\s+than|no\s+fewer\s+than|"
+    r"no\s+less\s+than)\s+)$",
+    re.IGNORECASE,
+)
+
+# An APPROXIMATOR lead hedges an EMPIRICAL assertion ("approximately
+# 27,635 papers", "~1,701,936 records", "a total of 2,000 knots") — the
+# value is a claim about the world and is absorbed + deferred whole.
 _LEAD = re.compile(
-    r"(?:[~≈≥≤<>±]\s*|"
+    r"(?:[~≈]\s*|"
     r"\b(?:approximately|about|roughly|around|nearly|exactly|over|under|"
-    r"up\s+to|at\s+least|at\s+most|within|a\s+total\s+of|some)\s+)$",
+    r"a\s+total\s+of|some)\s+)$",
     re.IGNORECASE,
 )
 
@@ -127,6 +147,19 @@ def strip_empirical_values(
                 pos = m.end()
                 continue
             start = m.start()
+            if _BOUND_LEAD.search(new[:start]) is not None:
+                # Spec 023 defect #16: a bound-led value (>=95%, "at least
+                # 80%", "within 60 minutes") is a CHOSEN DESIGN TARGET — a
+                # requirement the project sets, not an empirical claim
+                # about the world. Stripping targets made every success
+                # criterion untestable, and the testability reviewers
+                # (correctly) re-flagged the [deferred] holes each round
+                # while the strip deleted every threshold the reviser
+                # restored — an unwinnable reviewer-vs-strip war observed
+                # live on PROJ-552's spec panel. Bounded targets are KEPT;
+                # bare/approximated empirical assertions are deferred.
+                pos = m.end()
+                continue
             lead = _LEAD.search(new[:start])
             if lead is not None:
                 start = lead.start()

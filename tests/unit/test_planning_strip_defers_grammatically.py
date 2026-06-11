@@ -17,25 +17,30 @@ from llmxive.claims.planning_scan import (
 
 
 def test_deferral_is_grammatical_not_a_deletion() -> None:
-    line = "**Then** ≥95% of records have crossing number values present"
+    line = "**Then** approximately 95% of records have crossing number values present"
     out = strip_empirical_values(line)
     assert out == f"**Then** {DEFERRED_MARKER} of records have crossing number values present"
-    assert "of records have" not in out.replace(f"{DEFERRED_MARKER} of records have", "")
+
+
+def test_bound_led_targets_survive() -> None:
+    """Spec 023 defect #16: design targets are requirements, not claims."""
+    line = "**Then** ≥95% of records have values; power is at least 80%; done within 60 minutes"
+    assert strip_empirical_values(line) == line
 
 
 def test_verified_values_are_exempt() -> None:
     line = (
         "OEIS A002863 shows 9,988 prime knots at crossing number 13; "
-        "coverage is ≥90% of records."
+        "roughly 90% of records are usable."
     )
     out = strip_empirical_values(line, exempt=("9988",))
     assert "9,988 prime knots" in out, "verified value (with source) must survive"
-    assert "≥90%" not in out
+    assert "roughly 90%" not in out
     assert DEFERRED_MARKER in out
 
 
 def test_idempotent_with_markers() -> None:
-    line = f"Validate {DEFERRED_MARKER} of knots within 15 minutes."
+    line = f"Validate {DEFERRED_MARKER} of knots, approximately 2,000 records."
     once = strip_empirical_values(line)
     assert once == strip_empirical_values(once)
     assert once.count(DEFERRED_MARKER) == 2
@@ -82,8 +87,8 @@ def test_service_passes_verified_facts_exemption(tmp_path: Path) -> None:
             raise RuntimeError("offline test — extractor falls back to no-op")
 
     text = (
-        "The dataset holds 9,988 prime knots (OEIS A002863) and ≥95% of "
-        "records carry all invariants."
+        "The dataset holds 9,988 prime knots (OEIS A002863) and roughly 95% "
+        "of records carry all invariants."
     )
     smoothed, claims, report = service._process_planning_document(
         text,
@@ -95,5 +100,5 @@ def test_service_passes_verified_facts_exemption(tmp_path: Path) -> None:
         stage_label="plan",
     )
     assert "9,988 prime knots" in smoothed
-    assert "≥95%" not in smoothed
+    assert "roughly 95%" not in smoothed
     assert DEFERRED_MARKER in smoothed
