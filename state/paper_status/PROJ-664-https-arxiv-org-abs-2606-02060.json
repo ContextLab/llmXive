@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-664-https-arxiv-org-abs-2606-02060/paper/pdf/2606.02060.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "restyle",
+    "reason": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)",
+    "log_excerpt": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)"
+  },
+  "paper_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
+  "updated_at": "2026-06-11T03:02:50.764713+00:00"
+}

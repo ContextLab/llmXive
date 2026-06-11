@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-567-anyflow-any-step-video-diffusion-model-w/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:03:18.671511+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-567-anyflow-any-step-video-diffusion-model-w",
+  "updated_at": "2026-06-11T03:03:18.671520+00:00"
+}

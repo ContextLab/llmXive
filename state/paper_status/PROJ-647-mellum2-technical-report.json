@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-647-mellum2-technical-report/paper/pdf/2605.31268.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "restyle",
+    "reason": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)",
+    "log_excerpt": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)"
+  },
+  "paper_id": "PROJ-647-mellum2-technical-report",
+  "updated_at": "2026-06-11T03:02:50.761937+00:00"
+}

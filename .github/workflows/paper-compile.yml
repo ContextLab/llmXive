@@ -112,7 +112,7 @@ jobs:
             git stash pop 2>/dev/null || true
             # Regenerate projects.json AFTER the pull so it reflects merged state.
             python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
-            git add 'projects/*/paper/pdf/*.pdf' web/data/projects.json specs/ 2>/dev/null || true
+            git add 'projects/*/paper/pdf/*.pdf' web/data/projects.json specs/ state/paper_status/ 2>/dev/null || true
             if git diff --cached --quiet; then
               echo "no changes after rebase (someone else compiled these)"
               echo "pushed=false" >> "$GITHUB_OUTPUT"

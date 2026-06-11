@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:03:15.513015+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
+  "updated_at": "2026-06-11T03:03:15.513026+00:00"
+}

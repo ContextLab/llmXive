@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-563-many-shot-cot-icl-making-in-context-lear/paper/pdf/main-llmxive.pdf",
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:03:10.713234+00:00"
+  },
+  "repair_rounds": 0,
+  "status": "audited",
+  "failure": null,
+  "paper_id": "PROJ-563-many-shot-cot-icl-making-in-context-lear",
+  "updated_at": "2026-06-11T03:03:10.713248+00:00"
+}

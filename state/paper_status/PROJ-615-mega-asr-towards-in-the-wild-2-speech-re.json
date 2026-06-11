@@ -1,0 +1,13 @@
+{
+  "pdf": "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/paper/pdf/2605.19833.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "restyle",
+    "reason": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)",
+    "log_excerpt": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)"
+  },
+  "paper_id": "PROJ-615-mega-asr-towards-in-the-wild-2-speech-re",
+  "updated_at": "2026-06-11T03:02:50.756573+00:00"
+}
