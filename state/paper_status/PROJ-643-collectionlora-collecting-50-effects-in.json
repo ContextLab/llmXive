@@ -1,9 +1,28 @@
 {
   "pdf": "projects/PROJ-643-collectionlora-collecting-50-effects-in/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 6, saw section 10",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 32
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 11, saw section 50",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 32
+      }
+    ],
+    "audited_at": "2026-06-11T03:09:22.448630+00:00"
+  },
+  "repair_rounds": 1,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-643-collectionlora-collecting-50-effects-in",
-  "updated_at": "2026-06-11T03:02:50.761282+00:00"
+  "updated_at": "2026-06-11T03:09:22.472111+00:00"
 }

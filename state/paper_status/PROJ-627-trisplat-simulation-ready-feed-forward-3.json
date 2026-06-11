@@ -1,9 +1,21 @@
 {
   "pdf": "projects/PROJ-627-trisplat-simulation-ready-feed-forward-3/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 3, saw section 23",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 37
+      }
+    ],
+    "audited_at": "2026-06-11T03:08:47.537559+00:00"
+  },
+  "repair_rounds": 1,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-  "updated_at": "2026-06-11T03:02:50.758342+00:00"
+  "updated_at": "2026-06-11T03:08:47.558844+00:00"
 }

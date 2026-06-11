@@ -1,9 +1,13 @@
 {
   "pdf": "projects/PROJ-659-trust-region-on-policy-distillation/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:09:46.556223+00:00"
+  },
   "repair_rounds": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-659-trust-region-on-policy-distillation",
-  "updated_at": "2026-06-11T03:02:50.763853+00:00"
+  "updated_at": "2026-06-11T03:09:46.556239+00:00"
 }

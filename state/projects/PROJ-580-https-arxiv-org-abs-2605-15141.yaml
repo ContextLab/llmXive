@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-580-https-arxiv-org-abs-2605-15141/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation
   for Real-Time Interactive Video Generation'
-updated_at: '2026-05-16T21:50:33.482959Z'
+updated_at: '2026-06-11T03:07:21.352891Z'

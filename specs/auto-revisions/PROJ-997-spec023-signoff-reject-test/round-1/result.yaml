@@ -1,0 +1,36 @@
+project_id: PROJ-997-spec023-signoff-reject-test
+round: 1
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: maintrejected
+  text: "Maintainer @jeremymanning rejected publication: this is the spec-023 rejection-routing\
+    \ test \u2014 the abstract overstates the contribution"
+  severity: writing
+  engine_severity: writing
+  reviewer: maintainer-signoff
+  artifact: projects/PROJ-997-spec023-signoff-reject-test/paper/source/
+  location: publication sign-off
+kickback_reason: "publication sign-off rejected by @jeremymanning: this is the spec-023\
+  \ rejection-routing test \u2014 the abstract overstates the contribution"
+kickback_artifact_links:
+- projects/PROJ-997-spec023-signoff-reject-test/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 1 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-11T03:12:06.693757+00:00'

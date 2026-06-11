@@ -1,9 +1,42 @@
 {
   "pdf": "projects/PROJ-616-video2gui-synthesizing-large-scale-inter/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 7, saw section 21",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 32
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 22, saw section 30",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 32
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 31, saw section 36",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 32
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 37, saw section 44",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 32
+      }
+    ],
+    "audited_at": "2026-06-11T03:08:27.746847+00:00"
+  },
+  "repair_rounds": 1,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-616-video2gui-synthesizing-large-scale-inter",
-  "updated_at": "2026-06-11T03:02:50.756749+00:00"
+  "updated_at": "2026-06-11T03:08:27.769188+00:00"
 }

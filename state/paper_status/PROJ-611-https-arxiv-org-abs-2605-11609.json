@@ -1,9 +1,21 @@
 {
   "pdf": "projects/PROJ-611-https-arxiv-org-abs-2605-11609/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "literal_command_text",
+        "evidence": "code in a \\texttt{```python} block.\nGiven a list",
+        "class": "source_fixable",
+        "recommendation": "extend normalize_authors / normalize_references / normalize_figures to handle this construct, or add a restyle wrapper",
+        "page": 20
+      }
+    ],
+    "audited_at": "2026-06-11T03:08:12.258818+00:00"
+  },
+  "repair_rounds": 1,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-  "updated_at": "2026-06-11T03:02:50.755923+00:00"
+  "updated_at": "2026-06-11T03:08:12.354931+00:00"
 }

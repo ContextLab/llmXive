@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-616-video2gui-synthesizing-large-scale-inter/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Generalized
   GUI Agent Pretraining'
-updated_at: '2026-05-22T09:07:53.009174Z'
+updated_at: '2026-06-11T03:08:27.769341Z'

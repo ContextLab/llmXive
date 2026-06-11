@@ -6,14 +6,14 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-565-edit-compass-editreward-compass-a-unifie
-last_run_id: 144c9afc-bd0f-452b-992f-0d067c55a681
+last_run_id: 2f5c46df-f917-46dc-a1d1-734b25acaca8
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editing and
   Reward Modeling'
-updated_at: '2026-05-17T15:12:45.286423Z'
+updated_at: '2026-06-11T02:09:46.535541Z'

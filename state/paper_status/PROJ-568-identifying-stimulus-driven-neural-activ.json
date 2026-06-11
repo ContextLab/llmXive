@@ -1,9 +1,13 @@
 {
   "pdf": "projects/PROJ-568-identifying-stimulus-driven-neural-activ/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:06:35.908119+00:00"
+  },
   "repair_rounds": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-568-identifying-stimulus-driven-neural-activ",
-  "updated_at": "2026-06-11T03:02:50.751291+00:00"
+  "updated_at": "2026-06-11T03:06:35.908139+00:00"
 }

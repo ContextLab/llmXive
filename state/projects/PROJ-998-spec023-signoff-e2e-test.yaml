@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-11T03:09:07.948064Z'
+current_stage: posted
+failed_stage: null
+field: test
+human_escalation_reason: null
+id: PROJ-998-spec023-signoff-e2e-test
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: projects/PROJ-998-spec023-signoff-e2e-test/paper/specs/001-p
+speckit_research_dir: projects/PROJ-998-spec023-signoff-e2e-test/specs/001-t
+title: Spec 023 Sign-off Gate End-to-End Test
+updated_at: '2026-06-11T03:11:25.982491Z'

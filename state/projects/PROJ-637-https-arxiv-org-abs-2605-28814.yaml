@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-637-https-arxiv-org-abs-2605-28814/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Self-Improving Language Models with Bidirectional Evolutionary Search
-updated_at: '2026-05-29T13:07:01.179852Z'
+updated_at: '2026-06-11T03:09:11.485545Z'

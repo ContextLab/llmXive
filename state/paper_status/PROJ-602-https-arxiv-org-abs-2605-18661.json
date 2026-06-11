@@ -1,9 +1,21 @@
 {
   "pdf": "projects/PROJ-602-https-arxiv-org-abs-2605-18661/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 9, saw section 51",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 95
+      }
+    ],
+    "audited_at": "2026-06-11T03:07:49.949842+00:00"
+  },
+  "repair_rounds": 1,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-  "updated_at": "2026-06-11T03:02:50.754461+00:00"
+  "updated_at": "2026-06-11T03:07:49.969989+00:00"
 }

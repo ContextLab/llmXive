@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-602-https-arxiv-org-abs-2605-18661/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'AI for Auto-Research: Roadmap & User Guide'
-updated_at: '2026-05-20T11:03:37.299030Z'
+updated_at: '2026-06-11T03:07:49.970227Z'

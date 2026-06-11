@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Macaron-A2UI: A Model for Generative UI in Personal Agents'
-updated_at: '2026-05-27T09:10:35.546249Z'
+updated_at: '2026-06-11T03:08:50.948975Z'

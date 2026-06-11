@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-642-minwm-a-full-stack-open-source-framework/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Video
   World Models'
-updated_at: '2026-05-30T08:50:34.961847Z'
+updated_at: '2026-06-11T03:09:20.103718Z'

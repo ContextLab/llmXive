@@ -66,11 +66,76 @@ issue; wired into llmxive-pipeline.yml (audit.yml was the analyze-stage
 choice but is push/PR-triggered with contents:read — the 3h scheduled lane
 has issues:write, so the digest lives there; tasks.md T020 note updated).
 
+## US5 (T023–T029) — commit 79d5dbcf
+
+`integrations/signoff_gate.py` (issue open → vote parse → idempotent
+execute → remind), `project signoff-poll` CLI, `signoff-poll.yml` lane
+(2h), `awaiting_publication_signoff` now `_NEVER_PICK`, AWAITING →
+PAPER_REVIEW rejection transition, publisher idempotence (publication.yaml
+convergence + `.zenodo_draft.yaml` resume ledger +
+`ZenodoClient.get_deposition`). 14 regression tests. Encountered-issue
+ledger #4: `zenodo_id=draft.deposition_id` crashed on the resume path
+(draft None) → `published.deposition_id`.
+
+## US6 (T035–T039) — commit 72036748
+
+`state/paper_status.py` + wiring (compile script, pdf auditor,
+paper-compile lane persist), bounded repair loop via the US1 revision
+machinery, web_data `paper_status` (fail-closed "unverified"). Backfill
+over the real shelf: **95 records — 76 restyled_unaudited, 19 fallbacks
+now MARKED with reconstructed reasons (was 18+ silent)**. Full rendering
+audit sweep over restyled PDFs running.
+
 ## US4 — T022 re-processing (FR-018)
 
 PROJ-545 / PROJ-553 / PROJ-557 (parked pre-023 at human_input_needed with
 kept `scope_rejected.yaml` markers) re-processed through the REAL
 `process_scope_rejection` helper: each archived idea pulled from
 `.archive/` into the constrained feedback, marker consumed, counter 1/3,
-stage → brainstormed, escalation reason cleared. Real constrained
-re-brainstorm pass dispatched on PROJ-545 for verification.
+stage → brainstormed, escalation reason cleared.
+
+**VERIFIED LIVE**: PROJ-545's constrained re-brainstorm ran for real — the
+infeasible eye-tracking/human-subjects idea regenerated as a
+GitHub-Actions-feasible computational study (aDDM on existing
+moral-dilemma datasets) and advanced `brainstormed → flesh_out_complete`
+with zero human input. The remaining two follow via the scheduled lanes.
+
+## T030 — REAL sign-off round-trip (SC-006) ✅
+
+Approval leg: synthetic gate-ready paper (PROJ-998, real lualatex PDF) →
+issue **#304** opened (maintainer-tagged via `LLMXIVE_MAINTAINERS`
+override so only @jeremymanning was pinged) → real 👍 reaction → publisher
+minted **sandbox DOI 10.5072/zenodo.512176** → `posted` → issue closed
+with the DOI. The first two publisher attempts FAILED on test-source tex
+errors and the retry RESUMED the same deposition (512176) via the
+`.zenodo_draft.yaml` ledger — the FR-020 no-double-mint path verified
+against the real Zenodo sandbox.
+
+Rejection leg: PROJ-997 → issue **#305** → real `reject: <reason>`
+comment → parsed → reason landed verbatim in
+`specs/auto-revisions/.../round-1/tasks.md`, project at `paper_review`
+with `revision_spec_path` set → issue closed. Both synthetic projects
+removed after the test (the closed issues are the durable evidence).
+
+## T015 — negative control (FR-009) ✅
+
+Four REAL validation passes over the live queue: PROJ-042, PROJ-546,
+PROJ-582 honestly kicked back (`validator_revise` →
+flesh_out_in_progress); PROJ-069 validated. No rubber-stamping.
+
+## T039 — shelf sweep results (SC-007)
+
+95/95 served papers carry records: **47 audited (pass), 29
+restyled_unaudited (defects → repair work-specs generated), 19
+fallback_original (every one now carries its reconstructed failure
+reason)**. Zero unmarked fallbacks.
+
+## US3 — PROJ-552 traversal status
+
+Designated demo at `clarified` (reconciliation dispatch 27315363219
+converged the clarify panel after the earlier honest 13-concern
+methodology kickback; kickback trail on record, cap 1/3). Plan-stage pass
+dispatched locally; subsequent stages run on the merged code via the
+scheduled lanes (multi-day monitoring per the spec assumption). The
+sign-off real round-trip (T030) and SC-001 complete when it reaches the
+gate.

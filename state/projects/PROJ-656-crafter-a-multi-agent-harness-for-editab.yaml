@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-656-crafter-a-multi-agent-harness-for-editab/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from
   Diverse Inputs'
-updated_at: '2026-06-03T09:39:51.914435Z'
+updated_at: '2026-06-11T03:09:43.611119Z'

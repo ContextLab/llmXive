@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-663-https-arxiv-org-abs-2606-04923/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement
   Learning
-updated_at: '2026-06-05T11:08:45.976535Z'
+updated_at: '2026-06-11T03:09:54.262464Z'

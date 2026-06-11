@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-621-transitlm-a-large-scale-dataset-and-benc/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Route
   Generation'
-updated_at: '2026-05-23T08:43:45.047776Z'
+updated_at: '2026-06-11T03:08:38.718109Z'

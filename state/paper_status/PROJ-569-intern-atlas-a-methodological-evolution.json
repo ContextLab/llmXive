@@ -1,9 +1,13 @@
 {
   "pdf": "projects/PROJ-569-intern-atlas-a-methodological-evolution/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:06:38.931578+00:00"
+  },
   "repair_rounds": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-569-intern-atlas-a-methodological-evolution",
-  "updated_at": "2026-06-11T03:02:50.751459+00:00"
+  "updated_at": "2026-06-11T03:06:38.931593+00:00"
 }

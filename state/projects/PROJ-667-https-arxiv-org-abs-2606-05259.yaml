@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-667-https-arxiv-org-abs-2606-05259/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understanding'
-updated_at: '2026-06-06T09:43:46.343139Z'
+updated_at: '2026-06-11T03:09:56.872662Z'

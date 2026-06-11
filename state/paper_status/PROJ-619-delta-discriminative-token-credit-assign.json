@@ -1,9 +1,13 @@
 {
   "pdf": "projects/PROJ-619-delta-discriminative-token-credit-assign/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-06-11T03:08:33.501080+00:00"
+  },
   "repair_rounds": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-619-delta-discriminative-token-credit-assign",
-  "updated_at": "2026-06-11T03:02:50.757195+00:00"
+  "updated_at": "2026-06-11T03:08:33.501100+00:00"
 }

@@ -53,7 +53,7 @@ regression test, in the same effort.
 - [X] T012 [US2] Create dedicated idea-validation lane .github/workflows/pipeline-validate-ideas.yml running `python -m llmxive run --stage flesh_out_complete` on a cadence sized for drain > intake, with the standard persist step (incl. `specs/`); add a concurrency regression test in tests/unit/test_lane_locking.py asserting per-project locking (src/llmxive/pipeline/lock.py) holds when two passes (any lane combination, incl. the new lanes) target the same project — the loser retries later without corrupting state (FR-007 + concurrent-lanes edge case)
 - [X] T013 [US2] Implement intake throttling: when the fleshed-out backlog is growing (drain < intake over the measurement window), the brainstorm/intake entry points (src/llmxive/cli.py brainstorm path and .github/workflows/pipeline-brainstorm.yml / hf-daily-papers.yml / submission-intake.yml) reduce or skip intake, resuming as the queue drains; throttle state persisted observably under state/ (FR-008)
 - [X] T014 [P] [US2] Throttle regression tests in tests/unit/test_intake_throttle.py: growing backlog → intake throttled with observable state; draining backlog → intake resumes; throttling is proportional and never permanently starves submissions (FR-008 + spec edge case)
-- [ ] T015 [US2] Negative-control observation: during real validation passes, identify one deliberately weak fleshed-out idea and verify it takes the honest rejection/kickback path (not rubber-stamped); record the project id and verdict trail in notes/2026-06-10-spec-023-execution.md (FR-009)
+- [X] T015 [US2] Negative-control observation: during real validation passes, identify one deliberately weak fleshed-out idea and verify it takes the honest rejection/kickback path (not rubber-stamped); record the project id and verdict trail in notes/2026-06-10-spec-023-execution.md (FR-009)
 
 **Checkpoint**: the funnel's entrance moves; both P1 stories complete = pipeline structurally able to finish work.
 
@@ -86,7 +86,7 @@ regression test, in the same effort.
 - [X] T027 [US5] Wire rejection feedback into the revision loop: a parsed rejection reason becomes review feedback consumed by the existing kickback/revision machinery (src/llmxive/speckit/_publication_signoff.py → src/llmxive/pipeline/_kickback.py path); regression test in tests/unit/test_signoff_rejection_routing.py (FR-020)
 - [X] T028 [US5] Keep sign-off projects parked without scheduler load: ensure `awaiting_publication_signoff` is excluded from roulette picks in src/llmxive/pipeline/scheduler.py and that reminders come from the poll lane, not pipeline passes; assert in tests/unit/test_scheduler_fairness.py (FR-021)
 - [X] T029 [US5] Create the sign-off poll lane .github/workflows/signoff-poll.yml: scheduled job that runs the parser over open sign-off issues, executes decisions (mint/route/remind), persists state incl. `specs/` (FR-019..021)
-- [ ] T030 [US5] Real round-trip demonstration (Constitution III): drive a paper to the gate in a test context with a sandbox DOI; vote with a real maintainer account; verify mint + record + posted + issue closed; then a rejection round on a second run; document in notes/2026-06-10-spec-023-execution.md and tests/real_call/test_signoff_real.py (SC-006)
+- [X] T030 [US5] Real round-trip demonstration (Constitution III): drive a paper to the gate in a test context with a sandbox DOI; vote with a real maintainer account; verify mint + record + posted + issue closed; then a rejection round on a second run; document in notes/2026-06-10-spec-023-execution.md and tests/real_call/test_signoff_real.py (SC-006)
 
 **Checkpoint**: nothing blocks a panel-accepted paper from publication except one maintainer reaction.
 
@@ -113,7 +113,7 @@ regression test, in the same effort.
 - [X] T036 [P] [US6] Contract test in tests/contract/test_paper_status_record.py: schema validation; fallback-without-failure-report rejected; record updates on re-audit (FR-022)
 - [X] T037 [US6] Convert rendering-audit defects and compile-failure reports into bounded repair work-specs via the US1 revision machinery (src/llmxive/audit/ → kickback_to_revision_spec path); re-audit after each repair round; cap → honest fallback status; regression test in tests/unit/test_paper_repair_loop.py (FR-023)
 - [X] T038 [US6] Surface true status in site data: src/llmxive/web_data.py emits each paper's `status` from its status record (audited / restyled_unaudited / fallback_original), failing closed when a served paper lacks a record; regression test in tests/unit/test_web_data_paper_status.py (FR-024)
-- [ ] T039 [US6] Backfill: run the compile/restyle/audit chain over the existing paper shelf so every current paper (including the 18 unmarked fallbacks) gets an accurate status record, with repair rounds where the bounded loop succeeds; verify zero unmarked fallbacks in regenerated web/data (FR-024, SC-007)
+- [X] T039 [US6] Backfill: run the compile/restyle/audit chain over the existing paper shelf so every current paper (including the 18 unmarked fallbacks) gets an accurate status record, with repair rounds where the bounded loop succeeds; verify zero unmarked fallbacks in regenerated web/data (FR-024, SC-007)
 
 **Checkpoint**: SC-007 — every shelf entry's displayed status matches reality.
 
