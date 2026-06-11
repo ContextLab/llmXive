@@ -121,7 +121,7 @@ regression test, in the same effort.
 
 - [X] T040 Update documentation in the same change-set as the code (Constitution parity): README.md pipeline description, CLAUDE.md if workflows changed, docstrings for new modules (escalations, signoff parser, paper status), and web/ text where the site status legend appears
 - [X] T041 Run quickstart.md end-to-end as written and fix any drift between its commands and the shipped behavior in specs/023-pipeline-e2e-completion/quickstart.md
-- [ ] T042 Full verification gates (SC-008): `pytest tests/unit tests/contract tests/integration -q` and `LLMXIVE_REAL_TESTS=1 pytest tests/real_call -m "not slow" -q` — zero failures; re-run entire suite after any fix; record results in notes/2026-06-10-spec-023-execution.md
+- [X] T042 Full verification gates (SC-008): `pytest tests/unit tests/contract tests/integration -q` and `LLMXIVE_REAL_TESTS=1 pytest tests/real_call -m "not slow" -q` — zero failures; re-run entire suite after any fix; record results in notes/2026-06-10-spec-023-execution.md
 - [X] T043 Measure success criteria against canonical state and record evidence per SC-001..SC-008 (review-exit transitions, backlog trend, run-log reviewer share, escalation population, sign-off round-trip, shelf status cross-check) in notes/2026-06-10-spec-023-execution.md
 
 ## Dependencies & Execution Order

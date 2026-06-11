@@ -42,7 +42,7 @@ previously silently lost — FR-003).
 | SC-005 | MET (writers) | every surviving escalation writer validates rounds>=bound at write time (tests/contract/test_escalation_record); infra failures produce nothing; 3 parked projects de-escalated, PROJ-545 verified through to flesh_out_complete |
 | SC-006 | MET | real round-trip: issue #304 → 👍 → sandbox DOI 10.5072/zenodo.512176 → posted → issue closed; #305 reject → reason → revision loop |
 | SC-007 | MET | 95/95 papers carry status records (47 audited / 29 defect-flagged w/ repair specs / 19 marked fallbacks); web_data fail-closed "unverified" for recordless PDFs |
-| SC-008 | offline suite green (2434 passed after FR-016/017 test updates; re-running post-update); real-call `-m "not slow"` in flight |
+| SC-008 | MET | final clean offline suite **2440 passed, 16 skipped, 0 failed**; real-call `-m "not slow"` **22 passed, 5 skipped, 0 failed** |
 
 ## Encountered-issue ledger (FR-012)
 
