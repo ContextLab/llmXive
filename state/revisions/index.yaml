@@ -248,4 +248,7 @@ ready:
 - project_id: PROJ-615-mega-asr-towards-in-the-wild-2-speech-re
   revision_spec_path: specs/auto-revisions/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/round-1
   queued_at: '2026-06-11T02:26:03.730751+00:00'
+- project_id: PROJ-601-https-arxiv-org-abs-2605-12882
+  revision_spec_path: specs/auto-revisions/PROJ-601-https-arxiv-org-abs-2605-12882/round-1
+  queued_at: '2026-06-11T04:53:19.418410+00:00'
 blocked: []
