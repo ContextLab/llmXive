@@ -409,8 +409,50 @@ def build_concern_responses(
     return out
 
 
+
+#: Corrective re-prompt for the load-dependent failure observed live on
+#: PROJ-552's plan panel (spec 023 defect #13): under a heavy concern load
+#: the model spends its output on a long change-log and emits ZERO complete
+#: ``===BEGIN_ARTIFACT`` blocks — the reply parses but the revision is
+#: unusable. One explicit re-pass recovers it.
+MISSING_ARTIFACTS_REPROMPT = (
+    "\n\nIMPORTANT — your previous reply contained the per-concern "
+    "change-log but ZERO complete ===BEGIN_ARTIFACT blocks, so the entire "
+    "revision was unusable. Re-emit your answer with BOTH parts: keep each "
+    "change-log entry to ONE short sentence, then emit EVERY artifact you "
+    "changed as a complete ===BEGIN_ARTIFACT <path>=== ... "
+    "===END_ARTIFACT=== block. Budget your output for the artifact blocks "
+    "first; never end the reply without them."
+)
+
+
+def run_pass_with_artifact_retry(run_pass, *, reviser_name: str):
+    """Call ``run_pass()``; on the zero-artifact RuntimeError, make ONE
+    corrective re-pass with :data:`MISSING_ARTIFACTS_REPROMPT` appended to
+    the prompt (every doc reviser exposes the ``extra_instructions`` hook).
+    Anything other than the zero-artifact/unparseable shape propagates
+    unchanged (backend outages are not retried here)."""
+    import logging
+
+    from llmxive.backends.base import BackendError
+
+    try:
+        return run_pass()
+    except BackendError:
+        raise
+    except RuntimeError as exc:
+        if "no usable" not in str(exc) and "parseable" not in str(exc):
+            raise
+        logging.getLogger(__name__).warning(
+            "%s: reply unusable (%s) — corrective re-pass", reviser_name,
+            str(exc)[:120],
+        )
+        return run_pass(MISSING_ARTIFACTS_REPROMPT)
+
 __all__ = [
+    "MISSING_ARTIFACTS_REPROMPT",
     "RESPONSE_FORMAT_BLOCK",
     "build_concern_responses",
     "parse_reviser_response",
+    "run_pass_with_artifact_retry",
 ]

@@ -26,7 +26,11 @@ from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
-from ._reviser_response import RESPONSE_FORMAT_BLOCK, parse_reviser_response
+from ._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    parse_reviser_response,
+    run_pass_with_artifact_retry,
+)
 from ._self_consistency import (
     invoke_reviser_backend,
     run_with_self_consistency,
@@ -214,7 +218,9 @@ class PaperImplementReviser:
             model=self._model,
             repo_root=self._repo_root,
             concerns=concerns,
-            first_pass=_run_pass(),
+            first_pass=run_pass_with_artifact_retry(
+                _run_pass, reviser_name=type(self).__name__,
+            ),
             redo=_run_pass,
         )
 
