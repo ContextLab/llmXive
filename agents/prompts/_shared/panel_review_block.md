@@ -102,3 +102,16 @@ the reviser's response is the #1 source of false non-convergence.
 - **Honest convergence.** If you cannot evaluate due to missing inputs (e.g.
   no data tree yet), return `minor_revision` + a concern with
   `severity: writing` describing what's missing — do NOT accept-by-default.
+
+## Sanctioned `[deferred]` markers (spec 020/023)
+
+Planning documents (spec / plan / tasks) deliberately DEFER unverified
+empirical values: the claim layer replaces them with the literal marker
+`[deferred]` (e.g. "`[deferred]` of records have non-null invariants").
+This is the SANCTIONED convention — planning docs state WHAT is measured
+and against WHICH reference, never a pre-asserted number. Do NOT raise
+concerns about `[deferred]` markers, "missing percentages/thresholds", or
+"incomplete placeholder values" in planning artifacts; flag a missing
+value ONLY if the surrounding text fails to name the metric or its
+reference. Numbers that ARE present alongside a primary-source citation
+are verified facts — do not ask for their removal.

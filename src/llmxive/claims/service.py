@@ -218,11 +218,23 @@ def _process_planning_document(
         if replacement != span:
             smoothed = smoothed.replace(span, replacement, 1)
     # spec 020 GUARANTEE: the LLM extractor's recall is non-deterministic, so a
-    # final DETERMINISTIC pass removes any high-confidence empirical value (a
-    # comma-grouped count, a percentage, a timed quantity) it missed — structural
-    # numbers (versions, dates, indices, scope bounds) are preserved. Idempotent.
+    # final DETERMINISTIC pass defers any high-confidence empirical value (a
+    # comma-grouped count, a percentage, a timed quantity) it missed — replaced
+    # with the sanctioned [deferred] marker, never bare-deleted (spec 023
+    # defect #15: deletion left broken prose that panels flagged forever).
+    # Values already VERIFIED against a primary source (the project's
+    # verified_facts.yaml) are exactly what the planning rule wants cited —
+    # they are exempt. Structural numbers are preserved. Idempotent.
     try:
-        smoothed = strip_empirical_values(smoothed)
+        from llmxive.claims.verified_facts_prompt import load_verified_facts
+
+        project_dir = repo_root / "projects" / project_id
+        exempt = tuple(
+            str(f.get("value", ""))
+            for f in load_verified_facts(project_dir)
+            if f.get("value")
+        )
+        smoothed = strip_empirical_values(smoothed, exempt=exempt)
     except Exception as exc:  # never block a planning render on the guarantee pass
         logger.warning("claims.service: deterministic empirical strip failed (%s)", exc)
     # No markers, no kickback, no resolution: planning never blocks on low-level.

@@ -1,6 +1,0 @@
-reason: 'Convergence kickback cap exceeded: the ''plan'' convergence panel kicked
-  the project back 4 time(s) (cap=3) without reaching unanimous acceptance. A human
-  must intervene. Last reason: 10 concern(s) remained unresolved after 3 round(s)
-  at stage ''planned''; worst unresolved severity = ''science''. Routing to ''clarified''
-  with full provenance so the next worker can address the root cause.'
-stage: plan
