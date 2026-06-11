@@ -251,4 +251,7 @@ ready:
 - project_id: PROJ-601-https-arxiv-org-abs-2605-12882
   revision_spec_path: specs/auto-revisions/PROJ-601-https-arxiv-org-abs-2605-12882/round-1
   queued_at: '2026-06-11T04:53:19.418410+00:00'
+- project_id: PROJ-618-bench-evaluating-proactive-personal-assi
+  revision_spec_path: specs/auto-revisions/PROJ-618-bench-evaluating-proactive-personal-assi/round-1
+  queued_at: '2026-06-11T08:46:29.939969+00:00'
 blocked: []

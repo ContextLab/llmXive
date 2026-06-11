@@ -1,0 +1,197 @@
+project_id: PROJ-618-bench-evaluating-proactive-personal-assi
+arxiv_id: '2605.14678'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-11T08:46:29.916015+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: cf7fbbc593c4
+    text: Add missing table files (0.1-table/overall.tex, 0.1-table/hidden_intent_status.tex)
+      referenced in experiments section to ensure LaTeX compilation.
+    severity: writing
+  - id: 3be471508194
+    text: Provide verification_status for all bibliography entries in state/citations
+      to satisfy acceptance criteria.
+    severity: writing
+  - id: d16b7ad65b07
+    text: Section 4.3 claims Task Type H has the largest gap (84.1% Comp vs 38.1%
+      Proc). Calculations from Table task_type_scores show Task Type C has a larger
+      gap (82.2% vs 35.0%). Correct the claim or verify calculation.
+    severity: science
+  - id: 11631378eb4f
+    text: Section 4.3 references Fig. 4.3 subfigure (d), but the caption only lists
+      (a, b, c). Align text reference with figure labels.
+    severity: writing
+  - id: 0479cc0290ba
+    text: Provide full project repository including src/, tests/, and dependency files
+      (requirements.txt/pyproject.toml).
+    severity: science
+  - id: d5c76019467a
+    text: Include Dockerfile and environment setup scripts to enable reproducibility
+      from scratch.
+    severity: science
+  - id: 5ea8c304477c
+    text: Add unit/integration tests for the user agent and grader logic described
+      in Section 3.
+    severity: science
+  - id: 1883eacb8f39
+    text: 'Specify the open-source license for the pi-Bench dataset and task definitions.
+      Currently, only dependency licenses (Nanobot: MIT, AppWorld: Apache-2.0) are
+      mentioned in 2-appendix/experiments.tex.'
+    severity: writing
+  - id: 12195384b0a8
+    text: Add a specific commit hash or release tag to the GitHub repository link
+      in the Abstract to ensure reproducibility and prevent link rot over time.
+    severity: writing
+  - id: 42a933b85e8a
+    text: Clarify the provenance of the realistic workflows in 2-appendix/benchmark-construction.tex.
+      State whether tasks were synthesized, crowdsourced, or derived from public logs
+      to support data quality claims.
+    severity: science
+  - id: 7613abae3f93
+    text: Specify the version of AppWorld used for tool simulation in 2-appendix/experiments.tex.
+      The URL alone does not guarantee environment stability for future replication.
+    severity: science
+  - id: 9ff751537a50
+    text: Figure 3 caption is truncated with placeholder text '{a, b, c}' instead
+      of describing actual axes and data. Update caption to specify x-axis (task type),
+      y-axis (Proc/Comp scores), and color coding scheme."
+    severity: writing
+  - id: 6864290629e3
+    text: Main figures (overview.pdf, interaction.pdf, task_type.pdf, turn_proactivity.pdf,
+      ablation_study.pdf) lack alt text. Add \includegraphics[alt=...] or corresponding
+      \caption with descriptive text for accessibility compliance."
+    severity: writing
+  - id: 9a33cb0ef444
+    text: Figure 4 (turn_proactivity.pdf) and Figure 5 (ablation_study.pdf) do not
+      specify axis labels or units in their LaTeX code. Ensure x/y axes are labeled
+      with variable names and measurement units before submission."
+    severity: writing
+  - id: e3c2ff5d8499
+    text: tcolorbox case study figures (e.g., Fig. case_zhangshunkai_1_deepseek_trajectory)
+      use small font size without clear visual hierarchy. Consider increasing font
+      or adding section dividers for better print legibility."
+    severity: writing
+  - id: 32df4cdbaede
+    text: Define 'ReAct' as Reason-Act on first use in Introduction; expand 'GUI'
+      to graphical user interface in Related Work.
+    severity: writing
+  - id: f4d41332991e
+    text: Replace 'long-horizon trajectories' with 'extended interaction sequences'
+      in Abstract and Section 1.
+    severity: writing
+  - id: 43620608b04f
+    text: Define 'SOPs' in Table 1 and 'LC-MS'/'RMB' in Case Studies for international
+      accessibility.
+    severity: writing
+  - id: b5a1ddf91a19
+    text: Change 'terminal status' to 'final state' in Section 3 and 'agentic scaffold'
+      to 'agent framework' in Section 4.
+    severity: writing
+  - id: 2344fb50d995
+    text: Table 1 intent status percentages do not mathematically align with Table
+      2 Proc scores. For Qwen3.6 Plus, Table 1 shows Completed=63.18%, Inferred=10.45%,
+      which should give Proc=73.63%, but Table 2 reports Proc=64.0%. Explain this
+      discrepancy or correct the numbers.
+    severity: science
+  - id: d049be04717a
+    text: The user agent uses GPT-5.4 as base model (Sec. 4.1), and GPT-5.4 is also
+      an evaluated model. This creates potential circularity in intent status assignment.
+      Justify this design or use a different model for the user agent.
+    severity: science
+  - id: 4fa46fb36e8c
+    text: Claims of "clear distinction" between Proactivity and Completeness (Sec.
+      4.2) lack statistical significance testing. Report p-values or confidence intervals
+      for the observed gaps (e.g., Kimi K2.5 Comp=61.6 vs Proc=43.1).
+    severity: writing
+  - id: 292e968891c1
+    text: The negative correlation between turn count and Proc (Fig. 3) lacks mechanistic
+      explanation. Why should fewer turns imply higher proactivity? Clarify the causal
+      reasoning.
+    severity: writing
+  - id: aff12b650550
+    text: Abstract claims benchmark better reflects real-world use (line 30) despite
+      simulated users. Soften to approximate or add simulated qualifier.
+    severity: writing
+  - id: 1ff576b5c9c3
+    text: Section 4.2 claims practical decoupling between proactivity and completeness
+      (line 352) based on 9 models. Add in our evaluation qualifier.
+    severity: writing
+  - id: 1ea27a1ce179
+    text: Cross-session continuity claims (line 168) suggest continuity evaluation
+      but ablation only tests final task. Clarify scope to final-task dependency.
+    severity: writing
+  - id: f6851103bbe7
+    text: Evaluation reliability claim strong agreement (line 408) for 2.66% human
+      disagreement lacks statistical rigor. Add confidence intervals or kappa.
+    severity: science
+  - id: 8e7e72cadf62
+    text: Limitations section (line 425) admits simulated users but abstract/conclusion
+      do not reflect this constraint. Ensure claims consistently qualified.
+    severity: writing
+  - id: 2fc5876de22c
+    text: Explicitly state IRB approval or ethics exemption for the three human expert
+      annotators used in the reliability audit (Appendix Experiments).
+    severity: writing
+  - id: 6dfbd6a70de7
+    text: Detail data sanitization procedures for the released benchmark to ensure
+      synthetic PII in sensitive domains (legal, medical) cannot be reverse-engineered.
+    severity: science
+  - id: bb17fe1a1479
+    text: Address potential bias from using GPT-5.4 as both user agent and grader,
+      especially since it is also the top-performing evaluated model.
+    severity: science
+  - id: e2a2d3f37450
+    text: Include statistical significance testing (e.g., t-tests) for model comparisons
+      in Table 2 to validate claims of superiority.
+    severity: science
+  - id: b17902e401eb
+    text: Provide error bars or significance markers on the ablation study results
+      (Fig. 6) to confirm robustness of the 9.5 point drop.
+    severity: science
+  - id: 3b4ebab61696
+    text: Add statistical significance tests (e.g., paired t-tests) for model comparisons
+      in Table 1 to validate bolded scores.
+    severity: science
+  - id: 55322ded1953
+    text: Report 95% confidence intervals instead of standard deviations of the mean,
+      given only 3 runs per task.
+    severity: science
+  - id: e7d8a496f229
+    text: Apply multiple comparisons correction (e.g., Bonferroni) for the 9 models
+      x 18 task types analysis.
+    severity: science
+  - id: 589b3ef177bd
+    text: 'Inconsistent vertical spacing around figures: use -13 pt (e000, fig:process),
+      -15 pt (e000, fig:process), -12 pt (e000, fig:interaction), -16 pt (e000, fig:ablation_study),
+      -8 pt (e000, fig:turn_count). Standardize to a single value or remove manual
+      spacing.'
+    severity: writing
+  - id: 9cf922b8b741
+    text: 'Table column spacing inconsistent: setlength{tabcolsep} 8pt (e000, tab:hidden_intent_status),
+      5.5 pt (e000, tab:task_type_scores), default elsewhere. Use consistent spacing
+      across all tables.'
+    severity: writing
+  - id: cd351efc36a8
+    text: hyperref package loaded early (line 6 in e000) but should typically be loaded
+      last in LaTeX documents for best compatibility with other packages and link
+      styling.
+    severity: writing
+  - id: eadc77d9f2b7
+    text: Custom tcolorbox commands (tcolorboxCase, tcolorboxPrompt) defined at end
+      of document (e002) but used earlier in case studies (e000). Move definitions
+      before first usage.
+    severity: writing
+  - id: def3071aa816
+    text: Unify model naming conventions across text and tables to ensure consistency
+    severity: writing
+  - id: 0739932e1c58
+    text: Resolve duplicate Experiments section in main and appendix to prevent numbering
+      conflicts
+    severity: writing
+  - id: f8aec1dbf913
+    text: Correct subject-verb agreement in Failure Analysis section for grammatical
+      accuracy
+    severity: writing
