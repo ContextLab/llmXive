@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
   "root_hash": "0556914cf283ef53",
-  "goal": "extract every FR/SC id verbatim, every constraint, every named dataset, and the exact research question",
+  "goal": "extract every FR/SC id verbatim and every spec constraint; the tasks must cover all of them",
   "model": "qwen.qwen3.5-122b",
-  "token_budget": 5333,
-  "created_at": "2026-06-11T16:07:27.129896+00:00",
+  "token_budget": 4000,
+  "created_at": "2026-06-11T16:57:06.796415+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -26,8 +26,7 @@
         "-003",
         "SC-012",
         "-012",
-        "3",
-        "4"
+        "3"
       ],
       "summary": "# Feature Specification: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index\n\n**Feature Branch**: `001-knot-complexity-analysis`\n**Created**: 2026-05-31\n**Status**: Draft\n**Input**: User description: \"Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index\"\n\n## Scope Boundaries\n\n<!--\n Consolidated scope-related disclaimers for clarity and consistency.\n All scope decisions made here apply throughout the specification.\n-->\n\n### Phase 1 Scope (Alternating/Non-Alternating Dichotomy)\n\nThis Phase 1 analysis explicitly narrows the original multi-cla [... full chunk preserved on disk; desummarize() to retrieve.]"
     },
@@ -38,10 +37,10 @@
       "critical": [
         "1",
         "2",
-        "FR-009",
-        "-009",
         "3",
         "4",
+        "FR-009",
+        "-009",
         "5",
         "-256",
         "2006",
@@ -51,10 +50,20 @@
         "2402.02717",
         "2018",
         "https://arxiv.org/abs/1806.09719",
-        "1806.09719",
+        "1806.09719"
+      ],
+      "summary": "As a researcher, I need to fit multiple regression models to test linear vs. non-linear relationships for predicting hyperbolic volume from crossing number and braid index, construct a composite complexity score as a weighted combination of crossing number and braid index, and validate against exploratory validation sample so that I can determine whether the composite measure shows predictive power for geometric complexity.\n\n**Why this priority**: This is the core analytical output that answers the research question. It builds on the data foundation and exploratory analysis to produce the pred [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e002",
+      "kind": "content",
+      "file": "chunk_002.txt",
+      "critical": [
         "FR-001",
         "-001",
         "https://katlas.org",
+        "13",
+        "1",
         "10",
         "SC-001",
         "11",
@@ -75,12 +84,15 @@
         "61",
         "245",
         "-288",
+        "2",
+        "3",
         "FR-004",
         "-004",
         "1200",
         "900",
         "FR-005",
         "-005",
+        "5",
         "https://doi.org/10.1142/S0218216519500020,",
         "10.1142/S0218216519500020,",
         "10.1142",
@@ -88,17 +100,17 @@
         "https://arxiv.org/pdf/1805.04428",
         "1805.04428",
         "FR-006",
-        "-006"
+        "-006",
+        "FR-007",
+        "-007"
       ],
-      "summary": "As a researcher, I need the system to handle edge cases (API unavailability, missing invariants, ambiguous classifications, crossing number ties) with documented fallback behaviors, AND produce complete reproducibility documentation for all code and data transformations, so that analysis can proceed robustly and results can be independently verified.\n\n**Why this priority**: Edge case handling ensures reproducibility and robustness. Without explicit handling, silent failures or inconsistent behavior could invalidate downstream results. Reproducibility documentation is essential for scientific v [... full chunk preserved on disk; desummarize() to retrieve.]"
+      "summary": "- **FR-001**: System MUST download knot data from Knot Atlas (https://katlas.org) including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number up to a specified threshold. Data format follows Knot Atlas JSON schema or CSV export with documented column mapping. **Scope Distinction**: Data availability extends to crossing number \u226413, but validated completeness for Phase 1 focuses on crossing number \u226410 (per SC-001). This distinction must be maintained throughout implementation and reporting. **Phase 1 Conclu [... full chunk preserved on disk; desummarize() to retrieve.]"
     },
     {
-      "element_id": "e002",
+      "element_id": "e003",
       "kind": "content",
-      "file": "chunk_002.txt",
+      "file": "chunk_003.txt",
       "critical": [
-        "FR-007",
-        "-007",
         "FR-008",
         "-008",
         "FR-009",
@@ -129,33 +141,34 @@
         "-002",
         "3",
         "SC-003",
-        "-003",
-        "SC-004",
-        "-004",
-        "SC-005",
-        "-005"
+        "-003"
       ],
-      "summary": "- **FR-007**: System MUST validate the composite complexity score against exploratory validation sample by testing correlation with hyperbolic volume. **Correlation Reporting Requirement**: Correlation coefficients and effect sizes MUST be reported regardless of magnitude; analysis is considered complete and valid whether correlation values are strong or weak. **Definitional Relationship Acknowledgment**: Validation targets (hyperbolic volume) are geometrically distinct from predictors (crossing number, braid index), providing empirical rather than definitional validation. This is exploratory  [... full chunk preserved on disk; desummarize() to retrieve.]"
+      "summary": "- **FR-008**: System MUST apply statistical tests (Pearson AND Spearman correlation where distribution assumptions are uncertain, ANOVA for group differences where applicable) to assess significance of findings, and MUST report effect size measures (Cohen's d for group comparisons, r or r\u00b2 for correlations) alongside all p-values. **Mandatory Dual Correlation**: Per Constitution Principle VII, BOTH Pearson AND Spearman correlations MUST be reported when distribution assumptions cannot be verified a priori\u2014this is a mandatory requirement, not conditional. **ANOVA Assumption Checks**: Before ANO [... full chunk preserved on disk; desummarize() to retrieve.]"
     },
     {
-      "element_id": "e003",
+      "element_id": "e004",
       "kind": "content",
-      "file": "chunk_003.txt",
+      "file": "chunk_004.txt",
       "critical": [
+        "SC-004",
+        "-004",
+        "FR-009",
+        "-009",
+        "4",
+        "SC-005",
+        "-005",
+        "2",
+        "3",
         "SC-006",
         "-006",
         "1",
         "FR-003",
         "-003",
-        "2",
         "SC-007",
         "-007",
         "SC-008",
         "-008",
-        "3",
-        "4",
         "SC-009",
-        "-009",
         "1200",
         "900",
         "SC-010",
@@ -174,12 +187,25 @@
         "-002",
         "SC-014",
         "-014",
-        "0.05",
+        "0.05"
+      ],
+      "summary": "- **SC-004**: All code and data transformations are documented in reproducible format (e.g., Jupyter notebooks or R scripts with version-controlled dependencies), with random seeds pinned, checksums recorded, and derivation notes complete. Derivation notes MUST include formula citations with page/section references, step-by-step transformation logic with intermediate values, all parameter values used, and justification for any non-standard choices. Derivation notes MUST enable an independent researcher to execute the documented code with the documented data to reproduce all intermediate values [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e005",
+      "kind": "content",
+      "file": "chunk_005.txt",
+      "critical": [
+        "13",
         "002863",
         "https://oeis.org/A002863",
-        "2024"
+        "2024",
+        "FR-003",
+        "-003",
+        "SC-012",
+        "-012"
       ],
-      "summary": "- **SC-006**: [deferred]% of knots with computable invariants have all invariants populated. An invariant is considered \"computable\" if: (1) a diagram representation is available per FR-003 (non-null DT code OR braid word field), AND (2) the corresponding algorithm is documented in FR-003 as implementable (arc index via Birman-Menasco, Seifert circle count via Seifert's algorithm, bridge number via Schubert's decomposition). Records where either condition fails are excluded from this metric and logged in `docs/reproducibility/uncomputable_invariants.md` with the specific reason (e.g., \"no_repr [... full chunk preserved on disk; desummarize() to retrieve.]"
+      "summary": "- **Prime Knot Enumeration Reference**: The number of prime knots at each crossing number is taken from KnotInfo and the Hoste\u2013Thistlethwaite\u2013Weeks enumeration. For crossing number 13, the exact count of prime knots is established in OEIS A002863 (https://oeis.org/A002863) and confirmed by the 2024 study \"Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13.\"\n- **Hyperbolic Volume Availability**: Not all prime knots have computable hyperbolic volume (torus and satellite knots have volume zero or undefined). The analysis will filter to knots with valid volume measur [... full chunk preserved on disk; desummarize() to retrieve.]"
     }
   ]
 }
