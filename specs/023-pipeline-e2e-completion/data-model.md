@@ -14,7 +14,7 @@ record**. Everything else is a repaired flow through existing models.
 | `current_stage` | Stage enum (~34 states) | unchanged |
 | `revision_spec_path` | str \| None | EXISTS today; the field the graph discards. After US1 it is durably persisted and cleared only when the implementer consumes it. |
 | `kickback_count` | int | existing bounded cap (3) → honest terminal |
-| `stage_history` | list[Transition] | must contain every phase for SC-001 |
+| stage history | `state/projects/<id>.history.jsonl` sidecar (one JSONL row per transition: at/from/to/run id) | must contain every phase for SC-001 |
 
 **State transitions touched** (no new stages):
 

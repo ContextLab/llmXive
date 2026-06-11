@@ -21,9 +21,7 @@ pytest tests/unit -k "advancement or graph or revision" -q
 # current verdicts → saved state carries revision_spec_path; the NEXT pass
 # dispatches the revision implementer (not reviewers)
 python -m llmxive run --project PROJ-565-<slug> --max-tasks 1
-python - <<'EOF'
-import json; print(json.load(open("projects/<id>/.llmxive/config.json")).get("revision_spec_path"))
-EOF
+grep revision_spec_path state/projects/PROJ-565-<slug>.yaml
 python -m llmxive run --project PROJ-565-<slug> --max-tasks 1   # implementer pass
 ```
 
@@ -40,11 +38,8 @@ pytest tests/unit -k "scheduler" -q   # incl. new distribution-share tests
 
 ```bash
 # PROJ-552 progresses via the scheduled lanes; observe stage + history:
-python - <<'EOF'
-import json, glob
-cfg = json.load(open(glob.glob("projects/PROJ-552-*/.llmxive/config.json")[0]))
-print(cfg["current_stage"]); [print(t) for t in cfg.get("stage_history", [])[-5:]]
-EOF
+grep current_stage state/projects/PROJ-552-*.yaml
+tail -5 state/projects/PROJ-552-*.history.jsonl   # full transition trail
 # completion proof: history brainstormed → … → posted; DOI in
 # projects/PROJ-552-*/paper/signoff.yaml; audit-passing PDF (pdf audit below)
 ```
@@ -55,6 +50,7 @@ EOF
 pytest tests/unit -k "escalation or feasib" -q
 # the three parked projects re-process automatically (FR-018):
 python -m llmxive run --project PROJ-545-<slug> --max-tasks 1   # etc. 553, 557
+cat state/projects/PROJ-545-*.yaml | grep current_stage   # brainstormed/flesh_out_complete, NOT human_input_needed
 ls state/escalations/        # ≈ empty in steady state
 ```
 
@@ -62,8 +58,9 @@ ls state/escalations/        # ≈ empty in steady state
 
 ```bash
 pytest tests/unit -k "signoff" -q
-# gate machinery extends the existing `project signoff` CLI path:
-python -m llmxive project signoff --help
+# the vote gate's scheduled entry point + the manual FR-054 path:
+python -m llmxive project signoff-poll
+python -m llmxive project publish-approve --help
 # real round-trip (test context, Zenodo sandbox): drive a paper to the
 # gate, react 👍 with a maintainer account, watch the poll lane mint+close.
 ```

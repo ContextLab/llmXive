@@ -52,6 +52,23 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   `projects/<id>/paper/reviews/` (paper) as
   `<reviewer_name>__<YYYY-MM-DD>__<stage>.md` with YAML frontmatter validated
   against the review-record contract.
+- Review-stage dispatch is verdict-coverage-gated (spec 023): a complete,
+  current verdict set is evaluated directly (no reviewer re-dispatch); an
+  unconsumed `revision_spec_path` dispatches `llmxive_implementer`;
+  advancement decisions are PERSISTED by the graph (never reduced to a
+  stage name). Auto-revision rounds cap at
+  `advancement.MAX_REVISION_ROUNDS` → honest terminal.
+- Human escalation is RARE by design (spec 023): infeasible ideas archive
+  + re-brainstorm under a bounded cap (`IDEA_RETRY_CAP` →
+  `validator_rejected` terminal); engine failures file deduped GitHub
+  issues and stay schedulable; surviving escalations carry exhaustion
+  evidence (`state/escalations/`). The ONE sanctioned human gate is
+  publication sign-off: a maintainer-vote GitHub issue parsed by the
+  `signoff-poll` lane (`llmxive.integrations.signoff_gate`).
+- Every paper's compile/restyle/audit outcome lives in
+  `state/paper_status/<id>.json` (spec 023 / FR-022): silent fallbacks
+  are rejected at write time; audit defects feed a bounded repair loop
+  through the same revision machinery.
 
 ### Claims and verified accuracy
 - Every factual claim in generated artifacts is detected, registered,
