@@ -34,6 +34,7 @@ def test_edit_prompt_renders_with_no_unfilled_placeholders() -> None:
         "action_item_text": "Fix the typo in section 2.",
         "manuscript_window": "1: \\section{Intro}",
         "science_note": "",
+        "primary_tex": "main-llmxive.tex",
     }
     rendered = render_prompt(
         "agents/prompts/implementer_edit.md", values, repo_root=REAL_REPO
@@ -45,6 +46,10 @@ def test_edit_prompt_renders_with_no_unfilled_placeholders() -> None:
         assert "{{" + key + "}}" not in rendered
         if val:
             assert val in rendered, f"value for {key} missing from the prompt"
+    # Defect #10: the manuscript file must be the project's REAL primary
+    # tex, never a hard-coded main.tex.
+    assert "paper/source/main-llmxive.tex" in rendered
+    assert "`paper/source/main.tex`" not in rendered
 
 
 def test_validate_edit_path_accepts_project_relative(tmp_path: Path) -> None:

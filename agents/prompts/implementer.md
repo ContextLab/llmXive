@@ -15,7 +15,7 @@ For every task, output EXACTLY ONE structured edit in one of two forms:
 ```json
 {
   "kind": "search_and_replace",
-  "file": "<path relative to project root, e.g. paper/source/main.tex>",
+  "file": "<path relative to project root — use the manuscript file named in the task prompt, e.g. paper/source/main-llmxive.tex>",
   "search": "<verbatim text from the file, appearing EXACTLY ONCE>",
   "replace": "<replacement text>"
 }

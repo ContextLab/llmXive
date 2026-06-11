@@ -758,6 +758,11 @@ class LLMXiveImplementer(Agent):
                 "action_item_text": item_text,
                 "manuscript_window": manuscript_window,
                 "science_note": str(science_note) if science_note else "",
+                # The ACTUAL primary manuscript file — arXiv-intake papers
+                # use main-llmxive.tex, not main.tex (spec 023 defect #10:
+                # the hard-coded name sent every round-2 edit to a
+                # nonexistent file).
+                "primary_tex": str(primary_tex),
             },
             repo_root=repo_root,
         )

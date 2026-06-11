@@ -719,3 +719,189 @@ rounds:
     text: 'Hyphenation consistency: ''instruction following'' should be hyphenated
       as ''instruction-following'' when used as an adjective (e.g., e000 Introduction).'
     severity: writing
+- round_number: 5
+  triggered_at: '2026-06-11T04:09:05.242318+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 1bea5219d71b
+    text: Resolve discrepancy between Introduction table (Qwen3.5-27B, 0.6998) and
+      Experiments table (Qwen3.6-27B, 0.7183) for \rmbench results. Ensure consistent
+      model reporting.
+    severity: science
+  - id: 77be4dbe5505
+    text: 'Correct arithmetic in Table \ref{tab:combined_results}: AVG gain shown
+      as 0.1293, but values (0.4684 - 0.3415) yield 0.1269.'
+    severity: writing
+  - id: 95056158c17a
+    text: Clarify model version confusion (Qwen3.5 vs Qwen3.6) in Experiments text
+      vs tables. Citations must match the specific model evaluated.
+    severity: science
+  - id: fa5d0d98ffbe
+    text: Code artifacts (repository, scripts, tests) are not included in the submission.
+      Please provide a complete code package (requirements, tests, reproduction scripts)
+      alongside the paper to enable reproducibility and code quality evaluation.
+    severity: writing
+  - id: 3cf7c2e7c5ac
+    text: Specify the dataset license (e.g., CC-BY 4.0) for Edit-Compass and EditReward-Compass
+      in the main text or appendix.
+    severity: writing
+  - id: f81eaf3c0697
+    text: Explicitly state compliance with source image licenses (Unsplash, Pexels,
+      etc.) regarding redistribution.
+    severity: writing
+  - id: b5d3bbee9931
+    text: Include a dataset version number (e.g., v1.0) and release date in the repository
+      and paper.
+    severity: writing
+  - id: 9497d8b83225
+    text: Report data filtering statistics (e.g., number of generated vs. retained
+      samples) to quantify selection bias.
+    severity: writing
+  - id: 7b6abb4a6171
+    text: Standardize figure label naming conventions. The manuscript mixes prefixes
+      ('fig:gallery', 'User_Study', 'Fig:ADD'). Adopt a consistent 'fig:' prefix for
+      all figures to prevent referencing errors.
+    severity: writing
+  - id: 2d99212d5f5e
+    text: Enhance qualitative figure captions. Current captions (e.g., Fig:ADD, Fig:Virtual
+      Try-On) are generic ('Qualitative comparisons on...'). They should describe
+      the specific visual evidence or finding (e.g., 'Model X preserves identity while
+      Model Y fails...').
+    severity: writing
+  - id: 5c3c119b3de8
+    text: Resolve duplicate figure label definitions. Labels like 'User_Study' and
+      'Fig:ADD' are defined in both chunk e001 and chunk e003, which will cause LaTeX
+      compilation warnings and broken references.
+    severity: writing
+  - id: 9949c9826aa5
+    text: Define acronyms RL (Reinforcement Learning) and LLM (Large Language Model)
+      at first use in Abstract and Introduction.
+    severity: writing
+  - id: a4352b1a2a99
+    text: Define MLLM (Multimodal Large Language Model) before Section 3.1 Evaluation
+      Pipeline; currently appears as 'MLLM-as-judge' without prior definition.
+    severity: writing
+  - id: 5043f6a12c26
+    text: Spell out algorithmic terms DP (Dynamic Programming) and DFS (Depth-First
+      Search) in Appendix Section 'Algorithmic Visual Reasoning tasks' for non-specialist
+      clarity.
+    severity: writing
+  - id: 36bffd03f09d
+    text: Define ROI (Region of Interest) in Appendix prompt boxes (e.g., URC_Complex_paint)
+      where it appears without context.
+    severity: writing
+  - id: 23d882333a86
+    text: Replace architecture-specific jargon 'DiT' (Diffusion Transformer) and 'UNet'
+      with plain descriptions or ensure definitions exist in Appendix Section 'Image
+      Editing Model Evaluation'.
+    severity: writing
+  - id: f1e2d3c4b5a6
+    text: Define FlowGRPO at first use in Section 3.1 Sampling Stage; currently appears
+      without expansion.
+    severity: writing
+  - id: 7b548a22ae8b
+    text: 'Weight rationale missing: Section supp:Evaluation Details defines task-type-specific
+      weights (e.g., 0.6 IA for AVR tasks) without justification. Why should World
+      Knowledge tasks weight IA higher?'
+    severity: writing
+  - id: ffbaa7a0e2cb
+    text: 'System prompt gain ambiguity: Analysis section states ''12.93%'' gain but
+      Table tab:combined_results(b) shows 0.1293 absolute improvement. Clarify whether
+      this is percentage or absolute gain.'
+    severity: writing
+  - id: 51bd755094e0
+    text: 'Human correlation claim unsupported: Section 4.1 claims ''higher correlation
+      with human preferences'' but cites Fig. User_Study without providing actual
+      correlation values in text.'
+    severity: writing
+  - id: 87bd87c6db5a
+    text: 'Score scale inconsistency: \bench reports 1-5 scores (e.g., Table 5), while
+      \rmbench reports 0-1 scores (e.g., Table 3) despite claiming the same rubric
+      framework. Explain normalization.'
+    severity: writing
+  - id: 0a148d84d9e4
+    text: Add explicit IRB approval statement for human annotators involved in benchmark
+      construction and evaluation.
+    severity: writing
+  - id: 9e74ad928364
+    text: Revise the Impact Statement to address dual-use risks of image editing (e.g.,
+      deepfakes, misinformation) rather than dismissing them.
+    severity: writing
+  - id: 8d92fd7d988e
+    text: Clarify privacy consent for human subjects in 'Virtual Try-On' and stock
+      photo datasets used in the benchmark.
+    severity: writing
+  - id: ba17f205f6f7
+    text: Report standard deviation or confidence intervals for model scores across
+      multiple seeds to establish statistical robustness.
+    severity: science
+  - id: 67288cad6289
+    text: Specify the sample size (number of human ratings) for the User Study (Fig.
+      User_Study) to validate the claimed human alignment.
+    severity: science
+  - id: e0bc802a3eb4
+    text: Report confidence intervals or standard errors for all model performance
+      scores (e.g., Table tab:Image Editing Bench Main Results_EN). Point estimates
+      alone cannot support claims of superiority between proprietary (3.99) and open-source
+      (2.69) systems without uncertainty quantification.
+    severity: science
+  - id: cd7b60c7136b
+    text: Add statistical significance testing (e.g., paired t-tests, ANOVA with post-hoc
+      corrections) for all model comparisons. With 29 models evaluated across 6 task
+      categories, uncorrected comparisons inflate Type I error rates. Report p-values
+      for key claims.
+    severity: science
+  - id: 616a059e9dee
+    text: Report inter-rater reliability metrics (e.g., Cohen's kappa, ICC) for the
+      MLLM-as-judge evaluation pipeline. The human study (Fig. User_Study) shows Pearson
+      correlation but lacks correlation coefficients, p-values, and confidence intervals.
+      Appendix should include these statistics.
+    severity: science
+  - id: 97d6bd978c78
+    text: 'Standardize table formatting: e005 uses vertical bars (|) in tabular definitions
+      (e.g., \begin{tabular}{lc|ccc|...}), violating booktabs style used in e000.
+      Ensure all tables use \toprule/\midrule/\bottomrule without vertical lines.'
+    severity: writing
+  - id: dcbb3f68f396
+    text: 'Fix label hygiene: Multiple labels contain spaces (e.g., \label{supp: Evaluation
+      Details} in e001, \label{tab:Image Editing Bench Main Results_EN} in e005).
+      Replace spaces with underscores to prevent cross-reference errors.'
+    severity: writing
+  - id: 9e9b701daaba
+    text: 'Define missing environments: \begin{promptbox} and \begin{lstlisting} are
+      used in e002/e003 but the preamble (e003) does not load ''listings'' or define
+      ''promptbox''. Add package declarations or remove unsupported environments.'
+    severity: writing
+  - id: d135d246a5e2
+    text: 'Unify header punctuation: Section titles are inconsistent (e.g., \subsection{General
+      and  Complex tasks.} in e003 ends with a period, while others do not). Remove
+      trailing periods from section headers.'
+    severity: writing
+  - id: e8762be525a8
+    text: 'Fix inconsistent figure label spacing: Labels use mixed conventions (e.g.,
+      \label{Fig:ADD} vs \label{Fig: Remove} with space). Standardize to no spaces
+      in all figure labels.'
+    severity: writing
+  - id: f6a06ad74980
+    text: 'Resolve document class inconsistency: e000 uses \documentclass{llmxive}
+      while e003 uses \documentclass{article} with \usepackage{neurips_2026}. Ensure
+      unified document class across all chunks.'
+    severity: writing
+  - id: 71370fe3b74e
+    text: 'Table captions (e.g., e005) contain incomplete hyphenation: ''open-'' and
+      ''closed-'' models. Correct to ''open-source'' and ''closed-source'' for clarity.'
+    severity: writing
+  - id: 7748e6327500
+    text: 'Terminology inconsistency: ''closed-source'' is used in e001, but ''proprietary''
+      is used in e003. Standardize throughout the manuscript.'
+    severity: writing
+  - id: 1dcf2029e756
+    text: 'Potential duplicate sections: ''Conclusion'' and ''Impact Statement'' appear
+      in both e000 and e003 chunks. Ensure the final manuscript does not contain redundant
+      sections.'
+    severity: writing
+  - id: a7a2011cd18e
+    text: 'Hyphenation consistency: ''instruction following'' should be hyphenated
+      as ''instruction-following'' when used as an adjective (e.g., e000 Introduction).'
+    severity: writing
