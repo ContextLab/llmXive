@@ -119,6 +119,27 @@ def feature_dir_for(project_dir: Path, *, track: str) -> Path | None:
     MUST resolve the artifact through here so "current vs stale" means the
     same file everywhere.
     """
+    # Spec 023 defect #17: a project that cycles through an idea-root
+    # kickback accumulates feature dirs (001-..N); the old heuristic
+    # (first dir with tasks.md, ascending) resolved the STALE prior cycle
+    # while the agents worked the new one — reviewers would hash the old
+    # tasks.md. The project state's speckit_*_dir pointer is the SSoT:
+    # honor it first; the content heuristic is the fallback for projects
+    # without a pointer (e.g. arXiv intake).
+    project_id = project_dir.name
+    repo_root = project_dir.parent.parent
+    state_path = repo_root / "state" / "projects" / f"{project_id}.yaml"
+    if state_path.is_file():
+        try:
+            raw = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}
+            key = "speckit_paper_dir" if track == "paper" else "speckit_research_dir"
+            pointer = raw.get(key)
+            if pointer:
+                pointed = repo_root / pointer
+                if pointed.is_dir():
+                    return pointed
+        except yaml.YAMLError:
+            pass
     base = project_dir / "paper" if track == "paper" else project_dir
     candidates = sorted(base.glob("specs/*/"))
     if not candidates:

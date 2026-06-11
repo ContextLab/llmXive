@@ -96,3 +96,34 @@ def test_read_tasks_md_parses_adapter_rev_tag(tmp_path: Path) -> None:
     parsed = _read_tasks_md(tasks)
     assert [t["severity"] for t in parsed] == ["writing", "science", "science"]
     assert parsed[0]["id"] == "001"
+
+
+def test_feature_dir_for_honors_project_pointer(tmp_path: Path) -> None:
+    """Spec 023 defect #17: after an idea-root kickback cycle a project
+    accumulates feature dirs; the content heuristic (first dir with
+    tasks.md) resolved the STALE cycle while agents worked the new one.
+    The project state's speckit_*_dir pointer is the SSoT."""
+    import yaml
+
+    from llmxive.state.project import feature_dir_for
+
+    pid = "PROJ-942-pointer"
+    proj = tmp_path / "projects" / pid
+    old = proj / "specs" / "004-old"
+    new = proj / "specs" / "005-new"
+    old.mkdir(parents=True); new.mkdir(parents=True)
+    (old / "tasks.md").write_text("- [X] T001 stale\n", encoding="utf-8")
+    (new / "spec.md").write_text("# fresh spec\n", encoding="utf-8")
+    state = tmp_path / "state" / "projects"
+    state.mkdir(parents=True)
+    (state / f"{pid}.yaml").write_text(
+        yaml.safe_dump({"speckit_research_dir": f"projects/{pid}/specs/005-new"}),
+        encoding="utf-8",
+    )
+
+    assert feature_dir_for(proj, track="research").name == "005-new"
+
+    # Without a pointer, the content heuristic still applies (ghost-dir
+    # protection for arXiv-intake projects).
+    (state / f"{pid}.yaml").write_text(yaml.safe_dump({}), encoding="utf-8")
+    assert feature_dir_for(proj, track="research").name == "004-old"

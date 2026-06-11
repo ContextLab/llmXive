@@ -1,31 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
 
-The question asks about the mathematical relationship between combinatorial invariants (crossing number, braid index) and a geometric invariant (hyperbolic volume), which is a substantive inquiry about knot theory. The regression methodology is simply a tool to quantify this relationship, not the focus of the question itself.
+The question asks about the mathematical relationship between combinatorial invariants (crossing number, braid index) and a geometric invariant (hyperbolic volume). It is independent of any specific computational method used to calculate these values or fit the model. This focuses on the intrinsic properties of knots rather than the performance of a specific algorithm.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictors (crossing number and braid index) derive from minimal diagram and braid representations respectively, while the predicted variable (hyperbolic volume) comes from the geometry of the knot complement in S³. These are independent mathematical objects with no mechanical construction guaranteeing their relationship.
+The predictors (diagrammatic invariants) and the target (geometric invariant from the knot complement) are derived from distinct mathematical constructions. While related by theory, they are not computed from the same primary signal in a way that guarantees correlation by construction. The hyperbolic volume is a geometric property of the complement, not a direct summary of the diagram's crossing matrix.
 
 ### Triviality check
-
 **Verdict**: pass
 
-Both positive and null results are informative: a strong correlation would clarify how much geometric complexity is encoded in diagrammatic measures, while a weak correlation would demonstrate the limits of combinatorial invariants for predicting geometric properties. Either outcome advances understanding of the relationship between combinatorial and geometric knot invariants.
+Both positive and null results are informative; a strong correlation would validate diagrammatic measures as proxies for geometry, while a weak correlation would highlight limitations in current classification heuristics. Existing bounds do not determine the precise functional relationship empirically across large datasets. The stratification by alternating class adds significant nuance beyond simple correlation.
 
 ### Question-narrowing check
-
 **Verdict**: pass
 
-The question names a relationship in the mathematical domain (how diagrammatic invariants relate to geometric invariants across knot classes) rather than implementation constraints. The alternating/non-alternating stratification is a domain-relevant categorization, not a computational budget constraint.
+The question names a relationship in the domain (invariants vs invariants) rather than a constraint on the implementation (e.g., runtime, specific library). It focuses on the mathematical structure of prime knots. The methodology supports this by using standard regression to quantify the relationship.
 
 ### Overall verdict
-
 **Verdict**: validated
 
-All four checks pass. The research question asks a substantive mathematical question about the relationship between combinatorial and geometric knot invariants, with both possible outcomes being theoretically informative. The methodology (regression analysis on census data) is appropriate for quantifying this relationship without making the method itself the focus of inquiry.
+All four checks pass without significant concerns that undermine the core question. The inquiry targets a genuine gap in the empirical understanding of knot invariants. The project is ready to advance to initialization.
