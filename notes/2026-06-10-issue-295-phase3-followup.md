@@ -105,3 +105,16 @@ verified, evidence in #303):
 
 NEXT SESSION: execute #303 in order (fix 1 first — small + unblocks
 everything; write the run_one_step PAPER_REVIEW regression test).
+
+## PROJ-552 re-dispatch OUTCOME (run 27311831772, completed ~00:30Z Jun 11)
+
+**The convergence machinery worked end-to-end in CI**: 4-round plan
+panel → HONEST KICKBACK (13 real methodology concerns: power analysis,
+braid-index confounding, 9,988 count interpretation, confirmatory-vs-
+exploratory framing) → plan→clarified, kickback_count plan: 1/3, full
+84KB trail persisted (plan-013.jsonl). NO human escalation, NO silent
+loss — the #302 outage fix + persist behavior validated live.
+Reconciliation cycle continued via dispatch **27315363219** (clarify
+step with kickback feedback). Watch: cap escalation at 3 is the correct
+bounded terminal if reconciliation fails (#239 §5); do NOT hand-edit
+the spec/plan.
