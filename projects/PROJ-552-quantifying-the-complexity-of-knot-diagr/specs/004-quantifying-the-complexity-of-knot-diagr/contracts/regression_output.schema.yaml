@@ -70,3 +70,8 @@ properties:
    description: "Nature of validation (per methodology-1fad3f3a: composite score is hypothesis-generating)"
    default: "hypothesis-generating"
  additionalProperties: false
+
+# DEPRECATED Schemas:
+# - regression_model.schema.yaml
+# - regression_result.schema.yaml
+# Use regression_output.schema.yaml as the single canonical version.

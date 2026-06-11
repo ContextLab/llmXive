@@ -1,7 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "InvariantsDataset"
-description: "Aggregated collection of KnotRecord entities with metadata"
+description: "Aggregated collection of KnotRecord entities with metadata (DEPRECATED: use invariants-dataset.schema.yaml)"
 type: "object"
+required:
+  - "dataset_id"
+  - "total_records"
+  - "crossing_number_range"
+  - "data_source"
+  - "created_at"
+  - "checksum"
 properties:
   dataset_id:
     type: "string"
@@ -11,7 +18,7 @@ properties:
     description: "Array of knot records"
     items:
       $ref: "#/definitions/KnotRecord"
-  total_knots:
+  total_records:
     type: "integer"
     description: "Total number of knots in dataset"
     minimum: 0
@@ -40,88 +47,29 @@ properties:
     type: "integer"
     description: "Count of unclassifiable knots"
     minimum: 0
+  hyperbolic_volume_available:
+    type: "integer"
+    description: "Count with valid hyperbolic volume"
+    minimum: 0
   data_source:
     type: "string"
     description: "Primary data source"
-  created_timestamp:
+    enum:
+      - "knot_atlas"
+      - "computed"
+  created_at:
     type: "string"
-    description: "When dataset was created (ISO 8601 format)"
+    description: "Dataset creation timestamp"
     format: "date-time"
-  checksum_sha256:
+  checksum:
     type: "string"
-    description: "SHA-256 checksum of dataset file"
+    description: "SHA-256 of entire dataset"
     pattern: "^[a-f0-9]{64}$"
+  derivation_notes:
+    type: "string"
+    description: "Path to derivation documentation"
+    pattern: "^docs/reproducibility/.*\\.md$"
+additionalProperties: false
 definitions:
   KnotRecord:
-    type: "object"
-    properties:
-      knot_id:
-        type: "string"
-      crossing_number:
-        type: "integer"
-        minimum: 0
-      braid_index:
-        type: "integer"
-        minimum: 1
-      hyperbolic_volume:
-        type: "number"
-        minimum: 0
-      is_alternating:
-        type: "string"
-        enum:
-          - "true"
-          - "false"
-          - "unclassifiable"
-      arc_index:
-        type: "integer"
-        minimum: 1
-        nullable: true
-      seifert_circle_count:
-        type: "integer"
-        minimum: 1
-        nullable: true
-      bridge_number:
-        type: "integer"
-        minimum: 1
-        nullable: true
-      dt_code:
-        type: "string"
-        nullable: true
-      braid_word:
-        type: "string"
-        nullable: true
-      missing_invariant_flags:
-        type: "array"
-        items:
-          type: "string"
-        default: []
-      data_source:
-        type: "string"
-      download_timestamp:
-        type: "string"
-        format: "date-time"
-      checksum_sha256:
-        type: "string"
-        pattern: "^[a-f0-9]{64}$"
-    required:
-      - knot_id
-      - crossing_number
-      - braid_index
-      - hyperbolic_volume
-      - is_alternating
-      - data_source
-      - download_timestamp
-      - checksum_sha256
-    additionalProperties: false
-required:
-  - dataset_id
-  - knot_records
-  - total_knots
-  - crossing_number_range
-  - alternating_count
-  - non_alternating_count
-  - unclassifiable_count
-  - data_source
-  - created_timestamp
-  - checksum_sha256
-additionalProperties: false
+    $ref: "../knot-record.schema.yaml"

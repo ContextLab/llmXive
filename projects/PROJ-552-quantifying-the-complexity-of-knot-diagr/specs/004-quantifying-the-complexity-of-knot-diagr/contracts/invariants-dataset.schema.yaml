@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "InvariantsDataset"
-description: "Aggregated collection of KnotRecord entities with metadata"
+description: "Aggregated collection of KnotRecord entities with metadata (CANONICAL VERSION)"
 type: "object"
 required:
   - "dataset_id"
@@ -65,3 +65,7 @@ properties:
     description: "Path to derivation documentation"
     pattern: "^docs/reproducibility/.*\\.md$"
 additionalProperties: false
+
+# DEPRECATED Schemas:
+# - invariants_dataset.schema.yaml
+# Use invariants-dataset.schema.yaml as the single canonical version.

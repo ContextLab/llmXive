@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.1016/J.OBHDP.2021.04.004",
+  "judged_at": "2026-06-11T02:49:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of visual salience on attentional bias in moral decision-making psychology",
+  "rationale": "This paper satisfies criterion (a) by providing same-mechanism evidence for the causal link between visual attention (eye movements) and decision bias, and criterion (d) as it is the foundational methodology paper for the attentional drift diffusion model (aDDM) used to study this mechanism. Although the specific domain is consumer choice rather than moral decision-making, the core mechanism of visual salience influencing attentional bias in decision processes is the canonical prior work require",
+  "relevant": true
+}

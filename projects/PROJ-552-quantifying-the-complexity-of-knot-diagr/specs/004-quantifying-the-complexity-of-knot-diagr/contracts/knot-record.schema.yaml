@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
-description: "Represents a single prime knot with computed and tabulated invariants"
+description: "Canonical schema for a single prime knot with computed invariants (CANONICAL VERSION)"
 type: "object"
 required:
   - "knot_id"
@@ -12,72 +12,71 @@ required:
 properties:
   knot_id:
     type: "string"
-    description: "Primary key (e.g., \"3_1\", \"4_1\", \"13_00001\")"
+    description: "Unique identifier (e.g., \"3_1\", \"4_1\", \"10_123\")"
     pattern: "^[0-9]+_[0-9]+$"
   crossing_number:
     type: "integer"
-    description: "Tabulated crossing number from Knot Atlas"
+    description: "Minimal crossing number of the knot"
     minimum: 1
     maximum: 13
   braid_index:
     type: "integer"
-    description: "Braid index (algorithmic or tabulated)"
+    description: "Minimal braid index (algorithmically determined)"
     minimum: 1
+  hyperbolic_volume:
+    type: "number"
+    description: "Hyperbolic volume (filtered for valid values)"
+    minimum: 0
+  is_alternating:
+    type: "string"
+    description: "Alternating classification (true/false/unclassifiable)"
+    enum:
+      - "true"
+      - "false"
+      - "unclassifiable"
   arc_index:
     type: "integer"
-    description: "Computed via Birman-Menasco method"
+    description: "Arc index (computed via Birman‑Menasco)"
     minimum: 1
     nullable: true
   seifert_circle_count:
     type: "integer"
-    description: "Computed via Seifert algorithm on minimal crossing diagram"
+    description: "Seifert circle count (computed via Seifert's algorithm)"
     minimum: 1
     nullable: true
   bridge_number:
     type: "integer"
-    description: "Computed via Schubert bridge decomposition"
-    minimum: 2
+    description: "Bridge number (computed via Schubert's decomposition)"
+    minimum: 1
     nullable: true
-  is_alternating:
-    type: "boolean"
-    description: "Alternating classification"
-    nullable: true
-  hyperbolic_volume:
-    type: "number"
-    description: "Hyperbolic volume (excluded if 0 or undefined)"
-    minimum: 0
-    nullable: true
-  diagram_representation:
+  dt_code:
     type: "string"
-    description: "Available diagram representation type"
-    enum:
-      - "braid_word"
-      - "dt_code"
-      - "both"
-      - "none"
+    description: "Dowker‑Thistlethwaite code representation"
+    nullable: true
+  braid_word:
+    type: "string"
+    description: "Braid word representation"
     nullable: true
   missing_invariant_flags:
     type: "array"
-    description: "Flags for invariants that could not be computed"
+    description: "Flags for missing computable invariants"
     items:
       type: "string"
-      enum:
-        - "arc_index"
-        - "seifert_circles"
-        - "bridge_number"
-    nullable: true
+    default: []
   data_source:
     type: "string"
-    description: "Source of primary data"
-    enum:
-      - "knot_atlas"
-      - "computed"
-  computed_at:
+    description: "Source of original data (e.g., \"knot_atlas\")"
+  download_timestamp:
     type: "string"
-    description: "Timestamp of invariant computation"
+    description: "When data was downloaded (ISO 8601 format)"
     format: "date-time"
-  checksum:
+  checksum_sha256:
     type: "string"
-    description: "Content hash for reproducibility (SHA-256)"
+    description: "SHA‑256 checksum of source record"
     pattern: "^[a-f0-9]{64}$"
 additionalProperties: false
+
+# DEPRECATED Schemas:
+# - knot_data.schema.yaml
+# - knot_record.schema.yaml
+# Use knot-record.schema.yaml as the single canonical version.

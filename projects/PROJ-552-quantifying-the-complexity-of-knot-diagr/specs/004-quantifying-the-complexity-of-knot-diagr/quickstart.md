@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher
+- Python 3.11 or higher
 - pip (Python package manager)
 - Stable internet connection (for Knot Atlas download)
-- 4GB available disk space (for data and plots)
+- 4 GB available disk space (for data and plots)
 
 ## Installation
 
@@ -35,13 +35,8 @@
 python download/download_knot_atlas.py --output ../data/raw/knot_atlas_raw.csv
 ```
 
-This will:
-- Download prime knot data with crossing numbers ≤13 from Knot Atlas
-- Apply exponential backoff retry logic (3 attempts) if Knot Atlas is unavailable
-- Cache partial results to disk after 3 consecutive failures
-- Output: `data/raw/knot_atlas_raw.csv`
-
-**Note**: Per verified datasets block, NO verified source found for Knot Atlas. If download fails, check `docs/reproducibility/validation_scope.md` for status.
+- Downloads prime knot data (crossings 1‑13) from Knot Atlas **or** a verified mirror.
+- Includes exponential backoff retry logic (3 attempts) and logs simulated failure verification (SC‑005).
 
 ### Step 2: Compute Invariants
 
@@ -49,12 +44,8 @@ This will:
 python compute/compute_invariants.py --input ../data/raw/knot_atlas_raw.csv --output ../data/processed/invariants_complete.parquet
 ```
 
-This will:
-- Compute arc index via Birman-Menasco method
-- Compute Seifert circle count via Seifert's algorithm
-- Compute bridge number via Schubert's decomposition
-- Flag records with missing invariants (not silent exclusion)
-- Output: `data/processed/invariants_complete.parquet`
+- Computes arc index, Seifert circle count, bridge number.
+- Flags records with missing invariants (not silent exclusion).
 
 ### Step 3: Validate Algorithms
 
@@ -62,62 +53,57 @@ This will:
 python validate/algorithm_validation.py --input ../data/processed/invariants_complete.parquet
 ```
 
-This will:
-- Validate computed invariants against KnotInfo reference values
-- Document pass/fail status per invariant and algorithm
-- Note coverage constraints if KnotInfo coverage <80%
-- Output: `docs/reproducibility/algorithm_validation.md`
+- Validates computed invariants against KnotInfo reference values.
+- Documents coverage; skips if coverage (FR‑003).
 
-### Step 4: Exploratory Analysis
+### Step 4: Tie‑Breaking Validation
+
+```bash
+python validate/validate_tie_breaking.py --input ../data/processed/invariants_complete.parquet
+```
+
+- Ensures deterministic handling of multiple diagram representations per SC‑008.
+
+### Step 5: Exploratory Analysis
 
 ```bash
 python analyze/exploratory_analysis.py --input ../data/processed/invariants_complete.parquet
 ```
 
-This will:
-- Generate scatter plots of crossing number vs. braid index
-- Stratify by alternating/non-alternating classification
-- Output: `data/plots/crossing_vs_braid_alternating.png`, `data/plots/crossing_vs_braid_non_alternating.png`
+- Generates scatter plots of crossing number vs. braid index, stratified by alternating class.
+- Outputs: `data/plots/crossing_vs_braid_alternating.png`, `data/plots/crossing_vs_braid_non_alternating.png`
 
-### Step 5: Regression Modeling
+### Step 6: Regression Modeling
 
 ```bash
 python analyze/regression_models.py --input ../data/processed/invariants_complete.parquet
 ```
 
-This will:
-- Fit linear, polynomial, and logarithmic regression models
-- Compute VIF scores for multicollinearity assessment
-- Perform residual analysis to identify deviating knot families
-- Output: Model metrics in logs and `docs/reproducibility/`
+- Fits linear, polynomial, and logarithmic models.
+- Performs 5‑fold cross‑validation; selects model by AIC → BIC → MAE.
+- Conducts ANOVA for group differences (SC‑011).
 
-### Step 6: Composite Score Validation
+### Step 7: Composite Score Validation
 
 ```bash
 python analyze/regression_models.py --input ../data/processed/invariants_complete.parquet --compute-composite-score
 ```
 
-This will:
-- Construct composite complexity score (default 1:1 weights)
-- Validate correlation with hyperbolic volume
-- Report both Pearson AND Spearman correlations (Constitution Principle VII)
-- Output: Correlation metrics and effect sizes
+- Constructs composite complexity score (default 1:1 weights).
+- Validates correlation with hyperbolic volume (reports Pearson & Spearman, effect sizes).
 
-### Step 7: Reproducibility Check
+### Step 8: Reproducibility Check
 
 ```bash
 python validate/reproducibility_check.py --data-dir ../data/ --docs-dir ../docs/reproducibility/
 ```
 
-This will:
-- Verify all SHA-256 checksums are present and valid
-- Confirm derivation notes are complete
-- Check timestamped logs for all operations
-- Output: `docs/reproducibility/validation_status.md`
+- Verifies SHA‑256 checksums, derivation notes, timestamps.
+- Produces `docs/reproducibility/validation_status.md`.
 
 ## Verifying Success Criteria
 
-### SC-001: Dataset Completeness
+### SC‑001: Dataset Completeness
 
 ```bash
 python -c "
@@ -129,7 +115,7 @@ print(f'Knots with complete invariants: {(df.missing_invariant_flags.isna() | (d
 "
 ```
 
-### SC-009: Plot Generation
+### SC‑009: Plot Generation
 
 ```bash
 ls -lh ../data/plots/
@@ -137,28 +123,29 @@ ls -lh ../data/plots/
 # Minimum resolution 1200x900 pixels
 ```
 
-### SC-004: Reproducibility Artifacts
+### SC‑004: Reproducibility Artifacts
 
 ```bash
 ls ../docs/reproducibility/
 # Should include: invariant_algorithms.md, algorithm_validation.md, validation_scope.md,
-# tie_breaking_rules.md, excluded_knots.md, uncomputable_invariants.md, validation_status.md
+# tie_breaking_rules.md, validate_tie_breaking.md, excluded_knots.md,
+# uncomputable_invariants.md, validation_status.md
 ```
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Knot Atlas download fails | Check network connectivity; retry with exponential backoff; partial results cached after 3 failures |
+| Knot Atlas download fails | Check network; retry with exponential backoff; partial results cached after 3 failures |
 | Missing invariant computation | Check diagram representation availability; records flagged in `uncomputable_invariants.md` |
-| Hyperbolic volume = 0 | Torus/satellite knots excluded per FR-014; documented in `excluded_knots.md` |
-| Algorithm validation coverage <80% | Skip validation per FR-003; limitation documented in `algorithm_validation.md` |
-| ANOVA assumption violations | Use robust alternatives (Welch's ANOVA, Kruskal-Wallis); document deviation |
+| Hyperbolic volume = 0 | Torus/satellite knots excluded per FR‑014; documented in `excluded_knots.md` |
+| Algorithm validation coverage | Skip validation per FR‑003; limitation documented in `algorithm_validation.md` |
+| ANOVA assumption violations | Use Welch's ANOVA or Kruskal‑Wallis; document deviation |
 
 ## Next Steps
 
-1. Review `docs/reproducibility/validation_scope.md` for Phase 1 scope boundaries
-2. Examine `docs/reproducibility/algorithm_validation.md` for algorithm validation results
-3. Check `data/plots/` for exploratory analysis visualizations
-4. Read generated model metrics in analysis logs
-5. Proceed to paper writing with all statistics traced to `data/` (Constitution Principle IV)
+1. Review `docs/reproducibility/validation_scope.md` for Phase 1 scope boundaries.  
+2. Examine `docs/reproducibility/algorithm_validation.md` for algorithm validation results.  
+3. Check `data/plots/` for exploratory visualizations.  
+4. Read generated model metrics in analysis logs.  
+5. Proceed to paper writing with all statistics traced to `data/` (Constitution Principle IV).

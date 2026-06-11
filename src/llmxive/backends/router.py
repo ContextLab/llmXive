@@ -311,6 +311,7 @@ def chat_with_fallback(
         max_tokens = GENERATION_MAX_TOKENS
     chain = [default_backend, *fallback_backends]
     errors: list[str] = []
+    saw_outage = False
     msg_list = list(messages)
     for name in chain:
         try:
@@ -322,8 +323,9 @@ def chat_with_fallback(
         # models on the SAME backend — :func:`chat_with_model_fallback` owns
         # that walk (and the reviewer/reviser share it). A permanent failure on
         # the primary model surfaces as PermanentBackendError; a fully-exhausted
-        # transient chain surfaces as BackendError. Either way we move on to the
-        # next backend in ``chain`` (matching the prior per-backend semantics).
+        # transient chain surfaces as BackendUnavailable. Either way we move on
+        # to the next backend in ``chain`` (matching the prior per-backend
+        # semantics).
         try:
             return chat_with_model_fallback(
                 backend,
@@ -332,15 +334,34 @@ def chat_with_fallback(
                 max_tokens=max_tokens,
                 temperature=temperature,
             )
+        except BackendUnavailable as exc:
+            # The backend's WHOLE model chain is in outage (breaker open /
+            # transient exhaustion). Remember it: if every other backend
+            # also fails, the aggregate is an OUTAGE, not an engine error.
+            saw_outage = True
+            errors.append(f"{name}(outage): {exc}")
+            continue
         except (PermanentBackendError, BackendError) as exc:
             errors.append(f"{name}: {exc}")
             continue
-    raise BackendError(
+    detail = (
         "every backend in chain "
         + repr(chain)
         + " failed; errors: "
         + " | ".join(errors)
     )
+    # Spec 023 defect #11 (same family as the PR-#302 model-level fix, one
+    # layer up): a Dartmouth-wide outage correctly surfaced as
+    # BackendUnavailable from the model walk — and was then SWALLOWED here
+    # (it subclasses BackendError), with the exhaustion re-raised as plain
+    # BackendError once the local fallback failed too. The stage panel's
+    # generic handler treated that as an engine failure. Observed live on
+    # PROJ-552's plan panel (2026-06-11). An exhaustion that includes ANY
+    # backend-level outage signal aborts cleanly so the project retries on
+    # a later tick with state preserved.
+    if saw_outage:
+        raise BackendUnavailable(detail)
+    raise BackendError(detail)
 
 
 __all__ = [

@@ -57,6 +57,8 @@ previously silently lost — FR-003).
 | 7 | T009 pass 2 | `_read_tasks_md` captured the adapter's `[REV]` tag as severity | only real severities count; `(severity: X)` parsed from text |
 | 8 | Stage 5 | clarifier `escalate` verdict parked immediately (unbounded escalation writer) | bounded at the attempt cap + evidence record |
 | 9 | Stage 5 | clarifier-cap escalation record wrote to env repo root in hermetic tests | `_repo_root_from(memory_dir)` |
+| 10 | T009 round-2 | edit prompt hard-coded `paper/source/main.tex`; arXiv-intake papers use `main-llmxive.tex` — all 39 edits hit a nonexistent file | `{{primary_tex}}` variable + exactness/line-number instructions |
+| 11 | US3 plan pass | `chat_with_fallback` swallowed the model-walk's `BackendUnavailable` (subclasses BackendError) and re-raised plain BackendError at backend-chain exhaustion — a Dartmouth-wide outage classed as an ENGINE failure (PR-#302 gap, one layer up; observed live on PROJ-552) | `saw_outage` → BackendUnavailable + 2 regression tests |
 
 ## T009 — real-state demonstration (US1)
 
