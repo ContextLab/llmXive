@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T08:59:58.963205Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-345-the-influence-of-visual-priming-on-impli
-last_run_id: 0e1b1c59-e8bb-4fa2-893c-0d602f592243
+last_run_id: 8e4feab1-eec1-4e6f-9344-566aa723a02b
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social
   Stimuli
-updated_at: '2026-05-06T09:01:34.956185Z'
+updated_at: '2026-06-11T14:06:20.233602Z'
