@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:50.027822Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-587-episodic-future-thinking-in-llms-impleme
-last_run_id: eeaf977d-b642-4e91-ab7a-73a49ef8042b
+last_run_id: 95edc897-bd32-4b1f-8392-cd1bff494bd0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Episodic Future Thinking in LLMs: Implementing Mental Time Travel'
-updated_at: '2026-05-27T03:41:22.087920Z'
+updated_at: '2026-06-11T21:33:51.675559Z'

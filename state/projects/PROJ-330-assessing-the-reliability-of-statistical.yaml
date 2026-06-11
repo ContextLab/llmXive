@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T23:24:34.604841Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-330-assessing-the-reliability-of-statistical
-last_run_id: 3ad0a630-2be0-4eef-9bc6-45eaf89946e2
+last_run_id: 53048d75-6601-4742-a5f1-64e738a673fa
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Assessing the Reliability of Statistical Significance in Openly Available Genomic
   Datasets
-updated_at: '2026-05-05T23:26:37.572654Z'
+updated_at: '2026-06-11T21:31:28.404169Z'
