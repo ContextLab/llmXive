@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1008.3163",
+  "judged_at": "2026-06-11T19:02:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "rationale": "This paper measures crossing number (number of classical crossings) as a complexity metric for knot diagrams, which directly corresponds to one of the user's two key variables (crossing number and braid index) in the same mathematical domain (knot theory). It satisfies acceptance criteria (a) same-mechanism evidence and (b) independent/dependent variable on the same domain, as it studies the fundamental construct of crossing minimality in knot diagrams even if focused on free knots specifically.",
+  "relevant": true
+}

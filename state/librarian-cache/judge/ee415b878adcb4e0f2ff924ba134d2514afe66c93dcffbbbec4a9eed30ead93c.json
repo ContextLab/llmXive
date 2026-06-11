@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.14737",
+  "judged_at": "2026-06-11T19:04:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "rationale": "This paper explicitly investigates the relationship between crossing number and braid index, which are the exact metrics specified in the user's question, satisfying inclusion criteria (a) and (b). It provides foundational mathematical inequalities relevant to quantifying knot diagram complexity within the same domain.",
+  "relevant": true
+}

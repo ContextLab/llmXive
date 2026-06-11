@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1805.04428",
+  "judged_at": "2026-06-11T19:05:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "rationale": "This paper satisfies criterion (b) as it measures variants of the user's specified variables (crossing number and braid index) within the same mathematical domain (knot theory), providing relevant prior work on quantifying knot complexity through these invariants.",
+  "relevant": true
+}

@@ -17,10 +17,10 @@ Crossing number and braid index are combinatorial invariants derived from diagra
 
 ## Related work
 
-- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://www.cambridge.org/core/journals/canadian-journal-of-mathematics/article/on-the-minimal-crossing-number-and-the-braid-index-of-links/FC29A70314343599AB9D39AF810916FF) — Establishes foundational inequalities relating crossing number and braid index for classical links.
-- [Seifert circles, crossing number and the braid index of generalized knots and links (2022)](https://linkinghub.elsevier.com/retrieve/pii/S016686412500149X) — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
-- [The algebraic crossing number and the braid index of knots and links (2006)](https://msp.org/agt/2006/6-5/p11.xhtml) — Investigates the conjecture that algebraic crossing number is uniquely determined in minimal braid representation.
 - [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical data on 9,988 prime knots with crossing number 13, establishing a testable dataset for correlation analysis.
+- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://doi.org/10.4153/CJM-1993-007-x) — Establishes foundational inequalities relating crossing number and braid index for classical links.
+- [Seifert circles, crossing number and the braid index of generalized knots and links (2022)](https://arxiv.org/abs/2212.14737) — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
+- [The algebraic crossing number and the braid index of knots and links (2009)](https://arxiv.org/abs/0907.1019) — Investigates the conjecture that algebraic crossing number is uniquely determined in minimal braid representation.
 - [On the bridge number of knot diagrams with minimal crossings (2003)](https://arxiv.org/abs/math/0301320) — Relates crossing number to bridge number, offering a third invariant for potential composite measures.
 - [Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams (2018)](https://arxiv.org/abs/1806.09719) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
 
@@ -30,15 +30,45 @@ We expect to find that crossing number and braid index jointly explain a signifi
 
 ## Methodology sketch
 
-- Download the prime knot census (up to 13 crossings) from the Knot Atlas (https://katlas.org) including crossing number, braid index, and hyperbolic volume.
-- Filter the dataset to include only prime knots with complete hyperbolic volume data (exclude torus/satellite knots where volume is zero or undefined).
+- Download the prime knot census (up to 13 crossings) from Knot Atlas (https://katlas.org) including crossing number, braid index, and hyperbolic volume.
 - Parse the data to align knot identifiers across the crossing number, braid index, and volume columns.
+- **Filter dataset**: Retain only prime knots where (a) hyperbolic volume is numerically defined (>0), (b) crossing number and braid index are both populated, and (c) alternating classification is explicitly marked. **Target**: ≥90% of knots with computable invariants have all invariants populated (SC-006).
+- **Alternating classification handling**: 100% of knots with ambiguous or missing alternating classification are excluded from stratified analysis (SC-007).
 - Split the dataset into training (80%) and hold-out test (20%) sets stratified by alternating/non-alternating classification.
 - Fit multiple regression models predicting hyperbolic volume from crossing number and braid index (linear, polynomial, and logarithmic forms).
+- **Model selection criterion**: Select the model achieving ≥80% statistical power to detect medium effect sizes (Cohen's f² ≥ 0.15) based on pre-analysis power calculation (FR-005).
 - Evaluate model performance on the hold-out set using Mean Absolute Error (MAE) and R-squared metrics.
+- **Validation threshold**: If KnotInfo reference coverage is ≥90% of the dataset, proceed with validation; otherwise skip validation step (FR-003).
+- **Crossing number scope**: Primary analysis covers knots ≤10 crossings (validated); knots with 11-13 crossings are analyzed as exploratory extension only, with conclusions explicitly qualified as preliminary (scope-e070570d).
 - Analyze residuals to identify specific knot families (e.g., pretzel knots) that deviate significantly from the global trend.
+- **Derivation notes**: All model transformations include formula citations with page/section references and step-by-step transformation logic in code comments (SC-004).
 - Apply statistical tests (ANOVA) to compare model fit between alternating and non-alternating subsets.
+- **Match threshold**: Achieve ≥90% match threshold between computed invariants and reference values for validation to pass (SC-012).
 - Document all code and data transformations for reproducibility within a single GitHub Actions job.
+
+## Literature gap analysis
+
+### What we searched
+
+Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "crossing number braid index hyperbolic volume knot" and (2) "knot invariants correlation geometric complexity". Retrieved 15 verified citations spanning 1993-2024.
+
+### What is known
+
+- [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Establishes empirical dataset of 9,988 prime knots with crossing number 13, enabling large-scale correlation analysis.
+- [On the Minimal Crossing Number and the Braid Index of Links (1993)](https://doi.org/10.4153/CJM-1993-007-x) — Provides foundational inequalities linking crossing number and braid index for classical links.
+- [Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams (2018)](https://arxiv.org/abs/1806.09719) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
+
+### What is NOT known
+
+No published work has systematically quantified the predictive relationship between crossing number, braid index, and hyperbolic volume across large prime knot datasets with stratified alternating/non-alternating analysis. Existing work provides theoretical bounds but lacks empirical regression analysis with statistical power assessment.
+
+### Why this gap matters
+
+Quantifying this relationship enables more accurate classification heuristics for unknown knots and constrains theoretical bounds on geometric complexity. Practically, this informs which diagrammatic invariants carry the most geometric information for knot identification tasks.
+
+### How this project addresses the gap
+
+The regression analysis pipeline directly measures the predictive power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class and statistical power validation, producing previously-unavailable empirical evidence on the strength and form of these relationships.
 
 ## Duplicate-check
 
@@ -49,31 +79,33 @@ We expect to find that crossing number and braid index jointly explain a signifi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-01T22:07:19Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-11T19:08:23Z
 **Outcome**: success
 **Original term**: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics
-**Verified citation count**: 15
+**Verified citation count**: 17
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics | 15 |
+| 0 (initial) | Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics | 17 |
 
 ### Verified citations
 
 1. **On the complexity of meander-like diagrams of knots** (2023). Yury Belousov. arXiv. [2312.05014](https://arxiv.org/abs/2312.05014). PDF-sampled: No.
 2. **Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13** (2024). Hwa Jeong Lee, Yoonsang Lee, Chanmin Lee, Yeseo Park, Hun Kim, et al.. arXiv. [2402.02717](https://arxiv.org/abs/2402.02717). PDF-sampled: No.
 3. **Minimal Diagrams of Free Knots** (2010). Tomas Boothby, Allison Henrich, Alexander Leaf. arXiv. [1008.3163](https://arxiv.org/abs/1008.3163). PDF-sampled: No.
-4. **Seifert circles, crossing number and the braid index of generalized knots and links** (2022). Gustavo Cardoso, Oscar Ocampo. Topology and its Applications. [https://doi.org/10.1016/j.topol.2025.109351](https://doi.org/10.1016/j.topol.2025.109351). PDF-sampled: No.
-5. **On the Minimal Crossing Number and the Braid Index of Links** (1993). Y. Ohyama. Canadian Journal of Mathematics - Journal Canadien de Mathematiques. [https://doi.org/10.4153/CJM-1993-007-x](https://doi.org/10.4153/CJM-1993-007-x). PDF-sampled: No.
-6. **The algebraic crossing number and the braid index of knots and links** (2006). Keiko Kawamuro. n/a. [https://doi.org/10.2140/agt.2006.6.2313](https://doi.org/10.2140/agt.2006.6.2313). PDF-sampled: No.
-7. **Seifert circles, crossing number and the braid index of generalized knots and links** (2022). Gustavo Cardoso, Oscar Ocampo. arXiv. [2212.14737](https://arxiv.org/abs/2212.14737). PDF-sampled: No.
-8. **Triple Crossing Number and Double Crossing Braid Index** (2018). Daishiro Nishida. arXiv. [1805.04428](https://arxiv.org/abs/1805.04428). PDF-sampled: No.
-9. **Knot projections with a single multi-crossing** (2012). Colin Adams, Thomas Crawford, Benjamin DeMeo, Michael Landry, Alex Tong Lin, et al.. arXiv. [1208.5742](https://arxiv.org/abs/1208.5742). PDF-sampled: No.
-10. **On the bridge number of knot diagrams with minimal crossings** (2003). Jae-Wook Chung, Xiao-Song Lin. arXiv. [math/0301320](math/0301320). PDF-sampled: No.
-11. **On the semi-threading of knot diagrams with minimal overpasses** (2013). Jae-Wook Chung, Seulgi Jeong, Dongseok Kim. arXiv. [1302.3835](https://arxiv.org/abs/1302.3835). PDF-sampled: No.
-12. **Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams** (2018). Sungjong No, Seungsang Oh, Hyungkee Yoo. arXiv. [1806.09719](https://arxiv.org/abs/1806.09719). PDF-sampled: No.
-13. **The algebraic crossing number and the braid index of knots and links** (2009). Keiko Kawamuro. arXiv. [0907.1019](https://arxiv.org/abs/0907.1019). PDF-sampled: No.
-14. **Crossing changes in closed 3-braid diagrams** (2010). Chad Wiley. arXiv. [1001.1559](https://arxiv.org/abs/1001.1559). PDF-sampled: No.
-15. **A relation between the crossing number and the height of a knotoid** (2020). Philipp Korablev, Vladimir Tarkaev. arXiv. [2009.02718](https://arxiv.org/abs/2009.02718). PDF-sampled: No.
+4. **Knot Floer homology and the unknotting number** (2018). Akram Alishahi, Eaman Eftekhary. Geometry and Topology. [https://doi.org/10.2140/gt.2020.24.2435](https://doi.org/10.2140/gt.2020.24.2435). PDF-sampled: No.
+5. **Braid index bounds ropelength from below** (2019). Y. Diao. Journal of knot theory and its ramifications. [https://doi.org/10.1142/s0218216520500194](https://doi.org/10.1142/s0218216520500194). PDF-sampled: No.
+6. **Bisected vertex leveling of plane graphs: Braid index, arc index and delta diagrams** (2018). Sungjong No, Seungsang Oh, Hyungkee Yoo. Journal of knot theory and its ramifications. [https://doi.org/10.1142/S021821651850044X](https://doi.org/10.1142/S021821651850044X). PDF-sampled: No.
+7. **On the arc index and Turaev genus of a link** (2025). Álvaro del Valle Vílchez, Adam M. Lowrance. RACSAM. [https://doi.org/10.1007/s13398-026-01856-y](https://doi.org/10.1007/s13398-026-01856-y). PDF-sampled: No.
+8. **Seifert circles, crossing number and the braid index of generalized knots and links** (2022). Gustavo Cardoso, Oscar Ocampo. arXiv. [2212.14737](https://arxiv.org/abs/2212.14737). PDF-sampled: No.
+9. **Triple Crossing Number and Double Crossing Braid Index** (2018). Daishiro Nishida. arXiv. [1805.04428](https://arxiv.org/abs/1805.04428). PDF-sampled: No.
+10. **Trisected Rainbows and Braids** (2025). Román Aranda, Scott Carter, Julia Courtney, Puttipong Pongtanapaisan. arXiv. [2510.04248](https://arxiv.org/abs/2510.04248). PDF-sampled: No.
+11. **Knot projections with a single multi-crossing** (2012). Colin Adams, Thomas Crawford, Benjamin DeMeo, Michael Landry, Alex Tong Lin, et al.. arXiv. [1208.5742](https://arxiv.org/abs/1208.5742). PDF-sampled: No.
+12. **On the bridge number of knot diagrams with minimal crossings** (2003). Jae-Wook Chung, Xiao-Song Lin. arXiv. [math/0301320](math/0301320). PDF-sampled: No.
+13. **On the semi-threading of knot diagrams with minimal overpasses** (2013). Jae-Wook Chung, Seulgi Jeong, Dongseok Kim. arXiv. [1302.3835](https://arxiv.org/abs/1302.3835). PDF-sampled: No.
+14. **Bisected vertex leveling of plane graphs: braid index, arc index and delta diagrams** (2018). Sungjong No, Seungsang Oh, Hyungkee Yoo. arXiv. [1806.09719](https://arxiv.org/abs/1806.09719). PDF-sampled: No.
+15. **The algebraic crossing number and the braid index of knots and links** (2009). Keiko Kawamuro. arXiv. [0907.1019](https://arxiv.org/abs/0907.1019). PDF-sampled: No.
+16. **Crossing changes in closed 3-braid diagrams** (2010). Chad Wiley. arXiv. [1001.1559](https://arxiv.org/abs/1001.1559). PDF-sampled: No.
+17. **A relation between the crossing number and the height of a knotoid** (2020). Philipp Korablev, Vladimir Tarkaev. arXiv. [2009.02718](https://arxiv.org/abs/2009.02718). PDF-sampled: No.

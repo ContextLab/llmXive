@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "https://doi.org/10.2140/gt.2020.24.2435",
+  "judged_at": "2026-06-11T19:03:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "rationale": "This paper belongs in a literature review for knot complexity quantification because it measures knot complexity invariants (unknotting number, alteration number) in the same mathematical domain (knot theory), satisfying criterion (b) - it studies a related complexity variable on the user's domain even though it uses different specific measures (unknotting number vs. crossing number/braid index).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.05014",
+  "judged_at": "2026-06-11T19:01:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "rationale": "This paper satisfies criterion (a) by measuring the same mathematical observable (crossing number) to quantify diagram complexity, and criterion (b) by operating within the same domain of knot theory to establish theoretical bounds. It provides relevant prior work on the relationship between diagram types and crossing number complexity, which is essential for a literature review on this topic.",
+  "relevant": true
+}

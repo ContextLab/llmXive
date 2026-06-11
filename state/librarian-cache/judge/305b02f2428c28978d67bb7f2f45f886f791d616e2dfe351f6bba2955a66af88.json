@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.02718",
+  "judged_at": "2026-06-11T19:08:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the complexity of knot diagrams via crossing number and braid index mathematics",
+  "rationale": "The paper satisfies criterion (b) as it measures the Crossing Number variable, which is one of the user's specified metrics, within the domain of knot diagrams (via knotoids and classical knots). It also fits criterion (a) by studying one variable from the user's question rather than the full correlation between crossing number and braid index.",
+  "relevant": true
+}
