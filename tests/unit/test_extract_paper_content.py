@@ -819,3 +819,16 @@ class TestDeepDiveHardening:
             "before\n\\input{pal}\nafter\n\\end{document}\n")
         out = ex._resolve_tex(tmp_path, tmp_path / "main.tex")
         assert "GARBAGE" not in out and "\\endinput" not in out and "after" in out
+
+    def test_equalcontrib_footnote_idiom_stripped(self, ex) -> None:
+        # PROJ-683: a footnote insert at a longtable page break loops
+        # forever; the unnumbered author-note idiom is title machinery.
+        body = ("x\n\\begingroup\n\\renewcommand\\thefootnote{}\n"
+                "\\footnote{* Equal contribution}\n\\endgroup\ny\n"
+                "\\footnote{real note}")
+        out = ex._strip_equalcontrib_footnotes(body)
+        assert "Equal contribution" not in out
+        assert "\\footnote{real note}" in out
+        braced = ("\\begingroup\\renewcommand{\\thefootnote}{}"
+                  "\\footnotetext{Corresponding author.}\\endgroup")
+        assert ex._strip_equalcontrib_footnotes(braced) == ""

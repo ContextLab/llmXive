@@ -1109,6 +1109,30 @@ def _strip_leading_title_block(body: str, title: str | None) -> str:
     return body
 
 
+_EQUALCONTRIB_FOOTNOTE_RE = re.compile(
+    r"\\begingroup\s*"
+    r"\\renewcommand\s*\{?\\thefootnote\}?\s*\{\s*\}\s*"
+    r"\\footnote(?:text)?\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*"
+    r"\\endgroup",
+    re.S,
+)
+
+
+def _strip_equalcontrib_footnotes(body: str) -> str:
+    """Drop the unnumbered author-note footnote idiom.
+
+    ``\\begingroup\\renewcommand\\thefootnote{}\\footnote{* Equal
+    contribution}\\endgroup`` is title-block machinery by construction (the
+    themed page renders the clean metadata author line; affiliation cruft
+    is intentionally dropped — PROJ-570/572 precedent). Beyond cosmetics it
+    is ACTIVELY dangerous: a footnote insert on the page where a longtable
+    breaks sends longtable's output routine into an INFINITE LOOP —
+    PROJ-683 hung at every timeout budget until prefix-bisection isolated
+    exactly this idiom sitting in a trailing affiliation block.
+    """
+    return _EQUALCONTRIB_FOOTNOTE_RE.sub("", body)
+
+
 def _strip_leading_bare_graphics(body: str) -> str:
     """Remove BARE ``\\includegraphics`` from the pre-section lead.
 
@@ -2438,6 +2462,10 @@ def extract(
     # expansion under unicode-math (PROJ-682's \(\tau\)) — auto-wrap in
     # \texorpdfstring.
     body_clean = _texorpdfstring_heading_math(body_clean)
+    # Unnumbered author-note footnotes (equal-contribution idiom) — title
+    # machinery, and a footnote insert at a longtable page break loops
+    # forever (PROJ-683).
+    body_clean = _strip_equalcontrib_footnotes(body_clean)
 
     wrapper = build_wrapper(
         title=title, author=author,

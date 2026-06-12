@@ -69,6 +69,14 @@
 %% loads share options and don't trigger "Option clash for package
 %% adjustbox" — the cls is loaded first.
 \RequirePackage[export]{adjustbox}
+%% longtable MUST be loaded BEFORE caption: caption only activates its
+%% longtable support (ltcaption) when longtable is already present at
+%% caption's own load time. Papers forward longtable AFTER the class, so
+%% without this preload a \caption{} inside a page-breaking longtable
+%% sent lualatex into an INFINITE LOOP at the first page break
+%% (PROJ-683's 40-row appendix table — root-caused by bisection: caption
+%% removed → compiles; caption present → hangs at every budget).
+\RequirePackage{longtable}
 \RequirePackage{caption}
 \RequirePackage{booktabs}
 \RequirePackage{array}
