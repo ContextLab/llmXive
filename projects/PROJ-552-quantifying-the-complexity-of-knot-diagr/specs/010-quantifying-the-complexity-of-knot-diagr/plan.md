@@ -1,49 +1,44 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit-plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
+**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-06-12 | **Spec**: `specs/001-knot-complexity-analysis/spec.md`
+**Input**: Feature specification from `specs/001-knot-complexity-analysis/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+This feature implements a research pipeline to quantify knot diagram complexity by downloading prime knot data from Knot Atlas, computing core invariants (crossing number, braid index, hyperbolic volume), and fitting regression models to assess joint predictive relationships. Phase 1 focuses on validated crossing number ≤10 data with core invariants only; additional invariants and full validation at crossing numbers 11-13 are Phase 2+ scope.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured
-> quantities) are deferred to the research/implementation phase. For any
-> quantity stated here, cite its source/reference rather than asserting a
-> measured value.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: pandas, numpy, scikit-learn, matplotlib, seaborn, requests, PyYAML  
+**Storage**: Local filesystem (data/, docs/reproducibility/)  
+**Testing**: pytest  
+**Target Platform**: Linux server (GitHub Actions runner)  
+**Project Type**: computational research pipeline  
+**Performance Goals**: Complete analysis within single GitHub Actions job (within a reasonable timeframe)  
+**Constraints**: Data download retry logic with exponential backoff; census data statistical interpretation (descriptive, not inferential); p-values NOT reported for census data  
+**Scale/Scope**: The set of prime knots at crossing number ≤13 (source: OEIS A002863, https://oeis.org/A002863; total: the complete enumeration of prime knots)
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Compliance Status | Evidence |
+|-----------|-------------------|----------|
+| I. Reproducibility | PASS | Random seeds pinned in code; checksums recorded under data/; derivation notes in docs/reproducibility/ |
+| II. Verified Accuracy | PASS | All external citations verified against primary sources; KnotInfo cited by name only (no URL - not in verified datasets block) |
+| III. Data Hygiene | PASS | SHA-256 checksums for all data files; no in-place modifications; transformations produce new files |
+| IV. Single Source of Truth | PASS | All statistics trace to data/ rows; no hand-typed numbers in paper; data-model.md aligned with contract schemas |
+| V. Versioning Discipline | PASS | Content hashes for all artifacts; state file updated on artifact changes |
+| VI. Mathematical Invariant Consistency | PASS | Invariants verified against primary literature; discrepancies documented with derivation notes |
+| VII. Statistical Significance Thresholds | PASS | All claims include effect sizes; p-values excluded for census data to avoid misinterpretation |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
+specs/001-knot-complexity-analysis/
 ├── plan.md              # This file (/speckit-plan command output)
 ├── research.md          # Phase 0 output (/speckit-plan command)
 ├── data-model.md        # Phase 1 output (/speckit-plan command)
@@ -53,57 +48,70 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+code/
+├── download/
+│   ├── knot_data_downloader.py
+│   └── retry_mechanism.py
+├── data/
+│   ├── raw/
+│   └── processed/
+├── analysis/
+│   ├── exploratory_analysis.py
+│   ├── regression_models.py
+│   └── residual_analysis.py
+├── reproducibility/
+│   ├── data_quality_report.md
+│   ├── algorithm_validation.md
+│   ├── hyperbolic_volume_validation.md
+│   ├── validation_scope.md
+│   ├── excluded_knots.md
+│   ├── invariant_coverage.md
+│   ├── data_quality_flags.md
+│   ├── missing_invariant_flags.md
+│   ├── tie_breaking_rules.md
+│   ├── validation_status.md
+│   ├── random_seeds.md
+│   ├── multicollinearity_assessment.md
+│   ├── residual_analysis.md
+│   └── invariant_algorithms.md
+├── plots/
+│   └── [generated PNG files]
 └── tests/
+    ├── contract/
+    ├── integration/
+    └── unit/
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+docs/
+└── reproducibility/
+    └── [FR-007 artifacts]
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Single project structure with clear separation between download, analysis, and reproducibility components. This follows Constitution Principle I (Reproducibility) by keeping all transformation artifacts under reproducibility/ while raw data remains under data/.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Retry logic with exponential backoff | Knot Atlas API may be rate-limited or unavailable | Direct download without retry would fail silently and invalidate reproducibility |
+| Dual flag system (data_quality_flags vs missing_invariant_flags) | Distinguishes data quality issues from computability issues per FR-002/FR-009 | Single flag system would obscure root cause of data gaps |
+| Separate validation documents per invariant type | Constitution Principle II requires verified accuracy for each claim | Consolidated validation would mix independent verification requirements |
+| P-value exclusion for census data | Census data p-values are not applicable and reporting them risks misinterpretation | Reporting p-values "for convention" contradicts statistical best practices for complete enumeration |
+| Multicollinearity documentation | Braid index ≤ crossing number is a mathematical constraint, not a statistical finding | Omitting this limitation would misrepresent regression interpretability |
+
+## Critical Spec.md Issues Requiring Kickback
+
+**WARNING**: The following issues exist in the source spec.md and cannot be resolved at the plan stage. These must be addressed via kickback to clarify stage:
+
+1. **FR-013 Corrupted URL**: spec.md:FR-013 contains corrupted URL text: `( nodename nor servname provided, or not known)'))])`. This blocks Constitution Principle II (Verified Accuracy) verification. The plan artifacts cite KnotInfo by name only (no URL) per verified datasets block requirements.
+
+2. **FR-013 Unquantified Threshold**: spec.md:FR-013 states "high match threshold" without quantification. The plan and research artifacts specify ≥90% match threshold where coverage ≥50%. This inconsistency creates testability ambiguity.
+
+3. **FR-006 P-Value Policy Conflict**: spec.md:FR-006 states "p-values are documented for reporting convention only" while research.md and this plan explicitly exclude p-values for census data. This creates implementation ambiguity.
+
+**Action Required**: These spec.md issues must be corrected before the project can pass the Verified Accuracy Gate. The plan artifacts document the corrected behavior (research.md alignment) but cannot modify spec.md directly.
+
+## Note on spec.md artifact
+
+The source spec.md contains a corrupted URL for KnotInfo in FR-013. This has been removed from all plan-stage artifacts. The spec.md itself requires separate correction (flagged for kickback to clarify stage).

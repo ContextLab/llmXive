@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionModel"
-description: "Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and training/validation split information"
+description: "Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and metadata for census data analysis"
 type: object
 required:
   - model_id
@@ -12,6 +12,8 @@ required:
   - fitted_timestamp
   - random_seed
   - census_data_flag
+  - p_value_disclaimer
+  - multicollinearity_limitation
 properties:
   model_id:
     type: string
@@ -80,7 +82,11 @@ properties:
   p_value_disclaimer:
     type: string
     description: "Explicit disclaimer text for p-values in census data"
-    const: "p-values are not applicable for census data. This dataset represents complete enumeration of prime knots ≤13 crossings. Effect sizes are the primary metrics for all statistical claims."
+    const: "p-values are not applicable for census data. This dataset represents complete enumeration of prime knots up to a specified number of crossings. Effect sizes are the primary metrics for all statistical claims."
+  multicollinearity_limitation:
+    type: string
+    description: "Documentation of braid index ≤ crossing number constraint and its impact on regression interpretability"
+    const: "Braid index is mathematically constrained to be ≤ crossing number for all knots. This creates inherent multicollinearity. Regression analysis partitions variance between predictors but cannot establish independent explanatory power. Results should be interpreted as descriptive relationships within the census, not as causal or independent effects."
   fitted_timestamp:
     type: string
     format: date-time

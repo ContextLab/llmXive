@@ -1,34 +1,34 @@
-resolved_at: '2026-06-12T14:23:53.926368+00:00'
+resolved_at: '2026-06-12T15:50:06.575413+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
+  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
+  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
+  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_and_sport_for_health/32454618
+  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Resilience_and_the_Homeless_World_Cup/32454621
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
+  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
+  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
+  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
+  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_and_sport_for_health/32454618
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,23 +130,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20656937
+  - url: https://zenodo.org/records/20669305
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20656937
+  - url: https://zenodo.org/records/20669330
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20667130
+  - url: https://zenodo.org/records/20669330
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20667130
+  - url: https://zenodo.org/records/20669255
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19446164
+  - url: https://zenodo.org/records/20669255
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -193,31 +193,31 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://repository.mmu.ac.uk/articles/online_resource/How_Investment_in_Sport_has_Helped_Medellin_Shake_off_its_Violent_Past/32454609
+  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
+  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
+  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
+  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7482801
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7482807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482801
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -233,23 +233,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20667646
+  - url: https://disscover.dissco.eu/dm/10.3535/MTK-32L-8F5
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20667646
+  - url: https://disscover.dissco.eu/dm/10.3535/8GT-SH1-MDR
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20667611
+  - url: https://disscover.dissco.eu/dm/10.3535/B4H-64G-S9P
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20667611
+  - url: https://disscover.dissco.eu/dm/10.3535/NXG-K0Z-3BW
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13798783
+  - url: https://disscover.dissco.eu/dm/10.3535/BFH-P9H-1VZ
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -272,23 +272,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://repository.mmu.ac.uk/articles/online_resource/How_Investment_in_Sport_has_Helped_Medellin_Shake_off_its_Violent_Past/32454609
+  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
+  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
+  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
+  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -304,31 +304,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16712241
+  - url: https://zenodo.org/records/3681161
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8021374
+  - url: https://zenodo.org/records/6144837
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dataverse.ird.fr/dataset.xhtml?persistentId=doi:10.23708/UMPMKI
+  - url: https://iris.unimore.it/handle/11380/1182469
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19446164
+  - url: https://zenodo.org/records/20664490
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19446164
+  - url: https://zenodo.org/records/20664490
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20591610
+  - url: https://eprints.soton.ac.uk/511971/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20591610
+  - url: https://dataverse.unr.edu.ar/file.xhtml?persistentId=doi:10.57715/UNR/BL85Z8/86XN82
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,31 +336,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Nanosensitive_optical_coherence_tomography_to_monitor_corneal_burn_and_treatment_response_in_vivo_-_7938499_pdf/32613570
+  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/THE_TROLLEYBUS_Course_Notes/32660661
+  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/How_Investment_in_Sport_has_Helped_Medellin_Shake_off_its_Violent_Past/32454609
+  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
+  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -388,37 +388,36 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://zenodo.org/records/20470525
     source: datacite
     status: wrong_format
     reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
       timeout=20)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: SC-013
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_5_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660679
+  - url: https://figshare.com/articles/dataset/Study_2_Participant_Demographics_and_Usability_Survey_Responses/31239604
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660682
+  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660673
+  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_6_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660676
+  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660670
+  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -426,15 +425,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10382148
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10343605
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10336705
+  - url: https://zenodo.org/records/10382148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10290773
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -446,11 +445,19 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20453648
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-002
   status: unresolved
   candidates: []
@@ -524,10 +531,6 @@ datasets:
   candidates: []
   candidates_tried: []
 - intent: FR-012
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: A002863
   status: unresolved
   candidates: []
   candidates_tried: []

@@ -1,12 +1,16 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: clarified
+current_stage: human_input_needed
 failed_stage: null
 field: mathematics
-human_escalation_reason: null
+human_escalation_reason: 'Convergence kickback cap exceeded: the ''plan'' convergence
+  panel kicked the project back 4 time(s) (cap=3) without reaching unanimous acceptance.
+  A human must intervene. Last reason: 16 concern(s) remained unresolved after 3 round(s)
+  at stage ''planned''; worst unresolved severity = ''science''. Routing to ''specified''
+  with full provenance so the next worker can address the root cause.'
 id: PROJ-552-quantifying-the-complexity-of-knot-diagr
-last_run_id: 03d4a52f-3e1d-484d-9a26-882a9a59592a
+last_run_id: 64ab9009-9307-4ac7-8802-4f3cba705a4a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +19,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr
 title: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
-updated_at: '2026-06-12T14:16:59.896516Z'
+updated_at: '2026-06-12T17:05:39.541870Z'

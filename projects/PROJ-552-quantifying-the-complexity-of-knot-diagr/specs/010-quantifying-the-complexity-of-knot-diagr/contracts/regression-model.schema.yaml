@@ -1,3 +1,0 @@
-# This file has been removed. Use contracts/regression_model.schema.yaml as the single authoritative schema.
-# The previous version used hyphenated naming and conflicting vif_crossing/vif_braid fields.
-# See concern plan_consistency-3ee93223 for resolution details.

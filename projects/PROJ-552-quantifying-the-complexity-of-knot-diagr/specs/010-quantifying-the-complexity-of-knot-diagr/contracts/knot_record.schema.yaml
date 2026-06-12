@@ -1,38 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "KnotRecord"
-description: "Represents a single prime knot with attributes including crossing number, braid index, alternating classification, and hyperbolic volume"
+title: "KnotRecord Schema"
+description: "Schema for individual knot record with invariants and quality flags"
 type: object
 required:
   - knot_id
   - crossing_number
   - braid_index
-  - source
-  - download_timestamp
+  - hyperbolic_volume
+  - is_alternating
 properties:
   knot_id:
     type: string
-    description: "Unique identifier for the knot (e.g., \"10_123\", \"11n42\")"
-    pattern: "^[0-9]+[a-zA-Z]?[0-9]*$"
+    description: "Unique identifier (e.g., \"10_123\")"
+    pattern: "^[0-9]+_[0-9]+$"
   crossing_number:
     type: integer
+    description: "Minimum number of crossings"
     minimum: 1
-    description: "Number of crossings in minimal diagram (tabulated from Knot Atlas)"
+    maximum: 13
   braid_index:
     type: integer
+    description: "Minimum number of strands in braid representation"
     minimum: 1
-    description: "Minimum number of strands for braid representation (tabulated from Knot Atlas)"
   hyperbolic_volume:
-    type: ["number", "null"]
+    type: number
+    description: "Hyperbolic volume (0 or undefined for torus/satellite)"
     minimum: 0
-    description: "Hyperbolic volume of knot complement (NULL for torus/satellite knots)"
   is_alternating:
-    type: ["boolean", "null"]
-    description: "Alternating classification (NULL if ambiguous)"
+    type: boolean
+    description: "Alternating classification"
   dt_code:
-    type: ["string", "null"]
-    description: "Dowker-Thistlethwaite code representation"
+    type:
+      - string
+      - "null"
+    description: "Dowker-Thistlethwaite code"
   braid_word:
-    type: ["string", "null"]
+    type:
+      - string
+      - "null"
     description: "Braid word representation"
   data_quality_flags:
     type: array
@@ -44,14 +49,11 @@ properties:
     items:
       type: string
     description: "Invariants not computable from available representations"
-  source:
-    type: string
-    description: "Data source identifier (e.g., \"knot_atlas\")"
-  download_timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp when data was downloaded"
-  checksum:
-    type: string
-    description: "SHA-256 checksum of raw record"
+  phase_1_validated:
+    type: boolean
+    description: "True if crossing number ≤10 (validated completeness)"
+  is_hyperbolic:
+    type: boolean
+    description: "True if hyperbolic volume >0"
+    default: false
 additionalProperties: false
