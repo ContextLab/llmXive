@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-009-build-a-mesh-network-that-forms-the-larg
-last_run_id: 90bc40b0-fdf7-4a29-a1da-e0b23bf6c1bd
+last_run_id: f56517e5-cc24-47ba-9c40-913497e26227
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Mesh Network Supercomputer Using Pooled Idle Computing Resources
-updated_at: '2026-04-29T15:35:24.329665Z'
+updated_at: '2026-06-12T21:22:50.994385Z'
